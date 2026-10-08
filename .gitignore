@@ -1,0 +1,16 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*~
+
+# Build and tool outputs
+node_modules/
+dist/
+.cache/
