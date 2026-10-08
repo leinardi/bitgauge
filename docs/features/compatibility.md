@@ -146,7 +146,7 @@ Each route exists in four spellings, matching LibreSpeed's Go server: bare (`/ga
 ### 2.2 CORS and `cors=true`
 
 As in LibreSpeed, CORS headers are sent only when the request carries `cors=true` (LibreSpeed's
-multi-server mode adds it):
+multi-server mode adds it). On `/garbage` and `/empty` they are:
 
 ```text
 Access-Control-Allow-Origin: *
@@ -154,9 +154,21 @@ Access-Control-Allow-Methods: GET, POST
 Access-Control-Allow-Headers: Content-Encoding, Content-Type
 ```
 
+`/getIP` returns the caller's private LAN or VPN address, so it MUST NOT be readable by arbitrary
+sites: with `cors=true` it sends the headers above with `Access-Control-Allow-Origin: <origin>` and
+`Vary: Origin` only when the request's `Origin` is listed in `server.cors.allowed_origins`, and no
+CORS headers otherwise ([security.md
+§6](security.md#6-compatibility-layers-and-access-control-allow-origin-)). Without its origin
+listed, a cross-origin LibreSpeed UI cannot read the IP and shows none; the test itself is
+unaffected.
+
 A LibreSpeed web UI hosted on another origin must therefore be configured in multi-server mode with
-BitGauge as its server, so that it sends `cors=true`. `OPTIONS` preflights on these routes always
-answer with the headers above, because a preflight cannot carry the query parameter reliably.
+BitGauge as its server, so that it sends `cors=true`, and its origin should be added to
+`server.cors.allowed_origins` if it should display the client IP. That list is a single grant:
+an origin in it may also call the native API and open WebSockets cross-origin
+([wire-protocol.md §8](wire-protocol.md#8-caching-cors-and-compression)). `OPTIONS` preflights on
+`/garbage` and `/empty` always answer with the headers above, because a preflight cannot carry the
+query parameter reliably; preflights on `/getIP` follow the `/getIP` origin rule.
 
 ### 2.3 `librespeed-cli` Server List
 

@@ -925,7 +925,10 @@ instead of reporting a link speed.
   HTTP/2 at the proxy lets uploads survive transient failures (§7.5);
 - `response compression detected` (§6);
 - `HTTP/1.1 probe reservation active — 5 streams` (§11.2);
-- `overhead compensation +p %` whenever it is non-zero (§9.3).
+- `overhead compensation +p %` whenever it is non-zero (§9.3);
+- `timer throttling detected`, `page was hidden during the test`, `network changed`,
+  `WebSocket reopened`, `WebSocket unavailable — HTTP latency fallback` and `base path mismatch`,
+  specified in [edge-cases.md](edge-cases.md) (§2, §5, §6, §14 and §20 there).
 
 ## 17. Result Object
 

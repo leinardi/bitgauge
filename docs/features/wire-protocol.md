@@ -35,7 +35,7 @@ lowercase wording.
 | `POST` | `/api/v1/upload` | — | body of `N` bytes, `application/octet-stream`, `Content-Length` required | upload telemetry JSON (§4) | `Server-Timing: bg-recv;dur=D`, `Cache-Control: no-store` | 200, 408, 411, 413, 429 | `N ≤ limits.max_upload_bytes` (default 256 MiB); 120 s lifetime |
 | `GET`, `HEAD` | `/api/v1/ping` | — | — | empty | `Cache-Control: no-store` | 204 | — |
 | `GET` | `/api/v1/small` | — | — | 1 byte, `application/octet-stream` | `Content-Length: 1`, `Cache-Control: no-store` | 200 | — |
-| `GET` (upgrade) | `/api/v1/ws` | — | WebSocket handshake | WebSocket, JSON text frames (§6) | — | 101, 400, 429 | 4 WebSocket connections per client IP |
+| `GET` (upgrade) | `/api/v1/ws` | — | WebSocket handshake | WebSocket, JSON text frames (§6) | — | 101, 400, 403, 429 | 4 WebSocket connections per client IP |
 | `GET` | `/api/v1/info` | — | — | info JSON (§5) | `Cache-Control: no-store` | 200 | — |
 | `GET` | `/metrics` | — | — | Prometheus text exposition | `Cache-Control: no-store` | 200; 404 when disabled | path from `metrics.path`; off by default |
 
@@ -194,6 +194,11 @@ test when `epoch` differs from the one `GET /info` reported at test start.
 - The server closes a connection that has received no message for 120 s (status 1000), so an idle
   tab does not hold resources.
 - At most 4 WebSocket connections per client IP; the fifth handshake answers `429`.
+- The server MUST check the handshake's `Origin` header: an origin whose host and port equal the
+  request's `Host` header (the scheme is not compared, because behind a TLS proxy BitGauge sees
+  `http` while the origin is `https`), an origin listed in `server.cors.allowed_origins`, or an
+  absent `Origin` (non-browser clients) is accepted; any other origin MUST be refused with `403`
+  ([security.md §2](security.md#2-bandwidth-abuse-limits)).
 - WebSocket connections do not count against the browser's six HTTP/1.1 connections per origin,
   which is why path A uses this endpoint ([measurement.md
   §11](measurement.md#11-latency-under-load)).
