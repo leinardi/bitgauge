@@ -40,10 +40,12 @@ services:
   ([configuration.md §5](configuration.md#5-read-only-configuration-and-the-no-write-guarantee)).
   No `tmpfs` is needed.
 - **Healthcheck.** `bitgauge healthcheck` loads the same configuration (file and environment),
-  requests `/api/v1/ping` under the base path on `127.0.0.1:<port>`
-  (`http://127.0.0.1:8080/api/v1/ping` with `base_path: /`,
-  `http://127.0.0.1:8080/speed/api/v1/ping` with `base_path: /speed`) with a 3 s timeout, and exits
-  `0` on `204`, `1` otherwise. The image has no shell or `curl`, so the exec form above is required.
+  requests `/api/v1/ping` under the base path on the address `server.listen` binds (`127.0.0.1` for
+  the default `:8080`), for example `http://127.0.0.1:8080/api/v1/ping` with `base_path: /` or
+  `http://127.0.0.1:8080/speed/api/v1/ping` with `base_path: /speed`, with a 3 s timeout, and exits
+  `0` on `204`, `1` otherwise ([technical-stack/backend.md
+  §6](technical-stack/backend.md#6-healthcheck-subcommand)). The image has no shell or `curl`, so
+  the exec form above is required.
 - Without a proxy, `trusted_proxies` stays empty and the client IP is the TCP peer.
 
 ## 2. Compose With Traefik
