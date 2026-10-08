@@ -8,9 +8,10 @@ needs a new term, it is added here first. Section references (`§`) point at
 
 ## Test Structure
 
-**Phase.** One stage of a test run. The phases are `info`, `idle latency`, `download` and
-`upload`, run in that order by default. Each phase can be skipped and the order is configurable
-(§1). A phase that measures throughput is a *direction*: download or upload.
+**Phase.** One stage of a test run. The phases are `info`, `idle latency`, `download` and `upload`,
+run in that order by default. Idle latency, download and upload can each be skipped and the order of
+the two directions is configurable; info always runs (§1). A phase that measures throughput is a
+*direction*: download or upload.
 
 **Preset.** A named set of test settings: `Quick`, `Standard`, `Extended` or `Continuous`. A preset
 fixes the stream mode, the per-phase minimum and maximum durations and the ping count (§8).
@@ -61,16 +62,28 @@ first-byte instant over confirmed requests of the phase; measurement end (`M_end
 last-byte instant over confirmed requests once no more responses can arrive. Both are finite for
 any phase with at least one confirmed request.
 
-**Confirmed watermark.** The instant `C` on the server timeline before which no unconfirmed request
-can have contributed bytes. It is derived from causal lower bounds on the start of every
-unconfirmed request (§7). When every request is confirmed, `C = M_end`.
+**Confirmed watermark.** The instant `C` on the server timeline before which no open request can
+have contributed bytes. It is derived from causal lower bounds on the server start of every open
+request (§7.5). When no request is open, `C = M_end`.
 
-**Window end.** `W_end = min(C, M_end_so_far)`: the end of the contiguous confirmed prefix of the
-upload series. Every cell ending at or before `W_end` is confirmed. After the phase, the final value
-is `W_end_final = min(C_final, M_end)`, always finite.
+**Open request.** An upload request without telemetry that is still in flight, or that ended
+(aborted, timed out, failed) and has no upper bound: either no request sent after it has been
+confirmed yet, or the upload uses HTTP/1.1 or an unreported protocol, where an ended request stays
+open for good (and ends the phase, §7.5). Open requests bound the confirmed watermark.
 
-**Unknown cell.** An upload cell at or after the window end. Its value is not known yet and is never
-treated as zero, which is distinct from a confirmed cell that holds zero bytes.
+**Failure gap.** The bounded server-timeline range `[lb(u), ub(u))` in which an ended, unconfirmed
+upload request may have delivered bytes, known once a request sent after it has been confirmed.
+Failure gaps exist only on HTTP/2 and HTTP/3; on HTTP/1.1 no upper bound is defined.
+Cells overlapping a failure gap are excluded from every statistic; the series continues after it
+(§7.5).
+
+**Window end.** `W_end = min(C, M_end_so_far)`: the end of the confirmed prefix of the upload
+series. Every cell ending at or before `W_end` that overlaps no failure gap is confirmed. After the
+phase, the final value is `W_end_final = min(C_final, M_end)`, always finite.
+
+**Unknown cell.** An upload cell at or after the window end, or overlapping a failure gap. Its value
+is not known and is never treated as zero, which is distinct from a confirmed cell that holds zero
+bytes.
 
 **Confirmation delay.** How far the upload window end lags the present: roughly one request
 duration plus one RTT, typically 1–2 s and longer on slow or high-RTT links. Every upload decision
