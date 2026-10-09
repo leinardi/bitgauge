@@ -37,7 +37,7 @@ deliberately. Technical choices are locked in
 changing one needs a pull request to that file with the reason.
 
 The build, test and lint commands are in
-[`docs/features/technical-stack/build-packaging.md`](docs/features/technical-stack/build-packaging.md#3-planned-make-targets);
+[build-packaging.md §3](docs/features/technical-stack/build-packaging.md#3-planned-make-targets);
 [AGENTS.md](AGENTS.md) holds the authoritative list once they exist.
 
 ## Before You Commit

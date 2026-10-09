@@ -132,7 +132,7 @@ tiers must additionally show for the features it adds. Progress per feature area
   blocked, the engine holds the five-stream reservation, labels the samples `http-h1-reserved` and
   grades only with at least 10 samples; the engine's synthetic-timeline scenarios cover the same
   rules. See [measurement.md §11.2](measurement.md#112-path-a-fallback--http-probe) and
-  [technical-stack/testing.md §2](technical-stack/testing.md#2-engine-tests-with-synthetic-timelines).
+  [testing.md §2](technical-stack/testing.md#2-engine-tests-with-synthetic-timelines).
 - The grade matches the letter implied by the netem queue delay on those profiles. See
   [measurement.md §11.3](measurement.md#113-bufferbloat-grade).
 

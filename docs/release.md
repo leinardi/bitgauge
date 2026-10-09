@@ -4,7 +4,7 @@ How a BitGauge release is versioned, built and published, how the weekly rebuild
 current, what to do when a release fails halfway, and what has to be set up by hand for all of it
 to hold. The workflows are not written yet: `release.yaml` and `rebuild.yaml` land together once
 the image and web build gates are active, and their shape is specified here and in
-[features/technical-stack/build-packaging.md](features/technical-stack/build-packaging.md#4-ci-workflows).
+[build-packaging.md §4](features/technical-stack/build-packaging.md#4-ci-workflows).
 
 > [!IMPORTANT]
 > **Provisional: the release process must be revised before the repository goes public.** It
@@ -19,9 +19,9 @@ the image and web build gates are active, and their shape is specified here and 
 - Two static binaries, `bitgauge-linux-amd64` and `bitgauge-linux-arm64`, built with
   `CGO_ENABLED=0`, `-trimpath` and `-buildvcs=false`, with the version, commit and commit date
   compiled into `internal/buildinfo` and the SPA embedded. A `SHA256SUMS` file covers both. All
-  three files are attached to the GitHub release, and each binary has a
-  [build provenance attestation](https://docs.github.com/actions/security-guides/using-artifact-attestations)
-  made by the release workflow.
+  three files are attached to the GitHub release, and each binary has a build provenance
+  attestation made by the release workflow
+  ([attestations](https://docs.github.com/actions/security-guides/using-artifact-attestations)).
 - One multi-arch (`linux/amd64`, `linux/arm64`) image, `ghcr.io/leinardi/bitgauge`, with an SPDX
   SBOM and a `mode=max` SLSA provenance attestation for every platform image, a build provenance
   attestation, and a keyless [cosign](https://docs.sigstore.dev/) signature on the image digest,
@@ -59,7 +59,8 @@ running release instead of racing it for the moving tags.
 ## Versioning
 
 Semantic versioning, derived from
-[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) by [`svu`](https://github.com/caarlos0/svu):
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) by
+[`svu`](https://github.com/caarlos0/svu):
 
 - `feat` is a minor.
 - `fix` is a patch.
