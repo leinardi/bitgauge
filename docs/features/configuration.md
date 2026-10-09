@@ -107,7 +107,7 @@ Only variables containing `__` are read as configuration; other `BITGAUGE_*` var
 | `limits.max_upload_bytes` | `BITGAUGE_LIMITS__MAX_UPLOAD_BYTES` | `256MiB` | 64 KiB–4 GiB. Cap per upload body on native, OpenSpeedTest and LibreSpeed routes. |
 | `limits.max_streams_per_client` | `BITGAUGE_LIMITS__MAX_STREAMS_PER_CLIENT` | `8` | 1–64. Concurrent throughput requests per client IP. |
 | `limits.requests_per_minute` | `BITGAUGE_LIMITS__REQUESTS_PER_MINUTE` | `1200` | 60–100000. New throughput requests per client IP per minute. |
-| `limits.tracked_clients` | `BITGAUGE_LIMITS__TRACKED_CLIENTS` | `4096` | 16–1000000. Size of the rate-limit table; the least recently seen entry is evicted. |
+| `limits.tracked_clients` | `BITGAUGE_LIMITS__TRACKED_CLIENTS` | `4096` | 16–1000000. Size of the rate-limit table; the least recently seen idle entry is evicted, and a new client is refused with `429` when every entry is active ([technical-stack/configuration-security.md](technical-stack/configuration-security.md)). |
 | `compat.networkquality.max_upload_bytes` | `BITGAUGE_COMPAT__NETWORKQUALITY__MAX_UPLOAD_BYTES` | `1GiB` | 1 MiB–64 GiB. Drain limit for `/nq/upload`; the default is an open question ([open-questions.md](open-questions.md)). |
 | `compat.networkquality.max_flows_per_client` | `BITGAUGE_COMPAT__NETWORKQUALITY__MAX_FLOWS_PER_CLIENT` | `32` | 1–256. Concurrent `/nq/large` and `/nq/upload` per client IP. |
 
@@ -123,7 +123,7 @@ specified in [measurement.md](measurement.md).
 | Key | Env var | Default | Values / description |
 | --- | --- | --- | --- |
 | `test_defaults.preset` | `BITGAUGE_TEST_DEFAULTS__PRESET` | `standard` | `quick`, `standard`, `extended`, `continuous` ([measurement.md §8.5](measurement.md#85-presets)). |
-| `test_defaults.phases` | `BITGAUGE_TEST_DEFAULTS__PHASES` | `idle,download,upload` | Non-empty list of `idle`, `download`, `upload` without duplicates; `idle`, when present, comes first; the order of `download` and `upload` is the run order. Info always runs and is not listed. |
+| `test_defaults.phases` | `BITGAUGE_TEST_DEFAULTS__PHASES` | `idle,download,upload` | Non-empty list of `idle`, `download`, `upload` without duplicates; `idle`, when present, comes first; the order of `download` and `upload` is the run order. Info always runs and is not listed (current answer to an [open question](open-questions.md)). |
 | `test_defaults.streams.mode` | `BITGAUGE_TEST_DEFAULTS__STREAMS__MODE` | `auto` | `auto`, `fixed`, `single`. |
 | `test_defaults.streams.fixed` | `BITGAUGE_TEST_DEFAULTS__STREAMS__FIXED` | `3` | 1–`streams.max`; used by `fixed`. |
 | `test_defaults.streams.max` | `BITGAUGE_TEST_DEFAULTS__STREAMS__MAX` | `6` | 1–6 and ≤ `limits.max_streams_per_client`. |
@@ -134,7 +134,7 @@ specified in [measurement.md](measurement.md).
 | `test_defaults.data_cap` | `BITGAUGE_TEST_DEFAULTS__DATA_CAP` | `0` | `0` (no cap) or ≥ 1 MiB. |
 | `test_defaults.units` | `BITGAUGE_TEST_DEFAULTS__UNITS` | `bits` | `bits` (kbit/s, Mbit/s, Gbit/s) or `bytes` (kB/s, MB/s, GB/s). |
 | `test_defaults.warmup` | `BITGAUGE_TEST_DEFAULTS__WARMUP` | `auto` | `auto` or a duration 1s–60s ([measurement.md §8.3](measurement.md#83-warm-up-end)). |
-| `test_defaults.ping_count` | `BITGAUGE_TEST_DEFAULTS__PING_COUNT` | `0` | `0` (the preset's value) or 5–200. |
+| `test_defaults.ping_count` | `BITGAUGE_TEST_DEFAULTS__PING_COUNT` | `0` | `0` (the preset's value) or 6–200 (the first ping is a discarded warm-up sample and idle latency needs at least 5 successful samples, [measurement.md §10](measurement.md#10-idle-latency)). |
 | `test_defaults.overhead_compensation_percent` | `BITGAUGE_TEST_DEFAULTS__OVERHEAD_COMPENSATION_PERCENT` | `0` | 0–20, decimals allowed; LibreSpeed presets are 6, 5.13, 3.69 and 8.1 ([measurement.md §9.3](measurement.md#93-overhead-compensation)). |
 
 The duration keys are ignored for the `continuous` preset, which has no maximum; an optional run

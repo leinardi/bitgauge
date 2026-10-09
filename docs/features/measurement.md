@@ -88,8 +88,9 @@ size_next = clamp(rate_s × 1 s, 16 KiB, min(8 × size_prev, cap))
 - **Growth** is at most 8× per step, which bounds overshoot when early requests are latency-bound.
   Sizes may shrink without limit down to the floor when the rate drops.
 - **Floor** 16 KiB: below it, per-request overhead dominates.
-- **Cap** = the server's per-request limit from `GET /info` (`max_download_bytes`,
-  `max_upload_bytes`, default 256 MiB each). At more than about 2.1 Gbit/s per stream, capped
+- **Cap** = the server's per-request limit from `GET /info` (`limits.maxDownloadBytes`,
+  `limits.maxUploadBytes`, from `limits.max_download_bytes` and `limits.max_upload_bytes`, default
+  256 MiB each). At more than about 2.1 Gbit/s per stream, capped
   requests take less than 1 s; this only adds one LAN round trip per request.
 - When a data cap is set, a request is shrunk so that data used plus the size of all requests in
   flight never exceeds the cap; when less than the floor remains, no new request is issued (§5).
@@ -125,9 +126,9 @@ and keeps a step only when it measurably helps, the way fast.com adds connection
   single-connection in the result.
 
 **Effective cap.** The configured maximum (default 6), bounded by the server's
-`max_streams_per_client` from `GET /info`, and lowered to 5 while the HTTP/1.1 probe reservation is
-active (§11). Auto-mode trials are clamped to the effective cap and may be skipped by the floor
-rule (§8).
+`limits.maxStreamsPerClient` from `GET /info`, and lowered to 5 while the HTTP/1.1 probe
+reservation is active (§11). Auto-mode trials are clamped to the effective cap and may be skipped
+by the floor rule (§8).
 
 **HTTP/1.1 and HTTP/2.**
 
@@ -397,9 +398,9 @@ error under load is unbounded, and it never feeds a number.
   exists and no intra-cell split is ever estimated.
 - **Peak.** p90 of `S_up[b]` over *W*, labelled "peak", never the headline.
 - **Minimum window.** If `|W| × bucketMs < 3000 ms`, or fewer than 3 confirmed requests lie inside
-  *W*, the upload result is `insufficient data`: no number, data used shown. If the phase was
-  stopped by the user it is additionally `partial`. The phase never reports a number from one
-  request.
+  *W*, the upload direction status is `insufficient-data` ("insufficient data"): no number, data
+  used shown. If the phase was stopped by the user, the result status is `partial`. The phase
+  never reports a number from one request.
 - **Phase end and aborted requests.** As in §5: no new requests from `max − 1 s` or from the window
   decision; in-flight requests get the grace, then are aborted. Aborted and failed requests have no
   telemetry, so they only lower `C` (while open) or leave a failure gap (once closed); their bytes
@@ -865,14 +866,16 @@ bound with respect to loss, and the UI notes this next to them.
 
 ## 15. Continuous Mode
 
-Continuous mode runs one throughput direction with the Standard ramp, no maximum and a 10 s absolute
+Continuous mode runs one throughput direction (the current answer to an item tracked in
+[open-questions.md](open-questions.md)) with the Standard ramp, no maximum and a 10 s absolute
 warm-up cap, until the user stops it, the data cap is reached, or an optional run length (the
 `duration` URL parameter or the Settings run-length field, [ui/url-params.md](ui/url-params.md))
 elapses. It shows live min, average and max. A Continuous run that ends after its steady window
-began, by the user's stop, the run length, the data cap or an upload failure over HTTP/1.1
-(§7.5, with the notice `upload interrupted by a failed request`), has result status `complete`:
-stopping is how such a run normally ends. Any of these endings during the warm-up gives `partial`,
-with the direction reported as `insufficient data`. The saved result's `series` (§17) is the run
+began, by the user's stop, the run length, the data cap, an upload failure over HTTP/1.1 (§7.5,
+with the notice `upload interrupted by a failed request`) or the browser pausing a hidden page
+([edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test)), has result status `complete`: stopping
+is how such a run normally ends. Any of these endings during the warm-up gives `partial`, with the
+direction status `insufficient-data`. The saved result's `series` (§17) is the run
 downsampled to at most 2000 points from the finest retention tier whose ring covers the whole run
 (native, hour, day or long, in that order); the other tiers exist only in memory while the run is
 shown. A run longer than the long ring (7 days) saves only its last 7 days, and the result detail
@@ -928,6 +931,10 @@ instead of reporting a link speed.
 - `low confidence` with its reason;
 - `data cap reached` (§5);
 - `insufficient data` per direction, with the next-larger-preset offer (§8.6);
+- `data used: N GB` at 1 GB, 10 GB, 100 GB and every further tenfold step during Continuous runs
+  (§15);
+- `URL parameter ignored` naming each parameter whose value was invalid
+  ([ui/url-params.md](ui/url-params.md));
 - `partial — stopped early` with the covered duration (§7.8);
 - `server restarted` (epoch change, test aborted; §7.3);
 - `server unreachable` with retry (§10);
@@ -992,9 +999,10 @@ CSV export flattens the same fields, one row per result.
 }
 ```
 
-- Direction `status`: `measured`, `insufficient-data`, `partial`, `skipped` or `error`. Result
-  `status`: `complete`, `partial` (stopped by the user; for Continuous, only during warm-up, §15)
-  or `error`.
+- Direction `status`: `measured`, `insufficient-data`, `partial`, `skipped` or `error`; the UI
+  shows `insufficient-data` as "insufficient data". Result `status`: `complete`, `partial` (stopped
+  by the user or by the browser pausing a hidden page; for Continuous, only during warm-up, §15) or
+  `error`.
 - `series` holds the steady-window bucket values for the result-detail charts, downsampled to at
   most 2000 points.
 - **Versioning.** `schemaVersion` is an integer. Import accepts any version up to the current one

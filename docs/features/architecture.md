@@ -149,7 +149,7 @@ Worker (stream k)                        proxy                      BitGauge
   │   upload.onprogress ─▶ gauge only      │                           │   cell = grid(now)
   │                                        │                           │   counts[cell] += n
   │                                        │                           │ body fully drained
-  │◀── 200 {epoch, firstBucket, buckets[], bytes, startMs, durationMs} + Server-Timing ──│
+  │◀── 200 {epoch, bucketMs, firstBucket, buckets[], bytes, startMs, durationMs} + Server-Timing: bg-recv ──│
   │ t_done; validate bytes and epoch; S_up[firstBucket + i] += buckets[i]
   │ recompute watermark C and window end W_end; issue next request on stream k
 ```

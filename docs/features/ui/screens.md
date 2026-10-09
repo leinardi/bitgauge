@@ -106,7 +106,8 @@ shows one result per column with horizontal paging.
 
 - **Preset:** Quick, Standard, Extended, Continuous, with a one-line description each.
 - **Phases:** toggles for idle latency, download, upload, and the order of download and upload;
-  for Continuous, the direction.
+  for Continuous, the one direction it runs (current answer to an item in
+  [../open-questions.md](../open-questions.md)).
 - **Streams:** auto, fixed (1–6), single.
 - **Duration:** minimum and maximum per direction (defaults from the preset; "custom" when edited);
   for Continuous, an optional **run length** (none by default, 1 minute to 7 days).
@@ -151,14 +152,14 @@ shows one result per column with horizontal paging.
 
 | Metric | Unit and precision | Qualifiers shown |
 | --- | --- | --- |
-| Download, upload (headline) | auto-scaled kbit/s, Mbit/s, Gbit/s (or kB/s, MB/s, GB/s), 3 significant digits | status (`insufficient data`, `partial`, `error`), confidence and reasons, overhead compensation when non-zero |
+| Download, upload (headline) | auto-scaled kbit/s, Mbit/s, Gbit/s (or kB/s, MB/s, GB/s), 3 significant digits | direction status (`insufficient-data` shown as "insufficient data", `partial`, `skipped`, `error`; `measured` shows the number), confidence and reasons, overhead compensation when non-zero |
 | Peak (per direction) | as above, labelled "peak" | Continuous: "p90, last hour" |
 | Idle latency | ms; min, median, p90; whole ms ≥ 10 ms, one decimal below, "< 1 ms" below the timer resolution | path (`websocket` or HTTP), loss percentage |
 | Jitter | ms, same precision | — |
 | Idle probe loss | %, one decimal | labelled "probe timeouts", never "packet loss" |
 | Loaded latency (per direction) | ms; median and p90; increase over idle | label "Loaded latency (WebSocket)" or the fallback source `http-h1-reserved` / `http-h2` / `http-h3`; `unavailable` with reason |
 | Bufferbloat grade | letter plus a word: A+ Excellent, A Good, B Mild, C Moderate, D Severe, F Critical | basis (`download+upload` or one direction) |
-| HTTP loaded responsiveness | RPM, integer | always labelled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, or `unavailable` with reason ("needs HTTP/2 or HTTP/3 at the reverse proxy", "protocol not reported — treated as HTTP/1.1", "not enough samples") |
+| HTTP loaded responsiveness | RPM, integer | always labelled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples") |
 | Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great) | missing input named; note that packet loss is not measured |
 | Packet loss | reserved slot: "packet loss — not measured" | link to why ([../measurement.md §18](../measurement.md#18-future-packet-loss-via-webrtcturn)) |
 | Data used | decimal kB, MB, GB, 3 significant digits | — |
@@ -176,8 +177,10 @@ detail, each with a short explanation and, where useful, a link to the docs. The
 - **Slow link:** `slow link — test extended`; `insufficient data` with an "Try Standard/Extended"
   action.
 - **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU").
-- **Limits:** `data cap reached`; `overhead compensation +p %`.
-- **Interrupted:** `partial — stopped early`; `upload interrupted by a failed request`;
+- **Limits:** `data cap reached`; `data used: N GB` (Continuous); `overhead compensation +p %`.
+- **Settings:** `URL parameter ignored`, naming each invalid parameter.
+- **Interrupted:** `partial — stopped early` (a Continuous run stopped after its steady window began
+  is `complete` instead); `upload interrupted by a failed request`;
   `server restarted`; `network changed`; `page was hidden during the test`.
 - **Connectivity:** `server unreachable` with Retry; `WebSocket reopened`;
   `WebSocket unavailable — HTTP latency fallback`; `HTTP/1.1 probe reservation active — 5 streams`.

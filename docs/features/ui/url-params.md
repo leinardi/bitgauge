@@ -11,8 +11,8 @@ apply to the page load they appear on; they are not stored unless the user saves
   `GET /api/v1/info` ([../configuration.md §2.3](../configuration.md#23-test-defaults)).
 - Parameter names are matched case-insensitively (`Run=1` works); canonical names are lowercase.
   Values are case-insensitive for enums.
-- An invalid value is ignored, the rest of the URL still applies, and a notice lists the ignored
-  parameter. Unknown parameters are ignored silently.
+- An invalid value is ignored, the rest of the URL still applies, and the notice
+  `URL parameter ignored` names the ignored parameter. Unknown parameters are ignored silently.
 - There is **no `server` parameter**: a test always runs against the server that served the page
   (multi-server selection is dropped, [../product.md §1.6](../product.md#16-non-goals)).
 - Parameters live in the query string of any SPA route, normally `/`.
@@ -57,7 +57,7 @@ parameter; the one-letter aliases are not supported.
 | OpenSpeedTest | Meaning there | BitGauge | Status and reason |
 | --- | --- | --- | --- |
 | `Run` (`R`) | Start the test on load | `run` | **Kept.** Same meaning, now with a cancellable countdown. |
-| `Stress` (`S`) | Long run: `low` 300 s, `medium` 600 s, `high` 900 s, `veryhigh` 1800 s, `extreme` 3600 s, `day`, `year`, or a number of seconds > 12, per direction | `preset=continuous` with `duration` and `test` | **Renamed.** Continuous mode with constant-memory retention replaces stress levels; one direction per run. `low` → `duration=300`, `medium` → `600`, `high` → `900`, `veryhigh` → `1800`, `extreme` → `3600`, `day` → `86400`; a custom number of seconds maps to the same `duration` within 60–604800; `year` has no equivalent (runs are capped at 7 days, the retention horizon) and is approximated by Continuous without `duration`, which runs until stopped. |
+| `Stress` (`S`) | Long run: `low` 300 s, `medium` 600 s, `high` 900 s, `veryhigh` 1800 s, `extreme` 3600 s, `day`, `year`, or a number of seconds > 12, per direction | `preset=continuous` with `duration` and `test` | **Renamed.** Continuous mode with constant-memory retention replaces stress levels; one direction per run (the current answer to an item in [../open-questions.md](../open-questions.md)). `low` → `duration=300`, `medium` → `600`, `high` → `900`, `veryhigh` → `1800`, `extreme` → `3600`, `day` → `86400`; a custom number of seconds maps to the same `duration` within 60–604800; `year` has no equivalent (runs are capped at 7 days, the retention horizon) and is approximated by Continuous without `duration`, which runs until stopped. |
 | `Test` (`T`) | Only `download`, `upload` or `ping` | `test` | **Kept**: `download` and `upload` unchanged, `ping` renamed to `latency` (and still accepted as an alias), `all` added. |
 | `XHR` (`X`) | 1–32 parallel requests per direction | `streams` | **Renamed**, range 1–6 plus `auto` and `single`: browsers allow six HTTP/1.1 connections per origin, and the auto ramp usually does better than a fixed count. |
 | `Clean` (`C`) | Overhead factor of 1–4 % applied to both directions (0 removes the default 4 %) | — | **Dropped.** Not settable through a link; overhead compensation is an advanced setting, 0 by default and shown next to every number ([../measurement.md §9.3](../measurement.md#93-overhead-compensation)). |

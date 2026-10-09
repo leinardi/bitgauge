@@ -33,8 +33,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 1. The user opens a URL with `run` (for example `…/?run=1&preset=quick&label=VPN`).
 2. The SPA parses the URL parameters ([url-params.md](url-params.md)) and applies them on top of
    stored settings and server defaults for this page load.
-   - **Branch: invalid parameter value.** The parameter is ignored and a notice lists it; the rest
-     applies.
+   - **Branch: invalid parameter value.** The parameter is ignored and the notice
+     `URL parameter ignored` names it; the rest applies.
 3. A cancellable countdown (3 s, or the Auto-start setting's length) shows on the Test screen.
    - **Branch: the user cancels.** The countdown stops; the screen is idle with the URL's settings
      applied; Start runs them.
@@ -117,14 +117,16 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 ## 7. Continuous Mode
 
 1. The user selects the Continuous preset in Settings (or opens `?preset=continuous&test=upload`),
-   choosing the direction (download by default).
+   choosing the one direction it runs (download by default; one direction per run is the current
+   answer to an item in [../open-questions.md](../open-questions.md)).
 2. The user starts the run. Idle latency runs first, then the chosen direction with the Standard
    ramp and no maximum.
 3. Warm-up ends at the latest after 10 s of confirmed series. The screen then shows live min,
    average and max, "p90, last hour", loaded latency and data used.
 4. Data-used notices appear at 1 GB, 10 GB, 100 GB and every further tenfold step.
    - **Branch: data cap reached.** The run ends with `data cap reached`.
-   - **Branch: page hidden and the browser pauses the engine.** The run ends as `partial`.
+   - **Branch: page hidden and the browser pauses the engine.** The run ends as in step 5:
+     `complete` once the steady window had begun, `partial` during warm-up.
    - **Branch: upload over HTTP/1.1 with a failed request.** The run ends with
      `upload interrupted by a failed request` and the HTTP/2 hint; its status follows step 5.
    - **Branch: `duration` set.** The run ends after that duration.
@@ -143,7 +145,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    idle latency, loaded-latency increase, grade, date and time, server display name; the label only
    if the user ticks "include label". It never contains the client IP, the note or the server URL.
 3. The user chooses one of:
-   - **Download image:** the PNG is rendered client-side and downloaded.
+   - **Download image:** the image (PNG, the current answer to an item in
+     [../open-questions.md](../open-questions.md)) is rendered client-side and downloaded.
    - **Copy summary:** the same content as plain text to the clipboard.
      - **Branch: clipboard permission denied.** The text is shown selected for manual copy.
    - **Share** (where the Web Share API is available): the image is passed to the system share

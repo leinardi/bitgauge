@@ -228,7 +228,7 @@ codes) carries `Content-Type: application/json` and:
 | 408 | `request_timeout` | upload body not complete within the 120 s lifetime |
 | 411 | `length_required` | upload without `Content-Length` |
 | 413 | `payload_too_large` | upload `Content-Length` above `limits.max_upload_bytes` |
-| 429 | `rate_limited`, `too_many_streams` | a limit of §9 was hit (with `Retry-After`) |
+| 429 | `rate_limited`, `too_many_streams`, `table_full` | a limit of §9 was hit, or the rate-limit table is full of active clients (with `Retry-After`) |
 | 500 | `internal` | unexpected server error |
 
 `message` is English, for logs and debugging; the SPA maps `code` to localised text. Error responses

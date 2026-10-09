@@ -55,8 +55,9 @@ Per client IP (the derived address of §4), held in a bounded in-memory table:
   slots. The proxy must forward the original `Host`, port included.
 - **networkQuality flows:** `compat.networkquality.max_flows_per_client` (32); `/nq/upload` bodies
   up to `compat.networkquality.max_upload_bytes`.
-- **Table bound:** `limits.tracked_clients` entries (4096); the least recently seen client is
-  evicted, so memory does not grow with the number of addresses.
+- **Table bound:** `limits.tracked_clients` entries (4096); the least recently seen idle client is
+  evicted, and a new client is refused with `429` when every entry has active work, so memory does
+  not grow with the number of addresses and active counters are never lost.
 - **Connection hygiene:** header read timeout and idle timeouts on the HTTP server, so slow or idle
   connections do not pin resources ([technical-stack/backend.md](technical-stack/backend.md)).
 
@@ -162,7 +163,8 @@ hosted on another origin.
   answers `Access-Control-Allow-Origin` only for an origin listed in `server.cors.allowed_origins`
   (the origin of a self-hosted LibreSpeed UI), and otherwise sends no CORS headers, so the browser
   hides the response ([compatibility.md §2.2](compatibility.md#22-cors-and-corstrue)). `GET
-  /api/v1/info`, which also returns the caller's IP, is same-origin only for the same reason.
+  /api/v1/info`, which also returns the caller's IP, is same-origin unless the requesting origin is
+  listed in `server.cors.allowed_origins`, for the same reason.
 - **Mitigation:** layers are off by default; enable only the ones in use.
 
 The native API never uses `*`: cross-origin access requires an exact origin in

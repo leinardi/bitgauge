@@ -44,7 +44,8 @@ speaks HTTP/1.1 to the proxy.
 records it. On HTTP/1.1 with the WebSocket unavailable, the HTTP latency fallback reserves one
 connection and caps streams at 5; path B (HTTP loaded responsiveness) is `unavailable_h1`. On HTTP/2
 and HTTP/3, path B runs and transient upload failures leave failure gaps instead of ending the phase
-([measurement.md §7.5](measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark)).
+(the current answer to an item in [open-questions.md](open-questions.md);
+[measurement.md §7.5](measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark)).
 
 **User sees.** The protocol in the connection info and in every result; "needs HTTP/2 or HTTP/3 at
 the reverse proxy" where path B is unavailable. How the protocol changes throughput is §12.
@@ -84,7 +85,9 @@ throttling of the Worker makes chunk timestamps and probe timings stop reflectin
 - Idle latency, being short, is restarted when the page becomes visible again.
 
 **User sees.** Either the informational notice, or `partial — stopped early` with "stopped because
-the page was hidden and the browser paused the test", and a Run again button.
+the page was hidden and the browser paused the test", and a Run again button. A Continuous run
+stopped this way after its steady window began is `complete`, as after a user stop
+([measurement.md §15](measurement.md#15-continuous-mode)).
 
 ## 6. Network Change Mid-Test
 
@@ -174,7 +177,8 @@ CPU core before the link saturates.
 **Behaviour.** The engine measures the Worker's busy fraction; above 90 % over the steady window the
 direction is `confidence: cpu-bound`. Requests at the 256 MiB cap and up to 6 streams keep
 per-request overhead negligible. The harness tolerance at ≥ 2.5 Gbit/s is ±20 %
-([measurement.md §16](measurement.md#16-confidence-and-notices)).
+([technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness)); the confidence
+level is defined in [measurement.md §16](measurement.md#16-confidence-and-notices).
 
 **User sees.** "Limited by this device's CPU, not by the network", with tips: close other tabs, use
 a desktop browser, compare with `networkQuality` or iperf3.
@@ -245,10 +249,11 @@ proxies or security appliances block upgrades entirely.
 
 **Behaviour.** If `/api/v1/ws` cannot be opened, path A uses the HTTP fallback
 ([measurement.md §11.2](measurement.md#112-path-a-fallback--http-probe)): on HTTP/1.1 with the
-5-stream reservation and grading only under its conditions; on HTTP/2 multiplexed on the load
-connection. Idle latency uses `GET /api/v1/ping`.
+5-stream reservation and grading only under its conditions; on HTTP/2 or HTTP/3 multiplexed on
+the load connection. Idle latency uses `GET /api/v1/ping`.
 
-**User sees.** The latency source (`websocket`, `http-h1-reserved`, `http-h2`) in the result detail;
+**User sees.** The latency source (`websocket`, `http-h1-reserved`, `http-h2`, `http-h3`) in the
+result detail;
 `HTTP/1.1 probe reservation active — 5 streams` when it applies.
 
 ## 16. IPv6 vs IPv4 and the LAN/VPN Label

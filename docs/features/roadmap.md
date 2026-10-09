@@ -42,8 +42,9 @@ tiers must additionally show for the features it adds. Progress per feature area
 - Adaptive duration with the slow-link extension and the data cap. See
   [measurement.md §5](measurement.md#5-adaptive-duration).
 - Server-timed upload: confirmed watermark, failure gaps on HTTP/2 and HTTP/3, phase end on the
-  first failure over HTTP/1.1, and the grace for in-flight requests. See
-  [measurement.md §7](measurement.md#7-upload-mechanics).
+  first failure over HTTP/1.1, and the grace for in-flight requests (the last three are current
+  answers to open questions 4 and 5). See [measurement.md §7](measurement.md#7-upload-mechanics)
+  and [open-questions.md](open-questions.md).
 - Hybrid warm-up, steady window and the Quick, Standard and Extended presets. See
   [measurement.md §8](measurement.md#8-warm-up-ramp-and-steady-window).
 - Steady-window average as the headline, p90 of buckets as "peak", overhead compensation at 0 %.
@@ -146,7 +147,8 @@ tiers must additionally show for the features it adds. Progress per feature area
   [measurement.md §12](measurement.md#12-http-loaded-responsiveness).
 - Quality scores on Cloudflare's AIM tables, with packet loss "not measured". See
   [measurement.md §13](measurement.md#13-quality-scores).
-- Continuous mode: one direction, constant-memory rings, last-hour peak, optional run length. See
+- Continuous mode: one direction (the current answer to open question 6), constant-memory rings,
+  last-hour peak, optional run length. See
   [measurement.md §15](measurement.md#15-continuous-mode).
 
 **UI:**

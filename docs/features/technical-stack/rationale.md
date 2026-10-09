@@ -20,7 +20,8 @@ in the browser. The stack is chosen for that shape.
   families, which keeps the supply chain short and Dependabot noise low.
 - **Graceful shutdown and timeouts** are standard library features. Only upload bodies have a
   bounded lifetime (120 s); responses have no write deadline, because `/nq/large` streams for as
-  long as the client reads and a native download on a slow link can legitimately take minutes.
+  long as the client reads, and third-party clients' fixed-size downloads (OpenSpeedTest's 30 MiB,
+LibreSpeed's `ckSize` chunks) can legitimately take minutes on a slow link.
   Stalled writers are detected per write instead ([backend.md](backend.md)).
 
 ## A Framework-Free Engine in a Worker

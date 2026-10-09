@@ -45,7 +45,8 @@ but never the reverse, and nothing imports `cmd/`.
   - networkQuality `/nq/large`: always 8 GiB, not bounded by `limits.max_download_bytes`, only by
     the networkQuality flow limit ([../compatibility.md](../compatibility.md)).
 - **Stall detection per write.** There is no global write timeout (responses can legitimately run
-  for minutes: `/nq/large`, slow links). Instead, before each write the handler sets a write
+  for minutes: `/nq/large`, and third-party clients' fixed-size downloads on slow links; the native
+engine aborts its own requests after 30 s). Instead, before each write the handler sets a write
   deadline of 30 s from now through `http.ResponseController`; a client that stops reading for 30 s
   is disconnected.
 - Client aborts end the handler on the next failed write; only Prometheus counters record it.

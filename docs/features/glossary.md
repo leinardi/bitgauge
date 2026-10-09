@@ -10,7 +10,8 @@ needs a new term, it is added here first. Section references (`§`) point at
 
 **Phase.** One stage of a test run. The phases are `info`, `idle latency`, `download` and `upload`,
 run in that order by default. Idle latency, download and upload can each be skipped and the order of
-the two directions is configurable; info always runs (§1). A phase that measures throughput is a
+the two directions is configurable; info always runs (§1; the current answer to an open question,
+[open-questions.md](open-questions.md)). A phase that measures throughput is a
 *direction*: download or upload.
 
 **Preset.** A named set of test settings: `Quick`, `Standard`, `Extended` or `Continuous`. A preset
@@ -24,7 +25,8 @@ in flight. Whether streams share one TCP connection depends on the HTTP version 
 `N`-byte body on upload. Request size adapts to the observed rate (§3).
 
 **Data cap.** An optional upper limit on bytes transferred per test, summed over both directions.
-Reaching it ends the current phase early with a notice (§5).
+Reaching it ends the current phase early with a notice and skips the remaining throughput phases
+(§5).
 
 **Data used.** Total bytes transferred by the test in both directions, including warm-up and
 aborted requests. Always reported, whether or not a data cap is set.
@@ -33,7 +35,7 @@ aborted requests. Always reported, whether or not a data cap is set.
 
 **Bucket.** A 100 ms interval of the throughput time series, holding the bytes transferred across
 all streams in that interval. On download, buckets are on the client timeline; on upload, they are
-the cells of the server grid. Also called a *sample* when the context is the gauge or chart.
+the cells of the server grid.
 
 **Server grid.** The single, process-wide 100 ms grid on the server's monotonic clock. Its origin
 is process start plus a random whole number of cells, so the grid reveals neither wall-clock time
@@ -73,7 +75,8 @@ open for good (and ends the phase, §7.5). Open requests bound the confirmed wat
 
 **Failure gap.** The bounded server-timeline range `[lb(u), ub(u))` in which an ended, unconfirmed
 upload request may have delivered bytes, known once a request sent after it has been confirmed.
-Failure gaps exist only on HTTP/2 and HTTP/3; on HTTP/1.1 no upper bound is defined.
+Failure gaps exist only on HTTP/2 and HTTP/3; on HTTP/1.1 no upper bound is defined (the current
+answer to an open question, [open-questions.md](open-questions.md)).
 Cells overlapping a failure gap are excluded from every statistic; the series continues after it
 (§7.5).
 
@@ -119,7 +122,8 @@ less than 5 %), `cap` (the effective stream cap was reached) or `floor-limited` 
 make the minimum request size take longer than twice the request target).
 
 **Effective cap.** The maximum stream count for a direction: the configured maximum (default 6),
-lowered to 5 while the HTTP/1.1 probe reservation is active.
+bounded by the server's `max_streams_per_client`, lowered to 5 while the HTTP/1.1 probe reservation
+is active, and lowered by one after a `429` (§4).
 
 ## Latency and Responsiveness
 
@@ -149,7 +153,7 @@ not verifiable" and is never presented as comparable to Apple's networkQuality R
 **Quality score.** A rating of how well the measured link suits streaming, gaming and video calls,
 computed with Cloudflare AIM-style point tables (§13).
 
-**Confidence.** A per-result qualifier: `normal`, `low` (with a reason such as `ramp-unsettled`,
+**Confidence.** A per-direction qualifier: `normal`, `low` (with a reason such as `ramp-unsettled`,
 `unstable` or `insufficient-samples`) or `cpu-bound` (the Worker was busy more than 90 % of the
 time). Shown next to the number it qualifies (§16).
 

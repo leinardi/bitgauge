@@ -79,7 +79,7 @@ unauthenticated. Root placement follows Prometheus convention and Runhold, not `
 
 ### 8. WebSocket — `coder/websocket`
 
-Minimal, context-aware, maintained; used only for the latency echo.
+Minimal, context-aware, maintained; used only for the latency echo at `/api/v1/ws`.
 
 **Not chosen:** `gorilla/websocket` (heavier API surface for a ping/pong echo).
 
@@ -151,6 +151,8 @@ positives during startup).
 Bytes ÷ time over the full 100 ms buckets after warm-up
 ([measurement.md §9](../measurement.md#9-final-value)).
 
+Decided by the user on 2026-10-08.
+
 **Not chosen:** request-percentile headline (with parallel streams a request sees a share of the
 link, not the link).
 
@@ -181,9 +183,11 @@ Packet loss fixed at 0 points and labelled "not measured"
 
 Durations and ping counts per [measurement.md §8.5](../measurement.md#85-presets).
 
-### 23. Charts — uPlot for time series; hand-rolled SVG gauge and Canvas share image
+### 23. Charts — uPlot for time series; hand-rolled SVG gauge
 
-uPlot draws 100 ms series on canvas cheaply; the gauge and share image are small enough to own.
+uPlot draws 100 ms series on canvas cheaply; the gauge is small enough to own. The share image is
+also rendered client-side without a library; its format is open decision 3 (current answer: Canvas
+to PNG, [open-questions.md](../open-questions.md)).
 
 **Not chosen:** ECharts (large bundle for two charts).
 
@@ -217,6 +221,7 @@ only).
 ### 28. Registry and supply chain — GHCR only, cosign keyless, SBOM, provenance
 
 Dependabot weekly (`gomod`, `npm`, `docker`, `github-actions`) and a scheduled weekly rebuild.
+GHCR only was decided by the user on 2026-10-08.
 
 **Not chosen:** Docker Hub (a mirror can be added later if users ask).
 
@@ -241,14 +246,15 @@ toggle for all layers (enables CORS `*` routes for an operator who only wanted n
 
 ### 31. Multi-server selection — Dropped
 
-A test always runs against the server that served the page.
+A test always runs against the server that served the page. Decided by the user on 2026-10-08.
 
 **Not chosen:** a server list with lowest-latency selection (complexity and a `server` URL parameter
 for a single-server homelab tool).
 
 ### 32. Licence — GPL-3.0-or-later
 
-Used consistently in the README, the image label and source headers.
+Used consistently in the README, the image label and source headers. Decided by the user on
+2026-10-08.
 
 ### 33. Third-party code — Ideas and protocol compatibility only
 
