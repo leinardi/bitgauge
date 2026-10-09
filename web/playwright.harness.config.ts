@@ -37,7 +37,9 @@ export default defineConfig({
   // The Extended preset on the 600 ms floor profile runs for minutes.
   timeout: 15 * 60 * 1000,
   reporter: [['list']],
-  use: { baseURL, acceptDownloads: true },
+  // The Caddy profile serves TLS from Caddy's internal CA, which no browser trusts; the runner
+  // sets HARNESS_IGNORE_HTTPS_ERRORS=1 for that profile only.
+  use: { baseURL, acceptDownloads: true, ignoreHTTPSErrors: process.env.HARNESS_IGNORE_HTTPS_ERRORS === '1' },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },

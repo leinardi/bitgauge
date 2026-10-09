@@ -351,6 +351,41 @@ func TestSweepRemovesOnlyTheAbandoned(t *testing.T) {
 	}
 }
 
+// TestRemoveAllTakesEveryEnvironment pins the one removal that ignores the rules: kept and live
+// environments go too.
+func TestRemoveAllTakesEveryEnvironment(t *testing.T) {
+	t.Parallel()
+
+	format := fmt.Sprintf(`{{.Label %q}}|{{.Label %q}}|{{.Label %q}}|{{.Label %q}}`,
+		LabelEnvID, LabelOwner, LabelStarted, LabelKeep)
+	filter := "label=" + LabelEnvID
+
+	runner := &fakeDocker{answers: map[string]string{
+		"ps -a --filter " + filter + " --format " + format:      "live0000|here:1|2026-10-09T12:00:00Z|\n",
+		"network ls --filter " + filter + " --format " + format: "kept0000|here:1|2026-10-09T12:00:00Z|true\n",
+		"ps -aq --filter " + LabelFilter("live0000"):            "c-live\n",
+		"network ls -q --filter " + LabelFilter("kept0000"):     "n-kept\n",
+	}}
+
+	removed, err := RemoveAll(t.Context(), runner)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(removed) != 2 {
+		t.Errorf("removed %+v, want both environments", removed)
+	}
+
+	if got := append(
+		runner.ran("rm "),
+		runner.ran("network rm ")...); !slices.Equal(
+		got,
+		[]string{"rm -f -v c-live", "network rm n-kept"},
+	) {
+		t.Errorf("removals = %q", got)
+	}
+}
+
 func maps(got, want map[string]bool) bool {
 	if len(got) != len(want) {
 		return false

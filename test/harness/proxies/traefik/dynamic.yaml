@@ -1,0 +1,32 @@
+# Traefik's routes for the accuracy harness. The upstream comes from BITGAUGE_UPSTREAM through the
+# file provider's Go templating, because BitGauge's address is the netguard holder's, which differs
+# per run.
+http:
+  routers:
+    bitgauge:
+      entryPoints: [web]
+      rule: PathPrefix(`/`)
+      service: bitgauge
+    bitgauge-ws-blocked:
+      entryPoints: [ws-blocked]
+      rule: PathPrefix(`/`)
+      service: bitgauge
+    # Outranks the route above for any upgrade request, and answers it 403 Forbidden.
+    websocket-blocked:
+      entryPoints: [ws-blocked]
+      rule: HeaderRegexp(`Upgrade`, `(?i)^websocket$`)
+      priority: 1000
+      middlewares: [deny-all]
+      service: bitgauge
+
+  middlewares:
+    # An allow list no client address can match: Traefik's way of answering 403.
+    deny-all:
+      ipAllowList:
+        sourceRange: ["255.255.255.255/32"]
+
+  services:
+    bitgauge:
+      loadBalancer:
+        servers:
+          - url: '{{ env "BITGAUGE_UPSTREAM" }}'

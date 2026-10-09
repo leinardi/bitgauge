@@ -230,3 +230,22 @@ func Sweep(ctx context.Context, runner Runner, rules SweepRules) ([]Verdict, err
 
 	return verdicts, nil
 }
+
+// RemoveAll removes every environment on the daemon, whoever owns it and whether or not it was
+// kept: the one project-wide removal, behind make harness-sweep-all CONFIRM=1. It returns the
+// environments it removed.
+func RemoveAll(ctx context.Context, runner Runner) ([]Found, error) {
+	envs, err := List(ctx, runner)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, env := range envs {
+		err = RemoveEnv(ctx, runner, env.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return envs, nil
+}

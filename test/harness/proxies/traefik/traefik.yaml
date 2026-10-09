@@ -1,0 +1,20 @@
+# Traefik's static configuration for the accuracy harness (testing.md section 5.1): HTTP/1.1 on
+# :8081, and on :8082 the same route with WebSocket upgrades refused, which forces BitGauge's HTTP
+# latency fallback. Unprivileged ports, because the container runs with every capability dropped.
+# The harness network has no route out; update checks and usage reporting are off regardless.
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+entryPoints:
+  web:
+    address: ":8081"
+  ws-blocked:
+    address: ":8082"
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yaml
+
+log:
+  level: WARN

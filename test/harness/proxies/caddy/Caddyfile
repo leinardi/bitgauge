@@ -1,0 +1,18 @@
+# Caddy for the accuracy harness (testing.md section 5.1): HTTP/2 over TLS from Caddy's internal
+# CA, on an unprivileged port. The container drops every capability but NET_BIND_SERVICE, which the
+# image's binary carries as a file capability and cannot be executed without. The browser is told
+# to accept the internal CA (HARNESS_IGNORE_HTTPS_ERRORS); nothing is installed into a trust store,
+# and the admin API is off.
+{
+	admin off
+	skip_install_trust
+	auto_https disable_redirects
+	servers {
+		protocols h1 h2
+	}
+}
+
+https://{$BITGAUGE_PROXY_HOST}:8443 {
+	tls internal
+	reverse_proxy {$BITGAUGE_UPSTREAM}
+}
