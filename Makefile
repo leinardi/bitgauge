@@ -1,0 +1,81 @@
+# Resolve repository root (Makefile can live anywhere)
+REPO_ROOT := $(shell git rev-parse --show-toplevel 2>/dev/null || pwd)
+
+MK_COMMON_REPO    ?= leinardi/make-common
+MK_COMMON_VERSION ?= v1
+
+MK_COMMON_DIR := $(REPO_ROOT)/.mk
+
+# Shared snippets coming from make-common
+MK_COMMON_FILES := docker.mk help.mk go.mk pre-commit.mk
+
+# Repo-local snippets that are NOT in make-common
+MK_LOCAL_FILES :=
+
+MK_COMMON_BOOTSTRAP_SCRIPT := $(REPO_ROOT)/scripts/bootstrap-mk-common.sh
+
+# Bootstrap: the script will self-update and fetch the selected .mk snippets
+MK_COMMON_BOOTSTRAP := $(shell "$(MK_COMMON_BOOTSTRAP_SCRIPT)" \
+  "$(MK_COMMON_REPO)" \
+  "$(MK_COMMON_VERSION)" \
+  "$(MK_COMMON_DIR)" \
+  "$(MK_COMMON_FILES)")
+
+# -----------------------------------------------------------------------------
+# Project-specific config
+# -----------------------------------------------------------------------------
+BIN_NAME ?= bitgauge
+DIST_DIR ?= dist
+GO_PKG   ?= ./...
+GO_CMD   ?= ./cmd/bitgauge
+
+# The binary reads its build from internal/buildinfo, not from package main, so the version is
+# stamped there. Recursive (=) because GIT_VERSION and friends are defined by go.mk, included below.
+GO_LDFLAGS = -s -w \
+  -X github.com/leinardi/bitgauge/internal/buildinfo.version=$(GIT_VERSION) \
+  -X github.com/leinardi/bitgauge/internal/buildinfo.commit=$(GIT_COMMIT) \
+  -X github.com/leinardi/bitgauge/internal/buildinfo.date=$(BUILD_DATE)
+
+# Docker image coordinates: one image, built from the shipped Dockerfile.
+IMAGE_REPO     ?= ghcr.io/leinardi/bitgauge
+IMAGE_TAG      ?= $(GIT_VERSION)
+DOCKER_CONTEXT ?= .
+
+DOCKER_TARGETS      := bitgauge
+IMAGE_NAME_bitgauge := $(IMAGE_REPO)
+DOCKERFILE_bitgauge := deployments/docker/Dockerfile
+
+# --load puts the host-platform image into the local daemon, so docker-run and the image tests can
+# run what docker-build produced.
+DOCKER_BUILD_CMD ?= docker buildx build --load
+
+# Drop-in runtime defaults for `make go-run`
+ARGS ?=
+
+# -----------------------------------------------------------------------------
+# Include shared make logic (fetched from make-common)
+# -----------------------------------------------------------------------------
+include $(addprefix $(MK_COMMON_DIR)/,$(MK_COMMON_FILES))
+
+# -----------------------------------------------------------------------------
+# Include repo-local logic (no bootstrap; lives only in this repo)
+# -----------------------------------------------------------------------------
+-include $(addprefix $(REPO_ROOT)/.mk/,$(MK_LOCAL_FILES))
+
+.PHONY: mk-common-update
+mk-common-update: ## Check for remote updates of shared .mk files
+	@echo "[mk] Checking for updates from $(MK_COMMON_REPO)@$(MK_COMMON_VERSION)"
+	MK_COMMON_UPDATE=1 "$(MK_COMMON_BOOTSTRAP_SCRIPT)" \
+	  "$(MK_COMMON_REPO)" \
+	  "$(MK_COMMON_VERSION)" \
+	  "$(MK_COMMON_DIR)" \
+	  "$(MK_COMMON_FILES)"
+
+# -----------------------------------------------------------------------------
+# Adding new targets
+# -----------------------------------------------------------------------------
+# Do NOT add recipes directly to this file. Instead:
+#   - Project-specific targets → new .mk/<fragment>.mk added to MK_LOCAL_FILES
+#   - Generic targets (useful beyond this repo) → new or updated .mk/<fragment>.mk
+#     added to MK_COMMON_FILES, then open a PR to port the change upstream at
+#     https://github.com/leinardi/make-common so mk-common-update keeps working.
