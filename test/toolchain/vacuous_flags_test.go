@@ -54,7 +54,7 @@ var vacuousFlags = []struct {
 }
 
 // TestNoVacuousFlags scans the files that define gates: the make fragments, the web scripts, the
-// pre-commit configuration and the workflows.
+// pre-commit configuration and every YAML file under .github, the workflows included.
 func TestNoVacuousFlags(t *testing.T) {
 	t.Parallel()
 
@@ -65,7 +65,8 @@ func TestNoVacuousFlags(t *testing.T) {
 		t.Fatal("no make fragments found under .mk/; the scan would check nothing")
 	}
 
-	workflows := glob(t, root, filepath.Join(".github", "workflows"), ".yaml", ".yml")
+	// The workflows, and any composite action or other YAML GitHub reads, under .github.
+	workflows := githubYAML(t)
 
 	files := make([]string, 0, 3+len(fragments)+len(workflows))
 	files = append(files, "Makefile", "web/package.json", ".pre-commit-config.yaml")

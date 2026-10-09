@@ -25,8 +25,8 @@ MK_LOCAL_HARNESS_INCLUDED := 1
 # topology over the docker CLI and write dist/harness/<tier>-<UTC>-<envid>/report.{json,md}.
 #
 # Dormant until the image prerequisites, the engine's result object, the Test screen and its
-# Download JSON extraction path exist (test/harness/dormancy.go lists them): until then the runners
-# fail, naming what is missing, before any container starts.
+# Download JSON extraction path exist (the accuracy harness gate of test/toolchain/gates.go): until
+# then the runners fail, naming what is missing, before any container starts.
 #
 # Prerequisites: Linux, a running Docker daemon with buildx, a dhi.io login, the ifb, netem and tbf
 # kernel modules loadable, cgroup v2 with memory.peak (Linux 5.19 or later), and npm --prefix web
