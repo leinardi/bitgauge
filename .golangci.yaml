@@ -1,0 +1,281 @@
+version: "2"
+
+run:
+  # test/image and test/internal/netguard are behind the first tag, the accuracy harness runners
+  # behind the second; without them the linter loads those packages and analyzes nothing.
+  build-tags:
+    - image
+    - harness
+
+linters:
+  default: all
+
+  enable:
+    - gomodguard_v2
+
+  disable:
+    - gomodguard
+    - exhaustruct
+    - exhaustruct_v5
+    - gochecknoglobals
+    - nonamedreturns
+    - wsl
+
+  settings:
+    cyclop:
+      max-complexity: 15
+    depguard:
+      rules:
+        logger:
+          deny:
+            - pkg: "github.com/sirupsen/logrus"
+              desc: logging is allowed only via internal/logger, on log/slog (decisions.md section 6).
+            - pkg: "go.uber.org/zap"
+              desc: logging is allowed only via internal/logger, on log/slog (decisions.md section 6).
+            - pkg: "github.com/rs/zerolog"
+              desc: logging is allowed only via internal/logger, on log/slog (decisions.md section 6).
+        forbidden-forks:
+          deny:
+            - pkg: "github.com/pkg/errors"
+              desc: Should be replaced by standard lib errors package.
+            - pkg: "github.com/instana/testify"
+              desc: It's a fork of github.com/stretchr/testify.
+        # The server stores nothing (decisions.md section 2, principles.md section 2.2): no
+        # database, no embedded store, no migration tool. test/boundary pins the rule.
+        no-storage:
+          files:
+            - "$all"
+            - "!$test"
+            - "!${base-path}/test/**"
+          deny:
+            - pkg: "database/sql"
+              desc: >-
+                The server is stateless and has no database (decisions.md section 2,
+                principles.md section 2.2); this also covers database/sql/driver.
+            - pkg: "modernc.org/sqlite"
+              desc: The server is stateless and has no database (decisions.md section 2).
+            - pkg: "github.com/mattn/go-sqlite3"
+              desc: The server is stateless and has no database (decisions.md section 2).
+            - pkg: "github.com/ncruces/go-sqlite3"
+              desc: The server is stateless and has no database (decisions.md section 2).
+            - pkg: "go.etcd.io/bbolt"
+              desc: The server is stateless and has no embedded store (decisions.md section 2).
+            - pkg: "github.com/dgraph-io/badger"
+              desc: The server is stateless and has no embedded store (decisions.md section 2).
+            - pkg: "github.com/cockroachdb/pebble"
+              desc: The server is stateless and has no embedded store (decisions.md section 2).
+            - pkg: "github.com/syndtr/goleveldb"
+              desc: The server is stateless and has no embedded store (decisions.md section 2).
+            - pkg: "gorm.io/"
+              desc: The server is stateless and has no database (decisions.md section 2).
+            - pkg: "github.com/jmoiron/sqlx"
+              desc: The server is stateless and has no database (decisions.md section 2).
+            - pkg: "github.com/jackc/pgx"
+              desc: The server is stateless and has no database (decisions.md section 2).
+            - pkg: "github.com/lib/pq"
+              desc: The server is stateless and has no database (decisions.md section 2).
+            - pkg: "github.com/go-sql-driver/mysql"
+              desc: The server is stateless and has no database (decisions.md section 2).
+            - pkg: "github.com/redis/"
+              desc: The server is stateless and keeps no external state (decisions.md section 2).
+            - pkg: "github.com/pressly/goose"
+              desc: The server is stateless and has no schema to migrate (decisions.md section 2).
+            - pkg: "github.com/golang-migrate/"
+              desc: The server is stateless and has no schema to migrate (decisions.md section 2).
+        # The server never calls out (decisions.md "Stack Decisions to Avoid", security.md
+        # section 3): no client library for any protocol. test/boundary pins the rule.
+        no-outbound:
+          files:
+            - "$all"
+            - "!$test"
+            - "!${base-path}/test/**"
+          deny:
+            - pkg: "net/smtp"
+              desc: The server never calls out (security.md section 3).
+            - pkg: "net/rpc"
+              desc: The server never calls out (security.md section 3).
+            - pkg: "net/http/cookiejar"
+              desc: A cookie jar exists only for an HTTP client; the server never calls out (security.md section 3).
+            - pkg: "net/http/httputil"
+              desc: >-
+                ReverseProxy calls out and the Dump helpers log headers; the server never calls
+                out and never logs headers (security.md section 3, AGENTS.md).
+            - pkg: "golang.org/x/net/proxy"
+              desc: The server never calls out (security.md section 3).
+            - pkg: "golang.org/x/net/websocket"
+              desc: WebSocket is coder/websocket only (decisions.md section 8), and never as a client.
+            - pkg: "github.com/gorilla/websocket"
+              desc: WebSocket is coder/websocket only (decisions.md section 8), and never as a client.
+            - pkg: "github.com/miekg/dns"
+              desc: The server does no DNS lookups (security.md section 3).
+            - pkg: "google.golang.org/grpc"
+              desc: The server never calls out (security.md section 3).
+            - pkg: "github.com/go-resty/"
+              desc: The server has no HTTP client (security.md section 3).
+            - pkg: "github.com/hashicorp/go-retryablehttp"
+              desc: The server has no HTTP client (security.md section 3).
+            - pkg: "github.com/prometheus/client_golang/api"
+              desc: The Prometheus API client calls out; metrics are only exposed (security.md section 3).
+            - pkg: "github.com/prometheus/client_golang/prometheus/push"
+              desc: The Pushgateway client calls out; metrics are only scraped (security.md section 3).
+    dupl:
+      threshold: 100
+    forbidigo:
+      analyze-types: true
+      forbid:
+        # The default pattern, re-added because setting forbid replaces it.
+        - pattern: '^(fmt\.Print(|f|ln)|print|println)$'
+          msg: Log through internal/logger instead of printing (decisions.md section 6).
+        - pattern: '^http\.(Get|Head|Post|PostForm|NewRequest|NewRequestWithContext|Client|Transport|DefaultClient|DefaultTransport)$'
+          pkg: '^net/http$'
+          msg: The server has no HTTP client and never calls out (security.md section 3).
+        - pattern: '^net\.(Dial|DialTimeout|DialTCP|DialUDP|DialIP|DialUnix|Dialer|Resolver|DefaultResolver|Lookup[A-Z]\w*)$'
+          pkg: '^net$'
+          msg: The server never dials out and does no lookups (security.md section 3).
+        - pattern: '^tls\.(Dial|DialWithDialer|Dialer)$'
+          pkg: '^crypto/tls$'
+          msg: The server never dials out; TLS ends at the reverse proxy (decisions.md section 25).
+        - pattern: '^websocket\.Dial$'
+          pkg: '^github\.com/coder/websocket$'
+          msg: The server accepts WebSockets and never dials one (security.md section 3).
+        - pattern: '^os\.(Create|CreateTemp|WriteFile|OpenFile|NewFile|Mkdir|MkdirAll|MkdirTemp|Rename|Remove|RemoveAll|Truncate|Symlink|Link|Chmod|Chown|Lchown|Chtimes)$'
+          pkg: '^os$'
+          msg: The server writes no file (configuration.md section 5, principles.md section 2.2).
+        - pattern: '^syscall\.(Open|Creat|Mkdir|Rename|Unlink|Truncate|Write)$'
+          pkg: '^syscall$'
+          msg: The server writes no file (configuration.md section 5, principles.md section 2.2).
+    funlen:
+      lines: -1 # the number of lines (code + empty lines) is not a right metric and leads to code without empty line or one-liner.
+      statements: 50
+    goconst:
+      min-len: 2
+      min-occurrences: 3
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+      disabled-checks:
+        - dupImport # https://github.com/go-critic/go-critic/issues/845
+        - ifElseChain
+        - octalLiteral
+        - whyNoLint
+    gocognit:
+      min-complexity: 35
+    gocyclo:
+      min-complexity: 15
+    godox:
+      keywords:
+        - FIXME
+    mnd:
+      # don't include the "operation" and "assign"
+      checks:
+        - argument
+        - case
+        - condition
+        - return
+      ignored-numbers:
+        - "0"
+        - "1"
+        - "2"
+        - "3"
+      ignored-functions:
+        - strings.SplitN
+    govet:
+      settings:
+        printf:
+          funcs:
+            - (github.com/golangci/golangci-lint/v2/pkg/logutils.Log).Infof
+            - (github.com/golangci/golangci-lint/v2/pkg/logutils.Log).Warnf
+            - (github.com/golangci/golangci-lint/v2/pkg/logutils.Log).Errorf
+            - (github.com/golangci/golangci-lint/v2/pkg/logutils.Log).Fatalf
+      enable:
+        - nilness
+        - shadow
+    errorlint:
+      asserts: false
+    lll:
+      line-length: 140
+    misspell:
+      locale: US
+      ignore-rules:
+        - "importas" # linter name
+    nolintlint:
+      allow-unused: false # report any unused nolint directives
+      require-explanation: true # require an explanation for nolint directives
+      require-specific: true # require nolint directives to be specific about which linter is being skipped
+    revive:
+      rules:
+        - name: indent-error-flow
+        - name: unexported-return
+          disabled: true
+        - name: unused-parameter
+        - name: unused-receiver
+
+  exclusions:
+    generated: strict # skip only files with the standard "Code generated ... DO NOT EDIT." header
+    presets:
+      - comments
+      - std-error-handling
+      - common-false-positives
+      - legacy
+    paths:
+      - web/ # frontend source and node_modules; not Go code
+    rules:
+      - path: (.+)_test\.go
+        linters:
+          - dupl
+          - funlen
+          - gocognit
+          - goconst
+          - gocyclo
+          - lll
+          - maintidx
+          - mnd
+          - paralleltest
+          - testpackage
+          - varnamelen
+      - path: (.+)_test\.go
+        linters:
+          - cyclop
+        text: "calculated cyclomatic complexity"
+      - path: (.+)_test\.go
+        linters:
+          - errcheck
+        text: "CloseNow"
+      - path: (.+)_test\.go
+        linters:
+          - gosec
+        text: "G101: Potential hardcoded credentials"
+      # The healthcheck subcommand makes the one loopback GET /api/v1/ping the server ever sends
+      # (backend.md section 6). test/boundary pins this as the only non-test exclusion.
+      - path: '^cmd/bitgauge/healthcheck\.go$'
+        linters:
+          - forbidigo
+      # Tests drive Docker and dial localhost.
+      - path: '(_test\.go$|^test/)'
+        linters:
+          - forbidigo
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    - golines
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/leinardi/bitgauge)
+    gofmt:
+      rewrite-rules:
+        - pattern: "interface{}"
+          replacement: "any"
+    goimports:
+      local-prefixes:
+        - github.com/leinardi/bitgauge
