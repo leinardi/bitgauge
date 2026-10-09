@@ -1,0 +1,14 @@
+# Frontend file budgets -- one line per exempted file, "<path><TAB><lines>".
+#
+# scripts/check-file-budgets.sh holds every production .vue and .ts file under web/src under
+# the line ceiling declared at the bottom of this header. A file listed here is exempted at its
+# exact line count, so growth fails, and shrinking requires lowering the number -- room given back
+# is not room to reclaim. When a file reaches the ceiling its entry is deleted and the ceiling
+# holds it like every other file.
+#
+# The list starts empty. An entry is only ever added by scripts/check-file-budgets.sh --adopt, and
+# adding one means a new file over the ceiling: the bar for that is an argument in review that it
+# cannot be split -- the usual answer is to split it.
+#
+# Regenerate with: scripts/check-file-budgets.sh --update
+# ceiling 400

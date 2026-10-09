@@ -116,6 +116,18 @@ repos:
         always_run: true
         # always_run makes a hook eligible at every installed stage, and commit-msg is one.
         stages: [pre-commit]
+      # Holds every production frontend file under the ceiling in .file-budgets, and each exempted
+      # file at its committed line count, so an exemption can only shrink. Reads the whole tree
+      # rather than a file list, and always runs because deleting a budgeted file leaves an entry
+      # behind, and pre-commit drops deleted paths from the list.
+      - id: check-file-budgets
+        name: frontend file budgets
+        entry: scripts/check-file-budgets.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        # always_run makes a hook eligible at every installed stage, and commit-msg is one.
+        stages: [pre-commit]
       # Always runs: the ratchet reads the whole tree and the staged diff, and a commit that
       # touches no source at all can still delete the baseline out from under it.
       - id: check-suppressions
