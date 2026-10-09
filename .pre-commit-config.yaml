@@ -83,6 +83,28 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-commit]
+      # Dependency-change checks, and nothing more. Each runs the same make target make audit-deps
+      # runs -- the Go one is the full source-aware scan over every package -- but only when the
+      # dependency files themselves change, which is what limits them: they catch a bad upgrade at
+      # the moment it is made, and nothing else. They do not catch an advisory published against a
+      # dependency nobody touched since, and the Go one never fires on a .go change, so new code
+      # reaching an already-vulnerable API goes unseen here. Widening the trigger is not the fix: it
+      # would put a network scan on every Go commit. make audit-deps is the deliberate run, in the
+      # CI audit job, the scheduled scan, the release and the health audit.
+      - id: audit-deps-go
+        name: go dependency audit
+        entry: make audit-deps-go
+        language: system
+        pass_filenames: false
+        require_serial: true
+        files: ^go\.(mod|sum)$
+      - id: audit-deps-web
+        name: web dependency audit
+        entry: make audit-deps-web
+        language: system
+        pass_filenames: false
+        require_serial: true
+        files: ^web/package(-lock)?\.json$
       # Compares the package map in backend.md section 1 against go list over the module: a package
       # with no row fails, a row ahead of its package is listed as planned. Always runs because a
       # package disappears by having its files deleted, and pre-commit passes no deleted paths.
