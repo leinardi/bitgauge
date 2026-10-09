@@ -71,8 +71,11 @@ All GitHub Actions are pinned to full commit SHAs.
 | --- | --- | --- |
 | `ci.yaml` | pull request, push to `main` | pre-commit; golangci-lint; `go test -race`; govulncheck; ESLint, `vue-tsc`, vitest; npm audit; Playwright E2E on Chromium, Firefox and WebKit; the CI tier of the accuracy harness ([testing.md §5](testing.md#5-accuracy-harness)); a no-push image build for both platforms. |
 | `release.yaml` | tag `vX.Y.Z` (created by the release process with svu) | Builds both platforms, pushes the multi-arch image to GHCR with SBOM and provenance attestations, signs it with cosign keyless, builds the two static binaries with SHA-256 checksums, and creates the GitHub release with the binaries attached. |
-| `rebuild.yaml` | weekly schedule, manual dispatch | Rebuilds the latest release: source code from the release tag, but the three stage images (Node, Go, `dhi.io/static`) at the digests currently pinned on `main`, which Dependabot keeps current. The Dockerfile takes the stage images as build arguments, and the workflow reads their values from `main`'s Dockerfile. The result is pushed, attested and signed under the same tags (same version, new digest). |
+| `rebuild.yaml` | weekly schedule, manual dispatch | Rebuilds the latest release: source code from the release tag, but the three stage images (Node, Go, `dhi.io/static`) at the digests currently pinned on `main`, which Dependabot keeps current. The Dockerfile takes the stage images as build arguments, and the workflow reads their values from `main`'s Dockerfile. The result is pushed, attested and signed under the same tags (same version, new digest). Just before pushing, it re-checks that its version is still the highest release; if not, it pushes only `X.Y.Z` and skips `X` and `latest`. |
 | `dependabot.yml` | weekly | Update PRs for `gomod`, `npm` (`web/`), `docker` (base image digests) and `github-actions`. |
+
+`release.yaml` and `rebuild.yaml` share one concurrency group without cancellation, so a rebuild
+and a release never push tags at the same time.
 
 The weekly rebuild exists so base-image security fixes ship without a code change; its tag policy
 is described in [../../release.md](../../release.md).

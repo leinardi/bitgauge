@@ -878,8 +878,8 @@ downsampled to at most 2000 points from the finest retention tier whose ring cov
 shown. A run longer than the long ring (7 days) saves only its last 7 days, and the result detail
 says so.
 
-**Retention (constant memory).** Every retained structure is a fixed-size ring; nothing grows with
-run length:
+**Retention (constant memory).** Every retained structure is a fixed-size ring, allocated at its
+full length when the run starts; nothing grows with run length:
 
 | Tier | Cell | Ring length | Use |
 | --- | --- | --- | --- |
