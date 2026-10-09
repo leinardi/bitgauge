@@ -9,32 +9,32 @@ is specified and none is implemented, so no code pointers exist yet.
 
 | Feature area | Status | Code pointers |
 | --- | --- | --- |
-| Single binary, embedded SPA, base path, fixed SPA routes | Spec'd (v0.1) | |
-| Native API: download, upload, ping, small, ws, info | Spec'd (v0.1) | |
-| Server-timed upload: 100 ms server grid, per-bucket arrival counts, `Server-Timing` | Spec'd (v0.1) | |
-| Limits and rate limiting (`429` with `Retry-After`) | Spec'd (v0.1) | |
-| Client IP through trusted proxies, context label inputs | Spec'd (v0.1) | |
-| Security headers and CSP | Spec'd (v0.1) | |
-| Configuration (koanf, `BITGAUGE_` env, fail-closed validation) | Spec'd (v0.1) | |
-| `healthcheck` subcommand and graceful shutdown | Spec'd (v0.1) | |
-| Engine: info and idle latency | Spec'd (v0.1) | |
-| Engine: adaptive request size, stream ramp, adaptive duration, data cap | Spec'd (v0.1) | |
-| Engine: warm-up, steady window, Quick / Standard / Extended presets | Spec'd (v0.1) | |
-| Engine: headline, peak, confidence and notices, result object | Spec'd (v0.1) | |
-| UI: Test screen, About, URL parameters, English locale, accessibility baseline | Spec'd (v0.1) | |
-| Container image, CI, release, weekly rebuild, Dependabot | Spec'd (v0.1) | |
-| Accuracy harness (CI, floor and ceiling tiers) | Spec'd (v0.1) | |
-| Prometheus metrics | Spec'd (v0.2) | |
-| Loaded latency (WebSocket echo and HTTP fallback) and bufferbloat grade | Spec'd (v0.2) | |
-| UI: Result detail, history, compare, export and import | Spec'd (v0.2) | |
-| UI: Settings and shareable settings URL | Spec'd (v0.2) | |
-| UI: share image and copy summary | Spec'd (v0.2) | |
-| OpenSpeedTest compatibility layer | Spec'd (v0.3) | |
-| LibreSpeed compatibility layer | Spec'd (v0.3) | |
-| networkQuality compatibility layer | Spec'd (v0.3) | |
-| HTTP loaded responsiveness (path B) | Spec'd (v0.3) | |
-| Quality scores (AIM) | Spec'd (v0.3) | |
-| Continuous mode | Spec'd (v0.3) | |
-| Packet loss via WebRTC and TURN | Open (unscheduled) | |
-| Headless CLI client | Open (unscheduled) | |
-| linux/arm/v7 images | Open (unscheduled) | |
+| Single binary, embedded SPA, base path, fixed SPA routes | Spec'd (v0.1) |  |
+| Native API: download, upload, ping, small, ws, info | Spec'd (v0.1) |  |
+| Server-timed upload: 100 ms server grid, per-bucket arrival counts, `Server-Timing` | Spec'd (v0.1) |  |
+| Limits and rate limiting (`429` with `Retry-After`) | Spec'd (v0.1) |  |
+| Client IP through trusted proxies, context label inputs | Spec'd (v0.1) |  |
+| Security headers and CSP | Spec'd (v0.1) |  |
+| Configuration (koanf, `BITGAUGE_` env, fail-closed validation) | Spec'd (v0.1) |  |
+| `healthcheck` subcommand and graceful shutdown | Spec'd (v0.1) |  |
+| Engine: info and idle latency | Spec'd (v0.1) |  |
+| Engine: adaptive request size, stream ramp, adaptive duration, data cap | Spec'd (v0.1) |  |
+| Engine: warm-up, steady window, Quick / Standard / Extended presets | Spec'd (v0.1) |  |
+| Engine: headline, peak, confidence and notices, result object | Spec'd (v0.1) |  |
+| UI: Test screen, About, URL parameters, English locale, accessibility baseline | Spec'd (v0.1) |  |
+| Container image, CI, release, weekly rebuild, Dependabot | Spec'd (v0.1) |  |
+| Accuracy harness (CI, floor and ceiling tiers) | Spec'd (v0.1) |  |
+| Prometheus metrics | Spec'd (v0.2) |  |
+| Loaded latency (WebSocket echo and HTTP fallback) and bufferbloat grade | Spec'd (v0.2) |  |
+| UI: Result detail, history, compare, export and import | Spec'd (v0.2) |  |
+| UI: Settings and shareable settings URL | Spec'd (v0.2) |  |
+| UI: share image and copy summary | Spec'd (v0.2) |  |
+| OpenSpeedTest compatibility layer | Spec'd (v0.3) |  |
+| LibreSpeed compatibility layer | Spec'd (v0.3) |  |
+| networkQuality compatibility layer | Spec'd (v0.3) |  |
+| HTTP loaded responsiveness (path B) | Spec'd (v0.3) |  |
+| Quality scores (AIM) | Spec'd (v0.3) |  |
+| Continuous mode | Spec'd (v0.3) |  |
+| Packet loss via WebRTC and TURN | Open (unscheduled) |  |
+| Headless CLI client | Open (unscheduled) |  |
+| linux/arm/v7 images | Open (unscheduled) |  |

@@ -1,7 +1,7 @@
 # BitGauge
 
 > A self-hosted, browser-based network speed test for LAN, homelab and VPN links.
-
+>
 > **Status: specification phase, no code yet.** This repository holds the complete specification;
 > implementation starts once it is approved. Progress per feature area:
 > [docs/STATUS.md](docs/STATUS.md).

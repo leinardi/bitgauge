@@ -116,11 +116,11 @@ Applied in this order to every request, before routing:
 
 Then, per route group (not globally), in this order:
 
-5. **CORS**: native API (allowed origins only), OpenSpeedTest (`*`), LibreSpeed (`cors=true` and
+1. **CORS**: native API (allowed origins only), OpenSpeedTest (`*`), LibreSpeed (`cors=true` and
    `/getIP` rules), none for networkQuality and the SPA. CORS headers are set before the next step,
    so every later response, a `429` included, carries them and a cross-origin client can read its
    status and `Retry-After`. `OPTIONS` preflights are answered here and never reach the limiter.
-6. **Rate limiting**: throughput groups only (native download/upload, OpenSpeedTest, LibreSpeed
+2. **Rate limiting**: throughput groups only (native download/upload, OpenSpeedTest, LibreSpeed
    throughput routes, networkQuality flows, WebSocket handshake); `ping`, `small`, `info`, the SPA,
    `/metrics` and preflights are not limited.
 

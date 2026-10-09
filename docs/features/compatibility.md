@@ -130,8 +130,8 @@ Each route exists in four spellings, matching LibreSpeed's Go server: bare (`/ga
   { "processedString": "10.8.0.2 - private IPv4 access", "rawIspInfo": {} }
   ```
 
-  `processedString` is the client IP (derived through trusted proxies only), followed by
-  ` - <class>` when the address is private, using LibreSpeed's classification strings:
+  `processedString` is the client IP (derived through trusted proxies only); when the address is
+  private it reads `<ip> - <class>`, using LibreSpeed's classification strings:
   `localhost IPv6 access` (`::1`), `link-local IPv6 access` (`fe80::/10`), `ULA IPv6 access`
   (`fc00::/7`), `localhost IPv4 access` (`127.0.0.0/8`), `private IPv4 access` (`10.0.0.0/8`,
   `172.16.0.0/12`, `192.168.0.0/16`), `link-local IPv4 access` (`169.254.0.0/16`) and

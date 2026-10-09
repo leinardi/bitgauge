@@ -127,22 +127,22 @@ linters:
         - pattern: '^(fmt\.Print(|f|ln)|print|println)$'
           msg: Log through internal/logger instead of printing (decisions.md section 6).
         - pattern: '^http\.(Get|Head|Post|PostForm|NewRequest|NewRequestWithContext|Client|Transport|DefaultClient|DefaultTransport)$'
-          pkg: '^net/http$'
+          pkg: "^net/http$"
           msg: The server has no HTTP client and never calls out (security.md section 3).
         - pattern: '^net\.(Dial|DialTimeout|DialTCP|DialUDP|DialIP|DialUnix|Dialer|Resolver|DefaultResolver|Lookup[A-Z]\w*)$'
-          pkg: '^net$'
+          pkg: "^net$"
           msg: The server never dials out and does no lookups (security.md section 3).
         - pattern: '^tls\.(Dial|DialWithDialer|Dialer)$'
-          pkg: '^crypto/tls$'
+          pkg: "^crypto/tls$"
           msg: The server never dials out; TLS ends at the reverse proxy (decisions.md section 25).
         - pattern: '^websocket\.Dial$'
           pkg: '^github\.com/coder/websocket$'
           msg: The server accepts WebSockets and never dials one (security.md section 3).
         - pattern: '^os\.(Create|CreateTemp|WriteFile|OpenFile|NewFile|Mkdir|MkdirAll|MkdirTemp|Rename|Remove|RemoveAll|Truncate|Symlink|Link|Chmod|Chown|Lchown|Chtimes)$'
-          pkg: '^os$'
+          pkg: "^os$"
           msg: The server writes no file (configuration.md section 5, principles.md section 2.2).
         - pattern: '^syscall\.(Open|Creat|Mkdir|Rename|Unlink|Truncate|Write)$'
-          pkg: '^syscall$'
+          pkg: "^syscall$"
           msg: The server writes no file (configuration.md section 5, principles.md section 2.2).
     funlen:
       lines: -1 # the number of lines (code + empty lines) is not a right metric and leads to code without empty line or one-liner.

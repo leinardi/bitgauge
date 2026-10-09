@@ -438,7 +438,7 @@ Server grid, cells of 100 ms (cell *k* covers `[100k, 100k + 100)` ms).
 | 25 | 2500–2600 | — | 5.8 | 5.8 | yes |
 | 26 | 2600–2700 | — | 5.8 | 5.8 | yes |
 | 27 | 2700–2800 | — | 1.2 | 1.2 | no |
-| Sum | | 64.0 | 63.9 | 127.9 | 93.3 over 11 cells |
+| Sum |  | 64.0 | 63.9 | 127.9 | 93.3 over 11 cells |
 
 If the window were `[1600, 2700)`, *W* is cells 16–26 (11 full cells) and the headline is Σ ≈ 93.3
 KiB (from the unrounded counts; the rounded cells above add to 93.2) / 1.1 s ≈ 85 KiB/s ≈ 0.69
@@ -1043,9 +1043,9 @@ watermark advances only when a request confirms):
 | trial → 2 | 2 | 18.3 KiB/s | 18 KiB / ≈ 1.0 s | `I_s` + `I_m` = 1.8 s after the add | ≈ 9.3 s (two request confirmations + RTT) |
 | trial → 4 | 4 | 9.2 KiB/s | 16 KiB (floor) / 1.75 s | 1.8 s after the add | ≈ 13.8 s, only if the 2-stream trial showed gain |
 | trial → 6 | — | 6.1 KiB/s → 16 KiB would take 2.6 s > 2 s | skipped: `floor-limited` | — | — |
-| steady window | 2 (typical, `no-gain` at the 2-stream trial because one stream already saturates 300 kbit/s) | | ≈ 1 s requests | ≥ 3 s and ≥ 3 confirmed requests | ≈ 9.3 + 3 + 1.3 ≈ 13.6 s |
-| steady window, worst case | 4 | | 1.75 s requests | ≥ 3 s and ≥ 3 confirmed requests (≈ 2 cells of 2 streams each) | ≈ 13.8 + 3.5 + 2.1 ≈ 19.4 s |
-| shutdown | | | stop new requests at `max − 1 s` or at the window decision, grace `min(2 s, 2 × 1.75 s)` = 2 s | | ≈ 15.6 s typical, ≈ 21.4 s worst case; ≤ 25 s |
+| steady window | 2 (typical, `no-gain` at the 2-stream trial because one stream already saturates 300 kbit/s) |  | ≈ 1 s requests | ≥ 3 s and ≥ 3 confirmed requests | ≈ 9.3 + 3 + 1.3 ≈ 13.6 s |
+| steady window, worst case | 4 |  | 1.75 s requests | ≥ 3 s and ≥ 3 confirmed requests (≈ 2 cells of 2 streams each) | ≈ 13.8 + 3.5 + 2.1 ≈ 19.4 s |
+| shutdown |  |  | stop new requests at `max − 1 s` or at the window decision, grace `min(2 s, 2 × 1.75 s)` = 2 s |  | ≈ 15.6 s typical, ≈ 21.4 s worst case; ≤ 25 s |
 
 Both cases fit Standard's upload budget (12–25 s) with at least 5 s of margin in the worst case; the
 typical case finishes about 1.6 s past the 12 s minimum, so the phase extends slightly rather than
@@ -1062,9 +1062,9 @@ why the ramp starts at one stream and sizes requests per stream.
 | trial → 2 | 2 | 18.3 KiB/s | 18 KiB / ≈ 1.0 s | 1.8 s after the add | ≈ 4.5 s |
 | trial → 4 | 4 | 9.2 KiB/s | 16 KiB (floor) / 1.75 s | 1.8 s after the add | ≈ 6.3 s, only if the 2-stream trial showed gain |
 | trial → 6 | — | 6.1 KiB/s | skipped: `floor-limited` | — | — |
-| steady window | 2 (typical, `no-gain`) | | ≈ 1 s requests | ≥ 3 s, ≥ 2 contributing requests | warm-up end ≈ 4.5 s, condition met ≈ 7.5 s |
-| steady window, worst case | 4 | | 1.75 s requests | ≥ 3 s, ≥ 2 contributing requests | warm-up end ≈ 6.3 s, condition met ≈ 9.3 s |
-| end | | | in-flight requests aborted, bytes kept | | at the 10 s minimum in both cases |
+| steady window | 2 (typical, `no-gain`) |  | ≈ 1 s requests | ≥ 3 s, ≥ 2 contributing requests | warm-up end ≈ 4.5 s, condition met ≈ 7.5 s |
+| steady window, worst case | 4 |  | 1.75 s requests | ≥ 3 s, ≥ 2 contributing requests | warm-up end ≈ 6.3 s, condition met ≈ 9.3 s |
+| end |  |  | in-flight requests aborted, bytes kept |  | at the 10 s minimum in both cases |
 
 Download fits Standard's 10 s minimum with the steady window at ≈ 3.7–5.5 s. The 600 ms RTT manual
 floor profile stretches every interval (`I_s` = 2.4 s, `I_m` = 1.2 s) and is expected to need the

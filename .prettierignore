@@ -1,0 +1,6 @@
+# .gitignore
+*.iml
+.idea/*
+
+# The design export is never hand-edited.
+docs/design_system/

@@ -1,0 +1,52 @@
+---
+customRules:
+  - markdownlint-rule-table-format
+
+# Built-in rules: everything on, with these adjustments.
+config:
+  fenced-code-language: false
+  no-inline-html: false
+  # Prose wraps at 100 columns (AGENTS.md); tables, code blocks and headings may run longer.
+  line-length:
+    line_length: 100
+    tables: false
+    code_blocks: false
+    headings: false
+  ul-indent:
+    indent: 2
+  # Configuration examples keep their own indentation (a Caddyfile uses tabs).
+  no-hard-tabs:
+    code_blocks: false
+  no-duplicate-heading:
+    siblings_only: true
+
+  # Disable built-in MD060 because it reports table style issues,
+  # but does not auto-fix them.
+  table-column-style: false
+
+  # Custom rule that actually rewrites tables.
+  table-format:
+    style: compact
+    aligned_delimiter: false
+    fix: true
+    fixApplicator: true
+
+# Fix any fixable errors
+fix: true
+
+# Ignore files referenced by .gitignore (only valid at root)
+gitignore: true
+
+ignores:
+  # The design export is never hand-edited (docs/README.md).
+  - docs/design_system/**
+  # Third-party skills tracked in skills-lock.json.
+  - .agents/skills/create-adaptable-composable/**
+  - .agents/skills/fallow/**
+  - .agents/skills/vue-best-practices/**
+  - .agents/skills/vue-debug-guides/**
+  - .agents/skills/vue-router-best-practices/**
+  - .agents/skills/vue-testing-best-practices/**
+
+# Show found files on stdout (only valid at root)
+showFound: false
