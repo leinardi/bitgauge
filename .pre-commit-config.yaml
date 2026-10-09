@@ -83,6 +83,17 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-commit]
+      # Compares the package map in backend.md section 1 against go list over the module: a package
+      # with no row fails, a row ahead of its package is listed as planned. Always runs because a
+      # package disappears by having its files deleted, and pre-commit passes no deleted paths.
+      - id: check-package-map
+        name: package map
+        entry: scripts/check-package-map.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        # always_run makes a hook eligible at every installed stage, and commit-msg is one.
+        stages: [pre-commit]
       # Always runs: the ratchet reads the whole tree and the staged diff, and a commit that
       # touches no source at all can still delete the baseline out from under it.
       - id: check-suppressions
