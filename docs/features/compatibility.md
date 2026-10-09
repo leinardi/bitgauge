@@ -288,10 +288,11 @@ Apple's default paths would collide with BitGauge's `/api/v1`.
 }
 ```
 
-`small_download_url`, `large_download_url` and `upload_url` are the keys named by the IETF
-responsiveness draft and Apple's server specification; the `*_https_*` spelling appears alongside
-them in Apple's reference server configurations. Both sets point at the same routes and are emitted
-so that every client version finds the keys it reads.
+`small_https_download_url`, `large_https_download_url` and `https_upload_url` are the keys of
+Apple's server specification and its reference configurations; `small_download_url`,
+`large_download_url` and `upload_url` are the names the IETF responsiveness draft uses
+([research/networkquality.md](../research/networkquality.md)). Both sets point at the same routes
+and are emitted so that every client version finds the keys it reads.
 
 ### 3.3 Absolute URL Construction
 
