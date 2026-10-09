@@ -207,9 +207,11 @@ container).
 
 ### 26. Image — Multi-stage build on `dhi.io/static`
 
-Node stage builds the SPA, Go stage builds a static binary, runtime is `dhi.io/static` as user
-`65532:65532`, no shell, read-only root filesystem, `healthcheck` subcommand
-([build-packaging.md](build-packaging.md)).
+The `web` stage (`dhi.io/node`) builds the SPA, the `build` stage (`dhi.io/golang`) builds a
+static binary, both digest-pinned dev images; runtime is `dhi.io/static` as user `65532:65532`, no
+shell, read-only root filesystem, `healthcheck` subcommand
+([build-packaging.md](build-packaging.md)). The `dhi.io` build stages were decided by the user on
+2026-10-09.
 
 ### 27. Platforms — linux/amd64 and linux/arm64 only
 

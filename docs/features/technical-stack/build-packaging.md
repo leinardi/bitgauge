@@ -2,19 +2,28 @@
 
 [Feature index](../README.md) / [Technical Stack](README.md) / Build and Packaging
 
-How BitGauge becomes one signed, multi-arch container image and two static binaries. Everything on
-this page is planned; no Dockerfile, Makefile or workflow exists yet. The release process itself
-(versioning, tags, recovery) is in [../../release.md](../../release.md).
+How BitGauge becomes one signed, multi-arch container image and two static binaries. The image,
+the binaries and the release workflows are planned; the tooling lands before the product code, and
+each gate stays dormant until its inputs exist. The release process itself (versioning, tags,
+recovery) is in [../../release.md](../../release.md).
 
 ## 1. Container Image
 
-A multi-stage build produces one image per platform:
+A multi-stage build in `deployments/docker/Dockerfile` produces one image per platform. Every
+stage is a literal `FROM` line pinned by digest, and the stages are named, because the weekly
+rebuild rewrites them by name ([§4](#4-ci-workflows)):
 
 | Stage | Base | Does |
 | --- | --- | --- |
-| 1. Node | Node LTS image, pinned by digest, on the build platform | `npm ci` and `npm run build` in `web/` → `web/dist` (SPA, Worker chunk, precompressed assets). |
-| 2. Go | `golang:1.26` image, pinned by digest, on the build platform | Copies `web/dist`, then `CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -trimpath -ldflags "-s -w -X …/internal/buildinfo.version=… -X …commit=… -X …date=…" ./cmd/bitgauge`. Cross-compiles; no emulation needed. |
-| 3. Runtime | `dhi.io/static`, pinned by digest | Copies the binary to `/bitgauge`; nothing else. |
+| `web` | `dhi.io/node:24-alpine…-dev`, pinned by digest, on the build platform | `npm ci` and `npm run build` in `web/` → `web/dist` (SPA, Worker chunk, precompressed assets). `npm run build` is `vite build` only; the type check is a separate gate. |
+| `build` | `dhi.io/golang:1.26-alpine…-dev`, pinned by digest, on the build platform | Copies `web/dist`, then `CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -trimpath -buildvcs=false -ldflags "-s -w -X …/internal/buildinfo.version=… -X …commit=… -X …date=…" ./cmd/bitgauge`. Cross-compiles; no emulation needed. |
+| `runtime` | `dhi.io/static`, pinned by digest | Copies the binary to `/bitgauge`; nothing else. |
+
+The build stages use the Docker Hardened Images development variants, so every stage of the image
+comes from `dhi.io`. Pulling them needs a `dhi.io` token, which a pull request from a fork does not
+receive: on such a pull request the image build is skipped with a visible notice in the job
+summary, never silently
+([../../release.md](../../release.md#required-checks-and-fork-pull-requests)).
 
 Runtime image properties:
 
@@ -40,45 +49,88 @@ Runtime image properties:
 ## 3. Planned Make Targets
 
 As in Runhold, shared targets come from `leinardi/make-common` snippets and project targets from
-local snippets. Planned:
+local snippets. A target whose inputs do not exist yet fails loudly rather than passing on nothing.
+Planned:
 
 ```text
+make build             # web-build, then go-build
 make go-build          # build ./dist/bitgauge for the host platform (embeds web/dist)
+make go-run            # build and run the binary locally
 make go-test           # go test -race ./...
 make go-vet
 make go-lint           # golangci-lint v2, all linters
 make go-tidy           # go mod tidy + go mod verify
+make go-test-image     # image tests (Docker, -tags=image)
+make go-vet-image      # go vet -tags=image
+make go-vet-harness    # go vet -tags=harness
+make web-install       # npm ci in web/
+make web-dev           # Vite dev server
 make web-build         # npm ci && npm run build in web/
 make web-test          # vitest (unit, component, engine)
 make web-lint          # eslint + vue-tsc
+make api-types         # regenerate the SPA's API types from api/openapi.yaml
 make e2e               # Playwright on Chromium, Firefox, WebKit
 make harness-ci        # accuracy harness, CI tier profiles
 make harness-floor     # manual range-floor profiles
 make harness-ceiling   # manual range-ceiling profiles (bare metal)
+make harness-sweep     # remove stale harness environments, list kept ones
+make harness-sweep-all # remove every harness environment (needs CONFIRM=1)
+make verify            # verify-go and verify-web
+make verify-go         # Go vet, lint and tests
+make verify-web        # web lint, typecheck and tests
+make audit-deps        # audit-deps-go and audit-deps-web
+make audit-deps-go     # govulncheck
+make audit-deps-web    # npm audit in web/
+make idle-measure      # idle CPU and memory footprint of a running binary
 make check             # pre-commit on all files
 make docker-build      # local multi-stage image for the host platform
-make docker-run        # run the image read-only on :8080
+make docker-run        # run the image read-only on 127.0.0.1:8080
 make mk-common-update  # refresh shared Make snippets
 ```
+
+`docker-run` publishes the port on `127.0.0.1` by default, so a local run is not reachable from
+the network; set `DOCKER_RUN_BIND=0.0.0.0` to expose it.
 
 `AGENTS.md` will hold the authoritative list once the targets exist.
 
 ## 4. CI Workflows
 
-All GitHub Actions are pinned to full commit SHAs.
+All GitHub Actions are pinned to full commit SHAs, every workflow is `contents: read` at the top and
+widens permissions per job only, and Go comes from `.go-version`. A workflow or job whose inputs do
+not exist yet is not written until they do: it lands in the commit that adds its inputs, and a
+meta-test fails both when it is missing after that point and when it appears before.
 
 | Workflow | Trigger | Does |
 | --- | --- | --- |
-| `ci.yaml` | pull request, push to `main` | pre-commit; golangci-lint; `go test -race`; govulncheck; ESLint, `vue-tsc`, vitest; npm audit; Playwright E2E on Chromium, Firefox and WebKit; the CI tier of the accuracy harness ([testing.md §5](testing.md#5-accuracy-harness)); a no-push image build for both platforms. |
-| `release.yaml` | tag `vX.Y.Z` (created by the release process with svu) | Builds both platforms, pushes the multi-arch image to GHCR with SBOM and provenance attestations, signs it with cosign keyless, builds the two static binaries with SHA-256 checksums, and creates the GitHub release with the binaries attached. |
-| `rebuild.yaml` | weekly schedule, manual dispatch | Rebuilds the latest release: source code from the release tag, but the three stage images (Node, Go, `dhi.io/static`) at the digests currently pinned on `main`, which Dependabot keeps current. The Dockerfile takes the stage images as build arguments, and the workflow reads their values from `main`'s Dockerfile. The result is pushed, attested and signed under the same tags (same version, new digest). Just before pushing, it re-checks that its version is still the highest release; if not, it pushes only `X.Y.Z` and skips `X` and `latest`. |
-| `dependabot.yml` | weekly | Update PRs for `gomod`, `npm` (`web/`), `docker` (base image digests) and `github-actions`. |
+| `ci.yaml` | pull request, push to `main`, manual dispatch | `pre-commit-all` (every pre-commit hook on all files, including golangci-lint over the repository, fails if a hook modifies a file); `repo-gates` (the meta-tests under `test/`); `go-test` (calls `go-test.yaml`); `audit` (`make audit-deps`: govulncheck and npm audit); `conventional-commits` and `signoff` (pull requests only); reviewdog annotation jobs (pull requests only, not required); `release-scripts` (the release helper tests); once their inputs exist, `credentials` (decides whether a run may pull `dhi.io`; fails a trusted run without a token), `web` (calls `web.yaml`), `e2e` (Playwright on Chromium, Firefox and WebKit), `harness` (calls `harness.yaml`, the CI tier of [testing.md §5](testing.md#5-accuracy-harness)) and `image` (a no-push build for both platforms and the image tests); and the `ci-result` aggregate. |
+| `go-test.yaml` | called by `ci.yaml` and `release.yaml` | `go test -race ./...`. |
+| `web.yaml` | called by `ci.yaml` and `release.yaml` | `npm ci`, then the web steps whose inputs exist: API type drift, ESLint and `vue-tsc`, vitest, the build, the dist URL allowlist and the engine chunk size. |
+| `harness.yaml` | called by `ci.yaml`; nightly schedule | The accuracy harness for the three browsers; the 1 Gbit profile nightly if runners cannot sustain it. |
+| `release.yaml` | manual dispatch on `main` (`version`, `dry_run`) | Tests, audits and builds first: the web app, the two static binaries and `SHA256SUMS`, and the multi-arch image pushed by digest to a job-local registry. Scans both platform images with Trivy, and only then pushes the git tag, copies the image to GHCR, attests and signs it, attests the binaries and creates the GitHub release ([../../release.md](../../release.md#why-the-build-happens-before-the-tag)). |
+| `rebuild.yaml` | weekly schedule, manual dispatch | Rebuilds the latest release: source code from the release tag, with the `FROM` lines of the `web`, `build` and `runtime` stages rewritten by stage name to those on `main`, whose digests Dependabot keeps current. Ends without pushing when main's base digests equal the materials in the current image's provenance; otherwise scans with Trivy, then pushes, attests and signs under the same tags (same version, new digest). Just before pushing, it re-checks that its version is still the highest release; if not, it pushes only `X.Y.Z` and skips `X` and `latest`. |
+| `scheduled-scan.yaml` | manual dispatch (weekly schedule once public) | `make audit-deps` over `main`, and Trivy over each platform image of `:latest` once releases exist. |
+| `go-cache-warmup.yaml`, `web-cache-warmup.yaml`, `pre-commit-warmup.yaml` | push to `main` on their inputs | Refresh the `main` caches the other workflows restore, keeping the newest two entries. |
+| `dependabot.yml` | weekly | Update PRs for `gomod`, `npm` (`web/`), `docker` (base image digests), `github-actions` and `pre-commit`. |
 
-`release.yaml` and `rebuild.yaml` share one concurrency group without cancellation, so a rebuild
-and a release never push tags at the same time.
+`release.yaml` and `rebuild.yaml` share the `publish` concurrency group without cancellation, so a
+rebuild and a release never push tags at the same time. Both run Trivy on every platform image
+before anything is pushed. `scheduled-scan.yaml` is dispatch-only while the repository is private.
+
+**Why the rebuild rewrites `FROM` lines.** The stage images are literal `FROM` lines rather than
+build arguments, because Dependabot updates only literal `FROM` lines and would stop updating
+`ARG` defaults. The rebuild reads `main`'s Dockerfile and replaces each stage's `FROM` line in the
+tag's Dockerfile by its stage name (`AS web`, `AS build`, `AS runtime`).
+
+**Toolchain-line rule.** A rebuild may refresh digests and patch versions only. Before rewriting
+anything, it checks every stage: for `build` and `web`, the tag's `FROM` and main's `FROM` must
+have the same image repository, the same toolchain line (Go `major.minor` for `build`, Node major
+for `web`) and the same tag shape apart from a patch version; for `runtime`, the same repository
+and variant, while its date tag may move because the runtime holds no toolchain. A Go minor or
+Node major change, or a repository change, fails the run with a notice that names the change and
+says to cut a release to ship the new line. A rebuild never goes beyond base-image fixes.
 
 The weekly rebuild exists so base-image security fixes ship without a code change; its tag policy
-is described in [../../release.md](../../release.md).
+is described in [../../release.md](../../release.md#weekly-rebuild).
 
 ## 5. Signing, SBOM and Provenance
 
@@ -88,7 +140,12 @@ is described in [../../release.md](../../release.md).
   no stored keys). Verification checks the certificate identity of `release.yaml` or
   `rebuild.yaml` in `leinardi/bitgauge` and the GitHub OIDC issuer; the command shape is in
   [SECURITY.md](../../../SECURITY.md).
-- Release binaries are listed in a `SHA256SUMS` file attached to the release.
+- Release binaries are listed in a `SHA256SUMS` file attached to the release, and each binary has
+  a GitHub build provenance attestation made by `release.yaml`, verified with
+  `gh attestation verify` ([SECURITY.md](../../../SECURITY.md)). The weekly rebuild never
+  rebuilds the binaries. A release recovery rebuilds them with the toolchains recorded in the tag
+  and checks them against the release assets; `binary-attestation-status.sh` then reuses the
+  attestation an earlier run made instead of making a second one.
 
 ## 6. Tags
 
