@@ -1,0 +1,37 @@
+# VCS
+.git
+.gitignore
+.gitattributes
+
+# CI, docs, tests and agent tooling: none of it is an input of the image
+.github
+.claude
+.agents
+.serena
+docs
+test
+tests
+*.md
+
+# Local artifacts
+dist
+coverage.out
+coverage.html
+
+# Editor/IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Node caches. Any depth: web/node_modules is installed inside the image, never shipped in.
+**/node_modules
+web/.cache
+web/test-results
+web/playwright-report
+.fallow
+
+# A developer's local frontend build must never be what an image embeds; the web stage builds its
+# own. The tracked .gitkeep stays, so the embed directory exists for the Go build.
+web/dist/*
+!web/dist/.gitkeep
