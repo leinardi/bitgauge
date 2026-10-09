@@ -3,14 +3,39 @@
 Thumbs.db
 desktop.ini
 
-# Editor files
-.idea/
+# IntelliJ: only the shared code style and copyright profile are tracked
+.idea/*
+!.idea/codeStyles/
+!.idea/copyright/
+*.iml
+
+# Other editors
 .vscode/
 *.code-workspace
 *.swp
 *~
 
-# Build and tool outputs
+# Go build and test outputs (root dist/ only, so web/dist/.gitkeep survives)
+/dist/
+/bin/
+/build/
+/coverage.out
+/coverage.html
+*.test
+*.out
+*.prof
+*.pprof
+*.coverprofile
+profile.*
+
+# Go workspaces and vendoring
+go.work
+go.work.sum
+vendor/
+
+# Node: any node_modules/ anywhere in the repository
 node_modules/
-dist/
+
+# Tool caches
 .cache/
+.fallow/
