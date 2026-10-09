@@ -9,6 +9,12 @@ handler follows. Endpoint contracts are in [wire-protocol.md](../wire-protocol.m
 
 ## 1. Package Map
 
+Every Go package of the module except the test-only tree under `test/` has a row, written as its
+full path in backquotes. `scripts/check-package-map.sh` reads the table between the markers: a
+package without a row fails, and a row whose package does not exist yet is reported as planned.
+
+<!-- package-map start -->
+
 | Package | Responsibility |
 | --- | --- |
 | `cmd/bitgauge` | `main`: parses the subcommand (`serve`, the default, or `healthcheck`) and `--config`, wires the packages together. No logic. |
@@ -24,6 +30,8 @@ handler follows. Endpoint contracts are in [wire-protocol.md](../wire-protocol.m
 | `internal/compat/librespeed` | `/garbage`, `/empty`, `/getIP`, their `backend/` and `.php` variants, `/.well-known/librespeed`. |
 | `internal/compat/nq` | `/nq/config`, `/.well-known/nq`, `/nq/small`, `/nq/large`, `/nq/upload`. |
 | `web` (Go file in `web/`) | `embed.FS` of `web/dist`, `index.html` templating with the base path, SPA route handler. |
+
+<!-- package-map end -->
 
 Dependencies point inwards: compat packages use the shared building blocks (the random-buffer
 writer and body drainer in `internal/handlers`, plus `internal/clientip` and `internal/ratelimit`)
