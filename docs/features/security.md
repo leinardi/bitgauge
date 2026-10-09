@@ -84,9 +84,12 @@ fonts, icons and scripts are embedded in the binary.
 
 - **Enforced in review:** a change that adds a network client to the server or an external URL to
   the SPA is rejected ([technical-stack/ai-guidelines.md](technical-stack/ai-guidelines.md)).
-- **Verifiable in the harness:** the accuracy harness runs BitGauge in a Docker network with no
-  egress route and records any connection attempt from the container as a failure
-  ([technical-stack/testing.md](technical-stack/testing.md)).
+- **Verifiable in two layers**
+  ([technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness)): the accuracy
+  harness and the image test run BitGauge on a Docker network with no route out and prove
+  **no packet egress** from process start, with counters that negative controls show are not
+  blind; the image test's syscall layer traces the binary from process start and proves **no
+  connection or write attempt**, which a packet counter alone cannot see.
 - The only exception is outside BitGauge's control: a third-party client using a compatibility
   layer (OpenSpeedTest's results link, for example) may contact its own vendor
   ([compatibility.md](compatibility.md)).
@@ -193,8 +196,8 @@ download.
 
 **Export and import.**
 
-- JSON and CSV exports contain everything above, including client IPs and notes; the export dialog
-  says so.
+- JSON and CSV exports, and the Test screen's single-result Download JSON, contain everything
+  above, including client IPs and notes; the export dialog and the download say so.
 - Imported files are untrusted input: validated against the schema, size-limited (10 MB), rendered
   as text only (never as HTML), and deduplicated by result `id`.
 

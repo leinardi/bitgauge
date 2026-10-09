@@ -28,6 +28,11 @@ from the design export; this page fixes content and behaviour only. Terms follow
 - **Data used** live during the run.
 - **Notices** area (§7).
 - Link "Details" to the Result detail of the finished run.
+- **Download JSON** of the finished result: the single result object in the JSON export format
+  of [../technical-stack/frontend.md §5](../technical-stack/frontend.md#5-history-module-idb)
+  (`results` with one entry), with the same "contains client IPs and notes" warning as the History
+  export. It works without history, and it is the accuracy harness's extraction path from v0.1
+  (current answer to [open question 9](../open-questions.md)).
 
 **States:**
 
@@ -37,7 +42,7 @@ from the design export; this page fixes content and behaviour only. Terms follow
 | Running: info | Phase indicator on info; Start becomes Stop. |
 | Running: idle latency | Ping counter, live median. |
 | Running: download / upload | Gauge, chart, stream count, protocol, data used; per-direction "measuring" or "warming up" hint; loaded latency live. |
-| Done | Result metrics, notices, Details link, Run again. |
+| Done | Result metrics, notices, Details link, Download JSON, Run again. |
 | Cancelled | Partial result with `partial — stopped early` and what was covered ([../measurement.md §7.8](../measurement.md#78-worked-example-b--cancellation-mid-request)). |
 | Error | What failed and in which phase, completed phases kept, Retry. |
 | Offline / retry | `GET /info` fails, or every idle-latency ping is lost ([../measurement.md §10](../measurement.md#10-idle-latency)): "Server unreachable" with Retry; Start disabled until `/info` succeeds. A WebSocket that cannot be opened is **not** offline: the test runs with the HTTP latency fallback and the notice `WebSocket unavailable — HTTP latency fallback`. |

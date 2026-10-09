@@ -118,15 +118,29 @@ harness has three tiers:
 | Tier | Profiles (tc tbf/netem on a Docker network, iperf3 reference) | Browsers | Where it runs |
 | --- | --- | --- | --- |
 | CI | 500 kbit/s + 300 ms; 10 Mbit; 100 Mbit + 50 ms; 1 Gbit; 100 Mbit + 50 ms through Traefik (h1) and through Caddy (h2); 100 Mbit + 50 ms through Traefik (h1) with WebSocket upgrades blocked, forcing the HTTP latency fallback | headless Chromium, headless Firefox, Playwright WebKit | every PR (or nightly for the 1 Gbit profile if CI runners cannot sustain it) |
-| Manual range floor | 300 kbit/s + 300 ms + 1 % loss; 300 kbit/s + 600 ms (VPN over mobile) | Chromium, Firefox, WebKit; one real Android Chrome and one real iOS Safari run over an actual VPN | before each release |
-| Manual range ceiling | 2.5 Gbit and 10 Gbit on bare metal or veth without shaping (shaping at 10 Gbit is CPU-bound and not representative) | Chromium, Firefox, Safari on a machine with ≥ 4 cores; documented CPU/memory counters | before each release, results recorded in `docs/engineering/` |
+| Manual range floor | 300 kbit/s + 300 ms + 1 % loss; 300 kbit/s + 600 ms (VPN over mobile) | Chromium, Firefox, WebKit; one real Android Chrome and one real iOS Safari run over an actual VPN | before each release, results recorded in `docs/engineering/harness-runs/<version>.md` |
+| Manual range ceiling | 2.5 Gbit and 10 Gbit on bare metal or veth without shaping (shaping at 10 Gbit is CPU-bound and not representative) | Chromium, Firefox, Safari on a machine with ≥ 4 cores; documented CPU/memory counters | before each release, results recorded in `docs/engineering/harness-runs/<version>.md` |
 
 **Method.** For each profile, a Playwright-driven browser runs a Standard test (Extended for the
-600 ms floor profile, which the shortfall rule otherwise covers) while iperf3 measures the same
-shaped path over the same window. The harness records the headline, the steady window, data used
-and the result's notices.
+600 ms floor profile, which the shortfall rule otherwise covers), and iperf3 measures the same
+shaped path as the reference. The harness records the headline, the steady window, data used and
+the result's notices, read from the result's JSON download (the v0.1 extraction path, current
+answer to [open question 9](../open-questions.md)).
 
-**Tolerances** (headline vs iperf3 over the same window):
+**Reference measurement** (current answer to [open question 8](../open-questions.md)). Running
+iperf3 concurrently with the browser would split the link between them, so iperf3 runs immediately
+**before** and immediately **after** the browser run, each for the steady-window duration of the
+preset:
+
+- **Instability rejection:** if `|before − after| / mean(before, after)` exceeds 5 % (the shaper
+  self-test bound), or either run deviates from the configured rate by more than 5 %, the profile
+  is re-run once.
+- If it is still unstable, the profile is **inconclusive**: a distinct status that fails CI and is
+  never counted as a pass.
+- Only a stable profile uses `mean(before, after)` as the reference. Both raw values always go into
+  the report.
+
+**Tolerances** (headline vs the iperf3 reference):
 
 | Range | Tolerance |
 | --- | --- |
@@ -138,9 +152,27 @@ and the result's notices.
 **Latency:** the loaded-latency increase must be within ±20 % of the netem-added queue delay
 observed by a concurrent ICMP ping.
 
-**No-egress check.** The harness's BitGauge container sits on a Docker network with no route out;
-any outbound connection attempt from it (recorded by the network's firewall rules) fails the run
-([../security.md §3](../security.md#3-no-outbound-calls)).
+**No-egress check.** Two layers, which make two different claims
+([../security.md §3](../security.md#3-no-outbound-calls)):
+
+- **No packet egress** (the harness and the image test, through `netguard`): BitGauge runs in a
+  network namespace owned by a guard container on a Docker network with no route out. The guard
+  installs nftables counters and a `sink` interface that routes every non-local destination, so an
+  outgoing packet reaches the output hook and is counted and dropped instead of failing early with
+  "network unreachable". Separate counters see new connections on any interface but loopback,
+  lookups to Docker's embedded DNS (`127.0.0.11:53`), and any other new loopback connection except
+  to BitGauge's own listen port. Before BitGauge starts, four negative controls (TCP to
+  `192.0.2.1`, TCP to `2001:db8::1`, a DNS lookup, TCP to an unused loopback port) must each
+  increment their counter, or the run fails as "instrument blind"; the counters are then reset and
+  must stay at zero from process start to the end of the run. This layer cannot see an attempt
+  that fails before a packet is built.
+- **No connection or write attempt** (the image test's syscall layer only): the binary is run under
+  `strace -f` from process start; any `connect`, any send on a socket other than an accepted
+  connection, and any file write outside `/dev` and `/proc` fails the test. The healthcheck is
+  traced separately and may make exactly one loopback `connect` to the listen address. Negative
+  controls prove the analyser rejects a connect-back, a `sendto` to a peer and a file create.
+
+The harness report says which layer each result comes from.
 
 **Environmental limits**, written into every harness report:
 
@@ -153,6 +185,32 @@ any outbound connection attempt from it (recorded by the network's firewall rule
 **What the harness cannot prove:** real Wi-Fi behaviour, real VPN MTU effects, carrier-grade NAT,
 and anything about networks the project does not target.
 
+### 5.1 Implementation
+
+- **Location.** Go tests in `test/harness/` drive the topology over the Docker CLI on the host
+  daemon; the browser side is a Playwright driver in `web/harness/` that opens the URL with the
+  preset's parameters, waits for the result and downloads its JSON. Pure logic (the profile table,
+  report rendering) is untagged and runs with `go test ./...`; the runners build with
+  `-tags=harness`. Shared pieces live in `test/internal/testenv` (environment IDs, labels, scoped
+  cleanup) and `test/internal/netguard`.
+- **Topology per profile.** One Docker network with no egress route. The `netguard` holder owns
+  BitGauge's network namespace; BitGauge (the built image, read-only) and `iperf3 -s` join it, so
+  the iperf3 server is the same endpoint as BitGauge. An optional Traefik or Caddy container sits
+  in front. The client is the Playwright image; a `shaper` sidecar shares the **client's** network
+  namespace and shapes it with tbf and netem on egress and an ifb mirror for ingress, modelling the
+  user's access link. The iperf3 client and the concurrent ICMP ping run from the same namespace,
+  so they take the same path as the browser.
+- **Shaper self-test.** Before a profile counts, an iperf3 check confirms the configured rate holds
+  within ±5 %. A failed `tc` command fails the run; there is never a silently unshaped run.
+- **Reports.** Each run writes `dist/harness/<tier>-<UTC>-<envid>/report.json` and `report.md`,
+  with the raw exports, both iperf3 values and the environmental limits above. CI uploads them as
+  an artifact and writes the Markdown to the step summary. For the floor and ceiling tiers, the
+  maintainer commits `report.md` as `docs/engineering/harness-runs/<version>.md`, which the
+  release requires before tagging.
+- **Cleanup.** Every resource carries the run's environment ID; a run removes only its own, and a
+  stale environment of another run is removed only when it is old, not kept on failure, and its
+  owner process is provably dead.
+
 ## 6. CI Placement
 
 | Suite | Where | When |
@@ -160,8 +218,8 @@ and anything about networks the project does not target.
 | Go tests, lint, govulncheck | `ci.yaml` | every PR and push |
 | Engine and component tests (vitest), ESLint, `vue-tsc` | `ci.yaml` | every PR and push |
 | Playwright E2E (three browsers) | `ci.yaml` | every PR and push |
-| Accuracy harness, CI tier | `ci.yaml` (1 Gbit profile nightly if runners cannot sustain it) | every PR |
-| Accuracy harness, floor and ceiling tiers | manual (`make harness-floor`, `make harness-ceiling`) | before each release; results in `docs/engineering/` |
+| Accuracy harness, CI tier | `harness.yaml`, called by `ci.yaml`; its own nightly schedule runs the 1 Gbit profile if runners cannot sustain it on every PR | every PR, and nightly |
+| Accuracy harness, floor and ceiling tiers | manual (`make harness-floor`, `make harness-ceiling`) | before each release; results in `docs/engineering/harness-runs/<version>.md` |
 | Real Safari and iOS checks | manual | before each release |
 
 A release is blocked until the manual tiers have passed for that version

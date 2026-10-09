@@ -72,11 +72,13 @@ and Zero 2 W on a 64-bit OS.
 
 ### 1.7 Success Criteria
 
-BitGauge is successful when its headline numbers agree with an iperf3 reference measured over the
-same window on the accuracy harness profiles defined in
-[technical-stack/testing.md](technical-stack/testing.md):
+BitGauge is successful when its headline numbers agree with the iperf3 reference on the accuracy
+harness profiles defined in
+[technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness): the mean of iperf3
+runs taken just before and just after the browser run on a stable profile (current answer to
+[open question 8](open-questions.md)):
 
-| Profile | Throughput tolerance (headline vs iperf3) |
+| Profile | Throughput tolerance (headline vs the iperf3 reference) |
 | --- | --- |
 | ≤ 1 Mbit/s (including 300 kbit/s + 600 ms RTT) | ±15 % |
 | 10 Mbit/s to 100 Mbit/s | ±10 % |

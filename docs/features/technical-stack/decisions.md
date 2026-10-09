@@ -279,6 +279,8 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 5 | Upload failure gaps on HTTP/2 and HTTP/3; phase end on the first failure over HTTP/1.1 | v0.1 |
 | 6 | Continuous mode runs a single direction | v0.3 |
 | 7 | The info phase cannot be skipped | v0.1 |
+| 8 | Accuracy harness iperf3 reference taken before and after the browser run | v0.1 |
+| 9 | v0.1 result extraction for the harness through a single-result JSON download | v0.1 |
 
 ## Related
 

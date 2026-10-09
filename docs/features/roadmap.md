@@ -57,6 +57,9 @@ tiers must additionally show for the features it adds. Progress per feature area
 
 - Test screen with live gauge, live chart, phase indicator, data used, result metrics and notices.
   See [ui/screens.md](ui/screens.md).
+- Download JSON of the finished result on the Test screen, the harness's extraction path (current
+  answer to open question 9). See [ui/screens.md §1](ui/screens.md#1-test-home--) and
+  [open-questions.md](open-questions.md).
 - About screen with version, licence and credits (without the compatibility snippets). See
   [ui/screens.md](ui/screens.md).
 - URL parameters, including auto-run with the cancellable countdown. See

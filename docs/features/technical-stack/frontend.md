@@ -87,7 +87,9 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
 - **Persistence.** On first save the module calls `navigator.storage.persist()` where available.
 - **Export formats.**
   - JSON: `{ "format": "bitgauge.history", "formatVersion": 1, "exportedAt": "…", "results":
-    [ …result objects… ] }`, including series, client IPs and notes.
+    [ …result objects… ] }`, including series, client IPs and notes. The v0.1 Test screen's
+    single-result Download JSON uses the same format with one entry, so its serializer ships in
+    v0.1 without IndexedDB ([../ui/screens.md §1](../ui/screens.md#1-test-home--)).
   - CSV: one row per result, UTF-8 with a header row; columns `id`, `startedAt`, `label`, `note`,
     `status`, `preset`, `protocol`, `clientIp`, `serverName`, `serverVersion`,
     `downloadBitsPerSecond`, `downloadPeakBitsPerSecond`, `downloadStatus`, `downloadConfidence`,
