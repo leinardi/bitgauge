@@ -1,0 +1,38 @@
+{
+  "workspaces": {
+    "patterns": ["web"]
+  },
+  "entry": ["web/src/engine/worker.ts", "web/e2e/**/*.spec.ts", "web/harness/run.spec.ts"],
+  "ignorePatterns": ["docs/**", "scripts/**", "web/dist/**", "web/coverage/**"],
+  "ignoreExports": [
+    {
+      "file": "web/src/components/ui/**/index.ts",
+      "exports": ["*"]
+    }
+  ],
+  "duplicates": {
+    "minOccurrences": 3,
+    "ignore": ["web/src/api/types.gen.ts"]
+  },
+  "health": {
+    "ignore": ["web/src/api/types.gen.ts"]
+  },
+  "overrides": [
+    {
+      "files": ["web/src/components/ui/**"],
+      "rules": {
+        "unused-files": "off",
+        "unused-exports": "off",
+        "unused-types": "off"
+      }
+    },
+    {
+      "files": ["web/src/api/types.gen.ts"],
+      "rules": {
+        "unused-types": "off",
+        "unused-exports": "off"
+      }
+    }
+  ],
+  "rules": {}
+}

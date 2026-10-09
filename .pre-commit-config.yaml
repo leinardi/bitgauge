@@ -83,6 +83,39 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-commit]
+      # Dead code in the web workspace. The binary is the exact version pinned in web/package.json,
+      # resolved by npm from web/node_modules rather than taken off PATH: findings differ between
+      # fallow releases, so a machine-local binary would gate against baselines it never wrote.
+      # --no keeps npm from fetching one when the workspace has not been installed; the workspace
+      # has to be installed (npm --prefix web ci) for this hook to mean what it says.
+      #
+      # Dead code only: duplication and complexity are not gated here. Expressed as --skip rather
+      # than as the dead-code subcommand because --fail-on-regression fires on the default command.
+      #
+      # Two baselines, because they answer different questions. --baseline holds the findings
+      # themselves, so an accepted one stays accepted and any other one fails whatever its
+      # severity; --fail-on-regression compares the issue total left after that against the counts
+      # baseline, which is why the counts file is saved with the findings baseline applied. Both
+      # only ever forgive: a finding neither file covers fails the commit. Both start empty, and
+      # are regenerated -- after a fallow bump, or to accept a reviewed finding -- with:
+      #   npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health
+      #     --save-baseline .fallow-baseline.json
+      #   npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health
+      #     --baseline .fallow-baseline.json
+      #     --save-regression-baseline .fallow-regression-baseline.json
+      - id: frontend-fallow
+        name: frontend fallow
+        entry: npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health
+          --baseline .fallow-baseline.json
+          --fail-on-regression --regression-baseline .fallow-regression-baseline.json
+        language: system
+        pass_filenames: false
+        require_serial: true
+        # Always runs: pre-commit drops deleted paths from the file list, so a commit that only
+        # removes a baseline would otherwise never reach this hook.
+        always_run: true
+        # always_run makes a hook eligible at every installed stage, and commit-msg is one.
+        stages: [pre-commit]
       # Dependency-change checks, and nothing more. Each runs the same make target make audit-deps
       # runs -- the Go one is the full source-aware scan over every package -- but only when the
       # dependency files themselves change, which is what limits them: they catch a bad upgrade at

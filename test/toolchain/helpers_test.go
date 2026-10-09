@@ -18,11 +18,14 @@
  */
 
 // Package toolchain_test pins the repository's tooling: the npm install policy, the engine boundary
-// in the ESLint configuration, the dependency audit, and the absence of flags that make a gate pass
-// on nothing.
+// in the ESLint configuration, the dependency audit, the fallow dead-code gate, and the absence of
+// flags that make a gate pass on nothing.
 package toolchain_test
 
 import (
+	"errors"
+	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -75,4 +78,51 @@ func preCommitHooks(t *testing.T) map[string][]preCommitHook {
 	}
 
 	return hooks
+}
+
+// readWebSources reads every file of the web workspace that a frontend tool analyses: the
+// manifest, the configuration files and the src, e2e and harness trees. A tool run through exec is
+// invisible to the test cache, and reading its inputs here is what makes an edit to them
+// invalidate a cached pass.
+func readWebSources(t *testing.T) {
+	t.Helper()
+
+	web, err := os.OpenRoot(filepath.Join(toolgate.RepoRoot(t), "web"))
+	if err != nil {
+		t.Fatalf("open web/: %v", err)
+	}
+
+	defer web.Close()
+
+	tree := web.FS()
+
+	files, err := fs.Glob(tree, "*.*")
+	if err != nil {
+		t.Fatalf("list web/: %v", err)
+	}
+
+	for _, file := range files {
+		_, err = fs.ReadFile(tree, file)
+		if err != nil {
+			t.Fatalf("read web/%s: %v", file, err)
+		}
+	}
+
+	for _, dir := range []string{"src", "e2e", "harness"} {
+		err = fs.WalkDir(tree, dir, func(path string, entry fs.DirEntry, walkErr error) error {
+			if walkErr != nil || entry.IsDir() {
+				return walkErr
+			}
+
+			_, readErr := fs.ReadFile(tree, path)
+			if readErr != nil {
+				return fmt.Errorf("read %s: %w", path, readErr)
+			}
+
+			return nil
+		})
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
+			t.Fatalf("read web/%s: %v", dir, err)
+		}
+	}
 }
