@@ -76,8 +76,13 @@ To be filled when code exists. Until then, for a docs change:
 
 ## Project rules
 
-- **Spec first.** No code before the specifications are approved. A change in behaviour starts as
-  a docs change; code follows the docs.
+- **Spec first.** No product code before the specifications are approved: nothing under `cmd/`,
+  the `internal/` packages of
+  [architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`, or
+  `api/openapi.yaml` content. Tooling may land earlier: build files, linters and their
+  configuration, CI and release workflows, test harnesses and meta-tests, agent skills, editor
+  configuration. It must not encode product behaviour that the docs do not specify. A change in
+  behaviour still starts as a docs change; code follows the docs.
 - **Docs are the source of truth.** When code and docs disagree, the docs win until changed
   deliberately; [`decisions.md`](docs/features/technical-stack/decisions.md) wins on technical
   choices.

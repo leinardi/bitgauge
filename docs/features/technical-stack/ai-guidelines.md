@@ -8,8 +8,13 @@ Contributor workflow is in [CONTRIBUTING.md](../../../CONTRIBUTING.md).
 
 ## Rules
 
-- **Spec first.** No code before the specifications are approved. A change in behaviour starts as
-  a change to these docs; code follows the docs, never the other way round.
+- **Spec first.** No product code before the specifications are approved: nothing under `cmd/`,
+  the `internal/` packages of [architecture §9](../architecture.md#9-planned-package-layout),
+  `web/src/`, or `api/openapi.yaml` content. Tooling may land earlier: build files, linters and
+  their configuration, CI and release workflows, test harnesses and meta-tests, agent skills,
+  editor configuration. It must not encode product behaviour that the docs do not specify. A
+  change in behaviour still starts as a change to these docs; code follows the docs, never the
+  other way round.
 - **Docs are the source of truth.** When code and docs disagree, the docs win until they are
   changed deliberately; [decisions.md](decisions.md) wins over any other page on a technical
   choice.

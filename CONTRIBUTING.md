@@ -17,6 +17,16 @@ where contributions go for now:
   change touches updated together (the measurement page, the wire protocol, configuration, the UI
   pages and the glossary must keep agreeing).
 
+## What May Land Before the Specification Is Approved
+
+No product code lands before the specifications are approved: nothing under `cmd/`, the
+`internal/` packages of
+[architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`, or
+`api/openapi.yaml` content. Tooling may land earlier: build files, linters and their
+configuration, CI and release workflows, test harnesses and meta-tests, agent skills, editor
+configuration. It must not encode product behaviour that the docs do not specify. A change in
+behaviour still starts as a docs change.
+
 ## Spec Pull Requests First
 
 After implementation starts, the rule stays: **a change in behaviour starts as a change to the
@@ -26,9 +36,15 @@ deliberately. Technical choices are locked in
 [`docs/features/technical-stack/decisions.md`](docs/features/technical-stack/decisions.md);
 changing one needs a pull request to that file with the reason.
 
-The planned build, test and lint commands are in
+The build, test and lint commands are in
 [`docs/features/technical-stack/build-packaging.md`](docs/features/technical-stack/build-packaging.md#3-planned-make-targets);
-[AGENTS.md](AGENTS.md) will hold the authoritative list once they exist.
+[AGENTS.md](AGENTS.md) holds the authoritative list once they exist.
+
+## Before You Commit
+
+Install the hooks once with `pre-commit install`; it installs both the `pre-commit` and the
+`commit-msg` hooks. Run `make check` before pushing: it runs every hook on all files, the same
+gate CI runs.
 
 ## Branch and PR Conventions
 
