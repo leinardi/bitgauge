@@ -64,14 +64,15 @@ another.
 
 Release images carry an SPDX SBOM and SLSA provenance for every platform, and a keyless cosign
 signature made with the GitHub OIDC identity of the release workflow (or of the weekly rebuild
-workflow, for a rebuilt digest). Verify an image by digest before you trust it:
+workflow, for a rebuilt digest). Both workflows run only on `main`, so the signing identity always
+ends in `@refs/heads/main`. Verify an image by digest before you trust it:
 
 ```bash
 IMAGE=ghcr.io/leinardi/bitgauge
 DIGEST=sha256:...   # from: docker buildx imagetools inspect ghcr.io/leinardi/bitgauge:<version>
 
 cosign verify "$IMAGE@$DIGEST" \
-  --certificate-identity-regexp '^https://github.com/leinardi/bitgauge/\.github/workflows/(release|rebuild)\.yaml@' \
+  --certificate-identity-regexp '^https://github.com/leinardi/bitgauge/\.github/workflows/(release|rebuild)\.yaml@refs/heads/main$' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
@@ -82,10 +83,13 @@ docker buildx imagetools inspect "$IMAGE@$DIGEST" --format '{{ json .SBOM }}'
 docker buildx imagetools inspect "$IMAGE@$DIGEST" --format '{{ json .Provenance }}'
 ```
 
-Verify a downloaded release binary against the release's checksum file:
+Verify a downloaded release binary against the release's checksum file, and its build provenance
+attestation, which ties it to this repository and the release workflow:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS
+gh attestation verify bitgauge-linux-amd64 --repo leinardi/bitgauge \
+  --signer-workflow leinardi/bitgauge/.github/workflows/release.yaml
 ```
 
 How releases are built and signed: [docs/release.md](docs/release.md).

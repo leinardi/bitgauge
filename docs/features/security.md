@@ -204,8 +204,11 @@ download.
 - **Pinned base images:** build stages and the `dhi.io/static` runtime are pinned by digest.
 - **Signed images:** release images are signed keylessly with cosign through the release
   workflow's OIDC identity; verification instructions are in [SECURITY.md](../../SECURITY.md).
-- **SBOM and provenance:** each image ships an SBOM and a provenance attestation.
-- **Dependabot:** weekly updates for `gomod`, `npm`, `docker` and `github-actions`.
+- **SBOM and provenance:** each image ships an SBOM and a provenance attestation; each release
+  binary carries a build provenance attestation.
+- **Image scanning:** Trivy scans both platform images in `release.yaml` and `rebuild.yaml` before
+  anything is pushed; a `HIGH` or `CRITICAL` finding outside `.trivyignore` stops the run.
+- **Dependabot:** weekly updates for `gomod`, `npm`, `docker`, `github-actions` and `pre-commit`.
 - **Scheduled weekly rebuild:** base-image fixes ship without code changes
   ([release.md](../release.md)).
 - **Vulnerability checks:** `govulncheck` and the npm audit run in CI; lint runs golangci-lint v2

@@ -49,11 +49,15 @@ No database driver, ORM, migration tool, scheduler or outbound HTTP client.
 | Go lint | golangci-lint | v2 | `default: all` policy with justified exclusions, as in Runhold. |
 | Go vulnerabilities | govulncheck | latest | CI. |
 | Unit tests (frontend, engine) | vitest | 5 | Engine tests with synthetic timelines. |
-| End-to-end | Playwright | 1.60 | Chromium, Firefox, WebKit. |
+| End-to-end | Playwright | 1.64 | Chromium, Firefox, WebKit. |
 | Frontend lint | ESLint + `eslint-plugin-vue` + `@intlify/eslint-plugin-vue-i18n` | — | As in Runhold. |
 | Accuracy harness | Docker networks shaped with `tc` (tbf/netem), iperf3 reference | — | [testing.md](testing.md). |
-| Image signing | cosign (keyless) | — | Release workflow OIDC identity. |
-| Dependency updates | Dependabot | — | Weekly: `gomod`, `npm`, `docker`, `github-actions`. |
+| Image signing | cosign (keyless) | v3 | Release workflow OIDC identity. |
+| Image scanning | Trivy | 0.75 | Gates `release.yaml` and `rebuild.yaml` before anything is pushed. |
+| Binary provenance | GitHub artifact attestations | — | One per release binary. |
+| Frontend dead code | fallow | 3.32 | Pre-commit gate with baselines. |
+| Shell lint | shellcheck via `shellcheck-py` | 0.11 | Pinned in pre-commit, so local and CI agree. |
+| Dependency updates | Dependabot | — | Weekly: `gomod`, `npm`, `docker`, `github-actions`, `pre-commit`. |
 
 ## Related
 

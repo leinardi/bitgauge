@@ -220,8 +220,11 @@ only).
 
 ### 28. Registry and supply chain — GHCR only, cosign keyless, SBOM, provenance
 
-Dependabot weekly (`gomod`, `npm`, `docker`, `github-actions`) and a scheduled weekly rebuild.
-GHCR only was decided by the user on 2026-10-08.
+Dependabot weekly (`gomod`, `npm`, `docker`, `github-actions`, `pre-commit`) and a scheduled
+weekly rebuild. Trivy scans every platform image in `release.yaml` and `rebuild.yaml` before
+anything is pushed, and the release binaries carry build provenance attestations
+([release.md](../../release.md)). GHCR only was decided by the user on 2026-10-08; Trivy gating,
+binary attestations and the build-before-tag release model on 2026-10-09.
 
 **Not chosen:** Docker Hub (a mirror can be added later if users ask).
 

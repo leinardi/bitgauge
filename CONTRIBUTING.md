@@ -53,6 +53,17 @@ gate CI runs.
 - Pull request titles are short and in the imperative mood: _Specify the upload grace_, _Fix the
   grade threshold table_. Release notes list pull requests by title.
 
+## Pull Requests From Forks
+
+CI jobs that pull the `dhi.io` base images (the image build and its tests, the accuracy harness)
+need repository secrets, which a pull request from a fork never receives. Once those jobs exist,
+they are skipped with a notice on every fork pull request, and the `ci-result` check fails. A
+maintainer then pushes your commits unchanged, with authorship and `Signed-off-by` preserved, to a
+branch of this repository and opens a replacement pull request that references yours; once it is
+green it is merged, and your pull request is closed with a link to it. This merge path is
+**unverified**: it has not yet been tested with a real fork from a second account. See
+[`docs/release.md`](docs/release.md#required-checks-and-fork-pull-requests).
+
 ## Commit Messages
 
 All commits follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
