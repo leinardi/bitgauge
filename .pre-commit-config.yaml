@@ -83,6 +83,17 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-commit]
+      # Always runs: the ratchet reads the whole tree and the staged diff, and a commit that
+      # touches no source at all can still delete the baseline out from under it.
+      - id: check-suppressions
+        name: suppression ratchet
+        entry: scripts/check-suppressions.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        # always_run makes this hook eligible at every installed stage, and commit-msg is one of
+        # them; pinned so the whole-tree scan runs once.
+        stages: [pre-commit]
       # Developer Certificate of Origin: every commit carries its author's Signed-off-by
       # (CONTRIBUTING.md). CI's signoff job checks pull requests again, for clones without hooks.
       - id: check-signoff
