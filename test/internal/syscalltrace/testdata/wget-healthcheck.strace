@@ -1,0 +1,12 @@
+20    execve("/usr/bin/wget", ["wget", "-q", "-O", "-", "http://127.0.0.1:18080/ping"], 0x7fffa6b4c350 /* 3 vars */) = 0
+20    socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 3<TCP:[945553]>
+20    connect(3<TCP:[945553]>, {sa_family=AF_INET, sin_port=htons(18080), sin_addr=inet_addr("127.0.0.1")}, 16) = 0
+20    writev(3<TCP:[127.0.0.1:35224->127.0.0.1:18080]>, [{iov_base="GET /ping HTTP/1.1\r\nHost: 127.0."..., iov_len=95}, {iov_base=NULL, iov_len=0}], 2) = 95
+20    fcntl(3<TCP:[127.0.0.1:35224->127.0.0.1:18080]>, F_GETFL) = 0x2 (flags O_RDWR)
+20    fcntl(3<TCP:[127.0.0.1:35224->127.0.0.1:18080]>, F_SETFL, O_RDWR|O_NONBLOCK|O_LARGEFILE) = 0
+20    write(1<pipe:[937467]>, "ok\n", 3) = 3
+20    fcntl(3<TCP:[127.0.0.1:35224->127.0.0.1:18080]>, F_GETFL) = 0x802 (flags O_RDWR|O_NONBLOCK)
+20    fcntl(3<TCP:[127.0.0.1:35224->127.0.0.1:18080]>, F_SETFL, O_RDWR|O_LARGEFILE) = 0
+20    close(3<TCP:[127.0.0.1:35224->127.0.0.1:18080]>) = 0
+20    close(1<pipe:[937467]>)           = 0
+20    +++ exited with 0 +++

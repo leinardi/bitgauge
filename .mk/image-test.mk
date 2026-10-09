@@ -21,41 +21,32 @@
 ifndef MK_LOCAL_IMAGE_TEST_INCLUDED
 MK_LOCAL_IMAGE_TEST_INCLUDED := 1
 
-# The image tests (testing.md section 4): build the shipped image and assert what it does once
-# started. They carry //go:build image and drive the docker CLI, so an untagged go test never
-# compiles them. Dormant until test/image exists; until then both targets fail and say why.
+# The image tests (testing.md section 5): build the shipped image and assert what it does once
+# started, plus the netguard and syscall-analyser negative controls they rely on. They carry
+# //go:build image and drive the docker CLI, so an untagged go test never compiles them. Until
+# cmd/bitgauge exists there is no image to build, and TestImage fails saying so; TestProbe and the
+# netguard tests run today.
 #
 # Prerequisites: a running Docker daemon with buildx, a dhi.io login, and network access on a cold
 # build cache.
 #
 # Select tests with RUN:
-#   make go-test-image RUN=TestImage
+#   make go-test-image RUN=TestProbe
 
 IMAGE_TEST_TIMEOUT ?= 20m
-IMAGE_TEST_PKG     ?= ./test/image/...
-IMAGE_TEST_DIR     := $(wildcard $(REPO_ROOT)/test/image)
+IMAGE_TEST_PKG     ?= ./test/image/... ./test/internal/netguard/...
 
 .PHONY: go-test-image
 go-test-image: ## Build the shipped image and test it (requires Docker)
-ifeq ($(IMAGE_TEST_DIR),)
-	@echo "go-test-image is dormant: test/image does not exist yet." >&2
-	@exit 1
-else
 	$(GO) test \
 	  -tags=image \
 	  -timeout=$(IMAGE_TEST_TIMEOUT) \
 	  -v \
 	  $(if $(RUN),-run $(RUN),) \
 	  $(IMAGE_TEST_PKG)
-endif
 
 .PHONY: go-vet-image
 go-vet-image: ## Static checks for the image-tagged packages
-ifeq ($(IMAGE_TEST_DIR),)
-	@echo "go-vet-image is dormant: test/image does not exist yet." >&2
-	@exit 1
-else
 	$(GO) vet -tags=image $(IMAGE_TEST_PKG)
-endif
 
 endif  # MK_LOCAL_IMAGE_TEST_INCLUDED
