@@ -28,6 +28,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/leinardi/bitgauge/test/internal/gitenv"
 	"github.com/leinardi/bitgauge/test/internal/toolgate"
 )
 
@@ -133,12 +134,7 @@ func run(t *testing.T, message string) (string, error) {
 	cmd.Dir = root
 	cmd.Stdin = strings.NewReader(message)
 
-	cmd.Env = append(os.Environ(),
-		"GIT_AUTHOR_NAME="+authorName,
-		"GIT_AUTHOR_EMAIL="+authorEmail,
-		"GIT_CONFIG_GLOBAL=/dev/null",
-		"GIT_CONFIG_NOSYSTEM=1",
-	)
+	cmd.Env = gitenv.Isolated("GIT_AUTHOR_NAME="+authorName, "GIT_AUTHOR_EMAIL="+authorEmail)
 
 	out, err := cmd.CombinedOutput()
 
