@@ -264,14 +264,16 @@ This is one reason the process is [provisional](#release) and is revisited befor
    - the `DHI_USERNAME` Actions variable and the `DHI_TOKEN` Actions secret, for CI's trusted image
      jobs;
    - the same pair in the `release` environment, which `release.yaml` and `rebuild.yaml` read;
-   - the same token as a **Dependabot** secret named `DHI_TOKEN`, because Dependabot-triggered runs
-     and the `dhi` registry in `.github/dependabot.yml` see only Dependabot secrets.
+   - the same pair as **Dependabot** secrets named `DHI_USERNAME` and `DHI_TOKEN`, because
+     Dependabot-triggered runs and the `dhi` registry in `.github/dependabot.yml` see only
+     Dependabot secrets, not Actions variables.
 
    ```bash
    gh variable set DHI_USERNAME --body '<username>'
    gh secret set DHI_TOKEN
    gh variable set DHI_USERNAME --env release --body '<username>'
    gh secret set DHI_TOKEN --env release
+   gh secret set DHI_USERNAME -a dependabot --body '<username>'
    gh secret set DHI_TOKEN -a dependabot
    ```
 

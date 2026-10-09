@@ -1,0 +1,101 @@
+version: 2
+
+registries:
+  dhi:
+    type: docker-registry
+    url: https://dhi.io
+    # Dependabot sees only Dependabot secrets, not Actions variables (docs/release.md, setup step 2).
+    username: ${{ secrets.DHI_USERNAME }}
+    password: ${{ secrets.DHI_TOKEN }}
+    replaces-base: false
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+    labels: ["dependencies", "ci"]
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+    labels: ["dependencies", "ci"]
+    groups:
+      pre-commit-hooks:
+        patterns:
+          - "*"
+
+  # The base images of the shipped image (build-packaging.md section 1). Digest bumps are chore(deps)
+  # and need no release: the weekly rebuild.yaml ships them in the latest release's image (the
+  # Weekly Rebuild section of docs/release.md). Only a new toolchain line needs a release.
+  - package-ecosystem: "docker"
+    directory: "/deployments/docker"
+    registries: ["dhi"]
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "ci"]
+    ignore:
+      # The web stage stays on a Node LTS line, the single Node line test/toolchain/pins_test.go
+      # holds every file to. Dependabot cannot tell an LTS line from a Current one, so the line is
+      # capped here: once a newer even line reaches LTS, move every file by hand and raise this cap
+      # with them. The tag floats within its line, so patch releases still arrive.
+      - dependency-name: "node"
+        versions: [">= 25"]
+      # The build stage stays on the Go line decisions.md locks (1.26, as .go-version and go.mod
+      # say); moving it is a decision, not a dependency bump.
+      - dependency-name: "golang"
+        versions: [">= 1.27"]
+    groups:
+      docker-base-images:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # fix, not chore: the release version is derived from commit types, so a Go dependency bump
+    # (security fixes included) produces a patch release. The same holds for web/ below, whose
+    # build ships inside the binary.
+    commit-message:
+      prefix: "fix(deps)"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "ci"]
+    groups:
+      go-modules:
+        patterns:
+          - "*"
+
+  # The SPA, embedded in the binary and the image. Its runtime dependencies ship, so they are
+  # fix(deps); devDependencies (lint, test and build tooling) are chore(deps) and bump nothing.
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "fix(deps)"
+      prefix-development: "chore(deps)"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "ci"]
+    # TypeScript stays on the 5.x line: openapi-typescript peers on typescript ^5.x and
+    # typescript-eslint on <6.1.0, so a newer major makes npm ci fail with ERESOLVE and blocks the
+    # whole web group. Raise this cap once both accept the newer line.
+    ignore:
+      - dependency-name: "typescript"
+        versions: [">= 6"]
+    groups:
+      web:
+        patterns:
+          - "*"
