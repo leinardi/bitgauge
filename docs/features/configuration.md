@@ -137,7 +137,9 @@ specified in [measurement.md](measurement.md).
 | `test_defaults.ping_count` | `BITGAUGE_TEST_DEFAULTS__PING_COUNT` | `0` | `0` (the preset's value) or 5–200. |
 | `test_defaults.overhead_compensation_percent` | `BITGAUGE_TEST_DEFAULTS__OVERHEAD_COMPENSATION_PERCENT` | `0` | 0–20, decimals allowed; LibreSpeed presets are 6, 5.13, 3.69 and 8.1 ([measurement.md §9.3](measurement.md#93-overhead-compensation)). |
 
-Durations are ignored for the `continuous` preset, which has no maximum.
+The duration keys are ignored for the `continuous` preset, which has no maximum; an optional run
+length is set per run only, in Settings or with the `duration` URL parameter
+([ui/url-params.md](ui/url-params.md)).
 
 ### 2.4 Compatibility Toggles
 

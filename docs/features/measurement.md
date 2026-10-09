@@ -569,9 +569,10 @@ already spans ≈ 5 s, so warm-up ends at Quick's 3 s cap (`max(3 s, 25 % × 10 
 requests per stream have confirmed, and the window condition holds at ≈ 7–8 s when the 16 KiB
 follow-up requests confirm. Quick then reports an upload number with `confidence: low`
 (`insufficient-samples`); the UI suggests Standard for links this slow. Continuous runs one
-throughput direction (download by default, upload selectable) until stopped or until the data cap is
-reached, with a 10 s absolute warm-up cap (§8.3, §15); running a single direction is the current
-answer to an item tracked in [open-questions.md](open-questions.md).
+throughput direction (download by default, upload selectable) until stopped, until the data cap is
+reached or until an optional run length elapses (§15), with a 10 s absolute warm-up cap (§8.3, §15);
+running a single direction is the current answer to an item tracked in
+[open-questions.md](open-questions.md).
 
 ### 8.6 Shortfall
 
@@ -865,7 +866,17 @@ bound with respect to loss, and the UI notes this next to them.
 ## 15. Continuous Mode
 
 Continuous mode runs one throughput direction with the Standard ramp, no maximum and a 10 s absolute
-warm-up cap, until the user stops it or the data cap is reached. It shows live min, average and max.
+warm-up cap, until the user stops it, the data cap is reached, or an optional run length (the
+`duration` URL parameter or the Settings run-length field, [ui/url-params.md](ui/url-params.md))
+elapses. It shows live min, average and max. A Continuous run that ends after its steady window
+began, by the user's stop, the run length, the data cap or an upload failure over HTTP/1.1
+(§7.5, with the notice `upload interrupted by a failed request`), has result status `complete`:
+stopping is how such a run normally ends. Any of these endings during the warm-up gives `partial`,
+with the direction reported as `insufficient data`. The saved result's `series` (§17) is the run
+downsampled to at most 2000 points from the finest retention tier whose ring covers the whole run
+(native, hour, day or long, in that order); the other tiers exist only in memory while the run is
+shown. A run longer than the long ring (7 days) saves only its last 7 days, and the result detail
+says so.
 
 **Retention (constant memory).** Every retained structure is a fixed-size ring; nothing grows with
 run length:
@@ -982,7 +993,8 @@ CSV export flattens the same fields, one row per result.
 ```
 
 - Direction `status`: `measured`, `insufficient-data`, `partial`, `skipped` or `error`. Result
-  `status`: `complete`, `partial` (stopped by the user) or `error`.
+  `status`: `complete`, `partial` (stopped by the user; for Continuous, only during warm-up, §15)
+  or `error`.
 - `series` holds the steady-window bucket values for the result-detail charts, downsampled to at
   most 2000 points.
 - **Versioning.** `schemaVersion` is an integer. Import accepts any version up to the current one
