@@ -54,9 +54,11 @@ updates:
       - dependency-name: "node"
         versions: [">= 25"]
       # The build stage stays on the Go line decisions.md locks (1.26, as .go-version and go.mod
-      # say); moving it is a decision, not a dependency bump.
+      # say); moving it is a decision, not a dependency bump. Take patch releases of the current
+      # line only; move to a new minor by bumping .go-version, go.mod and this image together, by
+      # hand.
       - dependency-name: "golang"
-        versions: [">= 1.27"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     groups:
       docker-base-images:
         patterns:
