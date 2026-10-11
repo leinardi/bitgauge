@@ -398,10 +398,23 @@ Every update passes the same CI as any other pull request. Docker digest updates
 
 ## Required Checks and Fork Pull Requests
 
-The branch ruleset on `main` requires these checks: `pre-commit-all`, `repo-gates`,
-`go-test / go-test` (the job calls the reusable `go-test.yaml`, so GitHub reports it under both
-names), `audit`, `conventional-commits` and `ci-result`. The reviewdog annotation jobs are not
-required; they duplicate `pre-commit-all` as inline comments.
+The rulesets are managed as code in
+[`leinardi/gh-leinardi-iac`](https://github.com/leinardi/gh-leinardi-iac), in the `repo_bitgauge`
+module of `stacks/github-repos/repos.tf`, never by hand or with `gh api`: the ruleset on `main`
+(pull requests only, no force push, no deletion) and the immutable `v*` tag ruleset. A change to
+either is a pull request there.
+
+The one required check is `ci-result`, set there as
+`default_branch_required_checks = ["ci-result"]`. It needs every other job of `ci.yaml`
+(`pre-commit-all`, `conventional-commits`, `repo-gates`, `release-scripts`, `go-test` and `audit`,
+and the image, web, E2E and harness jobs once their gates activate) and fails unless each one
+succeeded, so a new job becomes required by joining `ci-result`'s `needs`, not the ruleset. GitHub
+counts a skipped required job as passing, which is why the jobs themselves are not listed. The
+reviewdog annotation jobs are not needed by `ci-result`; they duplicate `pre-commit-all` as inline
+comments.
+
+Once the ruleset is applied, open one pull request and confirm the required check reports under
+exactly the name `ci-result`. A required check that never reports blocks every merge.
 
 Jobs that pull `dhi.io` images (the image build and its tests, the accuracy harness, release and
 the scan's image job) need a **trusted run**: a push to `main`, a schedule or dispatch, a pull
@@ -455,9 +468,10 @@ This is one reason the process is [provisional](#release) and is revisited befor
 3. **Workflow permissions.** Every workflow is `contents: read` at the top. The `release` job adds
    `contents: write`, `packages: write`, `id-token: write` (cosign keyless and attestations) and
    `attestations: write`.
-4. **Immutable tags.** A ruleset on `v*` tags with no update, no deletion and no bypass.
-5. **Branch protection** on `main`: pull requests only, and the
-   [required checks](#required-checks-and-fork-pull-requests).
+4. **Immutable tags.** A ruleset on `v*` tags with no update, no deletion and no bypass, managed in
+   `gh-leinardi-iac` ([required checks](#required-checks-and-fork-pull-requests)).
+5. **Branch protection** on `main`: pull requests only, and the required `ci-result` check, managed
+   in `gh-leinardi-iac` ([required checks](#required-checks-and-fork-pull-requests)).
 6. **Dependabot** enabled with the configuration above, and **private vulnerability reporting**
    enabled for [SECURITY.md](../SECURITY.md).
 7. **GHCR package visibility (after the first release).** The first release creates

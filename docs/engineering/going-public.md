@@ -35,18 +35,20 @@ no rebuild of a published version), chosen while the repository is private.
 Today `main` takes direct pushes, deliberately. The moment a fork can open a pull request, direct
 push stops being the normal path.
 
-- [ ] A branch ruleset on `main`: pull requests only, no force push, no deletion.
-- [ ] Required checks, by name: `pre-commit-all`, `repo-gates`, `go-test / go-test` (GitHub reports
-      the reusable workflow's job under both names), `audit`, `conventional-commits` and
-      `ci-result`
-      ([release.md](../release.md#required-checks-and-fork-pull-requests)). The reviewdog
-      annotation jobs stay optional; they duplicate `pre-commit-all` as inline comments.
-- [ ] Open one pull request after the ruleset exists and confirm each required check appears under
-      exactly that name. A required check that never reports blocks every merge.
+The rulesets live in `leinardi/gh-leinardi-iac` (`stacks/github-repos/repos.tf`, module
+`repo_bitgauge`), not in this repository and not in `gh api` calls
+([release.md](../release.md#required-checks-and-fork-pull-requests)).
+
+- [ ] In `gh-leinardi-iac`, the branch ruleset on `main` (pull requests only, no force push, no
+      deletion) with `default_branch_required_checks = ["ci-result"]`. `ci-result` needs every
+      other `ci.yaml` job, so it is the only check to require; the reviewdog annotation jobs stay
+      outside it, since they duplicate `pre-commit-all` as inline comments.
+- [ ] Open one pull request after the ruleset exists and confirm the required check reports under
+      exactly the name `ci-result`. A required check that never reports blocks every merge.
 - [ ] Decide whether the owner keeps a bypass. A bypass that exists is a bypass that gets used; an
       owner without one opens a pull request for every change, which is the cost of the guarantee.
-- [ ] The immutable `v*` tag ruleset and the `release` environment restricted to `main`
-      ([release.md, one-time setup](../release.md#one-time-setup)).
+- [ ] The immutable `v*` tag ruleset (also in `gh-leinardi-iac`) and the `release` environment
+      restricted to `main` ([release.md, one-time setup](../release.md#one-time-setup)).
 
 `pre-commit-all` already runs every hook on every pull request and every push to `main`, so a check
 that exists only on a contributor's machine is the exception: `go-test-repo-mod` is skipped there
