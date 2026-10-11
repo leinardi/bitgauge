@@ -1,8 +1,9 @@
 # Implementation Status
 
 Per-feature-area implementation status with code pointers. Version-level milestones live in
-[`features/roadmap.md`](features/roadmap.md). BitGauge is in the specification phase: every area
-is specified and none is implemented, so no code pointers exist yet.
+[`features/roadmap.md`](features/roadmap.md). BitGauge is in the specification phase: every
+product area is specified and none is implemented, so only the engineering scaffold's row has code
+pointers.
 
 > **Keep this honest:** update the table in the same PR that changes a feature's status.
 > Stale status claims in instruction files are worse than no claims.
@@ -35,6 +36,7 @@ is specified and none is implemented, so no code pointers exist yet.
 | HTTP loaded responsiveness (path B) | Spec'd (v0.3) |  |
 | Quality scores (AIM) | Spec'd (v0.3) |  |
 | Continuous mode | Spec'd (v0.3) |  |
+| Engineering scaffold (gates, CI, release tooling) | Tooling in place; product gates dormant (see AGENTS) | `test/toolchain/gates.go`; dormant: API types, frontend lint and typecheck, frontend unit tests, web build, binary build, image and image tests, E2E, accuracy harness, release; also `idle-measure` until a binary runs ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)) |
 | Packet loss via WebRTC and TURN | Open (unscheduled) |  |
 | Headless CLI client | Open (unscheduled) |  |
 | linux/arm/v7 images | Open (unscheduled) |  |
