@@ -1,0 +1,48 @@
+name: Pre-commit Cache Warm-up
+
+# Keeps a main-branch cache of the pre-commit hook environments for pull requests to restore: the
+# pre-commit-all job in ci.yaml and the reviewdog annotation jobs read it under the same key
+# (pre-commit|<OS>|<hash of .pre-commit-config.yaml>). The weekly schedule is eviction insurance,
+# as in go-cache-warmup.yaml.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .pre-commit-config.yaml
+      - .github/workflows/pre-commit-warmup.yaml
+  schedule:
+    - cron: "37 3 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: pre-commit-warmup
+  cancel-in-progress: true
+
+# Every job reads the repository and nothing else, unless it says otherwise below.
+permissions:
+  contents: read
+
+jobs:
+  warm-pre-commit-cache:
+    uses: leinardi/gh-reusable-workflows/.github/workflows/pre-commit-warmup.yaml@4b8d094239089d9f91fd15b929db30fcb2a3c118 # v1.3.1
+
+  # Each configuration change saves a new entry; keep only the newest two so the repository cache
+  # quota is not spent on hook environments nothing uses any more.
+  prune:
+    needs: warm-pre-commit-cache
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+
+    steps:
+      - name: Delete older pre-commit caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh cache list --ref refs/heads/main --key 'pre-commit|' --sort created_at --order desc --limit 100 \
+            --json id --jq '.[2:][].id' |
+            xargs -r -n 1 gh cache delete

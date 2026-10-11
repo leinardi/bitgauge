@@ -130,6 +130,25 @@ func TestGolangciLintIsOneVersion(t *testing.T) {
 	}, steps[golangciLintA])
 }
 
+// TestHadolintIsOneVersion: the hadolint hook runs the system binary, so the version CI installs
+// is the one that lints; it must follow the hook's rev, which Dependabot moves.
+func TestHadolintIsOneVersion(t *testing.T) {
+	t.Parallel()
+
+	expectOneValue(t, "hadolint", []pinSource{
+		{
+			file: ".pre-commit-config.yaml",
+			pattern: regexp.MustCompile(
+				`repo: https://github\.com/hadolint/hadolint\s+rev:\s*(v[\d.]+)`,
+			),
+		},
+		{
+			file:    ".github/actions/setup-hadolint/action.yaml",
+			pattern: regexp.MustCompile(`HADOLINT_VERSION:\s*["']?(v[\d.]+)`),
+		},
+	}, nil)
+}
+
 // TestExactWebPins: the tools whose version other files must match are pinned exactly in
 // web/package.json, without a range.
 func TestExactWebPins(t *testing.T) {

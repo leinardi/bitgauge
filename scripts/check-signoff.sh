@@ -24,20 +24,32 @@
 # will record them. A trailer for somebody else does not certify the author's own change.
 #
 # Merge commits and fixup!/squash!/amend! commits are exempt: the first carries no change of its
-# own, and the others are folded into a signed-off commit before they land.
+# own, and the others are folded into a signed-off commit before they land. That holds locally,
+# where the hook runs before the history is cleaned up; CI's signoff job runs with --strict, which
+# exempts nothing, because there the commit is about to land as it is: an autosquash commit must be
+# squashed first, and a real merge commit never reaches the script (git rev-list --no-merges).
 
 set -euo pipefail
 
 usage() {
 	cat <<'EOF'
-Usage: scripts/check-signoff.sh <commit-message-file>
+Usage: scripts/check-signoff.sh [--strict] <commit-message-file>
 
 Fails unless the commit message carries a "Signed-off-by: Name <email>" trailer matching the
 commit's author identity. Run as a pre-commit commit-msg hook.
+
+  --strict  exempt no subject: fail fixup!, squash! and amend! commits, and check a "Merge"
+            subject like any other. CI runs it this way on the commits of a pull request.
 EOF
 }
 
-if [[ $# -ne 1 || $1 == -h || $1 == --help ]]; then
+strict=false
+if [[ $# -eq 2 && $1 == --strict ]]; then
+	strict=true
+	shift
+fi
+
+if [[ $# -ne 1 || $1 == -h || $1 == --help || $1 == --strict ]]; then
 	usage >&2
 	exit 2
 fi
@@ -52,8 +64,17 @@ message="$(sed '/^[^[:space:]] -\{24\} >8 -\{24\}$/,$d' "${message_file}" | git 
 subject="${message%%$'\n'*}"
 
 case "${subject}" in
-'Merge '* | 'fixup! '* | 'squash! '* | 'amend! '*)
+'fixup! '* | 'squash! '* | 'amend! '*)
+	if [[ ${strict} == true ]]; then
+		echo "Commit \"${subject}\" is an autosquash commit: squash it before merging." >&2
+		exit 1
+	fi
 	exit 0
+	;;
+'Merge '*)
+	if [[ ${strict} == false ]]; then
+		exit 0
+	fi
 	;;
 esac
 

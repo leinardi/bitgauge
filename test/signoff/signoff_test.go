@@ -84,7 +84,39 @@ func TestCheckSignoff(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			out, err := run(t, test.message)
+			out, err := run(t, test.message, false)
+			if test.pass && err != nil {
+				t.Errorf("rejected, want accepted: %v\n%s", err, out)
+			}
+
+			if !test.pass && err == nil {
+				t.Errorf("accepted, want rejected:\n%s", test.message)
+			}
+		})
+	}
+}
+
+// TestCheckSignoffStrict is the mode CI's signoff job runs: the commits are about to land as they
+// are, so no subject is exempt.
+func TestCheckSignoffStrict(t *testing.T) {
+	t.Parallel()
+
+	for name, test := range map[string]struct {
+		message string
+		pass    bool
+	}{
+		"signed off by the author": {"docs(x): change\n\n" + signedOff + "\n", true},
+		"no trailer":               {"docs(x): change\n", false},
+		"signed-off fixup commit":  {"fixup! docs(x): change\n\n" + signedOff + "\n", false},
+		"squash commit":            {"squash! docs(x): change\n", false},
+		"amend commit":             {"amend! docs(x): change\n", false},
+		"unsigned Merge subject":   {"Merge branch 'main' into feature\n", false},
+		"signed-off Merge subject": {"Merge branch 'main' into feature\n\n" + signedOff + "\n", true},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			out, err := run(t, test.message, true)
 			if test.pass && err != nil {
 				t.Errorf("rejected, want accepted: %v\n%s", err, out)
 			}
@@ -106,16 +138,18 @@ func TestCheckSignoffUsage(t *testing.T) {
 		t.Fatalf("read the hook: %v", err)
 	}
 
-	cmd := exec.CommandContext(t.Context(), scriptPath)
-	cmd.Dir = root
+	for _, args := range [][]string{nil, {"--strict"}, {"--lenient", "/dev/null"}} {
+		cmd := exec.CommandContext(t.Context(), scriptPath, args...)
+		cmd.Dir = root
 
-	out, err := cmd.CombinedOutput()
-	if err == nil || !strings.Contains(string(out), "Usage:") {
-		t.Errorf("no argument must fail with usage, got err=%v:\n%s", err, out)
+		out, err := cmd.CombinedOutput()
+		if err == nil || !strings.Contains(string(out), "Usage:") {
+			t.Errorf("arguments %q must fail with usage, got err=%v:\n%s", args, err, out)
+		}
 	}
 }
 
-func run(t *testing.T, message string) (string, error) {
+func run(t *testing.T, message string, strict bool) (string, error) {
 	t.Helper()
 
 	// The hook reads its message file once, so /dev/stdin stands in for COMMIT_EDITMSG. A relative
@@ -131,6 +165,10 @@ func run(t *testing.T, message string) (string, error) {
 	}
 
 	cmd := exec.CommandContext(t.Context(), scriptPath, "/dev/stdin")
+	if strict {
+		cmd = exec.CommandContext(t.Context(), scriptPath, "--strict", "/dev/stdin")
+	}
+
 	cmd.Dir = root
 	cmd.Stdin = strings.NewReader(message)
 

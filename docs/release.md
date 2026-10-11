@@ -219,15 +219,17 @@ Weekly update pull requests for five ecosystems:
 | `pre-commit` | hook revisions in `.pre-commit-config.yaml` | `chore(deps)` |
 
 Every update passes the same CI as any other pull request, except that the `signoff` check
-exempts commits authored by `dependabot[bot]`, which carry no `Signed-off-by`. Docker digest
+exempts commits authored by `dependabot[bot]`, which carry no `Signed-off-by`: only on a pull request
+Dependabot opened, and only for commits with Dependabot's own author email. Docker digest
 updates pull from
 `dhi.io`, so Dependabot needs its own copy of the `dhi.io` token (see the setup below).
 
 ## Required Checks and Fork Pull Requests
 
-The branch ruleset on `main` requires these checks: `pre-commit-all`, `repo-gates`, `go-test`,
-`audit`, `conventional-commits`, `signoff` and `ci-result`. The reviewdog annotation jobs are not
-required; they duplicate `pre-commit-all` as inline comments.
+The branch ruleset on `main` requires these checks: `pre-commit-all`, `repo-gates`,
+`go-test / go-test` (the job calls the reusable `go-test.yaml`, so GitHub reports it under both
+names), `audit`, `conventional-commits`, `signoff` and `ci-result`. The reviewdog annotation jobs
+are not required; they duplicate `pre-commit-all` as inline comments.
 
 Jobs that pull `dhi.io` images (the image build and its tests, the accuracy harness, release,
 rebuild and the scan's image job) need a **trusted run**: a push to `main`, a schedule or dispatch,
