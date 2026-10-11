@@ -37,8 +37,8 @@ push stops being the normal path.
 
 - [ ] A branch ruleset on `main`: pull requests only, no force push, no deletion.
 - [ ] Required checks, by name: `pre-commit-all`, `repo-gates`, `go-test / go-test` (GitHub reports
-      the reusable workflow's job under both names), `audit`, `conventional-commits`, `signoff`
-      and `ci-result`
+      the reusable workflow's job under both names), `audit`, `conventional-commits` and
+      `ci-result`
       ([release.md](../release.md#required-checks-and-fork-pull-requests)). The reviewdog
       annotation jobs stay optional; they duplicate `pre-commit-all` as inline comments.
 - [ ] Open one pull request after the ruleset exists and confirm each required check appears under
@@ -50,8 +50,8 @@ push stops being the normal path.
 
 `pre-commit-all` already runs every hook on every pull request and every push to `main`, so a check
 that exists only on a contributor's machine is the exception: `go-test-repo-mod` is skipped there
-because `go-test` runs the same tests, and the commit-message hooks are replaced by the
-`conventional-commits` and `signoff` jobs.
+because `go-test` runs the same tests, and the commit-message hook is replaced by the
+`conventional-commits` job.
 
 ## 3. Restore the Scheduled Scan
 
@@ -86,8 +86,8 @@ livable.
 - [ ] **Verify the replacement pull request path with a real fork from a second account**: open a
       fork pull request that touches an image input, watch `ci-result` fail on the skipped image
       jobs, push its commits unchanged to a branch of this repository, open the replacement pull
-      request, and merge it once green with authorship and `Signed-off-by` intact. Only then drop
-      the word **unverified** from `CONTRIBUTING.md` and `release.md`.
+      request, and merge it once green with the authorship intact. Only then drop the word
+      **unverified** from `CONTRIBUTING.md` and `release.md`.
 - [ ] Confirm a Dependabot pull request runs the image jobs: Dependabot reads the `DHI_TOKEN`
       Dependabot secret, not the Actions secret.
 

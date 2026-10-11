@@ -387,18 +387,15 @@ Monthly update pull requests for five ecosystems:
 | `github-actions` | actions pinned by commit SHA | `chore(deps)` |
 | `pre-commit` | hook revisions in `.pre-commit-config.yaml` | `chore(deps)` |
 
-Every update passes the same CI as any other pull request, except that the `signoff` check
-exempts commits authored by `dependabot[bot]`, which carry no `Signed-off-by`: only on a pull
-request Dependabot opened, and only for commits with Dependabot's own author email. Docker digest
-updates pull from `dhi.io`, so Dependabot needs its own copy of the `dhi.io` token (see the setup
-below).
+Every update passes the same CI as any other pull request. Docker digest updates pull from
+`dhi.io`, so Dependabot needs its own copy of the `dhi.io` token (see the setup below).
 
 ## Required Checks and Fork Pull Requests
 
 The branch ruleset on `main` requires these checks: `pre-commit-all`, `repo-gates`,
 `go-test / go-test` (the job calls the reusable `go-test.yaml`, so GitHub reports it under both
-names), `audit`, `conventional-commits`, `signoff` and `ci-result`. The reviewdog annotation jobs
-are not required; they duplicate `pre-commit-all` as inline comments.
+names), `audit`, `conventional-commits` and `ci-result`. The reviewdog annotation jobs are not
+required; they duplicate `pre-commit-all` as inline comments.
 
 Jobs that pull `dhi.io` images (the image build and its tests, the accuracy harness, release and
 the scan's image job) need a **trusted run**: a push to `main`, a schedule or dispatch, a pull
@@ -408,10 +405,10 @@ whose image jobs were skipped. The image jobs have no path filter, so once they 
 to every fork pull request, documentation-only ones included. `pull_request_target` is never used.
 
 The only merge path for a fork pull request is then a **replacement pull request**: a maintainer
-pushes the fork's commits unchanged (authorship and `Signed-off-by` preserved) to a branch of this
-repository, opens a pull request that references the original, merges it once it is green, and
-closes the fork pull request with a link. This path is **unverified** until it has been tested with
-a real fork from a second account.
+pushes the fork's commits unchanged (authorship preserved) to a branch of this repository, opens a
+pull request that references the original, merges it once it is green, and closes the fork pull
+request with a link. This path is **unverified** until it has been tested with a real fork from a
+second account.
 
 ## One-Time Setup
 

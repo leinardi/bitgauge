@@ -58,10 +58,10 @@ gate CI runs.
 CI jobs that pull the `dhi.io` base images (the image build and its tests, the accuracy harness)
 need repository secrets, which a pull request from a fork never receives. Once those jobs exist,
 they are skipped with a notice on every fork pull request, and the `ci-result` check fails. A
-maintainer then pushes your commits unchanged, with authorship and `Signed-off-by` preserved, to a
-branch of this repository and opens a replacement pull request that references yours; once it is
-green it is merged, and your pull request is closed with a link to it. This merge path is
-**unverified**: it has not yet been tested with a real fork from a second account. See
+maintainer then pushes your commits unchanged, with their authorship preserved, to a branch of this
+repository and opens a replacement pull request that references yours; once it is green it is
+merged, and your pull request is closed with a link to it. This merge path is **unverified**: it
+has not yet been tested with a real fork from a second account. See
 [`docs/release.md`](docs/release.md#required-checks-and-fork-pull-requests).
 
 ## Commit Messages
@@ -79,13 +79,10 @@ Release versions are derived by `svu` from these types: `feat` is a minor, `fix`
 `BREAKING CHANGE:` footer a major; every other type bumps nothing. See
 [AGENTS.md](AGENTS.md#commit-messages) and [`docs/release.md`](docs/release.md).
 
-## Developer Certificate of Origin and Licence
+## Licence
 
-- Every commit must be signed off (`git commit -s`), certifying the
-  [Developer Certificate of Origin 1.1](https://developercertificate.org/): you wrote the
-  change or have the right to submit it under the project's licence.
-- By contributing, you agree that your contribution is licensed under
-  **GPL-3.0-or-later**, the licence of the project ([LICENSE](LICENSE)).
+By contributing, you agree that your contribution is licensed under **GPL-3.0-or-later**, the
+licence of the project ([LICENSE](LICENSE)).
 
 ## No Third-Party Speed-Test Code
 

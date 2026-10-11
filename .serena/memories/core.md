@@ -18,7 +18,7 @@ web/src/api/types.gen.ts  PLANNED, GENERATED from api/openapi.yaml (make api-typ
 web/harness/run.spec.ts   Playwright driver of the accuracy harness
 deployments/docker/       Dockerfile: web, build, runtime stages; dhi.io bases pinned by digest
 test/                     Go meta-tests: boundary, docs, dockerfiles, filebudgets, licenseheaders,
-                          packagemap, signoff, suppressions, toolchain (gates.go registry, pins)
+                          packagemap, suppressions, toolchain (gates.go registry, pins)
 test/image/               //go:build image: the shipped image under netguard + strace (Docker)
 test/harness/             accuracy harness; runners behind //go:build harness (Docker)
 test/internal/            testenv (docker CLI envs, labels, sweep), netguard (nft egress counters),

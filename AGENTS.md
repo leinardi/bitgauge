@@ -113,10 +113,6 @@ optional blank-line body and footers. Types: `feat`, `fix`, `docs`, `test`, `ref
 `feat(engine): add the stream ramp`, `fix(upload): count bytes on the server grid`. Enforced by the
 `conventional-pre-commit` `commit-msg` hook (`--force-scope`) and the `conventional-commits` CI job.
 
-Every commit carries a DCO `Signed-off-by:` trailer (`git commit -s`), checked by the
-`check-signoff` `commit-msg` hook (`scripts/check-signoff.sh`) and, in strict mode, by the
-`signoff` CI job, which exempts only Dependabot's own commits on the pull requests it opened.
-
 Release versions are derived by `svu` from the commits since the last tag, so a wrong type ships a
 wrong version:
 
@@ -147,7 +143,6 @@ Run before considering an edit done. `make check` applies to every row.
 | `scripts/check-package-map.sh`, the package map in [backend.md §1](docs/features/technical-stack/backend.md) | `go test ./test/packagemap/` |
 | `scripts/check-file-budgets.sh`, `.file-budgets` | `go test ./test/filebudgets/ ./test/toolchain/` |
 | `scripts/check-license-headers.sh` | `go test ./test/licenseheaders/` |
-| `scripts/check-signoff.sh` | `go test ./test/signoff/` |
 | `scripts/hooks/gofmt-on-edit.sh` | shellcheck (in `make check`); no test package: run it once by editing a `.go` file in Claude Code |
 | `scripts/bootstrap-mk-common.sh` | shellcheck (in `make check`); it comes from make-common, so a change is ported upstream; `make help` proves the snippets still load |
 | `scripts/idle-measure.sh`, `.mk/idle-measure.mk` | `shellcheck scripts/idle-measure.sh`, `make help`; no test package: it needs a running binary |

@@ -177,13 +177,6 @@ repos:
         # always_run makes this hook eligible at every installed stage, and commit-msg is one of
         # them; pinned so the whole-tree scan runs once.
         stages: [pre-commit]
-      # Developer Certificate of Origin: every commit carries its author's Signed-off-by
-      # (CONTRIBUTING.md). CI's signoff job checks pull requests again, for clones without hooks.
-      - id: check-signoff
-        name: DCO sign-off
-        entry: scripts/check-signoff.sh
-        language: system
-        stages: [commit-msg]
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.38.0
     hooks:

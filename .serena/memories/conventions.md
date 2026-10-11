@@ -4,7 +4,7 @@ Full Go rules: `.claude/skills/go-style-guide`. Review routing: `.claude/skills/
 
 ## Commits
 
-- Conventional Commits with a scope; `git commit -s` (DCO, checked by hook and CI strict mode)
+- Conventional Commits with a scope (commit-msg hook and the CI `conventional-commits` job)
 - Type decides the release (svu): ship to users = `feat`/`fix`; tooling, tests, docs = other types
 
 ## Go — what bites most
