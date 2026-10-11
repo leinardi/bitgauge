@@ -39,6 +39,10 @@ const (
 	buildPackagingDoc = "docs/features/technical-stack/build-packaging.md"
 	wantPlatforms     = "linux/amd64,linux/arm64"
 	runtimeUser       = "65532:65532"
+	// healthcheck is the runtime stage's HEALTHCHECK, timings included, exactly as
+	// build-packaging.md section 1 documents it.
+	healthcheckTimings = "--interval=30s --timeout=5s --start-period=5s --retries=3"
+	healthcheck        = healthcheckTimings + ` CMD ["/bitgauge", "healthcheck"]`
 )
 
 // TestShippedDockerfileIsTheOnlyOne pins that deployments/docker holds exactly the image that
@@ -61,6 +65,34 @@ func TestShippedDockerfileIsTheOnlyOne(t *testing.T) {
 
 	if !slices.Equal(found, []string{"Dockerfile"}) {
 		t.Errorf("%s holds %v, want exactly [Dockerfile]", shippedDir, found)
+	}
+}
+
+// TestSyntaxDirectiveIsPinned pins the BuildKit frontend that reads each Dockerfile
+// (build-packaging.md section 1). A bare docker/dockerfile:1.7 is a tag that can be moved under a
+// build, and Dependabot never updates the line, so it is a literal reference pinned by digest. The
+// shipped image must carry one; another Dockerfile may use the builder's default frontend, but if
+// it names one, the same rule holds.
+func TestSyntaxDirectiveIsPinned(t *testing.T) {
+	t.Parallel()
+
+	for _, path := range allDockerfiles(t) {
+		syntax, ok := dockerfiles.Syntax(readRepoFile(t, path))
+		if !ok {
+			if path == shippedDockerfile {
+				t.Errorf("%s has no syntax parser directive on its first line", path)
+			}
+
+			continue
+		}
+
+		if dockerfiles.Repository(syntax) != "docker/dockerfile" {
+			t.Errorf("%s reads with the frontend %q, want docker/dockerfile", path, syntax)
+		}
+
+		if !dockerfiles.DigestPinned(syntax) {
+			t.Errorf("%s reads with the frontend %q, which is not pinned by digest", path, syntax)
+		}
 	}
 }
 
@@ -175,7 +207,7 @@ func TestRuntimeStage(t *testing.T) {
 	want := map[string]string{
 		"USER":        runtimeUser,
 		"EXPOSE":      "8080",
-		"HEALTHCHECK": `CMD ["/bitgauge", "healthcheck"]`,
+		"HEALTHCHECK": healthcheck,
 		"ENTRYPOINT":  `["/bitgauge"]`,
 		"COPY":        "--from=build /out/bitgauge /bitgauge",
 	}
@@ -202,6 +234,14 @@ func TestRuntimeStage(t *testing.T) {
 				args,
 			)
 		}
+	}
+
+	if !strings.Contains(
+		readRepoFile(t, buildPackagingDoc),
+		"`HEALTHCHECK "+healthcheckTimings+"`",
+	) {
+		t.Errorf("%s does not document the HEALTHCHECK timings %s", buildPackagingDoc,
+			healthcheckTimings)
 	}
 
 	labels := dockerfiles.Labels(runtime)
@@ -387,6 +427,25 @@ func TestParseRejectsWhatTheAssertionsMustNotMiss(t *testing.T) {
 	if len(stages) != 2 || stages[0].Name != "one" || stages[1].Name != "" ||
 		joined(stages[0]) != "RUN echo two" || joined(stages[1]) != "USER 1:1" {
 		t.Errorf("parsed %+v", stages)
+	}
+
+	for name, content := range map[string]string{
+		"no directive":              "FROM a:1" + digest + "\n",
+		"after a comment":           "# note\n# syntax=docker/dockerfile:1.7" + digest + "\n",
+		"after a blank line":        "\n# syntax=docker/dockerfile:1.7" + digest + "\n",
+		"after an instruction":      "FROM a:1" + digest + "\n# syntax=docker/dockerfile:1.7" + digest + "\n",
+		"a directive with no value": "# syntax=\n",
+	} {
+		if syntax, ok := dockerfiles.Syntax(content); ok {
+			t.Errorf("%s: read the syntax directive %q, which BuildKit ignores", name, syntax)
+		}
+	}
+
+	syntax, ok := dockerfiles.Syntax(
+		"# check=error=true\n#Syntax = docker/dockerfile:1.7" + digest + "\n",
+	)
+	if !ok || syntax != "docker/dockerfile:1.7"+digest {
+		t.Errorf("a directive after another directive read as %q, %v", syntax, ok)
 	}
 
 	_, err = dockerfiles.Parse("FROM a:1" + digest + "\nRUN echo \\\n")

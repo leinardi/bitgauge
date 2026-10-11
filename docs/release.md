@@ -360,9 +360,9 @@ moves, or whose repository is compromised, would execute inside the release job,
 `github-actions` ecosystem updates the pins and rewrites the comment.
 
 **Every image the release job runs is pinned by digest**: the job-local registry
-(`REGISTRY_IMAGE`) and skopeo (`SKOPEO_IMAGE`) in the workflow's `env`, and the stage images in the
-Dockerfile. Dependabot's `docker` ecosystem does not update the images in the workflow's `env`, so
-they are bumped by hand: resolve the new index digest with
+(`REGISTRY_IMAGE`) and skopeo (`SKOPEO_IMAGE`) in the workflow's `env`, and the stage images and the
+`# syntax=docker/dockerfile:…` BuildKit frontend in the Dockerfile. Dependabot's `docker` ecosystem
+updates only the stage images, so the others are bumped by hand: resolve the new index digest with
 `docker buildx imagetools inspect <image>:<tag>` and replace the tag and the digest together. `svu`
 (`SVU_VERSION`) and Trivy (`TRIVY_VERSION`, in both `release.yaml` and `scheduled-scan.yaml`) are
 pinned as versions and bumped by hand for the same reason; `test/toolchain/pins_test.go` holds them

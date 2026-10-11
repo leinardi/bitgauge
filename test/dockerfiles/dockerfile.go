@@ -56,6 +56,29 @@ type Stage struct {
 // in the reference makes it unpinnable by a reader: the value lives in a build argument.
 var digestPinned = regexp.MustCompile(`^[a-z0-9.\-/:]+:[A-Za-z0-9._\-]+@sha256:[0-9a-f]{64}$`)
 
+// parserDirective is one "# key=value" line of the block BuildKit reads before anything else.
+var parserDirective = regexp.MustCompile(`^#\s*([A-Za-z]+)\s*=\s*(\S+)\s*$`)
+
+// Syntax returns the value of the file's syntax parser directive. BuildKit reads directives only
+// from the file's leading lines, and stops at the first line that is not one (a comment, a blank
+// line or an instruction), so a "# syntax=" line anywhere later is an ordinary comment: this
+// reader stops at the same place, and reports the directive missing rather than find one BuildKit
+// ignores.
+func Syntax(content string) (string, bool) {
+	for line := range strings.SplitSeq(content, "\n") {
+		match := parserDirective.FindStringSubmatch(strings.TrimSpace(line))
+		if match == nil {
+			return "", false
+		}
+
+		if strings.EqualFold(match[1], "syntax") {
+			return match[2], true
+		}
+	}
+
+	return "", false
+}
+
 // Parse splits a Dockerfile into instructions, dropping comments and blank lines and joining
 // backslash continuations, and groups them into stages.
 func Parse(content string) ([]Stage, error) {

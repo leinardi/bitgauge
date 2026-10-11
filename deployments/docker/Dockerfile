@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+
 #
 # This file is part of BitGauge.
 #
@@ -19,6 +21,10 @@
 # The shipped image (build-packaging.md section 1). Every stage is a literal FROM pinned by digest,
 # because Dependabot updates only literal FROM lines and a tag alone can be repointed under a build.
 # All three bases come from dhi.io, so pulling them needs a dhi.io token.
+#
+# The syntax line above pins the BuildKit frontend by index digest, so a moved 1.7 tag cannot change
+# how this file is built. It is a parser directive and has to be the file's first line, ahead of
+# this header. Dependabot's docker ecosystem does not update it: bump it by hand (docs/release.md).
 
 ########################
 # web: build the SPA the binary embeds.
@@ -92,8 +98,13 @@ USER 65532:65532
 
 EXPOSE 8080
 
-# Exec form: there is no shell. The subcommand probes the server's own listen address
-# (backend.md section 6).
-HEALTHCHECK CMD ["/bitgauge", "healthcheck"]
+# Exec form: there is no shell. The subcommand loads the same configuration as serve and probes the
+# server's own listen address and base path (backend.md section 6), so a deployment that changes
+# either needs no override. The timings are build-packaging.md section 1's: the probe's own request
+# times out after 3 s, so the 5 s timeout never cuts a probe that would have answered; startup is
+# config validation, a 4 MiB random buffer and a listen, which the 5 s start period covers; three
+# failures 30 s apart mark a stuck server unhealthy without flapping on one slow probe.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+	CMD ["/bitgauge", "healthcheck"]
 
 ENTRYPOINT ["/bitgauge"]

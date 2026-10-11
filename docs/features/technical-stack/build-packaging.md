@@ -19,6 +19,10 @@ lines and a tag alone can be repointed under a build, and the stages are named:
 | `build` | `dhi.io/golang:1.26-alpine…-dev`, pinned by digest, on the build platform | Copies `web/dist`, then `CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -trimpath -buildvcs=false -ldflags "-s -w -X …/internal/buildinfo.version=… -X …commit=… -X …date=…" ./cmd/bitgauge`. Cross-compiles; no emulation needed. |
 | `runtime` | `dhi.io/static`, pinned by digest | Copies the binary to `/bitgauge`; nothing else. |
 
+The file starts with a `# syntax=docker/dockerfile:1.7@sha256:…` parser directive, so the BuildKit
+frontend that reads it is pinned by digest too. Dependabot does not update that line; it is bumped
+by hand ([../../release.md](../../release.md#what-the-workflows-trust)).
+
 The build stages use the Docker Hardened Images development variants, so every stage of the image
 comes from `dhi.io`. Pulling them needs a `dhi.io` token, which a pull request from a fork does not
 receive: on such a pull request the image build is skipped with a visible notice in the job
@@ -31,8 +35,14 @@ Runtime image properties:
   unprivileged.
 - **No shell**, no package manager, no `curl`; a static binary needs no libc.
 - `ENTRYPOINT ["/bitgauge"]`, `EXPOSE 8080`.
-- `HEALTHCHECK` in exec form: `["/bitgauge", "healthcheck"]`
-  ([backend.md §6](backend.md#6-healthcheck-subcommand)).
+- `HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3`, in exec form:
+  `["/bitgauge", "healthcheck"]` ([backend.md §6](backend.md#6-healthcheck-subcommand)). The probe
+  loads the same configuration as `serve`, so a changed `server.listen` or base path needs no
+  override. Its own request times out after 3 s, so the 5 s timeout never cuts a probe that would
+  have answered; startup (configuration, the random buffer, the listener) fits in the 5 s start
+  period; and three failures 30 s apart mark a stuck server unhealthy without flapping on one slow
+  probe. The compose examples of
+  [deployment-example.md](../deployment-example.md#1-compose-bitgauge-alone) use the same timings.
 - Runs with a **read-only root filesystem** and no volume; nothing is written.
 - OCI labels: `org.opencontainers.image.title`, `.description`, `.source`
   (`https://github.com/leinardi/bitgauge`), `.version`, `.revision`, `.created` and

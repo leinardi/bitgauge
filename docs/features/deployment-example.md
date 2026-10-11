@@ -97,6 +97,7 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 5s
     networks: [edge]
     labels:
       traefik.enable: "true"
