@@ -27,8 +27,10 @@ MK_LOCAL_VERIFY_INCLUDED := 1
 # the Go that does exist.
 VERIFY_GO_BUILD := $(if $(wildcard $(REPO_ROOT)/cmd/bitgauge/main.go),go-build)
 
+# go-vet sees only untagged files. The image- and harness-tagged packages are vetted on their own,
+# so a Go change that breaks them fails here and not first on a machine with Docker.
 .PHONY: verify-go
-verify-go: $(VERIFY_GO_BUILD) go-test go-vet go-lint ## Verify the Go code (build once it exists, race tests, vet, lint)
+verify-go: $(VERIFY_GO_BUILD) go-test go-vet go-vet-image go-vet-harness go-lint ## Verify the Go code (build once it exists, race tests, vet untagged and tagged, lint)
 
 .PHONY: verify-web
 verify-web: web-lint web-test ## Verify the web code (ESLint, vue-tsc, Vitest)

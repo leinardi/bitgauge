@@ -451,8 +451,8 @@ before writing time-dependent code, a wait in a test, or a `time.Sleep` anywhere
 1. `pre-commit run golangci-lint-full --files <changed .go files>`, or `make go-lint` for the whole
    module (the same pinned golangci-lint, with the `image` and `harness` tags).
 2. Fix every finding and re-run until clean.
-3. `make verify-go` (build once a binary exists, `go test -race`, vet, lint); for tagged packages
-   also `make go-vet-image` or `make go-vet-harness`. Fix and re-run until green.
+3. `make verify-go` (build once a binary exists, `go test -race`, vet of the untagged, `image` and
+   `harness` packages, lint). Fix and re-run until green.
 4. `git status`: the `golangci-lint-fmt` formatters may have rewritten files; review and keep those
    changes. If you added or removed a suppression, run `scripts/check-suppressions.sh --update` and
    stage `.suppressions-baseline`.

@@ -86,7 +86,7 @@ make harness-ceiling   # manual range-ceiling profiles (bare metal)
 make harness-sweep     # remove stale harness environments, list kept ones
 make harness-sweep-all # remove every harness environment (needs CONFIRM=1)
 make verify            # verify-go and verify-web
-make verify-go         # Go vet, lint and tests
+make verify-go         # Go vet (untagged, image, harness), lint and tests
 make verify-web        # web lint, typecheck and tests
 make audit-deps        # audit-deps-go and audit-deps-web
 make audit-deps-go     # govulncheck

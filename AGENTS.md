@@ -71,7 +71,7 @@ make go-test           # go test -race ./...
 make go-vet            # go vet (make go-vet-image / go-vet-harness for the tagged packages)
 make go-lint           # golangci-lint v2, all linters, at the pre-commit pin
 make go-tidy           # go.mod and go.sum tidy and verified
-make verify-go         # go-build (once cmd/bitgauge exists), go-test, go-vet, go-lint
+make verify-go         # go-build (once cmd/bitgauge exists), go-test, go-vet (also image, harness), go-lint
 make verify-web        # web-lint and web-test (dormant)
 make verify            # both of the above
 make audit-deps        # pinned govulncheck -test ./... and npm audit in web/ (network)
