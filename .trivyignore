@@ -1,0 +1,3 @@
+# Vulnerabilities the release and rebuild scans accept (docs/release.md). Empty: nothing is
+# accepted. An entry is one vulnerability ID per line, with a comment above it saying why it does
+# not affect BitGauge and when it is reviewed again.

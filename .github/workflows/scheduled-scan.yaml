@@ -1,0 +1,50 @@
+name: Scheduled scan
+
+# A release is scanned once, when it is built. Vulnerabilities are published every day, so the
+# dependencies on main, and the image people pull once releases exist, should be scanned again
+# regularly with the release's own tools and settings (docs/release.md). A failure fails the run,
+# which is what makes it visible: fix it on main, and with a new release if it ships.
+#
+# Dispatch only for now: this repository is private and its Actions minutes are limited. Once it is
+# public, add the weekly schedule back (a going-public item):
+#
+#   schedule:
+#     # Mondays, 06:17 UTC: off the hour, when scheduled runs pile up.
+#     - cron: "17 6 * * 1"
+#
+# The image job, Trivy over each platform image of :latest, is added at the Release stage, when
+# there is a release to scan (test/toolchain/gates.go).
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }} @ ${{ github.ref }}"
+  cancel-in-progress: true
+
+# Every job reads the repository and nothing else, unless it says otherwise below.
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: .go-version
+          cache: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+
+      # govulncheck over main's Go packages and npm audit over web/, as CI's audit job runs them.
+      - name: Audit Go and web dependencies
+        run: make audit-deps
