@@ -307,6 +307,19 @@ jobs:
           BITGAUGE_REQUIRE_TOOLS: "1"
         run: go test ./test/...
 
+  # The release workflow's helper scripts, tested with a stub gh: no network, no token. They are
+  # live before release.yaml exists, so a change to them is tested when it is made.
+  release-scripts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Test binary-attestation-status.sh
+        run: bash .github/scripts/binary-attestation-status.test.sh
+
   # Defined in go-test.yaml so go-cache-warmup runs the identical job on main and saves the cache
   # that pull requests restore.
   go-test:
@@ -347,6 +360,7 @@ jobs:
       - conventional-commits
       - signoff
       - repo-gates
+      - release-scripts
       - go-test
       - audit
     runs-on: ubuntu-latest
