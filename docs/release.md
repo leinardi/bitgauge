@@ -180,8 +180,8 @@ exists so base-image security fixes reach users without a code change.
   `build` and `web`, main's `FROM` must keep the image repository, the Go `major.minor` or the
   Node major, and the tag shape apart from a patch version; for `runtime`, the repository and
   variant must match and the date tag may move. Anything else fails with a notice such as "main
-  moved build from Go 1.26 to 1.27; vX.Y.Z keeps 1.26, so cut a release to ship the new line, or
-  pin the old line".
+  moved build from Go 1.26 to Go 1.27; vX.Y.Z keeps Go 1.26, so cut a release to ship the new
+  line, or pin the old one on main" (`.github/scripts/rebuild-bases.sh`).
 - Ends without pushing when main's three digests equal the base-image materials recorded in the
   current `:X.Y.Z` image's provenance.
 - Otherwise builds to a job-local registry, scans with Trivy as a release does, re-checks that its
