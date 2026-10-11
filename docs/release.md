@@ -9,7 +9,8 @@ the image and web build gates are active, and their shape is specified here and 
 > [!IMPORTANT]
 > **Provisional: the release process must be revised before the repository goes public.** It
 > follows Runhold's model, chosen while the repository is private; the
-> [going-public checklist](engineering/README.md) revisits it before the first public release.
+> [going-public checklist](engineering/going-public.md#1-revise-the-release-model) revisits it
+> before the first public release.
 
 **There has been no release yet.** Before the first dispatch, dry runs included, do the
 [one-time setup](#one-time-setup).
@@ -219,10 +220,10 @@ Weekly update pull requests for five ecosystems:
 | `pre-commit` | hook revisions in `.pre-commit-config.yaml` | `chore(deps)` |
 
 Every update passes the same CI as any other pull request, except that the `signoff` check
-exempts commits authored by `dependabot[bot]`, which carry no `Signed-off-by`: only on a pull request
-Dependabot opened, and only for commits with Dependabot's own author email. Docker digest
-updates pull from
-`dhi.io`, so Dependabot needs its own copy of the `dhi.io` token (see the setup below).
+exempts commits authored by `dependabot[bot]`, which carry no `Signed-off-by`: only on a pull
+request Dependabot opened, and only for commits with Dependabot's own author email. Docker digest
+updates pull from `dhi.io`, so Dependabot needs its own copy of the `dhi.io` token (see the setup
+below).
 
 ## Required Checks and Fork Pull Requests
 
