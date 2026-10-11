@@ -185,7 +185,9 @@ Every production `web/src` `.vue` and `.ts` file is held under the ceiling decla
 `# ceiling` line of `.file-budgets` (400) by the `check-file-budgets` pre-commit hook
 (`scripts/check-file-budgets.sh`, also run by `go test ./test/filebudgets/`). Generated, vendored
 and test code is out of scope: `src/api/types.gen.ts`, `src/components/ui/`, `src/test/` and
-`*.test.ts`/`*.spec.ts`.
+`*.test.ts`/`*.spec.ts`. ESLint's `max-lines` in `web/eslint.config.ts` reads the same ceiling and
+the same exemptions from `.file-budgets`, so the editor flags a long file as it grows;
+`test/toolchain` checks that the two agree.
 
 The list of exemptions starts empty. An entry holds a file at its exact line count, so it can only
 shrink: the hook fails when a budgeted file grows, when it shrinks and its budget still claims the

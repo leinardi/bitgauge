@@ -52,7 +52,9 @@ not `vi.mock`.
 `scripts/check-file-budgets.sh` (pre-commit hook `check-file-budgets`) holds every `.vue` and `.ts`
 file under `web/src` to the `# ceiling` line of `.file-budgets`, currently **400**. Out of scope:
 `web/src/api/types.gen.ts`, `web/src/components/ui/` (shadcn-vue, copied by its CLI),
-`web/src/test/`, and every `*.test.ts` and `*.spec.ts`.
+`web/src/test/`, and every `*.test.ts` and `*.spec.ts`. ESLint's `max-lines` reads the same
+ceiling and exemptions from `.file-budgets` (`web/eslint.config.ts`), so `make web-lint` and the
+editor report a long file too; never set a second number there.
 
 The exemption list starts empty. An entry holds a file at its exact length, so it may shrink and
 never grow, and shrinking fails until the entry is lowered in the same commit

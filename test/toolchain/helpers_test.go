@@ -18,9 +18,9 @@
  */
 
 // Package toolchain_test pins the repository's tooling: the npm install policy, the engine boundary
-// in the ESLint configuration, the dependency audit, the fallow dead-code gate, the staged gate
-// registry, the shared version pins, Docker staying out of untagged tests, and the absence of
-// flags that make a gate pass on nothing.
+// and the file-budget ceiling in the ESLint configuration, the dependency audit, the fallow
+// dead-code gate, the staged gate registry, the shared version pins, Docker staying out of untagged
+// tests, and the absence of flags that make a gate pass on nothing.
 package toolchain_test
 
 import (

@@ -17,10 +17,38 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import pluginVue from 'eslint-plugin-vue'
 import vueI18n from '@intlify/eslint-plugin-vue-i18n'
 import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
+
+// The file budgets (AGENTS.md, "Frontend files have a line ceiling"). The ceiling and the files
+// exempted from it are read from the budget file at the repository root, which is also what
+// scripts/check-file-budgets.sh reads: one ceiling, one list, changed in one place. The exemption
+// has to live here because only ESLint can switch the rule off, and it is paired with that script
+// because an exemption on its own would let an already-long file grow without limit. Both are
+// parsed the way the script parses them: the first "# ceiling <lines>" line, and every line that is
+// neither blank nor a comment as "<path><TAB><lines>". Entries are repository-relative; ESLint
+// patterns are relative to this directory.
+const budgetLines = readFileSync(fileURLToPath(new URL('../.file-budgets', import.meta.url)), 'utf8').split('\n')
+
+const ceilingFields = budgetLines
+  .map((line) => line.trim().split(/\s+/))
+  .find((fields) => fields.length === 3 && fields[0] === '#' && fields[1] === 'ceiling' && /^\d+$/.test(fields[2] ?? ''))
+if (ceilingFields === undefined) {
+  throw new Error('.file-budgets declares no "# ceiling <lines>" line')
+}
+const maxLines = Number(ceilingFields[2])
+
+const budgetedFiles = budgetLines
+  .filter((line) => !/^\s*(#|$)/.test(line))
+  .map((line) => (line.split('\t')[0] ?? '').replace(/^web\//, ''))
+
+// The files the ceiling says nothing about, as scripts/check-file-budgets.sh lists them: generated,
+// vendored and test code.
+const unbudgetedFiles = ['src/api/types.gen.ts', 'src/components/ui/**', 'src/test/**', 'src/**/*.test.ts', 'src/**/*.spec.ts']
 
 // The engine boundary (frontend.md section 2), enforced in both directions.
 //
@@ -144,5 +172,14 @@ export default defineConfig(
     files: engineFiles,
     ignores: engineWiringFiles,
     rules: { 'no-restricted-globals': ['error', ...engineBannedGlobals] },
+  },
+  {
+    files: ['src/**/*.ts', 'src/**/*.vue'],
+    ignores: [...unbudgetedFiles, ...budgetedFiles],
+    rules: {
+      // Counted the way scripts/check-file-budgets.sh counts, blank lines and comments included,
+      // so the two mechanisms never disagree about how long a file is.
+      'max-lines': ['error', { max: maxLines, skipBlankLines: false, skipComments: false }],
+    },
   },
 )
