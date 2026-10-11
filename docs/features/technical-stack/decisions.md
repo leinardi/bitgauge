@@ -222,7 +222,7 @@ only).
 
 ### 28. Registry and supply chain — GHCR only, cosign keyless, SBOM, provenance
 
-Dependabot weekly (`gomod`, `npm`, `docker`, `github-actions`, `pre-commit`). Trivy scans every
+Dependabot monthly (`gomod`, `npm`, `docker`, `github-actions`, `pre-commit`). Trivy scans every
 platform image in `release.yaml` before anything is pushed, and the release binaries carry build
 provenance attestations. A version tag, git or image, never moves: base-image fixes ship as a new
 release, and the release model follows swarm-scheduler-exporter's, which has shipped releases

@@ -377,7 +377,7 @@ the nested pins current in those repositories, and bump the pins here when they 
 
 ## Dependabot
 
-Weekly update pull requests for five ecosystems:
+Monthly update pull requests for five ecosystems:
 
 | Ecosystem | Scope | Commit prefix |
 | --- | --- | --- |

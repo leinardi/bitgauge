@@ -13,7 +13,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: "chore(deps)"
     labels: ["dependencies", "ci"]
@@ -25,7 +25,7 @@ updates:
   - package-ecosystem: "pre-commit"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: "chore(deps)"
     labels: ["dependencies", "ci"]
@@ -41,7 +41,7 @@ updates:
     directory: "/deployments/docker"
     registries: ["dhi"]
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: "chore(deps)"
     open-pull-requests-limit: 5
@@ -65,7 +65,7 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     # fix, not chore: the release version is derived from commit types, so a Go dependency bump
     # (security fixes included) produces a patch release. The same holds for web/ below, whose
     # build ships inside the binary.
@@ -83,7 +83,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/web"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: "fix(deps)"
       prefix-development: "chore(deps)"

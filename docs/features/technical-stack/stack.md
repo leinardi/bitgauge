@@ -57,7 +57,7 @@ No database driver, ORM, migration tool, scheduler or outbound HTTP client.
 | Binary provenance | GitHub artifact attestations | — | One per release binary. |
 | Frontend dead code | fallow | 3.32 | Pre-commit gate with baselines. |
 | Shell lint | shellcheck via `shellcheck-py` | 0.11 | Pinned in pre-commit, so local and CI agree. |
-| Dependency updates | Dependabot | — | Weekly: `gomod`, `npm`, `docker`, `github-actions`, `pre-commit`. |
+| Dependency updates | Dependabot | — | Monthly: `gomod`, `npm`, `docker`, `github-actions`, `pre-commit`. |
 
 ## Related
 

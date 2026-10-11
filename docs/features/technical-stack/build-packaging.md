@@ -109,7 +109,7 @@ meta-test fails both when it is missing after that point and when it appears bef
 | `release.yaml` | manual dispatch on `main` (`version`, `dry_run`) | Tests, audits and builds first: the web app, the two static binaries and `checksums.txt`, and the multi-arch image pushed by digest to a job-local registry. Scans both platform images with Trivy, and only then pushes the git tag, copies the image to GHCR, attests and signs it, attests the binaries and creates the GitHub release ([../../release.md](../../release.md#why-the-build-happens-before-the-tag)). |
 | `scheduled-scan.yaml` | manual dispatch (weekly schedule once public) | `make audit-deps` over `main`, and Trivy over each platform image of `:latest` once releases exist. |
 | `go-cache-warmup.yaml`, `web-cache-warmup.yaml`, `pre-commit-warmup.yaml` | push to `main` on their inputs | Refresh the `main` caches the other workflows restore, keeping the newest two entries. |
-| `dependabot.yml` | weekly | Update PRs for `gomod`, `npm` (`web/`), `docker` (base image digests), `github-actions` and `pre-commit`. |
+| `dependabot.yml` | monthly | Update PRs for `gomod`, `npm` (`web/`), `docker` (base image digests), `github-actions` and `pre-commit`. |
 
 `release.yaml` takes the `release` concurrency group without cancellation, so two releases never
 publish at the same time, and runs Trivy on every platform image before anything is pushed.

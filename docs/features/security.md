@@ -211,7 +211,7 @@ download.
   binary carries a build provenance attestation.
 - **Image scanning:** Trivy scans both platform images in `release.yaml` before anything is
   pushed; a `HIGH` or `CRITICAL` finding outside `.trivyignore` stops the run.
-- **Dependabot:** weekly updates for `gomod`, `npm`, `docker`, `github-actions` and `pre-commit`.
+- **Dependabot:** monthly updates for `gomod`, `npm`, `docker`, `github-actions` and `pre-commit`.
 - **Immutable releases:** a version tag never moves; base-image fixes ship as a new release, and
   a scheduled scan of `:latest` says when one is needed ([release.md](../release.md)).
 - **Vulnerability checks:** `govulncheck` and the npm audit run in CI; lint runs golangci-lint v2
