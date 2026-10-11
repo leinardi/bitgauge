@@ -107,24 +107,34 @@ of a skip, as CI's `repo-gates` job does.
 ## Commit messages
 
 All commits are Conventional Commits 1.0.0 **with a scope**: `<type>(<scope>)[!]: <description>`,
-optional blank-line body and footers. Types: `feat`, `fix`, `docs`, `test`, `refactor`, `perf`,
-`build`, `ci`, `chore`, `style`, `revert`. Breaking changes use `!` before `:` or a
-`BREAKING CHANGE:` footer. Examples: `docs(measurement): define the upload grace`,
-`feat(engine): add the stream ramp`, `fix(upload): count bytes on the server grid`. Enforced by the
-`conventional-pre-commit` `commit-msg` hook (`--force-scope`) and the `conventional-commits` CI job.
+optional blank-line body and footers. Enforced by the `conventional-pre-commit` `commit-msg` hook
+(`--force-scope`) and by the `conventional-commits` CI job. Types: `feat`, `fix`, `docs`, `test`,
+`refactor`, `perf`, `build`, `ci`, `chore`, `style`, `revert`. Breaking changes use `!` before `:`
+or a `BREAKING CHANGE:` footer. Release notes are not built from these messages: they list the
+merged pull requests by title. Examples: `docs(measurement): define the upload grace`,
+`feat(engine): add the stream ramp`, `fix(upload): count bytes on the server grid`.
 
 Release versions are derived by `svu` from the commits since the last tag, so a wrong type ships a
 wrong version:
 
-| Release | Commit |
-| --- | --- |
-| major | any type with `!` before the colon, or a `BREAKING CHANGE:` footer |
-| minor | `feat` |
-| patch | `fix` |
-| none | everything else |
+| Release | Commit | Example |
+| --- | --- | --- |
+| major | any type with `!` before the colon, or a `BREAKING CHANGE:` footer | `feat(api)!: rename the upload telemetry fields` |
+| minor | `feat` | `feat(engine): add the stream ramp` |
+| patch | `fix` | `fix(upload): count bytes on the server grid` |
+| none | everything else: `perf`, `refactor`, `build`, `ci`, `chore`, `docs`, `style`, `test`, `revert` | `docs(measurement): define the upload grace` |
 
-Pick the type by whether the change should ship: anything users should receive in the binary, the
-image or the web app is `fix` or `feat`. See [`docs/release.md`](docs/release.md).
+The highest bump among the commits wins; with only "none" commits since the last tag, a release
+with no version fails with "nothing to bump".
+
+**Pick the type by whether the change should ship, not by what kind of change it is.** Anything
+that changes the shipped binary, the image or the web app and that users should receive is `fix`
+(or `feat`), even when it is a performance improvement, a refactor or a revert. Use `perf`,
+`refactor`, `style` and `revert` only when the commit is deliberately not meant to trigger a
+release on its own. A `revert` of a shipped `feat` or `fix` is itself a `fix`. `svu` matches
+`feat`/`fix` anywhere in the subject (e.g. `prefix:` counts as `fix:`), so avoid a word ending in
+`feat` or `fix` directly before a colon in other subjects. Pull requests land as merge commits, so
+every commit counts, not just the pull request title. See [`docs/release.md`](docs/release.md).
 
 ## Validation matrix
 

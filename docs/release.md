@@ -74,8 +74,14 @@ Semantic versioning, derived from
   with an explicit version if it should stay on `0.x`.
 
 Everything else (`build`, `chore`, `ci`, `docs`, `perf`, `refactor`, `revert`, `style`, `test`)
-bumps nothing. A change users should receive is committed as `fix` or `feat`. When no commit since
-the last release is a `feat`, a `fix` or a breaking change, a run with no version **fails** with
+bumps nothing, and the highest bump among the commits wins. A change users should receive in the
+binary, the image or the web app is committed as `fix` or `feat`, even when it is a performance
+improvement, a refactor or a revert; `perf`, `refactor`, `style` and `revert` are for changes
+deliberately not meant to trigger a release, and a revert of a shipped `feat` or `fix` is itself a
+`fix`. `svu` matches `feat`/`fix` anywhere in the subject, so `prefix:` counts as `fix:`. Pull
+requests land as merge commits, so every commit counts, not only the pull request title
+([AGENTS.md](../AGENTS.md#commit-messages)). When no commit since the last release is a `feat`, a
+`fix` or a breaking change, a run with no version **fails** with
 "No feat/fix or breaking-change commit since `<tag>`, so there is nothing to bump. Re-run with an
 explicit version to force one." The one exception is a recovery: when `svu next` answers a strict
 tag that already sits on `HEAD`, the run treats it as a recovery of that version, not as "nothing
