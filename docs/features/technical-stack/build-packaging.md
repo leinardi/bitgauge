@@ -10,8 +10,8 @@ recovery) is in [../../release.md](../../release.md).
 ## 1. Container Image
 
 A multi-stage build in `deployments/docker/Dockerfile` produces one image per platform. Every
-stage is a literal `FROM` line pinned by digest, and the stages are named, because the weekly
-rebuild rewrites them by name ([§4](#4-ci-workflows)):
+stage is a literal `FROM` line pinned by digest, because Dependabot updates only literal `FROM`
+lines and a tag alone can be repointed under a build, and the stages are named:
 
 | Stage | Base | Does |
 | --- | --- | --- |
@@ -106,59 +106,45 @@ meta-test fails both when it is missing after that point and when it appears bef
 | `go-test.yaml` | called by `ci.yaml` and `release.yaml` | `go test -race ./...`. |
 | `web.yaml` | called by `ci.yaml` and `release.yaml` | `npm ci`, then the web steps whose inputs exist: API type drift, ESLint and `vue-tsc`, vitest, the build, the dist URL allowlist and the engine chunk size. |
 | `harness.yaml` | called by `ci.yaml`; nightly schedule | The accuracy harness for the three browsers; the 1 Gbit profile nightly if runners cannot sustain it. |
-| `release.yaml` | manual dispatch on `main` (`version`, `dry_run`) | Tests, audits and builds first: the web app, the two static binaries and `SHA256SUMS`, and the multi-arch image pushed by digest to a job-local registry. Scans both platform images with Trivy, and only then pushes the git tag, copies the image to GHCR, attests and signs it, attests the binaries and creates the GitHub release ([../../release.md](../../release.md#why-the-build-happens-before-the-tag)). |
-| `rebuild.yaml` | weekly schedule, manual dispatch | Rebuilds the latest release: source code from the release tag, with the `FROM` lines of the `web`, `build` and `runtime` stages rewritten by stage name to those on `main`, whose digests Dependabot keeps current. Ends without pushing when main's base digests equal the materials in the current image's provenance; otherwise scans with Trivy, then pushes, attests and signs under the same tags (same version, new digest). Just before pushing, it re-checks that its version is still the highest release; if not, it pushes only `X.Y.Z` and skips `X` and `latest`. |
+| `release.yaml` | manual dispatch on `main` (`version`, `dry_run`) | Tests, audits and builds first: the web app, the two static binaries and `checksums.txt`, and the multi-arch image pushed by digest to a job-local registry. Scans both platform images with Trivy, and only then pushes the git tag, copies the image to GHCR, attests and signs it, attests the binaries and creates the GitHub release ([../../release.md](../../release.md#why-the-build-happens-before-the-tag)). |
 | `scheduled-scan.yaml` | manual dispatch (weekly schedule once public) | `make audit-deps` over `main`, and Trivy over each platform image of `:latest` once releases exist. |
 | `go-cache-warmup.yaml`, `web-cache-warmup.yaml`, `pre-commit-warmup.yaml` | push to `main` on their inputs | Refresh the `main` caches the other workflows restore, keeping the newest two entries. |
 | `dependabot.yml` | weekly | Update PRs for `gomod`, `npm` (`web/`), `docker` (base image digests), `github-actions` and `pre-commit`. |
 
-`release.yaml` and `rebuild.yaml` share the `publish` concurrency group without cancellation, so a
-rebuild and a release never push tags at the same time. Both run Trivy on every platform image
-before anything is pushed. `scheduled-scan.yaml` is dispatch-only while the repository is private.
+`release.yaml` takes the `release` concurrency group without cancellation, so two releases never
+publish at the same time, and runs Trivy on every platform image before anything is pushed.
+`scheduled-scan.yaml` is dispatch-only while the repository is private.
 
-**Why the rebuild rewrites `FROM` lines.** The stage images are literal `FROM` lines rather than
-build arguments, because Dependabot updates only literal `FROM` lines and would stop updating
-`ARG` defaults. The rebuild reads `main`'s Dockerfile and replaces each stage's `FROM` line in the
-tag's Dockerfile by its stage name (`AS web`, `AS build`, `AS runtime`).
-
-**Toolchain-line rule.** A rebuild may refresh digests and patch versions only. Before rewriting
-anything, it checks every stage: for `build` and `web`, the tag's `FROM` and main's `FROM` must
-have the same image repository, the same toolchain line (Go `major.minor` for `build`, Node major
-for `web`) and the same tag shape apart from a patch version; for `runtime`, the same repository
-and variant, while its date tag may move because the runtime holds no toolchain. A Go minor or
-Node major change, or a repository change, fails the run with a notice that names the change and
-says to cut a release to ship the new line. A rebuild never goes beyond base-image fixes.
-
-The weekly rebuild exists so base-image security fixes ship without a code change; its tag policy
-is described in [../../release.md](../../release.md#weekly-rebuild).
+There is no scheduled rebuild of a published image: a version tag never moves, and a base-image
+fix that Dependabot brings in ships as a new release
+([../../release.md](../../release.md#versioning)).
 
 ## 5. Signing, SBOM and Provenance
 
 - Images are built with `docker buildx build --sbom=true --provenance=mode=max`, so every
   platform image carries an SPDX SBOM and a SLSA provenance attestation.
 - The pushed manifest is signed by digest with `cosign sign` using GitHub's OIDC identity (keyless,
-  no stored keys). Verification checks the certificate identity of `release.yaml` or
-  `rebuild.yaml` in `leinardi/bitgauge` and the GitHub OIDC issuer; the command shape is in
+  no stored keys). Verification checks the certificate identity of `release.yaml` in
+  `leinardi/bitgauge` on `main` and the GitHub OIDC issuer; the command shape is in
   [SECURITY.md](../../../SECURITY.md).
-- Release binaries are listed in a `SHA256SUMS` file attached to the release, and each binary has
-  a GitHub build provenance attestation made by `release.yaml`, verified with
-  `gh attestation verify` ([SECURITY.md](../../../SECURITY.md)). The weekly rebuild never
-  rebuilds the binaries. A release recovery rebuilds them with the toolchains recorded in the tag
-  and checks them against the release assets; `binary-attestation-status.sh` then reuses the
-  attestation an earlier run made instead of making a second one.
+- Release binaries are listed in a `checksums.txt` file attached to the release, and each binary
+  has a GitHub build provenance attestation made by `release.yaml`, verified with
+  `gh attestation verify` ([SECURITY.md](../../../SECURITY.md)). A release recovery rebuilds them
+  with the toolchains recorded in the tag and checks them against the release assets;
+  `binary-attestation-status.sh` then reuses the attestation an earlier run made instead of making
+  a second one.
 
 ## 6. Tags
 
 | Tag | Points to | Moves on |
 | --- | --- | --- |
-| `ghcr.io/leinardi/bitgauge:X.Y.Z` | that release | weekly rebuild of the latest release (new digest, same version) |
-| `ghcr.io/leinardi/bitgauge:X` | the latest release of major `X` | every release of major `X`, and its weekly rebuild |
-| `ghcr.io/leinardi/bitgauge:latest` | the latest release | every release, and its weekly rebuild |
+| `ghcr.io/leinardi/bitgauge:X.Y.Z` | that release | never |
+| `ghcr.io/leinardi/bitgauge:X` | the latest release of major `X` | every release of major `X` |
+| `ghcr.io/leinardi/bitgauge:latest` | the latest release | every release |
 
-Pinning by digest gives a fixed image. Pinning by `X.Y.Z` gives a fixed version that receives
-base-image fixes only while it is the latest release; older versions are not rebuilt, so upgrading
-is the way to keep receiving them. Only GHCR is published; Docker Hub is not
-([decisions.md](decisions.md)).
+Pinning by `X.Y.Z` or by digest gives a fixed image. A base-image fix arrives as a new version, so
+following `X` or `latest`, or upgrading, is the way to receive it. Only GHCR is published; Docker
+Hub is not ([decisions.md](decisions.md)).
 
 ## Related
 

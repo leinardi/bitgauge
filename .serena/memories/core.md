@@ -46,7 +46,7 @@ test/internal/            testenv (docker CLI envs, labels, sweep), netguard (nf
 `docs/features/` is the contract. Key files: `measurement.md` (engine rules), `wire-protocol.md`
 (native API, error envelope, upload JSON), `compatibility.md`, `configuration.md`, `security.md`,
 `architecture.md`, `technical-stack/{decisions,testing,build-packaging,frontend,backend}.md`,
-`open-questions.md`, `roadmap.md`. `docs/release.md` covers releases and the weekly rebuild.
+`open-questions.md`, `roadmap.md`. `docs/release.md` covers releases.
 `docs/features/{product.md,principles.md,ui/}` become SYMLINKS into `docs/design_system/` once
 the design export lands; never hand-edit the export.
 

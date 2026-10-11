@@ -14,9 +14,10 @@ why, so the work is not reconstructed from memory under time pressure.
 ## 1. Revise the Release Model
 
 [`docs/release.md`](../release.md#release) carries a boxed note: **the release process is
-provisional and must be revised before the repository goes public.** It follows Runhold's model
-(dispatch from `main`, build, scan and verify before the tag, immutable tags, recovery by
-re-dispatch), chosen while the repository is private.
+provisional and must be revised before the repository goes public.** It follows the release model
+of swarm-scheduler-exporter, which has shipped releases with it, as ported through Runhold
+(dispatch from `main`, build, scan and verify before the tag, immutable tags, recovery by re-run,
+no rebuild of a published version), chosen while the repository is private.
 
 - [ ] Re-read [`release.md`](../release.md) and
       [build-packaging.md §4](../features/technical-stack/build-packaging.md#4-ci-workflows) as a

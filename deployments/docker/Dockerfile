@@ -16,9 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 #
-# The shipped image (build-packaging.md section 1). Every stage is a literal FROM pinned by digest
-# and named, because the weekly rebuild rewrites the pins by stage name. All three bases come from
-# dhi.io, so pulling them needs a dhi.io token.
+# The shipped image (build-packaging.md section 1). Every stage is a literal FROM pinned by digest,
+# because Dependabot updates only literal FROM lines and a tag alone can be repointed under a build.
+# All three bases come from dhi.io, so pulling them needs a dhi.io token.
 
 ########################
 # web: build the SPA the binary embeds.

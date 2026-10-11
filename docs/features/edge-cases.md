@@ -185,7 +185,7 @@ a desktop browser, compare with `networkQuality` or iperf3.
 
 ## 11. Server Restart Mid-Test
 
-**Situation.** The container restarts (deploy, crash, weekly rebuild) during a test. Upload grid
+**Situation.** The container restarts (deploy, crash, image update) during a test. Upload grid
 indices from before and after the restart cannot be combined, and in-flight requests fail.
 
 **Behaviour.** A restart is detected by an epoch change, whichever arrives first:

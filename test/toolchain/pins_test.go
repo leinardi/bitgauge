@@ -36,8 +36,8 @@ import (
 	"github.com/leinardi/bitgauge/test/toolchain"
 )
 
-// The release tools' pins (the plan's version table); release.yaml and rebuild.yaml carry them once
-// the Release stage is active.
+// The release tools' pins (the plan's version table); release.yaml carries them once the Release
+// stage is active.
 const (
 	svuPin   = "v3.4.1"
 	trivyPin = "v0.75.0"
@@ -173,8 +173,8 @@ func TestExactWebPins(t *testing.T) {
 	}
 }
 
-// TestReleaseToolPins: svu and Trivy are pinned in release.yaml and rebuild.yaml once the Release
-// stage is active; before it, both files are absent.
+// TestReleaseToolPins: svu and Trivy are pinned in release.yaml once the Release stage is active;
+// before it, the file is absent.
 func TestReleaseToolPins(t *testing.T) {
 	t.Parallel()
 
@@ -185,7 +185,7 @@ func TestReleaseToolPins(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, name := range []string{"release.yaml", "rebuild.yaml"} {
+	for _, name := range []string{"release.yaml"} {
 		file := filepath.Join(".github", "workflows", name)
 
 		content, readErr := os.ReadFile(filepath.Join(root, file))

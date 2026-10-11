@@ -20,8 +20,8 @@ There has been no release yet.
 | none released | — |
 
 Once releases exist, only the latest release receives security fixes; older releases are not
-patched. The weekly rebuild refreshes the base images of the latest release only
-([docs/release.md](docs/release.md#weekly-rebuild)).
+patched. A published version never changes: a fix, base-image fixes included, ships as a new
+release ([docs/release.md](docs/release.md#tags)).
 
 ## Reporting a Vulnerability
 
@@ -55,24 +55,24 @@ another.
   `Host`-routing reverse proxy in front of BitGauge.
 - **Results read by someone with access to the browser profile.**
 - **Vulnerabilities in the reverse proxy, the browser or the base images**, which are reported
-  upstream. A base-image vulnerability in a published release is still worth reporting if the
-  weekly rebuild has not fixed it.
+  upstream. A base-image vulnerability in the latest release is still worth reporting if no newer
+  release has fixed it.
 - **Numbers reported by third-party clients** through the compatibility layers, which follow those
   clients' own methodologies.
 
 ## Verifying a Release
 
 Release images carry an SPDX SBOM and SLSA provenance for every platform, and a keyless cosign
-signature made with the GitHub OIDC identity of the release workflow (or of the weekly rebuild
-workflow, for a rebuilt digest). Both workflows run only on `main`, so the signing identity always
-ends in `@refs/heads/main`. Verify an image by digest before you trust it:
+signature made with the GitHub OIDC identity of the release workflow. It runs only on `main`, so
+the signing identity is always the one below. Verify an image by digest before you trust it, with
+cosign v3, or v2.6 or later with `--new-bundle-format`:
 
 ```bash
 IMAGE=ghcr.io/leinardi/bitgauge
 DIGEST=sha256:...   # from: docker buildx imagetools inspect ghcr.io/leinardi/bitgauge:<version>
 
 cosign verify "$IMAGE@$DIGEST" \
-  --certificate-identity-regexp '^https://github.com/leinardi/bitgauge/\.github/workflows/(release|rebuild)\.yaml@refs/heads/main$' \
+  --certificate-identity https://github.com/leinardi/bitgauge/.github/workflows/release.yaml@refs/heads/main \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
@@ -87,7 +87,7 @@ Verify a downloaded release binary against the release's checksum file, and its 
 attestation, which ties it to this repository and the release workflow:
 
 ```bash
-sha256sum --check --ignore-missing SHA256SUMS
+sha256sum --check --ignore-missing checksums.txt
 gh attestation verify bitgauge-linux-amd64 --repo leinardi/bitgauge \
   --signer-workflow leinardi/bitgauge/.github/workflows/release.yaml
 ```

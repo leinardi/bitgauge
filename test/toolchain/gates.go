@@ -183,7 +183,7 @@ var Gates = []Gate{
 	{
 		Name:         GateRelease,
 		After:        []string{GateImage, gateWebBuild},
-		Workflows:    []string{"release.yaml", "rebuild.yaml"},
+		Workflows:    []string{"release.yaml"},
 		WorkflowJobs: []WorkflowJob{{Workflow: "scheduled-scan.yaml", Job: jobImage}},
 	},
 }

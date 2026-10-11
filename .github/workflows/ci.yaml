@@ -320,9 +320,6 @@ jobs:
       - name: Test binary-attestation-status.sh
         run: bash .github/scripts/binary-attestation-status.test.sh
 
-      - name: Test rebuild-bases.sh
-        run: bash .github/scripts/rebuild-bases.test.sh
-
   # Defined in go-test.yaml so go-cache-warmup runs the identical job on main and saves the cache
   # that pull requests restore.
   go-test:

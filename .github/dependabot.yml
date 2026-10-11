@@ -35,8 +35,8 @@ updates:
           - "*"
 
   # The base images of the shipped image (build-packaging.md section 1). Digest bumps are chore(deps)
-  # and need no release: the weekly rebuild.yaml ships them in the latest release's image (the
-  # Weekly Rebuild section of docs/release.md). Only a new toolchain line needs a release.
+  # and bump no version: they ship with the next release, and one that carries a security fix is
+  # released with an explicit version (the Versioning section of docs/release.md).
   - package-ecosystem: "docker"
     directory: "/deployments/docker"
     registries: ["dhi"]

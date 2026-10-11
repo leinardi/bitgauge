@@ -209,11 +209,11 @@ download.
   workflow's OIDC identity; verification instructions are in [SECURITY.md](../../SECURITY.md).
 - **SBOM and provenance:** each image ships an SBOM and a provenance attestation; each release
   binary carries a build provenance attestation.
-- **Image scanning:** Trivy scans both platform images in `release.yaml` and `rebuild.yaml` before
-  anything is pushed; a `HIGH` or `CRITICAL` finding outside `.trivyignore` stops the run.
+- **Image scanning:** Trivy scans both platform images in `release.yaml` before anything is
+  pushed; a `HIGH` or `CRITICAL` finding outside `.trivyignore` stops the run.
 - **Dependabot:** weekly updates for `gomod`, `npm`, `docker`, `github-actions` and `pre-commit`.
-- **Scheduled weekly rebuild:** base-image fixes ship without code changes
-  ([release.md](../release.md)).
+- **Immutable releases:** a version tag never moves; base-image fixes ship as a new release, and
+  a scheduled scan of `:latest` says when one is needed ([release.md](../release.md)).
 - **Vulnerability checks:** `govulncheck` and the npm audit run in CI; lint runs golangci-lint v2
   with all linters ([technical-stack/build-packaging.md](technical-stack/build-packaging.md)).
 - **No vendored third-party speed-test code:** OpenSpeedTest and LibreSpeed are used for ideas and

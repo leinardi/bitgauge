@@ -49,5 +49,4 @@ Harness inputs: `HARNESS_PROFILES`, `HARNESS_BROWSERS`, `HARNESS_KEEP_ON_FAILURE
 
 ```bash
 bash .github/scripts/binary-attestation-status.test.sh
-bash .github/scripts/rebuild-bases.test.sh
 ```

@@ -316,7 +316,6 @@ func TestImageWaitsForStatus(t *testing.T) {
 		"workflow harness.yaml is missing",
 		// Image and web build together are the Release stage.
 		"workflow release.yaml is missing",
-		"workflow rebuild.yaml is missing",
 		"scheduled-scan.yaml job image is missing",
 	)
 

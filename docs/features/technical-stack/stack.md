@@ -53,7 +53,7 @@ No database driver, ORM, migration tool, scheduler or outbound HTTP client.
 | Frontend lint | ESLint + `eslint-plugin-vue` + `@intlify/eslint-plugin-vue-i18n` | — | As in Runhold. |
 | Accuracy harness | Docker networks shaped with `tc` (tbf/netem), iperf3 reference | — | [testing.md](testing.md). |
 | Image signing | cosign (keyless) | v3 | Release workflow OIDC identity. |
-| Image scanning | Trivy | 0.75 | Gates `release.yaml` and `rebuild.yaml` before anything is pushed. |
+| Image scanning | Trivy | 0.75 | Gates `release.yaml` before anything is pushed. |
 | Binary provenance | GitHub artifact attestations | — | One per release binary. |
 | Frontend dead code | fallow | 3.32 | Pre-commit gate with baselines. |
 | Shell lint | shellcheck via `shellcheck-py` | 0.11 | Pinned in pre-commit, so local and CI agree. |

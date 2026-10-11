@@ -72,7 +72,7 @@ tiers must additionally show for the features it adds. Progress per feature area
 - Multi-stage image on `dhi.io/static`, user 65532, read-only root filesystem, linux/amd64 and
   linux/arm64. See
   [technical-stack/build-packaging.md §1](technical-stack/build-packaging.md#1-container-image).
-- CI, release, weekly rebuild and Dependabot workflows; GHCR with cosign, SBOM and provenance. See
+- CI, release and Dependabot workflows; GHCR with cosign, SBOM and provenance. See
   [technical-stack/build-packaging.md §4](technical-stack/build-packaging.md#4-ci-workflows) and
   [../release.md](../release.md).
 - Compose, Traefik, Caddy and nginx examples. See [deployment-example.md](deployment-example.md).

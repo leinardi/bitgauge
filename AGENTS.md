@@ -152,7 +152,6 @@ Run before considering an edit done. `make check` applies to every row.
 | `scripts/bootstrap-mk-common.sh` | shellcheck (in `make check`); it comes from make-common, so a change is ported upstream; `make help` proves the snippets still load |
 | `scripts/idle-measure.sh`, `.mk/idle-measure.mk` | `shellcheck scripts/idle-measure.sh`, `make help`; no test package: it needs a running binary |
 | `.github/scripts/binary-attestation-status.sh` | `bash .github/scripts/binary-attestation-status.test.sh` (also the `release-scripts` CI job) |
-| `.github/scripts/rebuild-bases.sh` | `bash .github/scripts/rebuild-bases.test.sh` (also the `release-scripts` CI job) |
 | `.github/workflows/**`, `.github/actions/**` | `pre-commit run actionlint --all-files`, `go test ./test/toolchain/` (pins, gate registry, vacuous flags) |
 | `.pre-commit-config.yaml`, `Makefile`, `.mk/**` | `make check`, `go test ./test/toolchain/`, `make help` |
 | `test/toolchain/gates.go`, `docs/STATUS.md` rows a gate reads | `go test ./test/toolchain/` |
@@ -212,7 +211,7 @@ everything the table requires.
 | Image and image tests | binary build, web build, `web/embed.go`, STATUS rows "Single binary, embedded SPA…" and "Native API…" not Spec'd | `ci.yaml` jobs `credentials` and `image` (running `make go-test-image`), both needed by `ci-result` |
 | E2E | image prerequisites and any `web/e2e/**/*.spec.ts` | `ci.yaml` job `e2e`, needed by `ci-result` |
 | Accuracy harness | image prerequisites, STATUS rows "Engine: headline… result object" and "UI: Test screen…" not Spec'd, the Download JSON extraction path in `ui/screens.md` | `harness.yaml`; `ci.yaml` job `harness`, needed by `ci-result` |
-| Release | image and web build gates active | `release.yaml`, `rebuild.yaml`, the `scheduled-scan.yaml` `image` job |
+| Release | image and web build gates active | `release.yaml`, the `scheduled-scan.yaml` `image` job |
 
 `web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged

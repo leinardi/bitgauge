@@ -58,7 +58,9 @@ LibreSpeed's `ckSize` chunks) can legitimately take minutes on a slow link.
 - The `internal/logger` slog wrapper.
 - golangci-lint v2 with all linters.
 - Vue 3 + Vite + shadcn-vue + Tailwind 4 + vue-i18n + vue-sonner + lucide; vitest and Playwright.
-- `dhi.io/static`, `65532:65532`, cosign, SBOM, provenance, Dependabot, weekly rebuild.
+- `dhi.io/static`, `65532:65532`, cosign, SBOM, provenance, Dependabot.
+- The release model of swarm-scheduler-exporter, which has shipped releases: build, scan and
+  verify before an immutable tag, recovery by re-run, no rebuild of a published version.
 - Docs structure: feature index, breadcrumbs, locked decisions with alternatives not chosen.
 
 ## Runhold Habits Dropped, and Why

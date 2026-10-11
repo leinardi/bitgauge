@@ -35,7 +35,6 @@ const (
 	shippedDir        = "deployments/docker"
 	shippedDockerfile = "deployments/docker/Dockerfile"
 	releaseWorkflow   = ".github/workflows/release.yaml"
-	rebuildWorkflow   = ".github/workflows/rebuild.yaml"
 	workflowsDir      = ".github/workflows"
 	buildPackagingDoc = "docs/features/technical-stack/build-packaging.md"
 	wantPlatforms     = "linux/amd64,linux/arm64"
@@ -66,8 +65,7 @@ func TestShippedDockerfileIsTheOnlyOne(t *testing.T) {
 }
 
 // TestShippedStages pins the three named stages, in order, each from a literal digest-pinned base:
-// the weekly rebuild rewrites the pins by stage name, and a tag alone can be repointed under a
-// build.
+// Dependabot updates only literal FROM lines, and a tag alone can be repointed under a build.
 func TestShippedStages(t *testing.T) {
 	t.Parallel()
 
@@ -277,10 +275,8 @@ func TestOtherDockerfilesAreTestOnly(t *testing.T) {
 
 	referrers := map[string]string{"Makefile": makefile}
 
-	for _, path := range []string{releaseWorkflow, rebuildWorkflow} {
-		if content, ok := readOptional(t, path); ok {
-			referrers[path] = content
-		}
+	if content, ok := readOptional(t, releaseWorkflow); ok {
+		referrers[releaseWorkflow] = content
 	}
 
 	for _, path := range allDockerfiles(t) {
@@ -344,18 +340,16 @@ func TestPlatforms(t *testing.T) {
 	}
 }
 
-// TestReleaseWorkflowsAreAbsent is the release-content assertion in its form before the Release
-// stage: release.yaml and rebuild.yaml are written by that stage's activation commit, together with
-// the assertions on their content (buildinfo stamping, PLATFORMS, the GHCR-only registry), which
-// replace this test. A workflow that appears without them would publish unchecked.
-func TestReleaseWorkflowsAreAbsent(t *testing.T) {
+// TestReleaseWorkflowIsAbsent is the release-content assertion in its form before the Release
+// stage: release.yaml is written by that stage's activation commit, together with the assertions on
+// its content (buildinfo stamping, PLATFORMS, the GHCR-only registry), which replace this test. A
+// workflow that appears without them would publish unchecked.
+func TestReleaseWorkflowIsAbsent(t *testing.T) {
 	t.Parallel()
 
-	for _, path := range []string{releaseWorkflow, rebuildWorkflow} {
-		if _, ok := readOptional(t, path); ok {
-			t.Errorf("%s exists, but the Release stage is not active: its activation commit "+
-				"replaces this test with the release-content assertions", path)
-		}
+	if _, ok := readOptional(t, releaseWorkflow); ok {
+		t.Errorf("%s exists, but the Release stage is not active: its activation commit "+
+			"replaces this test with the release-content assertions", releaseWorkflow)
 	}
 }
 

@@ -25,7 +25,7 @@ Locked choices live in `docs/features/technical-stack/decisions.md`; this is a s
 - `deployments/docker/Dockerfile`: `dhi.io/node:24-…-dev`, `dhi.io/golang:1.26-…-dev`,
   `dhi.io/static` runtime, user 65532, read-only; linux/amd64 + linux/arm64; GHCR only
 - Releases: svu from Conventional Commits, Trivy, cosign, attestations (`docs/release.md`);
-  weekly `rebuild.yaml` refreshes base digests (`.github/scripts/rebuild-bases.sh`)
+  immutable version tags, no rebuild: base-image fixes ship as a new release
 
 ## Pins held together by tests
 

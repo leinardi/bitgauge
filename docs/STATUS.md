@@ -23,7 +23,7 @@ pointers.
 | Engine: warm-up, steady window, Quick / Standard / Extended presets | Spec'd (v0.1) |  |
 | Engine: headline, peak, confidence and notices, result object | Spec'd (v0.1) |  |
 | UI: Test screen, About, URL parameters, English locale, accessibility baseline | Spec'd (v0.1) |  |
-| Container image, CI, release, weekly rebuild, Dependabot | Spec'd (v0.1) |  |
+| Container image, CI, release, Dependabot | Spec'd (v0.1) |  |
 | Accuracy harness (CI, floor and ceiling tiers) | Spec'd (v0.1) |  |
 | Prometheus metrics | Spec'd (v0.2) |  |
 | Loaded latency (WebSocket echo and HTTP fallback) and bufferbloat grade | Spec'd (v0.2) |  |

@@ -20,9 +20,10 @@
 
 # Usage: binary-attestation-status.sh <repo> <signer-workflow> <source-ref> <source-digest> <file>...
 #
-# Step 11 of release.yaml (docs/release.md): the files are the two release binaries,
-# bitgauge-linux-amd64 and bitgauge-linux-arm64, whose digests are the ones SHA256SUMS records.
-# SHA256SUMS itself is published beside them and is not attested. For example:
+# The binary attestation step of release.yaml (docs/release.md, Recovery Guarantees): the files are
+# the two release binaries, bitgauge-linux-amd64 and bitgauge-linux-arm64, whose digests are the
+# ones checksums.txt records. checksums.txt itself is published beside them and is not attested.
+# For example:
 #
 #   binary-attestation-status.sh leinardi/bitgauge \
 #     leinardi/bitgauge/.github/workflows/release.yaml refs/heads/main "$GITHUB_SHA" \
