@@ -190,6 +190,13 @@ Dependabot watches only `deployments/docker`, so nothing else refreshes them.
 ## Later: Idle Footprint
 
 Once a binary exists, the idle CPU and memory of a running server becomes a fifth metric, measured
-with `make idle-measure` (`scripts/idle-measure.sh`). Its method (how the host is settled, how
-long the warm-up is, how a window is compared with the previous audit's) is written here when the
-first reading is taken, not before.
+with `make idle-measure` (`scripts/idle-measure.sh`). It takes at least five windows and reports
+median and range: CPU as `utime`+`stime` (own) and `cutime`+`cstime` (children, reaped forks),
+resident memory per window and the peak at the end, and, when a Docker engine answers, a census of
+its events over each window (`IDLE_EVENTS`). The census matters for the image: its `HEALTHCHECK`
+is an exec into the container every 30 s, paid for by the engine rather than the server, so name
+`dockerd` next to `bitgauge` in `IDLE_PIDS` and read CPU next to events/s. `make idle-bench`
+measures what one request to `/api/v1/ping`, `/api/v1/small`, `/api/v1/info` and the SPA index
+costs the server, bracketed by idle controls, at `BENCH_URL`. Its method (how the host is settled,
+how long the warm-up is, how a window is compared with the previous audit's) is written here when
+the first reading is taken, not before.

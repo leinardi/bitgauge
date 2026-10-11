@@ -92,6 +92,7 @@ make audit-deps        # audit-deps-go and audit-deps-web
 make audit-deps-go     # govulncheck
 make audit-deps-web    # npm audit in web/
 make idle-measure      # idle CPU and memory footprint of a running binary
+make idle-bench        # per-request server cost of the lightweight endpoints
 make check             # pre-commit on all files
 make docker-build      # local multi-stage image for the host platform
 make docker-run        # run the image read-only on 127.0.0.1:8080

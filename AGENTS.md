@@ -96,6 +96,7 @@ make harness-ceiling   # accuracy harness, manual range ceiling, unshaped (dorma
 make harness-sweep     # remove stale harness environments, list the kept ones
 make harness-sweep-all # remove every harness environment (CONFIRM=1)
 make idle-measure      # idle CPU and memory of a running binary (IDLE_PIDS="bitgauge=PID")
+make idle-bench        # per-request server cost of ping, small, info and / (IDLE_PIDS, BENCH_URL)
 make mk-common-update  # refresh the shared make-common snippets
 ```
 
@@ -223,7 +224,7 @@ everything the table requires.
 `web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
 tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`. Today
-every gate above is dormant, as is `idle-measure` until a binary runs; the
+every gate above is dormant, as are `idle-measure` and `idle-bench` until a binary runs; the
 [STATUS row](docs/STATUS.md) says the same.
 
 ## Project skills

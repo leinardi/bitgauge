@@ -23,22 +23,29 @@ MK_LOCAL_IDLE_MEASURE_INCLUDED := 1
 # Local snippet (NOT part of make-common): the idle CPU and memory footprint of a running binary,
 # measured by scripts/idle-measure.sh. Read-only.
 #
-#   make idle-measure IDLE_PIDS="bitgauge=PID"   CPU and resident memory over idle windows
+#   make idle-measure IDLE_PIDS="bitgauge=PID"   CPU (own and children) and resident memory over
+#                                                idle windows, each with a Docker event census
+#   make idle-bench IDLE_PIDS="bitgauge=PID"     what one request to each lightweight endpoint
+#                                                costs the server
 #
 # Dormant until a running binary exists: with no process to name, the script fails before it
 # measures anything. The caller resolves the PIDs (ps -eo pid,comm,args); nothing here guesses
-# which process is which. WINDOWS, WINDOW_S and WARMUP_S are read by the script from the
-# environment; see its header.
+# which process is which. WINDOWS, WINDOW_S, WARMUP_S, IDLE_EVENTS, BATCHES, BENCH_URL and the
+# BENCH_*_CALLS sizes are read by the script from the environment; see its header.
 
 IDLE_PIDS ?=
 
 # Handed to the script through the environment, never as recipe text, and only for this goal.
-ifneq ($(filter idle-measure,$(MAKECMDGOALS)),)
+ifneq ($(filter idle-measure idle-bench,$(MAKECMDGOALS)),)
 export IDLE_PIDS
 endif
 
 .PHONY: idle-measure
-idle-measure: ## Measure idle CPU and memory of IDLE_PIDS="name=PID ..." over five 5-minute windows
+idle-measure: ## Measure idle CPU and memory of IDLE_PIDS="name=PID ..." over five 5-minute windows (with a Docker event census when an engine answers)
 	@"$(REPO_ROOT)/scripts/idle-measure.sh" windows
+
+.PHONY: idle-bench
+idle-bench: ## Measure what one request to each lightweight endpoint costs the server (IDLE_PIDS="bitgauge=PID", BENCH_URL)
+	@"$(REPO_ROOT)/scripts/idle-measure.sh" bench
 
 endif  # MK_LOCAL_IDLE_MEASURE_INCLUDED
