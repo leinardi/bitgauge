@@ -1,5 +1,10 @@
 default_install_hook_types: [pre-commit, commit-msg]
 
+# The upstream skills are vendored byte for byte: skills-lock.json records the hash of each folder
+# as upstream ships it, so no hook may rewrite them (whitespace, end of file, markdown fixes). The
+# skills this repository writes itself, beside them under .agents/skills, are linted as usual.
+exclude: '^\.agents/skills/(create-adaptable-composable|fallow|vue-best-practices|vue-debug-guides|vue-router-best-practices|vue-testing-best-practices)/'
+
 # Hooks for gates whose inputs do not exist yet (the API types, the frontend lint, typecheck and
 # test hooks) are deliberately absent: each one lands in the commit that adds its inputs, and
 # test/toolchain fails both when one is missing after that point and when one appears before.
