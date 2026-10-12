@@ -1,6 +1,6 @@
 import React from 'react';
 import { Icon } from '../brand/Icon.jsx';
-const A0 = 135, SW = 270, HOLD_MS = 2000;
+const A0 = 135, SW = 270, HOLD_MS = 2000, SHIFT_MS = 280;
 const KR = { bits: { min: 4, max: 6, start: 6 }, bytes: { min: 3, max: 6, start: 5 } };
 const pt = (cx, cy, r, a) => [cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)];
 function arc(cx, cy, r, f0, f1) {
@@ -35,18 +35,42 @@ function useGaugeWindow(value, mode, units, startDecade, onWindowChange) {
   React.useEffect(() => clear, []);
   return k;
 }
+// Window shift: tween the decade k over 280 ms, ease-out, in log space (ticks, labels, arc and dot move together).
+// prefers-reduced-motion, a unit change or a new start window jumps.
+function useTweenK(k, reduce, resetKey) {
+  const [kd, setKd] = React.useState(k);
+  const cur = React.useRef(k), raf = React.useRef(0), key = React.useRef(resetKey);
+  React.useEffect(() => {
+    cancelAnimationFrame(raf.current);
+    const from = cur.current, jump = reduce || key.current !== resetKey || typeof requestAnimationFrame === 'undefined';
+    key.current = resetKey;
+    if (jump || from === k) { cur.current = k; setKd(k); return; }
+    const t0 = performance.now();
+    const step = now => {
+      const f = Math.min(1, (now - t0) / SHIFT_MS), v = from + (k - from) * (1 - Math.pow(1 - f, 3));
+      cur.current = v; setKd(v);
+      if (f < 1) raf.current = requestAnimationFrame(step);
+    };
+    raf.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf.current);
+  }, [k, reduce, resetKey]);
+  return kd;
+}
 export function Gauge({ size = 300, value, mode = 'rate', units = 'bits', startDecade, onWindowChange, bandLo, bandHi, peak, inner, color = 'var(--series-download)', eyebrow, eyebrowIcon, readout, unit, sub, numSize }) {
   const reduce = useReducedMotion();
   const k = useGaugeWindow(value, mode, units, startDecade, onWindowChange);
+  const kd = useTweenK(k, reduce, units + '|' + mode + '|' + (startDecade ?? ''));
+  const shifting = kd !== k;
   const cx = size / 2, cy = size / 2, r = size / 2 - 10;
   const lo = mode === 'ms' ? 1 : Math.pow(10, k), hi = mode === 'ms' ? 1000 : Math.pow(10, k + 4);
+  const dlo = mode === 'ms' ? lo : Math.pow(10, kd), dhi = mode === 'ms' ? hi : Math.pow(10, kd + 4);
   const caption = mode === 'ms' ? 'log scale · 1 – 1000 ms' : 'log scale · ' + rateLabel(lo, units) + ' – ' + rateLabel(hi, units) + ' · auto';
-  const L0 = Math.log10(lo), L1 = Math.log10(hi);
-  const f = v => (Math.log10(Math.min(Math.max(v, lo), hi)) - L0) / (L1 - L0);
+  const L0 = Math.log10(dlo), L1 = Math.log10(dhi);
+  const f = v => (Math.log10(Math.min(Math.max(v, dlo), dhi)) - L0) / (L1 - L0);
   const ticks = [], labels = [];
   for (let d = Math.floor(L0 + 1e-9); d <= Math.ceil(L1 - 1e-9); d++) {
     const base = Math.pow(10, d);
-    [1, 2, 5].forEach(m => { const v = base * m; if (v > hi * 1.0001 || v < lo * 0.9999) return;
+    [1, 2, 5].forEach(m => { const v = base * m; if (v > dhi * 1.0001 || v < dlo * 0.9999) return;
       const major = m === 1, a = A0 + SW * f(v), p1 = pt(cx, cy, r - 14, a), p2 = pt(cx, cy, r - (major ? 22 : 18), a);
       ticks.push({ x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1], w: major ? 1.5 : 1, o: major ? 1 : 0.6 });
       if (major && size >= 220) { const pl = pt(cx, cy, r - 36, a); labels.push({ x: pl[0], y: pl[1] + 4, t: mode === 'ms' ? String(v) : tickLabel(v) }); } });
@@ -54,7 +78,7 @@ export function Gauge({ size = 300, value, mode = 'rate', units = 'bits', startD
   const has = value != null, fv = has ? f(value) : 0, dot = has ? pt(cx, cy, r, A0 + SW * fv) : null;
   const pk = peak != null ? [pt(cx, cy, r + 8, A0 + SW * f(peak)), pt(cx, cy, r - 8, A0 + SW * f(peak))] : null;
   const ns = numSize || Math.round(size * 0.193);
-  const tween = reduce ? undefined : 'd var(--dur-base) var(--ease-out)';
+  const tween = reduce || shifting ? undefined : 'd var(--dur-base) var(--ease-out)';
   return <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1)', width: size }}>
     <div style={{ position: 'relative', width: size, height: size }}>
     <svg width={size} height={size} aria-hidden="true" focusable="false" style={{ display: 'block', overflow: 'visible' }}>

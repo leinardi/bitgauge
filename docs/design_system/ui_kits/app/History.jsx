@@ -79,7 +79,7 @@ class History extends React.Component {
     const ch = (d, w, dw) => ({ dc: w === 'better' ? 'var(--ok-fg)' : w === 'worse' || w === 'crit' ? 'var(--warn-fg)' : w === 'differs' ? 'var(--fg-muted)' : 'var(--fg-subtle)',
       di: w === 'better' ? 'trending-up' : w === 'worse' || w === 'crit' ? 'triangle-alert' : w === 'differs' ? 'info' : 'minus', d, dw: dw || w });
     const CRIT = ['Label', 'Preset', 'Protocol'];
-    const params = [['Label', 'VPN · office', 'VPN · office'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', 'HTTP/1.1'], ['Streams', 'Auto', 'Auto'], ['Duration · download', '10–20 s', '10–20 s'], ['Duration · upload', '12–25 s', '12–25 s'], ['Browser', 'Firefox 131', 'Safari 18']]
+    const params = [['Label', 'VPN · office', 'VPN · office'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', 'HTTP/1.1'], ['Streams', 'Auto', 'Auto'], ['Duration · download', '10–20 s', '10–20 s'], ['Duration · upload', '15–25 s', '15–25 s'], ['Browser', 'Firefox 131', 'Safari 18']]
       .map(([k, a, b]) => { const diff = a !== b, crit = diff && CRIT.includes(k); return Object.assign({ k, a, b, diff, crit }, ch('', crit ? 'crit' : diff ? 'differs' : 'same', diff ? 'differs' : 'same')); });
     const metrics = [
       ['Download', '233 Mbit/s', '241 Mbit/s', '+3.4%', 'better'], ['Upload', '187 Mbit/s', '198 Mbit/s', '+5.9%', 'better'],
@@ -127,10 +127,10 @@ class History extends React.Component {
     return (
       <div style={{ position: "relative", background: "var(--bg-base)", color: "var(--fg)", fontFamily: "var(--font-sans)", minHeight: "100%", height: v.rootH, overflow: v.rootOv, display: "flex", flexDirection: "column" }}>
         {v.desktop ? (
-          <Nav variant="top" active="history" />
+          <Nav variant="top" active="history" status={this.props.srvStatus || "connected"} />
         ) : null}
         {v.mobile ? (
-          <Nav variant="mobile-top" active="history" />
+          <Nav variant="mobile-top" active="history" status={this.props.srvStatus || "connected"} />
         ) : null}
         <main style={{ flex: "1", width: "100%", maxWidth: "1200px", margin: "0 auto", boxSizing: "border-box", padding: v.L?.pad, display: "flex", flexDirection: "column", gap: v.L?.gap }}>
           <header style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px 16px" }}>
@@ -675,7 +675,7 @@ class History extends React.Component {
           ) : null}
         </main>
         {v.mobile ? (
-          <div style={{ marginTop: "auto", position: "sticky", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="history" /></div>
+          <div style={{ marginTop: "auto", position: "sticky", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="history" status={this.props.srvStatus || "connected"} /></div>
         ) : null}
         {v.toast ? (
           <div style={{ position: "absolute", left: v.L?.tL, right: v.L?.tR, bottom: v.L?.tB, zIndex: "50", display: "flex", justifyContent: "flex-end" }}>

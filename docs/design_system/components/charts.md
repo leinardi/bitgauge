@@ -9,9 +9,17 @@ uPlot. Spec: `features/ui/screens.md` §1 (Live chart), §2 (Per-phase charts), 
   loaded-latency toggle).
 - Phase separators, a "now" line while live, and event marks drawn via hooks: extended, data cap,
   cancelled, error / lost.
-- Warm-up is a **hatched, empty interval**: diagonal hatching in `--chart-grid` across the warm-up
-  span, with no series drawn inside it, because warm-up data is excluded. Unknown upload cells and
-  failure gaps are null gaps, never interpolated.
+- **Warm-up, live (Test screen):** warm-up samples are drawn over a **shaded band** (`--chart-band`
+  fill) that spans the warm-up so far and stops at warm-up end. They exist only in memory and count
+  toward no number. The band's edges are `--chart-hatch` lines and a "Warm-up" legend entry names
+  it, so it reads at ≥ 3:1 against the surface (`--chart-grid` is ≈ 1.2:1 in dark and is never used
+  for it).
+- **Warm-up, Result detail:** a **hatched, empty interval**: diagonal 1 px hatching in
+  `--chart-hatch` (≥ 3:1 against `--surface-2` in both themes) across `[0, warmupEndMs)`, with no
+  series inside it, because warm-up samples are not stored.
+- Unknown upload cells and failure gaps are null gaps, never interpolated. A gap spans exactly its
+  null cells (`[first null cell start, next known cell start)`); the series before it holds its last
+  value to the gap start.
 - Gridlines `--chart-grid` (hairline), axis labels `--fg-subtle` mono tabular.
 
 ## Throughput chart (Test, Result detail)

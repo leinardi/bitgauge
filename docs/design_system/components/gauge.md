@@ -11,8 +11,8 @@ window. The window is presentation only: it never feeds a number, and the captio
   `--series-upload`; latency mode `--series-latency`).
 - Decade ticks and labels (`--fg-faint` ticks, `--fg-subtle` labels), needle dot.
 - **Range band:** min–max of the last 10 gauge values (1 s).
-- **Peak tick:** download = steady-window p90 so far, hidden while warming up. Upload: none while
-  running. Continuous: p90, last hour.
+- **Peak tick:** download = steady-window p90 so far, hidden while warming up. Upload: **none while
+  running** (the gauge shows sending progress, not a measurement). Continuous: p90, last hour.
 - **Inner arc:** on completion, shows the upload headline.
 - Eyebrow (phase, e.g. "Upload · sending"), readout (Plex Mono 500, 58/46 px), separate unit span,
   caption naming the current window: `log scale · 100 kbit/s – 1 Gbit/s · auto`.
@@ -56,8 +56,13 @@ window. The window is presentation only: it never feeds a number, and the captio
 
 ## Modes and states
 
-Rate (throughput), ms (idle latency, with ping counter and live median), idle, countdown
-(ring drains in 1 s linear steps), cancelled, error ("Server unreachable" + Retry).
+Rate (throughput), ms (idle latency, with ping counter and live median), idle, countdown, cancelled,
+error ("Server unreachable" + Retry).
+
+**Countdown:** the ring drains linearly over the countdown, one third per second for the 3 s
+countdown, and the readout shows the whole seconds left. Under `prefers-reduced-motion` the ring
+does not animate: it shows the seconds left as whole steps that change once per second, together
+with the number, so the number carries the count without any motion.
 
 ## Accessibility
 

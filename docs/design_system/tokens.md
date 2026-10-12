@@ -30,7 +30,9 @@ Source: `colors_and_type.css`. Theme with `data-theme="dark" | "light"` on `<htm
 | `--series-upload` | Upload line, arc, legend (violet; this is its only meaning) |
 | `--series-latency` | Latency series, always **dashed** |
 | `--sending` | Faint upload "sending" line (client-side progress) |
-| `--chart-grid` | Chart gridlines (hairline, non-text) |
+| `--chart-grid` | Chart gridlines (hairline, non-text; ≈ 1.2:1, never for marks that must be seen) |
+| `--chart-hatch` | Warm-up marks: Result-detail hatch lines and the live band's edges (≥ 3:1 against `--surface-1/2`) |
+| `--chart-band` | Fill of the live warm-up band (tint; its edges carry the contrast) |
 | `--grade-good / -fair / -poor` | Bufferbloat grade tone: A+/A/B → good, C/D → fair, F → poor. The letter is the signal. |
 | `--quality-great / -good / -average / -poor / -bad` | AIM quality bands; always with icon + label |
 
@@ -53,6 +55,7 @@ Source: `colors_and_type.css`. Theme with `data-theme="dark" | "light"` on `<htm
   --color-series-latency: var(--series-latency);
   --color-sending: var(--sending);
   --color-chart-grid: var(--chart-grid);
+  --color-chart-hatch: var(--chart-hatch); --color-chart-band: var(--chart-band);
   --color-grade-good: var(--grade-good); --color-grade-fair: var(--grade-fair); --color-grade-poor: var(--grade-poor);
   --color-quality-great: var(--quality-great); --color-quality-good: var(--quality-good);
   --color-quality-average: var(--quality-average); --color-quality-poor: var(--quality-poor);

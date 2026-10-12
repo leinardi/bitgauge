@@ -93,7 +93,8 @@
 
   // ---------- formatting ----------
   // Three significant digits for every rate and data amount: "9.40 kbit/s", "94.1 Mbit/s", "12.3 Gbit/s", "12.3 MB".
-  const sig = x => x >= 100 ? Math.round(x).toString() : x >= 10 ? x.toFixed(1) : x >= 1 ? x.toFixed(2) : x.toPrecision(3);
+  // The tier is picked on the ROUNDED value, so a decade carry re-rounds: 9.996 → "10.0", 99.96 → "100", 0.9996 → "1.00".
+  const sig = x => x >= 99.95 ? Math.round(x).toString() : x >= 9.995 ? x.toFixed(1) : x >= 0.9995 ? x.toFixed(2) : x.toPrecision(3);
   // Picks the unit from the decimal prefix; a value that rounds to 1000 moves up one unit.
   function scaled(v, U) {
     let i = Math.max(0, Math.min(U.length - 1, Math.floor(Math.log10(Math.max(v, 1)) / 3) - 1)), x = v / Math.pow(10, 3 * (i + 1));
@@ -105,9 +106,10 @@
     return scaled(bytes ? bps / 8 : bps, bytes ? ['kB/s', 'MB/s', 'GB/s'] : ['kbit/s', 'Mbit/s', 'Gbit/s']);
   }
   const rateStr = (b, u) => { const r = rate(b, u); return r.n + ' ' + r.u; };
-  // Latency and jitter: one decimal below 10 ms, whole ms at/above 10, "< res" below the timer resolution
-  // (res in ms; a 1 ms timer gives "< 1 ms").
-  const jit = (v, res = 0.1) => v < res ? '< ' + (res >= 1 ? Math.round(res) : res.toFixed(1)) : v < 10 ? v.toFixed(1) : Math.round(v).toString();
+  // Latency and jitter: one decimal below 10 ms, whole ms at/above 10 (9.96 → "10", re-rounded after the carry),
+  // "< res" below the timer resolution. res = the page's timer resolution in ms (0.1 default; a 1 ms timer
+  // gives "< 1" and whole ms only, never false precision). Callers pass it: BG.ms(v, res).
+  const jit = (v, res = 0.1) => v < res ? '< ' + (res >= 1 ? String(Math.round(res)) : String(+res.toFixed(2))) : res >= 1 || v >= 9.95 ? Math.round(v).toString() : v.toFixed(1);
   const ms = jit;
   const bytes = b => { const r = scaled(b, ['kB', 'MB', 'GB', 'TB']); return r.n + ' ' + r.u; };
   const tickLabel = v => v >= 1e9 ? (v / 1e9) + 'G' : v >= 1e6 ? (v / 1e6) + 'M' : v >= 1e3 ? (v / 1e3) + 'k' : String(v);
@@ -120,7 +122,7 @@
     const a0 = A0 + SW * f0, a1 = A0 + SW * f1, p0 = pt(cx, cy, r, a0), p1 = pt(cx, cy, r, a1);
     return `M${p0[0].toFixed(2)} ${p0[1].toFixed(2)}A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${p1[0].toFixed(2)} ${p1[1].toFixed(2)}`;
   }
-  // ---------- gauge window (engine-side; the gauge only draws lo/hi) ----------
+  // ---------- gauge window (picked by the gauge component from the value stream) ----------
   // Windows are 4 log decades [10^k, 10^(k+4)) in the display unit.
   //   bits:  k 4..6 (10 kbit/s–100 Mbit/s … 1 Mbit/s–10 Gbit/s), start k = 6. Pin edges 10 kbit/s / 10 Gbit/s.
   //   bytes: k 3..6 (1 kB/s–10 MB/s … 1 MB/s–10 GB/s), start k = 5 (100 kB/s–1 GB/s). Pin edges 1 kB/s / 10 GB/s.
@@ -149,7 +151,7 @@
   // lo = 10^k, hi = 10^(k+4) (TestScreen._animK); under prefers-reduced-motion it jumps.
   const SHIFT_MS = 280;
 
-  // mode: 'rate' | 'ms'. lo/hi come from the engine (track); default 1 Mbit/s–10 Gbit/s, ms fixed 1–1000.
+  // mode: 'rate' | 'ms'. lo/hi are the gauge's own window (track above); default 1 Mbit/s–10 Gbit/s, ms fixed 1–1000.
   // Out-of-range values pin the needle at the start or end; the readout stays exact.
   function gauge({ size, value, lo, hi, mode = 'rate', bandLo, bandHi, peak, inner }) {
     const cx = size / 2, cy = size / 2, r = size / 2 - 10;
@@ -214,8 +216,10 @@
     }
     const seps = (o.seps || []).map(q => ({ x: X(q.t).toFixed(1), lx: (X(q.t) + 6).toFixed(1), ly: pt_ + 12, t: q.label, y1: pt_, y2: pt_ + H }));
     const wins = (o.wins || []).map(q => ({ x: X(q.t0).toFixed(1), w: (X(q.t1) - X(q.t0)).toFixed(1), y: pt_, h: H, t: q.label, lx: (X(q.t0) + 4).toFixed(1), ly: pt_ + H - 8 }));
-    const marks = (o.marks || []).map(q => ({ x: X(q.t).toFixed(1), y1: pt_, y2: pt_ + H, t: q.label, lx: (X(q.t) - 6).toFixed(1), ly: pt_ + 12 }));
-    return { vb: `0 0 ${o.w} ${o.h}`, w: o.w, h: o.h, grid, seps, wins, marks, xt, series, lat: latOut, plotL: pl, plotR: pl + W, plotT: pt_, plotB: pt_ + H, nowX: o.now != null ? X(o.now).toFixed(1) : null };
+    const marks = (o.marks || []).map(q => ({ x: X(q.t).toFixed(1), y1: pt_, y2: pt_ + H, t: q.label, c: q.c || null, lx: (X(q.t) - 6).toFixed(1), ly: pt_ + 12 }));
+    // Live warm-up bands: samples are drawn over them; x0/x1 are the band edges.
+    const bands = (o.bands || []).filter(q => q.t1 > q.t0).map(q => ({ x: X(q.t0).toFixed(1), w: (X(q.t1) - X(q.t0)).toFixed(1), x1: X(q.t1).toFixed(1), y: pt_, h: H, y2: pt_ + H, open: !!q.open }));
+    return { vb: `0 0 ${o.w} ${o.h}`, w: o.w, h: o.h, grid, seps, wins, marks, bands, xt, series, lat: latOut, plotL: pl, plotR: pl + W, plotT: pt_, plotB: pt_ + H, nowX: o.now != null ? X(o.now).toFixed(1) : null };
   }
   function spark(pts, w, h, yMax) {
     const xm = pts[pts.length - 1][0] || 1, ym = yMax || Math.max(...pts.map(p => p[1])) * 1.1;
@@ -228,7 +232,22 @@
   };
   const QUALITY = { Great: { tone: 'ok', icon: 'circle-check' }, Good: { tone: 'ok', icon: 'check' }, Average: { tone: 'warn', icon: 'circle-minus' }, Poor: { tone: 'warn', icon: 'circle-alert' }, Bad: { tone: 'danger', icon: 'circle-x' } };
 
-  window.BG = { rate, rateStr, ms, jit, bytes, gauge, track, winLabel, decStr, SHIFT_MS, arc, thr, lat, chart, spark, niceMax, rng, GRADES, QUALITY, glyphs: Object.keys(G) };
+  // ---------- grade + quality scores (measurement §11, §13) ----------
+  const gradeOf = inc => inc < 5 ? 'A+' : inc < 30 ? 'A' : inc < 60 ? 'B' : inc < 200 ? 'C' : inc < 400 ? 'D' : 'F';
+  const aimP = (v, th, p) => { let i = 0; while (i < th.length && v >= th[i]) i++; return p[i]; };
+  const band = (sum, th) => ['Bad', 'Poor', 'Average', 'Good', 'Great'][th.filter(x => sum >= x).length];
+  // AIM points; packet loss fixed at 0; upload is not an input. Sums clamp at 0. Returns points + bands per
+  // experience in the order streaming, gaming, video calls (rtc). Test screen and Result detail both call this.
+  function aim(lat, jit, dl, inc) {
+    const pl = aimP(lat, [10, 20, 50, 100, 500], [20, 10, 5, 0, -10, -20]), pi = aimP(inc, [10, 20, 50, 100, 500], [20, 10, 5, 0, -10, -20]);
+    const pj = aimP(jit, [10, 20, 100, 500], [10, 5, 0, -10, -20]), pd = aimP(dl, [1e6, 1e7, 5e7, 1e8], [0, 5, 10, 20, 30]);
+    const points = [pl + pd + pi, pl + pi, pl + pj + pi].map(p => Math.max(0, p));
+    return { points, bands: [band(points[0], [15, 20, 40, 60]), band(points[1], [5, 15, 25, 30]), band(points[2], [5, 15, 25, 40])] };
+  }
+  // Data used (bytes) of a sampled rate series [[t s, bit/s]] at `step` s: the integral of the curve.
+  const usedBytes = (pts, step = 0.1) => pts.reduce((a, q) => a + (q[1] || 0), 0) * step / 8;
+
+  window.BG = { rate, rateStr, ms, jit, bytes, gauge, track, winLabel, decStr, SHIFT_MS, arc, thr, lat, chart, spark, niceMax, rng, GRADES, QUALITY, gradeOf, aim, usedBytes, glyphs: Object.keys(G) };
   window.dispatchEvent(new Event('bg-lib-ready'));
 })();
 

@@ -16,7 +16,7 @@ this design artifact only.
 - **Test** — press **Start test** or Enter (not while a control has focus, and not while Start is
   disabled); Enter during the autostart countdown starts the test now. Escape stops; Enter and Escape
   act only on the Test screen. The run goes Connecting → idle latency → download (10 s) → upload
-  (12 s) → result, with the live gauge, chart, phase indicator and tiles. Stopping in any phase ends
+  (16 s: sends until the 15 s minimum, last requests confirm at ≈ 16 s) → result, with the live gauge, chart, phase indicator and tiles. Stopping in any phase ends
   Cancelled with the partial-result rules (Keep in history, Download JSON); it returns to Idle only
   when nothing was measured (stopped while connecting, or during idle latency with too few pings).
 - **Result detail** — "Details" after a run, or open a row in History.
@@ -63,7 +63,7 @@ the same split as a Vue SFC's `<script setup>` and `<template>`.
 | AppHeader / TabBar | NavigationMenu, ToggleGroup | Desktop top bar with server name and theme toggle. Mobile: compact header plus a 4-tab bottom bar. |
 | ConnectionStrip | Badge | Client IP, suggested context (LAN/VPN/…), protocol, streams. Includes a summary of non-default settings with Edit. |
 | PhaseIndicator | custom &lt;ol> + Progress | Shows 1–3 phases. Each one: pending, active (progress or time left), done, failed, cancelled, skipped or capped. |
-| Gauge | custom SVG | 270° log arc over a 4-decade window supplied by the engine (shifts one decade after a 2 s hold, 280 ms). Shows a recent-range band, peak tick, and an inner upload arc on completion. Rate or ms mode, plus idle, countdown, cancelled and error readouts. |
+| Gauge | custom SVG | 270° log arc over a 4-decade window that the gauge component picks from the value stream (shifts one decade after a 2 s hold, 280 ms log-space tween; jumps under reduced motion). Shows a recent-range band, peak tick, and an inner upload arc on completion. Rate or ms mode, plus idle, countdown, cancelled and error readouts. |
 | StartButton | Button size=lg | One button that changes role: Start, Stop, Run again, Retry, Start now. Shows a kbd hint on desktop; full width, 52 px, on mobile. |
 | ThroughputChart | uPlot | Throughput series, optional latency-under-load on a second y-axis, null gaps for unknown upload cells, a now line, and phase separators and event marks (lost, cancelled, cap, extended) drawn via hooks. |
 | MetricTile | Card | States: empty (—), live, done, partial, incomplete, low confidence. |
@@ -71,7 +71,7 @@ the same split as a Vue SFC's `<script setup>` and `<template>`.
 | QualityList | Badge | Streaming, Gaming, Video calls → Great, Good, Average, Poor or Bad (AIM point tables, measurement §13: Streaming = latency, packet loss, download, loaded-latency increase; Gaming = latency, packet loss, loaded-latency increase; Video calls = latency, jitter, packet loss, loaded-latency increase). Upload is not an input. Each rating has an icon and text. |
 | NotMeasured | Badge (outline, dashed) | Placeholder for packet loss; the tooltip explains it is not measured (fixed at 0 points in the quality scores). |
 | Notice | Alert | info, warn, danger or neutral, with up to two actions. Danger uses role="alert". |
-| SaveBar | Card + Input + ToggleGroup | Confirms “Saved to history” and offers a label field with suggested label chips, Share, Download JSON and Details. Partial results offer Keep in history and Download JSON. |
+| SaveBar | Card + Input + ToggleGroup | Confirms “Saved to history” and offers a label field with suggested label chips, Share, Download JSON and Details. Partial and error results offer Keep in history and Download JSON; once kept, the bar says “Saved as partial / error” and Undo is in an undo toast. |
 | ResultHeader | Input (inline edit) | Editable label, context, timestamp (absolute on hover), plus the actions. |
 | NoteField | Textarea | Saves automatically with the result in IndexedDB (history). |
 | ShareImage | &lt;canvas> → PNG | A 1200×630 image always rendered in the dark theme, with a preview in the rail. |
@@ -88,7 +88,7 @@ the same split as a Vue SFC's `<script setup>` and `<template>`.
 | ShareUrlField | Input readonly + Button | URL rebuilt from the non-default settings, with an optional autostart flag. |
 | SnippetBlock | &lt;pre> + Clipboard | Client snippets on the terminal surface. |
 | Toast | vue-sonner | “Summary copied.”, “Image downloaded.” |
-| UndoToast | vue-sonner (action) | “Result deleted.” with Undo; the delete commits when the toast expires. |
+| UndoToast | vue-sonner (action) | “Result deleted.” with Undo; the delete commits when the toast expires. “Kept in history as partial / error.” with Undo after Keep in history. |
 | ShareDialog | Dialog | Same content as the Result-detail rail: share image preview, summary text, copy and download. |
 | ImportResult | Dialog + Alert | Reports a JSON import: how many results were added, skipped as duplicates, or rejected, and why. |
 | OfflineState | Alert + EmptyState | Shown when the server is unreachable: history stays readable, starting a test is disabled with the reason. |

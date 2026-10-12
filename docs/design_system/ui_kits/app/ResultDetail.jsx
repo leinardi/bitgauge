@@ -34,8 +34,10 @@ class ResultDetail extends React.Component {
     const L = m ? { pad: '14px 16px 24px', h1: 'var(--text-3xl)', cols: 'minmax(0,1fr)', tileCols: 'repeat(2, minmax(0,1fr))', tileGap: '10px', tileNum: '24px', midCols: 'minmax(0,1fr)', chartCols: 'minmax(0,1fr)', confCols: 'minmax(0,1fr)', nfMargin: '40px auto' }
       : { pad: '20px 40px 48px', h1: 'var(--text-4xl)', cols: 'minmax(0,1fr) 352px', tileCols: 'repeat(4, minmax(0,1fr))', tileGap: '12px', tileNum: '28px', midCols: 'minmax(0,1.4fr) minmax(0,1fr)', chartCols: 'repeat(2, minmax(0,1fr))', confCols: 'repeat(2, minmax(0,1fr))', nfMargin: '96px auto' };
 
-    const mb = v => v / 1e6, rn = v => v == null ? '—' : mb(v) >= 100 ? String(Math.round(mb(v))) : mb(v).toFixed(1), rs = v => v == null ? '—' : rn(v) + ' Mbit/s';
-    const jit = v => v < 10 ? v.toFixed(1) : String(Math.round(v));
+    // bg-lib formatting: 3 significant digits with an auto-scaled unit; latency/jitter one decimal below 10 ms.
+    const BGF = window.BG || { rate: v => ({ n: String(Math.round(v / 1e6)), u: 'Mbit/s' }), rateStr: v => Math.round(v / 1e6) + ' Mbit/s', jit: v => v < 9.95 ? v.toFixed(1) : String(Math.round(v)), ms: v => v < 9.95 ? v.toFixed(1) : String(Math.round(v)) };
+    const rn = v => v == null ? '—' : BGF.rate(v, 'bits').n, ru = v => v == null ? '' : BGF.rate(v, 'bits').u, rs = v => v == null ? '—' : BGF.rateStr(v, 'bits');
+    const jit = v => BGF.jit(v);
     const med = a => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y), h = s.length >> 1; return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; };
     const mmss = s => Math.floor(s / 60) + ':' + String(Math.round(s % 60)).padStart(2, '0');
     const T = { ok: 'var(--ok)', warn: 'var(--warn)', danger: 'var(--danger)', info: 'var(--info)', neutral: 'var(--fg-subtle)' };
@@ -56,37 +58,57 @@ class ResultDetail extends React.Component {
       cells.push({ a, b, known: b - a, v: OHF * (412e6 + 26e6 * Math.sin(i * 0.7) + 11e6 * Math.cos(i * 2.3) - (i >= 40 && i <= 52 ? 31e6 : 0)), l: 17 + 3.5 * Math.sin(i * 1.3) + (i % 5) * 0.5 });
     }
     const cKnown = cells.reduce((s, c) => s + c.known, 0), cAvg = cells.reduce((s, c) => s + c.v * c.known, 0) / cKnown;
-    const lastHr = cells.filter(c => c.b > CEND - 3600).map(c => c.v).sort((x, y) => x - y), cP90 = lastHr[Math.floor(0.9 * (lastHr.length - 1))];
-    const cUsed = Math.round(cAvg / OHF * CEND / 8 / 1e9) + ' GB';
+    // The run's 1 s cells (hour tier while it ran): "p90, last hour" is the p90 of the last 3600 of them; the run max is
+    // a running aggregate over all of them. Only the 1 min cells are saved.
+    if (!this._sec || this._secF !== OHF) {
+      let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647, sec = [];
+      cells.forEach(c => { for (let t = c.a; t < c.b - 1e-6; t++) sec.push([t, c.v * (1 + 0.07 * (rnd() - 0.5) + 0.02 * Math.sin(t * 0.9))]); });
+      this._sec = sec; this._secF = OHF;
+    }
+    const lastHr = this._sec.filter(q => q[0] >= CEND - 3600).map(q => q[1]).sort((x, y) => x - y), cP90 = lastHr[Math.floor(0.9 * (lastHr.length - 1))];
+    // Run-wide running aggregates over the 1 s cells (§15); saved as minBitsPerSecond / maxBitsPerSecond (§17).
+    const CAGG = this._sec.reduce((a, q) => ({ min: Math.min(a.min, q[1]), max: Math.max(a.max, q[1]) }), { min: Infinity, max: 0 });
+    const cMax = CAGG.max, cMin = CAGG.min;
+    const cUsedB = Math.round(cAvg / OHF * CEND / 8), cUsed = Math.round(cUsedB / 1e9) + ' GB';
+    // Standard run on the fast LAN: the same curves as the Test screen, so data used = 737 MB down + 855 MB up
+    // (upload sends for ≈ 16 s: until its 15 s minimum, then the last in-flight requests).
+    const SUSED = { down: 736700000, up: 854549086 }, sUsed = (SUSED.down + SUSED.up) / 1e9;
 
     const D = cont ? {
       label: 'Overnight check', ctx: 'LAN', ctxIcon: 'house', when: 'Thu 8 Oct 2026 · 01:00:04', abs: '2026-10-08 01:00:04 CEST', iso: '2026-10-07T23:00:04.000Z', crumb: '2026-10-08 01:00', short: 'Thu 8 Oct 2026 · 01:00', file: 'bitgauge-2026-10-08-0100',
-      preset: 'Continuous', server: 'Basement NAS', note: 'Checking whether the evening dip comes back after midnight.', down: cAvg, up: null, worst: ['download', 15]
+      preset: 'Continuous', server: 'Basement NAS', note: 'Checking whether the evening dip comes back after midnight.', down: cAvg, up: null
     } : {
       label: 'Home Wi-Fi', ctx: 'LAN', ctxIcon: 'house', when: 'Thu 8 Oct 2026 · 14:02:11', abs: '2026-10-08 14:02:11 CEST', iso: '2026-10-08T12:02:11.000Z', crumb: '2026-10-08 14:02', short: 'Thu 8 Oct 2026 · 14:02', file: 'bitgauge-2026-10-08-1402',
-      preset: 'Standard', server: 'Basement NAS', note: 'Office desk, 5 GHz. Router is in the hallway, one wall between.', down: 612e6 * OHF, up: 438e6 * OHF, worst: ['upload', 39]
+      preset: 'Standard', server: 'Basement NAS', note: 'Office desk, 5 GHz. Router is in the hallway, one wall between.', down: 612e6 * OHF, up: 438e6 * OHF
     };
-    const IDLE = 3.1, JIT = 0.8;
+    const IDLE = 3.1, JIT = 0.8, r1 = v => Math.round(v * 10) / 10;
+    // Loaded latency (median, p90) per direction. Increase = median − idle; the grade uses the worse one, and
+    // loadedLatency.increaseMs and bufferbloat.increaseMs in the JSON hold the same value.
+    const LL = { down: [18, 24], up: cont ? null : [42, 55] }, INC = { down: r1(LL.down[0] - IDLE), up: LL.up ? r1(LL.up[0] - IDLE) : null };
+    D.worst = INC.up != null && INC.up > INC.down ? ['upload', INC.up] : ['download', INC.down];
     const grade = gradeOf(D.worst[1]), gT = GT[grade], gradeWords = gT[1] + ' bufferbloat' + (cont ? ' · download only' : '');
     const gradeBasis = cont ? 'Grade basis: download +15 ms vs idle. Upload not measured.' : 'Grade basis: the worse increase vs idle — upload +39 ms (download +15 ms).';
-    const worstStr = '+' + D.worst[1] + ' ms loaded (' + D.worst[0] + ')';
+    const worstStr = '+' + jit(D.worst[1]) + ' ms loaded (' + D.worst[0] + ')';
 
     const summary = [
       'BitGauge' + (inc ? ' · ' + D.label : ''),
       D.short,
       cont ? 'Download ' + rs(D.down) + ' (2 h average) · Upload not measured' : 'Download ' + rs(D.down) + ' · Upload ' + rs(D.up)
     ].concat(OH ? [OH] : []).concat([
-      'Idle latency ' + IDLE.toFixed(1) + ' ms · Jitter ' + jit(JIT) + ' ms',
-      'Loaded latency +' + D.worst[1] + ' ms (' + D.worst[0] + ')',
+      'Idle latency ' + BGF.ms(IDLE) + ' ms · Jitter ' + jit(JIT) + ' ms',
+      'Loaded latency +' + jit(D.worst[1]) + ' ms (' + D.worst[0] + ')',
       'Bufferbloat grade ' + grade + ' · ' + gradeWords,
       'Server: ' + D.server
     ]).join('\n');
 
+    // Quality scores: the same AIM function as the Test screen (bg-lib). Standard: Good/Good/Good (55/25/35 points);
+    // Continuous (download +15 ms): Great/Great/Great (60/30/40).
+    const SC = BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
     const tiles = [
-      { label: cont ? 'Download · average' : 'Download', icon: 'arrow-down', ic: 'var(--series-download)', num: rn(D.down), unit: 'Mbit/s', nc: 'var(--fg)', sub: ohs(cont ? 'peak ' + rn(cP90) + ' · p90, last hour · 6 streams · plateau: cap' : 'peak ' + rn(641e6 * OHF) + ' · 6 streams · plateau: cap') },
+      { label: cont ? 'Download · average' : 'Download', icon: 'arrow-down', ic: 'var(--series-download)', num: rn(D.down), unit: ru(D.down), nc: 'var(--fg)', sub: ohs(cont ? 'peak ' + rn(cP90) + ' · p90, last hour, 1 s cells · max ' + rn(cMax) + ' · 6 streams · plateau: cap' : 'peak ' + rn(641e6 * OHF) + ' · 6 streams · plateau: cap') },
       cont ? { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: '—', unit: '', nc: 'var(--fg-subtle)', sub: 'not measured · Continuous runs one direction' }
-        : { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: rn(D.up), unit: 'Mbit/s', nc: 'var(--fg)', sub: ohs('peak ' + rn(455e6 * OHF) + ' · 6 streams · plateau: cap · 3.1 of 3.5 s known') },
-      { label: 'Idle latency', icon: 'activity', ic: 'var(--series-latency)', num: IDLE.toFixed(1), unit: 'ms', nc: 'var(--fg)', sub: 'min 2.4 · p90 4.1 ms · WebSocket · 0 % probe timeouts' },
+        : { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: rn(D.up), unit: ru(D.up), nc: 'var(--fg)', sub: ohs('peak ' + rn(455e6 * OHF) + ' · 6 streams · plateau: cap · 6.1 of 6.5 s known') },
+      { label: 'Idle latency', icon: 'activity', ic: 'var(--series-latency)', num: BGF.ms(IDLE), unit: 'ms', nc: 'var(--fg)', sub: 'min 2.4 · p90 4.1 ms · WebSocket · 0 % probe timeouts' },
       { label: 'Jitter', icon: 'activity', ic: 'var(--series-latency)', num: jit(JIT), unit: 'ms', nc: 'var(--fg)', sub: 'mean of consecutive differences' }
     ];
     const loadRows = [{ icon: 'arrow-down', ic: 'var(--primary-text)', label: 'During download · WebSocket', sub: 'p90 24 · +15 ms vs idle', num: '18', unit: 'ms' }];
@@ -103,15 +125,14 @@ class ResultDetail extends React.Component {
         it('ok', 'circle-check', 'Download reached the 6-stream cap', 'Warm-up ended by the guarded rule at 6.5 s and the window condition held. Level: normal.')
       ] },
       { h: 'Notices', items: [
-        it('neutral', 'timer', 'Run length reached at 2:00:00', 'The 2 h run length ended the run. Status: complete.'),
         it('neutral', 'database', 'Data used: ' + cUsed, 'Data-used notices appeared at 1 GB, 10 GB and 100 GB.'),
         it('neutral', 'circle-dashed', 'Upload not measured', 'Continuous runs one direction.'),
         N_LOSS, N_RESP
       ].concat(N_OH) }
     ] : [
       { h: 'Confidence', items: [
-        it('ok', 'circle-check', 'Both directions reached the 6-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 7.5 s — and the window condition held. Level: normal.'),
-        it('info', 'info', '89 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 8.4–8.8 s is left out; the average uses known time only.')
+        it('ok', 'circle-check', 'Both directions reached the 6-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 9.5 s (each upload ramp step waits for confirmation) — and the window condition held. Level: normal.'),
+        it('info', 'info', '94 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 10.4–10.8 s is left out; the average uses known time only.')
       ] },
       { h: 'Notices', items: [N_LOSS, N_RESP].concat(N_OH) }
     ];
@@ -121,13 +142,13 @@ class ResultDetail extends React.Component {
     const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', 'Firefox 131 · Linux'], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
     const params = cont ? [
       P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · 6 · plateau: cap']]),
-      P('Limits', [['Run length', '2 h · reached'], ['Stored cells', '1 min · run longer than 1 h'], ['Data cap', 'Off · ' + cUsed + ' used']]),
+      P('Limits', [['Run length', '2 h'], ['Stored cells', '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]),
       P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]),
       env
     ] : [
       P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', 'Auto · 6 · plateau: cap']]),
-      P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', '12.0 s · min 12 · max 25'], ['Data cap', 'Off · 1.42 GB used']]),
-      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s (download), 7.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]),
+      P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', '16.0 s · min 15 · max 25'], ['Data cap', 'Off · ' + sUsed.toFixed(2) + ' GB used']]),
+      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]),
       env
     ];
     // Share shows only where the browser can share files (the PNG goes to the system sheet).
@@ -143,14 +164,14 @@ class ResultDetail extends React.Component {
       nf: delSt === 'done' ? { icon: 'trash', title: 'Result deleted', body: 'It has been removed from history in this browser.' } : { icon: 'search', title: 'Result not found', body: 'This result isn’t in this browser’s history. It may have been deleted, or saved in a different browser.' },
       dimOp: delSt === 'pending' ? '0.45' : '1',
       tiles, loadRows, rpm, rpmSub: cont ? 'round trips per minute, download only' : 'round trips per minute, one per direction',
-      fit: [['Streaming', 'tv', 'Great', 'ok', 'circle-check'], ['Gaming', 'gamepad', 'Good', 'ok', 'circle-check'], ['Video calls', 'video', 'Great', 'ok', 'circle-check']].map(([label, icon, rating, tone, ricon]) => ({ label, icon, rating, cls: 'sbadge ' + tone, ricon })),
+      fit: SC ? [['Streaming', 'tv'], ['Gaming', 'gamepad'], ['Video calls', 'video']].map(([label, icon], i) => { const rating = SC.bands[i], Q = BG.QUALITY[rating]; return { label, icon, rating, cls: 'sbadge ' + Q.tone, ricon: Q.icon }; }) : [],
       conf, confGroups, params, summary, inc, denied,
       grade, gradeWords, gradeBasis, gShort: gT[1], gradeAria: 'Bufferbloat grade ' + grade + ', ' + gradeWords, gBd: 'var(--' + gT[0] + '-border)', gBg: 'var(--' + gT[0] + '-bg)', gFg: 'var(--' + gT[0] + '-fg)',
       note: this.state.note ?? D.note,
       setNote: e => this.setState({ note: e.target.value }),
       toggleInc: () => this.setState({ inc: !inc }),
-      shareBlocks: [{ k: '↓ DOWNLOAD', c: 'var(--series-download)', n: rn(D.down), u: 'Mbit/s' }, { k: '↑ UPLOAD', c: 'var(--series-upload)', n: rn(D.up), u: D.up == null ? '' : 'Mbit/s' }],
-      shareFoot: [IDLE.toFixed(1) + ' ms idle', jit(JIT) + ' ms jitter', worstStr].concat(OH ? [OH] : []),
+      shareBlocks: [{ k: '↓ DOWNLOAD', c: 'var(--series-download)', n: rn(D.down), u: ru(D.down) }, { k: '↑ UPLOAD', c: 'var(--series-upload)', n: rn(D.up), u: ru(D.up) }],
+      shareFoot: [BGF.ms(IDLE) + ' ms idle', jit(JIT) + ' ms jitter', worstStr].concat(OH ? [OH] : []).concat([grade + ' · ' + gradeWords, D.short]),
       shareAria: 'Share image: ' + summary.replace(/\n/g, ', '),
       preRef: this.preRef, preOutline: denied ? '2px solid var(--ring)' : 'none',
       paramsShown: !m || this.state.paramsOpen, paramsAria: this.state.paramsOpen ? 'true' : 'false', paramsChevron: this.state.paramsOpen ? 'chevron-up' : 'chevron-down', paramsBorder: this.state.paramsOpen ? '1px solid var(--border-subtle)' : '0',
@@ -179,21 +200,39 @@ class ResultDetail extends React.Component {
         c.toBlob(b => { if (!b) return; navigator.share({ files: [new File([b], D.file + '.png', { type: 'image/png' })], title: 'BitGauge result' }).catch(() => {}); }, 'image/png');
       },
       dlImg: () => this.toast({ kind: 'ok', icon: 'circle-check', t: 'Image downloaded.', m: D.file + '.png' }),
+      // Download JSON: the history export format wrapping one full §17 result object.
       dlJson: () => {
-        const S = this._series || {}, vals = a => (a || []).map(p => p[1] == null ? null : Math.round(p[1]));
-        const dir = (bps, peak, wu, end, values, extra) => Object.assign({ status: 'measured', bitsPerSecond: Math.round(bps), peakBitsPerSecond: Math.round(peak), uncompensatedBitsPerSecond: Math.round(bps / OHF),
-          streams: 6, plateau: 'cap', confidence: { level: 'normal', reasons: [] },
-          series: { bucketMs: cont ? 60000 : 100, firstCellMs: wu * 1000, warmupEndMs: wu * 1000, endMs: end * 1000, values }, events: [] }, extra || {});
+        const S = this._series || {}, ping = this._ping || [], r1 = v => Math.round(v * 10) / 10;
+        const vals = a => (a || []).map(p => p[1] == null ? null : Math.round(p[1]));
+        const latSer = a => (a || []).map(p => ({ atMs: Math.round(p[0] * 1000), rttMs: r1(p[1]) }));
+        const scores = SC ? { streaming: { points: SC.points[0], band: SC.bands[0].toLowerCase() }, gaming: { points: SC.points[1], band: SC.bands[1].toLowerCase() }, rtc: { points: SC.points[2], band: SC.bands[2].toLowerCase() }, packetLoss: 'not-measured' } : null;
+        const dir = o => Object.assign({
+          status: 'measured', bitsPerSecond: Math.round(o.bps), peakBitsPerSecond: Math.round(o.peak), uncompensatedBitsPerSecond: Math.round(o.bps / OHF),
+          windowMs: o.windowMs, streams: 6, plateau: 'cap', confidence: { level: 'normal', reasons: [] }, bytes: o.bytes,
+          loadedLatency: { source: 'websocket', samples: o.lat.length, skippedTicks: 0, medianMs: o.ll[0], p90Ms: o.ll[1], increaseMs: o.inc, series: o.lat },
+          responsiveness: { state: 'measured', protocol: 'h2', samples: 18, rpm: o.rpm },
+          series: { bucketMs: o.bucketMs, firstCellMs: o.wu, warmupEndMs: o.wu, endMs: o.end, values: o.values },
+          events: o.events || []
+        }, o.agg || {});
+        const idleS = ping.slice(1).map(p => r1(p[1]));
         const result = {
-          schema: 'bitgauge.result', schemaVersion: 1, startedAt: D.iso, status: 'complete', label: D.label, note: this.state.note ?? D.note,
-          server: { name: D.server, version: '1.4.0' },
+          schema: 'bitgauge.result', schemaVersion: 1, id: cont ? 'c41e9a07-5d2b-4f7e-9a31-6b0d2e8f4c15' : '0b6f2d18-9c4a-4e1b-8f37-2a5c6d9e0f41',
+          startedAt: D.iso, durationMs: cont ? Math.round((0.6 + 2.0 + CEND) * 1000) : 28600, status: 'complete', label: D.label, note: this.state.note ?? D.note,
+          server: { name: D.server, version: '1.4.0', epoch: '2026-09-30T08:12:44.000Z' },
           client: { ip: '192.168.1.42', contextLabel: D.ctx, protocol: 'h2', browser: { name: 'Firefox', major: 131, os: 'Linux' } },
-          settings: { preset: D.preset.toLowerCase(), streams: { mode: 'auto', max: 6 }, dataCapBytes: null, overheadCompensationPercent: OHP, warmup: 'auto', pingCount: 20 },
-          idle: { path: 'websocket', medianMs: IDLE, jitterMs: JIT },
-          download: cont ? dir(cAvg, cP90, CWU, CEND, cells.map(c => Math.round(c.v))) : dir(D.down, 641e6 * OHF, 6.5, 10, vals(S.down)),
-          upload: cont ? { status: 'skipped' } : dir(D.up, 455e6 * OHF, 7.5, 11, vals(S.up), { events: [{ code: 'failure-gap', startMs: 8400, endMs: 8800 }] }),
-          bufferbloat: { grade, basis: cont ? 'download' : 'download+upload', increaseMs: D.worst[1] }
+          settings: { preset: D.preset.toLowerCase(), phases: cont ? ['idle', 'download'] : ['idle', 'download', 'upload'], streams: { mode: 'auto', max: 6 }, dataCapBytes: null, overheadCompensationPercent: OHP, warmup: 'auto', pingCount: 20 },
+          idle: { path: 'websocket', lossPercent: 0, minMs: 2.4, medianMs: IDLE, p90Ms: 4.1, jitterMs: JIT, samples: idleS },
+          download: cont
+            ? dir({ bps: cAvg, peak: cP90, windowMs: Math.round((CEND - CWU) * 1000), bytes: cUsedB, lat: cells.map(c => ({ atMs: Math.round((c.a + c.b) / 2 * 1000), rttMs: r1(c.l) })), ll: LL.down, inc: INC.down, agg: { minBitsPerSecond: Math.round(cMin), maxBitsPerSecond: Math.round(cMax) }, rpm: 1420, bucketMs: 60000, wu: CWU * 1000, end: CEND * 1000, values: cells.map(c => Math.round(c.v)) })
+            : dir({ bps: D.down, peak: 641e6 * OHF, windowMs: 3500, bytes: SUSED.down, lat: latSer(S.dLat), ll: LL.down, inc: INC.down, rpm: 1420, bucketMs: 100, wu: 6500, end: 10000, values: vals(S.down) }),
+          upload: cont ? { status: 'skipped' }
+            : Object.assign(dir({ bps: D.up, peak: 455e6 * OHF, windowMs: 6100, bytes: SUSED.up, lat: latSer(S.uLat), ll: LL.up, inc: INC.up, rpm: 980, bucketMs: 100, wu: 9500, end: 16000, values: vals(S.up), events: [{ code: 'failure-gap', startMs: 10400, endMs: 10800 }] }), { confirmedRequests: 38 }),
+          bufferbloat: { grade, basis: cont ? 'download' : 'download+upload', increaseMs: D.worst[1] },
+          scores,
+          dataUsedBytes: cont ? cUsedB : SUSED.down + SUSED.up,
+          notices: (cont ? [1e9, 1e10, 1e11].map(v => ({ code: 'data-used', bytes: v })) : []).concat(OHP ? [{ code: 'overhead-compensation', percent: OHP }] : [])
         };
+        // History export format with one entry (ui/screens.md §1), so it re-imports as is.
         const obj = { format: 'bitgauge.history', formatVersion: 1, exportedAt: new Date().toISOString(), results: [result] };
         try { const u = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' })); const a = document.createElement('a'); a.href = u; a.download = D.file + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); } catch (e) {}
         this.toast({ kind: 'ok', icon: 'circle-check', t: 'JSON downloaded.', m: D.file + '.json · contains client IP and notes' });
@@ -221,9 +260,16 @@ class ResultDetail extends React.Component {
       const g = BG.chart({ w: o.w, h: o.h, xMax: o.xMax, series: [known], yMax: ym, lat: latK, latMax: lm, ms: o.ms, xStep: o.xStep, xLabel: o.xLabel });
       const X = t => g.plotL + (g.plotR - g.plotL) * t / o.xMax, Y = v => g.plotT + (g.plotB - g.plotT) * (1 - v / ym), LY = v => g.plotT + (g.plotB - g.plotT) * (1 - v / lm);
       const path = (s, f) => s.map((p, i) => (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + f(p[1]).toFixed(1)).join('');
-      const S = split(o.pts), H = g.plotB - g.plotT;
+      // A gap spans exactly its null cells, [first null cell start, next known cell start); the series before it
+      // holds its last value up to the gap start (e.g. upload: null cells 10.4–10.7 → gap 10.4–10.8 s).
+      const H = g.plotB - g.plotT, S = [], gapT = []; let cur = [], g0 = null;
+      o.pts.forEach(p => {
+        if (p[1] == null) { if (g0 == null) { g0 = p[0]; if (cur.length) { cur.push([p[0], cur[cur.length - 1][1]]); S.push(cur); cur = []; } } }
+        else { if (g0 != null) { gapT.push([g0, p[0]]); g0 = null; } cur.push(p); }
+      });
+      if (cur.length) S.push(cur);
       const segs = S.map(s => { const l = path(s, Y); return { line: l, area: l + 'L' + X(s[s.length - 1][0]).toFixed(1) + ' ' + g.plotB + 'L' + X(s[0][0]).toFixed(1) + ' ' + g.plotB + 'Z' }; });
-      const gaps = []; for (let i = 1; i < S.length; i++) { const x0 = X(S[i - 1][S[i - 1].length - 1][0]), x1 = X(S[i][0][0]); gaps.push({ x: x0.toFixed(1), w: (x1 - x0).toFixed(1), y: g.plotT, h: H }); }
+      const gaps = gapT.map(([a, b]) => ({ x: X(a).toFixed(1), w: (X(b) - X(a)).toFixed(1), y: g.plotT, h: H }));
       // Chips go right of the line unless they'd pass plotR; overlapping chips stagger down one row.
       const placed = [];
       const marks = (o.marks || []).map(([t, type]) => {
@@ -260,7 +306,7 @@ class ResultDetail extends React.Component {
     const tfoot = (wu, extra) => 'From warm-up end (' + wu + ' s). Throughput = bytes ÷ known time' + (OH ? ', with ' + OH : '') + '; “—” = no known time in that window.' + (extra || '') + ' Full samples are in the JSON export.';
     const TCOLS = ['2 s windows', 'Known', 'Throughput', 'Latency (median)'];
     const cw = m ? 309 : 320, ch = m ? 150 : 170, sp = m ? 'auto' : 'span 1', wide = m ? 309 : 690;
-    const ping = tidy(BG.lat(4, 3.1, 3.1, 1.9, 0.1, 0.4), 0, 2);
+    const ping = tidy(BG.lat(4, 3.1, 3.1, 1.9, 0.1, 0.4), 0, 2); this._ping = ping;
     const pingRows = [0, 5, 10, 15].map(s => { const g = ping.slice(s, s + 5).map(p => p[1]); return [cL((s + 1) + '–' + (s + 5)), cV(BG.ms(med(g)) + ' ms'), cK(BG.ms(Math.min(...g)) + ' ms'), cK(BG.ms(Math.max(...g)) + ' ms')]; });
     const idle = mk({ key: 'idle', title: 'Idle latency', icon: 'activity', c: 'var(--series-latency)', pts: ping, xMax: 2, ms: true, meta: '20 pings · median 3.1 ms', w: wide, h: m ? 100 : 120, span: m ? 'auto' : 'span 2',
       cols: ['Pings', 'Median', 'Min', 'Max'], rows: pingRows, foot: 'Groups of 5 pings in send order. No warm-up for latency.' });
@@ -272,20 +318,22 @@ class ResultDetail extends React.Component {
       charts = [mk({ key: 'down', title: 'Download', icon: 'arrow-down', c: 'var(--series-download)', pts: cpts, lat: clat, xMax: CEND, xStep: 1200, xLabel: hl, wu: CWU, wuText: '0–0:07',
         meta: ohs('2 h · 1 min cells · 6 streams'), w: wide, h: m ? 150 : 190, span: m ? 'auto' : 'span 2',
         cols: ['1 min averages', 'Known', 'Throughput', 'Latency (median)'], rows: crow,
-        foot: 'One row per stored 1 min cell, from warm-up end (0:07). Runs longer than 1 h are stored in 1 min cells' + (OH ? '; throughput includes ' + OH : '') + '. The last cell is 53.5 s because the 2 h run length ended the run.' }), idle];
+        foot: 'One row per stored 1 min cell, from warm-up end (0:07). A run is saved from the finest cells that cover it, downsampled to at most 2000 points: up to 10 min from 100 ms cells, up to 1 h from 1 s cells, up to 24 h from 1 min cells, longer from 10 min cells, so this 2 h run keeps 1 min cells' + (OH ? '; throughput includes ' + OH : '') + '. The last cell is 53.5 s because the 2 h run length ended the run.' }), idle];
     } else {
       // Same run as the Test screen (§8.3): both directions ramp to the 6-stream cap.
-      // Download: warm-up 0–6.5 s, phase ends at 10 s. Upload: warm-up 0–7.5 s, phase ends at its 12 s minimum,
-      // steady window 7.5–11.0 s (confirmed watermark), one failed HTTP/2 request leaves a 0.4 s gap at 8.4–8.8 s.
-      const dEnd = 10, uEnd = 11, DWU = 6.5, UWU = 7.5, inGap = p => p[0] > 8.4 - 1e-6 && p[0] < 8.8 - 1e-6;
+      // Download: warm-up 0–6.5 s, phase ends at 10 s. Upload (server timeline, measurement §19.4): each ramp decision
+      // waits ≈ 1 s for confirmation, so warm-up is 0–9.5 s; sending stops at the 15 s minimum, the last in-flight
+      // requests confirm at ≈ 16 s, steady window 9.5–16.0 s; one failed HTTP/2 request leaves a 0.4 s gap at
+      // 10.4–10.8 s: 6.1 of 6.5 s known.
+      const dEnd = 10, uEnd = 16, DWU = 6.5, UWU = 9.5, inGap = p => p[0] > 10.4 - 1e-6 && p[0] < 10.8 - 1e-6;
       const dPts = tidy(BG.thr(3, 612e6 * OHF, dEnd), DWU, dEnd), dLat = tidy(BG.lat(5, 3.1, 18, dEnd, 0.25), DWU, dEnd);
       const uPts = tidy(BG.thr(7, 438e6 * OHF, uEnd), UWU, uEnd).map(p => inGap(p) ? [p[0], null] : p), uLat = tidy(BG.lat(9, 3.1, 42, uEnd, 0.25), UWU, uEnd);
-      this._series = { down: dPts, up: uPts };
+      this._series = { down: dPts, up: uPts, dLat, uLat, ping };
       charts = [
         mk({ key: 'down', title: 'Download', icon: 'arrow-down', c: 'var(--series-download)', pts: dPts, lat: dLat, xMax: 10, wu: DWU, wuText: '0–6.5 s', meta: ohs('10 s · 6 streams'), w: cw, h: ch, span: sp,
           cols: TCOLS, rows: winRows(dPts, dLat, DWU, dEnd), foot: tfoot('6.5') }),
-        mk({ key: 'up', title: 'Upload', icon: 'arrow-up', c: 'var(--series-upload)', pts: uPts, lat: uLat, xMax: 12, wu: UWU, wuText: '0–7.5 s', meta: ohs('12 s · 6 streams'), w: cw, h: ch, span: sp, gapLabel: 'No known data · failed request (8.4–8.8 s)',
-          cols: TCOLS, rows: winRows(uPts, uLat, UWU, uEnd), foot: tfoot('7.5', ' The window ends at the confirmed watermark (11.0 s): 3.1 of 3.5 s known.') }),
+        mk({ key: 'up', title: 'Upload', icon: 'arrow-up', c: 'var(--series-upload)', pts: uPts, lat: uLat, xMax: 16, wu: UWU, wuText: '0–9.5 s', meta: ohs('16 s · 6 streams'), w: cw, h: ch, span: sp, gapLabel: 'No known data · failed request (10.4–10.8 s)',
+          cols: TCOLS, rows: winRows(uPts, uLat, UWU, uEnd), foot: tfoot('9.5', ' The window ends at the confirmed watermark (16.0 s): 6.1 of 6.5 s known.') }),
         idle
       ];
     }
@@ -296,10 +344,10 @@ class ResultDetail extends React.Component {
     return (
       <div style={{ background: "var(--bg-base)", color: "var(--fg)", fontFamily: "var(--font-sans)", minHeight: "100%", display: "flex", flexDirection: "column" }}>
         {v.desktop ? (
-          <Nav variant="top" active="history" />
+          <Nav variant="top" active="history" status={this.props.srvStatus || "connected"} />
         ) : null}
         {v.mobile ? (
-          <Nav variant="mobile-top" active="history" />
+          <Nav variant="mobile-top" active="history" status={this.props.srvStatus || "connected"} />
         ) : null}
         {v.notFound ? (
           <main style={{ flex: "1", maxWidth: "1200px", width: "100%", boxSizing: "border-box", margin: "0 auto", padding: v.L?.pad, display: "flex", justifyContent: "center" }}>
@@ -575,11 +623,11 @@ class ResultDetail extends React.Component {
                             </svg>
                             <div aria-hidden="true" style={{ position: "absolute", inset: "0", pointerEvents: "none", fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--fg-subtle)" }}>
                               {k?.wu ? (
-                                <span style={{ position: "absolute", left: `${k?.wu?.x ?? ""}px`, top: `${k?.wu?.y ?? ""}px`, width: `${k?.wu?.w ?? ""}px`, height: `${k?.wu?.h ?? ""}px`, boxSizing: "border-box", borderRight: "1px dashed var(--border-strong)", background: "repeating-linear-gradient(135deg, var(--border-default) 0 1px, transparent 1px 5px)" }} />
+                                <span style={{ position: "absolute", left: `${k?.wu?.x ?? ""}px`, top: `${k?.wu?.y ?? ""}px`, width: `${k?.wu?.w ?? ""}px`, height: `${k?.wu?.h ?? ""}px`, boxSizing: "border-box", borderRight: "1px solid var(--chart-hatch)", background: "repeating-linear-gradient(135deg, var(--chart-hatch) 0 1px, transparent 1px 6px)" }} />
                               ) : null}
                               {(k?.gaps || []).map((gp, $index) => (
                                 <React.Fragment key={$index}>
-                                  <span style={{ position: "absolute", left: `${gp?.x ?? ""}px`, top: `${gp?.y ?? ""}px`, width: `${gp?.w ?? ""}px`, height: `${gp?.h ?? ""}px`, boxSizing: "border-box", borderLeft: "1px dashed var(--border-strong)", borderRight: "1px dashed var(--border-strong)" }} />
+                                  <span style={{ position: "absolute", left: `${gp?.x ?? ""}px`, top: `${gp?.y ?? ""}px`, width: `${gp?.w ?? ""}px`, height: `${gp?.h ?? ""}px`, boxSizing: "border-box", borderLeft: "1px dashed var(--chart-hatch)", borderRight: "1px dashed var(--chart-hatch)" }} />
                                 </React.Fragment>
                               ))}
                               {(k?.g?.grid || []).map((gl, $index) => (
@@ -618,13 +666,13 @@ class ResultDetail extends React.Component {
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>
                             {k?.wu ? (
                               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                <span style={{ width: "14px", height: "10px", boxSizing: "border-box", borderRight: "1px dashed var(--border-strong)", background: "repeating-linear-gradient(135deg, var(--border-strong) 0 1px, transparent 1px 4px)" }} />
+                                <span style={{ width: "14px", height: "10px", boxSizing: "border-box", borderRight: "1px solid var(--chart-hatch)", background: "repeating-linear-gradient(135deg, var(--chart-hatch) 0 1px, transparent 1px 4px)" }} />
                                 {k?.wuLabel}
                               </span>
                             ) : null}
                             {k?.hasGaps ? (
                               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                <span style={{ width: "12px", height: "10px", boxSizing: "border-box", borderLeft: "1px dashed var(--border-strong)", borderRight: "1px dashed var(--border-strong)" }} />
+                                <span style={{ width: "12px", height: "10px", boxSizing: "border-box", borderLeft: "1px dashed var(--chart-hatch)", borderRight: "1px dashed var(--chart-hatch)" }} />
                                 {k?.gapLabel}
                               </span>
                             ) : null}
@@ -708,9 +756,8 @@ class ResultDetail extends React.Component {
                         </span>
                         <span style={{ marginLeft: "auto", display: "flex", gap: "5px", minWidth: "0", fontFamily: "var(--font-mono)", fontWeight: "400", fontSize: "9px", color: "var(--fg-subtle)", whiteSpace: "nowrap" }}>
                           {v.inc ? (
-                            <span style={{ color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis" }}>{v.D?.label}{" ·"}</span>
+                            <span style={{ color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis" }}>{v.D?.label}</span>
                           ) : null}
-                          <span>{v.D?.short}</span>
                         </span>
                       </div>
                       <div style={{ display: "flex", gap: "16px", alignItems: "flex-end" }}>
@@ -843,7 +890,7 @@ class ResultDetail extends React.Component {
           </div>
         ) : null}
         {v.mobile ? (
-          <Nav variant="mobile-bottom" active="history" />
+          <Nav variant="mobile-bottom" active="history" status={this.props.srvStatus || "connected"} />
         ) : null}
       </div>
     );

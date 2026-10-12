@@ -32,7 +32,7 @@ snippets). Full spec in `features/`.
 | `ui_kits/app/` | Clickable prototype of the web UI (`index.html`) + kit CSS (`app.css`, `buttons.css`, `badges.css`, `inputs.css`, `surfaces.css`, `tables.css`, `dialog.css`) and `bg-lib.js`. |
 | `preview/` | Foundation cards: colours, type, spacing, radii, logo, app icons. |
 | `assets/` | Logo marks, favicons, app icons, webmanifest, `fonts/` (IBM Plex woff2, SIL OFL 1.1). |
-| `features/` | Product spec: `product.md`, `principles.md`, `ui/` (screens, flows, url-params, i18n-a11y). The spec decides content and behaviour. |
+| `features/` | Product spec: `product.md`, `principles.md`, `measurement.md` (measurement methodology and result object), `ui/` (screens, flows, url-params, i18n-a11y). The spec decides content and behaviour. |
 | `explorations/` | Logo explorations (history of the mark). |
 | `SKILL.md` | Agent-Skills entry point. |
 
@@ -93,7 +93,7 @@ Calm, exact, never breathless. BitGauge measures and reports; it never overclaim
 - **Focus:** solid 2 px `--focus-ring` with a 2 px offset on every interactive element.
 - **Motion:** calm, no bounce. 120 ms hovers, 180 ms gauge tween / tile fill / page-in (4 px rise), 280 ms phase change, gauge window shift and toast slide. `--ease-out` cubic-bezier(0.22,1,0.36,1). Reduced motion removes tweening and pulsing.
 - **Transparency & blur:** only the dialog scrim (`--scrim` + 2 px blur) and the glass header (`--surface-glass`).
-- **Charts:** series colours as above, latency dashed on its own axis, warm-up a hatched empty interval, null gaps for unknown data, hairline grid in `--chart-grid`.
+- **Charts:** series colours as above, latency dashed on its own axis, live warm-up samples over a shaded band, Result-detail warm-up a hatched empty interval (`--chart-hatch`, ≥ 3:1), null gaps for unknown data, hairline grid in `--chart-grid`.
 - **Colour is never the only signal:** grade letter, icon, label or line style always carries meaning. `--fg-faint` is non-text only.
 
 ## Iconography
@@ -106,9 +106,13 @@ Calm, exact, never breathless. BitGauge measures and reports; it never overclaim
 ## Logo
 
 `assets/bitgauge-mark.svg` (colour: three gauge arcs in download teal, upload violet, dashed latency
-blue; stroke colours are inline, with a `prefers-color-scheme: dark` variant, so it renders on its
-own), `bitgauge-mark-mono.svg` (`currentColor`), `favicon.svg` (two heavier arcs for 16 px, same
-inline colours). Wordmark: "Bit" in `--fg` + "Gauge" in teal `--primary-text`, IBM Plex Sans 600,
+blue; stroke colours are inline light-theme values, so it renders on its own on light grounds; on
+dark grounds use the `Logo` component, which follows the theme tokens), `bitgauge-mark-mono.svg`
+(`currentColor`), `favicon.svg` (two heavier arcs for 16 px in **dual-ground** mid-tones: an opaque
+slate track `#7b8187`, teal `#00939a`, violet `#956ed2`, each ≥ 3:1 on white and on dark
+tab strips such as `#202124` and `#35363a`, so the arcs and the track read in light and dark browser
+chrome without a colour-scheme query; the asset pipeline strips embedded `<style>`, so a
+`prefers-color-scheme` variant is not possible). Wordmark: "Bit" in `--fg` + "Gauge" in teal `--primary-text`, IBM Plex Sans 600,
 as in the Nav and About screens. Use the `Logo` component; never redraw.
 
 ### Favicons and web manifest
@@ -117,7 +121,9 @@ The favicons, app icons and `site.webmanifest` are served from the **app's base 
 directory that serves `index.html`), not from an `assets/` subfolder. The manifest's `start_url`,
 `scope` and `id` are `./` and its icon `src`s are bare filenames, so they resolve against the
 manifest's own URL: the app root, under any base path. Head tags use relative paths for the same
-reason:
+reason. `favicon-16.png` and `favicon-32.png` are transparent renders of `favicon.svg` in the same
+dual-ground mid-tones; the app icons (`apple-touch-icon.png`, `icon-192/512*.png`) keep their dark
+tile, which carries its own ground:
 
 ```html
 <link rel="icon" href="favicon.svg" type="image/svg+xml">

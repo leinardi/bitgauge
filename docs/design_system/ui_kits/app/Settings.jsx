@@ -12,7 +12,7 @@ class Settings extends React.Component {
   P() {
     return {
       quick: { t: 'Quick', icon: 'zap', d: 'Fixed 3 streams · 5–10 s per direction · 10 pings', streams: 'fixed', n: 3, dl: [5, 10], ul: [5, 10], pings: 10 },
-      standard: { t: 'Standard', icon: 'gauge', d: 'Auto streams · 10–20 s down, 12–25 s up · 20 pings', streams: 'auto', dl: [10, 20], ul: [12, 25], pings: 20, def: true },
+      standard: { t: 'Standard', icon: 'gauge', d: 'Auto streams · 10–20 s down, 15–25 s up · 20 pings', streams: 'auto', dl: [10, 20], ul: [15, 25], pings: 20, def: true },
       extended: { t: 'Extended', icon: 'timer', d: 'Auto streams · 20–40 s per direction · 50 pings', streams: 'auto', dl: [20, 40], ul: [20, 40], pings: 50 },
       continuous: { t: 'Continuous', icon: 'infinity', d: 'Auto streams, Standard ramp · one direction until stopped · 20 pings', streams: 'auto', pings: 20 }
     };
@@ -76,7 +76,8 @@ class Settings extends React.Component {
     const st = this.state, e = st.err[k], d = st.drafts[k];
     return {
       val: d !== undefined ? d : String(this.eff(k, st)), bad: !!e, err: e || '', eid: 'err-' + k, desc: e ? 'err-' + k : undefined,
-      cls: 'input mono' + (e ? ' invalid focused' : ''), aria: e ? 'true' : 'false',
+      // Invalid keeps its error styling; the focus ring comes from :focus-within only, so Tab moves it on.
+      cls: 'input mono' + (e ? ' invalid' : ''), aria: e ? 'true' : 'false',
       onChange: ev => { const val = ev.target.value; this.setState(s => { const out = { drafts: Object.assign({}, s.drafts, { [k]: val }) }; if (s.err[k]) { const ne = this.validate(k, val, s); out.err = ne ? Object.assign({}, s.err, { [k]: ne }) : this.drop(s.err, k); } return out; }); },
       onBlur: ev => this.check(k, ev.target),
       onKeyDown: ev => { if (ev.key === 'Enter') { ev.preventDefault(); this.check(k, ev.target); } else if (ev.key === 'Escape') this.setState(s => ({ drafts: this.drop(s.drafts, k), err: this.drop(s.err, k) })); }
@@ -198,10 +199,10 @@ class Settings extends React.Component {
     return (
       <div style={{ position: "relative", background: "var(--bg-base)", color: "var(--fg)", fontFamily: "var(--font-sans)", minHeight: "100%", display: "flex", flexDirection: "column" }}>
         {v.desktop ? (
-          <Nav variant="top" active="settings" />
+          <Nav variant="top" active="settings" status={this.props.srvStatus || "connected"} />
         ) : null}
         {v.mobile ? (
-          <Nav variant="mobile-top" active="settings" />
+          <Nav variant="mobile-top" active="settings" status={this.props.srvStatus || "connected"} />
         ) : null}
         <main style={{ flex: "1", width: "100%", maxWidth: "1200px", margin: "0 auto", boxSizing: "border-box", padding: v.L?.pad, display: "grid", gridTemplateColumns: v.L?.cols, gap: "24px", alignItems: "start" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: "0" }}>
@@ -748,7 +749,7 @@ class Settings extends React.Component {
           </aside>
         </main>
         {v.mobile ? (
-          <div style={{ marginTop: "auto", position: "sticky", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="settings" /></div>
+          <div style={{ marginTop: "auto", position: "sticky", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="settings" status={this.props.srvStatus || "connected"} /></div>
         ) : null}
         {v.confirm ? (
           <div onClick={v.closeReset} style={{ position: "absolute", inset: "0", zIndex: "40", background: "var(--scrim)", backdropFilter: "blur(2px)", display: "flex", alignItems: v.L?.cfAlign, justifyContent: "center", paddingTop: v.L?.cfTop }}>

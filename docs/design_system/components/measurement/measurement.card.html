@@ -13,7 +13,7 @@ const NS = window.BitGaugeDesignSystem_1ab699;
 const { MetricTile, PhaseStep } = NS;
 function Demo(){ return <div className="row gap-5" style={{alignItems:'flex-start'}}>
 <div style={{flex:1,minWidth:0,display:'grid',gridTemplateColumns:'1fr 1fr',gap:'var(--space-3)'}}><MetricTile label="Download" value="612" unit="Mbit/s" note="peak 640 Mbit/s" accent="var(--series-download)" /><MetricTile label="Upload" value="8.9" unit="Mbit/s" state="partial" accent="var(--series-upload)" /><MetricTile label="Latency" value="3.1" unit="ms" note="idle · 120 samples" accent="var(--series-latency)" /><MetricTile label="Jitter" state="empty" /><MetricTile label="Upload" value="1.1" unit="Mbit/s" state="insufficient-data" accent="var(--series-upload)" /><MetricTile label="Download" state="error" accent="var(--series-download)" /></div>
-<div className="col gap-3" style={{flex:1,minWidth:0}}><PhaseStep phase="latency" state="done" detail="3.1 ms" /><PhaseStep phase="download" state="active" progress={0.62} detail="4.6 s left" /><PhaseStep phase="upload" state="pending" detail="~12–25 s" /><PhaseStep phase="upload" state="capped" progress={0.64} detail="data cap" /></div>
+<div className="col gap-3" style={{flex:1,minWidth:0}}><PhaseStep phase="latency" state="done" detail="3.1 ms" /><PhaseStep phase="download" state="active" progress={0.62} detail="4.6 s left" /><PhaseStep phase="upload" state="pending" detail="~15–25 s" /><PhaseStep phase="upload" state="capped" progress={0.64} detail="data cap" /></div>
 </div>; }
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
 </script></body></html>

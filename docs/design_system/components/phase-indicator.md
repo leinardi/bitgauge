@@ -9,7 +9,7 @@ step; it shows as "Connecting…" on the first step.
 
 | State | Icon | Bar | Meta |
 | --- | --- | --- | --- |
-| pending | `circle-dashed`, `--fg-subtle` | empty | "pending · ~10–20 s" (download), "pending · ~12–25 s" (upload) |
+| pending | `circle-dashed`, `--fg-subtle` | empty | "pending · ~10–20 s" (download), "pending · ~15–25 s" (upload) |
 | active | direction icon, series colour | fills in series colour | "active · 4.6 s left" or progress |
 | done | `circle-check`, `--ok` | full | result, e.g. "done · 3.1 ms" |
 | failed | `circle-x`, `--danger` | stops, `--danger` | "failed · interrupted" |

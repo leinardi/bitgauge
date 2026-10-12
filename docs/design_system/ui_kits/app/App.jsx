@@ -10,11 +10,11 @@ const DEMO_KEY = 'bitgauge-kit-demo';
 const DEMO_DEFAULTS = {
   scenario: 'normal', speed: '1', mobile: false,
   testState: '', v01: false, cpu: false,
-  errKind: 'requests', probe: 'auto', resp: 'ok',
+  errKind: 'requests', probe: 'auto', resp: 'ok', timerRes: '0.1',
   historyVariant: '', resultState: 'result', resultKind: 'standard', resultDemo: 'none', resultOverhead: '0',
   openspeedtest: true, librespeed: true, networkquality: true, aboutUnreachable: false
 };
-const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
+const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'cancelled-slow-up', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
 const HISTORY_VARIANTS = ['populated', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 
 function DemoSelect({ label, value, options, onChange }) {
@@ -80,10 +80,11 @@ function DemoPanel({ d, set, reset }) {
             <DemoSelect label="Force state" value={d.testState} options={[['', 'follow run'], ...TEST_STATES]} onChange={v => set({ testState: v })} />
             <DemoCheck label="v0.1 scope (no history)" value={d.v01} onChange={v => set({ v01: v })} />
             <DemoCheck label="CPU-bound" value={d.cpu} onChange={v => set({ cpu: v })} />
-          </div>            <DemoSelect label="Error kind" value={d.errKind} options={['requests', 'unreachable', 'restarted', 'network']} onChange={v => set({ errKind: v })} />
+            <DemoSelect label="Error kind" value={d.errKind} options={['requests', 'unreachable', 'restarted', 'network']} onChange={v => set({ errKind: v })} />
             <DemoSelect label="Latency probe" value={d.probe} options={['auto', 'WebSocket', 'HTTP/2 probe', 'HTTP/1.1 reserved']} onChange={v => set({ probe: v })} />
             <DemoSelect label="Responsiveness" value={d.resp} options={['ok', 'uncertain', 'needs-h2', 'not-reported', 'few-samples']} onChange={v => set({ resp: v })} />
-
+            <DemoSelect label="Timer resolution" value={d.timerRes} options={[['0.1', '0.1 ms'], ['1', '1 ms']]} onChange={v => set({ timerRes: v })} />
+          </div>
           <div className="demo-sec">
             <span className="st">History</span>
             <DemoSelect label="Force variant" value={d.historyVariant} options={[['', 'follow clicks'], ...HISTORY_VARIANTS]} onChange={v => set({ historyVariant: v })} />
@@ -115,7 +116,7 @@ function App() {
   });
   React.useEffect(() => { try { localStorage.setItem(DEMO_KEY, JSON.stringify(d)); } catch (e) {} }, [d]);
   const set = patch => setD(prev => Object.assign({}, prev, patch));
-  const testExtra = { v01: d.v01, cpu: d.cpu, errKind: d.errKind, probe: d.probe, resp: d.resp };
+  const testExtra = { v01: d.v01, cpu: d.cpu, errKind: d.errKind, probe: d.probe, resp: d.resp, timerRes: d.timerRes };
   if (d.testState) testExtra.state = d.testState;
   const historyExtra = d.historyVariant ? { variant: d.historyVariant } : {};
   const resultExtra = { state: d.resultState, kind: d.resultKind, demo: d.resultDemo, overhead: d.resultOverhead };

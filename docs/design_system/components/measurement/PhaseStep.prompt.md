@@ -3,5 +3,5 @@ A phase row (latency → download → upload) with its state and progress; stack
 ```jsx
 <PhaseStep phase="latency" state="done" detail="3.1 ms" />
 <PhaseStep phase="download" state="active" progress={0.62} detail="4.6 s left" />
-<PhaseStep phase="upload" state="pending" detail="~12–25 s" />
+<PhaseStep phase="upload" state="pending" detail="~15–25 s" />
 ```

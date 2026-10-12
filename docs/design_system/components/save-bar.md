@@ -15,12 +15,17 @@ Card + Input + ToggleGroup. v0.2 (with history). Spec: `features/ui/screens.md` 
 With at least one finished phase: **not saved** unless the user chooses "Keep in history".
 Download JSON is offered either way.
 
-After "Keep in history" the bar confirms with the result's status and an Undo action:
+After "Keep in history" the bar confirms with the result's status, and **Undo lives in an undo
+toast**, not in the bar (the same UndoToast as Delete, `flows.md` §4):
 
-- Partial run: "Saved as partial" + **Undo**.
-- Error run: "Saved as error" + **Undo**.
+- Partial run: bar "Saved as partial" + Download JSON + Details; toast "Kept in history as
+  partial." with **Undo**.
+- Error run: bar "Saved as error" + Download JSON + Details; toast "Kept in history as error."
+  with **Undo**.
 
-Undo removes the result from history again and returns the bar to its "Keep in history" state.
+Undo in the toast removes the result from history again, returns the bar to its "Keep in history"
+state and confirms with a plain toast ("Removed from history."). When the toast expires or is
+dismissed, the result stays kept.
 
 ## Rules
 

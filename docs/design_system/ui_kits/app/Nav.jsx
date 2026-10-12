@@ -5,7 +5,7 @@
  *   theme: "light" | "dark" | "system"  (default "system")
  *   server: string  (default "Basement NAS")
  *   host: string  (default "speed.home.lan")
- *   status: "connected" | "unreachable"  (default "connected")
+ *   status: "connected" | "unreachable"  (default "connected") — passed by every screen; "offline" is accepted as unreachable
  */
 /* Prefs context: the prototype provides the current theme so every Nav shows it. */
 window.BGPrefs = window.BGPrefs || React.createContext({ theme: 'system' });
@@ -15,15 +15,15 @@ class Nav extends React.Component {
   componentDidMount() { this._srv(); }
   componentDidUpdate() { this._srv(); }
   down() { return this.props.status === 'offline' || this.props.status === 'unreachable'; }
-  // Reachability is announced only when it changes. The last value is shared across screens, so a
-  // header that mounts with an unchanged status (every screen change) stays silent.
+  // The current state is always present as visually hidden text (not live). The polite live region announces
+  // only CHANGES seen by this header; mounting (every screen change) is silent. No global: the status comes in as a prop.
   _srv() {
     if (this.props.variant === 'mobile-bottom') return;
     const s = this.down() ? 'unreachable' : 'connected';
     if (s === this._last) return;
-    const prev = this._last ?? window.__bgSrvStatus;
-    this._last = s; window.__bgSrvStatus = s;
-    if (prev !== undefined && prev !== s) this.setState({ ann: s === 'unreachable' ? 'Server unreachable' : 'Server connected' });
+    const prev = this._last;
+    this._last = s;
+    if (prev !== undefined) this.setState({ ann: s === 'unreachable' ? 'Server unreachable' : 'Server connected' });
   }
   renderVals() {
     const v = this.props.variant || 'top';
@@ -40,7 +40,7 @@ class Nav extends React.Component {
       isTop: v === 'top', isMobileTop: v === 'mobile-top', isMobileBottom: v === 'mobile-bottom',
       items, themes, themeIcon: cur.icon, themeLabel: cur.label,
       down, dotBg: down ? 'transparent' : 'var(--ok)', dotBd: down ? '1.5px solid var(--warn)' : '0',
-      ann: this.state.ann, dotTitle: down ? 'Server unreachable' : 'Server connected',
+      ann: this.state.ann, dotTitle: down ? 'Server unreachable' : 'Server connected', stateText: down ? ', unreachable' : ', connected',
       server: this.props.server || 'Basement NAS', host: this.props.host || 'speed.home.lan'
     };
   }
@@ -62,6 +62,7 @@ class Nav extends React.Component {
             <div title={v.dotTitle} style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: "0" }}>
               <span aria-hidden="true" style={{ width: "7px", height: "7px", boxSizing: "border-box", borderRadius: "50%", background: v.dotBg, border: v.dotBd, flex: "none" }} />
               <span style={{ fontSize: "var(--text-sm)", fontWeight: "500", color: "var(--fg)" }}>{v.server}</span>
+              <span style={{ position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: "0" }}>{v.stateText}</span>
               <span aria-live="polite" style={{ position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: "0" }}>
                 {v.ann}
               </span>
@@ -118,6 +119,7 @@ class Nav extends React.Component {
             <span title={v.dotTitle} style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>
               <span aria-hidden="true" style={{ width: "6px", height: "6px", boxSizing: "border-box", borderRadius: "50%", background: v.dotBg, border: v.dotBd }} />
               {v.server}
+              <span style={{ position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: "0" }}>{v.stateText}</span>
               <span style={{ fontFamily: "var(--font-mono)", minWidth: "0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.host}</span>
               <span aria-live="polite" style={{ position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: "0" }}>
                 {v.ann}

@@ -60,10 +60,10 @@ class About extends React.Component {
     return (
       <div style={{ background: "var(--bg-base)", color: "var(--fg)", fontFamily: "var(--font-sans)", minHeight: "100%" }}>
         {v.desktop ? (
-          <Nav variant="top" active="about" />
+          <Nav variant="top" active="about" status={this.props.srvStatus || (this.props.unreachable && this.props.unreachable !== "false" ? "unreachable" : "connected")} />
         ) : null}
         {v.mobile ? (
-          <Nav variant="mobile-top" active="about" />
+          <Nav variant="mobile-top" active="about" status={this.props.srvStatus || (this.props.unreachable && this.props.unreachable !== "false" ? "unreachable" : "connected")} />
         ) : null}
         <main style={{ maxWidth: "1200px", margin: "0 auto", padding: v.L?.pad, display: "grid", gridTemplateColumns: v.L?.cols, gap: "24px", alignItems: "start" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: "0" }}>
@@ -225,7 +225,7 @@ class About extends React.Component {
           </aside>
         </main>
         {v.mobile ? (
-          <Nav variant="mobile-bottom" active="about" />
+          <Nav variant="mobile-bottom" active="about" status={this.props.srvStatus || (this.props.unreachable && this.props.unreachable !== "false" ? "unreachable" : "connected")} />
         ) : null}
       </div>
     );

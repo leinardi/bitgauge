@@ -12,8 +12,9 @@ function ThemeSync({ theme }) { React.useEffect(() => { document.documentElement
  */
 const PREFS_KEY = 'bitgauge-kit-prefs';
 const DESKTOP_MIN = 1140;
-// Kit assumption: a latency stop with fewer pings than this has measured nothing, so it returns to Idle.
-const MIN_PINGS = 5;
+// The first idle ping is a warm-up sample and is discarded, so a latency stop has the 5 usable samples it needs
+// only once 6 pings were sent; with fewer, nothing was measured and the screen returns to Idle.
+const MIN_PINGS_SENT = 6;
 const CHIP_ICONS = { 'Preset': 'gauge', 'Parallel streams': 'layers', 'Download duration': 'timer', 'Upload duration': 'timer', 'Phases': 'list', 'Phase order': 'arrow-up-down', 'Data cap': 'database', 'Units': 'sliders', 'Auto-start': 'play', 'Warm-up': 'hourglass', 'Ping count': 'activity', 'Overhead': 'sliders' };
 class Prototype extends React.Component {
   state = Object.assign({ screen: 'test', ts: 'idle', p: null, hv: 'populated', theme: 'dark', settings: null, changed: [] },
@@ -36,10 +37,12 @@ class Prototype extends React.Component {
     };
   }
   SEQ = {
-    // Standard on the fast LAN: download ends at its 10 s minimum, upload at its 12 s minimum.
-    normal: { segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 10, 10], ['upload', 12, 12]], end: 'complete' },
+    // Standard on the fast LAN (measurement §19.4): download ends at its 10 s minimum; upload sends until its 15 s
+    // minimum and the last in-flight requests confirm at ≈ 16 s.
+    normal: { segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 10, 10], ['upload', 16, 16]], end: 'complete' },
     error: { segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 6.4, 10]], end: 'error' },
-    slow: { segs: [['connecting', 0.6, 0.6], ['slow', 20, 20]], end: 'slowdone' },
+    // Slow VPN: download ends at its 10 s minimum, upload at its 15 s minimum (≈ 16 s with in-flight requests); one 26 s segment.
+    slow: { segs: [['connecting', 0.6, 0.6], ['slow', 26, 26]], end: 'slowdone' },
     countdown: { segs: [['countdown', 3, 3]], end: null, then: 'normal' },
     continuous: { segs: [], end: 'continuous' }
   };
@@ -69,7 +72,16 @@ class Prototype extends React.Component {
     this._rs();
     this.reset();
   }
-  componentDidUpdate(pp) { if (pp.scenario !== this.props.scenario) this.reset(); }
+  // Server status is app state, shown by every screen's header: the Test screen's last known status (offline,
+  // early error, unreachable/restarted error) carries to History, Result detail and Settings; About's unreachable
+  // demo sets it too. No global: each screen passes it to its Nav.
+  srvOf() {
+    const S = this.state.screen, te = this.props.testExtra || {};
+    if (S === 'test') { const ts = this.cur(); return ts === 'offline' || ts === 'error-early' || (ts === 'error' && ['unreachable', 'restarted'].includes(te.errKind)) ? 'unreachable' : 'connected'; }
+    if (S === 'about' && this.props.aboutExtra && this.props.aboutExtra.unreachable) return 'unreachable';
+    return this.state.srv || 'connected';
+  }
+  componentDidUpdate(pp) { if (pp.scenario !== this.props.scenario) this.reset(); const s = this.srvOf(); if (s !== this.state.srv) this.setState({ srv: s }); }
   componentWillUnmount() { clearInterval(this._t); window.removeEventListener('keydown', this._k); window.removeEventListener('resize', this._rs); }
   running() { return !!this._t; }
   // The state the Test screen shows: a Demo-forced state wins over the run timeline.
@@ -112,11 +124,13 @@ class Prototype extends React.Component {
     // Stop in any phase ends Cancelled with the partial-result rules. Idle only when nothing was measured:
     // the countdown, the info phase, or idle latency with too few samples.
     let next = 'idle', np = null;
-    if (ts === 'latency' && Math.round(20 * p) >= MIN_PINGS) { next = 'cancelled-latency'; np = p; }
+    if (ts === 'latency' && Math.round(20 * p) >= MIN_PINGS_SENT) { next = 'cancelled-latency'; np = p; }
     else if (ts === 'download') { next = 'cancelled-download'; np = p; }
-    else if (ts === 'slow') { next = 'cancelled-slow'; np = p; }
-    // Upload warm-up ends ≈ 7.5 s; the confirmed window (≈ 0.4 s behind) reaches 3 s at ≈ 10.9 s.
-    else if (ts === 'upload') next = p * 12 >= 10.9 ? 'cancelled-late' : 'cancelled';
+    // Slow VPN timeline: 0–10 s download, 10–26 s upload.
+    else if (ts === 'slow') { const tt = 26 * p; if (tt <= 10) { next = 'cancelled-slow'; np = tt / 10; } else { next = 'cancelled-slow-up'; np = (tt - 10) / 16; } }
+    // Upload: the Test screen computes the cancelled state from the stop time (np): before ≈ 13.5 s insufficient data,
+    // after it a partial number from the confirmed window.
+    else if (ts === 'upload') { next = 'cancelled'; np = p; }
     else if (ts === 'continuous') next = 'cont-done';
     this.setState({ ts: next, p: np });
   }
@@ -157,7 +171,7 @@ class Prototype extends React.Component {
     const sysDark = typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches;
     const S = this.state.screen;
     return {
-      ts: this.state.ts, p: this.state.p, hv: this.state.hv, mobile: m, theme: th,
+      ts: this.state.ts, p: this.state.p, hv: this.state.hv, mobile: m, theme: th, srv: this.srvOf(),
       themeAttr: th === 'system' ? (sysDark ? 'dark' : 'light') : th,
       frameW: m && !this.state.narrow ? '390px' : 'none', frameBd: m && !this.state.narrow ? '1px solid var(--border-subtle)' : 'none',
       testExtra: Object.assign(this.prefs(), this.props.testExtra), saved: this.state.settings, onSettings: (st, ch) => this.onSettings(st, ch), historyExtra: this.props.historyExtra, resultExtra: this.props.resultExtra, settingsExtra: this.props.settingsExtra, aboutExtra: this.props.aboutExtra,
@@ -182,16 +196,16 @@ class Prototype extends React.Component {
             <TestScreen state={v.ts} progress={v.p} mobile={v.mobile} theme={v.theme} {...(v.testExtra || {})} />
           ) : null}
           {v.isHistory ? (
-            <History variant={v.hv} mobile={v.mobile} {...(v.historyExtra || {})} />
+            <History variant={v.hv} mobile={v.mobile} srvStatus={v.srv} {...(v.historyExtra || {})} />
           ) : null}
           {v.isResult ? (
-            <ResultDetail mobile={v.mobile} {...(v.resultExtra || {})} />
+            <ResultDetail mobile={v.mobile} srvStatus={v.srv} {...(v.resultExtra || {})} />
           ) : null}
           {v.isSettings ? (
-            <Settings mobile={v.mobile} preset="standard" theme={v.theme} saved={v.saved} onSettings={v.onSettings} {...(v.settingsExtra || {})} />
+            <Settings mobile={v.mobile} preset="standard" theme={v.theme} saved={v.saved} onSettings={v.onSettings} srvStatus={v.srv} {...(v.settingsExtra || {})} />
           ) : null}
           {v.isAbout ? (
-            <About mobile={v.mobile} {...(v.aboutExtra || {})} />
+            <About mobile={v.mobile} srvStatus={v.srv} {...(v.aboutExtra || {})} />
           ) : null}
         </div>
       </div>

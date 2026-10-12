@@ -277,6 +277,9 @@
 
     /* Chart gridlines (hairline, non-text) */
     --chart-grid: var(--border-subtle);
+    /* Warm-up marks (non-text, ≥ 3:1 against --surface-1/2 in both themes) */
+    --chart-hatch: var(--fg-faint);
+    --chart-band: var(--surface-3);
 
     /* Density (comfortable default) */
     --density-row-height: 48px; /* @kind other */
