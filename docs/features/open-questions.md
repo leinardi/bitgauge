@@ -44,6 +44,11 @@ carries a recommendation; where the specification already relies on an answer, i
    an empty bound counting as the preset's value. Recommendation: keep it, since accepting a
    toggle that does nothing would be a silent default. See
    [configuration.md §4](configuration.md#4-fail-closed-validation).
+8. Which `429` code do the WebSocket and networkQuality flow limits answer with? Current answer:
+   **`too_many_streams`**, since both are concurrency limits like the throughput-stream limit;
+   `rate_limited` stays with the per-minute limit and `table_full` with a full table.
+   Recommendation: keep it; a browser cannot read the body of a refused WebSocket handshake
+   anyway. See [wire-protocol.md §9](wire-protocol.md#9-rate-limits).
 
 Resolved and removed:
 

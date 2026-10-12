@@ -273,6 +273,9 @@ Limits are per client IP (§1) and held in a bounded in-memory table
 - A request over a limit MUST be answered `429` with the error envelope and a `Retry-After` header
   in whole seconds, without reading an upload body. The connection is closed after the response on
   HTTP/1.1 so an unread body does not have to be drained.
+- The `429` code is `rate_limited` for the per-minute limit, `table_full` when the rate-limit table
+  is full of active clients, and `too_many_streams` for the three concurrency limits: throughput
+  requests, WebSocket connections and networkQuality flows.
 - `/api/v1/ping`, `/api/v1/small`, `/api/v1/info` and `/metrics` are not counted.
 - The engine treats a `429` as a failed request. On download, and on upload over HTTP/2 or HTTP/3,
   it lowers its stream cap and continues; on upload over HTTP/1.1 or an unreported protocol the
