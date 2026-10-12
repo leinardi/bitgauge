@@ -329,6 +329,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 12 | An empty upload body answers `200` with empty telemetry timed at handler entry | v0.1 |
 | 13 | Linear-interpolation percentiles and a population coefficient of variation over known buckets | v0.1 |
 | 14 | Kebab-case notice codes and the five engine error codes | v0.1 |
+| 15 | An upload request counts toward the three-request minimum only when all its cells are in the window | v0.1 |
 
 ## Related
 

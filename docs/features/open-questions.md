@@ -82,6 +82,14 @@ carries a recommendation; where the specification already relies on an answer, i
     Recommendation: keep it. See
     [measurement.md §16](measurement.md#16-confidence-and-notices) and
     [architecture.md §4](architecture.md#4-engine--ui-message-contract).
+15. When does a confirmed upload request "lie inside" the steady window for the three-request
+    minimum? Current answer: **when every cell of its telemetry, from its first byte's cell to its
+    last's, belongs to the window W**; a request straddling the warm-up end, the window end or a
+    failure gap still contributes its bytes but is not counted, and one that read no bytes never
+    is. This is the stricter reading: download's rule says "contributed bytes", upload's
+    says "lie inside", and the §19.1 worst case sizes its window for whole requests.
+    Recommendation: keep it. See
+    [measurement.md §7.6](measurement.md#76-headline-peak-and-minimum-window).
 
 Resolved and removed:
 

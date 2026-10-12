@@ -411,7 +411,10 @@ error under load is unbounded, and it never feeds a number.
 - **Minimum window.** If `|W| × bucketMs < 3000 ms`, or fewer than 3 confirmed requests lie inside
   *W*, the upload direction status is `insufficient-data` ("insufficient data"): no number, data
   used shown. If the phase was stopped by the user, the result status is `partial`. The phase
-  never reports a number from one request.
+  never reports a number from one request. A confirmed request lies inside *W* when every cell of
+  its telemetry, from the cell of its first byte read to the cell of its last, belongs to *W*; a
+  request that straddles the warm-up end, the window end or a failure gap contributes its bytes in
+  *W* but does not count toward the three, and a request that read no bytes never counts.
 - **Phase end and aborted requests.** As in §5: no new requests from `max − 1 s` or from the window
   decision; in-flight requests get the grace, then are aborted. Aborted and failed requests have no
   telemetry, so they only lower `C` (while open) or leave a failure gap (once closed); their bytes
