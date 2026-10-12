@@ -2,7 +2,7 @@
    BitGauge Design System — colors_and_type.css
    The complete token stylesheet: fonts, primitives, semantic tokens (dark +
    light), measurement tokens, type, spacing, radii, motion, z-scale.
-   Self-contained. Import this file first, then components.css.
+   Self-contained. styles.css imports it first.
 
    Contrast (WCAG 2.2 AA, vs --bg-base and --surface-2):
    text ≥ 4.5:1 · non-text (series, arcs, focus, icons) ≥ 3:1. See tokens.md.
@@ -124,7 +124,9 @@
     --danger-fg: var(--red-4);
     --danger-bg: oklch(0.68 0.205 25 / 0.14);
     --danger-border: oklch(0.68 0.205 25 / 0.38);
-    --danger-solid: var(--red-6);
+    /* Destructive fill under --fg-on-solid: 5.2:1, hover 6.6:1 */
+    --danger-solid: oklch(0.56 0.205 24);
+    --danger-solid-hover: oklch(0.50 0.190 25);
 
     --info: var(--blue-5);
     --info-fg: var(--blue-4);
@@ -154,7 +156,7 @@
 
     /* Bufferbloat grade (text-capable) */
     --grade-good: var(--ok-fg);
-    --grade-mid: var(--warn-fg);
+    --grade-fair: var(--warn-fg);
     --grade-poor: var(--danger-fg);
 
     /* Quality bands (text-capable). Always paired with icon + label. */
@@ -197,7 +199,7 @@
 
     --focus-ring: oklch(0.52 0.10 207);
 
-    --ok: var(--green-6);
+    --ok: oklch(0.60 0.150 152);              /* icons, dots: ≥ 3:1 on base and surface-2 */
     --ok-fg: oklch(0.50 0.130 152);
     --ok-bg: oklch(0.66 0.150 152 / 0.12);
     --ok-border: oklch(0.66 0.150 152 / 0.30);
@@ -211,10 +213,11 @@
     --danger-fg: oklch(0.52 0.190 25);
     --danger-bg: oklch(0.60 0.205 24 / 0.10);
     --danger-border: oklch(0.60 0.205 24 / 0.30);
-    --danger-solid: var(--red-6);
+    --danger-solid: oklch(0.56 0.205 24);
+    --danger-solid-hover: oklch(0.50 0.190 25);
 
     --info: var(--blue-6);
-    --info-fg: oklch(0.52 0.140 250);
+    --info-fg: oklch(0.50 0.140 250);         /* 4.9:1 on --info-bg */
     --info-bg: oklch(0.64 0.150 250 / 0.10);
     --info-border: oklch(0.64 0.150 250 / 0.30);
 
@@ -235,7 +238,7 @@
     --sending: oklch(0.64 0.08 300);
 
     --grade-good: oklch(0.50 0.13 152);
-    --grade-mid: oklch(0.52 0.12 60);
+    --grade-fair: oklch(0.52 0.12 60);
     --grade-poor: oklch(0.52 0.19 25);
 
     --quality-great: oklch(0.48 0.13 152);
@@ -271,7 +274,9 @@
     --scrim: oklch(0 0 0 / 0.55);
     --surface-glass: color-mix(in oklch, var(--bg-base) 80%, transparent);
     --fg-on-solid: oklch(1 0 0);
-    --danger-solid-hover: var(--red-5);
+
+    /* Chart gridlines (hairline, non-text) */
+    --chart-grid: var(--border-subtle);
 
     /* Density (comfortable default) */
     --density-row-height: 48px; /* @kind other */

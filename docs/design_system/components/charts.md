@@ -9,9 +9,10 @@ uPlot. Spec: `features/ui/screens.md` §1 (Live chart), §2 (Per-phase charts), 
   loaded-latency toggle).
 - Phase separators, a "now" line while live, and event marks drawn via hooks: extended, data cap,
   cancelled, error / lost.
-- Warm-up is a marked, excluded interval. Unknown upload cells and failure gaps are null gaps,
-  never interpolated.
-- Gridlines `--border-subtle`, axis labels `--fg-subtle` mono tabular.
+- Warm-up is a **hatched, empty interval**: diagonal hatching in `--chart-grid` across the warm-up
+  span, with no series drawn inside it, because warm-up data is excluded. Unknown upload cells and
+  failure gaps are null gaps, never interpolated.
+- Gridlines `--chart-grid` (hairline), axis labels `--fg-subtle` mono tabular.
 
 ## Throughput chart (Test, Result detail)
 

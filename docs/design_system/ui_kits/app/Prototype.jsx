@@ -12,6 +12,8 @@ function ThemeSync({ theme }) { React.useEffect(() => { document.documentElement
  */
 const PREFS_KEY = 'bitgauge-kit-prefs';
 const DESKTOP_MIN = 1140;
+// Kit assumption: a latency stop with fewer pings than this has measured nothing, so it returns to Idle.
+const MIN_PINGS = 5;
 const CHIP_ICONS = { 'Preset': 'gauge', 'Parallel streams': 'layers', 'Download duration': 'timer', 'Upload duration': 'timer', 'Phases': 'list', 'Phase order': 'arrow-up-down', 'Data cap': 'database', 'Units': 'sliders', 'Auto-start': 'play', 'Warm-up': 'hourglass', 'Ping count': 'activity', 'Overhead': 'sliders' };
 class Prototype extends React.Component {
   state = Object.assign({ screen: 'test', ts: 'idle', p: null, hv: 'populated', theme: 'dark', settings: null, changed: [] },
@@ -34,8 +36,9 @@ class Prototype extends React.Component {
     };
   }
   SEQ = {
-    normal: { segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 12, 12], ['upload', 12, 12]], end: 'complete' },
-    error: { segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 6.4, 12]], end: 'error' },
+    // Standard on the fast LAN: download ends at its 10 s minimum, upload at its 12 s minimum.
+    normal: { segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 10, 10], ['upload', 12, 12]], end: 'complete' },
+    error: { segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 6.4, 10]], end: 'error' },
     slow: { segs: [['connecting', 0.6, 0.6], ['slow', 20, 20]], end: 'slowdone' },
     countdown: { segs: [['countdown', 3, 3]], end: null, then: 'normal' },
     continuous: { segs: [], end: 'continuous' }
@@ -45,11 +48,15 @@ class Prototype extends React.Component {
   componentDidMount() {
     this._k = e => {
       if (e.defaultPrevented || e.isComposing || e.keyCode === 229) return;
-      // Escape stops a run or cancels the countdown from anywhere (dialogs handle their own Escape first).
-      if (e.key === 'Escape') { if (this.running() || this.state.ts === 'continuous') this.stop(); return; }
+      // Enter and Escape act only on the Test screen.
+      if (this.state.screen !== 'test') return;
+      // Escape stops a run or cancels the countdown (dialogs handle their own Escape first).
+      if (e.key === 'Escape') { if (this.running() || this.cur() === 'continuous') this.stop(); return; }
       if (e.key !== 'Enter' || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-      if (this.state.screen !== 'test' || this.running()) return;
       if (document.querySelector('dialog[open], [role="dialog"], [role="alertdialog"], [aria-modal="true"]')) return;
+      const ts = this.cur();
+      // Enter during the countdown starts the test now; otherwise nothing while a run is going or Start is disabled.
+      if (ts !== 'countdown' && (this.running() || ['offline', 'basepath', 'continuous'].includes(ts))) return;
       // Only from the page body or a non-interactive element; focused links/buttons/fields keep native Enter.
       const t = e.target;
       if (t && t.closest && t.closest('a[href], button, input, select, textarea, summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="checkbox"], [role="radio"], [role="switch"], [role="option"], [role="combobox"], [role="textbox"]')) return;
@@ -65,6 +72,8 @@ class Prototype extends React.Component {
   componentDidUpdate(pp) { if (pp.scenario !== this.props.scenario) this.reset(); }
   componentWillUnmount() { clearInterval(this._t); window.removeEventListener('keydown', this._k); window.removeEventListener('resize', this._rs); }
   running() { return !!this._t; }
+  // The state the Test screen shows: a Demo-forced state wins over the run timeline.
+  cur() { return (this.props.testExtra && this.props.testExtra.state) || this.state.ts; }
   halt() { clearInterval(this._t); this._t = null; }
   reset() {
     this.halt();
@@ -98,11 +107,18 @@ class Prototype extends React.Component {
   }
   stop() {
     if (!this.running() && this.state.ts !== 'continuous') return;
-    const ts = this.state.ts;
+    const ts = this.state.ts, p = this.state.p || 0;
     this.halt();
-    // Upload needs a confirmed steady window ≥ 3 s (warm-up ends ~4 s) for a partial value.
-    const late = ts === 'upload' && (this.state.p || 0) * 12 >= 8.5;
-    this.setState({ ts: ts === 'upload' ? (late ? 'cancelled-late' : 'cancelled') : 'idle', p: null });
+    // Stop in any phase ends Cancelled with the partial-result rules. Idle only when nothing was measured:
+    // the countdown, the info phase, or idle latency with too few samples.
+    let next = 'idle', np = null;
+    if (ts === 'latency' && Math.round(20 * p) >= MIN_PINGS) { next = 'cancelled-latency'; np = p; }
+    else if (ts === 'download') { next = 'cancelled-download'; np = p; }
+    else if (ts === 'slow') { next = 'cancelled-slow'; np = p; }
+    // Upload warm-up ends ≈ 7.5 s; the confirmed window (≈ 0.4 s behind) reaches 3 s at ≈ 10.9 s.
+    else if (ts === 'upload') next = p * 12 >= 10.9 ? 'cancelled-late' : 'cancelled';
+    else if (ts === 'continuous') next = 'cont-done';
+    this.setState({ ts: next, p: np });
   }
   setTheme(theme) { this.savePrefs({ theme, settings: this.state.settings ? Object.assign({}, this.state.settings, { theme }) : this.state.settings }); }
   go(screen, extra) { this.setState(Object.assign({ screen }, extra || {})); window.scrollTo(0, 0); }

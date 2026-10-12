@@ -12,7 +12,7 @@
 const NS = window.BitGaugeDesignSystem_1ab699;
 const { Notice, Toast, EmptyState, SkeletonRows, Button, Card } = NS;
 function Demo(){ return <div className="col gap-3">
-<Notice tone="warn" title="Low confidence result">Upload collected 18 samples; 30 are recommended.</Notice>
+<Notice tone="warn" title="Low confidence — upload: insufficient samples" />
 <Notice tone="danger" icon="wifi-off" title="Server unreachable" actions={<Button size="sm">Retry</Button>}>speed.home.lan didn't answer. Check the VPN, then retry.</Notice>
 <div className="row gap-3" style={{alignItems:'flex-start'}}><Toast animate={false} title="Summary copied." /><Toast animate={false} tone="info" icon="trash" title="Result deleted." message="It is removed when this message closes." action={<Button variant="ghost" size="sm">Undo</Button>} /></div>
 <div className="row gap-3" style={{alignItems:'stretch'}}><div className="card" style={{flex:1}}><EmptyState style={{padding:'var(--space-4)'}} title="No results yet" actions={<><Button variant="primary" size="sm">Start a test</Button><Button size="sm">Import JSON</Button></>}>Results are stored only in this browser.</EmptyState></div><div className="card" style={{flex:1}}><SkeletonRows rows={4} /></div></div>

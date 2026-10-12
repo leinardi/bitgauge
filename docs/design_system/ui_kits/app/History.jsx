@@ -24,7 +24,7 @@ class History extends React.Component {
       ['2026-10-05 12:30', 'VPN via 5G', 84.2e6, 21.7e6, 39, 6.8, 'C', null, 20, 'HTTP/2', 'complete'],
       ['2026-10-02 09:05', 'VPN · office', 241e6, 198e6, 14, 1.9, 'B', null, 17, 'HTTP/1.1', 'complete'],
       ['2026-09-29 22:47', 'VPN via 5G', 52.9e6, null, 44, 7.1, 'D', null, 14, 'HTTP/2', 'partial'],
-      ['2026-09-26 18:20', 'VPN · office', 233e6, 187e6, 15, 2.2, 'A', null, 11, 'HTTP/2', 'complete'],
+      ['2026-09-26 18:20', 'VPN · office', 233e6, 187e6, 15, 2.2, 'B', null, 11, 'HTTP/2', 'complete'],
       ['2026-09-21 07:58', 'VPN via 5G', null, null, 41, 5.9, null, null, 6, 'HTTP/2', 'error'],
       ['2026-09-17 13:14', 'VPN · café', 19.6e6, 4.1e6, 72, 11.3, 'F', null, 2, 'HTTP/2', 'complete']
     ];
@@ -33,19 +33,25 @@ class History extends React.Component {
     if (deleted) list = list.filter(x => x.i !== 3 && x.i !== 5);
     const selN = selIdx.length;
     const tone = { 'A+': 'ok', A: 'ok', B: 'ok', C: 'warn', D: 'warn', F: 'danger' };
+    const GW = { 'A+': 'Minimal', A: 'Low', B: 'Mild', C: 'Moderate', D: 'High', F: 'Severe' };
     const fr = b => b == null ? { n: '—', u: '' } : BG ? BG.rate(b) : { n: '', u: '' };
     const ST = { complete: ['Complete', 'pill neutral', false], partial: ['Partial', 'pill warn', true], error: ['Error', 'pill danger', true] };
     const rows = list.map(({ r, sel }) => {
       const [d, label, down, up, lat, jit, grade, flag, , proto, st] = r;
       const dn = fr(down), un = fr(up), t = grade ? tone[grade] : null, S = ST[st];
-      return { d, label, down: dn.n, du: dn.u, up: un.n, uu: un.u, lat: String(lat), jit: jit.toFixed(1), grade: grade || '—', gAria: grade ? 'Grade ' + grade : 'No grade', flag, proto,
-        st: S[0], stCls: S[1], stDot: S[2], stM: st !== 'complete', sel, unsel: !sel, cls: sel ? 'rowlink sel' : 'rowlink', ctx: 'VPN', cicon: 'shield',
+      return { d, label, down: dn.n, du: dn.u, up: un.n, uu: un.u, lat: String(lat), jit: jit < 10 ? jit.toFixed(1) : String(Math.round(jit)), grade: grade || '—', gAria: grade ? 'Grade ' + grade + ' · ' + GW[grade] + ' bufferbloat' : 'No grade', flag, proto,
+        st: S[0], stCls: S[1], stDot: S[2], stM: st !== 'complete', sel, unsel: !sel, selAria: sel ? 'true' : 'false', cls: sel ? 'rowlink sel' : 'rowlink', ctx: 'VPN', cicon: 'shield',
         gbd: t ? `var(--${t}-border)` : 'var(--border-subtle)', gbg: t ? `var(--${t}-bg)` : 'transparent', gfg: t ? `var(--${t}-fg)` : 'var(--fg-subtle)',
         cardBd: sel ? 'var(--primary-border)' : 'var(--border-subtle)', cardBg: sel ? 'var(--primary-bg)' : 'var(--surface-2)' };
     });
     const colDefs = [['Date', 'left', true], ['Label', 'left'], ['Context', 'left'], ['Protocol', 'left'], ['Status', 'left'], ['Download', 'right'], ['Upload', 'right'], ['Latency', 'right'], ['Jitter', 'right'], ['Grade', 'center']];
     const cols = colDefs.map(([t, align, on]) => ({ t, align, on: !!on, aria: on ? 'descending' : 'none', icon: on ? 'chevron-down' : 'arrow-up-down', c: on ? 'var(--primary-text)' : 'var(--fg-subtle)' }));
-    const chips = [['All', total], ['LAN', 21], ['VPN', list.length, true], ['Wi-Fi', 13], ['Mobile', 6]].map(([t, n, on]) => ({ t, n, cls: on ? 'chip on' : 'chip', pressed: on ? 'true' : 'false' }));
+    const chip = ([t, n, on]) => ({ t, n, cls: on ? 'chip on' : 'chip', pressed: on ? 'true' : 'false' });
+    const byLabel = l => list.filter(x => x.r[1] === l).length;
+    const chipGroups = [
+      { t: 'Context', aria: 'Filter by context label', chips: [['All', total], ['LAN', 21], ['VPN', list.length, true], ['Wi-Fi', 13], ['Mobile', 6]].map(chip) },
+      { t: 'Label', aria: 'Filter by label', chips: [['Any label', list.length, true], ['VPN via 5G', byLabel('VPN via 5G')], ['VPN · office', byLabel('VPN · office')], ['VPN · hotel Wi-Fi', byLabel('VPN · hotel Wi-Fi')], ['VPN · café', byLabel('VPN · café')]].filter(c => c[1] > 0).map(chip) }
+    ];
 
     const pts = list.slice().reverse().map(({ r, sel }) => ({ day: r[8], down: r[2], up: r[3], lat: r[4], done: r[10] === 'complete', sel }));
     const mkTrend = (key, title, icon, c, log) => {
@@ -73,13 +79,14 @@ class History extends React.Component {
     const ch = (d, w, dw) => ({ dc: w === 'better' ? 'var(--ok-fg)' : w === 'worse' || w === 'crit' ? 'var(--warn-fg)' : w === 'differs' ? 'var(--fg-muted)' : 'var(--fg-subtle)',
       di: w === 'better' ? 'trending-up' : w === 'worse' || w === 'crit' ? 'triangle-alert' : w === 'differs' ? 'info' : 'minus', d, dw: dw || w });
     const CRIT = ['Label', 'Preset', 'Protocol'];
-    const params = [['Label', 'VPN · office', 'VPN · office'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', 'HTTP/1.1'], ['Streams', '4', '4'], ['Duration', '10 s + 10 s', '10 s + 10 s'], ['Browser', 'Firefox 131', 'Safari 18']]
+    const params = [['Label', 'VPN · office', 'VPN · office'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', 'HTTP/1.1'], ['Streams', 'Auto', 'Auto'], ['Duration · download', '10–20 s', '10–20 s'], ['Duration · upload', '12–25 s', '12–25 s'], ['Browser', 'Firefox 131', 'Safari 18']]
       .map(([k, a, b]) => { const diff = a !== b, crit = diff && CRIT.includes(k); return Object.assign({ k, a, b, diff, crit }, ch('', crit ? 'crit' : diff ? 'differs' : 'same', diff ? 'differs' : 'same')); });
     const metrics = [
       ['Download', '233 Mbit/s', '241 Mbit/s', '+3.4%', 'better'], ['Upload', '187 Mbit/s', '198 Mbit/s', '+5.9%', 'better'],
       ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'],
-      ['Under load · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Under load · upload', '58 ms', '71 ms', '+13 ms', 'worse'],
-      ['Bufferbloat grade', 'A', 'B', '', 'worse', '1 grade worse'], ['Responsiveness', '980 RPM', '1,040 RPM', '+6%', 'better']
+      ['Loaded latency · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Loaded latency · upload', '58 ms', '71 ms', '+13 ms', 'worse'],
+      ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms'],
+      ['HTTP loaded responsiveness — connection sharing not verifiable', '980 RPM · HTTP/2', 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', '', 'differs', 'not comparable']
     ].map(([k, a, b, d, w, dw]) => Object.assign({ k, a, b }, ch(d, w, dw)));
     const cmpWarn = params.filter(p => p.crit).map(p => `different ${p.k.toLowerCase()} (${p.a} vs ${p.b})`).join('; ');
     const cmpRows = [{ head: true, row: false, k: 'Parameters' }, ...params.map(p => Object.assign({ head: false, row: true }, p)), { head: true, row: false, k: 'Results' }, ...metrics.map(p => Object.assign({ head: false, row: true }, p))];
@@ -99,14 +106,14 @@ class History extends React.Component {
       importDisabled: unavail || is('importing'), importLabel: is('importing') ? 'Importing…' : 'Import JSON',
       whyOpen: why, whyAria: why ? 'true' : 'false', toggleWhy: () => this.setState({ why: !why }),
       exportFormats: [{ t: 'Export JSON', s: 'Full samples · re-importable', icon: 'file-json' }, { t: 'Export CSV', s: 'One row per test · summary only', icon: 'file-text' }],
-      rows: m ? rows.slice(0, 6) : rows, cols, chips, trends, trendMeta: `${shownN} results · 17 Sep – 8 Oct`,
+      rows: m ? rows.slice(0, 6) : rows, cols, chipGroups, trends, trendMeta: `${shownN} results · 17 Sep – 8 Oct`,
       hasSel: selN > 0, selN, cmpDisabled: selN !== 2, cmpHint: selN > 0 && selN !== 2,
       selSummary: selN === 2 ? 'VPN · office · 26 Sep and 2 Oct' : '26 Sep – 7 Oct',
       toast: deleted,
       cmpRows, cmpCards, cmpWarn, showCompareD: is('compare') && !m, showCompareM: is('compare') && m, showConfirm: is('confirm'),
       showExport: is('export'), exportAria: is('export') ? 'true' : 'false', showDate: is('daterange'), dateAria: is('daterange') ? 'true' : 'false',
       dateLabel: nomatch ? 'Last 7 days' : 'Last 30 days', searchVal: nomatch ? 'airport' : '',
-      noMatchText: nomatch ? `Nothing labelled VPN in the last 7 days matches “airport”. All ${total} results are still in history.` : '',
+      noMatchText: nomatch ? `Nothing with context VPN in the last 7 days matches “airport”. All ${total} results are still in history.` : '',
       noop: () => {},
       skChips: [56, 64, 64, 72, 76].map(n => ({ w: n + 'px' })), skTrends: m ? [1] : [1, 2, 3],
       skRows: (m ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8]).map(() => ({ cols: [sk('16px', 'none'), sk('110px', 'none'), sk('auto', '1'), sk('52px', 'none'), sk('56px', 'none'), sk('64px', 'none'), sk('80px', 'none'), sk('80px', 'none'), sk('56px', 'none'), sk('52px', 'none'), sk('26px', 'none')] })),
@@ -347,10 +354,19 @@ class History extends React.Component {
           ) : null}
           {v.showFilters ? (
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 10px" }}>
-              <div role="group" aria-label="Filter by label" style={{ display: "flex", gap: "6px", flexWrap: v.L?.chipWrap, overflowX: "auto", maxWidth: "100%" }}>
-                {(v.chips || []).map((c, $index) => (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: "0", maxWidth: "100%" }}>
+                {(v.chipGroups || []).map((g, $index) => (
                   <React.Fragment key={$index}>
-                    <button className={c?.cls} aria-pressed={c?.pressed} style={{ flex: "none" }}>{c?.t}{" "}<span className="n">{c?.n}</span></button>
+                    <div role="group" aria-label={g?.aria} style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: v.L?.chipWrap, overflowX: "auto", maxWidth: "100%" }}>
+                      <span aria-hidden="true" style={{ flex: "none", width: "56px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+                        {g?.t}
+                      </span>
+                      {(g?.chips || []).map((c, $index) => (
+                        <React.Fragment key={$index}>
+                          <button className={c?.cls} aria-pressed={c?.pressed} style={{ flex: "none" }}>{c?.t}{" "}<span className="n">{c?.n}</span></button>
+                        </React.Fragment>
+                      ))}
+                    </div>
                   </React.Fragment>
                 ))}
               </div>
@@ -549,12 +565,12 @@ class History extends React.Component {
                           <td className="num">{r?.lat}{" "}<span style={{ color: "var(--fg-subtle)", fontSize: "var(--text-micro)" }}>ms</span></td>
                           <td className="num">{r?.jit}{" "}<span style={{ color: "var(--fg-subtle)", fontSize: "var(--text-micro)" }}>ms</span></td>
                           <td style={{ textAlign: "center" }}>
-                            <span aria-label={r?.gAria} style={{ display: "inline-flex", width: "26px", height: "22px", boxSizing: "border-box", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-sm)", border: `1px solid ${r?.gbd ?? ""}`, background: r?.gbg, color: r?.gfg, fontFamily: "var(--font-mono)", fontWeight: "600", fontSize: "var(--text-caption)" }}>
+                            <span role="img" aria-label={r?.gAria} title={r?.gAria} style={{ display: "inline-flex", width: "26px", height: "22px", boxSizing: "border-box", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-sm)", border: `1px solid ${r?.gbd ?? ""}`, background: r?.gbg, color: r?.gfg, fontFamily: "var(--font-mono)", fontWeight: "600", fontSize: "var(--text-caption)" }}>
                               {r?.grade}
                             </span>
                           </td>
                           <td>
-                            <button className="btn ghost icon sm" aria-label={`Actions for ${r?.label ?? ""}`} style={{ width: "28px" }}>
+                            <button className="btn ghost icon sm" aria-label={`Actions for ${r?.label ?? ""}`} aria-haspopup="menu" style={{ width: "28px" }}>
                               <bg-icon name="ellipsis" size="15" />
                             </button>
                           </td>
@@ -590,7 +606,18 @@ class History extends React.Component {
                 </div>
                 {(v.rows || []).map((r, $index) => (
                   <React.Fragment key={$index}>
-                    <a href="#" style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "12px 14px", borderRadius: "var(--radius-lg)", border: `1px solid ${r?.cardBd ?? ""}`, background: r?.cardBg, color: "var(--fg)", textDecoration: "none", minHeight: "44px" }}>
+                    <div style={{ display: "flex", alignItems: "stretch", borderRadius: "var(--radius-lg)", border: `1px solid ${r?.cardBd ?? ""}`, background: r?.cardBg }}>
+                      <button role="checkbox" aria-checked={r?.selAria} aria-label={`Select ${r?.label ?? ""}, ${r?.d ?? ""}`} style={{ all: "unset", boxSizing: "border-box", flex: "none", width: "44px", minHeight: "44px", display: "flex", justifyContent: "center", paddingTop: "14px", cursor: "pointer" }}>
+                        {r?.sel ? (
+                          <span style={{ width: "18px", height: "18px", borderRadius: "4px", background: "var(--primary)", color: "var(--primary-fg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <bg-icon name="check" size="12" stroke="3" />
+                          </span>
+                        ) : null}
+                        {r?.unsel ? (
+                          <span style={{ width: "18px", height: "18px", boxSizing: "border-box", borderRadius: "4px", border: "1.5px solid var(--border-strong)", display: "block" }} />
+                        ) : null}
+                      </button>
+                      <a href="#" style={{ flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "10px", padding: "12px 0", color: "var(--fg)", textDecoration: "none", minHeight: "44px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "0", flex: "1" }}>
                           <span style={{ fontWeight: "600", fontSize: "var(--text-sm)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -604,7 +631,7 @@ class History extends React.Component {
                         {r?.stM ? (
                           <span className={r?.stCls} style={{ height: "18px", fontSize: "10px", padding: "0 7px" }}><span className="d" />{r?.st}</span>
                         ) : null}
-                        <span aria-label={r?.gAria} style={{ display: "inline-flex", width: "28px", height: "24px", boxSizing: "border-box", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-sm)", border: `1px solid ${r?.gbd ?? ""}`, background: r?.gbg, color: r?.gfg, fontFamily: "var(--font-mono)", fontWeight: "600", fontSize: "var(--text-caption)" }}>
+                        <span role="img" aria-label={r?.gAria} title={r?.gAria} style={{ display: "inline-flex", width: "28px", height: "24px", boxSizing: "border-box", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-sm)", border: `1px solid ${r?.gbd ?? ""}`, background: r?.gbg, color: r?.gfg, fontFamily: "var(--font-mono)", fontWeight: "600", fontSize: "var(--text-caption)" }}>
                           {r?.grade}
                         </span>
                       </div>
@@ -626,6 +653,10 @@ class History extends React.Component {
                         </span>
                       </div>
                     </a>
+                      <button className="btn ghost icon" aria-label={`Actions for ${r?.label ?? ""}`} aria-haspopup="menu" style={{ flex: "none", width: "44px", height: "44px", marginTop: "4px" }}>
+                        <bg-icon name="ellipsis" size="16" />
+                      </button>
+                    </div>
                   </React.Fragment>
                 ))}
                 {v.hasSel ? (
@@ -710,8 +741,8 @@ class History extends React.Component {
                       {c?.row ? (
                         <tr>
                           <td style={{ color: "var(--fg-muted)" }}>{c?.k}</td>
-                          <td className="num">{c?.a}</td>
-                          <td className="num" style={{ color: "var(--fg)" }}>{c?.b}</td>
+                          <td className="num" style={{ whiteSpace: "normal" }}>{c?.a}</td>
+                          <td className="num" style={{ color: "var(--fg)", whiteSpace: "normal" }}>{c?.b}</td>
                           <td style={{ textAlign: "right" }}>
                             <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: c?.dc, fontSize: "var(--text-caption)" }}>
                               <bg-icon name={c?.di} size="13" stroke="2" />

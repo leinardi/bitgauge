@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" viewport="700x380" name="Measurement · Gauge" subtitle="Live rate gauge with band and peak (300 px); latency mode (240 px)" -->
+<!-- @dsCard group="Components" viewport="700x380" name="Measurement · Gauge" subtitle="Rate gauge in its auto window (caption names it); latency mode, fixed 1–1000 ms" -->
 <!doctype html><html data-theme="dark"><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../styles.css">
 <link rel="stylesheet" href="../../preview/card.css">
@@ -12,8 +12,8 @@
 const NS = window.BitGaugeDesignSystem_1ab699;
 const { Gauge } = NS;
 function Demo(){ return <div className="card row gap-5" style={{alignItems:'center',justifyContent:'center',padding:'var(--space-3)'}}>
-<Gauge size={300} value={612e6} bandLo={560e6} bandHi={640e6} peak={640e6} eyebrow="Download" eyebrowIcon="arrow-down" readout="612" unit="Mbit/s" sub="peak 640 Mbit/s" />
-<Gauge size={240} mode="ms" value={3.1} color="var(--series-latency)" eyebrow="Latency" eyebrowIcon="activity" readout="3.1" unit="ms" />
+<Gauge size={300} value={612e6} bandLo={560e6} bandHi={640e6} peak={640e6} eyebrow="Download" eyebrowIcon="arrow-down" readout="612" unit="Mbit/s" />
+<Gauge size={240} mode="ms" value={3.1} color="var(--series-latency)" eyebrow="Latency" eyebrowIcon="activity" readout="3.1" unit="ms" sub="median 3.1 · ping 12 of 20" />
 </div>; }
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
 </script></body></html>

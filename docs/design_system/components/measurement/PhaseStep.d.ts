@@ -6,9 +6,9 @@ export interface PhaseStepProps {
   label?: string;
   /** @default "pending" */
   state?: 'pending' | 'active' | 'done' | 'failed' | 'cancelled' | 'skipped' | 'capped';
-  /** 0–1 (active / failed / cancelled / capped). */
+  /** 0–1 (active / failed / cancelled / capped). Capped uses triangle-alert and --fg-subtle. */
   progress?: number;
-  /** Mono detail after the state: "4.6 s left", "3.1 ms". */
+  /** Mono detail after the state: "4.6 s left", "3.1 ms", "~10–20 s" (pending download), "~12–25 s" (pending upload). */
   detail?: string;
 }
 export declare function PhaseStep(props: PhaseStepProps): JSX.Element;

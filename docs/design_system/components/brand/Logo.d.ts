@@ -6,7 +6,7 @@ export interface LogoProps {
   variant?: 'color' | 'mono';
   /** Force geometry. @default size <= 20 ? "small" : "full" */
   geometry?: 'full' | 'small';
-  /** Append the "BitGauge" wordmark (IBM Plex Sans 600). @default false */
+  /** Append the wordmark: "Bit" in --fg + "Gauge" in teal --primary-text, IBM Plex Sans 600. @default false */
   wordmark?: boolean;
   style?: React.CSSProperties;
 }

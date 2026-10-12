@@ -5,14 +5,14 @@
 export interface MetricTileProps {
   /** Eyebrow, e.g. "Download". */
   label: string;
-  /** Formatted number (3 significant digits). Omit for empty "—". */
+  /** Formatted number (3 significant digits). Omit for empty "—". Never shown for error, incomplete or insufficient-data. */
   value?: string | number;
   /** Separate, smaller unit: "Mbit/s", "ms". */
   unit?: string;
   /** Qualifier line, e.g. "peak 640 Mbit/s". Defaults to the state name for non-done states. */
   note?: React.ReactNode;
   /** @default "done" */
-  state?: 'empty' | 'live' | 'done' | 'partial' | 'incomplete' | 'low-confidence';
+  state?: 'empty' | 'live' | 'done' | 'partial' | 'incomplete' | 'insufficient-data' | 'low-confidence' | 'error';
   /** Series colour swatch next to the label, e.g. "var(--series-download)". */
   accent?: string;
 }

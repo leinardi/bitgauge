@@ -14,17 +14,17 @@ class Settings extends React.Component {
       quick: { t: 'Quick', icon: 'zap', d: 'Fixed 3 streams · 5–10 s per direction · 10 pings', streams: 'fixed', n: 3, dl: [5, 10], ul: [5, 10], pings: 10 },
       standard: { t: 'Standard', icon: 'gauge', d: 'Auto streams · 10–20 s down, 12–25 s up · 20 pings', streams: 'auto', dl: [10, 20], ul: [12, 25], pings: 20, def: true },
       extended: { t: 'Extended', icon: 'timer', d: 'Auto streams · 20–40 s per direction · 50 pings', streams: 'auto', dl: [20, 40], ul: [20, 40], pings: 50 },
-      continuous: { t: 'Continuous', icon: 'infinity', d: 'One direction until stopped', streams: 'auto', pings: 20 }
+      continuous: { t: 'Continuous', icon: 'infinity', d: 'Auto streams, Standard ramp · one direction until stopped · 20 pings', streams: 'auto', pings: 20 }
     };
   }
   on(v) { return !!v && v !== 'false' && v !== '0'; }
   defaults() {
-    return { preset: 'standard', dir: 'download', runLimit: false, runUnit: 'h', phases: { latency: true, download: true, upload: true }, order: 'down', ov: {}, v: { capMB: 500, countdown: 3, warmS: 2, runVal: 1 }, cap: false, units: 'bits', theme: 'system', autostart: false, warm: 'auto', overhead: '0', drafts: {}, err: {} };
+    return { preset: 'standard', dir: 'download', runLimit: false, runUnit: 'h', phases: { latency: true, download: true, upload: true }, order: 'down', ov: {}, v: { capMB: 500, countdown: 3, warmS: 2, runVal: 1 }, cap: false, units: 'bits', theme: 'system', autostart: false, warm: 'auto', overhead: '0', drafts: {}, err: {}, keepAsk: null };
   }
   initState() {
     const p = this.props || {};
     // Real product state: the prototype keeps the saved settings and passes them back in.
-    if (p.saved) return Object.assign(this.defaults(), p.saved, { theme: p.theme || p.saved.theme, advOpen: !!p.saved.advOpen, confirm: false, copied: false, drafts: {}, err: {} });
+    if (p.saved) return Object.assign(this.defaults(), p.saved, { theme: p.theme || p.saved.theme, advOpen: !!p.saved.advOpen, confirm: false, copied: false, drafts: {}, err: {}, keepAsk: null });
     const preset = p.preset || 'extended';
     if (p.onSettings) return Object.assign(this.defaults(), { preset, theme: p.theme || 'system', advOpen: this.on(p.advanced), confirm: false, incRun: false, copied: false });
     const st = Object.assign(this.defaults(), { preset, ov: { streams: 'fixed', n: 4 }, cap: true, advOpen: this.on(p.advanced), confirm: this.on(p.confirmReset), incRun: false, copied: false });
@@ -50,10 +50,10 @@ class Settings extends React.Component {
   eff(k, st) { if (k in st.ov) return st.ov[k]; const pv = this.pv(st); if (k in pv) return pv[k]; return st.v[k]; }
   unitOf(k, st) { return k === 'capMB' ? 'MB' : k === 'pings' ? 'pings' : k === 'runVal' ? ({ m: 'min', h: 'h', d: 'days' })[st.runUnit] : 's'; }
   validate(k, str, st) {
-    const R = { dlMin: [1, 600], dlMax: [1, 600], ulMin: [1, 600], ulMax: [1, 600], capMB: [1, 100000], countdown: [1, 30], pings: [1, 100], warmS: [0.5, 10, true], runVal: ({ m: [1, 10080], h: [1, 168], d: [1, 7] })[st.runUnit] }[k];
+    const R = { dlMin: [5, 600], dlMax: [5, 600], ulMin: [5, 600], ulMax: [5, 600], capMB: [1, 100000], countdown: [1, 30], pings: [6, 200], warmS: [1, 60], runVal: ({ m: [1, 10080], h: [1, 168], d: [1, 7] })[st.runUnit] }[k];
     const s = String(str).trim(), n = Number(s), u = this.unitOf(k, st);
     let msg = null;
-    if (s === '' || !isFinite(n) || (!R[2] && !Number.isInteger(n)) || n < R[0] || n > R[1]) msg = k === 'runVal' ? 'Run length must be 1 minute to 7 days.' : 'Enter a ' + (R[2] ? '' : 'whole ') + 'number from ' + R[0] + ' to ' + R[1] + '.';
+    if (s === '' || !isFinite(n) || (!R[2] && !Number.isInteger(n)) || n < R[0] || n > R[1]) msg = k === 'runVal' ? 'Run length must be 1 minute to 7 days.' : /^(dl|ul)/.test(k) ? 'Enter whole seconds from 5 s to 10 min (600 s).' : 'Enter a ' + (R[2] ? '' : 'whole ') + 'number from ' + R[0] + ' to ' + R[1] + '.';
     else if (/Min$/.test(k) && n > this.eff(k.replace('Min', 'Max'), st)) msg = 'Must be at most the maximum (' + this.eff(k.replace('Min', 'Max'), st) + ' s).';
     else if (/Max$/.test(k) && n < this.eff(k.replace('Max', 'Min'), st)) msg = 'Must be at least the minimum (' + this.eff(k.replace('Max', 'Min'), st) + ' s).';
     return msg ? msg + ' Not saved · Esc restores ' + this.eff(k, st) + ' ' + u + '.' : null;
@@ -63,7 +63,7 @@ class Settings extends React.Component {
     const st = this.state, str = st.drafts[k];
     if (str === undefined) return;
     const e = this.validate(k, str, st);
-    if (e) { this.setState({ err: Object.assign({}, st.err, { [k]: e }) }); if (el) setTimeout(() => el.focus(), 0); return; }
+    if (e) { this.setState({ err: Object.assign({}, st.err, { [k]: e }) }); return; } // error shown, focus stays free: Tab moves on
     const n = Number(String(str).trim());
     this.setState(s => {
       const pv = this.pv(s), out = { drafts: this.drop(s.drafts, k), err: this.drop(s.err, k) };
@@ -90,7 +90,7 @@ class Settings extends React.Component {
     const s = this.state, m = this.on(this.props.mobile), PR = this.P(), P = PR[s.preset], D = this.defaults();
     const isCont = s.preset === 'continuous', timed = !isCont;
     const set = o => this.setState(o);
-    const sm = s.ov.streams || P.streams, pn = P.n || 4, n = s.ov.n != null ? s.ov.n : pn;
+    const sm = s.ov.streams || P.streams, pn = P.n || 3, n = s.ov.n != null ? s.ov.n : pn;
     const streamsLbl = (mode, k) => mode === 'auto' ? 'Auto' : mode === 'single' ? 'Single' : 'Fixed · ' + k;
     const dur = (a, b) => a + '–' + b + ' s';
     const e = k => this.eff(k, s);
@@ -106,7 +106,7 @@ class Settings extends React.Component {
     };
     const changed = [];
     const add = (k, d, v, reset) => changed.push({ k, d, v, reset, label: 'Reset ' + k.toLowerCase() });
-    if (s.preset !== 'standard') add('Preset', 'Standard', P.t + (isCont ? ' · ' + dirName + (s.runLimit ? ' · ' + runStr : '') : ''), () => set({ preset: 'standard', drafts: {}, err: {} }));
+    if (s.preset !== 'standard') add('Preset', 'Standard', P.t + (isCont ? ' · ' + dirName + (s.runLimit ? ' · ' + runStr : '') : ''), () => set({ preset: 'standard', dir: 'download', runLimit: false, runUnit: 'h', v: Object.assign({}, s.v, { runVal: 1 }), drafts: {}, err: {} }));
     if (C.streams) add('Parallel streams', streamsLbl(P.streams, pn), streamsLbl(sm, n), () => this.resetOv(['streams', 'n']));
     if (C.dl) add('Download duration', dur(P.dl[0], P.dl[1]), dur(e('dlMin'), e('dlMax')), () => this.resetOv(['dlMin', 'dlMax']));
     if (C.ul) add('Upload duration', dur(P.ul[0], P.ul[1]), dur(e('ulMin'), e('ulMax')), () => this.resetOv(['ulMin', 'ulMax']));
@@ -118,32 +118,31 @@ class Settings extends React.Component {
     if (C.auto) add('Auto-start', 'Off · 3 s', (s.autostart ? 'On' : 'Off') + ' · ' + s.v.countdown + ' s', () => set({ autostart: false, v: Object.assign({}, s.v, { countdown: 3 }) }));
     if (C.warm) add('Warm-up', 'Auto', 'Fixed · ' + s.v.warmS + ' s', () => set({ warm: 'auto' }));
     if (C.pings) add('Ping count', String(P.pings), String(e('pings')), () => this.resetOv(['pings']));
-    if (C.overhead) add('Overhead', 'None', s.overhead + ' %', () => set({ overhead: '0' }));
+    if (C.overhead) add('Overhead compensation', 'None', '+' + s.overhead + ' %', () => set({ overhead: '0' }));
     this._changed = changed;
 
+    // url-params.md §2, in table order: run, test, preset, duration, streams, cap, units, lang, theme, label.
     const q = [];
-    if (s.preset !== 'standard') q.push('preset=' + s.preset);
-    if (isCont && s.dir === 'upload') q.push('dir=up');
-    if (isCont && s.runLimit) q.push('for=' + s.v.runVal + s.runUnit);
-    if (C.phases) q.push('phases=' + ['latency', 'download', 'upload'].filter(k => phOn[k]).map(k => ({ latency: 'ping', download: 'down', upload: 'up' })[k]).join(','));
-    if (s.order === 'up') q.push('order=up');
-    if (C.streams) q.push('streams=' + (sm === 'fixed' ? n : sm === 'single' ? 1 : 'auto'));
-    if (C.dl) q.push('down=' + e('dlMin') + '-' + e('dlMax'));
-    if (C.ul) q.push('up=' + e('ulMin') + '-' + e('ulMax'));
-    if (C.cap) q.push('cap=' + s.v.capMB + 'MB');
-    if (C.pings) q.push('pings=' + e('pings'));
-    if (C.warm) q.push('warmup=' + s.v.warmS);
-    if (C.overhead) q.push('overhead=' + s.overhead);
     if (s.incRun) q.push('run=1');
+    const test = isCont ? (s.dir === 'upload' ? 'upload' : null) : phOn.download && phOn.upload ? null : phOn.download ? 'download' : phOn.upload ? 'upload' : 'latency';
+    if (test) q.push('test=' + test);
+    if (s.preset !== 'standard') q.push('preset=' + s.preset);
+    if (isCont && s.runLimit) q.push('duration=' + s.v.runVal * ({ m: 60, h: 3600, d: 86400 })[s.runUnit]);
+    if (C.streams) q.push('streams=' + (sm === 'fixed' ? n : sm));
+    if (C.cap) q.push('cap=' + s.v.capMB + 'MB');
+    if (C.units) q.push('units=' + s.units);
+    if (C.theme) q.push('theme=' + s.theme);
+    const LINKED = ['Preset', 'Parallel streams', 'Phases', 'Data cap', 'Units', 'Theme'];
+    const notInUrl = changed.filter(c => !LINKED.includes(c.k)).map(c => c.k);
     const url = 'https://speed.home.lan/' + (q.length ? '?' + q.join('&') : '');
 
     const presets = Object.keys(PR).map(k => {
-      const p = PR[k], sel = k === s.preset, pick = () => { if (!sel) set({ preset: k, drafts: {}, err: {} }); };
+      const p = PR[k], sel = k === s.preset, pick = () => { if (sel) return; if (k !== 'continuous' && (C.dl || C.ul)) set({ keepAsk: k }); else set({ preset: k, drafts: {}, err: {} }); };
       return { t: p.t, icon: p.icon, d: p.d, def: !!p.def, pick, key: ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } }, aria: sel ? 'true' : 'false', bd: sel ? 'var(--primary-border)' : 'var(--border-default)', bg: sel ? 'var(--primary-bg)' : 'var(--surface-1)', ic: sel ? 'var(--primary-text)' : 'var(--fg-subtle)', ring: sel ? '5px solid var(--primary)' : '1.5px solid var(--border-strong)', dot: sel ? 'var(--surface-2)' : 'transparent' };
     });
     const onCount = Object.values(phOn).filter(Boolean).length;
     const phases = [['latency', 'Latency', 'activity', 'var(--series-latency)'], ['download', 'Download', 'arrow-down', 'var(--series-download)'], ['upload', 'Upload', 'arrow-up', 'var(--series-upload)']].map(([k, t, icon, c]) => {
-      const v = phOn[k], dis = isCont || (v && onCount === 1);
+      const v = phOn[k], dis = isCont || k === 'latency';
       return { t, icon, c, on2: v, aria: v ? 'true' : 'false', dis, bg: v ? 'var(--primary)' : 'transparent', bd: v ? 'none' : '1.5px solid var(--border-strong)', on: () => { if (!dis) set({ phases: Object.assign({}, phOn, { [k]: !v }) }); } };
     });
     const orderOk = timed && phOn.download && phOn.upload;
@@ -166,7 +165,7 @@ class Settings extends React.Component {
         warm: this.seg([['auto', 'Auto'], ['fixed', 'Fixed']], s.warm, v => set({ warm: v }))
       },
       phasesOpacity: isCont ? '0.45' : '1', orderOpacity: orderOk ? '1' : '0.45', orderPe: orderOk ? 'auto' : 'none',
-      phasesHelp: isCont ? 'Continuous runs one direction. Phases apply to the timed presets.' : 'Latency always runs first. At least one phase stays on.',
+      phasesHelp: isCont ? 'Continuous runs one direction. Phases apply to the timed presets.' : 'Idle latency always runs first. Turn off a direction to test the other one, or latency only.',
       runSw: this.sw(s.runLimit, () => set({ runLimit: !s.runLimit, drafts: this.drop(s.drafts, 'runVal'), err: this.drop(s.err, 'runVal') })), runLimit: s.runLimit, noRunLimit: !s.runLimit, runUnit: s.runUnit,
       setRunUnit: ev => { const u = ev.target.value, max = { m: 10080, h: 168, d: 7 }[u]; set({ runUnit: u, v: Object.assign({}, s.v, { runVal: Math.min(s.v.runVal, max) }), drafts: this.drop(s.drafts, 'runVal'), err: this.drop(s.err, 'runVal') }); },
       isFixed: sm === 'fixed', n, nMin: n <= 1, nMax: n >= 6,
@@ -179,10 +178,16 @@ class Settings extends React.Component {
       warmFixed: s.warm === 'fixed', pingsHelp: 'Preset default: ' + P.pings + '.',
       overhead: s.overhead, setOverhead: ev => set({ overhead: ev.target.value }),
       overheadOpts: [['0', 'None · 0 %'], ['6', 'LibreSpeed default · 6 %'], ['5.13', 'IPv6 · 5.13 %'], ['3.69', 'Alternative · 3.69 %'], ['8.1', 'Alternative 2 · 8.1 %']].map(([v, t]) => ({ v, t })),
-      url, copyIcon: s.copied ? 'check' : 'copy',
+      url, notInUrl: notInUrl.join(', '), hasNotInUrl: notInUrl.length > 0, copyIcon: s.copied ? 'check' : 'copy',
       copyUrl: () => { try { navigator.clipboard && navigator.clipboard.writeText(url); } catch (x) {} set({ copied: true }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ copied: false }), 1500); },
       incRun: s.incRun, incRunAria: s.incRun ? 'true' : 'false', incRunBg: s.incRun ? 'var(--primary)' : 'transparent', incRunBd: s.incRun ? 'none' : '1.5px solid var(--border-strong)', toggleIncRun: () => set({ incRun: !s.incRun }),
       changed, changedCount: String(changed.length), hasChanges: changed.length > 0, noChanges: changed.length === 0,
+      keepAsk: !!s.keepAsk, keepTitle: s.keepAsk ? 'Keep your custom durations?' : '',
+      keepLine: s.keepAsk ? 'You set download ' + dur(e('dlMin'), e('dlMax')) + ' and upload ' + dur(e('ulMin'), e('ulMax')) + '. ' + PR[s.keepAsk].t + ' uses ' + dur(PR[s.keepAsk].dl[0], PR[s.keepAsk].dl[1]) + ' down and ' + dur(PR[s.keepAsk].ul[0], PR[s.keepAsk].ul[1]) + ' up.' : '',
+      keepUse: s.keepAsk ? 'Use ' + PR[s.keepAsk].t + ' durations' : '',
+      keepCustom: () => set({ preset: s.keepAsk, keepAsk: null, drafts: {}, err: {} }),
+      keepPreset: () => this.resetOv(['dlMin', 'dlMax', 'ulMin', 'ulMax'], { preset: s.keepAsk, keepAsk: null }),
+      keepCancel: () => set({ keepAsk: null }),
       confirm: s.confirm, openReset: () => set({ confirm: true }), closeReset: () => set({ confirm: false }),
       doReset: () => this.setState(Object.assign(this.defaults(), { confirm: false })),
       resetLine: (changed.length === 1 ? '1 setting returns to its default: ' : changed.length + ' settings return to their defaults: ') + changed.map(c => c.k).join(', ') + '. Your test history is not affected.'
@@ -653,9 +658,9 @@ class Settings extends React.Component {
                       {v.C?.overhead ? (
                         <span style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px", fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>
                           Shown as
-                          <span style={{ fontFamily: "var(--font-mono)", color: "var(--fg)" }}>941.2 Mbit/s</span>
+                          <span style={{ fontFamily: "var(--font-mono)", color: "var(--fg)" }}>941 Mbit/s</span>
                           <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-muted)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-full)", padding: "1px 7px" }}>
-                            +{v.overhead}{" % overhead"}
+                            +{v.overhead}{" % overhead compensation"}
                           </span>
                         </span>
                       ) : null}
@@ -680,7 +685,7 @@ class Settings extends React.Component {
               <div className="card-h"><bg-icon name="link" size="15" /><span className="t" id="s-share">Shareable link</span></div>
               <div className="card-b" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
-                  Opens BitGauge with the test settings that differ from defaults. Units and theme stay on each device.
+                  Opens BitGauge with the settings that differ from the defaults. Phase order, per-direction durations, ping count, warm-up and overhead compensation aren't link parameters.
                 </span>
                 <div style={{ display: "flex", gap: "6px" }}>
                   <label className="input mono sm" style={{ flex: "1", minWidth: "0", height: "34px" }}>
@@ -696,6 +701,12 @@ class Settings extends React.Component {
                   </span>
                   <span>{"Include "}<span style={{ fontFamily: "var(--font-mono)" }}>run=1</span>{" (start automatically)"}</span>
                 </button>
+                {v.hasNotInUrl ? (
+                  <span style={{ display: "flex", alignItems: "flex-start", gap: "6px", fontSize: "var(--text-micro)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
+                    <span style={{ display: "flex", marginTop: "1px" }}><bg-icon name="info" size="12" /></span>
+                    {"Not in the link: "}{v.notInUrl}
+                  </span>
+                ) : null}
               </div>
             </section>
             <section className="card" aria-labelledby="s-changed">
@@ -750,6 +761,22 @@ class Settings extends React.Component {
                 <span style={{ flex: "1" }} />
                 <button className="btn secondary" onClick={v.closeReset}>Cancel</button>
                 <button className="btn danger" onClick={v.doReset}><bg-icon name="rotate-ccw" size="14" />Reset all</button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+        {v.keepAsk ? (
+          <div onClick={v.keepCancel} style={{ position: "absolute", inset: "0", zIndex: "40", background: "var(--scrim)", backdropFilter: "blur(2px)", display: "flex", alignItems: v.L?.cfAlign, justifyContent: "center", paddingTop: v.L?.cfTop }}>
+            <div className="modal" role="alertdialog" aria-modal="true" aria-labelledby="keep-t" aria-describedby="keep-d" onClick={v.stop} style={{ width: v.L?.cfW, maxWidth: "100%", maxHeight: "none", boxSizing: "border-box", borderRadius: v.L?.cfRad }}>
+              <div className="mh">
+                <div className="mi"><bg-icon name="timer" size="17" /></div>
+                <div><div className="mt" id="keep-t">{v.keepTitle}</div><div className="md" id="keep-d">{v.keepLine}</div></div>
+              </div>
+              <div className="mf" style={{ flexWrap: "wrap" }}>
+                <button className="btn ghost" onClick={v.keepCancel}>Cancel</button>
+                <span style={{ flex: "1" }} />
+                <button className="btn secondary" onClick={v.keepPreset}>{v.keepUse}</button>
+                <button className="btn primary" onClick={v.keepCustom}>Keep custom durations</button>
               </div>
             </div>
           </div>

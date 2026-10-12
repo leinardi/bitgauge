@@ -1,19 +1,22 @@
 /**
  * Gauge — place on a --surface-2 card (the track is --surface-3, invisible on --bg-base in light theme). 270° log arc over a 4-decade window (rate) or 1–1000 ms (latency). See components/gauge.md.
- * @startingPoint section="Measurement" subtitle="Live speed gauge with readout, range band and peak tick" viewport="700x340"
+ * The engine supplies values only; this component picks and shifts the window from the value stream (2 s hold, one decade per shift) and names it in the caption.
+ * @startingPoint section="Measurement" subtitle="Live speed gauge with readout, range band and peak tick" viewport="700x380"
  */
 export interface GaugeProps {
   /** Pixel size (300 desktop, ~240 mobile). Tick labels are hidden below 220. @default 300 */
   size?: number;
-  /** Current value in bit/s (rate) or ms. Omit for idle. */
+  /** Current gauge value: bit/s (rate, bits), B/s (rate, bytes) or ms. Omit for idle. */
   value?: number;
-  /** Window from the engine. @default 1e6 / 1 (ms) */
-  lo?: number;
-  /** @default 1e10 / 1000 (ms) */
-  hi?: number;
   /** @default "rate" */
   mode?: 'rate' | 'ms';
-  /** Recent-range band. */
+  /** Rate unit system. Bytes mode expects `value` in B/s and uses the byte windows. @default "bits" */
+  units?: 'bits' | 'bytes';
+  /** UI-held start decade k (window [10^k, 10^(k+4))). Pass the first direction's final window to start the second direction there; never comes from the engine. @default 6 (bits) / 5 (bytes) */
+  startDecade?: number;
+  /** Called with the new decade k after each window shift, so the UI can carry it to the next direction. */
+  onWindowChange?: (k: number) => void;
+  /** Recent-range band (same unit as value). */
   bandLo?: number;
   bandHi?: number;
   /** Peak tick. */
@@ -22,13 +25,13 @@ export interface GaugeProps {
   inner?: number;
   /** Arc colour. @default "var(--series-download)" */
   color?: string;
-  /** "Download", "Upload", "Latency". */
+  /** "Download", "Upload · sending", "Latency". */
   eyebrow?: string;
   eyebrowIcon?: string;
-  /** Formatted readout text, e.g. "612". */
+  /** Formatted readout text, e.g. "612". Always exact; never clamped to the window. */
   readout?: string;
   unit?: string;
-  /** Mono sub-line, e.g. "log scale · 1 Mbit/s – 10 Gbit/s · auto". */
+  /** Extra mono line below the dial, under the window caption, e.g. "median 3.1 · ping 12 of 20". */
   sub?: string;
   /** Readout font size. @default size × 0.193 (58 at 300) */
   numSize?: number;

@@ -1,5 +1,5 @@
 /* BitGauge design helpers: <bg-icon> (Lucide glyphs), number formatting, gauge + chart geometry.
-   Production: lucide-vue-next for icons; the math below ports 1:1 to a composable. */
+   Production: @lucide/vue for icons; the math below ports 1:1 to a composable. */
 (function () {
   const G = {
     play: '<polygon points="6 3 20 12 6 21 6 3"/>',
@@ -92,20 +92,24 @@
   }
 
   // ---------- formatting ----------
+  // Three significant digits for every rate and data amount: "9.40 kbit/s", "94.1 Mbit/s", "12.3 Gbit/s", "12.3 MB".
+  const sig = x => x >= 100 ? Math.round(x).toString() : x >= 10 ? x.toFixed(1) : x >= 1 ? x.toFixed(2) : x.toPrecision(3);
+  // Picks the unit from the decimal prefix; a value that rounds to 1000 moves up one unit.
+  function scaled(v, U) {
+    let i = Math.max(0, Math.min(U.length - 1, Math.floor(Math.log10(Math.max(v, 1)) / 3) - 1)), x = v / Math.pow(10, 3 * (i + 1));
+    if (x >= 999.5 && i < U.length - 1) { i++; x /= 1000; }
+    return { n: sig(x), u: U[i] };
+  }
   function rate(bps, unit) {
     const bytes = unit === 'bytes';
-    const v = bytes ? bps / 8 : bps;
-    const U = bytes ? ['kB/s', 'MB/s', 'GB/s'] : ['kbit/s', 'Mbit/s', 'Gbit/s'];
-    const sig = x => x < 10 ? x.toFixed(2) : x < 100 ? x.toFixed(1) : Math.round(x).toString();
-    if (v < 1e6) { const k = v / 1e3; return { n: k < 10 ? k.toFixed(1) : Math.round(k).toString(), u: U[0] }; }
-    if (v < 1e9) return { n: sig(v / 1e6), u: U[1] };
-    return { n: (v / 1e9).toFixed(2), u: U[2] };
+    return scaled(bytes ? bps / 8 : bps, bytes ? ['kB/s', 'MB/s', 'GB/s'] : ['kbit/s', 'Mbit/s', 'Gbit/s']);
   }
   const rateStr = (b, u) => { const r = rate(b, u); return r.n + ' ' + r.u; };
-  const ms = v => v < 1 ? v.toFixed(2) : v < 10 ? v.toFixed(1) : Math.round(v).toString();
-  // Jitter: one decimal below 10 ms, whole ms at/above 10, "< 1" below the timer resolution (res in ms).
+  // Latency and jitter: one decimal below 10 ms, whole ms at/above 10, "< res" below the timer resolution
+  // (res in ms; a 1 ms timer gives "< 1 ms").
   const jit = (v, res = 0.1) => v < res ? '< ' + (res >= 1 ? Math.round(res) : res.toFixed(1)) : v < 10 ? v.toFixed(1) : Math.round(v).toString();
-  const bytes = b => b < 1e6 ? (b / 1e3).toFixed(0) + ' kB' : b < 1e9 ? (b / 1e6).toFixed(b < 1e7 ? 1 : 0) + ' MB' : (b / 1e9).toFixed(2) + ' GB';
+  const ms = jit;
+  const bytes = b => { const r = scaled(b, ['kB', 'MB', 'GB', 'TB']); return r.n + ' ' + r.u; };
   const tickLabel = v => v >= 1e9 ? (v / 1e9) + 'G' : v >= 1e6 ? (v / 1e6) + 'M' : v >= 1e3 ? (v / 1e3) + 'k' : String(v);
 
   // ---------- gauge (270° log arc) ----------
@@ -141,7 +145,8 @@
   }
   const decStr = (e, unit) => { const U = unit === 'bytes' ? ['kB/s', 'MB/s', 'GB/s'] : ['kbit/s', 'Mbit/s', 'Gbit/s']; const i = Math.max(0, Math.min(2, Math.floor((e - 3) / 3))); return Math.pow(10, e - 3 - 3 * i) + ' ' + U[i]; };
   const winLabel = (k, unit) => 'log scale · ' + decStr(k, unit) + ' – ' + decStr(k + 4, unit) + ' · auto';
-  // Shift tween: 280 ms ease-out in log space (pass a fractional k mid-shift). Reduced motion: jump.
+  // Shift tween: 280 ms ease-out in log space. The caller animates k and passes the fractional value as
+  // lo = 10^k, hi = 10^(k+4) (TestScreen._animK); under prefers-reduced-motion it jumps.
   const SHIFT_MS = 280;
 
   // mode: 'rate' | 'ms'. lo/hi come from the engine (track); default 1 Mbit/s–10 Gbit/s, ms fixed 1–1000.

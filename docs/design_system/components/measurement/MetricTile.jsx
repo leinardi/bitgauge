@@ -1,7 +1,8 @@
 import React from 'react';
-const NOTE = { partial: 'var(--warn-fg)', incomplete: 'var(--warn-fg)', 'low-confidence': 'var(--warn-fg)' };
+const NOTE = { partial: 'var(--warn-fg)', incomplete: 'var(--warn-fg)', 'insufficient-data': 'var(--warn-fg)', 'low-confidence': 'var(--warn-fg)', error: 'var(--danger-fg)' };
+const NO_NUMBER = { empty: 1, error: 1, incomplete: 1, 'insufficient-data': 1 };
 export function MetricTile({ label, value, unit, note, state = 'done', accent }) {
-  const empty = state === 'empty' || value == null;
+  const empty = NO_NUMBER[state] || value == null;
   const word = state === 'live' && value == null;
   return <div className="card" style={{ padding: 'var(--space-3-5) var(--space-4)' }}>
     <div className="ds-eyebrow" style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 6 }}>{accent ? <span style={{ width: 8, height: 2, borderRadius: 1, background: accent }}></span> : null}{label}</div>

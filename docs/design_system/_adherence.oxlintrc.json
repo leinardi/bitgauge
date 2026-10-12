@@ -79,12 +79,16 @@
         "message": "<EmptyState> doesn't accept that prop. Declared props: icon, title, children, actions, style."
       },
       {
-        "selector": "JSXOpeningElement[name.name='Gauge'] > JSXAttribute > JSXIdentifier[name!=/^(?:size|value|lo|hi|mode|bandLo|bandHi|peak|inner|color|eyebrow|eyebrowIcon|readout|unit|sub|numSize|key|ref|className|style|children)$/]",
-        "message": "<Gauge> doesn't accept that prop. Declared props: size, value, lo, hi, mode, bandLo, bandHi, peak, inner, color, eyebrow, eyebrowIcon, readout, unit, sub, numSize."
+        "selector": "JSXOpeningElement[name.name='Gauge'] > JSXAttribute > JSXIdentifier[name!=/^(?:size|value|mode|units|startDecade|onWindowChange|bandLo|bandHi|peak|inner|color|eyebrow|eyebrowIcon|readout|unit|sub|numSize|key|ref|className|style|children)$/]",
+        "message": "<Gauge> doesn't accept that prop. Declared props: size, value, mode, units, startDecade, onWindowChange, bandLo, bandHi, peak, inner, color, eyebrow, eyebrowIcon, readout, unit, sub, numSize."
       },
       {
         "selector": "JSXOpeningElement[name.name='Gauge'] > JSXAttribute[name.name='mode'] > Literal[value!=/^(?:rate|ms)$/]",
         "message": "<Gauge> mode must be one of 'rate' | 'ms'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Gauge'] > JSXAttribute[name.name='units'] > Literal[value!=/^(?:bits|bytes)$/]",
+        "message": "<Gauge> units must be one of 'bits' | 'bytes'."
       },
       {
         "selector": "JSXOpeningElement[name.name='Icon'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|size|stroke|className|style|key|ref|className|style|children)$/]",
@@ -115,8 +119,8 @@
         "message": "<MetricTile> doesn't accept that prop. Declared props: label, value, unit, note, state, accent."
       },
       {
-        "selector": "JSXOpeningElement[name.name='MetricTile'] > JSXAttribute[name.name='state'] > Literal[value!=/^(?:empty|live|done|partial|incomplete|low-confidence)$/]",
-        "message": "<MetricTile> state must be one of 'empty' | 'live' | 'done' | 'partial' | 'incomplete' | 'low-confidence'."
+        "selector": "JSXOpeningElement[name.name='MetricTile'] > JSXAttribute[name.name='state'] > Literal[value!=/^(?:empty|live|done|partial|incomplete|insufficient-data|low-confidence|error)$/]",
+        "message": "<MetricTile> state must be one of 'empty' | 'live' | 'done' | 'partial' | 'incomplete' | 'insufficient-data' | 'low-confidence' | 'error'."
       },
       {
         "selector": "JSXOpeningElement[name.name='Notice'] > JSXAttribute > JSXIdentifier[name!=/^(?:tone|icon|title|children|actions|key|ref|className|style|children)$/]",
@@ -292,6 +296,7 @@
       "--border-subtle",
       "--card-highlight",
       "--card-highlight-hover",
+      "--chart-grid",
       "--danger",
       "--danger-bg",
       "--danger-border",
@@ -316,8 +321,8 @@
       "--font-cond",
       "--font-mono",
       "--font-sans",
+      "--grade-fair",
       "--grade-good",
-      "--grade-mid",
       "--grade-poor",
       "--green-4",
       "--green-5",
@@ -526,6 +531,7 @@
       "--danger-bg": "color",
       "--danger-border": "color",
       "--danger-solid": "color",
+      "--danger-solid-hover": "color",
       "--info": "color",
       "--info-fg": "color",
       "--info-bg": "color",
@@ -543,7 +549,7 @@
       "--series-latency": "color",
       "--sending": "color",
       "--grade-good": "color",
-      "--grade-mid": "color",
+      "--grade-fair": "color",
       "--grade-poor": "color",
       "--quality-great": "color",
       "--quality-good": "color",
@@ -568,7 +574,7 @@
       "--scrim": "color",
       "--surface-glass": "color",
       "--fg-on-solid": "color",
-      "--danger-solid-hover": "color",
+      "--chart-grid": "color",
       "--density-row-height": "other",
       "--density-cell-padding-y": "spacing",
       "--density-section-gap": "spacing",

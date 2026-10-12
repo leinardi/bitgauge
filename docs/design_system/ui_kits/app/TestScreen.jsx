@@ -1,6 +1,6 @@
 /* BitGauge web UI kit — TestScreen
  * Props:
- *   state: "idle" | "countdown" | "connecting" | "latency" | "download" | "upload" | "complete" | "error" | "error-early" | "cancelled" | "cancelled-late" | "slow" | "slowdone" | "continuous" | "cont-warmup" | "cont-done" | "offline" | "basepath" | "ws-fallback" | "insufficient" | "param-ignored"  (default "download")
+ *   state: "idle" | "countdown" | "connecting" | "latency" | "download" | "upload" | "complete" | "error" | "error-early" | "cancelled" | "cancelled-late" | "cancelled-latency" | "cancelled-download" | "cancelled-slow" | "slow" | "slowdone" | "continuous" | "cont-warmup" | "cont-done" | "offline" | "basepath" | "ws-fallback" | "insufficient" | "param-ignored"  (default "download")
  *   mobile: boolean  (default false)
  *   custom: boolean  (default false)
  *   units: "bits" | "bytes"  (default "bits")
@@ -29,9 +29,25 @@ class TestScreen extends React.Component {
     this._ro = new ResizeObserver(([e]) => { const w = Math.floor(e.contentRect.width); if (w > 0 && w !== this.state.cw) this.setState({ cw: w }); });
     this._ro.observe(el);
   }
-  componentDidMount() { if (!window.BG) { this._h = () => this.forceUpdate(); window.addEventListener('bg-lib-ready', this._h); } this._tick(); this._obs(); }
-  componentWillUnmount() { if (this._h) window.removeEventListener('bg-lib-ready', this._h); if (this._ro) this._ro.disconnect(); }
-  componentDidUpdate() { this._tick(); this._obs(); }
+  componentDidMount() { if (!window.BG) { this._h = () => this.forceUpdate(); window.addEventListener('bg-lib-ready', this._h); } this._tick(); this._obs(); this._animK(); }
+  componentWillUnmount() { if (this._h) window.removeEventListener('bg-lib-ready', this._h); if (this._ro) this._ro.disconnect(); cancelAnimationFrame(this._raf); }
+  componentDidUpdate() { this._tick(); this._obs(); this._animK(); }
+  _rm() { return typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  // Gauge window shift: tween the decade k over BG.SHIFT_MS (ease-out, log space); reduced motion jumps.
+  _animK() {
+    const to = this._kT; if (to == null || to === this._kTo) return;
+    const from = this._kA ? this._kA.cur : this._kTo; this._kTo = to;
+    cancelAnimationFrame(this._raf);
+    if (from == null || this._rm()) { this._kA = null; return; }
+    const t0 = performance.now(), D = window.BG.SHIFT_MS; this._kA = { cur: from };
+    const step = now => {
+      if (!this._kA) return;
+      const f = Math.min(1, (now - t0) / D); this._kA.cur = from + (to - from) * (1 - Math.pow(1 - f, 3));
+      if (f < 1) this._raf = requestAnimationFrame(step); else this._kA = null;
+      this.forceUpdate();
+    };
+    this._raf = requestAnimationFrame(step);
+  }
   // Visually hidden polite region: phase changes immediately, live rate at most every 5 s. The 10 Hz readout is not live.
   _tick() {
     const c = this._live; if (!c) return;
@@ -64,9 +80,9 @@ class TestScreen extends React.Component {
       stepPad: '16px 24px', stepGap: '24px', stepDir: 'row', stepAlign: 'center', stepInnerGap: '8px', metaML: 'auto', metaWS: 'nowrap',
       resCols: 'repeat(4, minmax(0,1fr))', tilePad: '16px 18px', tileNum: '30px', loadSpan: 'span 2', fitSpan: 'span 1', metaSpan: 'span 1', loadCols: '172px minmax(0,1fr)'
     };
-    const slow = st === 'slow' || st === 'slowdone';
+    const slow = st === 'slow' || st === 'slowdone' || st === 'cancelled-slow';
     const after = ['complete', 'cancelled', 'cancelled-late', 'slowdone'].includes(st);
-    const src = this.props.probe && this.props.probe !== 'auto' ? this.props.probe : (slow || st === 'ws-fallback' ? 'HTTP/2 probe' : 'WebSocket');
+    const src = this.props.probe && this.props.probe !== 'auto' ? this.props.probe : (st === 'ws-fallback' ? 'HTTP/2 probe' : 'WebSocket');
     const lowLink = slow || st === 'insufficient';
 
     // ---- connection strip (context pill is editable)
@@ -74,15 +90,16 @@ class TestScreen extends React.Component {
     const sel = this.state.ctxSel || (slow ? 'VPN' : 'LAN');
     let ctx = { label: sel === 'Custom…' ? (this.state.ctxCustom || 'Custom') : sel, icon: CO.find(o => o[0] === sel)[1], suggested: !this.state.ctxSel };
     const ctxOpts = CO.map(([label, icon]) => ({ label, icon, on: label === sel, checked: label === sel ? 'true' : 'false', bg: label === sel ? 'var(--primary-bg)' : 'transparent', pick: () => this.setState({ ctxSel: label, ctxOpen: label === 'Custom…' }) }));
-    const streams = lowLink ? '2' : custom ? '4' : '6', auto = slow || !custom;
-    const plateau = auto ? ' · plateau: no-gain' : '';
+    const streams = slow ? '2' : st === 'insufficient' && !custom ? '1' : custom ? '4' : '6', auto = slow || !custom;
+    // Fast LAN (§19.4): 1 → 2 → 4 → 6 streams keep gaining, so the ramp stops at the cap. The slow link stops gaining at 2.
+    const plateau = auto ? ' · plateau: ' + (slow ? 'no-gain' : 'cap') : '';
     const conn = [
       { k: 'Client IP', v: slow ? '10.8.0.6' : '192.168.1.42', s: 'IPv4' },
       { k: 'Protocol', v: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? '—' : 'HTTP/2', s: RS === 'not-reported' ? 'not reported' : '' },
       { k: 'Streams', v: streams, s: (auto ? 'auto' : 'fixed') + (after ? plateau : '') }
     ];
     if (st === 'offline') { conn.forEach(c => { c.v = '—'; c.s = ''; }); if (!this.state.ctxSel) ctx = { label: '—', icon: 'circle-dashed', suggested: false }; }
-    const customChips = this.props.chips || [{ t: 'Extended · 60 s', icon: 'timer' }, { t: '4 streams', icon: 'layers' }, { t: 'Cap 500 MB', icon: 'database' }];
+    const customChips = this.props.chips || [{ t: 'Extended', icon: 'timer' }, { t: '4 streams', icon: 'layers' }, { t: 'Cap 500 MB', icon: 'database' }];
 
     // ---- phases
     const PI = { lat: ['Latency', 'activity'], down: ['Download', 'arrow-down'], up: ['Upload', 'arrow-up'] };
@@ -116,7 +133,7 @@ class TestScreen extends React.Component {
 
     // ---- steady-window stats: avg and peak (= p90) over warm-up end → now only
     const q90 = a => { const s = a.slice().sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(0.9 * (s.length - 1)))]; };
-    const steady = (pts, warm) => { const v = pts.filter(q => q[0] >= warm).map(q => q[1]); return v.length < 3 ? null : { avg: v.reduce((a, b) => a + b, 0) / v.length, peak: q90(v) }; };
+    const steady = (pts, warm) => { if (pts[pts.length - 1][0] < warm) return null; const v = pts.filter(q => q[0] >= warm).map(q => q[1]); return !v.length ? null : { avg: v.reduce((a, b) => a + b, 0) / v.length, peak: q90(v) }; };
     const liveSub = sw => sw ? 'avg so far ' + rn(sw.avg) + ' · peak ' + rn(sw.peak) : 'warming up';
     const tail = pts => { const tl = pts[pts.length - 1][0], v = pts.filter(q => q[0] > tl - 1 + 1e-6).map(q => q[1]); return { cur: pts[pts.length - 1][1], lo: Math.min(...v), hi: Math.max(...v) }; };
     const lastLat = (lp, min) => Math.max(min, lp[lp.length - 1][1]);
@@ -154,6 +171,15 @@ class TestScreen extends React.Component {
       };
     };
     const load = (g, rows, resp, text) => Object.assign(GR(g), { rows, resp }, text ? { gText: text } : {});
+    // §11: grade from the worse gradable increase. §13: AIM points; packet loss is fixed at 0 points; upload is not an input.
+    const gradeOf = inc => inc < 5 ? 'A+' : inc < 30 ? 'A' : inc < 60 ? 'B' : inc < 200 ? 'C' : inc < 400 ? 'D' : 'F';
+    const aimP = (v, th, p) => { let i = 0; while (i < th.length && v >= th[i]) i++; return p[i]; };
+    const band = (sum, th) => ['Bad', 'Poor', 'Average', 'Good', 'Great'][th.filter(x => Math.max(0, sum) >= x).length];
+    const aim = (lat, jit, dl, inc) => {
+      const pl = aimP(lat, [10, 20, 50, 100, 500], [20, 10, 5, 0, -10, -20]), pi = aimP(inc, [10, 20, 50, 100, 500], [20, 10, 5, 0, -10, -20]);
+      const pj = aimP(jit, [10, 20, 100, 500], [10, 5, 0, -10, -20]), pd = aimP(dl, [1e6, 1e7, 5e7, 1e8], [0, 5, 10, 20, 30]);
+      return [band(pl + pd + pi, [15, 20, 40, 60]), band(pl + pi, [5, 15, 25, 30]), band(pl + pj + pi, [5, 15, 25, 40])];
+    };
     const FIT = [['Streaming', 'tv'], ['Gaming', 'gamepad'], ['Video calls', 'video']];
     const fit = (q, none) => FIT.map(([label, icon], i) => {
       const nn = Array.isArray(none) ? none[i] : none;
@@ -183,7 +209,8 @@ class TestScreen extends React.Component {
     const ser = (pts, c, faint) => ({ pts, c, so: faint ? 0.4 : 1, fo: faint ? 0 : 0.1 });
     const lg = (t, c, dash, o) => ({ t, c, dash: dash ? 'dashed' : 'solid', o: o || 1 });
     const LG = { d: lg('Download', C.down), u: lg('Upload', C.up), ur: lg('Upload · received', C.up), us: lg('Upload · sending', C.up, false, 0.4), l: lg('Latency under load', C.lat, true) };
-    const DOWN = BG.thr(3, 612e6, 12), DLAT = BG.lat(5, 3.1, 18, 12);
+    // Standard, fast LAN: download 0–10 s (warm-up ends ≈ 6.5 s), upload 10–22 s (warm-up ends ≈ 7.5 s, confirmed window ≈ 7.5–11.0 s).
+    const DOWN = BG.thr(3, 612e6, 10), DLAT = BG.lat(5, 3.1, 18, 10);
     const DONE_D = rt('Download', 'arrow-down', C.down, 612e6, { sub: 'peak ' + rn(641e6) + ' · ' + streams + ' streams' + plateau });
     const DONE_U = rt('Upload', 'arrow-up', C.up, 438e6, { sub: 'peak ' + rn(455e6) + ' · ' + streams + ' streams' + plateau });
     const ROW_D = lrow('down', 18, { p90: 24 });
@@ -192,7 +219,7 @@ class TestScreen extends React.Component {
     const P = this.props.progress == null || this.props.progress === '' ? null : Math.max(0, Math.min(1, +this.props.progress));
     const pv = d => P == null ? d : P;
     const cdN = Math.max(1, Math.ceil(3 * (1 - pv(0.2)) - 1e-9));
-    const EMPTY = { xMax: 12, yMax: 1e9, series: [], empty: 'Throughput over time appears here while the test runs.', title: 'Throughput', legend: [LG.d, LG.u, LG.l], meta: '' };
+    const EMPTY = { xMax: 22, yMax: 1e9, series: [], empty: 'Throughput over time appears here while the test runs.', title: 'Throughput', legend: [LG.d, LG.u, LG.l], meta: '' };
     const preLoad = () => load(null, [lrow('down'), lrow('up')], respB(null, null), 'Graded after upload');
     let S;
     switch (st) {
@@ -217,44 +244,44 @@ class TestScreen extends React.Component {
         R: { numeric: true, eyebrow: 'Latency', icon: 'activity', ec: C.lat, num: BG.ms(lv[lv.length - 1]), unit: 'ms', sub: 'median 3.1 · ping ' + n + ' of 20' },
         chart: { xMax: 2, ms: true, series: [ser(lp, C.lat)], now: t, title: 'Latency samples', legend: [lg('Round-trip time', C.lat)], meta: t.toFixed(1) + ' s / ~2 s' },
         prim: [eDown(), eUp(), latT(LIVE), jitT(LIVE)],
-        load: preLoad(), fit: fit(null), meta: meta(Math.max(1, Math.round(17 * p)) + ' kB', 'so far', (t + 0.6).toFixed(1) + ' s', 'elapsed'), notices: [], btn: BTN.stop
+        load: preLoad(), fit: fit(null), meta: meta(BG.bytes(Math.max(1e3, 17e3 * p)), 'so far', (t + 0.6).toFixed(1) + ' s', 'elapsed'), notices: [], btn: BTN.stop
       }; } break;
       case 'ws-fallback':
-      case 'download': { const p = pv(0.617), t = Math.max(0.2, 12 * p), dp = BG.thr(3, 590e6, t), d = tail(dp), sw = steady(dp, 2), lp = BG.lat(5, 3.1, 17, t), all = dp.reduce((a, q) => a + q[1], 0) / dp.length; S = {
-        phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'active', (12 - t).toFixed(1) + ' s left', p * 100), pend('up')],
+      case 'download': { const p = pv(0.75), t = Math.max(0.2, 10 * p), dp = BG.thr(3, 590e6, t), d = tail(dp), sw = steady(dp, 6.5), lp = BG.lat(5, 3.1, 17, t), all = dp.reduce((a, q) => a + q[1], 0) / dp.length; S = {
+        phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'active', (10 - t).toFixed(1) + ' s left', p * 100), pend('up')],
         gauge: { opts: { value: d.cur, bandLo: d.lo, bandHi: d.hi, peak: sw ? sw.peak : null }, src: dp, c: C.down },
         R: { numeric: true, eyebrow: 'Download', icon: 'arrow-down', ec: C.down, num: rn(d.cur), unit: BG.rate(d.cur, unit).u, sub: liveSub(sw), oh: OH[0] },
-        chart: { xMax: 12, series: [ser(dp, C.down)], lat: lp, now: t, title: 'Throughput', legend: [LG.d, LG.l], meta: t.toFixed(1) + ' s / 12 s' },
+        chart: { xMax: 10, series: [ser(dp, C.down)], lat: lp, now: t, title: 'Throughput', legend: [LG.d, LG.l], meta: t.toFixed(1) + ' s / 10 s' },
         prim: [rt('Download', 'arrow-down', C.down, d.cur, Object.assign({ sub: liveSub(sw) }, LIVE)), eUp('up next'), latT(), jitT()],
-        load: load(null, [lrow('down', lastLat(lp, 3.2), { p90: latP90(lp), live: true }), lrow('up')], respB(null, null), 'Graded after upload'), fit: fit(null), meta: meta(BG.bytes(all * t / 8), 'so far', (t + 2.3).toFixed(1) + ' s', 'elapsed'), notices: st === 'ws-fallback' ? [N('info', 'info', 'WebSocket unavailable — HTTP latency fallback', 'The reverse proxy did not accept a WebSocket upgrade, so latency is measured with HTTP/2 requests. Values can read slightly higher.')] : [], btn: BTN.stop
+        load: load(null, [lrow('down', lastLat(lp, 3.2), { p90: latP90(lp), live: true }), lrow('up')], respB(null, null), 'Graded after upload'), fit: fit(null), meta: meta(BG.bytes(all * t / 8), 'so far', (t + 2.6).toFixed(1) + ' s', 'elapsed'), notices: st === 'ws-fallback' ? [N('info', 'info', 'WebSocket unavailable — HTTP latency fallback', 'The reverse proxy did not accept a WebSocket upgrade, so latency is measured with HTTP/2 requests. Values can read slightly higher.')] : [], btn: BTN.stop
       }; } break;
-      case 'upload': { const p = pv(0.567), t = Math.max(0.2, 12 * p), snd = BG.thr(7, 431e6, t), rcv = delay(snd, 0.4, t), u = tail(snd), sw = steady(rcv, 4), lp = BG.lat(9, 3.1, 40, t), rc = rcv[rcv.length - 1][1]; S = {
+      case 'upload': { const p = pv(0.75), t = Math.max(0.2, 12 * p), snd = BG.thr(7, 431e6, t), rcv = delay(snd, 0.4, t), u = tail(snd), sw = steady(rcv, 7.5), lp = BG.lat(9, 3.1, 40, t), rc = rcv[rcv.length - 1][1]; S = {
         phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'done', rs(612e6)), ph('up', 'active', (12 - t).toFixed(1) + ' s left', p * 100)],
-        gauge: { opts: { value: u.cur, bandLo: u.lo, bandHi: u.hi }, prev: DOWN, src: snd, c: C.up },
+        gauge: { opts: { value: u.cur, bandLo: u.lo, bandHi: u.hi, peak: sw ? sw.peak : null }, prev: DOWN, src: snd, c: C.up },
         R: { numeric: true, eyebrow: 'Upload · sending', icon: 'arrow-up', ec: C.up, num: rn(u.cur), unit: BG.rate(u.cur, unit).u, sub: liveSub(sw), oh: OH[0] },
-        chart: { xMax: 24, series: [ser(DOWN, C.down), ser(shift(snd, 12), C.up, true), ser(shift(rcv, 12), C.up)], lat: DLAT.concat(shift(lp, 12)), seps: [{ t: 0, label: 'Download' }, { t: 12, label: 'Upload' }], now: 12 + t, title: 'Throughput', legend: [LG.d, LG.ur, LG.us, LG.l], meta: (12 + t).toFixed(1) + ' s / 24 s' },
+        chart: { xMax: 22, series: [ser(DOWN, C.down), ser(shift(snd, 10), C.up, true), ser(shift(rcv, 10), C.up)], lat: DLAT.concat(shift(lp, 10)), seps: [{ t: 0, label: 'Download' }, { t: 10, label: 'Upload' }], now: 10 + t, title: 'Throughput', legend: [LG.d, LG.ur, LG.us, LG.l], meta: (10 + t).toFixed(1) + ' s / 22 s' },
         prim: [DONE_D, rt('Upload', 'arrow-up', C.up, rc || u.cur, Object.assign({ sub: liveSub(sw) }, LIVE)), latT(), jitT()],
-        load: load(null, [ROW_D, lrow('up', lastLat(lp, 3.2), { p90: latP90(lp), live: true })], respB(1420, null), 'Graded after upload'), fit: fit(null), meta: meta(BG.bytes(0.918e9 + 431e6 * t / 8), 'so far', (t + 14.3).toFixed(1) + ' s', 'elapsed'), notices: [], btn: BTN.stop
+        load: load(null, [ROW_D, lrow('up', lastLat(lp, 3.2), { p90: latP90(lp), live: true })], respB(1420, null), 'Graded after upload'), fit: fit(null), meta: meta(BG.bytes(0.765e9 + 431e6 * t / 8), 'so far', (t + 12.6).toFixed(1) + ' s', 'elapsed'), notices: [], btn: BTN.stop
       }; } break;
       case 'complete': S = {
         phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'done', rs(612e6)), ph('up', 'done', rs(438e6))],
         gauge: { opts: { value: 612e6, inner: 438e6 }, prev: DOWN, c: C.down },
         R: { numeric: true, eyebrow: 'Download', icon: 'arrow-down', ec: C.down, num: rn(612e6), unit: BG.rate(612e6, unit).u, sub: '', up: rs(438e6) + ' upload', oh: OH[0] },
-        chart: { xMax: 24, series: [ser(DOWN, C.down), ser(shift(BG.thr(7, 438e6, 12), 12), C.up)], lat: DLAT.concat(shift(BG.lat(9, 3.1, 42, 12), 12)), seps: [{ t: 0, label: 'Download' }, { t: 12, label: 'Upload' }], title: 'Throughput', legend: [LG.d, LG.u, LG.l], meta: '24.6 s total' },
+        chart: { xMax: 22, series: [ser(DOWN, C.down), ser(shift(BG.thr(7, 438e6, 12), 10), C.up)], lat: DLAT.concat(shift(BG.lat(9, 3.1, 42, 12), 10)), seps: [{ t: 0, label: 'Download' }, { t: 10, label: 'Upload' }], title: 'Throughput', legend: [LG.d, LG.u, LG.l], meta: '24.6 s total' },
         prim: [DONE_D, DONE_U, latT(), jitT()],
-        load: load('B', [ROW_D, lrow('up', 42, { p90: 55 })], respB(1420, 980)), fit: fit(['Great', 'Good', 'Great']), meta: meta('1.58 GB', '', '24.6 s', ''),
+        load: load('B', [ROW_D, lrow('up', 42, { p90: 55 })], respB(1420, 980)), fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 42 - IDLE.v)), meta: meta(BG.bytes(1.42e9), '', '24.6 s', ''),
         notices: on(this.props.cpu) ? [N('warn', 'cpu', "Limited by this device's CPU", 'The browser ran at full CPU during download, so the link may be faster than measured. Close other tabs or test from a faster device.')] : [],
         btn: BTN.again, saved: { time: '14:02:11', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] },
-        share: { blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 438e6, C.up]], foot: ['3.1 ms idle', '0.8 ms jitter', 'Bufferbloat B'], lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Latency 3.1 ms (2.4–7.9) · jitter 0.8 ms', 'Under load ↓ 18 ms (+15) · ↑ 42 ms (+39)', 'Bufferbloat B · 1,420 RPM', 'Basement NAS · HTTP/2 · 6 streams'] }
+        share: { blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 438e6, C.up]], foot: ['3.1 ms idle', '0.8 ms jitter', '+39 ms under load', 'B · Mild bufferbloat'], lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Idle latency 3.1 ms · jitter 0.8 ms', 'Loaded latency +39 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', 'Basement NAS'] }
       }; break;
       case 'error': S = {
-        phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'failed', 'Error at 6.4 s', 53), ph('up', 'skipped', 'Not run')],
+        phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'failed', 'Error at 6.4 s', 64), ph('up', 'skipped', 'Not run')],
         gauge: { opts: {} },
         R: { textual: true, title: 'Connection lost', sub: 'Error during download', faint: 'last sample ' + rs(575e6), icon: 'wifi-off', ec: 'var(--danger)' },
-        chart: { xMax: 12, series: [ser(BG.thr(3, 575e6, 6.2).concat([[6.3, 2.2e8], [6.4, 0]]), C.down)], lat: BG.lat(5, 3.1, 17, 6.2), marks: [{ t: 6.4, label: 'Connection lost' }], markColor: 'var(--danger)', title: 'Throughput', legend: [LG.d, LG.l], meta: 'stopped at 6.4 s', noEnd: true },
+        chart: { xMax: 10, series: [ser(BG.thr(3, 575e6, 6.4), C.down)], lat: BG.lat(5, 3.1, 17, 6.4), marks: [{ t: 6.4, label: 'Connection lost' }], markColor: 'var(--danger)', title: 'Throughput', legend: [LG.d, LG.l], meta: 'stopped at 6.4 s', noEnd: true },
         prim: [T({ label: 'Download', icon: 'arrow-down', ic: C.down, nc: 'var(--fg-subtle)', tag: 'Error', tagCls: 'pill danger', sub: EK[1] }), eUp('not run'), latT(), jitT()],
         load: load(null, [lrow('down', null, { sub: 'not measured · download failed' }), lrow('up', null, { sub: 'Not run' })], respB(null, null), 'Not graded — test incomplete'),
-        fit: fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']), meta: meta('460 MB', 'not saved', '8.7 s', ''),
+        fit: fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']), meta: meta(BG.bytes(460e6), 'not saved', '9.0 s', ''),
         notices: [N('danger', 'wifi-off', 'Connection to Basement NAS lost — ' + EK[0], 'Download stopped at 6.4 s. Latency finished before the error.')],
         btn: BTN.retry, partial: { kind: 'error', keep: true }
       }; break;
@@ -263,32 +290,60 @@ class TestScreen extends React.Component {
         phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'done', rs(612e6)), ph('up', 'cancelled', 'Cancelled at 3.1 s', 26)],
         gauge: { opts: { value: 612e6 }, prev: DOWN, c: C.down, noDot: true },
         R: { textual: true, title: 'Cancelled', sub: 'Partial results · not saved', icon: 'circle-minus', ec: 'var(--fg-subtle)' },
-        chart: { xMax: 24, series: [ser(DOWN, C.down), ser(shift(snd, 12), C.up, true), ser(shift(rcv, 12), C.up)], lat: DLAT.concat(shift(BG.lat(9, 3.1, 37, 3.1), 12)), seps: [{ t: 0, label: 'Download' }, { t: 12, label: 'Upload' }], marks: [{ t: 15.1, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Throughput', legend: [LG.d, LG.ur, LG.us, LG.l], meta: 'stopped at 15.1 s', noEnd: true },
+        chart: { xMax: 22, series: [ser(DOWN, C.down), ser(shift(snd, 10), C.up, true), ser(shift(rcv, 10), C.up)], lat: DLAT.concat(shift(BG.lat(9, 3.1, 37, 3.1), 10)), seps: [{ t: 0, label: 'Download' }, { t: 10, label: 'Upload' }], marks: [{ t: 13.1, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Throughput', legend: [LG.d, LG.ur, LG.us, LG.l], meta: 'stopped at 13.1 s', noEnd: true },
         prim: [DONE_D, T({ label: 'Upload', icon: 'arrow-up', ic: C.up, nc: 'var(--fg-subtle)', tag: 'Cancelled', tagCls: 'pill neutral', sub: 'Insufficient data — confirmed steady window shorter than 3 s', notes: ['156 MB used'] }), latT(), jitT()],
-        load: load(null, [ROW_D, lrow('up', null, { sub: 'no steady window' })], respB(1420, 'few'), 'Not graded — upload incomplete'),
-        fit: fit(['Great', null, null], [null, 'needs loaded latency', 'needs upload']), meta: meta('1.08 GB', '', '17.3 s', ''),
-        notices: [N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed. Upload stopped before a 3 s confirmed steady window, so it has no value.')],
+        load: load('A', [ROW_D, lrow('up', null, { sub: 'no steady window' })], respB(1420, 'few'), BG.GRADES.A.text + ' · download only'),
+        fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 18 - IDLE.v)), meta: meta(BG.bytes(0.921e9), '', '15.7 s', ''),
+        notices: [N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed. Upload stopped before a 3 s confirmed steady window, so it has no value. The grade uses download only.')],
         btn: BTN.again, partial: { kind: 'partial', keep: true }
       }; } break;
-      case 'cancelled-late': { const snd = BG.thr(7, 402e6, 9.0), rcv = delay(snd, 0.4, 7.6); S = {
-        phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'done', rs(612e6)), ph('up', 'cancelled', 'Cancelled at 9.0 s', 75)],
+      // Stopped 11.5 s into upload: in-flight requests aborted; final confirmed watermark 11.1 s; window 7.5–11.1 s holds 21 confirmed requests.
+      case 'cancelled-late': { const snd = BG.thr(7, 402e6, 11.5), rcv = delay(snd, 0.4, 11.1); S = {
+        phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'done', rs(612e6)), ph('up', 'cancelled', 'Cancelled at 11.5 s', 96)],
         gauge: { opts: { value: 612e6, inner: 402e6 }, prev: DOWN, c: C.down, noDot: true },
         R: { textual: true, title: 'Cancelled', sub: 'Partial results · not saved', icon: 'circle-minus', ec: 'var(--fg-subtle)' },
-        chart: { xMax: 24, series: [ser(DOWN, C.down), ser(shift(snd, 12), C.up, true), ser(shift(rcv, 12), C.up)], lat: DLAT.concat(shift(BG.lat(9, 3.1, 37, 9.0), 12)), seps: [{ t: 0, label: 'Download' }, { t: 12, label: 'Upload' }], wins: [{ t0: 16, t1: 19.6, label: 'Steady 3.6 s' }], marks: [{ t: 21, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Throughput', legend: [LG.d, LG.ur, LG.us, LG.l], meta: 'stopped at 21.0 s', noEnd: true },
-        prim: [DONE_D, rt('Upload', 'arrow-up', C.up, 402e6, { tag: 'Partial — stopped early', tagCls: 'pill warn', sub: 'based on a 3.6 s steady window · 14 requests' }), latT(), jitT()],
-        load: load(null, [ROW_D, lrow('up', 37, { p90: 46, partial: true })], respB(1420, 610), 'Not graded — upload incomplete'),
-        fit: fit(['Great', null, null], [null, 'needs full upload', 'needs full upload']), meta: meta('1.37 GB', '', '23.2 s', ''),
-        notices: [N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed. Upload has a 3.6 s confirmed steady window with 14 requests, enough for a partial value.')],
+        chart: { xMax: 22, series: [ser(DOWN, C.down), ser(shift(snd, 10), C.up, true), ser(shift(rcv, 10), C.up)], lat: DLAT.concat(shift(BG.lat(9, 3.1, 37, 11.5), 10)), seps: [{ t: 0, label: 'Download' }, { t: 10, label: 'Upload' }], wins: [{ t0: 17.5, t1: 21.1, label: 'Steady 3.6 s' }], marks: [{ t: 21.5, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Throughput', legend: [LG.d, LG.ur, LG.us, LG.l], meta: 'stopped at 21.5 s', noEnd: true },
+        prim: [DONE_D, rt('Upload', 'arrow-up', C.up, 402e6, { tag: 'Partial — stopped early', tagCls: 'pill warn', sub: 'based on a 3.6 s steady window · 21 requests' }), latT(), jitT()],
+        load: load(gradeOf(37 - IDLE.v), [ROW_D, lrow('up', 37, { p90: 46, partial: true })], respB(1420, 610)),
+        fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 37 - IDLE.v)), meta: meta(BG.bytes(1.34e9), '', '24.1 s', ''),
+        notices: [N('neutral', 'circle-minus', 'Partial — stopped early · upload based on a 3.6 s steady window', 'Latency and download completed. Upload stopped at 11.5 s; in-flight requests were aborted, and the 21 requests confirmed by 11.1 s give the partial value.')],
         btn: BTN.again, partial: { kind: 'partial', keep: true }
       }; } break;
-      case 'slow': { const p = pv(0.467), t = Math.max(0.5, 20 * p), dp = BG.thr(11, 640e3, t, 0.1, 0.22, 2.5), d = tail(dp), sw = steady(dp, 6), lp = BG.lat(13, 48, 162, t, 0.25, 0.25, 2), all = dp.reduce((a, q) => a + q[1], 0) / dp.length, mb = (all * t / 8 / 1e6).toFixed(1); S = {
+      case 'cancelled-latency': { const p = pv(0.6), t = Math.max(0.5, 2 * p), n = Math.max(5, Math.round(20 * p)), lp = BG.lat(5, 3.1, 3.1, t, 0.1, 0.35), PT = { tag: 'Partial — stopped early', tagCls: 'pill warn' }; S = {
+        phases: [ph('lat', 'cancelled', 'Cancelled · ' + n + ' / 20 pings', p * 100), ph('down', 'skipped', 'Not run'), ph('up', 'skipped', 'Not run')],
+        gauge: { opts: { mode: 'ms', value: IDLE.v }, scale: 'log scale · 1 – 1000 ms', c: C.lat, noDot: true },
+        R: { textual: true, title: 'Cancelled', sub: 'Partial results · not saved', icon: 'circle-minus', ec: 'var(--fg-subtle)' },
+        chart: { xMax: 2, ms: true, series: [ser(lp, C.lat)], marks: [{ t, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Latency samples', legend: [lg('Round-trip time', C.lat)], meta: 'stopped at ' + t.toFixed(1) + ' s', noEnd: true },
+        prim: [eDown('not run'), eUp('not run'), latT(Object.assign({ sub: 'median of ' + n + ' of 20 pings · ' + src }, PT)), jitT(PT)],
+        load: load(null, [lrow('down', null, { sub: 'Not run' }), lrow('up', null, { sub: 'Not run' })], respB(null, null), 'Not graded — no loaded latency'),
+        fit: fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']), meta: meta(BG.bytes(17e3 * p), '', (t + 0.6).toFixed(1) + ' s', ''),
+        notices: [N('neutral', 'circle-minus', 'Test cancelled during latency', 'Stopped after ' + n + ' of 20 pings. Idle latency and jitter come from those pings; download and upload did not run.')],
+        btn: BTN.again, partial: { kind: 'partial', keep: true }
+      }; } break;
+      // Stopped during download: a value only when the steady window (warm-up end → stop) holds ≥ 3 s; then the grade uses download only.
+      case 'cancelled-slow':
+      case 'cancelled-download': { const D = slow ? { dur: 20, warm: 6, v: 640e3, ll: 162, pre: 4.2 } : { dur: 10, warm: 6.5, v: 612e6, ll: 18, pre: 2.6 };
+        const p = pv(slow ? 0.6 : 0.52), t = Math.max(0.3, D.dur * p), dp = slow ? BG.thr(11, D.v, t, 0.1, 0.22, 2.5) : BG.thr(3, D.v, t), lp = slow ? BG.lat(13, 48, D.ll, t, 0.25, 0.25, 2) : BG.lat(5, 3.1, D.ll, t);
+        const win = t - D.warm, part = win >= 3, sw = steady(dp, D.warm), all = dp.reduce((a, q) => a + q[1], 0) / dp.length, used = BG.bytes(all * t / 8), inc = D.ll - IDLE.v, g = part ? gradeOf(inc) : null; S = {
+        phases: [ph('lat', 'done', BG.ms(IDLE.v) + ' ms'), ph('down', 'cancelled', 'Cancelled at ' + t.toFixed(1) + ' s', p * 100), ph('up', 'skipped', 'Not run')],
+        gauge: { opts: { value: part ? sw.avg : dp[dp.length - 1][1] }, src: dp, c: C.down, noDot: true },
+        R: { textual: true, title: 'Cancelled', sub: 'Partial results · not saved', icon: 'circle-minus', ec: 'var(--fg-subtle)' },
+        chart: { xMax: D.dur, series: [ser(dp, C.down)], lat: lp, wins: part ? [{ t0: D.warm, t1: t, label: 'Steady ' + win.toFixed(1) + ' s' }] : [], marks: [{ t, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Throughput', legend: [LG.d, LG.l], meta: 'stopped at ' + t.toFixed(1) + ' s', noEnd: true },
+        prim: [part ? rt('Download', 'arrow-down', C.down, sw.avg, { tag: 'Partial — stopped early', tagCls: 'pill warn', sub: 'based on a ' + win.toFixed(1) + ' s steady window' }) : T({ label: 'Download', icon: 'arrow-down', ic: C.down, nc: 'var(--fg-subtle)', tag: 'Cancelled', tagCls: 'pill neutral', sub: t < D.warm ? 'Insufficient data — stopped during warm-up' : 'Insufficient data — steady window shorter than 3 s', notes: [used + ' used'] }), eUp('not run'), latT(), jitT()],
+        load: part ? load(g, [lrow('down', D.ll, { partial: true }), lrow('up', null, { sub: 'Not run' })], respB(null, null), BG.GRADES[g].text + ' · download only') : load(null, [lrow('down', null, { sub: 'no steady window' }), lrow('up', null, { sub: 'Not run' })], respB(null, null), 'Not graded — no gradable direction'),
+        fit: part ? fit(aim(IDLE.v, IDLE.jit, sw.avg, inc)) : fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']),
+        meta: meta(used, '', (t + D.pre).toFixed(1) + ' s', ''),
+        notices: [N('neutral', 'circle-minus', 'Test cancelled during download', part ? 'Latency completed. Download has a ' + win.toFixed(1) + ' s steady window, enough for a partial value. Upload did not run.' : 'Latency completed. Download stopped before a 3 s steady window, so it has no value. Upload did not run.')],
+        btn: BTN.again, partial: { kind: 'partial', keep: true }
+      }; } break;
+      case 'slow': { const p = pv(0.467), t = Math.max(0.5, 20 * p), dp = BG.thr(11, 640e3, t, 0.1, 0.22, 2.5), d = tail(dp), sw = steady(dp, 6), lp = BG.lat(13, 48, 162, t, 0.25, 0.25, 2), all = dp.reduce((a, q) => a + q[1], 0) / dp.length, mb = BG.bytes(all * t / 8); S = {
         phases: [ph('lat', 'done', '48 ms'), ph('down', 'active', 'extended · ' + Math.round(20 - t) + ' s left', p * 100), pend('up', '~25 s')],
         gauge: { opts: { value: d.cur, bandLo: d.lo, bandHi: d.hi, peak: sw ? sw.peak : null }, src: dp, c: C.down },
         R: { numeric: true, eyebrow: 'Download', icon: 'arrow-down', ec: C.down, num: rn(d.cur), unit: BG.rate(d.cur, unit).u, sub: liveSub(sw), oh: OH[0] },
         chart: { xMax: 20, series: [ser(dp, C.down)], lat: lp, now: t, marks: t >= 10 ? [{ t: 10, label: 'Extended' }] : [], markColor: 'var(--info)', title: 'Throughput', legend: [LG.d, LG.l], meta: Math.round(t) + ' s / 20 s' },
         prim: [rt('Download', 'arrow-down', C.down, d.cur, Object.assign({ sub: liveSub(sw) }, LIVE)), eUp('up next'), latT(), jitT()],
-        load: load(null, [lrow('down', lastLat(lp, 49), { p90: latP90(lp), live: true }), lrow('up')], respB(null, null), 'Graded after upload'), fit: fit(null), meta: meta(mb + ' MB', 'so far · cap 2 MB', (t + 4.2).toFixed(1) + ' s', 'elapsed'),
-        notices: [N('info', 'hourglass', 'Slow connection detected — test extended', 'Download now runs for up to 20 s to collect enough samples. ' + mb + ' MB of your 2 MB cap used so far.')],
+        load: load(null, [lrow('down', lastLat(lp, 49), { p90: latP90(lp), live: true }), lrow('up')], respB(null, null), 'Graded after upload'), fit: fit(null), meta: meta(mb, 'so far · cap 2 MB', (t + 4.2).toFixed(1) + ' s', 'elapsed'),
+        notices: [N('info', 'hourglass', 'Slow connection detected — test extended', 'Download now runs for up to 20 s to collect enough samples. ' + mb + ' of your 2 MB cap used so far.')],
         btn: BTN.stop
       }; } break;
       case 'slowdone': S = {
@@ -297,10 +352,10 @@ class TestScreen extends React.Component {
         R: { numeric: true, eyebrow: 'Download', icon: 'arrow-down', ec: C.down, num: rn(640e3), unit: BG.rate(640e3, unit).u, sub: '', up: rs(210e3) + ' upload', oh: OH[0] },
         chart: { xMax: 36, series: [ser(BG.thr(11, 640e3, 20, 0.1, 0.22, 2.5), C.down), ser(shift(BG.thr(17, 210e3, 16, 0.25, 0.3, 2.5), 20), C.up)], lat: BG.lat(13, 48, 162, 20, 0.25, 0.25, 2).concat(shift(BG.lat(15, 48, 310, 16, 0.25, 0.25, 2), 20)), seps: [{ t: 0, label: 'Download' }, { t: 20, label: 'Upload' }], marks: [{ t: 36, label: 'Data cap' }], markColor: 'var(--warn)', title: 'Throughput', legend: [LG.d, LG.u, LG.l], meta: '39.6 s total', noEnd: true },
         prim: [rt('Download', 'arrow-down', C.down, 640e3, { sub: 'peak ' + rn(702e3) + ' · 2 streams · plateau: no-gain' }), rt('Upload', 'arrow-up', C.up, 210e3, { sub: 'insufficient samples · stopped at cap', tag: 'Low confidence', tagCls: 'pill warn' }), latT(), jitT()],
-        load: load('D', [lrow('down', 162, { p90: 205 }), lrow('up', 310, { p90: 380 })], respB(240, 'few')), fit: fit(['Poor', 'Average', 'Bad']), meta: meta('2.0 MB', 'cap reached', '39.6 s', 'extended'),
-        notices: [N('warn', 'database', 'Data cap reached', 'Upload stopped at the 2 MB per-test cap after 16 s.', [{ label: 'Change cap', icon: 'sliders', cls: 'btn sm ghost' }]), N('warn', 'triangle-alert', 'Low confidence — upload: insufficient samples', 'Upload confirmed 18 requests before the cap; 30 are needed for a stable estimate. Treat the upload value as approximate.')],
+        load: load('D', [lrow('down', 162, { p90: 205 }), lrow('up', 310, { p90: 380 })], respB(240, 'few')), fit: fit(aim(IDLE.v, IDLE.jit, 640e3, 310 - IDLE.v)), meta: meta(BG.bytes(2e6), 'cap reached', '39.6 s', 'extended'),
+        notices: [N('warn', 'database', 'Data cap reached', 'Upload stopped at the 2 MB per-test cap after 16 s.', [{ label: 'Change cap', icon: 'sliders', cls: 'btn sm ghost' }]), N('warn', 'triangle-alert', 'Low confidence — upload: insufficient samples', 'Upload confirmed 18 requests before the cap. Treat the upload value as approximate.')],
         btn: BTN.again, saved: { time: '08:41:57', label: 'VPN via 5G', chips: ['VPN', 'Mobile'] },
-        share: { blocks: [['↓ DOWNLOAD', 640e3, C.down], ['↑ UPLOAD', 210e3, C.up]], foot: ['48 ms idle', '9.4 ms jitter', 'Bufferbloat D'], lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3) + ' (low confidence)', 'Latency 48 ms (41–66) · jitter 9.4 ms', 'Under load ↓ 162 ms (+114) · ↑ 310 ms (+262)', 'Bufferbloat D · 240 RPM', 'Basement NAS · HTTP/2 · 2 streams'] }
+        share: { blocks: [['↓ DOWNLOAD', 640e3, C.down], ['↑ UPLOAD', 210e3, C.up]], foot: ['48 ms idle', '9.4 ms jitter', '+262 ms under load', 'D · High bufferbloat'], lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3) + ' (low confidence)', 'Idle latency 48 ms · jitter 9.4 ms', 'Loaded latency +262 ms (worse direction)', 'Bufferbloat D · High bufferbloat', 'Basement NAS'] }
       }; break;
       case 'offline': S = {
         phases: [pend('lat'), pend('down'), pend('up')],
@@ -309,15 +364,16 @@ class TestScreen extends React.Component {
         prim: [eDown(), eUp(), eLat(), eJit()], load: preLoad(), fit: fit(null), meta: meta('—', '', '—', ''), notices: [],
         btn: Object.assign({}, BTN.start, { dis: true, tip: 'Server unreachable — use Retry first' })
       }; break;
-      case 'insufficient': { const p = pv(0.45), t = Math.max(0.3, 12 * p), DP = BG.thr(23, 2.6e6, 20, 0.1, 0.55, 2.5), snd = BG.thr(29, 1.1e6, t, 0.1, 0.25, 2.5), rcv = delay(snd, 0.4, t), u = tail(snd), sw = steady(rcv, 4), lp = BG.lat(15, 48, 210, t, 0.25, 0.25, 2), rc = rcv[rcv.length - 1][1]; S = {
+      // 20 kbit/s on Standard: the first 64 KiB request (≈ 26 s at this rate) is still in flight at the 20 s max, so only one request contributed bytes (≈ 50 kB).
+      case 'insufficient': { const p = pv(0.45), t = Math.max(0.3, 12 * p), DP = BG.thr(23, 20e3, 20, 0.1, 0.3, 1.5), snd = BG.thr(29, 19e3, t, 0.1, 0.25, 1.5), u = tail(snd), lp = BG.lat(15, 48, 210, t, 0.25, 0.25, 2); S = {
         phases: [ph('lat', 'done', '48 ms'), ph('down', 'capped', 'insufficient data', 100), ph('up', 'active', (12 - t).toFixed(1) + ' s left', p * 100)],
         gauge: { opts: { value: u.cur, bandLo: u.lo, bandHi: u.hi }, prev: DP, src: snd, c: C.up },
-        R: { numeric: true, eyebrow: 'Upload · sending', icon: 'arrow-up', ec: C.up, num: rn(u.cur), unit: BG.rate(u.cur, unit).u, sub: liveSub(sw), oh: OH[0] },
-        chart: { xMax: 32, series: [ser(DP, C.down), ser(shift(snd, 20), C.up, true), ser(shift(rcv, 20), C.up)], lat: BG.lat(13, 48, 140, 20, 0.25, 0.25, 2).concat(shift(lp, 20)), seps: [{ t: 0, label: 'Download' }, { t: 20, label: 'Upload' }], marks: [{ t: 20, label: '20 s max' }], markColor: 'var(--warn)', now: 20 + t, title: 'Throughput', legend: [LG.d, LG.ur, LG.us, LG.l], meta: (20 + t).toFixed(1) + ' s / 32 s' },
-        prim: [T({ label: 'Download', icon: 'arrow-down', ic: C.down, nc: 'var(--fg-subtle)', tag: 'Insufficient data', tagCls: 'pill warn', sub: 'no 3 s steady window within the 20 s max', notes: ['6.1 MB used'] }), rt('Upload', 'arrow-up', C.up, rc || u.cur, Object.assign({ sub: liveSub(sw) }, LIVE)), latT(), jitT()],
+        R: { numeric: true, eyebrow: 'Upload · sending', icon: 'arrow-up', ec: C.up, num: rn(u.cur), unit: BG.rate(u.cur, unit).u, sub: 'warming up', oh: OH[0] },
+        chart: { xMax: 32, series: [ser(DP, C.down), ser(shift(snd, 20), C.up, true)], lat: BG.lat(13, 48, 140, 20, 0.25, 0.25, 2).concat(shift(lp, 20)), seps: [{ t: 0, label: 'Download' }, { t: 20, label: 'Upload' }], marks: [{ t: 20, label: '20 s max' }], markColor: 'var(--warn)', now: 20 + t, title: 'Throughput', legend: [LG.d, LG.us, LG.l], meta: (20 + t).toFixed(1) + ' s / 32 s' },
+        prim: [T({ label: 'Download', icon: 'arrow-down', ic: C.down, nc: 'var(--fg-subtle)', tag: 'Insufficient data', tagCls: 'pill warn', sub: 'only 1 request contributed within the 20 s max', notes: [BG.bytes(50e3) + ' used'] }), T(Object.assign({ label: 'Upload', icon: 'arrow-up', ic: C.up, nc: 'var(--fg-subtle)', sub: 'no confirmed request yet' }, LIVE)), latT(), jitT()],
         load: load(null, [lrow('down', 140, { p90: 176 }), lrow('up', lastLat(lp, 49), { p90: latP90(lp), live: true })], respB(null, null), 'Graded after upload'), fit: fit(null),
-        meta: meta(BG.bytes(6.1e6 + 1.1e6 * t / 8), 'so far · download 6.1 MB', (t + 22.4).toFixed(1) + ' s', 'elapsed'),
-        notices: [N('warn', 'database', 'Download: insufficient data', 'Download ran for its 20 s maximum without a 3 s steady window, so it has no value. 6.1 MB used. Upload continues; Extended allows up to 60 s per direction.', [{ label: 'Try Extended', icon: 'timer', cls: 'btn sm secondary' }])],
+        meta: meta(BG.bytes(50e3 + 19e3 * t / 8), 'so far · download ' + BG.bytes(50e3), (t + 22.6).toFixed(1) + ' s', 'elapsed'),
+        notices: [N('warn', 'database', 'Download: insufficient data', 'Download reached its 20 s maximum with the first 64 KiB request still in flight, so only one request contributed bytes and there is no value. ' + BG.bytes(50e3) + ' used. Upload continues; Extended allows up to 40 s per direction.', [{ label: 'Try Extended', icon: 'timer', cls: 'btn sm secondary' }])],
         btn: BTN.stop
       }; } break;
       case 'error-early': { const lp = BG.lat(5, 3.1, 3.1, 1.2, 0.1, 0.35); S = {
@@ -327,7 +383,7 @@ class TestScreen extends React.Component {
         chart: { xMax: 2, ms: true, series: [ser(lp, C.lat)], marks: [{ t: 1.2, label: 'Connection lost' }], markColor: 'var(--danger)', title: 'Latency samples', legend: [lg('Round-trip time', C.lat)], meta: 'stopped at 1.2 s', noEnd: true },
         prim: [eDown('not run'), eUp('not run'), T({ label: 'Idle latency', icon: 'activity', ic: C.lat, nc: 'var(--fg-subtle)', tag: 'Error', tagCls: 'pill danger', sub: '12 of 20 pings before the error' }), eJit()],
         load: load(null, [lrow('down', null, { sub: 'Not run' }), lrow('up', null, { sub: 'Not run' })], respB(null, null), 'Not graded — test incomplete'),
-        fit: fit(null, 'needs a full test'), meta: meta('9 kB', '', '1.8 s', ''),
+        fit: fit(null, 'needs a full test'), meta: meta(BG.bytes(9e3), '', '1.8 s', ''),
         notices: [N('danger', 'wifi-off', 'Connection to Basement NAS lost — server stopped responding', 'The test stopped at 1.2 s, during latency. No phase finished.')],
         btn: BTN.retry, partial: { kind: 'error', keep: false }
       }; } break;
@@ -335,10 +391,10 @@ class TestScreen extends React.Component {
         phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'cancelled', 'stopped in warm-up · 0:06', 1, 'Download · continuous')],
         gauge: { opts: { value: d.cur }, src: pts, c: C.down, noDot: true },
         R: { textual: true, title: 'Stopped', sub: 'During warm-up · not saved', icon: 'circle-minus', ec: 'var(--fg-subtle)' },
-        chart: { xMax: 14, series: [ser(pts, C.down)], lat: BG.lat(21, 3.1, 21, 6.2, 0.1, 0.3, 10), seps: [{ t: 0, label: 'Warm-up' }, { t: 10, label: 'Steady' }], marks: [{ t: 6.2, label: 'Stopped' }], markColor: 'var(--fg-muted)', title: 'Throughput · session', legend: [LG.d, LG.l], meta: 'stopped at 6.2 s', noEnd: true },
+        chart: { xMax: 14, series: [ser(pts, C.down)], lat: BG.lat(21, 3.1, 21, 6.2, 0.1, 0.3, 10), seps: [{ t: 0, label: 'Warm-up' }], marks: [{ t: 6.2, label: 'Stopped' }], markColor: 'var(--fg-muted)', title: 'Throughput · session', legend: [LG.d, LG.l], meta: 'stopped at 6.2 s', noEnd: true },
         prim: [
           em('Current', 'arrow-down', C.down, 'stopped'),
-          em('Average', 'arrow-down', C.down, 'starts after the 10 s warm-up'),
+          em('Average', 'arrow-down', C.down, 'starts after warm-up'),
           em('Peak · p90, last hour', 'trending-up', C.down, 'starts after warm-up'),
           em('Loaded latency', 'activity', C.lat, 'starts after warm-up'),
           T({ label: 'Data used', icon: 'database', num: '540', unit: 'MB', sub: 'warm-up included', span: m ? 'span 2' : 'auto' })
@@ -346,12 +402,12 @@ class TestScreen extends React.Component {
         resCols: m ? null : 'repeat(5, minmax(0,1fr))',
         load: null, fit: null, metaTitle: 'Session', metaSpan: m ? 'span 2' : 'span 5', metaCols: m ? 'minmax(0,1fr)' : 'repeat(4, minmax(0,1fr))',
         meta: [
-          { icon: 'timer', label: 'Elapsed', sub: 'stopped during the 10 s warm-up', value: '0:06', vc: 'var(--fg)' },
-          { icon: 'arrow-up-down', label: 'Min / max', sub: 'download, 0.5 s windows', value: '—', vc: 'var(--fg-subtle)' },
+          { icon: 'timer', label: 'Elapsed', sub: 'stopped during warm-up', value: '0:06', vc: 'var(--fg)' },
+          { icon: 'arrow-up-down', label: 'Min / max', sub: 'download, 1 s cells', value: '—', vc: 'var(--fg-subtle)' },
           { icon: 'activity', label: 'Idle latency', sub: 'measured at start', value: '3.1 ms', vc: 'var(--fg)' },
           PL
         ],
-        notices: [N('neutral', 'circle-minus', 'Continuous run stopped during warm-up', 'Stopped at 6.2 s, before the 10 s warm-up ended. Warm-up samples are left out of averages, so the run has no steady value.')],
+        notices: [N('neutral', 'circle-minus', 'Continuous run stopped during warm-up', 'Stopped at 6.2 s, before warm-up ended (at the latest 10 s). Warm-up samples are left out of averages, so the run has no steady value.')],
         btn: BTN.again, partial: { kind: 'partial', keep: true }
       }; } break;
       case 'cont-done': { const pts = BG.thr(19, 921e6, 2538, 10, 0.025, 30); S = {
@@ -360,9 +416,9 @@ class TestScreen extends React.Component {
         R: { numeric: true, eyebrow: 'Average', icon: 'arrow-down', ec: C.down, num: rn(921e6), unit: BG.rate(921e6, unit).u, sub: 'peak ' + rn(936e6) + ' · p90, last hour', oh: OH[0] },
         chart: { xMax: 2700, xStep: 600, xLabel: t => (t / 60) + 'm', series: [ser(pts, C.down)], lat: BG.lat(21, 3.1, 21, 2538, 10, 0.3, 30), marks: [{ t: 2538, label: 'Stopped' }], markColor: 'var(--fg-muted)', title: 'Throughput · session', legend: [LG.d, LG.l], meta: '42:18 · stopped by you', noEnd: true },
         prim: [
-          rt('Average', 'arrow-down', C.down, 921e6, { sub: 'after warm-up' }),
-          rt('Peak · p90, last hour', 'trending-up', C.down, 936e6, { sub: '0.5 s windows' }),
-          rt('Minimum', 'arrow-down', C.down, 702e6, { sub: '0.5 s windows' }),
+          rt('Average', 'arrow-down', C.down, 921e6, { sub: 'since warm-up ended' }),
+          rt('Peak · p90, last hour', 'trending-up', C.down, 936e6, { sub: '1 s cells' }),
+          rt('Minimum', 'arrow-down', C.down, 702e6, { sub: '1 s cells' }),
           msT('Loaded latency', 'activity', 21, 'session median'),
           T({ label: 'Data used', icon: 'database', num: '292', unit: 'GB', sub: '≈ 6.9 GB/min', span: m ? 'span 2' : 'auto' })
         ],
@@ -370,12 +426,12 @@ class TestScreen extends React.Component {
         load: null, fit: null, metaTitle: 'Session', metaSpan: m ? 'span 2' : 'span 5', metaCols: m ? 'minmax(0,1fr)' : 'repeat(4, minmax(0,1fr))',
         meta: [
           { icon: 'timer', label: 'Duration', sub: 'stopped by you · planned 2:00:00', value: '42:18', vc: 'var(--fg)' },
-          { icon: 'arrow-up-down', label: 'Min / max', sub: 'download, 0.5 s windows', value: rn(702e6) + ' / ' + rs(941e6), vc: 'var(--fg)' },
+          { icon: 'arrow-up-down', label: 'Min / max', sub: 'download, 1 s cells', value: rn(702e6) + ' / ' + rs(941e6), vc: 'var(--fg)' },
           { icon: 'activity', label: 'Idle latency', sub: 'measured at start', value: '3.1 ms', vc: 'var(--fg)' },
           PL
         ],
         notices: [], btn: BTN.again, saved: { time: '15:26:40', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] },
-        share: { blocks: [['↓ AVERAGE', 921e6, C.down], ['PEAK · P90', 936e6, C.down]], foot: ['3.1 ms idle', '21 ms loaded', 'continuous · 42:18'], lines: ['↓ avg ' + rs(921e6) + ' · peak ' + rs(936e6), 'Continuous · 42:18 · 292 GB', 'Latency 3.1 ms idle · 21 ms loaded', 'Basement NAS · HTTP/2 · 6 streams'] }
+        share: { blocks: [['↓ AVERAGE', 921e6, C.down], ['PEAK · P90', 936e6, C.down]], foot: ['3.1 ms idle', '0.8 ms jitter', '+18 ms under load', 'continuous · 42:18'], lines: ['↓ avg ' + rs(921e6) + ' · peak ' + rs(936e6) + ' (p90)', 'Continuous · 42:18', 'Idle latency 3.1 ms · jitter 0.8 ms', 'Loaded latency +18 ms', 'Basement NAS'] }
       }; } break;
       case 'continuous': {
         const pts = BG.thr(19, 921e6, 2538, 10, 0.025, 30), d = tail(pts);
@@ -386,8 +442,8 @@ class TestScreen extends React.Component {
           chart: { xMax: 2700, xStep: 600, xLabel: t => (t / 60) + 'm', series: [ser(pts, C.down)], lat: BG.lat(21, 3.1, 21, 2538, 10, 0.3, 30), now: 2538, title: 'Throughput · session', legend: [LG.d, LG.l], meta: '42:18 elapsed' },
           prim: [
             rt('Current', 'arrow-down', C.down, 934e6, Object.assign({ sub: 'last 0.5 s' }, LIVE)),
-            rt('Average', 'arrow-down', C.down, 921e6, { sub: 'since start' }),
-            rt('Peak · p90, last hour', 'trending-up', C.down, 936e6, { sub: '0.5 s windows' }),
+            rt('Average', 'arrow-down', C.down, 921e6, { sub: 'since warm-up ended' }),
+            rt('Peak · p90, last hour', 'trending-up', C.down, 936e6, { sub: '1 s cells' }),
             msT('Loaded latency', 'activity', 21, 'last-minute median'),
             T({ label: 'Data used', icon: 'database', num: '289', unit: 'GB', sub: '≈ 6.8 GB/min', span: m ? 'span 2' : 'auto' })
           ],
@@ -395,11 +451,11 @@ class TestScreen extends React.Component {
           load: null, fit: null, metaTitle: 'Session', metaSpan: m ? 'span 2' : 'span 5', metaCols: m ? 'minmax(0,1fr)' : 'repeat(4, minmax(0,1fr))',
           meta: [
             { icon: 'timer', label: 'Elapsed', sub: 'of 2:00:00 · ends 16:44', value: '42:18', vc: 'var(--fg)' },
-            { icon: 'arrow-up-down', label: 'Min / max', sub: 'download, 0.5 s windows', value: rn(702e6) + ' / ' + rs(941e6), vc: 'var(--fg)' },
+            { icon: 'arrow-up-down', label: 'Min / max', sub: 'download, 1 s cells', value: rn(702e6) + ' / ' + rs(941e6), vc: 'var(--fg)' },
             { icon: 'activity', label: 'Idle latency', sub: 'measured at start', value: '3.1 ms', vc: 'var(--fg)' },
             PL
           ],
-          notices: [], btn: BTN.stop
+          notices: [N('info', 'database', 'Data used: 100 GB', 'This run has passed 100 GB. The next notice appears at 1 TB.')], btn: BTN.stop
         };
       } break;
     }
@@ -430,16 +486,18 @@ class TestScreen extends React.Component {
       } else bar = { icon: 'circle-minus', ic: 'var(--fg-subtle)', title: 'Partial results are not saved', time: '', sub: v01 ? 'Download the JSON to keep them.' : canKeep ? null : 'No phase finished, so there is nothing to keep in history.', labelled: false, actions: canKeep ? [A('Keep in history', 'history', 'btn secondary sm', () => this.setState({ kept: true })), JSONA] : [JSONA] };
     }
     const SH = S.share, inc = !!label && !!this.state.inc, dateT = '2026-10-12 ' + (S.saved ? S.saved.time.slice(0, 5) : '');
-    const share = SH ? { blocks: SH.blocks.map(([k, v, c]) => ({ k, c, n: rn(v), u: BG.rate(v, unit).u })), foot: SH.foot, head: (inc ? label + ' · ' : '') + '12 Oct 2026', text: ['BitGauge · ' + (inc ? label + ' · ' : '') + dateT].concat(SH.lines).join('\n') } : null;
+    const share = SH ? { blocks: SH.blocks.map(([k, v, c]) => ({ k, c, n: rn(v), u: BG.rate(v, unit).u })), foot: SH.foot, head: inc ? label : '', where: 'Basement NAS · 12 Oct 2026 ' + (S.saved ? S.saved.time.slice(0, 5) : ''), text: ['BitGauge · ' + (inc ? label + ' · ' : '') + dateT].concat(SH.lines).join('\n') } : null;
     const gopts = Object.assign({ size: L.gSize }, S.gauge.opts);
     let gScale = S.gauge.scale || 'log scale · 1 – 1000 ms';
     if (!gopts.mode) {
       let k = BG.track(S.gauge.prev || [], { unit }).k;
       if (S.gauge.src) k = BG.track(S.gauge.src, { unit, k0: k }).k;
       if (unit === 'bytes') ['value', 'bandLo', 'bandHi', 'peak', 'inner'].forEach(n => { if (gopts[n] != null) gopts[n] /= 8; });
-      gopts.lo = Math.pow(10, k); gopts.hi = Math.pow(10, k + 4);
+      this._kT = k;
+      const kS = this._kA ? this._kA.cur : this._kTo != null && this._kTo !== k && !this._rm() ? this._kTo : k;
+      gopts.lo = Math.pow(10, kS); gopts.hi = Math.pow(10, kS + 4);
       gScale = BG.winLabel(k, unit) + (S.gauge.note ? ' · ' + S.gauge.note : '');
-    }
+    } else { cancelAnimationFrame(this._raf); this._kT = null; this._kTo = null; this._kA = null; }
     const g = BG.gauge(gopts);
     if (S.countdown) g.fill = BG.arc(L.gSize / 2, L.gSize / 2, L.gSize / 2 - 10, 0, Math.max(0.002, 1 - pv(0.2)));
     if (S.gauge.noDot) g.dot = null;
@@ -451,7 +509,7 @@ class TestScreen extends React.Component {
     const lastS = series[series.length - 1];
     const endDot = lastS && !cc.noEnd ? { x: lastS.endX, y: lastS.endY, c: lastS.c } : null;
     const R = Object.assign({ numeric: false, textual: false, ec: 'var(--fg-subtle)', up: null, oh: null, faint: null, action: null }, S.R);
-    const PH = { countdown: 'Test starts automatically in ' + cdN + ' seconds. Press Escape to cancel.', connecting: 'Connecting to Basement NAS.', latency: 'Measuring latency.', download: 'Latency 3.1 milliseconds. Measuring download.', upload: 'Download finished: ' + rs(612e6) + '. Measuring upload.', complete: 'Upload finished: ' + rs(438e6) + '. Test complete and saved to history.', error: 'Connection to Basement NAS lost: ' + EK[0] + '. Partial results were not saved.', cancelled: 'Test cancelled during upload. Upload has insufficient data. Partial results were not saved.', 'cancelled-late': 'Test cancelled during upload. Partial upload ' + rs(402e6) + ' from a 3.6 second steady window. Not saved.', slow: 'Slow connection detected. Download extended to 20 seconds.', slowdone: 'Download finished: ' + rs(640e3) + '. Upload stopped at the data cap: ' + rs(210e3) + ', low confidence. Saved to history.', continuous: 'Continuous download running.', offline: 'Server unreachable. Start is unavailable until Basement NAS responds.', 'ws-fallback': 'WebSocket unavailable, using HTTP latency fallback. Measuring download.', insufficient: 'Download has insufficient data. Measuring upload.', 'param-ignored': 'URL parameter streams=12 ignored, allowed 1 to 6.', 'error-early': 'Connection lost during latency. Nothing was saved.', 'cont-warmup': 'Continuous run stopped during warm-up. Partial results were not saved.', 'cont-done': 'Continuous run stopped. Saved to history.' };
+    const PH = { countdown: 'Test starts automatically in ' + cdN + ' seconds. Press Escape to cancel.', connecting: 'Connecting to Basement NAS.', latency: 'Measuring latency.', download: 'Latency 3.1 milliseconds. Measuring download.', upload: 'Download finished: ' + rs(612e6) + '. Measuring upload.', complete: 'Upload finished: ' + rs(438e6) + '. Test complete and saved to history.', error: 'Connection to Basement NAS lost: ' + EK[0] + '. Partial results were not saved.', cancelled: 'Test cancelled during upload. Upload has insufficient data. Partial results were not saved.', 'cancelled-late': 'Test cancelled during upload. Partial upload ' + rs(402e6) + ' from a 3.6 second steady window. Not saved.', slow: 'Slow connection detected. Download extended to 20 seconds.', slowdone: 'Download finished: ' + rs(640e3) + '. Upload stopped at the data cap: ' + rs(210e3) + ', low confidence. Saved to history.', continuous: 'Continuous download running.', offline: 'Server unreachable. Start is unavailable until Basement NAS responds.', 'ws-fallback': 'WebSocket unavailable, using HTTP latency fallback. Measuring download.', insufficient: 'Download has insufficient data. Measuring upload.', 'param-ignored': 'URL parameter streams=12 ignored, allowed 1 to 6.', 'error-early': 'Connection lost during latency. Nothing was saved.', 'cont-warmup': 'Continuous run stopped during warm-up. Partial results were not saved.', 'cont-done': 'Continuous run stopped. Saved to history.', 'cancelled-latency': 'Test cancelled during latency. Partial results were not saved.', 'cancelled-download': 'Test cancelled during download. Partial results were not saved.', 'cancelled-slow': 'Test cancelled during download. Partial results were not saved.' };
     if (v01) Object.keys(PH).forEach(k => { PH[k] = PH[k].replace(' and saved to history', '').replace(' Saved to history.', ''); });
     this._live = { st, msg: PH[st] || '', rate: ['latency', 'download', 'ws-fallback', 'insufficient', 'upload', 'slow', 'continuous'].includes(st) && R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : null };
     const bytesOnly = unit === 'bytes' && !on(this.props.custom);
@@ -463,7 +521,7 @@ class TestScreen extends React.Component {
       onCtxKey: e => { if (e.key === 'Enter' || e.key === 'Escape') this.setState({ ctxOpen: false }); },
       customChips: bytesOnly && !this.props.chips ? [{ t: 'Units · MB/s', icon: 'sliders' }] : customChips, customCount: (bytesOnly && !this.props.chips ? 1 : customChips.length) + ' changed:',
       phases: S.phases, phaseCols: 'repeat(' + S.phases.length + ', minmax(0,1fr))',
-      g, gc, R, gaugeAria: R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : R.title, btn: S.btn,
+      g, gc, R, btn: S.btn,
       ch: { title: cc.title, legend: cc.legend, meta: cc.meta, empty: cc.empty || null, markColor: cc.markColor || 'var(--fg-muted)', aria: cc.title + ' chart' },
       c, series, endDot, notices: S.notices, noop: () => {},
       bar, shareOpen, share, label, incLabel: inc, incDis: !label, incNote: label ? '“' + label + '”' : 'no label set', incC: label ? 'var(--fg)' : 'var(--fg-subtle)',
@@ -525,7 +583,7 @@ class TestScreen extends React.Component {
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "4px 16px", padding: "9px 0", borderBottom: "1px solid var(--border-subtle)" }}>
                   <dt style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>Check</dt>
                   <dd style={{ margin: "0", fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--danger-fg)" }}>
-                    GET /speed/api/info → 404
+                    GET /api/v1/info → 404
                   </dd>
                 </div>
               </dl>
@@ -679,7 +737,7 @@ class TestScreen extends React.Component {
               <div style={{ display: "grid", gridTemplateColumns: v.L?.instCols }}>
                 <div style={{ padding: v.L?.gPad, display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
                   <div style={{ position: "relative", width: v.g?.sizePx, height: v.g?.sizePx }}>
-                    <svg width={v.g?.size} height={v.g?.size} role="img" aria-label={v.gaugeAria} style={{ display: "block", overflow: "visible" }}>
+                    <svg width={v.g?.size} height={v.g?.size} aria-hidden="true" style={{ display: "block", overflow: "visible" }}>
                       <path d={v.g?.track} style={{ fill: "none", stroke: "var(--surface-3)", strokeWidth: "10", strokeLinecap: "round" }} />
                       {(v.g?.ticks || []).map((t, $index) => (
                         <React.Fragment key={$index}>
@@ -743,7 +801,7 @@ class TestScreen extends React.Component {
                           <span style={{ fontSize: v.L?.gTitle, fontWeight: "600", letterSpacing: "var(--tracking-tight)", color: "var(--fg)" }}>{v.R?.title}</span>
                           <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-subtle)", maxWidth: "180px", lineHeight: "1.4" }}>{v.R?.sub}</span>
                           {v.R?.faint ? (
-                          <span style={{ marginTop: "4px", fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg-faint)" }}>{v.R?.faint}</span>
+                          <span style={{ marginTop: "4px", fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>{v.R?.faint}</span>
                         ) : null}
                           {v.R?.action ? (
                           <button className="btn sm secondary" style={{ marginTop: "10px" }}><bg-icon name={v.R?.action?.icon} size="14" />{v.R?.action?.label}</button>
@@ -1168,13 +1226,13 @@ class TestScreen extends React.Component {
                           </React.Fragment>
                         ))}
                       </div>
-                      <div style={{ display: "flex", gap: "12px", fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--fg-muted)" }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--fg-muted)" }}>
                         {(v.share?.foot || []).map((f, $index) => (
                           <React.Fragment key={$index}>
                             <span>{f}</span>
                           </React.Fragment>
                         ))}
-                        <span style={{ marginLeft: "auto", color: "var(--fg-subtle)" }}>Basement NAS</span>
+                        <span style={{ marginLeft: "auto", color: "var(--fg-subtle)" }}>{v.share?.where}</span>
                       </div>
                     </div>
                     <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", color: v.incC, cursor: "pointer" }}>

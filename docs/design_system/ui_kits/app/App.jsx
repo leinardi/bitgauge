@@ -11,10 +11,10 @@ const DEMO_DEFAULTS = {
   scenario: 'normal', speed: '1', mobile: false,
   testState: '', v01: false, cpu: false,
   errKind: 'requests', probe: 'auto', resp: 'ok',
-  historyVariant: '', resultState: 'result', resultKind: 'standard', resultDemo: 'none',
-  openspeedtest: true, librespeed: true, networkquality: true
+  historyVariant: '', resultState: 'result', resultKind: 'standard', resultDemo: 'none', resultOverhead: '0',
+  openspeedtest: true, librespeed: true, networkquality: true, aboutUnreachable: false
 };
-const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'error', 'error-early', 'cancelled', 'cancelled-late', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
+const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
 const HISTORY_VARIANTS = ['populated', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 
 function DemoSelect({ label, value, options, onChange }) {
@@ -93,9 +93,11 @@ function DemoPanel({ d, set, reset }) {
             <DemoSelect label="State" value={d.resultState} options={['result', 'not-found', 'history-unavailable']} onChange={v => set({ resultState: v })} />
             <DemoSeg label="Kind" value={d.resultKind} options={[['standard', 'Standard'], ['continuous', 'Continuous']]} onChange={v => set({ resultKind: v })} />
             <DemoSelect label="Demo" value={d.resultDemo} options={['none', 'deleted', 'clipboard-denied']} onChange={v => set({ resultDemo: v })} />
+            <DemoSelect label="Overhead comp." value={d.resultOverhead} options={[['0', '0 % (example)'], ['6', '+6 %'], ['5.13', '+5.13 %'], ['3.69', '+3.69 %'], ['8.1', '+8.1 %']]} onChange={v => set({ resultOverhead: v })} />
           </div>
           <div className="demo-sec">
             <span className="st">About · compatibility layers</span>
+            <DemoCheck label="Server unreachable" value={d.aboutUnreachable} onChange={v => set({ aboutUnreachable: v })} />
             <DemoCheck label="OpenSpeedTest" value={d.openspeedtest} onChange={v => set({ openspeedtest: v })} />
             <DemoCheck label="LibreSpeed" value={d.librespeed} onChange={v => set({ librespeed: v })} />
             <DemoCheck label="networkQuality" value={d.networkquality} onChange={v => set({ networkquality: v })} />
@@ -116,8 +118,8 @@ function App() {
   const testExtra = { v01: d.v01, cpu: d.cpu, errKind: d.errKind, probe: d.probe, resp: d.resp };
   if (d.testState) testExtra.state = d.testState;
   const historyExtra = d.historyVariant ? { variant: d.historyVariant } : {};
-  const resultExtra = { state: d.resultState, kind: d.resultKind, demo: d.resultDemo };
-  const aboutExtra = { openspeedtest: d.openspeedtest, librespeed: d.librespeed, networkquality: d.networkquality };
+  const resultExtra = { state: d.resultState, kind: d.resultKind, demo: d.resultDemo, overhead: d.resultOverhead };
+  const aboutExtra = { openspeedtest: d.openspeedtest, librespeed: d.librespeed, networkquality: d.networkquality, unreachable: d.aboutUnreachable };
   return (
     <>
       <Prototype scenario={d.scenario} speed={d.speed} mobile={d.mobile}

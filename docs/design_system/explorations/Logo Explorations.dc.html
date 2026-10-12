@@ -139,11 +139,12 @@
 
   <div style="display:flex; flex-direction:column; gap:14px">
     <div style="display:flex; flex-direction:column; gap:4px"><span style="font:600 15px 'IBM Plex Sans',sans-serif">Head tags and component</span></div>
-    <pre style="margin:0; max-width:860px; padding:16px 18px; border-radius:10px; background:oklch(0.165 0.013 255); color:oklch(0.895 0.006 255); font:400 12px/1.7 'IBM Plex Mono',monospace; white-space:pre-wrap">&lt;link rel="icon" href="/favicon.svg" type="image/svg+xml"&gt;
-&lt;link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"&gt;
-&lt;link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png"&gt;
-&lt;link rel="apple-touch-icon" href="/apple-touch-icon.png"&gt;   &lt;!-- 180 × 180, full bleed --&gt;
-&lt;link rel="manifest" href="/site.webmanifest"&gt;              &lt;!-- 192, 512, 512 maskable --&gt;
+    <pre style="margin:0; max-width:860px; padding:16px 18px; border-radius:10px; background:oklch(0.165 0.013 255); color:oklch(0.895 0.006 255); font:400 12px/1.7 'IBM Plex Mono',monospace; white-space:pre-wrap">&lt;!-- relative to the app's base path: favicons, icons and site.webmanifest are served from the app root --&gt;
+&lt;link rel="icon" href="favicon.svg" type="image/svg+xml"&gt;
+&lt;link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png"&gt;
+&lt;link rel="icon" href="favicon-16.png" sizes="16x16" type="image/png"&gt;
+&lt;link rel="apple-touch-icon" href="apple-touch-icon.png"&gt;   &lt;!-- 180 × 180, full bleed --&gt;
+&lt;link rel="manifest" href="site.webmanifest"&gt;              &lt;!-- 192, 512, 512 maskable --&gt;
 &lt;meta name="theme-color" content="#0b0f14"&gt;
 
 &lt;bg-logo size="28"&gt;                 colour, full mark
@@ -208,7 +209,7 @@ class Component extends DCLogic {
     return { opts: [
       o('1a', 'Log arc', 'The literal reading: the 270° log gauge from the test screen, needle near the top of the scale. Most legible at a glance; closest to a generic speedometer.', 'Bit', F, 'Gauge', A, sans),
       o('1b', 'Bit meter', 'The arc split into discrete segments like an LED meter, with a single square “bit” at the hub. Digital rather than analogue; segments merge cleanly at 16 px.', 'bit', A, 'gauge', F, "500 21px 'IBM Plex Mono',monospace", '0'),
-      o('1c', 'Bracketed dial', 'A small dial held between open brackets — a sibling of the Runhold “Rails” mark, so the two read as one family of self-hosted tools.', 'BIT', F, 'GAUGE', F, "600 20px 'IBM Plex Sans Condensed',sans-serif", '0.12em'),
+      o('1c', 'Bracketed dial', 'A small dial held between open brackets.', 'BIT', F, 'GAUGE', F, "600 20px 'IBM Plex Sans Condensed',sans-serif", '0.12em'),
       o('1d', 'Dial monogram', 'A lowercase b whose bowl is the dial. Works as a letter first and an instrument second; the strongest standalone app icon.', 'bit', F, 'gauge', F, "600 23px 'IBM Plex Sans',sans-serif", '-0.02em'),
       o('1e', 'Four decades', 'A 4×4 grid of bits lit as a staircase: each column is one decade of the log scale. Abstract and very crisp at small sizes; least obviously “speed”.', 'Bit', A, 'Gauge', F, mono, '0'),
       o('1f', 'Three series', 'Concentric arcs in the three series colours: download teal, upload violet, latency blue (dashed). Encodes the whole test; needs full colour to make sense.', 'Bit', F, 'Gauge', A, sans),

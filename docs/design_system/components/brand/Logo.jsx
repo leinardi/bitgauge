@@ -11,5 +11,5 @@ export function Logo({ size = 28, variant = 'color', geometry, wordmark = false,
   const c = variant === 'mono' ? ['currentColor', 'currentColor', 'currentColor'] : ['var(--series-download)', 'var(--series-upload)', 'var(--series-latency)'];
   const mark = <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden={wordmark ? 'true' : undefined} role={wordmark ? undefined : 'img'} aria-label={wordmark ? undefined : 'BitGauge'} style={{ display: 'block', flex: 'none' }} dangerouslySetInnerHTML={{ __html: g === 'small' ? SMALL(c[0], c[1]) : FULL(...c) }} />;
   if (!wordmark) return <span style={{ display: 'inline-flex', lineHeight: 0, ...style }}>{mark}</span>;
-  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: Math.round(size * 0.32), fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: Math.round(size * 0.6), letterSpacing: '-0.01em', color: 'var(--fg)', ...style }}>{mark}BitGauge</span>;
+  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: Math.round(size * 0.32), fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: Math.round(size * 0.6), letterSpacing: '-0.01em', color: 'var(--fg)', ...style }}>{mark}<span>Bit<span style={{ color: 'var(--primary-text)' }}>Gauge</span></span></span>;
 }

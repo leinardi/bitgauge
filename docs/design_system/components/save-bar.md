@@ -15,6 +15,13 @@ Card + Input + ToggleGroup. v0.2 (with history). Spec: `features/ui/screens.md` 
 With at least one finished phase: **not saved** unless the user chooses "Keep in history".
 Download JSON is offered either way.
 
+After "Keep in history" the bar confirms with the result's status and an Undo action:
+
+- Partial run: "Saved as partial" + **Undo**.
+- Error run: "Saved as error" + **Undo**.
+
+Undo removes the result from history again and returns the bar to its "Keep in history" state.
+
 ## Rules
 
 - Label changes save as they are typed; no Save button.

@@ -4,6 +4,7 @@
  *   openspeedtest: boolean  (default true)
  *   librespeed: boolean  (default true)
  *   networkquality: boolean  (default true)
+ *   unreachable: boolean  (default false) — /api/v1/info failed: snippets come from the page's own origin, layer state unknown
  */
 class About extends React.Component {
   renderVals() {
@@ -11,8 +12,11 @@ class About extends React.Component {
     const ln = (t, c) => ({ t, c: c || tx });
     const flag = (k) => { const v = this.props[k]; return v == null ? true : !(v === false || v === 'false' || v === '0' || v === 0); };
     const m = !!this.props.mobile && this.props.mobile !== 'false';
-    const host = 'https://speed.home.lan';
-    const on = { ost: flag('openspeedtest'), ls: flag('librespeed'), nq: flag('networkquality') };
+    const un = !!this.props.unreachable && this.props.unreachable !== 'false';
+    // Snippets are always built from the page's own origin (location.origin + base path); the kit mocks it.
+    const host = 'https://speed.home.lan', hostName = host.replace(/^https?:\/\//, '');
+    const srvName = un ? hostName : 'Basement NAS';
+    const on = un ? { ost: true, ls: true, nq: true } : { ost: flag('openspeedtest'), ls: flag('librespeed'), nq: flag('networkquality') };
     const clients = [
       { k: 'ost', name: 'OpenSpeedTest™ web UI', icon: 'globe', tag: 'Web UI',
         desc: 'Open your own self-hosted OpenSpeedTest UI and point it at this server with the Host parameter.',
@@ -23,22 +27,25 @@ class About extends React.Component {
         desc: 'Save this server to a local list, then run the CLI against it.',
         offWhat: 'The LibreSpeed protocol endpoints are switched off, so librespeed-cli can’t test against this server.',
         blocks: [
-          { cap: 'servers.json', copy: 'Copy servers.json', lines: [ln('[{ "id": 1, "name": "Basement NAS",'), ln('   "server": "' + host + '/",'), ln('   "dlURL": "garbage", "ulURL": "empty",'), ln('   "pingURL": "empty", "getIpURL": "getIP" }]')] },
+          { cap: 'servers.json', copy: 'Copy servers.json', lines: [ln('[{ "id": 1, "name": "' + srvName + '",'), ln('   "server": "' + host + '/",'), ln('   "dlURL": "garbage", "ulURL": "empty",'), ln('   "pingURL": "empty", "getIpURL": "getIP" }]')] },
           { cap: null, copy: 'Copy librespeed-cli command', lines: [ln('# --no-icmp: measure ping over HTTP', cm), ln('librespeed-cli --local-json servers.json --server 1 --no-icmp', cmd)] },
-          { cap: 'Or let the CLI fetch the list from this server', copy: 'Copy librespeed-cli command with server list URL', lines: [ln('librespeed-cli --server-json ' + host + '/.well-known/librespeed --server 1 --no-icmp', cmd)] }
-        ] },
+          { cap: 'Or let the CLI fetch the list from this server', copy: 'Copy librespeed-cli command with server list URL', lines: [ln('librespeed-cli --server-json ' + host + '/.well-known/librespeed --server 1 --no-icmp', cmd)] },
+          { cap: 'Slow VPN link', copy: 'Copy librespeed-cli command for slow links', lines: [ln('# fewer chunks per download request (default 100), so each one finishes in time', cm), ln('librespeed-cli --local-json servers.json --server 1 --no-icmp --chunks 10', cmd)] }
+        ],
+        note: 'On a slow VPN link, lower --chunks: each download request asks for that many chunks, and the default 100 can outlast the test.' },
       { k: 'nq', name: 'macOS networkQuality', icon: 'monitor', tag: 'macOS 12+',
         desc: 'Apple’s built-in tool reports throughput and responsiveness (RPM). Point it at this server’s config.',
         offWhat: 'The networkQuality config isn’t served, so networkQuality -C can’t use this server.',
-        blocks: [{ cap: null, copy: 'Copy networkQuality commands', lines: [ln('# throughput and responsiveness', cm), ln('networkQuality -C ' + host + '/nq/config', cmd), ln('# verbose output', cm), ln('networkQuality -v -C ' + host + '/nq/config', cmd)] }] }
-    ].map(c => ({ ...c, hid: 'cl-' + c.k, on: on[c.k], off: !on[c.k], note: c.note || null }));
+        blocks: [{ cap: null, copy: 'Copy networkQuality commands', lines: [ln('# throughput and responsiveness', cm), ln('networkQuality -C ' + host + '/nq/config', cmd), ln('# verbose output', cm), ln('networkQuality -v -C ' + host + '/nq/config', cmd)] }],
+        note: 'networkQuality needs TLS 1.3 and HTTP/2 at the reverse proxy. Over HTTP/1.1 or plain HTTP it won’t run.' }
+    ].map(c => ({ ...c, hid: 'cl-' + c.k, on: on[c.k], off: !on[c.k], note: c.note || null, unk: un, docsAria: c.name + ' in the BitGauge docs' }));
     const names = { ost: 'OpenSpeedTest', ls: 'LibreSpeed', nq: 'networkQuality' };
     const enabled = Object.keys(on).filter(k => on[k]).map(k => names[k]);
     return {
-      mobile: m, desktop: !m,
+      mobile: m, desktop: !m, un, host,
       L: m ? { pad: '16px 16px 24px', cols: 'minmax(0,1fr)', h1: 'var(--text-3xl)' } : { pad: '24px 40px 48px', cols: 'minmax(0,1fr) 340px', h1: 'var(--text-4xl)' },
       clients,
-      facts: [['Version', 'v1.4.0 · a1b2c3d · 2026-09-30'], ['License', 'GPL-3.0-or-later'], ['Server name', 'Basement NAS'], ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled']].map(([k, v]) => ({ k, v })),
+      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], ['Clients', 'Unknown']] : [['Version', 'v1.4.0 · a1b2c3d · 2026-09-30'], ['License', 'GPL-3.0-or-later'], ['Server name', 'Basement NAS'], ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled']]).map(([k, v]) => ({ k, v })),
       credits: [
         { n: 'OpenSpeedTest™', d: 'Protocol compatibility for its web UI.' },
         { n: 'LibreSpeed', d: 'Protocol compatibility for librespeed-cli.' },
@@ -66,6 +73,20 @@ class About extends React.Component {
                 This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.
               </p>
             </header>
+            {v.un ? (
+              <div role="alert" style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "10px 12px", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--warn-border)", background: "var(--warn-bg)" }}>
+                <span style={{ color: "var(--warn)", display: "flex", marginTop: "1px" }}><bg-icon name="server-off" size="17" /></span>
+                <div style={{ flex: "1 1 260px", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <span style={{ fontSize: "var(--text-sm)", fontWeight: "600", color: "var(--warn-fg)" }}>Server unreachable</span>
+                  <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "1.5", textWrap: "pretty" }}>
+                    {"The commands below are built from this page's address, "}
+                    <span style={{ fontFamily: "var(--font-mono)", overflowWrap: "anywhere" }}>{v.host}</span>
+                    . BitGauge can't check which clients the operator enabled, or the server's name, until the server answers.
+                  </span>
+                </div>
+                <button className="btn secondary sm" style={{ marginLeft: "auto" }}><bg-icon name="refresh-cw" size="14" />Retry</button>
+              </div>
+            ) : null}
             {(v.clients || []).map((c, $index) => (
               <React.Fragment key={$index}>
                 <section className="card" aria-labelledby={c?.hid} style={{ overflow: "hidden" }}>
@@ -76,8 +97,11 @@ class About extends React.Component {
                     {c?.off ? (
                       <span className="pill neutral" style={{ height: "20px", fontSize: "10px", background: "transparent", borderStyle: "dashed" }}>Off</span>
                     ) : null}
-                    <a className="right" href="#" style={{ fontSize: "var(--text-caption)", color: "var(--primary-text)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }}>
-                      Docs
+                    {c?.unk ? (
+                      <span className="pill neutral" style={{ height: "20px", fontSize: "10px", background: "transparent", borderStyle: "dashed" }}>Not confirmed</span>
+                    ) : null}
+                    <a className="right" href="#" aria-label={c?.docsAria} style={{ fontSize: "var(--text-caption)", color: "var(--primary-text)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }}>
+                      BitGauge docs
                       <bg-icon name="external-link" size="12" />
                     </a>
                   </div>
@@ -157,7 +181,7 @@ class About extends React.Component {
                   Source repository
                   <bg-icon name="external-link" size="13" />
                 </a>
-                <a className="btn ghost sm" href="#" style={{ justifyContent: "center", textDecoration: "none" }}>GPL-3.0 license text</a>
+                <a className="btn ghost sm" href="#" style={{ justifyContent: "center", textDecoration: "none" }}>LICENSE file in the repository</a>
               </div>
             </section>
             <section className="card card-b" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -168,7 +192,7 @@ class About extends React.Component {
                 Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load — the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers.
               </span>
               <a href="#" style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: "4px", fontSize: "var(--text-sm)", color: "var(--primary-text)", textDecoration: "none" }}>
-                Read the methodology
+                Methodology in the BitGauge docs
                 <bg-icon name="external-link" size="12" />
               </a>
             </section>
@@ -188,7 +212,7 @@ class About extends React.Component {
                 {(v.credits || []).map((cr, $index) => (
                   <React.Fragment key={$index}>
                     <li style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                      <a href="#" style={{ fontSize: "var(--text-sm)", fontWeight: "500", color: "var(--primary-text)", textDecoration: "none" }}>{cr?.n}</a>
+                      <span style={{ fontSize: "var(--text-sm)", fontWeight: "500", color: "var(--fg)" }}>{cr?.n}</span>
                       <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-muted)", lineHeight: "1.5", textWrap: "pretty" }}>{cr?.d}</span>
                     </li>
                   </React.Fragment>

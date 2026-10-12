@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"6fce05445985","components/actions/Tooltip.jsx":"f42dbb8ea713","components/brand/Icon.jsx":"e1019af90087","components/brand/Logo.jsx":"e1a4ca1a83f3","components/dialog/Dialog.jsx":"6c14394e9387","components/feedback/EmptyState.jsx":"1b92bb9fd6e5","components/feedback/Notice.jsx":"cd02eee12687","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"0603b9239c67","components/forms/Input.jsx":"2dd0d901408e","components/forms/Segmented.jsx":"678f79aef18c","components/forms/Switch.jsx":"e693da722e8c","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"4dfad9524422","components/layout/Card.jsx":"6ce9811f3210","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/MetricTile.jsx":"cefeac1830c7","components/measurement/PhaseStep.jsx":"3a99ec901e2e","components/status/Chip.jsx":"71ff738f21d8","components/status/StatusBadge.jsx":"825b7d61b854","components/status/StatusPill.jsx":"64955672fda0","ui_kits/app/About.jsx":"6fc495cd2c44","ui_kits/app/App.jsx":"dfd6cc915546","ui_kits/app/History.jsx":"901415fad3e4","ui_kits/app/Nav.jsx":"a3584678d6cd","ui_kits/app/Prototype.jsx":"d2577715f0e1","ui_kits/app/ResultDetail.jsx":"c465d671322d","ui_kits/app/Settings.jsx":"afbb6e756858","ui_kits/app/TestScreen.jsx":"5e1d7ffcc6a4","ui_kits/app/bg-lib.js":"f9975c3a3777"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"6fce05445985","components/actions/Tooltip.jsx":"f42dbb8ea713","components/brand/Icon.jsx":"e1019af90087","components/brand/Logo.jsx":"7598e30a00fc","components/dialog/Dialog.jsx":"6c14394e9387","components/feedback/EmptyState.jsx":"1b92bb9fd6e5","components/feedback/Notice.jsx":"cd02eee12687","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"0603b9239c67","components/forms/Input.jsx":"2dd0d901408e","components/forms/Segmented.jsx":"678f79aef18c","components/forms/Switch.jsx":"e693da722e8c","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"4014a980796d","components/layout/Card.jsx":"6ce9811f3210","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/MetricTile.jsx":"1ed90beb34a6","components/measurement/PhaseStep.jsx":"10935a8a0774","components/status/Chip.jsx":"71ff738f21d8","components/status/StatusBadge.jsx":"825b7d61b854","components/status/StatusPill.jsx":"64955672fda0","ui_kits/app/About.jsx":"6b62f3d233a6","ui_kits/app/App.jsx":"1bd8f85a5b48","ui_kits/app/History.jsx":"929dc1a376b8","ui_kits/app/Nav.jsx":"fce5c214ba09","ui_kits/app/Prototype.jsx":"6a11b2752e4f","ui_kits/app/ResultDetail.jsx":"fa6cbf4cc3ff","ui_kits/app/Settings.jsx":"5f21b9ba1ce2","ui_kits/app/TestScreen.jsx":"f7bad5a74866","ui_kits/app/bg-lib.js":"54556de87ef9"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -243,7 +243,11 @@ function Logo({
       color: 'var(--fg)',
       ...style
     }
-  }, mark, "BitGauge");
+  }, mark, /*#__PURE__*/React.createElement("span", null, "Bit", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--primary-text)'
+    }
+  }, "Gauge")));
 }
 Object.assign(__ds_scope, { Logo });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/brand/Logo.jsx", error: String((e && e.message) || e) }); }
@@ -605,7 +609,20 @@ Object.assign(__ds_scope, { Toggle });
 // components/gauge/Gauge.jsx
 try { (() => {
 const A0 = 135,
-  SW = 270;
+  SW = 270,
+  HOLD_MS = 2000;
+const KR = {
+  bits: {
+    min: 4,
+    max: 6,
+    start: 6
+  },
+  bytes: {
+    min: 3,
+    max: 6,
+    start: 5
+  }
+};
 const pt = (cx, cy, r, a) => [cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)];
 function arc(cx, cy, r, f0, f1) {
   f0 = Math.max(0, Math.min(1, f0));
@@ -617,12 +634,72 @@ function arc(cx, cy, r, f0, f1) {
   return 'M' + p0[0].toFixed(2) + ' ' + p0[1].toFixed(2) + 'A' + r + ' ' + r + ' 0 ' + (a1 - a0 > 180 ? 1 : 0) + ' 1 ' + p1[0].toFixed(2) + ' ' + p1[1].toFixed(2);
 }
 const tickLabel = v => v >= 1e9 ? v / 1e9 + 'G' : v >= 1e6 ? v / 1e6 + 'M' : v >= 1e3 ? v / 1e3 + 'k' : String(v);
+const rateLabel = (v, units) => {
+  const u = units === 'bytes' ? 'B/s' : 'bit/s';
+  const s = v >= 1e9 ? [1e9, 'G'] : v >= 1e6 ? [1e6, 'M'] : v >= 1e3 ? [1e3, 'k'] : [1, ''];
+  return v / s[0] + ' ' + s[1] + u;
+};
+function useReducedMotion() {
+  const q = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  const [r, setR] = React.useState(q ? q.matches : false);
+  React.useEffect(() => {
+    if (!q) return;
+    const h = e => setR(e.matches);
+    q.addEventListener('change', h);
+    return () => q.removeEventListener('change', h);
+  }, []);
+  return r;
+}
+// Window picker: pure function of the value stream and the clock. The engine never supplies the window.
+function useGaugeWindow(value, mode, units, startDecade, onWindowChange) {
+  const R = KR[units] || KR.bits;
+  const start = startDecade ?? R.start;
+  const [k, setK] = React.useState(start);
+  const hold = React.useRef({
+    zone: 0,
+    timer: null
+  });
+  const clear = () => {
+    clearTimeout(hold.current.timer);
+    hold.current = {
+      zone: 0,
+      timer: null
+    };
+  };
+  React.useEffect(() => {
+    clear();
+    setK(start);
+  }, [units, start]);
+  React.useEffect(() => {
+    if (mode === 'ms' || value == null) {
+      clear();
+      return;
+    }
+    const zone = value < Math.pow(10, k + 1) && k > R.min ? -1 : value > Math.pow(10, k + 3) && k < R.max ? 1 : 0;
+    if (zone === hold.current.zone) return;
+    clear();
+    if (zone) hold.current = {
+      zone,
+      timer: setTimeout(() => {
+        hold.current = {
+          zone: 0,
+          timer: null
+        };
+        setK(k + zone);
+        onWindowChange && onWindowChange(k + zone);
+      }, HOLD_MS)
+    };
+  }, [value, k, mode, units]);
+  React.useEffect(() => clear, []);
+  return k;
+}
 function Gauge({
   size = 300,
   value,
-  lo,
-  hi,
   mode = 'rate',
+  units = 'bits',
+  startDecade,
+  onWindowChange,
   bandLo,
   bandHi,
   peak,
@@ -635,18 +712,14 @@ function Gauge({
   sub,
   numSize
 }) {
+  const reduce = useReducedMotion();
+  const k = useGaugeWindow(value, mode, units, startDecade, onWindowChange);
   const cx = size / 2,
     cy = size / 2,
     r = size / 2 - 10;
-  if (lo == null) {
-    if (mode === 'ms') {
-      lo = 1;
-      hi = 1000;
-    } else {
-      lo = 1e6;
-      hi = 1e10;
-    }
-  }
+  const lo = mode === 'ms' ? 1 : Math.pow(10, k),
+    hi = mode === 'ms' ? 1000 : Math.pow(10, k + 4);
+  const caption = mode === 'ms' ? 'log scale · 1 – 1000 ms' : 'log scale · ' + rateLabel(lo, units) + ' – ' + rateLabel(hi, units) + ' · auto';
   const L0 = Math.log10(lo),
     L1 = Math.log10(hi);
   const f = v => (Math.log10(Math.min(Math.max(v, lo), hi)) - L0) / (L1 - L0);
@@ -684,7 +757,16 @@ function Gauge({
     dot = has ? pt(cx, cy, r, A0 + SW * fv) : null;
   const pk = peak != null ? [pt(cx, cy, r + 8, A0 + SW * f(peak)), pt(cx, cy, r - 8, A0 + SW * f(peak))] : null;
   const ns = numSize || Math.round(size * 0.193);
+  const tween = reduce ? undefined : 'd var(--dur-base) var(--ease-out)';
   return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 'var(--space-1)',
+      width: size
+    }
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'relative',
       width: size,
@@ -693,8 +775,8 @@ function Gauge({
   }, /*#__PURE__*/React.createElement("svg", {
     width: size,
     height: size,
-    role: "img",
-    "aria-label": eyebrow ? eyebrow + ' ' + (readout ?? '') + ' ' + (unit ?? '') : 'Gauge',
+    "aria-hidden": "true",
+    focusable: "false",
     style: {
       display: 'block',
       overflow: 'visible'
@@ -733,7 +815,7 @@ function Gauge({
       stroke: color,
       strokeWidth: 10,
       strokeLinecap: 'round',
-      transition: 'd var(--dur-base) var(--ease-out)'
+      transition: tween
     }
   }) : null, has && inner != null ? /*#__PURE__*/React.createElement("path", {
     d: arc(cx, cy, r - 10, 0, f(inner)),
@@ -819,14 +901,21 @@ function Gauge({
       fontWeight: 500,
       color: 'var(--fg-muted)'
     }
-  }, unit) : null, sub ? /*#__PURE__*/React.createElement("span", {
+  }, unit) : null)), /*#__PURE__*/React.createElement("span", {
     style: {
-      marginTop: 6,
       fontFamily: 'var(--font-mono)',
       fontSize: 'var(--text-caption)',
-      color: 'var(--fg-subtle)'
+      color: 'var(--fg-subtle)',
+      whiteSpace: 'nowrap'
     }
-  }, sub) : null));
+  }, caption), sub ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: 'var(--font-mono)',
+      fontSize: 'var(--text-caption)',
+      color: 'var(--fg-subtle)',
+      whiteSpace: 'nowrap'
+    }
+  }, sub) : null);
 }
 Object.assign(__ds_scope, { Gauge });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/gauge/Gauge.jsx", error: String((e && e.message) || e) }); }
@@ -935,7 +1024,15 @@ try { (() => {
 const NOTE = {
   partial: 'var(--warn-fg)',
   incomplete: 'var(--warn-fg)',
-  'low-confidence': 'var(--warn-fg)'
+  'insufficient-data': 'var(--warn-fg)',
+  'low-confidence': 'var(--warn-fg)',
+  error: 'var(--danger-fg)'
+};
+const NO_NUMBER = {
+  empty: 1,
+  error: 1,
+  incomplete: 1,
+  'insufficient-data': 1
 };
 function MetricTile({
   label,
@@ -945,7 +1042,7 @@ function MetricTile({
   state = 'done',
   accent
 }) {
-  const empty = state === 'empty' || value == null;
+  const empty = NO_NUMBER[state] || value == null;
   const word = state === 'live' && value == null;
   return /*#__PURE__*/React.createElement("div", {
     className: "card",
@@ -1028,11 +1125,11 @@ const ST = {
   },
   skipped: {
     icon: 'circle-minus',
-    c: 'var(--fg-faint)'
+    c: 'var(--fg-subtle)'
   },
   capped: {
-    icon: 'database',
-    c: 'var(--warn)'
+    icon: 'triangle-alert',
+    c: 'var(--fg-subtle)'
   }
 };
 const DIR = {
@@ -1049,6 +1146,11 @@ const DIR = {
     c: 'var(--series-latency)'
   }
 };
+const BAR = {
+  failed: 'var(--danger)',
+  capped: 'var(--fg-subtle)',
+  cancelled: 'var(--fg-subtle)'
+};
 function PhaseStep({
   phase = 'download',
   label,
@@ -1057,9 +1159,10 @@ function PhaseStep({
   detail
 }) {
   const s = state === 'active' ? DIR[phase] : ST[state];
-  const fill = state === 'pending' || state === 'skipped' ? 0 : state === 'active' ? progress : state === 'done' ? 1 : progress;
-  const bar = state === 'failed' ? 'var(--danger)' : state === 'capped' ? 'var(--warn)' : state === 'cancelled' ? 'var(--fg-faint)' : DIR[phase].c;
+  const fill = state === 'pending' || state === 'skipped' ? 0 : state === 'done' ? 1 : progress;
+  const bar = BAR[state] || DIR[phase].c;
   return /*#__PURE__*/React.createElement("div", {
+    "aria-current": state === 'active' ? 'step' : undefined,
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -1190,6 +1293,7 @@ try { (() => {
  *   openspeedtest: boolean  (default true)
  *   librespeed: boolean  (default true)
  *   networkquality: boolean  (default true)
+ *   unreachable: boolean  (default false) — /api/v1/info failed: snippets come from the page's own origin, layer state unknown
  */
 class About extends React.Component {
   renderVals() {
@@ -1205,8 +1309,16 @@ class About extends React.Component {
       return v == null ? true : !(v === false || v === 'false' || v === '0' || v === 0);
     };
     const m = !!this.props.mobile && this.props.mobile !== 'false';
-    const host = 'https://speed.home.lan';
-    const on = {
+    const un = !!this.props.unreachable && this.props.unreachable !== 'false';
+    // Snippets are always built from the page's own origin (location.origin + base path); the kit mocks it.
+    const host = 'https://speed.home.lan',
+      hostName = host.replace(/^https?:\/\//, '');
+    const srvName = un ? hostName : 'Basement NAS';
+    const on = un ? {
+      ost: true,
+      ls: true,
+      nq: true
+    } : {
       ost: flag('openspeedtest'),
       ls: flag('librespeed'),
       nq: flag('networkquality')
@@ -1234,7 +1346,7 @@ class About extends React.Component {
       blocks: [{
         cap: 'servers.json',
         copy: 'Copy servers.json',
-        lines: [ln('[{ "id": 1, "name": "Basement NAS",'), ln('   "server": "' + host + '/",'), ln('   "dlURL": "garbage", "ulURL": "empty",'), ln('   "pingURL": "empty", "getIpURL": "getIP" }]')]
+        lines: [ln('[{ "id": 1, "name": "' + srvName + '",'), ln('   "server": "' + host + '/",'), ln('   "dlURL": "garbage", "ulURL": "empty",'), ln('   "pingURL": "empty", "getIpURL": "getIP" }]')]
       }, {
         cap: null,
         copy: 'Copy librespeed-cli command',
@@ -1243,7 +1355,12 @@ class About extends React.Component {
         cap: 'Or let the CLI fetch the list from this server',
         copy: 'Copy librespeed-cli command with server list URL',
         lines: [ln('librespeed-cli --server-json ' + host + '/.well-known/librespeed --server 1 --no-icmp', cmd)]
-      }]
+      }, {
+        cap: 'Slow VPN link',
+        copy: 'Copy librespeed-cli command for slow links',
+        lines: [ln('# fewer chunks per download request (default 100), so each one finishes in time', cm), ln('librespeed-cli --local-json servers.json --server 1 --no-icmp --chunks 10', cmd)]
+      }],
+      note: 'On a slow VPN link, lower --chunks: each download request asks for that many chunks, and the default 100 can outlast the test.'
     }, {
       k: 'nq',
       name: 'macOS networkQuality',
@@ -1255,13 +1372,16 @@ class About extends React.Component {
         cap: null,
         copy: 'Copy networkQuality commands',
         lines: [ln('# throughput and responsiveness', cm), ln('networkQuality -C ' + host + '/nq/config', cmd), ln('# verbose output', cm), ln('networkQuality -v -C ' + host + '/nq/config', cmd)]
-      }]
+      }],
+      note: 'networkQuality needs TLS 1.3 and HTTP/2 at the reverse proxy. Over HTTP/1.1 or plain HTTP it won’t run.'
     }].map(c => ({
       ...c,
       hid: 'cl-' + c.k,
       on: on[c.k],
       off: !on[c.k],
-      note: c.note || null
+      note: c.note || null,
+      unk: un,
+      docsAria: c.name + ' in the BitGauge docs'
     }));
     const names = {
       ost: 'OpenSpeedTest',
@@ -1272,6 +1392,8 @@ class About extends React.Component {
     return {
       mobile: m,
       desktop: !m,
+      un,
+      host,
       L: m ? {
         pad: '16px 16px 24px',
         cols: 'minmax(0,1fr)',
@@ -1282,7 +1404,7 @@ class About extends React.Component {
         h1: 'var(--text-4xl)'
       },
       clients,
-      facts: [['Version', 'v1.4.0 · a1b2c3d · 2026-09-30'], ['License', 'GPL-3.0-or-later'], ['Server name', 'Basement NAS'], ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled']].map(([k, v]) => ({
+      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], ['Clients', 'Unknown']] : [['Version', 'v1.4.0 · a1b2c3d · 2026-09-30'], ['License', 'GPL-3.0-or-later'], ['Server name', 'Basement NAS'], ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled']]).map(([k, v]) => ({
         k,
         v
       })),
@@ -1358,7 +1480,62 @@ class About extends React.Component {
         lineHeight: "1.55",
         textWrap: "pretty"
       }
-    }, "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.")), (v.clients || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
+    }, "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.")), v.un ? /*#__PURE__*/React.createElement("div", {
+      role: "alert",
+      style: {
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "flex-start",
+        gap: "10px 12px",
+        padding: "12px 14px",
+        borderRadius: "var(--radius-md)",
+        border: "1px solid var(--warn-border)",
+        background: "var(--warn-bg)"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "var(--warn)",
+        display: "flex",
+        marginTop: "1px"
+      }
+    }, /*#__PURE__*/React.createElement("bg-icon", {
+      name: "server-off",
+      size: "17"
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: "1 1 260px",
+        minWidth: "0",
+        display: "flex",
+        flexDirection: "column",
+        gap: "2px"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: "var(--text-sm)",
+        fontWeight: "600",
+        color: "var(--warn-fg)"
+      }
+    }, "Server unreachable"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: "var(--text-sm)",
+        color: "var(--fg-muted)",
+        lineHeight: "1.5",
+        textWrap: "pretty"
+      }
+    }, "The commands below are built from this page's address, ", /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: "var(--font-mono)",
+        overflowWrap: "anywhere"
+      }
+    }, v.host), ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers.")), /*#__PURE__*/React.createElement("button", {
+      className: "btn secondary sm",
+      style: {
+        marginLeft: "auto"
+      }
+    }, /*#__PURE__*/React.createElement("bg-icon", {
+      name: "refresh-cw",
+      size: "14"
+    }), "Retry")) : null, (v.clients || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
     }, /*#__PURE__*/React.createElement("section", {
       className: "card",
@@ -1393,9 +1570,18 @@ class About extends React.Component {
         background: "transparent",
         borderStyle: "dashed"
       }
-    }, "Off") : null, /*#__PURE__*/React.createElement("a", {
+    }, "Off") : null, c?.unk ? /*#__PURE__*/React.createElement("span", {
+      className: "pill neutral",
+      style: {
+        height: "20px",
+        fontSize: "10px",
+        background: "transparent",
+        borderStyle: "dashed"
+      }
+    }, "Not confirmed") : null, /*#__PURE__*/React.createElement("a", {
       className: "right",
       href: "#",
+      "aria-label": c?.docsAria,
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--primary-text)",
@@ -1404,7 +1590,7 @@ class About extends React.Component {
         alignItems: "center",
         gap: "4px"
       }
-    }, "Docs", /*#__PURE__*/React.createElement("bg-icon", {
+    }, "BitGauge docs", /*#__PURE__*/React.createElement("bg-icon", {
       name: "external-link",
       size: "12"
     }))), c?.on ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
@@ -1634,7 +1820,7 @@ class About extends React.Component {
         justifyContent: "center",
         textDecoration: "none"
       }
-    }, "GPL-3.0 license text"))), /*#__PURE__*/React.createElement("section", {
+    }, "LICENSE file in the repository"))), /*#__PURE__*/React.createElement("section", {
       className: "card card-b",
       style: {
         display: "flex",
@@ -1668,7 +1854,7 @@ class About extends React.Component {
         color: "var(--primary-text)",
         textDecoration: "none"
       }
-    }, "Read the methodology", /*#__PURE__*/React.createElement("bg-icon", {
+    }, "Methodology in the BitGauge docs", /*#__PURE__*/React.createElement("bg-icon", {
       name: "external-link",
       size: "12"
     }))), /*#__PURE__*/React.createElement("section", {
@@ -1726,13 +1912,11 @@ class About extends React.Component {
         flexDirection: "column",
         gap: "2px"
       }
-    }, /*#__PURE__*/React.createElement("a", {
-      href: "#",
+    }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
         fontWeight: "500",
-        color: "var(--primary-text)",
-        textDecoration: "none"
+        color: "var(--fg)"
       }
     }, cr?.n), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -1784,11 +1968,13 @@ const DEMO_DEFAULTS = {
   resultState: 'result',
   resultKind: 'standard',
   resultDemo: 'none',
+  resultOverhead: '0',
   openspeedtest: true,
   librespeed: true,
-  networkquality: true
+  networkquality: true,
+  aboutUnreachable: false
 };
-const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'error', 'error-early', 'cancelled', 'cancelled-late', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
+const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
 const HISTORY_VARIANTS = ['populated', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 function DemoSelect({
   label,
@@ -2000,11 +2186,24 @@ function DemoPanel({
     onChange: v => set({
       resultDemo: v
     })
+  }), /*#__PURE__*/React.createElement(DemoSelect, {
+    label: "Overhead comp.",
+    value: d.resultOverhead,
+    options: [['0', '0 % (example)'], ['6', '+6 %'], ['5.13', '+5.13 %'], ['3.69', '+3.69 %'], ['8.1', '+8.1 %']],
+    onChange: v => set({
+      resultOverhead: v
+    })
   })), /*#__PURE__*/React.createElement("div", {
     className: "demo-sec"
   }, /*#__PURE__*/React.createElement("span", {
     className: "st"
   }, "About \xB7 compatibility layers"), /*#__PURE__*/React.createElement(DemoCheck, {
+    label: "Server unreachable",
+    value: d.aboutUnreachable,
+    onChange: v => set({
+      aboutUnreachable: v
+    })
+  }), /*#__PURE__*/React.createElement(DemoCheck, {
     label: "OpenSpeedTest",
     value: d.openspeedtest,
     onChange: v => set({
@@ -2052,12 +2251,14 @@ function App() {
   const resultExtra = {
     state: d.resultState,
     kind: d.resultKind,
-    demo: d.resultDemo
+    demo: d.resultDemo,
+    overhead: d.resultOverhead
   };
   const aboutExtra = {
     openspeedtest: d.openspeedtest,
     librespeed: d.librespeed,
-    networkquality: d.networkquality
+    networkquality: d.networkquality,
+    unreachable: d.aboutUnreachable
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Prototype, {
     scenario: d.scenario,
@@ -2141,7 +2342,7 @@ class History extends React.Component {
     const hasData = !empty && !unavail && !loading;
     const total = deleted ? 46 : is('importresult') ? 60 : 48;
     // [date, label, down, up, lat, jit, grade, flag, day, protocol, status]
-    const R = [['2026-10-08 08:41', 'VPN via 5G', 640e3, 210e3, 48, 9.4, 'D', 'Low confidence', 23, 'HTTP/2', 'complete'], ['2026-10-07 19:12', 'VPN · hotel Wi-Fi', 38.4e6, 12.1e6, 61, 4.2, 'C', null, 22, 'HTTP/1.1', 'complete'], ['2026-10-05 12:30', 'VPN via 5G', 84.2e6, 21.7e6, 39, 6.8, 'C', null, 20, 'HTTP/2', 'complete'], ['2026-10-02 09:05', 'VPN · office', 241e6, 198e6, 14, 1.9, 'B', null, 17, 'HTTP/1.1', 'complete'], ['2026-09-29 22:47', 'VPN via 5G', 52.9e6, null, 44, 7.1, 'D', null, 14, 'HTTP/2', 'partial'], ['2026-09-26 18:20', 'VPN · office', 233e6, 187e6, 15, 2.2, 'A', null, 11, 'HTTP/2', 'complete'], ['2026-09-21 07:58', 'VPN via 5G', null, null, 41, 5.9, null, null, 6, 'HTTP/2', 'error'], ['2026-09-17 13:14', 'VPN · café', 19.6e6, 4.1e6, 72, 11.3, 'F', null, 2, 'HTTP/2', 'complete']];
+    const R = [['2026-10-08 08:41', 'VPN via 5G', 640e3, 210e3, 48, 9.4, 'D', 'Low confidence', 23, 'HTTP/2', 'complete'], ['2026-10-07 19:12', 'VPN · hotel Wi-Fi', 38.4e6, 12.1e6, 61, 4.2, 'C', null, 22, 'HTTP/1.1', 'complete'], ['2026-10-05 12:30', 'VPN via 5G', 84.2e6, 21.7e6, 39, 6.8, 'C', null, 20, 'HTTP/2', 'complete'], ['2026-10-02 09:05', 'VPN · office', 241e6, 198e6, 14, 1.9, 'B', null, 17, 'HTTP/1.1', 'complete'], ['2026-09-29 22:47', 'VPN via 5G', 52.9e6, null, 44, 7.1, 'D', null, 14, 'HTTP/2', 'partial'], ['2026-09-26 18:20', 'VPN · office', 233e6, 187e6, 15, 2.2, 'B', null, 11, 'HTTP/2', 'complete'], ['2026-09-21 07:58', 'VPN via 5G', null, null, 41, 5.9, null, null, 6, 'HTTP/2', 'error'], ['2026-09-17 13:14', 'VPN · café', 19.6e6, 4.1e6, 72, 11.3, 'F', null, 2, 'HTTP/2', 'complete']];
     const selIdx = is('select3') ? [1, 3, 5] : deleted ? [] : [3, 5];
     let list = R.map((r, i) => ({
       r,
@@ -2157,6 +2358,14 @@ class History extends React.Component {
       C: 'warn',
       D: 'warn',
       F: 'danger'
+    };
+    const GW = {
+      'A+': 'Minimal',
+      A: 'Low',
+      B: 'Mild',
+      C: 'Moderate',
+      D: 'High',
+      F: 'Severe'
     };
     const fr = b => b == null ? {
       n: '—',
@@ -2187,9 +2396,9 @@ class History extends React.Component {
         up: un.n,
         uu: un.u,
         lat: String(lat),
-        jit: jit.toFixed(1),
+        jit: jit < 10 ? jit.toFixed(1) : String(Math.round(jit)),
         grade: grade || '—',
-        gAria: grade ? 'Grade ' + grade : 'No grade',
+        gAria: grade ? 'Grade ' + grade + ' · ' + GW[grade] + ' bufferbloat' : 'No grade',
         flag,
         proto,
         st: S[0],
@@ -2198,6 +2407,7 @@ class History extends React.Component {
         stM: st !== 'complete',
         sel,
         unsel: !sel,
+        selAria: sel ? 'true' : 'false',
         cls: sel ? 'rowlink sel' : 'rowlink',
         ctx: 'VPN',
         cicon: 'shield',
@@ -2217,12 +2427,22 @@ class History extends React.Component {
       icon: on ? 'chevron-down' : 'arrow-up-down',
       c: on ? 'var(--primary-text)' : 'var(--fg-subtle)'
     }));
-    const chips = [['All', total], ['LAN', 21], ['VPN', list.length, true], ['Wi-Fi', 13], ['Mobile', 6]].map(([t, n, on]) => ({
+    const chip = ([t, n, on]) => ({
       t,
       n,
       cls: on ? 'chip on' : 'chip',
       pressed: on ? 'true' : 'false'
-    }));
+    });
+    const byLabel = l => list.filter(x => x.r[1] === l).length;
+    const chipGroups = [{
+      t: 'Context',
+      aria: 'Filter by context label',
+      chips: [['All', total], ['LAN', 21], ['VPN', list.length, true], ['Wi-Fi', 13], ['Mobile', 6]].map(chip)
+    }, {
+      t: 'Label',
+      aria: 'Filter by label',
+      chips: [['Any label', list.length, true], ['VPN via 5G', byLabel('VPN via 5G')], ['VPN · office', byLabel('VPN · office')], ['VPN · hotel Wi-Fi', byLabel('VPN · hotel Wi-Fi')], ['VPN · café', byLabel('VPN · café')]].filter(c => c[1] > 0).map(chip)
+    }];
     const pts = list.slice().reverse().map(({
       r,
       sel
@@ -2313,7 +2533,7 @@ class History extends React.Component {
       dw: dw || w
     });
     const CRIT = ['Label', 'Preset', 'Protocol'];
-    const params = [['Label', 'VPN · office', 'VPN · office'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', 'HTTP/1.1'], ['Streams', '4', '4'], ['Duration', '10 s + 10 s', '10 s + 10 s'], ['Browser', 'Firefox 131', 'Safari 18']].map(([k, a, b]) => {
+    const params = [['Label', 'VPN · office', 'VPN · office'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', 'HTTP/1.1'], ['Streams', 'Auto', 'Auto'], ['Duration · download', '10–20 s', '10–20 s'], ['Duration · upload', '12–25 s', '12–25 s'], ['Browser', 'Firefox 131', 'Safari 18']].map(([k, a, b]) => {
       const diff = a !== b,
         crit = diff && CRIT.includes(k);
       return Object.assign({
@@ -2324,7 +2544,7 @@ class History extends React.Component {
         crit
       }, ch('', crit ? 'crit' : diff ? 'differs' : 'same', diff ? 'differs' : 'same'));
     });
-    const metrics = [['Download', '233 Mbit/s', '241 Mbit/s', '+3.4%', 'better'], ['Upload', '187 Mbit/s', '198 Mbit/s', '+5.9%', 'better'], ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'], ['Under load · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Under load · upload', '58 ms', '71 ms', '+13 ms', 'worse'], ['Bufferbloat grade', 'A', 'B', '', 'worse', '1 grade worse'], ['Responsiveness', '980 RPM', '1,040 RPM', '+6%', 'better']].map(([k, a, b, d, w, dw]) => Object.assign({
+    const metrics = [['Download', '233 Mbit/s', '241 Mbit/s', '+3.4%', 'better'], ['Upload', '187 Mbit/s', '198 Mbit/s', '+5.9%', 'better'], ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'], ['Loaded latency · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Loaded latency · upload', '58 ms', '71 ms', '+13 ms', 'worse'], ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms'], ['HTTP loaded responsiveness — connection sharing not verifiable', '980 RPM · HTTP/2', 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', '', 'differs', 'not comparable']].map(([k, a, b, d, w, dw]) => Object.assign({
       k,
       a,
       b
@@ -2428,7 +2648,7 @@ class History extends React.Component {
       }],
       rows: m ? rows.slice(0, 6) : rows,
       cols,
-      chips,
+      chipGroups,
       trends,
       trendMeta: `${shownN} results · 17 Sep – 8 Oct`,
       hasSel: selN > 0,
@@ -2449,7 +2669,7 @@ class History extends React.Component {
       dateAria: is('daterange') ? 'true' : 'false',
       dateLabel: nomatch ? 'Last 7 days' : 'Last 30 days',
       searchVal: nomatch ? 'airport' : '',
-      noMatchText: nomatch ? `Nothing labelled VPN in the last 7 days matches “airport”. All ${total} results are still in history.` : '',
+      noMatchText: nomatch ? `Nothing with context VPN in the last 7 days matches “airport”. All ${total} results are still in history.` : '',
       noop: () => {},
       skChips: [56, 64, 64, 72, 76].map(n => ({
         w: n + 'px'
@@ -3199,16 +3419,39 @@ class History extends React.Component {
         gap: "8px 10px"
       }
     }, /*#__PURE__*/React.createElement("div", {
-      role: "group",
-      "aria-label": "Filter by label",
       style: {
         display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        minWidth: "0",
+        maxWidth: "100%"
+      }
+    }, (v.chipGroups || []).map((g, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
+      key: $index
+    }, /*#__PURE__*/React.createElement("div", {
+      role: "group",
+      "aria-label": g?.aria,
+      style: {
+        display: "flex",
+        alignItems: "center",
         gap: "6px",
         flexWrap: v.L?.chipWrap,
         overflowX: "auto",
         maxWidth: "100%"
       }
-    }, (v.chips || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
+    }, /*#__PURE__*/React.createElement("span", {
+      "aria-hidden": "true",
+      style: {
+        flex: "none",
+        width: "56px",
+        fontFamily: "var(--font-cond)",
+        fontWeight: "600",
+        fontSize: "11px",
+        letterSpacing: "var(--tracking-caps)",
+        textTransform: "uppercase",
+        color: "var(--fg-subtle)"
+      }
+    }, g?.t), (g?.chips || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
     }, /*#__PURE__*/React.createElement("button", {
       className: c?.cls,
@@ -3218,7 +3461,7 @@ class History extends React.Component {
       }
     }, c?.t, " ", /*#__PURE__*/React.createElement("span", {
       className: "n"
-    }, c?.n))))), /*#__PURE__*/React.createElement("div", {
+    }, c?.n)))))))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: "8px",
@@ -3773,7 +4016,9 @@ class History extends React.Component {
         textAlign: "center"
       }
     }, /*#__PURE__*/React.createElement("span", {
+      role: "img",
       "aria-label": r?.gAria,
+      title: r?.gAria,
       style: {
         display: "inline-flex",
         width: "26px",
@@ -3792,6 +4037,7 @@ class History extends React.Component {
     }, r?.grade)), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
       className: "btn ghost icon sm",
       "aria-label": `Actions for ${r?.label ?? ""}`,
+      "aria-haspopup": "menu",
       style: {
         width: "28px"
       }
@@ -3875,16 +4121,62 @@ class History extends React.Component {
       size: "14"
     }), "Sort")), (v.rows || []).map((r, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
-    }, /*#__PURE__*/React.createElement("a", {
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "stretch",
+        borderRadius: "var(--radius-lg)",
+        border: `1px solid ${r?.cardBd ?? ""}`,
+        background: r?.cardBg
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      role: "checkbox",
+      "aria-checked": r?.selAria,
+      "aria-label": `Select ${r?.label ?? ""}, ${r?.d ?? ""}`,
+      style: {
+        all: "unset",
+        boxSizing: "border-box",
+        flex: "none",
+        width: "44px",
+        minHeight: "44px",
+        display: "flex",
+        justifyContent: "center",
+        paddingTop: "14px",
+        cursor: "pointer"
+      }
+    }, r?.sel ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: "18px",
+        height: "18px",
+        borderRadius: "4px",
+        background: "var(--primary)",
+        color: "var(--primary-fg)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }
+    }, /*#__PURE__*/React.createElement("bg-icon", {
+      name: "check",
+      size: "12",
+      stroke: "3"
+    })) : null, r?.unsel ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: "18px",
+        height: "18px",
+        boxSizing: "border-box",
+        borderRadius: "4px",
+        border: "1.5px solid var(--border-strong)",
+        display: "block"
+      }
+    }) : null), /*#__PURE__*/React.createElement("a", {
       href: "#",
       style: {
+        flex: "1",
+        minWidth: "0",
         display: "flex",
         flexDirection: "column",
         gap: "10px",
-        padding: "12px 14px",
-        borderRadius: "var(--radius-lg)",
-        border: `1px solid ${r?.cardBd ?? ""}`,
-        background: r?.cardBg,
+        padding: "12px 0",
         color: "var(--fg)",
         textDecoration: "none",
         minHeight: "44px"
@@ -3936,7 +4228,9 @@ class History extends React.Component {
     }, /*#__PURE__*/React.createElement("span", {
       className: "d"
     }), r?.st) : null, /*#__PURE__*/React.createElement("span", {
+      role: "img",
       "aria-label": r?.gAria,
+      title: r?.gAria,
       style: {
         display: "inline-flex",
         width: "28px",
@@ -4020,7 +4314,20 @@ class History extends React.Component {
         color: "var(--fg-subtle)",
         fontSize: "10px"
       }
-    }, "ms")))))), v.hasSel ? /*#__PURE__*/React.createElement("div", {
+    }, "ms")))), /*#__PURE__*/React.createElement("button", {
+      className: "btn ghost icon",
+      "aria-label": `Actions for ${r?.label ?? ""}`,
+      "aria-haspopup": "menu",
+      style: {
+        flex: "none",
+        width: "44px",
+        height: "44px",
+        marginTop: "4px"
+      }
+    }, /*#__PURE__*/React.createElement("bg-icon", {
+      name: "ellipsis",
+      size: "16"
+    }))))), v.hasSel ? /*#__PURE__*/React.createElement("div", {
       role: "toolbar",
       "aria-label": "Selection",
       style: {
@@ -4319,11 +4626,15 @@ class History extends React.Component {
         color: "var(--fg-muted)"
       }
     }, c?.k), /*#__PURE__*/React.createElement("td", {
-      className: "num"
+      className: "num",
+      style: {
+        whiteSpace: "normal"
+      }
     }, c?.a), /*#__PURE__*/React.createElement("td", {
       className: "num",
       style: {
-        color: "var(--fg)"
+        color: "var(--fg)",
+        whiteSpace: "normal"
       }
     }, c?.b), /*#__PURE__*/React.createElement("td", {
       style: {
@@ -4813,6 +5124,31 @@ window.BGPrefs = window.BGPrefs || React.createContext({
 });
 class Nav extends React.Component {
   static contextType = window.BGPrefs;
+  state = {
+    ann: ''
+  };
+  componentDidMount() {
+    this._srv();
+  }
+  componentDidUpdate() {
+    this._srv();
+  }
+  down() {
+    return this.props.status === 'offline' || this.props.status === 'unreachable';
+  }
+  // Reachability is announced only when it changes. The last value is shared across screens, so a
+  // header that mounts with an unchanged status (every screen change) stays silent.
+  _srv() {
+    if (this.props.variant === 'mobile-bottom') return;
+    const s = this.down() ? 'unreachable' : 'connected';
+    if (s === this._last) return;
+    const prev = this._last ?? window.__bgSrvStatus;
+    this._last = s;
+    window.__bgSrvStatus = s;
+    if (prev !== undefined && prev !== s) this.setState({
+      ann: s === 'unreachable' ? 'Server unreachable' : 'Server connected'
+    });
+  }
   renderVals() {
     const v = this.props.variant || 'top';
     const active = this.props.active || 'test';
@@ -4830,7 +5166,7 @@ class Nav extends React.Component {
       off: k !== th
     }));
     const cur = themes.find(t => t.on);
-    const down = this.props.status === 'offline' || this.props.status === 'unreachable';
+    const down = this.down();
     return {
       isTop: v === 'top',
       isMobileTop: v === 'mobile-top',
@@ -4842,7 +5178,7 @@ class Nav extends React.Component {
       down,
       dotBg: down ? 'transparent' : 'var(--ok)',
       dotBd: down ? '1.5px solid var(--warn)' : '0',
-      srStatus: down ? 'unreachable' : 'connected',
+      ann: this.state.ann,
       dotTitle: down ? 'Server unreachable' : 'Server connected',
       server: this.props.server || 'Basement NAS',
       host: this.props.host || 'speed.home.lan'
@@ -4928,7 +5264,7 @@ class Nav extends React.Component {
         color: "var(--fg)"
       }
     }, v.server), /*#__PURE__*/React.createElement("span", {
-      role: "status",
+      "aria-live": "polite",
       style: {
         position: "absolute",
         width: "1px",
@@ -4940,7 +5276,7 @@ class Nav extends React.Component {
         whiteSpace: "nowrap",
         border: "0"
       }
-    }, v.srStatus), v.down ? /*#__PURE__*/React.createElement("span", {
+    }, v.ann), v.down ? /*#__PURE__*/React.createElement("span", {
       "aria-hidden": "true",
       style: {
         fontSize: "var(--text-caption)",
@@ -5087,7 +5423,15 @@ class Nav extends React.Component {
         border: v.dotBd
       }
     }), v.server, /*#__PURE__*/React.createElement("span", {
-      role: "status",
+      style: {
+        fontFamily: "var(--font-mono)",
+        minWidth: "0",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      }
+    }, v.host), /*#__PURE__*/React.createElement("span", {
+      "aria-live": "polite",
       style: {
         position: "absolute",
         width: "1px",
@@ -5099,7 +5443,7 @@ class Nav extends React.Component {
         whiteSpace: "nowrap",
         border: "0"
       }
-    }, v.srStatus), v.down ? /*#__PURE__*/React.createElement("span", {
+    }, v.ann), v.down ? /*#__PURE__*/React.createElement("span", {
       "aria-hidden": "true",
       style: {
         color: "var(--warn-fg)",
@@ -5206,6 +5550,8 @@ function ThemeSync({
  */
 const PREFS_KEY = 'bitgauge-kit-prefs';
 const DESKTOP_MIN = 1140;
+// Kit assumption: a latency stop with fewer pings than this has measured nothing, so it returns to Idle.
+const MIN_PINGS = 5;
 const CHIP_ICONS = {
   'Preset': 'gauge',
   'Parallel streams': 'layers',
@@ -5283,12 +5629,13 @@ class Prototype extends React.Component {
     };
   }
   SEQ = {
+    // Standard on the fast LAN: download ends at its 10 s minimum, upload at its 12 s minimum.
     normal: {
-      segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 12, 12], ['upload', 12, 12]],
+      segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 10, 10], ['upload', 12, 12]],
       end: 'complete'
     },
     error: {
-      segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 6.4, 12]],
+      segs: [['connecting', 0.6, 0.6], ['latency', 2, 2], ['download', 6.4, 10]],
       end: 'error'
     },
     slow: {
@@ -5314,14 +5661,18 @@ class Prototype extends React.Component {
   componentDidMount() {
     this._k = e => {
       if (e.defaultPrevented || e.isComposing || e.keyCode === 229) return;
-      // Escape stops a run or cancels the countdown from anywhere (dialogs handle their own Escape first).
+      // Enter and Escape act only on the Test screen.
+      if (this.state.screen !== 'test') return;
+      // Escape stops a run or cancels the countdown (dialogs handle their own Escape first).
       if (e.key === 'Escape') {
-        if (this.running() || this.state.ts === 'continuous') this.stop();
+        if (this.running() || this.cur() === 'continuous') this.stop();
         return;
       }
       if (e.key !== 'Enter' || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-      if (this.state.screen !== 'test' || this.running()) return;
       if (document.querySelector('dialog[open], [role="dialog"], [role="alertdialog"], [aria-modal="true"]')) return;
+      const ts = this.cur();
+      // Enter during the countdown starts the test now; otherwise nothing while a run is going or Start is disabled.
+      if (ts !== 'countdown' && (this.running() || ['offline', 'basepath', 'continuous'].includes(ts))) return;
       // Only from the page body or a non-interactive element; focused links/buttons/fields keep native Enter.
       const t = e.target;
       if (t && t.closest && t.closest('a[href], button, input, select, textarea, summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="checkbox"], [role="radio"], [role="switch"], [role="option"], [role="combobox"], [role="textbox"]')) return;
@@ -5350,6 +5701,10 @@ class Prototype extends React.Component {
   }
   running() {
     return !!this._t;
+  }
+  // The state the Test screen shows: a Demo-forced state wins over the run timeline.
+  cur() {
+    return this.props.testExtra && this.props.testExtra.state || this.state.ts;
   }
   halt() {
     clearInterval(this._t);
@@ -5408,13 +5763,28 @@ class Prototype extends React.Component {
   }
   stop() {
     if (!this.running() && this.state.ts !== 'continuous') return;
-    const ts = this.state.ts;
+    const ts = this.state.ts,
+      p = this.state.p || 0;
     this.halt();
-    // Upload needs a confirmed steady window ≥ 3 s (warm-up ends ~4 s) for a partial value.
-    const late = ts === 'upload' && (this.state.p || 0) * 12 >= 8.5;
+    // Stop in any phase ends Cancelled with the partial-result rules. Idle only when nothing was measured:
+    // the countdown, the info phase, or idle latency with too few samples.
+    let next = 'idle',
+      np = null;
+    if (ts === 'latency' && Math.round(20 * p) >= MIN_PINGS) {
+      next = 'cancelled-latency';
+      np = p;
+    } else if (ts === 'download') {
+      next = 'cancelled-download';
+      np = p;
+    } else if (ts === 'slow') {
+      next = 'cancelled-slow';
+      np = p;
+    }
+    // Upload warm-up ends ≈ 7.5 s; the confirmed window (≈ 0.4 s behind) reaches 3 s at ≈ 10.9 s.
+    else if (ts === 'upload') next = p * 12 >= 10.9 ? 'cancelled-late' : 'cancelled';else if (ts === 'continuous') next = 'cont-done';
     this.setState({
-      ts: ts === 'upload' ? late ? 'cancelled-late' : 'cancelled' : 'idle',
-      p: null
+      ts: next,
+      p: np
     });
   }
   setTheme(theme) {
@@ -5579,6 +5949,7 @@ try { (() => {
  *   tableView: boolean  (default false)
  *   includeLabel: boolean  (default false)
  *   demo: "none" | "deleted" | "clipboard-denied"  (default "none")
+ *   overhead: "0" | "6" | "5.13" | "3.69" | "8.1"  (default "0") — overhead compensation preset (§9.3)
  */
 class ResultDetail extends React.Component {
   state = {
@@ -5700,30 +6071,53 @@ class ResultDetail extends React.Component {
       body
     });
 
-    // Continuous: stored 1-min cells from warm-up end (3 s); cells 12–13 unknown; data cap ends the run at 27:43.
-    const CWU = 3,
-      CEND = 1663,
+    // Overhead compensation (§9.3): 0 % in the example. A preset multiplies every rate and is named next to each one.
+    const OHP = parseFloat(this.props.overhead) || 0,
+      OHF = 1 + OHP / 100,
+      OH = OHP ? '+' + OHP + ' % overhead compensation' : '';
+    const ohs = s => OH ? s + ' · ' + OH : s;
+    const GT = {
+      'A+': ['ok', 'Minimal'],
+      A: ['ok', 'Low'],
+      B: ['ok', 'Mild'],
+      C: ['warn', 'Moderate'],
+      D: ['warn', 'High'],
+      F: ['danger', 'Severe']
+    };
+    const gradeOf = inc => inc < 5 ? 'A+' : inc < 30 ? 'A' : inc < 60 ? 'B' : inc < 200 ? 'C' : inc < 400 ? 'D' : 'F';
+    const hms = s => {
+      s = Math.round(s);
+      return Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    };
+
+    // Continuous: a 2 h download run. Longer than 1 h, so it is stored in 1 min cells (day tier). Auto warm-up ends at
+    // ≈ 6.5 s (6-stream ramp, plateau cap) and the cells start there. Download cells are always known. The run length ends it.
+    const CWU = 6.5,
+      CEND = 7200,
       cells = [];
     for (let i = 0; CWU + 60 * i < CEND; i++) {
       const a = CWU + 60 * i,
-        b = Math.min(a + 60, CEND),
-        unk = i === 12 || i === 13;
+        b = Math.min(a + 60, CEND);
       cells.push({
         a,
         b,
-        known: unk ? 0 : b - a,
-        v: unk ? null : 412e6 + 26e6 * Math.sin(i * 0.7) + 11e6 * Math.cos(i * 2.3) - (i >= 4 && i <= 9 ? 31e6 : 0),
-        l: unk ? null : 17 + 3.5 * Math.sin(i * 1.3) + i % 5 * 0.5
+        known: b - a,
+        v: OHF * (412e6 + 26e6 * Math.sin(i * 0.7) + 11e6 * Math.cos(i * 2.3) - (i >= 40 && i <= 52 ? 31e6 : 0)),
+        l: 17 + 3.5 * Math.sin(i * 1.3) + i % 5 * 0.5
       });
     }
-    const kc = cells.filter(c => c.known),
-      cAvg = kc.reduce((s, c) => s + c.v * c.known, 0) / kc.reduce((s, c) => s + c.known, 0);
+    const cKnown = cells.reduce((s, c) => s + c.known, 0),
+      cAvg = cells.reduce((s, c) => s + c.v * c.known, 0) / cKnown;
+    const lastHr = cells.filter(c => c.b > CEND - 3600).map(c => c.v).sort((x, y) => x - y),
+      cP90 = lastHr[Math.floor(0.9 * (lastHr.length - 1))];
+    const cUsed = Math.round(cAvg / OHF * CEND / 8 / 1e9) + ' GB';
     const D = cont ? {
       label: 'Overnight check',
       ctx: 'LAN',
       ctxIcon: 'house',
       when: 'Thu 8 Oct 2026 · 01:00:04',
       abs: '2026-10-08 01:00:04 CEST',
+      iso: '2026-10-07T23:00:04.000Z',
       crumb: '2026-10-08 01:00',
       short: 'Thu 8 Oct 2026 · 01:00',
       file: 'bitgauge-2026-10-08-0100',
@@ -5739,20 +6133,25 @@ class ResultDetail extends React.Component {
       ctxIcon: 'house',
       when: 'Thu 8 Oct 2026 · 14:02:11',
       abs: '2026-10-08 14:02:11 CEST',
+      iso: '2026-10-08T12:02:11.000Z',
       crumb: '2026-10-08 14:02',
       short: 'Thu 8 Oct 2026 · 14:02',
       file: 'bitgauge-2026-10-08-1402',
       preset: 'Standard',
       server: 'Basement NAS',
       note: 'Office desk, 5 GHz. Router is in the hallway, one wall between.',
-      down: 612e6,
-      up: 438e6,
+      down: 612e6 * OHF,
+      up: 438e6 * OHF,
       worst: ['upload', 39]
     };
     const IDLE = 3.1,
       JIT = 0.8;
+    const grade = gradeOf(D.worst[1]),
+      gT = GT[grade],
+      gradeWords = gT[1] + ' bufferbloat' + (cont ? ' · download only' : '');
+    const gradeBasis = cont ? 'Grade basis: download +15 ms vs idle. Upload not measured.' : 'Grade basis: the worse increase vs idle — upload +39 ms (download +15 ms).';
     const worstStr = '+' + D.worst[1] + ' ms loaded (' + D.worst[0] + ')';
-    const summary = ['BitGauge' + (inc ? ' · ' + D.label : ''), D.short, 'Download ' + rs(D.down) + ' · Upload ' + rs(D.up), 'Idle latency ' + IDLE.toFixed(1) + ' ms · Jitter ' + jit(JIT) + ' ms', 'Loaded latency +' + D.worst[1] + ' ms (' + D.worst[0] + ')', 'Bufferbloat grade B · Mild', 'Server: ' + D.server].join('\n');
+    const summary = ['BitGauge' + (inc ? ' · ' + D.label : ''), D.short, cont ? 'Download ' + rs(D.down) + ' (2 h average) · Upload not measured' : 'Download ' + rs(D.down) + ' · Upload ' + rs(D.up)].concat(OH ? [OH] : []).concat(['Idle latency ' + IDLE.toFixed(1) + ' ms · Jitter ' + jit(JIT) + ' ms', 'Loaded latency +' + D.worst[1] + ' ms (' + D.worst[0] + ')', 'Bufferbloat grade ' + grade + ' · ' + gradeWords, 'Server: ' + D.server]).join('\n');
     const tiles = [{
       label: cont ? 'Download · average' : 'Download',
       icon: 'arrow-down',
@@ -5760,7 +6159,7 @@ class ResultDetail extends React.Component {
       num: rn(D.down),
       unit: 'Mbit/s',
       nc: 'var(--fg)',
-      sub: cont ? 'time-weighted over ' + kc.length + ' of ' + cells.length + ' cells · 6 streams' : 'peak 641 · 6 streams · plateau: no-gain'
+      sub: ohs(cont ? 'peak ' + rn(cP90) + ' · p90, last hour · 6 streams · plateau: cap' : 'peak ' + rn(641e6 * OHF) + ' · 6 streams · plateau: cap')
     }, cont ? {
       label: 'Upload',
       icon: 'arrow-up',
@@ -5773,10 +6172,10 @@ class ResultDetail extends React.Component {
       label: 'Upload',
       icon: 'arrow-up',
       ic: 'var(--series-upload)',
-      num: '438',
+      num: rn(D.up),
       unit: 'Mbit/s',
       nc: 'var(--fg)',
-      sub: 'peak 455 · 6 streams · plateau: no-gain · 12.3 of 14.5 s known'
+      sub: ohs('peak ' + rn(455e6 * OHF) + ' · 6 streams · plateau: cap · 3.1 of 3.5 s known')
     }, {
       label: 'Idle latency',
       icon: 'activity',
@@ -5819,26 +6218,29 @@ class ResultDetail extends React.Component {
       ic: 'var(--series-upload)',
       num: '980'
     }]);
-    const conf = cont ? {
-      label: 'Medium confidence',
-      tone: 'neutral'
-    } : {
-      label: 'High confidence',
+
+    // Confidence levels (§16): normal | low (ramp-unsettled, unstable, insufficient-samples) | cpu-bound.
+    const conf = {
+      label: 'Confidence: normal',
       tone: 'ok'
     };
+    const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.');
+    const N_RESP = it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.');
+    const N_OH = OH ? [it('neutral', 'sliders', OH, 'Throughput is multiplied by ' + OHF.toFixed(OHP % 1 ? 4 : 2).replace(/0+$/, '') + '. The uncompensated values are kept in the JSON.')] : [];
     const confGroups = cont ? [{
-      h: 'Confidence reasons',
-      items: [it('warn', 'circle-alert', '26 of 28 cells have known time', 'Cells 12:03–14:03 have no known time and are left out of the average.'), it('ok', 'circle-check', 'Throughput stable across cells', 'Known cells stay within 12 % of the average.'), it('ok', 'circle-check', 'Idle latency from 20 of 20 pings', 'No probe timeouts.'), it('ok', 'circle-check', 'Precise timers', 'Timer resolution 0.02 ms; the page is cross-origin isolated.')]
+      h: 'Confidence',
+      items: [it('ok', 'circle-check', 'Download reached the 6-stream cap', 'Warm-up ended by the guarded rule at 6.5 s and the window condition held. Level: normal.')]
     }, {
       h: 'Notices',
-      items: [it('warn', 'database', 'Data cap reached at 27:43', 'The 80 GB cap ended the run. The last cell covers 40 s, not a full minute.'), it('warn', 'pause', 'No data from 12:03 to 14:03', 'The tab was in the background and the browser throttled requests.'), it('neutral', 'circle-dashed', 'Upload not measured', 'Continuous runs one direction.'), it('neutral', 'circle-dashed', 'Packet loss not measured', 'Browsers can’t see packet loss over TCP, so the grade is an upper bound.'), it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.')]
+      items: [it('neutral', 'timer', 'Run length reached at 2:00:00', 'The 2 h run length ended the run. Status: complete.'), it('neutral', 'database', 'Data used: ' + cUsed, 'Data-used notices appeared at 1 GB, 10 GB and 100 GB.'), it('neutral', 'circle-dashed', 'Upload not measured', 'Continuous runs one direction.'), N_LOSS, N_RESP].concat(N_OH)
     }] : [{
-      h: 'Confidence reasons',
-      items: [it('ok', 'circle-check', 'Both directions reached a plateau', 'Adding streams stopped helping at 6 (no-gain), inside the 20 s maximum.'), it('warn', 'circle-alert', '85 % of upload time known', '2.2 s of 14.5 s is unknown after a failed request. The average uses known time only.'), it('ok', 'circle-check', 'Idle latency from 20 of 20 pings', 'No probe timeouts.'), it('ok', 'circle-check', 'Precise timers', 'Timer resolution 0.02 ms; the page is cross-origin isolated.')]
+      h: 'Confidence',
+      items: [it('ok', 'circle-check', 'Both directions reached the 6-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 7.5 s — and the window condition held. Level: normal.'), it('info', 'info', '89 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 8.4–8.8 s is left out; the average uses known time only.')]
     }, {
       h: 'Notices',
-      items: [it('danger', 'circle-x', 'Upload request failed at 7.4 s', 'It was retried. 7.4–9.6 s has no known data and is drawn as a gap.'), it('info', 'timer', 'Upload extended to 16 s', 'Throughput was still rising at 12 s, so the phase ran longer.'), it('neutral', 'circle-dashed', 'Packet loss not measured', 'Browsers can’t see packet loss over TCP, so the grade is an upper bound.'), it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.'), it('neutral', 'sliders', 'Overhead compensation on', 'Throughput includes an estimated 2.6 % for HTTP/2 and TLS framing.')]
+      items: [N_LOSS, N_RESP].concat(N_OH)
     }];
+    const OHV = OH ? '+' + OHP + ' %' : 'None · 0 %';
     const P = (h, rows) => ({
       h,
       rows: rows.map(([k, v]) => ({
@@ -5846,7 +6248,19 @@ class ResultDetail extends React.Component {
         v
       }))
     });
-    const params = cont ? [P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · 6 · plateau: no-gain']]), P('Limits', [['Duration', '27:43 · no maximum · ended by data cap'], ['Cell size', '1 min'], ['Data cap', '80 GB · reached']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Fixed · 3 s'], ['Ping count', '20'], ['Overhead compensation', 'On · +2.6 %'], ['Protocol', 'HTTP/2']]), P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', 'Firefox 131 · Linux'], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']])] : [P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', 'Auto · 6 · plateau: no-gain']]), P('Limits', [['Download', '12.0 s · min 8 · max 20'], ['Upload', '16.0 s · min 8 · max 20 · extended'], ['Data cap', '5 GB · 1.48 GB used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · 1.5 s'], ['Ping count', '20'], ['Overhead compensation', 'On · +2.6 %'], ['Protocol', 'HTTP/2']]), P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', 'Firefox 131 · Linux'], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']])];
+    const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', 'Firefox 131 · Linux'], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
+    const params = cont ? [P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · 6 · plateau: cap']]), P('Limits', [['Run length', '2 h · reached'], ['Stored cells', '1 min · run longer than 1 h'], ['Data cap', 'Off · ' + cUsed + ' used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]), env] : [P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', 'Auto · 6 · plateau: cap']]), P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', '12.0 s · min 12 · max 25'], ['Data cap', 'Off · 1.42 GB used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s (download), 7.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]), env];
+    // Share shows only where the browser can share files (the PNG goes to the system sheet).
+    let canShare = false;
+    try {
+      canShare = !!(navigator.canShare && navigator.canShare({
+        files: [new File([new Blob([''], {
+          type: 'image/png'
+        })], 'x.png', {
+          type: 'image/png'
+        })]
+      }));
+    } catch (e) {}
     let toast = this.state.toast;
     if (delSt === 'pending') toast = {
       kind: 'info',
@@ -5898,6 +6312,14 @@ class ResultDetail extends React.Component {
       summary,
       inc,
       denied,
+      grade,
+      gradeWords,
+      gradeBasis,
+      gShort: gT[1],
+      gradeAria: 'Bufferbloat grade ' + grade + ', ' + gradeWords,
+      gBd: 'var(--' + gT[0] + '-border)',
+      gBg: 'var(--' + gT[0] + '-bg)',
+      gFg: 'var(--' + gT[0] + '-fg)',
       note: this.state.note ?? D.note,
       setNote: e => this.setState({
         note: e.target.value
@@ -5916,7 +6338,7 @@ class ResultDetail extends React.Component {
         n: rn(D.up),
         u: D.up == null ? '' : 'Mbit/s'
       }],
-      shareFoot: [IDLE.toFixed(1) + ' ms idle', jit(JIT) + ' ms jitter', worstStr],
+      shareFoot: [IDLE.toFixed(1) + ' ms idle', jit(JIT) + ' ms jitter', worstStr].concat(OH ? [OH] : []),
       shareAria: 'Share image: ' + summary.replace(/\n/g, ', '),
       preRef: this.preRef,
       preOutline: denied ? '2px solid var(--ring)' : 'none',
@@ -5984,16 +6406,29 @@ class ResultDetail extends React.Component {
           no();
         }
       },
+      canShare,
+      shareCols: canShare ? 'repeat(2, minmax(0,1fr))' : 'minmax(0,1fr)',
       share: () => {
-        if (navigator.share) navigator.share({
-          title: 'BitGauge result',
-          text: summary
-        }).catch(() => {});else this.toast({
-          kind: 'info',
-          icon: 'info',
-          t: 'Sharing isn’t available in this browser.',
-          m: 'Use Download image or Copy instead.'
-        });
+        // Stand-in for the real 1200 × 630 renderer: the file, not text, goes to the share sheet.
+        const c = document.createElement('canvas');
+        c.width = 1200;
+        c.height = 630;
+        const x = c.getContext('2d'),
+          cs = getComputedStyle(document.documentElement);
+        x.fillStyle = cs.getPropertyValue('--bg-base') || '#000';
+        x.fillRect(0, 0, 1200, 630);
+        x.fillStyle = cs.getPropertyValue('--fg') || '#fff';
+        x.font = '36px ' + (cs.getPropertyValue('--font-mono') || 'monospace');
+        summary.split('\n').forEach((l, i) => x.fillText(l, 60, 90 + i * 56));
+        c.toBlob(b => {
+          if (!b) return;
+          navigator.share({
+            files: [new File([b], D.file + '.png', {
+              type: 'image/png'
+            })],
+            title: 'BitGauge result'
+          }).catch(() => {});
+        }, 'image/png');
       },
       dlImg: () => this.toast({
         kind: 'ok',
@@ -6002,23 +6437,86 @@ class ResultDetail extends React.Component {
         m: D.file + '.png'
       }),
       dlJson: () => {
-        const obj = {
-          format: 'bitgauge-result',
-          version: 1,
-          startedAt: D.abs,
+        const S = this._series || {},
+          vals = a => (a || []).map(p => p[1] == null ? null : Math.round(p[1]));
+        const dir = (bps, peak, wu, end, values, extra) => Object.assign({
+          status: 'measured',
+          bitsPerSecond: Math.round(bps),
+          peakBitsPerSecond: Math.round(peak),
+          uncompensatedBitsPerSecond: Math.round(bps / OHF),
+          streams: 6,
+          plateau: 'cap',
+          confidence: {
+            level: 'normal',
+            reasons: []
+          },
+          series: {
+            bucketMs: cont ? 60000 : 100,
+            firstCellMs: wu * 1000,
+            warmupEndMs: wu * 1000,
+            endMs: end * 1000,
+            values
+          },
+          events: []
+        }, extra || {});
+        const result = {
+          schema: 'bitgauge.result',
+          schemaVersion: 1,
+          startedAt: D.iso,
+          status: 'complete',
           label: D.label,
           note: this.state.note ?? D.note,
-          preset: D.preset,
           server: {
             name: D.server,
             version: '1.4.0'
           },
-          download_bps: Math.round(D.down),
-          upload_bps: D.up,
-          idle_latency_ms: IDLE,
-          jitter_ms: JIT,
-          grade: 'B',
-          params: params.flatMap(g => g.rows)
+          client: {
+            ip: '192.168.1.42',
+            contextLabel: D.ctx,
+            protocol: 'h2',
+            browser: {
+              name: 'Firefox',
+              major: 131,
+              os: 'Linux'
+            }
+          },
+          settings: {
+            preset: D.preset.toLowerCase(),
+            streams: {
+              mode: 'auto',
+              max: 6
+            },
+            dataCapBytes: null,
+            overheadCompensationPercent: OHP,
+            warmup: 'auto',
+            pingCount: 20
+          },
+          idle: {
+            path: 'websocket',
+            medianMs: IDLE,
+            jitterMs: JIT
+          },
+          download: cont ? dir(cAvg, cP90, CWU, CEND, cells.map(c => Math.round(c.v))) : dir(D.down, 641e6 * OHF, 6.5, 10, vals(S.down)),
+          upload: cont ? {
+            status: 'skipped'
+          } : dir(D.up, 455e6 * OHF, 7.5, 11, vals(S.up), {
+            events: [{
+              code: 'failure-gap',
+              startMs: 8400,
+              endMs: 8800
+            }]
+          }),
+          bufferbloat: {
+            grade,
+            basis: cont ? 'download' : 'download+upload',
+            increaseMs: D.worst[1]
+          }
+        };
+        const obj = {
+          format: 'bitgauge.history',
+          formatVersion: 1,
+          exportedAt: new Date().toISOString(),
+          results: [result]
         };
         try {
           const u = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], {
@@ -6036,7 +6534,7 @@ class ResultDetail extends React.Component {
           kind: 'ok',
           icon: 'circle-check',
           t: 'JSON downloaded.',
-          m: D.file + '.json'
+          m: D.file + '.json · contains client IP and notes'
         });
       }
     };
@@ -6051,7 +6549,7 @@ class ResultDetail extends React.Component {
         c: 'var(--info)',
         fg: 'var(--info-fg)',
         bd: 'var(--info-border)',
-        t: 'Extended'
+        t: 'Slow link — test extended'
       },
       cap: {
         icon: 'database',
@@ -6224,8 +6722,8 @@ class ResultDetail extends React.Component {
       return out;
     };
     const tidy = (pts, t0, end) => pts.map(p => [Math.round(p[0] * 100) / 100, p[1]]).filter(p => p[0] >= t0 - 1e-6 && p[0] < end - 1e-6);
+    const tfoot = (wu, extra) => 'From warm-up end (' + wu + ' s). Throughput = bytes ÷ known time' + (OH ? ', with ' + OH : '') + '; “—” = no known time in that window.' + (extra || '') + ' Full samples are in the JSON export.';
     const TCOLS = ['2 s windows', 'Known', 'Throughput', 'Latency (median)'];
-    const TFOOT = 'From warm-up end (1.5 s). Throughput = bytes ÷ known time; “—” = no known time in that window. Full samples are in the JSON export.';
     const cw = m ? 309 : 320,
       ch = m ? 150 : 170,
       sp = m ? 'auto' : 'span 1',
@@ -6255,7 +6753,8 @@ class ResultDetail extends React.Component {
     if (cont) {
       const cpts = cells.map(c => [(c.a + c.b) / 2, c.v]),
         clat = cells.map(c => [(c.a + c.b) / 2, c.l]);
-      const crow = cells.map(c => [cL(mmss(c.a) + '–' + mmss(c.b)), cK(c.known + ' s'), cV(rs(c.v)), cV(c.l == null ? '—' : BG.ms(c.l) + ' ms')]);
+      const crow = cells.map(c => [cL(hms(c.a) + '–' + hms(c.b)), cK((c.known % 1 ? c.known.toFixed(1) : c.known) + ' s'), cV(rs(c.v)), cV(BG.ms(c.l) + ' ms')]);
+      const hl = t => t === 0 ? '0' : t < 3600 ? t / 60 + 'm' : Math.floor(t / 3600) + 'h' + (t % 3600 ? String(t % 3600 / 60).padStart(2, '0') : '');
       charts = [mk({
         key: 'down',
         title: 'Download',
@@ -6263,29 +6762,36 @@ class ResultDetail extends React.Component {
         c: 'var(--series-download)',
         pts: cpts,
         lat: clat,
-        xMax: 1680,
-        xStep: 300,
-        xLabel: t => Math.round(t / 60) + 'm',
+        xMax: CEND,
+        xStep: 1200,
+        xLabel: hl,
         wu: CWU,
-        wuText: '0–0:03',
-        marks: [[CEND, 'cap']],
-        meta: '27:43 · 1 min cells · 6 streams',
+        wuText: '0–0:07',
+        meta: ohs('2 h · 1 min cells · 6 streams'),
         w: wide,
         h: m ? 150 : 190,
         span: m ? 'auto' : 'span 2',
-        gapLabel: 'Unknown cells',
         cols: ['1 min averages', 'Known', 'Throughput', 'Latency (median)'],
         rows: crow,
-        foot: 'One row per stored cell, from warm-up end (0:03). The last cell is shorter because the data cap ended the run. “—” = no known time.'
+        foot: 'One row per stored 1 min cell, from warm-up end (0:07). Runs longer than 1 h are stored in 1 min cells' + (OH ? '; throughput includes ' + OH : '') + '. The last cell is 53.5 s because the 2 h run length ended the run.'
       }), idle];
     } else {
-      const dEnd = 12,
-        uEnd = 16,
-        WU = 1.5;
-      const dPts = tidy(BG.thr(3, 612e6, dEnd), WU, dEnd),
-        dLat = tidy(BG.lat(5, 3.1, 18, dEnd, 0.25), WU, dEnd);
-      const uPts = tidy(BG.thr(7, 438e6, uEnd), WU, uEnd).map(p => p[0] > 7.4 + 1e-6 && p[0] < 9.6 - 1e-6 ? [p[0], null] : p),
-        uLat = tidy(BG.lat(9, 3.1, 42, uEnd, 0.25), WU, uEnd);
+      // Same run as the Test screen (§8.3): both directions ramp to the 6-stream cap.
+      // Download: warm-up 0–6.5 s, phase ends at 10 s. Upload: warm-up 0–7.5 s, phase ends at its 12 s minimum,
+      // steady window 7.5–11.0 s (confirmed watermark), one failed HTTP/2 request leaves a 0.4 s gap at 8.4–8.8 s.
+      const dEnd = 10,
+        uEnd = 11,
+        DWU = 6.5,
+        UWU = 7.5,
+        inGap = p => p[0] > 8.4 - 1e-6 && p[0] < 8.8 - 1e-6;
+      const dPts = tidy(BG.thr(3, 612e6 * OHF, dEnd), DWU, dEnd),
+        dLat = tidy(BG.lat(5, 3.1, 18, dEnd, 0.25), DWU, dEnd);
+      const uPts = tidy(BG.thr(7, 438e6 * OHF, uEnd), UWU, uEnd).map(p => inGap(p) ? [p[0], null] : p),
+        uLat = tidy(BG.lat(9, 3.1, 42, uEnd, 0.25), UWU, uEnd);
+      this._series = {
+        down: dPts,
+        up: uPts
+      };
       charts = [mk({
         key: 'down',
         title: 'Download',
@@ -6293,16 +6799,16 @@ class ResultDetail extends React.Component {
         c: 'var(--series-download)',
         pts: dPts,
         lat: dLat,
-        xMax: dEnd,
-        wu: WU,
-        wuText: '0–1.5 s',
-        meta: '12 s · 6 streams',
+        xMax: 10,
+        wu: DWU,
+        wuText: '0–6.5 s',
+        meta: ohs('10 s · 6 streams'),
         w: cw,
         h: ch,
         span: sp,
         cols: TCOLS,
-        rows: winRows(dPts, dLat, WU, dEnd),
-        foot: TFOOT
+        rows: winRows(dPts, dLat, DWU, dEnd),
+        foot: tfoot('6.5')
       }), mk({
         key: 'up',
         title: 'Upload',
@@ -6310,18 +6816,17 @@ class ResultDetail extends React.Component {
         c: 'var(--series-upload)',
         pts: uPts,
         lat: uLat,
-        xMax: uEnd,
-        wu: WU,
-        wuText: '0–1.5 s',
-        marks: [[7.4, 'error'], [12, 'extended']],
-        meta: '16 s · 6 streams',
+        xMax: 12,
+        wu: UWU,
+        wuText: '0–7.5 s',
+        meta: ohs('12 s · 6 streams'),
         w: cw,
         h: ch,
         span: sp,
-        gapLabel: 'No known data (failed request)',
+        gapLabel: 'No known data · failed request (8.4–8.8 s)',
         cols: TCOLS,
-        rows: winRows(uPts, uLat, WU, uEnd),
-        foot: TFOOT
+        rows: winRows(uPts, uLat, UWU, uEnd),
+        foot: tfoot('7.5', ' The window ends at the confirmed watermark (11.0 s): 3.1 of 3.5 s known.')
       }), idle];
     }
     return Object.assign(base, {
@@ -6584,7 +7089,8 @@ class ResultDetail extends React.Component {
       }
     }, /*#__PURE__*/React.createElement("button", {
       className: "btn secondary",
-      onClick: v.dlJson
+      onClick: v.dlJson,
+      "aria-describedby": "json-warn"
     }, /*#__PURE__*/React.createElement("bg-icon", {
       name: "file-json",
       size: "15"
@@ -6618,7 +7124,26 @@ class ResultDetail extends React.Component {
       className: "tip",
       role: "tooltip",
       id: "tip-del"
-    }, "History unavailable \xB7 nothing saved to delete")) : null)), /*#__PURE__*/React.createElement("div", {
+    }, "History unavailable \xB7 nothing saved to delete")) : null, /*#__PURE__*/React.createElement("span", {
+      id: "json-warn",
+      style: {
+        flexBasis: "100%",
+        display: "flex",
+        alignItems: "center",
+        gap: "5px",
+        fontSize: "var(--text-micro)",
+        color: "var(--fg-subtle)"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "var(--warn)",
+        display: "flex"
+      }
+    }, /*#__PURE__*/React.createElement("bg-icon", {
+      name: "triangle-alert",
+      size: "12",
+      stroke: "2"
+    })), "JSON contains client IP and notes"))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
         gridTemplateColumns: v.L?.cols,
@@ -6730,15 +7255,17 @@ class ResultDetail extends React.Component {
         color: "var(--fg-subtle)"
       }
     }, "Bufferbloat"), /*#__PURE__*/React.createElement("span", {
-      "aria-label": "Bufferbloat grade B, mild",
+      role: "img",
+      "aria-label": v.gradeAria,
+      title: v.gradeAria,
       style: {
         width: "52px",
         height: "52px",
         boxSizing: "border-box",
         borderRadius: "var(--radius-lg)",
-        border: "1px solid var(--ok-border)",
-        background: "var(--ok-bg)",
-        color: "var(--ok-fg)",
+        border: `1px solid ${v.gBd ?? ""}`,
+        background: v.gBg,
+        color: v.gFg,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -6746,12 +7273,19 @@ class ResultDetail extends React.Component {
         fontWeight: "600",
         fontSize: "24px"
       }
-    }, "B"), /*#__PURE__*/React.createElement("span", {
+    }, v.grade), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: "var(--text-sm)",
+        fontWeight: "500"
+      }
+    }, v.gradeWords), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)"
+        color: "var(--fg-muted)",
+        lineHeight: "1.45",
+        textWrap: "pretty"
       }
-    }, "Mild bufferbloat \xB7 latency rises under load but stays usable.")), /*#__PURE__*/React.createElement("div", {
+    }, v.gradeBasis)), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: "999 1 260px",
         minWidth: "0",
@@ -7636,9 +8170,9 @@ class ResultDetail extends React.Component {
         height: "30px",
         boxSizing: "border-box",
         borderRadius: "var(--radius-sm)",
-        border: "1px solid var(--ok-border)",
-        background: "var(--ok-bg)",
-        color: "var(--ok-fg)",
+        border: `1px solid ${v.gBd ?? ""}`,
+        background: v.gBg,
+        color: v.gFg,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -7646,7 +8180,7 @@ class ResultDetail extends React.Component {
         fontWeight: "600",
         fontSize: "15px"
       }
-    }, "B"), /*#__PURE__*/React.createElement("span", {
+    }, v.grade), /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         flexDirection: "column",
@@ -7657,7 +8191,7 @@ class ResultDetail extends React.Component {
       style: {
         fontWeight: "600"
       }
-    }, "Mild"), /*#__PURE__*/React.createElement("span", {
+    }, v.gShort), /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg-subtle)"
       }
@@ -7709,20 +8243,20 @@ class ResultDetail extends React.Component {
     }, "Adds \u201C", v.D?.label, "\u201D to the image and the text. IP address and note are never shared."))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
-        gridTemplateColumns: "repeat(2, minmax(0,1fr))",
+        gridTemplateColumns: v.shareCols,
         gap: "8px"
       }
-    }, /*#__PURE__*/React.createElement("button", {
+    }, v.canShare ? /*#__PURE__*/React.createElement("button", {
       className: "btn secondary",
       onClick: v.share,
-      title: "Opens the system share sheet where the browser supports it",
+      title: "Sends the image to the system share sheet",
       style: {
         justifyContent: "center"
       }
     }, /*#__PURE__*/React.createElement("bg-icon", {
       name: "share",
       size: "15"
-    }), "Share"), /*#__PURE__*/React.createElement("button", {
+    }), "Share") : null, /*#__PURE__*/React.createElement("button", {
       className: "btn secondary",
       onClick: v.dlImg,
       style: {
@@ -8003,7 +8537,7 @@ class Settings extends React.Component {
       continuous: {
         t: 'Continuous',
         icon: 'infinity',
-        d: 'One direction until stopped',
+        d: 'Auto streams, Standard ramp · one direction until stopped · 20 pings',
         streams: 'auto',
         pings: 20
       }
@@ -8038,7 +8572,8 @@ class Settings extends React.Component {
       warm: 'auto',
       overhead: '0',
       drafts: {},
-      err: {}
+      err: {},
+      keepAsk: null
     };
   }
   initState() {
@@ -8050,7 +8585,8 @@ class Settings extends React.Component {
       confirm: false,
       copied: false,
       drafts: {},
-      err: {}
+      err: {},
+      keepAsk: null
     });
     const preset = p.preset || 'extended';
     if (p.onSettings) return Object.assign(this.defaults(), {
@@ -8130,14 +8666,14 @@ class Settings extends React.Component {
   }
   validate(k, str, st) {
     const R = {
-      dlMin: [1, 600],
-      dlMax: [1, 600],
-      ulMin: [1, 600],
-      ulMax: [1, 600],
+      dlMin: [5, 600],
+      dlMax: [5, 600],
+      ulMin: [5, 600],
+      ulMax: [5, 600],
       capMB: [1, 100000],
       countdown: [1, 30],
-      pings: [1, 100],
-      warmS: [0.5, 10, true],
+      pings: [6, 200],
+      warmS: [1, 60],
       runVal: {
         m: [1, 10080],
         h: [1, 168],
@@ -8148,7 +8684,7 @@ class Settings extends React.Component {
       n = Number(s),
       u = this.unitOf(k, st);
     let msg = null;
-    if (s === '' || !isFinite(n) || !R[2] && !Number.isInteger(n) || n < R[0] || n > R[1]) msg = k === 'runVal' ? 'Run length must be 1 minute to 7 days.' : 'Enter a ' + (R[2] ? '' : 'whole ') + 'number from ' + R[0] + ' to ' + R[1] + '.';else if (/Min$/.test(k) && n > this.eff(k.replace('Min', 'Max'), st)) msg = 'Must be at most the maximum (' + this.eff(k.replace('Min', 'Max'), st) + ' s).';else if (/Max$/.test(k) && n < this.eff(k.replace('Max', 'Min'), st)) msg = 'Must be at least the minimum (' + this.eff(k.replace('Max', 'Min'), st) + ' s).';
+    if (s === '' || !isFinite(n) || !R[2] && !Number.isInteger(n) || n < R[0] || n > R[1]) msg = k === 'runVal' ? 'Run length must be 1 minute to 7 days.' : /^(dl|ul)/.test(k) ? 'Enter whole seconds from 5 s to 10 min (600 s).' : 'Enter a ' + (R[2] ? '' : 'whole ') + 'number from ' + R[0] + ' to ' + R[1] + '.';else if (/Min$/.test(k) && n > this.eff(k.replace('Min', 'Max'), st)) msg = 'Must be at most the maximum (' + this.eff(k.replace('Min', 'Max'), st) + ' s).';else if (/Max$/.test(k) && n < this.eff(k.replace('Max', 'Min'), st)) msg = 'Must be at least the minimum (' + this.eff(k.replace('Max', 'Min'), st) + ' s).';
     return msg ? msg + ' Not saved · Esc restores ' + this.eff(k, st) + ' ' + u + '.' : null;
   }
   drop(o, k) {
@@ -8167,9 +8703,8 @@ class Settings extends React.Component {
           [k]: e
         })
       });
-      if (el) setTimeout(() => el.focus(), 0);
       return;
-    }
+    } // error shown, focus stays free: Tab moves on
     const n = Number(String(str).trim());
     this.setState(s => {
       const pv = this.pv(s),
@@ -8272,7 +8807,7 @@ class Settings extends React.Component {
       timed = !isCont;
     const set = o => this.setState(o);
     const sm = s.ov.streams || P.streams,
-      pn = P.n || 4,
+      pn = P.n || 3,
       n = s.ov.n != null ? s.ov.n : pn;
     const streamsLbl = (mode, k) => mode === 'auto' ? 'Auto' : mode === 'single' ? 'Single' : 'Fixed · ' + k;
     const dur = (a, b) => a + '–' + b + ' s';
@@ -8308,6 +8843,12 @@ class Settings extends React.Component {
     });
     if (s.preset !== 'standard') add('Preset', 'Standard', P.t + (isCont ? ' · ' + dirName + (s.runLimit ? ' · ' + runStr : '') : ''), () => set({
       preset: 'standard',
+      dir: 'download',
+      runLimit: false,
+      runUnit: 'h',
+      v: Object.assign({}, s.v, {
+        runVal: 1
+      }),
       drafts: {},
       err: {}
     }));
@@ -8342,34 +8883,37 @@ class Settings extends React.Component {
       warm: 'auto'
     }));
     if (C.pings) add('Ping count', String(P.pings), String(e('pings')), () => this.resetOv(['pings']));
-    if (C.overhead) add('Overhead', 'None', s.overhead + ' %', () => set({
+    if (C.overhead) add('Overhead compensation', 'None', '+' + s.overhead + ' %', () => set({
       overhead: '0'
     }));
     this._changed = changed;
+
+    // url-params.md §2, in table order: run, test, preset, duration, streams, cap, units, lang, theme, label.
     const q = [];
-    if (s.preset !== 'standard') q.push('preset=' + s.preset);
-    if (isCont && s.dir === 'upload') q.push('dir=up');
-    if (isCont && s.runLimit) q.push('for=' + s.v.runVal + s.runUnit);
-    if (C.phases) q.push('phases=' + ['latency', 'download', 'upload'].filter(k => phOn[k]).map(k => ({
-      latency: 'ping',
-      download: 'down',
-      upload: 'up'
-    })[k]).join(','));
-    if (s.order === 'up') q.push('order=up');
-    if (C.streams) q.push('streams=' + (sm === 'fixed' ? n : sm === 'single' ? 1 : 'auto'));
-    if (C.dl) q.push('down=' + e('dlMin') + '-' + e('dlMax'));
-    if (C.ul) q.push('up=' + e('ulMin') + '-' + e('ulMax'));
-    if (C.cap) q.push('cap=' + s.v.capMB + 'MB');
-    if (C.pings) q.push('pings=' + e('pings'));
-    if (C.warm) q.push('warmup=' + s.v.warmS);
-    if (C.overhead) q.push('overhead=' + s.overhead);
     if (s.incRun) q.push('run=1');
+    const test = isCont ? s.dir === 'upload' ? 'upload' : null : phOn.download && phOn.upload ? null : phOn.download ? 'download' : phOn.upload ? 'upload' : 'latency';
+    if (test) q.push('test=' + test);
+    if (s.preset !== 'standard') q.push('preset=' + s.preset);
+    if (isCont && s.runLimit) q.push('duration=' + s.v.runVal * {
+      m: 60,
+      h: 3600,
+      d: 86400
+    }[s.runUnit]);
+    if (C.streams) q.push('streams=' + (sm === 'fixed' ? n : sm));
+    if (C.cap) q.push('cap=' + s.v.capMB + 'MB');
+    if (C.units) q.push('units=' + s.units);
+    if (C.theme) q.push('theme=' + s.theme);
+    const LINKED = ['Preset', 'Parallel streams', 'Phases', 'Data cap', 'Units', 'Theme'];
+    const notInUrl = changed.filter(c => !LINKED.includes(c.k)).map(c => c.k);
     const url = 'https://speed.home.lan/' + (q.length ? '?' + q.join('&') : '');
     const presets = Object.keys(PR).map(k => {
       const p = PR[k],
         sel = k === s.preset,
         pick = () => {
-          if (!sel) set({
+          if (sel) return;
+          if (k !== 'continuous' && (C.dl || C.ul)) set({
+            keepAsk: k
+          });else set({
             preset: k,
             drafts: {},
             err: {}
@@ -8398,7 +8942,7 @@ class Settings extends React.Component {
     const onCount = Object.values(phOn).filter(Boolean).length;
     const phases = [['latency', 'Latency', 'activity', 'var(--series-latency)'], ['download', 'Download', 'arrow-down', 'var(--series-download)'], ['upload', 'Upload', 'arrow-up', 'var(--series-upload)']].map(([k, t, icon, c]) => {
       const v = phOn[k],
-        dis = isCont || v && onCount === 1;
+        dis = isCont || k === 'latency';
       return {
         t,
         icon,
@@ -8484,7 +9028,7 @@ class Settings extends React.Component {
       phasesOpacity: isCont ? '0.45' : '1',
       orderOpacity: orderOk ? '1' : '0.45',
       orderPe: orderOk ? 'auto' : 'none',
-      phasesHelp: isCont ? 'Continuous runs one direction. Phases apply to the timed presets.' : 'Latency always runs first. At least one phase stays on.',
+      phasesHelp: isCont ? 'Continuous runs one direction. Phases apply to the timed presets.' : 'Idle latency always runs first. Turn off a direction to test the other one, or latency only.',
       runSw: this.sw(s.runLimit, () => set({
         runLimit: !s.runLimit,
         drafts: this.drop(s.drafts, 'runVal'),
@@ -8557,6 +9101,8 @@ class Settings extends React.Component {
         t
       })),
       url,
+      notInUrl: notInUrl.join(', '),
+      hasNotInUrl: notInUrl.length > 0,
       copyIcon: s.copied ? 'check' : 'copy',
       copyUrl: () => {
         try {
@@ -8581,6 +9127,23 @@ class Settings extends React.Component {
       changedCount: String(changed.length),
       hasChanges: changed.length > 0,
       noChanges: changed.length === 0,
+      keepAsk: !!s.keepAsk,
+      keepTitle: s.keepAsk ? 'Keep your custom durations?' : '',
+      keepLine: s.keepAsk ? 'You set download ' + dur(e('dlMin'), e('dlMax')) + ' and upload ' + dur(e('ulMin'), e('ulMax')) + '. ' + PR[s.keepAsk].t + ' uses ' + dur(PR[s.keepAsk].dl[0], PR[s.keepAsk].dl[1]) + ' down and ' + dur(PR[s.keepAsk].ul[0], PR[s.keepAsk].ul[1]) + ' up.' : '',
+      keepUse: s.keepAsk ? 'Use ' + PR[s.keepAsk].t + ' durations' : '',
+      keepCustom: () => set({
+        preset: s.keepAsk,
+        keepAsk: null,
+        drafts: {},
+        err: {}
+      }),
+      keepPreset: () => this.resetOv(['dlMin', 'dlMax', 'ulMin', 'ulMax'], {
+        preset: s.keepAsk,
+        keepAsk: null
+      }),
+      keepCancel: () => set({
+        keepAsk: null
+      }),
       confirm: s.confirm,
       openReset: () => set({
         confirm: true
@@ -10045,7 +10608,7 @@ class Settings extends React.Component {
         fontFamily: "var(--font-mono)",
         color: "var(--fg)"
       }
-    }, "941.2 Mbit/s"), /*#__PURE__*/React.createElement("span", {
+    }, "941 Mbit/s"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-micro)",
@@ -10054,7 +10617,7 @@ class Settings extends React.Component {
         borderRadius: "var(--radius-full)",
         padding: "1px 7px"
       }
-    }, "+", v.overhead, " % overhead")) : null), /*#__PURE__*/React.createElement("label", {
+    }, "+", v.overhead, " % overhead compensation")) : null), /*#__PURE__*/React.createElement("label", {
       className: "input",
       style: {
         width: "240px",
@@ -10102,7 +10665,7 @@ class Settings extends React.Component {
         color: "var(--fg-subtle)",
         lineHeight: "1.45"
       }
-    }, "Opens BitGauge with the test settings that differ from defaults. Units and theme stay on each device."), /*#__PURE__*/React.createElement("div", {
+    }, "Opens BitGauge with the settings that differ from the defaults. Phase order, per-direction durations, ping count, warm-up and overhead compensation aren't link parameters."), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: "6px"
@@ -10165,7 +10728,24 @@ class Settings extends React.Component {
       style: {
         fontFamily: "var(--font-mono)"
       }
-    }, "run=1"), " (start automatically)")))), /*#__PURE__*/React.createElement("section", {
+    }, "run=1"), " (start automatically)")), v.hasNotInUrl ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "6px",
+        fontSize: "var(--text-micro)",
+        color: "var(--fg-subtle)",
+        lineHeight: "1.45"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        display: "flex",
+        marginTop: "1px"
+      }
+    }, /*#__PURE__*/React.createElement("bg-icon", {
+      name: "info",
+      size: "12"
+    })), "Not in the link: ", v.notInUrl) : null)), /*#__PURE__*/React.createElement("section", {
       className: "card",
       "aria-labelledby": "s-changed"
     }, /*#__PURE__*/React.createElement("div", {
@@ -10318,7 +10898,65 @@ class Settings extends React.Component {
     }, /*#__PURE__*/React.createElement("bg-icon", {
       name: "rotate-ccw",
       size: "14"
-    }), "Reset all")))) : null);
+    }), "Reset all")))) : null, v.keepAsk ? /*#__PURE__*/React.createElement("div", {
+      onClick: v.keepCancel,
+      style: {
+        position: "absolute",
+        inset: "0",
+        zIndex: "40",
+        background: "var(--scrim)",
+        backdropFilter: "blur(2px)",
+        display: "flex",
+        alignItems: v.L?.cfAlign,
+        justifyContent: "center",
+        paddingTop: v.L?.cfTop
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "modal",
+      role: "alertdialog",
+      "aria-modal": "true",
+      "aria-labelledby": "keep-t",
+      "aria-describedby": "keep-d",
+      onClick: v.stop,
+      style: {
+        width: v.L?.cfW,
+        maxWidth: "100%",
+        maxHeight: "none",
+        boxSizing: "border-box",
+        borderRadius: v.L?.cfRad
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "mh"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "mi"
+    }, /*#__PURE__*/React.createElement("bg-icon", {
+      name: "timer",
+      size: "17"
+    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      className: "mt",
+      id: "keep-t"
+    }, v.keepTitle), /*#__PURE__*/React.createElement("div", {
+      className: "md",
+      id: "keep-d"
+    }, v.keepLine))), /*#__PURE__*/React.createElement("div", {
+      className: "mf",
+      style: {
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "btn ghost",
+      onClick: v.keepCancel
+    }, "Cancel"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        flex: "1"
+      }
+    }), /*#__PURE__*/React.createElement("button", {
+      className: "btn secondary",
+      onClick: v.keepPreset
+    }, v.keepUse), /*#__PURE__*/React.createElement("button", {
+      className: "btn primary",
+      onClick: v.keepCustom
+    }, "Keep custom durations")))) : null);
   }
 }
 window.Settings = Settings;
@@ -10328,7 +10966,7 @@ window.Settings = Settings;
 try { (() => {
 /* BitGauge web UI kit — TestScreen
  * Props:
- *   state: "idle" | "countdown" | "connecting" | "latency" | "download" | "upload" | "complete" | "error" | "error-early" | "cancelled" | "cancelled-late" | "slow" | "slowdone" | "continuous" | "cont-warmup" | "cont-done" | "offline" | "basepath" | "ws-fallback" | "insufficient" | "param-ignored"  (default "download")
+ *   state: "idle" | "countdown" | "connecting" | "latency" | "download" | "upload" | "complete" | "error" | "error-early" | "cancelled" | "cancelled-late" | "cancelled-latency" | "cancelled-download" | "cancelled-slow" | "slow" | "slowdone" | "continuous" | "cont-warmup" | "cont-done" | "offline" | "basepath" | "ws-fallback" | "insufficient" | "param-ignored"  (default "download")
  *   mobile: boolean  (default false)
  *   custom: boolean  (default false)
  *   units: "bits" | "bytes"  (default "bits")
@@ -10379,14 +11017,45 @@ class TestScreen extends React.Component {
     }
     this._tick();
     this._obs();
+    this._animK();
   }
   componentWillUnmount() {
     if (this._h) window.removeEventListener('bg-lib-ready', this._h);
     if (this._ro) this._ro.disconnect();
+    cancelAnimationFrame(this._raf);
   }
   componentDidUpdate() {
     this._tick();
     this._obs();
+    this._animK();
+  }
+  _rm() {
+    return typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  // Gauge window shift: tween the decade k over BG.SHIFT_MS (ease-out, log space); reduced motion jumps.
+  _animK() {
+    const to = this._kT;
+    if (to == null || to === this._kTo) return;
+    const from = this._kA ? this._kA.cur : this._kTo;
+    this._kTo = to;
+    cancelAnimationFrame(this._raf);
+    if (from == null || this._rm()) {
+      this._kA = null;
+      return;
+    }
+    const t0 = performance.now(),
+      D = window.BG.SHIFT_MS;
+    this._kA = {
+      cur: from
+    };
+    const step = now => {
+      if (!this._kA) return;
+      const f = Math.min(1, (now - t0) / D);
+      this._kA.cur = from + (to - from) * (1 - Math.pow(1 - f, 3));
+      if (f < 1) this._raf = requestAnimationFrame(step);else this._kA = null;
+      this.forceUpdate();
+    };
+    this._raf = requestAnimationFrame(step);
   }
   // Visually hidden polite region: phase changes immediately, live rate at most every 5 s. The 10 Hz readout is not live.
   _tick() {
@@ -10511,9 +11180,9 @@ class TestScreen extends React.Component {
       metaSpan: 'span 1',
       loadCols: '172px minmax(0,1fr)'
     };
-    const slow = st === 'slow' || st === 'slowdone';
+    const slow = st === 'slow' || st === 'slowdone' || st === 'cancelled-slow';
     const after = ['complete', 'cancelled', 'cancelled-late', 'slowdone'].includes(st);
-    const src = this.props.probe && this.props.probe !== 'auto' ? this.props.probe : slow || st === 'ws-fallback' ? 'HTTP/2 probe' : 'WebSocket';
+    const src = this.props.probe && this.props.probe !== 'auto' ? this.props.probe : st === 'ws-fallback' ? 'HTTP/2 probe' : 'WebSocket';
     const lowLink = slow || st === 'insufficient';
 
     // ---- connection strip (context pill is editable)
@@ -10535,9 +11204,10 @@ class TestScreen extends React.Component {
         ctxOpen: label === 'Custom…'
       })
     }));
-    const streams = lowLink ? '2' : custom ? '4' : '6',
+    const streams = slow ? '2' : st === 'insufficient' && !custom ? '1' : custom ? '4' : '6',
       auto = slow || !custom;
-    const plateau = auto ? ' · plateau: no-gain' : '';
+    // Fast LAN (§19.4): 1 → 2 → 4 → 6 streams keep gaining, so the ramp stops at the cap. The slow link stops gaining at 2.
+    const plateau = auto ? ' · plateau: ' + (slow ? 'no-gain' : 'cap') : '';
     const conn = [{
       k: 'Client IP',
       v: slow ? '10.8.0.6' : '192.168.1.42',
@@ -10563,7 +11233,7 @@ class TestScreen extends React.Component {
       };
     }
     const customChips = this.props.chips || [{
-      t: 'Extended · 60 s',
+      t: 'Extended',
       icon: 'timer'
     }, {
       t: '4 streams',
@@ -10728,8 +11398,9 @@ class TestScreen extends React.Component {
       return s[Math.min(s.length - 1, Math.floor(0.9 * (s.length - 1)))];
     };
     const steady = (pts, warm) => {
+      if (pts[pts.length - 1][0] < warm) return null;
       const v = pts.filter(q => q[0] >= warm).map(q => q[1]);
-      return v.length < 3 ? null : {
+      return !v.length ? null : {
         avg: v.reduce((a, b) => a + b, 0) / v.length,
         peak: q90(v)
       };
@@ -10842,6 +11513,21 @@ class TestScreen extends React.Component {
     }, text ? {
       gText: text
     } : {});
+    // §11: grade from the worse gradable increase. §13: AIM points; packet loss is fixed at 0 points; upload is not an input.
+    const gradeOf = inc => inc < 5 ? 'A+' : inc < 30 ? 'A' : inc < 60 ? 'B' : inc < 200 ? 'C' : inc < 400 ? 'D' : 'F';
+    const aimP = (v, th, p) => {
+      let i = 0;
+      while (i < th.length && v >= th[i]) i++;
+      return p[i];
+    };
+    const band = (sum, th) => ['Bad', 'Poor', 'Average', 'Good', 'Great'][th.filter(x => Math.max(0, sum) >= x).length];
+    const aim = (lat, jit, dl, inc) => {
+      const pl = aimP(lat, [10, 20, 50, 100, 500], [20, 10, 5, 0, -10, -20]),
+        pi = aimP(inc, [10, 20, 50, 100, 500], [20, 10, 5, 0, -10, -20]);
+      const pj = aimP(jit, [10, 20, 100, 500], [10, 5, 0, -10, -20]),
+        pd = aimP(dl, [1e6, 1e7, 5e7, 1e8], [0, 5, 10, 20, 30]);
+      return [band(pl + pd + pi, [15, 20, 40, 60]), band(pl + pi, [5, 15, 25, 30]), band(pl + pj + pi, [5, 15, 25, 40])];
+    };
     const FIT = [['Streaming', 'tv'], ['Gaming', 'gamepad'], ['Video calls', 'video']];
     const fit = (q, none) => FIT.map(([label, icon], i) => {
       const nn = Array.isArray(none) ? none[i] : none;
@@ -10956,8 +11642,9 @@ class TestScreen extends React.Component {
       us: lg('Upload · sending', C.up, false, 0.4),
       l: lg('Latency under load', C.lat, true)
     };
-    const DOWN = BG.thr(3, 612e6, 12),
-      DLAT = BG.lat(5, 3.1, 18, 12);
+    // Standard, fast LAN: download 0–10 s (warm-up ends ≈ 6.5 s), upload 10–22 s (warm-up ends ≈ 7.5 s, confirmed window ≈ 7.5–11.0 s).
+    const DOWN = BG.thr(3, 612e6, 10),
+      DLAT = BG.lat(5, 3.1, 18, 10);
     const DONE_D = rt('Download', 'arrow-down', C.down, 612e6, {
       sub: 'peak ' + rn(641e6) + ' · ' + streams + ' streams' + plateau
     });
@@ -10977,7 +11664,7 @@ class TestScreen extends React.Component {
     const pv = d => P == null ? d : P;
     const cdN = Math.max(1, Math.ceil(3 * (1 - pv(0.2)) - 1e-9));
     const EMPTY = {
-      xMax: 12,
+      xMax: 22,
       yMax: 1e9,
       series: [],
       empty: 'Throughput over time appears here while the test runs.',
@@ -11093,7 +11780,7 @@ class TestScreen extends React.Component {
             prim: [eDown(), eUp(), latT(LIVE), jitT(LIVE)],
             load: preLoad(),
             fit: fit(null),
-            meta: meta(Math.max(1, Math.round(17 * p)) + ' kB', 'so far', (t + 0.6).toFixed(1) + ' s', 'elapsed'),
+            meta: meta(BG.bytes(Math.max(1e3, 17e3 * p)), 'so far', (t + 0.6).toFixed(1) + ' s', 'elapsed'),
             notices: [],
             btn: BTN.stop
           };
@@ -11102,15 +11789,15 @@ class TestScreen extends React.Component {
       case 'ws-fallback':
       case 'download':
         {
-          const p = pv(0.617),
-            t = Math.max(0.2, 12 * p),
+          const p = pv(0.75),
+            t = Math.max(0.2, 10 * p),
             dp = BG.thr(3, 590e6, t),
             d = tail(dp),
-            sw = steady(dp, 2),
+            sw = steady(dp, 6.5),
             lp = BG.lat(5, 3.1, 17, t),
             all = dp.reduce((a, q) => a + q[1], 0) / dp.length;
           S = {
-            phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'active', (12 - t).toFixed(1) + ' s left', p * 100), pend('up')],
+            phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'active', (10 - t).toFixed(1) + ' s left', p * 100), pend('up')],
             gauge: {
               opts: {
                 value: d.cur,
@@ -11132,13 +11819,13 @@ class TestScreen extends React.Component {
               oh: OH[0]
             },
             chart: {
-              xMax: 12,
+              xMax: 10,
               series: [ser(dp, C.down)],
               lat: lp,
               now: t,
               title: 'Throughput',
               legend: [LG.d, LG.l],
-              meta: t.toFixed(1) + ' s / 12 s'
+              meta: t.toFixed(1) + ' s / 10 s'
             },
             prim: [rt('Download', 'arrow-down', C.down, d.cur, Object.assign({
               sub: liveSub(sw)
@@ -11148,7 +11835,7 @@ class TestScreen extends React.Component {
               live: true
             }), lrow('up')], respB(null, null), 'Graded after upload'),
             fit: fit(null),
-            meta: meta(BG.bytes(all * t / 8), 'so far', (t + 2.3).toFixed(1) + ' s', 'elapsed'),
+            meta: meta(BG.bytes(all * t / 8), 'so far', (t + 2.6).toFixed(1) + ' s', 'elapsed'),
             notices: st === 'ws-fallback' ? [N('info', 'info', 'WebSocket unavailable — HTTP latency fallback', 'The reverse proxy did not accept a WebSocket upgrade, so latency is measured with HTTP/2 requests. Values can read slightly higher.')] : [],
             btn: BTN.stop
           };
@@ -11156,12 +11843,12 @@ class TestScreen extends React.Component {
         break;
       case 'upload':
         {
-          const p = pv(0.567),
+          const p = pv(0.75),
             t = Math.max(0.2, 12 * p),
             snd = BG.thr(7, 431e6, t),
             rcv = delay(snd, 0.4, t),
             u = tail(snd),
-            sw = steady(rcv, 4),
+            sw = steady(rcv, 7.5),
             lp = BG.lat(9, 3.1, 40, t),
             rc = rcv[rcv.length - 1][1];
           S = {
@@ -11170,7 +11857,8 @@ class TestScreen extends React.Component {
               opts: {
                 value: u.cur,
                 bandLo: u.lo,
-                bandHi: u.hi
+                bandHi: u.hi,
+                peak: sw ? sw.peak : null
               },
               prev: DOWN,
               src: snd,
@@ -11187,20 +11875,20 @@ class TestScreen extends React.Component {
               oh: OH[0]
             },
             chart: {
-              xMax: 24,
-              series: [ser(DOWN, C.down), ser(shift(snd, 12), C.up, true), ser(shift(rcv, 12), C.up)],
-              lat: DLAT.concat(shift(lp, 12)),
+              xMax: 22,
+              series: [ser(DOWN, C.down), ser(shift(snd, 10), C.up, true), ser(shift(rcv, 10), C.up)],
+              lat: DLAT.concat(shift(lp, 10)),
               seps: [{
                 t: 0,
                 label: 'Download'
               }, {
-                t: 12,
+                t: 10,
                 label: 'Upload'
               }],
-              now: 12 + t,
+              now: 10 + t,
               title: 'Throughput',
               legend: [LG.d, LG.ur, LG.us, LG.l],
-              meta: (12 + t).toFixed(1) + ' s / 24 s'
+              meta: (10 + t).toFixed(1) + ' s / 22 s'
             },
             prim: [DONE_D, rt('Upload', 'arrow-up', C.up, rc || u.cur, Object.assign({
               sub: liveSub(sw)
@@ -11210,7 +11898,7 @@ class TestScreen extends React.Component {
               live: true
             })], respB(1420, null), 'Graded after upload'),
             fit: fit(null),
-            meta: meta(BG.bytes(0.918e9 + 431e6 * t / 8), 'so far', (t + 14.3).toFixed(1) + ' s', 'elapsed'),
+            meta: meta(BG.bytes(0.765e9 + 431e6 * t / 8), 'so far', (t + 12.6).toFixed(1) + ' s', 'elapsed'),
             notices: [],
             btn: BTN.stop
           };
@@ -11239,14 +11927,14 @@ class TestScreen extends React.Component {
             oh: OH[0]
           },
           chart: {
-            xMax: 24,
-            series: [ser(DOWN, C.down), ser(shift(BG.thr(7, 438e6, 12), 12), C.up)],
-            lat: DLAT.concat(shift(BG.lat(9, 3.1, 42, 12), 12)),
+            xMax: 22,
+            series: [ser(DOWN, C.down), ser(shift(BG.thr(7, 438e6, 12), 10), C.up)],
+            lat: DLAT.concat(shift(BG.lat(9, 3.1, 42, 12), 10)),
             seps: [{
               t: 0,
               label: 'Download'
             }, {
-              t: 12,
+              t: 10,
               label: 'Upload'
             }],
             title: 'Throughput',
@@ -11257,8 +11945,8 @@ class TestScreen extends React.Component {
           load: load('B', [ROW_D, lrow('up', 42, {
             p90: 55
           })], respB(1420, 980)),
-          fit: fit(['Great', 'Good', 'Great']),
-          meta: meta('1.58 GB', '', '24.6 s', ''),
+          fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 42 - IDLE.v)),
+          meta: meta(BG.bytes(1.42e9), '', '24.6 s', ''),
           notices: on(this.props.cpu) ? [N('warn', 'cpu', "Limited by this device's CPU", 'The browser ran at full CPU during download, so the link may be faster than measured. Close other tabs or test from a faster device.')] : [],
           btn: BTN.again,
           saved: {
@@ -11268,14 +11956,14 @@ class TestScreen extends React.Component {
           },
           share: {
             blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 438e6, C.up]],
-            foot: ['3.1 ms idle', '0.8 ms jitter', 'Bufferbloat B'],
-            lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Latency 3.1 ms (2.4–7.9) · jitter 0.8 ms', 'Under load ↓ 18 ms (+15) · ↑ 42 ms (+39)', 'Bufferbloat B · 1,420 RPM', 'Basement NAS · HTTP/2 · 6 streams']
+            foot: ['3.1 ms idle', '0.8 ms jitter', '+39 ms under load', 'B · Mild bufferbloat'],
+            lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Idle latency 3.1 ms · jitter 0.8 ms', 'Loaded latency +39 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', 'Basement NAS']
           }
         };
         break;
       case 'error':
         S = {
-          phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'failed', 'Error at 6.4 s', 53), ph('up', 'skipped', 'Not run')],
+          phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'failed', 'Error at 6.4 s', 64), ph('up', 'skipped', 'Not run')],
           gauge: {
             opts: {}
           },
@@ -11288,9 +11976,9 @@ class TestScreen extends React.Component {
             ec: 'var(--danger)'
           },
           chart: {
-            xMax: 12,
-            series: [ser(BG.thr(3, 575e6, 6.2).concat([[6.3, 2.2e8], [6.4, 0]]), C.down)],
-            lat: BG.lat(5, 3.1, 17, 6.2),
+            xMax: 10,
+            series: [ser(BG.thr(3, 575e6, 6.4), C.down)],
+            lat: BG.lat(5, 3.1, 17, 6.4),
             marks: [{
               t: 6.4,
               label: 'Connection lost'
@@ -11316,7 +12004,7 @@ class TestScreen extends React.Component {
             sub: 'Not run'
           })], respB(null, null), 'Not graded — test incomplete'),
           fit: fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']),
-          meta: meta('460 MB', 'not saved', '8.7 s', ''),
+          meta: meta(BG.bytes(460e6), 'not saved', '9.0 s', ''),
           notices: [N('danger', 'wifi-off', 'Connection to Basement NAS lost — ' + EK[0], 'Download stopped at 6.4 s. Latency finished before the error.')],
           btn: BTN.retry,
           partial: {
@@ -11348,24 +12036,24 @@ class TestScreen extends React.Component {
               ec: 'var(--fg-subtle)'
             },
             chart: {
-              xMax: 24,
-              series: [ser(DOWN, C.down), ser(shift(snd, 12), C.up, true), ser(shift(rcv, 12), C.up)],
-              lat: DLAT.concat(shift(BG.lat(9, 3.1, 37, 3.1), 12)),
+              xMax: 22,
+              series: [ser(DOWN, C.down), ser(shift(snd, 10), C.up, true), ser(shift(rcv, 10), C.up)],
+              lat: DLAT.concat(shift(BG.lat(9, 3.1, 37, 3.1), 10)),
               seps: [{
                 t: 0,
                 label: 'Download'
               }, {
-                t: 12,
+                t: 10,
                 label: 'Upload'
               }],
               marks: [{
-                t: 15.1,
+                t: 13.1,
                 label: 'Cancelled'
               }],
               markColor: 'var(--fg-muted)',
               title: 'Throughput',
               legend: [LG.d, LG.ur, LG.us, LG.l],
-              meta: 'stopped at 15.1 s',
+              meta: 'stopped at 13.1 s',
               noEnd: true
             },
             prim: [DONE_D, T({
@@ -11378,12 +12066,12 @@ class TestScreen extends React.Component {
               sub: 'Insufficient data — confirmed steady window shorter than 3 s',
               notes: ['156 MB used']
             }), latT(), jitT()],
-            load: load(null, [ROW_D, lrow('up', null, {
+            load: load('A', [ROW_D, lrow('up', null, {
               sub: 'no steady window'
-            })], respB(1420, 'few'), 'Not graded — upload incomplete'),
-            fit: fit(['Great', null, null], [null, 'needs loaded latency', 'needs upload']),
-            meta: meta('1.08 GB', '', '17.3 s', ''),
-            notices: [N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed. Upload stopped before a 3 s confirmed steady window, so it has no value.')],
+            })], respB(1420, 'few'), BG.GRADES.A.text + ' · download only'),
+            fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 18 - IDLE.v)),
+            meta: meta(BG.bytes(0.921e9), '', '15.7 s', ''),
+            notices: [N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed. Upload stopped before a 3 s confirmed steady window, so it has no value. The grade uses download only.')],
             btn: BTN.again,
             partial: {
               kind: 'partial',
@@ -11392,12 +12080,13 @@ class TestScreen extends React.Component {
           };
         }
         break;
+      // Stopped 11.5 s into upload: in-flight requests aborted; final confirmed watermark 11.1 s; window 7.5–11.1 s holds 21 confirmed requests.
       case 'cancelled-late':
         {
-          const snd = BG.thr(7, 402e6, 9.0),
-            rcv = delay(snd, 0.4, 7.6);
+          const snd = BG.thr(7, 402e6, 11.5),
+            rcv = delay(snd, 0.4, 11.1);
           S = {
-            phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'done', rs(612e6)), ph('up', 'cancelled', 'Cancelled at 9.0 s', 75)],
+            phases: [ph('lat', 'done', '3.1 ms'), ph('down', 'done', rs(612e6)), ph('up', 'cancelled', 'Cancelled at 11.5 s', 96)],
             gauge: {
               opts: {
                 value: 612e6,
@@ -11415,43 +12104,202 @@ class TestScreen extends React.Component {
               ec: 'var(--fg-subtle)'
             },
             chart: {
-              xMax: 24,
-              series: [ser(DOWN, C.down), ser(shift(snd, 12), C.up, true), ser(shift(rcv, 12), C.up)],
-              lat: DLAT.concat(shift(BG.lat(9, 3.1, 37, 9.0), 12)),
+              xMax: 22,
+              series: [ser(DOWN, C.down), ser(shift(snd, 10), C.up, true), ser(shift(rcv, 10), C.up)],
+              lat: DLAT.concat(shift(BG.lat(9, 3.1, 37, 11.5), 10)),
               seps: [{
                 t: 0,
                 label: 'Download'
               }, {
-                t: 12,
+                t: 10,
                 label: 'Upload'
               }],
               wins: [{
-                t0: 16,
-                t1: 19.6,
+                t0: 17.5,
+                t1: 21.1,
                 label: 'Steady 3.6 s'
               }],
               marks: [{
-                t: 21,
+                t: 21.5,
                 label: 'Cancelled'
               }],
               markColor: 'var(--fg-muted)',
               title: 'Throughput',
               legend: [LG.d, LG.ur, LG.us, LG.l],
-              meta: 'stopped at 21.0 s',
+              meta: 'stopped at 21.5 s',
               noEnd: true
             },
             prim: [DONE_D, rt('Upload', 'arrow-up', C.up, 402e6, {
               tag: 'Partial — stopped early',
               tagCls: 'pill warn',
-              sub: 'based on a 3.6 s steady window · 14 requests'
+              sub: 'based on a 3.6 s steady window · 21 requests'
             }), latT(), jitT()],
-            load: load(null, [ROW_D, lrow('up', 37, {
+            load: load(gradeOf(37 - IDLE.v), [ROW_D, lrow('up', 37, {
               p90: 46,
               partial: true
-            })], respB(1420, 610), 'Not graded — upload incomplete'),
-            fit: fit(['Great', null, null], [null, 'needs full upload', 'needs full upload']),
-            meta: meta('1.37 GB', '', '23.2 s', ''),
-            notices: [N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed. Upload has a 3.6 s confirmed steady window with 14 requests, enough for a partial value.')],
+            })], respB(1420, 610)),
+            fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 37 - IDLE.v)),
+            meta: meta(BG.bytes(1.34e9), '', '24.1 s', ''),
+            notices: [N('neutral', 'circle-minus', 'Partial — stopped early · upload based on a 3.6 s steady window', 'Latency and download completed. Upload stopped at 11.5 s; in-flight requests were aborted, and the 21 requests confirmed by 11.1 s give the partial value.')],
+            btn: BTN.again,
+            partial: {
+              kind: 'partial',
+              keep: true
+            }
+          };
+        }
+        break;
+      case 'cancelled-latency':
+        {
+          const p = pv(0.6),
+            t = Math.max(0.5, 2 * p),
+            n = Math.max(5, Math.round(20 * p)),
+            lp = BG.lat(5, 3.1, 3.1, t, 0.1, 0.35),
+            PT = {
+              tag: 'Partial — stopped early',
+              tagCls: 'pill warn'
+            };
+          S = {
+            phases: [ph('lat', 'cancelled', 'Cancelled · ' + n + ' / 20 pings', p * 100), ph('down', 'skipped', 'Not run'), ph('up', 'skipped', 'Not run')],
+            gauge: {
+              opts: {
+                mode: 'ms',
+                value: IDLE.v
+              },
+              scale: 'log scale · 1 – 1000 ms',
+              c: C.lat,
+              noDot: true
+            },
+            R: {
+              textual: true,
+              title: 'Cancelled',
+              sub: 'Partial results · not saved',
+              icon: 'circle-minus',
+              ec: 'var(--fg-subtle)'
+            },
+            chart: {
+              xMax: 2,
+              ms: true,
+              series: [ser(lp, C.lat)],
+              marks: [{
+                t,
+                label: 'Cancelled'
+              }],
+              markColor: 'var(--fg-muted)',
+              title: 'Latency samples',
+              legend: [lg('Round-trip time', C.lat)],
+              meta: 'stopped at ' + t.toFixed(1) + ' s',
+              noEnd: true
+            },
+            prim: [eDown('not run'), eUp('not run'), latT(Object.assign({
+              sub: 'median of ' + n + ' of 20 pings · ' + src
+            }, PT)), jitT(PT)],
+            load: load(null, [lrow('down', null, {
+              sub: 'Not run'
+            }), lrow('up', null, {
+              sub: 'Not run'
+            })], respB(null, null), 'Not graded — no loaded latency'),
+            fit: fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']),
+            meta: meta(BG.bytes(17e3 * p), '', (t + 0.6).toFixed(1) + ' s', ''),
+            notices: [N('neutral', 'circle-minus', 'Test cancelled during latency', 'Stopped after ' + n + ' of 20 pings. Idle latency and jitter come from those pings; download and upload did not run.')],
+            btn: BTN.again,
+            partial: {
+              kind: 'partial',
+              keep: true
+            }
+          };
+        }
+        break;
+      // Stopped during download: a value only when the steady window (warm-up end → stop) holds ≥ 3 s; then the grade uses download only.
+      case 'cancelled-slow':
+      case 'cancelled-download':
+        {
+          const D = slow ? {
+            dur: 20,
+            warm: 6,
+            v: 640e3,
+            ll: 162,
+            pre: 4.2
+          } : {
+            dur: 10,
+            warm: 6.5,
+            v: 612e6,
+            ll: 18,
+            pre: 2.6
+          };
+          const p = pv(slow ? 0.6 : 0.52),
+            t = Math.max(0.3, D.dur * p),
+            dp = slow ? BG.thr(11, D.v, t, 0.1, 0.22, 2.5) : BG.thr(3, D.v, t),
+            lp = slow ? BG.lat(13, 48, D.ll, t, 0.25, 0.25, 2) : BG.lat(5, 3.1, D.ll, t);
+          const win = t - D.warm,
+            part = win >= 3,
+            sw = steady(dp, D.warm),
+            all = dp.reduce((a, q) => a + q[1], 0) / dp.length,
+            used = BG.bytes(all * t / 8),
+            inc = D.ll - IDLE.v,
+            g = part ? gradeOf(inc) : null;
+          S = {
+            phases: [ph('lat', 'done', BG.ms(IDLE.v) + ' ms'), ph('down', 'cancelled', 'Cancelled at ' + t.toFixed(1) + ' s', p * 100), ph('up', 'skipped', 'Not run')],
+            gauge: {
+              opts: {
+                value: part ? sw.avg : dp[dp.length - 1][1]
+              },
+              src: dp,
+              c: C.down,
+              noDot: true
+            },
+            R: {
+              textual: true,
+              title: 'Cancelled',
+              sub: 'Partial results · not saved',
+              icon: 'circle-minus',
+              ec: 'var(--fg-subtle)'
+            },
+            chart: {
+              xMax: D.dur,
+              series: [ser(dp, C.down)],
+              lat: lp,
+              wins: part ? [{
+                t0: D.warm,
+                t1: t,
+                label: 'Steady ' + win.toFixed(1) + ' s'
+              }] : [],
+              marks: [{
+                t,
+                label: 'Cancelled'
+              }],
+              markColor: 'var(--fg-muted)',
+              title: 'Throughput',
+              legend: [LG.d, LG.l],
+              meta: 'stopped at ' + t.toFixed(1) + ' s',
+              noEnd: true
+            },
+            prim: [part ? rt('Download', 'arrow-down', C.down, sw.avg, {
+              tag: 'Partial — stopped early',
+              tagCls: 'pill warn',
+              sub: 'based on a ' + win.toFixed(1) + ' s steady window'
+            }) : T({
+              label: 'Download',
+              icon: 'arrow-down',
+              ic: C.down,
+              nc: 'var(--fg-subtle)',
+              tag: 'Cancelled',
+              tagCls: 'pill neutral',
+              sub: t < D.warm ? 'Insufficient data — stopped during warm-up' : 'Insufficient data — steady window shorter than 3 s',
+              notes: [used + ' used']
+            }), eUp('not run'), latT(), jitT()],
+            load: part ? load(g, [lrow('down', D.ll, {
+              partial: true
+            }), lrow('up', null, {
+              sub: 'Not run'
+            })], respB(null, null), BG.GRADES[g].text + ' · download only') : load(null, [lrow('down', null, {
+              sub: 'no steady window'
+            }), lrow('up', null, {
+              sub: 'Not run'
+            })], respB(null, null), 'Not graded — no gradable direction'),
+            fit: part ? fit(aim(IDLE.v, IDLE.jit, sw.avg, inc)) : fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']),
+            meta: meta(used, '', (t + D.pre).toFixed(1) + ' s', ''),
+            notices: [N('neutral', 'circle-minus', 'Test cancelled during download', part ? 'Latency completed. Download has a ' + win.toFixed(1) + ' s steady window, enough for a partial value. Upload did not run.' : 'Latency completed. Download stopped before a 3 s steady window, so it has no value. Upload did not run.')],
             btn: BTN.again,
             partial: {
               kind: 'partial',
@@ -11469,7 +12317,7 @@ class TestScreen extends React.Component {
             sw = steady(dp, 6),
             lp = BG.lat(13, 48, 162, t, 0.25, 0.25, 2),
             all = dp.reduce((a, q) => a + q[1], 0) / dp.length,
-            mb = (all * t / 8 / 1e6).toFixed(1);
+            mb = BG.bytes(all * t / 8);
           S = {
             phases: [ph('lat', 'done', '48 ms'), ph('down', 'active', 'extended · ' + Math.round(20 - t) + ' s left', p * 100), pend('up', '~25 s')],
             gauge: {
@@ -11514,8 +12362,8 @@ class TestScreen extends React.Component {
               live: true
             }), lrow('up')], respB(null, null), 'Graded after upload'),
             fit: fit(null),
-            meta: meta(mb + ' MB', 'so far · cap 2 MB', (t + 4.2).toFixed(1) + ' s', 'elapsed'),
-            notices: [N('info', 'hourglass', 'Slow connection detected — test extended', 'Download now runs for up to 20 s to collect enough samples. ' + mb + ' MB of your 2 MB cap used so far.')],
+            meta: meta(mb, 'so far · cap 2 MB', (t + 4.2).toFixed(1) + ' s', 'elapsed'),
+            notices: [N('info', 'hourglass', 'Slow connection detected — test extended', 'Download now runs for up to 20 s to collect enough samples. ' + mb + ' of your 2 MB cap used so far.')],
             btn: BTN.stop
           };
         }
@@ -11575,13 +12423,13 @@ class TestScreen extends React.Component {
           }), lrow('up', 310, {
             p90: 380
           })], respB(240, 'few')),
-          fit: fit(['Poor', 'Average', 'Bad']),
-          meta: meta('2.0 MB', 'cap reached', '39.6 s', 'extended'),
+          fit: fit(aim(IDLE.v, IDLE.jit, 640e3, 310 - IDLE.v)),
+          meta: meta(BG.bytes(2e6), 'cap reached', '39.6 s', 'extended'),
           notices: [N('warn', 'database', 'Data cap reached', 'Upload stopped at the 2 MB per-test cap after 16 s.', [{
             label: 'Change cap',
             icon: 'sliders',
             cls: 'btn sm ghost'
-          }]), N('warn', 'triangle-alert', 'Low confidence — upload: insufficient samples', 'Upload confirmed 18 requests before the cap; 30 are needed for a stable estimate. Treat the upload value as approximate.')],
+          }]), N('warn', 'triangle-alert', 'Low confidence — upload: insufficient samples', 'Upload confirmed 18 requests before the cap. Treat the upload value as approximate.')],
           btn: BTN.again,
           saved: {
             time: '08:41:57',
@@ -11590,8 +12438,8 @@ class TestScreen extends React.Component {
           },
           share: {
             blocks: [['↓ DOWNLOAD', 640e3, C.down], ['↑ UPLOAD', 210e3, C.up]],
-            foot: ['48 ms idle', '9.4 ms jitter', 'Bufferbloat D'],
-            lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3) + ' (low confidence)', 'Latency 48 ms (41–66) · jitter 9.4 ms', 'Under load ↓ 162 ms (+114) · ↑ 310 ms (+262)', 'Bufferbloat D · 240 RPM', 'Basement NAS · HTTP/2 · 2 streams']
+            foot: ['48 ms idle', '9.4 ms jitter', '+262 ms under load', 'D · High bufferbloat'],
+            lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3) + ' (low confidence)', 'Idle latency 48 ms · jitter 9.4 ms', 'Loaded latency +262 ms (worse direction)', 'Bufferbloat D · High bufferbloat', 'Basement NAS']
           }
         };
         break;
@@ -11626,17 +12474,15 @@ class TestScreen extends React.Component {
           })
         };
         break;
+      // 20 kbit/s on Standard: the first 64 KiB request (≈ 26 s at this rate) is still in flight at the 20 s max, so only one request contributed bytes (≈ 50 kB).
       case 'insufficient':
         {
           const p = pv(0.45),
             t = Math.max(0.3, 12 * p),
-            DP = BG.thr(23, 2.6e6, 20, 0.1, 0.55, 2.5),
-            snd = BG.thr(29, 1.1e6, t, 0.1, 0.25, 2.5),
-            rcv = delay(snd, 0.4, t),
+            DP = BG.thr(23, 20e3, 20, 0.1, 0.3, 1.5),
+            snd = BG.thr(29, 19e3, t, 0.1, 0.25, 1.5),
             u = tail(snd),
-            sw = steady(rcv, 4),
-            lp = BG.lat(15, 48, 210, t, 0.25, 0.25, 2),
-            rc = rcv[rcv.length - 1][1];
+            lp = BG.lat(15, 48, 210, t, 0.25, 0.25, 2);
           S = {
             phases: [ph('lat', 'done', '48 ms'), ph('down', 'capped', 'insufficient data', 100), ph('up', 'active', (12 - t).toFixed(1) + ' s left', p * 100)],
             gauge: {
@@ -11656,12 +12502,12 @@ class TestScreen extends React.Component {
               ec: C.up,
               num: rn(u.cur),
               unit: BG.rate(u.cur, unit).u,
-              sub: liveSub(sw),
+              sub: 'warming up',
               oh: OH[0]
             },
             chart: {
               xMax: 32,
-              series: [ser(DP, C.down), ser(shift(snd, 20), C.up, true), ser(shift(rcv, 20), C.up)],
+              series: [ser(DP, C.down), ser(shift(snd, 20), C.up, true)],
               lat: BG.lat(13, 48, 140, 20, 0.25, 0.25, 2).concat(shift(lp, 20)),
               seps: [{
                 t: 0,
@@ -11677,7 +12523,7 @@ class TestScreen extends React.Component {
               markColor: 'var(--warn)',
               now: 20 + t,
               title: 'Throughput',
-              legend: [LG.d, LG.ur, LG.us, LG.l],
+              legend: [LG.d, LG.us, LG.l],
               meta: (20 + t).toFixed(1) + ' s / 32 s'
             },
             prim: [T({
@@ -11687,10 +12533,14 @@ class TestScreen extends React.Component {
               nc: 'var(--fg-subtle)',
               tag: 'Insufficient data',
               tagCls: 'pill warn',
-              sub: 'no 3 s steady window within the 20 s max',
-              notes: ['6.1 MB used']
-            }), rt('Upload', 'arrow-up', C.up, rc || u.cur, Object.assign({
-              sub: liveSub(sw)
+              sub: 'only 1 request contributed within the 20 s max',
+              notes: [BG.bytes(50e3) + ' used']
+            }), T(Object.assign({
+              label: 'Upload',
+              icon: 'arrow-up',
+              ic: C.up,
+              nc: 'var(--fg-subtle)',
+              sub: 'no confirmed request yet'
             }, LIVE)), latT(), jitT()],
             load: load(null, [lrow('down', 140, {
               p90: 176
@@ -11699,8 +12549,8 @@ class TestScreen extends React.Component {
               live: true
             })], respB(null, null), 'Graded after upload'),
             fit: fit(null),
-            meta: meta(BG.bytes(6.1e6 + 1.1e6 * t / 8), 'so far · download 6.1 MB', (t + 22.4).toFixed(1) + ' s', 'elapsed'),
-            notices: [N('warn', 'database', 'Download: insufficient data', 'Download ran for its 20 s maximum without a 3 s steady window, so it has no value. 6.1 MB used. Upload continues; Extended allows up to 60 s per direction.', [{
+            meta: meta(BG.bytes(50e3 + 19e3 * t / 8), 'so far · download ' + BG.bytes(50e3), (t + 22.6).toFixed(1) + ' s', 'elapsed'),
+            notices: [N('warn', 'database', 'Download: insufficient data', 'Download reached its 20 s maximum with the first 64 KiB request still in flight, so only one request contributed bytes and there is no value. ' + BG.bytes(50e3) + ' used. Upload continues; Extended allows up to 40 s per direction.', [{
               label: 'Try Extended',
               icon: 'timer',
               cls: 'btn sm secondary'
@@ -11754,7 +12604,7 @@ class TestScreen extends React.Component {
               sub: 'Not run'
             })], respB(null, null), 'Not graded — test incomplete'),
             fit: fit(null, 'needs a full test'),
-            meta: meta('9 kB', '', '1.8 s', ''),
+            meta: meta(BG.bytes(9e3), '', '1.8 s', ''),
             notices: [N('danger', 'wifi-off', 'Connection to Basement NAS lost — server stopped responding', 'The test stopped at 1.2 s, during latency. No phase finished.')],
             btn: BTN.retry,
             partial: {
@@ -11792,9 +12642,6 @@ class TestScreen extends React.Component {
               seps: [{
                 t: 0,
                 label: 'Warm-up'
-              }, {
-                t: 10,
-                label: 'Steady'
               }],
               marks: [{
                 t: 6.2,
@@ -11806,7 +12653,7 @@ class TestScreen extends React.Component {
               meta: 'stopped at 6.2 s',
               noEnd: true
             },
-            prim: [em('Current', 'arrow-down', C.down, 'stopped'), em('Average', 'arrow-down', C.down, 'starts after the 10 s warm-up'), em('Peak · p90, last hour', 'trending-up', C.down, 'starts after warm-up'), em('Loaded latency', 'activity', C.lat, 'starts after warm-up'), T({
+            prim: [em('Current', 'arrow-down', C.down, 'stopped'), em('Average', 'arrow-down', C.down, 'starts after warm-up'), em('Peak · p90, last hour', 'trending-up', C.down, 'starts after warm-up'), em('Loaded latency', 'activity', C.lat, 'starts after warm-up'), T({
               label: 'Data used',
               icon: 'database',
               num: '540',
@@ -11823,13 +12670,13 @@ class TestScreen extends React.Component {
             meta: [{
               icon: 'timer',
               label: 'Elapsed',
-              sub: 'stopped during the 10 s warm-up',
+              sub: 'stopped during warm-up',
               value: '0:06',
               vc: 'var(--fg)'
             }, {
               icon: 'arrow-up-down',
               label: 'Min / max',
-              sub: 'download, 0.5 s windows',
+              sub: 'download, 1 s cells',
               value: '—',
               vc: 'var(--fg-subtle)'
             }, {
@@ -11839,7 +12686,7 @@ class TestScreen extends React.Component {
               value: '3.1 ms',
               vc: 'var(--fg)'
             }, PL],
-            notices: [N('neutral', 'circle-minus', 'Continuous run stopped during warm-up', 'Stopped at 6.2 s, before the 10 s warm-up ended. Warm-up samples are left out of averages, so the run has no steady value.')],
+            notices: [N('neutral', 'circle-minus', 'Continuous run stopped during warm-up', 'Stopped at 6.2 s, before warm-up ended (at the latest 10 s). Warm-up samples are left out of averages, so the run has no steady value.')],
             btn: BTN.again,
             partial: {
               kind: 'partial',
@@ -11889,11 +12736,11 @@ class TestScreen extends React.Component {
               noEnd: true
             },
             prim: [rt('Average', 'arrow-down', C.down, 921e6, {
-              sub: 'after warm-up'
+              sub: 'since warm-up ended'
             }), rt('Peak · p90, last hour', 'trending-up', C.down, 936e6, {
-              sub: '0.5 s windows'
+              sub: '1 s cells'
             }), rt('Minimum', 'arrow-down', C.down, 702e6, {
-              sub: '0.5 s windows'
+              sub: '1 s cells'
             }), msT('Loaded latency', 'activity', 21, 'session median'), T({
               label: 'Data used',
               icon: 'database',
@@ -11917,7 +12764,7 @@ class TestScreen extends React.Component {
             }, {
               icon: 'arrow-up-down',
               label: 'Min / max',
-              sub: 'download, 0.5 s windows',
+              sub: 'download, 1 s cells',
               value: rn(702e6) + ' / ' + rs(941e6),
               vc: 'var(--fg)'
             }, {
@@ -11936,8 +12783,8 @@ class TestScreen extends React.Component {
             },
             share: {
               blocks: [['↓ AVERAGE', 921e6, C.down], ['PEAK · P90', 936e6, C.down]],
-              foot: ['3.1 ms idle', '21 ms loaded', 'continuous · 42:18'],
-              lines: ['↓ avg ' + rs(921e6) + ' · peak ' + rs(936e6), 'Continuous · 42:18 · 292 GB', 'Latency 3.1 ms idle · 21 ms loaded', 'Basement NAS · HTTP/2 · 6 streams']
+              foot: ['3.1 ms idle', '0.8 ms jitter', '+18 ms under load', 'continuous · 42:18'],
+              lines: ['↓ avg ' + rs(921e6) + ' · peak ' + rs(936e6) + ' (p90)', 'Continuous · 42:18', 'Idle latency 3.1 ms · jitter 0.8 ms', 'Loaded latency +18 ms', 'Basement NAS']
             }
           };
         }
@@ -11982,9 +12829,9 @@ class TestScreen extends React.Component {
             prim: [rt('Current', 'arrow-down', C.down, 934e6, Object.assign({
               sub: 'last 0.5 s'
             }, LIVE)), rt('Average', 'arrow-down', C.down, 921e6, {
-              sub: 'since start'
+              sub: 'since warm-up ended'
             }), rt('Peak · p90, last hour', 'trending-up', C.down, 936e6, {
-              sub: '0.5 s windows'
+              sub: '1 s cells'
             }), msT('Loaded latency', 'activity', 21, 'last-minute median'), T({
               label: 'Data used',
               icon: 'database',
@@ -12008,7 +12855,7 @@ class TestScreen extends React.Component {
             }, {
               icon: 'arrow-up-down',
               label: 'Min / max',
-              sub: 'download, 0.5 s windows',
+              sub: 'download, 1 s cells',
               value: rn(702e6) + ' / ' + rs(941e6),
               vc: 'var(--fg)'
             }, {
@@ -12018,7 +12865,7 @@ class TestScreen extends React.Component {
               value: '3.1 ms',
               vc: 'var(--fg)'
             }, PL],
-            notices: [],
+            notices: [N('info', 'database', 'Data used: 100 GB', 'This run has passed 100 GB. The next notice appears at 1 TB.')],
             btn: BTN.stop
           };
         }
@@ -12123,7 +12970,8 @@ class TestScreen extends React.Component {
         u: BG.rate(v, unit).u
       })),
       foot: SH.foot,
-      head: (inc ? label + ' · ' : '') + '12 Oct 2026',
+      head: inc ? label : '',
+      where: 'Basement NAS · 12 Oct 2026 ' + (S.saved ? S.saved.time.slice(0, 5) : ''),
       text: ['BitGauge · ' + (inc ? label + ' · ' : '') + dateT].concat(SH.lines).join('\n')
     } : null;
     const gopts = Object.assign({
@@ -12141,9 +12989,16 @@ class TestScreen extends React.Component {
       if (unit === 'bytes') ['value', 'bandLo', 'bandHi', 'peak', 'inner'].forEach(n => {
         if (gopts[n] != null) gopts[n] /= 8;
       });
-      gopts.lo = Math.pow(10, k);
-      gopts.hi = Math.pow(10, k + 4);
+      this._kT = k;
+      const kS = this._kA ? this._kA.cur : this._kTo != null && this._kTo !== k && !this._rm() ? this._kTo : k;
+      gopts.lo = Math.pow(10, kS);
+      gopts.hi = Math.pow(10, kS + 4);
       gScale = BG.winLabel(k, unit) + (S.gauge.note ? ' · ' + S.gauge.note : '');
+    } else {
+      cancelAnimationFrame(this._raf);
+      this._kT = null;
+      this._kTo = null;
+      this._kA = null;
     }
     const g = BG.gauge(gopts);
     if (S.countdown) g.fill = BG.arc(L.gSize / 2, L.gSize / 2, L.gSize / 2 - 10, 0, Math.max(0.002, 1 - pv(0.2)));
@@ -12207,7 +13062,10 @@ class TestScreen extends React.Component {
       'param-ignored': 'URL parameter streams=12 ignored, allowed 1 to 6.',
       'error-early': 'Connection lost during latency. Nothing was saved.',
       'cont-warmup': 'Continuous run stopped during warm-up. Partial results were not saved.',
-      'cont-done': 'Continuous run stopped. Saved to history.'
+      'cont-done': 'Continuous run stopped. Saved to history.',
+      'cancelled-latency': 'Test cancelled during latency. Partial results were not saved.',
+      'cancelled-download': 'Test cancelled during download. Partial results were not saved.',
+      'cancelled-slow': 'Test cancelled during download. Partial results were not saved.'
     };
     if (v01) Object.keys(PH).forEach(k => {
       PH[k] = PH[k].replace(' and saved to history', '').replace(' Saved to history.', '');
@@ -12253,7 +13111,6 @@ class TestScreen extends React.Component {
       g,
       gc,
       R,
-      gaugeAria: R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : R.title,
       btn: S.btn,
       ch: {
         title: cc.title,
@@ -12498,7 +13355,7 @@ class TestScreen extends React.Component {
         fontSize: "var(--text-caption)",
         color: "var(--danger-fg)"
       }
-    }, "GET /speed/api/info \u2192 404"))), /*#__PURE__*/React.createElement("section", {
+    }, "GET /api/v1/info \u2192 404"))), /*#__PURE__*/React.createElement("section", {
       className: "card",
       "aria-label": "Deployment hint",
       style: {
@@ -13003,8 +13860,7 @@ class TestScreen extends React.Component {
     }, /*#__PURE__*/React.createElement("svg", {
       width: v.g?.size,
       height: v.g?.size,
-      role: "img",
-      "aria-label": v.gaugeAria,
+      "aria-hidden": "true",
       style: {
         display: "block",
         overflow: "visible"
@@ -13201,7 +14057,7 @@ class TestScreen extends React.Component {
         marginTop: "4px",
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-caption)",
-        color: "var(--fg-faint)"
+        color: "var(--fg-subtle)"
       }
     }, v.R?.faint) : null, v.R?.action ? /*#__PURE__*/React.createElement("button", {
       className: "btn sm secondary",
@@ -14396,7 +15252,8 @@ class TestScreen extends React.Component {
     }, b?.u)))))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
-        gap: "12px",
+        flexWrap: "wrap",
+        gap: "4px 12px",
         fontFamily: "var(--font-mono)",
         fontSize: "9px",
         color: "var(--fg-muted)"
@@ -14408,7 +15265,7 @@ class TestScreen extends React.Component {
         marginLeft: "auto",
         color: "var(--fg-subtle)"
       }
-    }, "Basement NAS"))), /*#__PURE__*/React.createElement("label", {
+    }, v.share?.where))), /*#__PURE__*/React.createElement("label", {
       style: {
         display: "flex",
         alignItems: "center",
@@ -14500,7 +15357,7 @@ window.TestScreen = TestScreen;
 // ui_kits/app/bg-lib.js
 try { (() => {
 /* BitGauge design helpers: <bg-icon> (Lucide glyphs), number formatting, gauge + chart geometry.
-   Production: lucide-vue-next for icons; the math below ports 1:1 to a composable. */
+   Production: @lucide/vue for icons; the math below ports 1:1 to a composable. */
 (function () {
   const G = {
     play: '<polygon points="6 3 20 12 6 21 6 3"/>',
@@ -14602,35 +15459,37 @@ try { (() => {
   }
 
   // ---------- formatting ----------
+  // Three significant digits for every rate and data amount: "9.40 kbit/s", "94.1 Mbit/s", "12.3 Gbit/s", "12.3 MB".
+  const sig = x => x >= 100 ? Math.round(x).toString() : x >= 10 ? x.toFixed(1) : x >= 1 ? x.toFixed(2) : x.toPrecision(3);
+  // Picks the unit from the decimal prefix; a value that rounds to 1000 moves up one unit.
+  function scaled(v, U) {
+    let i = Math.max(0, Math.min(U.length - 1, Math.floor(Math.log10(Math.max(v, 1)) / 3) - 1)),
+      x = v / Math.pow(10, 3 * (i + 1));
+    if (x >= 999.5 && i < U.length - 1) {
+      i++;
+      x /= 1000;
+    }
+    return {
+      n: sig(x),
+      u: U[i]
+    };
+  }
   function rate(bps, unit) {
     const bytes = unit === 'bytes';
-    const v = bytes ? bps / 8 : bps;
-    const U = bytes ? ['kB/s', 'MB/s', 'GB/s'] : ['kbit/s', 'Mbit/s', 'Gbit/s'];
-    const sig = x => x < 10 ? x.toFixed(2) : x < 100 ? x.toFixed(1) : Math.round(x).toString();
-    if (v < 1e6) {
-      const k = v / 1e3;
-      return {
-        n: k < 10 ? k.toFixed(1) : Math.round(k).toString(),
-        u: U[0]
-      };
-    }
-    if (v < 1e9) return {
-      n: sig(v / 1e6),
-      u: U[1]
-    };
-    return {
-      n: (v / 1e9).toFixed(2),
-      u: U[2]
-    };
+    return scaled(bytes ? bps / 8 : bps, bytes ? ['kB/s', 'MB/s', 'GB/s'] : ['kbit/s', 'Mbit/s', 'Gbit/s']);
   }
   const rateStr = (b, u) => {
     const r = rate(b, u);
     return r.n + ' ' + r.u;
   };
-  const ms = v => v < 1 ? v.toFixed(2) : v < 10 ? v.toFixed(1) : Math.round(v).toString();
-  // Jitter: one decimal below 10 ms, whole ms at/above 10, "< 1" below the timer resolution (res in ms).
+  // Latency and jitter: one decimal below 10 ms, whole ms at/above 10, "< res" below the timer resolution
+  // (res in ms; a 1 ms timer gives "< 1 ms").
   const jit = (v, res = 0.1) => v < res ? '< ' + (res >= 1 ? Math.round(res) : res.toFixed(1)) : v < 10 ? v.toFixed(1) : Math.round(v).toString();
-  const bytes = b => b < 1e6 ? (b / 1e3).toFixed(0) + ' kB' : b < 1e9 ? (b / 1e6).toFixed(b < 1e7 ? 1 : 0) + ' MB' : (b / 1e9).toFixed(2) + ' GB';
+  const ms = jit;
+  const bytes = b => {
+    const r = scaled(b, ['kB', 'MB', 'GB', 'TB']);
+    return r.n + ' ' + r.u;
+  };
   const tickLabel = v => v >= 1e9 ? v / 1e9 + 'G' : v >= 1e6 ? v / 1e6 + 'M' : v >= 1e3 ? v / 1e3 + 'k' : String(v);
 
   // ---------- gauge (270° log arc) ----------
@@ -14702,7 +15561,8 @@ try { (() => {
     return Math.pow(10, e - 3 - 3 * i) + ' ' + U[i];
   };
   const winLabel = (k, unit) => 'log scale · ' + decStr(k, unit) + ' – ' + decStr(k + 4, unit) + ' · auto';
-  // Shift tween: 280 ms ease-out in log space (pass a fractional k mid-shift). Reduced motion: jump.
+  // Shift tween: 280 ms ease-out in log space. The caller animates k and passes the fractional value as
+  // lo = 10^k, hi = 10^(k+4) (TestScreen._animK); under prefers-reduced-motion it jumps.
   const SHIFT_MS = 280;
 
   // mode: 'rate' | 'ms'. lo/hi come from the engine (track); default 1 Mbit/s–10 Gbit/s, ms fixed 1–1000.

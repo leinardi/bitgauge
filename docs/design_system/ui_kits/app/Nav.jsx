@@ -11,6 +11,20 @@
 window.BGPrefs = window.BGPrefs || React.createContext({ theme: 'system' });
 class Nav extends React.Component {
   static contextType = window.BGPrefs;
+  state = { ann: '' };
+  componentDidMount() { this._srv(); }
+  componentDidUpdate() { this._srv(); }
+  down() { return this.props.status === 'offline' || this.props.status === 'unreachable'; }
+  // Reachability is announced only when it changes. The last value is shared across screens, so a
+  // header that mounts with an unchanged status (every screen change) stays silent.
+  _srv() {
+    if (this.props.variant === 'mobile-bottom') return;
+    const s = this.down() ? 'unreachable' : 'connected';
+    if (s === this._last) return;
+    const prev = this._last ?? window.__bgSrvStatus;
+    this._last = s; window.__bgSrvStatus = s;
+    if (prev !== undefined && prev !== s) this.setState({ ann: s === 'unreachable' ? 'Server unreachable' : 'Server connected' });
+  }
   renderVals() {
     const v = this.props.variant || 'top';
     const active = this.props.active || 'test';
@@ -21,12 +35,12 @@ class Nav extends React.Component {
     const themes = [['light', 'Light', 'sun'], ['dark', 'Dark', 'moon'], ['system', 'Follow system', 'monitor']]
       .map(([k, label, icon]) => ({ label, icon, on: k === th, off: k !== th }));
     const cur = themes.find(t => t.on);
-    const down = this.props.status === 'offline' || this.props.status === 'unreachable';
+    const down = this.down();
     return {
       isTop: v === 'top', isMobileTop: v === 'mobile-top', isMobileBottom: v === 'mobile-bottom',
       items, themes, themeIcon: cur.icon, themeLabel: cur.label,
       down, dotBg: down ? 'transparent' : 'var(--ok)', dotBd: down ? '1.5px solid var(--warn)' : '0',
-      srStatus: down ? 'unreachable' : 'connected', dotTitle: down ? 'Server unreachable' : 'Server connected',
+      ann: this.state.ann, dotTitle: down ? 'Server unreachable' : 'Server connected',
       server: this.props.server || 'Basement NAS', host: this.props.host || 'speed.home.lan'
     };
   }
@@ -48,8 +62,8 @@ class Nav extends React.Component {
             <div title={v.dotTitle} style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: "0" }}>
               <span aria-hidden="true" style={{ width: "7px", height: "7px", boxSizing: "border-box", borderRadius: "50%", background: v.dotBg, border: v.dotBd, flex: "none" }} />
               <span style={{ fontSize: "var(--text-sm)", fontWeight: "500", color: "var(--fg)" }}>{v.server}</span>
-              <span role="status" style={{ position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: "0" }}>
-                {v.srStatus}
+              <span aria-live="polite" style={{ position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: "0" }}>
+                {v.ann}
               </span>
               {v.down ? (
                 <span aria-hidden="true" style={{ fontSize: "var(--text-caption)", fontWeight: "500", color: "var(--warn-fg)" }}>Unreachable</span>
@@ -104,8 +118,9 @@ class Nav extends React.Component {
             <span title={v.dotTitle} style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>
               <span aria-hidden="true" style={{ width: "6px", height: "6px", boxSizing: "border-box", borderRadius: "50%", background: v.dotBg, border: v.dotBd }} />
               {v.server}
-              <span role="status" style={{ position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: "0" }}>
-                {v.srStatus}
+              <span style={{ fontFamily: "var(--font-mono)", minWidth: "0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.host}</span>
+              <span aria-live="polite" style={{ position: "absolute", width: "1px", height: "1px", padding: "0", margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: "0" }}>
+                {v.ann}
               </span>
               {v.down ? (
                 <span aria-hidden="true" style={{ color: "var(--warn-fg)", fontWeight: "500" }}>· Unreachable</span>

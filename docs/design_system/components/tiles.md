@@ -16,11 +16,15 @@ separate unit span, qualifier line, optional secondary values (peak, min / media
 | live | steady-window average and peak so far |
 | done | headline + qualifiers |
 | partial | number only if the confirmed steady window meets the minimum, with `partial` |
-| incomplete / insufficient data | **no number**, "insufficient data" + suggested action |
+| incomplete / insufficient data | **no number**, "—" + "insufficient data" + suggested action |
 | low confidence | number + `low confidence` with reasons |
+| error | **no number**, "—" + the error in `--danger-fg` (e.g. "error · connection lost") |
 
-Fill-in: when a value arrives, "—" fades to the number and the tile flashes soft for 600 ms
-(180 ms). Nothing slides.
+The error, incomplete and insufficient-data states never show a number, even when a partial value
+exists.
+
+Fill-in: when a value arrives, "—" fades to the number over 180 ms (`--dur-base`). Nothing slides.
+Reduced motion: the number appears without fading.
 
 ## Special tiles
 

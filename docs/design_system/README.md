@@ -9,7 +9,7 @@ stands on its own — no external design-system dependency.
 which was itself DS-ready. No Figma file or code repository was provided.
 
 Production stack: **Vue 3 + Vite + TypeScript + Tailwind 4 + shadcn-vue (Reka UI)**, uPlot for charts,
-`lucide-vue-next` for icons, `vue-sonner` for toasts. The React components here are design-time
+`@lucide/vue` for icons, `vue-sonner` for toasts. The React components here are design-time
 recreations for prototyping; the Tailwind mapping is in `tokens.md`.
 
 ## Product context
@@ -73,7 +73,7 @@ Calm, exact, never breathless. BitGauge measures and reports; it never overclaim
 - **Every number carries its qualifier:** `low confidence`, `partial`, `insufficient data`. A direction without enough data shows no number.
 - **Say what can't be verified:** "HTTP loaded responsiveness — connection sharing not verifiable". Packet loss is "Not measured", never zero.
 - **Toasts are short sentences with a period:** "Summary copied.", "Result deleted."
-- **Notices:** title states the fact ("Low confidence result"), detail says why with numbers ("Upload collected 18 samples; 30 are recommended.").
+- **Notices:** state the fact, then the reason: "Low confidence — upload: insufficient samples".
 - **Destructive confirms name the count and irreversibility:** "This removes 47 results from this browser. It can't be undone."
 - **Units** are a separate, smaller span; digits are tabular mono; 3 significant digits (`94.1 Mbit/s`).
 - **No emoji.** No exclamation marks. Middle dot `·` separates meta ("Extended · 60 s").
@@ -93,12 +93,12 @@ Calm, exact, never breathless. BitGauge measures and reports; it never overclaim
 - **Focus:** solid 2 px `--focus-ring` with a 2 px offset on every interactive element.
 - **Motion:** calm, no bounce. 120 ms hovers, 180 ms gauge tween / tile fill / page-in (4 px rise), 280 ms phase change, gauge window shift and toast slide. `--ease-out` cubic-bezier(0.22,1,0.36,1). Reduced motion removes tweening and pulsing.
 - **Transparency & blur:** only the dialog scrim (`--scrim` + 2 px blur) and the glass header (`--surface-glass`).
-- **Charts:** series colours as above, latency dashed on its own axis, null gaps for unknown data, hairline grid in `--fg-faint`.
+- **Charts:** series colours as above, latency dashed on its own axis, warm-up a hatched empty interval, null gaps for unknown data, hairline grid in `--chart-grid`.
 - **Colour is never the only signal:** grade letter, icon, label or line style always carries meaning. `--fg-faint` is non-text only.
 
 ## Iconography
 
-- **Lucide**, outline, **1.75 px stroke**, 14–20 px, `currentColor`, round caps/joins. Production uses `lucide-vue-next`; here the glyphs are bundled inline (`components/brand/Icon.jsx`, kit `bg-lib.js` → `<bg-icon>`), so nothing loads from a CDN.
+- **Lucide**, outline, **1.75 px stroke**, 14–20 px, `currentColor`, round caps/joins. Production uses `@lucide/vue`; here the glyphs are bundled inline (`components/brand/Icon.jsx`, kit `bg-lib.js` → `<bg-icon>`), so nothing loads from a CDN.
 - Common glyphs: `arrow-down` / `arrow-up` (directions), `activity` (latency), `gauge`, `circle-check`, `circle-x`, `circle-dashed` (pending), `circle-minus` (cancelled/skipped), `triangle-alert`, `info`, `wifi-off`, `copy`, `download`, `share-2`, `history`, `settings`, `timer`, `layers`, `database`, `tag`.
 - No icon font, no PNG icons, **no emoji**, no unicode pictographs (only `·`, `—`, `–`, `→` as typography).
 - Icons pair with text; icon-only buttons need `aria-label`.
@@ -106,5 +106,23 @@ Calm, exact, never breathless. BitGauge measures and reports; it never overclaim
 ## Logo
 
 `assets/bitgauge-mark.svg` (colour: three gauge arcs in download teal, upload violet, dashed latency
-blue), `bitgauge-mark-mono.svg` (`currentColor`), `favicon.svg` (two heavier arcs for 16 px).
-Wordmark: "BitGauge" in IBM Plex Sans 600. Use the `Logo` component; never redraw.
+blue; stroke colours are inline, with a `prefers-color-scheme: dark` variant, so it renders on its
+own), `bitgauge-mark-mono.svg` (`currentColor`), `favicon.svg` (two heavier arcs for 16 px, same
+inline colours). Wordmark: "Bit" in `--fg` + "Gauge" in teal `--primary-text`, IBM Plex Sans 600,
+as in the Nav and About screens. Use the `Logo` component; never redraw.
+
+### Favicons and web manifest
+
+The favicons, app icons and `site.webmanifest` are served from the **app's base path** (the
+directory that serves `index.html`), not from an `assets/` subfolder. The manifest's `start_url`,
+`scope` and `id` are `./` and its icon `src`s are bare filenames, so they resolve against the
+manifest's own URL: the app root, under any base path. Head tags use relative paths for the same
+reason:
+
+```html
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+```

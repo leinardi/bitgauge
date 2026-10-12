@@ -13,9 +13,12 @@ this design artifact only.
 
 ## Try the flows
 
-- **Test** — press **Start test** or Enter (not while a control has focus); Escape stops. The run goes
-  Connecting → idle latency → download → upload → result, with the live gauge, chart, phase
-  indicator and tiles. Stop during upload to get a partial result.
+- **Test** — press **Start test** or Enter (not while a control has focus, and not while Start is
+  disabled); Enter during the autostart countdown starts the test now. Escape stops; Enter and Escape
+  act only on the Test screen. The run goes Connecting → idle latency → download (10 s) → upload
+  (12 s) → result, with the live gauge, chart, phase indicator and tiles. Stopping in any phase ends
+  Cancelled with the partial-result rules (Keep in history, Download JSON); it returns to Idle only
+  when nothing was measured (stopped while connecting, or during idle latency with too few pings).
 - **Result detail** — "Details" after a run, or open a row in History.
 - **History** — Compare, Clear all, Export, date range and Import JSON open their states.
 - **Settings**, **About** — from the header (mobile: bottom tab bar).
@@ -65,10 +68,10 @@ the same split as a Vue SFC's `<script setup>` and `<template>`.
 | ThroughputChart | uPlot | Throughput series, optional latency-under-load on a second y-axis, null gaps for unknown upload cells, a now line, and phase separators and event marks (lost, cancelled, cap, extended) drawn via hooks. |
 | MetricTile | Card | States: empty (—), live, done, partial, incomplete, low confidence. |
 | LoadCard | Card + GradeBadge | Bufferbloat grade (A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe) with an A+–F scale strip, loaded latency for down/up with change vs idle, and RPM. |
-| QualityList | Badge | Streaming, Gaming, Video calls → Great, Good, Average, Poor or Bad. Each rating has an icon and text. |
-| NotMeasured | Badge (outline, dashed) | Placeholder for packet loss; the tooltip explains it is planned. |
+| QualityList | Badge | Streaming, Gaming, Video calls → Great, Good, Average, Poor or Bad (AIM point tables, measurement §13: Streaming = latency, packet loss, download, loaded-latency increase; Gaming = latency, packet loss, loaded-latency increase; Video calls = latency, jitter, packet loss, loaded-latency increase). Upload is not an input. Each rating has an icon and text. |
+| NotMeasured | Badge (outline, dashed) | Placeholder for packet loss; the tooltip explains it is not measured (fixed at 0 points in the quality scores). |
 | Notice | Alert | info, warn, danger or neutral, with up to two actions. Danger uses role="alert". |
-| SaveBar | Card + Input + ToggleGroup | Confirms “Saved to history” and offers a label field with suggested label chips, copy, image and details. |
+| SaveBar | Card + Input + ToggleGroup | Confirms “Saved to history” and offers a label field with suggested label chips, Share, Download JSON and Details. Partial results offer Keep in history and Download JSON. |
 | ResultHeader | Input (inline edit) | Editable label, context, timestamp (absolute on hover), plus the actions. |
 | NoteField | Textarea | Saves automatically with the result in IndexedDB (history). |
 | ShareImage | &lt;canvas> → PNG | A 1200×630 image always rendered in the dark theme, with a preview in the rail. |
@@ -88,14 +91,14 @@ the same split as a Vue SFC's `<script setup>` and `<template>`.
 | UndoToast | vue-sonner (action) | “Result deleted.” with Undo; the delete commits when the toast expires. |
 | ShareDialog | Dialog | Same content as the Result-detail rail: share image preview, summary text, copy and download. |
 | ImportResult | Dialog + Alert | Reports a JSON import: how many results were added, skipped as duplicates, or rejected, and why. |
-| OfflineState | Alert + EmptyState | Shown when the browser is offline: history stays readable, starting a test is disabled with the reason. |
+| OfflineState | Alert + EmptyState | Shown when the server is unreachable: history stays readable, starting a test is disabled with the reason. |
 | FullScreenError | — | Base-path mismatch: the app was served from a path it was not built for. Names the expected and actual path. |
 | Skeleton | Skeleton | Initial-load placeholders matching the final layout (tiles, history rows, charts); refreshes keep content. |
 | Tooltip | Tooltip | Absolute timestamps, disabled reasons, not-measured explanation. |
 
 ## Notes for production
 
-- Icons are Lucide; in Vue use `lucide-vue-next` with `stroke-width="1.75"`.
+- Icons are Lucide; in Vue use `@lucide/vue` with `stroke-width="1.75"`.
 - Charts are uPlot; the gauge is custom SVG (see `components/gauge.md`).
 - Toasts are `vue-sonner`.
 - Copy, states and behaviour come from `features/ui/`; where this kit and the spec disagree, the
