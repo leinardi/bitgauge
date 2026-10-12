@@ -96,8 +96,10 @@ func TestSyntaxDirectiveIsPinned(t *testing.T) {
 	}
 }
 
-// TestShippedStages pins the three named stages, in order, each from a literal digest-pinned base:
-// Dependabot updates only literal FROM lines, and a tag alone can be repointed under a build.
+// TestShippedStages pins the three named stages, in order, each from a literal dhi.io base pinned
+// by an explicit tag and no digest (build-packaging.md section 1): Dependabot updates only literal
+// FROM lines, a missing or latest tag says nothing about what is built, and dhi.io republishes its
+// tags to ship security fixes, which a digest would hold back.
 func TestShippedStages(t *testing.T) {
 	t.Parallel()
 
@@ -107,9 +109,9 @@ func TestShippedStages(t *testing.T) {
 	for _, stage := range stages {
 		names = append(names, stage.Name)
 
-		if !dockerfiles.DigestPinned(stage.Image) {
-			t.Errorf("stage %q is FROM %q, which is not a literal reference pinned by digest",
-				stage.Name, stage.Image)
+		if !dockerfiles.FromDHI(stage.Image) || !dockerfiles.TagPinned(stage.Image) {
+			t.Errorf("stage %q is FROM %q, which is not a literal dhi.io reference pinned by an "+
+				"explicit tag alone", stage.Name, stage.Image)
 		}
 	}
 
@@ -297,8 +299,9 @@ func TestBuildinfoIsStamped(t *testing.T) {
 	}
 }
 
-// TestOtherDockerfilesAreTestOnly pins that every other Dockerfile in the repository is pinned
-// like the shipped one and is never built or released as a product image.
+// TestOtherDockerfilesAreTestOnly pins that every other Dockerfile in the repository follows the
+// shipped one's pinning rule (a dhi.io base by an explicit tag alone, any other base by tag and
+// digest) and is never built or released as a product image.
 func TestOtherDockerfilesAreTestOnly(t *testing.T) {
 	t.Parallel()
 
@@ -332,9 +335,10 @@ func TestOtherDockerfilesAreTestOnly(t *testing.T) {
 		}
 
 		for _, stage := range stages {
-			if !dockerfiles.DigestPinned(stage.Image) {
+			if !dockerfiles.BasePinned(stage.Image) {
 				t.Errorf(
-					"%s: FROM %q is not a literal reference pinned by digest",
+					"%s: FROM %q is neither a dhi.io reference pinned by an explicit tag alone "+
+						"nor another literal reference pinned by tag and digest",
 					path,
 					stage.Image,
 				)

@@ -18,9 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 #
-# The shipped image (build-packaging.md section 1). Every stage is a literal FROM pinned by digest,
-# because Dependabot updates only literal FROM lines and a tag alone can be repointed under a build.
-# All three bases come from dhi.io, so pulling them needs a dhi.io token.
+# The shipped image (build-packaging.md section 1). Every stage is a literal FROM, because
+# Dependabot updates only literal FROM lines. All three bases come from dhi.io, so pulling them
+# needs a dhi.io token.
+#
+# The dhi.io bases are pinned by an explicit tag, not by digest: dhi.io republishes its tags to ship
+# security fixes, and a build should pick those up rather than wait for a Dependabot pull request.
+# Every release build is scanned before anything is pushed, so a newer base never ships unscanned.
 #
 # The syntax line above pins the BuildKit frontend by index digest, so a moved 1.7 tag cannot change
 # how this file is built. It is a parser directive and has to be the file's first line, ahead of
@@ -32,7 +36,7 @@
 # built from the same source tree as its binary. npm run build is vite build only: the type check
 # is a CI gate, not a packaging step. Runs on the build platform; its output is architecture-free.
 ########################
-FROM --platform=$BUILDPLATFORM dhi.io/node:24-alpine3.23-dev@sha256:ca452b9353334e104bc4531d5ad58de7ab8b9d3da401e788df19b4963b571a71 AS web
+FROM --platform=$BUILDPLATFORM dhi.io/node:24-alpine3.23-dev AS web
 WORKDIR /src/web
 COPY web/package.json web/package-lock.json web/.npmrc ./
 RUN --mount=type=cache,target=/root/.npm,id=npmcache \
@@ -43,7 +47,7 @@ RUN npm run build
 ########################
 # build: cross-compile the static binary on the build platform.
 ########################
-FROM --platform=$BUILDPLATFORM dhi.io/golang:1.26-alpine3.23-dev@sha256:267350cad2ac48fab07d6ee38fbafaa49440888764929ff2e867d6a84e684652 AS build
+FROM --platform=$BUILDPLATFORM dhi.io/golang:1.26-alpine3.23-dev AS build
 ARG VERSION="dev"
 ARG COMMIT="none"
 ARG DATE="unknown"
@@ -77,7 +81,7 @@ RUN --mount=type=cache,target=/go/pkg/mod,id=gomodcache \
 # runtime: the shell-less dhi.io static base. The binary is CGO_ENABLED=0, so it needs no libc, and
 # it writes nothing: the image declares no volume and runs on a read-only root filesystem.
 ########################
-FROM dhi.io/static:20250419@sha256:98ef7a853608577e8d66dad1d25ada75d745d782f28d84e9ecfb85dfeb1f9c98 AS runtime
+FROM dhi.io/static:20250419 AS runtime
 ARG VERSION="dev"
 ARG COMMIT="none"
 ARG DATE="unknown"

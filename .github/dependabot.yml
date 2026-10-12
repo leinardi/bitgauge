@@ -34,9 +34,11 @@ updates:
         patterns:
           - "*"
 
-  # The base images of the shipped image (build-packaging.md section 1). Digest bumps are chore(deps)
-  # and bump no version: they ship with the next release, and one that carries a security fix is
-  # released with an explicit version (the Versioning section of docs/release.md).
+  # The base images of the shipped image (build-packaging.md section 1). They are pinned by tag, not
+  # by digest: dhi.io republishes its tags with security fixes and every build takes them, so this
+  # ecosystem only moves the tags themselves. Tag bumps are chore(deps) and bump no version: they
+  # ship with the next release, and one that carries a security fix is released with an explicit
+  # version (the Versioning section of docs/release.md).
   - package-ecosystem: "docker"
     directory: "/deployments/docker"
     registries: ["dhi"]
