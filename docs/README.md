@@ -26,8 +26,9 @@ export.
 project on every export, so a local edit is silently lost on the next sync. A change goes into the
 Claude Design project first and arrives here with the next export. The one exception is
 `design_system/features/`, which is the same file as the spec pages through the symlinks below and
-is edited like any spec page; every such edit is uploaded to the Claude Design project so the next
-export carries it unchanged.
+is edited like any spec page. Every such edit is then pasted by hand into the same file in the
+Claude Design project, so the next export carries it unchanged; Claude Design prompts never ask it
+to write anything under `features/`.
 
 ### Precedence
 
@@ -66,7 +67,7 @@ Editing via either path edits the same file. Windows checkouts need
 2. Run `git diff -- docs/design_system/features/`. It must print nothing: the export's spec files
    must be byte-identical to the committed ones. Any difference is resolved in favour of the
    committed spec (`git checkout -- docs/design_system/features/`), and the committed files are
-   uploaded to the Claude Design project so the next export matches.
+   pasted into the Claude Design project so the next export matches.
 3. Check that every relative link in `docs/` still resolves (`go test -count=1 ./test/docs/`), then
    commit the export.
 

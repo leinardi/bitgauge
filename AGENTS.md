@@ -295,7 +295,7 @@ Full section: [`docs/features/architecture.md`](docs/features/architecture.md).
 art, `docs/engineering/` working notes, and `docs/design_system/` the Claude Design export, with the
 app UI kit in `ui_kits/app/`. `docs/features/{product.md,principles.md,measurement.md,ui/}` are
 **symlinks** into `docs/design_system/features/`, and either path edits the same file (Windows:
-`git config core.symlinks true`); an edit there is uploaded to the Claude Design project so the
+`git config core.symlinks true`); an edit there is pasted into the Claude Design project so the
 next export carries it ([`docs/README.md`](docs/README.md#design-export)). Never hand-edit the rest
 of the export.
 

@@ -156,8 +156,9 @@ editing STATUS.md or ui/screens.md, and the markdownlint hook for formatting.
 - Never hand-edit anything else under `docs/design_system/`: it is regenerated on every export, so
   a local edit is lost. A visual change goes into the Claude Design project first
   ([provenance rule](../../../docs/README.md#provenance-rule)).
-- An edit to a symlinked page is a change to the export too: list the files for the user to upload
-  to the Claude Design project, so the next export carries them byte-identical. A new export is
+- An edit to a symlinked page is a change to the export too: list the files for the user to paste
+  into the Claude Design project by hand, so the next export carries them byte-identical. A Claude
+  Design prompt never asks it to write under `features/`. A new export is
   synced with the steps in [docs/README.md](../../../docs/README.md#syncing-a-new-export).
 - `docs/features/ui/` is canonical for behaviour, the export for visuals; a behavioural
   disagreement is resolved in the spec first.
