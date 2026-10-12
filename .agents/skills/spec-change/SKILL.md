@@ -147,7 +147,7 @@ editing STATUS.md or ui/screens.md, and the markdownlint hook for formatting.
 
 ## 6. The symlink contract
 
-`docs/features/product.md`, `principles.md` and `ui/` are **symlinks** into
+`docs/features/product.md`, `principles.md`, `measurement.md` and `ui/` are **symlinks** into
 `docs/design_system/features/`, the spec files the Claude Design export carries
 ([docs/README.md](../../../docs/README.md#symlink-contract)).
 

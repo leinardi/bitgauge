@@ -50,7 +50,12 @@ The export carries the product-spec files the design is drawn from. They live ph
 
 - `features/product.md` → `design_system/features/product.md`
 - `features/principles.md` → `design_system/features/principles.md`
+- `features/measurement.md` → `design_system/features/measurement.md`
 - `features/ui/` → `design_system/features/ui/`
+
+Links inside and to these files are written as if they lived in `features/`: the docs test
+resolves them there, and an IDE "move" refactoring that rewrites them to the physical path is
+reverted.
 
 Editing via either path edits the same file. Windows checkouts need
 `git config core.symlinks true`.

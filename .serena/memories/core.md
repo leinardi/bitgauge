@@ -47,8 +47,9 @@ test/internal/            testenv (docker CLI envs, labels, sweep), netguard (nf
 (native API, error envelope, upload JSON), `compatibility.md`, `configuration.md`, `security.md`,
 `architecture.md`, `technical-stack/{decisions,testing,build-packaging,frontend,backend}.md`,
 `open-questions.md`, `roadmap.md`. `docs/release.md` covers releases.
-`docs/features/{product.md,principles.md,ui/}` become SYMLINKS into `docs/design_system/` once
-the design export lands; never hand-edit the export.
+`docs/features/{product.md,principles.md,measurement.md,ui/}` are SYMLINKS into
+`docs/design_system/features/` (rules: docs/README.md "Design Export"); never hand-edit the rest of
+the export.
 
 ## Related memories
 
