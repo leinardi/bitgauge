@@ -47,13 +47,17 @@ Any other method on these paths answers `405` with an `Allow` header. Unknown pa
 ### 3.1 `GET /api/v1/download?bytes=N`
 
 - The server MUST respond with exactly `N` bytes drawn from an in-memory random buffer generated at
-  startup, sending them by repeatedly writing slices of that buffer (no allocation per request).
+  startup, sending them by repeatedly writing slices of that buffer. The body allocates nothing per
+  request; the only per-request allocations are the formatted `Content-Length` value and the
+  one-element header slice that holds it.
 - The response MUST carry `Content-Length: N` and `Cache-Control: no-store`, and MUST NOT carry a
   `Content-Encoding`. The content is incompressible random data, so a compressing proxy gains
   nothing and only adds latency.
 - A missing, non-integer, zero or negative `N` MUST yield `400`; an `N` above
   `limits.max_download_bytes` MUST yield `400` with code `bytes_out_of_range` and the limit in
-  `details`.
+  `details`. The code is `bad_request` when `N` is missing or not an integer, and
+  `bytes_out_of_range`, with the limit in `details`, for any integer outside 1 to the limit. The
+  query is percent-decoded as usual, so `bytes=%35` asks for 5 bytes.
 - When the client aborts, the server stops writing; nothing is recorded beyond the Prometheus
   counters.
 
@@ -144,7 +148,7 @@ test when `epoch` differs from the one `GET /info` reported at test start.
     "phases": ["idle", "download", "upload"],
     "streams": { "mode": "auto", "fixed": 3, "max": 6 },
     "download": { "minMs": 10000, "maxMs": 20000 },
-    "upload": { "minMs": 12000, "maxMs": 25000 },
+    "upload": { "minMs": 15000, "maxMs": 25000 },
     "dataCapBytes": null,
     "units": "bits",
     "warmup": "auto",
@@ -170,7 +174,10 @@ test when `epoch` differs from the one `GET /info` reported at test start.
   subnets to labels (for WireGuard setups that use RFC 1918 addresses) is tracked in
   [open-questions.md](open-questions.md).
 - `defaults` are the test defaults exposed to the client from configuration; the SPA applies them
-  unless the user's settings or URL parameters override them.
+  unless the user's settings or URL parameters override them. They arrive resolved: an empty
+  duration bound is sent as the preset's value and `ping_count: 0` as the preset's idle ping count
+  ([measurement.md §8.5](measurement.md#85-presets)). `dataCapBytes` is `null` without a cap, and
+  `warmup` is `"auto"` or the fixed warm-up in whole milliseconds (`3000`).
 - `compat` lists which compatibility layers are enabled, for the About screen's snippets.
 - The response contains nothing about other clients and nothing that outlives the request.
 

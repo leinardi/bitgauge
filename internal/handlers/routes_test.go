@@ -20,12 +20,28 @@
 package handlers
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+
+	"github.com/leinardi/bitgauge/internal/buildinfo"
+	"github.com/leinardi/bitgauge/internal/clientip"
+	"github.com/leinardi/bitgauge/internal/config"
 )
+
+func testDeps() *Deps {
+	cfg := config.Defaults()
+
+	return &Deps{
+		Config: &cfg,
+		Buffer: NewBuffer(),
+		Build:  buildinfo.Build{Version: "0.1.0", Commit: "a1b2c3d", Date: "2026-09-30T12:00:00Z"},
+		Epoch:  Epoch{ID: "k3V9qW2rT0aY", GridOffset: 1234},
+	}
+}
 
 // mounted is the native router as the server mounts it, below a base path.
 func mounted(t *testing.T) http.Handler {
@@ -33,7 +49,8 @@ func mounted(t *testing.T) http.Handler {
 
 	root := chi.NewRouter()
 	root.Route("/speed", func(base chi.Router) {
-		base.Mount(Prefix, Routes(&Deps{Buffer: NewBuffer(), Epoch: NewEpoch()}))
+		base.Use(clientip.Middleware(clientip.NewDeriver(nil)))
+		base.Mount(Prefix, Routes(testDeps()))
 	})
 
 	return root
@@ -48,10 +65,12 @@ func serve(t *testing.T, handler http.Handler, method, path string) *httptest.Re
 	return recorder
 }
 
-func TestRoutesServeTheProbes(t *testing.T) {
+func TestRoutesServeTheNativeAPI(t *testing.T) {
 	t.Parallel()
 
-	handler := mounted(t)
+	// A real server, so the download can set its write deadlines.
+	server := httptest.NewServer(mounted(t))
+	t.Cleanup(server.Close)
 
 	for _, route := range []struct {
 		method, path string
@@ -60,9 +79,30 @@ func TestRoutesServeTheProbes(t *testing.T) {
 		{http.MethodGet, "/speed/api/v1/ping", http.StatusNoContent},
 		{http.MethodHead, "/speed/api/v1/ping", http.StatusNoContent},
 		{http.MethodGet, "/speed/api/v1/small", http.StatusOK},
+		{http.MethodGet, "/speed/api/v1/download?bytes=10", http.StatusOK},
+		{http.MethodGet, "/speed/api/v1/info", http.StatusOK},
 	} {
-		if got := serve(t, handler, route.method, route.path).Code; got != route.status {
-			t.Fatalf("%s %s = %d, want %d", route.method, route.path, got, route.status)
+		request, err := http.NewRequestWithContext(
+			t.Context(),
+			route.method,
+			server.URL+route.path,
+			http.NoBody,
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		response, err := server.Client().Do(request)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = io.Copy(io.Discard, response.Body)
+		_ = response.Body.Close()
+
+		if err != nil || response.StatusCode != route.status {
+			t.Fatalf("%s %s = %d (%v), want %d",
+				route.method, route.path, response.StatusCode, err, route.status)
 		}
 	}
 }
@@ -81,8 +121,10 @@ func TestRoutesWrongMethodIs405WithAllow(t *testing.T) {
 		{handler, http.MethodDelete, "/speed/api/v1/ping", "GET, HEAD"},
 		{handler, http.MethodHead, "/speed/api/v1/small", "GET"},
 		{handler, http.MethodPost, "/speed/api/v1/small", "GET"},
+		{handler, http.MethodPost, "/speed/api/v1/download", "GET"},
+		{handler, http.MethodHead, "/speed/api/v1/info", "GET"},
 		// Not mounted: the route path is the request path.
-		{Routes(&Deps{}), http.MethodPut, "/small", "GET"},
+		{Routes(testDeps()), http.MethodPut, "/small", "GET"},
 	} {
 		recorder := serve(t, test.handler, test.method, test.path)
 		assertEnvelope(t, recorder, http.StatusMethodNotAllowed, CodeMethodNotAllowed)

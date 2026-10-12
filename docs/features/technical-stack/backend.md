@@ -44,7 +44,8 @@ but never the reverse, and nothing imports `cmd/`.
 - One random buffer of 4 MiB is generated at startup (`crypto/rand`) and shared read-only by all
   downloads, OpenSpeedTest `/downloading`, LibreSpeed `/garbage` and `/nq/large`.
 - A body of `N` bytes is written as consecutive slices of that buffer, wrapping around; **no
-  allocation per request** and no copy into a per-request buffer.
+  allocation per request** and no copy into a per-request buffer. The one exception is the
+  `Content-Length` header: its formatted value and the one-element slice that holds it.
 - `Content-Length` is set before the first write; no `Content-Encoding`; `Cache-Control: no-store`.
 - **Sizes and caps** are decided before any write, per route:
   - native `GET /api/v1/download`: `N` above `limits.max_download_bytes` answers `400`;

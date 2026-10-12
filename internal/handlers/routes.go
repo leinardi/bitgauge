@@ -24,15 +24,21 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+
+	"github.com/leinardi/bitgauge/internal/buildinfo"
+	"github.com/leinardi/bitgauge/internal/config"
 )
 
 // Prefix is the path the native API is mounted at, under server.base_path.
 const Prefix = "/api/v1"
 
-// Deps are the shared building blocks the native handlers are built from, created once at
-// startup (backend.md section 5).
+// Deps are what the native handlers are built from, created once at startup (backend.md
+// section 5): the validated configuration, the build information, and the shared random
+// buffer and epoch.
 type Deps struct {
+	Config *config.Config
 	Buffer *Buffer
+	Build  buildinfo.Build
 	Epoch  Epoch
 }
 
@@ -54,11 +60,17 @@ func (t *routeTable) handle(pattern string, handler http.HandlerFunc, methods ..
 // Routes returns the router of the native API (wire-protocol.md section 2), to be mounted at
 // Prefix. Any other method on a known path answers 405 with Allow, and any unknown path
 // answers 404, both with the error envelope.
-func Routes(_ *Deps) *chi.Mux {
+func Routes(deps *Deps) *chi.Mux {
 	table := &routeTable{router: chi.NewRouter(), allow: map[string]string{}}
 
+	table.handle(
+		"/download",
+		Download(deps.Buffer, int64(deps.Config.Limits.MaxDownloadBytes)),
+		http.MethodGet,
+	)
 	table.handle("/ping", Ping, http.MethodGet, http.MethodHead)
 	table.handle("/small", Small, http.MethodGet)
+	table.handle("/info", Info(deps.Config, deps.Build, deps.Epoch), http.MethodGet)
 
 	table.router.NotFound(func(writer http.ResponseWriter, _ *http.Request) {
 		WriteError(writer, http.StatusNotFound, CodeNotFound, "not found", nil)

@@ -80,23 +80,6 @@ const (
 	milestoneCompatibility = "v0.3"
 )
 
-// presetDurations are the download and upload min and max of measurement.md section 8.5, which
-// an empty duration bound stands for. Continuous has no maximum and is not in this release.
-var presetDurations = map[string]struct{ download, upload [2]time.Duration }{
-	presetQuick: {
-		download: [2]time.Duration{5 * time.Second, 10 * time.Second},
-		upload:   [2]time.Duration{5 * time.Second, 10 * time.Second},
-	},
-	presetStandard: {
-		download: [2]time.Duration{10 * time.Second, 20 * time.Second},
-		upload:   [2]time.Duration{15 * time.Second, 25 * time.Second},
-	},
-	presetExtended: {
-		download: [2]time.Duration{20 * time.Second, 40 * time.Second},
-		upload:   [2]time.Duration{20 * time.Second, 40 * time.Second},
-	},
-}
-
 // Validate checks a decoded configuration against every rule of configuration.md section 4
 // that this release can decide, and returns every problem, not only the first. The one rule
 // it leaves out is the metrics.path route collision, which needs the router's own route list
@@ -336,9 +319,9 @@ func (c *checker) testDefaults(defaults *TestDefaults, limits Limits) {
 
 	// The ranges hold whatever the preset; an unknown preset only leaves an empty bound without
 	// a value to compare against.
-	durations, known := presetDurations[defaults.Preset]
-	c.durations("test_defaults.download", defaults.Download, durations.download, known)
-	c.durations("test_defaults.upload", defaults.Upload, durations.upload, known)
+	preset, known := Preset(defaults.Preset)
+	c.durations("test_defaults.download", defaults.Download, preset.Download, known)
+	c.durations("test_defaults.upload", defaults.Upload, preset.Upload, known)
 
 	if defaults.DataCap != 0 && defaults.DataCap < minDataCap {
 		c.add(

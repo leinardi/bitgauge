@@ -49,6 +49,20 @@ carries a recommendation; where the specification already relies on an answer, i
    `rate_limited` stays with the per-minute limit and `table_full` with a full table.
    Recommendation: keep it; a browser cannot read the body of a refused WebSocket handshake
    anyway. See [wire-protocol.md §9](wire-protocol.md#9-rate-limits).
+9. How does `GET /info` carry a fixed warm-up? Current answer: **`warmup` is `"auto"` or the
+   fixed duration in whole milliseconds** (`3000`), the unit every other duration of the info
+   response uses. Recommendation: keep it; a duration string such as `"3s"` would need a parser in
+   the SPA for one field. See [wire-protocol.md §5](wire-protocol.md#5-get-apiv1info).
+10. What may `GET /api/v1/download` allocate per request? Current answer: **nothing for the body,
+    and two small allocations for the `Content-Length` header**, its formatted value and the
+    one-element slice holding it, which `net/http`'s header map cannot avoid. Recommendation: keep
+    it; leaving out `Content-Length` would break the response contract. See
+    [wire-protocol.md §3.1](wire-protocol.md#31-get-apiv1downloadbytesn).
+11. Which `400` code does a zero or negative `bytes` get? Current answer: **`bytes_out_of_range`
+    with the limit in `details`**, like a value above the limit, since §2 defines the parameter as
+    an integer of at least 1 and §7 assigns that code to a parameter outside its range;
+    `bad_request` stays for a missing or non-integer value. Recommendation: keep it. See
+    [wire-protocol.md §3.1](wire-protocol.md#31-get-apiv1downloadbytesn).
 
 Resolved and removed:
 

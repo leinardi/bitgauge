@@ -323,6 +323,9 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 6 | Continuous mode runs a single direction | v0.3 |
 | 7 | Unshipped-feature toggles rejected with their milestone; empty duration bounds checked as the preset's value | v0.1 |
 | 8 | `too_many_streams` as the `429` code of the WebSocket and networkQuality flow limits | v0.1 |
+| 9 | A fixed warm-up in `GET /info` as whole milliseconds | v0.1 |
+| 10 | Download allocates only the `Content-Length` header value and its slice per request | v0.1 |
+| 11 | `bytes_out_of_range` for a zero or negative download `bytes` | v0.1 |
 
 ## Related
 
