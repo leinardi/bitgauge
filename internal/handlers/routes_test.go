@@ -30,16 +30,20 @@ import (
 	"github.com/leinardi/bitgauge/internal/buildinfo"
 	"github.com/leinardi/bitgauge/internal/clientip"
 	"github.com/leinardi/bitgauge/internal/config"
+	"github.com/leinardi/bitgauge/internal/ratelimit"
 )
 
 func testDeps() *Deps {
 	cfg := config.Defaults()
 
+	epoch := Epoch{ID: "k3V9qW2rT0aY", GridOffset: 1234}
+
 	return &Deps{
 		Config: &cfg,
 		Buffer: NewBuffer(),
+		Grid:   NewGrid(ratelimit.RealClock{}, epoch.GridOffset),
 		Build:  buildinfo.Build{Version: "0.1.0", Commit: "a1b2c3d", Date: "2026-09-30T12:00:00Z"},
-		Epoch:  Epoch{ID: "k3V9qW2rT0aY", GridOffset: 1234},
+		Epoch:  epoch,
 	}
 }
 
@@ -81,6 +85,7 @@ func TestRoutesServeTheNativeAPI(t *testing.T) {
 		{http.MethodGet, "/speed/api/v1/small", http.StatusOK},
 		{http.MethodGet, "/speed/api/v1/download?bytes=10", http.StatusOK},
 		{http.MethodGet, "/speed/api/v1/info", http.StatusOK},
+		{http.MethodPost, "/speed/api/v1/upload", http.StatusOK},
 	} {
 		request, err := http.NewRequestWithContext(
 			t.Context(),
@@ -122,6 +127,7 @@ func TestRoutesWrongMethodIs405WithAllow(t *testing.T) {
 		{handler, http.MethodHead, "/speed/api/v1/small", "GET"},
 		{handler, http.MethodPost, "/speed/api/v1/small", "GET"},
 		{handler, http.MethodPost, "/speed/api/v1/download", "GET"},
+		{handler, http.MethodGet, "/speed/api/v1/upload", "POST"},
 		{handler, http.MethodHead, "/speed/api/v1/info", "GET"},
 		// Not mounted: the route path is the request path.
 		{Routes(testDeps()), http.MethodPut, "/small", "GET"},

@@ -11,8 +11,8 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | Feature area | Status | Code pointers |
 | --- | --- | --- |
 | Single binary, embedded SPA, base path, fixed SPA routes | Spec'd (v0.1) |  |
-| Native API: download, upload, ping, small, ws, info | Spec'd (v0.1), in progress: download, ping, small, info | `internal/handlers/`: `errors.go` (envelope), `buffer.go` (random buffer), `epoch.go`, `download.go`, `ping.go`, `small.go`, `info.go`, `routes.go`; not yet mounted by a server |
-| Server-timed upload: 100 ms server grid, per-bucket arrival counts, `Server-Timing` | Spec'd (v0.1) |  |
+| Native API: download, upload, ping, small, ws, info | Spec'd (v0.1), in progress: download, upload, ping, small, info | `internal/handlers/`: `errors.go` (envelope), `buffer.go` (random buffer), `epoch.go`, `download.go`, `upload.go`, `ping.go`, `small.go`, `info.go`, `routes.go`; not yet mounted by a server |
+| Server-timed upload: 100 ms server grid, per-bucket arrival counts, `Server-Timing` | Implemented (v0.1) | `internal/handlers/`: `grid.go` (server grid), `drain.go` (pooled drainer), `upload.go` (arrival counts, lifetime, telemetry) |
 | Limits and rate limiting (`429` with `Retry-After`) | Spec'd (v0.1), in progress: limiter | `internal/ratelimit/`: `limiter.go` (table, token bucket, LRU of idle entries), `middleware.go` (429 with `Retry-After`), `clock.go`; not yet wired into the router |
 | Client IP through trusted proxies, context label inputs | Implemented (v0.1) | `internal/clientip/`: `clientip.go` (derivation), `context.go` (middleware), `class.go` (address class, suggested label) |
 | Security headers and CSP | Spec'd (v0.1) |  |

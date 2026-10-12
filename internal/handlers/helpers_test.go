@@ -35,9 +35,12 @@ type recordingWriter struct {
 	body          bytes.Buffer
 	writes        []int
 	status        int
+	readDeadline  time.Time
 	deadlineSet   bool
 	writesWithout int
 	discard       bool
+	// written is set by the first WriteHeader or Write.
+	written bool
 }
 
 func newRecordingWriter() *recordingWriter {
@@ -46,9 +49,20 @@ func newRecordingWriter() *recordingWriter {
 
 func (w *recordingWriter) Header() http.Header { return w.header }
 
-func (w *recordingWriter) WriteHeader(status int) { w.status = status }
+func (w *recordingWriter) WriteHeader(status int) {
+	w.status = status
+	w.written = true
+}
+
+func (w *recordingWriter) SetReadDeadline(deadline time.Time) error {
+	w.readDeadline = deadline
+
+	return nil
+}
 
 func (w *recordingWriter) Write(data []byte) (int, error) {
+	w.written = true
+
 	if !w.deadlineSet {
 		w.writesWithout++
 	}

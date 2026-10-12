@@ -114,7 +114,9 @@ Any other method on these paths answers `405` with an `Allow` header. Unknown pa
 | `durationMs` | integer | First to last byte read, in milliseconds. Diagnostic and watermark input; also sent as `Server-Timing: bg-recv;dur=…`. |
 
 The grid's timeline is the server's monotonic clock with origin at process start plus a random
-whole number of cells, so it reveals neither wall-clock time nor uptime. The client MUST reject
+whole number of cells, so it reveals neither wall-clock time nor uptime. An empty body
+(`Content-Length: 0`) has no first byte: it answers `200` with `buckets: []`, `bytes: 0`,
+`durationMs: 0` and `startMs` at the instant the handler was entered. The client MUST reject
 (count as a failed request) a response whose `bytes` differs from what it sent, and MUST abort the
 test when `epoch` differs from the one `GET /info` reported at test start.
 

@@ -33,11 +33,12 @@ import (
 const Prefix = "/api/v1"
 
 // Deps are what the native handlers are built from, created once at startup (backend.md
-// section 5): the validated configuration, the build information, and the shared random
-// buffer and epoch.
+// section 5): the validated configuration, the build information, the shared random buffer,
+// the epoch and the server grid shifted by the epoch's offset.
 type Deps struct {
 	Config *config.Config
 	Buffer *Buffer
+	Grid   *Grid
 	Build  buildinfo.Build
 	Epoch  Epoch
 }
@@ -67,6 +68,11 @@ func Routes(deps *Deps) *chi.Mux {
 		"/download",
 		Download(deps.Buffer, int64(deps.Config.Limits.MaxDownloadBytes)),
 		http.MethodGet,
+	)
+	table.handle(
+		"/upload",
+		Upload(deps.Grid, deps.Epoch, int64(deps.Config.Limits.MaxUploadBytes), UploadLifetime),
+		http.MethodPost,
 	)
 	table.handle("/ping", Ping, http.MethodGet, http.MethodHead)
 	table.handle("/small", Small, http.MethodGet)

@@ -63,6 +63,11 @@ carries a recommendation; where the specification already relies on an answer, i
     an integer of at least 1 and §7 assigns that code to a parameter outside its range;
     `bad_request` stays for a missing or non-integer value. Recommendation: keep it. See
     [wire-protocol.md §3.1](wire-protocol.md#31-get-apiv1downloadbytesn).
+12. What does `POST /api/v1/upload` answer for an empty body? Current answer: **`200` with empty
+    telemetry**: `buckets: []`, `bytes: 0`, `durationMs: 0`, and `startMs` (with `firstBucket`)
+    at handler entry, since there is no first byte. Recommendation: keep it; the engine never
+    sends one, and a `400` would add a code for a request that harms nothing. See
+    [wire-protocol.md §4](wire-protocol.md#4-upload-telemetry).
 
 Resolved and removed:
 

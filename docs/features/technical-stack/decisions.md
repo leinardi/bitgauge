@@ -326,6 +326,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 9 | A fixed warm-up in `GET /info` as whole milliseconds | v0.1 |
 | 10 | Download allocates only the `Content-Length` header value and its slice per request | v0.1 |
 | 11 | `bytes_out_of_range` for a zero or negative download `bytes` | v0.1 |
+| 12 | An empty upload body answers `200` with empty telemetry timed at handler entry | v0.1 |
 
 ## Related
 
