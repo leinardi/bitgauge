@@ -36,28 +36,26 @@ carries a recommendation; where the specification already relies on an answer, i
    direction per run**, chosen by the user, because alternating would mix two steady windows in one
    series and halve each direction's coverage. Recommendation: keep it; a user who wants both runs
    two sessions. See [measurement.md §15](measurement.md#15-continuous-mode).
-7. Can the info phase be skipped like the measuring phases? Current answer: **no**: every later
-   phase needs the epoch and the limits, and it costs one round trip. Recommendation: keep it
-   mandatory and say so wherever "every phase can be skipped" appears. See
-   [measurement.md §1](measurement.md#1-phases-and-order).
-8. How should the accuracy harness take its iperf3 reference "over the same window"? Running iperf3
-   concurrently with the browser splits the link between them. Current answer: **iperf3 before and
-   after the browser run**, each for the steady-window duration; if the two differ by more than
-   5 %, or either deviates from the configured rate by more than 5 %, the profile is re-run once,
-   and a profile still unstable is **inconclusive**, which fails CI. Recommendation: confirm it;
-   the tolerance evaluator is not written until this is answered. See
-   [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
-9. How does the harness read a v0.1 result? Its acceptance needs the headline, the steady window,
-   data used and the notices, but the JSON export arrives with history in v0.2, and the v0.1 Test
-   screen does not show all of them. Current answer: **a single-result "Download JSON" action on
-   the v0.1 Test screen**, so the harness uses a real user path and no test-only hook.
-   Alternatives: a documented machine-readable result element on the Test screen, or deferring the
-   harness CI tier to v0.2. Recommendation: keep the current answer; the harness CI gate stays
-   dormant until it is confirmed. See [ui/screens.md §1](ui/screens.md#1-test-home--) and
-   [roadmap.md §1.1](roadmap.md#11-version-01-honest-throughput-core).
 
 Resolved and removed:
 
+- _Can the info phase be skipped like the measuring phases?_ **No**: every later phase needs the
+  epoch and the limits, and it costs one round trip. Resolved by the maintainer's approval of the
+  specification on 2026-10-12. See [measurement.md §1](measurement.md#1-phases-and-order) and
+  [decisions.md §34](technical-stack/decisions.md#34-info-phase--always-runs).
+- _How should the accuracy harness take its iperf3 reference "over the same window"?_ **iperf3
+  before and after the browser run**, each for the steady-window duration; if the two differ by more
+  than 5 %, or either deviates by more than 5 % from the configured goodput (the configured rate
+  less Ethernet, IP and TCP overhead), the profile is re-run once, and a profile still unstable is
+  **inconclusive**, which fails CI. Resolved by the maintainer's approval of the specification on
+  2026-10-12. See [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness)
+  and
+  [decisions.md §35](technical-stack/decisions.md#35-accuracy-harness-reference--iperf3-before-and-after-the-browser-run).
+- _How does the harness read a v0.1 result?_ **A single-result "Download JSON" action on the v0.1
+  Test screen**, so the harness uses a real user path and no test-only hook. Resolved by the
+  maintainer's approval of the specification on 2026-10-12. See
+  [ui/screens.md §1](ui/screens.md#1-test-home--) and
+  [decisions.md §36](technical-stack/decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen).
 - _Which licence variant: GPL-3.0-only or GPL-3.0-or-later?_ **GPL-3.0-or-later**, used
   consistently in the README, the image label and source headers. Resolved by the user on
   2026-10-08. See [technical-stack/decisions.md](technical-stack/decisions.md).

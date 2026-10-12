@@ -1,9 +1,9 @@
 # bitgauge — Core
 
-Self-hosted browser speed test: one stateless Go binary embedding a Vue SPA; the measurement
-engine runs in the browser (Web Worker). **Specification phase: no product code yet.** Tooling,
-meta-tests, CI and the harness scaffold exist. Per-feature status: `docs/STATUS.md` (check it
-before assuming a feature exists).
+Self-hosted browser speed test: one stateless Go binary embedding a Vue SPA; the measurement engine
+runs in the browser (Web Worker). **Specification approved 2026-10-12; v0.1 being implemented.**
+Tooling, meta-tests, CI and the harness scaffold exist. Per-feature status: `docs/STATUS.md` (check
+it before assuming a feature exists).
 
 ## Source map
 

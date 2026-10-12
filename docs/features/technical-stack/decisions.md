@@ -278,6 +278,37 @@ Used consistently in the README, the image label and source headers. Decided by 
 No OpenSpeedTest or LibreSpeed code or assets; both are credited as inspiration in the README, and
 the OpenSpeedTest™ trademark is noted.
 
+### 34. Info phase — Always runs
+
+Every later phase needs the server epoch and the limits, and the info phase costs one round trip,
+so it cannot be skipped; only idle latency, download and upload can
+([measurement.md §1](../measurement.md#1-phases-and-order)). Decided by the maintainer's approval
+of the specification on 2026-10-12.
+
+**Not chosen:** a skippable info phase (every measuring phase would need defaults for an epoch and
+limits it never received).
+
+### 35. Accuracy harness reference — iperf3 before and after the browser run
+
+iperf3 runs immediately before and immediately after the browser run, each for the steady-window
+duration of the preset; a profile whose two runs differ by more than 5 %, or deviate by more than
+5 % from the configured goodput (the configured rate less Ethernet, IP and TCP overhead), is re-run
+once and is **inconclusive** if still unstable, which fails CI
+([testing.md §5](testing.md#5-accuracy-harness)). Decided by the maintainer's approval of the
+specification on 2026-10-12.
+
+**Not chosen:** iperf3 concurrently with the browser (the two would split the link).
+
+### 36. v0.1 harness extraction — Download JSON on the Test screen
+
+The accuracy harness reads a v0.1 result through the Test screen's single-result Download JSON
+action, a real user path, with no test-only hook
+([ui/screens.md §1](../ui/screens.md#1-test-home--)). Decided by the maintainer's approval of the
+specification on 2026-10-12.
+
+**Not chosen:** a machine-readable result element on the Test screen (a test-only surface);
+deferring the harness CI tier to v0.2 (v0.1 would ship without automated accuracy evidence).
+
 ## Open Technical Decisions
 
 Each item is tracked, with a recommendation, in [open-questions.md](../open-questions.md).
@@ -290,9 +321,6 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 4 | Upload grace based on the in-flight request's expected duration | v0.1 |
 | 5 | Upload failure gaps on HTTP/2 and HTTP/3; phase end on the first failure over HTTP/1.1 | v0.1 |
 | 6 | Continuous mode runs a single direction | v0.3 |
-| 7 | The info phase cannot be skipped | v0.1 |
-| 8 | Accuracy harness iperf3 reference taken before and after the browser run | v0.1 |
-| 9 | v0.1 result extraction for the harness through a single-result JSON download | v0.1 |
 
 ## Related
 

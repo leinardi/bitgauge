@@ -170,8 +170,8 @@ var Gates = []Gate{
 			"Engine: headline, peak, confidence and notices, result object",
 			"UI: Test screen",
 		},
-		// The result-extraction path (open question 9): the Test screen's single-result Download
-		// JSON, which web/harness/run.spec.ts clicks.
+		// The result-extraction path (decisions.md section 36): the Test screen's single-result
+		// Download JSON, which web/harness/run.spec.ts clicks.
 		Docs: []DocText{{
 			File: "docs/features/ui/screens.md",
 			Text: "**Download JSON** of the finished result",

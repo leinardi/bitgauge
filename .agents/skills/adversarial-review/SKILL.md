@@ -68,8 +68,8 @@ site agrees.
 
 For each changed path, load the matching pages **before** judging that file — they are the
 source of truth, and a violation there is a finding even when lint is green. Load only what the
-diff touches. Most product paths are **planned**: the project is in its specification phase,
-so a diff that creates one is also subject to the spec-first check in §3.
+diff touches. Paths marked **planned** may not exist yet: the approved specification is being
+implemented for v0.1, so a diff that creates one is also subject to the spec-first check in §3.
 
 | Changed path | Load | Check |
 | --- | --- | --- |
@@ -112,12 +112,12 @@ review.
 These are the ways this codebase breaks that generic reviewers miss. `AGENTS.md` and
 `docs/features/technical-stack/ai-guidelines.md` hold the full statements.
 
-- **Spec first.** No product code before the specifications are approved: nothing under `cmd/`,
-  the `internal/` packages of `architecture.md` §9, `web/src/`, or `api/openapi.yaml` content.
-  Tooling may land earlier but must not encode behavior the docs do not specify. A behavior
-  change starts as a `docs/features/` change; when code and docs disagree, the docs win, and
-  `decisions.md` wins on technical choices. A diff that changes a feature's status updates
-  `docs/STATUS.md` in the same PR.
+- **Spec first.** The specification was approved on 2026-10-12 and is the contract: product code
+  (`cmd/`, the `internal/` packages of `architecture.md` §9, `web/src/`, `api/openapi.yaml`)
+  implements what the docs specify and nothing else, and tooling must not encode behavior the docs
+  do not specify either. A behavior change starts as a `docs/features/` change; when code and docs
+  disagree, the docs win, and `decisions.md` wins on technical choices. A diff that changes a
+  feature's status updates `docs/STATUS.md` in the same PR.
 - **Stateless server.** No database, no file writes, no volume, no stored results, no
   cross-request correlation. In-memory state is only what `architecture.md` §6 lists: the random
   buffer, the epoch, the SPA, the configuration, the bounded rate-limit table, Prometheus counters

@@ -50,8 +50,8 @@ from the design export; this page fixes content and behaviour only. Terms follow
   of [../technical-stack/frontend.md §5](../technical-stack/frontend.md#5-history-module-idb)
   (`results` with one entry), with the same "contains client IPs and notes" warning as the History
   export. It works without history, for `complete`, `partial` and `error` results, and it is the
-  accuracy harness's extraction path from v0.1 (current answer to
-  [open question 9](../open-questions.md)).
+  accuracy harness's extraction path from v0.1
+  ([decisions.md §36](../technical-stack/decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen)).
 - **Last result line** in the idle state: when, headline numbers and label of the latest saved
   result, linking to its detail.
 

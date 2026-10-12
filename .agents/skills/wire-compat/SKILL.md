@@ -21,7 +21,7 @@ exactly, from its documented behaviour, and never bends the native API or the en
 Every layer is off by default, has exactly one toggle, and answers `404` when disabled.
 
 All code paths below are **planned**: `internal/handlers` and the three packages under
-`internal/compat/` do not exist, and no product code lands before the specs are approved
+`internal/compat/` do not exist yet; they land as the approved specification is implemented
 (AGENTS.md).
 
 This skill owns what is specific to the wire. It links instead of repeating:

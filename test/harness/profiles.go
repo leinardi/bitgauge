@@ -22,8 +22,9 @@
 //
 // The profile table, the report and the image pins are plain Go, untagged, and unit-tested in every
 // go test run. The runners that build the topology over the docker CLI carry the harness build tag.
-// The tolerance evaluator does not exist yet: it waits for the answer to the plan's open question
-// on the reference method, so a report records numbers and does not judge them.
+// The tolerance evaluator does not exist yet: the reference method is settled (testing.md section
+// 5, decisions.md section 35), but until the evaluator lands a report records numbers and does not
+// judge them.
 package harness
 
 import (

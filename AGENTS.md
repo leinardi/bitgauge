@@ -7,15 +7,17 @@ well under 1 Mbit/s to multi-Gbit. One stateless Go binary with an embedded Vue 
 measurement engine runs in the browser. Optional compatibility layers for OpenSpeedTest,
 LibreSpeed and Apple `networkQuality` clients.
 
-**Status: specification phase, no product code yet.** The engineering scaffold (build files,
-linters, CI, release scripts, test harnesses, agent skills) is in place; the gates that need
-product code are dormant (see [Dormant gates and activation](#dormant-gates-and-activation)). Full
-spec: [`docs/features/`](docs/features/README.md). Per-feature implementation status:
+**Status: implementation of v0.1 in progress; specification approved by the maintainer on
+2026-10-12.** The engineering scaffold (build files, linters, CI, release scripts, test harnesses,
+agent skills) is in place; the gates whose inputs do not exist yet are dormant (see
+[Dormant gates and activation](#dormant-gates-and-activation)). Full spec:
+[`docs/features/`](docs/features/README.md). Per-feature implementation status:
 [`docs/STATUS.md`](docs/STATUS.md); check it before assuming a feature exists or not.
 
 ## Components
 
-The product is **planned**; none of it exists yet. Package details:
+The product is being built for v0.1: a package exists once it is in the tree, and
+[`docs/STATUS.md`](docs/STATUS.md) gives the status per feature area. Package details:
 [`docs/features/architecture.md` §9](docs/features/architecture.md#9-planned-package-layout).
 
 - **`cmd/bitgauge/`**: the binary; `serve` (default) and `healthcheck` subcommands.
@@ -250,13 +252,11 @@ The vendored upstream skills (`vue-best-practices`, `vue-debug-guides`,
 
 ## Project rules
 
-- **Spec first.** No product code before the specifications are approved: nothing under `cmd/`,
-  the `internal/` packages of
-  [architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`, or
-  `api/openapi.yaml` content. Tooling may land earlier: build files, linters and their
-  configuration, CI and release workflows, test harnesses and meta-tests, agent skills, editor
-  configuration. It must not encode product behaviour that the docs do not specify. A change in
-  behaviour still starts as a docs change; code follows the docs.
+- **Spec first.** The approved specification is the contract; a behaviour change still starts as
+  a docs change, and code follows the docs. Product code (`cmd/`, the `internal/` packages of
+  [architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`,
+  `api/openapi.yaml`) implements what the docs specify and nothing else; tooling must not encode
+  product behaviour that the docs do not specify either.
 - **Docs are the source of truth.** When code and docs disagree, the docs win until changed
   deliberately; [`decisions.md`](docs/features/technical-stack/decisions.md) wins on technical
   choices.

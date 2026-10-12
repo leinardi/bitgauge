@@ -18,8 +18,8 @@ description: >
 until changed deliberately, and
 [decisions.md](../../../docs/features/technical-stack/decisions.md) wins on technical choices. So
 a change in behaviour starts as a docs change and code follows it, never the other way round
-([ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md#rules)). Until the
-specification is approved no product code exists at all; the spec is the whole product.
+([ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md#rules)). The
+specification was approved on 2026-10-12; it is the contract the code implements.
 
 The contract states many facts more than once. The way it decays is not a wrong page but two right
 pages that stopped agreeing. Every section below is a place where that happens.
@@ -94,8 +94,9 @@ relies on one, the "Current answer".
 - **Resolved:** remove it from both; in open-questions.md, add it under "Resolved and removed" with
   the answer, who resolved it and the date, and a link. If it becomes a locked decision, it gets
   exactly one entry (section 2), and every page that said "current answer" now states it plainly.
-- **Renumbered:** text cites questions by number (`open question 8` in testing.md, and in comments
-  under `test/`); search for `open question` across `docs/` and `test/` and fix every citation.
+- **Renumbered:** text cites questions by number (`open questions 4 and 5` in roadmap.md, and in
+  comments under `test/`); search for `open question` across `docs/` and `test/` and fix every
+  citation.
 
 ## 4. docs/STATUS.md moves with the feature
 

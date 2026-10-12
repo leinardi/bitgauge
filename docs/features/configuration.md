@@ -123,7 +123,7 @@ specified in [measurement.md](measurement.md).
 | Key | Env var | Default | Values / description |
 | --- | --- | --- | --- |
 | `test_defaults.preset` | `BITGAUGE_TEST_DEFAULTS__PRESET` | `standard` | `quick`, `standard`, `extended`, `continuous` ([measurement.md §8.5](measurement.md#85-presets)). |
-| `test_defaults.phases` | `BITGAUGE_TEST_DEFAULTS__PHASES` | `idle,download,upload` | Non-empty list of `idle`, `download`, `upload` without duplicates; `idle`, when present, comes first; the order of `download` and `upload` is the run order. Info always runs and is not listed (current answer to an [open question](open-questions.md)). |
+| `test_defaults.phases` | `BITGAUGE_TEST_DEFAULTS__PHASES` | `idle,download,upload` | Non-empty list of `idle`, `download`, `upload` without duplicates; `idle`, when present, comes first; the order of `download` and `upload` is the run order. Info always runs and is not listed ([decisions.md §34](technical-stack/decisions.md#34-info-phase--always-runs)). |
 | `test_defaults.streams.mode` | `BITGAUGE_TEST_DEFAULTS__STREAMS__MODE` | `auto` | `auto`, `fixed`, `single`. |
 | `test_defaults.streams.fixed` | `BITGAUGE_TEST_DEFAULTS__STREAMS__FIXED` | `3` | 1–`streams.max`; used by `fixed`. |
 | `test_defaults.streams.max` | `BITGAUGE_TEST_DEFAULTS__STREAMS__MAX` | `6` | 1–6 and ≤ `limits.max_streams_per_client`. |

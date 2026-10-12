@@ -15,8 +15,8 @@ description: >
 
 `api/openapi.yaml` (OpenAPI 3.1) is the native API's contract;
 [wire-protocol.md](../../../docs/features/wire-protocol.md) is its prose source and wins when they
-disagree. Plain HTTP and JSON under `/api/v1`, chi on `net/http`. All code paths below are planned:
-nothing goes into `api/`, `internal/` or `web/src/` before the specs are approved (AGENTS.md).
+disagree. Plain HTTP and JSON under `/api/v1`, chi on `net/http`. Code paths below marked planned
+do not exist yet; they land as the approved specification is implemented (AGENTS.md).
 
 ---
 

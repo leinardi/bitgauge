@@ -35,8 +35,8 @@ A test runs these phases, in this order by default:
    and the context label inputs. The engine opens the WebSocket at `/api/v1/ws` and sends one idle
    `GET /api/v1/small` as the path B capability check (§12). Info always runs and cannot be skipped:
    every later phase needs the epoch and the limits, and it costs one round trip. (This narrows
-   "every phase can be skipped" to the three measuring phases; the current answer is tracked in
-   [open-questions.md](open-questions.md).)
+   "every phase can be skipped" to the three measuring phases;
+   [technical-stack/decisions.md §34](technical-stack/decisions.md#34-info-phase--always-runs).)
 2. **Idle latency.** Pings with no load on the link (§10).
 3. **Download.** Adaptive download (§3–§6, §8).
 4. **Upload.** Adaptive, server-timed upload (§3–§5, §7, §8).

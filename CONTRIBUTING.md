@@ -2,10 +2,11 @@
 
 > Implementation status per feature area: [`docs/STATUS.md`](docs/STATUS.md).
 
-## The Project Is in the Specification Phase
+## The Specification Is Approved; v0.1 Is Being Implemented
 
-There is no code yet. The specification in [`docs/`](docs/README.md) is the product, and it is
-where contributions go for now:
+The maintainer approved the specification in [`docs/`](docs/README.md) on 2026-10-12, and v0.1 is
+being implemented against it. The specification is the contract, and it is still where most
+contributions go:
 
 - **Issues** for anything unclear, inconsistent, wrong or missing in the specification: a number
   that differs between two pages, a measurement rule that fails on some link, an edge case not
@@ -17,24 +18,21 @@ where contributions go for now:
   change touches updated together (the measurement page, the wire protocol, configuration, the UI
   pages and the glossary must keep agreeing).
 
-## What May Land Before the Specification Is Approved
-
-No product code lands before the specifications are approved: nothing under `cmd/`, the
-`internal/` packages of
-[architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`, or
-`api/openapi.yaml` content. Tooling may land earlier: build files, linters and their
-configuration, CI and release workflows, test harnesses and meta-tests, agent skills, editor
-configuration. It must not encode product behaviour that the docs do not specify. A change in
-behaviour still starts as a docs change.
+Product code (`cmd/`, the `internal/` packages of
+[architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`,
+`api/openapi.yaml`) implements what the docs specify and nothing else. Tooling (build files,
+linters and their configuration, CI and release workflows, test harnesses and meta-tests, agent
+skills, editor configuration) must not encode product behaviour that the docs do not specify
+either.
 
 ## Spec Pull Requests First
 
-After implementation starts, the rule stays: **a change in behaviour starts as a change to the
-specification.** Open a pull request against `docs/` first; code follows once it is merged. Code
+Now that implementation has started, the rule stays: **a change in behaviour starts as a change to
+the specification.** Open a pull request against `docs/` first; code follows once it is merged. Code
 that disagrees with the docs is a bug in one of them, and the docs win until they are changed
 deliberately. Technical choices are locked in
-[`docs/features/technical-stack/decisions.md`](docs/features/technical-stack/decisions.md);
-changing one needs a pull request to that file with the reason.
+[`docs/features/technical-stack/decisions.md`](docs/features/technical-stack/decisions.md); changing
+one needs a pull request to that file with the reason.
 
 The build, test and lint commands are in
 [build-packaging.md §3](docs/features/technical-stack/build-packaging.md#3-planned-make-targets);

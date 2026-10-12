@@ -125,17 +125,21 @@ harness has three tiers:
 **Method.** For each profile, a Playwright-driven browser runs a Standard test (Extended for the
 600 ms floor profile, which the shortfall rule otherwise covers), and iperf3 measures the same
 shaped path as the reference. The harness records the headline, the steady window, data used and
-the result's notices, read from the result's JSON download (the v0.1 extraction path, current
-answer to [open question 9](../open-questions.md)).
+the result's notices, read from the result's JSON download (the v0.1 extraction path,
+[decisions.md §36](decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen)).
 
-**Reference measurement** (current answer to [open question 8](../open-questions.md)). Running
-iperf3 concurrently with the browser would split the link between them, so iperf3 runs immediately
-**before** and immediately **after** the browser run, each for the steady-window duration of the
-preset:
+**Reference measurement**
+([decisions.md §35](decisions.md#35-accuracy-harness-reference--iperf3-before-and-after-the-browser-run)).
+Running iperf3 concurrently with the browser would split the link between them, so iperf3 runs
+immediately **before** and immediately **after** the browser run, each for the steady-window
+duration of the preset. iperf3 reports TCP goodput, so the shaped profiles are judged against the
+**configured goodput**: the goodput the configured rate carries once Ethernet, IP and TCP overhead
+are taken off, `rate × 1448 / 1514` (a full-size frame carries 1448 payload bytes in 1514 bytes on
+the wire, about 4.4 % below the rate).
 
 - **Instability rejection:** if `|before − after| / mean(before, after)` exceeds 5 % (the shaper
-  self-test bound), or either run deviates from the configured rate by more than 5 %, the profile
-  is re-run once.
+  self-test bound), or either run deviates from the configured goodput by more than 5 %, the
+  profile is re-run once.
 - If it is still unstable, the profile is **inconclusive**: a distinct status that fails CI and is
   never counted as a pass.
 - Only a stable profile uses `mean(before, after)` as the reference. Both raw values always go into
@@ -201,8 +205,10 @@ and anything about networks the project does not target.
   namespace and shapes it with tbf and netem on egress and an ifb mirror for ingress, modelling the
   user's access link. The iperf3 client and the concurrent ICMP ping run from the same namespace,
   so they take the same path as the browser.
-- **Shaper self-test.** Before a profile counts, an iperf3 check confirms the configured rate holds
-  within ±5 %. A failed `tc` command fails the run; there is never a silently unshaped run.
+- **Shaper self-test.** Before a profile counts, an iperf3 check confirms the shaped path holds
+  within ±5 % of the configured goodput, the goodput the configured rate carries once Ethernet, IP
+  and TCP overhead are taken off (`rate × 1448 / 1514`, see the reference measurement above). A
+  failed `tc` command fails the run; there is never a silently unshaped run.
 - **Reports.** Each run writes `dist/harness/<tier>-<UTC>-<envid>/report.json` and `report.md`,
   with the raw exports, both iperf3 values and the environmental limits above. CI uploads them as
   an artifact and writes the Markdown to the step summary. For the floor and ceiling tiers, the

@@ -75,8 +75,8 @@ and Zero 2 W on a 64-bit OS.
 BitGauge is successful when its headline numbers agree with the iperf3 reference on the accuracy
 harness profiles defined in
 [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness): the mean of iperf3
-runs taken just before and just after the browser run on a stable profile (current answer to
-[open question 8](open-questions.md)):
+runs taken just before and just after the browser run on a stable profile
+([decisions.md §35](technical-stack/decisions.md#35-accuracy-harness-reference--iperf3-before-and-after-the-browser-run)):
 
 | Profile | Throughput tolerance (headline vs the iperf3 reference) |
 | --- | --- |

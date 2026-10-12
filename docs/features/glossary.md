@@ -10,9 +10,9 @@ needs a new term, it is added here first. Section references (`§`) point at
 
 **Phase.** One stage of a test run. The phases are `info`, `idle latency`, `download` and `upload`,
 run in that order by default. Idle latency, download and upload can each be skipped and the order of
-the two directions is configurable; info always runs (§1; the current answer to an open question,
-[open-questions.md](open-questions.md)). A phase that measures throughput is a
-*direction*: download or upload.
+the two directions is configurable; info always runs (§1;
+[decisions.md §34](technical-stack/decisions.md#34-info-phase--always-runs)). A phase that
+measures throughput is a *direction*: download or upload.
 
 **Preset.** A named set of test settings: `Quick`, `Standard`, `Extended` or `Continuous`. A preset
 fixes the stream mode, the per-phase minimum and maximum durations and the ping count (§8).

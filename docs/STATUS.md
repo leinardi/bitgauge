@@ -1,9 +1,9 @@
 # Implementation Status
 
 Per-feature-area implementation status with code pointers. Version-level milestones live in
-[`features/roadmap.md`](features/roadmap.md). BitGauge is in the specification phase: every
-product area is specified and none is implemented, so only the engineering scaffold's row has code
-pointers.
+[`features/roadmap.md`](features/roadmap.md). The specification was approved by the maintainer
+on 2026-10-12 and v0.1 is being implemented: a row leaves `Spec'd` only in the change that
+completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` with code pointers.
 
 > **Keep this honest:** update the table in the same PR that changes a feature's status.
 > Stale status claims in instruction files are worse than no claims.

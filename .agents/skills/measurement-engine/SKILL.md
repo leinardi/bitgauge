@@ -33,8 +33,8 @@ decision is
 
 ## 1. Spec first: a rule change starts in measurement.md
 
-No product code lands before the specification is approved, and a change in behaviour starts as a
-docs change; code follows the docs, and when they disagree the docs win
+The approved specification is the contract the engine implements, and a change in behaviour starts
+as a docs change; code follows the docs, and when they disagree the docs win
 ([AGENTS.md](../../../AGENTS.md), "Project rules";
 [ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md)). For the engine that
 means:
@@ -45,10 +45,10 @@ means:
    decisions.md wins on technical choices.
 2. Run the docs validation from AGENTS.md: numbers, probe-path names and the upload JSON shape
    still agree across measurement.md, wire-protocol.md, configuration.md, `ui/` and glossary.md.
-3. Several rules are "the current answer to an item tracked in open-questions.md" (Info not
-   skippable §1, the upload grace §5, failure gaps and the HTTP/1.1 rule §7.5, Continuous running
-   one direction §8.5 and §15). Changing one of them means revisiting that item in
-   [open-questions.md](../../../docs/features/open-questions.md).
+3. Several rules are "the current answer to an item tracked in open-questions.md" (the upload grace
+   §5, failure gaps and the HTTP/1.1 rule §7.5, Continuous running one direction §8.5 and §15); Info
+   not being skippable (§1) is locked as decisions.md §34. Changing one of them means revisiting
+   that item in [open-questions.md](../../../docs/features/open-questions.md).
 4. [testing.md §2](../../../docs/features/technical-stack/testing.md#2-engine-tests-with-synthetic-timelines)
    quotes the worked examples' numbers and the §19.1 budget tables; a change that moves them updates
    those scenarios.

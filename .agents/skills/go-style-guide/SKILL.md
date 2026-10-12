@@ -20,8 +20,9 @@ linters enforce, §16–§18 are review rules.
 image tests, the `harness`-tagged accuracy harness). `cmd/bitgauge` and every `internal/` package
 named below are **planned**
 ([architecture.md §9](../../../docs/features/architecture.md#9-planned-package-layout),
-[backend.md §1](../../../docs/features/technical-stack/backend.md#1-package-map)); no product code
-lands before the specification is approved (AGENTS.md, "Project rules"). A new Go package needs a
+[backend.md §1](../../../docs/features/technical-stack/backend.md#1-package-map)) until v0.1 adds
+them; product code implements the approved specification (AGENTS.md, "Project rules"). A new Go
+package needs a
 row in the backend.md package map, which `scripts/check-package-map.sh` checks.
 
 golangci-lint is not on `PATH` in every environment; run it through pre-commit (see "Lint loop"),

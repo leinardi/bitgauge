@@ -50,7 +50,8 @@ The gate is met when all of these hold, its `After` gates' included:
 - **Harness gate:** the rows starting "Engine: headline, peak, confidence and notices, result
   object" and "UI: Test screen" no longer read `Spec'd`, and `docs/features/ui/screens.md` still
   holds the text `**Download JSON** of the finished result`, the extraction path that
-  `web/harness/run.spec.ts` clicks ([open question 9](../../../docs/features/open-questions.md)).
+  `web/harness/run.spec.ts` clicks
+  ([decisions.md §36](../../../docs/features/technical-stack/decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen)).
 
 Activation is all-or-nothing. Once the gate is met, `ci.yaml` needs the `harness` job, `ci-result`
 needs it, and `.github/workflows/harness.yaml` exists; while dormant, none of them may exist. The
@@ -129,33 +130,32 @@ delay) are the claim. A run outside them is a finding about the engine, the shap
 never a reason to move a number. A tolerance changes only through testing.md, deliberately, with
 its reason.
 
-**The tolerance evaluator does not exist yet.** It waits for the answer to
-[open question 8](../../../docs/features/open-questions.md), the iperf3 reference method. Until
-then a report records numbers and does not judge them: every report says
+**The tolerance evaluator does not exist yet.** The iperf3 reference method it needs is settled
+([decisions.md §35](../../../docs/features/technical-stack/decisions.md#35-accuracy-harness-reference--iperf3-before-and-after-the-browser-run),
+testing.md §5), and the evaluator lands before the harness CI gate activates. Until it exists a
+report records numbers and does not judge them: every report still says
 `not evaluated: the tolerance evaluator waits for the answer to the reference-method open question`,
 and a run's status is only `recorded` or `failed`. There is no `passed`. `recorded` means every
 step ran and every number was captured; it says nothing about accuracy. Never describe a recorded
-run as a pass, and never write an evaluator ahead of the open question.
+run as a pass. The evaluator implements testing.md §5 exactly as written, and nothing looser.
 
 ### "Inconclusive" is never a pass
 
 testing.md's reference rule: iperf3 runs immediately **before** and **after** the browser, never
 alongside it (that would split the link). If `|before − after| / mean(before, after)` exceeds 5 %,
-or either run deviates from the configured rate by more than 5 %, the profile is re-run once; still
-unstable, it is **inconclusive**, a distinct status that fails CI and is never counted as a pass.
-Only a stable profile uses `mean(before, after)` as the reference, and both raw values always go
-into the report. The re-run and the inconclusive status belong to the evaluator and are not
+or either run deviates from the configured goodput by more than 5 %, the profile is re-run once;
+still unstable, it is **inconclusive**, a distinct status that fails CI and is never counted as a
+pass. Only a stable profile uses `mean(before, after)` as the reference, and both raw values always
+go into the report. The re-run and the inconclusive status belong to the evaluator and are not
 implemented yet. Reading a report by hand, apply the same arithmetic and call an unstable pair what
 it is.
 
-**Open spec gap: the baseline.** testing.md §5.1 and this rule measure against the **configured
-rate**, but iperf3 reports TCP goodput, which a perfectly shaped link holds about 4.4 % below it
-(`rate × 1448 / 1514`, see the self-test below). Against the configured rate, the 5 % bound leaves
-about 0.6 % of headroom, so nearly every profile would be re-run and then go inconclusive. The
-harness's self-test already compares goodput; testing.md, open question 8 in `open-questions.md`
-and this rule do not yet say so. Settle the baseline in the docs (a `docs(testing)` change to
-§5.1, the reference rule and open question 8 together) before writing the evaluator; never resolve
-it by widening the bound.
+**The baseline is the configured goodput.** iperf3 reports TCP goodput, which a perfectly shaped
+link holds about 4.4 % below the configured rate (`rate × 1448 / 1514`, see the self-test below).
+testing.md §5 therefore measures both the shaper self-test and the reference rule's deviation check
+against the **configured goodput**, not the configured rate; against the rate, the 5 % bound would
+leave about 0.6 % of headroom and nearly every profile would go inconclusive. Never move that
+baseline back, and never resolve a borderline profile by widening the bound.
 
 Each reference run lasts the preset's download minimum (Standard 10 s, Extended 20 s) after
 `--omit 2` seconds of ramp (`ReferenceDuration`): testing.md asks for the steady-window duration,
@@ -294,7 +294,7 @@ passed for it ([release.md](../../../docs/release.md#how-to-release),
 
 ## Checklist
 
-- [ ] No tolerance widened, no self-test bound loosened, no evaluator ahead of open question 8
+- [ ] No tolerance widened, no self-test bound loosened, no evaluator looser than testing.md §5
 - [ ] No report or summary calls a `recorded` run, or an inconclusive one, a pass
 - [ ] Every `tc` failure fails the run; loss added only after the self-test
 - [ ] Netguard's four negative controls run before BitGauge starts; counters zero to the end
