@@ -59,9 +59,6 @@ var (
 	ErrFileNotFound = errors.New("configuration file not found")
 	// ErrFile is wrapped by a configuration file that cannot be read or is not valid YAML.
 	ErrFile = errors.New("cannot read the configuration file")
-	// ErrDecode is wrapped by every key that does not decode into its type, unknown keys
-	// included.
-	ErrDecode = errors.New("invalid configuration value")
 	// ErrNumber is wrapped by a value that is not a number of the key's type.
 	ErrNumber = errors.New("invalid number")
 	// ErrBool is wrapped by a value that is not true or false.
@@ -76,7 +73,12 @@ var (
 
 // Loaded is the decoded configuration and what loading it noticed.
 type Loaded struct {
+	// Config holds every key that decoded; a key that did not keeps its default, so that
+	// validation does not report it a second time under another rule.
 	Config Config
+	// Problems lists the keys that could not be decoded: unknown keys, nulls and values that
+	// do not parse as their type. Any problem is fatal (configuration.md section 4).
+	Problems []Problem
 	// IgnoredEnv names the BITGAUGE_ variables that hold no "__" and are therefore not
 	// configuration keys, such as Kubernetes service links (configuration.md section 4). The
 	// caller logs them at debug; their values are never kept.
@@ -85,7 +87,8 @@ type Loaded struct {
 
 // Load reads the configuration from defaults, the YAML file at path and the process
 // environment. explicit says whether path was given with --config: a missing file is an error
-// then, and is skipped at the default path. The result is decoded but not yet validated.
+// then, and is skipped at the default path. The error is only for a file that cannot be read;
+// keys that do not decode are listed in Loaded.Problems, and nothing is validated yet.
 func Load(path string, explicit bool) (Loaded, error) {
 	return LoadFrom(path, explicit, os.Environ())
 }
@@ -116,18 +119,20 @@ func LoadFrom(path string, explicit bool, environ []string) (Loaded, error) {
 		return Loaded{}, fmt.Errorf("load the environment: %w", err)
 	}
 
-	// mapstructure skips a nil input and leaves the zero value, so a null must be refused
-	// before decoding, or "display_name:" would quietly become an empty name.
-	err = errors.Join(nullKeys(merged.Raw(), "")...)
-	if err != nil {
-		return Loaded{}, fmt.Errorf("%w: %w", ErrDecode, err)
-	}
+	loaded.Config = Defaults()
+	// mapstructure skips a nil input and leaves the field as it was, so a null is reported here
+	// rather than read as "not set".
+	loaded.Problems = nullKeys(merged.Raw(), "")
+
+	var metadata mapstructure.Metadata
 
 	err = merged.UnmarshalWithConf("", &loaded.Config, koanf.UnmarshalConf{
 		Tag: structTag,
 		DecoderConfig: &mapstructure.DecoderConfig{
-			DecodeHook:  decodeHook,
-			ErrorUnused: true,
+			DecodeHook: decodeHook,
+			// Unknown keys are collected from the metadata, one problem each, instead of
+			// mapstructure's single summary error.
+			Metadata: &metadata,
 			// Keys match their field exactly: Server: or LISTEN in a file is a typo, not an
 			// alias.
 			MatchName: func(mapKey, fieldName string) bool { return mapKey == fieldName },
@@ -135,13 +140,110 @@ func LoadFrom(path string, explicit bool, environ []string) (Loaded, error) {
 			TagName:   structTag,
 		},
 	})
-	if err != nil {
-		return Loaded{}, fmt.Errorf("%w: %w", ErrDecode, err)
+	loaded.Problems = append(loaded.Problems, decodeProblems(err, merged.Raw())...)
+
+	for _, key := range metadata.Unused {
+		loaded.Problems = append(loaded.Problems, Problem{
+			Key:   key,
+			Value: displayValue(valueAt(merged.Raw(), key)),
+			Rule:  "unknown key (configuration.md section 2 lists every key)",
+		})
 	}
 
+	slices.SortStableFunc(loaded.Problems, func(left, right Problem) int {
+		return strings.Compare(left.Key, right.Key)
+	})
 	slices.Sort(loaded.IgnoredEnv)
 
 	return loaded, nil
+}
+
+// decodeProblems turns mapstructure's joined errors into one problem per key.
+func decodeProblems(err error, raw map[string]any) []Problem {
+	if err == nil {
+		return nil
+	}
+
+	joined, isJoined := err.(interface{ Unwrap() []error })
+	if isJoined {
+		var problems []Problem
+		for _, inner := range joined.Unwrap() {
+			problems = append(problems, decodeProblems(inner, raw)...)
+		}
+
+		return problems
+	}
+
+	decodeErr, isDecodeErr := errors.AsType[*mapstructure.DecodeError](err)
+	if !isDecodeErr {
+		return []Problem{{Rule: ruleText(err)}}
+	}
+
+	return []Problem{{
+		Key:   decodeErr.Name(),
+		Value: displayValue(valueAt(raw, decodeErr.Name())),
+		Rule:  ruleText(decodeErr.Unwrap()),
+	}}
+}
+
+// ruleText is the rule a value broke, from the error that rejected it.
+func ruleText(err error) string {
+	if err == nil {
+		return "invalid value"
+	}
+
+	return err.Error()
+}
+
+// valueAt returns the raw value at a key path such as server.trusted_proxies[1].
+func valueAt(raw map[string]any, key string) any {
+	var current any = raw
+
+	for part := range strings.SplitSeq(key, keyDelimiter) {
+		name, index, hasIndex := strings.Cut(part, "[")
+
+		object, isMap := current.(map[string]any)
+		if !isMap {
+			return nil
+		}
+
+		current = object[name]
+
+		if hasIndex {
+			current = elementAt(current, strings.TrimSuffix(index, "]"))
+		}
+	}
+
+	return current
+}
+
+func elementAt(list any, index string) any {
+	items, isList := list.([]any)
+	if !isList {
+		return nil
+	}
+
+	position, err := strconv.Atoi(index)
+	if err != nil || position < 0 || position >= len(items) {
+		return nil
+	}
+
+	return items[position]
+}
+
+// displayValue renders a raw value for a problem line. Configuration holds no secret
+// (configuration.md section 4), so the value is shown as given.
+func displayValue(value any) string {
+	if value == nil {
+		return "null"
+	}
+
+	text, isText := value.(string)
+	if isText {
+		return text
+	}
+
+	return fmt.Sprint(value)
 }
 
 func loadFile(merged *koanf.Koanf, path string, explicit bool) error {
@@ -166,13 +268,15 @@ func loadFile(merged *koanf.Koanf, path string, explicit bool) error {
 	return nil
 }
 
-// nullKeys returns an ErrNull error for every key, or list element, that holds a YAML null.
-func nullKeys(value any, path string) []error {
+// nullKeys returns a problem for every key, or list element, that holds a YAML null.
+func nullKeys(value any, path string) []Problem {
 	switch typed := value.(type) {
 	case nil:
-		return []error{fmt.Errorf("%w: %s", ErrNull, path)}
+		return []Problem{
+			{Key: path, Value: "null", Rule: ErrNull.Error() + ": write a value or remove the key"},
+		}
 	case map[string]any:
-		var found []error
+		var found []Problem
 
 		for _, key := range slices.Sorted(maps.Keys(typed)) {
 			child := key
@@ -185,7 +289,7 @@ func nullKeys(value any, path string) []error {
 
 		return found
 	case []any:
-		var found []error
+		var found []Problem
 
 		for index, item := range typed {
 			found = append(found, nullKeys(item, fmt.Sprintf("%s[%d]", path, index))...)

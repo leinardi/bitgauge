@@ -16,7 +16,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | Limits and rate limiting (`429` with `Retry-After`) | Spec'd (v0.1) |  |
 | Client IP through trusted proxies, context label inputs | Spec'd (v0.1) |  |
 | Security headers and CSP | Spec'd (v0.1) |  |
-| Configuration (koanf, `BITGAUGE_` env, fail-closed validation) | Spec'd (v0.1) |  |
+| Configuration (koanf, `BITGAUGE_` env, fail-closed validation) | Implemented (v0.1) | `internal/config/`: `load.go`, `types.go`, `validate.go`, `warn.go`, `exit.go` |
 | `healthcheck` subcommand and graceful shutdown | Spec'd (v0.1) |  |
 | Engine: info and idle latency | Spec'd (v0.1) |  |
 | Engine: adaptive request size, stream ramp, adaptive duration, data cap | Spec'd (v0.1) |  |

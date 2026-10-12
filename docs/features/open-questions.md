@@ -36,6 +36,14 @@ carries a recommendation; where the specification already relies on an answer, i
    direction per run**, chosen by the user, because alternating would mix two steady windows in one
    series and halve each direction's coverage. Recommendation: keep it; a user who wants both runs
    two sessions. See [measurement.md §15](measurement.md#15-continuous-mode).
+7. How does a release validate the configuration keys of features it does not ship yet, and an
+   empty duration bound? Current answer: **a toggle for an unshipped feature is rejected, naming
+   its milestone** (`metrics.enabled` before v0.2; the three `compat.*.enabled` toggles and
+   `test_defaults.preset: continuous` before v0.3), while their other keys are parsed and
+   validated; the compatibility conflict rules apply from v0.3; and a duration pair is checked with
+   an empty bound counting as the preset's value. Recommendation: keep it, since accepting a
+   toggle that does nothing would be a silent default. See
+   [configuration.md §4](configuration.md#4-fail-closed-validation).
 
 Resolved and removed:
 

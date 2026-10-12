@@ -16,8 +16,9 @@ packages implement [../configuration.md](../configuration.md) and [../security.m
    variables containing `__`, strips the prefix, lowercases the rest and replaces `__` with `.`.
    Single underscores stay inside key names. Comma-separated values become lists for list keys.
 
-The merged map is decoded into the configuration struct with unknown keys as errors
-(`ErrorUnused`), then validated.
+The merged map is decoded into the configuration struct with every unknown key, null and value
+that does not parse collected as an error of its own (unknown keys from the decoder's metadata of
+unused keys), then validated.
 
 **Env mapping examples:**
 

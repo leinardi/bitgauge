@@ -397,37 +397,53 @@ func TestUnknownKeysAreErrors(t *testing.T) {
 		name    string
 		file    string
 		environ []string
+		key     string
 	}{
-		{name: "misspelled key in the file", file: "server:\n  lisen: \":8080\"\n"},
-		{name: "unknown section in the file", file: "storage:\n  path: /data\n"},
-		{name: "key with the wrong case in the file", file: "Server:\n  listen: \":8080\"\n"},
+		{
+			name: "misspelled key in the file",
+			file: "server:\n  lisen: \":8080\"\n",
+			key:  "server.lisen",
+		},
+		{name: "unknown section in the file", file: "storage:\n  path: /data\n", key: "storage"},
+		{
+			name: "key with the wrong case in the file",
+			file: "Server:\n  listen: \":8080\"\n",
+			key:  "Server",
+		},
 		{
 			name:    "misspelled key in the environment",
 			environ: []string{"BITGAUGE_SERVER__LISTN=:8080"},
+			key:     "server.listn",
 		},
 		{
 			name:    "unknown section in the environment",
 			environ: []string{"BITGAUGE_STORAGE__PATH=/data"},
+			key:     "storage",
 		},
 		{
 			name:    "a level below a value in the environment",
 			environ: []string{"BITGAUGE_LOG__LEVEL__X=debug"},
+			key:     "log.level",
 		},
 		{
 			name: "listen given as its Go fields",
 			file: "server:\n  listen: {Host: 0.0.0.0, Port: 9090}\n",
+			key:  "server.listen",
 		},
 		{
 			name: "warm-up given as its Go fields",
 			file: "test_defaults:\n  warmup: {Auto: true, Duration: 3000000000}\n",
+			key:  "test_defaults.warmup",
 		},
 		{
 			name: "duration given as its Go fields",
 			file: "test_defaults:\n  download:\n    min_duration: {Duration: 5, Set: true}\n",
+			key:  "test_defaults.download.min_duration",
 		},
 		{
 			name: "CIDR given as a map",
 			file: "server:\n  trusted_proxies: [{addr: 10.0.0.0, bits: 8}]\n",
+			key:  "server.trusted_proxies[0]",
 		},
 	}
 
@@ -440,12 +456,29 @@ func TestUnknownKeysAreErrors(t *testing.T) {
 				path = writeFile(t, tc.file)
 			}
 
-			_, err := LoadFrom(path, tc.file != "", tc.environ)
-			if !errors.Is(err, ErrDecode) {
-				t.Fatalf("error = %v, want ErrDecode", err)
+			problems := loadProblems(t, path, tc.file != "", tc.environ)
+			if len(problems) != 1 || problems[0].Key != tc.key || problems[0].Rule == "" {
+				t.Fatalf("problems = %+v, want one for %s", problems, tc.key)
 			}
 		})
 	}
+}
+
+// loadProblems loads a configuration that must read fine but fail to decode, and returns its
+// problems.
+func loadProblems(t *testing.T, path string, explicit bool, environ []string) []Problem {
+	t.Helper()
+
+	loaded, err := LoadFrom(path, explicit, environ)
+	if err != nil {
+		t.Fatalf("LoadFrom error = %v, want problems instead", err)
+	}
+
+	if len(loaded.Problems) == 0 {
+		t.Fatalf("no problem reported; decoded %+v", loaded.Config)
+	}
+
+	return loaded.Problems
 }
 
 func TestValueSyntax(t *testing.T) {
@@ -715,9 +748,10 @@ func TestInvalidValues(t *testing.T) {
 				environ = []string{tc.env}
 			}
 
-			_, err := LoadFrom(path, tc.file != "", environ)
-			if !errors.Is(err, ErrDecode) {
-				t.Fatalf("error = %v, want ErrDecode", err)
+			for _, problem := range loadProblems(t, path, tc.file != "", environ) {
+				if problem.Key == "" || problem.Rule == "" {
+					t.Fatalf("problem without a key or a rule: %+v", problem)
+				}
 			}
 		})
 	}

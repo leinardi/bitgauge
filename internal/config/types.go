@@ -166,6 +166,20 @@ func allDigits(text string) bool {
 	return true
 }
 
+// String renders a size in the largest binary unit that divides it, as a person would write it.
+func (s Size) String() string {
+	for _, unit := range []struct {
+		size   Size
+		suffix string
+	}{{GiB, "GiB"}, {MiB, "MiB"}, {KiB, "KiB"}} {
+		if s != 0 && s%unit.size == 0 {
+			return fmt.Sprintf("%d %s", s/unit.size, unit.suffix)
+		}
+	}
+
+	return fmt.Sprintf("%d bytes", int64(s))
+}
+
 // sizeFromNumber converts a YAML number to a Size: whole and non-negative only.
 func sizeFromNumber(number float64) (Size, error) {
 	// float64(math.MaxInt64) is 2^63, one past the largest int64, so the bound is exclusive.

@@ -321,6 +321,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 4 | Upload grace based on the in-flight request's expected duration | v0.1 |
 | 5 | Upload failure gaps on HTTP/2 and HTTP/3; phase end on the first failure over HTTP/1.1 | v0.1 |
 | 6 | Continuous mode runs a single direction | v0.3 |
+| 7 | Unshipped-feature toggles rejected with their milestone; empty duration bounds checked as the preset's value | v0.1 |
 
 ## Related
 
