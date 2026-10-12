@@ -86,7 +86,7 @@ application code; the UI talks to it only through typed messages defined in one 
 | Message | Payload | Used for |
 | --- | --- | --- |
 | `phase` | phase name (`info`, `idle`, `download`, `upload`), state (`started`, `finished`, `skipped`, `failed`), protocol, stream count, notices so far | Phase indicator, connection info. |
-| `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; latest loaded-latency samples; data used | Live gauge and chart, at most every 100 ms. |
+| `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up; Continuous adds "p90, last hour"); latest loaded-latency samples; data used | Live gauge, tiles and chart, at most every 100 ms. |
 | `result` | the versioned result object ([measurement.md §17](measurement.md#17-result-object)) | Result screen, history, export. |
 | `error` | code, message key, phase, whether partial results exist | Error states and retry ([ui/flows.md](ui/flows.md)). |
 
@@ -107,7 +107,10 @@ type EngineEvent =
       fromBucket: number;              // download: client bucket index; upload: server grid cell
       values: (number | null)[];       // bytes per bucket; null = unknown (failure gap)
       windowEnd?: number;              // upload only: current W_end on the server grid
-      gauge: number; sending?: number; loadedLatencyMs?: number[]; dataUsedBytes: number }
+      gauge: number; sending?: number;
+      steady?: { avgBitsPerSecond: number; peakBitsPerSecond: number;
+                 peakLastHourBitsPerSecond?: number };  // absent during warm-up
+      loadedLatencyMs?: number[]; dataUsedBytes: number }
   | { type: 'result'; result: Result }
   | { type: 'error'; code: EngineErrorCode; messageKey: string; phase?: PhaseName;
       partial: boolean };

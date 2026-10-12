@@ -90,13 +90,17 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
     [ …result objects… ] }`, including series, client IPs and notes. The v0.1 Test screen's
     single-result Download JSON uses the same format with one entry, so its serializer ships in
     v0.1 without IndexedDB ([../ui/screens.md §1](../ui/screens.md#1-test-home--)).
-  - CSV: one row per result, UTF-8 with a header row; columns `id`, `startedAt`, `label`, `note`,
-    `status`, `preset`, `protocol`, `clientIp`, `serverName`, `serverVersion`,
+  - CSV: one row per result, UTF-8 with a header row; columns `id`, `startedAt`, `label`,
+    `contextLabel`, `note`, `status`, `preset`, `protocol`, `clientIp`, `browser` (name, major
+    version and OS as one text value), `serverName`, `serverVersion`,
     `downloadBitsPerSecond`, `downloadPeakBitsPerSecond`, `downloadStatus`, `downloadConfidence`,
     `uploadBitsPerSecond`, `uploadPeakBitsPerSecond`, `uploadStatus`, `uploadConfidence`,
     `idleMedianMs`, `idleP90Ms`, `jitterMs`, `idleLossPercent`, `downloadLoadedMedianMs`,
     `uploadLoadedMedianMs`, `bufferbloatGrade`, `rpm`, `rpmState`, `streamingBand`, `gamingBand`,
-    `rtcBand`, `overheadCompensationPercent`, `dataUsedBytes`, `durationMs`. Series are omitted.
+    `rtcBand`, `overheadCompensationPercent`, `dataUsedBytes`, `durationMs`. Series, samples and
+    events are omitted.
+  - **Scope.** Each format exports either every result or the results matching the current History
+    filter; the export menu states which, with the count.
 - **Import.** JSON only, at most 10 MB; validated against the schema; records with an unknown higher
   `schemaVersion` are rejected with a message; duplicates by `id` are skipped; text is rendered as
   text, never as HTML ([../security.md §7](../security.md#7-browser-only-history-and-privacy)).
@@ -107,12 +111,19 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
 
 - **uPlot** draws the live throughput chart (download series; upload `received` and faint `sending`
   lines), optional loaded-latency series, per-phase charts in the result detail and the history
-  trend. Unknown buckets are `null` and render as gaps. For Continuous runs the chart picks the
-  retention tier that keeps at most about 2000 points in view
-  ([../measurement.md §15](../measurement.md#15-continuous-mode)).
-- **Gauge.** Hand-rolled SVG: logarithmic scale from 0.1 Mbit/s to 10 Gbit/s, ticks per decade,
-  needle animated with CSS transforms and disabled under `prefers-reduced-motion`; the numeric
-  readout is a live region ([../ui/i18n-a11y.md](../ui/i18n-a11y.md)).
+  trend. Unknown buckets are `null` and render as gaps. Phase separators and event marks are
+  drawn with uPlot hooks from the result's `events`; in the result detail, warm-up is a hatched,
+  empty interval ending at `warmupEndMs`, because warm-up samples are not stored, and the table
+  view follows the row rules of [../ui/screens.md §2](../ui/screens.md#2-result-detail--resultid).
+  For Continuous runs the chart picks the retention tier that keeps at most about 2000 points in
+  view ([../measurement.md §15](../measurement.md#15-continuous-mode)).
+- **Gauge.** Hand-rolled SVG: a logarithmic arc whose window of four decades follows the value
+  as [../measurement.md §14](../measurement.md#14-units-and-gauge) specifies, ticks per decade,
+  a recent-range band, the peak tick and, at completion, an inner arc for upload. The needle and
+  window shifts animate with CSS transforms, disabled under `prefers-reduced-motion`. The UI only
+  draws: every value, including the live average and peak, comes from the engine's `sample`
+  messages. The numeric readout is not a live region; announcements go through the separate
+  region of [../ui/i18n-a11y.md §2.1](../ui/i18n-a11y.md#21-live-region-for-the-gauge).
 - **Share image.** Rendered client-side on a `<canvas>` with the embedded fonts, exported with
   `toBlob()` as PNG (the format is an open question tracked in
   [../open-questions.md](../open-questions.md)), downloaded through a `blob:` URL. Content rules are
@@ -131,12 +142,13 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
 ## 8. Theming Hook
 
 - Visual design comes from the Claude Design export in
-  [../../design_system/README.md](../../design_system/README.md). Until it lands, the UI uses
-  shadcn-vue defaults and no hand-authored visual design.
+  [../../design_system/README.md](../../design_system/README.md); shadcn-vue defaults cover what
+  the export does not, and nothing visual is hand-authored.
 - `styles/` imports the export's `colors_and_type.css` and maps its tokens into Tailwind 4 `@theme`
   variables; components use only those tokens.
-- Light and dark themes switch with a class on `<html>`, defaulting to the system preference; the
-  `theme` URL parameter and the Settings screen override it.
+- Light and dark themes switch with `data-theme="light"` or `data-theme="dark"` on `<html>`, the
+  attribute the export's tokens key on, defaulting to the system preference; the `theme` URL
+  parameter, the Settings screen and the header's theme toggle override it.
 
 ## Related
 

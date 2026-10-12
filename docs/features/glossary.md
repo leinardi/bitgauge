@@ -141,7 +141,8 @@ responsiveness probe**: `GET /api/v1/small` timed with Resource Timing, which fe
 responsiveness metric. Neither path is derived from the other (§11, §12).
 
 **Bufferbloat grade.** A letter grade (A+ to F) from the increase of loaded latency over idle
-latency, taking the worse of the two directions (§11).
+latency, taking the worse of the two directions (§11). Shown with words: A+ Minimal, A Low, B Mild,
+C Moderate, D High, F Severe bufferbloat.
 
 **Responsiveness.** A measure of how quickly the network answers small requests while it is
 loaded, expressed in round trips per minute.
@@ -156,6 +157,19 @@ computed with Cloudflare AIM-style point tables (§13).
 **Confidence.** A per-direction qualifier: `normal`, `low` (with a reason such as `ramp-unsettled`,
 `unstable` or `insufficient-samples`) or `cpu-bound` (the Worker was busy more than 90 % of the
 time). Shown next to the number it qualifies (§16).
+
+## Results and Display
+
+**Gauge window.** The four log decades the live gauge shows at a time, between 10 kbit/s and
+10 Gbit/s (1 kB/s and 10 GB/s in bytes mode); it moves one decade when the value stays in its
+bottom or top decade for 2 s. It is presentation only and never feeds a number (§14).
+
+**Keep in history.** The user's choice to save a `partial` or `error` result; only `complete`
+results are saved automatically (§17).
+
+**Save bar.** The confirmation after a `complete` run on the Test screen: "Saved to history", an
+inline label field with suggested labels, Share and Details
+([ui/screens.md §1](ui/screens.md#1-test-home--)).
 
 ## Network and Deployment
 

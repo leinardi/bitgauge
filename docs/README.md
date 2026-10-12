@@ -6,7 +6,7 @@ prior art behind the design:
 | Tree | Owns | Authority |
 | --- | --- | --- |
 | [`features/`](features/README.md) | Product spec, measurement methodology, wire protocol, compatibility, architecture, technical stack, security model, UI behaviour, roadmap | Product and technical contract. Technical decisions are **locked** in [`features/technical-stack/decisions.md`](features/technical-stack/decisions.md); that file wins over any summary elsewhere. |
-| [`design_system/`](design_system/README.md) | Brand, tokens, component contracts, UI kits, previews | Visual contract, once the Claude Design export lands. Until then it holds only a placeholder README. The export is never hand-edited. |
+| [`design_system/`](design_system/README.md) | Brand, tokens, component contracts, UI kits, previews | Visual contract from the Claude Design export. The first export, the prototype boards, has landed; where it disagrees with `features/ui/` on behaviour, the spec wins. The export is never hand-edited. |
 | [`engineering/`](engineering/README.md) | How the project is run rather than what it does: harness runbooks, checklists, audits | Working notes, not a contract. Nothing here constrains the product. |
 | [`research/`](research/README.md) | How other speed tests work and which ideas BitGauge takes | Background, ideas only. Where it disagrees with `features/`, `features/` wins. |
 
@@ -15,17 +15,18 @@ Implementation progress per feature area: [`STATUS.md`](STATUS.md). How releases
 
 ## Symlink Contract
 
-`design_system/` will mirror the Claude Design project, whose uploads include the product-spec files
-the design is drawn from. Once the export lands, those files live physically under
-`design_system/features/` and are **symlinked** into `features/`:
+`design_system/` mirrors the Claude Design project, whose uploads include the product-spec files
+the design is drawn from. Once an export carries those files, identical to the spec, they live
+physically under `design_system/features/` and are **symlinked** into `features/`:
 
 - `features/product.md` → `design_system/features/product.md`
 - `features/principles.md` → `design_system/features/principles.md`
 - `features/ui/` → `design_system/features/ui/`
 
 Editing via either path then edits the same file. Windows checkouts need
-`git config core.symlinks true`. Until the export lands, these files are ordinary files under
-`features/` and no symlinks exist; the activation steps are in
+`git config core.symlinks true`. The first export (the prototype boards) has no such mirror, so
+these files are still ordinary files under `features/` and no symlinks exist; the activation steps
+and their preconditions are in
 [`design_system/README.md`](design_system/README.md#symlink-activation).
 
 ## Reading Order

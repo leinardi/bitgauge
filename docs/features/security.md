@@ -178,8 +178,11 @@ The native API never uses `*`: cross-origin access requires an exact origin in
 **What is stored.** Each result (the versioned object of
 [measurement.md §17](measurement.md#17-result-object)) is kept in the browser's IndexedDB for the
 origin that served the SPA: timestamps, numbers, settings, the server's display name and version,
-the client IP, the context label, the user's label and note, and the bucket series for charts.
-Nothing else, and nothing leaves the browser unless the user exports or shares it.
+the client IP, the context label, the browser's family, major version and operating system
+(parsed, never the raw user-agent string), the user's label and note, and the bucket series,
+latency samples and event marks for charts. Only results the user keeps are stored: a `complete`
+result automatically, a `partial` or `error` one only on Keep in history. Nothing else, and
+nothing leaves the browser unless the user exports or shares it.
 
 **Implications:**
 
@@ -188,11 +191,12 @@ Nothing else, and nothing leaves the browser unless the user exports or shares i
   ([edge-cases.md](edge-cases.md)).
 - The server cannot help recover lost history, because it never had it.
 
-**Share image and copied summary.** Rendered client-side on a canvas, they contain the download,
-upload, idle latency, loaded latency increase, bufferbloat grade, the date and time, the server's
-display name and, if the user enabled it, the result's label. They **never** contain the client IP,
-the note or the URL of the server. The share dialog shows exactly what is included before
-download.
+**Share image and copied summary.** The image is rendered client-side on a canvas; both contain
+the download, upload, idle latency, jitter, loaded latency increase, bufferbloat grade, the date
+and time, the server's display name and, if the user enabled it, the result's label. They
+**never** contain the client IP, the browser, the note or the URL of the server. The share preview
+(the share panel of the Result detail, or the same panel as a dialog on the Test screen) shows
+exactly what each includes before anything is downloaded, copied or shared.
 
 **Export and import.**
 

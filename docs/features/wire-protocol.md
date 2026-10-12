@@ -121,6 +121,8 @@ test when `epoch` differs from the one `GET /info` reported at test start.
   "server": {
     "name": "home",
     "version": "0.1.0",
+    "commit": "a1b2c3d",
+    "buildDate": "2026-09-30T12:00:00Z",
     "epoch": "k3V9qW2rT0aY",
     "basePath": "/"
   },
@@ -157,8 +159,9 @@ test when `epoch` differs from the one `GET /info` reported at test start.
 }
 ```
 
-- `server.name` is `server.display_name`; `version` is the build version; `basePath` lets the SPA
-  build URLs when it is served under a sub-path.
+- `server.name` is `server.display_name`; `version`, `commit` and `buildDate` are the build
+  information stamped into the binary (`internal/buildinfo`), shown on the About screen;
+  `basePath` lets the SPA build URLs when it is served under a sub-path.
 - **Context label inputs.** `client.addressClass` is one of `loopback`, `private` (RFC 1918),
   `link-local`, `ula` (fc00::/7), `cgnat` (100.64.0.0/10) or `public`. `client.suggestedLabel` is
   `VPN` for `cgnat` and for the Tailscale ULA range `fd7a:115c:a1e0::/48` (the ranges mesh VPNs such

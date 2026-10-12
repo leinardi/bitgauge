@@ -1,23 +1,38 @@
 # BitGauge Design System
 
-> **Placeholder.** The Claude Design export has not landed yet. Until it does, the UI is built
-> with shadcn-vue defaults and no hand-authored visual design, and the behaviour of every screen is
-> specified in [../features/ui/](../features/ui/README.md).
+> **First export landed: prototype boards.** The Claude Design export in this directory holds the
+> screen prototypes and boards, drawn from a short brief before the detailed specification. Where
+> they disagree with [../features/ui/](../features/ui/README.md) on behaviour, the spec wins and
+> the correction goes back into the Claude Design project. This README is not part of the export:
+> it is maintained in the repository.
 
-## What Lands Here
-
-The export of the BitGauge project in Claude Design, unchanged:
+## Current Export
 
 | Path | What it is |
 | --- | --- |
-| `SKILL.md` | How to use the design system, with the provenance note |
-| `colors_and_type.css` | Colour and type foundations as CSS custom properties, light and dark |
-| `tokens.md` | The token reference: colour, type, spacing, radius, motion |
+| `BitGauge Overview.dc.html` | Entry page: concept, series colours, gauge auto-scale, links to the boards |
+| `Board 1`–`Board 7 *.dc.html` | Boards: Test desktop and mobile, flows, Result detail and History, Settings and About, tokens and components, additions |
+| `Test Screen`, `Result Detail`, `History`, `Settings`, `About`, `Nav .dc.html` | The screens as live design components, with their states as properties |
+| `BitGauge Prototype.dc.html` | A clickable prototype that runs a simulated test across the screens |
+| `Logo Explorations.dc.html` | Seven logo directions; the chosen mark is "Three series" (1f) |
+| `bg-lib.js` | Prototype helpers: icon glyphs, number formatting, gauge and chart geometry |
+| `support.js` | The Claude Design viewer runtime (loads React from a CDN; never part of the product) |
+| `_ds/runhold-design-system-…/` | The Runhold design system the project builds on: tokens (`colors_and_type.css`), console CSS, IBM Plex fonts, runtime bundle |
+
+## What a Complete Export Contains
+
+The export the frontend and the symlinks depend on, unchanged once it lands:
+
+| Path | What it is |
+| --- | --- |
+| `README.md`, `SKILL.md` | How to use the design system, with the provenance note |
+| `colors_and_type.css` | Colour and type foundations as CSS custom properties, light and dark, at the export root: the file the frontend imports ([../features/technical-stack/frontend.md §8](../features/technical-stack/frontend.md#8-theming-hook)) |
+| `tokens.md` | The token reference: colour, type, spacing, radius, motion, with contrast ratios |
 | `components/` | Component contracts: gauge, chart, metric tiles, notices, buttons and the rest |
 | `preview/` | Rendered previews of the foundations and components |
 | `ui_kits/` | High-fidelity recreations of the screens; the canonical UI prototype |
-| `assets/` | Logo, icons and illustrations |
-| `features/` | The product-spec files the design was drawn from, mirrored from `../features/` |
+| `assets/` | Logo, icons, favicons and fonts |
+| `features/` | The product-spec files the design was drawn from, byte-identical to `../features/` |
 
 ## Provenance Rule
 
@@ -43,13 +58,15 @@ the same file as `../features/` through the symlinks below and is edited like an
 
 ## Symlink Activation
 
-When the first export lands:
+The first export (the prototype boards) carries no `features/` mirror and no root
+`colors_and_type.css`, so the symlinks are not active yet. Activate them with the first export that
+has both:
 
-1. Copy the export into `docs/design_system/`, replacing this placeholder README only if the export
-   brings its own; otherwise keep this file.
+1. Copy the export into `docs/design_system/`, replacing this README only if the export brings its
+   own; otherwise keep this file.
 2. Compare the export's `features/product.md`, `features/principles.md` and `features/ui/` with
-   `docs/features/`. Any difference is resolved in favour of `docs/features/` and fed back into the
-   Claude Design project, so both copies are identical.
+   `docs/features/` (`diff -r` must print nothing). Any difference is resolved in favour of
+   `docs/features/` and fed back into the Claude Design project, so both copies are identical.
 3. Replace the three with symlinks, running from `docs/features/`:
 
    ```sh
@@ -62,4 +79,4 @@ When the first export lands:
 4. Check that every relative link in `docs/` still resolves through the symlinks, then commit the
    export and the links together.
 5. Update [../README.md](../README.md) to say the symlinks are active, and record in
-   [../STATUS.md](../STATUS.md) that the design export has landed.
+   [../STATUS.md](../STATUS.md) that the complete design export and the symlinks have landed.

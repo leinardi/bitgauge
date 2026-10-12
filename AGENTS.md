@@ -292,8 +292,9 @@ Full section: [`docs/features/architecture.md`](docs/features/architecture.md).
 ## Docs layout note
 
 `docs/features/` is the product and technical contract, `docs/research/` holds ideas from prior
-art, `docs/engineering/` working notes, and `docs/design_system/` the Claude Design export once it
-lands. Then `docs/features/{product.md,principles.md,ui/}` become **symlinks** into
+art, `docs/engineering/` working notes, and `docs/design_system/` the Claude Design export (its
+first version, the prototype boards, has landed). Once an export carries a `features/` mirror
+identical to the spec, `docs/features/{product.md,principles.md,ui/}` become **symlinks** into
 `docs/design_system/features/`, and either path edits the same file (Windows:
 `git config core.symlinks true`). Until then they are ordinary files
 ([`docs/README.md`](docs/README.md#symlink-contract)). Never hand-edit the export.
@@ -309,9 +310,10 @@ limits and metrics, or any outbound network client
 
 Never introduce: Nuxt, SSR (pure SPA), TanStack Query (one `GET /info` and no server state),
 class-based Vue components (Composition API + `<script setup>` only), or any external URL. The
-engine imports nothing from Vue, the DOM or application code. Until the design export lands, use
-shadcn-vue defaults and no hand-authored visual design; behaviour follows
-[`docs/features/ui/`](docs/features/ui/README.md).
+engine imports nothing from Vue, the DOM or application code. Visuals come only from the design
+export in `docs/design_system/`, with shadcn-vue defaults for anything it does not cover and no
+hand-authored visual design; behaviour follows [`docs/features/ui/`](docs/features/ui/README.md),
+which wins where the export disagrees.
 
 ## Go / backend constraints
 

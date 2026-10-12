@@ -15,11 +15,13 @@ illustrations come from the Claude Design export that will land in
 - **Behaviour:** these pages are canonical for what each screen contains, which states it has, and
   what happens in each flow. The measurement semantics behind every number are in
   [../measurement.md](../measurement.md).
-- **Visuals:** the design export is canonical for how things look. A prototype is being produced in
-  parallel and is **pending**; until it lands, the implementation uses shadcn-vue defaults and no
-  hand-authored visual design.
-- When the export lands and disagrees with a page here on behaviour, the disagreement is resolved
-  in these pages first, then implemented.
+- **Visuals:** the design export is canonical for how things look. Its first version, the
+  prototype boards in [../../design_system/](../../design_system/README.md), has landed; where it
+  disagrees with these pages on behaviour, these pages win, and the correction goes back into the
+  Claude Design project. The implementation takes visuals only from the export and never
+  hand-authors them; shadcn-vue defaults fill any gap the export does not cover yet.
+- A behavioural disagreement between the export and a page here is resolved in these pages first,
+  then implemented.
 
 ## Screen Hierarchy
 

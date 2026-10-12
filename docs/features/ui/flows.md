@@ -18,7 +18,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 3. The user presses Start.
 4. The engine runs info → idle latency → download → upload; the phase indicator, gauge, chart and
    data used update live.
-5. The result appears with its notices; it is saved to history automatically.
+5. The result appears with its notices; a `complete` result is saved to history automatically
+   (`partial` and `error` results only when the user keeps them, flows 4 and 5).
    - **Branch: an upload request fails over HTTP/1.1.** Only the upload phase ends early: it reports
      the window up to the failure, or `insufficient data`, with the notice `upload interrupted by a
      failed request` and the hint that HTTP/2 at the proxy avoids it. A download configured to run
@@ -78,10 +79,15 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    - **Exception: Continuous.** Stopping is how a Continuous run normally ends; see flow 7.
    - Phases not yet started are `skipped`.
 4. The Test screen shows the Cancelled state: the partial result labelled `partial — stopped early`
-   with what was covered ("upload based on the first 7.0 s").
-5. The partial result is saved to history with status `partial`.
+   with what was covered ("upload based on a 3.6 s steady window, 14 requests"). Whether an
+   interrupted direction has a number depends on its confirmed steady window, never on the
+   elapsed phase time: a stop before warm-up ends gives "insufficient data — confirmed steady
+   window shorter than 3 s".
+5. The partial result is **not** saved automatically. The screen offers **Keep in history**, which
+   saves it with status `partial` (with an undo toast), and Download JSON.
+   - **Branch: the user leaves or runs again without keeping it.** The result is discarded.
    - **Branch: nothing was measured yet** (stopped during info or idle latency with too few
-     samples). No result is saved; the screen returns to Idle.
+     samples). No result exists to keep; the screen returns to Idle.
 
 ## 5. Error Mid-Test
 
@@ -95,16 +101,20 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    - **Branch: server unreachable:** `server unreachable` with Retry.
 3. The Test screen shows the Error state: what failed, in which phase, the completed phases'
    results, and Retry.
-4. If any phase completed, the result is saved with status `error`; otherwise nothing is saved.
+4. If any phase completed, the screen offers **Keep in history**, which saves the result with
+   status `error`, and Download JSON; nothing is saved unless the user keeps it. If no phase
+   completed, there is nothing to keep.
 5. Retry starts a new run with the same settings (flow 1, step 3).
 
 ## 6. History Review and Compare
 
 1. The user opens History.
    - **Branch: history unavailable.** The unavailable state with an explanation.
-   - **Branch: empty.** "No results yet" with Run test.
+   - **Branch: empty.** "No results yet" with Start a test and Import JSON.
 2. The list shows results for this origin, newest first, with the per-origin notice.
-3. The user sorts or filters by label and date range; the trend chart follows the filter.
+3. The user sorts, filters by label, context label and date range, or searches labels and notes;
+   the trend chart follows the filter.
+   - **Branch: no match.** The filtered-empty state with Clear filters.
 4. The user opens a row: Result detail (flow ends there, or Back returns to the list with the
    filter kept).
 5. To compare, the user selects two rows and chooses Compare.
@@ -112,7 +122,11 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    sets.
    - **Branch: different preset, protocol or label.** A warning says the results are not directly
      comparable and why.
-7. From either side the user can open the detail, or deselect to compare another pair.
+7. From either side the user can open the detail, copy the comparison as text, or deselect to
+   compare another pair.
+8. To delete, the user deletes a row from its action menu or the selected rows from the selection
+   bar. The rows disappear at once and an undo toast restores them; Clear all instead asks for
+   confirmation, names the count and offers Export JSON first.
 
 ## 7. Continuous Mode
 
@@ -122,7 +136,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 2. The user starts the run. Idle latency runs first, then the chosen direction with the Standard
    ramp and no maximum.
 3. Warm-up ends at the latest after 10 s of confirmed series. The screen then shows live min,
-   average and max, "p90, last hour", loaded latency and data used.
+   average and max, "p90, last hour", loaded latency, data used with its rate, and the elapsed
+   time against the run length with its end time when a run length is set.
 4. Data-used notices appear at 1 GB, 10 GB, 100 GB and every further tenfold step.
    - **Branch: data cap reached.** The run ends with `data cap reached`.
    - **Branch: page hidden and the browser pauses the engine.** The run ends as in step 5:
@@ -133,17 +148,22 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 5. The user presses Stop (or the run length elapses, the data cap is reached, or an HTTP/1.1
    upload request fails). If the steady window had begun, the result has status `complete`, not
    `partial`; any of these endings during warm-up gives `partial` ([../measurement.md
-   §15](../measurement.md#15-continuous-mode)). The result is saved with the run-wide statistics
-   and a series of at most 2000 points downsampled from the finest retention tier whose ring covers
-   the whole run; the other tiers are only kept in memory while the run is on screen. A run longer
-   than 7 days saves only its last 7 days, and the result detail says so.
+   §15](../measurement.md#15-continuous-mode)). A `complete` result is saved automatically with
+   the run-wide statistics and a series of at most 2000 points downsampled from the finest
+   retention tier whose ring covers the whole run; the other tiers are only kept in memory while
+   the run is on screen. A run longer than 7 days saves only its last 7 days, and the result detail
+   says so.
+   - **Branch: the run ended during warm-up (`partial`).** As in flow 4 step 5: not saved unless
+     the user chooses Keep in history; Download JSON is offered.
 
 ## 8. Sharing
 
-1. From a result (Test screen or Result detail), the user chooses Share.
-2. A dialog shows the share image preview and lists exactly what it contains: download, upload,
-   idle latency, loaded-latency increase, grade, date and time, server display name; the label only
-   if the user ticks "include label". It never contains the client IP, the note or the server URL.
+1. On the Result detail the share panel is always visible; on the Test screen the user chooses
+   Share, which opens the same panel as a dialog.
+2. The panel previews the share image and the copied text and so shows exactly what they contain:
+   download, upload, idle latency, jitter, loaded-latency increase, grade, date and time, server
+   display name; the label only if the user ticks "include label" (off by default). They never
+   contain the client IP, the note or the server URL.
 3. The user chooses one of:
    - **Download image:** the image (PNG, the current answer to an item in
      [../open-questions.md](../open-questions.md)) is rendered client-side and downloaded.
@@ -156,17 +176,19 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 ## 9. Changing Settings
 
 1. The user opens Settings. Fields show the effective values: stored settings over server
+   defaults. Settings that differ from the server defaults are marked and listed with their
    defaults.
-2. The user changes fields. Each field validates inline.
-   - **Branch: invalid value.** Inline error; Save disabled until fixed.
+2. The user changes fields. Each field validates inline, and each valid change is stored in this
+   browser at once; there is no Save or Discard step.
+   - **Branch: invalid value.** Inline error on the field; the value is not stored and the
+     previous valid value stays in effect.
    - **Branch: preset changed.** Duration fields reset to the preset's values unless they were
      customised, in which case the user is asked whether to keep them.
-3. The Shareable URL updates as fields change.
-4. The user saves; settings are stored in this browser and a confirmation toast appears.
-   - **Branch: Discard.** Fields return to the stored values.
-   - **Branch: Reset to defaults.** After confirmation, stored settings are removed and the server
-     defaults apply.
-5. The next run uses the saved settings, unless URL parameters on a page load override them for
+3. The settings summary on the Test screen and the Shareable URL update as fields change.
+4. The user may reset any single setting to its default.
+   - **Branch: Reset all to defaults.** After confirmation, stored settings are removed and the
+     server defaults apply.
+5. The next run uses the stored settings, unless URL parameters on a page load override them for
    that load.
 
 ## Related

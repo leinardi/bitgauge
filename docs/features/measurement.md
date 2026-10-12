@@ -860,9 +860,37 @@ bound with respect to loss, and the UI notes this next to them.
   sizes, not rates.
 - **Precision.** Three significant digits for rates (e.g. 0.472 Mbit/s, 94.1 Mbit/s, 2.38 Gbit/s);
   latencies in whole milliseconds above 10 ms and one decimal below.
-- **Gauge.** Logarithmic from 0.1 Mbit/s to 10 Gbit/s (five decades, ticks at 0.1, 1, 10, 100,
-  1000 and 10 000 Mbit/s). The needle shows the rate over the last 5 buckets; values outside the
-  range pin the needle at the edge while the numeric readout stays exact.
+- **Gauge value.** The needle shows the rate over the last 5 buckets (on upload, the client's
+  sending progress, §2). The numeric readout always shows the exact value.
+- **Gauge window.** The gauge is logarithmic and shows **four decades** at a time, `[10^k,
+  10^(k+4))`, with ticks per decade. In bits mode k = 4, 5 or 6 (bit/s): 10 kbit/s–100 Mbit/s,
+  100 kbit/s–1 Gbit/s or 1 Mbit/s–10 Gbit/s. In bytes mode the windows are byte decades, k = 3, 4,
+  5 or 6 (B/s): 1 kB/s–10 MB/s, 10 kB/s–100 MB/s, 100 kB/s–1 GB/s or 1 MB/s–10 GB/s; four windows
+  are needed because byte decades do not line up with bit decades.
+  - The window moves **one decade down** when the gauge value stays below `10^(k+1)` (the bottom
+    decade) for 2 s, and **one decade up** when it stays above `10^(k+3)` (the top decade) for
+    2 s. After a shift the opposite threshold is two decades away, so a value near a boundary
+    cannot make the window flip back and forth; the 2 s dwell adds time hysteresis.
+  - The **first throughput direction of a run** (download or upload, whichever the configured
+    order runs first, or the one direction of a Continuous run) starts in 1 Mbit/s–10 Gbit/s in
+    bits mode and 100 kB/s–1 GB/s in bytes mode, the byte window closest to it. The **second
+    direction** starts in the window the first one ended in. Nothing carries over between runs.
+    From the start window a slow link reaches the bottom window after at most two shifts in
+    either mode; in bytes mode a link above 100 MB/s shifts up once.
+  - Values outside the outermost windows (below 10 kbit/s or 1 kB/s, above 10 Gbit/s or
+    10 GB/s) pin the needle at the edge.
+  - The window is presentation only: it never feeds a number, and the caption names it.
+- **Gauge marks.** A band shows the minimum and maximum of the last 10 gauge values (1 s). On
+  download, a peak tick shows the steady-window p90 so far and is hidden during warm-up; on upload
+  there is no tick while the phase runs, because the gauge shows sending progress, not a
+  measurement. In Continuous mode the tick shows "p90, last hour" (§15). At completion an inner
+  arc shows the upload headline.
+- **Idle latency** switches the gauge to milliseconds: a fixed logarithmic 1–1000 ms scale with no
+  window shifts.
+- **Live average and peak.** While a direction runs, its live average and peak are computed by the
+  engine over the steady window so far, with the rules of §9 and §7.6, and sent in its `sample`
+  messages ([architecture.md §4](architecture.md#4-engine--ui-message-contract)). Until warm-up ends
+  the UI shows "warming up" instead of either number.
 
 ## 15. Continuous Mode
 
@@ -964,7 +992,10 @@ CSV export flattens the same fields, one row per result.
   "label": "VPN",
   "note": "",
   "server": { "name": "home", "version": "0.1.0", "epoch": "…" },
-  "client": { "ip": "10.8.0.2", "contextLabel": "VPN", "protocol": "h2" },
+  "client": {
+    "ip": "10.8.0.2", "contextLabel": "VPN", "protocol": "h2",
+    "browser": { "name": "Firefox", "major": 131, "os": "Linux" }
+  },
   "settings": {
     "preset": "standard", "phases": ["idle", "download", "upload"],
     "streams": { "mode": "auto", "max": 6 },
@@ -972,7 +1003,8 @@ CSV export flattens the same fields, one row per result.
   },
   "idle": {
     "path": "websocket", "samples": 19, "lossPercent": 0,
-    "minMs": 48.2, "medianMs": 51.0, "p90Ms": 55.4, "jitterMs": 1.9
+    "minMs": 48.2, "medianMs": 51.0, "p90Ms": 55.4, "jitterMs": 1.9,
+    "samples": [51.0, 49.8, 52.3]
   },
   "download": {
     "status": "measured", "bitsPerSecond": 94100000, "peakBitsPerSecond": 96800000,
@@ -981,10 +1013,14 @@ CSV export flattens the same fields, one row per result.
     "bytes": 118000000,
     "loadedLatency": {
       "source": "websocket", "samples": 31, "skippedTicks": 0,
-      "medianMs": 132.0, "p90Ms": 151.0, "increaseMs": 81.0
+      "medianMs": 132.0, "p90Ms": 151.0, "increaseMs": 81.0,
+      "series": [{ "atMs": 1310, "rttMs": 128.4 }]
     },
     "responsiveness": { "state": "measured", "protocol": "h2", "samples": 18, "rpm": 412 },
-    "series": { "bucketMs": 100, "values": [] }
+    "series": {
+      "bucketMs": 100, "firstCellMs": 4300, "warmupEndMs": 4300, "endMs": 9900, "values": []
+    },
+    "events": []
   },
   "upload": { "status": "measured", "confirmedRequests": 34, "…": "same fields as download" },
   "bufferbloat": { "grade": "C", "basis": "download+upload", "increaseMs": 81.0 },
@@ -1004,7 +1040,25 @@ CSV export flattens the same fields, one row per result.
   by the user or by the browser pausing a hidden page; for Continuous, only during warm-up, §15) or
   `error`.
 - `series` holds the steady-window bucket values for the result-detail charts, downsampled to at
-  most 2000 points.
+  most 2000 points. All its times are milliseconds from the direction's phase start (on upload, on
+  the server timeline): `firstCellMs` is the start of the first value's cell, `warmupEndMs` the end
+  of warm-up and `endMs` the window end (`W_end_final` on upload). Unknown cells are `null`. Warm-up
+  samples are not stored: the result detail draws `[0, warmupEndMs)` as a marked, excluded
+  interval. When a stored cell can be partially known (the coarse tiers of a Continuous upload,
+  §15), `series.knownMs[]` gives each cell's known time, so a rate over several cells is Σ bytes ÷
+  Σ known time.
+- `events` lists what happened to a direction, for the chart marks: `{code, atMs}` with code
+  `extended`, `data-cap`, `cancelled` or `error` (an `error` event also carries `notice`, the
+  notice code of §16 that ended it, or `requests-failed` for three consecutive failed requests),
+  and `{code: "failure-gap", startMs, endMs}` for each failure gap (§7.5).
+- `idle.samples` holds the idle RTTs in send order (at most the ping count of §8.5).
+  `loadedLatency.series` holds each direction's path A (or qualified fallback) samples as
+  `{atMs, rttMs}`, at most 2000 points; Continuous stores per-second medians, downsampled.
+- `client.browser` is the browser's family, major version and operating system, parsed in the
+  browser; the raw user-agent string is never stored.
+- **Saving.** A `complete` result is saved to history automatically. A `partial` or `error`
+  result is saved only when the user chooses Keep in history
+  ([ui/flows.md §4](ui/flows.md#4-cancel-mid-test)); it can always be downloaded as JSON.
 - **Versioning.** `schemaVersion` is an integer. Import accepts any version up to the current one
   and migrates older records forward; a higher version is rejected with a message naming it. Field
   renames or removals bump the version; additions do not.
