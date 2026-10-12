@@ -1020,7 +1020,7 @@ CSV export flattens the same fields, one row per result.
     "dataCapBytes": null, "overheadCompensationPercent": 0, "warmup": "auto", "pingCount": 20
   },
   "idle": {
-    "path": "websocket", "samples": 19, "lossPercent": 0,
+    "path": "websocket", "lossPercent": 0,
     "minMs": 48.2, "medianMs": 51.0, "p90Ms": 55.4, "jitterMs": 1.9,
     "samples": [51.0, 49.8, 52.3]
   },
@@ -1069,7 +1069,11 @@ CSV export flattens the same fields, one row per result.
   `extended`, `data-cap`, `cancelled` or `error` (an `error` event also carries `notice`, the
   notice code of §16 that ended it, or `requests-failed` for three consecutive failed requests),
   and `{code: "failure-gap", startMs, endMs}` for each failure gap (§7.5).
-- `idle.samples` holds the idle RTTs in send order (at most the ping count of §8.5).
+- `idle.samples` holds the idle RTTs in send order (at most the ping count of §8.5); its length
+  is the sample count.
+- A Continuous direction also carries `minBitsPerSecond` and `maxBitsPerSecond`, the run-wide
+  running aggregates over 1 s cells (§15), and its `peakBitsPerSecond` is the final "p90, last
+  hour". Bounded directions omit the two fields.
   `loadedLatency.series` holds each direction's path A (or qualified fallback) samples as
   `{atMs, rttMs}`, at most 2000 points; Continuous stores per-second medians, downsampled.
 - `client.browser` is the browser's family, major version and operating system, parsed in the
