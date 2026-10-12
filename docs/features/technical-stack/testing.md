@@ -65,7 +65,8 @@ Scenarios:
 - **Data cap:** requests shrunk to fit, the cap never exceeded, the phase ending at the floor and
   later phases skipped.
 - **Warm-up guards behind the confirmation delay:** all four conditions, evaluation on confirmed
-  cells only, unknown cells never treated as zero, the warm-up cap and each low-confidence reason.
+  cells only, unknown cells never treated as zero, the warm-up cap, its move while the ramp runs
+  (bounded at 50 % of the phase max), and each low-confidence reason.
 - **Ramp baseline / trial / plateau:** baseline growth up to its cap, kept trials, `no-gain`, `cap`
   and `floor-limited` plateaus, the effective cap lowered to 5.
 - **Server epoch change:** an upload response with a new epoch, and the WebSocket-close sequence

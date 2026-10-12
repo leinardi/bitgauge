@@ -97,7 +97,7 @@ bucket up to the current one; on upload, only cells before the current window en
 
 **Warm-up.** The start of a direction during which streams ramp and TCP leaves slow start. Buckets
 in warm-up are excluded from the result. Warm-up ends by the guarded rule in §8, or at the warm-up
-cap.
+cap, which waits for a running ramp up to half the phase max.
 
 **Steady-state window.** The part of a direction from warm-up end to the phase end (download) or to
 `W_end_final` (upload). The headline throughput is computed over it. Also called the *steady

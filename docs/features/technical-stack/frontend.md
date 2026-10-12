@@ -120,10 +120,12 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
 - **Gauge.** Hand-rolled SVG: a logarithmic arc whose window of four decades follows the value
   as [../measurement.md §14](../measurement.md#14-units-and-gauge) specifies, ticks per decade,
   a recent-range band, the peak tick and, at completion, an inner arc for upload. The needle and
-  window shifts animate with CSS transforms, disabled under `prefers-reduced-motion`. The UI only
-  draws: every value, including the live average and peak, comes from the engine's `sample`
-  messages. The numeric readout is not a live region; announcements go through the separate
-  region of [../ui/i18n-a11y.md §2.1](../ui/i18n-a11y.md#21-live-region-for-the-gauge).
+  window shifts animate with CSS transforms, disabled under `prefers-reduced-motion`. Every value,
+  including the live average and peak, comes from the engine's `sample` messages; the one thing
+  the gauge decides is its own window, which it derives from those values with the §14 rule (a
+  pure function in the component's code, not in the engine). The numeric readout is not a live
+  region; announcements go through the separate region of
+  [../ui/i18n-a11y.md §2.1](../ui/i18n-a11y.md#21-live-region-for-the-gauge).
 - **Share image.** Rendered client-side on a `<canvas>` with the embedded fonts, exported with
   `toBlob()` as PNG (the format is an open question tracked in
   [../open-questions.md](../open-questions.md)), downloaded through a `blob:` URL. Content rules are

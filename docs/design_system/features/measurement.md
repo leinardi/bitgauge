@@ -539,8 +539,15 @@ evaluation series gains a bucket:
 has no max), warm-up ends there and the result carries `confidence: low` with one reason per
 unmet condition, in the `reasons` array of the result (§17): condition 1 gives `ramp-unsettled`,
 condition 2 or 4 gives `insufficient-samples`, condition 3 gives `unstable`.
-Continuous therefore always has a steady window starting at most 10 s of confirmed series after the
-phase began.
+
+**A running ramp moves the bounded cap.** A full ramp needs at least `I_s + 2 × I_m` for the
+baseline plus `I_s + I_m` per trial, ≈ 6.5 s at the 1 s and 500 ms floors, more than Standard's
+5 s download cap. So in a bounded phase, if the ramp has not settled when the cap is reached, the
+cap moves to the instant it settles, but no later than `50 % of the phase max` of confirmed series
+(Standard: 10 s download, 12.5 s upload); the conditions are then evaluated there as above, and a
+ramp still running at that bound gives `ramp-unsettled`. The other half of the max is left for the
+steady window and its extension (§8.4). Continuous keeps its absolute 10 s cap with no move, so it
+always has a steady window starting at most 10 s of confirmed series after the phase began.
 
 **Advanced setting.** The warm-up setting is `auto` (the rule above, default) or a fixed duration.
 With a fixed duration, warm-up ends exactly then; the ramp still runs, and an unsettled ramp at that
@@ -879,7 +886,10 @@ bound with respect to loss, and the UI notes this next to them.
     either mode; in bytes mode a link above 100 MB/s shifts up once.
   - Values outside the outermost windows (below 10 kbit/s or 1 kB/s, above 10 Gbit/s or
     10 GB/s) pin the needle at the edge.
-  - The window is presentation only: it never feeds a number, and the caption names it.
+  - The window is presentation only: it never feeds a number, and the caption names it. The
+    **UI's gauge component** picks and shifts the window from the gauge values the engine sends;
+    the engine never chooses, sends or knows the window. The rule is a pure function of the value
+    stream and the clock, unit-tested with synthetic sequences like the engine.
 - **Gauge marks.** A band shows the minimum and maximum of the last 10 gauge values (1 s). On
   download, a peak tick shows the steady-window p90 so far and is hidden during warm-up; on upload
   there is no tick while the phase runs, because the gauge shows sending progress, not a
@@ -1165,8 +1175,9 @@ validated by the harness floor profiles
 - **Download.** One stream reaches ≈ 1.6 Gbit/s (≈ 200 MB/s), below the ≈ 2.1 Gbit/s at which the
   256 MiB cap binds. Sizes grow 64 KiB → 512 KiB → 4 MiB → 32 MiB within ≈ 0.2 s (the early requests
   are latency-bound) and then settle at ≈ 190 MiB, about 1 s per request. Trials to 2, 4 and 6
-  streams gain until the cap: plateau `cap` at ≈ 6.5 s with ≈ 50 MiB requests per stream. Warm-up
-  end ≈ 6.5 s, window condition ≈ 9.5 s, phase end at 10 s.
+  streams gain until the cap: plateau `cap` at ≈ 6.5 s with ≈ 50 MiB requests per stream. The 5 s
+  warm-up cap waits for the running ramp (§8.3), so warm-up end ≈ 6.5 s, window condition ≈ 9.5 s,
+  phase end at 10 s.
 - **CPU.** The Worker's busy fraction is recorded; above 90 % the direction is `cpu-bound` and the
   harness tolerance is ±20 %.
 - **Data used** ≈ 3 GB down + 3.7 GB up: the data-used figure is prominent in the result, and a data

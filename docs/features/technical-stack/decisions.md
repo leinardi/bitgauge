@@ -141,7 +141,8 @@ drops to 5 while the HTTP/1.1 probe reservation is active
 ### 16. Warm-up — Hybrid with guards
 
 Ends on ramp settled, meaningful observations, stability and a minimum elapsed time, with a cap
-that yields `confidence: low` ([measurement.md §8.3](../measurement.md#83-warm-up-end)).
+that yields `confidence: low`; the cap waits for a running ramp up to half the phase max
+([measurement.md §8.3](../measurement.md#83-warm-up-end)).
 
 **Not chosen:** a fixed warm-up time (wrong at one end of the range); stability alone (false
 positives during startup).
