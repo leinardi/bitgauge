@@ -73,12 +73,12 @@ make go-test           # go test -race ./...
 make go-vet            # go vet (make go-vet-image / go-vet-harness for the tagged packages)
 make go-lint           # golangci-lint v2, all linters, at the pre-commit pin
 make go-tidy           # go.mod and go.sum tidy and verified
-make verify-go         # go-build (once cmd/bitgauge exists), go-test, go-vet (also image, harness), go-lint
+make verify-go         # go-build, go-test, go-vet (also image, harness), go-lint
 make verify-web        # web-lint and web-test (dormant)
 make verify            # both of the above
 make audit-deps        # pinned govulncheck -test ./... and npm audit in web/ (network)
-make go-build          # ./dist/bitgauge for the host platform (dormant: cmd/bitgauge/main.go)
-make go-run            # run the binary (ARGS="...") (dormant)
+make go-build          # ./dist/bitgauge for the host platform (no SPA embedded yet)
+make go-run            # run the binary (ARGS="...")
 make build             # web-build, then go-build: the binary with the SPA embedded (dormant)
 make web-install       # npm ci in web/
 make web-build         # npm ci, then vite build into web/dist (dormant)
@@ -226,8 +226,8 @@ everything the table requires.
 `web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
 tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`. Today
-every gate above is dormant, as are `idle-measure` and `idle-bench` until a binary runs; the
-[STATUS row](docs/STATUS.md) says the same.
+the binary build gate is active and every other gate above is dormant; `idle-measure` and
+`idle-bench` run against a running binary. The [STATUS row](docs/STATUS.md) says the same.
 
 ## Project skills
 

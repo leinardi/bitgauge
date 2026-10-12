@@ -16,8 +16,8 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | Limits and rate limiting (`429` with `Retry-After`) | Implemented (v0.1) | `internal/ratelimit/`: `limiter.go` (table, token bucket, LRU of idle entries), `middleware.go` (429 with `Retry-After`), `clock.go`; wired by `internal/server/router.go` on download and upload, and by `internal/handlers/ws.go` per WebSocket |
 | Client IP through trusted proxies, context label inputs | Implemented (v0.1) | `internal/clientip/`: `clientip.go` (derivation), `context.go` (middleware), `class.go` (address class, suggested label) |
 | Security headers and CSP | Implemented (v0.1) | `internal/server/`: `headers.go` (SPA and API header sets, CSP with the validated `Host`), `middleware.go` (recovery, client IP, headers, debug request log), `cors.go` (native CORS), `router.go` (groups, route table) |
-| Configuration (koanf, `BITGAUGE_` env, fail-closed validation) | Implemented (v0.1) | `internal/config/`: `load.go`, `types.go`, `validate.go`, `preset.go`, `warn.go`, `exit.go` |
-| `healthcheck` subcommand and graceful shutdown | Spec'd (v0.1) |  |
+| Configuration (koanf, `BITGAUGE_` env, fail-closed validation) | Implemented (v0.1) | `internal/config/`: `load.go`, `types.go`, `validate.go`, `preset.go`, `warn.go`, `exit.go`, `effective.go` |
+| `healthcheck` subcommand and graceful shutdown | Implemented (v0.1) | `cmd/bitgauge/`: `main.go` (subcommands, startup order), `address.go` (healthcheck address), `healthcheck.go` (the one ping request); `internal/server/shutdown.go` |
 | Engine: info and idle latency | Spec'd (v0.1) |  |
 | Engine: adaptive request size, stream ramp, adaptive duration, data cap | Spec'd (v0.1) |  |
 | Engine: warm-up, steady window, Quick / Standard / Extended presets | Spec'd (v0.1) |  |
@@ -36,7 +36,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | HTTP loaded responsiveness (path B) | Spec'd (v0.3) |  |
 | Quality scores (AIM) | Spec'd (v0.3) |  |
 | Continuous mode | Spec'd (v0.3) |  |
-| Engineering scaffold (gates, CI, release tooling) | Tooling in place; product gates dormant (see AGENTS) | `test/toolchain/gates.go`; dormant: API types, frontend lint and typecheck, frontend unit tests, web build, binary build, image and image tests, E2E, accuracy harness, release; also `idle-measure` and `idle-bench` until a binary runs ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)) |
+| Engineering scaffold (gates, CI, release tooling) | Tooling in place; the binary build gate is active, the other product gates dormant (see AGENTS) | `test/toolchain/gates.go`; active: binary build; dormant: API types, frontend lint and typecheck, frontend unit tests, web build, image and image tests, E2E, accuracy harness, release ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)) |
 | Design export (Claude Design) | Export landed with tokens, components and the `ui_kits/app/` prototype; corrections pending in Claude Design; symlinks active | `docs/design_system/` ([sync rules](README.md#design-export)) |
 | Packet loss via WebRTC and TURN | Open (unscheduled) |  |
 | Headless CLI client | Open (unscheduled) |  |
