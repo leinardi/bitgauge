@@ -60,7 +60,9 @@ set -euo pipefail
 
 BASELINE_FILE="${SUPPRESSIONS_BASELINE:-.suppressions-baseline}"
 
-# Paths whose suppressions are generated or vendored rather than written here.
+# Paths whose suppressions are generated or vendored rather than written here: an entry ending in
+# "/" excludes the tree under it, any other entry that one file only, so a hand-written neighbour
+# such as types.gen.tsx is still counted.
 EXCLUDED_PREFIXES=(
 	"web/src/api/types.gen.ts"
 	"web/src/components/ui/"
@@ -284,12 +286,13 @@ Usage: scripts/check-suppressions.sh [--update]
 EOF
 }
 
-# is_excluded reports whether a path lives in a generated or vendored tree.
+# is_excluded reports whether a path is a generated or vendored file, or lives in such a tree.
 is_excluded() {
-	local path="$1" prefix
-	for prefix in "${EXCLUDED_PREFIXES[@]}"; do
-		case "$path" in
-		"$prefix"*) return 0 ;;
+	local path="$1" entry
+	for entry in "${EXCLUDED_PREFIXES[@]}"; do
+		case "$entry" in
+		*/) [[ "$path" == "$entry"* ]] && return 0 ;;
+		*) [[ "$path" == "$entry" ]] && return 0 ;;
 		esac
 	done
 	return 1

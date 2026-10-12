@@ -477,12 +477,13 @@ func TestCheckSuppressionsSkipsGeneratedTrees(t *testing.T) {
 
 // TestCheckSuppressionsCountsNeighborsOfGeneratedTrees is the negative control for the test
 // above: a file next to an excluded tree, but outside it, is counted like any other, so an
-// exclusion prefix that grew too broad would fail here.
+// exclusion that grew too broad would fail here, including a file entry matched as a prefix.
 func TestCheckSuppressionsCountsNeighborsOfGeneratedTrees(t *testing.T) {
 	t.Parallel()
 
 	for _, name := range []string{
 		"web/src/api/client.ts",
+		"web/src/api/types.gen.tsx",
 		"web/src/components/App.vue",
 		"docs/design.js",
 	} {
