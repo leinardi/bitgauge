@@ -161,7 +161,9 @@ by the floor rule (§8).
 several browsers behind one address, the request counts as failed and the engine records a notice.
 On download, and on upload over HTTP/2 or HTTP/3 (where the failed upload leaves a failure gap,
 §7.5), the engine lowers the effective cap by one for the rest of the phase and continues. On upload
-over HTTP/1.1 or an unreported protocol, the failure ends the phase instead (§7.5).
+over HTTP/1.1 or an unreported protocol, the failure ends the phase instead (§7.5). When the
+lowered cap is below the current stream count, the count drops to the cap; a ramp trial in progress
+ends there with the plateau reason `cap`.
 
 ## 5. Adaptive Duration
 
@@ -527,6 +529,17 @@ latency was skipped). The throughput of an interval is the mean of its confirmed
 
 Fixed-N and single modes skip the ramp: the N streams start together and the ramp counts as settled
 after `I_s`.
+
+**Positions on the series.** The ramp counts its intervals in whole buckets of the evaluation
+series, each interval rounded up to a whole number of buckets. The baseline's `I_s` starts at the
+first bucket holding bytes: the first chunk's on download, the cell of `P_start` on upload. A
+trial's `I_s` starts where the added streams took effect: on download at
+the bucket of the add, on upload at the cell of the latest first byte (`startMs`) among the added
+streams' first requests, known once they confirm; until then the trial waits. An interval whose
+buckets are all unknown (inside a failure gap) measures nothing and is measured again over the next
+`I_m`. The baseline always measures its first two intervals; a further one runs only if it ends no
+later than 3 s after `I_s`. The ramp settles at the end of the interval that decided its plateau,
+and that bucket is the settle instant the warm-up cap moves to (§8.3).
 
 ### 8.3 Warm-Up End
 
@@ -1123,44 +1136,52 @@ All times are approximate and measured from the start of the phase on the client
 
 ### 19.1 Slow-Link Budget (300 kbit/s, 300 ms RTT, Standard)
 
-300 kbit/s ≈ 36.6 KiB/s aggregate and 300 ms RTT, so `I_s` = 1.2 s, `I_m` = 0.6 s, request target
-1 s, size floor 16 KiB. Request size per stream = clamp(per-stream rate × 1 s, 16 KiB, cap).
+300 kbit/s ≈ 36.6 KiB/s aggregate and 300 ms RTT, so `I_s` = 1.2 s (12 buckets), `I_m` = 0.6 s
+(6 buckets), request target 1 s, size floor 16 KiB. Request size per stream = clamp(per-stream
+rate × 1 s, 16 KiB, cap); the first request on every stream is 64 KiB (§3).
 
-**Upload**, recomputed per ramp step (confirmation delay ≈ one request duration + RTT; the
-watermark advances only when a request confirms):
+The link is modelled as shared equally among the requests whose bytes are crossing it, with half
+the RTT each way. A stream idles for one RTT between its requests (the response travels back, the
+next request travels out), so one stream with ≈ 1 s requests keeps the link busy for only
+≈ 1 / 1.3 ≈ 77 % of the time, and a second stream fills those gaps. The engine tests drive the ramp
+on this model and reproduce the decision times below.
 
-| Step | Streams | Per-stream rate | Request size / duration | Confirmed series needed | Elapsed (client) |
-| --- | --- | --- | --- | --- | --- |
-| first request | 1 | 36.6 KiB/s | 64 KiB / 1.75 s | — | confirms at ≈ 2.05 s |
-| baseline | 1 | 36.6 KiB/s | 36 KiB / ≈ 1.0 s | `I_s` + 2 × `I_m` = 2.4 s (3 s cap if still growing) | ≈ 4.7–5.9 s |
-| trial → 2 | 2 | 18.3 KiB/s | 18 KiB / ≈ 1.0 s | `I_s` + `I_m` = 1.8 s after the add | ≈ 9.3 s (two request confirmations + RTT) |
-| trial → 4 | 4 | 9.2 KiB/s | 16 KiB (floor) / 1.75 s | 1.8 s after the add | ≈ 13.8 s, only if the 2-stream trial showed gain |
-| trial → 6 | — | 6.1 KiB/s → 16 KiB would take 2.6 s > 2 s | skipped: `floor-limited` | — | — |
-| steady window | 2 (typical, `no-gain` at the 2-stream trial because one stream already saturates 300 kbit/s) |  | ≈ 1 s requests | ≥ 3 s and ≥ 3 confirmed requests | ≈ 9.3 + 3 + 1.3 ≈ 13.6 s |
-| steady window, worst case | 4 |  | 1.75 s requests | ≥ 3 s and ≥ 3 confirmed requests (≈ 2 cells of 2 streams each) | ≈ 13.8 + 3.5 + 2.1 ≈ 19.4 s |
-| shutdown |  |  | stop new requests at the 15 s minimum, at the window decision after it, or at `max − 1 s`; grace `min(2 s, 2 × 1.75 s)` = 2 s |  | ≈ 16–17 s typical, ≈ 21.4 s worst case; ≤ 25 s |
+**Upload.** The watermark advances only when a request confirms, so every decision waits for the
+requests covering its interval; server times are on the grid, from the phase start.
 
-Both cases fit Standard's upload budget (15–25 s) with at least 5 s of margin in the worst case; the
-typical case meets the window condition at ≈ 13.6 s, inside the 15 s minimum, so it ends at the
-minimum, and only the worst case is extended. Six initial 64 KiB requests would have cost
-≈ 10.5 s of link time, which is why the ramp starts at one stream and sizes requests per stream.
+| Step | Streams | Requests | Confirmed series needed | Elapsed (client) |
+| --- | --- | --- | --- | --- |
+| first request | 1 | 64 KiB / 1.75 s (server 0.15–1.9 s) | — | confirms at ≈ 2.05 s |
+| baseline | 1 | 36.6 KiB / 1.0 s (server 2.2–3.2 s) | `I_s` + 2 × `I_m` = 2.4 s from the cell of `P_start` (0.1 s), to 2.5 s; the second interval (1.9–2.5 s) holds the RTT gap between the two requests, so it shows no growth | decided at ≈ 3.35 s, when request 2 confirms |
+| trial → 2 | 2 | stream 2: 64 KiB at 18.3 KiB/s, 3.2 s (server 3.5–6.7 s) | `I_s` + `I_m` = 1.8 s from the cell of stream 2's first byte (3.4 s), to 5.2 s; the two streams fill each other's gaps: kept | ≈ 6.85 s, when stream 2's first request confirms (until then it holds the watermark at 3.2 s) |
+| trial → 4 | 4 | streams 3 and 4: 64 KiB at 9.2 KiB/s, 6.3 s (server 7.0–13.3 s); streams 1 and 2 at the 16 KiB floor, 1.75 s | 1.8 s from the cell of their first bytes (6.9 s), to 8.7 s; no further gain: plateau `no-gain` | ≈ 13.5 s, when streams 3 and 4 confirm |
+| trial → 6 | — | 6.1 KiB/s per stream: 16 KiB would take 2.6 s > 2 s | skipped as `floor-limited`, had the 4-stream trial gained | — |
+| warm-up end | 4 |  | cap `max(3 s, 25 % × 25 s)` = 6.25 s, moved to the ramp's settle at 8.7 s (inside the 12.5 s bound); streams 3 and 4 have one confirmed request each, so `confidence: low` (`insufficient-samples`) | known at ≈ 13.5 s |
+| steady window | 4 | 16 KiB / 1.75 s | ≥ 3 s and ≥ 3 confirmed requests wholly inside, from 8.7 s | holds at ≈ 15.4 s (window to 13.3 s: 4.6 s, 4 requests), just past the 15 s minimum: `slow-link-extended` |
+| shutdown |  | new requests stop at the window decision; grace `min(2 s, 2 × 1.75 s)` = 2 s |  | ends by ≈ 17.4 s; ≤ 25 s |
+
+The upload fits Standard's budget (15–25 s) with ≈ 7.6 s of margin. It is extended by ≈ 0.4 s and
+carries `confidence: low` (`insufficient-samples`): the two streams added last spend ≈ 6.3 s on
+their first 64 KiB requests at a quarter of the link, so warm-up ends at the moved cap before they
+have confirmed two requests each. Six initial 64 KiB requests would have cost ≈ 10.5 s of link
+time, which is why the ramp starts at one stream and sizes requests per stream.
 
 **Download equivalent.** No confirmation delay: the evaluation series is live from the first chunk
 (≈ 0.3 s, one RTT).
 
-| Step | Streams | Per-stream rate | Request size / duration | Series needed | Elapsed (client) |
-| --- | --- | --- | --- | --- | --- |
-| first request | 1 | 36.6 KiB/s | 64 KiB / 1.75 s + RTT | — | first chunk ≈ 0.3 s, done ≈ 2.05 s |
-| baseline | 1 | 36.6 KiB/s | 36 KiB / ≈ 1.0 s | `I_s` + 2 × `I_m` = 2.4 s after the first chunk (3 s cap if still growing) | ≈ 2.7–4.5 s |
-| trial → 2 | 2 | 18.3 KiB/s | 18 KiB / ≈ 1.0 s | 1.8 s after the add | ≈ 4.5 s |
-| trial → 4 | 4 | 9.2 KiB/s | 16 KiB (floor) / 1.75 s | 1.8 s after the add | ≈ 6.3 s, only if the 2-stream trial showed gain |
-| trial → 6 | — | 6.1 KiB/s | skipped: `floor-limited` | — | — |
-| steady window | 2 (typical, `no-gain`) |  | ≈ 1 s requests | ≥ 3 s, ≥ 2 contributing requests | warm-up end ≈ 4.5 s, condition met ≈ 7.5 s |
-| steady window, worst case | 4 |  | 1.75 s requests | ≥ 3 s, ≥ 2 contributing requests | warm-up end ≈ 6.3 s, condition met ≈ 9.3 s |
-| end |  |  | in-flight requests aborted, bytes kept |  | at the 10 s minimum in both cases |
+| Step | Streams | Requests | Series needed | Elapsed (client) |
+| --- | --- | --- | --- | --- |
+| first request | 1 | 64 KiB / 1.75 s + RTT | — | first chunk ≈ 0.3 s, done ≈ 2.05 s |
+| baseline | 1 | 36.6 KiB / 1.0 s (chunks 2.35–3.35 s) | `I_s` + 2 × `I_m` = 2.4 s after the first chunk; the second interval (2.1–2.7 s) holds the RTT gap (2.05–2.35 s), so it shows no growth | ≈ 2.7 s |
+| trial → 2 | 2 | stream 2: 64 KiB | 1.8 s after the add; the two streams fill each other's gaps: kept | ≈ 4.5 s |
+| trial → 4 | 4 | streams 3 and 4: 64 KiB; the others shrink toward the 16 KiB floor | 1.8 s after the add; no further gain: plateau `no-gain` | ≈ 6.3 s |
+| trial → 6 | — | 6.1 KiB/s per stream | skipped as `floor-limited`, had the 4-stream trial gained | — |
+| warm-up end | 4 |  | the ramp settled with `I_s` since the last add (4.5 + 1.2 = 5.7 s); the 5 s cap (`max(3 s, 25 % × 20 s)`) moved to the settle; four streams keep the link busy, so the last 10 buckets are steady | ≈ 6.3 s |
+| steady window | 4 |  | ≥ 3 s, ≥ 2 contributing requests | condition met ≈ 9.3 s |
+| end |  | in-flight requests aborted, bytes kept |  | at the 10 s minimum |
 
-Download fits Standard's 10 s minimum with the steady window at ≈ 3.7–5.5 s. The 600 ms RTT manual
-floor profile stretches every interval (`I_s` = 2.4 s, `I_m` = 1.2 s) and is expected to need the
+Download fits Standard's 10 s minimum with a ≈ 3.7 s steady window. The 600 ms RTT manual floor
+profile stretches every interval (`I_s` = 2.4 s, `I_m` = 1.2 s) and is expected to need the
 Extended preset; the shortfall rule (§8.6) covers the Standard case there. These budgets are
 validated by the harness floor profiles
 ([technical-stack/testing.md](technical-stack/testing.md)).
@@ -1170,16 +1191,21 @@ validated by the harness floor profiles
 - **Info and idle latency.** 20 sequential WebSocket pings at about 0.3–0.4 s each, ≈ 7 s. Median
   ≈ 300 ms, so `I_s` = 1.2 s and `I_m` = 0.6 s.
 - **Download.** One stream requests 64 KiB; the first chunk arrives at ≈ 0.3 s and the request
-  completes at ≈ 1.35 s; `rate_s` ≈ 61 KiB/s, so the next request is 61 KiB. Baseline ends at
-  ≈ 2.7 s. The trial to 2 streams (30 KiB requests each) is measured at ≈ 4.5 s and shows no gain:
-  plateau `no-gain`. Warm-up ends at ≈ 4.5 s, the window condition holds at ≈ 7.5 s, and the phase
-  ends at its 10 s minimum with a ≈ 5.5 s window. Headline ≈ 0.47 Mbit/s of goodput on a link
-  shaped to 500 kbit/s at the IP layer. Data used ≈ 0.6 MB.
+  completes at ≈ 1.35 s; `rate_s` ≈ 61 KiB/s, so the next request is 61 KiB. The baseline's first
+  interval (1.5–2.1 s) holds the RTT gap after the first request, so the second shows growth and a
+  third is measured; the baseline ends at ≈ 3.3 s. The trial to 2 streams fills the gaps and is
+  kept at ≈ 5.1 s; the trial to 4 shows no further gain at ≈ 6.9 s: plateau `no-gain`. Warm-up
+  ends at ≈ 6.9 s, the window condition holds at ≈ 9.9 s, and the phase ends at its 10 s minimum
+  with a ≈ 3.1 s window. Headline ≈ 0.47 Mbit/s of goodput on a link shaped to 500 kbit/s at the
+  IP layer. Data used ≈ 0.6 MB.
 - **Loaded latency.** Path A pings every 300 ms; with a 64 KiB shaper queue the RTT rises from 300
   to ≈ 1300 ms, an increase of ≈ 1000 ms: grade F.
-- **Upload.** As in §19.1 but faster: the first request confirms at ≈ 1.35 s, the trial to 2
-  streams is decided at ≈ 7 s, and the window condition holds at ≈ 12–13 s, inside the 15 s
-  minimum. New requests stop at 15 s, and the grace takes the phase to ≈ 16 s.
+- **Upload.** As in §19.1 but faster: the first request confirms at ≈ 1.35 s, the baseline ends at
+  ≈ 3.95 s, the trial to 2 streams is kept at ≈ 6.3 s and the trial to 4 shows no gain at
+  ≈ 10.3 s. Warm-up ends at the moved cap (8.2 s on the server) with `confidence: low`
+  (`insufficient-samples`), because streams 3 and 4 are still on their first requests, and the
+  window condition holds at ≈ 12.3 s, inside the 15 s minimum. New requests stop at 15 s, and the
+  grace takes the phase to ≈ 16 s.
 
 ### 19.3 100 Mbit/s + 50 ms RTT (Standard)
 

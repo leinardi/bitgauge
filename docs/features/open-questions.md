@@ -90,6 +90,27 @@ carries a recommendation; where the specification already relies on an answer, i
     says "lie inside", and the §19.1 worst case sizes its window for whole requests.
     Recommendation: keep it. See
     [measurement.md §7.6](measurement.md#76-headline-peak-and-minimum-window).
+16. Where do the ramp's intervals sit on the evaluation series? Current answer: **in whole
+    buckets, rounded up**; the baseline starts at the first bucket holding bytes, a trial at the
+    add on download and at the latest first byte of the added streams' first requests on upload
+    (the only server instant known to follow the add); an interval with no known bucket is
+    measured again; the baseline measures two intervals and further ones only while they end by
+    3 s after `I_s`; a `429` that lowers the cap below the stream count drops the count to the cap
+    and ends a running trial as `cap`; the ramp settles at the end of the interval that decided
+    its plateau, which is where the warm-up cap moves to. Recommendation: keep it. See
+    [measurement.md §8.2](measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare) and
+    [§4](measurement.md#4-adaptive-stream-count).
+17. Do the slow-link budgets of measurement.md §19.1 and §19.2 hold? Current answer: **they are
+    recomputed from the rules on a link shared equally among the requests crossing it, with half
+    the RTT each way**. A sequential stream idles one RTT between requests, so a second stream
+    gains and the ramp settles at 4 streams with `no-gain`; on upload the added streams' first
+    64 KiB requests hold the watermark back. At 300 kbit/s and 300 ms the upload trial to 2 is
+    decided at ≈ 6.85 s (it was ≈ 9.3 s), the trial to 4 at ≈ 13.5 s, the window condition holds
+    at ≈ 15.4 s, and the upload ends by ≈ 17.4 s with `confidence: low`
+    (`insufficient-samples`); the download settles at ≈ 6.3 s with a ≈ 3.7 s window.
+    Recommendation: confirm on the harness floor profiles; if they show low confidence there,
+    consider sizing an added stream's first request from `T_base / N` rather than 64 KiB. See
+    [measurement.md §19.1](measurement.md#191-slow-link-budget-300-kbits-300-ms-rtt-standard).
 
 Resolved and removed:
 
