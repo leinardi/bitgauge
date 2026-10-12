@@ -33,10 +33,24 @@ type Clock interface {
 	Now() time.Time
 }
 
-// RealClock is the production Clock.
+// Timers is a Clock that also schedules work on its timeline: the WebSocket idle close in the
+// handlers. Tests inject a fake one whose timers fire when the test advances it.
+type Timers interface {
+	Clock
+	// AfterFunc calls fire in its own goroutine once d has elapsed, unless stop is called
+	// first; stop reports whether it prevented the call.
+	AfterFunc(d time.Duration, fire func()) (stop func() bool)
+}
+
+// RealClock is the production Clock and Timers.
 type RealClock struct{}
 
 // Now returns time.Now().
 func (RealClock) Now() time.Time {
 	return time.Now()
+}
+
+// AfterFunc is time.AfterFunc.
+func (RealClock) AfterFunc(d time.Duration, fire func()) func() bool {
+	return time.AfterFunc(d, fire).Stop
 }

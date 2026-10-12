@@ -3,6 +3,7 @@ module github.com/leinardi/bitgauge
 go 1.26.0
 
 require (
+	github.com/coder/websocket v1.8.15
 	github.com/go-chi/chi/v5 v5.3.2
 	github.com/go-viper/mapstructure/v2 v2.4.0
 	github.com/knadh/koanf/parsers/yaml v1.1.1

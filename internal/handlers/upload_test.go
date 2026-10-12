@@ -31,7 +31,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -45,26 +44,6 @@ const (
 	exampleEntry = 6700 * time.Millisecond
 	testMaxBody  = 1 << 20
 )
-
-// fakeClock is the injected clock of the upload tests; the scripted body moves it.
-type fakeClock struct {
-	now time.Time
-	mu  sync.Mutex
-}
-
-func (c *fakeClock) Now() time.Time {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	return c.now
-}
-
-func (c *fakeClock) Set(now time.Time) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	c.now = now
-}
 
 // arrival is one scripted read: it begins at began and returns size bytes at at, both measured
 // from the handler's entry. A zero began means the read returns at the instant it begins.

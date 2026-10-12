@@ -34,13 +34,14 @@ const Prefix = "/api/v1"
 
 // Deps are what the native handlers are built from, created once at startup (backend.md
 // section 5): the validated configuration, the build information, the shared random buffer,
-// the epoch and the server grid shifted by the epoch's offset.
+// the epoch, the server grid shifted by the epoch's offset, and the WebSocket echo.
 type Deps struct {
-	Config *config.Config
-	Buffer *Buffer
-	Grid   *Grid
-	Build  buildinfo.Build
-	Epoch  Epoch
+	Config     *config.Config
+	Buffer     *Buffer
+	Grid       *Grid
+	WebSockets *WebSockets
+	Build      buildinfo.Build
+	Epoch      Epoch
 }
 
 // routeTable registers routes and remembers each path's methods, so the 405 answer can name
@@ -76,6 +77,7 @@ func Routes(deps *Deps) *chi.Mux {
 	)
 	table.handle("/ping", Ping, http.MethodGet, http.MethodHead)
 	table.handle("/small", Small, http.MethodGet)
+	table.handle("/ws", deps.WebSockets.ServeHTTP, http.MethodGet)
 	table.handle("/info", Info(deps.Config, deps.Build, deps.Epoch), http.MethodGet)
 
 	table.router.NotFound(func(writer http.ResponseWriter, _ *http.Request) {

@@ -24,9 +24,91 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 	"time"
 )
+
+// fakeClock is the injected clock and timer source of the handler tests: the test sets or
+// advances it, and timers that come due fire then, each in its own goroutine as with
+// time.AfterFunc. Nothing in these tests waits out a window.
+type fakeClock struct {
+	now    time.Time
+	timers []*fakeTimer
+	mu     sync.Mutex
+}
+
+type fakeTimer struct {
+	at   time.Time
+	fire func()
+	done bool
+}
+
+func (c *fakeClock) Now() time.Time {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	return c.now
+}
+
+func (c *fakeClock) Set(now time.Time) {
+	c.mu.Lock()
+
+	c.now = now
+
+	var due []func()
+
+	for _, timer := range c.timers {
+		if !timer.done && !timer.at.After(now) {
+			timer.done = true
+			due = append(due, timer.fire)
+		}
+	}
+
+	c.mu.Unlock()
+
+	for _, fire := range due {
+		go fire()
+	}
+}
+
+func (c *fakeClock) Advance(elapsed time.Duration) {
+	c.Set(c.Now().Add(elapsed))
+}
+
+func (c *fakeClock) AfterFunc(d time.Duration, fire func()) func() bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	timer := &fakeTimer{at: c.now.Add(d), fire: fire}
+	c.timers = append(c.timers, timer)
+
+	return func() bool {
+		c.mu.Lock()
+		defer c.mu.Unlock()
+
+		stopped := !timer.done
+		timer.done = true
+
+		return stopped
+	}
+}
+
+// pending is the number of timers that have neither fired nor been stopped.
+func (c *fakeClock) pending() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	count := 0
+
+	for _, timer := range c.timers {
+		if !timer.done {
+			count++
+		}
+	}
+
+	return count
+}
 
 // recordingWriter is an http.ResponseWriter that supports write deadlines, as the server's
 // does, and records every write and whether a fresh deadline preceded it.

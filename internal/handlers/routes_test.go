@@ -21,6 +21,7 @@ package handlers
 
 import (
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -38,12 +39,21 @@ func testDeps() *Deps {
 
 	epoch := Epoch{ID: "k3V9qW2rT0aY", GridOffset: 1234}
 
+	limiter := ratelimit.New(ratelimit.Options{
+		MaxStreams:        cfg.Limits.MaxStreamsPerClient,
+		RequestsPerMinute: cfg.Limits.RequestsPerMinute,
+		TrackedClients:    cfg.Limits.TrackedClients,
+		MaxFlows:          cfg.Compat.NetworkQuality.MaxFlowsPerClient,
+	}, ratelimit.RealClock{})
+
 	return &Deps{
 		Config: &cfg,
 		Buffer: NewBuffer(),
 		Grid:   NewGrid(ratelimit.RealClock{}, epoch.GridOffset),
-		Build:  buildinfo.Build{Version: "0.1.0", Commit: "a1b2c3d", Date: "2026-09-30T12:00:00Z"},
-		Epoch:  epoch,
+		WebSockets: NewWebSockets(limiter, ratelimit.RealClock{}, nil, WebSocketIdle,
+			slog.New(slog.DiscardHandler)),
+		Build: buildinfo.Build{Version: "0.1.0", Commit: "a1b2c3d", Date: "2026-09-30T12:00:00Z"},
+		Epoch: epoch,
 	}
 }
 
@@ -128,6 +138,7 @@ func TestRoutesWrongMethodIs405WithAllow(t *testing.T) {
 		{handler, http.MethodPost, "/speed/api/v1/small", "GET"},
 		{handler, http.MethodPost, "/speed/api/v1/download", "GET"},
 		{handler, http.MethodGet, "/speed/api/v1/upload", "POST"},
+		{handler, http.MethodPost, "/speed/api/v1/ws", "GET"},
 		{handler, http.MethodHead, "/speed/api/v1/info", "GET"},
 		// Not mounted: the route path is the request path.
 		{Routes(testDeps()), http.MethodPut, "/small", "GET"},

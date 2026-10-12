@@ -29,6 +29,7 @@ import (
 	"net/netip"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/leinardi/bitgauge/internal/clientip"
 )
@@ -281,5 +282,27 @@ func TestRealClockMovesForward(t *testing.T) {
 	first := clock.Now()
 	if clock.Now().Before(first) {
 		t.Fatal("RealClock went backwards")
+	}
+}
+
+func TestRealClockAfterFunc(t *testing.T) {
+	t.Parallel()
+
+	var clock Timers = RealClock{}
+
+	fired := make(chan struct{})
+
+	clock.AfterFunc(time.Nanosecond, func() { close(fired) })
+
+	stop := clock.AfterFunc(time.Hour, func() { t.Error("a stopped timer fired") })
+	if !stop() {
+		t.Fatal("stop did not prevent the call")
+	}
+
+	select {
+	case <-fired:
+	case <-time.After(30 * time.Second):
+		// A failsafe against a hang, far above the 1 ns under test; not a wait for state.
+		t.Fatal("the timer did not fire")
 	}
 }
