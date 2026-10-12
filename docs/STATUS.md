@@ -14,7 +14,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | Native API: download, upload, ping, small, ws, info | Spec'd (v0.1) |  |
 | Server-timed upload: 100 ms server grid, per-bucket arrival counts, `Server-Timing` | Spec'd (v0.1) |  |
 | Limits and rate limiting (`429` with `Retry-After`) | Spec'd (v0.1) |  |
-| Client IP through trusted proxies, context label inputs | Spec'd (v0.1) |  |
+| Client IP through trusted proxies, context label inputs | Implemented (v0.1) | `internal/clientip/`: `clientip.go` (derivation), `context.go` (middleware), `class.go` (address class, suggested label) |
 | Security headers and CSP | Spec'd (v0.1) |  |
 | Configuration (koanf, `BITGAUGE_` env, fail-closed validation) | Implemented (v0.1) | `internal/config/`: `load.go`, `types.go`, `validate.go`, `warn.go`, `exit.go` |
 | `healthcheck` subcommand and graceful shutdown | Spec'd (v0.1) |  |
