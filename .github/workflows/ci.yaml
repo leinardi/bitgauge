@@ -34,6 +34,7 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: .go-version
+          check-latest: true
           cache: false
 
       - name: Set up Node
@@ -118,6 +119,7 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: .go-version
+          check-latest: true
           cache: false
 
       - name: Set up hadolint
@@ -237,6 +239,7 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: .go-version
+          check-latest: true
           cache: false
 
       - name: Set up Node
@@ -291,10 +294,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # check-latest: .go-version names only the 1.26 line, and without it setup-go takes whatever
+      # 1.26 patch the runner image has cached, which can lag the newest release by weeks; every
+      # setup-go here sets it, so the code is built, tested and audited on the newest patch.
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: .go-version
+          check-latest: true
           cache: false
 
       - name: Set up Node
