@@ -566,11 +566,14 @@ made on the watermark, so the phase keeps sending until the *confirmed* window i
 | Preset | Streams | Download min / max | Upload min / max | Idle pings |
 | --- | --- | --- | --- | --- |
 | Quick | fixed 3, no ramp | 5 s / 10 s | 5 s / 10 s | 10 |
-| Standard (default) | auto, full ramp | 10 s / 20 s | 12 s / 25 s | 20 |
+| Standard (default) | auto, full ramp | 10 s / 20 s | 15 s / 25 s | 20 |
 | Extended | auto, full ramp | 20 s / 40 s | 20 s / 40 s | 50 |
 | Continuous | auto, Standard ramp | no max | no max | 20 |
 
-Standard's upload budget is longer than its download budget to account for the confirmation delay.
+Standard's upload minimum is 5 s longer than its download minimum because every upload ramp
+decision waits for the confirmation delay (§8.2): on a fast link the full ramp to 6 streams settles
+at ≈ 9.5 s instead of ≈ 6.5 s, and its 3 s window is confirmed at ≈ 13.5 s (§19.4). The 15 s
+minimum holds that, so a fast link ends at the minimum and is never reported as extended.
 Quick is meant for fast links. At 300 kbit/s its three fixed streams share ≈ 36.6 KiB/s, so the
 three initial 64 KiB uploads take ≈ 5.2 s and first confirm at ≈ 5.5 s. By then the confirmed series
 already spans ≈ 5 s, so warm-up ends at Quick's 3 s cap (`max(3 s, 25 % × 10 s)`) before two
@@ -1114,12 +1117,12 @@ watermark advances only when a request confirms):
 | trial → 6 | — | 6.1 KiB/s → 16 KiB would take 2.6 s > 2 s | skipped: `floor-limited` | — | — |
 | steady window | 2 (typical, `no-gain` at the 2-stream trial because one stream already saturates 300 kbit/s) |  | ≈ 1 s requests | ≥ 3 s and ≥ 3 confirmed requests | ≈ 9.3 + 3 + 1.3 ≈ 13.6 s |
 | steady window, worst case | 4 |  | 1.75 s requests | ≥ 3 s and ≥ 3 confirmed requests (≈ 2 cells of 2 streams each) | ≈ 13.8 + 3.5 + 2.1 ≈ 19.4 s |
-| shutdown |  |  | stop new requests at `max − 1 s` or at the window decision, grace `min(2 s, 2 × 1.75 s)` = 2 s |  | ≈ 15.6 s typical, ≈ 21.4 s worst case; ≤ 25 s |
+| shutdown |  |  | stop new requests at the 15 s minimum, at the window decision after it, or at `max − 1 s`; grace `min(2 s, 2 × 1.75 s)` = 2 s |  | ≈ 16–17 s typical, ≈ 21.4 s worst case; ≤ 25 s |
 
-Both cases fit Standard's upload budget (12–25 s) with at least 5 s of margin in the worst case; the
-typical case finishes about 1.6 s past the 12 s minimum, so the phase extends slightly rather than
-ending at the minimum. Six initial 64 KiB requests would have cost ≈ 10.5 s of link time, which is
-why the ramp starts at one stream and sizes requests per stream.
+Both cases fit Standard's upload budget (15–25 s) with at least 5 s of margin in the worst case; the
+typical case meets the window condition at ≈ 13.6 s, inside the 15 s minimum, so it ends at the
+minimum, and only the worst case is extended. Six initial 64 KiB requests would have cost
+≈ 10.5 s of link time, which is why the ramp starts at one stream and sizes requests per stream.
 
 **Download equivalent.** No confirmation delay: the evaluation series is live from the first chunk
 (≈ 0.3 s, one RTT).
@@ -1154,8 +1157,8 @@ validated by the harness floor profiles
 - **Loaded latency.** Path A pings every 300 ms; with a 64 KiB shaper queue the RTT rises from 300
   to ≈ 1300 ms, an increase of ≈ 1000 ms: grade F.
 - **Upload.** As in §19.1 but faster: the first request confirms at ≈ 1.35 s, the trial to 2
-  streams is decided at ≈ 7 s, and the window condition holds after the 12 s minimum, at ≈ 12–13 s.
-  Grace takes the phase to ≈ 14 s.
+  streams is decided at ≈ 7 s, and the window condition holds at ≈ 12–13 s, inside the 15 s
+  minimum. New requests stop at 15 s, and the grace takes the phase to ≈ 16 s.
 
 ### 19.3 100 Mbit/s + 50 ms RTT (Standard)
 
@@ -1167,7 +1170,7 @@ validated by the harness floor profiles
   end at 10 s with a ≈ 5.5–6 s window. On HTTP/1.1 (Traefik profile) the two streams use two
   connections; on HTTP/2 (Caddy profile) they share one, which on this clean profile measures the
   same.
-- **Upload.** Confirmation delay ≈ 1 s + 50 ms; warm-up end ≈ 5.5 s; the phase ends at its 12 s
+- **Upload.** Confirmation delay ≈ 1 s + 50 ms; warm-up end ≈ 5.5 s; the phase ends at its 15 s
   minimum.
 - **Latency.** Idle 50 ms; with a shaper queue adding ≈ 80 ms under load, the grade is C. Path B on
   the Caddy profile: `measured` with the not-verifiable label; on Traefik (HTTP/1.1):
@@ -1183,6 +1186,12 @@ validated by the harness floor profiles
   streams gain until the cap: plateau `cap` at ≈ 6.5 s with ≈ 50 MiB requests per stream. The 5 s
   warm-up cap waits for the running ramp (§8.3), so warm-up end ≈ 6.5 s, window condition ≈ 9.5 s,
   phase end at 10 s.
+- **Upload.** The same ramp, but each decision waits ≈ 1 s for its interval to be confirmed (§8.2):
+  the baseline is decided at ≈ 3 s and the trials to 2, 4 and 6 streams at ≈ 5.5, 8 and 10.5 s.
+  Plateau `cap`; warm-up ends at ≈ 9.5 s on the server timeline, known on the client at ≈ 10.5 s.
+  The 3 s window is confirmed at ≈ 13.5 s, inside the 15 s minimum, so new requests stop at 15 s;
+  the last in-flight requests confirm at ≈ 16 s, and the window is ≈ 9.5–16 s. A stop before
+  ≈ 13.5 s leaves a confirmed window under 3 s, so a cancelled upload shows no number (§7.8).
 - **CPU.** The Worker's busy fraction is recorded; above 90 % the direction is `cpu-bound` and the
   harness tolerance is ±20 %.
 - **Data used** ≈ 3 GB down + 3.7 GB up: the data-used figure is prominent in the result, and a data

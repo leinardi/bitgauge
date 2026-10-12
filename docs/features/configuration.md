@@ -48,7 +48,7 @@ test_defaults:                    # exposed to the browser via GET /api/v1/info
     min_duration: ""              # "" = the preset's value (Standard: 10s)
     max_duration: ""              # "" = the preset's value (Standard: 20s)
   upload:
-    min_duration: ""              # "" = the preset's value (Standard: 12s)
+    min_duration: ""              # "" = the preset's value (Standard: 15s)
     max_duration: ""              # "" = the preset's value (Standard: 25s)
   data_cap: 0                     # bytes per test, both directions; 0 = no cap
   units: bits                     # bits | bytes
