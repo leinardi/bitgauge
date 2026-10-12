@@ -68,6 +68,20 @@ carries a recommendation; where the specification already relies on an answer, i
     at handler entry, since there is no first byte. Recommendation: keep it; the engine never
     sends one, and a `400` would add a code for a request that harms nothing. See
     [wire-protocol.md §4](wire-protocol.md#4-upload-telemetry).
+13. How are the percentiles and the coefficient of variation of a bucket series computed? Current
+    answer: **percentiles interpolate linearly between the closest ranks, and the coefficient of
+    variation is the population standard deviation over the mean**, both over known buckets only;
+    a mean of zero leaves the coefficient without a value, so a stability condition on it does not
+    hold. Recommendation: keep it; the warm-up's last 10 buckets are the whole population the
+    condition judges, not a sample of a larger one. See
+    [measurement.md §2](measurement.md#2-sampling-model).
+14. Which codes do the engine's notices and errors carry? Current answer: **one kebab-case code
+    per notice of measurement.md §16, and five error codes** (`invalid-settings`,
+    `requests-failed`, `network-changed`, `server-restarted`, `server-unreachable`) with the
+    message key `errors.<code>`; the engine emits codes and raw values, never text.
+    Recommendation: keep it. See
+    [measurement.md §16](measurement.md#16-confidence-and-notices) and
+    [architecture.md §4](architecture.md#4-engine--ui-message-contract).
 
 Resolved and removed:
 

@@ -13,7 +13,8 @@ description: >
 # Vue Page Patterns — BitGauge
 
 Four rules for the SPA. The generic Vue skills cover technique; this one covers what this codebase
-does differently and why. `web/src/` does not exist yet: the layout below is the planned one of
+does differently and why. `web/src/` holds the engine so far and no pages yet: the layout below is
+the planned one of
 [frontend.md §1](../../../docs/features/technical-stack/frontend.md#1-spa-layout), and the rules
 are already enforced by `web/eslint.config.ts` and `scripts/check-file-budgets.sh`.
 

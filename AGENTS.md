@@ -74,7 +74,7 @@ make go-vet            # go vet (make go-vet-image / go-vet-harness for the tagg
 make go-lint           # golangci-lint v2, all linters, at the pre-commit pin
 make go-tidy           # go.mod and go.sum tidy and verified
 make verify-go         # go-build, go-test, go-vet (also image, harness), go-lint
-make verify-web        # web-lint and web-test (dormant)
+make verify-web        # web-lint and web-test
 make verify            # both of the above
 make audit-deps        # pinned govulncheck -test ./... and npm audit in web/ (network)
 make go-build          # ./dist/bitgauge for the host platform (no SPA embedded yet)
@@ -83,8 +83,8 @@ make build             # web-build, then go-build: the binary with the SPA embed
 make web-install       # npm ci in web/
 make web-build         # npm ci, then vite build into web/dist (dormant)
 make web-dev           # Vite dev server (dormant)
-make web-test          # Vitest: unit, component, engine (dormant)
-make web-lint          # ESLint, then vue-tsc (dormant)
+make web-test          # Vitest: unit, component, engine
+make web-lint          # ESLint, then vue-tsc
 make api-types         # regenerate web/src/api/types.gen.ts from api/openapi.yaml
 make e2e               # Playwright on Chromium, Firefox, WebKit, host-built binary (dormant)
 make docker-build      # the image for the host platform, into the local daemon (dormant; dhi.io)
@@ -226,7 +226,8 @@ everything the table requires.
 `web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
 tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`. Today
-the binary build and API types gates are active and every other gate above is dormant;
+the binary build, API types, frontend lint and typecheck, and frontend unit tests gates are active
+and every other gate above is dormant;
 `idle-measure` and `idle-bench` run against a running binary. The [STATUS row](docs/STATUS.md)
 says the same.
 

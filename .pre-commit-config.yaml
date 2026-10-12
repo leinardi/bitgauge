@@ -157,6 +157,31 @@ repos:
         pass_filenames: false
         require_serial: true
         files: ^(api/openapi\.yaml|web/src/api/types\.gen\.ts|web/package(-lock)?\.json)$
+      # The web gates, each the npm script its make target runs (make web-lint, make web-test), on
+      # the whole workspace rather than the staged files: a change to one module can break the
+      # types or the tests of another. ESLint also reads the ceiling of .file-budgets, so a change
+      # there lints again. Need the web workspace installed (npm --prefix web ci).
+      - id: frontend-eslint
+        name: frontend eslint
+        entry: npm --prefix web run lint
+        language: system
+        pass_filenames: false
+        require_serial: true
+        files: ^(web/(src/.*\.(vue|ts|tsx)|[^/]+\.config\.ts|package(-lock)?\.json)|\.file-budgets)$
+      - id: frontend-typecheck
+        name: frontend typecheck
+        entry: npm --prefix web run typecheck
+        language: system
+        pass_filenames: false
+        require_serial: true
+        files: ^web/(src/.*\.(vue|ts|tsx)|[^/]+\.config\.ts|tsconfig.*\.json|package(-lock)?\.json)$
+      - id: frontend-test
+        name: frontend test
+        entry: npm --prefix web run test
+        language: system
+        pass_filenames: false
+        require_serial: true
+        files: ^web/(src/.*\.(vue|ts|tsx)|vite\.config\.ts|package(-lock)?\.json)$
       # Compares the package map in backend.md section 1 against go list over the module: a package
       # with no row fails, a row ahead of its package is listed as planned. Always runs because a
       # package disappears by having its files deleted, and pre-commit passes no deleted paths.

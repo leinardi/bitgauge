@@ -71,7 +71,7 @@ The exact middleware order and handler rules are in
 
 The measurement engine runs in a dedicated Web Worker. It has no DOM, no Vue and no imports from
 application code; the UI talks to it only through typed messages defined in one shared module
-(`web/src/engine/messages.ts`, planned). Both directions are discriminated unions on `type`.
+(`web/src/engine/messages.ts`). Both directions are discriminated unions on `type`.
 
 **Commands (UI → engine):**
 
@@ -124,6 +124,13 @@ the window end jumps forward by about one request's worth of cells, and the next
 all newly confirmed cells at once (`values` entries inside a failure gap are `null`). The live
 `sending` line comes from `upload.onprogress` on the client timeline and is drawn with the
 display-only offset of [measurement.md §7.4](measurement.md#74-common-timeline-and-aggregation).
+
+**Error codes.** The `error` event's `code` is one of `invalid-settings` (a `configure` or
+`start` whose settings fail validation), `requests-failed` (three consecutive failed requests,
+[measurement.md §5](measurement.md#5-adaptive-duration)), `network-changed`, `server-restarted`
+and `server-unreachable` (the causes of [ui/flows.md §5](ui/flows.md#5-error-mid-test)). Its
+`messageKey` is `errors.<code>`, the catalog key the UI words it with. A notice carries a code of
+[measurement.md §16](measurement.md#16-confidence-and-notices) with the raw values it names.
 
 The engine takes an injectable clock and transport, so tests drive it with synthetic timelines
 ([technical-stack/testing.md](technical-stack/testing.md)).

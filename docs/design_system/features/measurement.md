@@ -68,6 +68,17 @@ time series per direction. That series feeds the live gauge, the live chart and 
 Every decision (ramp, warm-up, extension, stop) reads only the **evaluation series**: the download
 series up to the current bucket, or the upload series up to the current window end (§8).
 
+**Statistics over buckets.** Every statistic of a series reads only its known buckets; an unknown
+bucket is skipped, never counted as zero, and a range with no known bucket has no value.
+
+- The **mean** is the sum of the known values divided by their count.
+- A **percentile** (p90, and the median as p50) interpolates linearly between the closest ranks:
+  with the *n* known values sorted ascending as *x₀ … xₙ₋₁*, the p*q* is at rank
+  *r* = (*n* − 1) × *q* / 100, and is *x*⌊*r*⌋ plus the fraction of *r* times the step to the
+  next value. One value is its own percentile.
+- The **coefficient of variation** is the population standard deviation of the known values divided
+  by their mean. With a mean of zero it has no value, and a condition on it does not hold.
+
 ## 3. Adaptive Request Size
 
 A fixed request size cannot suit both ends of the range: a 30 MiB request takes about eight
@@ -971,28 +982,31 @@ timers, message handling), measured with `performance.now()` around each task, d
 elapsed time. At multi-Gbit rates the browser, not the link, is often the limit; `cpu-bound` says so
 instead of reporting a link speed.
 
-**Notices** shown with the result and, where relevant, live:
+**Notices** shown with the result and, where relevant, live. Each has a code, in parentheses: the
+engine emits the code with the raw values the notice names, and the UI words it.
 
-- `slow link — test extended` (§5);
-- `low confidence` with its reason;
-- `data cap reached` (§5);
-- `insufficient data` per direction, with the next-larger-preset offer (§8.6);
+- `slow link — test extended` (`slow-link-extended`, per direction; §5);
+- `low confidence` with its reason (`low-confidence`, per direction with its reasons);
+- `data cap reached` (`data-cap-reached`; §5);
+- `insufficient data` per direction, with the next-larger-preset offer (`insufficient-data`; §8.6);
 - `data used: N GB` at 1 GB, 10 GB, 100 GB and every further tenfold step during Continuous runs
-  (§15);
+  (`data-used`; §15);
 - `URL parameter ignored` naming each parameter whose value was invalid
-  ([ui/url-params.md](ui/url-params.md));
-- `partial — stopped early` with the covered duration (§7.8);
-- `server restarted` (epoch change, test aborted; §7.3);
-- `server unreachable` with retry (§10);
-- `proxy buffering suspected` (§7.3);
+  (`url-parameter-ignored`; [ui/url-params.md](ui/url-params.md));
+- `partial — stopped early` with the covered duration (`stopped-early`; §7.8);
+- `server restarted` (`server-restarted`; epoch change, test aborted; §7.3);
+- `server unreachable` with retry (`server-unreachable`; §10);
+- `proxy buffering suspected` (`proxy-buffering-suspected`; §7.3);
 - `upload interrupted by a failed request` (HTTP/1.1 or unreported protocol), with the hint that
-  HTTP/2 at the proxy lets uploads survive transient failures (§7.5);
-- `response compression detected` (§6);
-- `HTTP/1.1 probe reservation active — 5 streams` (§11.2);
-- `overhead compensation +p %` whenever it is non-zero (§9.3);
-- `timer throttling detected`, `page was hidden during the test`, `network changed`,
-  `WebSocket reopened`, `WebSocket unavailable — HTTP latency fallback` and `base path mismatch`,
-  specified in [edge-cases.md](edge-cases.md) (§2, §5, §6, §14 and §20 there).
+  HTTP/2 at the proxy lets uploads survive transient failures (`upload-interrupted`; §7.5);
+- `response compression detected` (`response-compression-detected`; §6);
+- `HTTP/1.1 probe reservation active — 5 streams` (`probe-reservation`; §11.2);
+- `overhead compensation +p %` whenever it is non-zero (`overhead-compensation`; §9.3);
+- `timer throttling detected` (`timer-throttling-detected`), `page was hidden during the test`
+  (`page-hidden`), `network changed` (`network-changed`), `WebSocket reopened`
+  (`websocket-reopened`), `WebSocket unavailable — HTTP latency fallback`
+  (`websocket-unavailable`) and `base path mismatch` (`base-path-mismatch`), specified in
+  [edge-cases.md](edge-cases.md) (§2, §5, §6, §14 and §20 there).
 
 ## 17. Result Object
 

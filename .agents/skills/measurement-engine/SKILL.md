@@ -8,7 +8,7 @@ description: >
   reproduced exactly, unknown cells never treated as zero, and honest numbers (no smoothing or
   fudge factors, every number with its status, confidence and notices, raw numbers and enum codes
   only, never display text). A rule change starts in measurement.md. Use when writing, editing or
-  reviewing anything under web/src/engine/** (planned), docs/features/measurement.md, or an engine
+  reviewing anything under web/src/engine/**, docs/features/measurement.md, or an engine
   test.
 ---
 
@@ -20,7 +20,8 @@ documented computation in
 skill covers how the engine is shaped and tested; the methodology itself stays in measurement.md
 and is cited by section, never restated as a new rule.
 
-`web/src/` does not exist yet. The layout is the planned one of
+`web/src/engine/` holds the message contract, the injected interfaces and the statistics so far,
+and grows into the layout of
 [frontend.md §1](../../../docs/features/technical-stack/frontend.md#1-spa-layout), the package rules
 are [frontend.md §2](../../../docs/features/technical-stack/frontend.md#2-engine-package-rules), the
 message contract is
@@ -278,5 +279,5 @@ No fudge factors, no hidden smoothing, no number without the qualifiers the meth
 - [ ] No smoothing, factor or correction measurement.md does not define; every number has its
       status, confidence and notices
 - [ ] The engine emits numbers, enum codes and catalog keys, never display text
-- [ ] `make verify-web` (ESLint, vue-tsc, Vitest) clean once `web/src` exists; for a docs change,
+- [ ] `make verify-web` (ESLint, vue-tsc, Vitest) clean; for a docs change,
       `go test -count=1 ./test/docs/` and markdownlint clean

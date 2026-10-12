@@ -103,6 +103,16 @@ func readWebSources(t *testing.T) {
 	}
 
 	for _, file := range files {
+		// The pattern also matches dot directories such as the tool caches in web/.cache.
+		info, statErr := fs.Stat(tree, file)
+		if statErr != nil {
+			t.Fatalf("stat web/%s: %v", file, statErr)
+		}
+
+		if info.IsDir() {
+			continue
+		}
+
 		_, err = fs.ReadFile(tree, file)
 		if err != nil {
 			t.Fatalf("read web/%s: %v", file, err)

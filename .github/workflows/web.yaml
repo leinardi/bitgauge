@@ -5,7 +5,7 @@ name: Web checks
 # on the default branch, so main is where the shared cache has to come from.
 #
 # It grows by step ID as the web gates activate (test/toolchain/gates.go): today the API type
-# drift check; ESLint and vue-tsc, vitest, the build, the dist URL allowlist and the engine chunk
+# drift check, ESLint, vue-tsc and vitest; the build, the dist URL allowlist and the engine chunk
 # size join with their inputs.
 on:
   workflow_call:
@@ -64,6 +64,19 @@ jobs:
         run: |
           npm --prefix web run api-types
           git diff --exit-code -- web/src/api/types.gen.ts
+
+      # The npm scripts make web-lint and make web-test run, so CI and the local gate agree.
+      - name: Lint
+        id: lint
+        run: npm --prefix web run lint
+
+      - name: Type check
+        id: typecheck
+        run: npm --prefix web run typecheck
+
+      - name: Unit tests
+        id: unit-test
+        run: npm --prefix web run test
 
       - name: Save the web cache
         id: cache-save
