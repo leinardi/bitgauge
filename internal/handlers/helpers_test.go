@@ -1,0 +1,115 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package handlers
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+)
+
+// recordingWriter is an http.ResponseWriter that supports write deadlines, as the server's
+// does, and records every write and whether a fresh deadline preceded it.
+type recordingWriter struct {
+	header        http.Header
+	body          bytes.Buffer
+	writes        []int
+	status        int
+	deadlineSet   bool
+	writesWithout int
+	discard       bool
+}
+
+func newRecordingWriter() *recordingWriter {
+	return &recordingWriter{header: http.Header{}}
+}
+
+func (w *recordingWriter) Header() http.Header { return w.header }
+
+func (w *recordingWriter) WriteHeader(status int) { w.status = status }
+
+func (w *recordingWriter) Write(data []byte) (int, error) {
+	if !w.deadlineSet {
+		w.writesWithout++
+	}
+
+	w.deadlineSet = false
+
+	if !w.discard {
+		w.writes = append(w.writes, len(data))
+		w.body.Write(data)
+	}
+
+	return len(data), nil
+}
+
+func (w *recordingWriter) SetWriteDeadline(time.Time) error {
+	w.deadlineSet = true
+
+	return nil
+}
+
+// errorEnvelope is the decoded shape of wire-protocol.md section 7.
+type errorEnvelope struct {
+	Error struct {
+		Details map[string]any `json:"details"`
+		Code    string         `json:"code"`
+		Message string         `json:"message"`
+	} `json:"error"`
+}
+
+// assertEnvelope checks a recorded error response: status, the JSON content type, no-store
+// and the code.
+func assertEnvelope(
+	t *testing.T,
+	recorder *httptest.ResponseRecorder,
+	status int,
+	code string,
+) errorEnvelope {
+	t.Helper()
+
+	if recorder.Code != status {
+		t.Fatalf("status = %d, want %d", recorder.Code, status)
+	}
+
+	if got := recorder.Header().Get("Content-Type"); got != "application/json" {
+		t.Fatalf("Content-Type = %q, want application/json", got)
+	}
+
+	if got := recorder.Header().Get("Cache-Control"); got != "no-store" {
+		t.Fatalf("Cache-Control = %q, want no-store", got)
+	}
+
+	var decoded errorEnvelope
+
+	err := json.Unmarshal(recorder.Body.Bytes(), &decoded)
+	if err != nil {
+		t.Fatalf("body %q is not JSON: %v", recorder.Body.String(), err)
+	}
+
+	if decoded.Error.Code != code || decoded.Error.Message == "" {
+		t.Fatalf("envelope = %+v, want code %q and a message", decoded.Error, code)
+	}
+
+	return decoded
+}

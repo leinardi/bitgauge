@@ -54,9 +54,10 @@ but never the reverse, and nothing imports `cmd/`.
     the networkQuality flow limit ([../compatibility.md](../compatibility.md)).
 - **Stall detection per write.** There is no global write timeout (responses can legitimately run
   for minutes: `/nq/large`, and third-party clients' fixed-size downloads on slow links; the native
-engine aborts its own requests after 30 s). Instead, before each write the handler sets a write
+  engine aborts its own requests after 30 s). Instead, before each write the handler sets a write
   deadline of 30 s from now through `http.ResponseController`; a client that stops reading for 30 s
-  is disconnected.
+  is disconnected. Each write is at most 64 KiB, so the deadline catches a stall and never a slow
+  link: 64 KiB take about 5 s at 100 kbit/s.
 - Client aborts end the handler on the next failed write; only Prometheus counters record it.
 
 ### 2.2 Upload (and Every Route That Drains a Body)
@@ -75,8 +76,9 @@ engine aborts its own requests after 30 s). Instead, before each write the handl
   `cell = floor((monotonic now − process start) / 100 ms) + K` and `counts[cell − firstCell] += n`,
   where `K` is a random whole number of cells chosen at startup (the grid origin is process start
   shifted by `K` cells). `startMs` uses the same timeline in milliseconds. Indices therefore reveal
-  neither uptime nor wall-clock time. The counts slice grows at most to
-  1201 entries.
+  neither uptime nor wall-clock time. `K` is drawn uniformly from `[0, 2^32)`, which keeps every
+  index and `startMs` far below `2^53`, exact as a JavaScript number. The counts slice grows at
+  most to 1201 entries.
 - **Lifetime.** A read deadline of 120 s from **handler entry** is set through
   `http.ResponseController` before the first read, so a body that never starts is cut too; on expiry
   the handler stops reading and answers `408` with the error envelope and no telemetry, and the
