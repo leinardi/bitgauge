@@ -417,6 +417,38 @@ func TestParseRejectsWhatTheAssertionsMustNotMiss(t *testing.T) {
 		t.Error("a literal tag plus digest does not pass as digest-pinned")
 	}
 
+	for name, image := range map[string]string{
+		"no tag":                  "dhi.io/static",
+		"latest":                  "dhi.io/static:latest",
+		"latest, upper-cased":     "dhi.io/static:LATEST",
+		"a tag plus digest":       "dhi.io/static:20250419" + digest,
+		"a variable tag":          "dhi.io/golang:${GO_LINE}-alpine3.23-dev",
+		"a variable image":        "$BASE",
+		"an empty tag":            "dhi.io/static:",
+		"a stage name, not a ref": "build",
+	} {
+		if dockerfiles.TagPinned(image) {
+			t.Errorf("%s (%q) passes as pinned by an explicit tag alone", name, image)
+		}
+	}
+
+	if !dockerfiles.TagPinned("dhi.io/golang:1.26-alpine3.23-dev") {
+		t.Error("a literal explicit tag does not pass as tag-pinned")
+	}
+
+	for image, want := range map[string]bool{
+		"dhi.io/static:20250419":                 true,
+		"dhi.io/static:20250419" + digest:        false,
+		"dhi.io/static:latest":                   false,
+		"docker.io/library/alpine:3.23" + digest: true,
+		"docker.io/library/alpine:3.23":          false,
+		"evil.example/dhi.io/static:20250419":    false,
+	} {
+		if got := dockerfiles.BasePinned(image); got != want {
+			t.Errorf("BasePinned(%q) = %v, want %v", image, got, want)
+		}
+	}
+
 	stages, err := dockerfiles.Parse(
 		"FROM a:1" + digest + " AS one\nRUN echo \\\n  two\n# note\nFROM b:2" + digest + "\nUSER 1:1\n",
 	)

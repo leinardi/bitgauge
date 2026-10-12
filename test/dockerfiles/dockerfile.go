@@ -56,6 +56,13 @@ type Stage struct {
 // in the reference makes it unpinnable by a reader: the value lives in a build argument.
 var digestPinned = regexp.MustCompile(`^[a-z0-9.\-/:]+:[A-Za-z0-9._\-]+@sha256:[0-9a-f]{64}$`)
 
+// tagPinned is a literal registry reference with a tag and no digest.
+var tagPinned = regexp.MustCompile(`^[a-z0-9.\-/:]+:[A-Za-z0-9._\-]+$`)
+
+// dhiRegistry is the registry whose bases are pinned by tag, not by digest: it republishes its
+// tags to ship security fixes (build-packaging.md section 1).
+const dhiRegistry = "dhi.io/"
+
 // parserDirective is one "# key=value" line of the block BuildKit reads before anything else.
 var parserDirective = regexp.MustCompile(`^#\s*([A-Za-z]+)\s*=\s*(\S+)\s*$`)
 
@@ -168,8 +175,30 @@ func DigestPinned(image string) bool {
 	return digestPinned.MatchString(image)
 }
 
+// TagPinned reports whether a base reference is literal and pinned by an explicit tag alone: a tag
+// other than latest, and no digest.
+func TagPinned(image string) bool {
+	return tagPinned.MatchString(image) && !strings.EqualFold(Tag(image), "latest")
+}
+
+// FromDHI reports whether a base reference comes from dhi.io.
+func FromDHI(image string) bool {
+	return strings.HasPrefix(image, dhiRegistry)
+}
+
+// BasePinned reports whether a base reference is pinned the way its registry requires: a dhi.io
+// base by an explicit tag and no digest, so a build takes the fixes dhi.io republishes under it;
+// any other base by tag and digest.
+func BasePinned(image string) bool {
+	if FromDHI(image) {
+		return TagPinned(image)
+	}
+
+	return DigestPinned(image)
+}
+
 // Repository returns the reference without its tag and digest: dhi.io/node for
-// dhi.io/node:24-alpine3.23-dev@sha256:...
+// dhi.io/node:24-alpine3.23-dev, docker/dockerfile for docker/dockerfile:1.7@sha256:...
 func Repository(image string) string {
 	name, _, _ := strings.Cut(image, "@")
 
