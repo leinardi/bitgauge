@@ -86,7 +86,7 @@ func NewWebSockets(
 ) *WebSockets {
 	allowed := make(map[string]bool, len(allowedOrigins))
 	for _, origin := range allowedOrigins {
-		if normalized, ok := normalizeOrigin(string(origin)); ok {
+		if normalized, ok := NormalizeOrigin(string(origin)); ok {
 			allowed[normalized] = true
 		}
 	}
@@ -289,14 +289,14 @@ func (s *WebSockets) originAllowed(request *http.Request) bool {
 		return true
 	}
 
-	normalized, ok := normalizeOrigin(origins[0])
+	normalized, ok := NormalizeOrigin(origins[0])
 
 	return ok && s.allowed[normalized]
 }
 
-// normalizeOrigin is an origin's comparable form: lower-case scheme and host, and no port
+// NormalizeOrigin is an origin's comparable form: lower-case scheme and host, and no port
 // when it is the scheme's default, so that equal origins compare equal (RFC 6454).
-func normalizeOrigin(origin string) (string, bool) {
+func NormalizeOrigin(origin string) (string, bool) {
 	parsed, err := url.Parse(origin)
 	if err != nil || parsed.Host == "" {
 		return "", false

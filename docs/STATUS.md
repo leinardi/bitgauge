@@ -11,11 +11,11 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | Feature area | Status | Code pointers |
 | --- | --- | --- |
 | Single binary, embedded SPA, base path, fixed SPA routes | Spec'd (v0.1) |  |
-| Native API: download, upload, ping, small, ws, info | Implemented (v0.1) | `internal/handlers/`: `routes.go` (router, 405 and 404), `errors.go` (envelope), `buffer.go` (random buffer), `epoch.go`, `download.go`, `upload.go`, `ping.go`, `small.go`, `ws.go` (echo, Origin rule, close codes), `info.go`; mounted by the server in a later step |
+| Native API: download, upload, ping, small, ws, info | Implemented (v0.1) | `internal/handlers/`: `routes.go` (router, 405 and 404), `errors.go` (envelope), `buffer.go` (random buffer), `epoch.go`, `download.go`, `upload.go`, `ping.go`, `small.go`, `ws.go` (echo, Origin rule, close codes), `info.go`; mounted by `internal/server/router.go` |
 | Server-timed upload: 100 ms server grid, per-bucket arrival counts, `Server-Timing` | Implemented (v0.1) | `internal/handlers/`: `grid.go` (server grid), `drain.go` (pooled drainer), `upload.go` (arrival counts, lifetime, telemetry) |
-| Limits and rate limiting (`429` with `Retry-After`) | Spec'd (v0.1), in progress: limiter | `internal/ratelimit/`: `limiter.go` (table, token bucket, LRU of idle entries), `middleware.go` (429 with `Retry-After`), `clock.go`; not yet wired into the router |
+| Limits and rate limiting (`429` with `Retry-After`) | Implemented (v0.1) | `internal/ratelimit/`: `limiter.go` (table, token bucket, LRU of idle entries), `middleware.go` (429 with `Retry-After`), `clock.go`; wired by `internal/server/router.go` on download and upload, and by `internal/handlers/ws.go` per WebSocket |
 | Client IP through trusted proxies, context label inputs | Implemented (v0.1) | `internal/clientip/`: `clientip.go` (derivation), `context.go` (middleware), `class.go` (address class, suggested label) |
-| Security headers and CSP | Spec'd (v0.1), in progress: header sets and the global middleware chain | `internal/server/`: `headers.go` (SPA and API header sets, CSP with the validated `Host`), `middleware.go` (recovery, client IP, headers, debug request log), `server.go`; not yet serving the router |
+| Security headers and CSP | Implemented (v0.1) | `internal/server/`: `headers.go` (SPA and API header sets, CSP with the validated `Host`), `middleware.go` (recovery, client IP, headers, debug request log), `cors.go` (native CORS), `router.go` (groups, route table) |
 | Configuration (koanf, `BITGAUGE_` env, fail-closed validation) | Implemented (v0.1) | `internal/config/`: `load.go`, `types.go`, `validate.go`, `preset.go`, `warn.go`, `exit.go` |
 | `healthcheck` subcommand and graceful shutdown | Spec'd (v0.1) |  |
 | Engine: info and idle latency | Spec'd (v0.1) |  |

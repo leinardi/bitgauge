@@ -40,9 +40,21 @@ import (
 
 var errBoom = errors.New("boom")
 
+// fakeClock is the injected clock and timer source of the server tests. Timers fire, each in
+// its own goroutine, when the test advances the clock past them; registered, when set,
+// receives the duration of every new timer, so a test knows a timer exists, and for how
+// long, before it advances.
 type fakeClock struct {
-	now time.Time
-	mu  sync.Mutex
+	now        time.Time
+	registered chan time.Duration
+	timers     []*fakeTimer
+	mu         sync.Mutex
+}
+
+type fakeTimer struct {
+	at   time.Time
+	fire func()
+	done bool
 }
 
 func (c *fakeClock) Now() time.Time {
@@ -54,9 +66,46 @@ func (c *fakeClock) Now() time.Time {
 
 func (c *fakeClock) Advance(elapsed time.Duration) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
 
 	c.now = c.now.Add(elapsed)
+
+	var due []func()
+
+	for _, timer := range c.timers {
+		if !timer.done && !timer.at.After(c.now) {
+			timer.done = true
+			due = append(due, timer.fire)
+		}
+	}
+
+	c.mu.Unlock()
+
+	for _, fire := range due {
+		go fire()
+	}
+}
+
+func (c *fakeClock) AfterFunc(d time.Duration, fire func()) func() bool {
+	c.mu.Lock()
+
+	timer := &fakeTimer{at: c.now.Add(d), fire: fire}
+	c.timers = append(c.timers, timer)
+
+	c.mu.Unlock()
+
+	if c.registered != nil {
+		c.registered <- d
+	}
+
+	return func() bool {
+		c.mu.Lock()
+		defer c.mu.Unlock()
+
+		stopped := !timer.done
+		timer.done = true
+
+		return stopped
+	}
 }
 
 // testChain is the global chain around a chi router, logging at level into logs.

@@ -40,8 +40,11 @@ type Deps struct {
 	Buffer     *Buffer
 	Grid       *Grid
 	WebSockets *WebSockets
-	Build      buildinfo.Build
-	Epoch      Epoch
+	// Limit wraps the throughput routes, download and upload, in the rate limiter; nil leaves
+	// them unlimited.
+	Limit func(http.Handler) http.Handler
+	Build buildinfo.Build
+	Epoch Epoch
 }
 
 // routeTable registers routes and remembers each path's methods, so the 405 answer can name
@@ -65,14 +68,20 @@ func (t *routeTable) handle(pattern string, handler http.HandlerFunc, methods ..
 func Routes(deps *Deps) *chi.Mux {
 	table := &routeTable{router: chi.NewRouter(), allow: map[string]string{}}
 
+	limit := deps.Limit
+	if limit == nil {
+		limit = func(next http.Handler) http.Handler { return next }
+	}
+
 	table.handle(
 		"/download",
-		Download(deps.Buffer, int64(deps.Config.Limits.MaxDownloadBytes)),
+		limit(Download(deps.Buffer, int64(deps.Config.Limits.MaxDownloadBytes))).ServeHTTP,
 		http.MethodGet,
 	)
 	table.handle(
 		"/upload",
-		Upload(deps.Grid, deps.Epoch, int64(deps.Config.Limits.MaxUploadBytes), UploadLifetime),
+		limit(Upload(deps.Grid, deps.Epoch, int64(deps.Config.Limits.MaxUploadBytes),
+			UploadLifetime)).ServeHTTP,
 		http.MethodPost,
 	)
 	table.handle("/ping", Ping, http.MethodGet, http.MethodHead)
