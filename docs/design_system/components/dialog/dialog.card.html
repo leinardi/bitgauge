@@ -1,0 +1,19 @@
+<!-- @dsCard group="Components" viewport="700x320" name="Dialog" subtitle="Destructive confirm over the scrim (452 px)" -->
+<!doctype html><html data-theme="dark"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../../preview/card.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>html,body{height:auto}body{padding:20px 24px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const NS = window.BitGaugeDesignSystem_1ab699;
+const { Dialog, Button } = NS;
+function Demo(){ return <div style={{position:'relative',display:'flex',gap:'var(--space-4)',justifyContent:'center',alignItems:'center',padding:'var(--space-5)',borderRadius:'var(--radius-lg)',overflow:'hidden',minHeight:272}}>
+<div className="scrim" style={{position:'absolute'}}></div>
+<div style={{position:'relative'}}><Dialog inline tone="danger" icon="trash" title="Clear all history?" scope="Export first to keep a copy." footer={<><Button variant="ghost" size="sm">Cancel</Button><Button variant="danger-solid" size="sm">Clear 47 results</Button></>}>This removes <b>47</b> results from this browser. It can't be undone.</Dialog></div>
+</div>; }
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script></body></html>

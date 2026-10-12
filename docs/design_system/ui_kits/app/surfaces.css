@@ -1,0 +1,160 @@
+/* BitGauge Design System — ui_kits/app/surfaces.css
+   Surfaces — .card, .skel skeleton, .empty state, .block, .toast.
+   Tokens only (colors_and_type.css); no raw colours. */
+.card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+.card-h {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.card-h .t {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+}
+.card-h .ico {
+  color: var(--fg-subtle);
+}
+.card-h .right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.card-b {
+  padding: var(--space-4);
+}
+.skel {
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-3) 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: shimmer 1.4s var(--ease-standard) infinite;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skel-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3-5);
+  padding: var(--space-3-5) var(--space-3-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.skel-row:last-child {
+  border-bottom: none;
+}
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2-5);
+  padding: var(--space-12) var(--space-6);
+}
+.empty .eg {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-3);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-subtle);
+}
+.empty .et {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--fg);
+}
+.empty .em {
+  font-size: var(--text-sm);
+  color: var(--fg-subtle);
+  max-width: 420px;
+  line-height: 1.55;
+}
+.block {
+  background: var(--surface-2);
+  border: 1px solid var(--warn-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3-5) var(--space-4);
+}
+.block .h {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--warn-fg);
+}
+.block .h svg {
+  flex: none;
+}
+.block .b {
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  line-height: 1.55;
+  margin-top: var(--space-1-5);
+}
+.block .b b {
+  color: var(--fg);
+}
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2-5);
+  width: 380px;
+  padding: var(--space-3) var(--space-3-5);
+  border-radius: var(--radius-md);
+  border: 1px solid;
+  background: var(--surface-2);
+  box-shadow: var(--shadow-md);
+  transform: translateX(10px);
+  opacity: 0;
+  animation: slidein var(--dur-slow) var(--ease-out) forwards;
+}
+@keyframes slidein { to { transform: none; opacity: 1; } }
+.toast.ok {
+  border-color: var(--ok-border);
+}
+.toast.ok .i {
+  color: var(--ok);
+}
+.toast.info {
+  border-color: var(--info-border);
+}
+.toast.info .i {
+  color: var(--info);
+}
+.toast.danger {
+  border-color: var(--danger-border);
+}
+.toast.danger .i {
+  color: var(--danger);
+}
+.toast.warn {
+  border-color: var(--warn-border);
+}
+.toast.warn .i {
+  color: var(--warn);
+}
+.toast .i {
+  flex: none;
+  margin-top: 1px;
+}
+.toast .t {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+.toast .m {
+  font-size: var(--text-caption);
+  color: var(--fg-muted);
+  margin-top: var(--space-0-5);
+  line-height: 1.45;
+}
+.toast .m .mono {
+  color: var(--fg);
+}

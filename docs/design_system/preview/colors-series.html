@@ -1,0 +1,21 @@
+<!-- @dsCard group="Colors" name="Measurement series" viewport="700x160" -->
+<!doctype html><html data-theme="dark"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="card.css">
+<link rel="stylesheet" href="../ui_kits/app/app.css">
+<script src="../ui_kits/app/bg-lib.js"></script>
+<style></style>
+</head><body>
+<div class="lbl">Measurement series · one colour, one meaning</div>
+<svg viewBox="0 0 520 120" width="100%" style="margin-top:var(--space-3);display:block"><g fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M10 90 C60 40 110 30 170 34 S250 40 260 38" style="stroke:var(--series-download)"/>
+<path d="M270 96 C320 70 360 64 420 62 S500 60 510 60" style="stroke:var(--series-upload)"/>
+<path d="M270 84 C320 50 360 44 420 42 S500 40 510 40" style="stroke:var(--sending)" stroke-width="1.5"/>
+<path d="M10 104 L510 100" style="stroke:var(--series-latency)" stroke-dasharray="6 5" stroke-width="2"/>
+<line x1="265" y1="10" x2="265" y2="112" style="stroke:var(--border-default)" stroke-width="1"/></g></svg>
+<div class="row wrap gap-4 mt-2" style="font-size:var(--text-caption);color:var(--fg-muted)">
+<span class="row gap-2"><span style="width:18px;height:3px;background:var(--series-download)"></span>--series-download</span>
+<span class="row gap-2"><span style="width:18px;height:3px;background:var(--series-upload)"></span>--series-upload · received</span>
+<span class="row gap-2"><span style="width:18px;height:2px;background:var(--sending)"></span>--sending · client progress</span>
+<span class="row gap-2"><span style="width:18px;border-top:2px dashed var(--series-latency)"></span>--series-latency · dashed</span></div>
+</body></html>

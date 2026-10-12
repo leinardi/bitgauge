@@ -1,0 +1,14 @@
+/* ============================================================================
+   BitGauge Design System — single entry point.
+   Link this one file instead of the individual CSS files. Import order is the
+   cascade order: token foundation first, then the app kit (app.css imports
+   buttons → badges → inputs → surfaces → tables → dialog itself).
+   preview/card.css is deliberately NOT bundled: it is the spec-card framing
+   shell and belongs only to preview/*.html.
+   ============================================================================ */
+
+/* 1 — Token foundation (colors, type, spacing, radii, shadows, motion). */
+@import "colors_and_type.css";
+
+/* 2 — App UI kit. */
+@import "ui_kits/app/app.css";

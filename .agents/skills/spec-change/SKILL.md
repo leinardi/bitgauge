@@ -147,18 +147,18 @@ editing STATUS.md or ui/screens.md, and the markdownlint hook for formatting.
 
 ## 6. The symlink contract
 
-`docs/features/product.md`, `principles.md` and `ui/` become **symlinks** into
-`docs/design_system/features/` once the Claude Design export lands; until then they are ordinary
-files and no symlinks exist ([docs/README.md](../../../docs/README.md#symlink-contract)).
+`docs/features/product.md`, `principles.md` and `ui/` are **symlinks** into
+`docs/design_system/features/`, the spec files the Claude Design export carries
+([docs/README.md](../../../docs/README.md#symlink-contract)).
 
 - Either path edits the same file. Edit them as spec pages, and write their links relative to
   their `docs/features/` location: the docs test resolves links there and then follows the link.
 - Never hand-edit anything else under `docs/design_system/`: it is regenerated on every export, so
   a local edit is lost. A visual change goes into the Claude Design project first
-  ([provenance rule](../../../docs/design_system/README.md#provenance-rule)).
-- Never create the symlinks early; activation follows the steps in
-  [design_system/README.md](../../../docs/design_system/README.md#symlink-activation), including
-  updating docs/README.md and STATUS.md.
+  ([provenance rule](../../../docs/README.md#provenance-rule)).
+- An edit to a symlinked page is a change to the export too: list the files for the user to upload
+  to the Claude Design project, so the next export carries them byte-identical. A new export is
+  synced with the steps in [docs/README.md](../../../docs/README.md#syncing-a-new-export).
 - `docs/features/ui/` is canonical for behaviour, the export for visuals; a behavioural
   disagreement is resolved in the spec first.
 - Windows checkouts need `git config core.symlinks true`.

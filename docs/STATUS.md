@@ -37,7 +37,7 @@ pointers.
 | Quality scores (AIM) | Spec'd (v0.3) |  |
 | Continuous mode | Spec'd (v0.3) |  |
 | Engineering scaffold (gates, CI, release tooling) | Tooling in place; product gates dormant (see AGENTS) | `test/toolchain/gates.go`; dormant: API types, frontend lint and typecheck, frontend unit tests, web build, binary build, image and image tests, E2E, accuracy harness, release; also `idle-measure` and `idle-bench` until a binary runs ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)) |
-| Design export (Claude Design) | First export landed as prototype boards; corrections pending in Claude Design; symlinks not active | `docs/design_system/` ([README](design_system/README.md#symlink-activation)) |
+| Design export (Claude Design) | Export landed with tokens, components and the `ui_kits/app/` prototype; corrections pending in Claude Design; symlinks active | `docs/design_system/` ([sync rules](README.md#design-export)) |
 | Packet loss via WebRTC and TURN | Open (unscheduled) |  |
 | Headless CLI client | Open (unscheduled) |  |
 | linux/arm/v7 images | Open (unscheduled) |  |

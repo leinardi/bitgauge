@@ -292,12 +292,12 @@ Full section: [`docs/features/architecture.md`](docs/features/architecture.md).
 ## Docs layout note
 
 `docs/features/` is the product and technical contract, `docs/research/` holds ideas from prior
-art, `docs/engineering/` working notes, and `docs/design_system/` the Claude Design export (its
-first version, the prototype boards, has landed). Once an export carries a `features/` mirror
-identical to the spec, `docs/features/{product.md,principles.md,ui/}` become **symlinks** into
+art, `docs/engineering/` working notes, and `docs/design_system/` the Claude Design export, with the
+app UI kit in `ui_kits/app/`. `docs/features/{product.md,principles.md,ui/}` are **symlinks** into
 `docs/design_system/features/`, and either path edits the same file (Windows:
-`git config core.symlinks true`). Until then they are ordinary files
-([`docs/README.md`](docs/README.md#symlink-contract)). Never hand-edit the export.
+`git config core.symlinks true`); an edit there is uploaded to the Claude Design project so the
+next export carries it ([`docs/README.md`](docs/README.md#design-export)). Never hand-edit the rest
+of the export.
 
 ## Core constraint
 

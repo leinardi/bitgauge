@@ -1,0 +1,20 @@
+<!-- @dsCard group="Components" viewport="700x170" name="Status · Pill, Badge, Chip" subtitle="Never colour alone — every state carries a label" -->
+<!doctype html><html data-theme="dark"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../../preview/card.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>html,body{height:auto}body{padding:20px 24px}</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const NS = window.BitGaugeDesignSystem_1ab699;
+const { StatusPill, StatusBadge, Chip } = NS;
+function Demo(){ const [sel,setSel]=React.useState('VPN'); return <div className="col gap-3">
+<div className="row wrap gap-2"><StatusPill tone="ok">Connected</StatusPill><StatusPill tone="offline">Unreachable</StatusPill><StatusPill tone="info">Live</StatusPill><StatusPill tone="warn">Partial</StatusPill><StatusPill>Skipped</StatusPill></div>
+<div className="row wrap gap-2"><StatusBadge tone="ok">Complete</StatusBadge><StatusBadge tone="warn">Low confidence</StatusBadge><StatusBadge tone="danger">Error</StatusBadge><StatusBadge dashed>Not measured</StatusBadge></div>
+<div className="row wrap gap-2"><Chip icon="timer">Extended · 60 s</Chip><Chip icon="layers">4 streams</Chip>{[['VPN',12],['LAN',31],['Kitchen Wi-Fi',4]].map(([l,n]) => <Chip key={l} count={n} selected={sel===l} onClick={()=>setSel(l)}>{l}</Chip>)}</div>
+</div>; }
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script></body></html>
