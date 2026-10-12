@@ -27,7 +27,10 @@ do not exist yet; they land as the approved specification is implemented (AGENTS
 3. Implement the handler in `internal/handlers` and register it in `handlers.Routes()`, which
    `internal/server` mounts under `server.base_path`.
 4. `make api-types` regenerates `web/src/api/types.gen.ts` with `openapi-typescript`. Never
-   hand-edit it; no drift hook exists yet, so commit it with the spec.
+   hand-edit it; commit it with the spec. The `api-types-generate` pre-commit hook and the
+   `types-drift` step of `web.yaml` fail when it drifts from the contract, and
+   `internal/handlers/info_schema_test.go` checks the handlers' JSON against the contract's
+   `Info`, `UploadTelemetry` and `Error` schemas.
 5. Run `make verify-go` and `make verify-web`. On a failure, fix the spec or the handler, never the
    test, and re-run until both are green.
 

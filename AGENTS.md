@@ -53,7 +53,7 @@ The tooling **exists**:
 
 ### Generated or vendored: never hand-edit
 
-- `web/src/api/types.gen.ts` (once it exists): regenerate with `make api-types` after editing
+- `web/src/api/types.gen.ts`: regenerate with `make api-types` after editing
   `api/openapi.yaml`.
 - `web/src/components/ui/` (once it exists): vendored shadcn-vue; extend by composition only.
 - `.mk/{docker,help,go,pre-commit}.mk`: refreshed from make-common with `make mk-common-update`.
@@ -85,7 +85,7 @@ make web-build         # npm ci, then vite build into web/dist (dormant)
 make web-dev           # Vite dev server (dormant)
 make web-test          # Vitest: unit, component, engine (dormant)
 make web-lint          # ESLint, then vue-tsc (dormant)
-make api-types         # regenerate web/src/api/types.gen.ts from api/openapi.yaml (dormant)
+make api-types         # regenerate web/src/api/types.gen.ts from api/openapi.yaml
 make e2e               # Playwright on Chromium, Firefox, WebKit, host-built binary (dormant)
 make docker-build      # the image for the host platform, into the local daemon (dormant; dhi.io)
 make docker-run        # run the image read-only on 127.0.0.1:8080, DOCKER_RUN_BIND (dormant)
@@ -147,7 +147,7 @@ Run before considering an edit done. `make check` applies to every row.
 | --- | --- |
 | `**/*.go` (today `test/**`) | `make verify-go`, then `make check-stage` |
 | `web/src/**` | `make verify-web`, then `scripts/check-file-budgets.sh` |
-| `api/openapi.yaml` | spec first (`api-contract` skill); `make api-types`, then `make verify-web` |
+| `api/openapi.yaml` | spec first (`api-contract` skill); `make api-types`, `go test ./internal/handlers/` (the contract tests), then `make verify-web` |
 | `deployments/docker/Dockerfile`, `test/harness/tools.Dockerfile` | `go test ./test/dockerfiles/ ./test/toolchain/` (hadolint runs in `make check`); `make go-test-image` once the image gate is active (Docker, `dhi.io`) |
 | `go.mod`, `go.sum`, `web/package.json`, `web/package-lock.json` | `make audit-deps` (network; the commit hooks run the same targets), `go test ./test/toolchain/` |
 | `web/eslint.config.ts`, `web/.npmrc`, `.fallowrc.json`, `.fallow-baseline.json`, `.fallow-regression-baseline.json`, `.mk/audit-deps.mk` | `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (needs `web/node_modules`) |
@@ -226,8 +226,9 @@ everything the table requires.
 `web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
 tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`. Today
-the binary build gate is active and every other gate above is dormant; `idle-measure` and
-`idle-bench` run against a running binary. The [STATUS row](docs/STATUS.md) says the same.
+the binary build and API types gates are active and every other gate above is dormant;
+`idle-measure` and `idle-bench` run against a running binary. The [STATUS row](docs/STATUS.md)
+says the same.
 
 ## Project skills
 

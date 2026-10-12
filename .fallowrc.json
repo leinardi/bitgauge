@@ -29,6 +29,7 @@
     {
       "files": ["web/src/api/types.gen.ts"],
       "rules": {
+        "unused-files": "off",
         "unused-types": "off",
         "unused-exports": "off"
       }

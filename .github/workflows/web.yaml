@@ -1,0 +1,74 @@
+name: Web checks
+
+# Reusable: CI calls it for pull requests and pushes (restore only), and web-cache-warmup calls it
+# on main (restore and save). GitHub only lets a pull request read caches saved on its own ref or
+# on the default branch, so main is where the shared cache has to come from.
+#
+# It grows by step ID as the web gates activate (test/toolchain/gates.go): today the API type
+# drift check; ESLint and vue-tsc, vitest, the build, the dist URL allowlist and the engine chunk
+# size join with their inputs.
+on:
+  workflow_call:
+    inputs:
+      save-cache:
+        description: Save the web cache after the run.
+        type: boolean
+        default: false
+
+# Every job reads the repository and nothing else, unless it says otherwise below.
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        id: setup
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # web/.cache is where the lint and typecheck caches land once those gates activate; it
+      # exists from the start so the cache steps always have a path to work on.
+      - name: Install dependencies
+        run: |
+          npm ci --prefix web
+          mkdir -p web/.cache
+
+      # ESLint and vue-tsc key their caches on file contents, not timestamps, so they survive the
+      # fresh mtimes a checkout produces and a pull request only pays for the files it changed.
+      - name: Restore the web cache
+        id: cache-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: web/.cache
+          key: web-${{ runner.os }}-${{ runner.arch }}-node${{ steps.setup.outputs.node-version }}-${{ hashFiles('web/package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            web-${{ runner.os }}-${{ runner.arch }}-node${{ steps.setup.outputs.node-version }}-${{ hashFiles('web/package-lock.json') }}-
+            web-${{ runner.os }}-${{ runner.arch }}-node${{ steps.setup.outputs.node-version }}-
+            web-${{ runner.os }}-${{ runner.arch }}-
+
+      # web/src/api/types.gen.ts is generated from api/openapi.yaml and committed; a stale copy
+      # means the SPA is typed against a contract the server no longer has. The npm script is
+      # the one make api-types runs.
+      - name: Check the generated API types are current
+        id: types-drift
+        run: |
+          npm --prefix web run api-types
+          git diff --exit-code -- web/src/api/types.gen.ts
+
+      - name: Save the web cache
+        id: cache-save
+        if: ${{ inputs.save-cache && !cancelled() && steps.cache-restore.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: web/.cache
+          key: ${{ steps.cache-restore.outputs.cache-primary-key }}

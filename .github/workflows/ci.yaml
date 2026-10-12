@@ -1,7 +1,7 @@
 name: CI
 
 # The authoritative checks run on every pull request and every push to main; the reviewdog jobs only
-# annotate pull requests. Jobs that wait for a dormant gate (web, e2e, harness, image, and the
+# annotate pull requests. Jobs that wait for a dormant gate (e2e, harness, image, and the
 # credentials job they share) are added in their activation commits, as test/toolchain/gates.go
 # requires.
 on:
@@ -36,11 +36,6 @@ jobs:
           go-version-file: .go-version
           check-latest: true
           cache: false
-
-      # The binary build gate: cmd/bitgauge must build with the release flags.
-      - name: Build the binary
-        id: go-build
-        run: make go-build
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -295,6 +290,13 @@ jobs:
     permissions:
       contents: read
 
+  # Defined in web.yaml so web-cache-warmup runs the identical job on main and saves the cache that
+  # pull requests restore. It grows with the web gates (test/toolchain/gates.go).
+  web:
+    uses: ./.github/workflows/web.yaml
+    permissions:
+      contents: read
+
   # govulncheck over every Go package and npm audit of web/ (build-packaging.md section 4).
   audit:
     runs-on: ubuntu-latest
@@ -313,11 +315,6 @@ jobs:
           go-version-file: .go-version
           check-latest: true
           cache: false
-
-      # The binary build gate: cmd/bitgauge must build with the release flags.
-      - name: Build the binary
-        id: go-build
-        run: make go-build
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -339,6 +336,7 @@ jobs:
       - release-scripts
       - go-test
       - audit
+      - web
     runs-on: ubuntu-latest
     timeout-minutes: 5
 

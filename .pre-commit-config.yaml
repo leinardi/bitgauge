@@ -146,6 +146,17 @@ repos:
         pass_filenames: false
         require_serial: true
         files: ^web/package(-lock)?\.json$
+      # The SPA's API types are generated from the contract and committed (decisions.md section
+      # 3). Regenerating them is the check: pre-commit fails a hook that changes a tracked file, so
+      # a contract edit without its types, a hand edit of the types, or a generator bump that
+      # changes its output all stop here. Needs the web workspace installed (npm --prefix web ci).
+      - id: api-types-generate
+        name: API types
+        entry: make api-types
+        language: system
+        pass_filenames: false
+        require_serial: true
+        files: ^(api/openapi\.yaml|web/src/api/types\.gen\.ts|web/package(-lock)?\.json)$
       # Compares the package map in backend.md section 1 against go list over the module: a package
       # with no row fails, a row ahead of its package is listed as planned. Always runs because a
       # package disappears by having its files deleted, and pre-commit passes no deleted paths.

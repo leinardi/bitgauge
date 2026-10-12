@@ -1,0 +1,610 @@
+# This file is part of BitGauge.
+#
+# Copyright (c) 2026 Roberto Leinardi
+#
+# BitGauge is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# BitGauge is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+
+# The native API contract. docs/features/wire-protocol.md is its prose source and wins where the
+# two disagree; web/src/api/types.gen.ts is generated from this file with make api-types.
+openapi: 3.1.0
+info:
+  title: BitGauge native API
+  version: "1"
+  description: >-
+    The native API of a self-hosted network speed test, under server.base_path. Every response
+    carries Cache-Control no-store and is never compressed. Compatibility layers are not part of
+    this document (compatibility.md).
+  license:
+    name: GPL-3.0-or-later
+    identifier: GPL-3.0-or-later
+tags:
+  - name: throughput
+    description: Download and upload measurement bodies.
+  - name: latency
+    description: Idle and loaded latency probes.
+  - name: info
+    description: Server information and test defaults.
+  - name: operations
+    description: Operational endpoints, off by default.
+paths:
+  /api/v1/download:
+    get:
+      tags: [throughput]
+      operationId: download
+      summary: Random bytes from the in-memory buffer
+      parameters:
+        - name: bytes
+          in: query
+          required: true
+          description: >-
+            The number of bytes, an integer from 1 to limits.max_download_bytes. A missing or
+            non-integer value is bad_request; an integer outside the range is bytes_out_of_range
+            with the limit in details.
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        "200":
+          description: Exactly the requested number of random bytes, never compressed.
+          headers:
+            Content-Length:
+              description: The requested number of bytes.
+              schema:
+                type: integer
+                format: int64
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/upload:
+    post:
+      tags: [throughput]
+      operationId: upload
+      summary: Drain a body and report its arrivals on the server grid
+      description: >-
+        The server reads and discards the whole body before answering, counting each read into
+        the cell of the global 100 ms grid in which it returned. Content-Length is required and
+        chunked bodies are refused; a body not complete within 120 s of the request's arrival is
+        answered 408 with no telemetry.
+      parameters:
+        - name: Content-Length
+          in: header
+          required: true
+          description: The body length, at most limits.max_upload_bytes.
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "200":
+          description: The upload telemetry of wire-protocol.md section 4.
+          headers:
+            Server-Timing:
+              $ref: "#/components/headers/ServerTiming"
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadTelemetry"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "408":
+          $ref: "#/components/responses/RequestTimeout"
+        "411":
+          $ref: "#/components/responses/LengthRequired"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/ping:
+    get:
+      tags: [latency]
+      operationId: ping
+      summary: Empty answer for HTTP latency
+      description: The HTTP fallback for idle and loaded latency. Not rate-limited.
+      responses:
+        "204":
+          description: No content.
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+    head:
+      tags: [latency]
+      operationId: pingHead
+      summary: Empty answer for HTTP latency
+      responses:
+        "204":
+          description: No content.
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+  /api/v1/small:
+    get:
+      tags: [latency]
+      operationId: small
+      summary: One constant byte
+      description: >-
+        The HTTP responsiveness probe target and the capability check of loaded-latency path B.
+        Not rate-limited.
+      responses:
+        "200":
+          description: A one-byte body.
+          headers:
+            Content-Length:
+              description: Always 1.
+              schema:
+                type: integer
+                const: 1
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+  /api/v1/ws:
+    get:
+      tags: [latency]
+      operationId: webSocket
+      summary: WebSocket echo for idle and loaded latency
+      description: >-
+        A WebSocket handshake. After the upgrade the client sends WsPing text frames and the
+        server answers each with a WsPong carrying seq and t unchanged; unknown types are
+        ignored. A message over 256 bytes closes the connection with 1009, a binary frame with
+        1003, malformed JSON with 1007, and 120 s without a message with 1000. The handshake's
+        Origin must be absent, equal in host and port to the request's Host, or listed in
+        server.cors.allowed_origins; another origin is refused with a plain 403. At most four
+        connections per client IP. OpenAPI does not model WebSocket messages, so their schemas
+        are listed under components.
+      parameters:
+        - name: Upgrade
+          in: header
+          required: true
+          schema:
+            type: string
+            const: websocket
+        - name: Origin
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "101":
+          description: Switching protocols to the WebSocket echo.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          description: A foreign Origin. The answer has no body.
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/info:
+    get:
+      tags: [info]
+      operationId: info
+      summary: Server information, limits and test defaults
+      description: Built per request; nothing in it describes another client or outlives the request.
+      responses:
+        "200":
+          description: The info response of wire-protocol.md section 5.
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Info"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /metrics:
+    get:
+      tags: [operations]
+      operationId: metrics
+      summary: Prometheus metrics
+      description: >-
+        Served at metrics.path under the base path when metrics.enabled is true; otherwise the
+        path answers 404. Server-side counters only, with no per-client label.
+      responses:
+        "200":
+          description: The Prometheus text exposition.
+          headers:
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlNoStore"
+          content:
+            text/plain:
+              schema:
+                type: string
+        "404":
+          description: Metrics are disabled.
+components:
+  headers:
+    ServerTiming:
+      description: bg-recv;dur= followed by durationMs of the telemetry.
+      schema:
+        type: string
+        pattern: "^bg-recv;dur=[0-9]+$"
+    RetryAfter:
+      description: Whole seconds until the request may succeed.
+      schema:
+        type: integer
+        minimum: 1
+    CacheControlNoStore:
+      description: Every native API response is no-store.
+      schema:
+        type: string
+        const: no-store
+  responses:
+    BadRequest:
+      description: A malformed query or a parameter outside its range (bad_request, bytes_out_of_range).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: An unknown path under /api/v1 (not_found).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    MethodNotAllowed:
+      description: A method the path does not serve (method_not_allowed).
+      headers:
+        Allow:
+          description: The methods the path serves.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RequestTimeout:
+      description: The upload body was not complete within the 120 s lifetime (request_timeout).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    LengthRequired:
+      description: An upload without Content-Length (length_required).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    PayloadTooLarge:
+      description: An upload over limits.max_upload_bytes (payload_too_large).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RateLimited:
+      description: >-
+        A limit was hit (rate_limited, too_many_streams) or the rate-limit table is full of
+        active clients (table_full).
+      headers:
+        Retry-After:
+          $ref: "#/components/headers/RetryAfter"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    InternalError:
+      description: An unexpected server error (internal).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    UploadTelemetry:
+      description: The upload telemetry of wire-protocol.md section 4, exactly these seven keys.
+      type: object
+      additionalProperties: false
+      required: [epoch, bucketMs, firstBucket, buckets, bytes, startMs, durationMs]
+      properties:
+        epoch:
+          type: string
+          description: >-
+            Random identifier generated at process start; identical to server.epoch in GET
+            /info. A different value means the server restarted.
+        bucketMs:
+          type: integer
+          const: 100
+          description: Grid cell length. Always 100; there is no coarsening.
+        firstBucket:
+          type: integer
+          format: int64
+          description: Absolute grid index of buckets[0]; equals floor(startMs / 100).
+        buckets:
+          type: array
+          maxItems: 1201
+          description: >-
+            Bytes read in each consecutive cell from firstBucket on. At most 1201 entries: the
+            120 s lifetime covers 1200 cells, plus one when it starts mid-cell.
+          items:
+            type: integer
+            format: int64
+            minimum: 0
+        bytes:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Total bytes read; the sum of buckets, and the request's Content-Length.
+        startMs:
+          type: integer
+          format: int64
+          description: >-
+            Instant the first byte was read, in milliseconds on the grid's timeline (handler
+            entry for an empty body). Diagnostic and watermark input.
+        durationMs:
+          type: integer
+          format: int64
+          minimum: 0
+          description: >-
+            First to last byte read, in milliseconds. Diagnostic and watermark input; also sent
+            as Server-Timing bg-recv;dur=.
+    Info:
+      type: object
+      additionalProperties: false
+      required: [server, client, limits, defaults, compat]
+      properties:
+        server:
+          $ref: "#/components/schemas/InfoServer"
+        client:
+          $ref: "#/components/schemas/InfoClient"
+        limits:
+          $ref: "#/components/schemas/InfoLimits"
+        defaults:
+          $ref: "#/components/schemas/TestDefaults"
+        compat:
+          $ref: "#/components/schemas/CompatFlags"
+    InfoServer:
+      type: object
+      additionalProperties: false
+      required: [name, version, commit, buildDate, epoch, basePath]
+      properties:
+        name:
+          type: string
+          description: server.display_name.
+        version:
+          type: string
+          description: The BitGauge release version.
+        commit:
+          type: string
+        buildDate:
+          type: string
+        epoch:
+          type: string
+          description: Random identifier generated at process start.
+        basePath:
+          type: string
+          description: server.base_path, for URLs under a sub-path.
+    InfoClient:
+      type: object
+      additionalProperties: false
+      required: [ip, ipVersion, addressClass, suggestedLabel]
+      properties:
+        ip:
+          type: string
+          description: The client IP, derived through the trusted proxies only.
+        ipVersion:
+          type: integer
+          enum: [4, 6]
+        addressClass:
+          type: string
+          enum: [loopback, private, link-local, ula, cgnat, public]
+        suggestedLabel:
+          description: VPN, LAN, or null for a public address.
+          type: [string, "null"]
+          enum: [VPN, LAN, null]
+    InfoLimits:
+      type: object
+      additionalProperties: false
+      required: [maxDownloadBytes, maxUploadBytes, maxStreamsPerClient, uploadLifetimeMs, bucketMs]
+      properties:
+        maxDownloadBytes:
+          type: integer
+          format: int64
+        maxUploadBytes:
+          type: integer
+          format: int64
+        maxStreamsPerClient:
+          type: integer
+        uploadLifetimeMs:
+          type: integer
+          const: 120000
+        bucketMs:
+          type: integer
+          const: 100
+    TestDefaults:
+      description: >-
+        The test defaults from configuration, resolved: an empty duration bound arrives as the
+        preset's value and ping_count 0 as the preset's idle ping count.
+      type: object
+      additionalProperties: false
+      required:
+        - preset
+        - phases
+        - streams
+        - download
+        - upload
+        - dataCapBytes
+        - units
+        - warmup
+        - pingCount
+        - overheadCompensationPercent
+      properties:
+        preset:
+          type: string
+          enum: [quick, standard, extended, continuous]
+        phases:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: string
+            enum: [idle, download, upload]
+        streams:
+          type: object
+          additionalProperties: false
+          required: [mode, fixed, max]
+          properties:
+            mode:
+              type: string
+              enum: [auto, fixed, single]
+            fixed:
+              type: integer
+              minimum: 1
+            max:
+              type: integer
+              minimum: 1
+              maximum: 6
+        download:
+          $ref: "#/components/schemas/DurationBounds"
+        upload:
+          $ref: "#/components/schemas/DurationBounds"
+        dataCapBytes:
+          description: The data cap, or null without one.
+          type: [integer, "null"]
+          format: int64
+        units:
+          type: string
+          enum: [bits, bytes]
+        warmup:
+          description: auto, or the fixed warm-up in whole milliseconds.
+          oneOf:
+            - type: string
+              const: auto
+            - type: integer
+              minimum: 1000
+              maximum: 60000
+        pingCount:
+          type: integer
+          minimum: 0
+        overheadCompensationPercent:
+          type: number
+          minimum: 0
+          maximum: 20
+    DurationBounds:
+      description: A resolved duration range; a bound is null only when the preset has none.
+      type: object
+      additionalProperties: false
+      required: [minMs, maxMs]
+      properties:
+        minMs:
+          type: [integer, "null"]
+        maxMs:
+          type: [integer, "null"]
+    CompatFlags:
+      description: Which compatibility layers are enabled.
+      type: object
+      additionalProperties: false
+      required: [openspeedtest, librespeed, networkquality]
+      properties:
+        openspeedtest:
+          type: boolean
+        librespeed:
+          type: boolean
+        networkquality:
+          type: boolean
+    WsPing:
+      description: Client to server over /api/v1/ws, a JSON text frame.
+      type: object
+      required: [type, seq, t]
+      properties:
+        type:
+          type: string
+          const: ping
+        seq:
+          type: integer
+        t:
+          type: number
+          description: The client's performance.now() at send time; opaque to the server.
+    WsPong:
+      description: Server to client, with seq and t copied unchanged from the ping.
+      type: object
+      required: [type, seq, t]
+      properties:
+        type:
+          type: string
+          const: pong
+        seq:
+          type: integer
+        t:
+          type: number
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          $ref: "#/components/schemas/ErrorBody"
+    ErrorBody:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - bad_request
+            - bytes_out_of_range
+            - not_found
+            - method_not_allowed
+            - request_timeout
+            - length_required
+            - payload_too_large
+            - rate_limited
+            - too_many_streams
+            - table_full
+            - internal
+        message:
+          type: string
+          description: English, for logs and debugging; the SPA maps code to localised text.
+        details:
+          type: object
+          description: Machine-readable context, such as the limit of bytes_out_of_range.
+          additionalProperties: true
