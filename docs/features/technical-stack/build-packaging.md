@@ -10,17 +10,22 @@ recovery) is in [../../release.md](../../release.md).
 ## 1. Container Image
 
 A multi-stage build in `deployments/docker/Dockerfile` produces one image per platform. Every
-stage is a literal `FROM` line pinned by digest, because Dependabot updates only literal `FROM`
-lines and a tag alone can be repointed under a build, and the stages are named:
+stage is a literal `FROM` line, because Dependabot updates only literal `FROM` lines. The
+`dhi.io` bases are pinned by an explicit tag, never `latest`, and not by digest: `dhi.io`
+republishes its tags to ship security fixes, so a digest pin would turn every republish into a
+Dependabot pull request and hold the fixes back until it merged. A build picks up the current
+image of each tag instead, and every release build is scanned before anything is pushed
+([§4](#4-ci-workflows)). The stages are named:
 
 | Stage | Base | Does |
 | --- | --- | --- |
-| `web` | `dhi.io/node:24-alpine…-dev`, pinned by digest, on the build platform | `npm ci` and `npm run build` in `web/` → `web/dist` (SPA, Worker chunk, precompressed assets). `npm run build` is `vite build` only; the type check is a separate gate. |
-| `build` | `dhi.io/golang:1.26-alpine…-dev`, pinned by digest, on the build platform | Copies `web/dist`, then `CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -trimpath -buildvcs=false -ldflags "-s -w -X …/internal/buildinfo.version=… -X …commit=… -X …date=…" ./cmd/bitgauge`. Cross-compiles; no emulation needed. |
-| `runtime` | `dhi.io/static`, pinned by digest | Copies the binary to `/bitgauge`; nothing else. |
+| `web` | `dhi.io/node:24-alpine…-dev`, pinned by tag, on the build platform | `npm ci` and `npm run build` in `web/` → `web/dist` (SPA, Worker chunk, precompressed assets). `npm run build` is `vite build` only; the type check is a separate gate. |
+| `build` | `dhi.io/golang:1.26-alpine…-dev`, pinned by tag, on the build platform | Copies `web/dist`, then `CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -trimpath -buildvcs=false -ldflags "-s -w -X …/internal/buildinfo.version=… -X …commit=… -X …date=…" ./cmd/bitgauge`. Cross-compiles; no emulation needed. |
+| `runtime` | `dhi.io/static`, pinned by tag | Copies the binary to `/bitgauge`; nothing else. |
 
 The file starts with a `# syntax=docker/dockerfile:1.7@sha256:…` parser directive, so the BuildKit
-frontend that reads it is pinned by digest too. Dependabot does not update that line; it is bumped
+frontend that reads it is pinned by tag and index digest: it is not a `dhi.io` image, and a moved
+`1.7` tag could change how the file is built. Dependabot does not update that line; it is bumped
 by hand ([../../release.md](../../release.md#what-the-workflows-trust)).
 
 The build stages use the Docker Hardened Images development variants, so every stage of the image
@@ -120,15 +125,15 @@ meta-test fails both when it is missing after that point and when it appears bef
 | `release.yaml` | manual dispatch on `main` (`version`, `dry_run`) | Tests, audits and builds first: the web app, the two static binaries and `checksums.txt`, and the multi-arch image pushed by digest to a job-local registry. Scans both platform images with Trivy, and only then pushes the git tag, copies the image to GHCR, attests and signs it, attests the binaries and creates the GitHub release ([../../release.md](../../release.md#why-the-build-happens-before-the-tag)). |
 | `scheduled-scan.yaml` | manual dispatch (weekly schedule once public) | `make audit-deps` over `main`, and Trivy over each platform image of `:latest` once releases exist. |
 | `go-cache-warmup.yaml`, `web-cache-warmup.yaml`, `pre-commit-warmup.yaml` | push to `main` on their inputs | Refresh the `main` caches the other workflows restore, keeping the newest two entries. |
-| `dependabot.yml` | monthly | Update PRs for `gomod`, `npm` (`web/`), `docker` (base image digests), `github-actions` and `pre-commit`. |
+| `dependabot.yml` | monthly | Update PRs for `gomod`, `npm` (`web/`), `docker` (base image tags), `github-actions` and `pre-commit`. |
 
 `release.yaml` takes the `release` concurrency group without cancellation, so two releases never
 publish at the same time, and runs Trivy on every platform image before anything is pushed.
 `scheduled-scan.yaml` is dispatch-only while the repository is private.
 
 There is no scheduled rebuild of a published image: a version tag never moves, and a base-image
-fix that Dependabot brings in ships as a new release
-([../../release.md](../../release.md#versioning)).
+fix, whether `dhi.io` republishes it under the same tag or Dependabot moves a tag, ships as a new
+release ([../../release.md](../../release.md#versioning)).
 
 ## 5. Signing, SBOM and Provenance
 

@@ -156,7 +156,7 @@ change also follows the `api-contract` skill.
 
 ## 9. The image stays unprivileged and read-only
 
-`deployments/docker/Dockerfile` runs `dhi.io/static`, pinned by digest, as `USER 65532:65532`,
+`deployments/docker/Dockerfile` runs `dhi.io/static`, pinned by tag, as `USER 65532:65532`,
 spelled out rather than inherited; no shell, `HEALTHCHECK` is `bitgauge healthcheck`
 ([security.md §9](../../../docs/features/security.md#9-container-hardening)). `test/dockerfiles`
 asserts the declaration; `test/image` (`make go-test-image`) runs the image with `--read-only`,

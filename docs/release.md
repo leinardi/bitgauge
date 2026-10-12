@@ -89,9 +89,11 @@ to bump", so re-running a failed run that derived its version works.
 
 Dependabot's Go module and runtime npm updates are committed as `fix(deps)`, so a dependency bump
 alone is enough for a patch release. Its `docker`, `github-actions` and `pre-commit` updates, and
-npm devDependency updates, stay `chore(deps)` and bump nothing. **A base-image digest bump that
-carries a security fix therefore needs an explicit version to ship**: there is no rebuild of a
-published version, and the [scheduled scan](#scheduled-scan) is what says one is needed.
+npm devDependency updates, stay `chore(deps)` and bump nothing. **A base-image security fix
+therefore needs an explicit version to ship**, whether `dhi.io` republished it under the tag the
+Dockerfile names (no commit at all; the next release build picks it up) or a Dependabot tag bump
+brought it in: there is no rebuild of a published version, and the
+[scheduled scan](#scheduled-scan) is what says one is needed.
 
 Only strict `vMAJOR.MINOR.PATCH` git tags are releases: `v`, then three dot-separated numbers, each
 `0` or a number with no leading zero, and nothing after them, which is
@@ -208,9 +210,10 @@ BuildKit's `SOURCE_DATE_EPOCH`. The binaries are built with `-trimpath` and the 
 step 4 above, so a re-run of the same commit produces the same bytes, which is what lets a recovery
 check published assets by SHA-256. The image is not byte-reproducible: its provenance records the
 build itself, so two builds of the same commit have different index digests. That is why a
-recovery never compares a rebuilt index with a published one. The image's base images are pinned by
-digest in `deployments/docker/Dockerfile`, and Dependabot moves the pins forward through reviewed
-pull requests.
+recovery never compares a rebuilt index with a published one. The `dhi.io` base images in
+`deployments/docker/Dockerfile` are pinned by tag, not by digest: `dhi.io` republishes its tags to
+ship security fixes, so a recovery rebuild can use newer bases than the first attempt did, and it
+is scanned like any other build. Dependabot moves the tags forward through reviewed pull requests.
 
 ## Dry Runs
 
@@ -359,11 +362,14 @@ moves, or whose repository is compromised, would execute inside the release job,
 `contents: write`, `packages: write` and an OIDC identity. A SHA cannot be moved. Dependabot's
 `github-actions` ecosystem updates the pins and rewrites the comment.
 
-**Every image the release job runs is pinned by digest**: the job-local registry
-(`REGISTRY_IMAGE`) and skopeo (`SKOPEO_IMAGE`) in the workflow's `env`, and the stage images and the
-`# syntax=docker/dockerfile:…` BuildKit frontend in the Dockerfile. Dependabot's `docker` ecosystem
-updates only the stage images, so the others are bumped by hand: resolve the new index digest with
-`docker buildx imagetools inspect <image>:<tag>` and replace the tag and the digest together. `svu`
+**Every image the release job runs is pinned by digest, except the `dhi.io` bases**: the job-local
+registry (`REGISTRY_IMAGE`) and skopeo (`SKOPEO_IMAGE`) in the workflow's `env`, and the
+`# syntax=docker/dockerfile:…` BuildKit frontend in the Dockerfile. The Dockerfile's `dhi.io` stage
+images are pinned by an explicit tag only, because `dhi.io` republishes its tags with security
+fixes and the release build should take them; the build is scanned before anything is pushed.
+Dependabot's `docker` ecosystem updates only the stage images' tags, so the others are bumped by
+hand: resolve the new index digest with `docker buildx imagetools inspect <image>:<tag>` and
+replace the tag and the digest together. `svu`
 (`SVU_VERSION`) and Trivy (`TRIVY_VERSION`, in both `release.yaml` and `scheduled-scan.yaml`) are
 pinned as versions and bumped by hand for the same reason; `test/toolchain/pins_test.go` holds them
 to one value. Pinning Trivy does not pin what it knows: its vulnerability database is fetched at run
@@ -389,11 +395,11 @@ Monthly update pull requests for five ecosystems:
 | --- | --- | --- |
 | `gomod` | Go modules | `fix(deps)`, so a dependency fix alone is enough for a patch release |
 | `npm` (`web/`) | runtime dependencies `fix(deps)`, devDependencies `chore(deps)` | as listed |
-| `docker` | stage image digests in the Dockerfile | `chore(deps)`; a security fix ships with an explicit version ([Versioning](#versioning)) |
+| `docker` | stage image tags in the Dockerfile | `chore(deps)`; a security fix ships with an explicit version ([Versioning](#versioning)) |
 | `github-actions` | actions pinned by commit SHA | `chore(deps)` |
 | `pre-commit` | hook revisions in `.pre-commit-config.yaml` | `chore(deps)` |
 
-Every update passes the same CI as any other pull request. Docker digest updates pull from
+Every update passes the same CI as any other pull request. Docker tag updates pull from
 `dhi.io`, so Dependabot needs its own copy of the `dhi.io` token (see the setup below).
 
 ## Required Checks and Fork Pull Requests

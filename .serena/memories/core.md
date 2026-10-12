@@ -16,7 +16,7 @@ web/                      tooling only today (package.json, eslint/vite/playwrig
 web/src/engine/           PLANNED: framework-free engine; app imports only engine/messages.ts
 web/src/api/types.gen.ts  PLANNED, GENERATED from api/openapi.yaml (make api-types); never edit
 web/harness/run.spec.ts   Playwright driver of the accuracy harness
-deployments/docker/       Dockerfile: web, build, runtime stages; dhi.io bases pinned by digest
+deployments/docker/       Dockerfile: web, build, runtime stages; dhi.io bases pinned by tag
 test/                     Go meta-tests: boundary, docs, dockerfiles, filebudgets, licenseheaders,
                           packagemap, suppressions, toolchain (gates.go registry, pins)
 test/image/               //go:build image: the shipped image under netguard + strace (Docker)

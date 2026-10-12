@@ -208,10 +208,16 @@ container).
 ### 26. Image — Multi-stage build on `dhi.io/static`
 
 The `web` stage (`dhi.io/node`) builds the SPA, the `build` stage (`dhi.io/golang`) builds a
-static binary, both digest-pinned dev images; runtime is `dhi.io/static` as user `65532:65532`, no
-shell, read-only root filesystem, `healthcheck` subcommand
-([build-packaging.md](build-packaging.md)). The `dhi.io` build stages were decided by the user on
-2026-10-09.
+static binary, both dev images; runtime is `dhi.io/static` as user `65532:65532`, no shell,
+read-only root filesystem, `healthcheck` subcommand ([build-packaging.md](build-packaging.md)).
+Every `dhi.io` base is pinned by an explicit tag, never `latest`, and not by digest: `dhi.io`
+republishes its tags with security fixes, so a build picks them up and the release scan checks
+what it picked up. The `# syntax=` frontend stays pinned by digest. The `dhi.io` build stages were
+decided by the user on 2026-10-09; tag pinning on 2026-10-12, as in gotilert, awtrix-controller and
+swarm-scheduler-exporter.
+
+**Not chosen:** digest-pinned `dhi.io` bases (every republish of a tag becomes a Dependabot pull
+request, and the security fixes it carries wait for that pull request to merge).
 
 ### 27. Platforms — linux/amd64 and linux/arm64 only
 

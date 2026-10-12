@@ -87,7 +87,7 @@ so a diff that creates one is also subject to the spec-first check in §3.
 | `web/**/*.test.ts`, `web/e2e/` (planned), `web/harness/` | `vue-testing-best-practices`, `technical-stack/testing.md` | engine tests replay synthetic timelines; the test asserts behavior, not a fake's calls |
 | `test/**` meta-tests | the comment heading each test, `technical-stack/testing.md` | a meta-test that can no longer fail is a finding (see below) |
 | `test/toolchain/gates.go` | `technical-stack/build-packaging.md` §4 | a gate with unmet prerequisites has none of its hooks, CI jobs or workflows; a met gate has all of them |
-| `deployments/docker/Dockerfile` | `trust-boundary`; `decisions.md` §26, `security.md` §9 | stages pinned by digest, `dhi.io/static` runtime, `USER 65532:65532`, read-only and volume-free |
+| `deployments/docker/Dockerfile` | `trust-boundary`; `decisions.md` §26, `security.md` §9 | `dhi.io` stages pinned by an explicit tag, never `latest` and not by digest (dhi.io republishes tags with security fixes), the `# syntax=` frontend by digest, `dhi.io/static` runtime, `USER 65532:65532`, read-only and volume-free |
 | `.github/workflows/*`, `.github/scripts/*` | `docs/release.md`, `technical-stack/build-packaging.md` §4 | §3 release hardening |
 | `scripts/check-*.sh` | the header comment of the script, its driver under `test/` | the check still fails on what it exists to stop |
 | `.golangci.yaml`, `.pre-commit-config.yaml`, `.suppressions-baseline` | `test/boundary`, `test/toolchain`, `scripts/check-suppressions.sh` | no linter disabled or narrowed; §5 (c) |
@@ -98,7 +98,7 @@ diff touches JS/TS at scale (dead code, cycles, duplication, complexity), the `f
 surface structural risk on the changed set — use it as evidence, not as the review.
 
 A meta-test under `test/` guards a claim the product cannot yet check for itself: the boundary
-lint rules, digest pins, the gates registry, the no-egress layers (`test/internal/netguard`,
+lint rules, image and action pins, the gates registry, the no-egress layers (`test/internal/netguard`,
 `test/internal/syscalltrace`), the Docker test environments (`test/internal/testenv`). Try to
 make the guarded thing go wrong and see whether the test still notices. A test that passes
 because its input is empty, its rule never ran or its tool was skipped is a false pass.
