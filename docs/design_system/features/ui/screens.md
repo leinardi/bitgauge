@@ -33,7 +33,8 @@ from the design export; this page fixes content and behaviour only. Terms follow
   upload it shows the client's sending progress, labelled "sending".
 - **Live chart:** throughput over time (download; upload `received` solid and `sending` faint),
   phase separators, event marks (extended, data cap, cancelled, error), optional loaded-latency
-  series toggle on its own axis.
+  series toggle on its own axis. Warm-up samples are drawn over a shaded band until warm-up ends:
+  they exist only in memory and count toward no number.
 - **Result metrics** (§6), each with its qualifiers. While a direction runs, its tile shows
   "warming up" until warm-up ends, then the steady-window average and peak so far.
 - **Packet loss slot** reading "packet loss — not measured" (§6).
@@ -187,7 +188,7 @@ step. A setting that differs from the server default is marked "changed" and has
   ([url-params.md §3](url-params.md#3-shareable-settings-url)).
 
 **States:** defaults; changed (markers and the changed list); invalid input (inline error on the
-field, value not saved, focus kept on the field); saved (the change applies to the next test).
+field, value not saved; focus is not moved, and Tab leaves the field as usual); saved (the change applies to the next test).
 
 **Responsive notes.** One column on narrow screens; Advanced collapsed by default.
 
@@ -229,7 +230,7 @@ field, value not saved, focus kept on the field); saved (the change applies to t
 | Loaded latency (per direction) | ms; median and p90; increase over idle | label "Loaded latency (WebSocket)" or the fallback source `http-h1-reserved` / `http-h2` / `http-h3`; `unavailable` with reason |
 | Bufferbloat grade | letter plus words: A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe bufferbloat | basis (`download+upload` or one direction) |
 | HTTP loaded responsiveness | RPM, integer | always labelled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples") |
-| Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great), each band with an icon and its name | missing input named; note "upper bound: packet loss is not measured" |
+| Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great), each band with an icon and its name | missing input named; basis when only one direction has a loaded-latency increase ("download only"); note "upper bound: packet loss is not measured" |
 | Packet loss | reserved slot: "packet loss — not measured" | "browsers can't see packet loss over TCP", link to why ([../measurement.md §18](../measurement.md#18-future-packet-loss-via-webrtcturn)); no promise of a release |
 | Data used | decimal kB, MB, GB, 3 significant digits | — |
 | Duration | s, one decimal | — |

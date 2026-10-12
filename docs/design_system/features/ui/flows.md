@@ -79,7 +79,7 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    - **Exception: Continuous.** Stopping is how a Continuous run normally ends; see flow 7.
    - Phases not yet started are `skipped`.
 4. The Test screen shows the Cancelled state: the partial result labelled `partial — stopped early`
-   with what was covered ("upload based on a 3.6 s steady window, 14 requests"). Whether an
+   with what was covered ("upload based on a 3.6 s steady window, 21 requests"). Whether an
    interrupted direction has a number depends on its confirmed steady window, never on the
    elapsed phase time: a stop before warm-up ends gives "insufficient data — confirmed steady
    window shorter than 3 s".

@@ -686,6 +686,11 @@ Path A reports, per direction:
 - the **increase over idle**: median of loaded minus median of idle (0 if negative);
 - the **bufferbloat grade** (§11.3).
 
+A direction has a loaded latency, from path A or its fallback, only when it has a steady window:
+status `measured`, or `partial` with a number (§8.4). A direction that ended `insufficient-data`,
+`error` or `skipped` reports none, even if pings were answered while it ran, because its load never
+settled; its increase is then unavailable to the grade (§11.3) and the quality scores (§13).
+
 WebSocket connections do not count against the HTTP/1.1 six-connection limit, so path A never queues
 behind throughput requests. If the WebSocket cannot be opened (a proxy without upgrade support),
 path A is `unavailable` and the HTTP fallback rules below apply.
@@ -816,7 +821,7 @@ Quality scores follow Cloudflare's AIM (Aggregated Internet Measurement) point t
 | --- | --- |
 | `latency` | idle latency median (ms) |
 | `jitter` | idle jitter (ms) |
-| `loadedLatencyIncrease` | the larger of the per-direction increases from path A or its qualified fallback (ms) |
+| `loadedLatencyIncrease` | the larger of the per-direction increases from path A or its qualified fallback (ms); when only one direction has an increase (§11.1), that one, and the scores are labelled with the direction ("download only"), as the grade is (§11.3) |
 | `download` | download headline (bit/s) |
 | `upload` | upload headline (bit/s) |
 | `packetLoss` | **not measured**: fixed at 0 points |

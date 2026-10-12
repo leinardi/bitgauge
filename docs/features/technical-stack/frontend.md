@@ -112,7 +112,8 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
 - **uPlot** draws the live throughput chart (download series; upload `received` and faint `sending`
   lines), optional loaded-latency series, per-phase charts in the result detail and the history
   trend. Unknown buckets are `null` and render as gaps. Phase separators and event marks are
-  drawn with uPlot hooks from the result's `events`; in the result detail, warm-up is a hatched,
+  drawn with uPlot hooks from the result's `events`. The live chart draws warm-up samples over a
+  shaded band, since they are still in memory; in the result detail, warm-up is a hatched,
   empty interval ending at `warmupEndMs`, because warm-up samples are not stored, and the table
   view follows the row rules of [../ui/screens.md §2](../ui/screens.md#2-result-detail--resultid).
   For Continuous runs the chart picks the retention tier that keeps at most about 2000 points in
@@ -151,6 +152,12 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
 - Light and dark themes switch with `data-theme="light"` or `data-theme="dark"` on `<html>`, the
   attribute the export's tokens key on, defaulting to the system preference; the `theme` URL
   parameter, the Settings screen and the header's theme toggle override it.
+- The logo, favicons, app icons and web manifest come from the export's `assets/`. Claude Design
+  embeds a C2PA provenance manifest in every SVG (`<metadata>` plus an `http://c2pa.org/manifest`
+  namespace) and PNG (a `caBX` chunk), about 6–8 KB per file, more than a small icon's image data.
+  The export keeps them, since it is never hand-edited; the web build strips them when it copies the
+  assets, so the shipped files carry image data only and no external URL reaches the dist URL
+  allowlist ([build-packaging.md §4](build-packaging.md#4-ci-workflows)).
 
 ## Related
 
