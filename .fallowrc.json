@@ -2,7 +2,7 @@
   "workspaces": {
     "patterns": ["web"]
   },
-  "entry": ["web/src/engine/worker.ts", "web/e2e/**/*.spec.ts", "web/harness/run.spec.ts"],
+  "entry": ["web/src/engine/worker.ts", "web/src/demo/worker.ts", "web/e2e/**/*.spec.ts", "web/harness/run.spec.ts"],
   "ignorePatterns": ["docs/**", "!docs/design_system/colors_and_type.css", "scripts/**", "web/dist/**", "web/coverage/**"],
   "ignoreExports": [
     {

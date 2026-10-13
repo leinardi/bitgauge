@@ -15,10 +15,11 @@ web/
   vite.config.ts              SPA + Worker build
   src/
     engine/                   measurement engine (Worker); framework-free
-      worker.ts               Worker entry: message loop only
+      worker.ts               Worker entry: wires the message loop of loop.ts
       messages.ts             command and event types shared with the UI
       run.ts, run/, phases/, upload/, download/, latency/, stats/, result.ts, result/
       clock.ts, transport.ts, wiring.ts   browser clock and transport, their pure helpers
+    demo/                     demo builds only (section 9): the simulated link, its Worker entry
     api/                      generated OpenAPI types and a typed fetch helper for GET /info
     components/               app components (gauge, charts, result cards, notices)
     components/layout/        the header and the narrow-screen tab bar
@@ -45,7 +46,8 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
   both directions: the app may import only `engine/messages.ts` and the Worker URL.
 - **Message schema.** All traffic between the UI and the Worker uses the discriminated unions in
   `engine/messages.ts` ([../architecture.md §4](../architecture.md#4-engine--ui-message-contract)).
-  `worker.ts` contains only the message loop; every rule lives in plain modules. Besides the
+  `loop.ts` holds the message loop and `worker.ts` only wires it to the Worker's messages; every
+  rule lives in plain modules. Besides the
   types, `engine/messages.ts` has one runtime export, `validateResult`, re-exported from
   `engine/result/validate.ts`: the structural check of the result object
   ([../measurement.md §17](../measurement.md#17-result-object)), so the application validates a
@@ -203,6 +205,53 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   The export keeps them, since it is never hand-edited; the web build strips them when it copies the
   assets, so the shipped files carry image data only and no external URL reaches the dist URL
   allowlist ([build-packaging.md §4](build-packaging.md#4-ci-workflows)).
+
+## 9. Demo Build
+
+- **Entry.** `VITE_DEMO=1` selects a demo Worker entry, `web/src/demo/worker.ts`, in place of
+  `engine/worker.ts`: the same message loop (`engine/loop.ts`) and the same `Run`, on a demo clock
+  and against a simulated link, so the UI shows real engine output without a server. Production
+  builds contain none of it: the entry is chosen behind `import.meta.env.VITE_DEMO`, dead-code
+  elimination drops the demo branch, and a sentinel scan of the dist checks that it did.
+- **Simulated link** (`demo/link.ts`, `demo/pacer.ts`, `demo/transport.ts`). Per direction, the
+  requests in flight share a bottleneck's goodput equally, each up to an optional per-request
+  ceiling, moved every 10 ms of demo time as counts, not bytes. A download's first byte arrives one
+  round trip after it is sent; an upload's first byte reaches the server half a round trip after it
+  is sent, and its answer, half a round trip after its last byte, carries the telemetry of
+  [../wire-protocol.md §4](../wire-protocol.md#4-upload-telemetry) counted on a 100 ms server grid
+  whose origin differs from the client clock's. The WebSocket echo and the probes answer one
+  jittered round trip later, `GET /info` with the scenario's fixture and the current epoch. A link
+  can lose each request with a probability, fail every request from an instant, restart (a new epoch
+  from an instant; the WebSocket closes with 1001 while requests in flight drain, as a graceful
+  shutdown lets them) or become unreachable (requests in flight fail, the WebSocket closes with
+  1006, nothing answers). Every random draw comes from one seeded generator, seeded by the run's
+  number in its scenario, so a scenario plays the same way each time.
+- **Demo clock** (`demo/clock.ts`): the wiring's clock run `speed` times faster; optionally a
+  coarser timer, to whose multiples every reading is floored and which is reported as the
+  resolution, not cross-origin isolated; optionally a busy share of 95 %, above the CPU-bound
+  threshold of [../measurement.md §16](../measurement.md#16-confidence-and-notices). It can hold:
+  time stops and no timer fires, so a screen stays in one state until the next scenario replaces
+  the session.
+- **Scenarios** (`demo/scenarios.ts`, `demo/fixtures.ts`, played by `demo/session.ts`). The scenario
+  names are the UI kit's `TEST_STATES` that v0.1 has, all but `continuous`, `cont-warmup` and
+  `cont-done`; a test reads them from `App.jsx`. Each is a link, whether the run starts at once, the
+  URL parameters the page applies, and a script: a user stop, a failure or a hold, each at an
+  instant after a phase starts as the run's own `phase` events report it, at the kit's own defaults
+  (`cancelled` stops 3.1 s into upload, `download` holds 7.5 s into download). A failure is of the
+  kind the demo panel selects: every request failing, the server unreachable, a restart, or a
+  network change sent as the `network` command; a scenario may fix its own kind, as `error-early`
+  does with a server that stops answering during idle latency, which [../ui/flows.md
+  §5](../ui/flows.md#5-error-mid-test) ends as `network changed` once the WebSocket closes. The
+  fixtures are the kit's: "Basement NAS" over the LAN at 612 Mbit/s down and 438 Mbit/s up, 3.1 ms
+  and HTTP/2, with a 110 Mbit/s ceiling per request so that the ramp settles on six streams; over a
+  VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s and 19 kbit/s link of the
+  insufficient-data state. `GET /info` answers what the server would send: both client addresses are
+  private, so the suggested label is LAN for each.
+- **Boundaries.** The demo's Worker-side files, `src/demo/**/*.ts`, follow the engine's import
+  policy extended by `@/demo/`: framework-free, no DOM library, no application code; like
+  `engine/worker.ts`, `demo/worker.ts` alone reaches the Worker's globals, which the engine's
+  banned-globals rule keeps out of every other demo file. `DemoPanel.vue` follows the application's
+  policy. Every demo file obeys the production file ceiling of `.file-budgets`.
 
 ## Related
 

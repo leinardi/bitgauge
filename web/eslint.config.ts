@@ -114,6 +114,26 @@ const engineRestrictedImports = {
   ],
 }
 
+// The demo build's Worker-side files (frontend.md section 9) run the engine against a simulated
+// link: the engine's policy, with the demo's own folder admitted. Its Vue files, DemoPanel.vue,
+// stay under the application's policy.
+const demoRestrictedImports = {
+  patterns: [
+    {
+      group: ['vue', 'vue/**', '@vue/**', 'vue-*', '@vueuse/**', 'reka-ui', 'reka-ui/**', 'idb', 'uplot'],
+      message: 'The demo Worker is framework-free: no Vue, no UI library, no storage (frontend.md section 9).',
+    },
+    {
+      regex: '^@/(?!engine/|demo/|api/types\\.gen$)',
+      message: 'The demo Worker imports only the engine, the demo and the generated API types (frontend.md section 9).',
+    },
+    {
+      regex: '^\\.\\./',
+      message: 'Inside the demo, write a path that leaves the folder as @/demo/... or @/engine/... (frontend.md section 9).',
+    },
+  ],
+}
+
 const appRestrictedImports = {
   patterns: [
     {
@@ -167,6 +187,17 @@ export default defineConfig(
   {
     files: engineFiles,
     rules: { 'no-restricted-imports': ['error', engineRestrictedImports] },
+  },
+  {
+    files: ['src/demo/**/*.ts'],
+    rules: { 'no-restricted-imports': ['error', demoRestrictedImports] },
+  },
+  {
+    // The demo reaches time and the network through the injected Clock and its simulated
+    // Transport too; only its Worker entry touches the Worker's globals.
+    files: ['src/demo/**/*.ts'],
+    ignores: ['src/demo/worker.ts'],
+    rules: { 'no-restricted-globals': ['error', ...engineBannedGlobals] },
   },
   {
     files: engineFiles,

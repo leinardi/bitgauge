@@ -417,6 +417,19 @@ carries a recommendation; where the specification already relies on an answer, i
     opacity, failed 4.5:1 on the light theme. Recommendation: keep it. See
     [technical-stack/testing.md §4.1](technical-stack/testing.md#41-implementation), [ui/flows.md
     §5](ui/flows.md#5-error-mid-test) and [ui/i18n-a11y.md §2.6](ui/i18n-a11y.md#26-contrast).
+45. How does the demo build stand in for a server? Current answer: **a demo Worker entry runs the
+    real engine through its message loop against a simulated link on a sped-up clock, one scenario
+    per v0.1 state of the UI kit, each a link and a scripted stop, failure or hold.** Writing it
+    settled three points. The kit's VPN, 640 kbit/s with 48 ms, finds its steady window before the 10
+    s minimum and is not extended, as the kit's own notes say and the engine agrees; the slow-link
+    extension shows on the kit's 20 kbit/s insufficient-data link instead. And a simulated restart
+    lets the requests in flight drain, as a graceful shutdown does: resetting every parallel request
+    at once is three failures in a row, which ends the run as `requests-failed` before the
+    WebSocket's close sequence finds the new epoch, an outcome the end-to-end suite accepts for a
+    killed server but not the restart the demo means to show. The kit's early error, a server that
+    stops answering during idle latency, ends as `network changed`, as [ui/flows.md
+    §5](ui/flows.md#5-error-mid-test) says of a server that goes away mid-run. Recommendation: keep
+    it. See [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build).
 
 Resolved and removed:
 

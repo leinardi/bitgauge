@@ -81,9 +81,9 @@ through typed messages
 
 - **The three wiring files.** The globals rule ignores `src/engine/clock.ts`,
   `src/engine/transport.ts` and `src/engine/worker.ts` (`engineWiringFiles`): `clock.ts` and
-  `transport.ts` are the production `Clock` and `Transport`, and `worker.ts` is the message loop
-  that receives and posts messages. The import restrictions still apply to them. `worker.ts`
-  contains only the message loop; every rule lives in plain modules.
+  `transport.ts` are the production `Clock` and `Transport`, and `worker.ts` wires the message loop
+  of `loop.ts` to the Worker's messages it receives and posts. The import restrictions still apply
+  to them. `loop.ts` holds only the message loop; every rule lives in plain modules.
 - **`Date` stays allowed**: the result's `startedAt` is wall-clock time
   ([measurement.md §17](../../../docs/features/measurement.md#17-result-object)), which is not what
   the `Clock` measures.

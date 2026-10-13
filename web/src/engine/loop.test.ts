@@ -23,7 +23,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { EngineCommand, EngineEvent, TestSettings } from '@/engine/messages'
-import { messageLoop, type RunHandle, type RunRequest } from '@/engine/worker'
+import { messageLoop, type RunHandle, type RunRequest } from '@/engine/loop'
 
 const SETTINGS: TestSettings = {
   preset: 'standard',

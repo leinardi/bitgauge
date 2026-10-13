@@ -1,0 +1,84 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import type { LinkProfile } from '@/demo/link'
+import type { Info } from '@/engine/types'
+
+// The demo's servers and links, named as in the design export's UI kit (ui_kits/app/TestScreen.jsx):
+// "Basement NAS" reached over the LAN at 612 Mbit/s down and 438 Mbit/s up with 3.1 ms of idle
+// latency over HTTP/2, or over a VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s
+// link of its insufficient-data state. The GET /info answers are what the server would send to
+// that client with its default configuration (configuration.md section 1).
+
+export type DemoLinkName = 'lan' | 'vpn' | 'insufficient'
+
+const MIB = 1024 * 1024
+
+function info(ip: string, basePath: string): Info {
+  return {
+    server: { name: 'Basement NAS', version: '1.4.0', commit: 'a1b2c3d', buildDate: '2026-09-30', epoch: '2026-09-30T08:12:44.000Z', basePath },
+    // A private address: the server suggests LAN for it, a VPN's tunnel address included.
+    client: { ip, ipVersion: 4, addressClass: 'private', suggestedLabel: 'LAN' },
+    limits: { maxDownloadBytes: 256 * MIB, maxUploadBytes: 256 * MIB, maxStreamsPerClient: 8, uploadLifetimeMs: 120_000, bucketMs: 100 },
+    defaults: {
+      preset: 'standard',
+      phases: ['idle', 'download', 'upload'],
+      streams: { mode: 'auto', fixed: 3, max: 6 },
+      download: { minMs: 10_000, maxMs: 20_000 },
+      upload: { minMs: 15_000, maxMs: 25_000 },
+      dataCapBytes: null,
+      units: 'bits',
+      warmup: 'auto',
+      pingCount: 20,
+      overheadCompensationPercent: 0,
+    },
+    compat: { openspeedtest: false, librespeed: false, networkquality: false },
+  }
+}
+
+export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
+  // Six streams fill the link: one connection carries at most about a sixth of it.
+  lan: {
+    downloadBitsPerSecond: 612e6,
+    uploadBitsPerSecond: 438e6,
+    perRequestBitsPerSecond: 110e6,
+    rttMs: 3.1,
+    jitterMs: 0.8,
+    protocol: 'h2',
+  },
+  vpn: {
+    downloadBitsPerSecond: 640e3,
+    uploadBitsPerSecond: 210e3,
+    rttMs: 48,
+    jitterMs: 9.4,
+    protocol: 'h2',
+  },
+  insufficient: {
+    downloadBitsPerSecond: 20e3,
+    uploadBitsPerSecond: 19e3,
+    rttMs: 48,
+    jitterMs: 9.4,
+    protocol: 'h2',
+  },
+}
+
+/** The GET /info answer the link's client sees: the kit's 192.168.1.42 on the LAN, 10.8.0.6 otherwise. */
+export function infoFor(link: DemoLinkName, basePath = '/'): Info {
+  return info(link === 'lan' ? '192.168.1.42' : '10.8.0.6', basePath)
+}

@@ -72,6 +72,79 @@ func TestEngineBoundaryConfig(t *testing.T) {
 	}
 }
 
+// demoBlock is the demo Worker's import policy as web/eslint.config.ts must apply it: to the demo's
+// TypeScript files only, so DemoPanel.vue stays under the application's policy (frontend.md
+// section 9).
+const demoBlock = "  {\n" +
+	"    files: ['src/demo/**/*.ts'],\n" +
+	"    rules: { 'no-restricted-imports': ['error', demoRestrictedImports] },\n" +
+	"  },\n"
+
+// demoGlobalsBlock bans the engine's globals in the demo's files except its Worker entry.
+const demoGlobalsBlock = "    files: ['src/demo/**/*.ts'],\n" +
+	"    ignores: ['src/demo/worker.ts'],\n" +
+	"    rules: { 'no-restricted-globals': ['error', ...engineBannedGlobals] },\n"
+
+// demoPolicy is the demo's import policy: the engine's patterns, whose one widening is @/demo/.
+const demoPolicy = `const demoRestrictedImports = {
+  patterns: [
+    {
+      group: ['vue', 'vue/**', '@vue/**', 'vue-*', '@vueuse/**', 'reka-ui', 'reka-ui/**', 'idb', 'uplot'],
+      message: 'The demo Worker is framework-free: no Vue, no UI library, no storage (frontend.md section 9).',
+    },
+    {
+      regex: '^@/(?!engine/|demo/|api/types\\.gen$)',
+      message: 'The demo Worker imports only the engine, the demo and the generated API types (frontend.md section 9).',
+    },
+    {
+      regex: '^\\.\\./',
+      message: 'Inside the demo, write a path that leaves the folder as @/demo/... or @/engine/... (frontend.md section 9).',
+    },
+  ],
+}
+`
+
+// TestDemoBoundaryConfig pins the demo's policy and the block that applies it byte for byte, so that
+// the demo's policy can never silently widen; the engine's own blocks are pinned above.
+func TestDemoBoundaryConfig(t *testing.T) {
+	t.Parallel()
+
+	config := readRepoFile(t, "web", "eslint.config.ts")
+
+	if strings.Count(config, demoBlock) != 1 {
+		t.Errorf("web/eslint.config.ts must apply the demo policy exactly once, as:\n%s", demoBlock)
+	}
+
+	if strings.Count(config, demoGlobalsBlock) != 1 {
+		t.Errorf(
+			"web/eslint.config.ts must ban the engine's globals in the demo but its entry, as:\n%s",
+			demoGlobalsBlock,
+		)
+	}
+
+	if strings.Count(config, demoPolicy) != 1 {
+		t.Errorf(
+			"web/eslint.config.ts must admit exactly the engine, the demo and the API types in the demo:\nwant %s",
+			demoPolicy,
+		)
+	}
+
+	// The demo block comes after the application's, which it overrides for the demo's .ts files.
+	app := strings.Index(
+		config,
+		"rules: { 'no-restricted-imports': ['error', appRestrictedImports] }",
+	)
+	if app < 0 {
+		t.Fatal("web/eslint.config.ts no longer applies the application's import policy")
+	}
+
+	if demo := strings.Index(config, demoBlock); demo < app {
+		t.Errorf(
+			"web/eslint.config.ts applies the demo policy before the application's, which would override it",
+		)
+	}
+}
+
 // TestEngineBoundaryLint lints sources through ESLint's stdin, so no file is written under src/:
 // each case names the file it pretends to be and whether the boundary must reject it.
 func TestEngineBoundaryLint(t *testing.T) {
@@ -120,6 +193,27 @@ func TestEngineBoundaryLint(t *testing.T) {
 		},
 		"production clock reads performance": {"src/engine/clock.ts", "export const now = () => performance.now()\n", ""},
 		"production transport fetches":       {"src/engine/transport.ts", "export const get = () => fetch('/x')\n", ""},
+		"demo imports application code": {
+			"src/demo/session.ts", "import { x } from '@/composables/useRun'\nexport const a = x\n", "only the engine, the demo",
+		},
+		"demo imports vue": {"src/demo/session.ts", "import { ref } from 'vue'\nexport const a = ref\n", "framework-free"},
+		"demo climbs out with a relative path": {
+			"src/demo/test/play.ts", "import { x } from '../../composables/useRun'\nexport const a = x\n", "@/demo/",
+		},
+		"demo panel imports engine internals": {
+			"src/demo/DemoPanel.vue", "<script setup lang=\"ts\">\nimport { Run } from '@/engine/run'\nconsole.log(Run)\n</script>\n", "messages.ts",
+		},
+		"demo sets a timer": {"src/demo/link.ts", "export const a = () => setTimeout(() => 0, 1)\n", "setTimeout"},
+		"demo fetches":      {"src/demo/transport.ts", "export const get = () => fetch('/x')\n", "fetch"},
+		"demo entry posts messages": {
+			"src/demo/worker.ts", "export const post = () => self.postMessage(1)\n", "",
+		},
+		"demo imports the engine, itself and the generated types": {
+			"src/demo/session.ts",
+			"import { Run } from '@/engine/run'\nimport { Link } from '@/demo/link'\nimport type { Info } from '@/api/types.gen'\n" +
+				"export const a = [Run, Link] as unknown as Info\n",
+			"",
+		},
 		"app imports the message types": {
 			"src/composables/useRun.ts", "import type { Command } from '@/engine/messages'\nexport type A = Command\n", "",
 		},

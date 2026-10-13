@@ -1,0 +1,110 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import type { DemoLinkName } from '@/demo/fixtures'
+import type { PhaseName } from '@/engine/messages'
+
+// The demo's scenarios (frontend.md section 9): one per state of the UI kit's Test screen that v0.1
+// has (the kit's TEST_STATES without continuous, cont-warmup and cont-done), each a link and a
+// script that the real engine plays out. The instants follow the kit's own defaults: its `cancelled`
+// stops 3.1 s into upload, its `download` shows 7.5 s into download, and so on.
+
+/** An instant of a run: `afterMs` of demo time after `phase` started. */
+export interface ScriptPoint {
+  phase: PhaseName
+  afterMs: number
+}
+
+/** The failure the demo panel's error kind selects, as ui/flows.md section 5 names them. */
+export type DemoErrorKind = 'requests' | 'unreachable' | 'restarted' | 'network'
+
+/** A scripted failure: of the panel's kind, unless the scenario fixes its own. */
+export interface ScriptFault extends ScriptPoint {
+  kind?: DemoErrorKind
+}
+
+export interface DemoScenario {
+  link: DemoLinkName
+  /** Whether the run starts once the scenario is chosen; otherwise the screen waits for Start. */
+  start: boolean
+  /** URL parameters the page applies, as a query string without its `?`. */
+  query?: string
+  /** A user stop. */
+  stop?: ScriptPoint
+  /** A failure, of the kind the demo panel selects unless it names its own. */
+  fault?: ScriptFault
+  /** The point where the run is held, so that its screen stays in that state. */
+  hold?: ScriptPoint
+  /** The server does not answer at all. */
+  offline?: boolean
+  /** A reverse proxy that refuses the WebSocket upgrade. */
+  webSocket?: false
+  /** The server's base path, which the page's own path does not match. */
+  basePath?: string
+}
+
+const at = (phase: PhaseName, afterMs: number): ScriptPoint => ({ phase, afterMs })
+
+export const DEMO_SCENARIOS = {
+  idle: { link: 'lan', start: false },
+  countdown: { link: 'lan', start: false, query: 'run=1' },
+  'param-ignored': { link: 'lan', start: false, query: 'streams=12' },
+  connecting: { link: 'lan', start: true, hold: at('info', 0) },
+  latency: { link: 'lan', start: true, hold: at('idle', 1400) },
+  download: { link: 'lan', start: true, hold: at('download', 7500) },
+  'ws-fallback': { link: 'lan', start: true, webSocket: false, hold: at('download', 7500) },
+  upload: { link: 'lan', start: true, hold: at('upload', 12_000) },
+  complete: { link: 'lan', start: true },
+  error: { link: 'lan', start: true, fault: at('download', 6400) },
+  // The kit's early error is the server going away during idle latency, whatever the panel says.
+  'error-early': { link: 'lan', start: true, fault: { ...at('idle', 1200), kind: 'unreachable' } },
+  cancelled: { link: 'lan', start: true, stop: at('upload', 3100) },
+  'cancelled-late': { link: 'lan', start: true, stop: at('upload', 14_000) },
+  'cancelled-latency': { link: 'lan', start: true, stop: at('idle', 1200) },
+  'cancelled-download': { link: 'lan', start: true, stop: at('download', 5200) },
+  'cancelled-slow': { link: 'vpn', start: true, stop: at('download', 8000) },
+  'cancelled-slow-up': { link: 'vpn', start: true, stop: at('upload', 8000) },
+  slow: { link: 'vpn', start: true, hold: at('upload', 12_100) },
+  slowdone: { link: 'vpn', start: true },
+  offline: { link: 'lan', start: false, offline: true },
+  basepath: { link: 'lan', start: false, basePath: '/speed' },
+  insufficient: { link: 'insufficient', start: true, hold: at('upload', 11_250) },
+} as const satisfies Record<string, DemoScenario>
+
+export type DemoScenarioName = keyof typeof DEMO_SCENARIOS
+
+/** The scenario a demo build starts with: the LAN, waiting for Start. */
+export const DEFAULT_SCENARIO: DemoScenarioName = 'idle'
+
+export function isScenarioName(name: string): name is DemoScenarioName {
+  return Object.hasOwn(DEMO_SCENARIOS, name)
+}
+
+/** What the demo panel sends the demo Worker besides the engine's own commands: the next scenario. */
+export interface DemoCommand {
+  type: 'demo'
+  scenario: DemoScenarioName
+  /** How many demo milliseconds pass per real one. */
+  speed: number
+  /** Report the Worker as busy 95 % of the time. */
+  cpuBound: boolean
+  /** A coarser timer, in milliseconds; null keeps the browser's. */
+  timerResolutionMs: number | null
+  errorKind: DemoErrorKind
+}
