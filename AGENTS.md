@@ -184,7 +184,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `web/e2e/**`, `web/playwright.config.ts`, `.mk/e2e.mk` | `make e2e` on all three browsers (WebKit needs its system libraries: `npm --prefix web exec -- playwright install --with-deps webkit`), `make verify-web` (ESLint and the `tsconfig.e2e.json` typecheck cover `web/e2e/`) |
 | `test/harness/**`, `web/harness/**` | `go test ./test/harness/`, `make go-vet-harness`; a runner change, `make harness-ci` (Docker, `dhi.io`, netem), or one profile and browser with `HARNESS_PROFILES` and `HARNESS_BROWSERS` |
 | `test/image/**`, `test/internal/netguard/**`, `test/internal/syscalltrace/**` | `go test ./test/internal/...` (untagged), `make go-vet-image`, and (Docker, `dhi.io`) `make go-test-image`; without `dhi.io`, the probe and netguard tests alone: `go test -tags=image -v -run 'Probe\|Count\|Blind' ./test/image/ ./test/internal/netguard/` |
-| `.agents/skills/**` | own skills: the `docs/**` row; vendored skills are never edited (`skills-lock.json` hashes them) |
+| `.agents/skills/**` | own skills: the `docs/**` row, and every command, path and anchor a skill names still exists (`make help`); vendored skills are never edited (`skills-lock.json` hashes them) |
 | `docs/**/*.md`, root `*.md` | `go test -count=1 ./test/docs/`; every relative link resolves; numbers, probe-path names and the upload JSON shape still agree across `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`; lines wrap at about 100 columns (`spec-change` skill) |
 | `docs/features/technical-stack/decisions.md` | each locked decision appears once; open items match `docs/features/open-questions.md` |
 
@@ -263,6 +263,12 @@ Read the matching skill in `.agents/skills/` before editing:
 - `measurement-engine`: `web/src/engine/**`, engine tests and synthetic timelines.
 - `vue-page-patterns`: `web/src/**` pages, components and their tests.
 - `accuracy-harness`: `test/harness/**`, `web/harness/**`, `.mk/harness.mk`, harness reports.
+- `design-system-guard`: anything under `web/src/**` that renders; the tokens, the design export's
+  app kit and `docs/features/ui/` it is built from.
+- `demo-parity`: `web/src/demo/**`, `web/parity/**`, reading `docs/design_system/ui_kits/app/**`, a
+  failing parity run or coverage test, a new or changed UI feature.
+- `parity-triage`: working through parity differences as clusters in `.parity-triage.json`; the
+  user decides every conflict.
 - `adversarial-review`: reviewing any set of changes.
 
 The vendored upstream skills (`vue-best-practices`, `vue-debug-guides`,
