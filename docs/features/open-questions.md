@@ -404,6 +404,19 @@ carries a recommendation; where the specification already relies on an answer, i
     profile passes on Chromium, Firefox and WebKit. Recommendation: keep it. See
     [technical-stack/testing.md §5.1](technical-stack/testing.md#51-implementation) and the
     [harness runbook](../engineering/accuracy-harness.md).
+44. How does the v0.1 end-to-end suite run, and what does it check? Current answer: **in parallel
+    against one host-built binary whose per-client stream limit is raised to 64, because every spec
+    reaches it from one address; a spec that needs a base path, a server it stops or the WebSocket
+    path, which that server's four WebSockets per client cannot promise, starts a binary of its own;
+    a CSP listener runs in the page and in its Workers; it covers flows 1, 2, 4 and 5 and the base
+    path, accepts either cause a server killed mid-run may end with, `network changed` or
+    `requests-failed`, and runs axe's WCAG 2.2 AA rules once transitions settle, on every v0.1
+    screen.** Its first runs found two defects, now fixed: the router's history rewrote the address
+    under the base path before the base-path check read it, so a page served at another path loaded
+    instead of showing the mismatch screen; and the start button's key hint, at the export's reduced
+    opacity, failed 4.5:1 on the light theme. Recommendation: keep it. See
+    [technical-stack/testing.md §4.1](technical-stack/testing.md#41-implementation), [ui/flows.md
+    §5](ui/flows.md#5-error-mid-test) and [ui/i18n-a11y.md §2.6](ui/i18n-a11y.md#26-contrast).
 
 Resolved and removed:
 

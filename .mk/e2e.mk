@@ -26,6 +26,10 @@ MK_LOCAL_E2E_INCLUDED := 1
 # until then the target fails and says why, rather than passing on nothing.
 
 E2E_PORT ?= 18080
+# The specs run in parallel from one address, which the server's per-client stream limit counts as
+# one client (measurement.md section 4): room for six streams on each of the ten workers that
+# web/playwright.config.ts allows at most.
+E2E_MAX_STREAMS ?= 64
 # make's wildcard reads ** as *, so it would miss a spec two folders down; find does not.
 E2E_SPECS := $(shell [ -d "$(REPO_ROOT)/web/e2e" ] && find "$(REPO_ROOT)/web/e2e" -name '*.spec.ts' -type f)
 E2E_MAIN := $(wildcard $(REPO_ROOT)/cmd/bitgauge/main.go)
@@ -40,7 +44,8 @@ else ifeq ($(strip $(E2E_MAIN)),)
 	@exit 1
 else
 	$(MAKE) build
-	export BITGAUGE_SERVER__LISTEN="127.0.0.1:$(E2E_PORT)"; \
+	export BITGAUGE_SERVER__LISTEN="127.0.0.1:$(E2E_PORT)" \
+	  BITGAUGE_LIMITS__MAX_STREAMS_PER_CLIENT="$(E2E_MAX_STREAMS)"; \
 	  "$(DIST_DIR)/$(BIN_NAME)" serve & server=$$!; \
 	  trap 'kill $$server' EXIT; \
 	  for _ in $$(seq 50); do "$(DIST_DIR)/$(BIN_NAME)" healthcheck && break; sleep 0.2; done; \

@@ -35,13 +35,14 @@ type Reachability = 'unknown' | 'connected' | 'unreachable'
 const info = shallowRef<Info | null>(null)
 const reachability = shallowRef<Reachability>('unknown')
 const mismatch = shallowRef<BasePathMismatch | null>(null)
+let pagePath = '/'
 let pending: Promise<void> | null = null
 
 async function request(): Promise<void> {
   const basePath = readBasePath(document)
   try {
     const answer = await getInfo(basePath)
-    mismatch.value = apiMismatch(window.location.pathname, basePath, answer.server.basePath)
+    mismatch.value = apiMismatch(pagePath, basePath, answer.server.basePath)
     info.value = answer
     reachability.value = 'connected'
   } catch {
@@ -64,11 +65,13 @@ export function useInfo() {
     reachability: computed(() => reachability.value),
     mismatch: computed(() => mismatch.value),
     /**
-     * The first load: the page's path is checked against the base path and the SPA's fixed routes
-     * (`isRoute`), then GET /api/v1/info is asked unless the path already failed.
+     * The first load: the page's path, as it was before the router rewrote the address, is checked
+     * against the base path and the SPA's fixed routes (`isRoute`), then GET /api/v1/info is asked
+     * unless the path already failed.
      */
-    load(isRoute: (path: string) => boolean): Promise<void> {
-      mismatch.value = pageMismatch(window.location.pathname, readBasePath(document), isRoute)
+    load(path: string, isRoute: (route: string) => boolean): Promise<void> {
+      pagePath = path
+      mismatch.value = pageMismatch(path, readBasePath(document), isRoute)
       return mismatch.value === null ? refresh() : Promise.resolve()
     },
     refresh,

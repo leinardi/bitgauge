@@ -98,7 +98,11 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    - **Branch: server restarted** (new epoch): `server restarted`; the current phase reports
      nothing.
    - **Branch: network changed:** `network changed`.
-   - **Branch: server unreachable:** `server unreachable` with Retry.
+   - **Branch: server unreachable:** `server unreachable` with Retry. That is the server not
+     answering as the run starts, or losing every idle-latency ping; a server that stops answering
+     mid-run also closes the WebSocket, which ends the run as `network changed`
+     ([../edge-cases.md §6](../edge-cases.md#6-network-change-mid-test), step 3) unless three
+     requests have failed first.
    - **Branch: the engine itself fails** (a defect, reported as the Worker's uncaught error,
      [../architecture.md §4](../architecture.md#4-engine--ui-message-contract)): `test failed` —
      "The test stopped because of an internal error"; no phase is named and no result exists, so

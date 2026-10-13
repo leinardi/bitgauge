@@ -26,14 +26,17 @@ import { useInfo } from '@/composables/useInfo'
 import { useTheme } from '@/composables/useTheme'
 
 // The application frame: the skip link to the page's main content (ui/i18n-a11y.md section 2.3), the
-// header on every screen, the route's page, and the tab bar on narrow screens (ui/README.md). A base-path mismatch replaces all of it with its error screen
-// (edge-cases.md section 20). The page's own path is checked before anything renders, so a page
-// that fails it starts nothing.
+// header on every screen, the route's page, and the tab bar on narrow screens (ui/README.md). A
+// base-path mismatch replaces all of it with its error screen (edge-cases.md section 20). The
+// page's own path, as it was before the router started, is checked before anything renders, so a
+// page that fails it starts nothing.
+
+const props = defineProps<{ pagePath: string }>()
 
 useTheme()
 const router = useRouter()
 const { load, mismatch } = useInfo()
-void load((path) => router.resolve(path).matched.length > 0)
+void load(props.pagePath, (path) => router.resolve(path).matched.length > 0)
 </script>
 
 <template>

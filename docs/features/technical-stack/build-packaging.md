@@ -3,9 +3,9 @@
 [Feature index](../README.md) / [Technical Stack](README.md) / Build and Packaging
 
 How BitGauge becomes one signed, multi-arch container image and two static binaries. The image,
-its tests, the accuracy harness and the release workflow exist, and their gates are active; the
-E2E gate stays dormant until its inputs exist. The release process itself (versioning, tags,
-recovery) is in [../../release.md](../../release.md).
+its tests, the end-to-end tests, the accuracy harness and the release workflow exist, and their
+gates are active. The release process itself (versioning, tags, recovery) is in
+[../../release.md](../../release.md).
 
 ## 1. Container Image
 

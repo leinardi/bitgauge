@@ -86,7 +86,7 @@ make web-dev           # Vite dev server
 make web-test          # Vitest: unit, component, engine
 make web-lint          # ESLint, then vue-tsc
 make api-types         # regenerate web/src/api/types.gen.ts from api/openapi.yaml
-make e2e               # Playwright on Chromium, Firefox, WebKit, host-built binary (dormant)
+make e2e               # Playwright on Chromium, Firefox, WebKit, host-built binary
 make docker-build      # the image for the host platform, into the local daemon (dhi.io)
 make docker-run        # run the image read-only on 127.0.0.1:8080, DOCKER_RUN_BIND
 make go-test-image     # build the image, test it under netguard and strace (dhi.io)
@@ -165,6 +165,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `.github/workflows/**`, `.github/actions/**` | `pre-commit run actionlint --all-files`, `go test ./test/toolchain/` (pins, gate registry, vacuous flags) |
 | `.pre-commit-config.yaml`, `Makefile`, `.mk/**` | `make check`, `go test ./test/toolchain/`, `make help` |
 | `test/toolchain/gates.go`, `docs/STATUS.md` rows a gate reads | `go test ./test/toolchain/` |
+| `web/e2e/**`, `web/playwright.config.ts`, `.mk/e2e.mk` | `make e2e` on all three browsers (WebKit needs its system libraries: `npm --prefix web exec -- playwright install --with-deps webkit`), `make verify-web` (ESLint and the `tsconfig.e2e.json` typecheck cover `web/e2e/`) |
 | `test/harness/**`, `web/harness/**` | `go test ./test/harness/`, `make go-vet-harness`; a runner change, `make harness-ci` (Docker, `dhi.io`, netem), or one profile and browser with `HARNESS_PROFILES` and `HARNESS_BROWSERS` |
 | `test/image/**`, `test/internal/netguard/**`, `test/internal/syscalltrace/**` | `go test ./test/internal/...` (untagged), `make go-vet-image`, and (Docker, `dhi.io`) `make go-test-image`; without `dhi.io`, the probe and netguard tests alone: `go test -tags=image -v -run 'Probe\|Count\|Blind' ./test/image/ ./test/internal/netguard/` |
 | `.agents/skills/**` | own skills: the `docs/**` row; vendored skills are never edited (`skills-lock.json` hashes them) |
@@ -228,10 +229,8 @@ everything the table requires.
 `web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
 tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`. Today
-the binary build, API types, frontend lint and typecheck, frontend unit tests, web build, image
-and image tests, accuracy harness and release gates are active and the E2E gate is dormant;
-`idle-measure` and `idle-bench` run against a running binary. The [STATUS row](docs/STATUS.md)
-says the same.
+every gate above is active; `idle-measure` and `idle-bench` run against a running binary. The
+[STATUS row](docs/STATUS.md) says the same.
 
 ## Project skills
 

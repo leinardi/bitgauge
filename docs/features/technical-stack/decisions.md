@@ -358,6 +358,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 41 | A finished direction's `phase` event carries its headline for the live region; spoken numbers use the visual scale with long unit names; the v0.1 result summary and a skip link | v0.1 |
 | 42 | The ramp's `I_m` spans a request cycle over 10 ms of RTT and is 100 RTT below it, at least 500 ms and 2 RTT | v0.1 |
 | 43 | The harness's iperf3 runs settle, then take the receiver's median interval; the shaper queue is an 80 ms fq_codel; a failing verdict keeps its environment | v0.1 |
+| 44 | E2E runs in parallel against one binary with a per-client stream limit of 64, own binaries for the base path and a stopped server, axe WCAG 2.2 AA after transitions | v0.1 |
 
 ## Related
 

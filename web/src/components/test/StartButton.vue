@@ -81,7 +81,7 @@ function press(): void {
       {{ label }}
       <kbd
         aria-hidden="true"
-        class="ml-auto hidden rounded-(--radius-xs) border border-current/30 px-1.5 font-mono text-(length:--text-micro) opacity-70 sm:inline"
+        class="ml-auto hidden rounded-(--radius-xs) border border-current/30 px-1.5 font-mono text-(length:--text-micro) sm:inline"
       >{{ look.escape ? t('test.start.keyEscape') : t('test.start.keyEnter') }}</kbd>
     </Button>
     <span

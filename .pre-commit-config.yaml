@@ -167,14 +167,14 @@ repos:
         language: system
         pass_filenames: false
         require_serial: true
-        files: ^(web/(src/.*\.(vue|ts|tsx)|[^/]+\.config\.ts|package(-lock)?\.json)|\.file-budgets)$
+        files: ^(web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|[^/]+\.config\.ts|package(-lock)?\.json)|\.file-budgets)$
       - id: frontend-typecheck
         name: frontend typecheck
         entry: npm --prefix web run typecheck
         language: system
         pass_filenames: false
         require_serial: true
-        files: ^web/(src/.*\.(vue|ts|tsx)|[^/]+\.config\.ts|tsconfig.*\.json|package(-lock)?\.json)$
+        files: ^web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|[^/]+\.config\.ts|tsconfig.*\.json|package(-lock)?\.json)$
       - id: frontend-test
         name: frontend test
         entry: npm --prefix web run test

@@ -111,6 +111,31 @@ Playwright's WebKit is not Safari: Worker XHR upload progress, `nextHopProtocol`
 behaviour are re-checked manually on real Safari (macOS) and iOS Safari before each release
 ([../edge-cases.md §17](../edge-cases.md#17-safari-and-ios-quirks)).
 
+### 4.1 Implementation
+
+- **Runner.** `make e2e` builds the binary with the SPA on the host and runs `web/e2e/` against it
+  in all three browsers, the specs in parallel. They all reach the server from one address, which
+  its per-client stream limit counts as one client ([../measurement.md
+  §4](../measurement.md#4-adaptive-stream-count)), so that server runs with `max_streams_per_client`
+  raised to 64, room for the ten workers the Playwright configuration allows at most. Its four
+  WebSockets per client ([../wire-protocol.md §9](../wire-protocol.md#9-rate-limits)) can be
+  exceeded, so a run there may fall back to HTTP for idle latency. A spec that needs a server of its
+  own starts `dist/bitgauge` on a free loopback port (`web/e2e/fixtures/server.ts`): the first run,
+  which checks that idle latency came over the WebSocket, a server configured for a base path, and
+  one stopped mid-run.
+- **v0.1 coverage.** Flows 1, 2, 4 and 5, with the base path deployment and the mismatch screen.
+  The slow mobile VPN run is the accuracy harness's 500 kbit/s profile (§5); history, continuous
+  mode, sharing and settings arrive with the versions that ship them. A server killed mid-run
+  closes the WebSocket, and the run ends with `network changed`
+  ([../edge-cases.md §6](../edge-cases.md#6-network-change-mid-test), step 3) or, when three
+  download requests fail first, with `requests-failed`; the spec accepts either.
+- **CSP.** Every test listens for `securitypolicyviolation` in the page, before its own scripts run,
+  and in each Worker it starts, where the engine's requests and WebSocket run, and fails on any; a
+  negative control proves both listeners report a blocked request.
+- **axe.** WCAG 2.2 AA rules (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`), once the
+  page's transitions have settled, on every v0.1 screen: the Test screen idle, done, cancelled and
+  in error, About and the not-available screen in both themes, and the base-path error.
+
 ## 5. Accuracy Harness
 
 The product claims 300 kbit/s to 10 Gbit/s on Chromium, Firefox and Safari (desktop and iOS). The

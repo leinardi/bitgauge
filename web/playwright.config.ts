@@ -20,9 +20,15 @@
 // End-to-end tests (testing.md section 4) on Chromium, Firefox and WebKit, against a running
 // BitGauge. make e2e builds the binary on the host, starts it and points BITGAUGE_E2E_URL at it.
 
+import { availableParallelism } from 'node:os'
+
 import { defineConfig, devices } from '@playwright/test'
 
 const baseURL = process.env.BITGAUGE_E2E_URL ?? 'http://127.0.0.1:8080'
+
+// Playwright's default, half the logical CPUs, but at most ten: the server make e2e starts has room
+// for ten runs of six streams from one address (.mk/e2e.mk).
+const workers = Math.min(10, Math.max(1, Math.floor(availableParallelism() / 2)))
 
 export default defineConfig({
   testDir: './e2e',
@@ -32,6 +38,7 @@ export default defineConfig({
   retries: 0,
   forbidOnly: true,
   fullyParallel: true,
+  workers,
   reporter: [['list'], ['html', { open: 'never', outputFolder: './playwright-report' }]],
   use: { baseURL },
   projects: [

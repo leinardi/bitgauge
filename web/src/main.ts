@@ -25,7 +25,11 @@ import App from '@/App.vue'
 import { createAppI18n } from '@/i18n'
 import { appHistory, createAppRouter } from '@/router'
 
-createApp(App)
+// The page's own path, for the base-path check: read before the router's history, which rewrites
+// the address under the base path as it starts (edge-cases.md section 20).
+const pagePath = window.location.pathname
+
+createApp(App, { pagePath })
   .use(createAppRouter(appHistory(document)))
   .use(createAppI18n(window.location.search, navigator.languages))
   .mount('#app')

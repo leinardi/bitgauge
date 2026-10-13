@@ -24,12 +24,14 @@
 // and nothing else; a page that passes loads the application, which opens with the skip link to
 // the page's main content (ui/i18n-a11y.md section 2.3).
 
-import { flushPromises } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getInfo } from '@/api/info'
 import App from '@/App.vue'
+import { createAppI18n } from '@/i18n'
 import { links } from '@/lib/links'
+import { appHistory, createAppRouter } from '@/router'
 import { infoFixture } from '@/test/fixtures'
 import { mountApp } from '@/test/mount'
 
@@ -46,6 +48,11 @@ function page(basePath: string, pathname: string): void {
   meta.content = basePath
   document.head.append(meta)
   window.history.replaceState(null, '', pathname)
+}
+
+/** App's props as main.ts passes them: the path the page was opened at. */
+function served() {
+  return { props: { pagePath: window.location.pathname } }
 }
 
 class StubWorker extends EventTarget {
@@ -65,7 +72,7 @@ afterEach(() => {
 describe('the first load', () => {
   it('stops at the error when the page is outside the base path', async () => {
     page('/speed', '/')
-    const wrapper = await mountApp(App)
+    const wrapper = await mountApp(App, '/', served())
     await flushPromises()
     const error = wrapper.get('main[role="alert"]')
     expect(error.text()).toContain('BitGauge is configured for /speed but this page was served at /.')
@@ -74,9 +81,21 @@ describe('the first load', () => {
     expect(getInfo).not.toHaveBeenCalled()
   })
 
+  it('checks the path the page was served at, which the router rewrites under the base path', async () => {
+    page('/speed', '/')
+    const pagePath = window.location.pathname
+    const router = createAppRouter(appHistory(document))
+    expect(window.location.pathname).toBe('/speed/')
+    const wrapper = mount(App, { props: { pagePath }, global: { plugins: [router, createAppI18n('', ['en'])] } })
+    await flushPromises()
+    expect(wrapper.get('main[role="alert"]').text()).toContain('BitGauge is configured for /speed but this page was served at /.')
+    expect(getInfo).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
   it('stops at the error when the page is on no fixed route under the base path', async () => {
     page('/', '/speed/')
-    const wrapper = await mountApp(App)
+    const wrapper = await mountApp(App, '/', served())
     await flushPromises()
     expect(wrapper.get('main[role="alert"]').text()).toContain('configured for / but this page was served at /speed/')
     expect(getInfo).not.toHaveBeenCalled()
@@ -85,7 +104,7 @@ describe('the first load', () => {
   it('stops at the error when the server reports another base path', async () => {
     page('/speed', '/speed/about')
     vi.mocked(getInfo).mockResolvedValueOnce(infoFixture({ server: { basePath: '/' } }))
-    const wrapper = await mountApp(App, '/about')
+    const wrapper = await mountApp(App, '/about', served())
     await flushPromises()
     expect(getInfo).toHaveBeenCalledWith('/speed')
     const error = wrapper.get('main[role="alert"]')
@@ -97,7 +116,7 @@ describe('the first load', () => {
   it('loads the application when everything agrees', async () => {
     page('/speed/', '/speed/')
     vi.mocked(getInfo).mockResolvedValueOnce(infoFixture({ server: { basePath: '/speed' } }))
-    const wrapper = await mountApp(App)
+    const wrapper = await mountApp(App, '/', served())
     await flushPromises()
     expect(wrapper.find('main[role="alert"]').exists()).toBe(false)
     expect(wrapper.get('[data-testid="server"]').text()).toContain('Basement NAS')
@@ -108,7 +127,7 @@ describe('the skip link', () => {
   it.each(['/', '/about', '/history'])('comes first on %s and targets the main content', async (path) => {
     page('/', path)
     vi.mocked(getInfo).mockResolvedValue(infoFixture())
-    const wrapper = await mountApp(App, path)
+    const wrapper = await mountApp(App, path, served())
     await flushPromises()
     const focusable = wrapper.findAll('a[href], button')
     expect(focusable[0]?.attributes('data-testid')).toBe('skip-link')

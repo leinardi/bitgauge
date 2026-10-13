@@ -1,8 +1,8 @@
 name: CI
 
 # The authoritative checks run on every pull request and every push to main; the reviewdog jobs only
-# annotate pull requests. Jobs that wait for a dormant gate (e2e) are added in their activation
-# commits, as test/toolchain/gates.go requires.
+# annotate pull requests. A gate's jobs are added in its activation commit, as
+# test/toolchain/gates.go requires.
 on:
   pull_request:
   push:
@@ -420,6 +420,66 @@ jobs:
       DHI_USERNAME: ${{ secrets.DHI_USERNAME }}
       DHI_TOKEN: ${{ secrets.DHI_TOKEN }}
 
+  # Playwright end to end (testing.md section 4): the v0.1 flows on Chromium, Firefox and WebKit
+  # against the binary built on the runner, so no image and no dhi.io. The browsers are cached per
+  # lockfile and saved from main, where pull requests can restore them.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: .go-version
+          check-latest: true
+          cache: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install the web dependencies
+        run: make web-install
+
+      - name: Restore the Playwright browsers
+        id: browsers-restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('web/package-lock.json') }}
+
+      # With the browsers restored, this installs only the system libraries they need.
+      - name: Install the Playwright browsers
+        run: npm --prefix web exec --no -- playwright install --with-deps chromium firefox webkit
+
+      - name: Save the Playwright browsers
+        if: github.ref == 'refs/heads/main' && steps.browsers-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ steps.browsers-restore.outputs.cache-primary-key }}
+
+      - name: Run the end-to-end tests
+        run: make e2e
+
+      - name: Upload the Playwright report
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report-${{ github.run_attempt }}
+          path: |
+            web/playwright-report/
+            web/test-results/e2e/
+          if-no-files-found: warn
+          retention-days: 14
+
   # The one required check that stands for the rest: GitHub counts a skipped required job as passing,
   # so this job runs always and decides. On a pull request every needed job must succeed; on a push
   # or a dispatch the pull-request-only jobs are skipped and the others must succeed.
@@ -436,6 +496,7 @@ jobs:
       - credentials
       - image
       - harness
+      - e2e
     runs-on: ubuntu-latest
     timeout-minutes: 5
 

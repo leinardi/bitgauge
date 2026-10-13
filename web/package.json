@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.node.json && vue-tsc --noEmit -p tsconfig.engine.json && vue-tsc --noEmit -p tsconfig.json",
-    "lint": "eslint src '*.config.ts' --max-warnings 0 --cache --cache-strategy content --cache-location .cache/eslint",
-    "lint:fix": "eslint src '*.config.ts' --fix --max-warnings 0 --cache --cache-strategy content --cache-location .cache/eslint",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.node.json && vue-tsc --noEmit -p tsconfig.engine.json && vue-tsc --noEmit -p tsconfig.json && vue-tsc --noEmit -p tsconfig.e2e.json",
+    "lint": "eslint src e2e '*.config.ts' --max-warnings 0 --cache --cache-strategy content --cache-location .cache/eslint",
+    "lint:fix": "eslint src e2e '*.config.ts' --fix --max-warnings 0 --cache --cache-strategy content --cache-location .cache/eslint",
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
@@ -16,6 +16,7 @@
     "api-types": "openapi-typescript ../api/openapi.yaml -o src/api/types.gen.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@intlify/eslint-plugin-vue-i18n": "^4.5.1",
     "@playwright/test": "1.64.0",
     "@types/node": "^24.19.1",
