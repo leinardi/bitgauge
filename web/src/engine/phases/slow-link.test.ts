@@ -229,8 +229,11 @@ describe('section 19.1 download, 300 kbit/s and 300 ms RTT', () => {
 })
 
 describe('section 19.2, 500 kbit/s and 300 ms RTT', () => {
+  // The ≈ 0.478 Mbit/s of goodput a 500 kbit/s shaper carries: 1448 payload bytes per 1514.
+  const GOODPUT = 59_800
+
   it('decides the download at 3.3, 5.1 and 6.9 s', () => {
-    const phase = new Phase('download', 62_500)
+    const phase = new Phase('download', GOODPUT)
     phase.run(() => phase.ramp.settled)
     expect(phase.decisions).toEqual([
       { atMs: 3300, streams: 2 },
@@ -240,15 +243,15 @@ describe('section 19.2, 500 kbit/s and 300 ms RTT', () => {
     expect(phase.warmup.end).toEqual({ bucket: 69, confidence: NORMAL })
   })
 
-  it('decides the upload at 3.95, 6.3 and 10.3 s, and meets the window condition at 12.3 s', () => {
-    const { phase, windowAt } = uploadUntilWindow(62_500)
+  it('decides the upload at 4.0, 6.4 and 10.7 s, and meets the window condition at 12.4 s', () => {
+    const { phase, windowAt } = uploadUntilWindow(GOODPUT)
     expect(phase.decisions).toEqual([
-      { atMs: 3949, streams: 2 },
-      { atMs: 6298, streams: 4 },
-      { atMs: 10_307, streams: 4, plateau: 'no-gain' },
+      { atMs: 3996, streams: 2 },
+      { atMs: 6392, streams: 4 },
+      { atMs: 10_676, streams: 4, plateau: 'no-gain' },
     ])
-    expect(phase.anchors).toEqual([40, 64])
-    expect(phase.warmup.end).toEqual({ bucket: 82, confidence: LOW_SAMPLES })
-    expect(windowAt).toBe(12_331)
+    expect(phase.anchors).toEqual([41, 65])
+    expect(phase.warmup.end).toEqual({ bucket: 83, confidence: LOW_SAMPLES })
+    expect(windowAt).toBe(12_437)
   })
 })

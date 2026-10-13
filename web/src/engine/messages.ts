@@ -85,6 +85,8 @@ export type Notice =
   | { code: 'slow-link-extended'; direction: Direction }
   | { code: 'low-confidence'; direction: Direction; reasons: ConfidenceReason[] }
   | { code: 'data-cap-reached'; direction: Direction }
+  /** A `429` lowered the effective cap; `streams` is the lowered cap (measurement.md section 4). */
+  | { code: 'stream-limit'; direction: Direction; streams: number }
   | { code: 'insufficient-data'; direction: Direction; offer: Preset | null }
   | { code: 'url-parameter-ignored'; parameter: string }
   | { code: 'stopped-early'; direction: Direction; coveredMs: number }

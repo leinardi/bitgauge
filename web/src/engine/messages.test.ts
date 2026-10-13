@@ -79,6 +79,7 @@ describe('message contract', () => {
       | 'slow-link-extended'
       | 'low-confidence'
       | 'data-cap-reached'
+      | 'stream-limit'
       | 'insufficient-data'
       | 'url-parameter-ignored'
       | 'stopped-early'

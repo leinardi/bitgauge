@@ -135,6 +135,26 @@ carries a recommendation; where the specification already relies on an answer, i
     percentage's denominator. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [measurement.md §10](measurement.md#10-idle-latency).
+20. How does a throughput phase handle a `429`, failures and the data cap? Current answer: **a
+    `429` records the `stream-limit` notice with the lowered cap**, a code §16 lacked although §4
+    called for a notice; the streams above a lowered cap finish their request in flight and issue
+    no further one; three consecutive failures count across the direction's streams in the order
+    they occur, and any completed request resets the count; the phase ends on the data cap at the
+    instant a stream would issue a request with less than 16 KiB of budget left, the budget
+    counting the bytes still to arrive of the requests in flight; a direction reports the protocol
+    of its latest throughput request with a Resource Timing entry. On the shared-link model the
+    100 Mbit/s download of §19.3 keeps its trial to 2 streams, because its baseline's last interval
+    holds a request gap, and plateaus at 4 streams at ≈ 5 s (it was 2 streams at ≈ 4 s); it still
+    ends at 10 s, with a ≈ 5 s window. §19.2 is worked at the ≈ 0.478 Mbit/s of goodput its
+    500 kbit/s shaper carries, and its download headline is ≈ 95.5 % of it: four streams at the
+    16 KiB floor end their requests together once in the window and leave the link idle for one
+    RTT gap. A delayed chunk never changes a bucket a decision has read. Recommendation: keep it;
+    confirm the §19.3 ramp and the §19.2 headline on the harness CI profile, and if the harness
+    shows the coinciding gaps, consider letting a floor-sized stream issue its next request before
+    the last byte of the current one arrives. See [measurement.md §4](measurement.md#4-adaptive-stream-count),
+    [§5](measurement.md#5-adaptive-duration), [§6](measurement.md#6-download-mechanics),
+    [§19.2](measurement.md#192-500-kbits--300-ms-rtt-mobile-over-vpn-standard) and
+    [§19.3](measurement.md#193-100-mbits--50-ms-rtt-standard).
 
 Resolved and removed:
 

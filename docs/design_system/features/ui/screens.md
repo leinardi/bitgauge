@@ -247,7 +247,8 @@ detail, each with a short explanation and, where useful, a link to the docs. The
 - **Slow link:** `slow link — test extended`; `insufficient data` with an "Try Standard/Extended"
   action.
 - **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU").
-- **Limits:** `data cap reached`; `data used: N GB` (Continuous); `overhead compensation +p %`.
+- **Limits:** `data cap reached`; `server stream limit — N streams`; `data used: N GB`
+  (Continuous); `overhead compensation +p %`.
 - **Settings:** `URL parameter ignored`, naming each invalid parameter.
 - **Interrupted:** `partial — stopped early` (a Continuous run stopped after its steady window began
   is `complete` instead); `upload interrupted by a failed request`;

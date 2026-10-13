@@ -88,7 +88,7 @@ export class DurationRule {
    * The direction's status and notices once the phase is over: measured when the final window
    * meets the condition, otherwise insufficient data with the next larger preset offered.
    */
-  outcome(finalConditionHolds: boolean): { status: DirectionStatus; notices: Notice[] } {
+  outcome(finalConditionHolds: boolean): { status: Extract<DirectionStatus, 'measured' | 'insufficient-data'>; notices: Notice[] } {
     const notices: Notice[] = this.extended ? [{ code: 'slow-link-extended', direction: this.direction }] : []
     if (finalConditionHolds) {
       return { status: 'measured', notices }

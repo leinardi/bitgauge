@@ -334,6 +334,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 17 | Slow-link budgets recomputed on a shared link with per-request RTT gaps | v0.1 |
 | 18 | Warm-up conditions read bucket by bucket on known buckets, measured from the series start | v0.1 |
 | 19 | Settings overrides and preset switches resolved in the engine; idle-latency warm-up and fallback edge cases | v0.1 |
+| 20 | The `stream-limit` notice for a `429`; failure counting, the data-cap budget and end instant, the reported protocol, late chunks; §19.2 at its goodput and §19.3 recomputed | v0.1 |
 
 ## Related
 

@@ -103,8 +103,8 @@ size_next = clamp(rate_s × 1 s, 16 KiB, min(8 × size_prev, cap))
   `limits.maxUploadBytes`, from `limits.max_download_bytes` and `limits.max_upload_bytes`, default
   256 MiB each). At more than about 2.1 Gbit/s per stream, capped
   requests take less than 1 s; this only adds one LAN round trip per request.
-- When a data cap is set, a request is shrunk so that data used plus the size of all requests in
-  flight never exceeds the cap; when less than the floor remains, no new request is issued (§5).
+- When a data cap is set, a request is shrunk so that data used plus the bytes still to arrive of
+  all requests in flight never exceeds the cap; when less than the floor remains, no new request is issued (§5).
 
 **Slow-link example (500 kbit/s ≈ 61 KiB/s, one stream).** The first 64 KiB request takes about
 1.05 s plus RTT. `rate_s` ≈ 61 KiB/s, so the next request is 61 KiB and takes about 1 s. With two
@@ -155,15 +155,17 @@ by the floor rule (§8).
   [edge-cases.md](edge-cases.md)).
 - The negotiated protocol is read from `nextHopProtocol` in the Resource Timing entry of each
   throughput request and shown in the connection info. An empty value (some Safari versions) is
-  reported as `unknown`; for the probe reservation an unknown protocol is treated as HTTP/1.1.
+  reported as `unknown`; for the probe reservation an unknown protocol is treated as HTTP/1.1. A
+  direction reports the protocol of its latest throughput request that had an entry.
 
 **Per-client limits.** If the server answers `429` because `max_streams_per_client` is shared by
-several browsers behind one address, the request counts as failed and the engine records a notice.
-On download, and on upload over HTTP/2 or HTTP/3 (where the failed upload leaves a failure gap,
-§7.5), the engine lowers the effective cap by one for the rest of the phase and continues. On upload
-over HTTP/1.1 or an unreported protocol, the failure ends the phase instead (§7.5). When the
-lowered cap is below the current stream count, the count drops to the cap; a ramp trial in progress
-ends there with the plateau reason `cap`.
+several browsers behind one address, the request counts as failed and the engine records the
+`stream-limit` notice with the lowered cap (§16). On download, and on upload over HTTP/2 or HTTP/3
+(where the failed upload leaves a failure gap, §7.5), the engine lowers the effective cap by one for
+the rest of the phase and continues. On upload over HTTP/1.1 or an unreported protocol, the failure
+ends the phase instead (§7.5). When the lowered cap is below the current stream count, the count
+drops to the cap: the streams above it finish the request they have in flight and issue no further
+one, and a ramp trial in progress ends there with the plateau reason `cap`.
 
 ## 5. Adaptive Duration
 
@@ -204,15 +206,17 @@ and protocol:
   stream issues its next request and the measurement continues. On download the bytes already read
   are kept; on upload the request has no telemetry and its server activity becomes a failure gap
   once a later request confirms (§7.5). **Three consecutive failed requests** in a direction end the
-  phase with an error result.
+  phase with an error result: failures count across the direction's streams in the order they
+  occur, and any request that completes resets the count.
 - **Upload over HTTP/1.1 or an unreported protocol.** The first failure ends the phase, with a
   number from the window up to that failure or `insufficient data`, and the notice
   `upload interrupted by a failed request` (§7.5). The three-failures rule does not apply there,
   because a single failure already ends the phase.
 
 **Data cap.** An optional limit on data used per test (default: none). Requests are sized so the cap
-is never exceeded (§3). When the remaining budget is below the 16 KiB floor, the current phase ends
-as if its maximum had been reached (the window condition decides between a number and
+is never exceeded (§3). When the remaining budget is below the 16 KiB floor at the moment a stream
+would issue its next request, the current phase ends at that instant as if its maximum had been
+reached (the window condition decides between a number and
 `insufficient data`), remaining throughput phases are skipped, and the result carries the
 `data cap reached` notice.
 
@@ -226,7 +230,9 @@ Latency probes and protocol overhead are not included. It is shown live and in e
   with an `AbortController` per request for stop, timeout and phase end.
 - The body is read with a `ReadableStream` reader. For every chunk the engine records its byte count
   and the `performance.now()` timestamp at which `read()` resolved, adds it to the bucket of that
-  instant, and discards the chunk. Nothing is buffered beyond the current chunk.
+  instant, and discards the chunk. Nothing is buffered beyond the current chunk. A bucket that a
+  decision has already read never changes: a chunk whose instant falls in one, which only a
+  delayed read can produce, counts in the bucket still open.
 - The server sends exactly `N` bytes from an in-memory random buffer with `Content-Length`,
   `Cache-Control: no-store` and no `Content-Encoding`. Browsers do not let a page set
   `Accept-Encoding`, so identity encoding is a server and proxy property; random bytes are
@@ -1021,6 +1027,7 @@ engine emits the code with the raw values the notice names, and the UI words it.
 - `slow link — test extended` (`slow-link-extended`, per direction; §5);
 - `low confidence` with its reason (`low-confidence`, per direction with its reasons);
 - `data cap reached` (`data-cap-reached`; §5);
+- `server stream limit — N streams` (`stream-limit`, per direction with the lowered cap; §4);
 - `insufficient data` per direction, with the next-larger-preset offer (`insufficient-data`; §8.6);
 - `data used: N GB` at 1 GB, 10 GB, 100 GB and every further tenfold step during Continuous runs
   (`data-used`; §15);
@@ -1205,35 +1212,43 @@ validated by the harness floor profiles
 
 ### 19.2 500 kbit/s + 300 ms RTT (Mobile over VPN, Standard)
 
+The shaper carries ≈ 0.478 Mbit/s of goodput, 1448 payload bytes in each 1514-byte frame, which is
+≈ 58.4 KiB/s; the phases below are worked on the shared-link model of §19.1 at that goodput.
+
 - **Info and idle latency.** 20 sequential WebSocket pings at about 0.3–0.4 s each, ≈ 7 s. Median
   ≈ 300 ms, so `I_s` = 1.2 s and `I_m` = 0.6 s.
 - **Download.** One stream requests 64 KiB; the first chunk arrives at ≈ 0.3 s and the request
-  completes at ≈ 1.35 s; `rate_s` ≈ 61 KiB/s, so the next request is 61 KiB. The baseline's first
+  completes at ≈ 1.4 s; `rate_s` ≈ 58.4 KiB/s, so the next request is 58.4 KiB. The baseline's first
   interval (1.5–2.1 s) holds the RTT gap after the first request, so the second shows growth and a
   third is measured; the baseline ends at ≈ 3.3 s. The trial to 2 streams fills the gaps and is
   kept at ≈ 5.1 s; the trial to 4 shows no further gain at ≈ 6.9 s: plateau `no-gain`. Warm-up
   ends at ≈ 6.9 s, the window condition holds at ≈ 9.9 s, and the phase ends at its 10 s minimum
-  with a ≈ 3.1 s window. Headline ≈ 0.47 Mbit/s of goodput on a link shaped to 500 kbit/s at the
-  IP layer. Data used ≈ 0.6 MB.
+  with a ≈ 3.1 s window. Headline ≈ 0.457 Mbit/s, ≈ 95.5 % of the goodput: the four streams are
+  at the 16 KiB floor, and once in the window their requests end together, so their RTT gaps
+  coincide and the link idles for ≈ 0.14 s. That is within the ±15 % harness tolerance below
+  1 Mbit/s ([technical-stack/testing.md](technical-stack/testing.md)). Data used ≈ 0.54 MB.
 - **Loaded latency.** Path A pings every 300 ms; with a 64 KiB shaper queue the RTT rises from 300
   to ≈ 1300 ms, an increase of ≈ 1000 ms: grade F.
-- **Upload.** As in §19.1 but faster: the first request confirms at ≈ 1.35 s, the baseline ends at
-  ≈ 3.95 s, the trial to 2 streams is kept at ≈ 6.3 s and the trial to 4 shows no gain at
-  ≈ 10.3 s. Warm-up ends at the moved cap (8.2 s on the server) with `confidence: low`
+- **Upload.** As in §19.1 but faster: the first request confirms at ≈ 1.4 s, the baseline ends at
+  ≈ 4.0 s, the trial to 2 streams is kept at ≈ 6.4 s and the trial to 4 shows no gain at
+  ≈ 10.7 s. Warm-up ends at the moved cap (8.3 s on the server) with `confidence: low`
   (`insufficient-samples`), because streams 3 and 4 are still on their first requests, and the
-  window condition holds at ≈ 12.3 s, inside the 15 s minimum. New requests stop at 15 s, and the
+  window condition holds at ≈ 12.4 s, inside the 15 s minimum. New requests stop at 15 s, and the
   grace takes the phase to ≈ 16 s.
 
 ### 19.3 100 Mbit/s + 50 ms RTT (Standard)
 
 - `I_s` = max(1 s, 200 ms) = 1 s; `I_m` = max(500 ms, 100 ms) = 500 ms.
 - **Download.** Request sizes grow 64 KiB → 512 KiB → 4 MiB within ≈ 0.4 s (each latency-bound),
-  then settle at ≈ 11 MiB per request (≈ 1 s at ≈ 12 MB/s). Baseline is measured at ≈ 2–3 s
-  (single-stream slow start may extend it to the 3 s cap). The trial to 2 streams shows no gain on a
-  shaped link: plateau `no-gain` at ≈ 4 s, warm-up end ≈ 4–4.5 s, window condition at ≈ 7.5 s, phase
-  end at 10 s with a ≈ 5.5–6 s window. On HTTP/1.1 (Traefik profile) the two streams use two
-  connections; on HTTP/2 (Caddy profile) they share one, which on this clean profile measures the
-  same.
+  then settle at ≈ 11.9 MiB per request (≈ 1 s at 12.5 MB/s). On the shared-link model of §19.1
+  the baseline measures 1.0–1.5 s at the full rate and 1.5–2.0 s across the 50 ms gap between the
+  first ≈ 1 s request and the next, so `T_base` is that second interval, ≈ 90 % of the link, and is
+  decided at 2.0 s (single-stream slow start on a real link may extend it to the 3 s cap). The trial
+  to 2 streams fills the gaps and is kept at ≈ 3.5 s (≈ 1.11 × `T_base`); the trial to 4 shows no
+  further gain: plateau `no-gain` at ≈ 5 s with 4 streams. Warm-up ends at ≈ 5 s, the window
+  condition holds at ≈ 8 s, and the phase ends at 10 s with a ≈ 5 s window. On HTTP/1.1 (Traefik
+  profile) the streams use one connection each; on HTTP/2 (Caddy profile) they share one, which on
+  this clean profile measures the same.
 - **Upload.** Confirmation delay ≈ 1 s + 50 ms; warm-up end ≈ 5.5 s; the phase ends at its 15 s
   minimum.
 - **Latency.** Idle 50 ms; with a shaper queue adding ≈ 80 ms under load, the grade is C. Path B on
