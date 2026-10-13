@@ -286,6 +286,16 @@ carries a recommendation; where the specification already relies on an answer, i
     Recommendation: keep it. See [architecture.md §3](architecture.md#3-spa-embedding-and-base-path),
     [edge-cases.md §20](edge-cases.md#20-base-path-mismatches) and
     [technical-stack/backend.md §5](technical-stack/backend.md#5-server-settings-and-graceful-shutdown).
+32. How does a release recovery select the recorded toolchains, and what does a dry run rehearse?
+    Current answer: **`.github/scripts/recover-toolchains.sh` runs after the pinned setup actions,
+    reads `Go:` and `Node:` from the tag's annotation, selects both in its own process (Go through
+    `GOTOOLCHAIN`, Node from the `nodejs.org` tarball checked against `SHASUMS256.txt`), checks
+    both versions and only then hands them to the later steps; an annotation with neither line is
+    a warning and a rebuild with the current toolchains, which the published assets' SHA-256 check
+    stops if the bytes differ, and one with only one line fails. A dry run rehearses a fresh
+    release only, and fails at the tag gate on a version whose image exists.** Recommendation:
+    keep it. See [release.md](../release.md#why-the-build-happens-before-the-tag) and
+    [release.md, Dry Runs](../release.md#dry-runs).
 
 Resolved and removed:
 

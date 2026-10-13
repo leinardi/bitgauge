@@ -118,6 +118,8 @@ func TestServePolicyLines(t *testing.T) {
 		{"sendfile to an accepted connection", `sendfile(5<TCP:[127.0.0.1:8080->127.0.0.1:40000]>, 6</proc/self/fd/0>, NULL, 1) = 1`, ""},
 		{"write to stderr", `write(2<pipe:[123]>, "log", 3) = 3`, ""},
 		{"write to the netpoller", `write(4<anon_inode:[eventfd]>, "\1\0\0\0\0\0\0\0", 8) = 8`, ""},
+		{"write to the netpoller, with its details", `write(5<{eventfd-count=0, eventfd-id=110, eventfd-semaphore=0}>, "\1\0\0\0\0\0\0\0", 8) = 8`, ""},
+		{"send on a socket whose kind is unknown", `write(5<{weird-thing=1}>, "x", 1) = 1`, "not an allowed connection"},
 		{"read-only open", `openat(AT_FDCWD</>, "/etc/hosts", O_RDONLY|O_CLOEXEC) = 3</etc/hosts>`, ""},
 		{"write-open under /proc", `openat(AT_FDCWD</>, "/proc/self/attr/current", O_WRONLY) = -1 EACCES (Permission denied)`, ""},
 		{"write-open of /dev/null", `openat(AT_FDCWD</>, "/dev/null", O_RDWR|O_CLOEXEC) = 3</dev/null<char 1:3>>`, ""},
@@ -270,10 +272,19 @@ func TestParse(t *testing.T) {
 		t.Errorf("an interrupted call = %+v", cut)
 	}
 
+	// A call strace could not identify is read, with no arguments, and judged by no policy.
+	unknown, err := syscalltrace.Parse(strings.NewReader(
+		"7 ???()                                   = ?\n8 ???( <unfinished ...>\n"))
+	if err != nil || len(unknown) != 2 || unknown[0].Name != syscalltrace.UnknownCall ||
+		len(unknown[0].Args) != 0 || unknown[1].Result != "?" {
+		t.Errorf("unidentified calls = %+v, %v", unknown, err)
+	}
+
 	for _, bad := range []string{
 		"1 not a call\n",
 		"1 write(1, \"x\", 1\n",
 		"1 <... write resumed>) = 1\n",
+		"1 ???(5<TCP:[1]>, \"x\", 1) = 1\n",
 	} {
 		_, err = syscalltrace.Parse(strings.NewReader(bad))
 		if err == nil {

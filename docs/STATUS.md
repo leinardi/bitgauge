@@ -10,7 +10,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 
 | Feature area | Status | Code pointers |
 | --- | --- | --- |
-| Single binary, embedded SPA, base path, fixed SPA routes | Spec'd (v0.1), in progress: embed and routes | `web/embed.go` (embed, `index.html` rendered once with the base path, fixed routes, hashed and root assets), `internal/server/router.go`, `cmd/bitgauge/main.go` |
+| Single binary, embedded SPA, base path, fixed SPA routes | Implemented (v0.1) | `web/embed.go` (embed, `index.html` rendered once with the base path, fixed routes, hashed and root assets), `internal/server/router.go`, `cmd/bitgauge/main.go` |
 | Native API: download, upload, ping, small, ws, info | Implemented (v0.1) | `internal/handlers/`: `routes.go` (router, 405 and 404), `errors.go` (envelope), `buffer.go` (random buffer), `epoch.go`, `download.go`, `upload.go`, `ping.go`, `small.go`, `ws.go` (echo, Origin rule, close codes), `info.go`; mounted by `internal/server/router.go` |
 | Server-timed upload: 100 ms server grid, per-bucket arrival counts, `Server-Timing` | Implemented (v0.1) | `internal/handlers/`: `grid.go` (server grid), `drain.go` (pooled drainer), `upload.go` (arrival counts, lifetime, telemetry) |
 | Limits and rate limiting (`429` with `Retry-After`) | Implemented (v0.1) | `internal/ratelimit/`: `limiter.go` (table, token bucket, LRU of idle entries), `middleware.go` (429 with `Retry-After`), `clock.go`; wired by `internal/server/router.go` on download and upload, and by `internal/handlers/ws.go` per WebSocket |
@@ -23,7 +23,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | Engine: warm-up, steady window, Quick / Standard / Extended presets | Implemented (v0.1) | `web/src/engine/`: `phases/warmup.ts`, `phases/window.ts`, `presets.ts`, `upload/window.ts`, `upload/outcome.ts` |
 | Engine: headline, peak, confidence and notices, result object | Implemented (v0.1) | `web/src/engine/`: `result.ts` (the result object), `result/direction.ts` (headline, peak, compensation, confidence, series), `result/validate.ts`, `stats/busy.ts`, `run.ts` (emits the result) |
 | UI: Test screen, About, URL parameters, English locale, accessibility baseline | Spec'd (v0.1) |  |
-| Container image, CI, release, Dependabot | Spec'd (v0.1) |  |
+| Container image, CI, release, Dependabot | Implemented (v0.1) | `deployments/docker/Dockerfile`; `.github/workflows/`: `ci.yaml` (jobs `credentials` and `image`), `release.yaml`, `scheduled-scan.yaml` (job `image`); `.github/scripts/recover-toolchains.sh`; `.github/dependabot.yml`; tests in `test/image/`, `test/dockerfiles/` |
 | Accuracy harness (CI, floor and ceiling tiers) | Spec'd (v0.1) |  |
 | Prometheus metrics | Spec'd (v0.2) |  |
 | Loaded latency (WebSocket echo and HTTP fallback) and bufferbloat grade | Spec'd (v0.2) |  |
@@ -36,7 +36,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | HTTP loaded responsiveness (path B) | Spec'd (v0.3) |  |
 | Quality scores (AIM) | Spec'd (v0.3) |  |
 | Continuous mode | Spec'd (v0.3) |  |
-| Engineering scaffold (gates, CI, release tooling) | Tooling in place; the binary build, API types, frontend lint, typecheck and unit-test, and web build gates are active, the other product gates dormant (see AGENTS) | `test/toolchain/gates.go`; active: binary build, API types, frontend lint and typecheck, frontend unit tests, web build; dormant: image and image tests, E2E, accuracy harness, release ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)) |
+| Engineering scaffold (gates, CI, release tooling) | Tooling in place; the binary build, API types, frontend lint, typecheck and unit-test, web build, image and release gates are active, the other product gates dormant (see AGENTS) | `test/toolchain/gates.go`; active: binary build, API types, frontend lint and typecheck, frontend unit tests, web build, image and image tests, release; dormant: E2E, accuracy harness ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)) |
 | Design export (Claude Design) | Export landed with tokens, components and the `ui_kits/app/` prototype; corrections pending in Claude Design; symlinks active | `docs/design_system/` ([sync rules](README.md#design-export)) |
 | Packet loss via WebRTC and TURN | Open (unscheduled) |  |
 | Headless CLI client | Open (unscheduled) |  |

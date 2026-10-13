@@ -87,10 +87,10 @@ make web-test          # Vitest: unit, component, engine
 make web-lint          # ESLint, then vue-tsc
 make api-types         # regenerate web/src/api/types.gen.ts from api/openapi.yaml
 make e2e               # Playwright on Chromium, Firefox, WebKit, host-built binary (dormant)
-make docker-build      # the image for the host platform, into the local daemon (dormant; dhi.io)
-make docker-run        # run the image read-only on 127.0.0.1:8080, DOCKER_RUN_BIND (dormant)
-make go-test-image     # build the image, test it under netguard and strace (dormant; dhi.io)
-# the probe and netguard tests, which run today (Docker, no dhi.io):
+make docker-build      # the image for the host platform, into the local daemon (dhi.io)
+make docker-run        # run the image read-only on 127.0.0.1:8080, DOCKER_RUN_BIND
+make go-test-image     # build the image, test it under netguard and strace (dhi.io)
+# the probe and netguard tests alone (Docker, no dhi.io):
 go test -tags=image -v -run 'Probe|Count|Blind' ./test/image/ ./test/internal/netguard/
 make harness-ci        # accuracy harness, CI tier (dormant; Docker)
 make harness-floor     # accuracy harness, manual range floor (dormant; Docker)
@@ -148,7 +148,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `**/*.go` (today `test/**`) | `make verify-go`, then `make check-stage` |
 | `web/src/**` | `make verify-web`, then `scripts/check-file-budgets.sh` |
 | `api/openapi.yaml` | spec first (`api-contract` skill); `make api-types`, `go test ./internal/handlers/` (the contract tests), then `make verify-web` |
-| `deployments/docker/Dockerfile`, `test/harness/tools.Dockerfile` | `go test ./test/dockerfiles/ ./test/toolchain/` (hadolint runs in `make check`); `make go-test-image` once the image gate is active (Docker, `dhi.io`) |
+| `deployments/docker/Dockerfile`, `test/harness/tools.Dockerfile` | `go test ./test/dockerfiles/ ./test/toolchain/` (hadolint runs in `make check`); `make go-test-image` (Docker, `dhi.io`) |
 | `go.mod`, `go.sum`, `web/package.json`, `web/package-lock.json` | `make audit-deps` (network; the commit hooks run the same targets), `go test ./test/toolchain/` |
 | `web/eslint.config.ts`, `web/.npmrc`, `.fallowrc.json`, `.fallow-baseline.json`, `.fallow-regression-baseline.json`, `.mk/audit-deps.mk` | `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (needs `web/node_modules`) |
 | `.golangci.yaml` depguard and forbidigo boundary rules | `go test ./test/boundary/`, then `make go-lint` |
@@ -166,7 +166,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `.pre-commit-config.yaml`, `Makefile`, `.mk/**` | `make check`, `go test ./test/toolchain/`, `make help` |
 | `test/toolchain/gates.go`, `docs/STATUS.md` rows a gate reads | `go test ./test/toolchain/` |
 | `test/harness/**`, `web/harness/**` | `go test ./test/harness/`, `make go-vet-harness`; the runners stay dormant until their gate activates |
-| `test/image/**`, `test/internal/netguard/**`, `test/internal/syscalltrace/**` | `go test ./test/internal/...` (untagged), `make go-vet-image`, and (Docker) `go test -tags=image -v -run 'Probe\|Count\|Blind' ./test/image/ ./test/internal/netguard/`, the probe and netguard tests, until the image gate is active; the full `make go-test-image` (`dhi.io`) after |
+| `test/image/**`, `test/internal/netguard/**`, `test/internal/syscalltrace/**` | `go test ./test/internal/...` (untagged), `make go-vet-image`, and (Docker, `dhi.io`) `make go-test-image`; without `dhi.io`, the probe and netguard tests alone: `go test -tags=image -v -run 'Probe\|Count\|Blind' ./test/image/ ./test/internal/netguard/` |
 | `.agents/skills/**` | own skills: the `docs/**` row; vendored skills are never edited (`skills-lock.json` hashes them) |
 | `docs/**/*.md`, root `*.md` | `go test -count=1 ./test/docs/`; every relative link resolves; numbers, probe-path names and the upload JSON shape still agree across `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`; lines wrap at about 100 columns (`spec-change` skill) |
 | `docs/features/technical-stack/decisions.md` | each locked decision appears once; open items match `docs/features/open-questions.md` |
@@ -228,8 +228,8 @@ everything the table requires.
 `web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
 tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`. Today
-the binary build, API types, frontend lint and typecheck, frontend unit tests and web build gates
-are active and every other gate above is dormant;
+the binary build, API types, frontend lint and typecheck, frontend unit tests, web build, image
+and image tests, and release gates are active and the E2E and accuracy harness gates are dormant;
 `idle-measure` and `idle-bench` run against a running binary. The [STATUS row](docs/STATUS.md)
 says the same.
 

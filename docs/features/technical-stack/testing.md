@@ -174,8 +174,11 @@ observed by a concurrent ICMP ping.
 - **No connection or write attempt** (the image test's syscall layer only): the binary is run under
   `strace -f` from process start; any `connect`, any send on a socket other than an accepted
   connection, and any file write outside `/dev` and `/proc` fails the test. The healthcheck is
-  traced separately and may make exactly one loopback `connect` to the listen address. Negative
-  controls prove the analyser rejects a connect-back, a `sendto` to a peer and a file create.
+  traced separately and may make exactly one loopback `connect` to the listen address. Anonymous
+  inodes (an `eventfd`, an `epoll` instance and the like) are not sockets, and a call strace cannot
+  name (`???()`, from a thread that is exiting) has no argument to judge; any other line the
+  analyser cannot read fails the test. Negative controls prove the analyser rejects a
+  connect-back, a `sendto` to a peer and a file create.
 
 The harness report says which layer each result comes from.
 

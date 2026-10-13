@@ -74,11 +74,22 @@ type Descriptor struct {
 	Local, Remote netip.AddrPort
 }
 
+// notSockets are the descriptor kinds that are not a socket: files, pipes, devices, and the
+// anonymous inodes strace names either anon_inode or, with their details, {eventfd-…} and the like.
+// Any other kind counts as a socket, so a kind this list does not know is judged as one.
+var notSockets = []string{
+	"", KindPath, KindUnannotated, "pipe", "anon_inode", "char",
+	"eventfd", "eventpoll", "timerfd", "signalfd", "inotify", "pidfd",
+}
+
 // IsSocket reports whether the descriptor is a socket of any family.
 func (d *Descriptor) IsSocket() bool {
-	return d.Kind != "" && d.Kind != KindPath && d.Kind != "pipe" && d.Kind != "anon_inode" &&
-		d.Kind != "char" && d.Kind != KindUnannotated
+	return !slices.Contains(notSockets, d.Kind)
 }
+
+// anonymousDetail reads the kind of an anonymous inode that strace shows by its details, such as
+// {eventfd-count=0, eventfd-id=110, eventfd-semaphore=0}.
+var anonymousDetail = regexp.MustCompile(`^\{([a-z]+)[-_]`)
 
 var annotation = regexp.MustCompile(`^(?:-?\d+|AT_FDCWD)<(.*)>$`)
 
@@ -91,6 +102,10 @@ func ParseDescriptor(arg string) Descriptor {
 	}
 
 	inner := match[1]
+
+	if detail := anonymousDetail.FindStringSubmatch(inner); detail != nil {
+		return Descriptor{Kind: detail[1]}
+	}
 
 	if strings.HasPrefix(inner, "/") {
 		// A device carries a nested annotation: /dev/null<char 1:3>.

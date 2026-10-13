@@ -20,13 +20,17 @@
 package dockerfiles_test
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
+	"sort"
 	"strings"
 	"testing"
+
+	"go.yaml.in/yaml/v3"
 
 	"github.com/leinardi/bitgauge/test/dockerfiles"
 )
@@ -43,6 +47,16 @@ const (
 	// build-packaging.md section 1 documents it.
 	healthcheckTimings = "--interval=30s --timeout=5s --start-period=5s --retries=3"
 	healthcheck        = healthcheckTimings + ` CMD ["/bitgauge", "healthcheck"]`
+	// releaseImage is the one image release.yaml publishes, on the one registry it publishes to
+	// (build-packaging.md section 6).
+	releaseImage = "ghcr.io/leinardi/bitgauge"
+	// The release tools' pins; test/toolchain/pins_test.go holds the same values.
+	svuPin   = "v3.4.1"
+	trivyPin = "v0.75.0"
+	// The actions whose inputs decide where the release pushes.
+	loginAction     = "docker/login-action"
+	buildPushAction = "docker/build-push-action"
+	attestAction    = "actions/attest-build-provenance"
 )
 
 // TestShippedDockerfileIsTheOnlyOne pins that deployments/docker holds exactly the image that
@@ -278,25 +292,30 @@ func TestBuildinfoIsStamped(t *testing.T) {
 	t.Parallel()
 
 	for _, path := range []string{shippedDockerfile, "Makefile"} {
-		content := readRepoFile(t, path)
-
-		for _, field := range []string{"version", "commit", "date"} {
-			if !strings.Contains(
-				content,
-				"-X github.com/leinardi/bitgauge/internal/buildinfo."+field+"=",
-			) &&
-				!strings.Contains(
-					content,
-					"-X 'github.com/leinardi/bitgauge/internal/buildinfo."+field+"=",
-				) {
-				t.Errorf("%s does not stamp internal/buildinfo.%s", path, field)
-			}
-		}
-
-		if strings.Contains(content, "main.version") {
-			t.Errorf("%s stamps main.version, which no main package declares", path)
+		for _, problem := range stampProblems(path, readRepoFile(t, path)) {
+			t.Error(problem)
 		}
 	}
+}
+
+// stampProblems lists the internal/buildinfo fields a build file does not stamp, and a stamp of
+// main.version, which no main package declares.
+func stampProblems(path, content string) []string {
+	var problems []string
+
+	for _, field := range []string{"version", "commit", "date"} {
+		flag := "github.com/leinardi/bitgauge/internal/buildinfo." + field + "="
+		if !strings.Contains(content, "-X "+flag) && !strings.Contains(content, "-X '"+flag) {
+			problems = append(problems, fmt.Sprintf(
+				"%s does not stamp internal/buildinfo.%s", path, field))
+		}
+	}
+
+	if strings.Contains(content, "main.version") {
+		problems = append(problems, path+" stamps main.version, which no main package declares")
+	}
+
+	return problems
 }
 
 // TestOtherDockerfilesAreTestOnly pins that every other Dockerfile in the repository follows the
@@ -384,17 +403,336 @@ func TestPlatforms(t *testing.T) {
 	}
 }
 
-// TestReleaseWorkflowIsAbsent is the release-content assertion in its form before the Release
-// stage: release.yaml is written by that stage's activation commit, together with the assertions on
-// its content (buildinfo stamping, PLATFORMS, the GHCR-only registry), which replace this test. A
-// workflow that appears without them would publish unchecked.
-func TestReleaseWorkflowIsAbsent(t *testing.T) {
+// TestReleaseWorkflow pins what release.yaml publishes and how (docs/release.md,
+// build-packaging.md sections 2, 4 and 6): the binaries stamp internal/buildinfo, the image is
+// built for exactly the two platforms, GHCR is the only registry anything is pushed to and
+// ghcr.io/leinardi/bitgauge the only image there, and the tools, actions and images it runs are
+// pinned.
+func TestReleaseWorkflow(t *testing.T) {
 	t.Parallel()
 
-	if _, ok := readOptional(t, releaseWorkflow); ok {
-		t.Errorf("%s exists, but the Release stage is not active: its activation commit "+
-			"replaces this test with the release-content assertions", releaseWorkflow)
+	for _, problem := range releaseProblems(readRepoFile(t, releaseWorkflow)) {
+		t.Error(problem)
 	}
+}
+
+// TestReleaseChecksRefuseMutations is the negative control of TestReleaseWorkflow: release.yaml
+// with one rule broken at a time has to come out with a problem.
+func TestReleaseChecksRefuseMutations(t *testing.T) {
+	t.Parallel()
+
+	content := readRepoFile(t, releaseWorkflow)
+
+	for _, mutation := range []struct{ name, old, new string }{
+		{"buildinfo.commit stamped elsewhere", "internal/buildinfo.commit=", "main.commit="},
+		{"a third platform", "PLATFORMS: " + wantPlatforms, "PLATFORMS: " + wantPlatforms + ",linux/arm/v7"},
+		{"the image on Docker Hub", "IMAGE: " + releaseImage, "IMAGE: docker.io/leinardi/bitgauge"},
+		{"another GHCR image", `-t "$IMAGE:latest"`, `-t "$IMAGE:latest" -t "ghcr.io/leinardi/other:latest"`},
+		{"a pointer on another image", `-t "$IMAGE:latest"`, `-t "$MIRROR:latest"`},
+		{"a login to another registry", "registry: dhi.io", "registry: quay.io"},
+		{"the build pushed to GHCR", "name=${{ env.LOCAL_IMAGE }}", "name=${{ env.IMAGE }}"},
+		{"the build tagged by the push input", "sbom: true", "sbom: true\n          push: true"},
+		{"a copy to another image", `"docker://$IMAGE@$DIGEST"`, `"docker://$MIRROR@$DIGEST"`},
+		{"a signature on another image", `cosign sign --yes "$IMAGE@`, `cosign sign --yes "$MIRROR@`},
+		{"an attestation pushed elsewhere", "subject-name: ${{ env.IMAGE }}", "subject-name: ${{ env.LOCAL_IMAGE }}"},
+		{"another Trivy", "TRIVY_VERSION: " + trivyPin, "TRIVY_VERSION: v0.74.0"},
+		{"another svu", "SVU_VERSION: " + svuPin, "SVU_VERSION: v3.4.0"},
+		{"an action by tag", "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1", "actions/checkout@v7"},
+		{"an action with no version comment", "@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2", "@4d101475d8b20a2381f78447822ac1eab6504dd8"},
+		{"the registry image by tag", "REGISTRY_IMAGE: registry:3.1.2@", "REGISTRY_IMAGE: registry:3.1.2 # "},
+	} {
+		mutated := strings.Replace(content, mutation.old, mutation.new, 1)
+		if mutated == content {
+			t.Errorf("%s: %s does not contain %q, so the control checks nothing",
+				mutation.name, releaseWorkflow, mutation.old)
+
+			continue
+		}
+
+		// A mutation that broke the YAML would pass on the parse error alone, checking no rule.
+		problems := releaseProblems(mutated)
+		if len(problems) == 0 || strings.HasPrefix(problems[0], "parse ") {
+			t.Errorf("%s: the release checks find %q, want a broken rule", mutation.name, problems)
+		}
+	}
+}
+
+// releaseDoc is the part of release.yaml the release checks read.
+type releaseDoc struct {
+	Env  map[string]string     `yaml:"env"`
+	Jobs map[string]releaseJob `yaml:"jobs"`
+}
+
+type releaseJob struct {
+	Steps []releaseStep `yaml:"steps"`
+}
+
+type releaseStep struct {
+	With map[string]string `yaml:"with"`
+	Uses string            `yaml:"uses"`
+	Run  string            `yaml:"run"`
+}
+
+var envReference = regexp.MustCompile(`\$\{\{\s*env\.(\w+)\s*\}\}`)
+
+// steps lists the steps of every job, in job name order.
+func (doc releaseDoc) steps() []releaseStep {
+	names := make([]string, 0, len(doc.Jobs))
+	for name := range doc.Jobs {
+		names = append(names, name)
+	}
+
+	sort.Strings(names)
+
+	var steps []releaseStep
+	for _, name := range names {
+		steps = append(steps, doc.Jobs[name].Steps...)
+	}
+
+	return steps
+}
+
+// expand replaces each ${{ env.NAME }} in value with the workflow's env value.
+func (doc releaseDoc) expand(value string) string {
+	return envReference.ReplaceAllStringFunc(value, func(reference string) string {
+		return doc.Env[envReference.FindStringSubmatch(reference)[1]]
+	})
+}
+
+// action is the uses: value without its @ref.
+func (step releaseStep) action() string {
+	action, _, _ := strings.Cut(step.Uses, "@")
+
+	return action
+}
+
+// releaseProblems lists every way release.yaml content breaks the release rules.
+func releaseProblems(content string) []string {
+	var doc releaseDoc
+
+	err := yaml.Unmarshal([]byte(content), &doc)
+	if err != nil {
+		return []string{fmt.Sprintf("parse %s: %v", releaseWorkflow, err)}
+	}
+
+	problems := stampProblems(releaseWorkflow, content)
+	problems = append(problems, releasePlatformProblems(doc, content)...)
+	problems = append(problems, releaseReferenceProblems(doc, content)...)
+	problems = append(problems, releaseStepProblems(doc)...)
+	problems = append(problems, releaseRunProblems(doc)...)
+
+	return append(problems, releasePinProblems(doc, content)...)
+}
+
+// releasePlatformProblems: one image build, for exactly the two platforms PLATFORMS declares.
+func releasePlatformProblems(doc releaseDoc, content string) []string {
+	var problems []string
+
+	if doc.Env["PLATFORMS"] != wantPlatforms {
+		problems = append(problems, fmt.Sprintf("%s declares PLATFORMS %q, want %q",
+			releaseWorkflow, doc.Env["PLATFORMS"], wantPlatforms))
+	}
+
+	builds := 0
+
+	for _, step := range doc.steps() {
+		if step.action() != buildPushAction {
+			continue
+		}
+
+		builds++
+
+		if got := doc.expand(step.With["platforms"]); got != wantPlatforms {
+			problems = append(problems, fmt.Sprintf("%s builds the image for %q, want %q",
+				releaseWorkflow, got, wantPlatforms))
+		}
+	}
+
+	if builds != 1 {
+		problems = append(problems, fmt.Sprintf("%s builds the image %d times, want once",
+			releaseWorkflow, builds))
+	}
+
+	if strings.Contains(content, "linux/arm/v") || strings.Contains(content, "linux/386") {
+		problems = append(problems, releaseWorkflow+" names a platform other than "+wantPlatforms)
+	}
+
+	return problems
+}
+
+var (
+	ghcrReference = regexp.MustCompile(`ghcr\.io/[\w./-]+`)
+	otherRegistry = regexp.MustCompile(
+		`(?i)docker\.io|hub\.docker\.com|docker push|docker\.pkg\.github\.com`,
+	)
+)
+
+// releaseReferenceProblems: the image is ghcr.io/leinardi/bitgauge, no other GHCR image is named,
+// and nothing names Docker Hub or pushes with docker push.
+func releaseReferenceProblems(doc releaseDoc, content string) []string {
+	var problems []string
+
+	if doc.Env["IMAGE"] != releaseImage {
+		problems = append(problems, fmt.Sprintf("%s publishes IMAGE %q, want %q",
+			releaseWorkflow, doc.Env["IMAGE"], releaseImage))
+	}
+
+	for _, reference := range ghcrReference.FindAllString(content, -1) {
+		if reference != releaseImage {
+			problems = append(problems, fmt.Sprintf("%s names the GHCR image %s, want only %s",
+				releaseWorkflow, reference, releaseImage))
+		}
+	}
+
+	for _, mention := range otherRegistry.FindAllString(content, -1) {
+		problems = append(problems, fmt.Sprintf("%s names %q; GHCR is the only registry published",
+			releaseWorkflow, mention))
+	}
+
+	for _, name := range []string{"LOCAL_IMAGE", "COPY_IMAGE"} {
+		if !strings.HasPrefix(doc.Env[name], "localhost:") {
+			problems = append(problems, fmt.Sprintf("%s sets %s %q, not a job-local registry",
+				releaseWorkflow, name, doc.Env[name]))
+		}
+	}
+
+	return problems
+}
+
+var outputName = regexp.MustCompile(`(?:^|,)name=([^,]+)`)
+
+// releaseStepProblems: the actions that can push do so only where they may. A login is to GHCR or
+// to dhi.io, the pull-only source of the build stages; the image build pushes only to the
+// job-local registry, by digest; a pushed attestation is on the GHCR image.
+func releaseStepProblems(doc releaseDoc) []string {
+	var problems []string
+
+	for _, step := range doc.steps() {
+		switch step.action() {
+		case loginAction:
+			if registry := step.With["registry"]; registry != "ghcr.io" && registry != "dhi.io" {
+				problems = append(problems, fmt.Sprintf("%s logs in to %q, want ghcr.io or dhi.io",
+					releaseWorkflow, registry))
+			}
+		case buildPushAction:
+			if step.With["push"] == "true" || step.With["tags"] != "" {
+				problems = append(problems, releaseWorkflow+
+					" builds the image with the push or tags input; it pushes only by digest")
+			}
+
+			names := outputName.FindAllStringSubmatch(doc.expand(step.With["outputs"]), -1)
+			for _, name := range names {
+				if !strings.HasPrefix(name[1], "localhost:") {
+					problems = append(problems, fmt.Sprintf(
+						"%s builds the image into %s, not the job-local registry",
+						releaseWorkflow, name[1]))
+				}
+			}
+
+			if len(names) == 0 {
+				problems = append(
+					problems,
+					releaseWorkflow+" builds the image into no named registry",
+				)
+			}
+		case attestAction:
+			subject := doc.expand(step.With["subject-name"])
+			if step.With["push-to-registry"] == "true" && subject != releaseImage {
+				problems = append(problems, fmt.Sprintf("%s pushes an attestation to %q, want %s",
+					releaseWorkflow, subject, releaseImage))
+			}
+		}
+	}
+
+	return problems
+}
+
+var (
+	pointerTarget = regexp.MustCompile(`\s-t\s+(\S+)`)
+	copyTarget    = regexp.MustCompile(`docker://(\S+)`)
+	signTarget    = regexp.MustCompile(`cosign sign\b.*\s(\S+)\s*$`)
+	allowedCopy   = []string{"$IMAGE@", "$LOCAL_IMAGE@", "$COPY_IMAGE@"}
+)
+
+// releaseRunProblems: in the scripts, every image tag is set on $IMAGE, every skopeo reference is
+// $IMAGE or a job-local registry, and cosign signs $IMAGE.
+func releaseRunProblems(doc releaseDoc) []string {
+	var problems []string
+
+	for _, step := range doc.steps() {
+		for line := range strings.SplitSeq(step.Run, "\n") {
+			if strings.Contains(line, "imagetools create") {
+				for _, target := range pointerTarget.FindAllStringSubmatch(line, -1) {
+					if !strings.HasPrefix(target[1], `"$IMAGE:`) {
+						problems = append(problems, fmt.Sprintf("%s tags %s, not $IMAGE",
+							releaseWorkflow, target[1]))
+					}
+				}
+			}
+
+			for _, target := range copyTarget.FindAllStringSubmatch(line, -1) {
+				if !slices.ContainsFunc(allowedCopy, func(prefix string) bool {
+					return strings.HasPrefix(target[1], prefix)
+				}) {
+					problems = append(problems, fmt.Sprintf("%s copies to or from docker://%s",
+						releaseWorkflow, target[1]))
+				}
+			}
+
+			if target := signTarget.FindStringSubmatch(line); len(target) == 2 &&
+				!strings.HasPrefix(target[1], `"$IMAGE@`) {
+				problems = append(problems, fmt.Sprintf("%s signs %s, not $IMAGE",
+					releaseWorkflow, target[1]))
+			}
+		}
+	}
+
+	return problems
+}
+
+var (
+	usesLine       = regexp.MustCompile(`(?m)^[ \t]*(?:-[ \t]*)?uses:[ \t]*(\S+)(.*)$`)
+	pinnedAction   = regexp.MustCompile(`^[\w.-]+/[\w./-]+@[0-9a-f]{40}$`)
+	versionComment = regexp.MustCompile(`^[ \t]+#[ \t]*v\d+(?:\.\d+)*[ \t]*$`)
+)
+
+// releasePinProblems: svu and Trivy at their pins, the images the job runs pinned by digest, and
+// every action pinned by a full commit SHA with its version in a trailing comment.
+func releasePinProblems(doc releaseDoc, content string) []string {
+	var problems []string
+
+	for name, pin := range map[string]string{"SVU_VERSION": svuPin, "TRIVY_VERSION": trivyPin} {
+		if doc.Env[name] != pin {
+			problems = append(problems, fmt.Sprintf("%s sets %s %q, want %s",
+				releaseWorkflow, name, doc.Env[name], pin))
+		}
+	}
+
+	for _, name := range []string{"REGISTRY_IMAGE", "SKOPEO_IMAGE"} {
+		if !dockerfiles.DigestPinned(doc.Env[name]) {
+			problems = append(problems, fmt.Sprintf("%s runs %s %q, which is not pinned by digest",
+				releaseWorkflow, name, doc.Env[name]))
+		}
+	}
+
+	uses := usesLine.FindAllStringSubmatch(content, -1)
+	if len(uses) == 0 {
+		problems = append(problems, releaseWorkflow+" uses no action, so the pin check saw nothing")
+	}
+
+	for _, use := range uses {
+		if strings.HasPrefix(use[1], "./") {
+			continue
+		}
+
+		if !pinnedAction.MatchString(use[1]) || !versionComment.MatchString(use[2]) {
+			problems = append(problems, fmt.Sprintf(
+				"%s uses %s%s; want a full commit SHA and a trailing # vX.Y.Z comment",
+				releaseWorkflow, use[1], use[2]))
+		}
+	}
+
+	return problems
 }
 
 // TestParseRejectsWhatTheAssertionsMustNotMiss is the negative control for the reader: each of

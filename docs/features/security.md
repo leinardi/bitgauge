@@ -213,7 +213,9 @@ exactly what each includes before anything is downloaded, copied or shared.
 ## 8. Supply Chain
 
 - **Pinned CI actions:** every GitHub Action is pinned to a full commit SHA.
-- **Pinned base images:** build stages and the `dhi.io/static` runtime are pinned by digest.
+- **Pinned base images:** build stages and the `dhi.io/static` runtime are pinned by an explicit
+  tag, never `latest`, and not by digest, because `dhi.io` republishes its tags with security fixes
+  ([build-packaging.md §1](technical-stack/build-packaging.md#1-container-image)).
 - **Signed images:** release images are signed keylessly with cosign through the release
   workflow's OIDC identity; verification instructions are in [SECURITY.md](../../SECURITY.md).
 - **SBOM and provenance:** each image ships an SBOM and a provenance attestation; each release

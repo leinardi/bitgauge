@@ -25,6 +25,10 @@
 //
 // It judges attempts, not outcomes: a refused connect or a failed open fails a trace exactly like
 // a successful one. It is untagged and tested on recorded traces, so it runs in every go test.
+//
+// One kind of call is read without being judged: "???()", which strace prints for a thread whose
+// system call it could not identify, typically one of a process that is exiting. It carries no
+// argument, so there is nothing to judge; a "???" call with arguments is unparsable.
 package syscalltrace
 
 import (
@@ -71,8 +75,8 @@ func (e Event) String() string {
 
 var (
 	pidPrefix  = regexp.MustCompile(`^(?:\[pid\s+(\d+)\]|(\d+))\s+`)
-	callStart  = regexp.MustCompile(`^([a-z_][a-z0-9_]*)\(`)
-	resumed    = regexp.MustCompile(`^<\.{3} ([a-z_][a-z0-9_]*) resumed>\s?`)
+	callStart  = regexp.MustCompile(`^([a-z_][a-z0-9_]*|\?{3})\(`)
+	resumed    = regexp.MustCompile(`^<\.{3} ([a-z_][a-z0-9_]*|\?{3}) resumed>\s?`)
 	unfinished = " <unfinished ...>"
 )
 
@@ -178,6 +182,9 @@ func Parse(reader io.Reader) ([]Event, error) {
 
 var errMalformedCall = errors.New("malformed call")
 
+// UnknownCall is the name strace gives a call it could not identify.
+const UnknownCall = "???"
+
 // parseCall reads "name(arg, arg, ...) = result".
 func parseCall(text string) (Event, error) {
 	match := callStart.FindStringSubmatch(text)
@@ -195,6 +202,14 @@ func parseCall(text string) (Event, error) {
 	result, ok := strings.CutPrefix(strings.TrimLeft(body[end+1:], " "), "= ")
 	if !ok {
 		return Event{}, fmt.Errorf("%w: no result: %s", errMalformedCall, text)
+	}
+
+	if match[1] == UnknownCall && strings.TrimSpace(body[:end]) != "" {
+		return Event{}, fmt.Errorf(
+			"%w: an unidentified call with arguments: %s",
+			errMalformedCall,
+			text,
+		)
 	}
 
 	return Event{

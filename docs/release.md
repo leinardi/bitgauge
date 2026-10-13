@@ -1,9 +1,10 @@
 # Release
 
 How a BitGauge release is versioned, built and published, what to do when a release fails halfway,
-and what has to be set up by hand for all of it to hold. The workflow is not written yet:
-`release.yaml` lands once the image and web build gates are active, and its shape is specified here
-and in [build-packaging.md §4](features/technical-stack/build-packaging.md#4-ci-workflows).
+and what has to be set up by hand for all of it to hold. The pipeline is
+[`.github/workflows/release.yaml`](../.github/workflows/release.yaml); this page, with
+[build-packaging.md §4](features/technical-stack/build-packaging.md#4-ci-workflows), is why it is
+shaped that way.
 
 > [!IMPORTANT]
 > **Provisional: the release process must be revised before the repository goes public.** It
@@ -156,6 +157,14 @@ Every run starts the same way:
    with a Node major, and both resolve to the newest patch on the day of the run; a recovery reads
    the annotation and switches to the recorded versions before building, which is what makes its
    binaries byte-identical to the first attempt's.
+   [`recover-toolchains.sh`](../.github/scripts/recover-toolchains.sh) makes the switch after the
+   setup actions: it selects the recorded Go toolchain and the recorded Node release, checked
+   against that release's `SHASUMS256.txt`, checks both versions, and only then hands them to the
+   later steps, which check them once more before the build. A tag whose annotation records
+   neither version (a tag made outside this workflow) is reported as a warning and rebuilt with the
+   current toolchains; the SHA-256 check against any asset already published then stops the run
+   if the bytes differ.
+   An annotation that records only one of the two, or one twice, fails the run.
 5. **Decide the mode**, fail-closed, from two lookups made before anything is built or pushed: the
    git tag on the remote (the step above) and the image `ghcr.io/leinardi/bitgauge:X.Y.Z`. Only
    "not found" counts as absent; an authentication or network error stops the run, because reading
@@ -229,6 +238,10 @@ The job summary shows the version, the previous tag, whether the version was exp
 real run would take, the toolchain versions, the index digest, the scanned platform digests and
 the artifact list; `dist/` is uploaded as the workflow artifact `dry-run-<version>-<attempt>`. A
 dry run with no version is also the quickest way to see what version the commits would produce.
+
+A dry run rehearses only a fresh release. On a version whose image `:X.Y.Z` already exists, the
+mode decision may pick **Recovery, reuse**, but fresh step 5 then finds the image and fails the dry
+run with nothing pushed: no dry run rehearses a recovery.
 
 ## Tags
 
@@ -412,8 +425,9 @@ either is a pull request there.
 
 The one required check is `ci-result`, set there as
 `default_branch_required_checks = ["ci-result"]`. It needs every other job of `ci.yaml`
-(`pre-commit-all`, `conventional-commits`, `repo-gates`, `release-scripts`, `go-test` and `audit`,
-and the image, web, E2E and harness jobs once their gates activate) and fails unless each one
+(`pre-commit-all`, `conventional-commits`, `repo-gates`, `release-scripts`, `go-test`, `web`,
+`audit`, `credentials` and `image`, and the E2E and harness jobs once their gates activate) and
+fails unless each one
 succeeded, so a new job becomes required by joining `ci-result`'s `needs`, not the ruleset. GitHub
 counts a skipped required job as passing, which is why the jobs themselves are not listed. The
 reviewdog annotation jobs are not needed by `ci-result`; they duplicate `pre-commit-all` as inline
@@ -426,8 +440,8 @@ Jobs that pull `dhi.io` images (the image build and its tests, the accuracy harn
 the scan's image job) need a **trusted run**: a push to `main`, a schedule or dispatch, a pull
 request from a branch of this repository, or Dependabot. A pull request from a fork gets no
 secrets, so those jobs are skipped with a notice, and `ci-result` fails on a fork pull request
-whose image jobs were skipped. The image jobs have no path filter, so once they exist this applies
-to every fork pull request, documentation-only ones included. `pull_request_target` is never used.
+whose image jobs were skipped. The image jobs have no path filter, so this applies to every fork
+pull request, documentation-only ones included. `pull_request_target` is never used.
 
 The only merge path for a fork pull request is then a **replacement pull request**: a maintainer
 pushes the fork's commits unchanged (authorship preserved) to a branch of this repository, opens a
