@@ -3,7 +3,7 @@
     "patterns": ["web"]
   },
   "entry": ["web/src/engine/worker.ts", "web/e2e/**/*.spec.ts", "web/harness/run.spec.ts"],
-  "ignorePatterns": ["docs/**", "scripts/**", "web/dist/**", "web/coverage/**"],
+  "ignorePatterns": ["docs/**", "!docs/design_system/colors_and_type.css", "scripts/**", "web/dist/**", "web/coverage/**"],
   "ignoreExports": [
     {
       "file": "web/src/components/ui/**/index.ts",
@@ -23,7 +23,8 @@
       "rules": {
         "unused-files": "off",
         "unused-exports": "off",
-        "unused-types": "off"
+        "unused-types": "off",
+        "circular-dependencies": "off"
       }
     },
     {

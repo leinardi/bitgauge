@@ -1,0 +1,29 @@
+{
+  "app": {
+    "brand": {
+      "home": "BitGauge home",
+      "bit": "Bit",
+      "gauge": "Gauge"
+    },
+    "nav": {
+      "label": "Primary",
+      "test": "Test",
+      "about": "About"
+    },
+    "theme": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "Follow system",
+      "current": "Theme: {theme}"
+    },
+    "server": {
+      "connected": "Server connected",
+      "unreachable": "Server unreachable",
+      "stateConnected": ", connected",
+      "stateUnreachable": ", unreachable",
+      "unreachableTag": "Unreachable",
+      "unreachableTagShort": "· Unreachable"
+    }
+  }
+}

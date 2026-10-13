@@ -218,10 +218,12 @@ carries a recommendation; where the specification already relies on an answer, i
     it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [technical-stack/frontend.md §2](technical-stack/frontend.md#2-engine-package-rules).
-25. Which URLs may the built SPA contain? Current answer: **exactly the SVG and XLink namespaces,
-    the GNU licences URL of the licence header, and `https://github.com/leinardi/bitgauge` with
+25. Which URLs may the built SPA contain? Current answer: **exactly the SVG, XLink and MathML
+    namespaces, the GNU licences URL of the licence header, Tailwind's licence comment URL, Vue's
+    console error-reference link with its paths, and `https://github.com/leinardi/bitgauge` with
     its paths** (the About screen's source and documentation links, the base-path error's link to
-    the deployment guide); a hyperlink the user clicks is navigation, not an outbound call, and
+    the deployment guide); the namespaces, the licence comment and the console link are strings
+    the browser never fetches. A hyperlink the user clicks is navigation, not an outbound call, and
     the allowlist is the complete set, checked in every file of the dist, binary files included,
     for `http`, `https`, `ws` and `wss` URLs. Recommendation: keep it. See
     [technical-stack/build-packaging.md §4](technical-stack/build-packaging.md#4-ci-workflows)
@@ -246,6 +248,16 @@ carries a recommendation; where the specification already relies on an answer, i
     `Cache-Control: public, max-age=86400` because their names are not content-hashed.
     Recommendation: keep it. See [architecture.md §3](architecture.md#3-spa-embedding-and-base-path)
     and [compatibility.md §5](compatibility.md#5-route-table).
+29. How is the v0.1 SPA shell put together? Current answer: **the locale catalog is one directory
+    per language with one JSON file per screen namespace; the header shows the server's name and
+    reachability only once `GET /info` has answered, announces later changes only, and on narrow
+    screens cycles the theme through light, dark and system with one button; the Test screen
+    starts the engine's Worker with the page and configures it with the server defaults as soon as
+    they are known; the engine is type-checked on its own with `exactOptionalPropertyTypes`,
+    which the application's program turns off for Vue's prop types and the copied shadcn-vue
+    components**. Recommendation: keep it. See
+    [technical-stack/frontend.md §1, §2, §4, §7](technical-stack/frontend.md#1-spa-layout) and
+    [ui/i18n-a11y.md §1.1](ui/i18n-a11y.md#11-structure).
 
 Resolved and removed:
 

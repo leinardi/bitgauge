@@ -4,9 +4,8 @@ name: Web checks
 # on main (restore and save). GitHub only lets a pull request read caches saved on its own ref or
 # on the default branch, so main is where the shared cache has to come from.
 #
-# It grows by step ID as the web gates activate (test/toolchain/gates.go): today the API type
-# drift check, ESLint, vue-tsc and vitest; the build, the dist URL allowlist and the engine chunk
-# size join with their inputs.
+# It grows by step ID as the web gates activate (test/toolchain/gates.go): the API type drift
+# check, ESLint, vue-tsc, vitest, the build, the dist URL allowlist and the engine chunk size.
 on:
   workflow_call:
     inputs:
@@ -77,6 +76,21 @@ jobs:
       - name: Unit tests
         id: unit-test
         run: npm --prefix web run test
+
+      # vite build, as make web-build and the image's web stage run it.
+      - name: Build
+        id: build
+        run: npm --prefix web run build
+
+      # Every URL in the built SPA is on the allowlist of build-packaging.md section 4.
+      - name: Check the dist URLs
+        id: dist-urls
+        run: scripts/check-dist-urls.sh web/dist
+
+      # The engine's Worker chunk stays within .chunk-budget (frontend.md section 3).
+      - name: Check the engine chunk size
+        id: chunk-size
+        run: scripts/check-chunk-size.sh web/dist
 
       - name: Save the web cache
         id: cache-save

@@ -21,11 +21,14 @@ web/
       clock.ts, transport.ts, wiring.ts   browser clock and transport, their pure helpers
     api/                      generated OpenAPI types and a typed fetch helper for GET /info
     components/               app components (gauge, charts, result cards, notices)
+    components/layout/        the header and the narrow-screen tab bar
     components/ui/            shadcn-vue components (copied, on Reka UI primitives)
-    composables/              stateful UI logic: useRun, useSettings, useHistory, useShare
+    composables/              stateful UI logic: useRun, useSettings, useHistory, useShare,
+                              useTheme, useInfo, useWorker
+    lib/                      plain helpers: class merging, server defaults as engine settings
     pages/                    route-level views: Test, ResultDetail, History, Settings, About
     router/                   Vue Router, HTML5 history under the base path
-    i18n/                     vue-i18n setup and locale files
+    i18n/                     vue-i18n setup and locale files, one directory per language
     history/                  idb database, schema migrations, export/import
     styles/                   Tailwind entry, design tokens from the design export
 ```
@@ -83,6 +86,10 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
     itself is never kept.
 - **Pure statistics.** Bucketing, watermark, warm-up, ramp, TM95, grade and AIM scoring are pure
   functions over data, unit-tested in isolation.
+- **Type checking.** The engine is type-checked on its own with `exactOptionalPropertyTypes`, so
+  an optional field of a message or the result is either present or absent, never `undefined`.
+  The application's program turns that option off: Vue's prop types and the copied shadcn-vue
+  components pass optional props on as possibly `undefined`. Both programs are strict otherwise.
 
 ## 3. Worker Bundling With Vite
 
@@ -102,8 +109,8 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
 | --- | --- | --- |
 | A running test (phases, buckets, streams, watermark, samples) | the engine | Worker memory, gone after `result` |
 | Live view of a run (gauge, chart series, notices) | `useRun` | component memory, fed by `sample` and `phase` events |
-| User settings | `useSettings` | `localStorage` key `bitgauge.settings.v1`; overridden by URL parameters ([../ui/url-params.md](../ui/url-params.md)) |
-| Server defaults and info for display | `useRun` | memory; `GET /info` fetched by the UI for display, and again by the engine at each start |
+| User settings | `useSettings` | `localStorage` key `bitgauge.settings.v1`; overridden by URL parameters ([../ui/url-params.md](../ui/url-params.md)); in v0.1, which has no Settings screen, `useTheme` writes its one field, `theme`, and keeps any other field as it is |
+| Server defaults and info for display | `useInfo` | memory; `GET /info` fetched by the UI once for display and again on Retry, and by the engine at each start |
 | Result history | `useHistory` and `history/` | IndexedDB (§5) |
 
 There is no global store library: composables with module-level reactive state are enough for five
@@ -168,8 +175,10 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
 
 ## 7. i18n
 
-- vue-i18n in Composition API mode; one JSON locale file per language in `i18n/locales/`, English
-  as the source and fallback; non-default locales lazy-loaded.
+- vue-i18n in Composition API mode; one directory per language in `i18n/locales/`, holding one
+  JSON file per screen whose single top-level key is that screen's namespace (`app.json` for the
+  header and navigation, `test.json`, `about.json`, `notAvailable.json`); English as the source
+  and fallback; non-default locales lazy-loaded.
 - Numbers, units and dates go through `Intl` with the active locale; the engine returns raw numbers
   and enum codes only, never text.
 - The ESLint vue-i18n plugin flags raw strings in templates and missing keys, as in Runhold.

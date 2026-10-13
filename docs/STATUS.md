@@ -36,7 +36,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | HTTP loaded responsiveness (path B) | Spec'd (v0.3) |  |
 | Quality scores (AIM) | Spec'd (v0.3) |  |
 | Continuous mode | Spec'd (v0.3) |  |
-| Engineering scaffold (gates, CI, release tooling) | Tooling in place; the binary build, API types and frontend lint, typecheck and unit-test gates are active, the other product gates dormant (see AGENTS) | `test/toolchain/gates.go`; active: binary build, API types, frontend lint and typecheck, frontend unit tests; dormant: web build, image and image tests, E2E, accuracy harness, release ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)) |
+| Engineering scaffold (gates, CI, release tooling) | Tooling in place; the binary build, API types, frontend lint, typecheck and unit-test, and web build gates are active, the other product gates dormant (see AGENTS) | `test/toolchain/gates.go`; active: binary build, API types, frontend lint and typecheck, frontend unit tests, web build; dormant: image and image tests, E2E, accuracy harness, release ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)) |
 | Design export (Claude Design) | Export landed with tokens, components and the `ui_kits/app/` prototype; corrections pending in Claude Design; symlinks active | `docs/design_system/` ([sync rules](README.md#design-export)) |
 | Packet loss via WebRTC and TURN | Open (unscheduled) |  |
 | Headless CLI client | Open (unscheduled) |  |

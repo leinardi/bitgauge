@@ -1,0 +1,61 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* The Tailwind entry (frontend.md section 8): the design export's tokens and fonts, mapped into
+   Tailwind 4 theme variables as tokens.md gives them. Nothing visual is authored here. Classes are
+   scanned from web/src only, so the image's web stage, without the root .gitignore, scans what a
+   local build scans. */
+
+@import 'tailwindcss' source('../');
+@import '@design/colors_and_type.css';
+
+@theme inline {
+  --color-background: var(--bg-base);
+  --color-foreground: var(--fg);
+  --color-card: var(--surface-2);
+  --color-muted: var(--surface-3);
+  --color-muted-foreground: var(--fg-muted);
+  --color-subtle-foreground: var(--fg-subtle);
+  --color-border: var(--border-subtle);
+  --color-input: var(--border-default);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-primary-text: var(--primary-text);
+  --color-destructive: var(--danger);
+  --color-ring: var(--focus-ring);
+  --color-series-download: var(--series-download);
+  --color-series-upload: var(--series-upload);
+  --color-series-latency: var(--series-latency);
+  --color-sending: var(--sending);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-hatch: var(--chart-hatch);
+  --color-chart-band: var(--chart-band);
+  --color-grade-good: var(--grade-good);
+  --color-grade-fair: var(--grade-fair);
+  --color-grade-poor: var(--grade-poor);
+  --color-quality-great: var(--quality-great);
+  --color-quality-good: var(--quality-good);
+  --color-quality-average: var(--quality-average);
+  --color-quality-poor: var(--quality-poor);
+  --color-quality-bad: var(--quality-bad);
+  --radius: 7px;
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+/* --fg-faint is non-text only: no text-faint utility. */

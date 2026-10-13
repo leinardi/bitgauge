@@ -79,10 +79,10 @@ make verify            # both of the above
 make audit-deps        # pinned govulncheck -test ./... and npm audit in web/ (network)
 make go-build          # ./dist/bitgauge for the host platform (no SPA embedded yet)
 make go-run            # run the binary (ARGS="...")
-make build             # web-build, then go-build: the binary with the SPA embedded (dormant)
+make build             # web-build, then go-build (the SPA is embedded once web/embed.go exists)
 make web-install       # npm ci in web/
-make web-build         # npm ci, then vite build into web/dist (dormant)
-make web-dev           # Vite dev server (dormant)
+make web-build         # npm ci, then vite build into web/dist
+make web-dev           # Vite dev server
 make web-test          # Vitest: unit, component, engine
 make web-lint          # ESLint, then vue-tsc
 make api-types         # regenerate web/src/api/types.gen.ts from api/openapi.yaml
@@ -228,8 +228,8 @@ everything the table requires.
 `web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
 tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`. Today
-the binary build, API types, frontend lint and typecheck, and frontend unit tests gates are active
-and every other gate above is dormant;
+the binary build, API types, frontend lint and typecheck, frontend unit tests and web build gates
+are active and every other gate above is dormant;
 `idle-measure` and `idle-bench` run against a running binary. The [STATUS row](docs/STATUS.md)
 says the same.
 

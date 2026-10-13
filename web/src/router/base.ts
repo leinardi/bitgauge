@@ -1,0 +1,27 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// The base path the server wrote into index.html at startup (architecture.md section 3): no
+// <base href> and no inline script carry it, only this meta element.
+
+/** The base path of the meta element, `/` when it is absent or empty. */
+export function readBasePath(doc: Document): string {
+  const content = doc.querySelector('meta[name="bitgauge-base-path"]')?.getAttribute('content')?.trim() ?? ''
+  return content === '' ? '/' : content
+}

@@ -133,7 +133,12 @@ the built `web/dist`, binary files included, and fails on any `http://`, `https:
 ASCII fails as it is. The allowlist is exactly:
 
 - `http://www.w3.org/2000/svg` and `http://www.w3.org/1999/xlink`, the SVG namespaces;
+- `http://www.w3.org/1998/Math/MathML`, the MathML namespace, which Vue's DOM runtime passes to
+  `createElementNS`;
 - `http://www.gnu.org/licenses/`, from the licence header;
+- `https://tailwindcss.com`, from the licence comment that Tailwind writes at the top of the CSS;
+- `https://vuejs.org/error-reference` and any path under it: the reference link that Vue's
+  production runtime prints in a console warning, a string that is never fetched;
 - `https://github.com/leinardi/bitgauge` and any path under it: the About screen's source and
   documentation links and the base-path error's link to the deployment guide.
 
