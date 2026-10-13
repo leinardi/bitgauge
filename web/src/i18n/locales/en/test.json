@@ -36,6 +36,12 @@
       "cap": "Cap {size}",
       "unitsBytes": "Units · MB/s",
       "unitsBits": "Units · Mbit/s"
+    },
+    "gauge": {
+      "window": "log scale · {lo} – {hi} · auto",
+      "fixed": "log scale · {lo} – {hi} ms",
+      "ms": "ms",
+      "noValue": "—"
     }
   }
 }

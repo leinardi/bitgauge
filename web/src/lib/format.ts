@@ -35,3 +35,36 @@ export function formatBytes(bytes: number, locale: string): string {
   const number = new Intl.NumberFormat(locale, { maximumSignificantDigits: 3 }).format(value)
   return `${number}${NBSP}${BYTE_UNITS[unit] ?? 'B'}`
 }
+
+const RATE_UNITS = {
+  bits: ['kbit/s', 'Mbit/s', 'Gbit/s'],
+  bytes: ['kB/s', 'MB/s', 'GB/s'],
+} as const
+
+/**
+ * A rate's number and unit, auto-scaled from kbit/s (or kB/s), with three significant digits,
+ * trailing zeros kept (1.00 Mbit/s); `trim` drops them, for round numbers such as a scale's ends.
+ */
+export function rateParts(bitsPerSecond: number, units: 'bits' | 'bytes', locale: string, trim = false): { number: string; unit: string } {
+  const names = RATE_UNITS[units]
+  let unit = 0
+  let value = (units === 'bytes' ? bitsPerSecond / 8 : bitsPerSecond) / 1000
+  while (unit < names.length - 1 && Number(value.toPrecision(3)) >= 1000) {
+    value /= 1000
+    unit++
+  }
+  const number = new Intl.NumberFormat(locale, { minimumSignificantDigits: trim ? 1 : 3, maximumSignificantDigits: 3 }).format(value)
+  return { number, unit: names[unit] ?? names[0] }
+}
+
+/** A rate with its unit: 94.1 Mbit/s. */
+export function formatRate(bitsPerSecond: number, units: 'bits' | 'bytes', locale: string, trim = false): string {
+  const { number, unit } = rateParts(bitsPerSecond, units, locale, trim)
+  return `${number}${NBSP}${unit}`
+}
+
+/** A latency's number in milliseconds: whole from 10 ms (9.96 rounds to 10), one decimal below. */
+export function latencyNumber(ms: number, locale: string): string {
+  const digits = ms >= 9.95 ? 0 : 1
+  return new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(ms)
+}

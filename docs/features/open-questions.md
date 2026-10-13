@@ -308,6 +308,14 @@ carries a recommendation; where the specification already relies on an answer, i
     Recommendation: keep it. See [architecture.md §4](architecture.md#4-engine--ui-message-contract),
     [ui/flows.md §5](ui/flows.md#5-error-mid-test) and
     [edge-cases.md §2](edge-cases.md#2-mobile-browsers-throttling-background-tabs-and-workers).
+34. Does a rate keep its trailing zeros? The export disagreed with itself: `tokens.md` shows
+    "9.4 kbit/s", the kit's formatter in `bg-lib.js` writes "9.40 kbit/s", and ui/i18n-a11y.md
+    §1.3 asked for `maximumSignificantDigits: 3`, which drops them. Current answer: **three
+    significant digits with the trailing zeros kept (1.00 Mbit/s, 9.40 kbit/s), as measurement.md
+    §14 reads; only the gauge caption's round scale ends drop them (1 Mbit/s – 10 Gbit/s)**. The
+    `tokens.md` example is export content, left for the Claude Design project to correct.
+    Recommendation: keep it. See [ui/i18n-a11y.md §1.3](ui/i18n-a11y.md#13-number-unit-and-date-formatting)
+    and [measurement.md §14](measurement.md#14-units-and-gauge).
 
 Resolved and removed:
 

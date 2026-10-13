@@ -17,11 +17,12 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Decimal bytes with three significant digits and a non-breaking space.
+// Decimal bytes and rates with three significant digits and a non-breaking space; latencies whole
+// from 10 ms and with one decimal below.
 
 import { describe, expect, it } from 'vitest'
 
-import { formatBytes } from '@/lib/format'
+import { formatBytes, formatRate, latencyNumber, rateParts } from '@/lib/format'
 
 describe('formatBytes', () => {
   it.each([
@@ -38,5 +39,41 @@ describe('formatBytes', () => {
 
   it('follows the locale', () => {
     expect(formatBytes(1_500_000_000, 'de')).toBe('1,5\u00a0GB')
+  })
+})
+
+describe('formatRate', () => {
+  it.each([
+    [472_000, 'bits', '472 kbit/s'],
+    [94_100_000, 'bits', '94.1 Mbit/s'],
+    [2_380_000_000, 'bits', '2.38 Gbit/s'],
+    [999_700, 'bits', '1.00 Mbit/s'],
+    [5_000_000, 'bits', '5.00 Mbit/s'],
+    [400, 'bits', '0.400 kbit/s'],
+    [800_000_000, 'bytes', '100 MB/s'],
+    [12_000, 'bytes', '1.50 kB/s'],
+  ] as const)('writes %d bit/s in %s as %s', (bps, units, text) => {
+    expect(formatRate(bps, units, 'en')).toBe(text.replace(' ', '\u00a0'))
+  })
+
+  it('trims the zeros of a round number, such as a scale\'s end', () => {
+    expect(formatRate(1_000_000, 'bits', 'en', true)).toBe('1\u00a0Mbit/s')
+    expect(formatRate(80_000, 'bytes', 'en', true)).toBe('10\u00a0kB/s')
+  })
+
+  it('gives the number and the unit apart, in the locale', () => {
+    expect(rateParts(94_100_000, 'bits', 'de')).toEqual({ number: '94,1', unit: 'Mbit/s' })
+  })
+})
+
+describe('latencyNumber', () => {
+  it.each([
+    [9.4, '9.4'],
+    [9.0, '9.0'],
+    [9.96, '10'],
+    [51.4, '51'],
+    [0.42, '0.4'],
+  ])('writes %d ms as %s', (ms, text) => {
+    expect(latencyNumber(ms, 'en')).toBe(text)
   })
 })
