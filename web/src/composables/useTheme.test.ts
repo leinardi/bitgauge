@@ -20,7 +20,8 @@
 // @vitest-environment jsdom
 
 // The theme: data-theme on <html>, the system's until one is chosen, the choice kept under the
-// settings key with the object's other fields left alone.
+// settings key with the object's other fields left alone, and a URL parameter over both for its
+// page load (ui/url-params.md section 1).
 
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -68,6 +69,18 @@ describe('the theme', () => {
     setSystemLight(false)
     await nextTick()
     expect(env.root.dataset.theme).toBe('light')
+  })
+
+  it('takes the URL parameter over the stored choice, over the default, and stores none of it', () => {
+    const { env, items } = environment('{"theme":"light"}')
+    const theme = createTheme({ ...env, override: 'dark' })
+    expect(theme.choice.value).toBe('dark')
+    expect(env.root.dataset.theme).toBe('dark')
+    expect(JSON.parse(items.get(KEY) ?? '')).toEqual({ theme: 'light' })
+    const fresh = environment(null, true)
+    expect(createTheme({ ...fresh.env, override: 'light' }).choice.value).toBe('light')
+    expect(createTheme(environment('{"theme":"light"}').env).choice.value).toBe('light')
+    expect(createTheme(environment().env).choice.value).toBe('system')
   })
 
   it('starts from the stored choice', () => {

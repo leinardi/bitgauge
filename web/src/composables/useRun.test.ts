@@ -158,14 +158,38 @@ describe('useRun', () => {
     await useInfo().refresh()
   })
 
-  it('configures the Worker from the defaults, through the settings source, under the base path', async () => {
+  it('configures the Worker from the defaults with the URL override, under the base path', async () => {
     vi.stubGlobal('Worker', StubWorker)
     const scope = effectScope()
-    const run = scope.run(() => useRun({ resolve: (defaults) => ({ ...defaults, preset: 'quick' }) }))
-    expect(StubWorker.last.posted).toEqual([{ type: 'configure', settings: { ...SETTINGS, preset: 'quick' }, basePath: '/speed' }])
+    const run = scope.run(() => useRun({ override: (defaults) => ({ preset: 'quick', units: defaults.units === 'bits' ? 'bytes' : 'bits' }) }))
+    expect(StubWorker.last.posted).toEqual([{ type: 'configure', settings: SETTINGS, override: { preset: 'quick', units: 'bytes' }, basePath: '/speed' }])
     expect(run?.defaults.value).toEqual(SETTINGS)
     scope.stop()
     expect(StubWorker.last.terminated).toBe(true)
+  })
+
+  it('takes the settings the engine resolved: the configured ones, then each run\'s', () => {
+    const { run, worker, scope } = started()
+    if (SETTINGS === null) {
+      throw new Error('the fixture defaults run in v0.1')
+    }
+    expect(run.settings.value).toEqual(SETTINGS)
+    const quick = { ...SETTINGS, preset: 'quick' as const, pingCount: 10 }
+    worker.emit({ type: 'settings', scope: 'configured', settings: quick })
+    expect(run.settings.value).toEqual(quick)
+    // A run's settings come as it starts, and only then.
+    worker.emit({ type: 'settings', scope: 'run', settings: SETTINGS })
+    expect(run.runSettings.value).toBeNull()
+    run.start({ ignoredParameters: ['cap'] })
+    expect(worker.posted.at(-1)).toEqual({ type: 'start', override: { ignoredParameters: ['cap'] }, visible: true })
+    const extended = { ...SETTINGS, preset: 'extended' as const }
+    worker.emit({ type: 'settings', scope: 'run', settings: extended })
+    expect(run.runSettings.value).toEqual(extended)
+    expect(run.settings.value).toEqual(quick)
+    worker.emit(phase('info', 'finished'), phase('idle', 'finished'), phase('download', 'finished'), phase('upload', 'finished'), { type: 'result', result: result('complete') })
+    run.start()
+    expect(run.runSettings.value).toBeNull()
+    scope.stop()
   })
 
   it('starts with the labels and the visibility, once at a time', () => {
@@ -354,7 +378,7 @@ describe('useRun', () => {
 
   it('ends a start at once after a refused configure, until the next configure', async () => {
     const preset = ref<Preset>('quick')
-    const { run, worker, scope } = started({ resolve: (defaults) => ({ ...defaults, preset: preset.value }) })
+    const { run, worker, scope } = started({ override: () => ({ preset: preset.value }) })
     worker.emit({ type: 'error', code: 'invalid-settings', messageKey: 'errors.invalid-settings', partial: false })
     expect(run.status.value).toBe('idle')
     run.start()
@@ -364,7 +388,7 @@ describe('useRun', () => {
 
     preset.value = 'extended'
     await nextTick()
-    expect(worker.posted).toEqual([{ type: 'configure', settings: { ...SETTINGS, preset: 'extended' }, basePath: '/speed' }])
+    expect(worker.posted).toEqual([{ type: 'configure', settings: SETTINGS, override: { preset: 'extended' }, basePath: '/speed' }])
     run.start()
     expect(worker.posted).toContainEqual({ type: 'start', visible: true })
     expect(run.status.value).toBe('running')

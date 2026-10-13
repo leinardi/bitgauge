@@ -49,6 +49,8 @@ export interface RunReport {
 
 /** What the run saw that no single phase reports. */
 export interface RunConditions {
+  /** The URL parameters the page ignored, from the run's settings. */
+  url: readonly Notice[]
   connection: readonly Notice[]
   /** The page was hidden at some point of the run. */
   hidden: boolean
@@ -58,7 +60,7 @@ export interface RunConditions {
 
 /** The run-level notices of measurement.md section 16, in the order the result lists them. */
 export function runNotices(report: Pick<RunReport, 'download' | 'upload'>, conditions: RunConditions): Notice[] {
-  const notices: Notice[] = [...conditions.connection]
+  const notices: Notice[] = [...conditions.url, ...conditions.connection]
   const { download, upload } = report
   if (download?.status === 'partial') {
     const window = download.window

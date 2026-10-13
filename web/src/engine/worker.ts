@@ -20,7 +20,7 @@
 import { BrowserClock } from '@/engine/clock'
 import type { EngineCommand, EngineEvent, TestSettings } from '@/engine/messages'
 import { Run } from '@/engine/run'
-import { type RunSettings, resolveSettings } from '@/engine/settings'
+import { plainSettings, type RunSettings, resolveSettings } from '@/engine/settings'
 import { BrowserTransport } from '@/engine/transport'
 
 // The engine's Worker: the message loop of architecture.md section 4 and nothing else. Each
@@ -59,13 +59,17 @@ export function messageLoop(
 
   return (command) => {
     switch (command.type) {
-      case 'configure':
-        if (resolveSettings(command.settings).ok) {
-          configured = { settings: command.settings, basePath: command.basePath }
+      case 'configure': {
+        const resolution = resolveSettings(command.settings, command.override)
+        if (resolution.ok) {
+          // A configure carries settings only: a label or ignored parameters would belong to a run.
+          configured = { settings: plainSettings(resolution.settings), basePath: command.basePath }
+          emit({ type: 'settings', scope: 'configured', settings: configured.settings })
         } else {
           invalid()
         }
         return
+      }
       case 'start': {
         if (current !== null) {
           return
@@ -75,6 +79,7 @@ export function messageLoop(
           invalid()
           return
         }
+        emit({ type: 'settings', scope: 'run', settings: plainSettings(resolution.settings) })
         const run = createRun({ settings: resolution.settings, basePath: configured.basePath, visible: command.visible, emit })
         current = run
         run.start().then(

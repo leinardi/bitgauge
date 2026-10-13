@@ -345,6 +345,21 @@ carries a recommendation; where the specification already relies on an answer, i
     key `errors.<code>` in an `errors` namespace**. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [ui/i18n-a11y.md §1.1](ui/i18n-a11y.md#11-structure).
+39. How do the URL parameters reach a run, when the UI cannot resolve a preset's durations
+    without importing the engine, and which values are invalid? Current answer: **the page sends
+    the settings parameters as the `configure` override, the engine resolves and stores them and
+    answers with a `settings` event, which the screen shows (scope `configured`, and `run` as each
+    run starts); the parameters whose values were ignored travel in each `start` override as
+    `ignoredParameters`, so the run carries a `url-parameter-ignored` notice for each up to the
+    result. A value outside the table or the configuration ranges is invalid: a `cap` below 1 MiB,
+    a fixed `streams` above the server's maximum, `preset=continuous` before v0.3. The first
+    occurrence of a repeated name counts. The countdown waits for the engine's `settings` answer.
+    Enter's "interactive control" is a link, a form control, editable text, an element with an
+    ARIA widget role or a tab index of 0 or more, and Escape is left to a control that already
+    handled it.** Recommendation: keep it. See
+    [architecture.md §4](architecture.md#4-engine--ui-message-contract),
+    [ui/url-params.md §1](ui/url-params.md#1-rules) and
+    [ui/i18n-a11y.md §2.4](ui/i18n-a11y.md#24-keyboard).
 
 Resolved and removed:
 

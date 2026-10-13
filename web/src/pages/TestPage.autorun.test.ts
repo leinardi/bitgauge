@@ -1,0 +1,167 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// @vitest-environment jsdom
+
+// The Test screen opened from a link (ui/flows.md section 2): the URL's settings go to the engine
+// with configure, an invalid value shows as the URL parameter ignored notice, and once the engine
+// has answered with the settings a 3 s countdown starts the run with the URL's label and the
+// ignored parameters; Escape cancels it and Start then runs the same settings. Each test loads the
+// page afresh, since the URL applies once per page load.
+
+import { flushPromises } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { getInfo, type Info } from '@/api/info'
+import type { EngineEvent, TestSettings } from '@/engine/messages'
+import { settingsFromDefaults } from '@/lib/defaults'
+import { infoFixture } from '@/test/fixtures'
+
+vi.mock('@/api/info', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/api/info')>()),
+  getInfo: vi.fn(),
+}))
+
+class StubWorker extends EventTarget {
+  static started: StubWorker[] = []
+  readonly posted: unknown[] = []
+
+  constructor() {
+    super()
+    StubWorker.started.push(this)
+  }
+
+  postMessage(message: unknown): void {
+    this.posted.push(message)
+  }
+
+  terminate(): void {}
+
+  emit(...events: EngineEvent[]): void {
+    events.forEach((event) => this.dispatchEvent(new MessageEvent('message', { data: event })))
+  }
+}
+
+const INFO: Info = infoFixture()
+const DEFAULTS = settingsFromDefaults(INFO.defaults) as TestSettings
+const QUICK: TestSettings = { ...DEFAULTS, preset: 'quick', phases: ['idle', 'download'], pingCount: 10, download: { minMs: 5000, maxMs: 10_000 }, upload: { minMs: 5000, maxMs: 10_000 } }
+
+/** The page loaded afresh at `search`, with its Worker. */
+async function load(search: string) {
+  window.history.replaceState(null, '', `/${search}`)
+  vi.resetModules()
+  vi.stubGlobal('Worker', StubWorker)
+  vi.mocked(getInfo).mockResolvedValue(INFO)
+  const { useInfo } = await import('@/composables/useInfo')
+  await useInfo().refresh()
+  const { mountApp } = await import('@/test/mount')
+  const { default: TestPage } = await import('@/pages/TestPage.vue')
+  const page = await mountApp(TestPage, `/${search}`)
+  const worker = StubWorker.started.at(-1)
+  if (worker === undefined) {
+    throw new Error('no Worker')
+  }
+  return { page, worker }
+}
+
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+  vi.unstubAllGlobals()
+  StubWorker.started = []
+  window.history.replaceState(null, '', '/')
+})
+
+describe('a link with run', () => {
+  it('configures the URL settings, names the ignored value, and starts after the countdown', async () => {
+    const { page, worker } = await load('?Run=1&preset=QUICK&test=download&streams=9&label=VPN&unknown=1')
+    expect(worker.posted).toEqual([{ type: 'configure', settings: DEFAULTS, override: { phases: ['idle', 'download'], preset: 'quick' }, basePath: '/' }])
+    expect(page.get('[data-testid="notice"]').text()).toContain('URL parameter ignored')
+    expect(page.get('[data-testid="notice"]').text()).toContain('streams')
+    // No countdown until the engine has the URL's settings.
+    expect(page.find('[data-testid="countdown"]').exists()).toBe(false)
+
+    worker.emit({ type: 'settings', scope: 'configured', settings: QUICK })
+    await flushPromises()
+    expect(page.get('[data-testid="countdown-number"]').text()).toBe('3')
+    expect(page.get('[data-testid="auto-start"]').text()).toContain('Auto-start in 3 s')
+    expect(page.get('[data-testid="start-button"]').text()).toContain('Start now')
+    expect(page.get('[data-testid="settings-summary"]').text()).toContain('Quick')
+    expect(page.findAll('[data-testid="phase-indicator"] li')).toHaveLength(2)
+
+    vi.advanceTimersByTime(1000)
+    await flushPromises()
+    expect(page.get('[data-testid="countdown-number"]').text()).toBe('2')
+    worker.posted.length = 0
+    vi.advanceTimersByTime(2000)
+    await flushPromises()
+    expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: 'LAN', ignoredParameters: ['streams'], label: 'VPN' }, visible: true }])
+    expect(page.find('[data-testid="countdown"]').exists()).toBe(false)
+    expect(page.get('[data-testid="start-button"]').text()).toContain('Stop test')
+    page.unmount()
+  })
+
+  it('cancels on Escape, and Start then runs the URL settings', async () => {
+    const { page, worker } = await load('?run&label=Office')
+    worker.emit({ type: 'settings', scope: 'configured', settings: DEFAULTS })
+    await flushPromises()
+    expect(page.find('[data-testid="countdown"]').exists()).toBe(true)
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await flushPromises()
+    expect(page.find('[data-testid="countdown"]').exists()).toBe(false)
+    vi.advanceTimersByTime(5000)
+    worker.posted.length = 0
+    await page.get('[data-testid="start-button"]').trigger('click')
+    expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: 'LAN', label: 'Office' }, visible: true }])
+    page.unmount()
+  })
+
+  it('starts now on Enter, and the cancel button stops a countdown', async () => {
+    const { page, worker } = await load('?run=true')
+    worker.emit({ type: 'settings', scope: 'configured', settings: DEFAULTS })
+    await flushPromises()
+    worker.posted.length = 0
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await flushPromises()
+    expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: 'LAN' }, visible: true }])
+    page.unmount()
+
+    const again = await load('?run=1')
+    again.worker.emit({ type: 'settings', scope: 'configured', settings: DEFAULTS })
+    await flushPromises()
+    await again.page.get('[data-testid="auto-start-cancel"]').trigger('click')
+    vi.advanceTimersByTime(5000)
+    expect(again.worker.posted.filter((message) => (message as { type: string }).type === 'start')).toEqual([])
+    expect(again.page.get('[data-testid="start-button"]').text()).toContain('Start test')
+    again.page.unmount()
+  })
+
+  it('does not count down without run, or with run=0', async () => {
+    for (const search of ['?preset=quick', '?run=0']) {
+      const { page, worker } = await load(search)
+      worker.emit({ type: 'settings', scope: 'configured', settings: DEFAULTS })
+      await flushPromises()
+      expect(page.find('[data-testid="countdown"]').exists()).toBe(false)
+      page.unmount()
+    }
+  })
+})

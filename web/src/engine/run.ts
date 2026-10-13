@@ -184,7 +184,7 @@ export class Run {
       protocol: this.protocol,
       dataUsedBytes: this.dataUsed,
       error: interrupt?.kind === 'error' ? interrupt.code : null,
-      notices: runNotices(report, { connection: this.connection?.notices ?? [], hidden: this.page.hidden, throttled: this.page.throttled }),
+      notices: runNotices(report, { url: this.urlNotices(), connection: this.connection?.notices ?? [], hidden: this.page.hidden, throttled: this.page.throttled }),
     }
   }
 
@@ -373,8 +373,13 @@ export class Run {
     this.event(phase, 'started')
   }
 
+  /** One `url-parameter-ignored` notice per URL parameter the page ignored, from the start of the run. */
+  private urlNotices(): Notice[] {
+    return (this.options.settings.ignoredParameters ?? []).map((parameter) => ({ code: 'url-parameter-ignored', parameter }))
+  }
+
   private event(phase: PhaseName, state: PhaseState, streams?: number): void {
-    const notices: Notice[] = [...(this.connection?.notices ?? [])]
+    const notices: Notice[] = [...this.urlNotices(), ...(this.connection?.notices ?? [])]
     this.options.emit({
       type: 'phase',
       phase,

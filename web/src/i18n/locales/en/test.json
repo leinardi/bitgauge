@@ -169,6 +169,14 @@
       "upload": "Test failed during upload",
       "internal": "The test stopped because of an internal error.",
       "kept": "The phases that finished before the error are kept."
+    },
+    "countdown": {
+      "label": "Auto-start in",
+      "unit": "second | seconds",
+      "caption": "Esc cancels",
+      "title": "Auto-start in {n} s",
+      "body": "This page was opened from a link that starts a test automatically.",
+      "cancel": "Cancel"
     }
   }
 }

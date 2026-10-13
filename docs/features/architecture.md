@@ -85,8 +85,8 @@ application code; the UI talks to it only through typed messages defined in one 
 
 | Message | Payload | Effect |
 | --- | --- | --- |
-| `configure` | resolved settings (preset, phases, streams, durations, data cap, units, warm-up, ping count, overhead compensation), base path | Validates and stores settings for the next run; answered by `error` if invalid. |
-| `start` | optional settings override, `visible` flag | Starts a run with the configured settings. The engine's own Info phase then calls `GET /api/v1/info`; that response, fetched at the start of this run, is the only source of the epoch and limits the run uses ([measurement.md §1](measurement.md#1-phases-and-order)). The UI may fetch `/info` separately for display, but never hands it to the engine. |
+| `configure` | resolved settings (preset, phases, streams, durations, data cap, units, warm-up, ping count, overhead compensation), optional override of the URL parameters' settings, base path | Resolves the override over the settings, validates and stores them for the next run; answered by `settings` with what it stored, or by `error` if invalid. |
+| `start` | optional settings override (with the result's label, the context label and the URL parameters ignored), `visible` flag | Starts a run with the configured settings. The engine's own Info phase then calls `GET /api/v1/info`; that response, fetched at the start of this run, is the only source of the epoch and limits the run uses ([measurement.md §1](measurement.md#1-phases-and-order)). The UI may fetch `/info` separately for display, but never hands it to the engine. |
 | `stop` | — | Stops the run as a user stop: in-flight requests aborted, partial result emitted. |
 | `visibility` | `visible: boolean` | Forwards `visibilitychange` ([edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test)). |
 | `network` | `event: 'offline' \| 'type-changed'` | Forwards the page's `offline` event and changes of `navigator.connection.type`, the two network signals of [edge-cases.md §6](edge-cases.md#6-network-change-mid-test); the run ends with the `network-changed` error. |
@@ -102,6 +102,7 @@ the page's `Worker` object; the next `start` may begin another run.
 
 | Message | Payload | Used for |
 | --- | --- | --- |
+| `settings` | scope (`configured` or `run`), the resolved settings | The settings shown before a run (`configured`, answering each valid `configure`) and during and after it (`run`, sent as a run starts, its override applied). |
 | `phase` | phase name (`info`, `idle`, `download`, `upload`), state (`started`, `finished`, `skipped`, `failed`), protocol, stream count, notices so far | Phase indicator, connection info. |
 | `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up; Continuous adds "p90, last hour"); the warm-up end and, for upload, P_start and the sample's instant on the server grid (display only); latest loaded-latency samples; data used | Live gauge, tiles and chart, at most every 100 ms. |
 | `idle` | pings answered or lost so far, of the ping count (the warm-up ping included); the last RTT; the running median of the samples so far | The idle-latency gauge in milliseconds, ping counter and live median, after each ping. |
@@ -113,13 +114,14 @@ the page's `Worker` object; the next `start` may begin another run.
 type PhaseName = 'info' | 'idle' | 'download' | 'upload';
 
 type EngineCommand =
-  | { type: 'configure'; settings: TestSettings; basePath: string }
+  | { type: 'configure'; settings: TestSettings; override?: ConfigureOverride; basePath: string }
   | { type: 'start'; override?: SettingsOverride; visible: boolean }
   | { type: 'stop' }
   | { type: 'visibility'; visible: boolean }
   | { type: 'network'; event: 'offline' | 'type-changed' };
 
 type EngineEvent =
+  | { type: 'settings'; scope: 'configured' | 'run'; settings: TestSettings }
   | { type: 'phase'; phase: PhaseName; state: PhaseState; protocol?: string; streams?: number;
       notices: Notice[] }
   | { type: 'sample'; direction: Direction;
@@ -161,18 +163,25 @@ and `server-unreachable` (the causes of [ui/flows.md §5](ui/flows.md#5-error-mi
 `messageKey` is `errors.<code>`, the catalog key the UI words it with. A notice carries a code of
 [measurement.md §16](measurement.md#16-confidence-and-notices) with the raw values it names.
 
-**Settings resolution.** A `start` override replaces the configured value of each field it sets,
-and may also carry `durationMs` (the `duration` URL parameter,
-[ui/url-params.md §2](ui/url-params.md#2-parameters)), the result's `label` and the
-`contextLabel`. An override that selects another preset takes that preset's durations, ping count
-and stream mode from [measurement.md §8.5](measurement.md#85-presets) unless it sets them too (a
-fixed count no larger than the configured maximum): the durations and ping count in the configured
-settings belong to the configured preset. `durationMs`
-sets both directions' maximum to it and their minimum to the smaller of the minimum and it. The
-resolved settings are checked against the ranges of
+**Settings resolution.** An override replaces the configured value of each field it sets, and
+may also carry `durationMs` (the `duration` URL parameter,
+[ui/url-params.md §2](ui/url-params.md#2-parameters)). A `configure` override carries the URL
+parameters' settings and is resolved over the settings it comes with, which are then stored as
+the configured settings; a `start` override is resolved over the configured settings for that run
+only, and may also carry the result's `label`, the `contextLabel` and `ignoredParameters`, the
+URL parameters whose values the page ignored: the run carries a `url-parameter-ignored` notice
+for each, from its first `phase` event to the result. An override that selects another preset
+takes that preset's durations, ping count and stream mode from
+[measurement.md §8.5](measurement.md#85-presets) unless it sets them too (a fixed count no larger
+than the configured maximum): the durations and ping count in the configured settings belong to
+the configured preset. `durationMs` sets both directions' maximum to it and their minimum to the
+smaller of the minimum and it. The resolved settings are checked against the ranges of
 [configuration.md §2.3](configuration.md#23-test-defaults), the `duration` range of the URL
-parameter (5–600 s for the bounded presets) and the 64-character `label`; Continuous is not a v0.1
-preset. Any invalid value fails the `configure` or `start` with `invalid-settings`.
+parameter (5–600 s for the bounded presets), the 64-character `label` and the parameter names of
+the URL parameters' table, each at most once; Continuous is not a v0.1 preset. Any invalid value
+fails the `configure` or `start` with `invalid-settings`. The `settings` event gives the UI the
+outcome, which it shows rather than resolving presets itself: after a valid `configure` with
+scope `configured`, and as a run starts with scope `run`, without the labels.
 
 The engine takes an injectable clock and transport, so tests drive it with synthetic timelines
 ([technical-stack/testing.md](technical-stack/testing.md)). The transport's `info()` returns the

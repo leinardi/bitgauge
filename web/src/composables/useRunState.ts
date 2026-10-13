@@ -29,10 +29,11 @@ import type {
   PhaseState,
   Result,
   SteadySoFar,
+  TestSettings,
 } from '@/engine/messages'
 
-// The live view of a run (frontend.md section 4), fed by the engine's phase, sample, idle, result
-// and error events. No event marks the end of a run: it is read from their order (architecture.md
+// The live view of a run (frontend.md section 4), fed by the engine's settings, phase, sample, idle,
+// result and error events. No event marks the end of a run: it is read from their order (architecture.md
 // section 4), which is what `settle` does after every event. A start the Worker cannot run, after a
 // refused configure or once the Worker itself failed, ends at once.
 
@@ -121,6 +122,8 @@ export function createRunState() {
   const phases = shallowRef(pendingPhases())
   const live = shallowRef(emptyLive())
   const idle = shallowRef<IdleLive | null>(null)
+  const configured = shallowRef<TestSettings | null>(null)
+  const runSettings = shallowRef<TestSettings | null>(null)
   const direction = shallowRef<Direction | null>(null)
   const protocol = shallowRef<string | null>(null)
   const dataUsedBytes = shallowRef(0)
@@ -186,6 +189,10 @@ export function createRunState() {
     phases: phases as Readonly<ShallowRef<Record<PhaseName, PhaseView>>>,
     /** Each direction's live numbers and series buffer, null until its first sample. */
     live: live as Readonly<ShallowRef<Record<Direction, DirectionLive | null>>>,
+    /** The settings the engine resolved from the last valid configure: what the next run starts from. */
+    configured: configured as Readonly<ShallowRef<TestSettings | null>>,
+    /** The settings of the current or last run, its override applied; null before the run starts. */
+    runSettings: runSettings as Readonly<ShallowRef<TestSettings | null>>,
     /** Idle latency so far: the ping counter, the last RTT and the running median; null before the first ping. */
     idle: idle as Readonly<ShallowRef<IdleLive | null>>,
     /** The direction of the last sample: the one the gauge shows. */
@@ -206,6 +213,7 @@ export function createRunState() {
       phases.value = pendingPhases()
       live.value = emptyLive()
       idle.value = null
+      runSettings.value = null
       direction.value = null
       protocol.value = null
       dataUsedBytes.value = 0
@@ -249,6 +257,15 @@ export function createRunState() {
     },
 
     apply(event: EngineEvent): void {
+      if (event.type === 'settings') {
+        // A configure is answered whether or not a run is in progress; a run's come as it starts.
+        if (event.scope === 'configured') {
+          configured.value = event.settings
+        } else if (status.value === 'running') {
+          runSettings.value = event.settings
+        }
+        return
+      }
       if (event.type === 'result') {
         // A result is always shown, even one that arrives after a stop returned the screen to
         // Idle: its phase finished just before the stop reached the Worker.

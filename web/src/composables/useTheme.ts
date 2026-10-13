@@ -19,9 +19,13 @@
 
 import { computed, type ComputedRef, effectScope, readonly, type Ref, ref, shallowRef, watchEffect } from 'vue'
 
+import { useUrlParams } from '@/composables/useUrlParams'
+
 // The theme (frontend.md section 8): `data-theme` on <html>, following the system until the header
 // chooses one. The choice is v0.1's only persisted setting (ui/screens.md section 1), kept under
-// the settings key with any other field of that object left as it is.
+// the settings key with any other field of that object left as it is. A `theme` URL parameter
+// wins over the stored choice for the page load it appears on, and is not stored
+// (ui/url-params.md section 1).
 
 export type ThemeChoice = 'light' | 'dark' | 'system'
 
@@ -34,6 +38,8 @@ export interface ThemeEnvironment {
   storage: Pick<Storage, 'getItem' | 'setItem'>
   matchMedia(query: string): MediaQueryList
   root: HTMLElement
+  /** The `theme` URL parameter of this page load. */
+  override?: ThemeChoice
 }
 
 export interface Theme {
@@ -56,7 +62,7 @@ function storedSettings(storage: ThemeEnvironment['storage']): Record<string, un
 /** A theme over an environment: tests pass their own, the application uses `useTheme`. */
 export function createTheme(env: ThemeEnvironment): Theme {
   const stored = storedSettings(env.storage).theme
-  const choice = ref<ThemeChoice>(CHOICES.find((value) => value === stored) ?? 'system')
+  const choice = ref<ThemeChoice>(env.override ?? CHOICES.find((value) => value === stored) ?? 'system')
   const query = env.matchMedia(LIGHT_QUERY)
   const systemLight = shallowRef(query.matches)
   query.addEventListener('change', (event) => {
@@ -91,6 +97,10 @@ export function useTheme(): Theme {
       storage: { getItem: (key) => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value) },
       matchMedia: (query) => window.matchMedia(query),
       root: document.documentElement,
+    }
+    const { theme } = useUrlParams()
+    if (theme !== undefined) {
+      env.override = theme
     }
     // A detached scope: the theme's effects outlive whichever component asked for it first. A new
     // scope is active, so run always returns the theme.

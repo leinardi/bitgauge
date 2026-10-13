@@ -138,6 +138,20 @@ describe('the phase order', () => {
     expect(harness.transport.server.probed).toEqual(['/api/v1/small'])
   })
 
+  it('carries a notice for each ignored URL parameter from the first phase event to the result', async () => {
+    const harness = start({ ignoredParameters: ['streams', 'cap'] })
+    const report = await finish(harness)
+    const ignored = [
+      { code: 'url-parameter-ignored', parameter: 'streams' },
+      { code: 'url-parameter-ignored', parameter: 'cap' },
+    ]
+    const first = harness.events.find(({ event }) => event.type === 'phase')?.event
+    expect(first?.type === 'phase' ? first.notices : []).toEqual(ignored)
+    expect(report?.notices).toEqual(ignored)
+    const result = harness.events.find(({ event }) => event.type === 'result')?.event
+    expect(result?.type === 'result' ? result.result.notices.slice(0, 2) : []).toEqual(ignored)
+  })
+
   it('reports idle latency after each ping, between its phase events', async () => {
     const harness = start()
     const report = await finish(harness)

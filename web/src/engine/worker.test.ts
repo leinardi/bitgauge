@@ -92,14 +92,36 @@ function loop() {
 describe('the message loop', () => {
   it('starts a run with the configured settings, the override, the base path and the visibility', () => {
     const { events, runs, send } = loop()
-    send({ type: 'configure', settings: SETTINGS, basePath: '/speed' }, { type: 'start', override: { preset: 'quick', label: 'VPN' }, visible: false })
-    expect(events).toEqual([])
+    send({ type: 'configure', settings: SETTINGS, basePath: '/speed' }, { type: 'start', override: { preset: 'quick', label: 'VPN', ignoredParameters: ['streams'] }, visible: false })
     expect(runs).toHaveLength(1)
     const { settings, basePath, visible } = runs[0]?.request ?? {}
     expect({ basePath, visible }).toEqual({ basePath: '/speed', visible: false })
     // The override takes Quick's durations, ping count and fixed streams (measurement.md section 8.5).
-    expect(settings).toMatchObject({ preset: 'quick', label: 'VPN', pingCount: 10, streams: { mode: 'fixed', fixed: 3 }, download: { minMs: 5000, maxMs: 10_000 } })
+    expect(settings).toMatchObject({ preset: 'quick', label: 'VPN', pingCount: 10, streams: { mode: 'fixed', fixed: 3 }, download: { minMs: 5000, maxMs: 10_000 }, ignoredParameters: ['streams'] })
     expect(runs[0]?.calls).toEqual(['start'])
+    // Each answered with the settings resolved: the configured ones, then the run's, without its labels.
+    const { label: _label, ignoredParameters: _ignored, ...plain } = runs[0]?.request.settings ?? { ...SETTINGS, label: '' }
+    expect(events).toEqual([
+      { type: 'settings', scope: 'configured', settings: SETTINGS },
+      { type: 'settings', scope: 'run', settings: plain },
+    ])
+  })
+
+  it('resolves the URL parameters a configure carries, and keeps them for every run', () => {
+    const { events, runs, send } = loop()
+    send({ type: 'configure', settings: SETTINGS, override: { preset: 'extended', durationMs: 30_000, units: 'bytes' }, basePath: '/' }, { type: 'start', visible: true })
+    const resolved = { ...SETTINGS, preset: 'extended', units: 'bytes', pingCount: 50, download: { minMs: 20_000, maxMs: 30_000 }, upload: { minMs: 20_000, maxMs: 30_000 } }
+    expect(events).toEqual([
+      { type: 'settings', scope: 'configured', settings: resolved },
+      { type: 'settings', scope: 'run', settings: resolved },
+    ])
+    expect(runs[0]?.request.settings).toEqual(resolved)
+  })
+
+  it('keeps a label or ignored parameters out of the configured settings', () => {
+    const { events, send } = loop()
+    send({ type: 'configure', settings: SETTINGS, override: { label: 'VPN', ignoredParameters: ['cap'] } as never, basePath: '/' })
+    expect(events).toEqual([{ type: 'settings', scope: 'configured', settings: SETTINGS }])
   })
 
   it('passes stop, visibility and network to the run in progress', () => {
@@ -128,7 +150,7 @@ describe('the message loop', () => {
     await Promise.resolve()
     await Promise.resolve()
     expect(failures).toEqual([error])
-    expect(events).toEqual([])
+    expect(events.map((event) => event.type)).toEqual(['settings', 'settings'])
     send({ type: 'start', visible: true })
     expect(runs).toHaveLength(2)
   })
@@ -145,7 +167,9 @@ describe('the message loop', () => {
     send({ type: 'start', visible: true })
     send({ type: 'configure', settings: { ...SETTINGS, pingCount: 0 }, basePath: '/' }, { type: 'start', visible: true })
     send({ type: 'configure', settings: SETTINGS, basePath: '/' }, { type: 'start', override: { durationMs: 1000 }, visible: true })
-    expect(events).toEqual([INVALID, INVALID, INVALID, INVALID])
+    send({ type: 'start', override: { ignoredParameters: ['server'] }, visible: true }, { type: 'start', override: { ignoredParameters: ['cap', 'cap'] }, visible: true })
+    send({ type: 'configure', settings: SETTINGS, override: { streams: { mode: 'fixed', fixed: 7, max: 6 } }, basePath: '/' })
+    expect(events.filter((event) => event.type !== 'settings')).toEqual([INVALID, INVALID, INVALID, INVALID, INVALID, INVALID, INVALID])
     expect(runs).toEqual([])
   })
 
@@ -153,7 +177,7 @@ describe('the message loop', () => {
     const { events, runs, send } = loop()
     send({ type: 'configure', settings: SETTINGS, basePath: '/a' }, { type: 'configure', settings: { ...SETTINGS, units: 'nibbles' as 'bits' }, basePath: '/b' })
     send({ type: 'start', visible: true })
-    expect(events).toEqual([INVALID])
+    expect(events.map((event) => event.type)).toEqual(['settings', 'error', 'settings'])
     expect(runs[0]?.request.basePath).toBe('/a')
   })
 })

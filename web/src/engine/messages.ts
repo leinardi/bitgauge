@@ -59,13 +59,22 @@ export interface TestSettings {
 }
 
 /**
- * A run's override of the configured settings (architecture.md section 4): any field of the
- * settings, the `duration` URL parameter as `durationMs`, the result's label and the context label.
+ * The URL parameters' settings (ui/url-params.md section 2), which `configure` resolves over the
+ * settings it carries: any field of the settings, and the `duration` parameter as `durationMs`.
  */
-export type SettingsOverride = Partial<TestSettings> & {
+export type ConfigureOverride = Partial<TestSettings> & {
   durationMs?: number
+}
+
+/**
+ * A run's override of the configured settings (architecture.md section 4): any field of the
+ * settings, the `duration` URL parameter as `durationMs`, the result's label, the context label,
+ * and the URL parameters whose values were ignored, each a `url-parameter-ignored` notice.
+ */
+export type SettingsOverride = ConfigureOverride & {
   label?: string
   contextLabel?: string
+  ignoredParameters?: string[]
 }
 
 /** The confidence reasons of measurement.md section 8.3. */
@@ -216,7 +225,7 @@ export { validateResult } from '@/engine/result/validate'
 
 /** Commands, UI to engine. */
 export type EngineCommand =
-  | { type: 'configure'; settings: TestSettings; basePath: string }
+  | { type: 'configure'; settings: TestSettings; override?: ConfigureOverride; basePath: string }
   | { type: 'start'; override?: SettingsOverride; visible: boolean }
   | { type: 'stop' }
   | { type: 'visibility'; visible: boolean }
@@ -264,6 +273,11 @@ export type EngineEvent =
       sendingBucket?: number
       dataUsedBytes: number
     }
+  /**
+   * The resolved settings: after a valid `configure`, those the next run starts from; when a run
+   * starts, that run's, its override applied.
+   */
+  | { type: 'settings'; scope: 'configured' | 'run'; settings: TestSettings }
   /** Idle latency so far, after each ping: the ping counter, the last RTT and the running median. */
   | { type: 'idle'; pings: number; count: number; rttMs?: number; medianMs?: number }
   | { type: 'result'; result: Result }

@@ -12,9 +12,18 @@ apply to the page load they appear on; they are not stored unless the user saves
   stores no test settings, so there the URL parameters apply over the server defaults
   ([screens.md §1](screens.md#1-test-home--)).
 - Parameter names are matched case-insensitively (`Run=1` works); canonical names are lowercase.
-  Values are case-insensitive for enums.
+  Values are case-insensitive for enums and for the units of `cap`. When a name appears more than
+  once, its first occurrence counts.
 - An invalid value is ignored, the rest of the URL still applies, and the notice
   `URL parameter ignored` names the ignored parameter. Unknown parameters are ignored silently.
+  A value is invalid when it is outside the table below or outside the ranges of
+  [../configuration.md §2.3](../configuration.md#23-test-defaults): a `cap` below 1 MiB, or a
+  fixed `streams` count above the server's `streams.max`. `run` accepts only the values its row
+  lists. Before v0.3, `preset=continuous` is invalid, since Continuous is a v0.3 preset.
+- The page hands the settings parameters to the engine with its configuration, so every run of
+  the page load uses them, and the engine resolves a `preset` there with its durations, ping count
+  and stream mode ([../architecture.md §4](../architecture.md#4-engine--ui-message-contract)).
+  The ignored parameters travel with each run, so the result carries the notice too.
 - There is **no `server` parameter**: a test always runs against the server that served the page
   (multi-server selection is dropped, [../product.md §1.6](../product.md#16-non-goals)).
 - Parameters live in the query string of any SPA route, normally `/`.

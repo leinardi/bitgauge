@@ -22,7 +22,7 @@ import { computed, onScopeDispose, watch } from 'vue'
 import { useInfo } from '@/composables/useInfo'
 import { createRunState } from '@/composables/useRunState'
 import { useWorker } from '@/composables/useWorker'
-import type { Preset, SettingsOverride, TestSettings } from '@/engine/messages'
+import type { ConfigureOverride, Preset, SettingsOverride, TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
 import { readBasePath } from '@/router/base'
 
@@ -37,15 +37,19 @@ interface Connection extends EventTarget {
 }
 
 export interface RunOptions {
-  /** Resolves the settings to configure from the server defaults; the URL parameters plug in here. */
-  resolve?: (defaults: TestSettings) => TestSettings
+  /** The URL parameters' settings over the server defaults, which the engine resolves at configure. */
+  override?: (defaults: TestSettings) => ConfigureOverride
 }
 
-/** The result's label and the context label of a run, and a preset a notice offers instead. */
+/**
+ * The result's label and the context label of a run, a preset a notice offers instead, and the
+ * URL parameters ignored, which the run carries as notices.
+ */
 export interface StartOptions {
   label?: string
   contextLabel?: string
   preset?: Preset
+  ignoredParameters?: string[]
 }
 
 function ignore(): void {
@@ -64,20 +68,20 @@ export function useRun(options: RunOptions = {}) {
 
   /** The server's defaults as engine settings; null until known, or when v0.1 cannot run them. */
   const defaults = computed(() => (info.value === null ? null : settingsFromDefaults(info.value.defaults)))
-  const settings = computed(() => {
-    const base = defaults.value
-    return base === null || options.resolve === undefined ? base : options.resolve(base)
-  })
+  const override = computed(() => (defaults.value === null || options.override === undefined ? null : options.override(defaults.value)))
+  /** The settings the next run starts from: the engine's resolution of the last configure, or the defaults until it answers. */
+  const settings = computed(() => (defaults.value === null ? null : (state.configured.value ?? defaults.value)))
 
   bridge.onEvent(state.apply)
   bridge.onError(state.crash)
 
   watch(
-    settings,
-    (value) => {
+    [defaults, override],
+    ([value, urlOverride]) => {
       if (value !== null) {
         state.configuring()
-        bridge.post({ type: 'configure', settings: value, basePath: readBasePath(document) })
+        const basePath = readBasePath(document)
+        bridge.post(urlOverride === null || Object.keys(urlOverride).length === 0 ? { type: 'configure', settings: value, basePath } : { type: 'configure', settings: value, override: urlOverride, basePath })
       }
     },
     { immediate: true },
@@ -161,21 +165,24 @@ export function useRun(options: RunOptions = {}) {
      * ended at once when the Worker refused the configure or has failed.
      */
     start(start: StartOptions = {}): void {
-      if (state.status.value === 'running' || settings.value === null || !state.begin()) {
+      if (state.status.value === 'running' || defaults.value === null || !state.begin()) {
         return
       }
-      const override: SettingsOverride = {}
+      const startOverride: SettingsOverride = {}
       if (start.label !== undefined) {
-        override.label = start.label
+        startOverride.label = start.label
       }
       if (start.contextLabel !== undefined) {
-        override.contextLabel = start.contextLabel
+        startOverride.contextLabel = start.contextLabel
       }
       if (start.preset !== undefined) {
-        override.preset = start.preset
+        startOverride.preset = start.preset
+      }
+      if (start.ignoredParameters !== undefined && start.ignoredParameters.length > 0) {
+        startOverride.ignoredParameters = [...start.ignoredParameters]
       }
       const visible = document.visibilityState === 'visible'
-      bridge.post(Object.keys(override).length === 0 ? { type: 'start', visible } : { type: 'start', override, visible })
+      bridge.post(Object.keys(startOverride).length === 0 ? { type: 'start', visible } : { type: 'start', override: startOverride, visible })
       void holdWakeLock()
     },
 

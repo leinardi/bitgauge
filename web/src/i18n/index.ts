@@ -40,6 +40,11 @@ function supported(tag: string): Locale | null {
   return SUPPORTED_LOCALES.find((locale) => locale === lower) ?? null
 }
 
+/** Whether a `lang` value names a supported locale, as section 1.2 reads it. */
+export function isSupportedLocale(tag: string): boolean {
+  return supported(tag) !== null
+}
+
 /** The `lang` URL parameter's value; parameter names match case-insensitively (url-params.md section 1). */
 function langParam(search: string): string | null {
   for (const [name, value] of new URLSearchParams(search)) {

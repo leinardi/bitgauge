@@ -36,11 +36,20 @@ const MAX_PINGS = 200
 const MAX_COMPENSATION = 20
 const MAX_LABEL = 64
 const PHASES: readonly MeasuringPhase[] = ['idle', 'download', 'upload']
+/** The parameters of ui/url-params.md section 2: the ones whose value can be ignored as invalid. */
+const URL_PARAMETERS: readonly string[] = ['run', 'test', 'preset', 'duration', 'streams', 'cap', 'units', 'lang', 'theme', 'label']
 
-/** The settings of one run, with the labels the result carries. */
+/** The settings of one run, with the labels the result carries and the URL parameters ignored. */
 export interface RunSettings extends TestSettings {
   label?: string
   contextLabel?: string
+  ignoredParameters?: string[]
+}
+
+/** The settings alone, without what only a run carries. */
+export function plainSettings(settings: RunSettings): TestSettings {
+  const { label: _label, contextLabel: _contextLabel, ignoredParameters: _ignored, ...plain } = settings
+  return plain
 }
 
 export type Resolution =
@@ -77,7 +86,7 @@ function capped(bounds: DurationBounds, durationMs: number): DurationBounds {
 
 /** Resolves the settings of a run: `override` on top of `configured`, then validated. */
 export function resolveSettings(configured: TestSettings, override: SettingsOverride = {}): Resolution {
-  const { durationMs, label, contextLabel, ...fields } = override
+  const { durationMs, label, contextLabel, ignoredParameters, ...fields } = override
   const preset = fields.preset ?? configured.preset
   if (!Object.hasOwn(PRESETS, preset)) {
     return { ok: false, code: 'invalid-settings', field: 'preset' }
@@ -106,6 +115,9 @@ export function resolveSettings(configured: TestSettings, override: SettingsOver
   if (contextLabel !== undefined) {
     settings.contextLabel = contextLabel
   }
+  if (ignoredParameters !== undefined) {
+    settings.ignoredParameters = [...ignoredParameters]
+  }
 
   const field = invalidField(settings)
   return field === null ? { ok: true, settings } : { ok: false, code: 'invalid-settings', field }
@@ -131,8 +143,14 @@ function invalidField(settings: RunSettings): string | null {
         settings.overheadCompensationPercent <= MAX_COMPENSATION,
     ],
     ['label', settings.label === undefined || [...settings.label].length <= MAX_LABEL],
+    ['ignoredParameters', settings.ignoredParameters === undefined || validParameters(settings.ignoredParameters)],
   ]
   return checks.find(([, valid]) => !valid)?.[0] ?? null
+}
+
+/** URL parameter names of section 2, each at most once. */
+function validParameters(names: readonly string[]): boolean {
+  return Array.isArray(names) && names.every((name) => URL_PARAMETERS.includes(name)) && new Set(names).size === names.length
 }
 
 /** A non-empty list of measuring phases without duplicates, idle first when present. */

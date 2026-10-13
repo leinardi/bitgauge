@@ -23,9 +23,11 @@ import { useI18n } from 'vue-i18n'
 import ThroughputChart from '@/components/chart/ThroughputChart.vue'
 import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
+import CountdownRing from '@/components/gauge/CountdownRing.vue'
 import LiveGauge from '@/components/gauge/Gauge.vue'
 import { startK } from '@/components/gauge/window'
 import OfflineNotice from '@/components/OfflineNotice.vue'
+import AutoStartNotice from '@/components/test/AutoStartNotice.vue'
 import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
@@ -34,19 +36,25 @@ import RunFailure from '@/components/test/RunFailure.vue'
 import { gaugeInput, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen'
 import StartButton from '@/components/test/StartButton.vue'
 import { useContextLabel } from '@/composables/useContextLabel'
+import { useCountdown } from '@/composables/useCountdown'
 import { useInfo } from '@/composables/useInfo'
 import { useRun } from '@/composables/useRun'
-import type { Direction, Preset } from '@/engine/messages'
+import { useTestKeys } from '@/composables/useTestKeys'
+import { consumeAutoRun, urlOverride, useUrlParams } from '@/composables/useUrlParams'
+import type { Direction, Notice, Preset } from '@/engine/messages'
 import { links } from '@/lib/links'
 
-// The Test screen (ui/screens.md section 1, kit TestScreen.jsx v0.1 branch): idle, running per
-// phase, done, cancelled, error and offline, from the run's live view. v0.1 keeps no history, so
-// Download JSON is the only result action. The engine's Worker starts with the page, is
-// configured with the server's defaults as soon as they are known, and ends when the page unmounts.
+// The Test screen (ui/screens.md section 1, kit TestScreen.jsx v0.1 branch): idle, the auto-start
+// countdown, running per phase, done, cancelled, error and offline, from the run's live view. v0.1
+// keeps no history, so Download JSON is the only result action. The engine's Worker starts with the
+// page, is configured with the server's defaults and the URL parameters on top as soon as they are
+// known (ui/url-params.md), and ends when the page unmounts.
 
 const { info, reachability, refresh } = useInfo()
-const run = useRun()
+const url = useUrlParams()
+const run = useRun({ override: (base) => urlOverride(url, base).override })
 const { defaults, settings } = run
+const countdown = useCountdown()
 const { label: contextLabel } = useContextLabel(computed(() => info.value?.client.suggestedLabel))
 const { t, locale } = useI18n()
 const host = window.location.host
@@ -63,15 +71,22 @@ const view = computed<RunView>(() => ({
 }))
 const state = computed(() => screenState(view.value))
 const running = computed(() => state.value === 'running')
+const counting = computed(() => countdown.remainingMs.value !== null)
 const wording = computed(() => ({ t, locale: locale.value }))
-const units = computed(() => settings.value?.units ?? 'bits')
+// A run shows the settings it runs with; between runs, those the next one starts from.
+const shownSettings = computed(() => (state.value === 'idle' ? null : run.runSettings.value) ?? settings.value)
+const units = computed(() => shownSettings.value?.units ?? 'bits')
 
-const steps = computed(() => (settings.value === null ? [] : phaseSteps(view.value, settings.value, locale.value)))
+const steps = computed(() => (shownSettings.value === null ? [] : phaseSteps(view.value, shownSettings.value, locale.value)))
 const gauge = computed(() => gaugeInput(view.value, wording.value))
-const tiles = computed(() => (settings.value === null ? null : screenTiles(view.value, settings.value, wording.value)))
+const tiles = computed(() => (shownSettings.value === null ? null : screenTiles(view.value, shownSettings.value, wording.value)))
+
+// The URL parameters ignored; before the first run they show as the notices a run will carry.
+const ignored = computed(() => (defaults.value === null ? url.ignored : urlOverride(url, defaults.value).ignored))
+const notices = computed<Notice[]>(() => (state.value === 'idle' ? ignored.value.map((parameter) => ({ code: 'url-parameter-ignored', parameter })) : run.notices.value))
 
 // The chart shows the current run, or the last one until the next starts; nothing between runs.
-const order = computed(() => (settings.value?.phases ?? []).filter((phase): phase is Direction => phase !== 'idle'))
+const order = computed(() => (shownSettings.value?.phases ?? []).filter((phase): phase is Direction => phase !== 'idle'))
 const chartLive = computed(() => (state.value === 'idle' ? { download: null, upload: null } : run.live.value))
 const chartEvents = computed(() => ({ download: run.result.value?.download?.events ?? [], upload: run.result.value?.upload?.events ?? [] }))
 const shown = computed(() => state.value !== 'idle')
@@ -88,6 +103,9 @@ const streams = computed(() => {
 })
 
 const mode = computed(() => {
+  if (counting.value) {
+    return 'now'
+  }
   switch (state.value) {
     case 'running':
       return 'stop'
@@ -103,7 +121,7 @@ const mode = computed(() => {
 
 // Start is disabled until GET /info answers with defaults this version can run (flows.md section 1).
 const disabledReason = computed(() => {
-  if (running.value) {
+  if (running.value || counting.value) {
     return null
   }
   if (reachability.value === 'unreachable') {
@@ -116,18 +134,43 @@ const disabledReason = computed(() => {
 })
 
 function begin(preset?: Preset): void {
+  countdown.cancel()
   gaugeWindow.value = startK(units.value)
   // An empty context label is the user's choice of none; the engine would fall back to the suggestion.
-  run.start({ contextLabel: contextLabel.value ?? '', ...(preset === undefined ? {} : { preset }) })
+  run.start({
+    contextLabel: contextLabel.value ?? '',
+    ignoredParameters: ignored.value,
+    ...(url.label === undefined ? {} : { label: url.label }),
+    ...(preset === undefined ? {} : { preset }),
+  })
 }
 
 function press(): void {
-  if (running.value) {
+  if (counting.value) {
+    countdown.now()
+  } else if (running.value) {
     run.stop()
   } else {
     begin()
   }
 }
+
+// A link with `run` counts down once the engine has the URL's settings and Start is usable.
+watch(
+  () => disabledReason.value === null && run.configured.value !== null && state.value === 'idle',
+  (ready) => {
+    if (ready && consumeAutoRun()) {
+      countdown.start(() => begin())
+    }
+  },
+  { immediate: true },
+)
+
+useTestKeys({
+  canEnter: () => counting.value || (!running.value && disabledReason.value === null),
+  enter: press,
+  escape: () => (counting.value ? countdown.cancel() : run.stop()),
+})
 
 // An unreachable server is checked again, so the offline state and Start follow GET /info.
 watch(run.error, (error) => {
@@ -154,8 +197,8 @@ watch(run.error, (error) => {
         :streams="streams"
       />
       <SettingsSummary
-        v-if="reachability === 'connected' && defaults !== null && settings !== null"
-        :settings="settings"
+        v-if="reachability === 'connected' && defaults !== null && shownSettings !== null"
+        :settings="shownSettings"
         :defaults="defaults"
       />
     </div>
@@ -164,9 +207,13 @@ watch(run.error, (error) => {
       :error="run.error.value"
       :kept="run.result.value !== null"
     />
+    <AutoStartNotice
+      v-if="countdown.remainingMs.value !== null"
+      :remaining-ms="countdown.remainingMs.value"
+      @cancel="countdown.cancel"
+    />
     <NoticeList
-      v-if="shown"
-      :notices="run.notices.value"
+      :notices="notices"
       @retry="begin()"
       @preset="begin"
     />
@@ -182,7 +229,13 @@ watch(run.error, (error) => {
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-[400px_minmax(0,1fr)]">
         <div class="flex flex-col items-center gap-3.5 px-4 py-5 sm:px-6 sm:py-7">
+          <CountdownRing
+            v-if="countdown.remainingMs.value !== null"
+            :remaining-ms="countdown.remainingMs.value"
+            :total-ms="countdown.totalMs"
+          />
           <LiveGauge
+            v-else
             v-model:window="gaugeWindow"
             :mode="gauge.mode"
             :units="units"
