@@ -99,6 +99,10 @@ rules behind each step are in [../measurement.md](../measurement.md) and
      nothing.
    - **Branch: network changed:** `network changed`.
    - **Branch: server unreachable:** `server unreachable` with Retry.
+   - **Branch: the engine itself fails** (a defect, reported as the Worker's uncaught error,
+     [../architecture.md §4](../architecture.md#4-engine--ui-message-contract)): `test failed` —
+     "The test stopped because of an internal error"; no phase is named and no result exists, so
+     nothing can be kept.
 3. The Test screen shows the Error state: what failed, in which phase, the completed phases'
    results, and Retry.
 4. If any phase completed, the screen offers **Keep in history**, which saves the result with

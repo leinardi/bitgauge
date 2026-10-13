@@ -29,6 +29,11 @@ export interface WorkerBridge {
   post(command: EngineCommand): void
   /** Calls `handler` with every event; returns the function that stops it. */
   onEvent(handler: (event: EngineEvent) => void): () => void
+  /**
+   * Calls `handler` when the engine fails with an uncaught error, a defect rather than an error
+   * code (architecture.md section 4); returns the function that stops it.
+   */
+  onError(handler: () => void): () => void
   /** Ends the Worker and drops every handler. */
   dispose(): void
 }
@@ -37,8 +42,12 @@ export interface WorkerBridge {
 export function useWorker(): WorkerBridge {
   const worker = new Worker(new URL('../engine/worker.ts', import.meta.url), { type: 'module' })
   const handlers = new Set<(event: EngineEvent) => void>()
+  const failures = new Set<() => void>()
   worker.addEventListener('message', (message: MessageEvent<EngineEvent>) => {
     handlers.forEach((handler) => handler(message.data))
+  })
+  worker.addEventListener('error', () => {
+    failures.forEach((handler) => handler())
   })
   const bridge: WorkerBridge = {
     post: (command) => worker.postMessage(command),
@@ -46,8 +55,13 @@ export function useWorker(): WorkerBridge {
       handlers.add(handler)
       return () => handlers.delete(handler)
     },
+    onError(handler) {
+      failures.add(handler)
+      return () => failures.delete(handler)
+    },
     dispose() {
       handlers.clear()
+      failures.clear()
       worker.terminate()
     },
   }

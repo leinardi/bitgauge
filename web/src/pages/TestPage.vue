@@ -17,39 +17,19 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-
 import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
 import OfflineNotice from '@/components/OfflineNotice.vue'
 import { useInfo } from '@/composables/useInfo'
-import { useWorker, type WorkerBridge } from '@/composables/useWorker'
-import { settingsFromDefaults } from '@/lib/defaults'
-import { readBasePath } from '@/router/base'
+import { useRun } from '@/composables/useRun'
 
 // The Test screen (ui/screens.md section 1): its idle and offline states so far; the gauge, the
-// run and the result fill it in later. The engine's Worker starts with the page and is configured
-// with the server's defaults as soon as they are known.
+// run and the result fill it in later. The engine's Worker starts with the page, is configured
+// with the server's defaults as soon as they are known, and ends when the page unmounts.
 
 const { info, reachability, refresh } = useInfo()
+const { defaults } = useRun()
 const host = window.location.host
-let bridge: WorkerBridge | null = null
-
-// The server defaults as engine settings; the URL parameters will apply on top of them.
-const defaults = computed(() => (info.value === null ? null : settingsFromDefaults(info.value.defaults)))
-
-function configure(): void {
-  if (bridge !== null && defaults.value !== null) {
-    bridge.post({ type: 'configure', settings: defaults.value, basePath: readBasePath(document) })
-  }
-}
-
-// Started in a hook of this component, the Worker ends when the page unmounts.
-onMounted(() => {
-  bridge = useWorker()
-  configure()
-})
-watch(defaults, configure)
 </script>
 
 <template>

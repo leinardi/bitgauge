@@ -18,7 +18,8 @@
  */
 
 // The Worker bridge over a stubbed Worker global: typed commands posted, events delivered to the
-// handlers, and the Worker ended with the scope that started it.
+// handlers, the engine's uncaught error reported, and the Worker ended with the scope that started
+// it.
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
@@ -26,6 +27,8 @@ import { effectScope } from 'vue'
 import { useWorker } from '@/composables/useWorker'
 import type { EngineCommand, EngineEvent, TestSettings } from '@/engine/messages'
 
+// A Worker global that records what the page posts, replays engine events, and raises the
+// Worker's uncaught error.
 class StubWorker extends EventTarget {
   static started: { url: string; options: WorkerOptions | undefined; worker: StubWorker }[] = []
   readonly posted: unknown[] = []
@@ -36,6 +39,15 @@ class StubWorker extends EventTarget {
     StubWorker.started.push({ url: String(url), options, worker: this })
   }
 
+  /** The Worker the page started last. */
+  static get last(): StubWorker {
+    const started = StubWorker.started.at(-1)
+    if (started === undefined) {
+      throw new Error('no Worker was started')
+    }
+    return started.worker
+  }
+
   postMessage(message: unknown): void {
     this.posted.push(message)
   }
@@ -44,8 +56,13 @@ class StubWorker extends EventTarget {
     this.terminated = true
   }
 
-  emit(event: EngineEvent): void {
-    this.dispatchEvent(new MessageEvent('message', { data: event }))
+  emit(...events: EngineEvent[]): void {
+    events.forEach((event) => this.dispatchEvent(new MessageEvent('message', { data: event })))
+  }
+
+  /** The engine's uncaught error, as the page's Worker object reports it. */
+  fail(): void {
+    this.dispatchEvent(new Event('error'))
   }
 }
 
@@ -80,6 +97,18 @@ describe('useWorker', () => {
     stop()
     worker?.emit(event)
     expect(seen).toEqual([event])
+    bridge.dispose()
+  })
+
+  it('reports the engine\'s uncaught error until the handler stops', () => {
+    vi.stubGlobal('Worker', StubWorker)
+    const bridge = useWorker()
+    const failed = vi.fn()
+    const stop = bridge.onError(failed)
+    StubWorker.last.fail()
+    stop()
+    StubWorker.last.fail()
+    expect(failed).toHaveBeenCalledOnce()
     bridge.dispose()
   })
 

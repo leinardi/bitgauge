@@ -183,6 +183,24 @@ network change or a restart, the current direction reports nothing measured: no 
 or series, its stop mark is an `error` event, and a restart adds the `server-restarted` notice,
 whichever path detected it. Commands after the run has ended are ignored.
 
+**The end of a run, as the UI reads it.** No event marks the end of a run; `useRun` reads it from
+the order above. Each measuring phase gets exactly one `finished`, `failed` or `skipped` event,
+except idle latency when a stop interrupts it, which gets none; Info gets `finished`, `failed` or,
+when a stop interrupts it, nothing. A `result` follows the last `phase` event exactly when one
+measuring phase is `finished`. The run has ended for the UI when its `result` arrives, or when
+every measuring phase has had its event, idle latency excepted once the UI has sent `stop`, and
+none is `finished`: an `error` before it makes the run's end an error with nothing to keep, and a
+stop returns the screen to Idle ([ui/flows.md §4](ui/flows.md#4-cancel-mid-test)). A `phase`
+event or a `result` that arrives after the UI has already returned to Idle, from a phase that
+finished just before the stop reached the Worker, still applies, and the result is shown. A
+`start` the Worker refuses is answered by an `invalid-settings` `error` with no `phase` event
+before or after it, and that error ends the run. An `invalid-settings` that answers a `configure`
+arrives with no run in progress; the UI keeps it until its next `configure`, and a `start` meanwhile
+ends at once with that error, because the Worker would run its last valid settings instead of the
+ones the screen shows. The Worker's uncaught `error` during a run ends it with no result
+([ui/flows.md §5](ui/flows.md#5-error-mid-test)); outside a run it means the Worker failed to load
+or to start, and every later `start` ends at once the same way.
+
 ## 5. Data Flow
 
 ### 5.1 Download

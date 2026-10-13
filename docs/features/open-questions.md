@@ -296,6 +296,18 @@ carries a recommendation; where the specification already relies on an answer, i
     release only, and fails at the tag gate on a version whose image exists.** Recommendation:
     keep it. See [release.md](../release.md#why-the-build-happens-before-the-tag) and
     [release.md, Dry Runs](../release.md#dry-runs).
+33. How does the UI know a run has ended, and what does it do with an engine defect? Current
+    answer: **from the order of the events, with no event of its own: a `result` ends the run, and
+    so do the measuring phases' `finished`, `failed` or `skipped` events when none is `finished`,
+    idle latency excepted after a stop, since a stop during it emits nothing for it. A late phase
+    event or `result` after a stop has returned the screen to Idle still applies. A refused `start`
+    ends with its `invalid-settings` error alone, and a refused `configure` makes the next `start`
+    end at once with it. The Worker's uncaught error ends a run in progress as `test failed` with
+    no result, and outside a run it makes every later `start` end that way. The wake lock is held
+    during a run, requested again when the page becomes visible, and released when the run ends.**
+    Recommendation: keep it. See [architecture.md §4](architecture.md#4-engine--ui-message-contract),
+    [ui/flows.md §5](ui/flows.md#5-error-mid-test) and
+    [edge-cases.md §2](edge-cases.md#2-mobile-browsers-throttling-background-tabs-and-workers).
 
 Resolved and removed:
 

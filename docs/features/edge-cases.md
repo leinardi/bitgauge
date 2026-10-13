@@ -27,7 +27,9 @@ the tab is in the background or the screen locks (iOS suspends almost immediatel
 throttles hidden pages).
 
 **Behaviour.** During a test the SPA requests a screen wake lock (`navigator.wakeLock`) where
-available. The Worker runs a 100 ms housekeeping tick; a tick that arrives more than 1 s late
+available, requests it again when the page becomes visible during the test (the browser releases
+it while the page is hidden), and releases it when the run ends; a refused request changes
+nothing else. The Worker runs a 100 ms housekeeping tick; a tick that arrives more than 1 s late
 means the engine was throttled or suspended, and timestamps around it cannot be trusted. Hidden
 pages are handled by §5.
 
