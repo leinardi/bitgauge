@@ -258,6 +258,22 @@ carries a recommendation; where the specification already relies on an answer, i
     components**. Recommendation: keep it. See
     [technical-stack/frontend.md §1, §2, §4, §7](technical-stack/frontend.md#1-spa-layout) and
     [ui/i18n-a11y.md §1.1](ui/i18n-a11y.md#11-structure).
+30. What does the SPA show before a test runs? Current answer: **`GET /api/v1/info` on load and
+    on Retry, with no automatic retry; while it fails, a "Server unreachable" notice with Retry on
+    the Test and About screens. The connection info shows the protocol as "not reported" and the
+    stream count as the configured mode (the fixed count, one stream, or "auto, up to" the
+    maximum) until a run reports them; the context label starts at the server's suggestion,
+    marked "suggested", and the user can pick LAN, VPN, none or a custom text, kept in memory
+    for the page's lifetime and never stored. The settings summary reads the preset, the stream
+    mode and the data cap ("Standard preset · Auto streams · No data cap") when nothing differs
+    from the server defaults, and otherwise one chip per changed setting after "N changed:". The
+    base-path check runs before anything renders, and an API that reports another base path gets
+    its own wording.
+    The v0.1 About screen credits each project with the milestone that uses it, and its links
+    point into the repository: the source, `LICENSE`, `docs/features/measurement.md` for the
+    methodology, and `docs/features/deployment-example.md` §6 from the base-path error**.
+    Recommendation: keep it. See [ui/screens.md §1, §5](ui/screens.md#1-test-home--) and
+    [edge-cases.md §16, §20](edge-cases.md#20-base-path-mismatches).
 
 Resolved and removed:
 

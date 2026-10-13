@@ -24,6 +24,25 @@
       "stateUnreachable": ", unreachable",
       "unreachableTag": "Unreachable",
       "unreachableTagShort": "· Unreachable"
+    },
+    "offline": {
+      "title": "Server unreachable",
+      "body": "BitGauge could not reach the server at {host}. No test can start until it answers.",
+      "retry": "Retry"
+    },
+    "basePath": {
+      "eyebrow": "Base path mismatch",
+      "title": "The base path doesn't match this URL",
+      "body": "BitGauge is configured for {basePath} but this page was served at {pagePath}. Its API answers at a different path, so no test can run from here.",
+      "apiBody": "This page was served for the base path {basePath}, but the server's API reports {apiBasePath}. The page and the API disagree, so no test can run from here.",
+      "pagePath": "Page path",
+      "serverBasePath": "Server base path",
+      "apiBasePath": "Base path reported by the API",
+      "hintLabel": "Deployment hint",
+      "hintTitle": "How to fix it",
+      "hint": "Set server.base_path (BITGAUGE_SERVER__BASE_PATH) to the path prefix the reverse proxy forwards, keep the prefix on forwarded requests instead of stripping it, and restart BitGauge.",
+      "reload": "Reload",
+      "docs": "Deployment docs"
     }
   }
 }

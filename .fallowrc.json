@@ -24,7 +24,8 @@
         "unused-files": "off",
         "unused-exports": "off",
         "unused-types": "off",
-        "circular-dependencies": "off"
+        "circular-dependencies": "off",
+        "unrendered-components": "off"
       }
     },
     {

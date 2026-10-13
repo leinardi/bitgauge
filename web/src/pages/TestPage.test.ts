@@ -19,17 +19,24 @@
 
 // @vitest-environment jsdom
 
-// The Test screen starts the engine's Worker when it mounts, configures it with the server
-// defaults under the page's base path as soon as GET /info has answered, and ends it on unmount.
+// The Test screen before a run: offline until GET /info answers, with Retry; then the idle state
+// with the connection info. It starts the engine's Worker when it mounts, configures it with the
+// server defaults under the page's base path as soon as they are known, and ends it on unmount.
 
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import type { Info } from '@/api/info'
+import { getInfo, type Info } from '@/api/info'
 import { useInfo } from '@/composables/useInfo'
 import { settingsFromDefaults } from '@/lib/defaults'
 import TestPage from '@/pages/TestPage.vue'
+import { infoFixture } from '@/test/fixtures'
 import { mountApp } from '@/test/mount'
+
+vi.mock('@/api/info', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/api/info')>()),
+  getInfo: vi.fn(),
+}))
 
 class StubWorker extends EventTarget {
   static started: StubWorker[] = []
@@ -50,23 +57,12 @@ class StubWorker extends EventTarget {
   }
 }
 
-const INFO = {
-  server: { name: 'Basement NAS', basePath: '/speed' },
-  defaults: {
-    preset: 'quick',
-    phases: ['download', 'upload'],
-    streams: { mode: 'fixed', fixed: 2, max: 8 },
-    download: { minMs: 4000, maxMs: 10_000 },
-    upload: { minMs: 4000, maxMs: 10_000 },
-    dataCapBytes: 100_000_000,
-    units: 'bytes',
-    warmup: 1500,
-    pingCount: 11,
-    overheadCompensationPercent: 2,
-  },
-} as Info
+const fixture = infoFixture({ server: { basePath: '/speed' } })
+const INFO: Info = {
+  ...fixture,
+  defaults: { ...fixture.defaults, preset: 'quick', phases: ['download', 'upload'], streams: { mode: 'fixed', fixed: 2, max: 8 }, units: 'bytes', warmup: 1500 },
+}
 
-const answering = (() => Promise.resolve(new Response(JSON.stringify(INFO)))) as typeof fetch
 const configure = { type: 'configure', settings: settingsFromDefaults(INFO.defaults), basePath: '/speed' }
 
 beforeAll(() => {
@@ -81,21 +77,43 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-// The info state is shared by the module, so the order matters: first before any answer, then after.
+// The info state is shared by the module, so the order matters: first offline, then answered.
 describe('the Test screen', () => {
-  it('starts the Worker on mount and configures it once GET /info answers', async () => {
+  it('is offline until Retry reaches the server, then configures the Worker', async () => {
     vi.stubGlobal('Worker', StubWorker)
+    vi.mocked(getInfo).mockRejectedValueOnce(new TypeError('network'))
     const page = await mountApp(TestPage)
+    await useInfo().refresh()
+    await flushPromises()
     const [worker] = StubWorker.started
     expect(StubWorker.started).toHaveLength(1)
     expect(worker?.posted).toEqual([])
+    const alert = page.get('[role="alert"]')
+    expect(alert.text()).toContain('Server unreachable')
+    expect(page.get('[data-testid="connection-ip"]').text()).toContain('—')
+    expect(page.find('[data-testid="settings-summary"]').exists()).toBe(false)
 
-    await useInfo().refresh(answering)
+    vi.mocked(getInfo).mockResolvedValueOnce(INFO)
+    await alert.get('button').trigger('click')
     await flushPromises()
+    expect(page.find('[role="alert"]').exists()).toBe(false)
     expect(worker?.posted).toEqual([configure])
 
     page.unmount()
     expect(worker?.terminated).toBe(true)
+  })
+
+  it('shows the idle state with the connection info', async () => {
+    vi.stubGlobal('Worker', StubWorker)
+    const page = await mountApp(TestPage)
+    expect(page.get('[data-testid="connection-ip"]').text()).toMatch(/192\.168\.1\.42\s*IPv4/)
+    expect(page.get('[data-testid="connection-protocol"]').text()).toContain('not reported')
+    expect(page.get('[data-testid="connection-streams"]').text()).toMatch(/2\s*fixed/)
+    expect(page.get('[data-testid="context-label"]').text()).toBe('LAN')
+    expect(page.get('[data-testid="context-label"]').attributes('aria-label')).toBe('Context: LAN')
+    expect(page.get('[data-testid="settings-summary"]').text()).toBe('Quick preset · 2 streams · No data cap')
+    expect(page.text()).toContain('suggested')
+    page.unmount()
   })
 
   it('configures at once when the defaults are already known', async () => {

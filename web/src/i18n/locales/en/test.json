@@ -1,6 +1,41 @@
 {
   "test": {
     "title": "Speed test",
-    "empty": "No test has run yet."
+    "empty": "No test has run yet.",
+    "connection": {
+      "context": "Context",
+      "suggested": "suggested",
+      "lan": "LAN",
+      "vpn": "VPN",
+      "none": "None",
+      "custom": "Custom…",
+      "customEmpty": "Custom",
+      "customField": "Custom context",
+      "customPlaceholder": "e.g. Hotel Wi-Fi",
+      "clientIp": "Client IP",
+      "ipVersion": "IPv{version}",
+      "protocol": "Protocol",
+      "notReported": "not reported",
+      "streams": "Streams",
+      "streamsAuto": "auto, up to {max}",
+      "streamsFixed": "fixed",
+      "streamsSingle": "single",
+      "unknown": "—",
+      "contextField": "Context: {label}"
+    },
+    "summary": {
+      "changed": "{n} changed:",
+      "quick": "Quick",
+      "standard": "Standard",
+      "extended": "Extended",
+      "presetLine": "{preset} preset",
+      "streamsAuto": "Auto streams",
+      "streamsSingle": "Single stream",
+      "streamsFixed": "{n} stream | {n} streams",
+      "capNone": "No data cap",
+      "cap": "Cap {size}",
+      "unitsBytes": "Units · MB/s",
+      "unitsBits": "Units · Mbit/s"
+    }
   }
 }

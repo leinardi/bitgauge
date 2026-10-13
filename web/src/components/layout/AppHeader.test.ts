@@ -23,18 +23,19 @@
 // and the v0.1 navigation (ui/screens.md section 1).
 
 import { flushPromises } from '@vue/test-utils'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { Info } from '@/api/info'
+import { getInfo } from '@/api/info'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import TabBar from '@/components/layout/TabBar.vue'
 import { useInfo } from '@/composables/useInfo'
+import { infoFixture } from '@/test/fixtures'
 import { mountApp } from '@/test/mount'
 
-const INFO = { server: { name: 'Basement NAS', basePath: '/' } } as Info
-
-const answering = (() => Promise.resolve(new Response(JSON.stringify(INFO)))) as typeof fetch
-const failing = (() => Promise.reject(new TypeError('network'))) as typeof fetch
+vi.mock('@/api/info', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/api/info')>()),
+  getInfo: vi.fn(),
+}))
 
 afterEach(() => {
   document.documentElement.removeAttribute('data-theme')
@@ -46,7 +47,8 @@ describe('the header', () => {
     const wrapper = await mountApp(AppHeader)
     expect(wrapper.find('[data-testid="server"]').exists()).toBe(false)
 
-    await useInfo().refresh(answering)
+    vi.mocked(getInfo).mockResolvedValueOnce(infoFixture())
+    await useInfo().refresh()
     await flushPromises()
     const server = wrapper.get('[data-testid="server"]')
     expect(server.text()).toContain('Basement NAS')
@@ -55,7 +57,8 @@ describe('the header', () => {
     expect(server.attributes('title')).toBe('Server connected')
     expect(wrapper.find('[aria-live="polite"]').text()).toBe('')
 
-    await useInfo().refresh(failing)
+    vi.mocked(getInfo).mockRejectedValueOnce(new TypeError('network'))
+    await useInfo().refresh()
     await flushPromises()
     expect(server.get('.sr-only').text()).toBe(', unreachable')
     expect(server.text()).toContain('Unreachable')

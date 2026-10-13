@@ -17,25 +17,34 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
+import BasePathError from '@/components/BasePathError.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import TabBar from '@/components/layout/TabBar.vue'
 import { useInfo } from '@/composables/useInfo'
 import { useTheme } from '@/composables/useTheme'
 
 // The application frame: the header on every screen, the route's page, and the tab bar on narrow
-// screens (ui/README.md).
+// screens (ui/README.md). A base-path mismatch replaces all of it with its error screen
+// (edge-cases.md section 20). The page's own path is checked before anything renders, so a page
+// that fails it starts nothing.
 
 useTheme()
-const { refresh } = useInfo()
-onMounted(() => {
-  void refresh()
-})
+const router = useRouter()
+const { load, mismatch } = useInfo()
+void load((path) => router.resolve(path).matched.length > 0)
 </script>
 
 <template>
-  <div class="flex min-h-dvh flex-col bg-background font-sans text-foreground">
+  <BasePathError
+    v-if="mismatch !== null"
+    :mismatch="mismatch"
+  />
+  <div
+    v-else
+    class="flex min-h-dvh flex-col bg-background font-sans text-foreground"
+  >
     <AppHeader />
     <RouterView />
     <TabBar />

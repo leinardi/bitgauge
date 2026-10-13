@@ -344,6 +344,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 27 | v0.1 without a Settings screen: Test and About navigation, placeholder pages, server defaults plus URL parameters, the About screen before v0.3 | v0.1 |
 | 28 | The design export's root assets served from the base path as an explicit file list | v0.1 |
 | 29 | The v0.1 SPA shell: per-screen locale files, the header's reachability and theme button, the Worker configured from the server defaults, the engine type-checked on its own | v0.1 |
+| 30 | Before a run: info on load and on Retry, the connection info's placeholders and label choices, the settings summary's line and chips, the base-path check before rendering, the v0.1 About credits and repository links | v0.1 |
 
 ## Related
 

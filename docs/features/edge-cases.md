@@ -336,9 +336,16 @@ memory. It uses neither `<base href>` (the CSP sets `base-uri 'none'`) nor an in
 CSP allows none). The SPA reads the meta element and compares it with its own `location.pathname`
 and with `basePath` from `GET /api/v1/info`. Unknown paths answer `404`.
 
+The page fails the comparison when its path is not under the meta element's base path, when the
+path under it is not one of the fixed SPA routes (a proxy that strips the prefix in front of an
+instance configured for `/` serves the SPA at a path it does not know), or when `GET /api/v1/info`
+reports another `basePath`; trailing slashes do not count. The first two are checked before any
+request, so a page that fails them sends none.
+
 **User sees.** Instead of a blank page, an error screen: `base path mismatch` — "BitGauge is
-configured for /speed but this page was served at /", with a link to the sub-path instructions in
-[deployment-example.md](deployment-example.md).
+configured for /speed but this page was served at /", with the page path, the server's base path
+and, when it differs, the API's, a Reload button and a link to the sub-path instructions in
+[deployment-example.md §6](deployment-example.md#6-sub-path-deployment).
 
 ## Related
 

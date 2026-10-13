@@ -24,8 +24,10 @@ web/
     components/layout/        the header and the narrow-screen tab bar
     components/ui/            shadcn-vue components (copied, on Reka UI primitives)
     composables/              stateful UI logic: useRun, useSettings, useHistory, useShare,
-                              useTheme, useInfo, useWorker
-    lib/                      plain helpers: class merging, server defaults as engine settings
+                              useTheme, useInfo, useContextLabel, useWorker
+    lib/                      plain helpers: class merging, server defaults as engine settings,
+                              the base-path check, the project's links, number formatting,
+                              the settings summary
     pages/                    route-level views: Test, ResultDetail, History, Settings, About
     router/                   Vue Router, HTML5 history under the base path
     i18n/                     vue-i18n setup and locale files, one directory per language

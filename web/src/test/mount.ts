@@ -19,18 +19,19 @@
 
 import { mount } from '@vue/test-utils'
 import { vi } from 'vitest'
-import type { Component } from 'vue'
+import type { Component, DefineComponent } from 'vue'
 import { createMemoryHistory } from 'vue-router'
 
 import { createAppI18n } from '@/i18n'
 import { createAppRouter } from '@/router'
 
-// Mounts a component with the application's i18n and router, on a memory history at `path`. jsdom
-// has no matchMedia, which the theme reads: a query that never matches stands in.
+// Mounts a component with the application's i18n and router, on a memory history at `path`, with
+// its props and, for portals, the element it attaches to. jsdom has no matchMedia, which the theme
+// reads: a query that never matches stands in.
 
-export async function mountApp(component: Component, path = '/') {
+export async function mountApp(component: Component, path = '/', options: { props?: Record<string, unknown>; attachTo?: HTMLElement } = {}) {
   vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: () => undefined }))
   const router = createAppRouter(createMemoryHistory())
   await router.push(path)
-  return mount(component, { global: { plugins: [router, createAppI18n('', ['en'])] } })
+  return mount(component as DefineComponent, { ...options, global: { plugins: [router, createAppI18n('', ['en'])] } })
 }

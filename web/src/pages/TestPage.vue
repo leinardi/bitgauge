@@ -17,24 +17,30 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 
+import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
+import SettingsSummary from '@/components/connection/SettingsSummary.vue'
+import OfflineNotice from '@/components/OfflineNotice.vue'
 import { useInfo } from '@/composables/useInfo'
 import { useWorker, type WorkerBridge } from '@/composables/useWorker'
 import { settingsFromDefaults } from '@/lib/defaults'
 import { readBasePath } from '@/router/base'
 
-// The Test screen (ui/screens.md section 1). This version renders its empty state only; the gauge,
-// the run and the result fill it in later. The engine's Worker starts with the page and is
-// configured with the server's defaults as soon as they are known.
+// The Test screen (ui/screens.md section 1): its idle and offline states so far; the gauge, the
+// run and the result fill it in later. The engine's Worker starts with the page and is configured
+// with the server's defaults as soon as they are known.
 
-const { info } = useInfo()
+const { info, reachability, refresh } = useInfo()
+const host = window.location.host
 let bridge: WorkerBridge | null = null
 
+// The server defaults as engine settings; the URL parameters will apply on top of them.
+const defaults = computed(() => (info.value === null ? null : settingsFromDefaults(info.value.defaults)))
+
 function configure(): void {
-  const settings = info.value === null ? null : settingsFromDefaults(info.value.defaults)
-  if (bridge !== null && settings !== null) {
-    bridge.post({ type: 'configure', settings, basePath: readBasePath(document) })
+  if (bridge !== null && defaults.value !== null) {
+    bridge.post({ type: 'configure', settings: defaults.value, basePath: readBasePath(document) })
   }
 }
 
@@ -43,15 +49,31 @@ onMounted(() => {
   bridge = useWorker()
   configure()
 })
-watch(info, configure)
+watch(defaults, configure)
 </script>
 
 <template>
-  <main class="mx-auto flex w-full max-w-[1200px] flex-1 flex-col items-center justify-center gap-2 px-4 py-10">
+  <main class="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-6 px-4 py-6 sm:px-10">
     <h1 class="sr-only">
       {{ $t('test.title') }}
     </h1>
-    <p class="text-(length:--text-base) text-muted-foreground">
+    <OfflineNotice
+      v-if="reachability === 'unreachable'"
+      :host="host"
+      @retry="refresh"
+    />
+    <div class="flex flex-wrap items-end justify-between gap-x-7 gap-y-3">
+      <ConnectionStrip :info="reachability === 'unreachable' ? null : info" />
+      <SettingsSummary
+        v-if="reachability === 'connected' && defaults !== null"
+        :settings="defaults"
+        :defaults="defaults"
+      />
+    </div>
+    <p
+      v-if="reachability === 'connected'"
+      class="text-(length:--text-base) text-muted-foreground"
+    >
       {{ $t('test.empty') }}
     </p>
   </main>

@@ -1,6 +1,53 @@
 {
   "about": {
-    "title": "About BitGauge",
-    "tagline": "Self-hosted network speed test"
+    "tagline": "Self-hosted network speed test",
+    "clients": {
+      "title": "Use with other clients",
+      "v03": "Testing against this server from librespeed-cli, an OpenSpeedTest™ web UI or Apple networkQuality arrives in BitGauge v0.3."
+    },
+    "facts": {
+      "version": "Version",
+      "build": "{version} · {commit} · {date}",
+      "licence": "Licence",
+      "licenceValue": "GPL-3.0-or-later",
+      "serverName": "Server name",
+      "unknown": "—",
+      "versionUnreachable": "— · server unreachable"
+    },
+    "source": "Source repository",
+    "licenceFile": "LICENSE file in the repository",
+    "methodology": {
+      "title": "How it measures",
+      "summary": "Download and upload run over one or more HTTP streams; the warm-up is discarded and the rate is the average over the steady window that follows. Idle latency and jitter come from pings over WebSocket, or over HTTP when WebSocket is unavailable. Every result also reports the data used and the duration.",
+      "link": "Methodology in the BitGauge docs"
+    },
+    "privacy": {
+      "title": "Privacy",
+      "body": "No accounts, no tracking, no ads. The server keeps no results: a result exists only in this browser."
+    },
+    "credits": {
+      "title": "Credits",
+      "openspeedtest": {
+        "name": "OpenSpeedTest™",
+        "what": "Protocol compatibility for its web UI, from v0.3."
+      },
+      "librespeed": {
+        "name": "LibreSpeed",
+        "what": "Protocol compatibility for librespeed-cli, from v0.3."
+      },
+      "cloudflare": {
+        "name": "Cloudflare",
+        "what": "AIM quality scores for streaming, gaming and video calls, from v0.3."
+      },
+      "apple": {
+        "name": "Apple networkQuality and the IETF responsiveness draft",
+        "what": "The RPM responsiveness metric and config format, from v0.3."
+      },
+      "waveform": {
+        "name": "Waveform",
+        "what": "Bufferbloat grade thresholds, from v0.2."
+      },
+      "trademark": "OpenSpeedTest™ is a trademark of its owner. BitGauge is an independent project, not affiliated with or endorsed by OpenSpeedTest, LibreSpeed, Cloudflare, Apple or Waveform."
+    }
   }
 }

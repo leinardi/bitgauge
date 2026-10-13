@@ -20,22 +20,29 @@
 import { computed, shallowRef } from 'vue'
 
 import { getInfo, type Info } from '@/api/info'
+import { apiMismatch, type BasePathMismatch, pageMismatch } from '@/lib/basePath'
 import { readBasePath } from '@/router/base'
 
-// The server info for display (frontend.md section 4): GET /api/v1/info once, again on Retry. The
-// header shows the server's name and whether it answered; the Test screen configures the engine
-// from its defaults.
+// The server info for display (frontend.md section 4, ui/flows.md section 1): GET /api/v1/info on
+// load and on Retry. It drives the header's reachability, the connection info, the offline state
+// and the About screen, and the Test screen configures the engine from its defaults. Before the
+// first request the page's own path is checked against the base path (edge-cases.md section 20):
+// a mismatch shows the error screen and nothing else loads.
 
 /** Unknown until the first answer, then whether the last request succeeded. */
 type Reachability = 'unknown' | 'connected' | 'unreachable'
 
 const info = shallowRef<Info | null>(null)
 const reachability = shallowRef<Reachability>('unknown')
+const mismatch = shallowRef<BasePathMismatch | null>(null)
 let pending: Promise<void> | null = null
 
-async function request(fetcher: typeof fetch): Promise<void> {
+async function request(): Promise<void> {
+  const basePath = readBasePath(document)
   try {
-    info.value = await getInfo(readBasePath(document), fetcher)
+    const answer = await getInfo(basePath)
+    mismatch.value = apiMismatch(window.location.pathname, basePath, answer.server.basePath)
+    info.value = answer
     reachability.value = 'connected'
   } catch {
     reachability.value = 'unreachable'
@@ -44,14 +51,26 @@ async function request(fetcher: typeof fetch): Promise<void> {
   }
 }
 
-/** The shared server info; `refresh` asks again, joining a request already on its way. */
+/** Asks GET /api/v1/info again, joining a request already on its way. */
+function refresh(): Promise<void> {
+  pending ??= request()
+  return pending
+}
+
+/** The shared server info. */
 export function useInfo() {
   return {
     info: computed(() => info.value),
     reachability: computed(() => reachability.value),
-    refresh(fetcher: typeof fetch = (input, init) => fetch(input, init)): Promise<void> {
-      pending ??= request(fetcher)
-      return pending
+    mismatch: computed(() => mismatch.value),
+    /**
+     * The first load: the page's path is checked against the base path and the SPA's fixed routes
+     * (`isRoute`), then GET /api/v1/info is asked unless the path already failed.
+     */
+    load(isRoute: (path: string) => boolean): Promise<void> {
+      mismatch.value = pageMismatch(window.location.pathname, readBasePath(document), isRoute)
+      return mismatch.value === null ? refresh() : Promise.resolve()
     },
+    refresh,
   }
 }
