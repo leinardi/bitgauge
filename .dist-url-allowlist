@@ -1,0 +1,7 @@
+# The URLs the built SPA may contain (docs/features/technical-stack/build-packaging.md section 4),
+# read by scripts/check-dist-urls.sh. The doc's list is the source; test/disturls keeps the two in
+# step. An entry ending in /* allows the URL and anything under it.
+http://www.w3.org/2000/svg
+http://www.w3.org/1999/xlink
+http://www.gnu.org/licenses/
+https://github.com/leinardi/bitgauge/*

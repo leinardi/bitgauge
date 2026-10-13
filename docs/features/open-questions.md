@@ -218,6 +218,34 @@ carries a recommendation; where the specification already relies on an answer, i
     it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [technical-stack/frontend.md §2](technical-stack/frontend.md#2-engine-package-rules).
+25. Which URLs may the built SPA contain? Current answer: **exactly the SVG and XLink namespaces,
+    the GNU licences URL of the licence header, and `https://github.com/leinardi/bitgauge` with
+    its paths** (the About screen's source and documentation links, the base-path error's link to
+    the deployment guide); a hyperlink the user clicks is navigation, not an outbound call, and
+    the allowlist is the complete set, checked in every file of the dist, binary files included,
+    for `http`, `https`, `ws` and `wss` URLs. Recommendation: keep it. See
+    [technical-stack/build-packaging.md §4](technical-stack/build-packaging.md#4-ci-workflows)
+    and [security.md §3](security.md#3-no-outbound-calls).
+26. How large may the engine's Worker chunk be? Current answer: **128 KiB minified**, held in
+    `.chunk-budget` and enforced by the `chunk-size` step, which also fails when the dist has no
+    Worker chunk; the number is lowered once the real size is known. Recommendation: keep it. See
+    [technical-stack/frontend.md §3](technical-stack/frontend.md#3-worker-bundling-with-vite).
+27. What replaces the Settings screen in v0.1? Current answer: **nothing: navigation shows Test
+    and About, `/history`, `/settings` and `/result/{id}` render a "not available in this
+    version" page from the fixed route list, the test settings are the server defaults with the
+    URL parameters on top, the header's theme is the only persisted setting, the settings summary
+    has no Edit link, and the stored-language step of locale detection is empty**. The v0.1
+    About screen says the other-client layers arrive in v0.3, shows no snippets, and summarises
+    the v0.1 metrics only. Recommendation: keep it. See
+    [ui/screens.md §1](ui/screens.md#1-test-home--), [§5](ui/screens.md#5-other-clients--about--about)
+    and [ui/i18n-a11y.md §1.2](ui/i18n-a11y.md#12-locale-detection).
+28. Where are the favicons, app icons and web manifest served? Current answer: **from the base
+    path itself, as an explicit list of eight files in the SPA group's routes** (`favicon.svg`,
+    `favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`,
+    `icon-512-maskable.png`, `site.webmanifest`), never a catch-all, with
+    `Cache-Control: public, max-age=86400` because their names are not content-hashed.
+    Recommendation: keep it. See [architecture.md §3](architecture.md#3-spa-embedding-and-base-path)
+    and [compatibility.md §5](compatibility.md#5-route-table).
 
 Resolved and removed:
 

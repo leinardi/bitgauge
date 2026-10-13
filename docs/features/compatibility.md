@@ -93,6 +93,12 @@ https://ost.example.lan/?Host=https://speed.example.lan/speed     # with base_pa
   assets are under `/assets/`. The SPA fallback serves `index.html` only for that fixed route list,
   never as a catch-all, so `/upload` and `/downloading` are never shadowed by the SPA and vice
   versa.
+- The design export's root assets also sit at the base path root, as eight exact file names:
+  `/favicon.svg`, `/favicon-16.png`, `/favicon-32.png`, `/apple-touch-icon.png`, `/icon-192.png`,
+  `/icon-512.png`, `/icon-512-maskable.png` and `/site.webmanifest`. Each is matched exactly, never
+  by a pattern, and none equals or is a prefix of a compatibility route (`/upload`, `/downloading`,
+  `/garbage`, `/empty`, `/getIP`, their `.php` and `/backend/…` forms, `/.well-known/librespeed`,
+  `/.well-known/nq`, `/nq/…`) or of `/metrics`, so they shadow nothing and nothing shadows them.
 - LibreSpeed routes (`/garbage`, `/empty`, `/getIP`, `/backend/…`) and networkQuality routes
   (`/nq/…`, `/.well-known/nq`) use different names.
 - With a non-root base path, all of the above move together under it; the proxy MUST forward the
@@ -356,6 +362,7 @@ path and method.
 | --- | --- | --- | --- |
 | `/`, `/result/{id}`, `/history`, `/settings`, `/about` | `GET` | SPA (`index.html`) | always |
 | `/assets/*` | `GET` | SPA static assets | always |
+| `/favicon.svg`, `/favicon-16.png`, `/favicon-32.png`, `/apple-touch-icon.png`, `/icon-192.png`, `/icon-512.png`, `/icon-512-maskable.png`, `/site.webmanifest` | `GET` | SPA root assets (`Cache-Control: public, max-age=86400`) | always |
 | `/api/v1/download` | `GET` | native | always |
 | `/api/v1/upload` | `POST` | native | always |
 | `/api/v1/ping` | `GET`, `HEAD` | native | always |

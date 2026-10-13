@@ -339,6 +339,10 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 22 | The `network` command, the browser identity from the transport, and the run sequence's skips, samples, pauses and run-imposed errors | v0.1 |
 | 23 | The v0.1 result field set with later fields absent, the timer resolution and isolation in `client`, `validateResult` as the one runtime export of `engine/messages.ts` | v0.1 |
 | 24 | The Worker's message loop with one run at a time; busy time, timer resolution, timing-entry lookup and user-agent table of the browser wiring | v0.1 |
+| 25 | The dist URL allowlist: the SVG namespaces, the GNU licences URL and the project repository; clicked links are not calls | v0.1 |
+| 26 | The engine Worker chunk budget, 128 KiB minified, in `.chunk-budget` | v0.1 |
+| 27 | v0.1 without a Settings screen: Test and About navigation, placeholder pages, server defaults plus URL parameters, the About screen before v0.3 | v0.1 |
+| 28 | The design export's root assets served from the base path as an explicit file list | v0.1 |
 
 ## Related
 

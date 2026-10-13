@@ -156,6 +156,8 @@ Run before considering an edit done. `make check` applies to every row.
 | `scripts/check-package-map.sh`, the package map in [backend.md §1](docs/features/technical-stack/backend.md) | `go test ./test/packagemap/` |
 | `scripts/check-file-budgets.sh`, `.file-budgets` | `go test ./test/filebudgets/ ./test/toolchain/` |
 | `scripts/check-license-headers.sh` | `go test ./test/licenseheaders/` |
+| `scripts/check-dist-urls.sh`, `.dist-url-allowlist` | `go test ./test/disturls/` (also keeps the allowlist in step with [build-packaging.md §4](docs/features/technical-stack/build-packaging.md#4-ci-workflows)); shellcheck (in `make check`) |
+| `scripts/check-chunk-size.sh`, `.chunk-budget` | `go test ./test/chunksize/` (also pins the budget to [frontend.md §3](docs/features/technical-stack/frontend.md#3-worker-bundling-with-vite)); shellcheck (in `make check`) |
 | `scripts/hooks/gofmt-on-edit.sh` | shellcheck (in `make check`); no test package: run it once by editing a `.go` file in Claude Code |
 | `scripts/bootstrap-mk-common.sh` | shellcheck (in `make check`); it comes from make-common, so a change is ported upstream; `make help` proves the snippets still load |
 | `scripts/idle-measure.sh`, `.mk/idle-measure.mk` | `shellcheck scripts/idle-measure.sh`, `make help`; no test package: it needs a running binary |

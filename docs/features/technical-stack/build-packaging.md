@@ -127,6 +127,23 @@ meta-test fails both when it is missing after that point and when it appears bef
 | `go-cache-warmup.yaml`, `web-cache-warmup.yaml`, `pre-commit-warmup.yaml` | push to `main` on their inputs | Refresh the `main` caches the other workflows restore, keeping the newest two entries. |
 | `dependabot.yml` | monthly | Update PRs for `gomod`, `npm` (`web/`), `docker` (base image tags), `github-actions` and `pre-commit`. |
 
+**Dist URL allowlist.** The `dist-urls` step (`scripts/check-dist-urls.sh`) reads every file of
+the built `web/dist`, binary files included, and fails on any `http://`, `https://`, `ws://` or
+`wss://` URL, its scheme in any case, that is not on the allowlist; a URL with characters outside
+ASCII fails as it is. The allowlist is exactly:
+
+- `http://www.w3.org/2000/svg` and `http://www.w3.org/1999/xlink`, the SVG namespaces;
+- `http://www.gnu.org/licenses/`, from the licence header;
+- `https://github.com/leinardi/bitgauge` and any path under it: the About screen's source and
+  documentation links and the base-path error's link to the deployment guide.
+
+`.dist-url-allowlist` holds the same entries for the script, and a test keeps the two in step. A
+new entry is a change to this list first ([../security.md §3](../security.md#3-no-outbound-calls)).
+
+**Engine chunk size.** The `chunk-size` step (`scripts/check-chunk-size.sh`) finds the engine's
+Worker chunk in `web/dist/assets/` and fails when it is larger than the budget in `.chunk-budget`
+([frontend.md §3](frontend.md#3-worker-bundling-with-vite)), or when there is no Worker chunk.
+
 `release.yaml` takes the `release` concurrency group without cancellation, so two releases never
 publish at the same time, and runs Trivy on every platform image before anything is pushed.
 `scheduled-scan.yaml` is dispatch-only while the repository is private.

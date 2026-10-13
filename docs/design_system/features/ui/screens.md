@@ -73,11 +73,21 @@ from the design export; this page fixes content and behaviour only. Terms follow
 quality scores or HTTP loaded responsiveness ([../roadmap.md](../roadmap.md)): its only result
 action is Download JSON, and its metrics are download, upload, idle latency, jitter, data used,
 duration and the packet loss slot. The layout must read as complete without the later cards.
+v0.1 also has no Settings screen:
+
+- Navigation, the desktop header and the narrow-screen tab bar alike, shows Test and About.
+- `/history`, `/settings` and `/result/{id}` stay on the server's fixed route list and render a
+  "not available in this version" page.
+- The test settings are the server defaults with the URL parameters on top
+  ([url-params.md §1](url-params.md#1-rules)); nothing of them is stored in the browser. The
+  theme chosen in the header is the only persisted setting.
+- The settings summary shows the effective values without an Edit link.
 
 **Responsive notes.** On narrow screens the gauge and Start stay above the fold, with Start full
 width; the chart collapses below the metrics; connection info collapses into a single line with a
 disclosure. Navigation becomes a compact header plus a bottom tab bar (Test, History, Settings,
-About). The page must work in portrait on a phone without horizontal scrolling.
+About; Test and About in v0.1). The page must work in portrait on a phone without horizontal
+scrolling.
 
 ## 2. Result Detail — `/result/{id}`
 
@@ -215,6 +225,10 @@ field, value not saved; focus is not moved, and Tab leaves the field as usual); 
 - Short methodology summary linking to the published docs.
 
 **States:** layers enabled or not; server unreachable (snippets built from the page's own origin).
+
+**Before v0.3.** The v0.1 About screen says that the layers for other clients arrive in v0.3 and
+shows no snippets ([../roadmap.md](../roadmap.md)); its methodology summary covers the v0.1
+metrics only: download, upload, idle latency and jitter, with data used and duration.
 
 **Responsive notes.** Snippets wrap with a horizontal scroll inside the code block only.
 

@@ -90,6 +90,11 @@ fonts, icons and scripts are embedded in the binary.
   **no packet egress** from process start, with counters that negative controls show are not
   blind; the image test's syscall layer traces the binary from process start and proves **no
   connection or write attempt**, which a packet counter alone cannot see.
+- **Links are not calls.** A hyperlink the user clicks, such as the About screen's source link,
+  is navigation the user chooses, not an outbound call: nothing is fetched until the click, and
+  then by the browser in a new page. The dist URL allowlist of
+  [technical-stack/build-packaging.md §4](technical-stack/build-packaging.md#4-ci-workflows) is
+  the complete set of URLs the built SPA may contain; anything else fails the build.
 - The only exception is outside BitGauge's control: a third-party client using a compatibility
   layer (OpenSpeedTest's results link, for example) may contact its own vendor
   ([compatibility.md](compatibility.md)).

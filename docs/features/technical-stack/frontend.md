@@ -91,8 +91,10 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
   as a separate hashed chunk under `assets/`, same-origin, so the CSP's `worker-src 'self'` and
   COEP are satisfied.
 - Module Workers are supported by every target browser (current Chromium, Firefox and Safari).
-- The engine chunk has no dependency on Vue, Tailwind or component code; its size is tracked in
-  CI.
+- The engine chunk has no dependency on Vue, Tailwind or component code. Its budget is
+  **128 KiB minified**, enforced by the `chunk-size` step of `web.yaml`
+  ([build-packaging.md §4](build-packaging.md#4-ci-workflows)); the number, in bytes, lives in
+  `.chunk-budget` and is lowered once the engine's real size is known.
 
 ## 4. State Ownership
 

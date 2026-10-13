@@ -49,7 +49,7 @@ One middleware sets headers by route group:
 
 | Group | Headers |
 | --- | --- |
-| SPA (`index.html`, `/assets/*`) | `Content-Security-Policy` (with `ws://<host> wss://<host>` from the request's `Host`), `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`, `Cross-Origin-Resource-Policy: same-origin`, `Referrer-Policy: no-referrer`, `Permissions-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` |
+| SPA (`index.html`, `/assets/*`, the eight root assets of [../architecture.md §3](../architecture.md#3-spa-embedding-and-base-path)) | `Content-Security-Policy` (with `ws://<host> wss://<host>` from the request's `Host`), `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`, `Cross-Origin-Resource-Policy: same-origin`, `Referrer-Policy: no-referrer`, `Permissions-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` |
 | Native API, compatibility layers, `/metrics` | `X-Content-Type-Options: nosniff`, `Cache-Control: no-store`; CORS headers per group ([backend.md §3](backend.md#3-middleware-chain-order)) |
 
 The exact header values are in [../security.md

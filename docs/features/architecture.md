@@ -42,7 +42,10 @@ browser ─▶ proxy: TLS, HTTP/2 or HTTP/1.1, X-Forwarded-For
              4. structured logging (debug level only) and Prometheus instrumentation
              5. rate limiting (throughput route groups only)
         ─▶ chi router mounted at server.base_path
-             ├─ SPA group:        /, /result/{id}, /history, /settings, /about, /assets/*
+             ├─ SPA group:        /, /result/{id}, /history, /settings, /about, /assets/*,
+             │                    and the root assets: /favicon.svg, /favicon-16.png,
+             │                    /favicon-32.png, /apple-touch-icon.png, /icon-192.png,
+             │                    /icon-512.png, /icon-512-maskable.png, /site.webmanifest
              ├─ native API group: /api/v1/{download,upload,ping,small,ws,info}
              ├─ compat groups:    OpenSpeedTest, LibreSpeed, networkQuality (each optional)
              └─ operations:       /metrics (optional)
@@ -66,6 +69,11 @@ The exact middleware order and handler rules are in
   are never shadowed ([compatibility.md §1.5](compatibility.md#15-route-clash-analysis)).
 - Hashed assets are cacheable forever; `index.html` is `no-cache`. Assets may be embedded
   precompressed (Brotli, gzip) and served when `Accept-Encoding` allows.
+- The design export's root assets are served from the base path itself, as its README requires:
+  `favicon.svg`, `favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`,
+  `icon-512.png`, `icon-512-maskable.png` and `site.webmanifest`. They are an explicit file list
+  in the SPA group's routes, never a catch-all, with `Cache-Control: public, max-age=86400`, since
+  their names are not content-hashed.
 
 ## 4. Engine ↔ UI Message Contract
 

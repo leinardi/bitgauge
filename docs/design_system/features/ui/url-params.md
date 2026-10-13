@@ -8,7 +8,9 @@ apply to the page load they appear on; they are not stored unless the user saves
 ## 1. Rules
 
 - **Precedence:** URL parameters > settings stored in this browser > server defaults from
-  `GET /api/v1/info` ([../configuration.md §2.3](../configuration.md#23-test-defaults)).
+  `GET /api/v1/info` ([../configuration.md §2.3](../configuration.md#23-test-defaults)). v0.1
+  stores no test settings, so there the URL parameters apply over the server defaults
+  ([screens.md §1](screens.md#1-test-home--)).
 - Parameter names are matched case-insensitively (`Run=1` works); canonical names are lowercase.
   Values are case-insensitive for enums.
 - An invalid value is ignored, the rest of the URL still applies, and the notice

@@ -131,7 +131,10 @@ Then, per route group (not globally), in this order:
 
 ```text
 chi.Router mounted at server.base_path
- ├─ web.Routes()              GET /, /result/{id}, /history, /settings, /about, /assets/*
+ ├─ web.Routes()              GET /, /result/{id}, /history, /settings, /about, /assets/*,
+ │                            and the root assets: /favicon.svg, /favicon-16.png,
+ │                            /favicon-32.png, /apple-touch-icon.png, /icon-192.png,
+ │                            /icon-512.png, /icon-512-maskable.png, /site.webmanifest
  ├─ handlers.Routes()         /api/v1/{download,upload,ping,small,ws,info}
  ├─ openspeedtest.Routes()    if compat.openspeedtest.enabled
  ├─ librespeed.Routes()       if compat.librespeed.enabled
