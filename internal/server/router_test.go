@@ -26,6 +26,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -35,6 +36,7 @@ import (
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
+	"github.com/leinardi/bitgauge/web"
 )
 
 // testRequestsPerMinute gives a burst of exactly 60 tokens; the fake clock never refills.
@@ -46,7 +48,7 @@ type stack struct {
 	native *handlers.Deps
 }
 
-func newStack(t *testing.T, cfg *config.Config, spa http.Handler) *stack {
+func newStack(t *testing.T, cfg *config.Config, spa func(chi.Router)) *stack {
 	t.Helper()
 
 	clock := &fakeClock{now: time.Date(2026, 10, 12, 8, 0, 0, 0, time.UTC)}
@@ -270,7 +272,7 @@ func TestRouterBasePathAndNotFound(t *testing.T) {
 	spa := http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 		_, _ = io.WriteString(writer, "spa")
 	})
-	stack := newStack(t, cfg, spa)
+	stack := newStack(t, cfg, stubSPA(spa))
 
 	for _, test := range []struct {
 		path        string
@@ -302,6 +304,64 @@ func TestRouterBasePathAndNotFound(t *testing.T) {
 	}
 }
 
+// stubSPA registers handler on every SPA route, as web.SPA.Routes registers its own handlers.
+func stubSPA(handler http.Handler) func(chi.Router) {
+	return func(router chi.Router) {
+		for _, pattern := range spaRoutes() {
+			router.Method(http.MethodGet, pattern, handler)
+		}
+	}
+}
+
+// TestRouterServesTheRenderedSPA mounts the real SPA handler on a scratch dist: each fixed
+// route answers the rendered index.html with the SPA's security headers and no-cache.
+func TestRouterServesTheRenderedSPA(t *testing.T) {
+	t.Parallel()
+
+	files := fstest.MapFS{
+		"index.html": {Data: []byte(`<meta name="bitgauge-base-path" content="/" />` +
+			`<script type="module" src="./assets/index-a1.js"></script>`)},
+		"assets/index-a1.js": {Data: []byte("export {}")},
+	}
+	for name := range web.RootAssets {
+		files[name] = &fstest.MapFile{Data: []byte(name)}
+	}
+
+	spa, err := web.RenderFS(files, "/speed")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cfg := testConfig()
+	cfg.Server.BasePath = "/speed"
+	stack := newStack(t, cfg, spa.Routes)
+
+	for _, path := range []string{"/speed/", "/speed/result/0b6f", "/speed/history", "/speed/settings", "/speed/about"} {
+		response := stack.do(t, http.MethodGet, path, "")
+		if response.StatusCode != http.StatusOK ||
+			response.Header.Get("Cache-Control") != "no-cache" ||
+			!strings.HasPrefix(
+				response.Header.Get("Content-Security-Policy"),
+				"default-src 'none'",
+			) ||
+			response.Header.Get("Cross-Origin-Embedder-Policy") != "require-corp" {
+			t.Errorf("%s: %d %v", path, response.StatusCode, response.Header)
+		}
+	}
+
+	asset := stack.do(t, http.MethodGet, "/speed/assets/index-a1.js", "")
+	if asset.StatusCode != http.StatusOK ||
+		asset.Header.Get("Cache-Control") != "public, max-age=31536000, immutable" {
+		t.Errorf("asset: %d %v", asset.StatusCode, asset.Header)
+	}
+
+	for _, path := range []string{"/speed/unknown", "/unknown", "/favicon.svg"} {
+		if got := stack.do(t, http.MethodGet, path, "").StatusCode; got != http.StatusNotFound {
+			t.Errorf("%s: %d, want 404", path, got)
+		}
+	}
+}
+
 func TestRouterWithoutSPA(t *testing.T) {
 	t.Parallel()
 
@@ -316,10 +376,10 @@ func TestRouterServesOnlyTheRouteTable(t *testing.T) {
 	t.Parallel()
 
 	cfg := testConfig()
-	stack := newStack(t, cfg, http.NotFoundHandler())
+	stack := newStack(t, cfg, stubSPA(http.NotFoundHandler()))
 
 	router, problems := NewRouter(cfg, &Groups{
-		SPA:     http.NotFoundHandler(),
+		SPA:     stubSPA(http.NotFoundHandler()),
 		Native:  stack.native,
 		Limiter: ratelimit.New(ratelimit.Options{}, &fakeClock{}),
 		Log:     slog.New(slog.DiscardHandler),
@@ -359,9 +419,9 @@ func TestRouterServesOnlyTheRouteTable(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// The SPA's six patterns and the native API's seven method and path pairs.
-	if served != len(spaRoutes)+7 {
-		t.Fatalf("the router serves %d routes, want %d", served, len(spaRoutes)+7)
+	// The SPA's patterns and the native API's seven method and path pairs.
+	if served != len(spaRoutes())+7 {
+		t.Fatalf("the router serves %d routes, want %d", served, len(spaRoutes())+7)
 	}
 }
 
@@ -374,6 +434,9 @@ func TestCheckRoutes(t *testing.T) {
 		"/resultx":                false,
 		"/result":                 false,
 		"/assets":                 false,
+		"/favicon.svgx":           false,
+		"/favicon.svg":            true,
+		"/site.webmanifest":       true,
 		"/":                       true,
 		"/history":                true,
 		"/result/abc":             true,

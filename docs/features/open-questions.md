@@ -274,6 +274,18 @@ carries a recommendation; where the specification already relies on an answer, i
     methodology, and `docs/features/deployment-example.md` §6 from the base-path error**.
     Recommendation: keep it. See [ui/screens.md §1, §5](ui/screens.md#1-test-home--) and
     [edge-cases.md §16, §20](edge-cases.md#20-base-path-mismatches).
+31. How does the server render `index.html`? Current answer: **once at startup: the web build
+    leaves the asset URLs relative (`./assets/…`) and the root assets' links as bare names, and
+    the server makes both absolute under the base path and writes the base path into the single
+    `bitgauge-base-path` meta element; an embedded SPA without `index.html`, a root asset or
+    exactly one such meta element stops the startup with exit status 1, after the configuration,
+    route collisions included, has been validated with exit status 2**. Hashed assets and root
+    assets are served by name only, never as a directory listing, without `Last-Modified`. The
+    absolute URLs mean a proxy that strips the prefix in front of an instance configured for `/`
+    gives a blank page, not the base-path error screen, whose check needs the script to load.
+    Recommendation: keep it. See [architecture.md §3](architecture.md#3-spa-embedding-and-base-path),
+    [edge-cases.md §20](edge-cases.md#20-base-path-mismatches) and
+    [technical-stack/backend.md §5](technical-stack/backend.md#5-server-settings-and-graceful-shutdown).
 
 Resolved and removed:
 

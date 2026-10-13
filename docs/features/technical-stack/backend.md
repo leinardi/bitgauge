@@ -154,8 +154,10 @@ Route collisions are impossible by construction and are also checked at startup,
   1001 (going away) and calls `Shutdown` with a 10 s grace. Transfers still running after that are
   cut. A test in progress then sees a network change or, after a restart, a new epoch
   ([edge-cases.md §11](../edge-cases.md#11-server-restart-mid-test)).
-- Startup order: load and validate config (exit 2 on error), generate the random buffer, epoch and
-  grid origin, render `index.html`, build the router, listen.
+- Startup order: load and validate config, the `metrics.path` route collision included (exit 2 on
+  error), generate the random buffer, epoch and grid origin, render `index.html` (exit 1 when the
+  embedded SPA lacks `index.html`, a root asset or its single base-path meta element), build the
+  router, listen.
 
 ## 6. `healthcheck` Subcommand
 

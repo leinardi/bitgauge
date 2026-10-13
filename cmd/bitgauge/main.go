@@ -38,6 +38,7 @@ import (
 	"github.com/leinardi/bitgauge/internal/logger"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
 	"github.com/leinardi/bitgauge/internal/server"
+	"github.com/leinardi/bitgauge/web"
 )
 
 const (
@@ -51,6 +52,10 @@ const (
 
 var errUnknownCommand = errors.New("unknown command")
 
+// renderer renders the SPA for a base path: web.Render for the embedded one; tests pass a scratch
+// dist, since a checkout that has not built the SPA embeds none.
+type renderer func(basePath string) (*web.SPA, error)
+
 // options is a parsed command line.
 type options struct {
 	command    string
@@ -60,11 +65,16 @@ type options struct {
 }
 
 func main() {
-	os.Exit(run(context.Background(), os.Args[1:], os.Environ(), os.Stdout, os.Stderr))
+	os.Exit(run(context.Background(), os.Args[1:], os.Environ(), os.Stdout, os.Stderr, web.Render))
 }
 
 // run is main with its inputs and outputs passed in, and the exit status returned.
-func run(ctx context.Context, args, environ []string, stdout, stderr io.Writer) int {
+func run(
+	ctx context.Context,
+	args, environ []string,
+	stdout, stderr io.Writer,
+	render renderer,
+) int {
 	opts, err := parseArgs(args, stderr)
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "bitgauge: %v\n", err)
@@ -104,7 +114,7 @@ func run(ctx context.Context, args, environ []string, stdout, stderr io.Writer) 
 		return healthcheck(ctx, &loaded.Config)
 	}
 
-	return serve(ctx, &loaded, stdout, stderr)
+	return serve(ctx, &loaded, stdout, stderr, render)
 }
 
 // parseArgs reads [serve|healthcheck] [--config path]. Without a command it serves; without
@@ -158,9 +168,22 @@ func usage(out io.Writer) {
 }
 
 // serve starts the server in the order of backend.md section 5: the configuration is valid by
-// now; then the random buffer, the epoch and the grid, the router, and the listener.
-func serve(ctx context.Context, loaded *config.Loaded, stdout, stderr io.Writer) int {
+// now, route collisions included; then the random buffer, the epoch and the grid, index.html,
+// the router, and the listener.
+func serve(
+	ctx context.Context,
+	loaded *config.Loaded,
+	stdout, stderr io.Writer,
+	render renderer,
+) int {
 	cfg := &loaded.Config
+
+	// The metrics.path collision is a configuration problem, so it exits 2 before anything else.
+	if problems := server.CheckRoutes(cfg); len(problems) > 0 {
+		config.ReportProblems(problems, cfg.Log, stdout, stderr)
+
+		return exitUsage
+	}
 
 	log, err := logger.NewTo(stdout, cfg.Log.Format, cfg.Log.Level)
 	if err != nil {
@@ -187,7 +210,15 @@ func serve(ctx context.Context, loaded *config.Loaded, stdout, stderr io.Writer)
 	sockets := handlers.NewWebSockets(limiter, clock, cfg.Server.CORS.AllowedOrigins,
 		handlers.WebSocketIdle, log)
 
+	spa, err := render(cfg.Server.BasePath)
+	if err != nil {
+		log.Error("render the SPA", slog.String("error", err.Error()))
+
+		return exitFailure
+	}
+
 	router, problems := server.NewRouter(cfg, &server.Groups{
+		SPA: spa.Routes,
 		Native: &handlers.Deps{
 			Config:     cfg,
 			Buffer:     buffer,

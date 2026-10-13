@@ -22,7 +22,9 @@ package server
 import (
 	"fmt"
 	"log/slog"
+	"maps"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
@@ -30,6 +32,7 @@ import (
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
+	"github.com/leinardi/bitgauge/web"
 )
 
 // Route is one row of the route table of compatibility.md section 5: a path pattern, in chi's
@@ -49,8 +52,19 @@ const (
 	ownerNQ            = "networkQuality"
 )
 
-// spaRoutes are the SPA's fixed routes (architecture.md section 1), all GET.
-var spaRoutes = []string{"/", "/result/{id}", "/history", "/settings", "/about", "/assets/*"}
+// spaRoutes are the SPA's fixed routes, its hashed assets and its root assets (architecture.md
+// section 3), all GET, as package web registers them.
+func spaRoutes() []string {
+	routes := make([]string, 0, len(web.DocumentRoutes)+1+len(web.RootAssets))
+	routes = append(routes, web.DocumentRoutes...)
+	routes = append(routes, web.AssetRoutes)
+
+	for _, name := range slices.Sorted(maps.Keys(web.RootAssets)) {
+		routes = append(routes, "/"+name)
+	}
+
+	return routes
+}
 
 // RouteTable is every route BitGauge can serve, whether or not its group is enabled, except
 // /metrics, whose path is the thing checked against it. It is the list the metrics.path
@@ -61,9 +75,10 @@ func RouteTable() []Route {
 	const otherRoutes = 6 + 2 + 13 + 5
 
 	get := []string{http.MethodGet}
-	table := make([]Route, 0, len(spaRoutes)+otherRoutes)
+	spa := spaRoutes()
+	table := make([]Route, 0, len(spa)+otherRoutes)
 
-	for _, pattern := range spaRoutes {
+	for _, pattern := range spa {
 		table = append(table, Route{Pattern: pattern, Owner: ownerSPA, Methods: get})
 	}
 
@@ -176,8 +191,8 @@ func matches(pattern, path string) bool {
 
 // Groups are the route groups the router mounts (backend.md section 4).
 type Groups struct {
-	// SPA serves the SPA's fixed routes; until the SPA ships it is nil, and they answer 404.
-	SPA http.Handler
+	// SPA registers the SPA's routes (web.SPA.Routes); without it they answer 404.
+	SPA func(chi.Router)
 	// Native builds the native API.
 	Native *handlers.Deps
 	// Limiter limits the native throughput routes.
@@ -204,9 +219,7 @@ func NewRouter(cfg *config.Config, groups *Groups) (*chi.Mux, []config.Problem) 
 
 	mount := func(base chi.Router) {
 		if groups.SPA != nil {
-			for _, pattern := range spaRoutes {
-				base.Method(http.MethodGet, pattern, groups.SPA)
-			}
+			groups.SPA(base)
 		}
 
 		base.Group(func(api chi.Router) {

@@ -241,7 +241,9 @@ labels:
 - The healthcheck uses the configured base path automatically.
 - Draft-style networkQuality discovery at the host root (`/.well-known/nq`) then needs a separate
   proxy rule; `networkQuality -C https://home.example.lan/speed/nq/config` works without one.
-- A stripped prefix or a mismatched base path produces the base-path error screen
+- Do not strip the prefix. A stripped prefix gives a `404` (an instance configured for `/speed`)
+  or a blank page whose assets the proxy does not forward (an instance configured for `/`); a
+  mismatched base path whose page and assets still load shows the base-path error screen
   ([edge-cases.md §20](edge-cases.md#20-base-path-mismatches)).
 
 ## 7. Raspberry Pi and arm64

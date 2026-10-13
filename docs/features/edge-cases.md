@@ -326,8 +326,8 @@ between a number and `insufficient data`, and remaining throughput phases are sk
 ## 20. Base Path Mismatches
 
 **Situation.** BitGauge runs with `server.base_path: /speed` but the proxy strips the prefix, or the
-proxy forwards `/speed` to an instance configured for `/`. The SPA then loads with broken asset
-paths or calls API routes that do not exist.
+proxy forwards `/speed` to an instance configured for `/`. Either the page itself is not found, or
+it loads with broken asset paths or calls API routes that do not exist.
 
 **Behaviour.** BitGauge routes on the full path and never guesses. The embedded `index.html` is a
 template: once, at startup, the server substitutes the configured base path into its asset URLs
@@ -337,15 +337,24 @@ CSP allows none). The SPA reads the meta element and compares it with its own `l
 and with `basePath` from `GET /api/v1/info`. Unknown paths answer `404`.
 
 The page fails the comparison when its path is not under the meta element's base path, when the
-path under it is not one of the fixed SPA routes (a proxy that strips the prefix in front of an
-instance configured for `/` serves the SPA at a path it does not know), or when `GET /api/v1/info`
-reports another `basePath`; trailing slashes do not count. The first two are checked before any
-request, so a page that fails them sends none.
+path under it is not one of the fixed SPA routes, or when `GET /api/v1/info` reports another
+`basePath`; trailing slashes do not count. The first two are checked before any request, so a page
+that fails them sends none.
 
-**User sees.** Instead of a blank page, an error screen: `base path mismatch` — "BitGauge is
-configured for /speed but this page was served at /", with the page path, the server's base path
-and, when it differs, the API's, a Reload button and a link to the sub-path instructions in
-[deployment-example.md §6](deployment-example.md#6-sub-path-deployment).
+The comparison runs only once the SPA's script has loaded, and the asset URLs are absolute under
+the configured base path, which `/result/{id}` needs. So the error screen covers a page whose
+assets still load, such as a proxy that forwards both the prefixed and the unprefixed paths to an
+instance configured for `/`. The common stripping setups end earlier: an instance configured for
+`/speed` behind a proxy that strips the prefix answers `404` for the page itself, and an instance
+configured for `/` behind a proxy that strips `/speed` serves `index.html`, whose `/assets/…`
+requests the proxy does not forward, so the page stays blank.
+
+**User sees.** When the page's assets load, an error screen instead of a broken page:
+`base path mismatch` — "BitGauge is configured for /speed but this page was served at /", with
+the page path, the server's base path and, when it differs, the API's, a Reload button and a link
+to the sub-path instructions in
+[deployment-example.md §6](deployment-example.md#6-sub-path-deployment). When they do not, a `404`
+or a blank page; the sub-path instructions say not to strip the prefix for that reason.
 
 ## Related
 

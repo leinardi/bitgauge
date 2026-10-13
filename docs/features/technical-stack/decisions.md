@@ -345,6 +345,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 28 | The design export's root assets served from the base path as an explicit file list | v0.1 |
 | 29 | The v0.1 SPA shell: per-screen locale files, the header's reachability and theme button, the Worker configured from the server defaults, the engine type-checked on its own | v0.1 |
 | 30 | Before a run: info on load and on Retry, the connection info's placeholders and label choices, the settings summary's line and chips, the base-path check before rendering, the v0.1 About credits and repository links | v0.1 |
+| 31 | `index.html` rendered once with absolute asset URLs under the base path; an incomplete embedded SPA exits 1 after configuration and route checks | v0.1 |
 
 ## Related
 

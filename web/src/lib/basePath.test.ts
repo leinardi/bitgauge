@@ -61,7 +61,7 @@ describe('pageMismatch', () => {
     expect(pageMismatch('/', '/speed/', isRoute)).toEqual({ pagePath: '/', basePath: '/speed', apiBasePath: null })
   })
 
-  it('fails a page whose path under the base path is no route: the proxy stripped a prefix', () => {
+  it('fails a page whose path under the base path is no fixed route', () => {
     expect(pageMismatch('/speed/', '/', isRoute)).toEqual({ pagePath: '/speed/', basePath: '/', apiBasePath: null })
   })
 })

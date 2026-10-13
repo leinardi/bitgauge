@@ -73,7 +73,7 @@ describe('the first load', () => {
     expect(getInfo).not.toHaveBeenCalled()
   })
 
-  it('stops at the error when a proxy stripped the prefix', async () => {
+  it('stops at the error when the page is on no fixed route under the base path', async () => {
     page('/', '/speed/')
     const wrapper = await mountApp(App)
     await flushPromises()

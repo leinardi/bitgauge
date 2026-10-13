@@ -10,7 +10,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 
 | Feature area | Status | Code pointers |
 | --- | --- | --- |
-| Single binary, embedded SPA, base path, fixed SPA routes | Spec'd (v0.1) |  |
+| Single binary, embedded SPA, base path, fixed SPA routes | Spec'd (v0.1), in progress: embed and routes | `web/embed.go` (embed, `index.html` rendered once with the base path, fixed routes, hashed and root assets), `internal/server/router.go`, `cmd/bitgauge/main.go` |
 | Native API: download, upload, ping, small, ws, info | Implemented (v0.1) | `internal/handlers/`: `routes.go` (router, 405 and 404), `errors.go` (envelope), `buffer.go` (random buffer), `epoch.go`, `download.go`, `upload.go`, `ping.go`, `small.go`, `ws.go` (echo, Origin rule, close codes), `info.go`; mounted by `internal/server/router.go` |
 | Server-timed upload: 100 ms server grid, per-bucket arrival counts, `Server-Timing` | Implemented (v0.1) | `internal/handlers/`: `grid.go` (server grid), `drain.go` (pooled drainer), `upload.go` (arrival counts, lifetime, telemetry) |
 | Limits and rate limiting (`429` with `Retry-After`) | Implemented (v0.1) | `internal/ratelimit/`: `limiter.go` (table, token bucket, LRU of idle entries), `middleware.go` (429 with `Retry-After`), `clock.go`; wired by `internal/server/router.go` on download and upload, and by `internal/handlers/ws.go` per WebSocket |

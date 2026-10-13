@@ -35,9 +35,11 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/leinardi/bitgauge/internal/config"
+	"github.com/leinardi/bitgauge/web"
 )
 
 // failsafe bounds every wait in these tests against a hang; none of them waits for state.
@@ -183,6 +185,32 @@ var (
 	errBuild    error
 )
 
+// scratchSPA is a built SPA as the web build leaves it, for the serve tests that run in this
+// process: a checkout that has not built the SPA embeds none.
+func scratchSPA() fstest.MapFS {
+	files := fstest.MapFS{
+		"index.html": {Data: []byte(`<meta name="bitgauge-base-path" content="/" />` +
+			`<script type="module" src="./assets/index-a1.js"></script>`)},
+		"assets/index-a1.js": {Data: []byte("export {}")},
+	}
+
+	for name := range web.RootAssets {
+		files[name] = &fstest.MapFile{Data: []byte(name)}
+	}
+
+	return files
+}
+
+// renderScratch renders the scratch SPA, for the tests that run serve in this process.
+func renderScratch(basePath string) (*web.SPA, error) {
+	spa, err := web.RenderFS(scratchSPA(), basePath)
+	if err != nil {
+		return nil, fmt.Errorf("the scratch SPA: %w", err)
+	}
+
+	return spa, nil
+}
+
 // TestMain builds the command once into a temporary directory, as the release build would,
 // for the tests that run it as a subprocess, and removes it afterwards.
 func TestMain(m *testing.M) {
@@ -293,7 +321,7 @@ func TestServeAndHealthcheck(t *testing.T) {
 	done := make(chan int, 1)
 
 	go func() {
-		done <- run(ctx, []string{"--config", emptyConfig(t)}, environ, logs, io.Discard)
+		done <- run(ctx, []string{"--config", emptyConfig(t)}, environ, logs, io.Discard, renderScratch)
 
 		_ = logs.Close()
 	}()
@@ -335,6 +363,12 @@ func TestServeAndHealthcheck(t *testing.T) {
 		t.Fatalf("healthcheck of the running server: exit %d, want 0", got)
 	}
 
+	// The rendered SPA is mounted: its document under the base path, with the asset made absolute.
+	page := getBody(t, "http://"+address+"/")
+	if !strings.Contains(page, `src="/assets/index-a1.js"`) {
+		t.Fatalf("GET / = %q, want the rendered index.html", page)
+	}
+
 	cancel()
 
 	select {
@@ -344,5 +378,66 @@ func TestServeAndHealthcheck(t *testing.T) {
 		}
 	case <-time.After(failsafe):
 		t.Fatal("serve did not stop")
+	}
+}
+
+// getBody answers GET url with a 200 body, failing the test on anything else.
+func getBody(t *testing.T, url string) string {
+	t.Helper()
+
+	request, err := http.NewRequestWithContext(t.Context(), http.MethodGet, url, http.NoBody)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() { _ = response.Body.Close() }()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil || response.StatusCode != http.StatusOK {
+		t.Fatalf("GET %s: %d, %v", url, response.StatusCode, err)
+	}
+
+	return string(body)
+}
+
+// TestServeExitsOneWithoutTheSPA runs serve on an SPA that cannot be rendered, as a binary built
+// without the web build embeds: it stops before listening, with exit status 1 and the reason.
+func TestServeExitsOneWithoutTheSPA(t *testing.T) {
+	t.Parallel()
+
+	incomplete := func(basePath string) (*web.SPA, error) {
+		spa, err := web.RenderFS(fstest.MapFS{".gitkeep": {}}, basePath)
+		if err != nil {
+			return nil, fmt.Errorf("a dist with only .gitkeep: %w", err)
+		}
+
+		return spa, nil
+	}
+
+	var logs strings.Builder
+
+	environ := []string{"BITGAUGE_SERVER__LISTEN=127.0.0.1:1", "BITGAUGE_LOG__FORMAT=text"}
+
+	got := run(
+		t.Context(),
+		[]string{"--config", emptyConfig(t)},
+		environ,
+		&logs,
+		io.Discard,
+		incomplete,
+	)
+	if got != exitFailure {
+		t.Fatalf("serve without the SPA exited %d, want %d", got, exitFailure)
+	}
+
+	if !strings.Contains(logs.String(), `msg="render the SPA"`) ||
+		!strings.Contains(logs.String(), "build it with make build") ||
+		strings.Contains(logs.String(), "msg=starting") {
+		t.Fatalf("logs %q, want the render error and no startup line", logs.String())
 	}
 }
