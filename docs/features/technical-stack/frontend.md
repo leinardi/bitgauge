@@ -17,7 +17,8 @@ web/
     engine/                   measurement engine (Worker); framework-free
       worker.ts               Worker entry: message loop only
       messages.ts             command and event types shared with the UI
-      run.ts, phases/, upload/, download/, latency/, stats/, clock.ts, transport.ts
+      run.ts, run/, phases/, upload/, download/, latency/, stats/, result.ts, result/
+      clock.ts, transport.ts, wiring.ts   browser clock and transport, their pure helpers
     api/                      generated OpenAPI types and a typed fetch helper for GET /info
     components/               app components (gauge, charts, result cards, notices)
     components/ui/            shadcn-vue components (copied, on Reka UI primitives)
@@ -56,6 +57,30 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
 
   Production wires the browser implementations; tests wire fakes that replay a synthetic timeline
   ([testing.md §2](testing.md#2-engine-tests-with-synthetic-timelines)).
+- **Browser wiring.** `clock.ts`, `transport.ts` and `worker.ts` are the only engine files that
+  use the browser globals the engine bans; what they compute from browser values lives in
+  `wiring.ts`, tested on plain values.
+  - The busy time sums the Worker's own tasks, each timed with `performance.now()`: timer
+    callbacks, message handling, the XHR, WebSocket and progress callbacks themselves, and for each
+    download chunk the time from the read resolving to the next read, which is the engine handling
+    it. The engine's continuations after an upload, probe or `GET /info` answer are not timed; they
+    are a few per request, so leaving them out can only lower the fraction slightly.
+  - The timer resolution is the median of about 20 consecutive differences between distinct
+    `performance.now()` readings, sampled once per Worker for at most 50 ms; a clock that changes
+    less than twice in that window reports 50 ms.
+  - A request's Resource Timing entry is the earliest entry with its URL that started at or
+    after the request was sent, since requests to one URL repeat; a missing `nextHopProtocol` is
+    read as empty, not reported. The browser may add the entry after the response, so a request
+    that ended without one waits up to 50 ms for it, watching for new entries: the probe and
+    upload answers and the end of a download body are delivered after that wait. A browser that
+    missed the bound once is not waited for again until an entry is found at once, so one that
+    never reports timing costs a single wait. The buffer holds 2000 entries and is cleared when
+    full, which can cost a few requests their timing.
+  - Every path sits under the configured base path on the page's origin; the WebSocket takes the
+    `ws:` or `wss:` scheme matching the page. `client.browser` comes from a table of families
+    (Edge, Opera, Samsung Internet, Firefox, Chrome, Safari) and systems (iOS, Android, ChromeOS,
+    Windows, macOS, Linux), anything else `unknown` with major version 0; the user-agent string
+    itself is never kept.
 - **Pure statistics.** Bucketing, watermark, warm-up, ramp, TM95, grade and AIM scoring are pure
   functions over data, unit-tested in isolation.
 

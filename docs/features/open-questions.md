@@ -204,6 +204,20 @@ carries a recommendation; where the specification already relies on an answer, i
     each bucket on its own tick and ends at the bucket end exactly. Recommendation: keep it. See
     [measurement.md §16, §17](measurement.md#17-result-object) and
     [technical-stack/frontend.md §2](technical-stack/frontend.md#2-engine-package-rules).
+24. How does the Worker wire the browser in, and what does its message loop do with commands out
+    of order? Current answer: **one run at a time; a `start` meanwhile is ignored, a `start`
+    before a valid `configure` and an invalid `configure` answer `invalid-settings`, and the last
+    valid configuration stays**. The busy time sums the Worker's timed tasks (timers, messages,
+    network callbacks, the engine's handling of each download chunk); the timer resolution is the
+    median of about 20 consecutive reading differences, 50 ms when the clock barely moves; a
+    request's timing entry is the earliest with its URL started at or after its send, waited for
+    up to 50 ms after the request ended, in a 2000-entry buffer cleared when full;
+    `client.browser` comes from a fixed family and system table. A WebSocket handshake that
+    neither opens nor fails within 10 s counts as unavailable, and a run that fails inside the
+    engine is the Worker's uncaught error rather than an `error` message. Recommendation: keep
+    it. See
+    [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
+    [technical-stack/frontend.md §2](technical-stack/frontend.md#2-engine-package-rules).
 
 Resolved and removed:
 

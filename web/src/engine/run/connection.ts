@@ -79,11 +79,16 @@ export class Connection {
     return this.current
   }
 
-  /** Opens the echo; when it cannot be opened, idle latency uses GET /api/v1/ping. */
+  /**
+   * Opens the echo within the 10 s ceiling of the idle-latency timeout; when it cannot be opened,
+   * idle latency uses GET /api/v1/ping, and an echo that opens later is closed.
+   */
   async open(): Promise<void> {
+    const opening = this.options.transport.ws()
     try {
-      this.attach(await this.options.transport.ws())
+      this.attach(await within(this.options.clock, opening, MAX_TIMEOUT_MS))
     } catch {
+      void opening.then((late) => late.close(), () => undefined)
       this.fallBack()
     }
   }

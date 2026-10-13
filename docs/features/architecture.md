@@ -83,6 +83,13 @@ application code; the UI talks to it only through typed messages defined in one 
 | `visibility` | `visible: boolean` | Forwards `visibilitychange` ([edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test)). |
 | `network` | `event: 'offline' \| 'type-changed'` | Forwards the page's `offline` event and changes of `navigator.connection.type`, the two network signals of [edge-cases.md §6](edge-cases.md#6-network-change-mid-test); the run ends with the `network-changed` error. |
 
+The Worker keeps the last valid `configure`: an invalid one is answered with `invalid-settings`
+and changes nothing, and a `start` before any valid `configure` fails the same way. One run is in
+progress at a time; a `start` meanwhile is ignored, and `stop`, `visibility` and `network` with no
+run in progress do nothing. A run that fails inside the engine, a defect rather than any of the
+error codes below, is reported as the Worker's uncaught error, which reaches the `error` event of
+the page's `Worker` object; the next `start` may begin another run.
+
 **Events (engine → UI):**
 
 | Message | Payload | Used for |

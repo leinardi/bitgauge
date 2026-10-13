@@ -399,6 +399,21 @@ describe('the WebSocket', () => {
     expect(harness.events.find(({ event }) => event.type === 'error')?.at).toBe(2600)
   })
 
+  it('that never opens is given up after 10 s, and idle latency uses GET /api/v1/ping', async () => {
+    const harness = start({ phases: ['idle'] }, LINK, (transport) => ({
+      download: (size, signal) => transport.download(size, signal),
+      upload: (size, onProgress, signal) => transport.upload(size, onProgress, signal),
+      ws: () => new Promise(() => undefined),
+      info: () => transport.info(),
+      probe: (path) => transport.probe(path),
+    }))
+    const report = await finish(harness)
+    expect(report?.idle?.result.path).toBe('http')
+    expect(report?.notices).toEqual([{ code: 'websocket-unavailable' }])
+    // GET /info answers after one RTT; the handshake is given up 10 s later.
+    expect(when(harness, 'info:finished')).toBeGreaterThanOrEqual(10_050)
+  })
+
   it('unavailable from the start leaves idle latency on GET /api/v1/ping', async () => {
     const harness = start({ phases: ['idle'] })
     harness.transport.server.wsAvailable = false

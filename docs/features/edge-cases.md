@@ -253,7 +253,8 @@ guide sets read timeouts above the 120 s upload lifetime.
 **Situation.** nginx needs explicit `Upgrade` and `Connection` headers to proxy WebSockets; some
 proxies or security appliances block upgrades entirely.
 
-**Behaviour.** If `/api/v1/ws` cannot be opened, path A uses the HTTP fallback
+**Behaviour.** If `/api/v1/ws` cannot be opened, including a handshake that neither opens nor
+fails within 10 s (the ceiling of the idle-latency timeout), path A uses the HTTP fallback
 ([measurement.md §11.2](measurement.md#112-path-a-fallback--http-probe)): on HTTP/1.1 with the
 5-stream reservation and grading only under its conditions; on HTTP/2 or HTTP/3 multiplexed on
 the load connection. Idle latency uses `GET /api/v1/ping`.
