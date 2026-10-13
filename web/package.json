@@ -15,6 +15,9 @@
     "test:watch": "vitest",
     "e2e": "playwright test",
     "harness": "playwright test -c playwright.harness.config.ts",
+    "parity": "playwright test -c playwright.parity.config.ts",
+    "parity:serve:demo": "npm run build:demo && vite preview --outDir dist-demo --host 127.0.0.1 --port 5180 --strictPort",
+    "parity:serve:prototype": "python3 -m http.server --directory ../docs/design_system --bind 127.0.0.1 5181 2>/dev/null",
     "api-types": "openapi-typescript ../api/openapi.yaml -o src/api/types.gen.ts"
   },
   "devDependencies": {

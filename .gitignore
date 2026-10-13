@@ -40,6 +40,11 @@ node_modules/
 .cache/
 .fallow/
 
+# Demo parity harness: the CDN cache, the run records and the HTML report
+web/parity/.cache/
+web/parity/.run/
+web/playwright-report/
+
 # Claude Code: the shared settings and the skills symlink are tracked; local settings
 # (settings.local.json) and session state never are.
 .claude/*
