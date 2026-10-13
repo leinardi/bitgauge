@@ -97,7 +97,7 @@ type PhaseName = 'info' | 'idle' | 'download' | 'upload';
 
 type EngineCommand =
   | { type: 'configure'; settings: TestSettings; basePath: string }
-  | { type: 'start'; override?: Partial<TestSettings>; visible: boolean }
+  | { type: 'start'; override?: SettingsOverride; visible: boolean }
   | { type: 'stop' }
   | { type: 'visibility'; visible: boolean };
 
@@ -131,6 +131,19 @@ display-only offset of [measurement.md §7.4](measurement.md#74-common-timeline-
 and `server-unreachable` (the causes of [ui/flows.md §5](ui/flows.md#5-error-mid-test)). Its
 `messageKey` is `errors.<code>`, the catalog key the UI words it with. A notice carries a code of
 [measurement.md §16](measurement.md#16-confidence-and-notices) with the raw values it names.
+
+**Settings resolution.** A `start` override replaces the configured value of each field it sets,
+and may also carry `durationMs` (the `duration` URL parameter,
+[ui/url-params.md §2](ui/url-params.md#2-parameters)), the result's `label` and the
+`contextLabel`. An override that selects another preset takes that preset's durations, ping count
+and stream mode from [measurement.md §8.5](measurement.md#85-presets) unless it sets them too (a
+fixed count no larger than the configured maximum): the durations and ping count in the configured
+settings belong to the configured preset. `durationMs`
+sets both directions' maximum to it and their minimum to the smaller of the minimum and it. The
+resolved settings are checked against the ranges of
+[configuration.md §2.3](configuration.md#23-test-defaults), the `duration` range of the URL
+parameter (5–600 s for the bounded presets) and the 64-character `label`; Continuous is not a v0.1
+preset. Any invalid value fails the `configure` or `start` with `invalid-settings`.
 
 The engine takes an injectable clock and transport, so tests drive it with synthetic timelines
 ([technical-stack/testing.md](technical-stack/testing.md)).

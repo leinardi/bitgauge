@@ -58,6 +58,16 @@ export interface TestSettings {
   overheadCompensationPercent: number
 }
 
+/**
+ * A run's override of the configured settings (architecture.md section 4): any field of the
+ * settings, the `duration` URL parameter as `durationMs`, the result's label and the context label.
+ */
+export type SettingsOverride = Partial<TestSettings> & {
+  durationMs?: number
+  label?: string
+  contextLabel?: string
+}
+
 /** The confidence reasons of measurement.md section 8.3. */
 export type ConfidenceReason = 'ramp-unsettled' | 'insufficient-samples' | 'unstable'
 
@@ -192,7 +202,7 @@ export interface Result {
 /** Commands, UI to engine. */
 export type EngineCommand =
   | { type: 'configure'; settings: TestSettings; basePath: string }
-  | { type: 'start'; override?: Partial<TestSettings>; visible: boolean }
+  | { type: 'start'; override?: SettingsOverride; visible: boolean }
   | { type: 'stop' }
   | { type: 'visibility'; visible: boolean }
 

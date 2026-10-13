@@ -333,6 +333,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 16 | Ramp intervals in whole buckets, the upload trial anchored at the added streams' first bytes | v0.1 |
 | 17 | Slow-link budgets recomputed on a shared link with per-request RTT gaps | v0.1 |
 | 18 | Warm-up conditions read bucket by bucket on known buckets, measured from the series start | v0.1 |
+| 19 | Settings overrides and preset switches resolved in the engine; idle-latency warm-up and fallback edge cases | v0.1 |
 
 ## Related
 

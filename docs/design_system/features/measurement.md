@@ -691,18 +691,22 @@ the Resource Timing `transferSize`, falling back to a +0.5 % header estimate
   send. If the WebSocket cannot be opened, the HTTP fallback is `GET /api/v1/ping` (204,
   `cache: 'no-store'`), timed from the Resource Timing entry as `responseStart − requestStart`,
   which excludes connection setup.
-- **Count.** The preset's ping count (§8.5). Pings are sequential with one outstanding: the next
-  ping is sent when the previous one is answered or lost, and no sooner than 100 ms after the
-  previous send. The first sample on each path is discarded as a warm-up sample and counted neither
-  in the statistics nor as loss.
+- **Count.** The preset's ping count (§8.5), the warm-up ping included. Pings are sequential with
+  one outstanding: the next ping is sent when the previous one is answered or lost, and no sooner
+  than 100 ms after the previous send. The first ping on each path is the warm-up: its sample is
+  discarded and it is counted neither in the statistics nor as loss, answered or not. On the HTTP
+  path a ping answered with a status other than `204` is lost, and one whose Resource Timing entry
+  is missing uses up its place in the count but gives no sample and is not counted as loss.
 - **Statistics.** min, median and p90 of the RTT samples.
 - **Jitter** = mean absolute difference of consecutive successful samples, in send order.
 - **Timeout policy, tolerant of VPN RTTs.** The first ping times out after 10 s; later pings after
-  `max(2 s, 4 × running median)`, capped at 10 s. A timeout is not an error: the ping is counted as
-  lost and the next one is sent.
-- **Loss percentage** = lost pings ÷ pings sent. This is a probe-timeout rate over TCP, not packet
-  loss: TCP retransmits hide packet loss from the browser, so it never feeds the packet-loss slot
-  (§13, §18).
+  `max(2 s, 4 × running median)` of the samples so far, capped at 10 s, and after 10 s while there
+  is no sample yet. A timeout is not an error: the ping is counted as lost and the next one is
+  sent.
+- **Loss percentage** = lost pings ÷ the pings that ended with a sample or a loss, the warm-up
+  excluded; a ping without timing and a ping still outstanding when the phase stops count in
+  neither. This is a probe-timeout rate over TCP, not packet loss: TCP retransmits hide packet
+  loss from the browser, so it never feeds the packet-loss slot (§13, §18).
 - **Limits.** The phase stops after 30 s even if the count is not reached. With fewer than 5
   successful samples idle latency is `unavailable`; with all pings lost the test shows the
   `server unreachable` notice with retry.

@@ -124,6 +124,17 @@ carries a recommendation; where the specification already relies on an answer, i
     that ended before the bucket evaluated.
     See [measurement.md §8.3](measurement.md#83-warm-up-end) and
     [§5](measurement.md#5-adaptive-duration).
+19. How does a run resolve its settings, and how does idle latency count its edge cases? Current
+    answer: **a `start` override replaces the fields it sets; selecting another preset brings that
+    preset's durations, ping count and stream mode unless the override sets them; `durationMs`
+    caps both directions and lowers their minimum to it; any out-of-range value fails with
+    `invalid-settings`**. Idle latency counts the warm-up ping in the ping count, never as loss;
+    times out after 10 s while there is no sample; treats a non-`204` HTTP answer as lost and an
+    answer without its timing entry as using up its place in the count but neither sampled nor lost;
+    and leaves that answer, and a ping still outstanding at the 30 s limit, out of the loss
+    percentage's denominator. Recommendation: keep it. See
+    [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
+    [measurement.md §10](measurement.md#10-idle-latency).
 
 Resolved and removed:
 
