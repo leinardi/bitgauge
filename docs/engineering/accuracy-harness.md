@@ -75,27 +75,29 @@ behaviour have to be seen on the real thing.
 Each run writes `dist/harness/<tier>-<UTC>-<envid>/report.json` and `report.md`, with the raw
 exports.
 
-- **Status**: `recorded` means the run completed and its numbers are in the report; `failed`
-  carries the reason. The report **does not judge tolerances yet**: the reference method is
-  settled (testing.md §5), but the tolerance evaluator, which lands before the harness CI gate
-  activates, does not exist yet, and until it replaces the report's evaluation line that line
-  still prints the older "not evaluated" wording. Until then, compare each headline with the
-  iperf3 reference by hand, against the tolerance table of testing.md §5, and write the verdict
-  down.
+- **Status**: the evaluator judges each completed run against testing.md §5: `pass`, `fail` or
+  `inconclusive`, with a one-line verdict and its findings; `failed` carries the reason a run could
+  not complete, or the egress it saw. `recorded` is left only on an unshaped run of a shaped
+  profile (`HARNESS_SHAPE=none`), a debugging run that is never judged and fails the tier like
+  every final run that is not a `pass`. An inconclusive first attempt is re-run once; the first
+  stays in the report marked as a re-run, and only the second counts.
 - **Self-test** (floor only): the shaped path's measured throughput before the profile counts. The
   harness holds it within 5 % of the configured goodput, the goodput the configured link rate can
   carry once Ethernet, IP and TCP overhead are taken off (`rate × 1448 / 1514`), as testing.md §5
   requires; not of the configured rate itself.
-- **iperf3 before and after**: both raw values, always. Apply the instability rule of
-  testing.md §5 by hand until the evaluator exists: a profile that breaks either of its two
-  conditions (before and after more than 5 % apart, or either more than 5 % off the configured
-  goodput) is re-run once, and if it is still unstable it is **inconclusive**, never a pass.
+- **iperf3 before and after**: both raw values, always, and the reference the evaluator took from
+  them. A profile that breaks either condition of the instability rule of testing.md §5 (before
+  and after more than 5 % apart, or either more than 5 % off the configured goodput) has no
+  reference; it is re-run once, and if it is still unstable it is **inconclusive**, never a pass.
 - **Egress counters**: every one is zero, or the run is not evidence of anything. The report names
   the no-egress layer it comes from (netguard's packet layer, not the image test's syscall layer).
 - **Client usage** (ceiling): the client container's CPU and memory over the browser run. At
   2.5 Gbit and above the browser's CPU is the expected limit, and the result must report
   `confidence: cpu-bound` when the Worker's busy fraction exceeds 90 %; a headline outside
-  tolerance without that qualifier is a finding.
+  tolerance without that qualifier is a finding, which the evaluator reports.
+- **Device runs**: the real Android Chrome, iOS Safari and macOS Safari runs have no runner and no
+  evaluator; judge them by hand against the tolerance table of testing.md §5 and write the
+  numbers and the verdict down.
 
 ## 5. Record the Results
 

@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -73,8 +74,9 @@ func run(m *testing.M) int {
 	return m.Run()
 }
 
-// TestHarness runs one tier: each profile, in each browser, on a fresh topology, and writes the
-// report under dist/harness. It records; it does not judge tolerances yet.
+// TestHarness runs one tier: each profile, in each browser, on a fresh topology, judges each run
+// against testing.md section 5 (re-running an inconclusive one once), and writes the report under
+// dist/harness. Any final run that failed, failed its tolerances or stayed inconclusive fails it.
 func TestHarness(t *testing.T) {
 	unmet, err := Unmet(repoRoot)
 	if err != nil {
@@ -159,11 +161,22 @@ func TestHarness(t *testing.T) {
 		profile := &spec.Profiles[index]
 
 		for _, browser := range spec.Browsers {
-			run := runProfile(t, cfg, profile, browser)
-			report.Runs = append(report.Runs, run)
+			for attempt := 1; ; attempt++ {
+				run := runProfile(t, cfg, profile, browser)
+				run.Attempt = attempt
+				run.Judge(profile)
+				run.Rerun = ShouldRerun(&run, attempt)
+				report.Runs = append(report.Runs, run)
 
-			if run.Status == StatusFailed {
-				t.Errorf("%s in %s: %s", profile.Name, browser, run.Error)
+				if run.Rerun {
+					continue
+				}
+
+				if run.Failing() {
+					t.Errorf("%s in %s: %s %s", profile.Name, browser, run.Verdict, run.Error)
+				}
+
+				break
 			}
 		}
 	}
@@ -308,6 +321,16 @@ func readEgress(ctx context.Context, topology *Topology, run *Run) error {
 	}
 
 	return nil
+}
+
+// TestCounterNamesFollowNetguard holds the evaluator's counter names to netguard's own.
+func TestCounterNamesFollowNetguard(t *testing.T) {
+	t.Parallel()
+
+	want := []string{netguard.Egress, netguard.DNS, netguard.Loopback}
+	if !slices.Equal(CounterNames, want) {
+		t.Errorf("CounterNames = %v, netguard counts %v", CounterNames, want)
+	}
 }
 
 // TestSweep is make harness-sweep: the stale sweep, under the same rules TestMain applies, listing

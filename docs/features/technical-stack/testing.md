@@ -217,6 +217,14 @@ and anything about networks the project does not target.
   an artifact and writes the Markdown to the step summary. For the floor and ceiling tiers, the
   maintainer commits `report.md` as `docs/engineering/harness-runs/<version>.md`, which the
   release requires before tagging.
+- **Evaluation.** The evaluator judges every run with the rules above: `pass`, `fail` or
+  `inconclusive`, with its verdict line and findings, beside `failed` for a run that could not
+  complete or saw egress. A pass needs a `complete` result with a headline in both directions,
+  each within the tolerance of the profile's rate; a rate between the table's rows has no
+  tolerance and fails. The re-run of an inconclusive profile is a second attempt in the report;
+  the first stays, marked superseded, with its raw values. An unshaped run of a shaped profile
+  (`HARNESS_SHAPE=none`) is a debugging run and stays `recorded`, never judged. Any final run that
+  is not a `pass`, a `recorded` debugging run included, fails the tier.
 - **Cleanup.** Every resource carries the run's environment ID; a run removes only its own, and a
   stale environment of another run is removed only when it is old, not kept on failure, and its
   owner process is provably dead.

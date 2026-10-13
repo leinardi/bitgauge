@@ -30,14 +30,13 @@ import (
 	"time"
 )
 
-// Run statuses. There is no "passed": nothing judges a run until the tolerance evaluator exists.
+// Run statuses before judgement: a run that completed is recorded until Judge turns it into pass,
+// fail or inconclusive (evaluate.go); a run that could not complete is failed. Recorded stays only
+// on a debugging run that is not judged.
 const (
 	StatusRecorded = "recorded"
 	StatusFailed   = "failed"
 )
-
-// Evaluation is what every report says about tolerances until the evaluator lands.
-const Evaluation = "not evaluated: the tolerance evaluator waits for the answer to the reference-method open question"
 
 // NoEgressLayer names the no-egress claim a harness run makes (testing.md section 5): netguard's,
 // not the image test's syscall layer.
@@ -77,12 +76,18 @@ type Throughput struct {
 	Seconds               float64 `json:"seconds"`
 }
 
+// Confidence is a direction's confidence level; the ceiling tier needs cpu-bound.
+type Confidence struct {
+	Level string `json:"level"`
+}
+
 // Direction is one direction of a result, as the harness records it.
 type Direction struct {
-	Status        string  `json:"status"`
-	BitsPerSecond float64 `json:"bitsPerSecond"`
-	WindowMs      float64 `json:"windowMs"`
-	Bytes         float64 `json:"bytes"`
+	Status        string      `json:"status"`
+	BitsPerSecond float64     `json:"bitsPerSecond"`
+	WindowMs      float64     `json:"windowMs"`
+	Bytes         float64     `json:"bytes"`
+	Confidence    *Confidence `json:"confidence,omitempty"`
 }
 
 // ResultSummary is what the harness keeps of an exported result (measurement.md section 17): the
@@ -158,9 +163,18 @@ type Run struct {
 	// goodput the configured rate lets through (ExpectedGoodput).
 	SelfTest *Throughput `json:"selfTest,omitempty"`
 	// ReferenceBefore and ReferenceAfter are the raw iperf3 runs either side of the browser run.
-	ReferenceBefore *Throughput    `json:"referenceBefore,omitempty"`
-	ReferenceAfter  *Throughput    `json:"referenceAfter,omitempty"`
-	Result          *ResultSummary `json:"result,omitempty"`
+	ReferenceBefore *Throughput `json:"referenceBefore,omitempty"`
+	ReferenceAfter  *Throughput `json:"referenceAfter,omitempty"`
+	// Reference is mean(before, after), set only when the pair is stable.
+	Reference *Throughput    `json:"reference,omitempty"`
+	Result    *ResultSummary `json:"result,omitempty"`
+	// Attempt is 1, or 2 for the re-run of an inconclusive first attempt; Rerun marks an attempt
+	// the re-run superseded, which stays in the report with its raw values.
+	Attempt int  `json:"attempt"`
+	Rerun   bool `json:"rerun,omitempty"`
+	// Verdict is the run's judgement in one line, and Findings what made it fail or inconclusive.
+	Verdict  string   `json:"verdict,omitempty"`
+	Findings []string `json:"findings,omitempty"`
 	// Ping is the summary of the ICMP ping that ran concurrently with the browser, as ping
 	// printed it.
 	Ping string `json:"ping,omitempty"`
@@ -178,7 +192,7 @@ type Report struct {
 	EnvID               string    `json:"envId"`
 	Started             time.Time `json:"started"`
 	Finished            time.Time `json:"finished"`
-	Evaluation          string    `json:"evaluation"`
+	Tolerances          string    `json:"tolerances"`
 	NoEgressLayer       string    `json:"noEgressLayer"`
 	Runs                []Run     `json:"runs"`
 	Manual              []string  `json:"manual,omitempty"`
@@ -192,7 +206,7 @@ func NewReport(spec *TierSpec, envID string, started time.Time) *Report {
 		Tier:                spec.Tier,
 		EnvID:               envID,
 		Started:             started.UTC(),
-		Evaluation:          Evaluation,
+		Tolerances:          Tolerances,
 		NoEgressLayer:       NoEgressLayer,
 		Manual:              spec.Manual,
 		EnvironmentalLimits: EnvironmentalLimits,
@@ -238,36 +252,39 @@ func (r *Report) Markdown() string {
 	fmt.Fprintf(&out, "- Environment: `%s`\n", r.EnvID)
 	fmt.Fprintf(&out, "- Started: %s\n", r.Started.Format(time.RFC3339))
 	fmt.Fprintf(&out, "- Finished: %s\n", r.Finished.UTC().Format(time.RFC3339))
-	fmt.Fprintf(&out, "- Tolerances: %s\n", r.Evaluation)
+	fmt.Fprintf(&out, "- Tolerances: %s\n", r.Tolerances)
 	fmt.Fprintf(&out, "- No-egress layer: %s\n\n", r.NoEgressLayer)
 
 	out.WriteString("## Runs\n\n")
 	out.WriteString(
-		"| Profile | Browser | Status | Self-test down / up | iperf3 before down / up | " +
-			"iperf3 after down / up | Download | Upload | Data used | Client CPU and memory | Egress |\n",
+		"| Profile | Browser | Attempt | Status | Self-test down / up | iperf3 before down / up | " +
+			"iperf3 after down / up | Reference down / up | Download | Upload | Data used | " +
+			"Client CPU and memory | Egress | Verdict |\n",
 	)
-	out.WriteString("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n")
+	out.WriteString(
+		"| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n",
+	)
 
 	for index := range r.Runs {
 		run := &r.Runs[index]
 
 		fmt.Fprintf(
 			&out,
-			"| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+			"| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
 			run.Profile,
 			run.Browser,
+			attempt(run),
 			status(run),
 			throughput(run.SelfTest, run.Shaped),
 			throughput(run.ReferenceBefore, true),
 			throughput(run.ReferenceAfter, true),
-			direction(
-				run.Result,
-				true,
-			),
+			throughput(run.Reference, true),
+			direction(run.Result, true),
 			direction(run.Result, false),
 			dataUsed(run.Result),
 			usage(run.ClientUsage),
 			egress(run.Egress),
+			cell(run.Verdict),
 		)
 	}
 
@@ -295,7 +312,25 @@ func status(run *Run) string {
 		return run.Status
 	}
 
-	return run.Status + ": " + strings.ReplaceAll(run.Error, "|", `\|`)
+	return run.Status + ": " + cell(run.Error)
+}
+
+// attempt is the attempt number, and says when a re-run superseded it.
+func attempt(run *Run) string {
+	if run.Rerun {
+		return strconv.Itoa(run.Attempt) + " (re-run)"
+	}
+
+	return strconv.Itoa(run.Attempt)
+}
+
+// cell keeps a value inside its Markdown table cell.
+func cell(value string) string {
+	if value == "" {
+		return "—"
+	}
+
+	return strings.ReplaceAll(value, "|", `\|`)
 }
 
 func throughput(value *Throughput, shaped bool) string {

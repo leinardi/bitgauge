@@ -105,7 +105,8 @@ Optional inputs: `HARNESS_PROFILES` and `HARNESS_BROWSERS` (comma-separated; emp
 name the tier does not have is an error, never a silent no-op), `HARNESS_KEEP_ON_FAILURE=1` (keeps a
 failed run's containers, section 5), `HARNESS_SHAPE=none` (no shaper), `HARNESS_TIMEOUT` (default
 `120m`). A run with `HARNESS_SHAPE=none` on a `ci` or `floor` profile has no shaper and no
-self-test, and its report says `unshaped`: it is a debugging run, not a run of that profile.
+self-test, and its report says `unshaped`: it is a debugging run, not a run of that profile, so
+it stays `recorded`, is not judged, and fails the tier.
 
 Prerequisites (`.mk/harness.mk`): Linux, a Docker daemon with buildx, a `dhi.io` login, the `ifb`,
 `netem` and `tbf` kernel modules, cgroup v2 with `memory.peak` (Linux 5.19 or later), and
@@ -130,14 +131,20 @@ delay) are the claim. A run outside them is a finding about the engine, the shap
 never a reason to move a number. A tolerance changes only through testing.md, deliberately, with
 its reason.
 
-**The tolerance evaluator does not exist yet.** The iperf3 reference method it needs is settled
-([decisions.md §35](../../../docs/features/technical-stack/decisions.md#35-accuracy-harness-reference--iperf3-before-and-after-the-browser-run),
-testing.md §5), and the evaluator lands before the harness CI gate activates. Until it exists a
-report records numbers and does not judge them: every report still says
-`not evaluated: the tolerance evaluator waits for the answer to the reference-method open question`,
-and a run's status is only `recorded` or `failed`. There is no `passed`. `recorded` means every
-step ran and every number was captured; it says nothing about accuracy. Never describe a recorded
-run as a pass. The evaluator implements testing.md §5 exactly as written, and nothing looser.
+**The tolerance evaluator judges every run** (`test/harness/evaluate.go`, untagged and
+table-tested in `evaluate_test.go`), on the iperf3 reference method of
+[decisions.md §35](../../../docs/features/technical-stack/decisions.md#35-accuracy-harness-reference--iperf3-before-and-after-the-browser-run)
+and testing.md §5. `Judge` turns a completed run into `pass`, `fail` or `inconclusive`, with its
+reference (`mean(before, after)`, only when stable), its findings and a one-line `verdict`;
+`failed` stays for a run that could not complete, and non-zero or missing netguard counters fail
+any run. A pass needs a `complete` result with a headline in both directions, each within the
+tolerance of the profile's rate; a rate between the table's rows has no tolerance and fails. At
+2.5 Gbit and above, a headline outside ±20 % without `confidence: cpu-bound` is a finding of its
+own. v0.1 measures no loaded latency, so that rule reads "not applicable". An unshaped run of a
+shaped profile (`HARNESS_SHAPE=none`) is a debugging run and stays `recorded`: never call it, or
+an inconclusive run, a pass. A run's `netguard` counters must all be present (egress, DNS,
+loopback) and zero. The evaluator implements testing.md §5 exactly as written, and
+nothing looser; its boundaries are inclusive, and its only slack is float rounding (`1e-9`).
 
 ### "Inconclusive" is never a pass
 
@@ -146,9 +153,10 @@ alongside it (that would split the link). If `|before − after| / mean(before, 
 or either run deviates from the configured goodput by more than 5 %, the profile is re-run once;
 still unstable, it is **inconclusive**, a distinct status that fails CI and is never counted as a
 pass. Only a stable profile uses `mean(before, after)` as the reference, and both raw values always
-go into the report. The re-run and the inconclusive status belong to the evaluator and are not
-implemented yet. Reading a report by hand, apply the same arithmetic and call an unstable pair what
-it is.
+go into the report. The runner re-runs an inconclusive first attempt once (`ShouldRerun`); the
+first attempt stays in the report, marked `rerun` (superseded) with its raw values, and only the
+final attempt counts. The runner fails the tier on any final run that is not a `pass`, a
+`recorded` debugging run included (`Failing`).
 
 **The baseline is the configured goodput.** iperf3 reports TCP goodput, which a perfectly shaped
 link holds about 4.4 % below the configured rate (`rate × 1448 / 1514`, see the self-test below).
@@ -159,8 +167,7 @@ baseline back, and never resolve a borderline profile by widening the bound.
 
 Each reference run lasts the preset's download minimum (Standard 10 s, Extended 20 s) after
 `--omit 2` seconds of ramp (`ReferenceDuration`): testing.md asks for the steady-window duration,
-which is adaptive and known only after the run, so this is a recorded choice the evaluator
-revisits.
+which is adaptive and known only after the run, so this is a recorded choice.
 
 ### The shaper self-test gates every shaped profile
 
@@ -229,14 +236,17 @@ fail; a dormant gate or a failed image build stops the test before any report ex
 
 Read each run in this order; stop at the first that fails:
 
-1. **Status and error.** `failed` carries the error (`shaper self-test failed`,
-   `instrument blind`, `packets tried to leave BitGauge's namespace`, a browser timeout). Playwright
-   fails on its timeout when Download JSON never appears: an errored or cancelled run is never
-   exported as if it were a result.
+1. **Status, verdict and error.** `pass`, `fail` or `inconclusive` with the `verdict` line and its
+   `findings`; `failed` carries the error (`shaper self-test failed`, `instrument blind`,
+   `packets tried to leave BitGauge's namespace`, a browser timeout). Playwright fails on its
+   timeout when Download JSON never appears; Download JSON also exports a partial or error result,
+   and the evaluator fails any result that is not `complete`. An attempt marked `(re-run)` was
+   superseded by the next one.
 2. **Egress.** Every counter zero (`0` in the Markdown). A dash means netguard never started, so
    nothing was observed.
 3. **Self-test** (down / up): within 5 % of `rate × 1448 / 1514`, or `unshaped` on the ceiling.
-4. **iperf3 before and after** (down / up): apply the 5 % stability rule of section 4 by hand.
+4. **iperf3 before and after** (down / up), and the **reference** the evaluator took from them:
+   none when the pair broke the 5 % stability rule of section 4.
 5. **The browser result:** per direction the headline, its status and its steady window in
    seconds; in `report.json`, `result` also holds the preset, the negotiated protocol (HTTP/1.1
    through Traefik, HTTP/2 through Caddy) and the notices. A headline without its status and
@@ -275,8 +285,9 @@ passed for it ([release.md](../../../docs/release.md#how-to-release),
 - The directory does not exist yet: the first file also moves the `harness-runs/<version>.md` row
   of [docs/engineering/README.md](../../../docs/engineering/README.md) from "Planned Notes" to its
   table. The lab runbook, `accuracy-harness.md` there, is planned too.
-- Until the tolerance evaluator exists, "passed" for a manual tier is a human judgement against
-  testing.md's tolerances; record the numbers and the judgement, never only the verdict.
+- The evaluator judges the floor and ceiling runs too; the device runs (real Android Chrome, real
+  iOS Safari, real Safari on macOS) have no runner, so their "passed" is a human judgement against
+  testing.md's tolerances: record the numbers and the judgement, never only the verdict.
 
 ## 9. Changing the harness
 
@@ -296,6 +307,7 @@ passed for it ([release.md](../../../docs/release.md#how-to-release),
 
 - [ ] No tolerance widened, no self-test bound loosened, no evaluator looser than testing.md §5
 - [ ] No report or summary calls a `recorded` run, or an inconclusive one, a pass
+- [ ] The evaluator's table tests cover every tolerance boundary and the 5.0 % / 5.1 % stability edge
 - [ ] Every `tc` failure fails the run; loss added only after the self-test
 - [ ] Netguard's four negative controls run before BitGauge starts; counters zero to the end
 - [ ] The report names its no-egress layer; no syscall-layer claim from netguard

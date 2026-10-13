@@ -360,6 +360,16 @@ carries a recommendation; where the specification already relies on an answer, i
     [architecture.md §4](architecture.md#4-engine--ui-message-contract),
     [ui/url-params.md §1](ui/url-params.md#1-rules) and
     [ui/i18n-a11y.md §2.4](ui/i18n-a11y.md#24-keyboard).
+40. How does the harness evaluator treat what testing.md §5 leaves open? Current answer: **a pass
+    needs a `complete` result with a headline in both directions; a rate between the tolerance
+    table's rows has no tolerance and fails; at 2.5 Gbit and above, a headline outside its
+    tolerance without `confidence: cpu-bound` adds a finding of its own, since the result carries
+    the confidence but not the busy fraction; the re-run of an inconclusive profile is a second
+    attempt in the report, the first kept and marked superseded; an unshaped run of a shaped
+    profile is a debugging run, recorded and not judged, and like every final run that is not a
+    pass it fails the tier; and the loaded-latency rule is not applicable in v0.1, which measures
+    none.** Recommendation: keep it. See
+    [technical-stack/testing.md §5.1](technical-stack/testing.md#51-implementation).
 
 Resolved and removed:
 

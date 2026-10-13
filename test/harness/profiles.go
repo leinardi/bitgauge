@@ -20,11 +20,10 @@
 // Package harness is the accuracy harness of testing.md section 5: profiles that shape a client's
 // link, a browser that runs a preset over it, and iperf3 measuring the same path as the reference.
 //
-// The profile table, the report and the image pins are plain Go, untagged, and unit-tested in every
-// go test run. The runners that build the topology over the docker CLI carry the harness build tag.
-// The tolerance evaluator does not exist yet: the reference method is settled (testing.md section
-// 5, decisions.md section 35), but until the evaluator lands a report records numbers and does not
-// judge them.
+// The profile table, the report, the tolerance evaluator and the image pins are plain Go,
+// untagged, and unit-tested in every go test run. The runners that build the topology over the
+// docker CLI carry the harness build tag. The evaluator judges each run against testing.md section
+// 5 on the iperf3 reference method of decisions.md section 35.
 package harness
 
 import (
@@ -299,7 +298,7 @@ func Select(tier *TierSpec, profiles, browsers string) (TierSpec, error) {
 // steady-window duration, but the steady window is adaptive (measurement.md section 8.4) and a run's
 // own window is known only after it. The harness uses the preset's download minimum (section 8.5),
 // the nominal phase the window sits in, for both directions; iperf3's own ramp is omitted on top.
-// This is a choice, which the tolerance evaluator (open question 1) revisits.
+// This is a recorded choice (the accuracy-harness skill, section 4).
 func ReferenceDuration(preset string) time.Duration {
 	if preset == PresetExtended {
 		return extendedDownloadMinimum

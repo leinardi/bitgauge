@@ -340,7 +340,14 @@ func TestReport(t *testing.T) {
 			Profile: "floor-300k-600ms-vpn",
 			Browser: "firefox",
 			Status:  StatusRecorded,
+			Attempt: 1,
 			Shaped:  true,
+			Result: &ResultSummary{
+				Status:   "complete",
+				Preset:   PresetExtended,
+				Download: &Direction{Status: "measured", BitsPerSecond: 281_000, WindowMs: 12_400},
+				Upload:   &Direction{Status: "measured", BitsPerSecond: 290_000, WindowMs: 11_000},
+			},
 			SelfTest: &Throughput{
 				DownloadBitsPerSecond: 299_000,
 				UploadBitsPerSecond:   301_000,
@@ -363,9 +370,25 @@ func TestReport(t *testing.T) {
 			Profile: "floor-300k-300ms-1pct-loss",
 			Browser: "webkit",
 			Status:  StatusFailed,
+			Attempt: 1,
 			Error:   "shaper | self-test",
 			Shaped:  true,
 		},
+		{
+			Profile: "floor-300k-300ms-1pct-loss",
+			Browser: "chromium",
+			Status:  StatusInconclusive,
+			Attempt: 1,
+			Rerun:   true,
+			Shaped:  true,
+			Verdict: "inconclusive: unstable reference; upload: iperf3 before (290.0 kbit/s) and after (250.0 kbit/s) differ by 14.8 %",
+		},
+	}
+
+	report.Runs[0].Judge(&spec.Profiles[1])
+
+	if report.Runs[0].Status != StatusPass {
+		t.Fatalf("the floor run inside its tolerance: %s", report.Runs[0].Verdict)
 	}
 
 	dir := Dir(t.TempDir(), report.Tier, started, report.EnvID)
@@ -390,10 +413,17 @@ func TestReport(t *testing.T) {
 		t.Errorf("the raw iperf3 values did not survive: %+v", decoded.Runs[0])
 	}
 
+	if decoded.Tolerances != Tolerances || decoded.Runs[0].Verdict != report.Runs[0].Verdict ||
+		decoded.Runs[0].Reference.DownloadBitsPerSecond != 297_000 || !decoded.Runs[2].Rerun {
+		t.Errorf("the judgement did not survive: %+v", decoded)
+	}
+
 	markdown := readFile(t, filepath.Join(dir, "report.md"))
 
 	for _, want := range append([]string{
-		Evaluation, NoEgressLayer, CannotProve, "298.0 kbit/s / 297.0 kbit/s", "296.0 kbit/s / 299.5 kbit/s",
+		Tolerances, NoEgressLayer, CannotProve, "298.0 kbit/s / 297.0 kbit/s", "296.0 kbit/s / 299.5 kbit/s",
+		"| 297.0 kbit/s / 298.2 kbit/s |", "| pass |", report.Runs[0].Verdict, "| 1 (re-run) | inconclusive |",
+		"download 281.0 kbit/s vs 297.0 kbit/s (-5.4 %, ±15 %)", LatencyRule,
 		`failed: shaper \| self-test`, "one real iOS Safari run over an actual VPN",
 		"40.5 s CPU in 27.0 s (1.50 cores), 812.4 MB peak",
 	}, EnvironmentalLimits...) {

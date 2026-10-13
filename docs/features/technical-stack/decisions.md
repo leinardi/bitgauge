@@ -354,6 +354,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 37 | The Download JSON file is named after the result's local start time, `exportedAt` is the download moment, and an invalid result is never exported | v0.1 |
 | 38 | An `idle` event per ping feeds the idle-latency gauge, counter and median; a stopped direction names its window end, the notice its steady window; errors are worded by `errors.<code>` | v0.1 |
 | 39 | URL parameters go to the engine with `configure`, resolved and answered with a `settings` event; ignored ones travel with each `start` as notices; the countdown waits for the answer | v0.1 |
+| 40 | The harness evaluator judges each run pass, fail or inconclusive; a pass needs a complete result with both headlines; untabled rates fail; only a pass lets the tier pass, an unshaped debugging run included | v0.1 |
 
 ## Related
 
