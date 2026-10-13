@@ -207,6 +207,8 @@ export type EngineCommand =
   | { type: 'start'; override?: SettingsOverride; visible: boolean }
   | { type: 'stop' }
   | { type: 'visibility'; visible: boolean }
+  /** The page's `offline` event, or a change of navigator.connection.type (edge-cases.md section 6). */
+  | { type: 'network'; event: 'offline' | 'type-changed' }
 
 /** The live steady-window numbers of a direction, absent while it warms up (section 14). */
 export interface SteadySoFar {

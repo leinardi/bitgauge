@@ -148,6 +148,11 @@ export class IdleLatency {
     })
   }
 
+  /** The running median of the samples so far, for the timeout policy; null before the first. */
+  get medianMs(): number | null {
+    return percentile(this.samples, 50)
+  }
+
   /** Stops the run without an outcome. */
   stop(): void {
     this.settle(null)
@@ -180,7 +185,7 @@ export class IdleLatency {
 
   /** 10 s without a sample, then max(2 s, 4 × running median), capped at 10 s. */
   private timeout(): number {
-    const median = percentile(this.samples, 50)
+    const median = this.medianMs
     return median === null ? MAX_TIMEOUT_MS : Math.min(MAX_TIMEOUT_MS, Math.max(MIN_TIMEOUT_MS, TIMEOUT_MEDIANS * median))
   }
 

@@ -20,16 +20,8 @@
 import type { Direction } from '@/engine/messages'
 import { BUCKET_MS } from '@/engine/stats/units'
 import type { FakeClock } from '@/engine/test/fakeClock'
-import type {
-  DownloadChunk,
-  DownloadResponse,
-  Info,
-  ProbeTiming,
-  ResourceTiming,
-  Transport,
-  UploadResponse,
-  WsEcho,
-} from '@/engine/types'
+import { FakeServer } from '@/engine/test/fakeServer'
+import type { DownloadChunk, DownloadResponse, Info, InfoResult, ProbeTiming, ResourceTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
 
 // A Transport for the engine tests that replays a scenario on the FakeClock, on the shared-link
 // model of measurement.md section 19.1: per direction, the requests whose bytes are crossing the
@@ -63,6 +55,7 @@ export interface Scenario {
   contentEncoding?: string | null
   /** The server grid's instant minus the client's. */
   gridOffsetMs?: number
+  /** The server epoch at the start; FakeServer.restart changes it. */
   epoch?: string
   limits?: Partial<Info['limits']>
 }
@@ -140,8 +133,8 @@ export class FakeTransport implements Transport {
   private transfers: Transfer[] = []
   /** The whole bytes the bottleneck carried per 100 ms cell of the client clock, per direction. */
   readonly carried: Record<Direction, number[]> = { download: [], upload: [] }
-  /** The paths probed, in order. */
-  readonly probed: string[] = []
+  /** The server's latency endpoints and GET /info. */
+  readonly server: FakeServer
   /** The largest number of transfers that were in flight together, per direction. */
   readonly peakInFlight: Record<Direction, number> = { download: 0, upload: 0 }
   private ticking = false
@@ -150,6 +143,7 @@ export class FakeTransport implements Transport {
   constructor(clock: FakeClock, scenario: Scenario) {
     this.clock = clock
     this.scenario = scenario
+    this.server = new FakeServer(clock, scenario)
   }
 
   download(size: number, signal: AbortSignal): Promise<DownloadResponse> {
@@ -207,7 +201,7 @@ export class FakeTransport implements Transport {
             resolve({
               status: 200,
               telemetry: {
-                epoch: this.scenario.epoch ?? 'epoch-1',
+                epoch: this.server.epoch,
                 bucketMs: BUCKET_MS,
                 firstBucket: Math.floor(startMs / BUCKET_MS),
                 buckets: wholeBytes(transfer.cells),
@@ -229,58 +223,15 @@ export class FakeTransport implements Transport {
   }
 
   ws(): Promise<WsEcho> {
-    const clock = this.clock
-    const rttMs = this.scenario.rttMs
-    let listener: ((seq: number, sentAt: number, receivedAt: number) => void) | null = null
-    return Promise.resolve({
-      ping(seq, sentAt) {
-        clock.setTimer(rttMs, () => listener?.(seq, sentAt, clock.now()))
-      },
-      onPong(fn) {
-        listener = fn
-      },
-      onClose() {},
-      close() {},
-    })
+    return this.server.ws()
   }
 
   probe(path: string): Promise<ProbeTiming> {
-    this.probed.push(path)
-    const sentAt = this.clock.now()
-    return new Promise((resolve) => {
-      this.clock.setTimer(this.scenario.rttMs, () => {
-        const doneAt = this.clock.now()
-        resolve({ status: 204, sentAt, doneAt, timing: this.entry({ requestStart: sentAt, responseStart: doneAt, responseEnd: doneAt }) })
-      })
-    })
+    return this.server.probe(path)
   }
 
-  info(): Promise<Info> {
-    return Promise.resolve({
-      server: { name: 'test', version: '0.1.0', commit: 'test', buildDate: '2026-10-13', epoch: this.scenario.epoch ?? 'epoch-1', basePath: '/' },
-      client: { ip: '10.0.0.2', ipVersion: 4, addressClass: 'private', suggestedLabel: 'LAN' },
-      limits: {
-        maxDownloadBytes: 256 * 1024 * 1024,
-        maxUploadBytes: 256 * 1024 * 1024,
-        maxStreamsPerClient: 6,
-        uploadLifetimeMs: 120_000,
-        bucketMs: BUCKET_MS,
-        ...this.scenario.limits,
-      },
-      defaults: {
-        preset: 'standard',
-        phases: ['idle', 'download', 'upload'],
-        streams: { mode: 'auto', fixed: 3, max: 6 },
-        download: { minMs: 10_000, maxMs: 20_000 },
-        upload: { minMs: 15_000, maxMs: 25_000 },
-        dataCapBytes: null,
-        units: 'bits',
-        warmup: 'auto',
-        pingCount: 20,
-        overheadCompensationPercent: 0,
-      },
-      compat: { openspeedtest: false, librespeed: false, networkquality: false },
-    })
+  info(): Promise<InfoResult> {
+    return this.server.info()
   }
 
   /** Records a request and returns the failure it replays. */

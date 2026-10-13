@@ -19,7 +19,7 @@
 
 import { dataBudget, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
-import { Warmup } from '@/engine/phases/warmup'
+import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule } from '@/engine/phases/window'
 import { BUCKET_MS } from '@/engine/stats/units'
 import type { Clock, Info, TimerId, Transport, UploadResponse } from '@/engine/types'
@@ -93,6 +93,11 @@ export class UploadPhase {
     this.ramp = new Ramp({ mode, fixed, max, serverMax: options.limits.maxStreamsPerClient, rttMs: options.rttMs })
     this.warmup = new Warmup({ direction: 'upload', maxMs: options.bounds.maxMs, fixedMs: options.warmup === 'auto' ? null : options.warmup })
     this.rule = new DurationRule('upload', options.bounds, options.preset)
+  }
+
+  /** The end of warm-up on the confirmed series, once known. */
+  get warmupEnd(): WarmupEnd | null {
+    return this.warmup.end
   }
 
   /** The bytes sent so far in this phase, from upload progress: the sending gauge's input. */

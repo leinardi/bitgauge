@@ -53,6 +53,14 @@ export class FakeClock implements Clock {
   }
 
   /**
+   * Moves time forward by `ms` without firing anything, as a browser that pauses the Worker does:
+   * the timers due meanwhile fire late, at the next advance.
+   */
+  pause(ms: number): void {
+    this.time += ms
+  }
+
+  /**
    * Moves time forward by `ms`, firing each timer due on the way at its due time. Promise
    * callbacks queued by a timer, or before the call, run before the next timer fires.
    */
@@ -67,7 +75,8 @@ export class FakeClock implements Clock {
         break
       }
       this.timers = this.timers.filter((timer) => timer !== next)
-      this.time = next.due
+      // A timer overdue after a pause fires late, at the current time.
+      this.time = Math.max(this.time, next.due)
       next.fn()
       await flush()
     }

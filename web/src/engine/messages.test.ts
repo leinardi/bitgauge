@@ -36,6 +36,7 @@ function commandName(command: EngineCommand): string {
     case 'start':
     case 'stop':
     case 'visibility':
+    case 'network':
       return command.type
     default:
       return unreachable(command)
@@ -56,8 +57,9 @@ function eventName(event: EngineEvent): string {
 
 describe('message contract', () => {
   it('has the commands of architecture.md section 4', () => {
-    expectTypeOf<EngineCommand['type']>().toEqualTypeOf<'configure' | 'start' | 'stop' | 'visibility'>()
+    expectTypeOf<EngineCommand['type']>().toEqualTypeOf<'configure' | 'start' | 'stop' | 'visibility' | 'network'>()
     expect(commandName({ type: 'visibility', visible: false })).toBe('visibility')
+    expect(commandName({ type: 'network', event: 'offline' })).toBe('network')
   })
 
   it('has the events of architecture.md section 4', () => {

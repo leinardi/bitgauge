@@ -172,6 +172,21 @@ carries a recommendation; where the specification already relies on an answer, i
     [§8.2](measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare),
     [§17](measurement.md#17-result-object) and
     [§19.4](measurement.md#194-25-gbits-lan-standard).
+22. How does the UI tell the engine about the network and the browser, and how does a run order
+    its phases? Current answer: **a `network` command carries the `offline` event and
+    `navigator.connection.type` changes**, which edge-cases.md §6 needs and the contract lacked;
+    the transport's `info()` returns the browser's family, major version and operating system
+    with the `GET /info` answer, so the engine never reads `navigator`; the `start` override
+    already carries `label` and `contextLabel` (question 19). A measuring phase the settings
+    leave out is announced `skipped` after Info; a run with nothing to keep emits no result; the
+    housekeeping tick sends the live samples; a paused hidden page ends the download window at
+    the last on-time tick while the upload, timed by the server, stops at once, and a late tick
+    counts as a pause whenever the page was hidden since the last on-time tick, whichever message
+    the resumed Worker handles first; a late tick during idle latency restarts it once visible; a
+    WebSocket close survived during idle latency restarts it; a network change or a restart, by
+    either path, leaves the current direction with nothing measured. Recommendation: keep it. See
+    [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
+    [edge-cases.md §5, §6](edge-cases.md#5-tab-hidden-mid-test).
 
 Resolved and removed:
 

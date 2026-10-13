@@ -143,18 +143,46 @@ describe('upload', () => {
 })
 
 describe('latency paths', () => {
-  it('echo pings and answer probes one RTT later', async () => {
+  it('open the echo, answer pings, probes and GET /info one RTT later', async () => {
     const clock = new FakeClock()
     const transport = new FakeTransport(clock, LINK)
-    const echo = await transport.ws()
+    const opening = transport.ws()
+    await clock.advance(100)
+    const echo = await opening
     const pongs: number[] = []
     echo.onPong((_seq, sentAt, receivedAt) => pongs.push(receivedAt - sentAt))
     echo.ping(0, clock.now())
     const probe = transport.probe('/api/v1/ping')
+    const info = transport.info()
     await clock.advance(100)
     expect(pongs).toEqual([100])
-    expect(await probe).toMatchObject({ status: 204, sentAt: 0, doneAt: 100 })
-    expect(transport.probed).toEqual(['/api/v1/ping'])
-    expect((await transport.info()).server.epoch).toBe('epoch-1')
+    expect(await probe).toMatchObject({ status: 204, sentAt: 100, doneAt: 200 })
+    expect(transport.server.probed).toEqual(['/api/v1/ping'])
+    expect(await info).toMatchObject({ info: { server: { epoch: 'epoch-1' } }, browser: { name: 'Firefox' } })
+  })
+
+  it('close the echo, refuse a WebSocket or GET /info, and restart with a new epoch', async () => {
+    const clock = new FakeClock()
+    const { server } = new FakeTransport(clock, LINK)
+    const opening = server.ws()
+    await clock.advance(100)
+    const echo = await opening
+    const codes: number[] = []
+    const pongs: number[] = []
+    echo.onClose((code) => codes.push(code))
+    echo.onPong((seq) => pongs.push(seq))
+    server.restart('epoch-2')
+    echo.ping(1, clock.now())
+    server.wsAvailable = false
+    server.infoAvailable = false
+    const refused = server.ws().then(() => 'open', () => 'refused')
+    const info = server.info().then(() => 'answered', () => 'failed')
+    await clock.advance(100)
+    expect(codes).toEqual([1012])
+    expect(pongs).toEqual([])
+    expect(await refused).toBe('refused')
+    expect(await info).toBe('failed')
+    expect(server.epoch).toBe('epoch-2')
+    expect(server).toMatchObject({ opened: 1, infoCalls: 1 })
   })
 })

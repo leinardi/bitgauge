@@ -18,9 +18,9 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | Security headers and CSP | Implemented (v0.1) | `internal/server/`: `headers.go` (SPA and API header sets, CSP with the validated `Host`), `middleware.go` (recovery, client IP, headers, debug request log), `cors.go` (native CORS), `router.go` (groups, route table) |
 | Configuration (koanf, `BITGAUGE_` env, fail-closed validation) | Implemented (v0.1) | `internal/config/`: `load.go`, `types.go`, `validate.go`, `preset.go`, `warn.go`, `exit.go`, `effective.go` |
 | `healthcheck` subcommand and graceful shutdown | Implemented (v0.1) | `cmd/bitgauge/`: `main.go` (subcommands, startup order), `address.go` (healthcheck address), `healthcheck.go` (the one ping request); `internal/server/shutdown.go` |
-| Engine: info and idle latency | Spec'd (v0.1) |  |
-| Engine: adaptive request size, stream ramp, adaptive duration, data cap | Spec'd (v0.1) |  |
-| Engine: warm-up, steady window, Quick / Standard / Extended presets | Spec'd (v0.1) |  |
+| Engine: info and idle latency | Spec'd (v0.1), in progress: pure modules and orchestration (the Worker wiring completes it) | `web/src/engine/`: `run.ts` (info phase, phase order, stop, visibility, network), `run/connection.ts` (WebSocket and its close sequence), `run/samples.ts`, `run/report.ts`, `latency/idle.ts`, `settings.ts` |
+| Engine: adaptive request size, stream ramp, adaptive duration, data cap | Spec'd (v0.1), in progress: pure modules and orchestration (the Worker wiring completes it) | `web/src/engine/`: `phases/sizing.ts`, `phases/ramp.ts`, `phases/window.ts`, `phases/options.ts`, `download/phase.ts`, `download/streams.ts`, `upload/phase.ts`, `upload/streams.ts`, `upload/watermark.ts`, `upload/window.ts` |
+| Engine: warm-up, steady window, Quick / Standard / Extended presets | Spec'd (v0.1), in progress: pure modules and orchestration (the Worker wiring completes it) | `web/src/engine/`: `phases/warmup.ts`, `phases/window.ts`, `presets.ts`, `upload/window.ts`, `upload/outcome.ts` |
 | Engine: headline, peak, confidence and notices, result object | Spec'd (v0.1) |  |
 | UI: Test screen, About, URL parameters, English locale, accessibility baseline | Spec'd (v0.1) |  |
 | Container image, CI, release, Dependabot | Spec'd (v0.1) |  |

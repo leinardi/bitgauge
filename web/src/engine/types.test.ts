@@ -23,7 +23,7 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
 import type { components } from '@/api/types.gen'
-import type { Clock, Info, Transport, UploadResponse, WsEcho } from '@/engine/types'
+import type { BrowserIdentity, Clock, Info, InfoResult, Transport, UploadResponse, WsEcho } from '@/engine/types'
 
 describe('injected interfaces', () => {
   it('gives the clock now, setTimer and clearTimer', () => {
@@ -35,7 +35,8 @@ describe('injected interfaces', () => {
   it('types the server answers with the API contract', () => {
     expectTypeOf<Info>().toEqualTypeOf<components['schemas']['Info']>()
     expectTypeOf<UploadResponse['telemetry']>().toEqualTypeOf<components['schemas']['UploadTelemetry'] | null>()
-    expectTypeOf<ReturnType<Transport['info']>>().toEqualTypeOf<Promise<Info>>()
+    expectTypeOf<ReturnType<Transport['info']>>().toEqualTypeOf<Promise<InfoResult>>()
+    expectTypeOf<InfoResult>().toEqualTypeOf<{ info: Info; browser: BrowserIdentity }>()
   })
 
   it('takes an abort signal for every transfer', () => {

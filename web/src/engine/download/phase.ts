@@ -118,6 +118,11 @@ export class DownloadPhase {
     this.rule = new DurationRule('download', options.bounds, options.preset)
   }
 
+  /** The end of warm-up, once known. */
+  get warmupEnd(): WarmupEnd | null {
+    return this.warmup.end
+  }
+
   /** The bytes read so far in this phase. */
   get dataUsed(): number {
     return this.read
@@ -133,9 +138,13 @@ export class DownloadPhase {
     })
   }
 
-  /** Ends the phase now, as a user stop: in-flight requests are aborted and their bytes kept. */
-  stop(): void {
-    this.end('stopped')
+  /**
+   * Ends the phase as a user stop: in-flight requests are aborted and their bytes kept. `at`, an
+   * earlier instant, ends the window there instead of now: the last on-time tick of a page the
+   * browser paused (edge-cases.md section 5).
+   */
+  stop(at?: number): void {
+    this.end('stopped', at)
   }
 
   private schedule(): void {
@@ -190,6 +199,10 @@ export class DownloadPhase {
     const from = warmupEnd.bucket
     const to = Math.ceil(toMs / BUCKET_MS)
     const fromMs = from * BUCKET_MS
+    if (fromMs >= toMs) {
+      // A stop at an instant before warm-up had ended.
+      return null
+    }
     const requests = this.streams.contributors(from, to)
     let bytes = 0
     for (let bucket = from; bucket < to; bucket++) {
@@ -296,12 +309,12 @@ export class DownloadPhase {
     }
   }
 
-  private end(reason: EndReason): void {
+  private end(reason: EndReason, at = this.clock.now()): void {
     if (this.ended !== null) {
       return
     }
     this.ended = reason
-    this.endMs = this.clock.now() - this.start
+    this.endMs = Math.max(0, Math.min(at, this.clock.now()) - this.start)
     if (this.tickTimer !== null) {
       this.clock.clearTimer(this.tickTimer)
     }

@@ -81,8 +81,14 @@ throttling of the Worker makes chunk timestamps and probe timings stop reflectin
 - At the first tick more than 1 s late while hidden, the engine stops the test at the last on-time
   tick, exactly like a user stop: in-flight requests are aborted, completed phases keep their
   results, and the interrupted direction reports a number only if its window up to that instant
-  meets the minimum window. Continuous runs end the same way.
-- Idle latency, being short, is restarted when the page becomes visible again.
+  meets the minimum window. The download window ends at that tick; the upload, timed on the
+  server grid, stops at once and its window ends at the confirmed watermark, as after any stop.
+  Continuous runs end the same way.
+- A late tick counts as a pause of the hidden page when the page was hidden at any point since the
+  last on-time tick, whichever of the late tick and the visibility message the resumed Worker
+  handles first; only a tick late while the page stayed visible is timer throttling (§2).
+- Idle latency, being short, is restarted when the page becomes visible again, also after a late
+  tick; a late tick in the Info phase, which times nothing, changes nothing.
 
 **User sees.** Either the informational notice, or `partial — stopped early` with "stopped because
 the page was hidden and the browser paused the test", and a Run again button. A Continuous run

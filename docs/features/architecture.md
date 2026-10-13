@@ -81,6 +81,7 @@ application code; the UI talks to it only through typed messages defined in one 
 | `start` | optional settings override, `visible` flag | Starts a run with the configured settings. The engine's own Info phase then calls `GET /api/v1/info`; that response, fetched at the start of this run, is the only source of the epoch and limits the run uses ([measurement.md §1](measurement.md#1-phases-and-order)). The UI may fetch `/info` separately for display, but never hands it to the engine. |
 | `stop` | — | Stops the run as a user stop: in-flight requests aborted, partial result emitted. |
 | `visibility` | `visible: boolean` | Forwards `visibilitychange` ([edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test)). |
+| `network` | `event: 'offline' \| 'type-changed'` | Forwards the page's `offline` event and changes of `navigator.connection.type`, the two network signals of [edge-cases.md §6](edge-cases.md#6-network-change-mid-test); the run ends with the `network-changed` error. |
 
 **Events (engine → UI):**
 
@@ -99,7 +100,8 @@ type EngineCommand =
   | { type: 'configure'; settings: TestSettings; basePath: string }
   | { type: 'start'; override?: SettingsOverride; visible: boolean }
   | { type: 'stop' }
-  | { type: 'visibility'; visible: boolean };
+  | { type: 'visibility'; visible: boolean }
+  | { type: 'network'; event: 'offline' | 'type-changed' };
 
 type EngineEvent =
   | { type: 'phase'; phase: PhaseName; state: PhaseState; protocol?: string; streams?: number;
@@ -146,7 +148,25 @@ parameter (5–600 s for the bounded presets) and the 64-character `label`; Cont
 preset. Any invalid value fails the `configure` or `start` with `invalid-settings`.
 
 The engine takes an injectable clock and transport, so tests drive it with synthetic timelines
-([technical-stack/testing.md](technical-stack/testing.md)).
+([technical-stack/testing.md](technical-stack/testing.md)). The transport's `info()` returns the
+`GET /info` answer together with the browser's family, major version and operating system, which
+the wiring parses from the user agent for `client.browser`
+([measurement.md §17](measurement.md#17-result-object)): the engine never reads `navigator`.
+
+**Run sequence.** The Info phase calls `GET /info`, opens the WebSocket (or falls back to
+`GET /api/v1/ping` with the `websocket-unavailable` notice) and sends the one idle
+`GET /api/v1/small`, whose answer only records the protocol in v0.1. A `phase` event marks each
+measuring phase `skipped` when the settings leave it out, and again when a stop, an error or the
+data cap prevents it. While a throughput phase runs, the housekeeping tick sends at most one
+`sample` per 100 ms. A run in which no phase has a result to keep (stopped or failed during Info or
+idle latency) emits no `result`; one that ends in Info marks Info `failed` on an error and every
+measuring phase `skipped`. A page the browser paused while hidden stops the run as
+[edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test) describes. A WebSocket close that the
+close sequence survives during idle latency restarts it on the new path, like a page that becomes
+visible again; the sequence's timeout uses the running idle median. When the run ends with a
+network change or a restart, the current direction reports nothing measured: no window, warm-up
+or series, its stop mark is an `error` event, and a restart adds the `server-restarted` notice,
+whichever path detected it. Commands after the run has ended are ignored.
 
 ## 5. Data Flow
 

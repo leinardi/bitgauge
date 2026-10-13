@@ -87,6 +87,22 @@ export interface WsEcho {
   close(): void
 }
 
+/** The browser's family, major version and operating system, parsed in the wiring. */
+export interface BrowserIdentity {
+  name: string
+  major: number
+  os: string
+}
+
+/**
+ * GET /api/v1/info, with the browser identity the wiring parses from the user agent: the engine
+ * never reads navigator (architecture.md section 4).
+ */
+export interface InfoResult {
+  info: Info
+  browser: BrowserIdentity
+}
+
 /** The network, fetch, XMLHttpRequest and WebSocket in production. */
 export interface Transport {
   download(size: number, signal: AbortSignal): Promise<DownloadResponse>
@@ -99,5 +115,5 @@ export interface Transport {
   /** Opens the echo; rejects when the WebSocket cannot open. */
   ws(): Promise<WsEcho>
   probe(path: string): Promise<ProbeTiming>
-  info(): Promise<Info>
+  info(): Promise<InfoResult>
 }
