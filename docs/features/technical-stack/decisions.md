@@ -360,6 +360,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 43 | The harness's iperf3 runs settle, then take the receiver's median interval; the shaper queue is an 80 ms fq_codel; a failing verdict keeps its environment | v0.1 |
 | 44 | E2E runs in parallel against one binary with a per-client stream limit of 64, own binaries for the base path and a stopped server, axe WCAG 2.2 AA after transitions | v0.1 |
 | 45 | The demo build runs the engine through its own Worker entry against a seeded simulated link, one scenario per v0.1 kit state; its Worker-side files follow the engine's import policy plus `@/demo/` | v0.1 |
+| 46 | The demo panel reloads the page to apply a scenario; the page reaches the demo only through dynamic imports behind `VITE_DEMO`, the demo Worker's constructor in a demo module, and the build step fails a dist holding a demo sentinel | v0.1 |
 
 ## Related
 

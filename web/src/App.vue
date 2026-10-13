@@ -17,6 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
+import { defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 
 import BasePathError from '@/components/BasePathError.vue'
@@ -29,7 +30,8 @@ import { useTheme } from '@/composables/useTheme'
 // header on every screen, the route's page, and the tab bar on narrow screens (ui/README.md). A
 // base-path mismatch replaces all of it with its error screen (edge-cases.md section 20). The
 // page's own path, as it was before the router started, is checked before anything renders, so a
-// page that fails it starts nothing.
+// page that fails it starts nothing. A demo build adds its panel over every screen (frontend.md
+// section 9), loaded behind a flag that a production build drops, with the panel, as dead code.
 
 const props = defineProps<{ pagePath: string }>()
 
@@ -37,6 +39,7 @@ useTheme()
 const router = useRouter()
 const { load, mismatch } = useInfo()
 void load(props.pagePath, (path) => router.resolve(path).matched.length > 0)
+const DemoPanel = import.meta.env.VITE_DEMO ? defineAsyncComponent(() => import('@/demo/DemoPanel.vue')) : null
 </script>
 
 <template>
@@ -57,4 +60,8 @@ void load(props.pagePath, (path) => router.resolve(path).matched.length > 0)
     <RouterView />
     <TabBar />
   </div>
+  <component
+    :is="DemoPanel"
+    v-if="DemoPanel !== null"
+  />
 </template>

@@ -40,6 +40,14 @@ web-dev: ## Start the Vite dev server
 web-build: web-install ## Build the SPA into web/dist (npm ci, then vite build)
 	npm --prefix "$(WEB_DIR)" run build
 
+.PHONY: web-demo
+web-demo: ## Start the Vite dev server in demo mode: the engine against a simulated link
+	npm --prefix "$(WEB_DIR)" run dev:demo
+
+.PHONY: web-build-demo
+web-build-demo: web-install ## Build the demo SPA into web/dist-demo, which never ships
+	npm --prefix "$(WEB_DIR)" run build:demo
+
 .PHONY: web-test
 web-test: ## Run the Vitest suites (unit, component, engine)
 	npm --prefix "$(WEB_DIR)" run test

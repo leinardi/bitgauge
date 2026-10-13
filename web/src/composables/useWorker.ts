@@ -23,7 +23,52 @@ import type { EngineCommand, EngineEvent } from '@/engine/messages'
 
 // The bridge to the engine's Worker (frontend.md section 3): typed commands in, typed events out.
 // The Worker is started by URL, which is not an import, so the application still imports nothing
-// of the engine but its messages.
+// of the engine but its messages. A demo build starts the demo's Worker instead (section 9), from a
+// module imported only behind import.meta.env.VITE_DEMO: Vite bundles a Worker for every
+// constructor it finds, even in a dead branch, so the demo's constructor cannot sit here.
+
+/** The part of a Worker the bridge uses. */
+interface EngineWorker {
+  postMessage(command: EngineCommand): void
+  addEventListener(type: 'message' | 'error', listener: (event: Event) => void): void
+  terminate(): void
+}
+
+/**
+ * A Worker still loading: commands wait for it, and the listeners added meanwhile reach it. One
+ * that fails to load is reported to the error listeners, as a Worker's uncaught error would be.
+ */
+function loadingWorker(loading: Promise<Worker>): EngineWorker {
+  const commands: EngineCommand[] = []
+  const listeners: ['message' | 'error', (event: Event) => void][] = []
+  let worker: Worker | null = null
+  let ended = false
+  loading.then(
+    (loaded) => {
+      if (ended) {
+        loaded.terminate()
+        return
+      }
+      worker = loaded
+      listeners.forEach(([type, listener]) => loaded.addEventListener(type, listener))
+      commands.splice(0).forEach((command) => loaded.postMessage(command))
+    },
+    () => {
+      commands.length = 0
+      if (!ended) {
+        listeners.forEach(([type, listener]) => (type === 'error' ? listener(new Event('error')) : undefined))
+      }
+    },
+  )
+  return {
+    postMessage: (command) => (worker === null ? commands.push(command) : worker.postMessage(command)),
+    addEventListener: (type, listener) => (worker === null ? listeners.push([type, listener]) : worker.addEventListener(type, listener)),
+    terminate: () => {
+      ended = true
+      worker?.terminate()
+    },
+  }
+}
 
 export interface WorkerBridge {
   post(command: EngineCommand): void
@@ -40,11 +85,13 @@ export interface WorkerBridge {
 
 /** Starts the engine's Worker; inside a component it ends with the component. */
 export function useWorker(): WorkerBridge {
-  const worker = new Worker(new URL('../engine/worker.ts', import.meta.url), { type: 'module' })
+  const worker: EngineWorker = import.meta.env.VITE_DEMO
+    ? loadingWorker(import('@/demo/start').then(({ startDemoWorker }) => startDemoWorker()))
+    : new Worker(new URL('../engine/worker.ts', import.meta.url), { type: 'module' })
   const handlers = new Set<(event: EngineEvent) => void>()
   const failures = new Set<() => void>()
-  worker.addEventListener('message', (message: MessageEvent<EngineEvent>) => {
-    handlers.forEach((handler) => handler(message.data))
+  worker.addEventListener('message', (message) => {
+    handlers.forEach((handler) => handler((message as MessageEvent<EngineEvent>).data))
   })
   worker.addEventListener('error', () => {
     failures.forEach((handler) => handler())

@@ -430,6 +430,19 @@ carries a recommendation; where the specification already relies on an answer, i
     stops answering during idle latency, ends as `network changed`, as [ui/flows.md
     §5](ui/flows.md#5-error-mid-test) says of a server that goes away mid-run. Recommendation: keep
     it. See [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build).
+46. How does a demo build reach the page, and how is the production bundle proven free of it?
+    Current answer: **a panel over every screen applies its choice by loading the page again; the
+    page reaches the demo only through dynamic imports behind `import.meta.env.VITE_DEMO`, and the
+    build step's sentinel scan fails a dist that holds any of it.** Dead-code elimination is not
+    enough for a Worker: with the demo's constructor beside the engine's in `useWorker.ts`, the
+    first production build still carried a demo Worker chunk, with the fixture server's name,
+    because Vite bundles a Worker for every constructor it finds in a module it loads, whichever
+    branch it sits in. The constructor now lives in `demo/start.ts`, which a production build never
+    loads, and the sentinel scan passes on `web/dist` and fails on `web/dist-demo`. A choice reloads
+    the page because a scenario's URL parameters apply only on load and a run in progress cannot be
+    taken over by the next scenario's session. Recommendation: keep it. See
+    [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build) and
+    [technical-stack/build-packaging.md §4](technical-stack/build-packaging.md#4-ci-workflows).
 
 Resolved and removed:
 

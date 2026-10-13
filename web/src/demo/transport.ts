@@ -98,7 +98,7 @@ export class DemoTransport implements Transport {
         onMove: (bytes, _from, to) => {
           const moved = whole(bytes)
           if (moved > 0) {
-            body.push({ bytes: moved, at: to })
+            body.push({ bytes: moved, at: this.stamp(to) })
           }
         },
         onDone: (at) => {
@@ -138,7 +138,7 @@ export class DemoTransport implements Transport {
       const transfer = this.transfer('upload', size, startMs - GRID_OFFSET_MS, {
         onMove: (bytes, from, to) => {
           spread(cells, firstBucket, from + GRID_OFFSET_MS, to + GRID_OFFSET_MS, bytes)
-          onProgress(Math.round(transfer.moved), to)
+          onProgress(Math.round(transfer.moved), this.stamp(to))
         },
         onDone: (at) => {
           const timer = this.clock.setTimer(at + half - this.clock.now(), () => {
@@ -191,7 +191,11 @@ export class DemoTransport implements Transport {
       resolve({
         ping: (seq, sentAt) => {
           if (open) {
-            clock.setTimer(link.roundTrip(), () => (open ? onPong?.(seq, sentAt, clock.now()) : undefined))
+            // The echo is stamped with its simulated arrival: a timer fires no earlier than the
+            // browser's floor, a few milliseconds, which would otherwise lengthen a LAN round trip.
+            const at = clock.now()
+            const rtt = link.roundTrip()
+            clock.setTimer(rtt, () => (open ? onPong?.(seq, sentAt, this.stamp(at + rtt)) : undefined))
           }
         },
         onPong: (listener) => {
@@ -211,12 +215,14 @@ export class DemoTransport implements Transport {
   probe(path: string): Promise<ProbeTiming> {
     const sentAt = this.clock.now()
     const lost = this.failed(sentAt)
-    return this.later(this.link.roundTrip(), (resolve, reject) => {
+    const rtt = this.link.roundTrip()
+    return this.later(rtt, (resolve, reject) => {
       if (lost) {
         reject(networkError())
         return
       }
-      const doneAt = this.clock.now()
+      // Stamped with the simulated answer, as the echo is.
+      const doneAt = this.stamp(sentAt + rtt)
       const status = path.endsWith('/ping') ? 204 : path.endsWith('/small') ? 200 : 404
       resolve({ status, sentAt, doneAt, timing: this.entry(sentAt, doneAt, doneAt) })
     })
@@ -232,6 +238,15 @@ export class DemoTransport implements Transport {
       const server = { ...this.fixture.server, epoch: this.link.epochAt(now) }
       resolve({ info: { ...this.fixture, server }, browser: this.browser })
     })
+  }
+
+  /**
+   * A simulated instant as the clock would read it: on a multiple of its resolution, so a coarse
+   * timer coarsens what the transport reports too.
+   */
+  private stamp(at: number): number {
+    const step = this.clock.resolutionMs
+    return step > 0 ? Math.floor(at / step + 1e-9) * step : at
   }
 
   /** Whether a request sent at `at` fails: the server is gone, or the link lost it. */

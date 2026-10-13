@@ -26,9 +26,10 @@ import { browserIdentity } from '@/engine/wiring'
 
 // The demo build's Worker entry (frontend.md section 9), in place of engine/worker.ts: the same
 // engine and message loop, on the demo clock and the simulated link. A `demo` command replaces the
-// scenario, abandoning a run in progress; every other command is the engine's.
+// scenario, abandoning a run in progress, and hands the new one the page's last `configure`, which
+// may have arrived first; every other command is the engine's.
 
-const FIRST: DemoCommand = { type: 'demo', scenario: DEFAULT_SCENARIO, speed: 1, cpuBound: false, timerResolutionMs: null, errorKind: 'requests' }
+const FIRST: DemoCommand = { type: 'demo', scenario: DEFAULT_SCENARIO, speed: 1, cpuBound: false, timerResolutionMs: null, errorKind: 'requests', hold: true }
 
 const clock = new BrowserClock()
 const browser = browserIdentity(navigator.userAgent)
@@ -42,15 +43,22 @@ function sessionFor(command: DemoCommand): DemoSession {
 }
 
 let session = sessionFor(FIRST)
+let configured: EngineCommand | null = null
 
 self.addEventListener('message', (event: MessageEvent<EngineCommand | DemoCommand>) =>
   clock.task(() => {
     const command = event.data
     if (command.type !== 'demo') {
+      if (command.type === 'configure') {
+        configured = command
+      }
       session.receive(command)
     } else if (isScenarioName(command.scenario) && command.speed > 0) {
       session.end()
       session = sessionFor(command)
+      if (configured !== null) {
+        session.receive(configured)
+      }
     }
   }),
 )

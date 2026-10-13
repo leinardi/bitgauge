@@ -160,6 +160,11 @@ describe('the demo session', () => {
     expect(ended(events)).toBe(false)
   })
 
+  it('plays on past its state when the panel follows the run instead of forcing it', async () => {
+    const { events } = await play('download', { hold: false })
+    expect(resultOf(events).status).toBe('complete')
+  })
+
   it('goes quiet once ended, as when the panel picks another scenario', async () => {
     const played = demoSession('complete')
     const { events, session, base } = played

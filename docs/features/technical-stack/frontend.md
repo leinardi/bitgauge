@@ -211,8 +211,17 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
 - **Entry.** `VITE_DEMO=1` selects a demo Worker entry, `web/src/demo/worker.ts`, in place of
   `engine/worker.ts`: the same message loop (`engine/loop.ts`) and the same `Run`, on a demo clock
   and against a simulated link, so the UI shows real engine output without a server. Production
-  builds contain none of it: the entry is chosen behind `import.meta.env.VITE_DEMO`, dead-code
-  elimination drops the demo branch, and a sentinel scan of the dist checks that it did.
+  builds contain none of it. `useWorker.ts` starts the engine's Worker, or under
+  `import.meta.env.VITE_DEMO` imports `demo/start.ts`, which starts the demo's; commands posted
+  meanwhile wait for it. The demo's constructor cannot sit beside the engine's: Vite bundles a
+  Worker for every `new Worker(new URL(..., import.meta.url))` in a module it loads, dead branch or
+  not, while a dynamic import in a branch the flag removes is never loaded. `api/info.ts` answers
+  `GET /info` from the chosen scenario behind the same flag, and `App.vue` loads the panel behind
+  it. `scripts/check-dist-demo-free.sh`, run by `web.yaml`'s build step, fails when a built dist
+  holds any of the demo's sentinels: its storage key `bitgauge-demo`, `DEMO_SCENARIOS`,
+  `Basement NAS` and `demo/worker`; a demo build fails it, which is its negative control.
+- **Builds.** `npm run dev:demo` (`make web-demo`) and `npm run build:demo` (`make web-build-demo`,
+  into `web/dist-demo/`, which never ships) set the flag.
 - **Simulated link** (`demo/link.ts`, `demo/pacer.ts`, `demo/transport.ts`). Per direction, the
   requests in flight share a bottleneck's goodput equally, each up to an optional per-request
   ceiling, moved every 10 ms of demo time as counts, not bytes. A download's first byte arrives one
@@ -220,8 +229,11 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   is sent, and its answer, half a round trip after its last byte, carries the telemetry of
   [../wire-protocol.md §4](../wire-protocol.md#4-upload-telemetry) counted on a 100 ms server grid
   whose origin differs from the client clock's. The WebSocket echo and the probes answer one
-  jittered round trip later, `GET /info` with the scenario's fixture and the current epoch. A link
-  can lose each request with a probability, fail every request from an instant, restart (a new epoch
+  jittered round trip later, stamped with that simulated arrival, since a timer fires no earlier
+  than the browser's floor of a few milliseconds, which would lengthen a LAN round trip; every
+  simulated instant the transport reports is floored to the clock's resolution, as a reading of the
+  clock would be. `GET /info` answers with the scenario's fixture and the current epoch. A link can
+  lose each request with a probability, fail every request from an instant, restart (a new epoch
   from an instant; the WebSocket closes with 1001 while requests in flight drain, as a graceful
   shutdown lets them) or become unreachable (requests in flight fail, the WebSocket closes with
   1006, nothing answers). Every random draw comes from one seeded generator, seeded by the run's
@@ -247,11 +259,21 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s and 19 kbit/s link of the
   insufficient-data state. `GET /info` answers what the server would send: both client addresses are
   private, so the suggested label is LAN for each.
+- **Panel** (`demo/DemoPanel.vue`, with `demo/control.ts`). The v0.1 part of the kit's Demo state
+  panel, collapsed by default: the scenario, the speed (1×, 2×, 4×), a forced state, a CPU-bound
+  Worker, the error kind and the timer resolution (0.1 ms or 1 ms), in the kit's own words, not
+  translated, since it never ships. A forced state plays that state's scenario and holds it; "follow
+  run" plays the chosen scenario without its hold. The choice is kept in `localStorage` under
+  `bitgauge-demo` and applied by loading the page again with the scenario's URL parameters, so every
+  scenario starts from a fresh page: the panel hands the choice to each demo Worker and to the
+  page's `GET /info` (unreachable for `offline`), and presses Start for a scenario that starts, as a
+  user would.
 - **Boundaries.** The demo's Worker-side files, `src/demo/**/*.ts`, follow the engine's import
   policy extended by `@/demo/`: framework-free, no DOM library, no application code; like
   `engine/worker.ts`, `demo/worker.ts` alone reaches the Worker's globals, which the engine's
-  banned-globals rule keeps out of every other demo file. `DemoPanel.vue` follows the application's
-  policy. Every demo file obeys the production file ceiling of `.file-budgets`.
+  banned-globals rule keeps out of every other demo file; `control.ts` and `start.ts` run in the
+  page under the same policy. `DemoPanel.vue` follows the application's policy. Every demo file
+  obeys the production file ceiling of `.file-budgets`.
 
 ## Related
 

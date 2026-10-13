@@ -107,4 +107,6 @@ export interface DemoCommand {
   /** A coarser timer, in milliseconds; null keeps the browser's. */
   timerResolutionMs: number | null
   errorKind: DemoErrorKind
+  /** Whether the scenario's hold applies; without it the run plays on past its state. */
+  hold: boolean
 }

@@ -143,6 +143,26 @@ describe('the demo transport', () => {
     }
   })
 
+  it('reports its simulated instants on the resolution of its clock', async () => {
+    const base = new FakeClock()
+    const clock = new DemoClock(base, { speed: 1, resolutionMs: 1 })
+    const demo = new DemoTransport(clock, new Link(DEMO_LINKS.lan, 'epoch-1'), infoFor('lan'), BROWSER)
+    const opening = demo.ws()
+    await base.advance(10)
+    const echo = await opening
+    const pongs: number[] = []
+    echo.onPong((_seq, _sentAt, receivedAt) => pongs.push(receivedAt))
+    for (let seq = 0; seq < 5; seq++) {
+      echo.ping(seq, clock.now())
+      await base.advance(7.3)
+    }
+    const probe = demo.probe('/api/v1/ping')
+    await base.advance(10)
+    const { doneAt } = await probe
+    expect(pongs).toHaveLength(5)
+    ;[...pongs, doneAt].forEach((at) => expect(Number.isInteger(at)).toBe(true))
+  })
+
   it('drains a download in flight across a restart, which closes the WebSocket', async () => {
     const clock = new FakeClock()
     const { link, transport: demo } = transport(clock)

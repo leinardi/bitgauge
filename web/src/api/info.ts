@@ -27,6 +27,12 @@ export type Info = components['schemas']['Info']
 
 /** The info document under the base path; `/`, `/speed` and `/speed/` all name one prefix. */
 export async function getInfo(basePath: string, fetcher: typeof fetch = fetch): Promise<Info> {
+  // A demo build answers from its scenario's server (frontend.md section 9); a production build
+  // drops the branch as dead code.
+  if (import.meta.env.VITE_DEMO) {
+    const { demoInfo } = await import('@/demo/control')
+    return demoInfo()
+  }
   const prefix = `/${basePath.replace(/^\/+|\/+$/g, '')}/`.replace(/^\/\/$/, '/')
   const response = await fetcher(`${prefix}api/v1/info`, { cache: 'no-store', headers: { Accept: 'application/json' } })
   if (!response.ok) {

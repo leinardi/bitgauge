@@ -19,7 +19,7 @@
 
 // The Worker bridge over a stubbed Worker global: typed commands posted, events delivered to the
 // handlers, the engine's uncaught error reported, and the Worker ended with the scope that started
-// it.
+// it; and the entry it starts, the engine's or, under VITE_DEMO, the demo's (frontend.md section 9).
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
@@ -71,6 +71,7 @@ const SETTINGS = { preset: 'standard', phases: ['idle', 'download', 'upload'] } 
 afterEach(() => {
   StubWorker.started = []
   vi.unstubAllGlobals()
+  vi.unstubAllEnvs()
 })
 
 describe('useWorker', () => {
@@ -124,5 +125,61 @@ describe('useWorker', () => {
     expect(scoped?.terminated).toBe(false)
     scope.stop()
     expect(scoped?.terminated).toBe(true)
+  })
+})
+
+describe('useWorker in a demo build', () => {
+  it('starts the engine entry while VITE_DEMO is unset', () => {
+    vi.stubGlobal('Worker', StubWorker)
+    vi.stubEnv('VITE_DEMO', '')
+    useWorker().dispose()
+    expect(StubWorker.started.map((started) => started.url)).toEqual([expect.stringMatching(/engine\/worker\.ts$/)])
+  })
+
+  it('starts the demo entry under VITE_DEMO, and the commands and listeners of the meantime reach it', async () => {
+    vi.stubGlobal('Worker', StubWorker)
+    vi.stubEnv('VITE_DEMO', '1')
+    const bridge = useWorker()
+    const command: EngineCommand = { type: 'configure', settings: SETTINGS, basePath: '/' }
+    bridge.post(command)
+    const seen: EngineEvent[] = []
+    bridge.onEvent((event) => seen.push(event))
+    await vi.waitFor(() => expect(StubWorker.started).toHaveLength(1))
+    const [started] = StubWorker.started
+    expect(started?.url).toMatch(/demo\/worker\.ts$/)
+    expect(started?.url).not.toMatch(/engine\/worker\.ts$/)
+    expect(started?.options).toEqual({ type: 'module' })
+    expect(started?.worker.posted).toEqual([command])
+    const event: EngineEvent = { type: 'phase', phase: 'info', state: 'started', notices: [] }
+    StubWorker.last.emit(event)
+    expect(seen).toEqual([event])
+    bridge.dispose()
+    expect(StubWorker.last.terminated).toBe(true)
+  })
+
+  it('reports a demo Worker that cannot start as the engine failing', async () => {
+    vi.stubGlobal(
+      'Worker',
+      class {
+        constructor() {
+          throw new Error('no Worker here')
+        }
+      },
+    )
+    vi.stubEnv('VITE_DEMO', '1')
+    const bridge = useWorker()
+    const failed = vi.fn()
+    bridge.onError(failed)
+    bridge.post({ type: 'stop' })
+    await vi.waitFor(() => expect(failed).toHaveBeenCalledOnce())
+    bridge.dispose()
+  })
+
+  it('ends a demo Worker that loads after the bridge was disposed', async () => {
+    vi.stubGlobal('Worker', StubWorker)
+    vi.stubEnv('VITE_DEMO', '1')
+    useWorker().dispose()
+    await vi.waitFor(() => expect(StubWorker.started).toHaveLength(1))
+    expect(StubWorker.last.terminated).toBe(true)
   })
 })

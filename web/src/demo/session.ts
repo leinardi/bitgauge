@@ -120,7 +120,9 @@ export class DemoSession {
     }
     after(stop, () => this.handle({ type: 'stop' }))
     after(fault, () => this.fault(fault?.kind ?? this.command.errorKind))
-    after(hold, () => this.clock.hold())
+    if (this.command.hold) {
+      after(hold, () => this.clock.hold())
+    }
   }
 
   private fault(kind: DemoErrorKind): void {

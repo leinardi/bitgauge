@@ -77,10 +77,13 @@ jobs:
         id: unit-test
         run: npm --prefix web run test
 
-      # vite build, as make web-build and the image's web stage run it.
+      # vite build, as make web-build and the image's web stage run it; the build leaves the demo
+      # out (frontend.md section 9).
       - name: Build
         id: build
-        run: npm --prefix web run build
+        run: |
+          npm --prefix web run build
+          scripts/check-dist-demo-free.sh web/dist
 
       # Every URL in the built SPA is on the allowlist of build-packaging.md section 4.
       - name: Check the dist URLs

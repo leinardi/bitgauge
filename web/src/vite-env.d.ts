@@ -18,3 +18,15 @@
  */
 
 /// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  /**
+   * Set to 1 by the demo scripts (`npm run dev:demo`, `npm run build:demo`) and absent from every
+   * other build: the SPA then runs the engine against a simulated link (frontend.md section 9).
+   */
+  readonly VITE_DEMO?: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}

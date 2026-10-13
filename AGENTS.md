@@ -83,6 +83,8 @@ make build             # web-build, then go-build (the SPA is embedded once web/
 make web-install       # npm ci in web/
 make web-build         # npm ci, then vite build into web/dist
 make web-dev           # Vite dev server
+make web-demo          # Vite dev server in demo mode: the engine against a simulated link
+make web-build-demo    # the demo SPA into web/dist-demo, which never ships
 make web-test          # Vitest: unit, component, engine
 make web-lint          # ESLint, then vue-tsc
 make api-types         # regenerate web/src/api/types.gen.ts from api/openapi.yaml
@@ -147,6 +149,7 @@ Run before considering an edit done. `make check` applies to every row.
 | --- | --- |
 | `**/*.go` (today `test/**`) | `make verify-go`, then `make check-stage` |
 | `web/src/**` | `make verify-web`, then `scripts/check-file-budgets.sh` |
+| `web/src/demo/**`, the demo gates in `useWorker.ts`, `api/info.ts`, `App.vue` | the `web/src/**` row; `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (the demo's ESLint blocks); `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`; `make web-build-demo`, on which the same check must fail |
 | `api/openapi.yaml` | spec first (`api-contract` skill); `make api-types`, `go test ./internal/handlers/` (the contract tests), then `make verify-web` |
 | `deployments/docker/Dockerfile`, `test/harness/tools.Dockerfile` | `go test ./test/dockerfiles/ ./test/toolchain/` (hadolint runs in `make check`); `make go-test-image` (Docker, `dhi.io`) |
 | `go.mod`, `go.sum`, `web/package.json`, `web/package-lock.json` | `make audit-deps` (network; the commit hooks run the same targets), `go test ./test/toolchain/` |
@@ -156,6 +159,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `scripts/check-package-map.sh`, the package map in [backend.md §1](docs/features/technical-stack/backend.md) | `go test ./test/packagemap/` |
 | `scripts/check-file-budgets.sh`, `.file-budgets` | `go test ./test/filebudgets/ ./test/toolchain/` |
 | `scripts/check-license-headers.sh` | `go test ./test/licenseheaders/` |
+| `scripts/check-dist-demo-free.sh` | `go test ./test/distdemo/`; shellcheck (in `make check`) |
 | `scripts/check-dist-urls.sh`, `.dist-url-allowlist` | `go test ./test/disturls/` (also keeps the allowlist in step with [build-packaging.md §4](docs/features/technical-stack/build-packaging.md#4-ci-workflows)); shellcheck (in `make check`) |
 | `scripts/check-chunk-size.sh`, `.chunk-budget` | `go test ./test/chunksize/` (also pins the budget to [frontend.md §3](docs/features/technical-stack/frontend.md#3-worker-bundling-with-vite)); shellcheck (in `make check`) |
 | `scripts/hooks/gofmt-on-edit.sh` | shellcheck (in `make check`); no test package: run it once by editing a `.go` file in Claude Code |

@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:demo": "VITE_DEMO=1 vite",
     "build": "vite build",
+    "build:demo": "VITE_DEMO=1 vite build --outDir dist-demo",
     "typecheck": "vue-tsc --noEmit -p tsconfig.node.json && vue-tsc --noEmit -p tsconfig.engine.json && vue-tsc --noEmit -p tsconfig.json && vue-tsc --noEmit -p tsconfig.e2e.json",
     "lint": "eslint src e2e '*.config.ts' --max-warnings 0 --cache --cache-strategy content --cache-location .cache/eslint",
     "lint:fix": "eslint src e2e '*.config.ts' --fix --max-warnings 0 --cache --cache-strategy content --cache-location .cache/eslint",

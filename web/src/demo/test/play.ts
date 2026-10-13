@@ -57,7 +57,7 @@ export function demoSession(
   const failures: unknown[] = []
   const session = new DemoSession({
     base,
-    command: { type: 'demo', scenario: name, speed: 1, cpuBound: false, timerResolutionMs: null, errorKind: 'requests', ...command },
+    command: { type: 'demo', scenario: name, speed: 1, cpuBound: false, timerResolutionMs: null, errorKind: 'requests', hold: true, ...command },
     scenario,
     profile,
     info: infoFor(scenario.link, scenario.basePath),
