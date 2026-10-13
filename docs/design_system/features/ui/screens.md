@@ -52,6 +52,9 @@ from the design export; this page fixes content and behaviour only. Terms follow
   export. It works without history, for `complete`, `partial` and `error` results, and it is the
   accuracy harness's extraction path from v0.1
   ([decisions.md §36](../technical-stack/decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen)).
+  The file is named `bitgauge-<YYYY-MM-DD>-<HHMM>.json` after the result's start in the browser's
+  local time, as the design export's kit names it, and its `exportedAt` is the moment of the
+  download as an ISO 8601 timestamp.
 - **Last result line** in the idle state: when, headline numbers and label of the latest saved
   result, linking to its detail.
 

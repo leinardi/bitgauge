@@ -37,6 +37,8 @@ function result(overrides: Partial<DirectionResult>): DirectionResult {
   return { status: 'measured', bitsPerSecond: 94_100_000, peakBitsPerSecond: 98_000_000, streams: 4, plateau: 'no-gain', confidence: { level: 'normal', reasons: [] }, bytes: 1, events: [], ...overrides }
 }
 
+const series = { bucketMs: 100, firstCellMs: 0, warmupEndMs: 2000, endMs: 7000, values: [] }
+
 describe('a direction tile', () => {
   it('is empty before its direction runs', () => {
     const tile = directionTile({ direction: 'download', units: 'bits' }, context)
@@ -67,9 +69,18 @@ describe('a direction tile', () => {
   it('shows a partial number with partial, and none when its window was too short', () => {
     const partial = directionTile({ direction: 'upload', units: 'bits', result: result({ status: 'partial', plateau: 'cap', streams: 1 }) }, context)
     expect(partial.number).toBe('94.1')
-    expect(text(partial)).toEqual(['partial', 'peak 98.0 Mbit/s', '1 stream · stream cap'])
-    const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, ...short } = result({ status: 'partial' })
-    expect(directionTile({ direction: 'upload', units: 'bits', result: short }, context)).toMatchObject({ number: null, lines: [{ text: 'partial' }, { text: 'insufficient data' }] })
+    expect(text(partial)).toEqual(['partial — stopped early', 'peak 98.0 Mbit/s', '1 stream · stream cap'])
+    const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, ...short } = result({ status: 'partial', series })
+    expect(directionTile({ direction: 'upload', units: 'bits', result: short }, context)).toMatchObject({ number: null, lines: [{ text: 'partial — stopped early' }, { text: 'insufficient data' }] })
+  })
+
+  it('says what the number of a stopped direction covers: the first seconds of its phase (measurement.md section 7.8)', () => {
+    const upload = directionTile({ direction: 'upload', units: 'bits', result: result({ status: 'partial', series }) }, context)
+    expect(text(upload).slice(0, 2)).toEqual(['partial — stopped early', 'upload based on the first 7.0 s'])
+    const download = directionTile({ direction: 'download', units: 'bits', result: result({ status: 'partial', series: { ...series, endMs: 4200 } }) }, context)
+    expect(text(download)[1]).toBe('download based on the first 4.2 s')
+    // A measured direction says nothing of the kind.
+    expect(text(directionTile({ direction: 'upload', units: 'bits', result: result({ series }) }, context)).some((line) => line.includes('first'))).toBe(false)
   })
 
   it('names what ended a direction with an error', () => {

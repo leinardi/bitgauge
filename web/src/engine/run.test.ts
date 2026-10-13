@@ -138,6 +138,17 @@ describe('the phase order', () => {
     expect(harness.transport.server.probed).toEqual(['/api/v1/small'])
   })
 
+  it('reports idle latency after each ping, between its phase events', async () => {
+    const harness = start()
+    const report = await finish(harness)
+    const kinds = harness.events.map(({ event }) => (event.type === 'phase' ? `${event.phase}:${event.state}` : event.type))
+    const idle = harness.events.flatMap(({ event }) => (event.type === 'idle' ? [event] : []))
+    expect(idle.map((event) => event.pings)).toEqual(Array.from({ length: idle.length }, (_, index) => index + 1))
+    expect(idle.at(-1)).toMatchObject({ count: idle.length, medianMs: report?.idle?.result.medianMs })
+    expect(kinds.indexOf('idle')).toBeGreaterThan(kinds.indexOf('idle:started'))
+    expect(kinds.lastIndexOf('idle')).toBeLessThan(kinds.indexOf('idle:finished'))
+  })
+
   it('runs upload before download when the settings say so', async () => {
     const harness = start({ phases: ['idle', 'upload', 'download'] })
     await finish(harness)

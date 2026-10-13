@@ -32,8 +32,8 @@
     },
     "stoppedEarly": {
       "title": "Partial — stopped early",
-      "download": "Download was stopped after {covered}.",
-      "upload": "Upload was stopped after {covered}."
+      "download": "Download is based on a {covered} steady window.",
+      "upload": "Upload is based on a {covered} steady window."
     },
     "serverRestarted": {
       "title": "Server restarted",

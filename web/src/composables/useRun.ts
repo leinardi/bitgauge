@@ -22,7 +22,7 @@ import { computed, onScopeDispose, watch } from 'vue'
 import { useInfo } from '@/composables/useInfo'
 import { createRunState } from '@/composables/useRunState'
 import { useWorker } from '@/composables/useWorker'
-import type { SettingsOverride, TestSettings } from '@/engine/messages'
+import type { Preset, SettingsOverride, TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
 import { readBasePath } from '@/router/base'
 
@@ -41,10 +41,11 @@ export interface RunOptions {
   resolve?: (defaults: TestSettings) => TestSettings
 }
 
-/** The result's label and the context label of a run. */
+/** The result's label and the context label of a run, and a preset a notice offers instead. */
 export interface StartOptions {
   label?: string
   contextLabel?: string
+  preset?: Preset
 }
 
 function ignore(): void {
@@ -169,6 +170,9 @@ export function useRun(options: RunOptions = {}) {
       }
       if (start.contextLabel !== undefined) {
         override.contextLabel = start.contextLabel
+      }
+      if (start.preset !== undefined) {
+        override.preset = start.preset
       }
       const visible = document.visibilityState === 'visible'
       bridge.post(Object.keys(override).length === 0 ? { type: 'start', visible } : { type: 'start', override, visible })

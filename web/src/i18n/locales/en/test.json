@@ -2,6 +2,7 @@
   "test": {
     "title": "Speed test",
     "empty": "No test has run yet.",
+    "results": "Results",
     "connection": {
       "context": "Context",
       "suggested": "suggested",
@@ -41,7 +42,12 @@
       "window": "log scale · {lo} – {hi} · auto",
       "fixed": "log scale · {lo} – {hi} ms",
       "ms": "ms",
-      "noValue": "—"
+      "noValue": "—",
+      "ready": "Ready",
+      "idle": "Idle latency",
+      "download": "Download",
+      "upload": "Upload",
+      "sending": "Upload · sending"
     },
     "chart": {
       "summary": "Throughput over time: {parts}",
@@ -94,7 +100,7 @@
       "live": "Live",
       "soFar": "avg so far {avg} · peak {peak}",
       "peak": "peak {peak}",
-      "partial": "partial",
+      "partial": "partial — stopped early",
       "insufficient": "insufficient data",
       "skipped": "skipped",
       "error": "error",
@@ -126,7 +132,10 @@
         "serverRestarted": "error · server restarted",
         "serverUnreachable": "error · server unreachable",
         "uploadInterrupted": "error · upload interrupted"
-      }
+      },
+      "basedOnDownload": "download based on the first {covered}",
+      "basedOnUpload": "upload based on the first {covered}",
+      "pings": "ping {n} of {count}"
     },
     "start": {
       "start": "Start test",
@@ -135,7 +144,31 @@
       "retry": "Retry test",
       "now": "Start now",
       "keyEnter": "Enter",
-      "keyEscape": "Esc"
+      "keyEscape": "Esc",
+      "unreachable": "Server unreachable. Start is available again once it answers.",
+      "waiting": "Waiting for the server's default settings.",
+      "unsupported": "The server's default preset can't run in this version."
+    },
+    "export": {
+      "download": "Download JSON",
+      "tip": "Contains your IP address and notes",
+      "invalid": "This result failed validation, so it can't be exported."
+    },
+    "bar": {
+      "label": "Result status",
+      "complete": "Test complete",
+      "completeBody": "Not stored in this browser. Download the JSON to keep it.",
+      "unsaved": "Partial results are not saved",
+      "unsavedBody": "Download the JSON to keep them."
+    },
+    "failure": {
+      "title": "Test failed",
+      "info": "Test failed while connecting",
+      "idle": "Test failed during idle latency",
+      "download": "Test failed during download",
+      "upload": "Test failed during upload",
+      "internal": "The test stopped because of an internal error.",
+      "kept": "The phases that finished before the error are kept."
     }
   }
 }

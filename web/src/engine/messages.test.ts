@@ -47,6 +47,7 @@ function eventName(event: EngineEvent): string {
   switch (event.type) {
     case 'phase':
     case 'sample':
+    case 'idle':
     case 'result':
     case 'error':
       return event.type
@@ -63,7 +64,7 @@ describe('message contract', () => {
   })
 
   it('has the events of architecture.md section 4', () => {
-    expectTypeOf<EngineEvent['type']>().toEqualTypeOf<'phase' | 'sample' | 'result' | 'error'>()
+    expectTypeOf<EngineEvent['type']>().toEqualTypeOf<'phase' | 'sample' | 'idle' | 'result' | 'error'>()
     expect(eventName({ type: 'phase', phase: 'info', state: 'started', notices: [] })).toBe('phase')
   })
 

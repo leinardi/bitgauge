@@ -330,6 +330,21 @@ carries a recommendation; where the specification already relies on an answer, i
     ui/screens.md §7, which extends `notices.md`'s examples to every v0.1 code.**
     Recommendation: keep it. See [measurement.md §14](measurement.md#14-units-and-gauge) and
     [ui/screens.md §7](ui/screens.md#7-notices).
+37. What is the Download JSON file called, and what is its `exportedAt`? Current answer:
+    **`bitgauge-<YYYY-MM-DD>-<HHMM>.json` after the result's start in the browser's local time, as
+    the design export's kit names it, with `exportedAt` the moment of the download in ISO 8601**.
+    A result that fails `validateResult` is never exported: the button shows an error instead.
+    Recommendation: keep it. See [ui/screens.md §1](ui/screens.md#1-test-home--).
+38. Where does the Test screen's "Running: idle latency" state get its ping counter and live
+    median, and how does it word a stopped direction and an engine error? Current answer: **an
+    `idle` event after each answered or lost ping carries the counter, the last RTT for the
+    gauge and the running median; a stopped direction with a number reads "partial — stopped
+    early" and "upload based on the first 7.0 s" (its window end from the phase start, as
+    measurement.md §7.8 words it), while the `stopped-early` notice names its steady window ("a
+    3.6 s steady window", as ui/flows.md §4 words it); an engine error is worded by its message
+    key `errors.<code>` in an `errors` namespace**. Recommendation: keep it. See
+    [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
+    [ui/i18n-a11y.md §1.1](ui/i18n-a11y.md#11-structure).
 
 Resolved and removed:
 

@@ -118,6 +118,14 @@ export function idleStatistics(
   }
 }
 
+/** Idle latency so far: the pings answered or lost, of `count`, the last RTT and the running median. */
+export interface IdleProgress {
+  pings: number
+  count: number
+  rttMs?: number
+  medianMs?: number
+}
+
 /** One idle-latency run. A page that becomes visible again starts a new one. */
 export class IdleLatency {
   private readonly clock: Clock
@@ -132,11 +140,15 @@ export class IdleLatency {
   private limit: TimerId | null = null
   private done: ((outcome: IdleOutcome | null) => void) | null = null
 
+  /** Called after each answered or lost ping: the live view of idle latency. */
+  private readonly progress: ((progress: IdleProgress) => void) | undefined
+
   /** `count` is the ping count, the warm-up ping included. */
-  constructor(clock: Clock, pinger: Pinger, count: number) {
+  constructor(clock: Clock, pinger: Pinger, count: number, progress?: (progress: IdleProgress) => void) {
     this.clock = clock
     this.pinger = pinger
     this.count = count
+    this.progress = progress
   }
 
   /** Runs the pings; resolves with the outcome, or null when stopped. */
@@ -197,13 +209,17 @@ export class IdleLatency {
     this.current = null
     this.clearTimer()
     // The first ping is the warm-up: neither a sample nor a loss.
+    let rttMs: number | undefined
     if (seq > 0) {
       if (result === 'lost') {
         this.lost++
       } else if (result !== 'unmeasured') {
         this.samples.push(result.rttMs)
+        rttMs = result.rttMs
       }
     }
+    const median = this.medianMs
+    this.progress?.({ pings: seq + 1, count: this.count, ...(rttMs === undefined ? {} : { rttMs }), ...(median === null ? {} : { medianMs: median }) })
     this.next()
   }
 

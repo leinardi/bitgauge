@@ -104,6 +104,7 @@ the page's `Worker` object; the next `start` may begin another run.
 | --- | --- | --- |
 | `phase` | phase name (`info`, `idle`, `download`, `upload`), state (`started`, `finished`, `skipped`, `failed`), protocol, stream count, notices so far | Phase indicator, connection info. |
 | `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up; Continuous adds "p90, last hour"); the warm-up end and, for upload, P_start and the sample's instant on the server grid (display only); latest loaded-latency samples; data used | Live gauge, tiles and chart, at most every 100 ms. |
+| `idle` | pings answered or lost so far, of the ping count (the warm-up ping included); the last RTT; the running median of the samples so far | The idle-latency gauge in milliseconds, ping counter and live median, after each ping. |
 | `result` | the versioned result object ([measurement.md §17](measurement.md#17-result-object)) | Result screen, history, export. |
 | `error` | code, message key, phase, whether partial results exist | Error states and retry ([ui/flows.md](ui/flows.md)). |
 
@@ -132,6 +133,8 @@ type EngineEvent =
       startBucket?: number;            // upload only: P_start on the server grid, in cells
       sendingBucket?: number;          // upload only: this instant on the grid, by the offset
       loadedLatencyMs?: number[]; dataUsedBytes: number }
+  | { type: 'idle'; pings: number; count: number;  // pings answered or lost, of the count
+      rttMs?: number; medianMs?: number }          // the last RTT; the running median
   | { type: 'result'; result: Result }
   | { type: 'error'; code: EngineErrorCode; messageKey: string; phase?: PhaseName;
       partial: boolean };
@@ -181,16 +184,20 @@ the wiring parses from the user agent for `client.browser`
 `GET /api/v1/ping` with the `websocket-unavailable` notice) and sends the one idle
 `GET /api/v1/small`, whose answer only records the protocol in v0.1. A `phase` event marks each
 measuring phase `skipped` when the settings leave it out, and again when a stop, an error or the
-data cap prevents it. While a throughput phase runs, the housekeeping tick sends at most one
-`sample` per 100 ms. A run in which no phase has a result to keep (stopped or failed during Info or
-idle latency) emits no `result`; one that ends in Info marks Info `failed` on an error and every
-measuring phase `skipped`. A page the browser paused while hidden stops the run as
-[edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test) describes. A WebSocket close that the
-close sequence survives during idle latency restarts it on the new path, like a page that becomes
-visible again; the sequence's timeout uses the running idle median. When the run ends with a
-network change or a restart, the current direction reports nothing measured: no window, warm-up
-or series, its stop mark is an `error` event, and a restart adds the `server-restarted` notice,
-whichever path detected it. Commands after the run has ended are ignored.
+data cap prevents it. While idle latency runs, an `idle` event follows each answered or lost ping:
+the warm-up ping counts toward `pings` but carries no RTT, a lost ping carries none either, and
+`medianMs` is the running median the timeout policy uses, absent before the first sample; an idle
+latency restarted after a pause counts from the first ping again. While a throughput phase runs,
+the housekeeping tick sends at most one `sample` per 100 ms. A run in which no phase has a result
+to keep (stopped or failed during Info or idle latency) emits no `result`; one that ends in Info
+marks Info `failed` on an error and every measuring phase `skipped`. A page the browser paused
+while hidden stops the run as [edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test) describes. A
+WebSocket close that the close sequence survives during idle latency restarts it on the new path,
+like a page that becomes visible again; the sequence's timeout uses the running idle median. When
+the run ends with a network change or a restart, the current direction reports nothing measured:
+no window, warm-up or series, its stop mark is an `error` event, and a restart adds the
+`server-restarted` notice, whichever path detected it. Commands after the run has ended are
+ignored.
 
 **The end of a run, as the UI reads it.** No event marks the end of a run; `useRun` reads it from
 the order above. Each measuring phase gets exactly one `finished`, `failed` or `skipped` event,

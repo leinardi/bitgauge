@@ -226,7 +226,7 @@ export class Run {
     this.enter('idle')
     this.page.idleStarted()
     for (;;) {
-      const idle = new IdleLatency(this.clock, this.connection?.pinger ?? unreachable(), this.options.settings.pingCount)
+      const idle = new IdleLatency(this.clock, this.connection?.pinger ?? unreachable(), this.options.settings.pingCount, (progress) => this.options.emit({ type: 'idle', ...progress }))
       this.current = idle
       this.idle = idle
       this.restartIdle = false

@@ -264,6 +264,8 @@ export type EngineEvent =
       sendingBucket?: number
       dataUsedBytes: number
     }
+  /** Idle latency so far, after each ping: the ping counter, the last RTT and the running median. */
+  | { type: 'idle'; pings: number; count: number; rttMs?: number; medianMs?: number }
   | { type: 'result'; result: Result }
   | {
       type: 'error'

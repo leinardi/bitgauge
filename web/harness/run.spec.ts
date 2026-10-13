@@ -34,8 +34,9 @@ test('run the preset and download its result', async ({ page }, testInfo) => {
   const params = new URLSearchParams({ run: '1', test: 'all', preset, label: `harness-${testInfo.project.name}` })
   await page.goto(`/?${params.toString()}`)
 
-  // Download JSON appears only in the Done state. An error or a cancelled run never shows it, and
-  // the test then fails on its timeout rather than exporting a partial result as if it were one.
+  // Download JSON appears once the run has a result: complete, partial or error (ui/screens.md
+  // section 1). The report carries the result's status, so a partial or error run is never read as
+  // a complete one; a run that ends with no result at all fails on the timeout.
   const download = page.getByRole('button', { name: 'Download JSON' })
   await expect(download).toBeVisible({ timeout: testInfo.timeout })
 

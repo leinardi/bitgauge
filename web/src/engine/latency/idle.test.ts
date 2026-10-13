@@ -21,7 +21,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { httpPinger, IdleLatency, type IdleOutcome, idleStatistics, webSocketPinger } from '@/engine/latency/idle'
+import { httpPinger, IdleLatency, type IdleOutcome, type IdleProgress, idleStatistics, webSocketPinger } from '@/engine/latency/idle'
 import { FakeClock } from '@/engine/test/fakeClock'
 import type { ProbeTiming, WsEcho } from '@/engine/types'
 
@@ -126,6 +126,22 @@ describe('the timeout policy', () => {
     const outcome = await run(clock, new IdleLatency(clock, webSocketPinger(ws), 7))
     expect(outcome?.result.samples).toEqual([50, 50, 50, 50, 50])
     expect(outcome?.result.lossPercent).toBeCloseTo((1 / 6) * 100, 10)
+  })
+})
+
+describe('progress', () => {
+  it('reports each answered or lost ping with the last RTT and the running median', async () => {
+    const clock = new FakeClock()
+    const { ws } = echo(clock, (seq) => (seq === 2 ? null : 10 * (seq + 1)))
+    const seen: IdleProgress[] = []
+    await run(clock, new IdleLatency(clock, webSocketPinger(ws), 4, (progress) => seen.push(progress)))
+    // The warm-up counts as a ping but carries no sample; the lost ping carries no RTT.
+    expect(seen).toEqual([
+      { pings: 1, count: 4 },
+      { pings: 2, count: 4, rttMs: 20, medianMs: 20 },
+      { pings: 3, count: 4, medianMs: 20 },
+      { pings: 4, count: 4, rttMs: 40, medianMs: 30 },
+    ])
   })
 })
 

@@ -351,6 +351,8 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 34 | Rates keep three significant digits with their trailing zeros; the gauge caption's round scale ends drop them | v0.1 |
 | 35 | Upload `sample`s carry P_start and their own instant on the server grid, and every `sample` the warm-up end, for the live chart | v0.1 |
 | 36 | Rates scale to the largest unit whose number is at least 1, from kbit/s up to Gbit/s; every v0.1 notice has a tone | v0.1 |
+| 37 | The Download JSON file is named after the result's local start time, `exportedAt` is the download moment, and an invalid result is never exported | v0.1 |
+| 38 | An `idle` event per ping feeds the idle-latency gauge, counter and median; a stopped direction names its window end, the notice its steady window; errors are worded by `errors.<code>` | v0.1 |
 
 ## Related
 

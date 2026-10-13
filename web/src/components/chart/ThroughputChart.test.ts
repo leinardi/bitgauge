@@ -19,12 +19,12 @@
 
 // @vitest-environment jsdom
 
-// A smoke test of the live chart under jsdom, whose canvas has no 2D context: a stub context takes
-// every call. It checks the chart mounts, follows the run's data, names itself for assistive
+// A smoke test of the live chart under jsdom, whose canvas has no 2D context: the test setup's stub
+// context takes every call. It checks the chart mounts, follows the run's data, names itself for assistive
 // technology, shows its legend, and goes away with the component.
 
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { defineComponent, h } from 'vue'
 
@@ -32,58 +32,11 @@ import ThroughputChart from '@/components/chart/ThroughputChart.vue'
 import { createRunState, type DirectionLive } from '@/composables/useRunState'
 import { createAppI18n } from '@/i18n'
 
-// uPlot reads the device pixel ratio's media query when it loads, before any test runs.
-vi.hoisted(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    configurable: true,
-    writable: true,
-    value: () => ({ matches: false, addEventListener: () => undefined, removeEventListener: () => undefined }),
-  })
-})
-
 function live(overrides: Partial<DirectionLive>): DirectionLive {
   return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], ...overrides }
 }
 
-/** A 2D context that accepts every call and property, and measures text as empty. */
-function stubContext(): CanvasRenderingContext2D {
-  const calls: string[] = []
-  return new Proxy({ calls } as unknown as CanvasRenderingContext2D, {
-    get(target, name) {
-      if (name === 'measureText') {
-        return () => ({ width: 0 })
-      }
-      if (name in target) {
-        return Reflect.get(target, name)
-      }
-      return (..._args: unknown[]) => {
-        calls.push(String(name))
-      }
-    },
-    set(target, name, value) {
-      return Reflect.set(target, name, value)
-    },
-  })
-}
-
-/** jsdom has no Path2D either: the paths uPlot builds are only handed to the stub context. */
-class StubPath {
-  moveTo(): void {}
-  lineTo(): void {}
-  rect(): void {}
-  arc(): void {}
-  closePath(): void {}
-  bezierCurveTo(): void {}
-  addPath(): void {}
-}
-
-beforeEach(() => {
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(() => stubContext() as never)
-  vi.stubGlobal('Path2D', StubPath)
-})
-
 afterEach(() => {
-  vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
 

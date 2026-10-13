@@ -179,6 +179,26 @@ describe('useRun', () => {
     scope.stop()
   })
 
+  it('starts with a preset a notice offers', () => {
+    const { run, worker, scope } = started()
+    worker.posted.length = 0
+    run.start({ contextLabel: '', preset: 'extended' })
+    expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: '', preset: 'extended' }, visible: true }])
+    scope.stop()
+  })
+
+  it('keeps the idle-latency progress, and clears it for the next run', () => {
+    const { run, worker, scope } = started()
+    run.start()
+    expect(run.idle.value).toBeNull()
+    worker.emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', pings: 1, count: 20 }, { type: 'idle', pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
+    expect(run.idle.value).toEqual({ pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
+    worker.emit(phase('idle', 'finished'), phase('download', 'skipped'), phase('upload', 'skipped'), { type: 'result', result: result('complete') })
+    run.start()
+    expect(run.idle.value).toBeNull()
+    scope.stop()
+  })
+
   it('applies phase events: state, protocol, streams, the current phase and the notices so far', () => {
     const { run, worker, scope } = started()
     run.start()

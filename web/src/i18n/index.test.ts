@@ -22,9 +22,11 @@
 
 import { describe, expect, it } from 'vitest'
 
+import type { EngineErrorCode } from '@/engine/messages'
 import { detectLocale } from '@/i18n'
 import about from '@/i18n/locales/en/about.json'
 import app from '@/i18n/locales/en/app.json'
+import errors from '@/i18n/locales/en/errors.json'
 import notAvailable from '@/i18n/locales/en/notAvailable.json'
 import notices from '@/i18n/locales/en/notices.json'
 import test from '@/i18n/locales/en/test.json'
@@ -43,7 +45,7 @@ function keys(catalog: object, prefix = ''): string[] {
 }
 
 describe('the English catalog', () => {
-  const known = new Set(keys({ ...app, ...test, ...notices, ...about, ...notAvailable }))
+  const known = new Set(keys({ ...app, ...test, ...notices, ...errors, ...about, ...notAvailable }))
 
   it('holds one namespace per file, named after it', () => {
     expect(Object.keys(app)).toEqual(['app'])
@@ -51,6 +53,12 @@ describe('the English catalog', () => {
     expect(Object.keys(about)).toEqual(['about'])
     expect(Object.keys(notAvailable)).toEqual(['notAvailable'])
     expect(Object.keys(notices)).toEqual(['notices'])
+    expect(Object.keys(errors)).toEqual(['errors'])
+  })
+
+  it('words every engine error under its message key, errors.<code>', () => {
+    const codes: Record<EngineErrorCode, true> = { 'invalid-settings': true, 'requests-failed': true, 'network-changed': true, 'server-restarted': true, 'server-unreachable': true }
+    expect(Object.keys(codes).filter((code) => !known.has(`errors.${code}`))).toEqual([])
   })
 
   it('has every key the sources use', () => {

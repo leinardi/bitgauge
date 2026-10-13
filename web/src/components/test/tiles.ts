@@ -22,7 +22,7 @@ import type { Component } from 'vue'
 
 import type { ConfidenceReason, Direction, DirectionResult, IdleResult, Plateau, SteadySoFar } from '@/engine/messages'
 import type { Wording } from '@/components/test/wording'
-import { bytesParts, formatLatency, formatPercent, formatRate, latencyNumber, rateParts, secondsNumber } from '@/lib/format'
+import { bytesParts, formatDuration, formatLatency, formatPercent, formatRate, latencyNumber, rateParts, secondsNumber } from '@/lib/format'
 
 // The metric tiles' contents (ui/screens.md section 6, design_system/components/tiles.md), worded
 // from what the engine sent: a live direction's steady numbers so far, or the result's fields. The
@@ -131,6 +131,13 @@ export function directionTile(input: DirectionInput, context: Wording): TileView
   if (result.bitsPerSecond === undefined) {
     return { ...tile, lines: [...lines, { text: t('test.tiles.insufficient') }] }
   }
+  // What a stopped direction's number covers: its window ends at the stop, or on upload at the
+  // confirmed watermark, counted from the phase start (measurement.md section 7.8).
+  const end = result.status === 'partial' ? result.series?.endMs : undefined
+  if (end !== undefined) {
+    const covered = formatDuration(end, locale)
+    lines.push({ text: input.direction === 'download' ? t('test.tiles.basedOnDownload', { covered }) : t('test.tiles.basedOnUpload', { covered }) })
+  }
   if (result.peakBitsPerSecond !== undefined) {
     lines.push({ text: t('test.tiles.peak', { peak: rate(result.peakBitsPerSecond) }) })
   }
@@ -167,6 +174,14 @@ export function idleTile(idle: IdleResult | null | undefined, resolutionMs: numb
     unit: 'ms',
     lines: [{ text: t('test.tiles.idleStats', { min: ms(idle.minMs), p90: ms(idle.p90Ms) }) }, { text: path }],
   }
+}
+
+/** Idle latency while it runs: the running median and the ping counter. */
+export function idleLiveTile(progress: { pings: number; count: number; medianMs?: number }, context: Wording): TileView {
+  const { t, locale } = context
+  const counter = { text: t('test.tiles.pings', { n: progress.pings, count: progress.count }) }
+  const tile: TileView = { label: t('test.tiles.idle'), icon: Activity, colour: SERIES.latency, number: null, unit: '', lines: [counter], live: true }
+  return progress.medianMs === undefined ? tile : { ...tile, number: latencyNumber(progress.medianMs, locale), unit: 'ms' }
 }
 
 /** Jitter: the mean of consecutive differences of the idle samples. */

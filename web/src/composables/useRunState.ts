@@ -31,8 +31,8 @@ import type {
   SteadySoFar,
 } from '@/engine/messages'
 
-// The live view of a run (frontend.md section 4), fed by the engine's phase, sample, result and
-// error events. No event marks the end of a run: it is read from their order (architecture.md
+// The live view of a run (frontend.md section 4), fed by the engine's phase, sample, idle, result
+// and error events. No event marks the end of a run: it is read from their order (architecture.md
 // section 4), which is what `settle` does after every event. A start the Worker cannot run, after a
 // refused configure or once the Worker itself failed, ends at once.
 
@@ -67,6 +67,9 @@ export interface DirectionLive {
   /** Upload only: the sending values, each at its instant on the server grid in cells. */
   sendingTrace: { cell: number; bitsPerSecond: number }[]
 }
+
+/** Idle latency so far, as the last `idle` event carried it. */
+export type IdleLive = Omit<Extract<EngineEvent, { type: 'idle' }>, 'type'>
 
 /** An engine error code, or `internal` for the Worker's uncaught error (ui/flows.md section 5). */
 export interface RunError {
@@ -117,6 +120,7 @@ export function createRunState() {
   const phase = shallowRef<PhaseName | null>(null)
   const phases = shallowRef(pendingPhases())
   const live = shallowRef(emptyLive())
+  const idle = shallowRef<IdleLive | null>(null)
   const direction = shallowRef<Direction | null>(null)
   const protocol = shallowRef<string | null>(null)
   const dataUsedBytes = shallowRef(0)
@@ -182,6 +186,8 @@ export function createRunState() {
     phases: phases as Readonly<ShallowRef<Record<PhaseName, PhaseView>>>,
     /** Each direction's live numbers and series buffer, null until its first sample. */
     live: live as Readonly<ShallowRef<Record<Direction, DirectionLive | null>>>,
+    /** Idle latency so far: the ping counter, the last RTT and the running median; null before the first ping. */
+    idle: idle as Readonly<ShallowRef<IdleLive | null>>,
     /** The direction of the last sample: the one the gauge shows. */
     direction: direction as Readonly<ShallowRef<Direction | null>>,
     protocol: protocol as Readonly<ShallowRef<string | null>>,
@@ -199,6 +205,7 @@ export function createRunState() {
       phase.value = null
       phases.value = pendingPhases()
       live.value = emptyLive()
+      idle.value = null
       direction.value = null
       protocol.value = null
       dataUsedBytes.value = 0
@@ -264,6 +271,9 @@ export function createRunState() {
         onPhase(event)
       } else if (event.type === 'sample') {
         onSample(event)
+      } else if (event.type === 'idle') {
+        const { type: _type, ...progress } = event
+        idle.value = progress
       } else {
         error.value = { code: event.code, phase: event.phase ?? null, partial: event.partial }
         if (!seenPhase) {
