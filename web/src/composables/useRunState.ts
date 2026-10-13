@@ -45,6 +45,8 @@ export interface PhaseView {
   state: PhaseState | 'pending'
   protocol?: string
   streams?: number
+  /** A finished direction's headline, as its phase event carried it. */
+  headlineBitsPerSecond?: number
 }
 
 /** The live numbers of one direction, as the last `sample` carried them. */
@@ -165,6 +167,9 @@ export function createRunState() {
     }
     if (event.streams !== undefined) {
       view.streams = event.streams
+    }
+    if (event.headlineBitsPerSecond !== undefined) {
+      view.headlineBitsPerSecond = event.headlineBitsPerSecond
     }
     seenPhase = true
     phases.value = { ...phases.value, [event.phase]: view }

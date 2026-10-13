@@ -6,8 +6,8 @@ on a free plan cannot enforce. None of that survives contact with a pull request
 else.
 
 Nothing here has been done yet. The workflows it refers to exist (`ci.yaml`, `go-test.yaml`, the
-warm-ups and `scheduled-scan.yaml`); this note records what has to be decided and switched on, and
-why, so the work is not reconstructed from memory under time pressure.
+warm-ups, `scheduled-scan.yaml` and `harness.yaml`); this note records what has to be decided and
+switched on, and why, so the work is not reconstructed from memory under time pressure.
 
 ---
 
@@ -58,7 +58,8 @@ because `go-test` runs the same tests, and the commit-message hook is replaced b
 ## 3. Restore the Scheduled Scan
 
 `scheduled-scan.yaml` is dispatch-only while the repository is private: its weekly `schedule:`
-block is commented out at the top of the workflow, to save Actions minutes.
+block is commented out at the top of the workflow, to save Actions minutes. `harness.yaml` is the
+same: CI calls it and it can be dispatched, and its nightly `schedule:` block is commented out.
 
 - [ ] **Run `make audit-deps` and triage every finding** before the repository is made public,
       the same way as
@@ -66,6 +67,9 @@ block is commented out at the top of the workflow, to save Actions minutes.
       Whatever the scan reports on the day the repository opens is what the first reader sees.
 - [ ] Uncomment the `schedule:` block of `scheduled-scan.yaml`, and dispatch the workflow once by
       hand to see it pass.
+- [ ] Uncomment the nightly `schedule:` block of `harness.yaml`, the accuracy harness's CI tier
+      ([testing.md §6](../features/technical-stack/testing.md#6-ci-placement)). If the runners
+      cannot sustain the 1 Gbit profile on every pull request, that is where it moves.
 - [ ] Decide where a failing scheduled run goes. A run that fails into an inbox nobody reads is not
       a control; an issue opened automatically is.
 - [ ] Decide on CodeQL for Go and TypeScript, on a schedule and on pull requests. It is free for

@@ -239,6 +239,27 @@ describe('the Test screen', () => {
     page.unmount()
   })
 
+  it('keeps focus on the control when the run ends, and announces the result summary', async () => {
+    vi.stubGlobal('Worker', StubWorker)
+    const host = document.body.appendChild(document.createElement('div'))
+    const page = await mountApp(TestPage, '/', { attachTo: host })
+    const worker = present(StubWorker.started[0])
+    const button = page.get<HTMLButtonElement>('[data-testid="start-button"]')
+    button.element.focus()
+    await button.trigger('click')
+    worker.emit(phase('info', 'started'))
+    await flushPromises()
+    expect(page.get('[data-testid="live-region"]').text()).toBe('Connecting to the server')
+    worker.emit(phase('info', 'finished'), phase('idle', 'finished'), phase('download', 'finished'), phase('upload', 'finished'), { type: 'result', result: resultFixture() })
+    await flushPromises()
+    expect(button.text()).toContain('Run again')
+    expect(document.activeElement).toBe(button.element)
+    expect(page.get('[data-testid="result-summary"]').text()).toMatch(/^Test complete\. Download 76\.5 megabytes per second\./)
+    expect(page.get('main').attributes('id')).toBe('main')
+    page.unmount()
+    host.remove()
+  })
+
   it('shows a stopped run as Cancelled: partial, what the upload covered, insufficient data, not saved', async () => {
     const { page, worker, emit } = await started()
     await emit(phase('info', 'finished'), phase('idle', 'finished'), phase('download', 'finished'), phase('upload', 'started'))

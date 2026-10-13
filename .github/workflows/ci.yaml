@@ -1,8 +1,8 @@
 name: CI
 
 # The authoritative checks run on every pull request and every push to main; the reviewdog jobs only
-# annotate pull requests. Jobs that wait for a dormant gate (e2e, harness) are added in their
-# activation commits, as test/toolchain/gates.go requires.
+# annotate pull requests. Jobs that wait for a dormant gate (e2e) are added in their activation
+# commits, as test/toolchain/gates.go requires.
 on:
   pull_request:
   push:
@@ -408,6 +408,18 @@ jobs:
       - name: Test the image
         run: make go-test-image
 
+  # Defined in harness.yaml, which can also be dispatched by hand: the accuracy harness's CI tier on
+  # the image built from this commit (testing.md section 5). It pulls dhi.io like the image job.
+  harness:
+    needs: credentials
+    if: needs.credentials.outputs.pull == 'true'
+    uses: ./.github/workflows/harness.yaml
+    permissions:
+      contents: read
+    secrets:
+      DHI_USERNAME: ${{ secrets.DHI_USERNAME }}
+      DHI_TOKEN: ${{ secrets.DHI_TOKEN }}
+
   # The one required check that stands for the rest: GitHub counts a skipped required job as passing,
   # so this job runs always and decides. On a pull request every needed job must succeed; on a push
   # or a dispatch the pull-request-only jobs are skipped and the others must succeed.
@@ -423,6 +435,7 @@ jobs:
       - web
       - credentials
       - image
+      - harness
     runs-on: ubuntu-latest
     timeout-minutes: 5
 

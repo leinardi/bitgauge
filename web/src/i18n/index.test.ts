@@ -17,58 +17,12 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// The catalog and the locale detection of ui/i18n-a11y.md section 1: every key the sources use
-// exists in English, and the locale comes from the lang parameter, then the browser, then English.
+// The locale detection of ui/i18n-a11y.md section 1.2: the lang parameter, then the browser, then
+// English. The catalog's completeness is locales.test.ts.
 
 import { describe, expect, it } from 'vitest'
 
-import type { EngineErrorCode } from '@/engine/messages'
 import { detectLocale } from '@/i18n'
-import about from '@/i18n/locales/en/about.json'
-import app from '@/i18n/locales/en/app.json'
-import errors from '@/i18n/locales/en/errors.json'
-import notAvailable from '@/i18n/locales/en/notAvailable.json'
-import notices from '@/i18n/locales/en/notices.json'
-import test from '@/i18n/locales/en/test.json'
-
-const sources = import.meta.glob<string>(['/src/**/*.vue', '/src/**/*.ts', '!/src/**/*.test.ts', '!/src/components/ui/**'], {
-  query: '?raw',
-  import: 'default',
-  eager: true,
-})
-
-/** Every message key of a catalog, as dotted paths. */
-function keys(catalog: object, prefix = ''): string[] {
-  return Object.entries(catalog).flatMap(([name, value]) =>
-    typeof value === 'object' && value !== null ? keys(value as object, `${prefix}${name}.`) : [`${prefix}${name}`],
-  )
-}
-
-describe('the English catalog', () => {
-  const known = new Set(keys({ ...app, ...test, ...notices, ...errors, ...about, ...notAvailable }))
-
-  it('holds one namespace per file, named after it', () => {
-    expect(Object.keys(app)).toEqual(['app'])
-    expect(Object.keys(test)).toEqual(['test'])
-    expect(Object.keys(about)).toEqual(['about'])
-    expect(Object.keys(notAvailable)).toEqual(['notAvailable'])
-    expect(Object.keys(notices)).toEqual(['notices'])
-    expect(Object.keys(errors)).toEqual(['errors'])
-  })
-
-  it('words every engine error under its message key, errors.<code>', () => {
-    const codes: Record<EngineErrorCode, true> = { 'invalid-settings': true, 'requests-failed': true, 'network-changed': true, 'server-restarted': true, 'server-unreachable': true }
-    expect(Object.keys(codes).filter((code) => !known.has(`errors.${code}`))).toEqual([])
-  })
-
-  it('has every key the sources use', () => {
-    const used = Object.entries(sources).flatMap(([file, source]) =>
-      [...source.matchAll(/\$?\bt\(\s*'([^']+)'/g)].map((match) => ({ file, key: match[1] ?? '' })),
-    )
-    expect(used.length).toBeGreaterThan(10)
-    expect(used.filter(({ key }) => !known.has(key))).toEqual([])
-  })
-})
 
 describe('detectLocale', () => {
   it.each([

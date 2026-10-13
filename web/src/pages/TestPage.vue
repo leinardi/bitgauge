@@ -20,6 +20,7 @@
 import { computed, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import LiveRegions from '@/components/a11y/LiveRegions.vue'
 import ThroughputChart from '@/components/chart/ThroughputChart.vue'
 import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
@@ -181,10 +182,18 @@ watch(run.error, (error) => {
 </script>
 
 <template>
-  <main class="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-4 px-4 py-6 sm:gap-5 sm:px-10">
+  <main
+    id="main"
+    tabindex="-1"
+    class="focus:outline-none mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-4 px-4 py-6 sm:gap-5 sm:px-10"
+  >
     <h1 class="sr-only">
       {{ $t('test.title') }}
     </h1>
+    <LiveRegions
+      :run="view"
+      :units="units"
+    />
     <OfflineNotice
       v-if="reachability === 'unreachable'"
       :host="host"

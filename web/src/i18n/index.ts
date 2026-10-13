@@ -19,6 +19,7 @@
 
 import { createI18n } from 'vue-i18n'
 
+import a11y from '@/i18n/locales/en/a11y.json'
 import about from '@/i18n/locales/en/about.json'
 import app from '@/i18n/locales/en/app.json'
 import errors from '@/i18n/locales/en/errors.json'
@@ -30,7 +31,7 @@ import test from '@/i18n/locales/en/test.json'
 // per screen or shared component group, each holding its own namespace. English is the source and
 // the fallback.
 
-const en = { ...app, ...test, ...notices, ...errors, ...about, ...notAvailable }
+const en = { ...app, ...test, ...notices, ...errors, ...about, ...notAvailable, ...a11y }
 
 const SUPPORTED_LOCALES = ['en'] as const
 type Locale = (typeof SUPPORTED_LOCALES)[number]

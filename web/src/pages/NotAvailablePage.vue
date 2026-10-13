@@ -24,7 +24,11 @@ import { Button } from '@/components/ui/button'
 </script>
 
 <template>
-  <main class="mx-auto flex w-full max-w-[1200px] flex-1 flex-col items-center justify-center gap-3 px-4 py-10 text-center">
+  <main
+    id="main"
+    tabindex="-1"
+    class="focus:outline-none mx-auto flex w-full max-w-[1200px] flex-1 flex-col items-center justify-center gap-3 px-4 py-10 text-center"
+  >
     <h1 class="text-(length:--text-2xl) font-semibold tracking-(--tracking-tight)">
       {{ $t('notAvailable.title') }}
     </h1>

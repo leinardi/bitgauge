@@ -138,6 +138,26 @@ describe('the phase order', () => {
     expect(harness.transport.server.probed).toEqual(['/api/v1/small'])
   })
 
+  it('carries each finished direction’s headline on its phase event, the result’s number', async () => {
+    const harness = start({ overheadCompensationPercent: 2 })
+    await finish(harness)
+    const result = harness.events.flatMap(({ event }) => (event.type === 'result' ? [event.result] : []))[0]
+    const headline = (phase: string) => harness.events.flatMap(({ event }) => (event.type === 'phase' && event.phase === phase && event.state === 'finished' ? [event.headlineBitsPerSecond] : []))
+    expect(result?.download?.bitsPerSecond).toBeGreaterThan(0)
+    expect(headline('download')).toEqual([result?.download?.bitsPerSecond])
+    expect(headline('upload')).toEqual([result?.upload?.bitsPerSecond])
+    expect(headline('idle')).toEqual([undefined])
+  })
+
+  it('leaves the headline off a direction with no number', async () => {
+    const harness = start()
+    await reach(harness, 'download:started', 1000)
+    harness.run.stop()
+    await finish(harness)
+    const finished = harness.events.find(({ event }) => event.type === 'phase' && event.phase === 'download' && event.state === 'finished')
+    expect(finished?.event).not.toHaveProperty('headlineBitsPerSecond')
+  })
+
   it('carries a notice for each ignored URL parameter from the first phase event to the result', async () => {
     const harness = start({ ignoredParameters: ['streams', 'cap'] })
     const report = await finish(harness)

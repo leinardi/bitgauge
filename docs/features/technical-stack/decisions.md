@@ -355,6 +355,9 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 38 | An `idle` event per ping feeds the idle-latency gauge, counter and median; a stopped direction names its window end, the notice its steady window; errors are worded by `errors.<code>` | v0.1 |
 | 39 | URL parameters go to the engine with `configure`, resolved and answered with a `settings` event; ignored ones travel with each `start` as notices; the countdown waits for the answer | v0.1 |
 | 40 | The harness evaluator judges each run pass, fail or inconclusive; a pass needs a complete result with both headlines; untabled rates fail; only a pass lets the tier pass, an unshaped debugging run included | v0.1 |
+| 41 | A finished direction's `phase` event carries its headline for the live region; spoken numbers use the visual scale with long unit names; the v0.1 result summary and a skip link | v0.1 |
+| 42 | The ramp's `I_m` spans a request cycle over 10 ms of RTT and is 100 RTT below it, at least 500 ms and 2 RTT | v0.1 |
+| 43 | The harness's iperf3 runs settle, then take the receiver's median interval; the shaper queue is an 80 ms fq_codel; a failing verdict keeps its environment | v0.1 |
 
 ## Related
 

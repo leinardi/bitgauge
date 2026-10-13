@@ -82,7 +82,7 @@ function download(): void {
     <span
       :id="tipId"
       role="tooltip"
-      class="pointer-events-none absolute right-0 bottom-[calc(100%+7px)] z-(--z-tooltip) flex items-center gap-1.5 rounded-(--radius-sm) border border-border bg-(--surface-4) px-2.5 py-1.5 text-(length:--text-caption) whitespace-nowrap text-foreground opacity-0 shadow-(--shadow-md) transition-opacity duration-(--dur-fast) group-focus-within:opacity-100 group-hover:opacity-100"
+      class="pointer-events-none absolute right-0 bottom-[calc(100%+7px)] z-(--z-tooltip) flex items-center gap-1.5 rounded-(--radius-sm) border border-border bg-(--surface-4) px-2.5 py-1.5 text-(length:--text-caption) whitespace-nowrap text-foreground opacity-0 shadow-(--shadow-md) transition-opacity duration-(--dur-fast) group-focus-within:opacity-100 motion-reduce:transition-none group-hover:opacity-100"
     ><TriangleAlert
       :size="12"
       aria-hidden="true"

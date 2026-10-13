@@ -23,17 +23,24 @@
 const NBSP = '\u00a0'
 const BYTE_UNITS = ['B', 'kB', 'MB', 'GB', 'TB'] as const
 
+/**
+ * A value scaled by thousands until it reads below 1000 at three significant digits, at most to
+ * the last of `units` scales; rounding to three digits can reach 1000, which reads as the next one.
+ */
+function scaled(value: number, units: number): { value: number; scale: number } {
+  let scale = 0
+  while (scale < units - 1 && Number(value.toPrecision(3)) >= 1000) {
+    value /= 1000
+    scale++
+  }
+  return { value, scale }
+}
+
 /** A byte count's number and decimal unit: 500 and MB, 1.5 and GB, 999 and B. */
 export function bytesParts(bytes: number, locale: string): { number: string; unit: string } {
-  let unit = 0
-  let value = bytes
-  // Rounding to three digits can reach 1000, which reads as the next unit.
-  while (unit < BYTE_UNITS.length - 1 && Number(value.toPrecision(3)) >= 1000) {
-    value /= 1000
-    unit++
-  }
+  const { value, scale } = scaled(bytes, BYTE_UNITS.length)
   const number = new Intl.NumberFormat(locale, { maximumSignificantDigits: 3 }).format(value)
-  return { number, unit: BYTE_UNITS[unit] ?? 'B' }
+  return { number, unit: BYTE_UNITS[scale] ?? 'B' }
 }
 
 /** A byte count in decimal units: 500 MB, 1.5 GB, 999 B. */
@@ -47,20 +54,20 @@ const RATE_UNITS = {
   bytes: ['kB/s', 'MB/s', 'GB/s'],
 } as const
 
+/** A rate in kbit/s (or kB/s), scaled. */
+function rateScaled(bitsPerSecond: number, units: 'bits' | 'bytes'): { value: number; scale: number } {
+  return scaled((units === 'bytes' ? bitsPerSecond / 8 : bitsPerSecond) / 1000, RATE_UNITS[units].length)
+}
+
 /**
  * A rate's number and unit, auto-scaled from kbit/s (or kB/s), with three significant digits,
  * trailing zeros kept (1.00 Mbit/s); `trim` drops them, for round numbers such as a scale's ends.
  */
 export function rateParts(bitsPerSecond: number, units: 'bits' | 'bytes', locale: string, trim = false): { number: string; unit: string } {
   const names = RATE_UNITS[units]
-  let unit = 0
-  let value = (units === 'bytes' ? bitsPerSecond / 8 : bitsPerSecond) / 1000
-  while (unit < names.length - 1 && Number(value.toPrecision(3)) >= 1000) {
-    value /= 1000
-    unit++
-  }
+  const { value, scale } = rateScaled(bitsPerSecond, units)
   const number = new Intl.NumberFormat(locale, { minimumSignificantDigits: trim ? 1 : 3, maximumSignificantDigits: 3 }).format(value)
-  return { number, unit: names[unit] ?? names[0] }
+  return { number, unit: names[scale] ?? names[0] }
 }
 
 /** A rate with its unit: 94.1 Mbit/s. */
@@ -101,4 +108,41 @@ export function formatDuration(ms: number, locale: string): string {
 export function formatPercent(percent: number, locale: string): string {
   const number = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(percent)
   return `${number}${NBSP}%`
+}
+
+// Spoken forms, for the live regions (ui/i18n-a11y.md sections 2.1 and 2.7): the same scale and
+// digits as the visual forms, with the locale's long unit names (94.1 megabits per second).
+
+const SPOKEN_RATE_UNITS = {
+  bits: ['kilobit-per-second', 'megabit-per-second', 'gigabit-per-second'],
+  bytes: ['kilobyte-per-second', 'megabyte-per-second', 'gigabyte-per-second'],
+} as const
+const SPOKEN_BYTE_UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte'] as const
+
+function spoken(value: number, unit: string, locale: string, digits: Intl.NumberFormatOptions): string {
+  return new Intl.NumberFormat(locale, { style: 'unit', unit, unitDisplay: 'long', ...digits }).format(value)
+}
+
+/** A rate spoken: 94.1 megabits per second, on the scale and with the digits of formatRate. */
+export function spokenRate(bitsPerSecond: number, units: 'bits' | 'bytes', locale: string): string {
+  const { value, scale } = rateScaled(bitsPerSecond, units)
+  return spoken(value, SPOKEN_RATE_UNITS[units][scale] ?? SPOKEN_RATE_UNITS[units][0], locale, { minimumSignificantDigits: 3, maximumSignificantDigits: 3 })
+}
+
+/** A byte count spoken: 1.2 gigabytes, on the scale and with the digits of formatBytes. */
+export function spokenBytes(bytes: number, locale: string): string {
+  const { value, scale } = scaled(bytes, BYTE_UNITS.length)
+  return spoken(value, SPOKEN_BYTE_UNITS[scale] ?? 'byte', locale, { maximumSignificantDigits: 3 })
+}
+
+/**
+ * A latency spoken with the digits of latencyNumber (51 milliseconds); below the timer resolution,
+ * the resolution, `below` set for the caller's "less than".
+ */
+export function spokenLatency(ms: number, locale: string, resolutionMs = 0): { text: string; below: boolean } {
+  if (ms < resolutionMs) {
+    return { text: spoken(resolutionMs, 'millisecond', locale, { maximumFractionDigits: 2 }), below: true }
+  }
+  const digits = resolutionMs >= 1 || ms >= 9.95 ? 0 : 1
+  return { text: spoken(ms, 'millisecond', locale, { minimumFractionDigits: digits, maximumFractionDigits: digits }), below: false }
 }

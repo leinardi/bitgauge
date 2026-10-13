@@ -80,7 +80,7 @@ class StubWorker extends EventTarget {
 const INFO = infoFixture({ server: { basePath: '/speed' } })
 const SETTINGS = settingsFromDefaults(INFO.defaults)
 
-function phase(name: PhaseName, state: PhaseState, extra: { protocol?: string; streams?: number; notices?: Notice[] } = {}): EngineEvent {
+function phase(name: PhaseName, state: PhaseState, extra: { protocol?: string; streams?: number; headlineBitsPerSecond?: number; notices?: Notice[] } = {}): EngineEvent {
   return { type: 'phase', phase: name, state, notices: [], ...extra }
 }
 
@@ -223,13 +223,13 @@ describe('useRun', () => {
     scope.stop()
   })
 
-  it('applies phase events: state, protocol, streams, the current phase and the notices so far', () => {
+  it('applies phase events: state, protocol, streams, headline, the current phase and the notices so far', () => {
     const { run, worker, scope } = started()
     run.start()
     const notice: Notice = { code: 'websocket-unavailable' }
-    worker.emit(phase('info', 'started'), phase('info', 'finished', { protocol: 'h2', notices: [notice] }), phase('download', 'started'), phase('download', 'finished', { streams: 4 }))
+    worker.emit(phase('info', 'started'), phase('info', 'finished', { protocol: 'h2', notices: [notice] }), phase('download', 'started'), phase('download', 'finished', { streams: 4, headlineBitsPerSecond: 9.41e7 }))
     expect(run.phases.value.info).toEqual({ state: 'finished', protocol: 'h2' })
-    expect(run.phases.value.download).toEqual({ state: 'finished', streams: 4 })
+    expect(run.phases.value.download).toEqual({ state: 'finished', streams: 4, headlineBitsPerSecond: 9.41e7 })
     expect(run.phases.value.upload).toEqual({ state: 'pending' })
     expect(run.phase.value).toBe('download')
     expect(run.protocol.value).toBe('h2')

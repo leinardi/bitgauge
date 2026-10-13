@@ -104,10 +104,11 @@ carries a recommendation; where the specification already relies on an answer, i
     recomputed from the rules on a link shared equally among the requests crossing it, with half
     the RTT each way**. A sequential stream idles one RTT between requests, so a second stream
     gains and the ramp settles at 4 streams with `no-gain`; on upload the added streams' first
-    64 KiB requests hold the watermark back. At 300 kbit/s and 300 ms the upload trial to 2 is
-    decided at ≈ 6.85 s (it was ≈ 9.3 s), the trial to 4 at ≈ 13.5 s, the window condition holds
-    at ≈ 15.4 s, and the upload ends by ≈ 17.4 s with `confidence: low`
-    (`insufficient-samples`); the download settles at ≈ 6.3 s with a ≈ 3.7 s window.
+    64 KiB requests hold the watermark back. At 300 kbit/s and 300 ms, with the `I_m` of item 42,
+    the upload trial to 2 is decided at ≈ 8.2 s, the trial to 4 at ≈ 14.8 s, the window condition
+    holds at ≈ 17.6 s, and the upload ends by ≈ 18.3 s with `confidence: low`
+    (`insufficient-samples`); the download settles at ≈ 9.1 s and is extended to ≈ 12.1 s for its
+    3 s window.
     Recommendation: confirm on the harness floor profiles; if they show low confidence there,
     consider sizing an added stream's first request from `T_base / N` rather than 64 KiB. See
     [measurement.md §19.1](measurement.md#191-slow-link-budget-300-kbits-300-ms-rtt-standard).
@@ -142,16 +143,14 @@ carries a recommendation; where the specification already relies on an answer, i
     they occur, and any completed request resets the count; the phase ends on the data cap at the
     instant a stream would issue a request with less than 16 KiB of budget left, the budget
     counting the bytes still to move of the requests in flight; a direction reports the protocol
-    of its latest throughput request with a Resource Timing entry. On the shared-link model the
-    100 Mbit/s download of §19.3 keeps its trial to 2 streams, because its baseline's last interval
-    holds a request gap, and plateaus at 4 streams at ≈ 5 s (it was 2 streams at ≈ 4 s); it still
-    ends at 10 s, with a ≈ 5 s window. §19.2 is worked at the ≈ 0.478 Mbit/s of goodput its
-    500 kbit/s shaper carries, and its download headline is ≈ 95.5 % of it: four streams at the
-    16 KiB floor end their requests together once in the window and leave the link idle for one
-    RTT gap. A delayed chunk never changes a bucket a decision has read. Recommendation: keep it;
-    confirm the §19.3 ramp and the §19.2 headline on the harness CI profile, and if the harness
-    shows the coinciding gaps, consider letting a floor-sized stream issue its next request before
-    the last byte of the current one arrives. See [measurement.md §4](measurement.md#4-adaptive-stream-count),
+    of its latest throughput request with a Resource Timing entry. §19.2 is worked at the
+    ≈ 0.478 Mbit/s of goodput its 500 kbit/s shaper carries. With the `I_m` of item 42, which spans
+    a request cycle, the 100 Mbit/s download of §19.3 plateaus at 2 streams at ≈ 5.3 s and ends at
+    10 s with a ≈ 4.7 s window, and the §19.2 download ramps to 6 streams at the 16 KiB floor,
+    whose headline is the goodput within 0.1 %; before it, four streams there ended their requests
+    together and left the link idle for one RTT gap. A delayed chunk never changes a bucket a
+    decision has read. Recommendation: keep it; the harness CI profiles confirmed both headlines
+    (item 43). See [measurement.md §4](measurement.md#4-adaptive-stream-count),
     [§5](measurement.md#5-adaptive-duration), [§6](measurement.md#6-download-mechanics),
     [§19.2](measurement.md#192-500-kbits--300-ms-rtt-mobile-over-vpn-standard) and
     [§19.3](measurement.md#193-100-mbits--50-ms-rtt-standard).
@@ -370,6 +369,41 @@ carries a recommendation; where the specification already relies on an answer, i
     pass it fails the tier; and the loaded-latency rule is not applicable in v0.1, which measures
     none.** Recommendation: keep it. See
     [technical-stack/testing.md §5.1](technical-stack/testing.md#51-implementation).
+41. How does the v0.1 screen reader output get its numbers and words, when the engine sends a
+    direction's headline only in the result? Current answer: **a `finished` download or upload
+    `phase` event carries its headline, computed by the same code as the result's, so the live
+    region announces it once as the direction finishes; spoken numbers keep the visual scale and
+    digits with the locale's long unit names; the rate announced is the one the gauge shows, the
+    upload's sending progress named as such; the announcements of one change are read as one
+    message, headline first; the result summary holds the v0.1 metrics in the order of §2.7; a
+    skip link opens every screen.** Recommendation: keep it. See
+    [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
+    [ui/i18n-a11y.md §2](ui/i18n-a11y.md#2-accessibility).
+42. How long is the ramp's measurement interval `I_m`? Current answer: **`max(500 ms, 2 × RTT,
+    min(100 × RTT, 1 s + RTT))`**, where it was `max(500 ms, 2 × RTT)`. A stream loses a few round
+    trips each request cycle, the round trip between its requests and, in WebKit, the slow start of
+    a connection gone idle or opened anew. On the harness CI tier a 500 ms interval read the full
+    link in one interval and that gap in the next: at 500 kbit/s and 300 ms the floor rule tripped
+    on a gap interval, and at 100 Mbit/s and 50 ms `T_base` came from a lucky interval, so the
+    trials showed no gain and WebKit's upload read 20–27 % low. `I_m` is now a whole request cycle
+    over 10 ms of RTT, which holds one gap in every interval, and 100 RTT below it, over which those
+    few round trips cost no more than the noise of a mean; a LAN keeps the 500 ms floor. The §19.1
+    to §19.3 timelines are recomputed: slow links take longer to ramp and are extended past their
+    minimum. Recommendation: keep it. See [measurement.md
+    §8.2](measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare) and
+    [§19](measurement.md#19-worked-timelines).
+43. How does the harness measure its iperf3 reference and shape its link? Current answer:
+    **each iperf3 run settles for `max(2 s, 10 × RTT)`, then takes the median of the receiver's
+    one-second intervals, with a block length of 10 ms of data; each direction's queue is 80 ms
+    of data and at least 64 KiB, an fq_codel whose target is its own length; and a run whose
+    verdict fails keeps its environment under `HARNESS_KEEP_ON_FAILURE`, as a failed run does.**
+    iperf3's `--omit` carries the omitted seconds' bytes into its totals; a mean over a few seconds
+    reads a loss recovery's held-back bytes as a rate the link never had; a 128 KiB block
+    quantizes the counts of a 500 kbit/s link; and a drop-tail FIFO let an established stream lock
+    a new one out for 20 s, measuring TCP's fairness rather than BitGauge. With these, every CI
+    profile passes on Chromium, Firefox and WebKit. Recommendation: keep it. See
+    [technical-stack/testing.md §5.1](technical-stack/testing.md#51-implementation) and the
+    [harness runbook](../engineering/accuracy-harness.md).
 
 Resolved and removed:
 

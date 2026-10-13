@@ -24,19 +24,19 @@ MK_LOCAL_HARNESS_INCLUDED := 1
 # The accuracy harness (testing.md section 5): Go runners behind the harness build tag drive the
 # topology over the docker CLI and write dist/harness/<tier>-<UTC>-<envid>/report.{json,md}.
 #
-# Dormant until the image prerequisites, the engine's result object, the Test screen and its
-# Download JSON extraction path exist (the accuracy harness gate of test/toolchain/gates.go): until
-# then the runners fail, naming what is missing, before any container starts.
+# Held to the image prerequisites, the engine's result object, the Test screen and its Download
+# JSON extraction path (the accuracy harness gate of test/toolchain/gates.go): without any of them
+# the runners fail, naming what is missing, before any container starts.
 #
-# Prerequisites: Linux, a running Docker daemon with buildx, a dhi.io login, the ifb, netem and tbf
-# kernel modules loadable, cgroup v2 with memory.peak (Linux 5.19 or later), and npm --prefix web
+# Prerequisites: Linux, a running Docker daemon with buildx, a dhi.io login, the ifb, netem, tbf and
+# fq_codel kernel modules loadable, cgroup v2 with memory.peak (Linux 5.19 or later), and npm --prefix web
 # ci on the host (the client mounts web/ with its node_modules; it has no route out to install
 # anything).
 #
 # Inputs, all optional:
 #   HARNESS_PROFILES         comma-separated profile names of the tier (default: all)
 #   HARNESS_BROWSERS         comma-separated chromium, firefox, webkit (default: all three)
-#   HARNESS_KEEP_ON_FAILURE  1 keeps a failed run's containers, marked keep=true
+#   HARNESS_KEEP_ON_FAILURE  1 keeps the containers of a run that errored or failed its tolerances
 #   HARNESS_SHAPE            none runs without the shaper (harness-ceiling sets it)
 
 HARNESS_TIMEOUT         ?= 120m

@@ -168,10 +168,12 @@ func TestShaperCommands(t *testing.T) {
 
 	for _, want := range []string{
 		"tc qdisc add dev eth0 root handle 1: netem delay 300ms\n",
-		"tc qdisc add dev eth0 parent 1: handle 2: tbf rate 300000bit burst 3028 latency 400ms",
+		"tc qdisc add dev eth0 parent 1: handle 2: tbf rate 300000bit burst 3028 limit 65536\n",
+		"tc qdisc add dev eth0 parent 2:1 handle 3: fq_codel limit 44 target 1748ms interval 3496ms\n",
 		"ip link add ifb0 type ifb",
 		"action mirred egress redirect dev ifb0",
-		"tc qdisc add dev ifb0 root tbf rate 300000bit burst 3028 latency 400ms",
+		"tc qdisc add dev ifb0 root handle 2: tbf rate 300000bit burst 3028 limit 65536\n",
+		"tc qdisc add dev ifb0 parent 2:1 handle 3: fq_codel limit 44 target 1748ms interval 3496ms",
 	} {
 		if !strings.Contains(commands, want) {
 			t.Errorf("the shaper does not run %q:\n%s", want, commands)
@@ -192,8 +194,10 @@ func TestShaperCommands(t *testing.T) {
 	fast := Profile{RateBitsPerSecond: 1_000_000_000}
 
 	shaped := strings.Join(ShaperCommands(&fast), "\n")
+	// 80 ms of data at 1 Gbit: 10 MB, 6606 full frames.
 	if !strings.Contains(shaped, "netem delay 0ms\n") ||
-		!strings.Contains(shaped, "burst 1250000 ") {
+		!strings.Contains(shaped, "burst 1250000 limit 10000000\n") ||
+		!strings.Contains(shaped, "fq_codel limit 6606 target 80ms interval 160ms\n") {
 		t.Errorf("1 Gbit without delay:\n%s", shaped)
 	}
 
@@ -242,17 +246,60 @@ func TestClientCounters(t *testing.T) {
 func TestReceivedBitsPerSecond(t *testing.T) {
 	t.Parallel()
 
-	got, err := receivedBitsPerSecond(
-		`{"start":{},"end":{"sum_sent":{"bits_per_second":2},"sum_received":{"bits_per_second":9.5e7}}}`,
-	)
-	if err != nil || got != 9.5e7 {
-		t.Errorf("got %v, %v", got, err)
+	// A loss recovery holds the third second's bytes back into the fourth; the median reads the
+	// link, where the mean of the counted seconds would read 5 % fast. The short last interval
+	// and the seconds before the settle do not count.
+	intervals := `[{"sum":{"start":0,"seconds":1,"bits_per_second":1}},` +
+		`{"sum":{"start":2,"seconds":1,"bits_per_second":4.75e5}},` +
+		`{"sum":{"start":3,"seconds":1,"bits_per_second":2.5e5}},` +
+		`{"sum":{"start":4,"seconds":1,"bits_per_second":7.5e5}},` +
+		`{"sum":{"start":5,"seconds":1,"bits_per_second":4.75e5}},` +
+		`{"sum":{"start":6,"seconds":0.2,"bits_per_second":9e9}}]`
+
+	for _, test := range []struct {
+		name    string
+		out     string
+		reverse bool
+	}{
+		{"download, the client's intervals", `{"intervals":` + intervals + `}`, true},
+		{"upload, the server's intervals", `{"intervals":[],"server_output_json":{"intervals":` + intervals + `}}`, false},
+	} {
+		got, err := receivedBitsPerSecond(test.out, test.reverse, 2*time.Second)
+		if err != nil || got != 4.75e5 {
+			t.Errorf("%s: got %v, %v", test.name, got, err)
+		}
 	}
 
-	for _, bad := range []string{"", "not json", `{"end":{}}`, `{"error":"unable to connect"}`} {
-		_, err = receivedBitsPerSecond(bad)
+	for _, bad := range []string{"", "not json", `{"intervals":[]}`, `{"error":"unable to connect"}`} {
+		_, err := receivedBitsPerSecond(bad, true, 2*time.Second)
 		if err == nil {
 			t.Errorf("%q was read as a throughput", bad)
+		}
+	}
+
+	_, err := receivedBitsPerSecond(`{"intervals":`+intervals+`}`, false, 2*time.Second)
+	if err == nil {
+		t.Error("an upload without the server's intervals was read as a throughput")
+	}
+}
+
+func TestIperf3Settings(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		rate   int64
+		length int64
+	}{{500 * kbit, 1448}, {10 * mbit, 12500}, {100 * mbit, 125000}, {gbit, 131072}, {0, 131072}} {
+		if got := Iperf3Length(test.rate); got != test.length {
+			t.Errorf("Iperf3Length(%d) = %d, want %d", test.rate, got, test.length)
+		}
+	}
+
+	for _, test := range []struct {
+		rtt, settle time.Duration
+	}{{0, 2 * time.Second}, {50 * time.Millisecond, 2 * time.Second}, {300 * time.Millisecond, 3 * time.Second}, {600 * time.Millisecond, 6 * time.Second}} {
+		if got := Iperf3Settle(test.rtt); got != test.settle {
+			t.Errorf("Iperf3Settle(%s) = %s, want %s", test.rtt, got, test.settle)
 		}
 	}
 }

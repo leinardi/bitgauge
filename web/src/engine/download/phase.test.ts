@@ -94,47 +94,47 @@ function headline(outcome: DownloadOutcome): number {
 }
 
 describe('section 19.2, 500 kbit/s and 300 ms RTT', () => {
-  it('ends warm-up with the no-gain plateau at 6.9 s and the phase at its 10 s minimum with a 3.1 s window', async () => {
+  it('ends warm-up at the 10 s bound with the ramp unsettled at 6 streams, extending the phase to 13 s', async () => {
     const { outcome } = await run(VPN)
+    const unsettled = { level: 'low', reasons: ['ramp-unsettled'] }
     expect(outcome).toMatchObject({
       status: 'measured',
-      endMs: 10_000,
-      warmup: { bucket: 69, confidence: NORMAL },
-      window: { fromMs: 6900, toMs: 10_000 },
-      streams: 4,
+      endMs: 13_000,
+      warmup: { bucket: 100, confidence: unsettled },
+      window: { fromMs: 10_000, toMs: 13_000 },
+      streams: 6,
       plateau: 'no-gain',
       protocol: 'h2',
-      notices: [],
-      events: [],
+      notices: [
+        { code: 'slow-link-extended', direction: 'download' },
+        { code: 'low-confidence', direction: 'download', reasons: ['ramp-unsettled'] },
+      ],
+      events: [{ code: 'extended', atMs: 10_000 }],
       dataCapReached: false,
     })
   })
 
-  it('meets the window condition at 9.9 s, 3 s after warm-up', async () => {
-    // With a 5 s minimum the phase ends at the first instant the condition holds.
+  it('meets the window condition at 13 s, 3 s after warm-up, with a 5 s minimum too', async () => {
+    // The window condition, not the minimum, ends the phase; the extension starts at the minimum.
     const { outcome } = await run(VPN, { bounds: { minMs: 5000, maxMs: 20_000 } })
-    expect(outcome.endMs).toBe(9900)
-    expect(outcome.window).toMatchObject({ fromMs: 6900, toMs: 9900 })
-    expect(outcome.notices).toEqual([{ code: 'slow-link-extended', direction: 'download' }])
+    expect(outcome.endMs).toBe(13_000)
+    expect(outcome.window).toMatchObject({ fromMs: 10_000, toMs: 13_000 })
     expect(outcome.events).toEqual([{ code: 'extended', atMs: 5000 }])
   })
 
   it('counts every byte the link carried into the bucket it arrived in', async () => {
     const { outcome, transport } = await run(VPN)
-    const carried = Array.from({ length: 100 }, (_, bucket) => transport.carried.download[bucket] ?? 0)
+    const carried = Array.from({ length: 130 }, (_, bucket) => transport.carried.download[bucket] ?? 0)
     expect(outcome.buckets).toEqual(carried)
     expect(outcome.buckets.reduce((sum, bytes) => sum + bytes, 0)).toBe(outcome.bytes)
   })
 
-  it('reports ≈ 0.457 Mbit/s, the link idling once in the window, and ≈ 0.54 MB of data used', async () => {
+  it('reports ≈ 0.478 Mbit/s, the six streams keeping the link busy, and ≈ 0.70 MB of data used', async () => {
     const { outcome } = await run(VPN)
-    expect(Math.abs(headline(outcome) / 457_000 - 1)).toBeLessThan(0.02)
-    // ≈ 95.5 % of the goodput: the four floor-sized streams' RTT gaps coincide once, 9.4 to 9.6 s.
-    expect(headline(outcome) / (GOODPUT * 8)).toBeCloseTo(0.955, 2)
-    const [, , gapStart = 0, gapEnd = 0] = outcome.buckets.slice(92, 96)
-    expect(gapStart + gapEnd).toBeLessThan(GOODPUT / 10)
-    expect(Math.min(...outcome.buckets.slice(69))).toBe(gapEnd)
-    expect(outcome.bytes / 1e6).toBeCloseTo(0.54, 2)
+    // The goodput within 0.1 %: six floor-sized streams leave no RTT gap in the window.
+    expect(headline(outcome) / (GOODPUT * 8)).toBeCloseTo(1, 3)
+    expect(Math.min(...outcome.buckets.slice(100))).toBeGreaterThan(GOODPUT / 10 - 50)
+    expect(outcome.bytes / 1e6).toBeCloseTo(0.7, 2)
   })
 
   it('sizes the first request at 64 KiB and the next at the stream rate', async () => {
@@ -152,23 +152,23 @@ describe('section 19.3, 100 Mbit/s and 50 ms RTT', () => {
     expect(transport.requested.download.slice(0, 4)).toEqual([FIRST_SIZE, 512 * 1024, 4 * MIB, 12_520_310])
   })
 
-  it('keeps the trial to 2 over the baseline that held a request gap, and plateaus at 4 streams at 5 s', async () => {
+  it('plateaus at 2 streams when the trial to 4 gains nothing, ending warm-up at 5.3 s', async () => {
     const { outcome } = await run(FAST)
     expect(outcome).toMatchObject({
       status: 'measured',
       endMs: 10_000,
-      warmup: { bucket: 50, confidence: NORMAL },
-      window: { fromMs: 5000, toMs: 10_000 },
-      streams: 4,
+      warmup: { bucket: 53, confidence: NORMAL },
+      window: { fromMs: 5300, toMs: 10_000 },
+      streams: 2,
       plateau: 'no-gain',
     })
     expect(Math.abs(headline(outcome) / 100e6 - 1)).toBeLessThan(0.01)
-    expect(outcome.bytes / 1e6).toBeCloseTo(122, 0)
+    expect(outcome.bytes / 1e6).toBeCloseTo(121, 0)
   })
 
-  it('meets the window condition at 8 s', async () => {
+  it('meets the window condition at 8.3 s', async () => {
     const { outcome } = await run(FAST, { bounds: { minMs: 5000, maxMs: 20_000 } })
-    expect(outcome.endMs).toBe(8000)
+    expect(outcome.endMs).toBe(8300)
   })
 })
 
@@ -270,8 +270,8 @@ describe('a 429', () => {
   })
 
   it('ends a running trial at the lowered cap', async () => {
-    // Request 3 is the first of stream 2, issued by the trial to 2 at 3.3 s.
-    const { outcome } = await run(failing({ 3: { kind: 'status', status: 429 } }), {
+    // Request 4 is the first of stream 2, issued by the trial to 2 at 4.1 s.
+    const { outcome } = await run(failing({ 4: { kind: 'status', status: 429 } }), {
       limits: { maxDownloadBytes: 256 * MIB, maxStreamsPerClient: 2 },
     })
     expect(outcome).toMatchObject({ streams: 1, plateau: 'cap' })
@@ -308,7 +308,7 @@ describe('the data cap', () => {
 
 describe('response details', () => {
   it('add the compression notice when a response carries Content-Encoding', async () => {
-    const { outcome } = await run({ ...VPN, contentEncoding: 'gzip' })
+    const { outcome } = await run({ ...FAST, contentEncoding: 'gzip' })
     expect(outcome.notices).toEqual([{ code: 'response-compression-detected' }])
   })
 
@@ -379,10 +379,10 @@ describe('a window ended between two ticks', () => {
     await clock.advance(9050)
     phase.stop()
     await clock.advance(5000)
-    // §19.3: warm-up ended at 5 s; the stop at 9.05 s leaves the window at 5 s to 9 s.
-    expect(outcome()).toMatchObject({ status: 'partial', endMs: 9050, window: { fromMs: 5000, toMs: 9000 } })
+    // §19.3: warm-up ended at 5.3 s; the stop at 9.05 s leaves the window at 5.3 s to 9 s.
+    expect(outcome()).toMatchObject({ status: 'partial', endMs: 9050, window: { fromMs: 5300, toMs: 9000 } })
     expect(outcome()?.buckets).toHaveLength(91)
     const window = outcome()?.window
-    expect(window?.bytes).toBe(outcome()?.buckets.slice(50, 90).reduce((sum, bytes) => sum + bytes, 0))
+    expect(window?.bytes).toBe(outcome()?.buckets.slice(53, 90).reduce((sum, bytes) => sum + bytes, 0))
   })
 })

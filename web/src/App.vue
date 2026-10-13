@@ -25,8 +25,8 @@ import TabBar from '@/components/layout/TabBar.vue'
 import { useInfo } from '@/composables/useInfo'
 import { useTheme } from '@/composables/useTheme'
 
-// The application frame: the header on every screen, the route's page, and the tab bar on narrow
-// screens (ui/README.md). A base-path mismatch replaces all of it with its error screen
+// The application frame: the skip link to the page's main content (ui/i18n-a11y.md section 2.3), the
+// header on every screen, the route's page, and the tab bar on narrow screens (ui/README.md). A base-path mismatch replaces all of it with its error screen
 // (edge-cases.md section 20). The page's own path is checked before anything renders, so a page
 // that fails it starts nothing.
 
@@ -45,6 +45,11 @@ void load((path) => router.resolve(path).matched.length > 0)
     v-else
     class="flex min-h-dvh flex-col bg-background font-sans text-foreground"
   >
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-(--radius-sm) focus:bg-background focus:px-3 focus:py-2 focus:text-(length:--text-base) focus:ring-3 focus:ring-ring/50"
+      data-testid="skip-link"
+    >{{ $t('a11y.skip') }}</a>
     <AppHeader />
     <RouterView />
     <TabBar />

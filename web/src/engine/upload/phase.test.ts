@@ -122,15 +122,16 @@ describe('section 19.1, 300 kbit/s and 300 ms RTT', () => {
   it('confirms the first request at ≈ 2.05 s and ramps as the confirmations allow', async () => {
     const { sends, answers, outcome } = await run(SLOW)
     expect(answers[0]).toBe(2048)
-    // The baseline adds stream 2 at 3.35 s; its kept trial adds streams 3 and 4 at 6.85 s.
-    expect(sends.filter((send) => send.size === FIRST_SIZE).map((send) => send.at)).toEqual([0, 3348, 6844, 6844])
-    expect(outcome).toMatchObject({ streams: 4, plateau: 'no-gain', warmup: { bucket: 87, confidence: LOW_SAMPLES }, warmupEndMs: 8700 })
+    // The baseline adds stream 2 at 4.65 s; its kept trial adds streams 3 and 4 at 8.2 s.
+    expect(sends.filter((send) => send.size === FIRST_SIZE).map((send) => send.at)).toEqual([0, 4648, 8196, 8196])
+    expect(outcome).toMatchObject({ streams: 4, plateau: 'no-gain', warmup: { bucket: 108, confidence: LOW_SAMPLES }, warmupEndMs: 10_800 })
   })
 
-  it('meets the window condition at ≈ 15.4 s, issues nothing after it, and ends by 17.4 s', async () => {
-    const { sends, outcome, endedAt } = await run(SLOW)
-    expect(Math.max(...sends.map((send) => send.at))).toBeLessThanOrEqual(15_388)
-    expect(endedAt).toBeLessThanOrEqual(17_400)
+  it('meets the window condition at ≈ 17.6 s, issues nothing after it, and ends by 18.4 s', async () => {
+    const { sends, phase, outcome, endedAt } = await run(SLOW)
+    expect(phase.haltedAt).toBe(17_644)
+    expect(Math.max(...sends.map((send) => send.at))).toBeLessThanOrEqual(17_644)
+    expect(endedAt).toBeLessThanOrEqual(18_400)
     expect(outcome.status).toBe('measured')
     expect(outcome.window).toMatchObject({ sufficient: true })
     expect(outcome.notices).toEqual([
@@ -144,12 +145,13 @@ describe('section 19.1, 300 kbit/s and 300 ms RTT', () => {
   })
 
   it('gives the requests in flight min(2 s, 2 × 1.75 s) = 2 s of grace', async () => {
-    // The 16 KiB request sent at 15.37 s, still in flight at the 15.39 s decision, never answers;
+    // The 16 KiB request sent at 16.63 s, still in flight at the 17.47 s decision, never answers;
     // its stream's rate makes it a 1.75 s request.
-    const { endedAt, outcome, sends } = await run(failing(SLOW, (index) => (index >= 17 ? { kind: 'stall' } : null)))
-    expect(sends[17]).toEqual({ at: 15_370, size: 16_384 })
-    expect(sends).toHaveLength(18)
-    expect(endedAt).toBe(15_388 + 2000)
+    const { endedAt, outcome, phase, sends } = await run(failing(SLOW, (index) => (index >= 21 ? { kind: 'stall' } : null)))
+    expect(sends[21]).toEqual({ at: 16_630, size: 16_384 })
+    expect(sends).toHaveLength(22)
+    expect(phase.haltedAt).toBe(17_466)
+    expect(endedAt).toBe(17_466 + 2000)
     expect(outcome.status).toBe('measured')
   })
 })
@@ -186,15 +188,15 @@ describe('a stop during the grace', () => {
   })
 
   it('ends the phase at once, as partial', async () => {
-    const { clock, phase, outcome, endedAt } = start(failing(SLOW, (index) => (index >= 17 ? { kind: 'stall' } : null)))
-    await clock.advance(16_000)
-    expect(phase.haltedAt).toBe(15_388)
+    const { clock, phase, outcome, endedAt } = start(failing(SLOW, (index) => (index >= 21 ? { kind: 'stall' } : null)))
+    await clock.advance(18_000)
+    expect(phase.haltedAt).toBe(17_466)
     expect(outcome()).toBeUndefined()
     phase.stop()
     await clock.advance(0)
-    expect(endedAt()).toBe(16_000)
+    expect(endedAt()).toBe(18_000)
     expect(outcome()?.status).toBe('partial')
-    expect(phase.haltedAt).toBe(15_388)
+    expect(phase.haltedAt).toBe(17_466)
     expect(clock.pending).toBe(0)
   })
 })
@@ -388,7 +390,7 @@ describe('the timelines', () => {
     const { outcome } = await run({ ...SLOW, gridOffsetMs: 5000 })
     expect(outcome.phaseStartMs).toBe(5150)
     expect(outcome.displayOffsetMs).toBe(150 - 5000)
-    expect(outcome.warmupEndMs).toBe(13_700)
+    expect(outcome.warmupEndMs).toBe(15_800)
     expect(outcome.events).toEqual([{ code: 'extended', atMs: 14_700 }])
   })
 })

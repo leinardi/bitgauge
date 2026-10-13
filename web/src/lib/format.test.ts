@@ -22,7 +22,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, latencyNumber, rateParts } from '@/lib/format'
+import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, latencyNumber, rateParts, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
 
 describe('formatBytes', () => {
   it.each([
@@ -94,5 +94,24 @@ describe('the formatting table of screens.md section 6', () => {
     [formatPercent(2.5, 'en'), '2.5 %'],
   ])('writes %s as %s', (written, expected) => {
     expect(written).toBe(expected.replaceAll(' ', NB))
+  })
+})
+
+describe('the spoken forms', () => {
+  it('say a rate with the visual scale and digits, and the long unit names', () => {
+    expect(spokenRate(9.41e7, 'bits', 'en')).toBe('94.1 megabits per second')
+    expect(spokenRate(1e6, 'bits', 'en')).toBe('1.00 megabits per second')
+    expect(spokenRate(472_000, 'bits', 'en')).toBe('472 kilobits per second')
+    expect(spokenRate(999_600_000, 'bits', 'en')).toBe('1.00 gigabits per second')
+    expect(spokenRate(8e8, 'bytes', 'en')).toBe('100 megabytes per second')
+    expect(spokenRate(2.38e9, 'bits', 'de')).toBe('2,38 Gigabit pro Sekunde')
+  })
+
+  it('say a byte count and a latency the same way', () => {
+    expect(spokenBytes(1_234_567_890, 'en')).toBe('1.23 gigabytes')
+    expect(spokenBytes(1, 'en')).toBe('1 byte')
+    expect(spokenLatency(51.4, 'en')).toEqual({ text: '51 milliseconds', below: false })
+    expect(spokenLatency(1.94, 'en')).toEqual({ text: '1.9 milliseconds', below: false })
+    expect(spokenLatency(0.5, 'en', 1)).toEqual({ text: '1 millisecond', below: true })
   })
 })

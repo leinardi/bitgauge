@@ -1,0 +1,54 @@
+{
+  "a11y": {
+    "skip": "Skip to main content",
+    "lessThan": "less than {value}",
+    "live": {
+      "phase": {
+        "info": "Connecting to the server",
+        "idle": "Measuring idle latency",
+        "download": "Measuring download",
+        "upload": "Measuring upload"
+      },
+      "rate": {
+        "download": "Download, {rate}",
+        "upload": "Upload sending, {rate}"
+      },
+      "headline": {
+        "download": "Download result: {rate}",
+        "upload": "Upload result: {rate}"
+      },
+      "noHeadline": {
+        "download": "Download finished without a number",
+        "upload": "Upload finished without a number"
+      }
+    },
+    "summary": {
+      "status": {
+        "complete": "Test complete.",
+        "partial": "Partial result: the test was stopped early.",
+        "error": "Test failed. The phases that finished before the error are kept."
+      },
+      "download": {
+        "measured": "Download {rate}.",
+        "qualified": "Download {rate}, {qualifiers}.",
+        "insufficient": "Download: insufficient data.",
+        "skipped": "Download skipped.",
+        "error": "Download failed."
+      },
+      "upload": {
+        "measured": "Upload {rate}.",
+        "qualified": "Upload {rate}, {qualifiers}.",
+        "insufficient": "Upload: insufficient data.",
+        "skipped": "Upload skipped.",
+        "error": "Upload failed."
+      },
+      "partial": "partial, stopped early",
+      "lowConfidence": "low confidence: {reasons}",
+      "idle": "Idle latency {median}.",
+      "idleJitter": "Idle latency {median}, jitter {jitter}.",
+      "idleUnavailable": "Idle latency unavailable.",
+      "data": "Data used {data}.",
+      "notices": "Notice: {titles}. | Notices: {titles}."
+    }
+  }
+}

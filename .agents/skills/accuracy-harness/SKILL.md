@@ -109,16 +109,17 @@ self-test, and its report says `unshaped`: it is a debugging run, not a run of t
 it stays `recorded`, is not judged, and fails the tier.
 
 Prerequisites (`.mk/harness.mk`): Linux, a Docker daemon with buildx, a `dhi.io` login, the `ifb`,
-`netem` and `tbf` kernel modules, cgroup v2 with `memory.peak` (Linux 5.19 or later), and
-`npm --prefix web ci` on the host: the client mounts `web/` read-only with its `node_modules`,
+`netem`, `tbf` and `fq_codel` kernel modules, cgroup v2 with `memory.peak` (Linux 5.19 or later),
+and `npm --prefix web ci` on the host: the client mounts `web/` read-only with its `node_modules`,
 because it has no route out to install anything.
 
 Topology per run (`topology.go`): an `--internal` network; the netguard holder owning BitGauge's
-namespace, which the built image (read-only, `--cap-drop ALL`, `no-new-privileges`) and
-`iperf3 -s` join; an optional Traefik or Caddy; the Playwright client; and a shaper sidecar in the
-**client's** namespace (tbf and netem on egress, an `ifb` mirror for ingress) that also runs the
-iperf3 client and the ICMP ping, so they take the browser's path. Third-party images are pinned by
-digest in `images.go`, refreshed by hand in each health audit.
+namespace, which the built image (read-only, `--cap-drop ALL`, `no-new-privileges`) and `iperf3 -s`
+join; an optional Traefik or Caddy; the Playwright client; and a shaper sidecar in the **client's**
+namespace (tbf and netem on egress, an `ifb` mirror for ingress, each tbf queueing into an fq_codel
+of 80 ms of data, at least 64 KiB, whose CoDel target is that length: testing.md §5.1) that also
+runs the iperf3 client and the ICMP ping, so they take the browser's path. Third-party images are
+pinned by digest in `images.go`, refreshed by hand in each health audit.
 
 ## 4. Rules that outrank a green run
 
@@ -165,9 +166,14 @@ against the **configured goodput**, not the configured rate; against the rate, t
 leave about 0.6 % of headroom and nearly every profile would go inconclusive. Never move that
 baseline back, and never resolve a borderline profile by widening the bound.
 
-Each reference run lasts the preset's download minimum (Standard 10 s, Extended 20 s) after
-`--omit 2` seconds of ramp (`ReferenceDuration`): testing.md asks for the steady-window duration,
-which is adaptive and known only after the run, so this is a recorded choice.
+Each reference run lasts the preset's download minimum (Standard 10 s, Extended 20 s)
+(`ReferenceDuration`): testing.md asks for the steady-window duration, which is adaptive and known
+only after the run, so this is a recorded choice. Every iperf3 run, the self-test's included, first
+settles for `max(2 s, 10 × RTT)` (`Iperf3Settle`), uses blocks of 10 ms of data
+(`Iperf3Length`), and reads the receiver's one-second intervals, whose median from the settle on is
+its rate (testing.md §5.1, iperf3 runs). Never go back to `--omit` or to iperf3's totals: `--omit`
+carries the omitted seconds' bytes into them, and at 500 kbit/s over 300 ms a single loss recovery
+moves a second's bytes into the next, so a 5 s total read 629 kbit/s on a 500 kbit/s link.
 
 ### The shaper self-test gates every shaped profile
 
@@ -213,7 +219,8 @@ guarantee ([security.md §3](../../../docs/features/security.md#3-no-outbound-ca
 its own envid, recorded in the report.
 
 - **Down** removes only the run's own envid, containers first.
-- **Keep on failure:** with `HARNESS_KEEP_ON_FAILURE=1`, a failed run's resources stay, and a
+- **Keep on failure:** with `HARNESS_KEEP_ON_FAILURE=1`, the resources of a run that errored or
+  failed its tolerances (judged inside its subtest, so an inconclusive one is not kept) stay, and a
   marker network `bitgauge-test-<envid>-keep` carrying `.keep=true` is created. The sweep never
   removes a kept environment; remove it yourself by its envid filter once inspected.
 - **Stale sweep** (before every harness invocation, in `TestMain`, and in `make harness-sweep`):

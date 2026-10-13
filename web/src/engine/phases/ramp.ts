@@ -38,6 +38,12 @@ const BASELINE_CAP_MS = 3000
 /** The floor rule: a trial is skipped when its per-stream rate would be below 8 KiB/s. */
 const FLOOR_RATE = 8 * 1024
 
+/** The request target a measurement interval may span (measurement.md section 3). */
+const REQUEST_CYCLE_MS = 1000
+
+/** A measurement interval of this many RTT keeps a restarted slow start's loss to its noise. */
+const CYCLE_ROUND_TRIPS = 100
+
 /** The RTT the intervals use when idle latency was skipped. */
 const DEFAULT_RTT_MS = 100
 
@@ -62,9 +68,14 @@ export function settleBuckets(rttMs: number | null): number {
   return wholeBuckets(Math.max(1000, 4 * (rttMs ?? DEFAULT_RTT_MS)))
 }
 
-/** I_m, the measurement interval, in whole buckets. */
+/**
+ * I_m, the measurement interval, in whole buckets: at least 500 ms and 2 RTT, and long enough that
+ * the few round trips a stream loses each request cycle cannot move its mean, either 100 RTT or a
+ * whole request cycle (the 1 s request target and one round trip), whichever is shorter.
+ */
 export function measureBuckets(rttMs: number | null): number {
-  return wholeBuckets(Math.max(500, 2 * (rttMs ?? DEFAULT_RTT_MS)))
+  const rtt = rttMs ?? DEFAULT_RTT_MS
+  return wholeBuckets(Math.max(500, 2 * rtt, Math.min(CYCLE_ROUND_TRIPS * rtt, REQUEST_CYCLE_MS + rtt)))
 }
 
 function firstWithBytes(series: BucketSeries): number | null {

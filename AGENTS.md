@@ -92,9 +92,9 @@ make docker-run        # run the image read-only on 127.0.0.1:8080, DOCKER_RUN_B
 make go-test-image     # build the image, test it under netguard and strace (dhi.io)
 # the probe and netguard tests alone (Docker, no dhi.io):
 go test -tags=image -v -run 'Probe|Count|Blind' ./test/image/ ./test/internal/netguard/
-make harness-ci        # accuracy harness, CI tier (dormant; Docker)
-make harness-floor     # accuracy harness, manual range floor (dormant; Docker)
-make harness-ceiling   # accuracy harness, manual range ceiling, unshaped (dormant; Docker)
+make harness-ci        # accuracy harness, CI tier (Docker, dhi.io, netem)
+make harness-floor     # accuracy harness, manual range floor (Docker)
+make harness-ceiling   # accuracy harness, manual range ceiling, unshaped (Docker)
 make harness-sweep     # remove stale harness environments, list the kept ones
 make harness-sweep-all # remove every harness environment (CONFIRM=1)
 make idle-measure      # idle CPU and memory of a running binary (IDLE_PIDS="bitgauge=PID")
@@ -165,7 +165,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `.github/workflows/**`, `.github/actions/**` | `pre-commit run actionlint --all-files`, `go test ./test/toolchain/` (pins, gate registry, vacuous flags) |
 | `.pre-commit-config.yaml`, `Makefile`, `.mk/**` | `make check`, `go test ./test/toolchain/`, `make help` |
 | `test/toolchain/gates.go`, `docs/STATUS.md` rows a gate reads | `go test ./test/toolchain/` |
-| `test/harness/**`, `web/harness/**` | `go test ./test/harness/`, `make go-vet-harness`; the runners stay dormant until their gate activates |
+| `test/harness/**`, `web/harness/**` | `go test ./test/harness/`, `make go-vet-harness`; a runner change, `make harness-ci` (Docker, `dhi.io`, netem), or one profile and browser with `HARNESS_PROFILES` and `HARNESS_BROWSERS` |
 | `test/image/**`, `test/internal/netguard/**`, `test/internal/syscalltrace/**` | `go test ./test/internal/...` (untagged), `make go-vet-image`, and (Docker, `dhi.io`) `make go-test-image`; without `dhi.io`, the probe and netguard tests alone: `go test -tags=image -v -run 'Probe\|Count\|Blind' ./test/image/ ./test/internal/netguard/` |
 | `.agents/skills/**` | own skills: the `docs/**` row; vendored skills are never edited (`skills-lock.json` hashes them) |
 | `docs/**/*.md`, root `*.md` | `go test -count=1 ./test/docs/`; every relative link resolves; numbers, probe-path names and the upload JSON shape still agree across `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`; lines wrap at about 100 columns (`spec-change` skill) |
@@ -229,7 +229,7 @@ everything the table requires.
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
 tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`. Today
 the binary build, API types, frontend lint and typecheck, frontend unit tests, web build, image
-and image tests, and release gates are active and the E2E and accuracy harness gates are dormant;
+and image tests, accuracy harness and release gates are active and the E2E gate is dormant;
 `idle-measure` and `idle-bench` run against a running binary. The [STATUS row](docs/STATUS.md)
 says the same.
 

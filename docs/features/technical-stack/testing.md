@@ -206,8 +206,21 @@ and anything about networks the project does not target.
   the iperf3 server is the same endpoint as BitGauge. An optional Traefik or Caddy container sits
   in front. The client is the Playwright image; a `shaper` sidecar shares the **client's** network
   namespace and shapes it with tbf and netem on egress and an ifb mirror for ingress, modelling the
-  user's access link. The iperf3 client and the concurrent ICMP ping run from the same namespace,
-  so they take the same path as the browser.
+  user's access link. Each direction's tbf queue, 80 ms of data at the profile's rate and at least
+  64 KiB (the shaper queue of [measurement.md §19](../measurement.md#19-worked-timelines)), is an
+  fq_codel shared among the flows crossing it, as §19.1 models the link: one drop-tail FIFO lets
+  an established TCP stream hold the whole queue and lock a newly opened one out for seconds,
+  which measures TCP's fairness rather than BitGauge. Its CoDel target is the queue's own length,
+  so it drops nothing early and a single flow still fills the link. The iperf3 client and the
+  concurrent ICMP ping run from the same namespace, so they take the same path as the browser.
+- **iperf3 runs.** Each iperf3 run, the self-test's and the reference's, settles for
+  `max(2 s, 10 × RTT)` before its measured duration, and reads the receiver's one-second intervals
+  (the client's on download, the server's on upload): its rate is their median from the settle on.
+  iperf3's `--omit` is not used, because it carries the omitted seconds' bytes into its totals, and
+  a mean is not used, because over a long round trip a loss recovery holds one second's bytes back
+  into the next, which a mean over a few seconds reads as a rate the link never had. Its block
+  length is 10 ms of data at the profile's rate, between one segment's payload and 128 KiB, so a
+  block never quantizes a slow link's per-second counts.
 - **Shaper self-test.** Before a profile counts, an iperf3 check confirms the shaped path holds
   within ±5 % of the configured goodput, the goodput the configured rate carries once Ethernet, IP
   and TCP overhead are taken off (`rate × 1448 / 1514`, see the reference measurement above). A
@@ -236,7 +249,7 @@ and anything about networks the project does not target.
 | Go tests, lint, govulncheck | `ci.yaml` | every PR and push |
 | Engine and component tests (vitest), ESLint, `vue-tsc` | `ci.yaml` | every PR and push |
 | Playwright E2E (three browsers) | `ci.yaml` | every PR and push |
-| Accuracy harness, CI tier | `harness.yaml`, called by `ci.yaml`; its own nightly schedule runs the 1 Gbit profile if runners cannot sustain it on every PR | every PR, and nightly |
+| Accuracy harness, CI tier | `harness.yaml`, called by `ci.yaml`, or dispatched by hand; its nightly schedule, added once the repository is public ([going-public.md §3](../../engineering/going-public.md#3-restore-the-scheduled-scan)), takes the 1 Gbit profile if runners cannot sustain it on every PR | every PR and push, and nightly once public |
 | Accuracy harness, floor and ceiling tiers | manual (`make harness-floor`, `make harness-ceiling`) | before each release; results in `docs/engineering/harness-runs/<version>.md` |
 | Real Safari and iOS checks | manual | before each release |
 

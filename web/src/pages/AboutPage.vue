@@ -65,7 +65,11 @@ const credits = computed(() => [
 </script>
 
 <template>
-  <main class="mx-auto grid w-full max-w-[1200px] flex-1 grid-cols-1 content-start gap-6 px-4 pt-4 pb-6 sm:px-10 sm:pt-6 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_340px]">
+  <main
+    id="main"
+    tabindex="-1"
+    class="focus:outline-none mx-auto grid w-full max-w-[1200px] flex-1 grid-cols-1 content-start gap-6 px-4 pt-4 pb-6 sm:px-10 sm:pt-6 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_340px]"
+  >
     <div class="flex flex-col gap-4">
       <header class="flex flex-col gap-2">
         <h1 class="text-(length:--text-3xl) font-semibold tracking-(--tracking-tight) sm:text-(length:--text-4xl)">

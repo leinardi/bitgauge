@@ -27,6 +27,7 @@ import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
+import CountdownRing from '@/components/gauge/CountdownRing.vue'
 import Gauge from '@/components/gauge/Gauge.vue'
 import { createAppI18n } from '@/i18n'
 
@@ -126,6 +127,23 @@ describe('the gauge', () => {
       expect(classes).toContain('motion-reduce:transition-none')
     }
     expect(wrapper.find('[aria-live]').exists()).toBe(false)
+  })
+
+  it('leaves no decorative part in the accessibility tree: only the label, readout and caption', async () => {
+    // Every part drawn at once: arc, ticks and their labels, band, value arc, inner arc, peak tick, needle.
+    const wrapper = gauge({ value: 5e8, at: 0, direction: 'download', inner: 1.9e8 })
+    await wrapper.setProps({ value: 6e8, at: 100, peak: 5.8e8 })
+    const parts = ['gauge-band', 'gauge-fill', 'gauge-inner', 'gauge-peak', 'gauge-needle']
+    parts.forEach((part) => expect(wrapper.find(`[data-testid="${part}"]`).exists()).toBe(true))
+    const hidden = (element: Element) => element.closest('[aria-hidden="true"]') !== null
+    const svg = wrapper.get('svg').element
+    expect([svg, ...svg.querySelectorAll('*')].every(hidden)).toBe(true)
+    const exposed = [...wrapper.element.querySelectorAll('[data-testid]')].filter((element) => !hidden(element)).map((element) => element.getAttribute('data-testid'))
+    expect(exposed).toEqual(['gauge-label', 'gauge-number', 'gauge-unit', 'gauge-caption'])
+    wrapper.unmount()
+    const ring = mount(CountdownRing, { props: { remainingMs: 2500, totalMs: 3000 }, global: { plugins: [createAppI18n('', ['en'])] } })
+    expect(ring.get('svg').attributes('aria-hidden')).toBe('true')
+    ring.unmount()
   })
 
   it('draws the value arc as a fraction of the track', () => {

@@ -40,8 +40,6 @@ const (
 	listenPort  = 8080
 	iperf3Port  = "5201"
 	selfTestFor = 5 * time.Second
-	// iperf3Omit leaves TCP's ramp out of every iperf3 result.
-	iperf3Omit = "2"
 	// SelfTestBound is how far the measured rate may stray from the configured one before a
 	// profile does not count (testing.md section 5.1).
 	SelfTestBound = 0.05
@@ -167,15 +165,28 @@ func (t *Topology) ClientCounters(ctx context.Context) (cpuMicros, peakBytes uin
 }
 
 // Iperf3 measures the client's path to the iperf3 server beside BitGauge, upload then download,
-// each for duration after iperf3Omit seconds of ramp that the result leaves out.
+// each for duration after the settle that the result leaves out (Iperf3Settle), with blocks sized
+// to the profile's rate (Iperf3Length); the receiver's intervals give the rate.
 func (t *Topology) Iperf3(ctx context.Context, duration time.Duration) (*Throughput, error) {
-	seconds := strconv.Itoa(int(duration.Seconds()))
+	// An unshaped run has neither the profile's round trip nor its rate.
+	var (
+		rate int64
+		rtt  time.Duration
+	)
+
+	if t.Shaped() {
+		rate, rtt = t.profile.RateBitsPerSecond, t.profile.RTT
+	}
+
+	settle := Iperf3Settle(rtt)
+	seconds := strconv.Itoa(int(math.Ceil((settle + duration).Seconds())))
+	length := strconv.FormatInt(Iperf3Length(rate), 10)
 	result := &Throughput{Seconds: duration.Seconds()}
 
 	for _, reverse := range []bool{false, true} {
 		args := []string{
 			"iperf3", "--client", t.guard.Name, "--port", iperf3Port,
-			"--time", seconds, "--omit", iperf3Omit, "--json",
+			"--time", seconds, "--length", length, "--get-server-output", "--json",
 		}
 		if reverse {
 			args = append(args, "--reverse")
@@ -186,7 +197,7 @@ func (t *Topology) Iperf3(ctx context.Context, duration time.Duration) (*Through
 			return nil, fmt.Errorf("iperf3: %w", err)
 		}
 
-		received, err := receivedBitsPerSecond(out)
+		received, err := receivedBitsPerSecond(out, reverse, settle)
 		if err != nil {
 			return nil, err
 		}
@@ -287,11 +298,11 @@ func (t *Topology) startBitGauge(ctx context.Context) error {
 }
 
 // startIperf3Server joins the guard's namespace, so the reference measures the same endpoint the
-// browser does.
+// browser does. It reports in JSON, which --get-server-output hands to the client for upload.
 func (t *Topology) startIperf3Server(ctx context.Context) error {
 	_, err := t.env.Docker(ctx, "run", "--detach", "--name", t.env.Name("iperf3"),
 		"--cap-drop", "ALL", "--network", t.guard.NetworkMode(),
-		t.cfg.ToolsImage, "iperf3", "--server", "--port", iperf3Port)
+		t.cfg.ToolsImage, "iperf3", "--server", "--port", iperf3Port, "--json")
 	if err != nil {
 		return fmt.Errorf("start the iperf3 server: %w", err)
 	}

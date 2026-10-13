@@ -3,8 +3,8 @@
 [Feature index](../README.md) / [Technical Stack](README.md) / Build and Packaging
 
 How BitGauge becomes one signed, multi-arch container image and two static binaries. The image,
-its tests and the release workflow exist, and their gates are active; the E2E and accuracy harness
-gates stay dormant until their inputs exist. The release process itself (versioning, tags,
+its tests, the accuracy harness and the release workflow exist, and their gates are active; the
+E2E gate stays dormant until its inputs exist. The release process itself (versioning, tags,
 recovery) is in [../../release.md](../../release.md).
 
 ## 1. Container Image
@@ -121,7 +121,7 @@ meta-test fails both when it is missing after that point and when it appears bef
 | `ci.yaml` | pull request, push to `main`, manual dispatch | `pre-commit-all` (every pre-commit hook on all files, including golangci-lint over the repository, fails if a hook modifies a file); `repo-gates` (the meta-tests under `test/`); `go-test` (calls `go-test.yaml`); `audit` (`make audit-deps`: govulncheck and npm audit); `conventional-commits` (pull requests only); reviewdog annotation jobs (pull requests only, not required); `release-scripts` (the release helper tests); once their inputs exist, `credentials` (decides whether a run may pull `dhi.io`; fails a trusted run without a token), `web` (calls `web.yaml`), `e2e` (Playwright on Chromium, Firefox and WebKit), `harness` (calls `harness.yaml`, the CI tier of [testing.md §5](testing.md#5-accuracy-harness)) and `image` (a no-push build for both platforms and the image tests); and the `ci-result` aggregate. |
 | `go-test.yaml` | called by `ci.yaml` and `release.yaml` | `go test -race ./...`. |
 | `web.yaml` | called by `ci.yaml` and `release.yaml` | `npm ci`, then the web steps whose inputs exist: API type drift, ESLint and `vue-tsc`, vitest, the build, the dist URL allowlist and the engine chunk size. |
-| `harness.yaml` | called by `ci.yaml`; nightly schedule | The accuracy harness for the three browsers; the 1 Gbit profile nightly if runners cannot sustain it. |
+| `harness.yaml` | called by `ci.yaml`; manual dispatch; a nightly schedule once the repository is public ([going-public.md §3](../../engineering/going-public.md#3-restore-the-scheduled-scan)) | The accuracy harness's CI tier on the three browsers; a dispatch can name a subset of the profiles and browsers. The 1 Gbit profile moves to the nightly run if runners cannot sustain it. |
 | `release.yaml` | manual dispatch on `main` (`version`, `dry_run`) | Tests, audits and builds first: the web app, the two static binaries and `checksums.txt`, and the multi-arch image pushed by digest to a job-local registry. Scans both platform images with Trivy, and only then pushes the git tag, copies the image to GHCR, attests and signs it, attests the binaries and creates the GitHub release ([../../release.md](../../release.md#why-the-build-happens-before-the-tag)). |
 | `scheduled-scan.yaml` | manual dispatch (weekly schedule once public) | `make audit-deps` over `main`, and Trivy over each platform image of `:latest` once releases exist. |
 | `go-cache-warmup.yaml`, `web-cache-warmup.yaml`, `pre-commit-warmup.yaml` | push to `main` on their inputs | Refresh the `main` caches the other workflows restore, keeping the newest two entries. |

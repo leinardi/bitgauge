@@ -164,7 +164,6 @@ func TestHarness(t *testing.T) {
 			for attempt := 1; ; attempt++ {
 				run := runProfile(t, cfg, profile, browser)
 				run.Attempt = attempt
-				run.Judge(profile)
 				run.Rerun = ShouldRerun(&run, attempt)
 				report.Runs = append(report.Runs, run)
 
@@ -182,8 +181,10 @@ func TestHarness(t *testing.T) {
 	}
 }
 
-// runProfile measures one profile in one browser on its own environment, which goes when the
-// subtest ends -- kept, marked keep=true, when it failed and HARNESS_KEEP_ON_FAILURE=1.
+// runProfile measures and judges one profile in one browser on its own environment, which goes
+// when the subtest ends -- kept, marked keep=true, when it failed and HARNESS_KEEP_ON_FAILURE=1. A
+// run that fails its tolerances fails the subtest, so its environment can be kept to look into;
+// an inconclusive one does not, since its re-run may still pass.
 func runProfile(t *testing.T, cfg Config, profile *Profile, browser string) Run {
 	t.Helper()
 
@@ -216,11 +217,15 @@ func runProfile(t *testing.T, cfg Config, profile *Profile, browser string) Run 
 		if err != nil {
 			run.Error = err.Error()
 			t.Error(err)
-
-			return
+		} else {
+			run.Status = StatusRecorded
 		}
 
-		run.Status = StatusRecorded
+		run.Judge(profile)
+
+		if run.Status == StatusFail {
+			t.Error(run.Verdict)
+		}
 	})
 
 	return run

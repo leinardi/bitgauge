@@ -21,6 +21,7 @@ import { type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
 import { IdleLatency, type IdleOutcome } from '@/engine/latency/idle'
 import type { Direction, EngineEvent, MeasuringPhase, Notice, PhaseName, PhaseState } from '@/engine/messages'
 import { buildResult } from '@/engine/result'
+import { downloadResult, uploadResult } from '@/engine/result/direction'
 import { Connection } from '@/engine/run/connection'
 import { PageState } from '@/engine/run/page'
 import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices } from '@/engine/run/report'
@@ -78,6 +79,7 @@ export class Run {
   private protocol: string | null = null
   private dataUsed = 0
   private readonly busy = new BusyTrack()
+  private readonly fraction = (from: number, to: number): number | null => this.busy.fraction(from, to)
   private downloadStartAt: number | null = null
   /** Whether any phase has a result to keep. */
   private kept = false
@@ -106,8 +108,7 @@ export class Run {
       if (report !== null) {
         const now = this.clock.now()
         this.busy.record(now, this.clock.busyMs())
-        const busy = (from: number, to: number) => this.busy.fraction(from, to)
-        const result = buildResult({ report, startedAt, durationMs: now - startAt, clock: this.clock, downloadStartAt: this.downloadStartAt, busy })
+        const result = buildResult({ report, startedAt, durationMs: now - startAt, clock: this.clock, downloadStartAt: this.downloadStartAt, busy: this.fraction })
         this.options.emit({ type: 'result', result })
       }
       return report
@@ -160,6 +161,7 @@ export class Run {
       return null
     }
     skipped.forEach((phase) => this.event(phase, 'skipped'))
+    const directions = { overheadCompensationPercent: settings.overheadCompensationPercent, busy: this.fraction }
     const report: RunReport = { ...start, status: 'complete', protocol: null, settings, idle: null, download: null, upload: null, skipped, notices: [], dataUsedBytes: 0, error: null }
     for (const phase of settings.phases) {
       if (this.interrupt !== null || report.download?.dataCapReached === true || report.upload?.dataCapReached === true) {
@@ -168,10 +170,10 @@ export class Run {
       } else if (phase === 'idle') {
         report.idle = await this.idlePhase()
       } else if (phase === 'download') {
-        report.download = this.settle('download', await this.throughput(new DownloadPhase(this.phaseOptions('download', start))), discardedDownload)
+        report.download = this.settle('download', await this.throughput(new DownloadPhase(this.phaseOptions('download', start))), discardedDownload, (outcome) => downloadResult(outcome, this.downloadStartAt ?? 0, directions).bitsPerSecond)
       } else {
         const options = { ...this.phaseOptions('upload', start), epoch: start.info.server.epoch }
-        report.upload = this.settle('upload', await this.throughput(new UploadPhase(options)), discardedUpload)
+        report.upload = this.settle('upload', await this.throughput(new UploadPhase(options)), discardedUpload, (outcome) => uploadResult(outcome, directions).bitsPerSecond)
       }
     }
     if (!this.kept) {
@@ -293,7 +295,7 @@ export class Run {
   }
 
   /** The direction's outcome under the run's interruption, and the errors it raises itself. */
-  private settle<T extends DownloadOutcome | UploadOutcome>(direction: Direction, outcome: T, discard: (outcome: T, code: RunErrorCode) => T): T {
+  private settle<T extends DownloadOutcome | UploadOutcome>(direction: Direction, outcome: T, discard: (outcome: T, code: RunErrorCode) => T, headline: (outcome: T) => number | undefined): T {
     const interrupt = this.interrupt
     // A network change or a restart leaves the current phase with an error and nothing measured.
     const settled = interrupt?.kind === 'error' ? discard(outcome, interrupt.code) : outcome
@@ -301,7 +303,7 @@ export class Run {
       this.fail(settled.notices.some((notice) => notice.code === 'server-restarted') ? 'server-restarted' : 'requests-failed')
     }
     this.kept ||= settled.status !== 'error'
-    this.event(direction, settled.status === 'error' ? 'failed' : 'finished', settled.streams)
+    this.event(direction, settled.status === 'error' ? 'failed' : 'finished', settled.streams, settled.status === 'error' ? undefined : headline(settled))
     return settled
   }
 
@@ -378,7 +380,7 @@ export class Run {
     return (this.options.settings.ignoredParameters ?? []).map((parameter) => ({ code: 'url-parameter-ignored', parameter }))
   }
 
-  private event(phase: PhaseName, state: PhaseState, streams?: number): void {
+  private event(phase: PhaseName, state: PhaseState, streams?: number, headline?: number): void {
     const notices: Notice[] = [...this.urlNotices(), ...(this.connection?.notices ?? [])]
     this.options.emit({
       type: 'phase',
@@ -387,6 +389,7 @@ export class Run {
       notices,
       ...(this.protocol === null ? {} : { protocol: this.protocol }),
       ...(streams === undefined ? {} : { streams }),
+      ...(headline === undefined ? {} : { headlineBitsPerSecond: headline }),
     })
   }
 }

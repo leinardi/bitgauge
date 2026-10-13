@@ -190,10 +190,10 @@ describe('the series', () => {
   it('has unknown cells inside an upload failure gap', async () => {
     const scenario: Scenario = { ...LINK, failure: (direction, index) => (direction === 'upload' && index === 25 ? { kind: 'error' } : null) }
     const emitted = await result({ scenario, settings: { phases: ['upload'] } })
-    // The 26th request fails 9.1 s into the phase, inside the steady window that starts at 6.4 s.
-    expect(emitted.upload?.events).toEqual([{ code: 'failure-gap', startMs: 9095, endMs: 9195 }])
+    // The 26th request fails 14.1 s into the phase, inside the steady window that starts at 5.9 s.
+    expect(emitted.upload?.events).toEqual([{ code: 'failure-gap', startMs: 14_143, endMs: 14_243 }])
     const series = emitted.upload?.series
-    expect(series?.firstCellMs).toBeLessThan(9095)
+    expect(series?.firstCellMs).toBeLessThan(14_143)
     expect(series?.values).toContain(null)
     expect(emitted.upload?.status).toBe('measured')
   })

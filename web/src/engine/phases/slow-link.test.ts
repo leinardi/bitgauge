@@ -182,29 +182,29 @@ describe('section 19.1 upload, 300 kbit/s and 300 ms RTT', () => {
 
   it('decides the baseline, the kept trial to 2 and the no-gain trial to 4 as the confirmations allow', () => {
     expect(phase.decisions).toEqual([
-      { atMs: 3348, streams: 2 },
-      { atMs: 6844, streams: 4 },
-      { atMs: 13_462, streams: 4, plateau: 'no-gain' },
+      { atMs: 4648, streams: 2 },
+      { atMs: 8196, streams: 4 },
+      { atMs: 14_762, streams: 4, plateau: 'no-gain' },
     ])
   })
 
   it("anchors each trial at the cell of the added streams' first byte", () => {
-    // Stream 2 reaches the server at 3.498 s, streams 3 and 4 at 6.994 s; the trial to 4 is
-    // therefore decided on the interval ending at cell 69 + 12 + 6 = 87, 8.7 s.
-    expect(phase.anchors).toEqual([34, 69])
+    // Stream 2 reaches the server at 4.798 s, streams 3 and 4 at 8.346 s; the trial to 4 is
+    // therefore decided on the interval ending at cell 83 + 12 + 13 = 108, 10.8 s.
+    expect(phase.anchors).toEqual([47, 83])
   })
 
-  it('ends warm-up at the moved cap, 8.7 s, before streams 3 and 4 have confirmed two requests', () => {
+  it('ends warm-up at the moved cap, 10.8 s, before streams 3 and 4 have confirmed two requests', () => {
     // Known once streams 3 and 4 confirm their first requests; condition 2 does not hold there.
-    expect(phase.warmup.end).toEqual({ bucket: 87, confidence: LOW_SAMPLES })
-    expect(phase.warmupKnownAt).toBe(13_462)
+    expect(phase.warmup.end).toEqual({ bucket: 108, confidence: LOW_SAMPLES })
+    expect(phase.warmupKnownAt).toBe(14_762)
   })
 
-  it('meets the window condition from 8.7 s just past the 15 s minimum', () => {
-    expect(windowAt).toBe(15_388)
-    const window = steadyWindow(phase.ledger, 8700)
-    expect(window.windowMs).toBe(4600)
-    expect(window.confirmedInside).toBe(4)
+  it('meets the window condition from 10.8 s at 17.6 s, past the 15 s minimum', () => {
+    expect(windowAt).toBe(17_644)
+    const window = steadyWindow(phase.ledger, 10_800)
+    expect(window.windowMs).toBe(5400)
+    expect(window.confirmedInside).toBe(3)
   })
 })
 
@@ -212,16 +212,16 @@ describe('section 19.1 download, 300 kbit/s and 300 ms RTT', () => {
   const phase = new Phase('download', 37_500)
   phase.run(() => phase.ramp.settled)
 
-  it('decides at 2.7, 4.5 and 6.3 s on the live series', () => {
+  it('decides at 4.1, 6.6 and 9.1 s on the live series', () => {
     expect(phase.decisions).toEqual([
-      { atMs: 2700, streams: 2 },
-      { atMs: 4500, streams: 4 },
-      { atMs: 6300, streams: 4, plateau: 'no-gain' },
+      { atMs: 4100, streams: 2 },
+      { atMs: 6600, streams: 4 },
+      { atMs: 9100, streams: 4, plateau: 'no-gain' },
     ])
   })
 
-  it('ends warm-up with the ramp at 6.3 s, on a steady series', () => {
-    expect(phase.warmup.end).toEqual({ bucket: 63, confidence: NORMAL })
+  it('ends warm-up with the ramp at 9.1 s, on a steady series', () => {
+    expect(phase.warmup.end).toEqual({ bucket: 91, confidence: NORMAL })
     const lastTen = phase.liveSeries().lastKnown(10)
     expect(lastTen.every((bytes) => bytes > 0)).toBe(true)
     expect(coefficientOfVariation(lastTen)).toBeLessThanOrEqual(0.1)
@@ -232,26 +232,31 @@ describe('section 19.2, 500 kbit/s and 300 ms RTT', () => {
   // The ≈ 0.478 Mbit/s of goodput a 500 kbit/s shaper carries: 1448 payload bytes per 1514.
   const GOODPUT = 59_800
 
-  it('decides the download at 3.3, 5.1 and 6.9 s', () => {
+  it('decides the download at 4.1, 6.6, 9.1 and 11.6 s, warm-up ending first at its 10 s bound', () => {
     const phase = new Phase('download', GOODPUT)
     phase.run(() => phase.ramp.settled)
     expect(phase.decisions).toEqual([
-      { atMs: 3300, streams: 2 },
-      { atMs: 5100, streams: 4 },
-      { atMs: 6900, streams: 4, plateau: 'no-gain' },
+      { atMs: 4100, streams: 2 },
+      { atMs: 6600, streams: 4 },
+      { atMs: 9100, streams: 6 },
+      { atMs: 11_600, streams: 6, plateau: 'no-gain' },
     ])
-    expect(phase.warmup.end).toEqual({ bucket: 69, confidence: NORMAL })
+    expect(phase.warmup.end).toEqual({ bucket: 100, confidence: { level: 'low', reasons: ['ramp-unsettled'] } })
   })
 
-  it('decides the upload at 4.0, 6.4 and 10.7 s, and meets the window condition at 12.4 s', () => {
+  it('decides the upload at 5.3, 8.9, 13.2 and 19.3 s, and meets the window condition at 19.3 s', () => {
     const { phase, windowAt } = uploadUntilWindow(GOODPUT)
     expect(phase.decisions).toEqual([
-      { atMs: 3996, streams: 2 },
-      { atMs: 6392, streams: 4 },
-      { atMs: 10_676, streams: 4, plateau: 'no-gain' },
+      { atMs: 5296, streams: 2 },
+      { atMs: 8919, streams: 4 },
+      { atMs: 13_203, streams: 6 },
+      { atMs: 19_250, streams: 6, plateau: 'no-gain' },
     ])
-    expect(phase.anchors).toEqual([41, 65])
-    expect(phase.warmup.end).toEqual({ bucket: 83, confidence: LOW_SAMPLES })
-    expect(windowAt).toBe(12_437)
+    expect(phase.anchors).toEqual([54, 90, 133])
+    // The bound, 50 % of the 25 s maximum, ends warm-up at cell 126 before the trial to 6 is
+    // decided; it is known at 13.6 s.
+    expect(phase.warmup.end).toEqual({ bucket: 126, confidence: { level: 'low', reasons: ['ramp-unsettled', 'insufficient-samples'] } })
+    expect(phase.warmupKnownAt).toBe(13_643)
+    expect(windowAt).toBe(19_250)
   })
 })

@@ -246,6 +246,8 @@ export type EngineEvent =
       state: PhaseState
       protocol?: string
       streams?: number
+      /** A finished download or upload: its headline, the result's `bitsPerSecond`, when it has one. */
+      headlineBitsPerSecond?: number
       notices: Notice[]
     }
   | {

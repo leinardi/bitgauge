@@ -21,7 +21,8 @@
 
 // The first load (ui/flows.md section 1, edge-cases.md section 20): a page that is not on a fixed
 // route under the base path, or a server that reports another base path, shows the base-path error
-// and nothing else; a page that passes loads the application.
+// and nothing else; a page that passes loads the application, which opens with the skip link to
+// the page's main content (ui/i18n-a11y.md section 2.3).
 
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -100,5 +101,20 @@ describe('the first load', () => {
     await flushPromises()
     expect(wrapper.find('main[role="alert"]').exists()).toBe(false)
     expect(wrapper.get('[data-testid="server"]').text()).toContain('Basement NAS')
+  })
+})
+
+describe('the skip link', () => {
+  it.each(['/', '/about', '/history'])('comes first on %s and targets the main content', async (path) => {
+    page('/', path)
+    vi.mocked(getInfo).mockResolvedValue(infoFixture())
+    const wrapper = await mountApp(App, path)
+    await flushPromises()
+    const focusable = wrapper.findAll('a[href], button')
+    expect(focusable[0]?.attributes('data-testid')).toBe('skip-link')
+    expect(focusable[0]?.attributes('href')).toBe('#main')
+    expect(focusable[0]?.text()).toBe('Skip to main content')
+    expect(wrapper.get('main').attributes()).toMatchObject({ id: 'main', tabindex: '-1' })
+    wrapper.unmount()
   })
 })
