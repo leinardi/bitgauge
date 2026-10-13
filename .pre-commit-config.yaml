@@ -167,21 +167,21 @@ repos:
         language: system
         pass_filenames: false
         require_serial: true
-        files: ^(web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|[^/]+\.config\.ts|package(-lock)?\.json)|\.file-budgets)$
+        files: ^(web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|parity/.*\.ts|[^/]+\.config\.ts|package(-lock)?\.json)|\.file-budgets)$
       - id: frontend-typecheck
         name: frontend typecheck
         entry: npm --prefix web run typecheck
         language: system
         pass_filenames: false
         require_serial: true
-        files: ^web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|[^/]+\.config\.ts|tsconfig.*\.json|package(-lock)?\.json)$
+        files: ^web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|parity/.*\.ts|[^/]+\.config\.ts|tsconfig.*\.json|package(-lock)?\.json)$
       - id: frontend-test
         name: frontend test
         entry: npm --prefix web run test
         language: system
         pass_filenames: false
         require_serial: true
-        files: ^web/(src/.*\.(vue|ts|tsx)|vite\.config\.ts|package(-lock)?\.json)$
+        files: ^web/(src/.*\.(vue|ts|tsx)|parity/.*\.ts|vite\.config\.ts|package(-lock)?\.json)$
       # Compares the package map in backend.md section 1 against go list over the module: a package
       # with no row fails, a row ahead of its package is listed as planned. Always runs because a
       # package disappears by having its files deleted, and pre-commit passes no deleted paths.

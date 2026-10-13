@@ -134,7 +134,7 @@ export default defineConfig({
     format: 'es',
   },
   test: {
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'parity/**/*.test.ts'],
     setupFiles: ['src/test/setup.ts'],
     maxWorkers: testWorkers,
   },
