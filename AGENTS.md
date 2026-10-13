@@ -108,6 +108,7 @@ make demo-parity-accept  # accept a complete run's new differences (REASON= requ
 make demo-parity-report  # the HTML report of the last parity run
 make demo-parity-servers # the prototype on :5181 and the demo build on :5180, to look at by hand
 make demo-parity-browsers # install the Chromium the parity harness drives, when it is missing
+make demo-parity-triage   # the triage helper over .parity-triage.json and the last run (CMD=...)
 make mk-common-update  # refresh the shared make-common snippets
 ```
 

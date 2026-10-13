@@ -24,6 +24,7 @@ make demo-parity-update                   # drop baseline entries a complete run
 make demo-parity-accept REASON="..."      # accept a complete run's new differences, with a reason
 make demo-parity-servers                  # both sides on the harness ports, to look at by hand
 make demo-parity-browsers                 # install the pinned Chromium when it is missing
+make demo-parity-triage CMD="..."         # the triage helper over the ledger and the last run (§ Triage)
 ```
 
 `MATRIX=full` works on every target. Playwright's own filters (`--grep`, `--project`, a file
@@ -171,16 +172,94 @@ For each new difference, decide where it belongs, in this order:
 hand: the prototype on `http://127.0.0.1:5181/ui_kits/app/index.html` and the Vue demo on
 `http://127.0.0.1:5180/`.
 
+## Triage
+
+Thousands of differences need different fixes, and the spec (`docs/features/`), the export and Vue
+do not always agree on which side is right. Triage works through them as clusters, recorded in the
+committed ledger `.parity-triage.json`, so a session resumes or restarts from committed state
+alone. The helper is `web/parity/triage/cli.ts`; it is the only writer of what a cluster owns, of
+how it was resolved, and of the reasons triage puts in the baseline.
+
+### The Ledger
+
+One cluster per group of differences that one decision covers:
+
+- `match`: a rule (scenarios, projects, layer, and regular expressions on path, kind and detail)
+  that finds candidates;
+- `type`: `conflict` (the spec, the kit and Vue disagree), `adapter` (the demo's link or scenario
+  does not reach the kit's state), `fixture` (the demo's fixtures say something else) or `harness`
+  (the comparison itself), and for a conflict an `aspect`;
+- `evidence`: what the spec, the kit and Vue each say, with a ref;
+- `decision`: a `verdict` (spec, kit, vue, new or keep), a `confirmation` for a non-conflict, or a
+  `deferral`, with its rationale and date;
+- `actions`, each aimed at `vue`, `spec`, `adapter`, `fixture`, `harness` or `upstream`. No action
+  edits the export: a change it needs is an `upstream` action, a note in
+  [`design-system-upstream.md`](design-system-upstream.md) to paste into the Claude Design project;
+- `status` (`open`, `decided`, `in-progress`, `accepted`, `deferred`, `done`);
+- `owned` and `resolution`, which only the helper writes.
+
+The helper validates the whole ledger on every command and reports what is wrong instead of
+failing: the invariants per status, unique ids, rules that compile and select something.
+
+### Ownership
+
+A rule only discovers. What a decision covers is the cluster's `owned` snapshot: per scenario, a
+12-character hash of each difference (layer, path, kind, detail; never the reason) with the projects
+it covers, `*` for all four. Owned entries are found again by identity alone, so narrowing or
+widening a rule never moves a decided entry. A rule's matches that no cluster owns are new
+candidates on an open cluster and scope growth on a decided one. One entry is never owned by two
+clusters; two rules may overlap only on entries one of them owns.
+
+`status` fails (exit 1) on a regression (a `done` cluster whose owned entries are back, or with new
+matches), on scope growth, and on problems: validation problems, rule overlaps on unowned entries,
+hash collisions.
+
+### One Acceptance Policy
+
+Nothing enters the baseline without a decision. A difference the baseline does not list stays
+pending, and keeps failing `make demo-parity`, until a cluster that owns it is `accepted` and the
+helper admits it with `triage <id>: <rationale>` as its reason. To work through many differences,
+or accept any during triage, use the helper rather than `make demo-parity-accept`: it admits only
+what was decided, per cluster, from a complete full-matrix run. Decisions are the maintainer's: the
+helper records them, it never makes them.
+
+Every mutation needs a valid completion record from a complete, full-matrix run whose scenarios
+cover the cluster's required scenarios: those it owns an entry in, and those its rule names. A
+refused command lists every reason and writes nothing. A `done` cluster keeps the run it was
+closed under in `resolution.run`, so it validates without `.run/`, which the next run wipes.
+
+### Commands
+
+```bash
+make demo-parity-triage                        # status: coverage, problems, clusters, flags, next work
+make demo-parity-triage CMD="drafts --limit 10" # suggested clusters for what nothing owns or matches
+make demo-parity-triage CMD="show <id>"        # owned present, owned gone, unowned matches
+cd web && node parity/triage/cli.ts try '<match JSON>'          # what a rule would match
+make demo-parity-triage CMD="snapshot <id>"    # own the rule's matches (--extend adds new ones)
+make demo-parity-triage CMD="admit <id>"       # an accepted cluster's owned entries into the baseline
+make demo-parity-triage CMD="close <id>"       # a fixed cluster done (--note "...")
+cd web && node parity/triage/cli.ts release <id> --match '<match JSON>' # give up what a rule matches
+```
+
+Exit codes: 0 when the command did what it was asked, 1 when it refused or `status` found a
+regression, scope growth or a problem, 2 on a usage error. Make expands `$`, so a rule with an
+anchored regular expression goes to node directly, as `try` and `release` do above. `--json` works
+on every command. `PARITY_TRIAGE_LEDGER` and `PARITY_BASELINE_FILE` point the helper at scratch
+copies of the ledger and the baseline; a relative path is taken from the repository root, and a
+named baseline must exist.
+
 ## When a Feature Changes
 
 The harness gates what it already visits. A change to anything a scenario compares fails
 `make demo-parity`:
 
 - **Stale differences** are fixes: drop them with `make demo-parity-update`.
-- **New differences** are classified as above before anything is accepted. Which of the spec, the
-  export and Vue is right is the maintainer's call.
+- **New differences** stay pending until a triage decision covers them (§ Triage). Which of the
+  spec, the export and Vue is right is the maintainer's call.
 - **A renamed heading or label** gives every difference under it a new identity, because the path
-  is part of it. The old ones go stale and the same differences come back new.
+  is part of it. The old ones go stale, the same differences come back pending, and a decided
+  cluster reports scope growth; `snapshot --extend` once the maintainer confirms it is the same
+  decision.
 
 What no scenario visits is invisible to it. `web/parity/coverage.test.ts`, run by
 `make verify-web`, closes the part of that gap that can be enumerated. It fails when:
@@ -199,7 +278,7 @@ Dialogs, menus and error states cannot be enumerated, so for every new or change
 2. **A parity scenario for every new screen, dialog or state**, with a driver method when the step
    is new.
 3. **Run `make demo-parity`**, and `make demo-parity-full` after a token, theme or layout change.
-4. **Classify what is new.** Never accept it in bulk.
+4. **Triage what is new** (§ Triage). Never accept it in bulk.
 
 ## Extending It
 

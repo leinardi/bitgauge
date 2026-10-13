@@ -25,6 +25,7 @@ import { fileURLToPath } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { assign } from './assign.ts'
 import { cluster, confirmation, DAY, decided, deferral, entry, everywhere, EVIDENCE, fullRun, match, ownedOf, verdict } from './fixtures.ts'
 import { loadInputs } from './inputs.ts'
 import {
@@ -237,7 +238,7 @@ describe('validateLedger: done', () => {
     expect(problems(done({ match: match() }))[0]).toContain('does not cover required scenarios')
   })
 
-  it('stays valid after a later filtered run', () => {
+  it('stays valid, and unflagged, after a later filtered run', () => {
     // A default-matrix run of one scenario: valid, but nothing like the run the cluster closed under.
     const dir = mkdtempSync(path.join(tmpdir(), 'parity-filtered-'))
     try {
@@ -252,6 +253,7 @@ describe('validateLedger: done', () => {
       expect(inputs.completion.invalid).toBeNull()
 
       expect(problems(done())).toEqual([])
+      expect(assign([done()], inputs.available).flags).toEqual([])
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }

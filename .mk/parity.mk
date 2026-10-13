@@ -64,6 +64,15 @@ endif
 demo-parity-report: ## Open the last demo-parity HTML report (screenshots, heatmaps, snapshots)
 	cd "$(WEB_DIR)" && npm exec --no -- playwright show-report playwright-report
 
+# The triage helper over .parity-triage.json and the last run (web/parity/triage/cli.ts):
+# CMD="drafts", CMD="show <id>", CMD="snapshot <id>" and so on; status when CMD is unset.
+# PARITY_TRIAGE_LEDGER and PARITY_BASELINE_FILE point it at scratch copies instead; a relative path
+# is taken from the repository root, not from web/ where the helper runs. No web-install: the
+# helper loads only Node built-ins and the parity modules, so it needs no node_modules.
+.PHONY: demo-parity-triage
+demo-parity-triage: ## Triage the parity differences with the helper; status unless CMD names a command
+	cd "$(WEB_DIR)" && node parity/triage/cli.ts $(or $(CMD),status)
+
 # Both sides on the harness's own ports, in the foreground, for looking at a difference by hand.
 # Ctrl+C stops both.
 .PHONY: demo-parity-servers
