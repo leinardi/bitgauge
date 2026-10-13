@@ -80,6 +80,8 @@ describe('the ramp on a live series', () => {
     // The no-gain plateau keeps the added stream.
     expect(ramp.streams).toBe(2)
     expect(ramp.lastAdd).toBe(27)
+    // It settles at the end of the deciding interval: 27 + 12 + 6.
+    expect(ramp.settledAt).toBe(45)
   })
 
   it('keeps gaining trials and skips the trial to 6 as floor-limited at 300 kbit/s', () => {
@@ -92,6 +94,7 @@ describe('the ramp on a live series', () => {
       { atMs: 6300, streams: 4, plateau: 'floor-limited' },
     ])
     expect(ramp.lastAdd).toBe(45)
+    expect(ramp.settledAt).toBe(63)
   })
 
   it('stops the baseline at its cap, 3 s after I_s, while the single stream keeps growing', () => {
@@ -197,6 +200,8 @@ describe('a 429', () => {
     expect(ramp.streams).toBe(1)
     expect(ramp.plateau).toBe('cap')
     expect(ramp.settled).toBe(true)
+    // A trial ended by a 429 settles at the end of the series read so far.
+    expect(ramp.settledAt).toBe(23)
   })
 
   it('ends the ramp as cap when it arrives while added streams wait to be placed', () => {
@@ -211,6 +216,9 @@ describe('a 429', () => {
     expect(ramp.cap).toBe(1)
     expect(ramp.streams).toBe(1)
     expect(ramp.plateau).toBe('cap')
+    // The unplaced streams count as added at the end of the series read, where it settles too.
+    expect(ramp.lastAdd).toBe(20)
+    expect(ramp.settledAt).toBe(20)
     expect(() => ramp.stepStarted(20)).toThrow(Error)
   })
 
@@ -229,6 +237,7 @@ describe('fixed and single modes', () => {
     expect(download(ramp, () => FULL_LINK, 100)).toEqual([{ atMs: 1500, streams: 4 }])
     expect(ramp.plateau).toBeUndefined()
     expect(ramp.lastAdd).toBe(3)
+    expect(ramp.settledAt).toBe(15)
   })
 
   it('clamp a fixed count to the effective cap', () => {

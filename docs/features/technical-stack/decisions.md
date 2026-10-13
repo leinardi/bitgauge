@@ -332,6 +332,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 15 | An upload request counts toward the three-request minimum only when all its cells are in the window | v0.1 |
 | 16 | Ramp intervals in whole buckets, the upload trial anchored at the added streams' first bytes | v0.1 |
 | 17 | Slow-link budgets recomputed on a shared link with per-request RTT gaps | v0.1 |
+| 18 | Warm-up conditions read bucket by bucket on known buckets, measured from the series start | v0.1 |
 
 ## Related
 

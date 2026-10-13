@@ -88,8 +88,14 @@ export class Ramp {
   cap: number
   /** The bucket where the last streams were added, for the warm-up's settle condition. */
   lastAdd: number | null = null
+  /**
+   * The settle instant on the series: the end of the interval that decided the plateau, I_s after
+   * the start in fixed and single modes, or the end of the series read when a 429 ended a trial.
+   */
+  settledAt: number | null = null
+  /** I_s in buckets. */
+  readonly settle: number
 
-  private readonly is: number
   private readonly im: number
   private stage: Stage
   /** Where the current step's I_s starts on the series; null until known. */
@@ -100,10 +106,12 @@ export class Ramp {
   private measuredCount = 0
   /** T_prev during the baseline, T_base after it. */
   private reference = 0
+  /** The end of the longest series read so far. */
+  private seen = 0
 
   constructor(options: RampOptions) {
     this.cap = Math.max(1, Math.min(options.max, options.serverMax))
-    this.is = settleBuckets(options.rttMs)
+    this.settle = settleBuckets(options.rttMs)
     this.im = measureBuckets(options.rttMs)
     if (options.mode === 'auto') {
       this.streams = 1
@@ -146,13 +154,18 @@ export class Ramp {
       return
     }
     this.streams = this.cap
+    if (this.stage === 'placing') {
+      // The added streams were never placed: count them as added at the end of the series read.
+      this.lastAdd = this.seen
+    }
     if (this.stage === 'placing' || this.stage === 'trial') {
-      this.finish('cap')
+      this.finish('cap', this.seen)
     }
   }
 
   /** Advances as far as the known buckets of the evaluation series allow. */
   update(series: BucketSeries): void {
+    this.seen = Math.max(this.seen, series.end)
     if (this.start === null) {
       // The baseline, and a fixed count, start at the first bucket holding bytes.
       const first = this.stage === 'baseline' || this.stage === 'fixed' ? firstWithBytes(series) : null
@@ -164,13 +177,13 @@ export class Ramp {
     }
     const start = this.start
     if (this.stage === 'fixed') {
-      if (series.end >= start + this.is) {
-        this.finish(undefined)
+      if (series.end >= start + this.settle) {
+        this.finish(undefined, start + this.settle)
       }
       return
     }
     while (this.stage === 'baseline' || this.stage === 'trial') {
-      const from = start + this.is + this.taken * this.im
+      const from = start + this.settle + this.taken * this.im
       if (series.end < from + this.im) {
         return
       }
@@ -212,12 +225,12 @@ export class Ramp {
       return
     }
     if (mean < GAIN * this.reference) {
-      this.finish('no-gain')
+      this.finish('no-gain', this.intervalEnd())
       return
     }
     this.reference = mean
     if (this.streams >= this.cap) {
-      this.finish('cap')
+      this.finish('cap', this.intervalEnd())
     } else {
       this.nextTrial()
     }
@@ -227,12 +240,12 @@ export class Ramp {
   private nextTrial(): void {
     const next = SEQUENCE.map((count) => Math.min(count, this.cap)).find((count) => count > this.streams)
     if (next === undefined) {
-      this.finish('cap')
+      this.finish('cap', this.intervalEnd())
       return
     }
     const bytesPerSecond = (this.reference * 1000) / BUCKET_MS
     if (bytesPerSecond / next < FLOOR_RATE) {
-      this.finish('floor-limited')
+      this.finish('floor-limited', this.intervalEnd())
       return
     }
     this.streams = next
@@ -240,8 +253,14 @@ export class Ramp {
     this.stage = 'placing'
   }
 
-  private finish(plateau: Plateau | undefined): void {
+  /** The end of the interval measured last. */
+  private intervalEnd(): number {
+    return (this.start ?? this.seen) + this.settle + this.taken * this.im
+  }
+
+  private finish(plateau: Plateau | undefined, at: number): void {
     this.plateau = plateau
+    this.settledAt = at
     this.stage = 'settled'
   }
 }

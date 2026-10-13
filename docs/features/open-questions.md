@@ -111,6 +111,19 @@ carries a recommendation; where the specification already relies on an answer, i
     Recommendation: confirm on the harness floor profiles; if they show low confidence there,
     consider sizing an added stream's first request from `T_base / N` rather than 64 KiB. See
     [measurement.md §19.1](measurement.md#191-slow-link-budget-300-kbits-300-ms-rtt-standard).
+18. How do the warm-up conditions read the evaluation series? Current answer: **bucket by bucket
+    on the series up to each newly known bucket**, with the request counts known at that moment;
+    "the last 10 confirmed buckets" are the last 10 known ones and conditions 2 and 3 need all 10,
+    which makes condition 4 hold whenever they can; download's "1 s of continuous chunk arrivals"
+    is those 10 buckets all holding bytes; condition 1's `I_s`, the cap, its bound and a fixed
+    warm-up count known buckets from the series' first bucket; a moved cap ends warm-up at the
+    settle instant, which a trial ended by a `429` places at the end of the series read, also its
+    last add if its streams were never placed. A phase is extended when its window condition did
+    not hold at a minimum shorter than its maximum, and upload stops issuing at `max − 1 s` even
+    before its minimum. Recommendation: keep it; a stricter condition 2 would count only requests
+    that ended before the bucket evaluated.
+    See [measurement.md §8.3](measurement.md#83-warm-up-end) and
+    [§5](measurement.md#5-adaptive-duration).
 
 Resolved and removed:
 

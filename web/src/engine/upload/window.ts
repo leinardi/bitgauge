@@ -17,6 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { MIN_UPLOAD_REQUESTS, MIN_WINDOW_MS } from '@/engine/phases/window'
 import { BucketSeries, percentile } from '@/engine/stats/buckets'
 import { BUCKET_MS, bitsPerSecond, bucketRate } from '@/engine/stats/units'
 import { cellOf, cellStart } from '@/engine/upload/grid'
@@ -26,12 +27,6 @@ import type { FailureGap, UploadLedger } from '@/engine/upload/watermark'
 // cell is known only when it ends at or before the window end and overlaps no failure gap;
 // every other cell is unknown, never zero. The headline counts only full cells, so the partial
 // cells at either edge, and the edge cells of a gap, are left out of both bytes and time.
-
-/** The window condition's floor on the window's length (measurement.md section 5). */
-const MIN_WINDOW_MS = 3000
-
-/** The window condition's floor on the confirmed requests inside the window. */
-const MIN_CONFIRMED_REQUESTS = 3
 
 const PEAK_PERCENTILE = 90
 
@@ -107,7 +102,7 @@ export function steadyWindow(ledger: UploadLedger, warmupEndMs: number, endMs?: 
   const counts = cells.map((cell) => ledger.grid.bytes(cell))
   const bytes = counts.reduce((sum, count) => sum + count, 0)
   const windowMs = cells.length * BUCKET_MS
-  const sufficient = windowMs >= MIN_WINDOW_MS && confirmedInside >= MIN_CONFIRMED_REQUESTS
+  const sufficient = windowMs >= MIN_WINDOW_MS && confirmedInside >= MIN_UPLOAD_REQUESTS
   const window: UploadWindow = { cells, bytes, windowMs, confirmedInside, sufficient }
   const peak = percentile(counts, PEAK_PERCENTILE)
   if (!sufficient || peak === null) {

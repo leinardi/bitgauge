@@ -27,6 +27,8 @@ import { describe, expect, it } from 'vitest'
 import type { Direction, Plateau } from '@/engine/messages'
 import { Ramp } from '@/engine/phases/ramp'
 import { nextSize, SIZE_FLOOR, streamRate } from '@/engine/phases/sizing'
+import { Warmup } from '@/engine/phases/warmup'
+import { PRESETS } from '@/engine/presets'
 import { BucketSeries, coefficientOfVariation } from '@/engine/stats/buckets'
 import { type Completion, type LinkRequest, SharedLink } from '@/engine/test/sharedLink'
 import { cellOf } from '@/engine/upload/grid'
@@ -52,6 +54,9 @@ class Phase {
   readonly anchors: number[] = []
   /** Confirmed requests per stream. */
   readonly confirmed: number[] = []
+  readonly warmup: Warmup
+  /** When the end of warm-up became known on the client. */
+  warmupKnownAt: number | null = null
   private readonly ids = new Map<LinkRequest, number>()
   private readonly last = new Map<number, { size: number; rate: number }>()
   private readonly direction: Direction
@@ -62,6 +67,7 @@ class Phase {
   constructor(direction: Direction, bytesPerSecond: number) {
     this.direction = direction
     this.link = new SharedLink(direction, bytesPerSecond, RTT_MS)
+    this.warmup = new Warmup({ direction, maxMs: PRESETS.standard[direction].maxMs, fixedMs: null })
     this.grow()
     this.waiting.clear()
   }
@@ -106,24 +112,28 @@ class Phase {
   }
 
   private decide(atMs: number, series: () => BucketSeries | null): void {
-    if (this.ramp.settled) {
-      return
-    }
     const current = series()
     if (current === null) {
       return
     }
-    const before = this.ramp.streams
-    this.ramp.update(current)
-    if (this.ramp.streams !== before || this.ramp.settled) {
-      this.decisions.push({
-        atMs,
-        streams: this.ramp.streams,
-        ...(this.ramp.plateau === undefined ? {} : { plateau: this.ramp.plateau }),
-      })
+    if (!this.ramp.settled) {
+      const before = this.ramp.streams
+      this.ramp.update(current)
+      if (this.ramp.streams !== before || this.ramp.settled) {
+        this.decisions.push({
+          atMs,
+          streams: this.ramp.streams,
+          ...(this.ramp.plateau === undefined ? {} : { plateau: this.ramp.plateau }),
+        })
+      }
+      this.grow()
     }
-    this.firstBytes.length = 0
-    this.grow()
+    if (this.warmup.end === null) {
+      const active = Array.from({ length: this.ramp.streams }, (_, stream) => this.confirmed[stream] ?? 0)
+      if (this.warmup.update(current, this.ramp, active) !== null) {
+        this.warmupKnownAt = atMs
+      }
+    }
   }
 
   private place(cell: number): void {
@@ -132,6 +142,9 @@ class Phase {
   }
 
   private grow(): void {
+    if (this.started < this.ramp.streams) {
+      this.firstBytes.length = 0
+    }
     while (this.started < this.ramp.streams) {
       this.waiting.add(this.started)
       this.issue(this.started++)
@@ -147,25 +160,25 @@ class Phase {
   }
 }
 
-/** Runs an upload until the steady window from `warmupEndMs` meets the window condition. */
-function uploadUntilWindow(bytesPerSecond: number, warmupEndMs: number) {
+/** Runs an upload until the steady window from the end of warm-up meets the window condition. */
+function uploadUntilWindow(bytesPerSecond: number) {
   const phase = new Phase('upload', bytesPerSecond)
   let windowAt: number | null = null
-  let confirmedAtSettle: number[] = []
   phase.run(() => {
-    if (phase.ramp.settled && confirmedAtSettle.length === 0) {
-      confirmedAtSettle = [...phase.confirmed]
-    }
-    if (phase.ramp.settled && windowAt === null && steadyWindow(phase.ledger, warmupEndMs).sufficient) {
+    const warmupEnd = phase.warmup.end
+    if (warmupEnd !== null && windowAt === null && steadyWindow(phase.ledger, warmupEnd.bucket * 100).sufficient) {
       windowAt = phase.link.now
     }
     return windowAt !== null
   })
-  return { phase, windowAt, confirmedAtSettle }
+  return { phase, windowAt }
 }
 
+const LOW_SAMPLES = { level: 'low', reasons: ['insufficient-samples'] }
+const NORMAL = { level: 'normal', reasons: [] }
+
 describe('section 19.1 upload, 300 kbit/s and 300 ms RTT', () => {
-  const { phase, windowAt, confirmedAtSettle } = uploadUntilWindow(37_500, 8700)
+  const { phase, windowAt } = uploadUntilWindow(37_500)
 
   it('decides the baseline, the kept trial to 2 and the no-gain trial to 4 as the confirmations allow', () => {
     expect(phase.decisions).toEqual([
@@ -181,9 +194,10 @@ describe('section 19.1 upload, 300 kbit/s and 300 ms RTT', () => {
     expect(phase.anchors).toEqual([34, 69])
   })
 
-  it('settles before streams 3 and 4 have confirmed two requests each', () => {
-    // Warm-up condition 2 does not hold at the moved cap: confidence low, insufficient-samples.
-    expect(confirmedAtSettle.slice(2)).toEqual([1, 1])
+  it('ends warm-up at the moved cap, 8.7 s, before streams 3 and 4 have confirmed two requests', () => {
+    // Known once streams 3 and 4 confirm their first requests; condition 2 does not hold there.
+    expect(phase.warmup.end).toEqual({ bucket: 87, confidence: LOW_SAMPLES })
+    expect(phase.warmupKnownAt).toBe(13_462)
   })
 
   it('meets the window condition from 8.7 s just past the 15 s minimum', () => {
@@ -206,7 +220,8 @@ describe('section 19.1 download, 300 kbit/s and 300 ms RTT', () => {
     ])
   })
 
-  it('leaves a steady series for the warm-up at 6.3 s', () => {
+  it('ends warm-up with the ramp at 6.3 s, on a steady series', () => {
+    expect(phase.warmup.end).toEqual({ bucket: 63, confidence: NORMAL })
     const lastTen = phase.liveSeries().lastKnown(10)
     expect(lastTen.every((bytes) => bytes > 0)).toBe(true)
     expect(coefficientOfVariation(lastTen)).toBeLessThanOrEqual(0.1)
@@ -222,17 +237,18 @@ describe('section 19.2, 500 kbit/s and 300 ms RTT', () => {
       { atMs: 5100, streams: 4 },
       { atMs: 6900, streams: 4, plateau: 'no-gain' },
     ])
+    expect(phase.warmup.end).toEqual({ bucket: 69, confidence: NORMAL })
   })
 
   it('decides the upload at 3.95, 6.3 and 10.3 s, and meets the window condition at 12.3 s', () => {
-    const { phase, windowAt, confirmedAtSettle } = uploadUntilWindow(62_500, 8200)
+    const { phase, windowAt } = uploadUntilWindow(62_500)
     expect(phase.decisions).toEqual([
       { atMs: 3949, streams: 2 },
       { atMs: 6298, streams: 4 },
       { atMs: 10_307, streams: 4, plateau: 'no-gain' },
     ])
     expect(phase.anchors).toEqual([40, 64])
-    expect(confirmedAtSettle.slice(2)).toEqual([1, 1])
+    expect(phase.warmup.end).toEqual({ bucket: 82, confidence: LOW_SAMPLES })
     expect(windowAt).toBe(12_331)
   })
 })

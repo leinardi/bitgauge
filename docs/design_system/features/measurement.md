@@ -174,8 +174,9 @@ Each direction has a minimum and a maximum duration taken from the preset (§8):
   requests lie inside it; on download at least two different requests contributed bytes to it.
   Ending at the first instant the condition holds is the early stop on stability: a stable link
   ends at the minimum.
-- If the condition does not hold, the phase is **extended** past the preset's nominal duration up to
-  its **maximum**, so slow links get enough completed requests. An extended phase carries the
+- If the condition does not hold, the phase is **extended** past the preset's nominal duration (its
+  minimum) up to its **maximum**, so slow links get enough completed requests. An extended phase,
+  one whose condition did not hold at a minimum shorter than its maximum, carries the
   `slow link — test extended` notice. On upload the condition is tested on the confirmed window
   (§8), so the phase keeps sending until the *confirmed* window is long enough.
 - At the maximum without the condition, the direction reports `insufficient data` (§8 Shortfall).
@@ -184,8 +185,8 @@ Each direction has a minimum and a maximum duration taken from the preset (§8):
 
 - **Download** ends at the end instant: in-flight requests are aborted, bytes already read are kept,
   and the window ends at the abort instant.
-- **Upload** stops issuing new requests at `max − 1 s` (the request target) or when the window
-  condition holds. In-flight requests may finish within a grace of `min(2 s, 2 × d)`, where `d` is
+- **Upload** stops issuing new requests at `max − 1 s` (the request target), even when that comes
+  before its minimum, or when the window condition holds. In-flight requests may finish within a grace of `min(2 s, 2 × d)`, where `d` is
   the expected duration of the longest in-flight request (normally the 1 s target); then they are
   aborted. Basing the grace on the in-flight request's expected duration rather than on the fixed
   1 s target is what the slow-link budget in §19.1 needs (2 × 1.75 s); it is the current answer to
@@ -538,8 +539,10 @@ the bucket of the add, on upload at the cell of the latest first byte (`startMs`
 streams' first requests, known once they confirm; until then the trial waits. An interval whose
 buckets are all unknown (inside a failure gap) measures nothing and is measured again over the next
 `I_m`. The baseline always measures its first two intervals; a further one runs only if it ends no
-later than 3 s after `I_s`. The ramp settles at the end of the interval that decided its plateau,
-and that bucket is the settle instant the warm-up cap moves to (§8.3).
+later than 3 s after `I_s`. The ramp settles at the end of the interval that decided its plateau
+(fixed and single modes: `I_s` after their start; a trial ended by a `429`, §4: the end of the
+series read so far, which is also its last add when its streams were never placed), and that bucket
+is the settle instant the warm-up cap moves to (§8.3).
 
 ### 8.3 Warm-Up End
 
@@ -575,6 +578,16 @@ cap moves to the instant it settles, but no later than `50 % of the phase max` o
 ramp still running at that bound gives `ramp-unsettled`. The other half of the max is left for the
 steady window and its extension (§8.4). Continuous keeps its absolute 10 s cap with no move, so it
 always has a steady window starting at most 10 s of confirmed series after the phase began.
+
+**Reading the series.** The conditions are evaluated at each newly known bucket in order, on the
+series up to it, with the request counts known at that moment; an upload series that grows by a
+whole request at once is evaluated bucket by bucket. "The last 10 confirmed buckets" are the last
+10 known buckets, skipping unknown ones, and conditions 2 and 3 need all 10, so condition 4 holds
+whenever they can. On download, "1 s of continuous chunk arrivals" means that those 10 buckets all
+hold bytes. `I_s` after the last add (condition 1), the cap, its bound and a fixed warm-up count
+known buckets, from the series' first bucket: the phase start on download, the cell of `P_start`
+on upload. When the cap has moved, warm-up ends at the settle instant, with the conditions
+evaluated on the series up to it, even when that bucket was evaluated before the ramp settled.
 
 **Advanced setting.** The warm-up setting is `auto` (the rule above, default) or a fixed duration.
 With a fixed duration, warm-up ends exactly then; the ramp still runs, and an unsettled ramp at that
