@@ -2,11 +2,13 @@
 
 > Implementation status per feature area: [`docs/STATUS.md`](docs/STATUS.md).
 
-## The Specification Is Approved; v0.1 Is Being Implemented
+## Code and Specification Contributions
 
 The maintainer approved the specification in [`docs/`](docs/README.md) on 2026-10-12, and v0.1 is
-being implemented against it. The specification is the contract, and it is still where most
-contributions go:
+implemented against it. Code contributions are now welcome: a fix to the binary, the web app or the
+tooling, or a feature the specification already describes ([`docs/STATUS.md`](docs/STATUS.md)
+lists what is built and what is only specified). The specification is the contract, and changes to
+it stay welcome too:
 
 - **Issues** for anything unclear, inconsistent, wrong or missing in the specification: a number
   that differs between two pages, a measurement rule that fails on some link, an edge case not
@@ -27,16 +29,20 @@ either.
 
 ## Spec Pull Requests First
 
-Now that implementation has started, the rule stays: **a change in behaviour starts as a change to
-the specification.** Open a pull request against `docs/` first; code follows once it is merged. Code
+With the code in place, the rule stays: **a change in behaviour starts as a change to the
+specification.** Open a pull request against `docs/` first; code follows once it is merged. Code
 that disagrees with the docs is a bug in one of them, and the docs win until they are changed
 deliberately. Technical choices are locked in
 [`docs/features/technical-stack/decisions.md`](docs/features/technical-stack/decisions.md); changing
 one needs a pull request to that file with the reason.
 
-The build, test and lint commands are in
-[build-packaging.md §3](docs/features/technical-stack/build-packaging.md#3-planned-make-targets);
-[AGENTS.md](AGENTS.md) holds the authoritative list once they exist.
+The build, test and lint commands are listed by `make help`, and with what each change has to run
+in [AGENTS.md](AGENTS.md#common-commands) (its validation matrix); their design is in
+[build-packaging.md §3](docs/features/technical-stack/build-packaging.md#3-planned-make-targets).
+
+`make docker-build`, `make go-test-image` and the accuracy harness targets pull the `dhi.io` base
+images, which need a `dhi.io` account: run `docker login dhi.io` first, or leave those targets to
+CI. Everything else, `make e2e` included (it runs a host-built binary), needs no account.
 
 ## Before You Commit
 
@@ -54,8 +60,8 @@ gate CI runs.
 ## Pull Requests From Forks
 
 CI jobs that pull the `dhi.io` base images (the image build and its tests, the accuracy harness)
-need repository secrets, which a pull request from a fork never receives. Once those jobs exist,
-they are skipped with a notice on every fork pull request, and the `ci-result` check fails. A
+need repository secrets, which a pull request from a fork never receives. Those jobs are skipped
+with a notice on every fork pull request, and the `ci-result` check fails. A
 maintainer then pushes your commits unchanged, with their authorship preserved, to a branch of this
 repository and opens a replacement pull request that references yours; once it is green it is
 merged, and your pull request is closed with a link to it. This merge path is **unverified**: it

@@ -7,17 +7,18 @@ well under 1 Mbit/s to multi-Gbit. One stateless Go binary with an embedded Vue 
 measurement engine runs in the browser. Optional compatibility layers for OpenSpeedTest,
 LibreSpeed and Apple `networkQuality` clients.
 
-**Status: implementation of v0.1 in progress; specification approved by the maintainer on
-2026-10-12.** The engineering scaffold (build files, linters, CI, release scripts, test harnesses,
-agent skills) is in place; the gates whose inputs do not exist yet are dormant (see
-[Dormant gates and activation](#dormant-gates-and-activation)). Full spec:
+**Status: v0.1 implemented, not yet released; specification approved by the maintainer on
+2026-10-12.** The product, the engineering scaffold (build files, linters, CI, release scripts,
+test harnesses, agent skills) and the demo build are in place, and every gate is active (see
+[Dormant gates and activation](#dormant-gates-and-activation)). The release waits for the manual
+steps of [`docs/release.md`](docs/release.md#how-to-release). Full spec:
 [`docs/features/`](docs/features/README.md). Per-feature implementation status:
 [`docs/STATUS.md`](docs/STATUS.md); check it before assuming a feature exists or not.
 
 ## Components
 
-The product is being built for v0.1: a package exists once it is in the tree, and
-[`docs/STATUS.md`](docs/STATUS.md) gives the status per feature area. Package details:
+The product exists: v0.1 is in the tree, and [`docs/STATUS.md`](docs/STATUS.md) gives the
+status per feature area, v0.2 and v0.3 included. Package details:
 [`docs/features/architecture.md` §9](docs/features/architecture.md#9-planned-package-layout).
 
 - **`cmd/bitgauge/`**: the binary; `serve` (default) and `healthcheck` subcommands.
@@ -58,15 +59,16 @@ The tooling **exists**:
 
 - `web/src/api/types.gen.ts`: regenerate with `make api-types` after editing
   `api/openapi.yaml`.
-- `web/src/components/ui/` (once it exists): vendored shadcn-vue; extend by composition only.
+- `web/src/components/ui/`: vendored shadcn-vue; extend by composition only.
 - `.mk/{docker,help,go,pre-commit}.mk`: refreshed from make-common with `make mk-common-update`.
 - The vendored skills listed in `skills-lock.json`: byte-exact copies, checked by their
   `computedHash`.
 
 ## Common commands
 
-`make help` lists every target. A dormant target fails loudly, naming what is missing, until its
-inputs exist ([Dormant gates and activation](#dormant-gates-and-activation)).
+`make help` lists every target. No target is dormant since v0.1; a gate added later starts
+dormant, and its target fails loudly, naming what is missing, until its inputs exist
+([Dormant gates and activation](#dormant-gates-and-activation)).
 
 ```bash
 make check             # pre-commit on all files: the authoritative local gate, same as CI
@@ -80,9 +82,9 @@ make verify-go         # go-build, go-test, go-vet (also image, harness), go-lin
 make verify-web        # web-lint and web-test
 make verify            # both of the above
 make audit-deps        # pinned govulncheck -test ./... and npm audit in web/ (network)
-make go-build          # ./dist/bitgauge for the host platform (no SPA embedded yet)
+make go-build          # ./dist/bitgauge for the host platform, embedding whatever web/dist holds
 make go-run            # run the binary (ARGS="...")
-make build             # web-build, then go-build (the SPA is embedded once web/embed.go exists)
+make build             # web-build, then go-build: the binary with the current SPA embedded
 make web-install       # npm ci in web/
 make web-build         # npm ci, then vite build into web/dist
 make web-dev           # Vite dev server
@@ -159,7 +161,7 @@ Run before considering an edit done. `make check` applies to every row.
 
 | You edited | Run |
 | --- | --- |
-| `**/*.go` (today `test/**`) | `make verify-go`, then `make check-stage` |
+| `**/*.go` | `make verify-go`, then `make check-stage` |
 | `web/src/**` | `make verify-web`, then `scripts/check-file-budgets.sh` |
 | `web/src/demo/**`, the demo gates in `useWorker.ts`, `api/info.ts`, `App.vue` | the `web/src/**` row; `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (the demo's ESLint blocks); `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`; `make web-build-demo`, on which the same check must fail; `make demo-parity-full` |
 | `web/parity/**`, `web/playwright.parity.config.ts`, `.mk/parity.mk` | `make verify-web` (the parity unit tests and `coverage.test.ts`), `make help`; `make demo-parity-full` on demand (Chromium) |
@@ -224,15 +226,17 @@ splitting it.
 
 ## Dormant gates and activation
 
-A gate whose inputs do not exist yet is **dormant**: its make target fails loudly on the missing
-input, and it has **no pre-commit hook and no CI job** until its activation commit. Nothing passes
-on nothing: no `--passWithNoTests`, `|| true`, `continue-on-error` or `if: false`
-(`test/toolchain/vacuous_flags_test.go`).
+**Every gate below has been active since v0.1.** The table stays as the contract the registry
+enforces, for these gates and for any added later.
 
 The registry is `test/toolchain/gates.go`. `go test ./test/toolchain/` fails when a gate's
 prerequisites are met but its hooks, CI jobs, steps or workflows are missing, and when any of them
-exists before its prerequisites are met. Activating a gate is one commit that adds its inputs and
-everything the table requires.
+exists before its prerequisites are met: removing an input fails the test, and so does dropping a
+hook or a job that an input still requires. A gate added later starts **dormant**: its make target
+fails loudly on the missing input, and it has **no pre-commit hook and no CI job** until its
+activation commit, one commit that adds its inputs and everything the table requires. Nothing
+passes on nothing: no `--passWithNoTests`, `|| true`, `continue-on-error` or `if: false`
+(`test/toolchain/vacuous_flags_test.go`).
 
 | Gate | Prerequisite | Requires |
 | --- | --- | --- |
@@ -248,9 +252,10 @@ everything the table requires.
 
 `web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
 `cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
-tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`. Today
-every gate above is active; `idle-measure` and `idle-bench` run against a running binary. The
-[STATUS row](docs/STATUS.md) says the same.
+tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`.
+`idle-measure` and `idle-bench` are not gates: they run on demand against a running binary, as
+demo parity runs on demand against the demo build. The [STATUS row](docs/STATUS.md) says the
+same.
 
 ## Project skills
 

@@ -41,7 +41,7 @@ codes, carries `Content-Type: application/json` and:
   `BadRequest`, `NotFound`, `MethodNotAllowed`, `RequestTimeout`, `LengthRequired`,
   `PayloadTooLarge`, `RateLimited` and `InternalError`
   ([wire-protocol.md §11](../../../../docs/features/wire-protocol.md#11-openapi-outline)). A new
-  code starts as a docs change to §7 and lands in `api/openapi.yaml` (planned), which the SPA's
+  code starts as a docs change to §7 and lands in `api/openapi.yaml`, which the SPA's
   types are generated from; never invent one in a handler.
 
 ## Statuses with extra rules
@@ -73,9 +73,11 @@ first.
 
 ## One writer
 
-No envelope writer exists yet: `internal/` is planned. When the first handler lands, write the
-envelope in one place that the native handlers, the middleware (panic recovery, the limiter, the
-`/api/v1` not-found handler) and `internal/compat/nq` can all reach. Compat packages may depend on
+The envelope has one writer, `handlers.WriteError` in `internal/handlers/errors.go` (and
+`handlers.ErrorWriter`, the same writer as a value for packages that take it as an interface, such
+as `ratelimit.Middleware`). The native handlers, the middleware (panic recovery, the limiter, the
+`/api/v1` not-found handler) and, from v0.3, `internal/compat/nq` all use it; never write a second
+one. Compat packages may depend on
 the native building blocks but never the reverse
 ([backend.md §1](../../../../docs/features/technical-stack/backend.md#1-package-map)), so the
 writer does not live under `internal/compat`. A hand-built JSON error body at a call site is the
@@ -84,8 +86,8 @@ happened.
 
 ## Compatibility layers keep their upstream wire formats
 
-The routes under `internal/compat` (planned) mirror third-party contracts and are not part of the
-OpenAPI document. They answer with the statuses and bodies
+The routes under `internal/compat` (v0.3, not built yet) mirror third-party contracts and are not
+part of the OpenAPI document. They answer with the statuses and bodies
 [compatibility.md](../../../../docs/features/compatibility.md) specifies for each client, not with
 the native envelope:
 

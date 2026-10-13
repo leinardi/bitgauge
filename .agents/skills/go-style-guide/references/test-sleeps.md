@@ -18,9 +18,9 @@ A sleep in a unit test is a sign that a clock was not injected.
   testing.md §1 requires "grid counts with a fake monotonic clock (reads in known cells,
   `firstBucket = floor(startMs / 100)`, `Σ buckets == bytes`, at most 1201 entries)" and the
   `408` "after the 120 s lifetime (fake clock)". The same applies to anything else with a window:
-  rate-limit refill and `Retry-After`, the WebSocket idle close. `internal/` is planned, so the
-  clock type does not exist yet; define it with the first package that needs it and share it,
-  rather than giving each package its own.
+  rate-limit refill and `Retry-After`, the WebSocket idle close. The shared clock is
+  `ratelimit.Clock` (with `ratelimit.Timers` for scheduled work such as the idle close), which the
+  handlers' upload grid takes too: use it, rather than giving a package a clock of its own.
 - **Engine.** `web/src/engine/` never calls `performance.now()`, `setTimeout`, `fetch`,
   `XMLHttpRequest` or `WebSocket` directly. It receives a `Clock` (`now()`, `setTimer(ms, fn)`,
   `clearTimer(id)`) and a `Transport`; production wires the browser implementations and vitest

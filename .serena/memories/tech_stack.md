@@ -2,7 +2,7 @@
 
 Locked choices live in `docs/features/technical-stack/decisions.md`; this is a summary.
 
-## Backend (Go, planned)
+## Backend (Go)
 
 - Module `github.com/leinardi/bitgauge`; Go 1.26 line (`.go-version`, `go.mod` go 1.26.0)
 - `net/http` + chi; WebSocket via `coder/websocket`; koanf (`BITGAUGE_` env, `__` nesting),
@@ -12,7 +12,7 @@ Locked choices live in `docs/features/technical-stack/decisions.md`; this is a s
   embedded store (`no-storage`), outbound clients (`no-outbound`); forbidigo bans outbound calls
   except the healthcheck's loopback GET (`cmd/bitgauge/healthcheck.go`) and tests
 
-## Frontend (planned, `web/`)
+## Frontend (`web/`)
 
 - Vue 3 (Composition API, `<script setup>`), Vite, TypeScript 5.x (capped <6), Tailwind 4,
   shadcn-vue (Reka UI), vue-i18n, uPlot, `idb`; pure SPA, no Nuxt/SSR/TanStack Query

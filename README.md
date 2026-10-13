@@ -2,8 +2,9 @@
 
 > A self-hosted, browser-based network speed test for LAN, homelab and VPN links.
 >
-> **Status: v0.1 in implementation.** The specification was approved on 2026-10-12 and v0.1 is
-> being built; there is no release yet. Progress per feature area:
+> **Status: v0.1 implemented, not yet released.** The specification was approved on 2026-10-12
+> and v0.1 is built against it; the first release waits for its manual accuracy runs and release
+> setup ([docs/release.md](docs/release.md)). Status per feature area:
 > [docs/STATUS.md](docs/STATUS.md).
 
 BitGauge measures the link between a browser and a server you run yourself: a NAS on the LAN, a
@@ -18,24 +19,31 @@ link, and upload is timed where the bytes arrive
 
 ## Features
 
+v0.1, the honest throughput core:
+
 - **Adaptive request size and streams.** Requests are sized to take about 1 s at the observed
   rate, and the stream count ramps only while it gains throughput.
 - **Server-timed upload.** The server counts the bytes it receives on a 100 ms grid, so upload is
   never inflated by send buffers.
 - **Steady-window headline.** Bytes ÷ time after a measured warm-up; peak reported separately; no
-  hidden overhead factor.
-- **Idle and loaded latency** with jitter and a **bufferbloat grade** (A+ to F).
-- **HTTP loaded responsiveness** (RPM), honestly labelled where the browser cannot verify it.
-- **Quality scores** for streaming, gaming and video calls.
-- **Continuous mode** for long runs in constant memory.
-- **History in your browser only** (IndexedDB), with compare, JSON and CSV export, and a share
-  image.
+  hidden overhead factor; every number with its confidence and notices.
+- **Idle latency** with jitter, and **Quick, Standard and Extended** presets.
+- **One-result JSON download** from the Test screen; nothing is stored on the server.
 - **Small and hardened:** non-root static image, read-only root filesystem, no shell, signed
   releases with SBOM and provenance, linux/amd64 and linux/arm64.
 
+Planned ([roadmap](docs/features/roadmap.md)):
+
+- **v0.2:** loaded latency with a **bufferbloat grade** (A+ to F), **history in your browser
+  only** (IndexedDB) with compare, JSON and CSV export, Settings and a share image, and Prometheus
+  metrics.
+- **v0.3:** the compatibility layers below, **HTTP loaded responsiveness** (RPM), honestly labelled
+  where the browser cannot verify it, **quality scores** for streaming, gaming and video calls, and
+  **continuous mode** for long runs in constant memory.
+
 ## Compatibility
 
-Optional layers, each off by default, let existing clients test against BitGauge
+From v0.3, optional layers, each off by default, let existing clients test against BitGauge
 ([details](docs/features/compatibility.md)):
 
 - the **OpenSpeedTest** web UI, through its `?Host=` parameter;
@@ -44,20 +52,40 @@ Optional layers, each off by default, let existing clients test against BitGauge
 
 ## Deploy
 
+BitGauge alone on port 8080, from
+[`deployments/examples/compose-alone/compose.yaml`](deployments/examples/compose-alone/compose.yaml):
+
 ```yaml
 services:
   bitgauge:
     image: ghcr.io/leinardi/bitgauge:0
     ports:
       - "8080:8080"
-    read_only: true
+    read_only: true # BitGauge writes nothing
+    user: "65532:65532" # already the image default; stated for clarity
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      BITGAUGE_SERVER__DISPLAY_NAME: home
+    # Optional: full configuration as a read-only file
+    # volumes:
+    #   - ./bitgauge.yaml:/etc/bitgauge/config.yaml:ro
+    healthcheck:
+      test: ["CMD", "/bitgauge", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     restart: unless-stopped
 ```
 
-Put it behind your reverse proxy for TLS and HTTP/2. Traefik, Caddy and nginx examples and the
-proxy requirements are in
-[docs/features/deployment-example.md](docs/features/deployment-example.md).
-No image is published until the first release.
+Put it behind your reverse proxy for TLS and HTTP/2: runnable
+[Traefik](deployments/examples/traefik/README.md), [Caddy](deployments/examples/caddy/README.md)
+and [nginx](deployments/examples/nginx/README.md) examples sit beside it, and the proxy
+requirements are in [docs/features/deployment-example.md](docs/features/deployment-example.md).
+No image is published until the first release; verify one before you trust it with the commands
+in [SECURITY.md](SECURITY.md#verifying-a-release).
 
 ## Documentation
 

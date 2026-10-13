@@ -19,7 +19,8 @@ description: >
 except the in-memory state listed in §1, and nothing leaves the process except responses on
 accepted connections. Lint guards part of that, the image test another part, review the rest.
 
-`cmd/bitgauge` and every `internal/` package named here are **planned**. The guards exist:
+`cmd/bitgauge` and the `internal/` packages named here exist since v0.1, except
+`internal/metrics` (v0.2) and `internal/compat/` (v0.3). The guards exist:
 `.golangci.yaml` with `test/boundary`, `test/internal/netguard`, `test/internal/syscalltrace`,
 `test/image` and `test/dockerfiles`.
 
@@ -125,7 +126,7 @@ The rules read only this module's own source and only the names they list. Each 
 | Lookups through allowed functions | `net.ResolveTCPAddr("tcp", "host.lan:80")`, `net.Listen` given a host name | netguard `dns` (`127.0.0.11:53`) |
 | Subprocesses | `exec.Command(…)` from `os/exec`, which nothing denies | `strace -f` follows children; the runtime image has no shell or `curl` |
 | Logging | `log.Printf` from the standard `log` package; `slog.Debug("req", "headers", r.Header)` | review against §5 only |
-| Go files under `web/` | `exclusions.paths: [web/]` drops every finding there, so the planned `web/embed.go` gets no depguard, forbidigo or any other linter | review; keep it to `embed.FS`, templating and the SPA route handler |
+| Go files under `web/` | `exclusions.paths: [web/]` drops every finding there, so `web/embed.go` gets no depguard, forbidigo or any other linter | review; keep it to `embed.FS`, templating and the SPA route handler |
 
 Test code (`_test.go`, `test/**`) is out of scope by design: it drives Docker and dials
 localhost. A helper in a non-test file under `internal/` is in scope even when only tests call it.

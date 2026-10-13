@@ -15,8 +15,8 @@ description: >
 
 `api/openapi.yaml` (OpenAPI 3.1) is the native API's contract;
 [wire-protocol.md](../../../docs/features/wire-protocol.md) is its prose source and wins when they
-disagree. Plain HTTP and JSON under `/api/v1`, chi on `net/http`. Code paths below marked planned
-do not exist yet; they land as the approved specification is implemented (AGENTS.md).
+disagree. Plain HTTP and JSON under `/api/v1`, chi on `net/http`. Every code path below exists
+since v0.1, except the root `/metrics` handler (`internal/metrics`, v0.2).
 
 ---
 
@@ -50,7 +50,8 @@ Docs, spec and router list exactly these six, with these methods: `GET /api/v1/d
   which sits at the root and is mounted by `metrics.Handler()`, not `handlers.Routes()`.
   `/api/v1/ws` is a `GET` with a `101`; OpenAPI does not model its messages.
 - **Router:** another method answers `405` with `Allow`; an unknown `/api/v1` path answers `404`
-  with the envelope. No test compares router and spec yet, so review does.
+  with the envelope. `internal/handlers/info_schema_test.go` holds the `/info` body to the spec's
+  schemas; no test compares the router's route list with the spec's paths, so review does.
 
 ## 3. Error envelope
 

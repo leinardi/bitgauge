@@ -68,24 +68,24 @@ site agrees.
 
 For each changed path, load the matching pages **before** judging that file — they are the
 source of truth, and a violation there is a finding even when lint is green. Load only what the
-diff touches. Paths marked **planned** may not exist yet: the approved specification is being
-implemented for v0.1, so a diff that creates one is also subject to the spec-first check in §3.
+diff touches. v0.1 is implemented; paths marked **not built yet** belong to a later milestone,
+so a diff that creates one is also subject to the spec-first check in §3.
 
 | Changed path | Load | Check |
 | --- | --- | --- |
-| `cmd/bitgauge/` (planned) | `architecture.md` §9, `technical-stack/backend.md` | `serve` (default) and `healthcheck` only; exit status 2 on bad config |
-| `internal/config/` (planned) | `trust-boundary`, `go-style-guide`; `configuration.md`, `technical-stack/configuration-security.md` | fail-closed validation of every key, read once, never written; §5 (e) |
-| `internal/server/`, `internal/clientip/`, `internal/ratelimit/` (planned) | `trust-boundary`, `go-style-guide`; `security.md` §2, §4, §5, `architecture.md` §6 | middleware order, security headers and CSP, `X-Forwarded-For` only through `server.trusted_proxies` (never `X-Real-IP`), a bounded rate-limit table |
-| `internal/handlers/` (planned) | `api-contract`, `trust-boundary`, `go-style-guide`; `wire-protocol.md`, `measurement.md`, `technical-stack/backend.md` | no state beyond the request; download allocates nothing per request; upload drains before responding and counts on the 100 ms server grid |
-| `internal/compat/{openspeedtest,librespeed,nq}/` (planned) | `trust-boundary`, `go-style-guide`; `compatibility.md`, `security.md` §6 | off by default, one toggle each; depends on the native building blocks, never the reverse; no copied code |
-| `internal/metrics/`, `internal/logger/`, `internal/buildinfo/` (planned) | `go-style-guide`; `decisions.md` §6, §7 | metrics off by default, no per-client labels; never log bodies, headers or WebSocket messages |
+| `cmd/bitgauge/` | `architecture.md` §9, `technical-stack/backend.md` | `serve` (default) and `healthcheck` only; exit status 2 on bad config |
+| `internal/config/` | `trust-boundary`, `go-style-guide`; `configuration.md`, `technical-stack/configuration-security.md` | fail-closed validation of every key, read once, never written; §5 (e) |
+| `internal/server/`, `internal/clientip/`, `internal/ratelimit/` | `trust-boundary`, `go-style-guide`; `security.md` §2, §4, §5, `architecture.md` §6 | middleware order, security headers and CSP, `X-Forwarded-For` only through `server.trusted_proxies` (never `X-Real-IP`), a bounded rate-limit table |
+| `internal/handlers/` | `api-contract`, `trust-boundary`, `go-style-guide`; `wire-protocol.md`, `measurement.md`, `technical-stack/backend.md` | no state beyond the request; download allocates nothing per request; upload drains before responding and counts on the 100 ms server grid |
+| `internal/compat/{openspeedtest,librespeed,nq}/` (not built yet, v0.3) | `trust-boundary`, `go-style-guide`; `compatibility.md`, `security.md` §6 | off by default, one toggle each; depends on the native building blocks, never the reverse; no copied code |
+| `internal/metrics/` (not built yet, v0.2), `internal/logger/`, `internal/buildinfo/` | `go-style-guide`; `decisions.md` §6, §7 | metrics off by default, no per-client labels; never log bodies, headers or WebSocket messages |
 | any `**/*.go` | `go-style-guide`; `.golangci.yaml` | golangci-lint v2, all linters; the depguard and forbidigo boundary rules that `test/boundary` pins |
-| `api/openapi.yaml` (planned) | `api-contract`; `wire-protocol.md` | native API under `/api/v1`; spec and handler agree; `make api-types` regenerated in the same commit |
-| `web/src/api/types.gen.ts` (planned, generated) | `api-contract` | never hand-edited; only `make api-types` output from `api/openapi.yaml` |
-| `web/src/engine/**` (planned) | `technical-stack/frontend.md` §2, `architecture.md` §4, `measurement.md` | engine purity; injected `Clock` and `Transport`, never `performance.now()`, `setTimeout`, `fetch` or `WebSocket` directly; pure statistics |
-| `web/src/**` outside the engine (planned) | `vue-page-patterns`, `design-system-guard`, `vue-best-practices`, `vue-router-best-practices`, `create-adaptable-composable`; `technical-stack/frontend.md`, `docs/features/ui/**` | Composition API with `<script setup>`; imports only `engine/messages.ts` and the Worker URL from the engine; no external URL; no TanStack Query |
+| `api/openapi.yaml` | `api-contract`; `wire-protocol.md` | native API under `/api/v1`; spec and handler agree; `make api-types` regenerated in the same commit |
+| `web/src/api/types.gen.ts` (generated) | `api-contract` | never hand-edited; only `make api-types` output from `api/openapi.yaml` |
+| `web/src/engine/**` | `technical-stack/frontend.md` §2, `architecture.md` §4, `measurement.md` | engine purity; injected `Clock` and `Transport`, never `performance.now()`, `setTimeout`, `fetch` or `WebSocket` directly; pure statistics |
+| `web/src/**` outside the engine | `vue-page-patterns`, `design-system-guard`, `vue-best-practices`, `vue-router-best-practices`, `create-adaptable-composable`; `technical-stack/frontend.md`, `docs/features/ui/**` | Composition API with `<script setup>`; imports only `engine/messages.ts` and the Worker URL from the engine; no external URL; no TanStack Query |
 | `web/src/demo/**`, `web/parity/**`, `.parity-baseline`, `.parity-triage.json` | `demo-parity`, `parity-triage`; `docs/engineering/demo-parity.md`, `technical-stack/frontend.md` §9 | the design export is never edited; nothing enters the baseline without a decision the user made; `owned` and `resolution` written only by the triage helper, and `.parity-baseline` only by the harness (`make demo-parity-update`, `make demo-parity-accept`) and the helper, never by hand |
-| `web/**/*.test.ts`, `web/e2e/` (planned), `web/harness/` | `vue-testing-best-practices`, `technical-stack/testing.md` | engine tests replay synthetic timelines; the test asserts behavior, not a fake's calls |
+| `web/**/*.test.ts`, `web/e2e/`, `web/harness/` | `vue-testing-best-practices`, `technical-stack/testing.md` | engine tests replay synthetic timelines; the test asserts behavior, not a fake's calls |
 | `test/**` meta-tests | the comment heading each test, `technical-stack/testing.md` | a meta-test that can no longer fail is a finding (see below) |
 | `test/toolchain/gates.go` | `technical-stack/build-packaging.md` §4 | a gate with unmet prerequisites has none of its hooks, CI jobs or workflows; a met gate has all of them |
 | `deployments/docker/Dockerfile` | `trust-boundary`; `decisions.md` §26, `security.md` §9 | `dhi.io` stages pinned by an explicit tag, never `latest` and not by digest (dhi.io republishes tags with security fixes), the `# syntax=` frontend by digest, `dhi.io/static` runtime, `USER 65532:65532`, read-only and volume-free |
@@ -196,9 +196,9 @@ surface's test to assert it is *absent* must cite the specification line that re
 tree that line lives in depends on the surface:
 
 - `docs/features/**` for backend, protocol, measurement and product behavior;
-- `docs/features/ui/**` for UI surfaces — screens, flows, notices, empty and error copy (once the
-  design export lands, that path is a symlink into `docs/design_system/features/ui/`, so either
-  spelling reaches the same file);
+- `docs/features/ui/**` for UI surfaces — screens, flows, notices, empty and error copy (that
+  path is a symlink into `docs/design_system/features/ui/`, so either spelling reaches the same
+  file);
 - `api/openapi.yaml` for a route, a response field or an error code.
 
 A commit message is none of them. A test flipped from "X appears" to "X does not appear" is not

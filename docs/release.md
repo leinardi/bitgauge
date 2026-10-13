@@ -41,7 +41,8 @@ shaped that way.
 
 1. Make sure `main` is green and that the manual floor and ceiling tiers of the accuracy harness,
    and the real Safari and iOS checks, have passed for this commit and are recorded in
-   [engineering/](engineering/README.md). A release is blocked until they have
+   [`engineering/harness-runs/<version>.md`](engineering/harness-runs/README.md), the first being
+   `0.1.0.md`. A release is blocked until they have
    ([features/technical-stack/testing.md §6](features/technical-stack/testing.md#6-ci-placement)).
 2. Run the **Release** workflow (`release.yaml`) from the Actions tab, or
    `gh workflow run release.yaml`, on `main`. It is `workflow_dispatch` only and takes two inputs:

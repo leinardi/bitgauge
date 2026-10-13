@@ -20,9 +20,8 @@ exactly, from its documented behaviour, and never bends the native API or the en
 ([principles.md §2.7](../../../docs/features/principles.md#27-compatibility-is-a-layer-not-the-core)).
 Every layer is off by default, has exactly one toggle, and answers `404` when disabled.
 
-All code paths below are **planned**: `internal/handlers` and the three packages under
-`internal/compat/` do not exist yet; they land as the approved specification is implemented
-(AGENTS.md).
+`internal/handlers` exists since v0.1; the three packages under `internal/compat/` are not built
+yet: they land with v0.3, as the approved specification is implemented (AGENTS.md).
 
 This skill owns what is specific to the wire. It links instead of repeating:
 

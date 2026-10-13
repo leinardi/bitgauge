@@ -82,13 +82,18 @@ tiers must additionally show for the features it adds. Progress per feature area
 - CI tier: download and upload headlines within tolerance on 500 kbit/s + 300 ms, 10 Mbit,
   100 Mbit + 50 ms, 1 Gbit, and 100 Mbit + 50 ms through Traefik (h1) and Caddy (h2), on headless
   Chromium, headless Firefox and Playwright WebKit. See
-  [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
+  [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness). CI tier
+  automated in `harness.yaml`, which `ci.yaml` calls on every build that has `dhi.io`
+  credentials.
 - Floor tier: 300 kbit/s + 300 ms + 1 % loss and 300 kbit/s + 600 ms report both directions within
   ±15 % (Extended for the 600 ms profile), and the real Android and iOS runs over a VPN complete.
-  See [product.md §1.7](product.md#17-success-criteria).
+  See [product.md §1.7](product.md#17-success-criteria). Manual (`make harness-floor`), recorded
+  per release in `docs/engineering/harness-runs/<version>.md`.
 - Ceiling tier: 2.5 and 10 Gbit within ±20 %, with `confidence: cpu-bound` whenever the Worker's
   busy fraction exceeds 90 %. See
   [edge-cases.md §10](edge-cases.md#10-very-fast-links-where-the-browser-cpu-is-the-bottleneck).
+  Manual (`make harness-ceiling`), recorded per release in
+  `docs/engineering/harness-runs/<version>.md`.
 - The no-egress check passes on every profile. See
   [security.md §3](security.md#3-no-outbound-calls).
 

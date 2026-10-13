@@ -16,14 +16,14 @@ Rules derived from [`.golangci.yaml`](../../../.golangci.yaml) (golangci-lint v2
 [decisions.md §9](../../../docs/features/technical-stack/decisions.md)). §1–§15 are what the
 linters enforce, §16–§18 are review rules.
 
-**Spec first.** Today the only Go code is tooling under `test/` (meta-tests, the `image`-tagged
-image tests, the `harness`-tagged accuracy harness). `cmd/bitgauge` and every `internal/` package
-named below are **planned**
+**Spec first.** The Go code is the v0.1 product, `cmd/bitgauge` and the `internal/` packages
+`buildinfo`, `clientip`, `config`, `handlers`, `logger`, `ratelimit` and `server`, plus tooling
+under `test/` (meta-tests, the `image`-tagged image tests, the `harness`-tagged accuracy harness).
+`internal/metrics` (v0.2) and `internal/compat/` (v0.3) are not built yet
 ([architecture.md §9](../../../docs/features/architecture.md#9-planned-package-layout),
-[backend.md §1](../../../docs/features/technical-stack/backend.md#1-package-map)) until v0.1 adds
-them; product code implements the approved specification (AGENTS.md, "Project rules"). A new Go
-package needs a
-row in the backend.md package map, which `scripts/check-package-map.sh` checks.
+[backend.md §1](../../../docs/features/technical-stack/backend.md#1-package-map)); product code
+implements the approved specification (AGENTS.md, "Project rules"). A new Go package needs a row
+in the backend.md package map, which `scripts/check-package-map.sh` checks.
 
 golangci-lint is not on `PATH` in every environment; run it through pre-commit (see "Lint loop"),
 which pins the version. Never commit with `--no-verify`; fix the underlying issue instead.
@@ -131,7 +131,7 @@ _, tooLarge := errors.AsType[*http.MaxBytesError](err)
 
 `err113` flags every `errors.New` inside a function body and every `fmt.Errorf` without a `%w`
 verb, a static message included. Declare the error once as a package-level sentinel and attach the
-runtime detail by wrapping it (illustrative; `internal/config` is planned):
+runtime detail by wrapping it (illustrative; `internal/config/load.go` has the real ones):
 
 ```go
 return fmt.Errorf(
@@ -272,7 +272,7 @@ apply to every non-test file outside `test/`.
 
 | Rule | Forbids | Why | Use instead |
 | --- | --- | --- | --- |
-| `logger` | `github.com/sirupsen/logrus`, `go.uber.org/zap`, `github.com/rs/zerolog` | Logging is `log/slog` through one wrapper (decisions.md §6) | `internal/logger` (planned) on `log/slog` |
+| `logger` | `github.com/sirupsen/logrus`, `go.uber.org/zap`, `github.com/rs/zerolog` | Logging is `log/slog` through one wrapper (decisions.md §6) | `internal/logger` on `log/slog` |
 | `forbidden-forks` | `github.com/pkg/errors` | Superseded by the standard library | `errors` + `fmt.Errorf("…: %w", err)` |
 | `forbidden-forks` | `github.com/instana/testify` | A fork of `github.com/stretchr/testify` | The upstream, if testify is ever added; the module does not depend on it today, tests use `testing` |
 | `no-storage` | `database/sql` (and `database/sql/driver`); `modernc.org/sqlite`, `github.com/mattn/go-sqlite3`, `github.com/ncruces/go-sqlite3`; `go.etcd.io/bbolt`, `github.com/dgraph-io/badger`, `github.com/cockroachdb/pebble`, `github.com/syndtr/goleveldb`; `gorm.io/`, `github.com/jmoiron/sqlx`, `github.com/jackc/pgx`, `github.com/lib/pq`, `github.com/go-sql-driver/mysql`; `github.com/redis/`; `github.com/pressly/goose`, `github.com/golang-migrate/` | The server is stateless: no database, embedded store, external state or schema (decisions.md §2, principles.md §2.2) | In-memory state from the [architecture.md §6](../../../docs/features/architecture.md#6-in-memory-state-inventory) inventory only; results live in the browser |
@@ -282,8 +282,8 @@ apply to every non-test file outside `test/`.
 | `no-outbound` | `github.com/prometheus/client_golang/api`, `github.com/prometheus/client_golang/prometheus/push` | The API client and the Pushgateway client call out; metrics are only scraped | `client_golang/prometheus`, `promhttp`, `collectors` |
 
 **`forbidigo`** (`analyze-types: true`, so a match resolves the package, not just the name).
-Excluded for `_test.go` files and everything under `test/`, and for `cmd/bitgauge/healthcheck.go`
-(planned): the one loopback `GET /api/v1/ping` the server ever sends
+Excluded for `_test.go` files and everything under `test/`, and for `cmd/bitgauge/healthcheck.go`:
+the one loopback `GET /api/v1/ping` the server ever sends
 ([backend.md §6](../../../docs/features/technical-stack/backend.md#6-healthcheck-subcommand)).
 `test/boundary` pins that file as the only non-test exclusion; do not add another.
 

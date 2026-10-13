@@ -20,13 +20,15 @@ that translation fails open: it grants more than intended when the input is empt
 hostile, or simply large.
 
 BitGauge has no authentication, sessions or secrets: its boundaries are about identity for limits,
-bytes, and what leaves the process. The Go packages named here are planned; the image tests exist.
+bytes, and what leaves the process. The Go packages named here exist since v0.1, except
+`internal/metrics` (v0.2) and `internal/compat/` (v0.3); the image tests exist.
 
 How to use it, before writing the change:
 
 1. Walk sections 1–9 and mark each one *applies* or *N/A* for this change.
-2. For each item that applies, write the test it names first (the handler tests are planned in
-   [testing.md §1](../../../docs/features/technical-stack/testing.md#1-go-handler-tests)).
+2. For each item that applies, write the test it names first (the handler tests of
+   [testing.md §1](../../../docs/features/technical-stack/testing.md#1-go-handler-tests) live
+   beside their packages in `internal/`).
 3. Make the change, then run `make verify-go` (a Dockerfile change: `make go-test-image`).
 4. Fix and re-run until green; finish with the checklist at the end.
 

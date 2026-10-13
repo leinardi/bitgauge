@@ -13,10 +13,10 @@ description: >
 # Vue Page Patterns — BitGauge
 
 Four rules for the SPA. The generic Vue skills cover technique; this one covers what this codebase
-does differently and why. `web/src/` holds the engine so far and no pages yet: the layout below is
-the planned one of
-[frontend.md §1](../../../docs/features/technical-stack/frontend.md#1-spa-layout), and the rules
-are already enforced by `web/eslint.config.ts` and `scripts/check-file-budgets.sh`.
+does differently and why. `web/src/` holds the v0.1 app, the engine, the pages, components and
+composables, laid out as
+[frontend.md §1](../../../docs/features/technical-stack/frontend.md#1-spa-layout) says, and the
+rules are enforced by `web/eslint.config.ts` and `scripts/check-file-budgets.sh`.
 
 ---
 
@@ -71,12 +71,12 @@ Pages orchestrate data and layout; components render; composables hold stateful 
 talks to the server; `engine/` measures, and nothing else does
 ([ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md#conventions)).
 
-| Concern | Where it goes | Planned examples |
+| Concern | Where it goes | Examples (v0.2 ones not built yet) |
 | --- | --- | --- |
-| A running test's live view, settings, history, sharing | `web/src/composables/` | `useRun`, `useSettings`, `useHistory`, `useShare` |
-| A block of the screen with its own markup | `web/src/components/` | gauge, charts, result cards, notices |
-| Route parameters, layout, which sections exist | the page | `Test`, `ResultDetail`, `History`, `Settings`, `About` |
-| IndexedDB, export and import | `web/src/history/` | `idb` database, migrations |
+| A running test's live view, settings, history, sharing | `web/src/composables/` | `useRun`, `useUrlParams`, `useCountdown`; v0.2: `useSettings`, `useHistory`, `useShare` |
+| A block of the screen with its own markup | `web/src/components/` | gauge, chart, tiles, notices |
+| Route parameters, layout, which sections exist | the page | `TestPage`, `AboutPage`; v0.2: `ResultDetail`, `History`, `Settings` |
+| IndexedDB, export and import | `web/src/history/` (v0.2) | `idb` database, migrations |
 
 - No store library: composables with module-level reactive state are enough for five screens
   ([frontend.md §4](../../../docs/features/technical-stack/frontend.md#4-state-ownership)).
@@ -105,7 +105,8 @@ talks to the server; `engine/` measures, and nothing else does
 
 - Composition API with `<script setup>` only; no class components, no Nuxt, no SSR, no TanStack
   Query.
-- Until the design export lands: shadcn-vue defaults and no hand-authored visual design.
+- Visuals come from the design export (`design-system-guard`), shadcn-vue defaults where it says
+  nothing, and no hand-authored visual design.
 - No external URL anywhere: fonts, icons and scripts are embedded, and the CSP allows only the
   page's own origin.
 - Text goes through vue-i18n's central catalog: no raw template text, no `<i18n>` blocks, no

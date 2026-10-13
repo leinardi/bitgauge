@@ -2,8 +2,10 @@
 
 Per-feature-area implementation status with code pointers. Version-level milestones live in
 [`features/roadmap.md`](features/roadmap.md). The specification was approved by the maintainer
-on 2026-10-12 and v0.1 is being implemented: a row leaves `Spec'd` only in the change that
-completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` with code pointers.
+on 2026-10-12, and every v0.1 row is implemented; v0.1 has not been released yet, since the
+release waits for the manual harness tiers and the one-time setup of
+[release.md](release.md#how-to-release). A row leaves `Spec'd` only in the change that completes
+it, and a partly built row reads `Spec'd (vX.Y), in progress: …` with code pointers.
 
 > **Keep this honest:** update the table in the same PR that changes a feature's status.
 > Stale status claims in instruction files are worse than no claims.
@@ -23,7 +25,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | Engine: warm-up, steady window, Quick / Standard / Extended presets | Implemented (v0.1) | `web/src/engine/`: `phases/warmup.ts`, `phases/window.ts`, `presets.ts`, `upload/window.ts`, `upload/outcome.ts` |
 | Engine: headline, peak, confidence and notices, result object | Implemented (v0.1) | `web/src/engine/`: `result.ts` (the result object), `result/direction.ts` (headline, peak, compensation, confidence, series), `result/validate.ts`, `stats/busy.ts`, `run.ts` (emits the result) |
 | UI: Test screen, About, URL parameters, English locale, accessibility baseline | Implemented (v0.1) | `web/src/pages/TestPage.vue` (the screen's states, the auto-start countdown), `web/src/composables/` (`useUrlParams.ts`, `useCountdown.ts`, `useTestKeys.ts`), `web/src/components/test/` (`screen.ts` state, steps, gauge and tiles, `DownloadJson.vue`, `ResultBar.vue`, `RunFailure.vue`, tiles, notices, phase indicator, start control), `web/src/components/gauge/` (with `CountdownRing.vue`), `web/src/components/chart/`, `web/src/components/connection/`, `web/src/composables/useRun.ts`, `web/src/export/serialize.ts`, `web/src/pages/AboutPage.vue`, `web/src/i18n/locales/en/` (with `a11y.json`; `locales.test.ts` checks it complete), `web/src/components/a11y/` (`LiveRegions.vue`, `announce.ts`: the live region and the result summary), `web/src/App.vue` (the skip link); `web/e2e/` (the v0.1 flows end to end on Chromium, Firefox and WebKit, with axe and the CSP guard) |
-| Container image, CI, release, Dependabot | Implemented (v0.1) | `deployments/docker/Dockerfile`; `.github/workflows/`: `ci.yaml` (jobs `credentials` and `image`), `release.yaml`, `scheduled-scan.yaml` (job `image`); `.github/scripts/recover-toolchains.sh`; `.github/dependabot.yml`; tests in `test/image/`, `test/dockerfiles/` |
+| Container image, CI, release, Dependabot, deployment examples | Implemented (v0.1) | `deployments/docker/Dockerfile`; `.github/workflows/`: `ci.yaml` (jobs `credentials` and `image`), `release.yaml`, `scheduled-scan.yaml` (job `image`); `.github/scripts/recover-toolchains.sh`; `.github/dependabot.yml`; `deployments/examples/` (compose, Traefik, Caddy, nginx); tests in `test/image/`, `test/dockerfiles/`, `test/deployments/` |
 | Accuracy harness (CI, floor and ceiling tiers) | Implemented (v0.1): CI tier automated; floor and ceiling manual | `test/harness/` (profiles, topology, shaper, evaluation, report), `web/harness/` (the browser driver), `.mk/harness.mk`; `.github/workflows/harness.yaml`, called by `ci.yaml` (job `harness`); runbook `docs/engineering/accuracy-harness.md` |
 | Prometheus metrics | Spec'd (v0.2) |  |
 | Loaded latency (WebSocket echo and HTTP fallback) and bufferbloat grade | Spec'd (v0.2) |  |
@@ -36,7 +38,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | HTTP loaded responsiveness (path B) | Spec'd (v0.3) |  |
 | Quality scores (AIM) | Spec'd (v0.3) |  |
 | Continuous mode | Spec'd (v0.3) |  |
-| Engineering scaffold (gates, CI, release tooling) | Tooling in place; every gate is active: the binary build, API types, frontend lint, typecheck and unit-test, web build, image, accuracy harness, E2E and release (see AGENTS) | `test/toolchain/gates.go`; active: binary build, API types, frontend lint and typecheck, frontend unit tests, web build, image and image tests, accuracy harness, E2E, release ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)) |
+| Engineering scaffold (gates, CI, release tooling) | Tooling in place; every gate is active, no product gate is dormant: the binary build, API types, frontend lint, typecheck and unit-test, web build, image, accuracy harness, E2E and release (see AGENTS). `idle-measure` and `idle-bench` run against a running binary now; the demo build and demo parity run on demand | `test/toolchain/gates.go`; active: binary build, API types, frontend lint and typecheck, frontend unit tests, web build, image and image tests, accuracy harness, E2E, release ([AGENTS.md](../AGENTS.md#dormant-gates-and-activation)); `scripts/idle-measure.sh`, `.mk/idle-measure.mk`; `web/src/demo/` (the demo build), `web/parity/`, `.mk/parity.mk` ([demo-parity.md](engineering/demo-parity.md)) |
 | Design export (Claude Design) | Export landed with tokens, components and the `ui_kits/app/` prototype; corrections pending in Claude Design; symlinks active | `docs/design_system/` ([sync rules](README.md#design-export)) |
 | Packet loss via WebRTC and TURN | Open (unscheduled) |  |
 | Headless CLI client | Open (unscheduled) |  |

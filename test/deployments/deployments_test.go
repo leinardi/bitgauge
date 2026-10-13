@@ -80,8 +80,7 @@ var (
 
 	healthcheckRule = regexp.MustCompile(
 		"`HEALTHCHECK --interval=(\\S+) --timeout=(\\S+) --start-period=(\\S+) --retries=(\\d+)`")
-	fenceLine   = regexp.MustCompile("^```")
-	exampleLink = regexp.MustCompile(`\]\((` + regexp.QuoteMeta(exampleLinkPrefix) + `[^)#]+)\)`)
+	fenceLine = regexp.MustCompile("^```")
 )
 
 // TestExamplesAreTheListedFiles pins the tree: each example directory holds its README and the
@@ -304,7 +303,7 @@ func TestProxiesTrustOnlyThemselves(t *testing.T) {
 func TestDocBlocksAreShippedFiles(t *testing.T) {
 	t.Parallel()
 
-	blocks, problems := linkedBlocks(readRepoFile(t, exampleDoc))
+	blocks, problems := linkedBlocks(readRepoFile(t, exampleDoc), exampleLinkPrefix)
 	for _, problem := range problems {
 		t.Errorf("%s: %s", exampleDoc, problem)
 	}
@@ -331,6 +330,28 @@ func TestDocBlocksAreShippedFiles(t *testing.T) {
 	want := slices.Sorted(slices.Values(docFiles))
 	if !slices.Equal(named, want) {
 		t.Errorf("%s shows %v, want %v", exampleDoc, named, want)
+	}
+}
+
+// TestReadmeShowsTheShippedCompose checks that the repository README's compose example is the
+// shipped compose-alone file, so the first example a reader copies is the hardened one.
+func TestReadmeShowsTheShippedCompose(t *testing.T) {
+	t.Parallel()
+
+	const readme, prefix = "README.md", examplesDir + "/"
+
+	blocks, problems := linkedBlocks(readRepoFile(t, readme), prefix)
+	for _, problem := range problems {
+		t.Errorf("%s: %s", readme, problem)
+	}
+
+	want := prefix + "compose-alone/compose.yaml"
+	if len(blocks) != 1 || blocks[0].link != want {
+		t.Fatalf("%s shows %+v, want one block linked to %s", readme, blocks, want)
+	}
+
+	if blocks[0].body != readRepoFile(t, want) {
+		t.Errorf("%s:%d: the block differs from %s", readme, blocks[0].line, want)
 	}
 }
 
@@ -365,7 +386,7 @@ func TestLinkedBlocksIsNotBlind(t *testing.T) {
 		"open",
 	}, "\n")
 
-	blocks, problems := linkedBlocks(page)
+	blocks, problems := linkedBlocks(page, exampleLinkPrefix)
 
 	if len(blocks) != 1 || blocks[0].link != exampleLinkPrefix+"a/compose.yaml" ||
 		blocks[0].body != "services: {}\n" || blocks[0].line != 5 {
@@ -388,10 +409,13 @@ type block struct {
 	line int
 }
 
-// linkedBlocks returns the fenced blocks whose preceding paragraph links an example file, with
-// what is wrong with the page: a paragraph that links more than one, or a block left open.
-func linkedBlocks(page string) (blocks []block, problems []string) {
+// linkedBlocks returns the fenced blocks whose preceding paragraph links an example file, a link
+// target starting with prefix, with what is wrong with the page: a paragraph that links more than
+// one, or a block left open.
+func linkedBlocks(page, prefix string) (blocks []block, problems []string) {
 	var paragraph []string
+
+	exampleLink := regexp.MustCompile(`\]\((` + regexp.QuoteMeta(prefix) + `[^)#]+)\)`)
 
 	all := lines(page)
 

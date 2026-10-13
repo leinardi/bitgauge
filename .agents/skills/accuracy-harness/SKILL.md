@@ -35,9 +35,10 @@ How to use it:
 
 ---
 
-## 1. The harness is dormant until its gate is met
+## 1. The harness gate: active since v0.1
 
-The runners refuse to start while any prerequisite of the **accuracy harness** gate in
+The gate has been met, and the harness active, since v0.1; this section is what keeps it so. The
+runners refuse to start while any prerequisite of the **accuracy harness** gate in
 `test/toolchain/gates.go` is unmet. `test/harness/dormancy.go` reads the same registry, and
 `.mk/harness.mk` runs `TestHarnessActive` with `HARNESS_CHECK_ACTIVE=1` before any runner, so a
 dormant harness fails there, listing what is missing, before a container exists.
@@ -289,9 +290,10 @@ passed for it ([release.md](../../../docs/release.md#how-to-release),
 - The maintainer commits the run's `report.md` as `docs/engineering/harness-runs/<version>.md`, one
   file per release, holding the floor and ceiling results, the real Safari and iOS checks (the
   report's "Manual runs this tier requires" list) and the environmental notes.
-- The directory does not exist yet: the first file also moves the `harness-runs/<version>.md` row
-  of [docs/engineering/README.md](../../../docs/engineering/README.md) from "Planned Notes" to its
-  table. The lab runbook, `accuracy-harness.md` there, is planned too.
+- The directory exists, with a
+  [`README.md`](../../../docs/engineering/harness-runs/README.md) saying what each file holds; no
+  run is recorded yet, and the first file is `0.1.0.md`. The lab runbook is
+  [`accuracy-harness.md`](../../../docs/engineering/accuracy-harness.md).
 - The evaluator judges the floor and ceiling runs too; the device runs (real Android Chrome, real
   iOS Safari, real Safari on macOS) have no runner, so their "passed" is a human judgement against
   testing.md's tolerances: record the numbers and the judgement, never only the verdict.

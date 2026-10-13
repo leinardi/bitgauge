@@ -85,7 +85,7 @@ skipped with a notice and `ci-result` fails on it. That is decided
 [release.md](../release.md#required-checks-and-fork-pull-requests)); what remains is making it
 livable.
 
-- [ ] Say plainly in [`CONTRIBUTING.md`](../../CONTRIBUTING.md) that `make docker-build`,
+- [x] Say plainly in [`CONTRIBUTING.md`](../../CONTRIBUTING.md) that `make docker-build`,
       `make go-test-image` and the harness targets need a `dhi.io` account (`make e2e` does not:
       it runs a host-built binary), so an outside contributor is not left debugging an
       authentication failure that is by design.
