@@ -349,6 +349,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 32 | A release recovery selects the recorded toolchains in a script after the setup actions; a tag without recorded versions warns; a dry run rehearses a fresh release only | v0.1 |
 | 33 | The UI reads a run's end from the event order; an engine defect ends the run as `test failed`; the wake lock is requested again when the page becomes visible | v0.1 |
 | 34 | Rates keep three significant digits with their trailing zeros; the gauge caption's round scale ends drop them | v0.1 |
+| 35 | Upload `sample`s carry P_start and their own instant on the server grid, and every `sample` the warm-up end, for the live chart | v0.1 |
 
 ## Related
 

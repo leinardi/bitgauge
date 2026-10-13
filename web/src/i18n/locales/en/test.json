@@ -42,6 +42,26 @@
       "fixed": "log scale · {lo} – {hi} ms",
       "ms": "ms",
       "noValue": "—"
+    },
+    "chart": {
+      "summary": "Throughput over time: {parts}",
+      "empty": "Throughput over time: no data yet",
+      "download": "download, latest {rate}",
+      "upload": "upload received, latest {rate}",
+      "seconds": "{n} s",
+      "now": "now",
+      "marks": {
+        "extended": "extended",
+        "dataCap": "data cap",
+        "cancelled": "cancelled",
+        "error": "error"
+      },
+      "legend": {
+        "download": "Download",
+        "received": "Upload received",
+        "sending": "sending",
+        "warmup": "Warm-up"
+      }
     }
   }
 }

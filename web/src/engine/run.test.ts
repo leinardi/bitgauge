@@ -475,6 +475,36 @@ describe('samples', () => {
     expect(upload.at(-1)?.dataUsedBytes).toBeGreaterThan(download.at(-1)?.dataUsedBytes ?? 0)
   })
 
+  it('carry the chart\'s placing: the warm-up end, and for upload P_start and the sending instant on the grid', async () => {
+    const harness = start()
+    await finish(harness)
+    const samples = harness.events.flatMap(({ event }) => (event.type === 'sample' ? [event] : []))
+    for (const direction of ['download', 'upload'] as const) {
+      const own = samples.filter((sample) => sample.direction === direction)
+      const ended = own.findIndex((sample) => sample.warmupEndBucket !== undefined)
+      expect(ended).toBeGreaterThan(0)
+      // Absent while warming up, then the same bucket in every sample, inside the series.
+      expect(own.slice(0, ended).every((sample) => sample.steady === undefined)).toBe(true)
+      expect(new Set(own.slice(ended).map((sample) => sample.warmupEndBucket)).size).toBe(1)
+      expect(own[ended]?.warmupEndBucket).toBeGreaterThanOrEqual(own.find((sample) => sample.values.length > 0)?.fromBucket ?? Infinity)
+    }
+    const download = samples.filter((sample) => sample.direction === 'download')
+    expect(download.every((sample) => sample.startBucket === undefined && sample.sendingBucket === undefined)).toBe(true)
+    const upload = samples.filter((sample) => sample.direction === 'upload')
+    const placed = upload.filter((sample) => sample.sendingBucket !== undefined)
+    // Nothing is placed before the first confirmation, which also brings the first cells.
+    const first = upload.findIndex((sample) => sample.values.length > 0)
+    expect(upload.slice(0, first).every((sample) => sample.sendingBucket === undefined && sample.startBucket === undefined)).toBe(true)
+    expect(placed.length).toBeGreaterThan(0)
+    for (const sample of placed) {
+      expect(sample.startBucket).toBeLessThanOrEqual(sample.sendingBucket ?? -Infinity)
+      // The instant runs ahead of the confirmed cells by about a request, never behind the start.
+      expect(sample.sendingBucket).toBeGreaterThanOrEqual(upload[first]?.fromBucket ?? Infinity)
+    }
+    const instants = placed.map((sample) => sample.sendingBucket ?? 0)
+    expect(instants).toEqual([...instants].sort((a, b) => a - b))
+  })
+
   it('start the upload values at the first confirmed cell of a grid far from 0', async () => {
     // The server's grid origin is shifted by up to 2^32 cells (wire-protocol.md): cell indices
     // in the billions must not turn into billions of values.

@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { type ShallowRef, shallowRef, triggerRef } from 'vue'
+import { type ShallowRef, shallowRef } from 'vue'
 
 import type {
   Direction,
@@ -60,6 +60,12 @@ export interface DirectionLive {
   sending: number | null
   /** The steady-window average and peak so far; null while warming up. */
   steady: SteadySoFar | null
+  /** The bucket where warm-up ended, on the axis of `firstBucket`; null while warming up. */
+  warmupEnd: number | null
+  /** Upload only: P_start on the server grid, in cells; null before a request has confirmed. */
+  start: number | null
+  /** Upload only: the sending values, each at its instant on the server grid in cells. */
+  sendingTrace: { cell: number; bitsPerSecond: number }[]
 }
 
 /** An engine error code, or `internal` for the Worker's uncaught error (ui/flows.md section 5). */
@@ -82,7 +88,12 @@ function emptyLive(): Record<Direction, DirectionLive | null> {
 
 /** Writes a sample's range of buckets into the direction's buffer, unknown across any hole. */
 function record(live: DirectionLive | null, event: Extract<EngineEvent, { type: 'sample' }>): DirectionLive {
-  const buffer = live ?? { firstBucket: event.fromBucket, values: [], windowEnd: null, gauge: 0, sending: null, steady: null }
+  const buffer = live ?? { firstBucket: event.fromBucket, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [] }
+  // Until a bucket is known, the buffer follows the samples: an upload sends empty ones before its
+  // first confirmation, and its cells start far from 0.
+  if (buffer.values.length === 0) {
+    buffer.firstBucket = event.fromBucket
+  }
   const offset = event.fromBucket - buffer.firstBucket
   while (buffer.values.length < offset) {
     buffer.values.push(null)
@@ -92,6 +103,11 @@ function record(live: DirectionLive | null, event: Extract<EngineEvent, { type: 
   buffer.gauge = event.gauge
   buffer.sending = event.sending ?? null
   buffer.steady = event.steady ?? null
+  buffer.warmupEnd = event.warmupEndBucket ?? buffer.warmupEnd
+  buffer.start = event.startBucket ?? buffer.start
+  if (event.sendingBucket !== undefined && event.sending !== undefined) {
+    buffer.sendingTrace.push({ cell: event.sendingBucket, bitsPerSecond: event.sending })
+  }
   return buffer
 }
 
@@ -151,9 +167,10 @@ export function createRunState() {
     notices.value = event.notices
   }
 
+  // A new record and direction object per sample, so that a component given them as props sees
+  // the change; the bucket arrays inside are extended in place.
   function onSample(event: Extract<EngineEvent, { type: 'sample' }>): void {
-    live.value[event.direction] = record(live.value[event.direction], event)
-    triggerRef(live)
+    live.value = { ...live.value, [event.direction]: { ...record(live.value[event.direction], event) } }
     direction.value = event.direction
     dataUsedBytes.value = event.dataUsedBytes
   }

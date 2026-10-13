@@ -67,8 +67,11 @@ export class SampleFeed {
       gauge: bucketRate(series.mean(series.end - GAUGE_BUCKETS, series.end) ?? 0),
       dataUsedBytes: dataUsedBefore + phase.dataUsed,
     }
-    const live = warmupEnd === null ? undefined : steady(series.known(warmupEnd.bucket, series.end))
-    return live === undefined ? sample : { ...sample, steady: live }
+    if (warmupEnd === null) {
+      return sample
+    }
+    const live = steady(series.known(warmupEnd.bucket, series.end))
+    return { ...sample, warmupEndBucket: warmupEnd.bucket, ...(live === undefined ? {} : { steady: live }) }
   }
 
   /** The upload's gauge is the client's sending progress; its buckets are confirmed server cells. */
@@ -91,6 +94,9 @@ export class SampleFeed {
       this.next = end
     }
     const windowEnd = phase.ledger.windowEnd()
+    // The chart's placing of the sending line: this instant on the server grid, by the offset.
+    const offset = phase.displayOffset
+    const phaseStart = phase.ledger.phaseStart()
     const sample: Sample = {
       type: 'sample',
       direction: 'upload',
@@ -100,6 +106,7 @@ export class SampleFeed {
       sending,
       dataUsedBytes: dataUsedBefore + sent,
       ...(windowEnd === null ? {} : { windowEnd }),
+      ...(offset === null || phaseStart === null ? {} : { startBucket: phaseStart / BUCKET_MS, sendingBucket: (now - offset) / BUCKET_MS }),
     }
     const warmupEnd = phase.warmupEnd
     if (warmupEnd === null) {
@@ -107,6 +114,6 @@ export class SampleFeed {
     }
     const window = steadyWindow(phase.ledger, warmupEnd.bucket * BUCKET_MS)
     const live = steady(window.cells.map((cell) => phase.ledger.grid.bytes(cell)))
-    return live === undefined ? sample : { ...sample, steady: live }
+    return { ...sample, warmupEndBucket: warmupEnd.bucket, ...(live === undefined ? {} : { steady: live }) }
   }
 }

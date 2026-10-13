@@ -103,7 +103,7 @@ the page's `Worker` object; the next `start` may begin another run.
 | Message | Payload | Used for |
 | --- | --- | --- |
 | `phase` | phase name (`info`, `idle`, `download`, `upload`), state (`started`, `finished`, `skipped`, `failed`), protocol, stream count, notices so far | Phase indicator, connection info. |
-| `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up; Continuous adds "p90, last hour"); latest loaded-latency samples; data used | Live gauge, tiles and chart, at most every 100 ms. |
+| `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up; Continuous adds "p90, last hour"); the warm-up end and, for upload, P_start and the sample's instant on the server grid (display only); latest loaded-latency samples; data used | Live gauge, tiles and chart, at most every 100 ms. |
 | `result` | the versioned result object ([measurement.md §17](measurement.md#17-result-object)) | Result screen, history, export. |
 | `error` | code, message key, phase, whether partial results exist | Error states and retry ([ui/flows.md](ui/flows.md)). |
 
@@ -128,6 +128,9 @@ type EngineEvent =
       gauge: number; sending?: number;
       steady?: { avgBitsPerSecond: number; peakBitsPerSecond: number;
                  peakLastHourBitsPerSecond?: number };  // absent during warm-up
+      warmupEndBucket?: number;        // once warm-up has ended, on the same axis as fromBucket
+      startBucket?: number;            // upload only: P_start on the server grid, in cells
+      sendingBucket?: number;          // upload only: this instant on the grid, by the offset
       loadedLatencyMs?: number[]; dataUsedBytes: number }
   | { type: 'result'; result: Result }
   | { type: 'error'; code: EngineErrorCode; messageKey: string; phase?: PhaseName;
@@ -140,7 +143,13 @@ upload, buckets are server grid cells, and cells become known in batches: when a
 the window end jumps forward by about one request's worth of cells, and the next `sample` carries
 all newly confirmed cells at once (`values` entries inside a failure gap are `null`). The live
 `sending` line comes from `upload.onprogress` on the client timeline and is drawn with the
-display-only offset of [measurement.md §7.4](measurement.md#74-common-timeline-and-aggregation).
+display-only offset of [measurement.md §7.4](measurement.md#74-common-timeline-and-aggregation):
+since the UI does not share the Worker's clock, the engine applies the offset itself and sends
+each upload `sample`'s own instant on the server grid as `sendingBucket`, in fractional cells,
+with `startBucket`, the phase start P_start on the same grid; both are absent until a request has
+confirmed, because there is no offset before. Once warm-up has ended, every `sample` carries
+`warmupEndBucket`, the bucket (download) or cell (upload) where it ended, which bounds the live
+chart's warm-up band. All three are display-only and feed no number.
 
 **Error codes.** The `error` event's `code` is one of `invalid-settings` (a `configure` or
 `start` whose settings fail validation), `requests-failed` (three consecutive failed requests,

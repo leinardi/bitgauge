@@ -253,6 +253,15 @@ export type EngineEvent =
       /** Upload only: the client's sending progress in bits per second; it never feeds a number. */
       sending?: number
       steady?: SteadySoFar
+      /** Once warm-up has ended: its bucket, on the same axis as `fromBucket` (display only). */
+      warmupEndBucket?: number
+      /** Upload only, once a request has confirmed: P_start on the server grid, in cells. */
+      startBucket?: number
+      /**
+       * Upload only, once a request has confirmed: this sample's instant on the server grid, in
+       * fractional cells, placed by the display-only offset of measurement.md section 7.4.
+       */
+      sendingBucket?: number
       dataUsedBytes: number
     }
   | { type: 'result'; result: Result }

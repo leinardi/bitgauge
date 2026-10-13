@@ -100,6 +100,11 @@ export class UploadPhase {
     return this.warmup.end
   }
 
+  /** The display-only offset of section 7.4, client minus server; null before a confirmation. */
+  get displayOffset(): number | null {
+    return this.streams.displayOffset()
+  }
+
   /** The bytes sent so far in this phase, from upload progress: the sending gauge's input. */
   get dataUsed(): number {
     let sent = this.sentBefore

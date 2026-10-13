@@ -316,6 +316,13 @@ carries a recommendation; where the specification already relies on an answer, i
     `tokens.md` example is export content, left for the Claude Design project to correct.
     Recommendation: keep it. See [ui/i18n-a11y.md §1.3](ui/i18n-a11y.md#13-number-unit-and-date-formatting)
     and [measurement.md §14](measurement.md#14-units-and-gauge).
+35. How does the live chart place the upload's `sending` line and the warm-up band, when the UI
+    does not share the Worker's clock? Current answer: **the engine sends them on the direction's
+    own bucket axis: every `sample` after warm-up carries `warmupEndBucket`, and an upload `sample`
+    carries `startBucket` (P_start on the server grid) and `sendingBucket`, its own instant moved
+    onto the grid by the display-only offset, both once a request has confirmed**. The chart
+    places the sending value in the cell that instant falls in. Recommendation: keep it. See
+    [architecture.md §4](architecture.md#4-engine--ui-message-contract).
 
 Resolved and removed:
 
