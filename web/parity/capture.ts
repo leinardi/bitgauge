@@ -81,11 +81,13 @@ function contents(yaml: string): AriaNode[] {
 }
 
 export async function capture(driver: SideDriver, page: Page): Promise<Capture> {
+  // A selector that matches nothing, for a side without toasts.
+  const toasts = driver.toastSelector ?? ':not(*)'
   const raw: Record<Region, string> = {
     header: await snapshotAll(page, HEADER, `main, ${driver.overlaySelector}`),
     main: await snapshot(page.locator('main')),
-    notices: await snapshotAll(page, NOTICES, `${REGION_ROOTS}, ${driver.toastSelector}`),
-    dialogs: await snapshotAll(page, driver.overlaySelector, driver.toastSelector),
+    notices: await snapshotAll(page, NOTICES, `${REGION_ROOTS}, ${toasts}`),
+    dialogs: await snapshotAll(page, driver.overlaySelector, toasts),
   }
   const trees: RegionTrees = {
     header: normalizeTree(parseAriaSnapshot(raw.header)),

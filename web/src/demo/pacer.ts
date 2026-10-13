@@ -25,7 +25,7 @@ import type { Clock, DownloadChunk, TimerId } from '@/engine/types'
 // is due share each direction's bottleneck equally, each up to the per-request limit, for the time
 // since they last moved. No byte exists: a transfer is a count.
 
-const TICK_MS = 10
+export const TICK_MS = 10
 
 export interface Transfer {
   readonly direction: Direction

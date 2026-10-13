@@ -83,7 +83,7 @@ export default class ParityReporter implements Reporter {
     const notCompared = unchecked.length - notSelected - filteredOut
 
     lines.push(
-      `demo parity · run ${expected.runId.slice(0, 8)} · matrix ${expected.matrix} · scenarios ${expected.scenarioFilter ?? 'all'} · mode ${expected.mode}`,
+      `demo parity · run ${expected.runId.slice(0, 8)} · matrix ${expected.matrix} · scenarios ${expected.scenarioFilter ?? 'all'} · ${completion.complete ? 'complete' : 'incomplete'} · mode ${expected.mode}`,
       `  expected  ${plural(expected.pairs.length, 'pair')} (${plural(selectedProjects.size, 'project')} × ${plural(selectedScenarios.size, 'scenario')})`,
       `  compared  ${coverage.covered.size}`,
     )

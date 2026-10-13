@@ -138,8 +138,10 @@ describe('the demo session', () => {
     expect(started).toEqual(['info', 'idle'])
   })
 
-  it('stops where the script stops, with what was measured by then', async () => {
-    const { events } = await play('cancelled-late')
+  it('stops where the script stops, through the page, with what was measured by then', async () => {
+    const { events, stopsPressed } = await play('cancelled-late')
+    // The session asks the page to press Stop once; the page's stop ends the run.
+    expect(stopsPressed).toHaveLength(1)
     const result = resultOf(events)
     expect(result.status).toBe('partial')
     expect(result.download?.status).toBe('measured')

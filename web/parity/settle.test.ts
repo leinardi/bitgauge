@@ -31,6 +31,7 @@ const driver: SideDriver = {
   overlaySelector: '[role=dialog]',
   toastSelector: '.toast',
   styleRegions: [],
+  prepare: () => Promise.resolve(),
 }
 
 /** A page over this jsdom document: evaluate runs in it, and the main element is waited for. */
@@ -79,7 +80,9 @@ describe('settle', () => {
         })
       },
     } as unknown as Browser
-    await openSide(browser, driver, project)
+    const prepared: unknown[] = []
+    await openSide(browser, { ...driver, prepare: (context) => Promise.resolve(void prepared.push(context)) }, project)
+    expect(prepared).toHaveLength(1)
     expect(options).toEqual({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', reducedMotion: 'reduce', timezoneId: 'UTC', locale: 'en-US' })
     expect(routes).toEqual(['**/*'])
     expect(fixed.map((time) => time.toISOString())).toEqual(['2026-09-30T08:20:00.000Z'])

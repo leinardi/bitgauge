@@ -224,9 +224,12 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   into `web/dist-demo/`, which never ships) set the flag.
 - **Simulated link** (`demo/link.ts`, `demo/pacer.ts`, `demo/transport.ts`). Per direction, the
   requests in flight share a bottleneck's goodput equally, each up to an optional per-request
-  ceiling, moved every 10 ms of demo time as counts, not bytes. A download's first byte arrives one
-  round trip after it is sent; an upload's first byte reaches the server half a round trip after it
-  is sent, and its answer, half a round trip after its last byte, carries the telemetry of
+  ceiling, moved every 10 ms of demo time as counts, not bytes. When the Worker is busy and the
+  pacer fires late, a download's bytes for the longer stretch arrive as one chunk per 10 ms of it,
+  each stamped with its own simulated arrival, so they count in the 100 ms buckets they crossed and
+  not all in the latest. A download's first byte arrives one round trip after it is sent; an
+  upload's first byte reaches the server half a round trip after it is sent, and its answer, half a
+  round trip after its last byte, carries the telemetry of
   [../wire-protocol.md §4](../wire-protocol.md#4-upload-telemetry) counted on a 100 ms server grid
   whose origin differs from the client clock's. The WebSocket echo and the probes answer one
   jittered round trip later, stamped with that simulated arrival, since a timer fires no earlier
@@ -249,10 +252,12 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   `cont-done`; a test reads them from `App.jsx`. Each is a link, whether the run starts at once, the
   URL parameters the page applies, and a script: a user stop, a failure or a hold, each at an
   instant after a phase starts as the run's own `phase` events report it, at the kit's own defaults
-  (`cancelled` stops 3.1 s into upload, `download` holds 7.5 s into download). A failure is of the
-  kind the demo panel selects: every request failing, the server unreachable, a restart, or a
-  network change sent as the `network` command; a scenario may fix its own kind, as `error-early`
-  does with a server that stops answering during idle latency, which [../ui/flows.md
+  (`cancelled` stops 3.1 s into upload, `download` holds 7.5 s into download). A user stop is the
+  page's: the session asks the page to press Stop, so the run ends through the page's own stop
+  path, as when the user presses it. A failure is of the kind the demo panel selects: every request
+  failing, the server unreachable, a restart, or a network change sent as the `network` command; a
+  scenario may fix its own kind, as `error-early` does with a server that stops answering during
+  idle latency, which [../ui/flows.md
   §5](../ui/flows.md#5-error-mid-test) ends as `network changed` once the WebSocket closes. The
   fixtures are the kit's: "Basement NAS" over the LAN at 612 Mbit/s down and 438 Mbit/s up, 3.1 ms
   and HTTP/2, with a 110 Mbit/s ceiling per request so that the ramp settles on six streams; over a
@@ -266,8 +271,8 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   run" plays the chosen scenario without its hold. The choice is kept in `localStorage` under
   `bitgauge-demo` and applied by loading the page again with the scenario's URL parameters, so every
   scenario starts from a fresh page: the panel hands the choice to each demo Worker and to the
-  page's `GET /info` (unreachable for `offline`), and presses Start for a scenario that starts, as a
-  user would.
+  page's `GET /info` (unreachable for `offline`), and presses Start for a scenario that starts, and
+  Stop when its script stops the run, as a user would.
 - **Boundaries.** The demo's Worker-side files, `src/demo/**/*.ts`, follow the engine's import
   policy extended by `@/demo/`: framework-free, no DOM library, no application code; like
   `engine/worker.ts`, `demo/worker.ts` alone reaches the Worker's globals, which the engine's

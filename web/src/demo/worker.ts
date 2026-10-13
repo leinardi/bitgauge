@@ -18,7 +18,7 @@
  */
 
 import { DEMO_LINKS, infoFor } from '@/demo/fixtures'
-import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoScenario, isScenarioName } from '@/demo/scenarios'
+import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoPressStop, type DemoScenario, isScenarioName } from '@/demo/scenarios'
 import { DemoSession } from '@/demo/session'
 import { BrowserClock } from '@/engine/clock'
 import type { EngineCommand, EngineEvent } from '@/engine/messages'
@@ -35,11 +35,13 @@ const clock = new BrowserClock()
 const browser = browserIdentity(navigator.userAgent)
 const emit = (event: EngineEvent) => self.postMessage(event)
 const fail = (error: unknown) => self.reportError(error)
+const PRESS_STOP: DemoPressStop = { type: 'demo-press-stop' }
+const pressStop = () => self.postMessage(PRESS_STOP)
 
 function sessionFor(command: DemoCommand): DemoSession {
   const scenario: DemoScenario = DEMO_SCENARIOS[command.scenario]
   const info = infoFor(scenario.link, scenario.basePath)
-  return new DemoSession({ base: clock, command, scenario, profile: DEMO_LINKS[scenario.link], info, browser, emit, fail })
+  return new DemoSession({ base: clock, command, scenario, profile: DEMO_LINKS[scenario.link], info, browser, emit, fail, pressStop })
 }
 
 let session = sessionFor(FIRST)

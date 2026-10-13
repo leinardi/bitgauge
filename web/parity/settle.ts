@@ -33,7 +33,9 @@ const FIXED_NOW = '2026-09-30T08:20:00.000Z'
 // A page is settled once its DOM has not changed for this long. Long enough to outlast a framework's
 // follow-up render, short enough that a one-second countdown cannot keep it unsettled.
 const QUIET_MS = 300
-const SETTLE_TIMEOUT_MS = 15_000
+// Long enough for the demo's longest run at real speed, a complete Standard test on the LAN (about
+// 28 s), to finish and go quiet.
+const SETTLE_TIMEOUT_MS = 60_000
 
 export async function openSide(browser: Browser, driver: SideDriver, project: ParityProject): Promise<{ context: BrowserContext; page: Page }> {
   const context = await browser.newContext({
@@ -48,13 +50,15 @@ export async function openSide(browser: Browser, driver: SideDriver, project: Pa
   // timers and the demo's run go on by themselves. Theme is left on System, and both sides follow
   // the emulated colour scheme.
   await context.clock.setFixedTime(new Date(FIXED_NOW))
+  await driver.prepare(context)
   const page = await context.newPage()
   await page.goto(driver.startUrl)
   await waitForSettled(page)
   return { context, page }
 }
 
-export async function waitForSettled(page: Page): Promise<void> {
+/** Waits until the page shows its main content and has not changed for `quietMs`. */
+export async function waitForSettled(page: Page, quietMs = QUIET_MS): Promise<void> {
   // By element, not by role: a modal hides <main> from the accessibility tree while it is open.
   await page.locator('main').first().waitFor({ state: 'visible', timeout: SETTLE_TIMEOUT_MS })
   await page.evaluate(() => document.fonts.ready.then(() => undefined))
@@ -79,6 +83,6 @@ export async function waitForSettled(page: Page): Promise<void> {
         observer.observe(document.body, { subtree: true, childList: true, attributes: true, characterData: true })
         quiet = setTimeout(done, quietMs)
       }),
-    { quietMs: QUIET_MS, timeoutMs: SETTLE_TIMEOUT_MS },
+    { quietMs, timeoutMs: SETTLE_TIMEOUT_MS },
   )
 }

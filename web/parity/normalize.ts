@@ -45,6 +45,38 @@ export function normalizeText(text: string): string {
   return text.replace(/[\u200B\u200C\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim()
 }
 
+// Measured values. The demo measures its simulated link in real time, so every rate, latency, size
+// and duration it shows differs a little from run to run, and the prototype's are made-up examples:
+// whether a value is right is the engine's and the demo's tests' to say (the demo session tests hold
+// the LAN within 5 % of its rate), not parity's. The number becomes "#", so what is compared is
+// everything around it: its unit, its label and its qualifiers.
+const UNIT = String.raw`(?:[GMk]?bit\/s|(?:giga|mega|kilo)?bits per second|[GMk]?B|ms|milliseconds|s|seconds|%)(?![\w/])`
+const NUMBER = String.raw`\d+(?:[.,]\d+)*`
+// A range is never measured: it is a phase's estimated duration (~10–20 s) or a scale's bounds, so
+// it is matched first and kept whole.
+const MEASURED = new RegExp(String.raw`(~?${NUMBER}(?: ?${UNIT})? ?– ?${NUMBER}(?: ?${UNIT})?)|(?<![\w.])${NUMBER}(?= ?${UNIT})`, 'g')
+
+// A time of day. The demo stamps a result with the wall clock of its Worker, which the page's fixed
+// clock does not reach; the format around the digits is still compared.
+const TIME_OF_DAY = /(?<![\w.])\d{1,2}:\d{2}(?::\d{2})?(?![\w.])/g
+
+// The data a run has used crosses a unit boundary (997 MB, then 1.0 GB) at a slightly different
+// instant each run, so its prefix is part of the measured value. A rate's prefix is kept: no demo
+// link sits near a boundary, and how a rate is scaled is worth comparing.
+const DATA_SIZE = /# [GMk]?B(?![\w/])/g
+
+// The streams a run has open move with the ramp, which a held or stopped run reaches at a slightly
+// different instant each run.
+const STREAMS_IN_USE = /\bStreams \d+\b/g
+
+export function normalizeValue(text: string): string {
+  return normalizeText(text)
+    .replace(TIME_OF_DAY, (time) => time.replace(/\d+/g, '#'))
+    .replace(MEASURED, (_value, range: string | undefined) => range ?? '#')
+    .replace(DATA_SIZE, '# B')
+    .replace(STREAMS_IN_USE, 'Streams #')
+}
+
 // Nodes whose children the comparison reads in their place. A paragraph is a <p> on one side and a
 // <div> of text on the other, which a person cannot tell apart.
 const TRANSPARENT_ROLES = new Set(['paragraph'])
@@ -73,7 +105,7 @@ export function normalizeTree(nodes: readonly AriaNode[]): AriaNode[] {
       out.push(...children)
       continue
     }
-    const name = normalizeText(node.name)
+    const name = normalizeValue(node.name)
     // A lone text child that repeats its parent's name is the name again: Playwright leaves it out
     // when the label is the element's only content, and keeps it when an icon sits beside it.
     const only = children.length === 1 ? children[0] : undefined

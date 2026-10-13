@@ -27,6 +27,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { attachWorker } from '@/demo/control'
 import DemoPanel from '@/demo/DemoPanel.vue'
 import { infoFor } from '@/demo/fixtures'
 import { DEMO_SCENARIOS } from '@/demo/scenarios'
@@ -120,6 +121,26 @@ describe('the demo panel', () => {
     await vi.waitFor(() => expect(pressed).toHaveBeenCalledOnce())
     await new Promise((resolve) => setTimeout(resolve, 250))
     expect(pressed).toHaveBeenCalledOnce()
+    wrapper.unmount()
+    button.remove()
+  })
+
+  it('presses Stop when the demo Worker script asks to, and keeps that message from the engine listeners', () => {
+    const button = document.createElement('button')
+    button.dataset.testid = 'start-button'
+    const pressed = vi.fn()
+    button.addEventListener('click', pressed)
+    document.body.append(button)
+    const wrapper = mount(DemoPanel, { props: { navigate: vi.fn() } })
+    const worker = new StubWorker('demo')
+    attachWorker(worker as unknown as Worker)
+    const engine = vi.fn()
+    worker.addEventListener('message', engine)
+    worker.dispatchEvent(new MessageEvent('message', { data: { type: 'demo-press-stop' } }))
+    expect(pressed).toHaveBeenCalledOnce()
+    expect(engine).not.toHaveBeenCalled()
+    worker.dispatchEvent(new MessageEvent('message', { data: { type: 'phase', phase: 'idle', state: 'started' } }))
+    expect(engine).toHaveBeenCalledOnce()
     wrapper.unmount()
     button.remove()
   })

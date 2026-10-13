@@ -20,6 +20,8 @@
 // What the shared parity code needs to know of each side, the design kit's prototype and the Vue
 // demo: where it starts and how its markup marks the parts of a page the comparison reads.
 
+import type { BrowserContext } from '@playwright/test'
+
 import type { Region } from './compare/content.ts'
 
 export type Side = 'proto' | 'vue'
@@ -35,7 +37,12 @@ export interface SideDriver {
   // Modal content: a dialog, an alert dialog, or the prototype's own wrapper around one.
   overlaySelector: string
   // Transient toasts, which neither the notices nor the dialogs read: they come and go on a timer.
-  toastSelector: string
-  // Each region's root element on this side, for the style layer.
+  // Null for a side that has none.
+  toastSelector: string | null
+  // Each region's root element on this side, for the style layer, first match wins: an element
+  // inside an overlay belongs to the overlay, and one inside main to main.
   styleRegions: [Region, string][]
+  // Readies a fresh context before its first page loads, such as the product defaults a side keeps
+  // in storage.
+  prepare: (context: BrowserContext) => Promise<void>
 }

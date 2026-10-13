@@ -1,0 +1,1397 @@
+# Demo parity baseline: differences between the design kit's prototype and the Vue demo that are
+# known and accepted for now. One line per difference, tab-separated:
+#   projects  scenario  layer  path  kind  detail  reason
+# where projects is * for all four projects, or the comma-separated projects it occurs in.
+# Maintained by the harness, never by hand: make demo-parity-update removes what has been fixed,
+# make demo-parity-accept REASON=... adds what is accepted. See docs/engineering/demo-parity.md.
+*	about	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	about	content	header > banner > navigation "Primary"	missing	link "History"	present when the harness was adopted
+dark-desktop,light-desktop	about	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	about	content	header > navigation "Primary"	missing	link "History"	present when the harness was adopted
+dark-narrow,light-narrow	about	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	about	content	main	changed	text "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or…	present when the harness was adopted
+*	about	content	main	missing	region "OpenSpeedTest™ web UI"	present when the harness was adopted
+*	about	content	main	missing	region "librespeed-cli"	present when the harness was adopted
+*	about	content	main	missing	region "macOS networkQuality"	present when the harness was adopted
+*	about	content	main > complementary	changed	text "How it measures Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle ove…	present when the harness was adopted
+*	about	content	main > complementary	changed	text "Privacy No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser. Credits" → "No accounts, no tracking, no ads.…	present when the harness was adopted
+*	about	content	main > complementary	extra	heading "Credits"	present when the harness was adopted
+*	about	content	main > complementary	extra	heading "How it measures"	present when the harness was adopted
+*	about	content	main > complementary	extra	heading "Privacy"	present when the harness was adopted
+*	about	content	main > complementary	missing	definition	present when the harness was adopted
+*	about	content	main > complementary	missing	term	present when the harness was adopted
+*	about	content	main > complementary > definition	changed	text "v1.4.0 · a1b2c3d · 2026-09-30" → "1.4.0 · a1b2c3d · Sep 30, 2026"	present when the harness was adopted
+*	about	content	main > complementary > list > listitem	changed	text "…, gaming and video calls." → "…, gaming and video calls, from v0.3."	present when the harness was adopted
+*	about	content	main > complementary > list > listitem	changed	text "…atibility for its web UI." → "…atibility for its web UI, from v0.3."	present when the harness was adopted
+*	about	content	main > complementary > list > listitem	changed	text "…erbloat grade thresholds." → "…erbloat grade thresholds, from v0.2."	present when the harness was adopted
+*	about	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
+*	about	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
+*	about	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
+dark-narrow,light-narrow	about	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	about	style	header > button "About"	width	97.5px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	about	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	about	style	header > button "Test"	width	97.5px → 195.0px	present when the harness was adopted
+dark-narrow	about	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	about	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	about	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	about	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	about	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,dark-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(0, 0, 0, 0) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(0, 0, 0, 0) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	about	style	main > button "LICENSE file in the repository"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	about	style	main > button "LICENSE file in the repository"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	about	style	main > button "LICENSE file in the repository"	column-gap	8px → 6px	present when the harness was adopted
+*	about	style	main > button "LICENSE file in the repository"	font-weight	600 → 500	present when the harness was adopted
+*	about	style	main > button "LICENSE file in the repository"	height	28.0px → 32.0px	present when the harness was adopted
+*	about	style	main > button "LICENSE file in the repository"	line-height	normal → 18.5714px	present when the harness was adopted
+*	about	style	main > button "LICENSE file in the repository"	padding-left	10px → 12px	present when the harness was adopted
+*	about	style	main > button "LICENSE file in the repository"	padding-right	10px → 12px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	main > button "LICENSE file in the repository"	width	306.0px → 199.0px	present when the harness was adopted
+dark-narrow,light-narrow	about	style	main > button "LICENSE file in the repository"	width	324.0px → 199.0px	present when the harness was adopted
+*	about	style	main > button "Methodology in the BitGauge docs"	height	17.0px → 19.5px	present when the harness was adopted
+*	about	style	main > button "Methodology in the BitGauge docs"	line-height	normal → 19.5px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	main > button "Methodology in the BitGauge docs"	width	214.0px → 306.0px	present when the harness was adopted
+dark-narrow,light-narrow	about	style	main > button "Methodology in the BitGauge docs"	width	214.0px → 324.0px	present when the harness was adopted
+dark-desktop,dark-narrow	about	style	main > button "Source repository"	background-color	rgba(35, 41, 48, 255) → rgba(53, 60, 66, 77)	present when the harness was adopted
+light-desktop,light-narrow	about	style	main > button "Source repository"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	about	style	main > button "Source repository"	font-weight	600 → 500	present when the harness was adopted
+*	about	style	main > button "Source repository"	height	34.0px → 36.0px	present when the harness was adopted
+*	about	style	main > button "Source repository"	line-height	normal → 18.5714px	present when the harness was adopted
+*	about	style	main > button "Source repository"	padding-bottom	0px → 8px	present when the harness was adopted
+*	about	style	main > button "Source repository"	padding-left	14px → 12px	present when the harness was adopted
+*	about	style	main > button "Source repository"	padding-right	14px → 12px	present when the harness was adopted
+*	about	style	main > button "Source repository"	padding-top	0px → 8px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	main > button "Source repository"	width	306.0px → 155.0px	present when the harness was adopted
+dark-narrow,light-narrow	about	style	main > button "Source repository"	width	324.0px → 155.0px	present when the harness was adopted
+dark-narrow,light-narrow	about	style	main > heading "Use with other clients"	height	32.0px → 36.0px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	main > heading "Use with other clients"	height	39.0px → 45.0px	present when the harness was adopted
+dark-narrow,light-narrow	about	style	main > heading "Use with other clients"	line-height	normal → 36px	present when the harness was adopted
+dark-desktop,light-desktop	about	style	main > heading "Use with other clients"	line-height	normal → 45px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	content	header > banner	changed	text "Basement NAS , unreachable speed.home.lan" → ", unreachable 127.0.0.1:5180"	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	content	header > banner	changed	text "BitGauge Basement NAS , unreachable speed.home.lan" → "BitGauge , unreachable 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	content	header > banner > navigation "Primary"	missing	link "History"	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	content	header > navigation "Primary"	missing	link "History"	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	about/unreachable	content	main	changed	text "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or…	present when the harness was adopted
+*	about/unreachable	content	main	missing	region "OpenSpeedTest™ web UI"	present when the harness was adopted
+*	about/unreachable	content	main	missing	region "librespeed-cli"	present when the harness was adopted
+*	about/unreachable	content	main	missing	region "macOS networkQuality"	present when the harness was adopted
+*	about/unreachable	content	main > alert	changed	text "Server unreachable The commands below are built from this page's address, https://speed.home.lan. BitGauge can't check which clients the operator enabled…	present when the harness was adopted
+*	about/unreachable	content	main > complementary	changed	text "How it measures Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle ove…	present when the harness was adopted
+*	about/unreachable	content	main > complementary	changed	text "Privacy No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser. Credits" → "No accounts, no tracking, no ads.…	present when the harness was adopted
+*	about/unreachable	content	main > complementary	extra	heading "Credits"	present when the harness was adopted
+*	about/unreachable	content	main > complementary	extra	heading "How it measures"	present when the harness was adopted
+*	about/unreachable	content	main > complementary	extra	heading "Privacy"	present when the harness was adopted
+*	about/unreachable	content	main > complementary	missing	definition	present when the harness was adopted
+*	about/unreachable	content	main > complementary	missing	term	present when the harness was adopted
+*	about/unreachable	content	main > complementary > list > listitem	changed	text "…, gaming and video calls." → "…, gaming and video calls, from v0.3."	present when the harness was adopted
+*	about/unreachable	content	main > complementary > list > listitem	changed	text "…atibility for its web UI." → "…atibility for its web UI, from v0.3."	present when the harness was adopted
+*	about/unreachable	content	main > complementary > list > listitem	changed	text "…erbloat grade thresholds." → "…erbloat grade thresholds, from v0.2."	present when the harness was adopted
+*	about/unreachable	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
+*	about/unreachable	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
+*	about/unreachable	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	header > button "About"	width	97.5px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	header > button "Test"	width	97.5px → 195.0px	present when the harness was adopted
+dark-narrow	about/unreachable	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	about/unreachable	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(0, 0, 0, 0) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(0, 0, 0, 0) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	about/unreachable	style	main > button "LICENSE file in the repository"	column-gap	8px → 6px	present when the harness was adopted
+*	about/unreachable	style	main > button "LICENSE file in the repository"	font-weight	600 → 500	present when the harness was adopted
+*	about/unreachable	style	main > button "LICENSE file in the repository"	height	28.0px → 32.0px	present when the harness was adopted
+*	about/unreachable	style	main > button "LICENSE file in the repository"	line-height	normal → 18.5714px	present when the harness was adopted
+*	about/unreachable	style	main > button "LICENSE file in the repository"	padding-left	10px → 12px	present when the harness was adopted
+*	about/unreachable	style	main > button "LICENSE file in the repository"	padding-right	10px → 12px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	main > button "LICENSE file in the repository"	width	306.0px → 199.0px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	width	324.0px → 199.0px	present when the harness was adopted
+*	about/unreachable	style	main > button "Methodology in the BitGauge docs"	height	17.0px → 19.5px	present when the harness was adopted
+*	about/unreachable	style	main > button "Methodology in the BitGauge docs"	line-height	normal → 19.5px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	main > button "Methodology in the BitGauge docs"	width	214.0px → 306.0px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	main > button "Methodology in the BitGauge docs"	width	214.0px → 324.0px	present when the harness was adopted
+dark-desktop,dark-narrow	about/unreachable	style	main > button "Retry"	background-color	rgba(35, 41, 48, 255) → rgba(53, 60, 66, 77)	present when the harness was adopted
+light-desktop,light-narrow	about/unreachable	style	main > button "Retry"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	about/unreachable	style	main > button "Retry"	column-gap	8px → 6px	present when the harness was adopted
+*	about/unreachable	style	main > button "Retry"	font-weight	600 → 500	present when the harness was adopted
+*	about/unreachable	style	main > button "Retry"	height	28.0px → 32.0px	present when the harness was adopted
+*	about/unreachable	style	main > button "Retry"	line-height	normal → 18.5714px	present when the harness was adopted
+*	about/unreachable	style	main > button "Retry"	width	74.0px → 77.0px	present when the harness was adopted
+dark-desktop,dark-narrow	about/unreachable	style	main > button "Source repository"	background-color	rgba(35, 41, 48, 255) → rgba(53, 60, 66, 77)	present when the harness was adopted
+light-desktop,light-narrow	about/unreachable	style	main > button "Source repository"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	about/unreachable	style	main > button "Source repository"	font-weight	600 → 500	present when the harness was adopted
+*	about/unreachable	style	main > button "Source repository"	height	34.0px → 36.0px	present when the harness was adopted
+*	about/unreachable	style	main > button "Source repository"	line-height	normal → 18.5714px	present when the harness was adopted
+*	about/unreachable	style	main > button "Source repository"	padding-bottom	0px → 8px	present when the harness was adopted
+*	about/unreachable	style	main > button "Source repository"	padding-left	14px → 12px	present when the harness was adopted
+*	about/unreachable	style	main > button "Source repository"	padding-right	14px → 12px	present when the harness was adopted
+*	about/unreachable	style	main > button "Source repository"	padding-top	0px → 8px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	main > button "Source repository"	width	306.0px → 155.0px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	main > button "Source repository"	width	324.0px → 155.0px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	main > heading "Use with other clients"	height	32.0px → 36.0px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	main > heading "Use with other clients"	height	39.0px → 45.0px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	style	main > heading "Use with other clients"	line-height	normal → 36px	present when the harness was adopted
+dark-desktop,light-desktop	about/unreachable	style	main > heading "Use with other clients"	line-height	normal → 45px	present when the harness was adopted
+*	test/basepath	content	main	changed	text "BitGauge Deployment error" → "BitGauge Base path mismatch"	present when the harness was adopted
+*	test/basepath	content	main	changed	text "This page was opened at" → "This page was served for the base path /, but the server's API reports /speed. The page and the API disagree, so no test can …	present when the harness was adopted
+*	test/basepath	content	main	missing	code	present when the harness was adopted
+*	test/basepath	content	main	missing	code (#2)	present when the harness was adopted
+*	test/basepath	content	main	missing	text ", but the server is configured for"	present when the harness was adopted
+*	test/basepath	content	main	missing	text ". Its API answers at a different path, so no test can run from here."	present when the harness was adopted
+*	test/basepath	content	main > definition	changed	text "/ · BITGAUGE_SERVER__BASE_PATH not set" → "/"	present when the harness was adopted
+*	test/basepath	content	main > definition	changed	text "/speed/" → "/"	present when the harness was adopted
+*	test/basepath	content	main > definition	changed	text "GET /api/v1/info → 404" → "/speed"	present when the harness was adopted
+*	test/basepath	content	main > region "Deployment hint"	changed	text "How to fix it Set the base path to the reverse-proxy prefix and restart the container: environment: BITGAUGE_SERVER__BASE_PATH: /speed/ Or strip the" → "…	present when the harness was adopted
+*	test/basepath	content	main > region "Deployment hint"	missing	code	present when the harness was adopted
+*	test/basepath	content	main > region "Deployment hint"	missing	code (#2)	present when the harness was adopted
+*	test/basepath	content	main > region "Deployment hint"	missing	text "."	present when the harness was adopted
+*	test/basepath	content	main > region "Deployment hint"	missing	text "prefix at the proxy so BitGauge is served from"	present when the harness was adopted
+*	test/basepath	content	main > term	changed	text "Check" → "Base path reported by the API"	present when the harness was adopted
+dark-desktop,dark-narrow	test/basepath	style	main > button "Deployment docs"	background-color	rgba(35, 41, 48, 255) → rgba(53, 60, 66, 77)	present when the harness was adopted
+light-desktop,light-narrow	test/basepath	style	main > button "Deployment docs"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	test/basepath	style	main > button "Deployment docs"	font-weight	600 → 500	present when the harness was adopted
+*	test/basepath	style	main > button "Deployment docs"	height	34.0px → 36.0px	present when the harness was adopted
+*	test/basepath	style	main > button "Deployment docs"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/basepath	style	main > button "Deployment docs"	padding-bottom	0px → 8px	present when the harness was adopted
+*	test/basepath	style	main > button "Deployment docs"	padding-left	14px → 12px	present when the harness was adopted
+*	test/basepath	style	main > button "Deployment docs"	padding-right	14px → 12px	present when the harness was adopted
+*	test/basepath	style	main > button "Deployment docs"	padding-top	0px → 8px	present when the harness was adopted
+*	test/basepath	style	main > button "Deployment docs"	width	158.0px → 154.0px	present when the harness was adopted
+light-desktop,light-narrow	test/basepath	style	main > button "Reload"	border-top-color	rgba(0, 0, 0, 0) → rgba(251, 252, 254, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/basepath	style	main > button "Reload"	border-top-color	rgba(0, 0, 0, 0) → rgba(7, 10, 15, 255)	present when the harness was adopted
+*	test/basepath	style	main > button "Reload"	font-weight	600 → 500	present when the harness was adopted
+*	test/basepath	style	main > button "Reload"	height	34.0px → 36.0px	present when the harness was adopted
+*	test/basepath	style	main > button "Reload"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/basepath	style	main > button "Reload"	padding-bottom	0px → 8px	present when the harness was adopted
+*	test/basepath	style	main > button "Reload"	padding-left	14px → 12px	present when the harness was adopted
+*	test/basepath	style	main > button "Reload"	padding-right	14px → 12px	present when the harness was adopted
+*	test/basepath	style	main > button "Reload"	padding-top	0px → 8px	present when the harness was adopted
+*	test/basepath	style	main > button "Reload"	width	95.0px → 90.0px	present when the harness was adopted
+dark-narrow,light-narrow	test/basepath	style	main > heading "The base path doesn't match this URL"	font-size	22px → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/basepath	style	main > heading "The base path doesn't match this URL"	font-size	28px → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/basepath	style	main > heading "The base path doesn't match this URL"	height	33.6px → 28.8px	present when the harness was adopted
+dark-narrow,light-narrow	test/basepath	style	main > heading "The base path doesn't match this URL"	height	52.8px → 57.6px	present when the harness was adopted
+dark-narrow,light-narrow	test/basepath	style	main > heading "The base path doesn't match this URL"	line-height	26.4px → 28.8px	present when the harness was adopted
+dark-desktop,light-desktop	test/basepath	style	main > heading "The base path doesn't match this URL"	line-height	33.6px → 28.8px	present when the harness was adopted
+*	test/cancelled	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/cancelled	content	main	extra	button "Context: LAN"	present when the harness was adopted
+*	test/cancelled	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/cancelled	content	main	extra	list "Notices"	present when the harness was adopted
+*	test/cancelled	content	main	extra	status	present when the harness was adopted
+*	test/cancelled	content	main	extra	text "Context"	present when the harness was adopted
+*	test/cancelled	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/cancelled	content	main	extra	text "suggested Client IP 192.168.1.42 IPv4 Protocol h2 Streams # auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled	content	main	missing	button "LAN"	present when the harness was adopted
+*	test/cancelled	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/cancelled	content	main	missing	text "Context"	present when the harness was adopted
+*	test/cancelled	content	main	missing	text "suggested Client IP 192.168.1.42 IPv4 Protocol HTTP/2 Streams # auto · plateau: cap Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled	content	main > region "Results"	changed	text "Download # Mbit/s peak 641 · 6 streams · plateau: cap Upload Cancelled — Insufficient data — confirmed steady window shorter than # s (stopped in warm-up…	present when the harness was adopted
+*	test/cancelled	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	content	main > region "Speed test"	changed	button "Run again Enter" → "Run again"	present when the harness was adopted
+*	test/cancelled	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 Mbit/s – …" → "Download # Mbit/s log scale · 1 Mbit/s – …"	present when the harness was adopted
+*	test/cancelled	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
+*	test/cancelled	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/cancelled	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/cancelled	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
+*	test/cancelled	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download # Mbit/s" → "Download done · # Mbit/s"	present when the harness was adopted
+*	test/cancelled	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/cancelled	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload Cancelled at # s" → "Upload cancelled · # s"	present when the harness was adopted
+*	test/cancelled	content	main > status	changed	text "Test cancelled during upload Latency and download completed. Upload stopped at # s, before a # s confirmed steady window (still in warm-up), so it has no…	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/cancelled	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/cancelled	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	test/cancelled	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
+*	test/cancelled	style	main > button "Download JSON"	font-weight	600 → 500	present when the harness was adopted
+*	test/cancelled	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/cancelled	style	main > button "Download JSON"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/cancelled	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
+*	test/cancelled	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/cancelled	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/cancelled	style	main > status "Partial results are not saved"	height	17.0px → 19.5px	present when the harness was adopted
+*	test/cancelled	style	main > status "Partial results are not saved"	line-height	normal → 19.5px	present when the harness was adopted
+*	test/cancelled	style	main > status "Partial results are not saved"	width	199.0px → 191.0px	present when the harness was adopted
+*	test/cancelled-download	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-download	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/cancelled-download	content	main	extra	button "Context: LAN"	present when the harness was adopted
+*	test/cancelled-download	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled-download	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/cancelled-download	content	main	extra	list "Notices"	present when the harness was adopted
+*	test/cancelled-download	content	main	extra	status	present when the harness was adopted
+*	test/cancelled-download	content	main	extra	text "Context"	present when the harness was adopted
+*	test/cancelled-download	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/cancelled-download	content	main	extra	text "suggested Client IP 192.168.1.42 IPv4 Protocol h2 Streams # auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-download	content	main	missing	button "LAN"	present when the harness was adopted
+*	test/cancelled-download	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/cancelled-download	content	main	missing	text "Context"	present when the harness was adopted
+*	test/cancelled-download	content	main	missing	text "suggested Client IP 192.168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Results"	changed	text "Download Cancelled — Insufficient data — stopped during warm-up # B used Upload — not run Idle latency # ms min 2.4 · p90 # ms · WebSocket · # % probe ti…	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	content	main > region "Speed test"	changed	button "Run again Enter" → "Run again"	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 Mbit/s – …" → "Download — log scale · 1 Mbit/s – …"	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download Cancelled at # s" → "Download cancelled · # s"	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/cancelled-download	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload Not run" → "Upload skipped"	present when the harness was adopted
+*	test/cancelled-download	content	main > status	changed	text "Test cancelled during download Latency completed. Download stopped before a # s steady window, so it has no value. Upload did not run." → "Download finis…	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-download	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-download	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-download	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-download	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/cancelled-download	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/cancelled-download	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-download	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-download	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled-download	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled-download	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled-download	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled-download	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	test/cancelled-download	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
+*	test/cancelled-download	style	main > button "Download JSON"	font-weight	600 → 500	present when the harness was adopted
+*	test/cancelled-download	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/cancelled-download	style	main > button "Download JSON"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/cancelled-download	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
+*	test/cancelled-download	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/cancelled-download	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/cancelled-download	style	main > status "Partial results are not saved"	height	17.0px → 19.5px	present when the harness was adopted
+*	test/cancelled-download	style	main > status "Partial results are not saved"	line-height	normal → 19.5px	present when the harness was adopted
+*	test/cancelled-download	style	main > status "Partial results are not saved"	width	199.0px → 191.0px	present when the harness was adopted
+*	test/cancelled-late	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-late	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/cancelled-late	content	main	extra	button "Context: LAN"	present when the harness was adopted
+*	test/cancelled-late	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled-late	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/cancelled-late	content	main	extra	list "Notices"	present when the harness was adopted
+*	test/cancelled-late	content	main	extra	status	present when the harness was adopted
+*	test/cancelled-late	content	main	extra	text "Context"	present when the harness was adopted
+*	test/cancelled-late	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/cancelled-late	content	main	extra	text "suggested Client IP 192.168.1.42 IPv4 Protocol h2 Streams # auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-late	content	main	missing	button "LAN"	present when the harness was adopted
+*	test/cancelled-late	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/cancelled-late	content	main	missing	text "Context"	present when the harness was adopted
+*	test/cancelled-late	content	main	missing	text "suggested Client IP 192.168.1.42 IPv4 Protocol HTTP/2 Streams # auto · plateau: cap Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Results"	changed	text "Download # Mbit/s peak 641 · 6 streams · plateau: cap Upload Partial — stopped early # Mbit/s based on a # s steady window · 21 requests Idle latency # m…	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	content	main > region "Speed test"	changed	button "Run again Enter" → "Run again"	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 Mbit/s – …" → "Download # Mbit/s log scale · 1 Mbit/s – …"	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download # Mbit/s" → "Download done · # Mbit/s"	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/cancelled-late	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload Cancelled at # s" → "Upload cancelled · # s"	present when the harness was adopted
+*	test/cancelled-late	content	main > status	changed	text "Partial — stopped early · upload based on a # s steady window Latency and download completed. Upload stopped at # s; in-flight requests were aborted, and…	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-late	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-late	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-late	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-late	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/cancelled-late	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/cancelled-late	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-late	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-late	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled-late	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled-late	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled-late	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled-late	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	test/cancelled-late	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
+*	test/cancelled-late	style	main > button "Download JSON"	font-weight	600 → 500	present when the harness was adopted
+*	test/cancelled-late	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/cancelled-late	style	main > button "Download JSON"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/cancelled-late	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
+*	test/cancelled-late	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/cancelled-late	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/cancelled-late	style	main > status "Partial results are not saved"	height	17.0px → 19.5px	present when the harness was adopted
+*	test/cancelled-late	style	main > status "Partial results are not saved"	line-height	normal → 19.5px	present when the harness was adopted
+*	test/cancelled-late	style	main > status "Partial results are not saved"	width	199.0px → 191.0px	present when the harness was adopted
+*	test/cancelled-latency	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-latency	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/cancelled-latency	content	main	extra	button "Context: LAN"	present when the harness was adopted
+*	test/cancelled-latency	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled-latency	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/cancelled-latency	content	main	extra	text "Context"	present when the harness was adopted
+*	test/cancelled-latency	content	main	extra	text "Data used — Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/cancelled-latency	content	main	extra	text "No test has run yet."	present when the harness was adopted
+*	test/cancelled-latency	content	main	extra	text "suggested Client IP 192.168.1.42 IPv4 Protocol — not reported Streams — auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-latency	content	main	missing	button "LAN"	present when the harness was adopted
+*	test/cancelled-latency	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/cancelled-latency	content	main	missing	region "Result status"	present when the harness was adopted
+*	test/cancelled-latency	content	main	missing	text "Context"	present when the harness was adopted
+*	test/cancelled-latency	content	main	missing	text "suggested Client IP 192.168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Results"	changed	text "Download — not run Upload — not run Idle latency Partial — stopped early # ms median of 11 pings · first of 12 discarded · WebSocket Jitter Partial — sto…	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	content	main > region "Speed test"	changed	button "Run again Enter" → "Start test"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-latency	content	main > region "Speed test"	changed	button "Run again" → "Start test"	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 – 1000 ms" → "Ready — log scale · 1 Mbit/s – 10 Gbit/s · auto"	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Speed test"	extra	figure	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Speed test"	missing	img "Latency samples chart"	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Speed test"	missing	text "Latency samples Round-trip time stopped at # s"	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download Not run" → "Download pending · ~10–20 s"	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency Cancelled · 12 / 20 pings" → "Idle latency pending"	present when the harness was adopted
+*	test/cancelled-latency	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload Not run" → "Upload pending · ~15–25 s"	present when the harness was adopted
+*	test/cancelled-latency	content	main > status	changed	text "Test cancelled during latency Stopped after 12 of 20 pings. The first is a warm-up sample, so idle latency and jitter come from the other 11; download an…	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-latency	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-latency	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-latency	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-latency	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/cancelled-latency	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/cancelled-latency	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-latency	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-latency	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/cancelled-latency	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/cancelled-latency	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/cancelled-slow	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/cancelled-slow	content	main	extra	button "Context: LAN"	present when the harness was adopted
+*	test/cancelled-slow	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled-slow	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/cancelled-slow	content	main	extra	list "Notices"	present when the harness was adopted
+*	test/cancelled-slow	content	main	extra	status	present when the harness was adopted
+*	test/cancelled-slow	content	main	extra	text "Context"	present when the harness was adopted
+*	test/cancelled-slow	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/cancelled-slow	content	main	extra	text "suggested Client IP 10.8.0.6 IPv4 Protocol h2 Streams # auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-slow	content	main	missing	button "VPN"	present when the harness was adopted
+*	test/cancelled-slow	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/cancelled-slow	content	main	missing	text "Context"	present when the harness was adopted
+*	test/cancelled-slow	content	main	missing	text "suggested Client IP 10.8.0.6 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Results"	changed	text "Download Partial — stopped early # kbit/s based on a # s steady window Upload — not run Idle latency # ms min 41 · p90 # ms · WebSocket · # % probe timeo…	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	content	main > region "Speed test"	changed	button "Run again Enter" → "Run again"	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 10 kbit/s –…" → "Download — log scale · 10 kbit/s –…"	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download Cancelled at # s" → "Download cancelled · # s"	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/cancelled-slow	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload Not run" → "Upload skipped"	present when the harness was adopted
+*	test/cancelled-slow	content	main > status	changed	text "Test cancelled during download Latency completed. Download has a # s steady window, enough for a partial value. Upload did not run." → "Download finished…	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/cancelled-slow	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/cancelled-slow	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled-slow	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled-slow	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled-slow	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled-slow	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	test/cancelled-slow	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
+*	test/cancelled-slow	style	main > button "Download JSON"	font-weight	600 → 500	present when the harness was adopted
+*	test/cancelled-slow	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/cancelled-slow	style	main > button "Download JSON"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/cancelled-slow	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
+*	test/cancelled-slow	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/cancelled-slow	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/cancelled-slow	style	main > status "Partial results are not saved"	height	17.0px → 19.5px	present when the harness was adopted
+*	test/cancelled-slow	style	main > status "Partial results are not saved"	line-height	normal → 19.5px	present when the harness was adopted
+*	test/cancelled-slow	style	main > status "Partial results are not saved"	width	199.0px → 191.0px	present when the harness was adopted
+*	test/cancelled-slow-up	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow-up	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	extra	button "Context: LAN"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	extra	list "Notices"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	extra	status	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	extra	text "Context"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	extra	text "suggested Client IP 10.8.0.6 IPv4 Protocol h2 Streams # auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	missing	button "VPN"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	missing	text "Context"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	missing	text "suggested Client IP 10.8.0.6 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Results"	changed	text "Download # kbit/s peak 702 · 2 streams · plateau: no-gain Upload Cancelled — Insufficient data — confirmed steady window shorter than # s (stopped in war…	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	content	main > region "Speed test"	changed	button "Run again Enter" → "Run again"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 10 kbit/s –…" → "Download # kbit/s log scale · 10 kbit/s –…"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download # kbit/s" → "Download done · # kbit/s"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload Cancelled at # s" → "Upload cancelled · # s"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main > status	changed	text "Test cancelled during upload Latency and download completed. Upload stopped at # s, before a # s confirmed steady window (still in warm-up), so it has no…	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow-up	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow-up	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow-up	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow-up	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/cancelled-slow-up	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/cancelled-slow-up	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow-up	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow-up	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled-slow-up	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled-slow-up	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/cancelled-slow-up	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/cancelled-slow-up	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > button "Download JSON"	font-weight	600 → 500	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > button "Download JSON"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > status "Partial results are not saved"	height	17.0px → 19.5px	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > status "Partial results are not saved"	line-height	normal → 19.5px	present when the harness was adopted
+*	test/cancelled-slow-up	style	main > status "Partial results are not saved"	width	199.0px → 191.0px	present when the harness was adopted
+*	test/complete	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/complete	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/complete	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/complete	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto · plateau: cap Standard preset · Auto …" → "….168.1.42 IPv4 Protocol h2 Streams # auto, up to 6 Standard p…	present when the harness was adopted
+*	test/complete	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/complete	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/complete	content	main	extra	status	present when the harness was adopted
+*	test/complete	content	main	extra	status (#2)	present when the harness was adopted
+*	test/complete	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/complete	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/complete	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/complete	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# PM"	present when the harness was adopted
+*	test/complete	content	main > region "Results"	changed	text "Download # Mbit/s peak 641 · 6 streams · plateau: cap Upload # Mbit/s peak 455 · 6 streams · plateau: cap Idle latency # ms min 2.4 · p90 # ms · WebSocke…	present when the harness was adopted
+*	test/complete	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	content	main > region "Speed test"	changed	button "Run again Enter" → "Run again"	present when the harness was adopted
+*	test/complete	content	main > region "Speed test"	changed	text "Download # Mbit/s # Mbit/s upload log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
+*	test/complete	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
+*	test/complete	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/complete	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/complete	content	main > region "Speed test"	missing	text "Throughput Download Upload Warm-up # s total"	present when the harness was adopted
+*	test/complete	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download # Mbit/s" → "Download done · # Mbit/s"	present when the harness was adopted
+*	test/complete	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/complete	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload # Mbit/s" → "Upload done · # Mbit/s"	present when the harness was adopted
+dark-narrow,light-narrow	test/complete	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/complete	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/complete	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/complete	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/complete	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/complete	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/complete	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/complete	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/complete	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+light-desktop,light-narrow	test/complete	style	main > button "Download JSON"	background-color	rgba(241, 243, 245, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
+dark-desktop,dark-narrow	test/complete	style	main > button "Download JSON"	background-color	rgba(35, 41, 48, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
+light-desktop,light-narrow	test/complete	style	main > button "Download JSON"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/complete	style	main > button "Download JSON"	border-top-color	rgba(52, 58, 65, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+*	test/complete	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
+*	test/complete	style	main > button "Download JSON"	font-weight	600 → 500	present when the harness was adopted
+*	test/complete	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/complete	style	main > button "Download JSON"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/complete	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
+*	test/complete	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/complete	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/connecting	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/connecting	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/connecting	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/connecting	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "….168.1.42 IPv4 Protocol — not reported Streams — auto, up to 6 Standard pres…	present when the harness was adopted
+*	test/connecting	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/connecting	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/connecting	content	main	extra	status	present when the harness was adopted
+*	test/connecting	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/connecting	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/connecting	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/connecting	content	main > region "Results"	changed	text "… Idle latency — Jitter — Test Data used — Duration elapsed # s Packet loss Not measured" → "… Idle latency — Jitter —"	present when the harness was adopted
+*	test/connecting	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	content	main > region "Speed test"	changed	button "Stop test Esc" → "Stop test"	present when the harness was adopted
+*	test/connecting	content	main > region "Speed test"	changed	text "Connecting… Basement NAS · reading server info log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
+*	test/connecting	content	main > region "Speed test"	extra	figure	present when the harness was adopted
+*	test/connecting	content	main > region "Speed test"	missing	img "Throughput chart"	present when the harness was adopted
+*	test/connecting	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/connecting	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
+*	test/connecting	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
+*	test/connecting	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "2 Download ~10–20 s" → "Download pending · ~10–20 s"	present when the harness was adopted
+*	test/connecting	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "3 Upload ~15–25 s" → "Upload pending · ~15–25 s"	present when the harness was adopted
+*	test/connecting	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Connecting… server info" → "Idle latency Connecting…"	present when the harness was adopted
+dark-narrow,light-narrow	test/connecting	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/connecting	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/connecting	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/connecting	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/connecting	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/connecting	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/connecting	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/connecting	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/connecting	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/connecting	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/connecting	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/countdown	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/countdown	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/countdown	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/countdown	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "….168.1.42 IPv4 Protocol — not reported Streams — auto, up to 6 Standard pres…	present when the harness was adopted
+*	test/countdown	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/countdown	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/countdown	content	main	extra	text "Data used — Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/countdown	content	main	extra	text "No test has run yet."	present when the harness was adopted
+*	test/countdown	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/countdown	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/countdown	content	main > region "Results"	changed	text "… Idle latency — Jitter — Test Data used — Duration — Packet loss Not measured" → "… Idle latency — Jitter —"	present when the harness was adopted
+*	test/countdown	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	content	main > region "Speed test"	changed	button "Start now Enter" → "Start now"	present when the harness was adopted
+*	test/countdown	content	main > region "Speed test"	changed	text "…in # seconds Esc cancels log scale · 1 Mbit/s – 10 Gbit/s · auto" → "…in # seconds Esc cancels"	present when the harness was adopted
+*	test/countdown	content	main > region "Speed test"	extra	figure	present when the harness was adopted
+*	test/countdown	content	main > region "Speed test"	missing	img "Throughput chart"	present when the harness was adopted
+*	test/countdown	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/countdown	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
+*	test/countdown	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
+*	test/countdown	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "1 Latency ~# s" → "Idle latency pending"	present when the harness was adopted
+*	test/countdown	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "2 Download ~10–20 s" → "Download pending · ~10–20 s"	present when the harness was adopted
+*	test/countdown	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "3 Upload ~15–25 s" → "Upload pending · ~15–25 s"	present when the harness was adopted
+*	test/countdown	content	main > status	changed	text "… was opened from a link with autostart enabled." → "… was opened from a link that starts a test automatically."	present when the harness was adopted
+dark-narrow,light-narrow	test/countdown	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/countdown	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/countdown	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/countdown	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/countdown	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/countdown	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/countdown	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/countdown	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+light-desktop,light-narrow	test/countdown	style	main > button "Cancel"	background-color	rgba(241, 243, 245, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
+dark-desktop,dark-narrow	test/countdown	style	main > button "Cancel"	background-color	rgba(35, 41, 48, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
+light-desktop,light-narrow	test/countdown	style	main > button "Cancel"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/countdown	style	main > button "Cancel"	border-top-color	rgba(52, 58, 65, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+*	test/countdown	style	main > button "Cancel"	column-gap	8px → 6px	present when the harness was adopted
+*	test/countdown	style	main > button "Cancel"	font-weight	600 → 500	present when the harness was adopted
+*	test/countdown	style	main > button "Cancel"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/countdown	style	main > button "Cancel"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/countdown	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/countdown	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	font-size	14px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	height	122.0px → 86.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	height	64.5px → 67.0px	present when the harness was adopted
+*	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	line-height	normal → 24px	present when the harness was adopted
+*	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	padding-left	14px → 16px	present when the harness was adopted
+*	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	padding-right	14px → 16px	present when the harness was adopted
+*	test/download	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/download	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/download	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/download	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/download	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "….168.1.42 IPv4 Protocol h2 Streams — auto, up to 6 Standard preset · Auto …"	present when the harness was adopted
+*	test/download	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/download	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/download	content	main	extra	status	present when the harness was adopted
+*	test/download	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/download	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/download	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/download	content	main > region "Results"	changed	text "…ive # Mbit/s avg so far 597 · peak 610 Upload — up next Idle latency # ms min 2.4 · p90 # ms · WebSocket · # % probe timeouts Jitter # ms mean of consec…	present when the harness was adopted
+*	test/download	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/download	content	main > region "Speed test"	changed	button "Stop test Esc" → "Stop test"	present when the harness was adopted
+*	test/download	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
+*	test/download	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
+*	test/download	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/download	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/download	content	main > region "Speed test"	missing	text "Throughput Download Warm-up # s / # s"	present when the harness was adopted
+*	test/download	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "3 Upload ~15–25 s" → "Upload pending · ~15–25 s"	present when the harness was adopted
+*	test/download	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download # s left" → "Download active · # s left"	present when the harness was adopted
+*	test/download	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+dark-narrow,light-narrow	test/download	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/download	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/download	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/download	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/download	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/download	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/download	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/download	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/download	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/download	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/download	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/error	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/error	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/error	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/error	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/error	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "….168.1.42 IPv4 Protocol h2 Streams # auto, up to 6 Standard preset · Auto …"	present when the harness was adopted
+*	test/error	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/error	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/error	content	main	extra	status	present when the harness was adopted
+*	test/error	content	main	extra	status (#2)	present when the harness was adopted
+*	test/error	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/error	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/error	content	main > alert	changed	text "Connection to Basement NAS lost — 3 requests in a row failed during download Download stopped at # s. Latency finished before the error." → "Test failed …	present when the harness was adopted
+*	test/error	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/error	content	main > region "Results"	changed	text "Download Error — 3 requests in a row failed Upload — not run Idle latency # ms min 2.4 · p90 # ms · WebSocket · # % probe timeouts Jitter # ms mean of co…	present when the harness was adopted
+*	test/error	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/error	content	main > region "Speed test"	changed	button "Retry test Enter" → "Retry test"	present when the harness was adopted
+*	test/error	content	main > region "Speed test"	changed	text "Connection lost Error during download last sample # Mbit/s log scale · 1 Mbit/s – …" → "Download — log scale · 1 Mbit/s – …"	present when the harness was adopted
+*	test/error	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
+*	test/error	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/error	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/error	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
+*	test/error	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download Error at # s" → "Download failed · interrupted"	present when the harness was adopted
+*	test/error	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/error	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload Not run" → "Upload skipped"	present when the harness was adopted
+dark-narrow,light-narrow	test/error	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/error	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/error	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/error	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/error	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/error	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/error	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/error	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/error	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,dark-narrow	test/error	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/error	style	main > button "Download JSON"	border-top-color	rgba(0, 0, 0, 0) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/error	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+light-desktop,light-narrow	test/error	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	test/error	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
+*	test/error	style	main > button "Download JSON"	font-weight	600 → 500	present when the harness was adopted
+*	test/error	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/error	style	main > button "Download JSON"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/error	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
+*	test/error	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/error	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/error	style	main > status "Partial results are not saved"	height	17.0px → 19.5px	present when the harness was adopted
+*	test/error	style	main > status "Partial results are not saved"	line-height	normal → 19.5px	present when the harness was adopted
+*	test/error	style	main > status "Partial results are not saved"	width	199.0px → 191.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	content	header > banner	changed	text "Basement NAS , unreachable speed.home.lan" → "Basement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-narrow,light-narrow	test/error-early	content	header > banner	changed	text "BitGauge Basement NAS , unreachable speed.home.lan" → "BitGauge Basement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/error-early	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/error-early	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/error-early	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "….168.1.42 IPv4 Protocol h2 Streams — auto, up to 6 Standard preset · Auto …"	present when the harness was adopted
+*	test/error-early	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/error-early	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/error-early	content	main	extra	status	present when the harness was adopted
+*	test/error-early	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/error-early	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/error-early	content	main	missing	region "Result status"	present when the harness was adopted
+*	test/error-early	content	main > alert	changed	text "Connection to Basement NAS lost — server stopped responding The test stopped at # s, during latency. No phase finished." → "Test failed during idle laten…	present when the harness was adopted
+*	test/error-early	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/error-early	content	main > region "Results"	changed	text "Download — not run Upload — not run Idle latency Error — 12 of 20 pings before the error Jitter — Test Data used # B Duration # s Packet loss Not measure…	present when the harness was adopted
+*	test/error-early	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	content	main > region "Speed test"	changed	button "Retry test Enter" → "Retry test"	present when the harness was adopted
+*	test/error-early	content	main > region "Speed test"	changed	text "Connection lost Error during latency 12 of 20 pings log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
+*	test/error-early	content	main > region "Speed test"	extra	figure	present when the harness was adopted
+*	test/error-early	content	main > region "Speed test"	missing	img "Latency samples chart"	present when the harness was adopted
+*	test/error-early	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/error-early	content	main > region "Speed test"	missing	text "Latency samples Round-trip time stopped at # s"	present when the harness was adopted
+*	test/error-early	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download Not run" → "Download skipped"	present when the harness was adopted
+*	test/error-early	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency Error at # s" → "Idle latency failed · interrupted"	present when the harness was adopted
+*	test/error-early	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload Not run" → "Upload skipped"	present when the harness was adopted
+dark-narrow,light-narrow	test/error-early	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/error-early	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/error-early	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/error-early	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/error-early	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/error-early	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/error-early	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/error-early	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/error-early	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/error-early	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/error-early	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/idle	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/idle	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/idle	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/idle	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "….168.1.42 IPv4 Protocol — not reported Streams — auto, up to 6 Standard pres…	present when the harness was adopted
+*	test/idle	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/idle	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/idle	content	main	extra	text "Data used — Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/idle	content	main	extra	text "No test has run yet."	present when the harness was adopted
+*	test/idle	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/idle	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/idle	content	main > region "Results"	changed	text "… Idle latency — Jitter — Test Data used — Duration — Packet loss Not measured" → "… Idle latency — Jitter —"	present when the harness was adopted
+*	test/idle	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	content	main > region "Speed test"	changed	button "Start test Enter" → "Start test"	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	content	main > region "Speed test"	changed	text "Ready Press Enter to start log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
+dark-narrow,light-narrow	test/idle	content	main > region "Speed test"	changed	text "Ready Tap Start test to begin log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
+*	test/idle	content	main > region "Speed test"	extra	figure	present when the harness was adopted
+*	test/idle	content	main > region "Speed test"	missing	img "Throughput chart"	present when the harness was adopted
+*	test/idle	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
+*	test/idle	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
+*	test/idle	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "1 Latency ~# s" → "Idle latency pending"	present when the harness was adopted
+*	test/idle	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "2 Download ~10–20 s" → "Download pending · ~10–20 s"	present when the harness was adopted
+*	test/idle	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "3 Upload ~15–25 s" → "Upload pending · ~15–25 s"	present when the harness was adopted
+dark-narrow,light-narrow	test/idle	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/idle	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/idle	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/idle	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/idle	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/idle	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/idle	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/idle	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/idle	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/idle	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/idle	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/insufficient	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/insufficient	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/insufficient	content	main	extra	button "Context: LAN"	present when the harness was adopted
+*	test/insufficient	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/insufficient	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/insufficient	content	main	extra	text "Context"	present when the harness was adopted
+*	test/insufficient	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/insufficient	content	main	extra	text "suggested Client IP 10.8.0.6 IPv4 Protocol h2 Streams — auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/insufficient	content	main	missing	button "LAN"	present when the harness was adopted
+*	test/insufficient	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/insufficient	content	main	missing	status	present when the harness was adopted
+*	test/insufficient	content	main	missing	text "Context"	present when the harness was adopted
+*	test/insufficient	content	main	missing	text "suggested Client IP 192.168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/insufficient	content	main > region "Results"	changed	text "Download Insufficient data — only 1 request contributed within the # s max # B used Upload Live — no confirmed request yet Idle latency # ms min 41 · p90…	present when the harness was adopted
+*	test/insufficient	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	content	main > region "Speed test"	changed	button "Stop test Esc" → "Stop test"	present when the harness was adopted
+*	test/insufficient	content	main > region "Speed test"	changed	text "…load · sending # kbit/s warming up log scale · 10 kbit/s – …" → "…load · sending # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
+*	test/insufficient	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
+*	test/insufficient	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/insufficient	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/insufficient	content	main > region "Speed test"	missing	text "Throughput Download Upload · sending Warm-up # s / # s max"	present when the harness was adopted
+*	test/insufficient	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download insufficient data" → "Download done"	present when the harness was adopted
+*	test/insufficient	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/insufficient	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload # s left" → "Upload active"	present when the harness was adopted
+*	test/insufficient	content	main > status	changed	text "Download: insufficient data Download reached its # s maximum with the first 64 KiB request still in flight, so only one request contributed bytes and the…	present when the harness was adopted
+*	test/insufficient	content	main > status	missing	button "Try Extended"	present when the harness was adopted
+dark-narrow,light-narrow	test/insufficient	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/insufficient	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/insufficient	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/insufficient	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/insufficient	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/insufficient	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/insufficient	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/insufficient	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/insufficient	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/insufficient	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/insufficient	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/latency	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/latency	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/latency	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/latency	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "….168.1.42 IPv4 Protocol h2 Streams — auto, up to 6 Standard preset · Auto …"	present when the harness was adopted
+*	test/latency	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/latency	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/latency	content	main	extra	status	present when the harness was adopted
+*	test/latency	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/latency	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/latency	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/latency	content	main > region "Results"	changed	text "… Idle latency Live # ms min 2.4 · p90 # ms · WebSocket · # % probe timeouts Jitter Live # ms mean of consecutive differences Test Data used so far # B D…	present when the harness was adopted
+*	test/latency	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	content	main > region "Speed test"	changed	button "Stop test Esc" → "Stop test"	present when the harness was adopted
+*	test/latency	content	main > region "Speed test"	changed	text "Latency # ms median 3.1 · ping 14 of 20 log scale · 1 – 1000 ms" → "Idle latency # ms log scale · 1 – 1000 ms"	present when the harness was adopted
+*	test/latency	content	main > region "Speed test"	extra	figure	present when the harness was adopted
+*	test/latency	content	main > region "Speed test"	missing	img "Latency samples chart"	present when the harness was adopted
+*	test/latency	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/latency	content	main > region "Speed test"	missing	text "Latency samples Round-trip time # s / ~# s"	present when the harness was adopted
+*	test/latency	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "2 Download ~10–20 s" → "Download pending · ~10–20 s"	present when the harness was adopted
+*	test/latency	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "3 Upload ~15–25 s" → "Upload pending · ~15–25 s"	present when the harness was adopted
+*	test/latency	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency 14 / 20 pings" → "Idle latency active"	present when the harness was adopted
+dark-narrow,light-narrow	test/latency	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/latency	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/latency	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/latency	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/latency	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/latency	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/latency	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/latency	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/latency	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/latency	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/latency	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	content	header > banner	changed	text "Basement NAS , unreachable speed.home.lan" → ", unreachable 127.0.0.1:5180"	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	content	header > banner	changed	text "BitGauge Basement NAS , unreachable speed.home.lan" → "BitGauge , unreachable 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/offline	content	main	changed	button "—" → "Context: —"	present when the harness was adopted
+*	test/offline	content	main	changed	text "…P — Protocol — Streams — Standard preset · Auto streams · No data cap" → "…P — Protocol — Streams —"	present when the harness was adopted
+*	test/offline	content	main	extra	alert	present when the harness was adopted
+*	test/offline	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/offline	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/offline	content	main	missing	region "Results"	present when the harness was adopted
+*	test/offline	content	main > button "—"	extra	text "—"	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	content	main > region "Speed test"	changed	button "Retry" → "Start test"	present when the harness was adopted
+*	test/offline	content	main > region "Speed test"	changed	text "Server unreachable Basement NAS didn't respond. Next check in # s." → "Ready — log scale · 1 Mbit/s – 10 Gbit/s · auto"	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	content	main > region "Speed test"	changed	text "Throughput Download Upload" → "Server unreachable. Start is available again once it answers."	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	content	main > region "Speed test"	changed	text "log scale · 1 Mbit/s – 10 Gbit/s · auto" → "Server unreachable. Start is available again once it answers."	present when the harness was adopted
+*	test/offline	content	main > region "Speed test"	extra	figure	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	content	main > region "Speed test"	missing	button "Retry"	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	content	main > region "Speed test"	missing	button "Start test Enter"	present when the harness was adopted
+*	test/offline	content	main > region "Speed test"	missing	img "Throughput chart"	present when the harness was adopted
+*	test/offline	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/offline	content	main > region "Speed test"	missing	text "Nothing to measure yet. The chart fills in once Basement NAS responds."	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	content	main > region "Speed test"	missing	text "log scale · 1 Mbit/s – 10 Gbit/s · auto"	present when the harness was adopted
+*	test/offline	content	main > region "Speed test"	missing	tooltip "Server unreachable — use Retry first"	present when the harness was adopted
+*	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem	present when the harness was adopted
+*	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem (#2)	present when the harness was adopted
+*	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem (#3)	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/offline	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/offline	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/offline	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,dark-narrow	test/offline	style	main > button "Retry"	background-color	rgba(35, 41, 48, 255) → rgba(53, 60, 66, 77)	present when the harness was adopted
+light-desktop,light-narrow	test/offline	style	main > button "Retry"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+*	test/offline	style	main > button "Retry"	column-gap	8px → 6px	present when the harness was adopted
+*	test/offline	style	main > button "Retry"	font-weight	600 → 500	present when the harness was adopted
+*	test/offline	style	main > button "Retry"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/offline	style	main > button "Retry"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/offline	style	main > button "Retry"	width	74.0px → 77.0px	present when the harness was adopted
+*	test/param-ignored	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/param-ignored	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/param-ignored	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/param-ignored	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "….168.1.42 IPv4 Protocol — not reported Streams — auto, up to 6 Standard pres…	present when the harness was adopted
+*	test/param-ignored	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/param-ignored	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/param-ignored	content	main	extra	list "Notices"	present when the harness was adopted
+*	test/param-ignored	content	main	extra	text "Data used — Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/param-ignored	content	main	extra	text "No test has run yet."	present when the harness was adopted
+*	test/param-ignored	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/param-ignored	content	main	missing	status	present when the harness was adopted
+*	test/param-ignored	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/param-ignored	content	main > region "Results"	changed	text "… Idle latency — Jitter — Test Data used — Duration — Packet loss Not measured" → "… Idle latency — Jitter —"	present when the harness was adopted
+*	test/param-ignored	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	content	main > region "Speed test"	changed	button "Start test Enter" → "Start test"	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	content	main > region "Speed test"	changed	text "Ready Press Enter to start log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
+dark-narrow,light-narrow	test/param-ignored	content	main > region "Speed test"	changed	text "Ready Tap Start test to begin log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
+*	test/param-ignored	content	main > region "Speed test"	extra	figure	present when the harness was adopted
+*	test/param-ignored	content	main > region "Speed test"	missing	img "Throughput chart"	present when the harness was adopted
+*	test/param-ignored	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/param-ignored	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
+*	test/param-ignored	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
+*	test/param-ignored	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "1 Latency ~# s" → "Idle latency pending"	present when the harness was adopted
+*	test/param-ignored	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "2 Download ~10–20 s" → "Download pending · ~10–20 s"	present when the harness was adopted
+*	test/param-ignored	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "3 Upload ~15–25 s" → "Upload pending · ~15–25 s"	present when the harness was adopted
+dark-narrow,light-narrow	test/param-ignored	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/param-ignored	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/param-ignored	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/param-ignored	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/param-ignored	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/param-ignored	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/param-ignored	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/param-ignored	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/param-ignored	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/param-ignored	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/param-ignored	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/slow	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/slow	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/slow	content	main	changed	button "VPN" → "Context: LAN"	present when the harness was adopted
+*	test/slow	content	main	changed	text "… 10.8.0.6 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "… 10.8.0.6 IPv4 Protocol h2 Streams — auto, up to 6 Standard preset · Auto …"	present when the harness was adopted
+*	test/slow	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/slow	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/slow	content	main	extra	status	present when the harness was adopted
+*	test/slow	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/slow	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/slow	content	main > button "VPN"	extra	text "LAN"	present when the harness was adopted
+*	test/slow	content	main > region "Results"	changed	text "Download # kbit/s peak 702 · 2 streams · plateau: no-gain Upload Live # kbit/s avg so far 217 · peak 258 Idle latency # ms min 41 · p90 # ms · WebSocket …	present when the harness was adopted
+*	test/slow	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	content	main > region "Speed test"	changed	button "Stop test Esc" → "Stop test"	present when the harness was adopted
+*	test/slow	content	main > region "Speed test"	changed	text "…load · sending # kbit/s avg so far 217 · peak 258 log scale · 10 kbit/s – …" → "…load · sending # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
+*	test/slow	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
+*	test/slow	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/slow	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/slow	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up # s"	present when the harness was adopted
+*	test/slow	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download # kbit/s" → "Download done"	present when the harness was adopted
+*	test/slow	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/slow	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload # s left" → "Upload active · # s left"	present when the harness was adopted
+dark-narrow,light-narrow	test/slow	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/slow	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/slow	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/slow	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/slow	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/slow	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/slow	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/slow	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/slow	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/slow	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/slow	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/slowdone	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/slowdone	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/slowdone	content	main	changed	button "VPN" → "Context: LAN"	present when the harness was adopted
+*	test/slowdone	content	main	changed	text "… 10.8.0.6 IPv4 Protocol HTTP/2 Streams # auto · plateau: no-gain Standard preset · Auto …" → "… 10.8.0.6 IPv4 Protocol h2 Streams # auto, up to 6 Standa…	present when the harness was adopted
+*	test/slowdone	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/slowdone	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/slowdone	content	main	extra	list "Notices"	present when the harness was adopted
+*	test/slowdone	content	main	extra	status	present when the harness was adopted
+*	test/slowdone	content	main	extra	status (#2)	present when the harness was adopted
+*	test/slowdone	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/slowdone	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/slowdone	content	main > button "VPN"	extra	text "LAN"	present when the harness was adopted
+*	test/slowdone	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# PM"	present when the harness was adopted
+*	test/slowdone	content	main > region "Results"	changed	text "Download # kbit/s peak 702 · 2 streams · plateau: no-gain Upload # kbit/s peak 224 · 2 streams · plateau: no-gain Idle latency # ms min 41 · p90 # ms · W…	present when the harness was adopted
+*	test/slowdone	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	content	main > region "Speed test"	changed	button "Run again Enter" → "Run again"	present when the harness was adopted
+*	test/slowdone	content	main > region "Speed test"	changed	text "Download # kbit/s # kbit/s upload log scale · 10 kbit/s – …" → "Download # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
+*	test/slowdone	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
+*	test/slowdone	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/slowdone	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/slowdone	content	main > region "Speed test"	missing	text "Throughput Download Upload Warm-up # s total"	present when the harness was adopted
+*	test/slowdone	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download # kbit/s" → "Download done · # kbit/s"	present when the harness was adopted
+*	test/slowdone	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/slowdone	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload # kbit/s" → "Upload done · # kbit/s"	present when the harness was adopted
+dark-narrow,light-narrow	test/slowdone	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/slowdone	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/slowdone	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/slowdone	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/slowdone	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/slowdone	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/slowdone	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/slowdone	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/slowdone	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+light-desktop,light-narrow	test/slowdone	style	main > button "Download JSON"	background-color	rgba(241, 243, 245, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
+dark-desktop,dark-narrow	test/slowdone	style	main > button "Download JSON"	background-color	rgba(35, 41, 48, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
+light-desktop,light-narrow	test/slowdone	style	main > button "Download JSON"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
+dark-desktop,dark-narrow	test/slowdone	style	main > button "Download JSON"	border-top-color	rgba(52, 58, 65, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
+*	test/slowdone	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
+*	test/slowdone	style	main > button "Download JSON"	font-weight	600 → 500	present when the harness was adopted
+*	test/slowdone	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
+*	test/slowdone	style	main > button "Download JSON"	line-height	normal → 18.5714px	present when the harness was adopted
+*	test/slowdone	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
+*	test/slowdone	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/slowdone	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/upload	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/upload	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/upload	content	main	changed	button "LAN" → "Context: LAN"	present when the harness was adopted
+*	test/upload	content	main	changed	text "….168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto …" → "….168.1.42 IPv4 Protocol h2 Streams — auto, up to 6 Standard preset · Auto …"	present when the harness was adopted
+*	test/upload	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/upload	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/upload	content	main	extra	status	present when the harness was adopted
+*	test/upload	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/upload	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/upload	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
+*	test/upload	content	main > region "Results"	changed	text "Download # Mbit/s peak 641 · 6 streams · plateau: cap Upload Live # Mbit/s avg so far 439 · peak 450 Idle latency # ms min 2.4 · p90 # ms · WebSocket · #…	present when the harness was adopted
+*	test/upload	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	content	main > region "Speed test"	changed	button "Stop test Esc" → "Stop test"	present when the harness was adopted
+*	test/upload	content	main > region "Speed test"	changed	text "…load · sending # Mbit/s avg so far 439 · peak 450 log scale · 1 Mbit/s – 1…" → "…load · sending # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
+*	test/upload	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
+*	test/upload	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/upload	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/upload	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up # s / # s"	present when the harness was adopted
+*	test/upload	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download # Mbit/s" → "Download done"	present when the harness was adopted
+*	test/upload	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/upload	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Upload # s left" → "Upload active · # s left"	present when the harness was adopted
+dark-narrow,light-narrow	test/upload	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/upload	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/upload	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/upload	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/upload	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/upload	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/upload	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/upload	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/upload	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/upload	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/upload	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/ws-fallback	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	content	header > banner > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+dark-narrow,light-narrow	test/ws-fallback	content	header > navigation "Primary"	missing	link "Settings"	present when the harness was adopted
+*	test/ws-fallback	content	main	extra	button "Context: LAN"	present when the harness was adopted
+*	test/ws-fallback	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/ws-fallback	content	main	extra	link "Why?"	present when the harness was adopted
+*	test/ws-fallback	content	main	extra	list "Notices"	present when the harness was adopted
+*	test/ws-fallback	content	main	extra	text "Context"	present when the harness was adopted
+*	test/ws-fallback	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/ws-fallback	content	main	extra	text "suggested Client IP 192.168.1.42 IPv4 Protocol h2 Streams — auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/ws-fallback	content	main	missing	button "LAN"	present when the harness was adopted
+*	test/ws-fallback	content	main	missing	link "Edit"	present when the harness was adopted
+*	test/ws-fallback	content	main	missing	text "Context"	present when the harness was adopted
+*	test/ws-fallback	content	main	missing	text "suggested Client IP 192.168.1.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Results"	changed	text "…ive # Mbit/s avg so far 597 · peak 610 Upload — up next Idle latency # ms min 2.4 · p90 # ms · HTTP/2 probe · # % probe timeouts Jitter # ms mean of con…	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	content	main > region "Speed test"	changed	button "Stop test Esc" → "Stop test"	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Speed test"	missing	img "Throughput chart; warm-up shaded"	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Speed test"	missing	status	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Speed test"	missing	text "Throughput Download Warm-up # s / # s"	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "3 Upload ~15–25 s" → "Upload pending · ~15–25 s"	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Download # s left" → "Download active · # s left"	present when the harness was adopted
+*	test/ws-fallback	content	main > region "Speed test" > list "Test phases" > listitem	changed	text "Latency # ms" → "Idle latency done · # ms"	present when the harness was adopted
+*	test/ws-fallback	content	main > status	changed	text "WebSocket unavailable — HTTP latency fallback The reverse proxy did not accept a WebSocket upgrade, so latency is measured with HTTP/2 requests. Values c…	present when the harness was adopted
+dark-narrow,light-narrow	test/ws-fallback	style	header > button "About"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > button "About"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/ws-fallback	style	header > button "About"	width	130.0px → 195.0px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > button "BitGauge home"	font-size	14px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > button "BitGauge home"	line-height	normal → 24px	present when the harness was adopted
+dark-narrow,light-narrow	test/ws-fallback	style	header > button "Test"	line-height	normal → 16.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > button "Test"	line-height	normal → 19.5px	present when the harness was adopted
+dark-narrow,light-narrow	test/ws-fallback	style	header > button "Test"	width	130.0px → 195.0px	present when the harness was adopted
+dark-narrow	test/ws-fallback	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(178, 182, 188, 255)	present when the harness was adopted
+light-narrow	test/ws-fallback	style	header > button "Theme: Follow system"	border-top-color	rgba(0, 0, 0, 0) → rgba(81, 86, 94, 255)	present when the harness was adopted
+dark-narrow,light-narrow	test/ws-fallback	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/ws-fallback	style	header > button "Theme: Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Dark"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Dark"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Follow system"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Follow system"	line-height	normal → 24px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Light"	font-size	13px → 16px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Light"	line-height	normal → 24px	present when the harness was adopted
+*	test/ws-fallback	style	main > button "Why?"	font-weight	600 → 400	present when the harness was adopted
+*	test/ws-fallback	style	main > button "Why?"	line-height	normal → 18px	present when the harness was adopted
+*	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	font-size	14px → 16px	present when the harness was adopted
+dark-narrow,light-narrow	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	height	120.5px → 86.5px	present when the harness was adopted
+dark-desktop,light-desktop	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	height	64.5px → 67.0px	present when the harness was adopted
+*	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	line-height	normal → 24px	present when the harness was adopted
+*	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	padding-left	14px → 16px	present when the harness was adopted
+*	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	padding-right	14px → 16px	present when the harness was adopted

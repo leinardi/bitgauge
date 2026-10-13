@@ -43,7 +43,7 @@ export const ALL_PROJECTS: readonly ParityProject[] = THEMES.flatMap((theme) =>
   VIEWPORT_NAMES.map((viewport) => ({ name: `${theme}-${viewport}`, theme, viewport })),
 )
 
-const DEFAULT_PROJECT = 'light-desktop'
+export const DEFAULT_PROJECT = 'light-desktop'
 
 /** What the selection needs of a scenario: its id. */
 export interface ScenarioRef {

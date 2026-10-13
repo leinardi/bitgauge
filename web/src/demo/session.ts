@@ -47,6 +47,8 @@ export interface SessionOptions {
   browser: BrowserIdentity
   emit: (event: EngineEvent) => void
   fail: (error: unknown) => void
+  /** Asks the page to press Stop, at a scripted stop: the page, not the session, stops the run. */
+  pressStop: () => void
 }
 
 export class DemoSession {
@@ -118,7 +120,7 @@ export class DemoSession {
         this.clock.setTimer(point.afterMs, action)
       }
     }
-    after(stop, () => this.handle({ type: 'stop' }))
+    after(stop, () => this.options.pressStop())
     after(fault, () => this.fault(fault?.kind ?? this.command.errorKind))
     if (this.command.hold) {
       after(hold, () => this.clock.hold())

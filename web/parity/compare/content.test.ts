@@ -20,7 +20,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { normalizeTree } from '../normalize.ts'
+import { normalizeTree, normalizeValue } from '../normalize.ts'
 import { parseAriaSnapshot } from './ariaTree.ts'
 import { compareContent, textChange, type RegionTrees } from './content.ts'
 
@@ -82,6 +82,28 @@ describe('compareContent', () => {
     expect(diff('- heading "Speed test" [level=1]', '- heading "Speed test" [level=1]\n- status: Download started')).toEqual([
       'extra main | status',
     ])
+  })
+})
+
+describe('normalizeValue', () => {
+  it.each([
+    ['Download 605 Mbit/s peak 667 Mbit/s', 'Download # Mbit/s peak # Mbit/s'],
+    ['Upload · sending 19.2 kbit/s', 'Upload · sending # kbit/s'],
+    ['Upload result: 424 megabits per second', 'Upload result: # megabits per second'],
+    ['Data used 1.21 GB Duration 27.7 s', 'Data used # B Duration # s'],
+    ['Data used 997 MB, then 76.5 kB', 'Data used # B, then # B'],
+    ['Protocol h2 Streams 2 auto, up to 6', 'Protocol h2 Streams # auto, up to 6'],
+    ['Idle latency done · 2.9 ms, 0 % probe timeouts', 'Idle latency done · # ms, # % probe timeouts'],
+    ['Auto-start in 3 seconds, 2.5 s left', 'Auto-start in # seconds, # s left'],
+    ['Test complete 5:41:54 PM', 'Test complete #:#:# PM'],
+  ])('reads %j as %j', (raw, normalized) => {
+    expect(normalizeValue(raw)).toBe(normalized)
+  })
+
+  it('keeps every number that is not a measured value', () => {
+    for (const fixed of ['Streams — auto, up to 6 streams', 'IPv4 192.168.1.42', 'HTTP/2', 'v1.4.0', 'p90', 'Download pending · ~10–20 s', 'log scale · 1 Mbit/s – 10 Gbit/s', '1 – 1000 ms']) {
+      expect(normalizeValue(fixed)).toBe(fixed)
+    }
   })
 })
 

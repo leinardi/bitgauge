@@ -25,7 +25,7 @@
 import type { Page } from '@playwright/test'
 
 import { finding, type Finding } from '../findings.ts'
-import { roleClass } from '../normalize.ts'
+import { normalizeValue, roleClass } from '../normalize.ts'
 import type { Region } from './content.ts'
 
 export interface StyledElement {
@@ -61,7 +61,7 @@ const STYLE_PROPS = [
 ] as const
 
 // Runs in the page. Kept self-contained: Playwright serializes it, so it cannot close over anything.
-function collect({ props, regionRoots, nameMax }: { props: readonly string[]; regionRoots: [string, string][]; nameMax: number }) {
+function collect({ props, regionRoots }: { props: readonly string[]; regionRoots: [string, string][] }) {
   const SELECTOR =
     'h1, h2, h3, h4, button, [role=button], a[href], [role=link], [role=tab], [role=radio], th, [role=columnheader], [role=status]'
   const IMPLICIT: Record<string, string> = { H1: 'heading', H2: 'heading', H3: 'heading', H4: 'heading', BUTTON: 'button', A: 'link', TH: 'columnheader' }
@@ -80,14 +80,8 @@ function collect({ props, regionRoots, nameMax }: { props: readonly string[]; re
     const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data
     return `rgba(${r ?? 0}, ${g ?? 0}, ${b ?? 0}, ${a ?? 0})`
   }
-  const nameOf = (el: Element): string => {
-    const label = el.getAttribute('aria-label')
-    const text = label ?? (el.textContent ?? '')
-    const flat = text.replace(/\s+/g, ' ').trim()
-    return flat.length > nameMax ? `${flat.slice(0, nameMax - 1)}…` : flat
-  }
-  const counts = new Map<string, number>()
-  const out: { region: string; role: string; name: string; occurrence: number; props: Record<string, string> }[] = []
+  const nameOf = (el: Element): string => el.getAttribute('aria-label') ?? el.textContent ?? ''
+  const out: { region: string; role: string; name: string; props: Record<string, string> }[] = []
   for (const el of document.querySelectorAll(SELECTOR)) {
     if (el.closest('[aria-hidden="true"], [inert]') !== null) continue
     const rect = el.getBoundingClientRect()
@@ -96,9 +90,6 @@ function collect({ props, regionRoots, nameMax }: { props: readonly string[]; re
     if (region === undefined) continue
     const role = el.getAttribute('role') ?? IMPLICIT[el.tagName] ?? el.tagName.toLowerCase()
     const name = nameOf(el)
-    const key = `${region}\u0000${role}\u0000${name}`
-    const occurrence = (counts.get(key) ?? 0) + 1
-    counts.set(key, occurrence)
     const style = getComputedStyle(el)
     const values: Record<string, string> = {}
     for (const prop of props) {
@@ -113,14 +104,29 @@ function collect({ props, regionRoots, nameMax }: { props: readonly string[]; re
     values['child-count'] = String(el.childElementCount)
     values['justify-content'] = style.getPropertyValue('justify-content')
     values['align-items'] = style.getPropertyValue('align-items')
-    out.push({ region, role, name, occurrence, props: values })
+    out.push({ region, role, name, props: values })
   }
   return out
 }
 
+// An element's name as the content layer reads it (normalize.ts), cut short, and numbered by its
+// occurrence: two elements whose names differ only in a measured value pair as the first and the
+// second.
+export function nameElements(raw: readonly Omit<StyledElement, 'occurrence'>[]): StyledElement[] {
+  const counts = new Map<string, number>()
+  return raw.map((el) => {
+    const full = normalizeValue(el.name)
+    const name = full.length > NAME_MAX ? `${full.slice(0, NAME_MAX - 1)}…` : full
+    const key = `${el.region}\u0000${el.role}\u0000${name}`
+    const occurrence = (counts.get(key) ?? 0) + 1
+    counts.set(key, occurrence)
+    return { ...el, name, occurrence }
+  })
+}
+
 export async function collectStyles(page: Page, regionRoots: readonly [Region, string][]): Promise<StyledElement[]> {
-  const raw = await page.evaluate(collect, { props: [...STYLE_PROPS], regionRoots: [...regionRoots], nameMax: NAME_MAX })
-  return raw as StyledElement[]
+  const raw = await page.evaluate(collect, { props: [...STYLE_PROPS], regionRoots: [...regionRoots] })
+  return nameElements(raw as Omit<StyledElement, 'occurrence'>[])
 }
 
 function pairingKey(el: StyledElement): string {

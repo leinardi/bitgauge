@@ -30,6 +30,7 @@ const driver: SideDriver = {
   overlaySelector: '[role=dialog], [role=alertdialog]',
   toastSelector: '.toast',
   styleRegions: [['main', 'main']],
+  prepare: () => Promise.resolve(),
 }
 
 /**
@@ -85,6 +86,13 @@ describe('capture', () => {
     // The main landmark's own node is not compared, only what it holds.
     expect(trees.main).toEqual([{ role: 'heading', name: 'Speed test', attrs: ['level=1'], children: [] }])
     expect(raw.notices).toBe('- alert: You are offline')
+    expect(raw.dialogs).toBe('- dialog "Stop the test?"')
+  })
+
+  it('reads every alert and status outside the landmarks on a side without toasts', async () => {
+    document.body.append(el('div', '- status: Copied', { role: 'status', class: 'toast' }), el('div', '- dialog "Stop the test?"', { role: 'dialog' }))
+    const { raw } = await capture({ ...driver, toastSelector: null }, page())
+    expect(raw.notices).toBe('- status: Copied')
     expect(raw.dialogs).toBe('- dialog "Stop the test?"')
   })
 

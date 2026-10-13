@@ -21,7 +21,7 @@ import { ChevronDown, ChevronUp, SlidersVertical } from '@lucide/vue'
 import { shallowRef, useId } from 'vue'
 
 import { Button } from '@/components/ui/button'
-import { chooseScenario } from '@/demo/control'
+import { chooseScenario, onScriptedStop } from '@/demo/control'
 import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoErrorKind, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
 
 // The demo panel (frontend.md section 9), the v0.1 part of the UI kit's Demo state panel: the
@@ -141,6 +141,9 @@ function startWhenReady(tries: number): void {
 if (current.start) {
   window.setTimeout(() => startWhenReady(START_TRIES), START_POLL_MS)
 }
+
+// A scripted stop presses the same button, which a run shows as Stop, as the user would.
+onScriptedStop(() => document.querySelector<HTMLButtonElement>('[data-testid="start-button"]')?.click())
 
 /** Keeps a new choice and loads the page again with its scenario's URL parameters. */
 function apply(patch: Partial<Choice>): void {

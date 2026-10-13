@@ -97,6 +97,14 @@ export function isScenarioName(name: string): name is DemoScenarioName {
 }
 
 /** What the demo panel sends the demo Worker besides the engine's own commands: the next scenario. */
+/**
+ * What the demo Worker sends the page when its script stops the run: press Stop, as the user would,
+ * so the page's own stop path sends the engine's `stop`.
+ */
+export interface DemoPressStop {
+  type: 'demo-press-stop'
+}
+
 export interface DemoCommand {
   type: 'demo'
   scenario: DemoScenarioName

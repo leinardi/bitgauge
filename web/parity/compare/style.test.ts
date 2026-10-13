@@ -20,7 +20,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { compareStyles, type StyledElement } from './style.ts'
+import { compareStyles, nameElements, type StyledElement } from './style.ts'
 
 const base = {
   'font-size': '13px',
@@ -119,5 +119,17 @@ describe('compareStyles', () => {
 
   it('compares only the regions the scenario asks for', () => {
     expect(compareStyles([el({}, { region: 'header' })], [el({ color: 'red' }, { region: 'header' })], ['main'])).toEqual([])
+  })
+})
+
+describe('nameElements', () => {
+  it('names an element as the content layer reads it, cut short, and numbers repeats', () => {
+    const raw = (name: string) => ({ region: 'main' as const, role: 'status', name, props: {} })
+    const named = nameElements([raw('  Download\n 605 Mbit/s '), raw('Download 598 Mbit/s'), raw(`Note ${'x'.repeat(60)}`)])
+    expect(named.map(({ name, occurrence }) => [name, occurrence])).toEqual([
+      ['Download # Mbit/s', 1],
+      ['Download # Mbit/s', 2],
+      [`Note ${'x'.repeat(42)}…`, 1],
+    ])
   })
 })

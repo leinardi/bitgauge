@@ -40,6 +40,8 @@ export interface Played {
   failures: unknown[]
   session: DemoSession
   base: FakeClock
+  /** The scripted stops the session asked the page to press. */
+  stopsPressed: number[]
 }
 
 /**
@@ -55,7 +57,8 @@ export function demoSession(
   const base = new FakeClock()
   const events: EngineEvent[] = []
   const failures: unknown[] = []
-  const session = new DemoSession({
+  const stopsPressed: number[] = []
+  const session: DemoSession = new DemoSession({
     base,
     command: { type: 'demo', scenario: name, speed: 1, cpuBound: false, timerResolutionMs: null, errorKind: 'requests', hold: true, ...command },
     scenario,
@@ -64,8 +67,13 @@ export function demoSession(
     browser: { name: 'Firefox', major: 131, os: 'Linux' },
     emit: (event) => events.push(event),
     fail: (error) => failures.push(error),
+    // The page presses Stop, which sends the engine's stop.
+    pressStop: () => {
+      stopsPressed.push(session.clock.now())
+      session.receive({ type: 'stop' })
+    },
   })
-  return { events, failures, session, base }
+  return { events, failures, session, base, stopsPressed }
 }
 
 /** Configures the session with SETTINGS and starts a run, as the page does. */

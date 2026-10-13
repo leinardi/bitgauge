@@ -18,7 +18,7 @@
  */
 
 import { infoFor } from '@/demo/fixtures'
-import { DEMO_SCENARIOS, type DemoCommand, type DemoScenario } from '@/demo/scenarios'
+import { DEMO_SCENARIOS, type DemoCommand, type DemoPressStop, type DemoScenario } from '@/demo/scenarios'
 import type { Info } from '@/engine/types'
 
 // The page's side of the demo (frontend.md section 9): the choice the demo panel restored when the
@@ -35,8 +35,24 @@ export function chooseScenario(command: DemoCommand): void {
   choose(command)
 }
 
-/** Hands a demo Worker the chosen scenario as soon as there is one. */
-export function attachWorker(worker: Pick<Worker, 'postMessage'>): void {
+let pressStop: () => void = () => undefined
+
+/** What presses the page's Stop when the demo's script stops the run. */
+export function onScriptedStop(press: () => void): void {
+  pressStop = press
+}
+
+/**
+ * Hands a demo Worker the chosen scenario as soon as there is one, and presses Stop when its
+ * script asks to; that message is the demo's own, so no engine listener sees it.
+ */
+export function attachWorker(worker: Pick<Worker, 'postMessage' | 'addEventListener'>): void {
+  worker.addEventListener('message', (event) => {
+    if ((event.data as Partial<DemoPressStop> | null)?.type === 'demo-press-stop') {
+      event.stopImmediatePropagation()
+      pressStop()
+    }
+  })
   void chosen.then((command) => worker.postMessage(command))
 }
 

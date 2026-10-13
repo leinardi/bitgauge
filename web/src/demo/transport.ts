@@ -18,7 +18,7 @@
  */
 
 import type { Link } from '@/demo/link'
-import { Body, Pacer, type Transfer, wholeBytes } from '@/demo/pacer'
+import { Body, Pacer, TICK_MS, type Transfer, wholeBytes } from '@/demo/pacer'
 import type { Direction } from '@/engine/messages'
 import type { BrowserIdentity, Clock, DownloadResponse, Info, InfoResult, ProbeTiming, ResourceTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
 
@@ -95,10 +95,16 @@ export class DemoTransport implements Transport {
       let endAt = sentAt + rtt
       const whole = wholeBytes()
       const transfer = this.transfer('download', size, sentAt + rtt, {
-        onMove: (bytes, _from, to) => {
-          const moved = whole(bytes)
-          if (moved > 0) {
-            body.push({ bytes: moved, at: this.stamp(to) })
+        // One chunk per tick of the stretch moved, each stamped with its own arrival: a Worker busy
+        // elsewhere fires the pacer late, and one chunk stamped at the end of a long stretch would
+        // count bytes of a closed 100 ms bucket in the next one.
+        onMove: (bytes, from, to) => {
+          const slices = Math.max(1, Math.ceil((to - from) / TICK_MS - 1e-9))
+          for (let slice = 1; slice <= slices; slice++) {
+            const moved = whole(bytes / slices)
+            if (moved > 0) {
+              body.push({ bytes: moved, at: this.stamp(from + ((to - from) * slice) / slices) })
+            }
           }
         },
         onDone: (at) => {

@@ -18,14 +18,17 @@
  */
 // @vitest-environment node
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import globalSetup from './globalSetup.ts'
-import { SCENARIOS } from './scenarios.ts'
+import { startRun } from './records.ts'
+
+vi.mock('./scenarios.ts', () => ({ SCENARIOS: [] }))
+vi.mock('./records.ts', () => ({ startRun: vi.fn() }))
 
 describe('globalSetup', () => {
   it('fails a run with nothing to compare instead of starting it', () => {
-    expect(SCENARIOS).toEqual([])
     expect(() => globalSetup()).toThrow('demo parity: the selection names no scenario to compare')
+    expect(startRun).not.toHaveBeenCalled()
   })
 })

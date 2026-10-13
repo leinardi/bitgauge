@@ -163,6 +163,33 @@ describe('the demo transport', () => {
     ;[...pongs, doneAt].forEach((at) => expect(Number.isInteger(at)).toBe(true))
   })
 
+  it('stamps the bytes of a late pacer tick across the stretch they crossed', async () => {
+    const clock = new FakeClock()
+    const demo = new DemoTransport(clock, new Link(DEMO_LINKS.lan, 'epoch-1'), infoFor('lan'), BROWSER)
+    const response = demo.download(50_000_000, new AbortController().signal)
+    await clock.advance(20)
+    const seen: { at: number; bytes: number }[] = []
+    void (async () => {
+      for await (const chunk of (await response).chunks) seen.push(chunk)
+    })()
+    await clock.advance(5)
+    const before = seen.length
+    const from = seen.at(-1)?.at ?? 0
+    clock.pause(75)
+    await clock.advance(0)
+    // The reader takes a few promise rounds per chunk: let it drain the body.
+    for (let round = 0; round < 10; round++) await clock.advance(0)
+    const late = seen.slice(before)
+    const stamps = late.map((chunk) => chunk.at)
+    // About 80 ms of bytes in steps of no more than a tick, the last at the instant the tick fired.
+    expect(stamps.length).toBeGreaterThanOrEqual(8)
+    stamps.forEach((at, index) => expect(at - (stamps[index - 1] ?? from)).toBeLessThanOrEqual(10.01))
+    expect(stamps.at(-1)).toBeCloseTo(clock.now(), 2)
+    // One request alone moves at the LAN's per-request ceiling, 110 Mbit/s: 13 750 bytes per ms.
+    const bytes = late.reduce((sum, chunk) => sum + chunk.bytes, 0)
+    expect(bytes / ((stamps.at(-1) ?? 0) - from)).toBeCloseTo(13_750, -2)
+  })
+
   it('drains a download in flight across a restart, which closes the WebSocket', async () => {
     const clock = new FakeClock()
     const { link, transport: demo } = transport(clock)

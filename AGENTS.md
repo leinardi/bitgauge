@@ -39,8 +39,8 @@ The tooling **exists**:
   `test/harness` (the accuracy harness; runners `-tags=harness`), and `test/internal/`
   (`netguard`, `syscalltrace`, `testenv`, `toolgate`, `gitenv`).
 - **`web/`** tooling only: `package.json` (devDependencies), its lockfile, `.npmrc`, the
-  TypeScript, ESLint, Vite and Playwright configurations, and `web/harness/` (the harness's
-  browser driver).
+  TypeScript, ESLint, Vite and Playwright configurations, `web/harness/` (the harness's
+  browser driver) and `web/parity/` (the demo parity harness, with `.parity-baseline` at the root).
 - **`deployments/docker/Dockerfile`**: the image (`web`, `build` and `runtime` stages on
   `dhi.io`); `test/harness/tools.Dockerfile` the harness's tools image.
 - **`scripts/`**: the `check-*` hooks, `idle-measure.sh`, `bootstrap-mk-common.sh`, and
@@ -101,13 +101,21 @@ make harness-sweep     # remove stale harness environments, list the kept ones
 make harness-sweep-all # remove every harness environment (CONFIRM=1)
 make idle-measure      # idle CPU and memory of a running binary (IDLE_PIDS="bitgauge=PID")
 make idle-bench        # per-request server cost of ping, small, info and / (IDLE_PIDS, BENCH_URL)
+make demo-parity         # compare the kit's prototype with the Vue demo (SCENARIO=, MATRIX=full)
+make demo-parity-full    # the same over all four theme × viewport projects
+make demo-parity-update  # drop .parity-baseline entries a complete run no longer finds
+make demo-parity-accept  # accept a complete run's new differences (REASON= required)
+make demo-parity-report  # the HTML report of the last parity run
+make demo-parity-servers # the prototype on :5181 and the demo build on :5180, to look at by hand
+make demo-parity-browsers # install the Chromium the parity harness drives, when it is missing
 make mk-common-update  # refresh the shared make-common snippets
 ```
 
 Harness inputs: `HARNESS_PROFILES`, `HARNESS_BROWSERS`, `HARNESS_KEEP_ON_FAILURE=1`,
 `HARNESS_SHAPE=none` ([runbook](docs/engineering/accuracy-harness.md)). `go test ./test/...` with
 `BITGAUGE_REQUIRE_TOOLS=1` turns a missing golangci-lint, ESLint or fallow into a failure instead
-of a skip, as CI's `repo-gates` job does.
+of a skip, as CI's `repo-gates` job does. Demo parity is on demand, never CI: it fetches the
+export's scripts from `unpkg.com` on its first run ([runbook](docs/engineering/demo-parity.md)).
 
 ## Commit messages
 
@@ -149,7 +157,10 @@ Run before considering an edit done. `make check` applies to every row.
 | --- | --- |
 | `**/*.go` (today `test/**`) | `make verify-go`, then `make check-stage` |
 | `web/src/**` | `make verify-web`, then `scripts/check-file-budgets.sh` |
-| `web/src/demo/**`, the demo gates in `useWorker.ts`, `api/info.ts`, `App.vue` | the `web/src/**` row; `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (the demo's ESLint blocks); `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`; `make web-build-demo`, on which the same check must fail |
+| `web/src/demo/**`, the demo gates in `useWorker.ts`, `api/info.ts`, `App.vue` | the `web/src/**` row; `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (the demo's ESLint blocks); `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`; `make web-build-demo`, on which the same check must fail; `make demo-parity-full` |
+| `web/parity/**`, `web/playwright.parity.config.ts`, `.mk/parity.mk` | `make verify-web` (the parity unit tests and `coverage.test.ts`), `make help`; `make demo-parity-full` on demand (Chromium) |
+| `.parity-baseline` | never by hand: only `make demo-parity-update` or `make demo-parity-accept REASON=` after a complete full-matrix run ([demo-parity.md](docs/engineering/demo-parity.md#the-baseline)) |
+| a new `docs/design_system/` export, any UI change in `web/src/**` | `make demo-parity-full`; classify each new difference ([demo-parity.md](docs/engineering/demo-parity.md#classifying-a-difference)) |
 | `api/openapi.yaml` | spec first (`api-contract` skill); `make api-types`, `go test ./internal/handlers/` (the contract tests), then `make verify-web` |
 | `deployments/docker/Dockerfile`, `test/harness/tools.Dockerfile` | `go test ./test/dockerfiles/ ./test/toolchain/` (hadolint runs in `make check`); `make go-test-image` (Docker, `dhi.io`) |
 | `go.mod`, `go.sum`, `web/package.json`, `web/package-lock.json` | `make audit-deps` (network; the commit hooks run the same targets), `go test ./test/toolchain/` |
