@@ -45,7 +45,7 @@ export interface DownloadOptions extends ThroughputOptions {
   limits: Pick<Info['limits'], 'maxDownloadBytes' | 'maxStreamsPerClient'>
 }
 
-/** The steady window: from the end of warm-up to the end instant, in ms from the phase start. */
+/** The steady window: the full buckets from the end of warm-up to the end, in ms from the phase start. */
 export interface DownloadWindow {
   fromMs: number
   toMs: number
@@ -155,7 +155,9 @@ export class DownloadPhase {
   /** Closes every bucket that has ended, then decides on the series up to them. */
   private tick(): void {
     this.tickTimer = null
-    const closed = Math.floor((this.clock.now() - this.start) / BUCKET_MS)
+    // The timer was set for the end of the next bucket, so that one has ended even when the
+    // difference of two fractional instants rounds just below it.
+    const closed = Math.max(this.series.end + 1, Math.floor((this.clock.now() - this.start) / BUCKET_MS))
     while (this.series.end < closed) {
       this.series.append(this.bytes[this.series.end] ?? 0)
     }
@@ -190,19 +192,24 @@ export class DownloadPhase {
     this.grow()
   }
 
-  /** The steady window up to `toMs`, and whether it meets the window condition. */
-  private windowAt(toMs: number): (DownloadWindow & { holds: boolean }) | null {
+  /**
+   * The steady window up to `endMs`, and whether it meets the window condition. It holds the full
+   * buckets only (measurement.md section 9.2): an end between two ticks, a stop or the data cap,
+   * leaves the last bucket partial, and the window ends before it.
+   */
+  private windowAt(endMs: number): (DownloadWindow & { holds: boolean }) | null {
     const warmupEnd = this.warmup.end
     if (warmupEnd === null) {
       return null
     }
     const from = warmupEnd.bucket
-    const to = Math.ceil(toMs / BUCKET_MS)
-    const fromMs = from * BUCKET_MS
-    if (fromMs >= toMs) {
-      // A stop at an instant before warm-up had ended.
+    const to = Math.floor(endMs / BUCKET_MS)
+    if (from >= to) {
+      // An end before warm-up had ended, or within the first bucket after it.
       return null
     }
+    const fromMs = from * BUCKET_MS
+    const toMs = to * BUCKET_MS
     const requests = this.streams.contributors(from, to)
     let bytes = 0
     for (let bucket = from; bucket < to; bucket++) {
@@ -314,7 +321,9 @@ export class DownloadPhase {
       return
     }
     this.ended = reason
-    this.endMs = Math.max(0, Math.min(at, this.clock.now()) - this.start)
+    // A duration end falls on the tick that closed the series: it ends at that bucket's end
+    // exactly, not at a difference of two fractional instants.
+    this.endMs = reason === 'duration' ? this.series.end * BUCKET_MS : Math.max(0, Math.min(at, this.clock.now()) - this.start)
     if (this.tickTimer !== null) {
       this.clock.clearTimer(this.tickTimer)
     }

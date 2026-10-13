@@ -21,7 +21,7 @@ completes it, and a partly built row reads `Spec'd (v0.1), in progress: …` wit
 | Engine: info and idle latency | Spec'd (v0.1), in progress: pure modules and orchestration (the Worker wiring completes it) | `web/src/engine/`: `run.ts` (info phase, phase order, stop, visibility, network), `run/connection.ts` (WebSocket and its close sequence), `run/samples.ts`, `run/report.ts`, `latency/idle.ts`, `settings.ts` |
 | Engine: adaptive request size, stream ramp, adaptive duration, data cap | Spec'd (v0.1), in progress: pure modules and orchestration (the Worker wiring completes it) | `web/src/engine/`: `phases/sizing.ts`, `phases/ramp.ts`, `phases/window.ts`, `phases/options.ts`, `download/phase.ts`, `download/streams.ts`, `upload/phase.ts`, `upload/streams.ts`, `upload/watermark.ts`, `upload/window.ts` |
 | Engine: warm-up, steady window, Quick / Standard / Extended presets | Spec'd (v0.1), in progress: pure modules and orchestration (the Worker wiring completes it) | `web/src/engine/`: `phases/warmup.ts`, `phases/window.ts`, `presets.ts`, `upload/window.ts`, `upload/outcome.ts` |
-| Engine: headline, peak, confidence and notices, result object | Spec'd (v0.1) |  |
+| Engine: headline, peak, confidence and notices, result object | Spec'd (v0.1), in progress: pure modules and orchestration (the Worker wiring completes it) | `web/src/engine/`: `result.ts` (the result object), `result/direction.ts` (headline, peak, compensation, confidence, series), `result/validate.ts`, `stats/busy.ts`, `run.ts` (emits the result) |
 | UI: Test screen, About, URL parameters, English locale, accessibility baseline | Spec'd (v0.1) |  |
 | Container image, CI, release, Dependabot | Spec'd (v0.1) |  |
 | Accuracy harness (CI, floor and ceiling tiers) | Spec'd (v0.1) |  |

@@ -23,7 +23,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { EngineEvent, MeasuringPhase } from '@/engine/messages'
+import { type EngineEvent, type MeasuringPhase, validateResult } from '@/engine/messages'
 import { Run } from '@/engine/run'
 import type { RunReport } from '@/engine/run/report'
 import type { RunSettings } from '@/engine/settings'
@@ -82,6 +82,10 @@ async function finish(harness: Harness): Promise<RunReport | null> {
   if (report === undefined) {
     throw new Error('the run did not end')
   }
+  // A run with a report emits one result, and it validates; one without emits none.
+  const results = harness.events.flatMap(({ event }) => (event.type === 'result' ? [event.result] : []))
+  expect(results).toHaveLength(report === null ? 0 : 1)
+  results.forEach((result) => expect(validateResult(result)).toEqual([]))
   return report
 }
 

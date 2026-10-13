@@ -187,6 +187,23 @@ carries a recommendation; where the specification already relies on an answer, i
     either path, leaves the current direction with nothing measured. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [edge-cases.md §5, §6](edge-cases.md#5-tab-hidden-mid-test).
+23. What does a v0.1 result object hold, and how does the application check one? Current answer:
+    **the v0.1 field set of measurement.md §17, with the fields of later versions absent rather
+    than `null`**; `client.timerResolutionMs` and `client.crossOriginIsolated` join `client`, as
+    edge-cases.md §9 shows them in the result detail; a direction that did not run is a `skipped`
+    block, and one whose warm-up never ended has no window, series or confidence; `cpu-bound`
+    takes precedence over `low` and keeps the reasons; the idle statistics are rounded to the
+    timer resolution, or left as measured when no resolution was detected; a `cpu-bound`
+    direction has no `low-confidence` notice; downsampling sums consecutive buckets and leaves a
+    point with an unknown bucket unknown; the download window holds only full buckets, so an end
+    between two ticks drops the partial one from the headline, the series, the window condition
+    and the covered time alike. `engine/messages.ts` re-exports one runtime function, `validateResult`
+    from `engine/result/validate.ts`, so the application checks a result before Download JSON
+    without importing engine internals, and the `Clock` reports the busy time, the resolution and
+    cross-origin isolation. A download phase whose bucket ticks fall on fractional instants closes
+    each bucket on its own tick and ends at the bucket end exactly. Recommendation: keep it. See
+    [measurement.md §16, §17](measurement.md#17-result-object) and
+    [technical-stack/frontend.md §2](technical-stack/frontend.md#2-engine-package-rules).
 
 Resolved and removed:
 

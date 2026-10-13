@@ -113,8 +113,9 @@ export type EngineErrorCode =
   | 'server-restarted'
   | 'server-unreachable'
 
-// Result object (measurement.md section 17), the v0.1 subset: no loaded latency, responsiveness,
-// bufferbloat grade, quality scores or Continuous fields.
+// Result object (measurement.md section 17), the v0.1 field set: the fields of later versions (the
+// note, loaded latency, responsiveness, bufferbloat grade, quality scores, Continuous fields) are
+// absent, never null-filled.
 
 export type DirectionStatus = 'measured' | 'insufficient-data' | 'partial' | 'skipped' | 'error'
 
@@ -123,7 +124,10 @@ export type ResultStatus = 'complete' | 'partial' | 'error'
 /** Why the ramp stopped adding streams (measurement.md section 8.2). */
 export type Plateau = 'no-gain' | 'cap' | 'floor-limited'
 
-/** The steady-window bucket values; every time is in milliseconds from the phase start. */
+/**
+ * The steady-window bucket values, at most 2000 points; every time is in milliseconds from the
+ * phase start. A downsampled point holds several 100 ms buckets, and the last one ends at `endMs`.
+ */
 export interface ResultSeries {
   bucketMs: number
   firstCellMs: number
@@ -138,7 +142,10 @@ export type DirectionEvent =
   | { code: 'error'; atMs: number; notice: NoticeCode | 'requests-failed' }
   | { code: 'failure-gap'; startMs: number; endMs: number }
 
-/** One throughput direction. A direction without a number omits the number's fields. */
+/**
+ * One throughput direction. A direction without a number omits the number's fields; one whose
+ * warm-up never ended also omits the window, its series and the confidence.
+ */
 export interface DirectionResult {
   status: DirectionStatus
   bitsPerSecond?: number
@@ -147,7 +154,7 @@ export interface DirectionResult {
   windowMs?: number
   streams: number
   plateau?: Plateau
-  confidence: Confidence
+  confidence?: Confidence
   bytes: number
   series?: ResultSeries
   events: DirectionEvent[]
@@ -184,6 +191,9 @@ export interface Result {
     contextLabel: string
     protocol: string
     browser: { name: string; major: number; os: string }
+    /** The detected resolution of the Worker's clock, and whether the page was cross-origin isolated. */
+    timerResolutionMs: number
+    crossOriginIsolated: boolean
   }
   settings: {
     preset: Preset
@@ -200,6 +210,9 @@ export interface Result {
   dataUsedBytes: number
   notices: Notice[]
 }
+
+/** Checks a value against the result object; the application validates before exporting. */
+export { validateResult } from '@/engine/result/validate'
 
 /** Commands, UI to engine. */
 export type EngineCommand =

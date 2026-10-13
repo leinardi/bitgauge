@@ -20,11 +20,13 @@
 import { type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
 import { IdleLatency, type IdleOutcome } from '@/engine/latency/idle'
 import type { Direction, EngineEvent, MeasuringPhase, Notice, PhaseName, PhaseState } from '@/engine/messages'
+import { buildResult } from '@/engine/result'
 import { Connection } from '@/engine/run/connection'
 import { PageState } from '@/engine/run/page'
 import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices } from '@/engine/run/report'
 import { SampleFeed } from '@/engine/run/samples'
 import type { RunSettings } from '@/engine/settings'
+import { BusyTrack } from '@/engine/stats/busy'
 import type { Clock, InfoResult, TimerId, Transport } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
 import { UploadPhase } from '@/engine/upload/phase'
@@ -75,6 +77,8 @@ export class Run {
   private idleMedian: number | null = null
   private protocol: string | null = null
   private dataUsed = 0
+  private readonly busy = new BusyTrack()
+  private downloadStartAt: number | null = null
   /** Whether any phase has a result to keep. */
   private kept = false
   /** Commands after the run has ended are ignored. */
@@ -89,11 +93,24 @@ export class Run {
     })
   }
 
-  /** Runs every phase; resolves with the report, or null when no phase has a result to keep. */
+  /**
+   * Runs every phase and emits the result object; resolves with the report, or null when no
+   * phase has a result to keep, which emits no result.
+   */
   async start(): Promise<RunReport | null> {
+    const startedAt = new Date()
+    const startAt = this.clock.now()
     this.tick()
     try {
-      return await this.sequence()
+      const report = await this.sequence()
+      if (report !== null) {
+        const now = this.clock.now()
+        this.busy.record(now, this.clock.busyMs())
+        const busy = (from: number, to: number) => this.busy.fraction(from, to)
+        const result = buildResult({ report, startedAt, durationMs: now - startAt, clock: this.clock, downloadStartAt: this.downloadStartAt, busy })
+        this.options.emit({ type: 'result', result })
+      }
+      return report
     } finally {
       this.finished = true
       if (this.tickTimer !== null) {
@@ -262,7 +279,11 @@ export class Run {
     this.enter(phase instanceof DownloadPhase ? 'download' : 'upload')
     this.current = phase
     this.sampling = { phase, feed: new SampleFeed(), before: this.dataUsed }
+    if (phase instanceof DownloadPhase) {
+      this.downloadStartAt = this.clock.now()
+    }
     const outcome = await phase.run()
+    this.busy.record(this.clock.now(), this.clock.busyMs())
     this.sample(this.clock.now())
     this.current = null
     this.sampling = null
@@ -301,6 +322,7 @@ export class Run {
       this.halt({ kind: 'stop', at: last })
     }
     this.lastTick = now
+    this.busy.record(now, this.clock.busyMs())
     this.sample(now)
     this.tickTimer = this.clock.setTimer(TICK_MS, () => this.tick())
   }

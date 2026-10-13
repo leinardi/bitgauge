@@ -29,6 +29,10 @@ interface Timer {
 }
 
 export class FakeClock implements Clock {
+  /** The share of the elapsed time the fake Worker reports as busy. */
+  busyFraction = 0
+  resolutionMs = 0.005
+  crossOriginIsolated = true
   private time = 0
   private nextId = 1
   private timers: Timer[] = []
@@ -41,6 +45,10 @@ export class FakeClock implements Clock {
     const id = this.nextId++
     this.timers.push({ id, due: this.time + Math.max(0, ms), fn })
     return id
+  }
+
+  busyMs(): number {
+    return this.time * this.busyFraction
   }
 
   clearTimer(id: TimerId): void {

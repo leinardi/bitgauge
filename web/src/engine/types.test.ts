@@ -26,10 +26,13 @@ import type { components } from '@/api/types.gen'
 import type { BrowserIdentity, Clock, Info, InfoResult, Transport, UploadResponse, WsEcho } from '@/engine/types'
 
 describe('injected interfaces', () => {
-  it('gives the clock now, setTimer and clearTimer', () => {
+  it('gives the clock now, timers, the busy time, the resolution and cross-origin isolation', () => {
     expectTypeOf<Clock['now']>().toEqualTypeOf<() => number>()
     expectTypeOf<Clock['setTimer']>().parameters.toEqualTypeOf<[number, () => void]>()
     expectTypeOf<Clock['clearTimer']>().parameters.toEqualTypeOf<[number]>()
+    expectTypeOf<Clock['busyMs']>().toEqualTypeOf<() => number>()
+    expectTypeOf<Clock['resolutionMs']>().toEqualTypeOf<number>()
+    expectTypeOf<Clock['crossOriginIsolated']>().toEqualTypeOf<boolean>()
   })
 
   it('types the server answers with the API contract', () => {

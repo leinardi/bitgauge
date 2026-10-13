@@ -1025,6 +1025,10 @@ Fixed-size rings keep memory constant however long the run lasts.
 | `low` | warm-up ended at the cap; reason `ramp-unsettled`, `unstable` or `insufficient-samples` (§8.3) |
 | `cpu-bound` | the Worker's busy fraction exceeded 90 % over the steady window |
 
+`cpu-bound` takes precedence over the other two levels: `reasons` still lists the warm-up's
+reasons, and the direction has no `low-confidence` notice. A direction whose warm-up never ended
+has no steady window and no confidence.
+
 The Worker's **busy fraction** is the time it spends executing its own tasks (reader callbacks,
 timers, message handling), measured with `performance.now()` around each task, divided by the
 elapsed time. At multi-Gbit rates the browser, not the link, is often the limit; `cpu-bound` says so
@@ -1075,7 +1079,8 @@ CSV export flattens the same fields, one row per result.
   "server": { "name": "home", "version": "0.1.0", "epoch": "…" },
   "client": {
     "ip": "10.8.0.2", "contextLabel": "VPN", "protocol": "h2",
-    "browser": { "name": "Firefox", "major": 131, "os": "Linux" }
+    "browser": { "name": "Firefox", "major": 131, "os": "Linux" },
+    "timerResolutionMs": 0.1, "crossOriginIsolated": false
   },
   "settings": {
     "preset": "standard", "phases": ["idle", "download", "upload"],
@@ -1116,6 +1121,31 @@ CSV export flattens the same fields, one row per result.
 }
 ```
 
+- **Fields by version.** A field of a feature not yet shipped is absent, never `null`-filled. The
+  v0.1 result has `schema`, `schemaVersion`, `id` (a random version 4 UUID), `startedAt`,
+  `durationMs`, `status`, `label` (empty without one), `server`, `client` (`ip`, `contextLabel`,
+  `protocol`, `browser`, `timerResolutionMs`, `crossOriginIsolated`), `settings`, `idle`,
+  `download`, `upload`, `dataUsedBytes` and `notices`. Each direction has `status`, `streams`,
+  `bytes`, `events`, `plateau` once the ramp stopped, `windowMs`, `confidence` and `series` once
+  warm-up ended, and `bitsPerSecond`, `peakBitsPerSecond` and `uncompensatedBitsPerSecond` when it
+  reports a number; upload adds `confirmedRequests`. Absent in v0.1: `note` (history, v0.2),
+  `loadedLatency`, `responsiveness`, `bufferbloat`, `scores`, `minBitsPerSecond`,
+  `maxBitsPerSecond` and `series.knownMs`.
+- `idle` is absent when idle latency did not run. A direction that did not run, left out by the
+  settings or not reached, is `{status: "skipped", streams: 0, bytes: 0, events: []}` (upload with
+  `confirmedRequests: 0`). `client.contextLabel` is the `start` override's, else the label `GET
+  /info` suggests, else empty; `client.protocol` is `unknown` when no request reported one.
+- `client.timerResolutionMs` is the resolution the Worker detected for `performance.now()` and
+  `client.crossOriginIsolated` whether the page was isolated
+  ([edge-cases.md §9](edge-cases.md#9-clock-and-timer-resolution)); the idle statistics and samples
+  are rounded to the nearest multiple of that resolution, never reported finer.
+- A direction reports a number when it is `measured`, or `partial` with a steady window that meets
+  the minimum window (§8.4). On download the window is its full buckets (§9.2): an end between two
+  ticks (a stop, a paused page, the data cap) ends the window, its series and the covered time of
+  `stopped-early` at the last full bucket, and only requests that fed those buckets count toward
+  the window condition. With overhead compensation, `bitsPerSecond` and `peakBitsPerSecond` are
+  compensated and `uncompensatedBitsPerSecond` keeps the headline as measured; the uncompensated
+  peak is `peakBitsPerSecond / (1 + p / 100)` with `p` from `settings`.
 - Direction `status`: `measured`, `insufficient-data`, `partial`, `skipped` or `error`; the UI
   shows `insufficient-data` as "insufficient data". Result `status`: `complete`, `partial` (stopped
   by the user or by the browser pausing a hidden page; for Continuous, only during warm-up, §15) or
@@ -1127,7 +1157,9 @@ CSV export flattens the same fields, one row per result.
   samples are not stored: the result detail draws `[0, warmupEndMs)` as a marked, excluded
   interval. When a stored cell can be partially known (the coarse tiers of a Continuous upload,
   §15), `series.knownMs[]` gives each cell's known time, so a rate over several cells is Σ bytes ÷
-  Σ known time.
+  Σ known time. Above 2000 buckets, each point sums the same number of consecutive buckets and
+  `bucketMs` grows to match; a point holding an unknown bucket is unknown, so no rate is
+  estimated, and the last point may hold fewer buckets.
 - `events` lists what happened to a direction, for the chart marks: `{code, atMs}` with code
   `extended`, `data-cap`, `cancelled` or `error` (an `error` event also carries `notice`, the
   notice code of §16 that ended it, or `requests-failed` for three consecutive failed requests),

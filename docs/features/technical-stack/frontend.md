@@ -39,10 +39,17 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
   both directions: the app may import only `engine/messages.ts` and the Worker URL.
 - **Message schema.** All traffic between the UI and the Worker uses the discriminated unions in
   `engine/messages.ts` ([../architecture.md §4](../architecture.md#4-engine--ui-message-contract)).
-  `worker.ts` contains only the message loop; every rule lives in plain modules.
+  `worker.ts` contains only the message loop; every rule lives in plain modules. Besides the
+  types, `engine/messages.ts` has one runtime export, `validateResult`, re-exported from
+  `engine/result/validate.ts`: the structural check of the result object
+  ([../measurement.md §17](../measurement.md#17-result-object)), so the application validates a
+  result before exporting it without importing engine internals.
 - **Synthetic clock injection.** The engine never calls `performance.now()`, `setTimeout`,
   `fetch`, `XMLHttpRequest` or `WebSocket` directly. It receives two interfaces:
-  - `Clock`: `now()`, `setTimer(ms, fn)`, `clearTimer(id)`;
+  - `Clock`: `now()`, `setTimer(ms, fn)`, `clearTimer(id)`, `busyMs()` (the time spent in the
+    Worker's own tasks, for the busy fraction of
+    [../measurement.md §16](../measurement.md#16-confidence-and-notices)), and `resolutionMs` and
+    `crossOriginIsolated` ([../edge-cases.md §9](../edge-cases.md#9-clock-and-timer-resolution));
   - `Transport`: `download(size, signal)` yielding timestamped chunks and the Resource Timing
     entry; `upload(size, onProgress, signal)` resolving to the telemetry JSON; `ws()` for the echo;
     `probe(path)` for HTTP probes with their timing entry; `info()`.

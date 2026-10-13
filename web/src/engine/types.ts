@@ -30,6 +30,12 @@ export interface Clock {
   now(): number
   setTimer(ms: number, fn: () => void): TimerId
   clearTimer(id: TimerId): void
+  /** The time spent executing the Worker's own tasks so far (measurement.md section 16). */
+  busyMs(): number
+  /** The detected resolution of `now()` (edge-cases.md section 9). */
+  readonly resolutionMs: number
+  /** Whether the page is cross-origin isolated, which gives the finest timer. */
+  readonly crossOriginIsolated: boolean
 }
 
 export type Info = components['schemas']['Info']

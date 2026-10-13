@@ -24,6 +24,7 @@ import { describe, expect, it } from 'vitest'
 
 import { type DownloadOptions, type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
 import { FIRST_SIZE, SIZE_FLOOR } from '@/engine/phases/sizing'
+import { BUCKET_MS } from '@/engine/stats/units'
 import { FakeClock } from '@/engine/test/fakeClock'
 import { type Failure, FakeTransport, type Scenario } from '@/engine/test/fakeTransport'
 
@@ -350,9 +351,38 @@ describe('stop', () => {
     phase.stop()
     await clock.advance(5000)
     expect(outcome()).toMatchObject({ status: 'partial', endMs: 4250, bytes: read, events: [{ code: 'cancelled', atMs: 4250 }] })
+    // Warm-up has not ended at 4.25 s: there is no window.
+    expect(outcome()?.window).toBeNull()
     // The last bucket is the partial one, from 4.2 s to the stop.
     expect(outcome()?.buckets).toHaveLength(43)
     expect(transport.requested.download).toHaveLength(requested)
     expect(clock.pending).toBe(0)
+  })
+})
+
+describe('a phase starting at a fractional instant', () => {
+  it('closes each bucket on its tick and ends at the bucket end exactly', async () => {
+    // performance.now() is fractional: 1901.2 + 200 − 1901.2 is 199.99999999999977, which must
+    // neither hold the bucket open nor end the window early.
+    const clock = new FakeClock()
+    await clock.advance(1901.2)
+    const { outcome } = await run(FAST, {}, clock)
+    expect(outcome.status).toBe('measured')
+    expect(outcome.endMs % BUCKET_MS).toBe(0)
+    expect(outcome.buckets).toHaveLength(outcome.endMs / BUCKET_MS)
+  })
+})
+
+describe('a window ended between two ticks', () => {
+  it('holds the full buckets only, the partial last one left out', async () => {
+    const { clock, phase, outcome } = start(FAST)
+    await clock.advance(9050)
+    phase.stop()
+    await clock.advance(5000)
+    // §19.3: warm-up ended at 5 s; the stop at 9.05 s leaves the window at 5 s to 9 s.
+    expect(outcome()).toMatchObject({ status: 'partial', endMs: 9050, window: { fromMs: 5000, toMs: 9000 } })
+    expect(outcome()?.buckets).toHaveLength(91)
+    const window = outcome()?.window
+    expect(window?.bytes).toBe(outcome()?.buckets.slice(50, 90).reduce((sum, bytes) => sum + bytes, 0))
   })
 })
