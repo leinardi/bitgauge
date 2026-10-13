@@ -443,6 +443,15 @@ carries a recommendation; where the specification already relies on an answer, i
     taken over by the next scenario's session. Recommendation: keep it. See
     [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build) and
     [technical-stack/build-packaging.md §4](technical-stack/build-packaging.md#4-ci-workflows).
+47. How do the deployment examples show a setting the running release does not have yet? The
+    Traefik shape enabled the networkQuality layer, which v0.1 rejects at startup
+    ([configuration.md §4](configuration.md#4-fail-closed-validation)), so a copy of it exited
+    with status 2. Current answer: **the toggle is shown commented out, with the release that
+    brings it, in the page and in the shipped files alike; every shipped compose file's BitGauge
+    environment must load and validate with no problem, which `test/deployments` checks against the
+    configuration package itself.** At v0.3 the line is uncommented in the page and the examples
+    together. Recommendation: keep it. See
+    [deployment-example.md §2](deployment-example.md#2-compose-with-traefik).
 
 Resolved and removed:
 

@@ -1,0 +1,22 @@
+services:
+  bitgauge:
+    image: ghcr.io/leinardi/bitgauge:0
+    ports:
+      - "8080:8080"
+    read_only: true # BitGauge writes nothing
+    user: "65532:65532" # already the image default; stated for clarity
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      BITGAUGE_SERVER__DISPLAY_NAME: home
+    # Optional: full configuration as a read-only file
+    # volumes:
+    #   - ./bitgauge.yaml:/etc/bitgauge/config.yaml:ro
+    healthcheck:
+      test: ["CMD", "/bitgauge", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped

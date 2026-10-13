@@ -9,7 +9,8 @@ accurate numbers. Image tags, signing and platforms are described in
 
 ## 1. Compose, BitGauge Alone
 
-For a LAN-only test endpoint without a proxy (plain HTTP; the SPA works, networkQuality does not):
+For a LAN-only test endpoint without a proxy (plain HTTP; the SPA works, networkQuality does not),
+shipped as [`deployments/examples/compose-alone/compose.yaml`](../../deployments/examples/compose-alone/compose.yaml):
 
 ```yaml
 services:
@@ -17,8 +18,8 @@ services:
     image: ghcr.io/leinardi/bitgauge:0
     ports:
       - "8080:8080"
-    read_only: true                     # BitGauge writes nothing
-    user: "65532:65532"                 # already the image default; stated for clarity
+    read_only: true # BitGauge writes nothing
+    user: "65532:65532" # already the image default; stated for clarity
     cap_drop: [ALL]
     security_opt:
       - no-new-privileges:true
@@ -51,7 +52,7 @@ services:
 ## 2. Compose With Traefik
 
 Traefik v3 terminating TLS, with BitGauge on a dedicated network so the trusted proxy address is
-known:
+known, shipped as [`deployments/examples/traefik/compose.yaml`](../../deployments/examples/traefik/compose.yaml):
 
 ```yaml
 networks:
@@ -91,7 +92,8 @@ services:
       BITGAUGE_SERVER__DISPLAY_NAME: home
       BITGAUGE_SERVER__PUBLIC_URL: https://speed.example.lan
       BITGAUGE_SERVER__TRUSTED_PROXIES: 172.30.0.2/32
-      BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
+      # From v0.3, which ships the networkQuality layer; v0.1 rejects the toggle and exits 2.
+      # BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
     healthcheck:
       test: ["CMD", "/bitgauge", "healthcheck"]
       interval: 30s
@@ -110,7 +112,7 @@ services:
       # Do NOT attach the buffering or compress middlewares to this router.
 ```
 
-`traefik-dynamic.yaml`:
+[`deployments/examples/traefik/traefik-dynamic.yaml`](../../deployments/examples/traefik/traefik-dynamic.yaml):
 
 ```yaml
 tls:
@@ -128,8 +130,15 @@ tls:
 - **Trusted proxy.** The fixed Traefik address is the only entry in `trusted_proxies`, so forwarding
   headers from anything else are ignored ([security.md
   §4](security.md#4-client-ip-and-trusted-proxies)).
+- **networkQuality from v0.3.** The layer ships in v0.3 ([roadmap.md
+  §1.3](roadmap.md#13-version-03-compatibility-responsiveness-and-long-runs)); until then its
+  toggle stays commented out, because a release without the layer rejects it and exits with status
+  2 ([configuration.md §4](configuration.md#4-fail-closed-validation)). The TLS 1.3 option and
+  `public_url` do no harm before then.
 
 ## 3. Caddy
+
+[`deployments/examples/caddy/Caddyfile`](../../deployments/examples/caddy/Caddyfile):
 
 ```text
 speed.example.lan {
@@ -155,8 +164,12 @@ speed.example.lan {
   automatically; it negotiates HTTP/2 and HTTP/3 by default.
 - Set `trusted_proxies` to the Caddy container's address, and `public_url` if networkQuality is
   enabled.
+- The shipped compose file runs it with BitGauge in the shape of §2:
+  [`deployments/examples/caddy/compose.yaml`](../../deployments/examples/caddy/compose.yaml).
 
 ## 4. nginx
+
+[`deployments/examples/nginx/bitgauge.conf`](../../deployments/examples/nginx/bitgauge.conf):
 
 ```nginx
 map $http_upgrade $connection_upgrade {
@@ -200,6 +213,8 @@ server {
 
 nginx buffers request bodies by default, which is the most common cause of distorted upload
 numbers ([edge-cases.md §4](edge-cases.md#4-proxy-buffering-that-distorts-upload)).
+The shipped compose file runs it with BitGauge in the shape of §2:
+[`deployments/examples/nginx/compose.yaml`](../../deployments/examples/nginx/compose.yaml).
 
 ## 5. Proxy Requirements Checklist
 

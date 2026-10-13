@@ -35,14 +35,17 @@ The tooling **exists**:
 - **`test/`**: meta-tests, all real Go packages. `test/toolchain` (gate registry `gates.go`, pins,
   vacuous flags, untagged-test rules, engine boundary, fallow and install-scripts gates),
   `test/docs` (links, anchors, doc facts), `test/boundary` (the `.golangci.yaml` stateless rules),
-  `test/dockerfiles`, one package per `scripts/check-*.sh`, `test/image` (`-tags=image`),
-  `test/harness` (the accuracy harness; runners `-tags=harness`), and `test/internal/`
-  (`netguard`, `syscalltrace`, `testenv`, `toolgate`, `gitenv`).
+  `test/dockerfiles`, `test/deployments` (the deployment examples), one package per
+  `scripts/check-*.sh`, `test/image` (`-tags=image`), `test/harness` (the accuracy harness; runners
+  `-tags=harness`), and `test/internal/` (`netguard`, `syscalltrace`, `testenv`, `toolgate`,
+  `gitenv`).
 - **`web/`** tooling only: `package.json` (devDependencies), its lockfile, `.npmrc`, the
   TypeScript, ESLint, Vite and Playwright configurations, `web/harness/` (the harness's
   browser driver) and `web/parity/` (the demo parity harness, with `.parity-baseline` at the root).
 - **`deployments/docker/Dockerfile`**: the image (`web`, `build` and `runtime` stages on
   `dhi.io`); `test/harness/tools.Dockerfile` the harness's tools image.
+- **`deployments/examples/`**: the compose, Traefik, Caddy and nginx examples of
+  `deployment-example.md`, held to it by `test/deployments`.
 - **`scripts/`**: the `check-*` hooks, `idle-measure.sh`, `bootstrap-mk-common.sh`, and
   `hooks/gofmt-on-edit.sh` (the Claude Code edit hook).
 - **`.github/`**: `ci.yaml`, `go-test.yaml`, `scheduled-scan.yaml`, the cache warm-ups, the
@@ -163,6 +166,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `.parity-baseline` | never by hand: only `make demo-parity-update` or `make demo-parity-accept REASON=` after a complete full-matrix run ([demo-parity.md](docs/engineering/demo-parity.md#the-baseline)) |
 | a new `docs/design_system/` export, any UI change in `web/src/**` | `make demo-parity-full`; classify each new difference ([demo-parity.md](docs/engineering/demo-parity.md#classifying-a-difference)) |
 | `api/openapi.yaml` | spec first (`api-contract` skill); `make api-types`, `go test ./internal/handlers/` (the contract tests), then `make verify-web` |
+| `deployments/examples/**`, `docs/features/deployment-example.md` | `go test ./test/deployments/` (the compose files' hardening and healthcheck timings, and every file the page shows equal to its code block), `go test -count=1 ./test/docs/`; `docker compose -f deployments/examples/<example>/compose.yaml config` |
 | `deployments/docker/Dockerfile`, `test/harness/tools.Dockerfile` | `go test ./test/dockerfiles/ ./test/toolchain/` (hadolint runs in `make check`); `make go-test-image` (Docker, `dhi.io`) |
 | `go.mod`, `go.sum`, `web/package.json`, `web/package-lock.json` | `make audit-deps` (network; the commit hooks run the same targets), `go test ./test/toolchain/` |
 | `web/eslint.config.ts`, `web/.npmrc`, `.fallowrc.json`, `.fallow-baseline.json`, `.fallow-regression-baseline.json`, `.mk/audit-deps.mk` | `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (needs `web/node_modules`) |

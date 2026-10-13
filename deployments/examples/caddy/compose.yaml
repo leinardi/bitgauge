@@ -1,0 +1,42 @@
+networks:
+  edge:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+services:
+  caddy:
+    image: caddy:2
+    ports:
+      - "443:443/tcp"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Caddy's own certificates and keys; BitGauge itself still writes nothing.
+      - caddy-data:/data
+    networks:
+      edge:
+        ipv4_address: 172.30.0.2
+
+  bitgauge:
+    image: ghcr.io/leinardi/bitgauge:0
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      BITGAUGE_SERVER__DISPLAY_NAME: home
+      BITGAUGE_SERVER__PUBLIC_URL: https://speed.example.lan
+      BITGAUGE_SERVER__TRUSTED_PROXIES: 172.30.0.2/32
+      # From v0.3, which ships the networkQuality layer; v0.1 rejects the toggle and exits 2.
+      # BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "/bitgauge", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks: [edge]
+
+volumes:
+  caddy-data:

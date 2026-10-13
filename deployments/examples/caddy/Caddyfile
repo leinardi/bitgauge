@@ -1,0 +1,17 @@
+speed.example.lan {
+	# TLS 1.3 only; needed for the networkQuality layer, optional otherwise.
+	tls {
+		protocols tls1.3
+	}
+
+	# Let BitGauge enforce its own body caps (Caddy has no limit unless one is set).
+	# If a limit is required here, keep it above compat.networkquality.max_upload_bytes:
+	# request_body {
+	# 	max_size 2GB
+	# }
+
+	reverse_proxy bitgauge:8080 {
+		flush_interval -1      # stream responses immediately (no response buffering)
+	}
+	# Do not enable `encode` for this site.
+}

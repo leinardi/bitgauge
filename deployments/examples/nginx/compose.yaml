@@ -1,0 +1,39 @@
+networks:
+  edge:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+services:
+  nginx:
+    image: nginx:1
+    ports:
+      - "443:443"
+    volumes:
+      # Replaces the image's default server with BitGauge's.
+      - ./bitgauge.conf:/etc/nginx/conf.d/default.conf:ro
+      # speed.example.lan.pem and speed.example.lan-key.pem, as bitgauge.conf names them.
+      - ./certs:/etc/nginx/certs:ro
+    networks:
+      edge:
+        ipv4_address: 172.30.0.2
+
+  bitgauge:
+    image: ghcr.io/leinardi/bitgauge:0
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      BITGAUGE_SERVER__DISPLAY_NAME: home
+      BITGAUGE_SERVER__PUBLIC_URL: https://speed.example.lan
+      BITGAUGE_SERVER__TRUSTED_PROXIES: 172.30.0.2/32
+      # From v0.3, which ships the networkQuality layer; v0.1 rejects the toggle and exits 2.
+      # BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "/bitgauge", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks: [edge]
