@@ -18,7 +18,8 @@
  */
 
 import { type DownloadRequest, Streams } from '@/engine/download/streams'
-import type { DirectionEvent, DirectionStatus, DurationBounds, Notice, Plateau, Preset, TestSettings } from '@/engine/messages'
+import type { DirectionEvent, DirectionStatus, Notice, Plateau } from '@/engine/messages'
+import { dataBudget, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule, windowConditionHolds } from '@/engine/phases/window'
@@ -39,19 +40,9 @@ const MAX_FAILURES = 3
 
 const TOO_MANY_REQUESTS = 429
 
-export interface DownloadOptions {
-  clock: Clock
+export interface DownloadOptions extends ThroughputOptions {
   transport: Pick<Transport, 'download'>
-  preset: Preset
-  streams: TestSettings['streams']
-  bounds: DurationBounds
-  warmup: TestSettings['warmup']
-  dataCapBytes: number | null
-  /** The data the test used before this phase, which counts against the data cap. */
-  dataUsedBefore: number
   limits: Pick<Info['limits'], 'maxDownloadBytes' | 'maxStreamsPerClient'>
-  /** The idle-latency median, or null when idle latency was skipped. */
-  rttMs: number | null
 }
 
 /** The steady window: from the end of warm-up to the end instant, in ms from the phase start. */
@@ -228,15 +219,11 @@ export class DownloadPhase {
 
   /** What the data cap still allows after data used and the bytes still to come in flight. */
   private budget(): number | null {
-    const cap = this.options.dataCapBytes
-    if (cap === null) {
-      return null
-    }
     let pending = 0
     for (const request of this.inFlight.keys()) {
       pending += request.size - request.read
     }
-    return cap - this.options.dataUsedBefore - this.read - pending
+    return dataBudget(this.options, this.read, pending)
   }
 
   private async request(stream: number, size: number): Promise<void> {

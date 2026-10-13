@@ -141,7 +141,7 @@ carries a recommendation; where the specification already relies on an answer, i
     no further one; three consecutive failures count across the direction's streams in the order
     they occur, and any completed request resets the count; the phase ends on the data cap at the
     instant a stream would issue a request with less than 16 KiB of budget left, the budget
-    counting the bytes still to arrive of the requests in flight; a direction reports the protocol
+    counting the bytes still to move of the requests in flight; a direction reports the protocol
     of its latest throughput request with a Resource Timing entry. On the shared-link model the
     100 Mbit/s download of §19.3 keeps its trial to 2 streams, because its baseline's last interval
     holds a request gap, and plateaus at 4 streams at ≈ 5 s (it was 2 streams at ≈ 4 s); it still
@@ -155,6 +155,23 @@ carries a recommendation; where the specification already relies on an answer, i
     [§5](measurement.md#5-adaptive-duration), [§6](measurement.md#6-download-mechanics),
     [§19.2](measurement.md#192-500-kbits--300-ms-rtt-mobile-over-vpn-standard) and
     [§19.3](measurement.md#193-100-mbits--50-ms-rtt-standard).
+21. How does the upload runner apply the rules of §5 and §7? Current answer: **its minimum and
+    maximum run on the client clock from the phase's first request**; a request whose stream has
+    no confirmed request yet has no expected duration and gets the full 2 s grace; an error
+    result, a user stop and a server restart abort the requests in flight at once, without the
+    grace; telemetry whose counts are not whole byte counts adding up to `bytes` from the cell of
+    `startMs` is rejected like a byte mismatch; an added stream whose first request failed is
+    placed by its first confirmed one; events seen on the client are placed on the server timeline
+    with the display offset. Recomputed on the shared-link model, the §19.4 link needs a
+    per-request ceiling of ≈ 0.5 Gbit/s for its ramp to gain up to 6 streams (one stream at
+    ≈ 1.6 Gbit/s would plateau at 4); its upload warm-up then ends at ≈ 8.1 s and its window is
+    confirmed at ≈ 11.8 s (they were ≈ 9.5 s and ≈ 13.5 s), and the window averages ≈ 97 % of the
+    link as the last requests drain. Recommendation: keep it; confirm §19.4 on the harness ceiling
+    profile. See [measurement.md §5](measurement.md#5-adaptive-duration),
+    [§7.3](measurement.md#73-server-telemetry-per-request),
+    [§8.2](measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare),
+    [§17](measurement.md#17-result-object) and
+    [§19.4](measurement.md#194-25-gbits-lan-standard).
 
 Resolved and removed:
 

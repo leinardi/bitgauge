@@ -65,6 +65,20 @@ describe('download', () => {
     expect(transport.peakInFlight.download).toBe(2)
   })
 
+  it('holds each transfer to the per-request ceiling', async () => {
+    const clock = new FakeClock()
+    const transport = new FakeTransport(clock, { ...LINK, perRequest: 2000 })
+    let bytes = 0
+    void transport.download(1000, new AbortController().signal).then(async (response) => {
+      for await (const chunk of response.chunks) {
+        bytes += chunk.bytes
+      }
+    })
+    // Milliseconds 100 to 149 at 2 bytes each, not the link's 10.
+    await clock.advance(149)
+    expect(bytes).toBe(100)
+  })
+
   it('ends the body with an AbortError when the signal aborts', async () => {
     const clock = new FakeClock()
     const transport = new FakeTransport(clock, LINK)

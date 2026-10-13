@@ -52,6 +52,8 @@ export type Failure =
 export interface Scenario {
   /** The bottleneck's goodput in bytes per second at instant `atMs`. */
   rate: (direction: Direction, atMs: number) => number
+  /** The most one request can carry in bytes per second, such as a connection's CPU limit. */
+  perRequest?: number
   rttMs: number
   /** Every entry's nextHopProtocol; null for requests without a Resource Timing entry. */
   protocol: string | null
@@ -355,7 +357,8 @@ export class FakeTransport implements Transport {
     const offset = this.scenario.gridOffsetMs ?? 0
     for (const direction of ['download', 'upload'] as const) {
       const reading = this.transfers.filter((transfer) => transfer.direction === direction && transfer.firstByteAt <= now)
-      const share = reading.length === 0 ? 0 : this.scenario.rate(direction, now) / 1000 / reading.length
+      const fair = reading.length === 0 ? 0 : this.scenario.rate(direction, now) / reading.length
+      const share = Math.min(fair, this.scenario.perRequest ?? Number.POSITIVE_INFINITY) / 1000
       for (const transfer of reading) {
         transfer.startMs ??= now
         const bytes = Math.min(share, transfer.target - transfer.read)

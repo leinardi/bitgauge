@@ -103,8 +103,9 @@ size_next = clamp(rate_s × 1 s, 16 KiB, min(8 × size_prev, cap))
   `limits.maxUploadBytes`, from `limits.max_download_bytes` and `limits.max_upload_bytes`, default
   256 MiB each). At more than about 2.1 Gbit/s per stream, capped
   requests take less than 1 s; this only adds one LAN round trip per request.
-- When a data cap is set, a request is shrunk so that data used plus the bytes still to arrive of
-  all requests in flight never exceeds the cap; when less than the floor remains, no new request is issued (§5).
+- When a data cap is set, a request is shrunk so that data used plus the bytes still to move of all
+  requests in flight never exceeds the cap; when less than the floor remains, no new request is
+  issued (§5).
 
 **Slow-link example (500 kbit/s ≈ 61 KiB/s, one stream).** The first 64 KiB request takes about
 1.05 s plus RTT. `rate_s` ≈ 61 KiB/s, so the next request is 61 KiB and takes about 1 s. With two
@@ -188,16 +189,21 @@ Each direction has a minimum and a maximum duration taken from the preset (§8):
 - **Download** ends at the end instant: in-flight requests are aborted, bytes already read are kept,
   and the window ends at the abort instant.
 - **Upload** stops issuing new requests at `max − 1 s` (the request target), even when that comes
-  before its minimum, or when the window condition holds. In-flight requests may finish within a grace of `min(2 s, 2 × d)`, where `d` is
-  the expected duration of the longest in-flight request (normally the 1 s target); then they are
-  aborted. Basing the grace on the in-flight request's expected duration rather than on the fixed
-  1 s target is what the slow-link budget in §19.1 needs (2 × 1.75 s); it is the current answer to
-  an item tracked in [open-questions.md](open-questions.md). A phase that runs
-  to its maximum therefore ends at most about 1 s after it. Aborted
-  requests only lower the confirmed watermark; because no request is issued after the decision, the
-  final window is never shorter than the window that satisfied the condition.
+  before its minimum, or when the window condition holds; its minimum and maximum run on the client
+  clock from the phase's first request. In-flight requests may finish within a grace of
+  `min(2 s, 2 × d)`, where `d` is the expected duration of the longest in-flight request (its size
+  over its stream's rate, normally the 1 s target; a stream with no confirmed request yet has no
+  expected duration and gets the full 2 s); then they are aborted. Basing the grace on the
+  in-flight request's expected duration rather than on the fixed 1 s target is what the slow-link
+  budget in §19.1 needs (2 × 1.75 s); it is the current answer to an item tracked in
+  [open-questions.md](open-questions.md). A phase that runs to its maximum therefore ends at most
+  about 1 s after it. Aborted requests only lower the confirmed watermark; because no request is
+  issued after the decision, the final window is never shorter than the window that satisfied the
+  condition.
 
 **Timeouts and failures.** The engine aborts any request after **30 s** and counts it as failed.
+An upload that ends with an error result, a user stop or a server restart aborts its requests in
+flight at once, without the grace.
 With the 1 s size target, a 30 s request is unreachable above about 4 kbit/s per stream. How a
 failed request (timeout, error status, rejected response) affects the phase depends on the direction
 and protocol:
@@ -304,7 +310,8 @@ follow; the last byte is read at 123457750 ms, 50 ms into cell 1234577.
   normal requests far below that.
 
 **Validation.** The client rejects a response (counts it as a failed request) when `bytes` differs
-from the bytes it sent. If `epoch` differs from the epoch `GET /info` reported at test start, the
+from the bytes it sent, or when its counts are not whole byte counts adding up to `bytes` from the
+cell of `startMs`, or when `startMs` or `durationMs` is not a finite instant and duration. If `epoch` differs from the epoch `GET /info` reported at test start, the
 server restarted mid-test: grid indices from before and after cannot be combined, so the test is
 aborted with the `server restarted` notice ([edge-cases.md](edge-cases.md)).
 
@@ -542,7 +549,8 @@ series, each interval rounded up to a whole number of buckets. The baseline's `I
 first bucket holding bytes: the first chunk's on download, the cell of `P_start` on upload. A
 trial's `I_s` starts where the added streams took effect: on download at
 the bucket of the add, on upload at the cell of the latest first byte (`startMs`) among the added
-streams' first requests, known once they confirm; until then the trial waits. An interval whose
+streams' first requests, known once they confirm (a stream whose first request failed counts with
+its first confirmed one); until then the trial waits. An interval whose
 buckets are all unknown (inside a failure gap) measures nothing and is measured again over the next
 `I_m`. The baseline always measures its first two intervals; a further one runs only if it ends no
 later than 3 s after `I_s`. The ramp settles at the end of the interval that decided its plateau
@@ -618,8 +626,9 @@ made on the watermark, so the phase keeps sending until the *confirmed* window i
 
 Standard's upload minimum is 5 s longer than its download minimum because every upload ramp
 decision waits for the confirmation delay (§8.2): on a fast link the full ramp to 6 streams settles
-at ≈ 9.5 s instead of ≈ 6.5 s, and its 3 s window is confirmed at ≈ 13.5 s (§19.4). The 15 s
-minimum holds that, so a fast link ends at the minimum and is never reported as extended.
+at ≈ 8.1 s on the server timeline, known on the client at ≈ 8.8 s, instead of ≈ 6.5 s, and its 3 s
+window is confirmed at ≈ 11.8 s (§19.4). The 15 s minimum holds that, so a fast link ends at the
+minimum and is never reported as extended.
 Quick is meant for fast links. At 300 kbit/s its three fixed streams share ≈ 36.6 KiB/s, so the
 three initial 64 KiB uploads take ≈ 5.2 s and first confirm at ≈ 5.5 s. By then the confirmed series
 already spans ≈ 5 s, so warm-up ends at Quick's 3 s cap (`max(3 s, 25 % × 10 s)`) before two
@@ -1122,7 +1131,9 @@ CSV export flattens the same fields, one row per result.
 - `events` lists what happened to a direction, for the chart marks: `{code, atMs}` with code
   `extended`, `data-cap`, `cancelled` or `error` (an `error` event also carries `notice`, the
   notice code of §16 that ended it, or `requests-failed` for three consecutive failed requests),
-  and `{code: "failure-gap", startMs, endMs}` for each failure gap (§7.5).
+  and `{code: "failure-gap", startMs, endMs}` for each failure gap (§7.5). An upload event seen on
+  the client (`extended`, `data-cap`, `cancelled`, `error`) is placed on the server timeline with
+  the display offset of §7.4.
 - `idle.samples` holds the idle RTTs in send order (at most the ping count of §8.5); its length
   is the sample count.
 - A Continuous direction also carries `minBitsPerSecond` and `maxBitsPerSecond`, the run-wide
@@ -1259,21 +1270,26 @@ The shaper carries ≈ 0.478 Mbit/s of goodput, 1448 payload bytes in each 1514-
 ### 19.4 2.5 Gbit/s LAN (Standard)
 
 - RTT ≈ 0.3 ms: `I_s` = 1 s, `I_m` = 500 ms.
-- **Download.** One stream reaches ≈ 1.6 Gbit/s (≈ 200 MB/s), below the ≈ 2.1 Gbit/s at which the
-  256 MiB cap binds. Sizes grow 64 KiB → 512 KiB → 4 MiB → 32 MiB within ≈ 0.2 s (the early requests
-  are latency-bound) and then settle at ≈ 190 MiB, about 1 s per request. Trials to 2, 4 and 6
-  streams gain until the cap: plateau `cap` at ≈ 6.5 s with ≈ 50 MiB requests per stream. The 5 s
-  warm-up cap waits for the running ramp (§8.3), so warm-up end ≈ 6.5 s, window condition ≈ 9.5 s,
-  phase end at 10 s.
-- **Upload.** The same ramp, but each decision waits ≈ 1 s for its interval to be confirmed (§8.2):
-  the baseline is decided at ≈ 3 s and the trials to 2, 4 and 6 streams at ≈ 5.5, 8 and 10.5 s.
-  Plateau `cap`; warm-up ends at ≈ 9.5 s on the server timeline, known on the client at ≈ 10.5 s.
-  The 3 s window is confirmed at ≈ 13.5 s, inside the 15 s minimum, so new requests stop at 15 s;
-  the last in-flight requests confirm at ≈ 16 s, and the window is ≈ 9.5–16 s. A stop before
-  ≈ 13.5 s leaves a confirmed window under 3 s, so a cancelled upload shows no number (§7.8).
+- The timelines below assume that one request carries at most ≈ 0.5 Gbit/s (≈ 62.5 MB/s), as a
+  per-connection limit of the browser or the proxy would, so that each added stream adds
+  throughput until six share the link; they are worked on the shared-link model of §19.1 with that
+  per-request ceiling, which the harness ceiling profile is to confirm.
+- **Download.** Sizes grow 64 KiB → 512 KiB → 4 MiB → 32 MiB within ≈ 0.1 s (the early requests
+  are latency-bound) and settle at ≈ 60 MiB from ≈ 0.6 s, about 1 s per request. The baseline is
+  decided at 2 s and the trials to 2, 4 and 6 streams gain at 3.5, 5 and 6.5 s: plateau `cap` at
+  ≈ 6.5 s with ≈ 50 MiB requests per stream. The 5 s warm-up cap waits for the running ramp (§8.3),
+  so warm-up end ≈ 6.5 s, window condition ≈ 9.5 s, phase end at 10 s.
+- **Upload.** The same ramp, but each decision waits for its interval to be confirmed (§8.2): the
+  baseline is decided at ≈ 2.6 s and the trials to 2, 4 and 6 streams at ≈ 4.6, 6.6 and 8.8 s.
+  Plateau `cap`; warm-up ends at ≈ 8.1 s on the server timeline, known on the client at ≈ 8.8 s.
+  The 3 s window is confirmed at ≈ 11.8 s, inside the 15 s minimum, so new requests stop at 15 s;
+  the last in-flight requests confirm at ≈ 15.8 s, and the window is ≈ 8.1–15.8 s. Once no new
+  request is issued the last ones drain at 0.5 Gbit/s each, so the window averages ≈ 2.42 Gbit/s,
+  ≈ 97 % of the link. A stop before
+  ≈ 11.8 s leaves a confirmed window under 3 s, so a cancelled upload shows no number (§7.8).
 - **CPU.** The Worker's busy fraction is recorded; above 90 % the direction is `cpu-bound` and the
   harness tolerance is ±20 %.
-- **Data used** ≈ 3 GB down + 3.7 GB up: the data-used figure is prominent in the result, and a data
+- **Data used** ≈ 2.2 GB down + 3.7 GB up: the data-used figure is prominent in the result, and a data
   cap, if set, ends the test early with a notice.
 
 ## Related

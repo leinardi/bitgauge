@@ -171,6 +171,31 @@ describe('section 19.3, 100 Mbit/s and 50 ms RTT', () => {
   })
 })
 
+describe('section 19.4, 2.5 Gbit/s LAN', () => {
+  // At most 0.5 Gbit/s per request, so each added stream adds throughput until six share the link.
+  const LAN: Scenario = { rate: () => 312_500_000, perRequest: 62_500_000, rttMs: 0.3, protocol: 'h2' }
+
+  it('grows the requests to ≈ 60 MiB and ramps to the cap of 6 streams at 6.5 s', async () => {
+    const { outcome, transport } = await run(LAN)
+    expect(transport.requested.download.slice(0, 5)).toEqual([FIRST_SIZE, 512 * 1024, 4 * MIB, 32 * MIB, 62_601_552])
+    expect(outcome).toMatchObject({
+      status: 'measured',
+      endMs: 10_000,
+      warmup: { bucket: 65, confidence: NORMAL },
+      window: { fromMs: 6500, toMs: 10_000 },
+      streams: 6,
+      plateau: 'cap',
+    })
+    expect(Math.abs(headline(outcome) / 2.5e9 - 1)).toBeLessThan(0.01)
+    expect(outcome.bytes / 1e9).toBeCloseTo(2.2, 1)
+  })
+
+  it('meets the window condition at 9.5 s', async () => {
+    const { outcome } = await run(LAN, { bounds: { minMs: 5000, maxMs: 20_000 } })
+    expect(outcome.endMs).toBe(9500)
+  })
+})
+
 describe('failures', () => {
   // One stream, so that the requests fail in issue order.
   const SINGLE: Partial<DownloadOptions> = { streams: { mode: 'single', fixed: 1, max: 6 } }
