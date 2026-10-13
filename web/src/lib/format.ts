@@ -23,8 +23,8 @@
 const NBSP = '\u00a0'
 const BYTE_UNITS = ['B', 'kB', 'MB', 'GB', 'TB'] as const
 
-/** A byte count in decimal units: 500 MB, 1.5 GB, 999 B. */
-export function formatBytes(bytes: number, locale: string): string {
+/** A byte count's number and decimal unit: 500 and MB, 1.5 and GB, 999 and B. */
+export function bytesParts(bytes: number, locale: string): { number: string; unit: string } {
   let unit = 0
   let value = bytes
   // Rounding to three digits can reach 1000, which reads as the next unit.
@@ -33,7 +33,13 @@ export function formatBytes(bytes: number, locale: string): string {
     unit++
   }
   const number = new Intl.NumberFormat(locale, { maximumSignificantDigits: 3 }).format(value)
-  return `${number}${NBSP}${BYTE_UNITS[unit] ?? 'B'}`
+  return { number, unit: BYTE_UNITS[unit] ?? 'B' }
+}
+
+/** A byte count in decimal units: 500 MB, 1.5 GB, 999 B. */
+export function formatBytes(bytes: number, locale: string): string {
+  const { number, unit } = bytesParts(bytes, locale)
+  return `${number}${NBSP}${unit}`
 }
 
 const RATE_UNITS = {
@@ -63,8 +69,36 @@ export function formatRate(bitsPerSecond: number, units: 'bits' | 'bytes', local
   return `${number}${NBSP}${unit}`
 }
 
-/** A latency's number in milliseconds: whole from 10 ms (9.96 rounds to 10), one decimal below. */
-export function latencyNumber(ms: number, locale: string): string {
-  const digits = ms >= 9.95 ? 0 : 1
+/**
+ * A latency's number in milliseconds: below the timer resolution "< resolution", whole from 10 ms
+ * (9.96 rounds to 10) or at a resolution of 1 ms or coarser, one decimal below (screens.md
+ * section 6).
+ */
+export function latencyNumber(ms: number, locale: string, resolutionMs = 0): string {
+  if (ms < resolutionMs) {
+    return `<${NBSP}${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(resolutionMs)}`
+  }
+  const digits = resolutionMs >= 1 || ms >= 9.95 ? 0 : 1
   return new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(ms)
+}
+
+/** A latency with its unit: 9.4 ms, 51 ms, < 1 ms. */
+export function formatLatency(ms: number, locale: string, resolutionMs = 0): string {
+  return `${latencyNumber(ms, locale, resolutionMs)}${NBSP}ms`
+}
+
+/** A duration's number of seconds, with one decimal. */
+export function secondsNumber(ms: number, locale: string): string {
+  return new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(ms / 1000)
+}
+
+/** A duration in seconds with one decimal: 12.3 s. */
+export function formatDuration(ms: number, locale: string): string {
+  return `${secondsNumber(ms, locale)}${NBSP}s`
+}
+
+/** A percentage with one decimal: 2.5 %. */
+export function formatPercent(percent: number, locale: string): string {
+  const number = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(percent)
+  return `${number}${NBSP}%`
 }

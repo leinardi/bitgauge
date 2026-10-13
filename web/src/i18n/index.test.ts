@@ -26,6 +26,7 @@ import { detectLocale } from '@/i18n'
 import about from '@/i18n/locales/en/about.json'
 import app from '@/i18n/locales/en/app.json'
 import notAvailable from '@/i18n/locales/en/notAvailable.json'
+import notices from '@/i18n/locales/en/notices.json'
 import test from '@/i18n/locales/en/test.json'
 
 const sources = import.meta.glob<string>(['/src/**/*.vue', '/src/**/*.ts', '!/src/**/*.test.ts', '!/src/components/ui/**'], {
@@ -42,13 +43,14 @@ function keys(catalog: object, prefix = ''): string[] {
 }
 
 describe('the English catalog', () => {
-  const known = new Set(keys({ ...app, ...test, ...about, ...notAvailable }))
+  const known = new Set(keys({ ...app, ...test, ...notices, ...about, ...notAvailable }))
 
   it('holds one namespace per file, named after it', () => {
     expect(Object.keys(app)).toEqual(['app'])
     expect(Object.keys(test)).toEqual(['test'])
     expect(Object.keys(about)).toEqual(['about'])
     expect(Object.keys(notAvailable)).toEqual(['notAvailable'])
+    expect(Object.keys(notices)).toEqual(['notices'])
   })
 
   it('has every key the sources use', () => {

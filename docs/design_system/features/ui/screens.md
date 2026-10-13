@@ -274,7 +274,12 @@ detail, each with a short explanation and, where useful, a link to the docs. The
   [../edge-cases.md §20](../edge-cases.md#20-base-path-mismatches)).
 
 Notices are text with an icon, never colour alone, and are announced to screen readers when they
-appear during a run ([i18n-a11y.md](i18n-a11y.md)).
+appear during a run ([i18n-a11y.md](i18n-a11y.md)). Their tones: **info** for slow link — test
+extended, server stream limit, overhead compensation, WebSocket reopened and WebSocket unavailable;
+**warn** for low confidence, data cap reached, insufficient data, URL parameter ignored, proxy
+buffering suspected, response compression detected and timer throttling detected; **danger**, with
+`role="alert"`, for server unreachable, upload interrupted and base path mismatch; **neutral** for
+partial — stopped early, server restarted, network changed and page was hidden.
 
 ## Related
 

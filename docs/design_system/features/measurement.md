@@ -932,7 +932,7 @@ bound with respect to loss, and the UI notes this next to them.
   Bytes per second (kB/s, MB/s, GB/s, decimal) are an option. Data used is shown in decimal bytes
   (kB, MB, GB). Request sizes in this specification are in KiB and MiB because they are buffer
   sizes, not rates.
-- **Precision.** Three significant digits for rates (e.g. 0.472 Mbit/s, 94.1 Mbit/s, 2.38 Gbit/s);
+- **Precision.** Three significant digits for rates (e.g. 472 kbit/s, 94.1 Mbit/s, 2.38 Gbit/s);
   latencies in whole milliseconds above 10 ms and one decimal below.
 - **Gauge value.** The needle shows the rate over the last 5 buckets (on upload, the client's
   sending progress, §2). The numeric readout always shows the exact value.

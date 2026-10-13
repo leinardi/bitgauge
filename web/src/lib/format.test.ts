@@ -22,7 +22,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { formatBytes, formatRate, latencyNumber, rateParts } from '@/lib/format'
+import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, latencyNumber, rateParts } from '@/lib/format'
 
 describe('formatBytes', () => {
   it.each([
@@ -75,5 +75,24 @@ describe('latencyNumber', () => {
     [0.42, '0.4'],
   ])('writes %d ms as %s', (ms, text) => {
     expect(latencyNumber(ms, 'en')).toBe(text)
+  })
+})
+
+describe('the formatting table of screens.md section 6', () => {
+  const NB = '\u00a0'
+  it.each([
+    [formatRate(472_000, 'bits', 'en'), '472 kbit/s'],
+    [formatRate(94_100_000, 'bits', 'en'), '94.1 Mbit/s'],
+    [formatRate(2_380_000_000, 'bits', 'en'), '2.38 Gbit/s'],
+    [formatLatency(9.4, 'en', 0.1), '9.4 ms'],
+    [formatLatency(51.3, 'en', 0.1), '51 ms'],
+    [formatLatency(0.6, 'en', 1), '< 1 ms'],
+    [formatLatency(0.05, 'en', 0.1), '< 0.1 ms'],
+    [formatLatency(4.4, 'en', 1), '4 ms'],
+    [formatBytes(1_500_000_000, 'en'), '1.5 GB'],
+    [formatDuration(12_345, 'en'), '12.3 s'],
+    [formatPercent(2.5, 'en'), '2.5 %'],
+  ])('writes %s as %s', (written, expected) => {
+    expect(written).toBe(expected.replaceAll(' ', NB))
   })
 })

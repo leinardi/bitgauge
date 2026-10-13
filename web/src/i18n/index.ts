@@ -22,12 +22,14 @@ import { createI18n } from 'vue-i18n'
 import about from '@/i18n/locales/en/about.json'
 import app from '@/i18n/locales/en/app.json'
 import notAvailable from '@/i18n/locales/en/notAvailable.json'
+import notices from '@/i18n/locales/en/notices.json'
 import test from '@/i18n/locales/en/test.json'
 
 // vue-i18n in Composition API mode (ui/i18n-a11y.md section 1): one catalog per language, a file
-// per screen, each holding its own namespace. English is the source and the fallback.
+// per screen or shared component group, each holding its own namespace. English is the source and
+// the fallback.
 
-const en = { ...app, ...test, ...about, ...notAvailable }
+const en = { ...app, ...test, ...notices, ...about, ...notAvailable }
 
 const SUPPORTED_LOCALES = ['en'] as const
 type Locale = (typeof SUPPORTED_LOCALES)[number]

@@ -323,6 +323,13 @@ carries a recommendation; where the specification already relies on an answer, i
     onto the grid by the display-only offset, both once a request has confirmed**. The chart
     places the sending value in the cell that instant falls in. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract).
+36. Which unit does a rate below 1 Mbit/s take, and which tone does each notice have? Current
+    answer: **the largest unit, from kbit/s (kB/s) up to Gbit/s (GB/s), whose number is at least
+    1, as the kit's formatter scales, so 472,000 bit/s reads 472 kbit/s; measurement.md §14's
+    precision example said 0.472 Mbit/s and now says 472 kbit/s. The notices take the tones of
+    ui/screens.md §7, which extends `notices.md`'s examples to every v0.1 code.**
+    Recommendation: keep it. See [measurement.md §14](measurement.md#14-units-and-gauge) and
+    [ui/screens.md §7](ui/screens.md#7-notices).
 
 Resolved and removed:
 

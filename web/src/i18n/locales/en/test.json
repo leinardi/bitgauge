@@ -62,6 +62,80 @@
         "sending": "sending",
         "warmup": "Warm-up"
       }
+    },
+    "phases": {
+      "label": "Test phases",
+      "idle": "Idle latency",
+      "download": "Download",
+      "upload": "Upload",
+      "connecting": "Connecting…",
+      "pending": "pending",
+      "pendingFor": "pending · ~{min}–{max} s",
+      "active": "active",
+      "activeLeft": "active · {left} left",
+      "done": "done",
+      "doneWith": "done · {value}",
+      "failed": "failed · interrupted",
+      "cancelled": "cancelled",
+      "cancelledAfter": "cancelled · {covered}",
+      "skipped": "skipped",
+      "capped": "capped · data cap"
+    },
+    "tiles": {
+      "download": "Download",
+      "upload": "Upload",
+      "idle": "Idle latency",
+      "jitter": "Jitter",
+      "data": "Data used",
+      "duration": "Duration",
+      "packetLoss": "Packet loss",
+      "empty": "—",
+      "warmingUp": "warming up",
+      "live": "Live",
+      "soFar": "avg so far {avg} · peak {peak}",
+      "peak": "peak {peak}",
+      "partial": "partial",
+      "insufficient": "insufficient data",
+      "skipped": "skipped",
+      "error": "error",
+      "lowConfidence": "low confidence · {reasons}",
+      "cpuBound": "limited by this device's CPU",
+      "reasons": {
+        "rampUnsettled": "ramp unsettled",
+        "insufficientSamples": "few samples",
+        "unstable": "unstable"
+      },
+      "streams": "{n} stream | {n} streams",
+      "plateau": {
+        "noGain": "{streams} · no further gain",
+        "cap": "{streams} · stream cap",
+        "floorLimited": "{streams} · floor-limited"
+      },
+      "overhead": "includes +{percent} overhead compensation",
+      "idleStats": "min {min} · p90 {p90}",
+      "pathWebsocket": "WebSocket · {loss} probe timeouts",
+      "pathHttp": "HTTP · {loss} probe timeouts",
+      "unavailable": "unavailable",
+      "jitterNote": "mean of consecutive differences",
+      "notMeasured": "not measured",
+      "whyNot": "Browsers can't see packet loss over TCP.",
+      "why": "Why?",
+      "errorCause": {
+        "requestsFailed": "error · requests failed",
+        "networkChanged": "error · network changed",
+        "serverRestarted": "error · server restarted",
+        "serverUnreachable": "error · server unreachable",
+        "uploadInterrupted": "error · upload interrupted"
+      }
+    },
+    "start": {
+      "start": "Start test",
+      "stop": "Stop test",
+      "again": "Run again",
+      "retry": "Retry test",
+      "now": "Start now",
+      "keyEnter": "Enter",
+      "keyEscape": "Esc"
     }
   }
 }

@@ -1,0 +1,92 @@
+{
+  "notices": {
+    "label": "Notices",
+    "slowLinkExtended": {
+      "title": "Slow link — test extended",
+      "download": "Download had no steady window at its minimum duration, so it was extended up to its maximum.",
+      "upload": "Upload had no steady window at its minimum duration, so it was extended up to its maximum."
+    },
+    "lowConfidence": {
+      "title": "Low confidence",
+      "download": "Download: {reasons}.",
+      "upload": "Upload: {reasons}."
+    },
+    "dataCapReached": {
+      "title": "Data cap reached",
+      "download": "Download stopped at the data cap; what it measured until then is kept.",
+      "upload": "Upload stopped at the data cap; what it measured until then is kept."
+    },
+    "streamLimit": {
+      "title": "Server stream limit — {n} stream | Server stream limit — {n} streams",
+      "download": "The server refused more parallel streams, so download ran with at most {n}.",
+      "upload": "The server refused more parallel streams, so upload ran with at most {n}."
+    },
+    "insufficientData": {
+      "title": "Insufficient data",
+      "download": "Download had no confirmed steady window long enough for a number.",
+      "upload": "Upload had no confirmed steady window long enough for a number."
+    },
+    "urlParameterIgnored": {
+      "title": "URL parameter ignored",
+      "body": "The value of {parameter} was not valid, so the default applies."
+    },
+    "stoppedEarly": {
+      "title": "Partial — stopped early",
+      "download": "Download was stopped after {covered}.",
+      "upload": "Upload was stopped after {covered}."
+    },
+    "serverRestarted": {
+      "title": "Server restarted",
+      "body": "The server restarted during the test, so the phase that was running reports nothing."
+    },
+    "serverUnreachable": {
+      "title": "Server unreachable",
+      "body": "The server stopped answering during the test."
+    },
+    "proxyBufferingSuspected": {
+      "title": "Proxy buffering suspected",
+      "body": "Upload requests finished much later than the server read them, which suggests a proxy buffers request bodies."
+    },
+    "uploadInterrupted": {
+      "title": "Upload interrupted by a failed request",
+      "body": "Over HTTP/1.1 a failed upload request ends the phase; HTTP/2 at the reverse proxy lets uploads survive transient failures."
+    },
+    "responseCompressionDetected": {
+      "title": "Response compression detected",
+      "body": "Something on the path compressed the test data, so download numbers may not reflect the link."
+    },
+    "overheadCompensation": {
+      "title": "Overhead compensation +{percent}",
+      "body": "Rates include a +{percent} allowance for protocol overhead."
+    },
+    "timerThrottlingDetected": {
+      "title": "Timer throttling detected",
+      "body": "The browser delayed the test's timers while the page was visible, for example in a power-saving mode. Keep the screen on during tests."
+    },
+    "pageHidden": {
+      "title": "Page was hidden during the test",
+      "body": "The browser kept the test running while the page was hidden."
+    },
+    "networkChanged": {
+      "title": "Network changed",
+      "body": "The network changed during the test; the completed phases are kept."
+    },
+    "websocketReopened": {
+      "title": "WebSocket reopened",
+      "body": "The latency connection closed during the test and was opened again."
+    },
+    "websocketUnavailable": {
+      "title": "WebSocket unavailable — HTTP latency fallback",
+      "body": "The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests."
+    },
+    "basePathMismatch": {
+      "title": "Base path mismatch",
+      "body": "The server is configured for another base path than this page."
+    },
+    "actions": {
+      "docs": "Deployment guide",
+      "retry": "Retry",
+      "tryPreset": "Try {preset}"
+    }
+  }
+}

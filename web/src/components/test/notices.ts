@@ -1,0 +1,105 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import { CircleAlert, CircleMinus, EyeOff, Gauge, Hourglass, Info, Layers, Percent, RefreshCw, ServerOff, Timer, TriangleAlert, Wifi } from '@lucide/vue'
+import type { Component } from 'vue'
+
+import type { Notice, Preset } from '@/engine/messages'
+import { formatDuration, formatPercent } from '@/lib/format'
+import { links } from '@/lib/links'
+
+import { confidenceReasons } from '@/components/test/tiles'
+import type { Wording } from '@/components/test/wording'
+
+// The notices of measurement.md section 16, worded from the code and raw values the engine sends,
+// with the tones of ui/screens.md section 7 and up to two actions (design_system/components/
+// notices.md). Each code has its entry in the notices namespace, named by the code in camelCase.
+
+export type Tone = 'info' | 'warn' | 'danger' | 'neutral'
+
+/** A notice's action: an event for the page, or a link into the docs. */
+export type NoticeAction = { kind: 'retry'; label: string } | { kind: 'preset'; preset: Preset; label: string } | { kind: 'link'; href: string; label: string }
+
+export interface NoticeView {
+  tone: Tone
+  icon: Component
+  title: string
+  body: string
+  actions: NoticeAction[]
+}
+
+function preset(value: Preset, t: Wording['t']): string {
+  return value === 'quick' ? t('test.summary.quick') : value === 'standard' ? t('test.summary.standard') : t('test.summary.extended')
+}
+
+/** One notice, worded. */
+export function noticeView(notice: Notice, context: Wording): NoticeView {
+  const { t, locale } = context
+  const docs: NoticeAction = { kind: 'link', href: links.deployment, label: t('notices.actions.docs') }
+  switch (notice.code) {
+    case 'slow-link-extended':
+      return { tone: 'info', icon: Hourglass, title: t('notices.slowLinkExtended.title'), body: notice.direction === 'download' ? t('notices.slowLinkExtended.download') : t('notices.slowLinkExtended.upload'), actions: [] }
+    case 'low-confidence': {
+      const reasons = confidenceReasons(notice.reasons, context)
+      return { tone: 'warn', icon: TriangleAlert, title: t('notices.lowConfidence.title'), body: notice.direction === 'download' ? t('notices.lowConfidence.download', { reasons }) : t('notices.lowConfidence.upload', { reasons }), actions: [] }
+    }
+    case 'data-cap-reached':
+      return { tone: 'warn', icon: Gauge, title: t('notices.dataCapReached.title'), body: notice.direction === 'download' ? t('notices.dataCapReached.download') : t('notices.dataCapReached.upload'), actions: [] }
+    case 'stream-limit': {
+      const n = notice.streams
+      return { tone: 'info', icon: Layers, title: t('notices.streamLimit.title', { n }, n), body: notice.direction === 'download' ? t('notices.streamLimit.download', { n }) : t('notices.streamLimit.upload', { n }), actions: [] }
+    }
+    case 'insufficient-data': {
+      const actions: NoticeAction[] = notice.offer === null ? [] : [{ kind: 'preset', preset: notice.offer, label: t('notices.actions.tryPreset', { preset: preset(notice.offer, t) }) }]
+      return { tone: 'warn', icon: TriangleAlert, title: t('notices.insufficientData.title'), body: notice.direction === 'download' ? t('notices.insufficientData.download') : t('notices.insufficientData.upload'), actions }
+    }
+    case 'url-parameter-ignored':
+      return { tone: 'warn', icon: Info, title: t('notices.urlParameterIgnored.title'), body: t('notices.urlParameterIgnored.body', { parameter: notice.parameter }), actions: [] }
+    case 'stopped-early': {
+      const covered = formatDuration(notice.coveredMs, locale)
+      return { tone: 'neutral', icon: CircleMinus, title: t('notices.stoppedEarly.title'), body: notice.direction === 'download' ? t('notices.stoppedEarly.download', { covered }) : t('notices.stoppedEarly.upload', { covered }), actions: [] }
+    }
+    case 'server-restarted':
+      return { tone: 'neutral', icon: RefreshCw, title: t('notices.serverRestarted.title'), body: t('notices.serverRestarted.body'), actions: [] }
+    case 'server-unreachable':
+      return { tone: 'danger', icon: ServerOff, title: t('notices.serverUnreachable.title'), body: t('notices.serverUnreachable.body'), actions: [{ kind: 'retry', label: t('notices.actions.retry') }] }
+    case 'proxy-buffering-suspected':
+      return { tone: 'warn', icon: TriangleAlert, title: t('notices.proxyBufferingSuspected.title'), body: t('notices.proxyBufferingSuspected.body'), actions: [docs] }
+    case 'upload-interrupted':
+      return { tone: 'danger', icon: CircleAlert, title: t('notices.uploadInterrupted.title'), body: t('notices.uploadInterrupted.body'), actions: [docs] }
+    case 'response-compression-detected':
+      return { tone: 'warn', icon: TriangleAlert, title: t('notices.responseCompressionDetected.title'), body: t('notices.responseCompressionDetected.body'), actions: [docs] }
+    case 'overhead-compensation': {
+      const percent = formatPercent(notice.percent, locale)
+      return { tone: 'info', icon: Percent, title: t('notices.overheadCompensation.title', { percent }), body: t('notices.overheadCompensation.body', { percent }), actions: [] }
+    }
+    case 'timer-throttling-detected':
+      return { tone: 'warn', icon: Timer, title: t('notices.timerThrottlingDetected.title'), body: t('notices.timerThrottlingDetected.body'), actions: [] }
+    case 'page-hidden':
+      return { tone: 'neutral', icon: EyeOff, title: t('notices.pageHidden.title'), body: t('notices.pageHidden.body'), actions: [] }
+    case 'network-changed':
+      return { tone: 'neutral', icon: Wifi, title: t('notices.networkChanged.title'), body: t('notices.networkChanged.body'), actions: [] }
+    case 'websocket-reopened':
+      return { tone: 'info', icon: Info, title: t('notices.websocketReopened.title'), body: t('notices.websocketReopened.body'), actions: [] }
+    case 'websocket-unavailable':
+      return { tone: 'info', icon: Info, title: t('notices.websocketUnavailable.title'), body: t('notices.websocketUnavailable.body'), actions: [] }
+    case 'base-path-mismatch':
+      return { tone: 'danger', icon: CircleAlert, title: t('notices.basePathMismatch.title'), body: t('notices.basePathMismatch.body'), actions: [{ kind: 'link', href: links.subPathGuide, label: t('notices.actions.docs') }] }
+  }
+}
