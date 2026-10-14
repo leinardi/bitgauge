@@ -285,7 +285,8 @@
           "25150fae1ab6": "*",
           "2bf725c61d8c": "*",
           "47ab20473572": "*",
-          "ab98a2cf4960": "*"
+          "ab98a2cf4960": "*",
+          "e12923c27b14": "*"
         },
         "test/connecting": {
           "e12923c27b14": "*"
@@ -4517,11 +4518,53 @@
         {
           "target": "vue",
           "what": "AppHeader.vue: theme radios gap-1.5, caption size, semibold (the kit's .seg-sm .seg-btn); narrow theme button text-sm at --lh-tight.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-14",
+        "run": {
+          "runId": "328cae93-f972-42ca-be5f-2f31b856080d",
+          "finishedAt": "2026-10-14T21:47:55.616Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     }
   ]
 }

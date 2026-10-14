@@ -19,13 +19,6 @@ dark-narrow,light-narrow	about	content	header > banner	missing	img "BitGauge"	tr
 *	about	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
 *	about	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
 *	about	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
-dark-narrow,light-narrow	about	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	about	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	about	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	about	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	about	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	about	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	about	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 light-desktop,light-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(218, 149, 44, 82) → rgba(26, 30, 37, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
 dark-desktop,dark-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(243, 182, 73, 87) → rgba(241, 243, 245, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
 dark-desktop,dark-narrow	about	style	main > button "LICENSE file in the repository"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
@@ -61,13 +54,6 @@ dark-narrow,light-narrow	about/unreachable	content	header > banner	missing	img "
 *	about/unreachable	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
 *	about/unreachable	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
 *	about/unreachable	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
-dark-narrow,light-narrow	about/unreachable	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	about/unreachable	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	about/unreachable	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	about/unreachable	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	about/unreachable	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	about/unreachable	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	about/unreachable	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 light-desktop,light-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(218, 149, 44, 82) → rgba(26, 30, 37, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
 dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(243, 182, 73, 87) → rgba(241, 243, 245, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
 dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
@@ -135,13 +121,6 @@ dark-narrow,light-narrow	test/cancelled	content	header > banner	missing	img "Bit
 *	test/cancelled	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/cancelled	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
 *	test/cancelled	content	main > status	changed	text "Test cancelled during upload Latency and download completed. Upload stopped at # s, before a # s confirmed steady window (still in warm-up), so it has no…	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,dark-narrow	test/cancelled	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
 light-desktop,light-narrow	test/cancelled	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	test/cancelled	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
@@ -160,13 +139,6 @@ dark-narrow,light-narrow	test/cancelled-download	content	header > banner	missing
 *	test/cancelled-download	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 Mbit/s – …" → "Download — log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/cancelled-download	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/cancelled-download	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-download	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-download	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,dark-narrow	test/cancelled-download	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
 light-desktop,light-narrow	test/cancelled-download	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	test/cancelled-download	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
@@ -187,13 +159,6 @@ dark-narrow,light-narrow	test/cancelled-late	content	header > banner	missing	img
 *	test/cancelled-late	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/cancelled-late	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
 *	test/cancelled-late	content	main > status	changed	text "Partial — stopped early · upload based on a # s steady window Latency and download completed. Upload stopped at # s; in-flight requests were aborted, and…	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-late	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-late	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,dark-narrow	test/cancelled-late	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
 light-desktop,light-narrow	test/cancelled-late	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	test/cancelled-late	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
@@ -210,13 +175,6 @@ dark-narrow,light-narrow	test/cancelled-latency	content	main > region "Speed tes
 *	test/cancelled-latency	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 – 1000 ms" → "Ready — log scale · 1 Mbit/s – 10 Gbit/s · auto"	present when the harness was adopted
 *	test/cancelled-latency	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/cancelled-latency	content	main > region "Speed test"	missing	text "Latency samples Round-trip time stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-latency	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/cancelled-slow	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/cancelled-slow	content	main	extra	button "Context: LAN"	present when the harness was adopted
 *	test/cancelled-slow	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
@@ -229,13 +187,6 @@ dark-narrow,light-narrow	test/cancelled-slow	content	header > banner	missing	img
 *	test/cancelled-slow	content	main	missing	text "Context"	present when the harness was adopted
 *	test/cancelled-slow	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/cancelled-slow	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-slow	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,dark-narrow	test/cancelled-slow	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
 light-desktop,light-narrow	test/cancelled-slow	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	test/cancelled-slow	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
@@ -256,13 +207,6 @@ dark-narrow,light-narrow	test/cancelled-slow-up	content	header > banner	missing	
 *	test/cancelled-slow-up	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main > status	changed	text "Test cancelled during upload Latency and download completed. Upload stopped at # s, before a # s confirmed steady window (still in warm-up), so it has no…	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-slow-up	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/cancelled-slow-up	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,dark-narrow	test/cancelled-slow-up	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
 light-desktop,light-narrow	test/cancelled-slow-up	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	test/cancelled-slow-up	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
@@ -278,13 +222,6 @@ dark-narrow,light-narrow	test/complete	content	header > banner	missing	img "BitG
 *	test/complete	content	main > region "Speed test"	changed	text "Download # Mbit/s # Mbit/s upload log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/complete	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/complete	content	main > region "Speed test"	missing	text "Throughput Download Upload Warm-up # s total"	present when the harness was adopted
-dark-narrow,light-narrow	test/complete	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/complete	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/complete	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/complete	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/complete	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/complete	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/complete	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 light-desktop,light-narrow	test/complete	style	main > button "Download JSON"	background-color	rgba(241, 243, 245, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
 dark-desktop,dark-narrow	test/complete	style	main > button "Download JSON"	background-color	rgba(35, 41, 48, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
 light-desktop,light-narrow	test/complete	style	main > button "Download JSON"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
@@ -301,13 +238,6 @@ dark-narrow,light-narrow	test/connecting	content	header > banner	missing	img "Bi
 *	test/connecting	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/connecting	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
 *	test/connecting	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
-dark-narrow,light-narrow	test/connecting	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/connecting	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/connecting	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/connecting	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/connecting	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/connecting	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/connecting	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/countdown	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/countdown	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/countdown	content	main	extra	link "Why?"	present when the harness was adopted
@@ -318,13 +248,6 @@ dark-narrow,light-narrow	test/countdown	content	header > banner	missing	img "Bit
 *	test/countdown	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
 *	test/countdown	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
 *	test/countdown	content	main > status	changed	text "… was opened from a link with autostart enabled." → "… was opened from a link that starts a test automatically."	present when the harness was adopted
-dark-narrow,light-narrow	test/countdown	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/countdown	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/countdown	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/countdown	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/countdown	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/countdown	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/countdown	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 light-desktop,light-narrow	test/countdown	style	main > button "Cancel"	background-color	rgba(241, 243, 245, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
 dark-desktop,dark-narrow	test/countdown	style	main > button "Cancel"	background-color	rgba(35, 41, 48, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
 light-desktop,light-narrow	test/countdown	style	main > button "Cancel"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
@@ -342,13 +265,6 @@ dark-narrow,light-narrow	test/download	content	header > banner	missing	img "BitG
 *	test/download	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/download	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/download	content	main > region "Speed test"	missing	text "Throughput Download Warm-up # s / # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/download	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/download	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/download	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/download	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/download	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/download	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/download	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/error	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/error	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/error	content	main	extra	link "Why?"	present when the harness was adopted
@@ -358,13 +274,6 @@ dark-narrow,light-narrow	test/error	content	header > banner	missing	img "BitGaug
 *	test/error	content	main > region "Speed test"	changed	text "Connection lost Error during download last sample # Mbit/s log scale · 1 Mbit/s – …" → "Download — log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/error	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/error	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/error	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/error	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/error	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/error	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/error	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/error	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/error	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,dark-narrow	test/error	style	main > button "Download JSON"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
 light-desktop,light-narrow	test/error	style	main > button "Download JSON"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	test/error	style	main > button "Download JSON"	column-gap	8px → 6px	present when the harness was adopted
@@ -380,13 +289,6 @@ dark-narrow,light-narrow	test/error-early	content	header > banner	missing	img "B
 *	test/error-early	content	main > region "Speed test"	changed	text "Connection lost Error during latency 12 of 20 pings log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/error-early	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/error-early	content	main > region "Speed test"	missing	text "Latency samples Round-trip time stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/error-early	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/error-early	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/error-early	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/error-early	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/error-early	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/error-early	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/error-early	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/idle	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/idle	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/idle	content	main	extra	link "Why?"	present when the harness was adopted
@@ -397,13 +299,6 @@ dark-narrow,light-narrow	test/idle	content	main > region "Speed test"	changed	te
 *	test/idle	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/idle	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
 *	test/idle	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
-dark-narrow,light-narrow	test/idle	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/idle	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/idle	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/idle	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/idle	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/idle	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/idle	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/insufficient	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/insufficient	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/insufficient	content	main	extra	link "Why?"	present when the harness was adopted
@@ -412,13 +307,6 @@ dark-narrow,light-narrow	test/insufficient	content	header > banner	missing	img "
 *	test/insufficient	content	main > region "Speed test"	changed	text "…load · sending # kbit/s warming up log scale · 10 kbit/s – …" → "…load · sending # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
 *	test/insufficient	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/insufficient	content	main > region "Speed test"	missing	text "Throughput Download Upload · sending Warm-up # s / # s max"	present when the harness was adopted
-dark-narrow,light-narrow	test/insufficient	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/insufficient	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/insufficient	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/insufficient	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/insufficient	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/insufficient	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/insufficient	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/latency	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/latency	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/latency	content	main	extra	link "Why?"	present when the harness was adopted
@@ -426,13 +314,6 @@ dark-narrow,light-narrow	test/latency	content	header > banner	missing	img "BitGa
 *	test/latency	content	main > region "Speed test"	changed	text "Latency # ms median 3.1 · ping 14 of 20 log scale · 1 – 1000 ms" → "Idle latency # ms log scale · 1 – 1000 ms"	present when the harness was adopted
 *	test/latency	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/latency	content	main > region "Speed test"	missing	text "Latency samples Round-trip time # s / ~# s"	present when the harness was adopted
-dark-narrow,light-narrow	test/latency	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/latency	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/latency	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/latency	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/latency	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/latency	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/latency	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/offline	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/offline	content	main	changed	text "…P — Protocol — Streams — Standard preset · Auto streams · No data cap" → "…P — Protocol — Streams —"	present when the harness was adopted
 *	test/offline	content	main	extra	alert	present when the harness was adopted
@@ -446,13 +327,6 @@ dark-narrow,light-narrow	test/offline	content	main > region "Speed test"	missing
 *	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem	present when the harness was adopted
 *	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem (#2)	present when the harness was adopted
 *	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem (#3)	present when the harness was adopted
-dark-narrow,light-narrow	test/offline	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/offline	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/offline	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/offline	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/offline	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/offline	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/offline	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,dark-narrow	test/offline	style	main > button "Retry"	background-color	rgba(35, 41, 48, 255) → rgba(53, 60, 66, 77)	present when the harness was adopted
 light-desktop,light-narrow	test/offline	style	main > button "Retry"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	test/offline	style	main > button "Retry"	column-gap	8px → 6px	present when the harness was adopted
@@ -471,13 +345,6 @@ dark-narrow,light-narrow	test/param-ignored	content	main > region "Speed test"	c
 *	test/param-ignored	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/param-ignored	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
 *	test/param-ignored	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
-dark-narrow,light-narrow	test/param-ignored	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/param-ignored	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/param-ignored	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/param-ignored	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/param-ignored	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/param-ignored	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/param-ignored	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/slow	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/slow	content	main	changed	button "Context: VPN, suggested" → "Context: LAN"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/slow	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
@@ -487,13 +354,6 @@ dark-narrow,light-narrow	test/slow	content	header > banner	missing	img "BitGauge
 *	test/slow	content	main > region "Speed test"	changed	text "…load · sending # kbit/s avg so far 217 · peak 258 log scale · 10 kbit/s – …" → "…load · sending # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
 *	test/slow	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/slow	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/slow	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/slow	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/slow	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/slow	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/slow	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/slow	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/slow	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/slowdone	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/slowdone	content	main	changed	button "Context: VPN, suggested" → "Context: LAN"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/slowdone	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
@@ -507,13 +367,6 @@ dark-narrow,light-narrow	test/slowdone	content	header > banner	missing	img "BitG
 *	test/slowdone	content	main > region "Speed test"	changed	text "Download # kbit/s # kbit/s upload log scale · 10 kbit/s – …" → "Download # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
 *	test/slowdone	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/slowdone	content	main > region "Speed test"	missing	text "Throughput Download Upload Warm-up # s total"	present when the harness was adopted
-dark-narrow,light-narrow	test/slowdone	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/slowdone	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/slowdone	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/slowdone	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/slowdone	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/slowdone	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/slowdone	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 light-desktop,light-narrow	test/slowdone	style	main > button "Download JSON"	background-color	rgba(241, 243, 245, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
 dark-desktop,dark-narrow	test/slowdone	style	main > button "Download JSON"	background-color	rgba(35, 41, 48, 255) → rgba(0, 0, 0, 0)	present when the harness was adopted
 light-desktop,light-narrow	test/slowdone	style	main > button "Download JSON"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
@@ -529,13 +382,6 @@ dark-narrow,light-narrow	test/upload	content	header > banner	missing	img "BitGau
 *	test/upload	content	main > region "Speed test"	changed	text "…load · sending # Mbit/s avg so far 439 · peak 450 log scale · 1 Mbit/s – 1…" → "…load · sending # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/upload	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/upload	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up # s / # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/upload	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/upload	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/upload	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/upload	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/upload	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/upload	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/upload	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 dark-narrow,light-narrow	test/upload-interrupted	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/upload-interrupted	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/upload-interrupted	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.
@@ -547,13 +393,6 @@ dark-narrow,light-narrow	test/ws-fallback	content	header > banner	missing	img "B
 *	test/ws-fallback	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/ws-fallback	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/ws-fallback	content	main > region "Speed test"	missing	text "Throughput Download Warm-up # s / # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/ws-fallback	style	header > button "Theme: Follow system"	font-size	13px → 16px	present when the harness was adopted
-dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Dark"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Dark"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Follow system"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
-dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
-dark-desktop,light-desktop	test/ws-fallback	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 *	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	font-size	14px → 16px	present when the harness was adopted
 *	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	padding-left	14px → 16px	present when the harness was adopted
 *	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	padding-right	14px → 16px	present when the harness was adopted

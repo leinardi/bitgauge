@@ -132,7 +132,7 @@ function cycleTheme(): void {
           role="radio"
           :aria-checked="theme.choice.value === option.choice"
           :aria-label="option.label"
-          class="inline-flex h-7 items-center border-r border-border px-2 last:border-r-0"
+          class="inline-flex h-7 items-center gap-1.5 border-r border-border px-2 text-(length:--text-caption) font-semibold last:border-r-0"
           :class="theme.choice.value === option.choice ? 'bg-(--primary-bg) text-primary' : 'text-muted-foreground'"
           @click="theme.setTheme(option.choice)"
         >
@@ -176,7 +176,7 @@ function cycleTheme(): void {
     <button
       type="button"
       :aria-label="t('app.theme.current', { theme: current?.label ?? '' })"
-      class="ml-auto inline-flex size-11 items-center justify-center rounded-(--radius-md) text-muted-foreground hover:bg-muted hover:text-foreground"
+      class="ml-auto inline-flex size-11 items-center justify-center rounded-(--radius-md) text-(length:--text-sm) leading-(--lh-tight) text-muted-foreground hover:bg-muted hover:text-foreground"
       @click="cycleTheme"
     >
       <component
