@@ -23,6 +23,7 @@ Defaults used throughout:
 | Server cap per request (download and upload) | 256 MiB | §3 |
 | Maximum streams | 6 | §4 |
 | Upload preparation turn: requests from, held at most | 1 MiB, 1 s | §7.2 |
+| Early issue: from an issue gap of | 50 ms | §3 |
 | Engine per-request timeout | 30 s | §5 |
 | Server upload request lifetime | 120 s | §7 |
 | Loaded-latency probe interval | 300 ms | §11 |
@@ -118,6 +119,33 @@ that cannot finish.
 cap a request takes about 0.2–0.4 s depending on the single-stream rate. With six streams sharing
 1.25 GB/s, each stream sees about 208 MB/s and requests about 198 MiB. At this end of the range the
 browser CPU, not request sizing, is the limit (§16).
+
+**Issue gap and early issue.** A request's **issue gap** is the time its stream spent neither
+waiting for the network nor moving bytes: its client duration minus its transfer time minus the
+RTT, the client duration counted from the later of its issue and the end of the stream's previous
+request. On download the transfer time is the first-to-last chunk time and the client duration
+ends at the last chunk; on upload the transfer time is the server duration `durationMs`, the issue
+is `t_send` and the client duration ends at `t_done` (§7.2). The gap is the browser's own cost per
+request: the time it takes to start a request, or to prepare an upload body (§7.2). Chromium's is
+a few milliseconds; Safari's is about 100–150 ms in both directions, and in a 100 ms bucket a gap
+that long on one of two streams is a hole of half the bytes. So once the largest gap seen in the
+phase exceeds **50 ms**, every stream issues its next request **early**: by that largest gap
+before the current request's expected end, so that the next request's gap passes while the
+current one still moves bytes, and never before the current request's first byte. The expected
+end is the first byte's instant plus `size / rate_s`, the transfer the size rule expects, plus the
+RTT on upload for the response's way back; the first byte is the first chunk on download and the
+first byte upload progress reports sent on upload (`t_send` when the browser reports no progress,
+§7.2), so an upload body is never asked for before the previous one has been handed over. The
+in-flight count, early requests included, never exceeds the server's `limits.maxStreamsPerClient`:
+a stream whose early issue would exceed it waits for its current request's end as before. A
+stream's first request, whose rate is unknown, is never followed early. Early issue begins once
+the ramp has settled (§8.2), so that the ramp compares its steps on streams that re-request alike
+and a step that only hides the gap behind more streams still reads as a gain; a fixed stream
+count is settled from the start. A browser that queues the early request behind its connection
+limit starts it when a connection frees. The bytes of an early request count as they arrive, like any other's; the stream count the
+ramp compares (§4, §8.2) is unchanged; on upload the confirmation delay of §7.5 grows by about one
+request. Measured from its predecessor's end, an early request's gap is what the early issue did
+not hide: the holes that remain.
 
 The size rule is cross-checked against ndt7's message scaling rule, which grows WebSocket messages
 when they are small relative to the bytes already transferred
@@ -248,6 +276,8 @@ Latency probes and protocol overhead are not included. It is shown live and in e
   notice if a response arrives with a `Content-Encoding` header
   ([edge-cases.md](edge-cases.md)).
 - A response whose byte count differs from `N` without an abort counts as a failed request.
+- A stream issues its next request at the current one's end, or early by the rule of §3 once the
+  browser's issue gap has shown to be long.
 - A cancelled or aborted download keeps every byte already read; the window ends at the abort
   instant. Download therefore needs none of the upload machinery in §7.
 
@@ -283,6 +313,9 @@ therefore comes **only** from server-reported arrival counts of confirmed reques
   When a request of at least 1 MiB is confirmed without upload progress ever reporting a byte, the
   browser does not report upload progress, and no request waits for the rest of the phase. The wait
   happens before `t_send`, between two requests of the stream, like the round trip between them.
+- A stream issues its next request at the current one's end, or early by the rule of §3 once the
+  browser's issue gap has shown to be long; the early request asks for the preparation turn at its
+  issue, so its body is prepared while the stream's current request still sends.
 - The engine records `t_send` (just before `send()`) and `t_done` (response received) per request
   on the client clock; these are used only for the watermark's causal ordering (§7.5) and the
   display offset.
@@ -333,8 +366,8 @@ aborted with the `server restarted` notice ([edge-cases.md](edge-cases.md)).
 **Proxy buffering.** With request buffering on at the proxy, the server reads each body in one burst
 after the client finished sending. The counts are still exact for what the server saw, but the
 series turns into bursts and gaps and fails the stability test (§8). When a request's `durationMs`
-is below 10 % of its client duration `t_done − t_send` for requests of at least 1 s, the result
-carries a `proxy buffering suspected` notice ([deployment-example.md](deployment-example.md)).
+is below 10 % of its client duration (counted as for the issue gap, §3) for requests of at least
+1 s, the result carries a `proxy buffering suspected` notice ([deployment-example.md](deployment-example.md)).
 
 ### 7.4 Common Timeline and Aggregation
 
@@ -428,7 +461,9 @@ error under load is unbounded, and it never feeds a number.
   and bound `C`, exactly as in worked example B.
 - Because streams re-request immediately after each completion, `lb(u)` for an in-flight request on
   a stream is tight (its predecessor on that stream), so the confirmed prefix normally lags the
-  present by about one request duration plus one RTT: the **confirmation delay**.
+  present by about one request duration plus one RTT: the **confirmation delay**. A request issued
+  early (§3) was sent before its predecessor completed, so its bound is the request before that,
+  and the delay grows by about one request.
 
 ### 7.6 Headline, Peak and Minimum Window
 
@@ -553,9 +588,11 @@ gap; whichever is shorter. Over 10 ms of RTT that is the cycle; on a LAN it is t
 
 **An idle stream stretches `I_m` (upload).** A browser that prepares each body before sending it
 (§7.2) leaves a stream idle between its requests for far longer than a round trip. Each confirmed
-request whose server duration is at least one bucket gives its stream's **idle share**: its client
-duration `t_done − t_send` minus the server duration and the RTT, over the client duration. Once
-the largest share seen exceeds **20 %**, a stream's request cycle is about
+request whose server duration is at least one bucket gives its stream's **idle share**: its issue
+gap (§3) over its client duration. Early issue (§3) is what removes a stream's idle, so once the
+phase has turned to it the share is read only from the requests issued early, each from its
+predecessor's end, and the shares read before are forgotten. Once the largest share seen exceeds
+**20 %**, a stream's request cycle is about
 `(1 s + RTT) / (1 − share)`, the aggregate of *N* streams started one at a time repeats about every
 cycle / *N*, and `I_m` is at least that from then on, the cycle capped at 3 s: a shorter interval
 would read a burst or a gap of the pattern and compare noise. Below 20 % the idle is the few round

@@ -18,19 +18,22 @@
  */
 
 import { type DownloadRequest, Streams } from '@/engine/download/streams'
+import { type DownloadWindow, downloadWindow } from '@/engine/download/window'
 import type { DirectionEvent, DirectionStatus, Notice, Plateau } from '@/engine/messages'
+import { deferred, issuesEarly } from '@/engine/phases/issue'
 import { dataBudget, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
-import { DurationRule, windowConditionHolds } from '@/engine/phases/window'
+import { DurationRule } from '@/engine/phases/window'
 import { BucketSeries } from '@/engine/stats/buckets'
 import { BUCKET_MS } from '@/engine/stats/units'
 import type { Clock, DownloadChunk, Info, ResourceTiming, TimerId, Transport } from '@/engine/types'
 
 // The download phase (measurement.md sections 5 and 6): streams issue sized requests through the
 // transport, every chunk is counted into the client bucket of its arrival, and the phase reads its
-// live series one closed bucket at a time for the ramp, the warm-up and the duration rule. It ends
-// at an instant: requests in flight are aborted and the bytes they read are kept.
+// live series one closed bucket at a time for the ramp, the warm-up and the duration rule. A
+// stream re-requests at each completion, or early once the browser's issue gap has shown (section
+// 3). It ends at an instant: requests in flight are aborted and the bytes they read are kept.
 
 /** A request still running after this long is aborted and counts as failed. */
 const TIMEOUT_MS = 30_000
@@ -43,15 +46,6 @@ const TOO_MANY_REQUESTS = 429
 export interface DownloadOptions extends ThroughputOptions {
   transport: Pick<Transport, 'download'>
   limits: Pick<Info['limits'], 'maxDownloadBytes' | 'maxStreamsPerClient'>
-}
-
-/** The steady window: the full buckets from the end of warm-up to the end, in ms from the phase start. */
-export interface DownloadWindow {
-  fromMs: number
-  toMs: number
-  bytes: number
-  /** The different requests that contributed bytes to it. */
-  requests: number
 }
 
 export interface DownloadOutcome {
@@ -81,7 +75,7 @@ export class DownloadPhase {
 
   private readonly options: DownloadOptions
   private readonly clock: Clock
-  private readonly streams = new Streams()
+  private readonly streams: Streams
   private readonly ramp: Ramp
   private readonly warmup: Warmup
   private readonly rule: DurationRule
@@ -103,6 +97,7 @@ export class DownloadPhase {
   constructor(options: DownloadOptions) {
     this.options = options
     this.clock = options.clock
+    this.streams = new Streams(options.rttMs)
     this.ramp = new Ramp({
       mode: options.streams.mode,
       fixed: options.streams.fixed,
@@ -176,6 +171,7 @@ export class DownloadPhase {
         this.ramp.stepStarted(at)
       }
     }
+    this.streams.settled = this.ramp.settled
     if (this.warmup.end === null) {
       this.warmup.update(this.series, this.ramp, this.streams.completedPerStream(this.ramp.streams))
     }
@@ -192,30 +188,10 @@ export class DownloadPhase {
     this.grow()
   }
 
-  /**
-   * The steady window up to `endMs`, and whether it meets the window condition. It holds the full
-   * buckets only (measurement.md section 9.2): an end between two ticks, a stop or the data cap,
-   * leaves the last bucket partial, and the window ends before it.
-   */
+  /** The steady window up to `endMs`, and whether it meets the window condition. */
   private windowAt(endMs: number): (DownloadWindow & { holds: boolean }) | null {
     const warmupEnd = this.warmup.end
-    if (warmupEnd === null) {
-      return null
-    }
-    const from = warmupEnd.bucket
-    const to = Math.floor(endMs / BUCKET_MS)
-    if (from >= to) {
-      // An end before warm-up had ended, or within the first bucket after it.
-      return null
-    }
-    const fromMs = from * BUCKET_MS
-    const toMs = to * BUCKET_MS
-    const requests = this.streams.contributors(from, to)
-    let bytes = 0
-    for (let bucket = from; bucket < to; bucket++) {
-      bytes += this.bytes[bucket] ?? 0
-    }
-    return { fromMs, toMs, bytes, requests, holds: windowConditionHolds('download', toMs - fromMs, requests) }
+    return warmupEnd === null ? null : downloadWindow(warmupEnd.bucket, endMs, this.bytes, (from, to) => this.streams.contributors(from, to))
   }
 
   /** Starts the streams the ramp asks for. */
@@ -225,7 +201,11 @@ export class DownloadPhase {
     }
   }
 
-  /** One stream: requests back to back while the phase runs and the stream is within the count. */
+  /**
+   * One stream: requests back to back while the phase runs and the stream is within the count,
+   * each issued at the previous one's end or early (measurement.md section 3), within the
+   * server's in-flight bound.
+   */
   private async loop(stream: number): Promise<void> {
     while (this.ended === null && stream < this.ramp.streams) {
       const size = this.streams.nextSize(stream, this.options.limits.maxDownloadBytes, this.budget())
@@ -233,7 +213,13 @@ export class DownloadPhase {
         this.end('data-cap')
         return
       }
-      await this.request(stream, size)
+      const issuedAt = this.clock.now()
+      const first = deferred<number>()
+      const done = this.request(stream, size, issuedAt, first.resolve)
+      const watched = { firstByte: first.promise, done, expectedMs: this.streams.expectedMs(stream, size), tailMs: 0 }
+      if (!(await issuesEarly(this.clock, this.streams.leadMs, watched)) || this.inFlight.size >= this.options.limits.maxStreamsPerClient) {
+        await done
+      }
     }
   }
 
@@ -246,8 +232,9 @@ export class DownloadPhase {
     return dataBudget(this.options, this.read, pending)
   }
 
-  private async request(stream: number, size: number): Promise<void> {
-    const request = this.streams.issue(stream, size)
+  /** `firstChunk` is told the instant of the first chunk, which the early issue of the next watches. */
+  private async request(stream: number, size: number, issuedAt: number, firstChunk: (at: number) => void): Promise<void> {
+    const request = this.streams.issue(stream, size, issuedAt)
     const controller = new AbortController()
     this.inFlight.set(request, controller)
     const timeout = this.clock.setTimer(TIMEOUT_MS, () => controller.abort())
@@ -259,6 +246,9 @@ export class DownloadPhase {
       if (status === 200) {
         this.compressed ||= response.contentEncoding !== null
         for await (const chunk of response.chunks) {
+          if (request.firstChunkAt === null) {
+            firstChunk(chunk.at)
+          }
           this.count(request, chunk)
         }
         this.record(response.timing())
@@ -282,6 +272,7 @@ export class DownloadPhase {
       this.failures = 0
       this.streams.complete(request)
     } else {
+      this.streams.ended(request, this.clock.now())
       this.failed(status)
     }
   }

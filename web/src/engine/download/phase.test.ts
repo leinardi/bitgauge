@@ -24,6 +24,7 @@ import { describe, expect, it } from 'vitest'
 
 import { type DownloadOptions, type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
 import { FIRST_SIZE, SIZE_FLOOR } from '@/engine/phases/sizing'
+import { coefficientOfVariation } from '@/engine/stats/buckets'
 import { BUCKET_MS } from '@/engine/stats/units'
 import { FakeClock } from '@/engine/test/fakeClock'
 import { type Failure, FakeTransport, type Scenario } from '@/engine/test/fakeTransport'
@@ -38,6 +39,11 @@ const NORMAL = { level: 'normal', reasons: [] }
 const GOODPUT = 59_800
 const VPN: Scenario = { rate: () => GOODPUT, rttMs: 300, protocol: 'h2' }
 const FAST: Scenario = { rate: () => 12_500_000, rttMs: 50, protocol: 'h2' }
+/**
+ * 1.3 Gbit/s and 4 ms RTT, at most half of it per request, in a browser that takes 150 ms to start
+ * each request (section 3): a stream's hole is not absorbed by the other.
+ */
+const GAPPED: Scenario = { rate: () => 162_500_000, perRequest: 81_250_000, rttMs: 4, protocol: 'http/1.1', requestGapMs: 150 }
 
 function failing(failures: Record<number, Failure>, scenario: Scenario = VPN): Scenario {
   return { ...scenario, failure: (direction, index) => (direction === 'download' ? (failures[index] ?? null) : null) }
@@ -194,6 +200,52 @@ describe('section 19.4, 2.5 Gbit/s LAN', () => {
   it('meets the window condition at 9.5 s', async () => {
     const { outcome } = await run(LAN, { bounds: { minMs: 5000, maxMs: 20_000 } })
     expect(outcome.endMs).toBe(9500)
+  })
+})
+
+/** The coefficient of variation of the steady window's buckets. */
+function variation(outcome: DownloadOutcome): number {
+  const window = outcome.window
+  if (window === null) {
+    throw new Error('no steady window')
+  }
+  return coefficientOfVariation(outcome.buckets.slice(window.fromMs / BUCKET_MS, window.toMs / BUCKET_MS)) ?? Number.NaN
+}
+
+describe('a browser with an issue gap', () => {
+  const fixed = (streams: number, maxStreamsPerClient = 8): Partial<DownloadOptions> => ({
+    streams: { mode: 'fixed', fixed: streams, max: 6 },
+    limits: { maxDownloadBytes: 256 * MIB, maxStreamsPerClient },
+  })
+
+  it('issues each stream\'s next request early once the gap has shown, closing the holes', async () => {
+    const { transport, outcome } = await run(GAPPED, fixed(2))
+    expect(headline(outcome) / 1e9).toBeCloseTo(1.3, 1)
+    expect(variation(outcome)).toBeLessThan(0.05)
+    // Early requests overlap their predecessors, within the server's in-flight bound.
+    expect(transport.peakInFlight.download).toBeGreaterThan(2)
+    expect(transport.peakInFlight.download).toBeLessThanOrEqual(8)
+  })
+
+  it('leaves the holes, which read as unstable, when the in-flight bound allows no early request', async () => {
+    const { transport, outcome } = await run(GAPPED, fixed(2, 2))
+    expect(transport.peakInFlight.download).toBe(2)
+    expect(variation(outcome)).toBeGreaterThan(0.2)
+  })
+
+  it('closes most of the holes of six streams with the two spare slots of the default bound', async () => {
+    const bound = await run(GAPPED, fixed(6, 6))
+    const spare = await run(GAPPED, fixed(6))
+    expect(bound.transport.peakInFlight.download).toBe(6)
+    expect(spare.transport.peakInFlight.download).toBeLessThanOrEqual(8)
+    // Boundaries come every ≈ 170 ms and each needs a 150 ms overlap: two slots cover most of them.
+    expect(variation(spare.outcome)).toBeLessThan(variation(bound.outcome) / 2)
+    expect(variation(spare.outcome)).toBeLessThan(0.15)
+  })
+
+  it('never issues early in a browser without a gap', async () => {
+    const { transport } = await run(FAST, fixed(2))
+    expect(transport.peakInFlight.download).toBe(2)
   })
 })
 

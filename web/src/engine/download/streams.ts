@@ -17,16 +17,20 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { DEFAULT_RTT_MS, IssueGaps, issueGap } from '@/engine/phases/issue'
 import { nextSize, SIZE_FLOOR, streamRate } from '@/engine/phases/sizing'
 
-// Download stream bookkeeping: each stream's last completed request, which sizes its next one
-// (measurement.md section 3), and every request's arrivals on the client timeline, which the
-// warm-up's per-stream counts and the window condition read (sections 5 and 8.3).
+// Download stream bookkeeping: each stream's last completed request, which sizes its next one and
+// gives its issue gap (measurement.md section 3), and every request's arrivals on the client
+// timeline, which the warm-up's per-stream counts and the window condition read (sections 5 and
+// 8.3).
 
 /** One request of a stream, from its issue to its end. */
 export interface DownloadRequest {
   stream: number
   size: number
+  /** Its issue on the client clock. */
+  issuedAt: number
   /** Bytes read so far. */
   read: number
   /** The arrival instants of its first and last chunk. */
@@ -44,11 +48,32 @@ interface StreamState {
   rate: number
   /** Its completed requests since the phase began. */
   completed: number
+  /** The end of its last request that ended, on the client clock. */
+  doneAt: number | null
 }
 
 export class Streams {
   private readonly streams: StreamState[] = []
   private readonly requests: DownloadRequest[] = []
+  /** Set once the ramp has settled: early issue begins only then (measurement.md section 3). */
+  settled = false
+  private readonly gaps = new IssueGaps()
+  private readonly rttMs: number
+
+  constructor(rttMs: number | null) {
+    this.rttMs = rttMs ?? DEFAULT_RTT_MS
+  }
+
+  /** The lead of an early issue (measurement.md section 3); null while streams re-request at the end. */
+  get leadMs(): number | null {
+    return this.settled ? this.gaps.leadMs : null
+  }
+
+  /** size / rate_s of the stream, the transfer a request of `size` is expected to take; null before its first completes. */
+  expectedMs(stream: number, size: number): number | null {
+    const state = this.state(stream)
+    return state.size === null ? null : (size * 1000) / state.rate
+  }
 
   /** How many streams have been started. */
   get started(): number {
@@ -57,7 +82,7 @@ export class Streams {
 
   /** Starts a stream; returns its index. */
   add(): number {
-    return this.streams.push({ size: null, rate: 0, completed: 0 }) - 1
+    return this.streams.push({ size: null, rate: 0, completed: 0, doneAt: null }) - 1
   }
 
   /**
@@ -70,11 +95,12 @@ export class Streams {
     return nextSize(state.rate, state.size, SIZE_FLOOR, cap, budget)
   }
 
-  /** Records a request as issued. */
-  issue(stream: number, size: number): DownloadRequest {
+  /** Records a request as issued at `issuedAt`. */
+  issue(stream: number, size: number, issuedAt: number): DownloadRequest {
     const request: DownloadRequest = {
       stream,
       size,
+      issuedAt,
       read: 0,
       firstChunkAt: null,
       lastChunkAt: null,
@@ -96,14 +122,22 @@ export class Streams {
 
   /**
    * Records a request as completed: its rate over the first-to-last chunk time, with the floor of
-   * one bucket, sizes the stream's next request.
+   * one bucket, sizes the stream's next request, and its issue gap feeds the early issue.
    */
   complete(request: DownloadRequest): void {
     const state = this.state(request.stream)
     const transferMs = (request.lastChunkAt ?? 0) - (request.firstChunkAt ?? 0)
+    const doneAt = request.lastChunkAt ?? request.issuedAt
+    this.gaps.record(issueGap(request.issuedAt, state.doneAt, doneAt, transferMs, this.rttMs))
+    state.doneAt = doneAt
     state.size = request.size
     state.rate = streamRate(request.read, transferMs)
     state.completed++
+  }
+
+  /** Records a request that ended without completing, at `at`. */
+  ended(request: DownloadRequest, at: number): void {
+    this.state(request.stream).doneAt = at
   }
 
   /** The completed requests of each of the first `active` streams. */

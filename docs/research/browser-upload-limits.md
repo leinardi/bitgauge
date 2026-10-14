@@ -74,7 +74,13 @@ The Firefox floor is low on purpose: the preparation rate measured on a high-end
 Chromium reports upload progress about every 100 ms and sends without a preparation step that
 BitGauge could measure; at multi-Gbit rates its limit is the CPU of the Worker and the network
 service, which the busy fraction reports as `cpu-bound`
-([measurement.md §16](../features/measurement.md#16-confidence-and-notices)). Chrome for Android
+([measurement.md §16](../features/measurement.md#16-confidence-and-notices)). Safari 27 on macOS,
+measured with BitGauge on a 2.5 GbE LAN, leaves about 100–150 ms between a request's end and the
+next one's first byte on the same stream, download and upload alike, so with two streams half the
+bytes of a bucket were missing at every request boundary and the download read `unstable`; no
+public report of it was found. BitGauge issues each stream's next request early once the gap has
+shown ([measurement.md §3](../features/measurement.md#3-adaptive-request-size)), which keeps the
+link busy across it. Chrome for Android
 once limited the size of an XHR upload body, which LibreSpeed caps at 4 MB there; BitGauge's
 adaptive request size keeps requests at about one second of sending and has not met the limit. No
 public report of a WebKit upload ceiling was found; Safari is covered by the manual checks of the

@@ -189,7 +189,11 @@ body before its first byte leaves, Firefox at about 4–5 Gbit/s on a desktop an
 on a phone. The engine lets one request prepare at a time while the others send
 ([measurement.md §7.2](measurement.md#72-client-side)); where preparation is still slower than the
 link, the server sees short pauses between bursts, and the upload is reported as measured, usually
-with `low` confidence for `unstable`. Firefox's ceiling is a known, open browser issue. A result
+with `low` confidence for `unstable`. Safari takes about 100–150 ms to start each request, in both
+directions, which on two streams empties half of every bucket at a request boundary; the engine
+issues each stream's next request early ([measurement.md §3](measurement.md#3-adaptive-request-size))
+so the link stays busy across the gap, in every browser whose gap shows. Firefox's ceiling is a
+known, open browser issue. A result
 whose upload idle share exceeded 20 %, in any browser, and a Firefox result with an upload headline
 of at least 100 Mbit/s carry the `browser-upload-limit` notice
 ([measurement.md §16](measurement.md#16-confidence-and-notices)), which links to the reports

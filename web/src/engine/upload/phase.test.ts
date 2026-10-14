@@ -44,6 +44,11 @@ const LAN: Scenario = { rate: () => 312_500_000, perRequest: 62_500_000, rttMs: 
 const LINK: Scenario = { rate: () => 1_000_000, rttMs: 50, protocol: 'h2' }
 /** 1 Gbit/s on a phone whose browser prepares each body at 600 Mbit/s before sending it (section 8.2). */
 const PHONE: Scenario = { rate: () => 125_000_000, prepareBytesPerSecond: 75_000_000, rttMs: 8, protocol: 'http/1.1' }
+/**
+ * 1.3 Gbit/s and 4 ms RTT, at most half of it per request, in a browser that takes 150 ms to start
+ * each request (section 3): a stream's hole is not absorbed by the other.
+ */
+const GAPPED: Scenario = { rate: () => 162_500_000, perRequest: 81_250_000, rttMs: 4, protocol: 'http/1.1', requestGapMs: 150 }
 
 type Upload = Transport['upload']
 
@@ -243,6 +248,23 @@ describe('a browser that prepares each body', () => {
     expect(streams.idleShare).toBeCloseTo(0.622, 3)
   })
 
+  it('forgets the shares read before the turn to early issue, and reads the early requests from their predecessor\'s end', () => {
+    const telemetry = (startMs: number, durationMs: number, bytes: number): UploadTelemetry => {
+      const steady = steadyTelemetry(startMs, startMs + durationMs, bytes)
+      return { epoch: EPOCH, bucketMs: 100, firstBucket: steady.firstBucket, buckets: [...steady.buckets], bytes, startMs, durationMs }
+    }
+    const streams = new UploadStreams(8)
+    const stream = streams.add()
+    streams.settled = true
+    streams.confirm(streams.issue(1, stream, 125_000_000, 1000), telemetry(2667, 1000, 125_000_000), 3667)
+    // The gap of 1.659 s turned the phase to early issue: that share is forgotten.
+    expect(streams.leadMs).toBeCloseTo(1659, 0)
+    expect(streams.idleShare).toBeNull()
+    // Issued at 2000 while the previous one ran to 3667, sent for 1 s from 4000: idle 0.325 s of 1.333 s.
+    streams.confirm(streams.issue(2, stream, 125_000_000, 2000, true), telemetry(4000, 1000, 125_000_000), 5000)
+    expect(streams.idleShare).toBeCloseTo(0.244, 3)
+  })
+
   it('ramps past the gaps of a single stream, which read as no gain over the shorter intervals', async () => {
     const { outcome } = await run(PHONE)
     // The single stream sends for 1 s and prepares for 1.67 s; with 6 streams the preparation
@@ -250,6 +272,27 @@ describe('a browser that prepares each body', () => {
     expect(outcome).toMatchObject({ status: 'measured', streams: 6, plateau: 'cap' })
     expect(outcome.warmup?.confidence.reasons).toContain('ramp-unsettled')
     expect((outcome.window?.bitsPerSecond ?? 0) / 1e6).toBeGreaterThan(500)
+  })
+})
+
+describe('a browser with an issue gap', () => {
+  const fixed = (streams: number, maxStreamsPerClient = 8): Partial<UploadOptions> => ({
+    streams: { mode: 'fixed', fixed: streams, max: 6 },
+    limits: { maxUploadBytes: 256 * MIB, maxStreamsPerClient },
+  })
+
+  it('sends each stream\'s next request early once the gap has shown, closing the holes on the server grid', async () => {
+    const { transport, outcome } = await run(GAPPED, fixed(2))
+    expect((outcome.window?.bitsPerSecond ?? 0) / 1e9).toBeCloseTo(1.3, 1)
+    expect(outcome.series?.coefficientOfVariation(Math.ceil((outcome.warmupEndMs ?? 0) / 100), Math.floor((outcome.windowEndMs ?? 0) / 100))).toBeLessThan(0.1)
+    expect(transport.peakInFlight.upload).toBeGreaterThan(2)
+    expect(transport.peakInFlight.upload).toBeLessThanOrEqual(8)
+  })
+
+  it('leaves the holes when the in-flight bound allows no early request', async () => {
+    const { transport, outcome } = await run(GAPPED, fixed(2, 2))
+    expect(transport.peakInFlight.upload).toBe(2)
+    expect(outcome.series?.coefficientOfVariation(Math.ceil((outcome.warmupEndMs ?? 0) / 100), Math.floor((outcome.windowEndMs ?? 0) / 100))).toBeGreaterThan(0.2)
   })
 })
 

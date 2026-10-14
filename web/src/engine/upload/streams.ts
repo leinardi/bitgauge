@@ -17,6 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { DEFAULT_RTT_MS, IssueGaps, issueGap } from '@/engine/phases/issue'
 import { nextSize, SIZE_FLOOR, streamRate } from '@/engine/phases/sizing'
 import { percentile } from '@/engine/stats/buckets'
 import type { RequestId } from '@/engine/upload/watermark'
@@ -24,7 +25,8 @@ import type { UploadTelemetry } from '@/engine/types'
 
 // Upload stream bookkeeping (measurement.md sections 3, 5 and 7): each stream's last confirmed
 // request sizes its next one at the server's rate, each request's expected duration sizes the
-// grace, and the confirmed requests give the proxy-buffering check and the display offset.
+// grace and places its early issue, and the confirmed requests give the issue gap, the idle share,
+// the proxy-buffering check and the display offset.
 
 /** A request is checked for proxy buffering only from this client duration on. */
 const BUFFERING_MIN_MS = 1000
@@ -38,9 +40,6 @@ export const IDLE_SHARE = 0.2
 /** A request's idle share is read only from a server duration of at least one bucket. */
 const IDLE_MIN_DURATION_MS = 100
 
-/** The RTT the idle share subtracts when idle latency was skipped. */
-const DEFAULT_RTT_MS = 100
-
 /** One request of a stream, from its send to its telemetry or its end. */
 export interface UploadRequest {
   id: RequestId
@@ -52,6 +51,8 @@ export interface UploadRequest {
   sent: number
   /** size / rate_s of the stream, or null for a stream's first request, whose rate is unknown. */
   expectedMs: number | null
+  /** Whether it was issued early (measurement.md section 3). */
+  early: boolean
 }
 
 interface StreamState {
@@ -61,6 +62,8 @@ interface StreamState {
   confirmed: number
   /** The first byte, on the server timeline, of its first confirmed request. */
   firstStartMs: number | null
+  /** t_done of its last request that ended, on the client clock. */
+  doneAt: number | null
 }
 
 export class UploadStreams {
@@ -77,7 +80,7 @@ export class UploadStreams {
 
   /** Starts a stream; returns its index. */
   add(): number {
-    return this.streams.push({ size: null, rate: 0, confirmed: 0, firstStartMs: null }) - 1
+    return this.streams.push({ size: null, rate: 0, confirmed: 0, firstStartMs: null, doneAt: null }) - 1
   }
 
   /** The size of the stream's next request, or null when the data cap leaves less than the floor. */
@@ -87,22 +90,50 @@ export class UploadStreams {
   }
 
   /**
-   * The largest share of a confirmed request's client duration in which its stream sat idle beyond
-   * the round trip, such as a browser preparing the body before sending it (measurement.md section
-   * 8.2); null while no request lost more than IDLE_SHARE.
+   * The largest share of a confirmed request's client duration that was its issue gap, such as a
+   * browser preparing the body before sending it (measurement.md section 8.2): read from the
+   * requests issued early once the phase turned to early issue, from every request before; null
+   * while none lost more than IDLE_SHARE.
    */
   idleShare: number | null = null
+  /** Set once the ramp has settled: early issue begins only then (measurement.md section 3). */
+  settled = false
+  private readonly gaps = new IssueGaps()
   private readonly rttMs: number
 
   constructor(rttMs: number | null) {
     this.rttMs = rttMs ?? DEFAULT_RTT_MS
   }
 
-  /** Records a request as sent. */
-  issue(id: RequestId, stream: number, size: number, sentAt: number): UploadRequest {
+  /** Whether streams issue their next request early (measurement.md section 3). */
+  get early(): boolean {
+    return this.settled && this.gaps.early
+  }
+
+  /** The lead of an early issue; null while streams re-request at the answer. */
+  get leadMs(): number | null {
+    return this.settled ? this.gaps.leadMs : null
+  }
+
+  /** The RTT the expected end of a request adds after its transfer: the response's way back. */
+  get tailMs(): number {
+    return this.rttMs
+  }
+
+  /** size / rate_s of the stream, the transfer a request of `size` is expected to take; null before its first confirms. */
+  expectedMs(stream: number, size: number): number | null {
     const state = this.state(stream)
-    const expectedMs = state.size === null ? null : (size * 1000) / state.rate
-    return { id, stream, size, sentAt, sent: 0, expectedMs }
+    return state.size === null ? null : (size * 1000) / state.rate
+  }
+
+  /** Records a request as sent; `early` when it was issued before the stream's previous one ended. */
+  issue(id: RequestId, stream: number, size: number, sentAt: number, early = false): UploadRequest {
+    return { id, stream, size, sentAt, sent: 0, expectedMs: this.expectedMs(stream, size), early }
+  }
+
+  /** Records a request that ended without confirmation. */
+  ended(request: UploadRequest, at: number): void {
+    this.state(request.stream).doneAt = at
   }
 
   /**
@@ -115,11 +146,21 @@ export class UploadStreams {
     state.rate = streamRate(telemetry.bytes, telemetry.durationMs)
     state.confirmed++
     state.firstStartMs ??= telemetry.startMs
-    const clientMs = doneAt - request.sentAt
-    const idle = (clientMs - telemetry.durationMs - this.rttMs) / clientMs
-    if (telemetry.durationMs >= IDLE_MIN_DURATION_MS && idle > IDLE_SHARE) {
+    const from = state.doneAt === null ? request.sentAt : Math.max(request.sentAt, state.doneAt)
+    const gap = issueGap(request.sentAt, state.doneAt, doneAt, telemetry.durationMs, this.rttMs)
+    state.doneAt = doneAt
+    const wasEarly = this.early
+    this.gaps.record(gap)
+    if (this.early && !wasEarly) {
+      // Early issue is what removes the idle: the shares read before it are forgotten.
+      this.idleShare = null
+    }
+    const idle = gap / (doneAt - from)
+    if ((request.early || !this.early) && telemetry.durationMs >= IDLE_MIN_DURATION_MS && idle > IDLE_SHARE) {
+      // Read from every request before the turn to early issue, and from the early ones after it.
       this.idleShare = Math.max(this.idleShare ?? 0, idle)
     }
+    const clientMs = doneAt - from
     if (clientMs >= BUFFERING_MIN_MS && telemetry.durationMs < BUFFERING_SHARE * clientMs) {
       this.bufferingSuspected = true
     }

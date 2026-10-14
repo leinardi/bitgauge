@@ -89,15 +89,20 @@ export class PreparationTurn {
   /** Resolves when the last request to ask for the turn has released it. */
   private last: Promise<void> = Promise.resolve()
   /** Set once the browser showed it reports no upload progress: no request waits any more. */
-  private dropped = false
+  private isDropped = false
 
   constructor(clock: Clock) {
     this.clock = clock
   }
 
+  /** Whether the browser showed it reports no upload progress. */
+  get dropped(): boolean {
+    return this.isDropped
+  }
+
   /** Whether a request of `size` bytes waits for the turn. */
   waits(size: number): boolean {
-    return !this.dropped && size >= TURN_MIN_BYTES
+    return !this.isDropped && size >= TURN_MIN_BYTES
   }
 
   /** Resolves with the caller's hold once every earlier request has released the turn. */
@@ -111,7 +116,7 @@ export class PreparationTurn {
   /** A confirmed request of at least 1 MiB with no byte reported sent drops the turn. */
   confirmed(size: number, sent: number): void {
     if (size >= TURN_MIN_BYTES && sent === 0) {
-      this.dropped = true
+      this.isDropped = true
     }
   }
 }

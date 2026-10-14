@@ -65,6 +65,11 @@ export interface Scenario {
    * second, one body at a time in send order (measurement.md section 7.2); absent, no preparation.
    */
   prepareBytesPerSecond?: number
+  /**
+   * A browser that takes this long to start each request beyond the RTT (measurement.md section
+   * 3): a download's first byte, and an upload's first byte at the server, come this much later.
+   */
+  requestGapMs?: number
 }
 
 interface Transfer {
@@ -159,16 +164,17 @@ export class FakeTransport implements Transport {
     const failure = this.next('download', size)
     const sentAt = this.clock.now()
     const { rttMs } = this.scenario
+    const firstByteAt = sentAt + rttMs + (this.scenario.requestGapMs ?? 0)
     return this.respond(rttMs, signal, failure, (status) => {
       const body = new Body()
-      let endAt = sentAt + rttMs
+      let endAt = firstByteAt
       const timing = (): ResourceTiming | null =>
-        this.entry({ requestStart: sentAt, responseStart: sentAt + rttMs, responseEnd: endAt })
+        this.entry({ requestStart: sentAt, responseStart: firstByteAt, responseEnd: endAt })
       if (status !== 200) {
         body.end()
         return { status, contentEncoding: null, chunks: body, timing }
       }
-      const transfer = this.start('download', failure?.kind === 'short' ? failure.bytes : size, sentAt + rttMs, {
+      const transfer = this.start('download', failure?.kind === 'short' ? failure.bytes : size, firstByteAt, {
         moved: (bytes, _total, at) => {
           if (bytes > 0) {
             body.push({ bytes, at })
@@ -200,10 +206,11 @@ export class FakeTransport implements Transport {
       }))
     }
     const prepare = this.scenario.prepareBytesPerSecond
-    let firstByteAt = sentAt + half
+    const gap = this.scenario.requestGapMs ?? 0
+    let firstByteAt = sentAt + half + gap
     if (prepare !== undefined) {
       this.prepareFreeAt = Math.max(sentAt, this.prepareFreeAt) + (size / prepare) * 1000
-      firstByteAt = this.prepareFreeAt + half
+      firstByteAt = this.prepareFreeAt + half + gap
     }
     return new Promise((resolve, reject) => {
       const transfer = this.start('upload', failure?.bytes ?? size, firstByteAt, {

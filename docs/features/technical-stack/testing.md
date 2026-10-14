@@ -58,6 +58,9 @@ Scenarios:
   multiplexing modelled as one shared window.
 - **Cancel mid-request with the watermark rule:** user stop during uploads; worked example B
   reproduced exactly (`C = 7000`, `W_end_final = 7000`, `partial`).
+- **Issue gap:** a browser that takes 150 ms to start each request, download and upload; early issue
+  closes the holes at 2 streams and most of them at 6 within the server's in-flight bound, and
+  the steady window reads `unstable` where holes remain ([../measurement.md §3 and §8.3](../measurement.md#3-adaptive-request-size)).
 - **Overlapping upload histograms:** worked example A reproduced exactly (cells 10–27, 93.3 KiB over
   11 cells, 0.69 Mbit/s), plus random overlaps checked against a brute-force reference.
 - **Failures:** failure gaps on h2/h3 (`lb`, `ub`, excluded cells, the series continuing), and on

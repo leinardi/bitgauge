@@ -17,6 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { deferred, issuesEarly } from '@/engine/phases/issue'
 import { dataBudget, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
@@ -33,7 +34,8 @@ import { confirmedSeries, steadyWindow } from '@/engine/upload/window'
 
 // The server-timed upload phase (measurement.md sections 5 and 7): streams send sized requests
 // through the transport; each answer's telemetry is validated and confirmed into the ledger, and
-// every decision reads only the confirmed series. The phase stops issuing at its end decision,
+// every decision reads only the confirmed series. A stream re-requests at each answer, or early
+// once the browser's issue gap has shown (section 3). The phase stops issuing at its end decision,
 // gives the requests in flight a grace, and measures the window up to W_end_final.
 
 const TIMEOUT_MS = 30_000
@@ -163,7 +165,13 @@ export class UploadPhase {
     }
   }
 
+  /**
+   * One stream: requests back to back while the phase issues and the stream is within the count,
+   * each sent at the previous one's answer or early (measurement.md section 3), within the
+   * server's in-flight bound.
+   */
   private async loop(stream: number): Promise<void> {
+    let early = false
     while (this.halted === null && stream < this.ramp.streams) {
       let size = this.nextSize(stream)
       let hold = NO_HOLD
@@ -180,7 +188,13 @@ export class UploadPhase {
         this.halt('data-cap')
         return
       }
-      await this.request(stream, size, hold)
+      const first = deferred<number>()
+      const done = this.request(stream, size, hold, early, first.resolve)
+      const watched = { firstByte: first.promise, done, expectedMs: this.streams.expectedMs(stream, size), tailMs: this.streams.tailMs }
+      early = (await issuesEarly(this.clock, this.streams.leadMs, watched)) && this.inFlight.size < this.options.limits.maxStreamsPerClient
+      if (!early) {
+        await done
+      }
     }
   }
 
@@ -197,14 +211,25 @@ export class UploadPhase {
     return dataBudget(this.options, this.dataUsed, pending)
   }
 
-  /** Sends one request; `hold` is its hold on the preparation turn (measurement.md section 7.2). */
-  private async request(stream: number, size: number, hold: TurnHold): Promise<void> {
+  /**
+   * Sends one request; `hold` is its hold on the preparation turn (measurement.md section 7.2),
+   * `early` whether it was issued before the stream's previous one was answered (section 3), and
+   * `firstByte` is told when upload progress first reports a byte sent, or the send when the
+   * browser reports no progress, which the early issue of the next request watches.
+   */
+  private async request(stream: number, size: number, hold: TurnHold, early: boolean, firstByte: (at: number) => void): Promise<void> {
     const sentAt = this.clock.now()
-    const request = this.streams.issue(this.ledger.send(sentAt), stream, size, sentAt)
+    const request = this.streams.issue(this.ledger.send(sentAt), stream, size, sentAt, early)
     const flight: InFlight = { request, controller: new AbortController(), closed: false }
     this.inFlight.add(flight)
     const timeout = this.clock.setTimer(TIMEOUT_MS, () => flight.controller.abort())
+    if (this.turn.dropped) {
+      firstByte(sentAt)
+    }
     const progress = (sent: number): void => {
+      if (request.sent === 0 && sent > 0) {
+        firstByte(this.clock.now())
+      }
       request.sent = Math.max(request.sent, Math.min(sent, size))
       hold.progress(sent)
     }
@@ -252,6 +277,7 @@ export class UploadPhase {
     }
     flight.controller.abort()
     this.ledger.end(request.id, now)
+    this.streams.ended(request, now)
     this.failed(response?.status ?? 0)
   }
 
@@ -293,6 +319,7 @@ export class UploadPhase {
         this.addedFrom = before
       }
     }
+    this.streams.settled = this.ramp.settled
     if (series !== null && this.warmup.end === null) {
       this.warmup.update(series, this.ramp, this.streams.confirmedPerStream(this.ramp.streams))
     }
@@ -337,6 +364,7 @@ export class UploadPhase {
       return
     }
     this.done = null
+    this.ledger.halt([...this.inFlight].map(({ request }) => ({ id: request.id, stream: request.stream })))
     if (this.graceTimer !== null) {
       this.clock.clearTimer(this.graceTimer)
     }
