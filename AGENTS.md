@@ -84,7 +84,7 @@ make verify            # both of the above
 make audit-deps        # pinned govulncheck -test ./... and npm audit in web/ (network)
 make go-build          # ./dist/bitgauge for the host platform, embedding whatever web/dist holds
 make go-run            # run the binary (ARGS="...")
-make run               # build, then serve on 127.0.0.1:8080 until Ctrl+C (RUN_PORT, RUN_BIND, ARGS)
+make run               # build, then serve on 0.0.0.0:8080 (LAN) until Ctrl+C (RUN_PORT, RUN_BIND, ARGS)
 make build             # web-build, then go-build: the binary with the current SPA embedded
 make web-install       # npm ci in web/
 make web-build         # install the dependencies when needed, then vite build into web/dist
