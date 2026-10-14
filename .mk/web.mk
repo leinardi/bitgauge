@@ -1,38 +1,58 @@
 #
-# This file is part of BitGauge.
+# MIT License
 #
 # Copyright (c) 2026 Roberto Leinardi
 #
-# BitGauge is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# BitGauge is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# You should have received a copy of the GNU General Public License
-# along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 #
 
+ifndef MK_COMMON_WEB_INCLUDED
+MK_COMMON_WEB_INCLUDED := 1
 
-ifndef MK_LOCAL_WEB_INCLUDED
-MK_LOCAL_WEB_INCLUDED := 1
+# An npm web app in WEB_DIR (web/ by default): install, dev server, build, tests, lint, and the
+# production build of a binary that embeds the app.
+#
+# The targets run the app's npm scripts, which every consumer defines in WEB_DIR/package.json:
+#   dev, dev:demo        the Vite dev server, plain and in demo mode
+#   build, build:demo    the production build (vite build only; the type check is web-lint's) and
+#                        the demo build
+#   test                 the unit tests
+#   lint, typecheck      ESLint, then vue-tsc (or whatever the app type-checks with)
+#   api-types            regenerate the typed API client
+#
+# npm ci runs only when package.json, package-lock.json or .npmrc changed since the last install:
+# every target that needs node_modules depends on the hidden lockfile npm writes there. web-install
+# still runs npm ci unconditionally.
 
-# The SPA tooling in web/ (build-packaging.md section 3). Until web/src exists these targets fail
-# loudly -- ESLint finds no files, vue-tsc no inputs, Vitest no tests -- rather than passing on
-# nothing; see the dormant gates in AGENTS.md.
+# Paths / files (override these in your repo if needed)
+WEB_DIR ?= $(REPO_ROOT)/web
 
-WEB_DIR := $(REPO_ROOT)/web
+# What `make build` makes once the app is built: a binary that embeds it (go-build from go.mk by
+# default). Built from the recipe rather than as a second prerequisite, which make -j could start
+# alongside web-build, before the app it embeds exists.
+WEB_BUILD_NEXT ?= go-build
 
-# npm ci only when the lockfile, the manifest or the install policy changed since the last one.
-# npm writes this hidden lockfile itself; the touch makes it newer than its prerequisites even when
-# npm leaves it as it was.
 WEB_INSTALLED := $(WEB_DIR)/node_modules/.package-lock.json
 
-$(WEB_INSTALLED): $(WEB_DIR)/package.json $(WEB_DIR)/package-lock.json $(WEB_DIR)/.npmrc
+# The touch makes the hidden lockfile newer than its prerequisites even when npm leaves it as it was.
+# .npmrc counts only where it exists, so a missing one is not a missing prerequisite.
+$(WEB_INSTALLED): $(WEB_DIR)/package.json $(WEB_DIR)/package-lock.json $(wildcard $(WEB_DIR)/.npmrc)
 	npm --prefix "$(WEB_DIR)" ci
 	touch "$@"
 
@@ -40,40 +60,41 @@ $(WEB_INSTALLED): $(WEB_DIR)/package.json $(WEB_DIR)/package-lock.json $(WEB_DIR
 web-install: ## Install the web dependencies exactly as locked (npm ci)
 	npm --prefix "$(WEB_DIR)" ci
 
+.PHONY: web-update
+web-update: ## Update the web dependencies within their declared version ranges
+	npm --prefix "$(WEB_DIR)" update
+
 .PHONY: web-dev
 web-dev: $(WEB_INSTALLED) ## Start the Vite dev server
 	npm --prefix "$(WEB_DIR)" run dev
 
-# The build is vite build only; the type check is its own gate, in web-lint.
-.PHONY: web-build
-web-build: $(WEB_INSTALLED) ## Install the dependencies when needed, then build the SPA into web/dist
-	npm --prefix "$(WEB_DIR)" run build
-
 .PHONY: web-demo
-web-demo: $(WEB_INSTALLED) ## Start the Vite dev server in demo mode, the engine against a simulated link
+web-demo: $(WEB_INSTALLED) ## Start the Vite dev server in demo mode
 	npm --prefix "$(WEB_DIR)" run dev:demo
 
+.PHONY: web-build
+web-build: $(WEB_INSTALLED) ## Install the dependencies when needed, then build the web app
+	npm --prefix "$(WEB_DIR)" run build
+
 .PHONY: web-build-demo
-web-build-demo: $(WEB_INSTALLED) ## Install the dependencies when needed, then build the demo SPA into web/dist-demo, which never ships
+web-build-demo: $(WEB_INSTALLED) ## Install the dependencies when needed, then build the demo web app
 	npm --prefix "$(WEB_DIR)" run build:demo
 
 .PHONY: web-test
-web-test: $(WEB_INSTALLED) ## Run the Vitest suites (unit, component, engine)
+web-test: $(WEB_INSTALLED) ## Run the web unit tests
 	npm --prefix "$(WEB_DIR)" run test
 
 .PHONY: web-lint
-web-lint: $(WEB_INSTALLED) ## Lint the web sources with ESLint, then vue-tsc
+web-lint: $(WEB_INSTALLED) ## Lint the web sources with ESLint, then type-check them
 	npm --prefix "$(WEB_DIR)" run lint
 	npm --prefix "$(WEB_DIR)" run typecheck
 
 .PHONY: api-types
-api-types: $(WEB_INSTALLED) ## Regenerate web/src/api/types.gen.ts from api/openapi.yaml
+api-types: $(WEB_INSTALLED) ## Regenerate the typed API client (the api-types npm script)
 	npm --prefix "$(WEB_DIR)" run api-types
 
-# The production binary embeds web/dist, so the SPA is built first. go-build runs from the recipe
-# rather than as a second prerequisite, which make -j could start alongside web-build.
 .PHONY: build
-build: web-build ## Build the SPA, then the binary that embeds it
-	$(MAKE) go-build
+build: web-build ## Build the web app, then WEB_BUILD_NEXT (go-build by default), which embeds it
+	$(MAKE) $(WEB_BUILD_NEXT)
 
-endif  # MK_LOCAL_WEB_INCLUDED
+endif  # MK_COMMON_WEB_INCLUDED

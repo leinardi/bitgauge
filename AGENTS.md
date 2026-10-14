@@ -32,7 +32,8 @@ status per feature area, v0.2 and v0.3 included. Package details:
 The tooling **exists**:
 
 - **`Makefile`, `.mk/`**: shared snippets from `leinardi/make-common@v1` (`docker.mk`, `help.mk`,
-  `go.mk`, `pre-commit.mk`) plus repo-local ones; never add recipes to `Makefile` itself.
+  `go.mk`, `pre-commit.mk`, `web.mk`, `parity.mk`) plus repo-local ones; never add recipes to
+  `Makefile` itself.
 - **`test/`**: meta-tests, all real Go packages. `test/toolchain` (gate registry `gates.go`, pins,
   vacuous flags, untagged-test rules, engine boundary, fallow and install-scripts gates),
   `test/docs` (links, anchors, doc facts), `test/boundary` (the `.golangci.yaml` stateless rules),
@@ -60,7 +61,7 @@ The tooling **exists**:
 - `web/src/api/types.gen.ts`: regenerate with `make api-types` after editing
   `api/openapi.yaml`.
 - `web/src/components/ui/`: vendored shadcn-vue; extend by composition only.
-- `.mk/{docker,help,go,pre-commit}.mk`: refreshed from make-common with `make mk-common-update`.
+- `.mk/{docker,help,go,pre-commit,web,parity}.mk`: refreshed from make-common with `make mk-common-update`.
 - The vendored skills listed in `skills-lock.json`: byte-exact copies, checked by their
   `computedHash`.
 
@@ -165,7 +166,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `**/*.go` | `make verify-go`, then `make check-stage` |
 | `web/src/**` | `make verify-web`, then `scripts/check-file-budgets.sh` |
 | `web/src/demo/**`, the demo gates in `useWorker.ts`, `api/info.ts`, `App.vue` | the `web/src/**` row; `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (the demo's ESLint blocks); `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`; `make web-build-demo`, on which the same check must fail; `make demo-parity-full` |
-| `web/parity/**`, `web/playwright.parity.config.ts`, `.mk/parity.mk` | `make verify-web` (the parity unit tests and `coverage.test.ts`), `make help`; `make demo-parity-full` on demand (Chromium) |
+| `web/parity/**`, `web/playwright.parity.config.ts`, `PARITY_PROTOTYPE_PAGE` in `Makefile` | `make verify-web` (the parity unit tests and `coverage.test.ts`), `make help`; `make demo-parity-full` on demand (Chromium) |
 | `.parity-baseline` | never by hand: only `make demo-parity-update` or `make demo-parity-accept REASON=` after a complete full-matrix run ([demo-parity.md](docs/engineering/demo-parity.md#the-baseline)) |
 | a new `docs/design_system/` export, any UI change in `web/src/**` | `make demo-parity-full`; classify each new difference ([demo-parity.md](docs/engineering/demo-parity.md#classifying-a-difference)) |
 | `api/openapi.yaml` | spec first (`api-contract` skill); `make api-types`, `go test ./internal/handlers/` (the contract tests), then `make verify-web` |

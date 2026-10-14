@@ -26,10 +26,10 @@ MK_COMMON_VERSION ?= v1
 MK_COMMON_DIR := $(REPO_ROOT)/.mk
 
 # Shared snippets coming from make-common
-MK_COMMON_FILES := docker.mk help.mk go.mk pre-commit.mk
+MK_COMMON_FILES := docker.mk help.mk go.mk pre-commit.mk web.mk parity.mk
 
 # Repo-local snippets that are NOT in make-common
-MK_LOCAL_FILES := web.mk run.mk e2e.mk verify.mk audit-deps.mk docker-run.mk image-test.mk harness.mk idle-measure.mk parity.mk
+MK_LOCAL_FILES := run.mk e2e.mk verify.mk audit-deps.mk docker-run.mk image-test.mk harness.mk idle-measure.mk
 
 MK_COMMON_BOOTSTRAP_SCRIPT := $(REPO_ROOT)/scripts/bootstrap-mk-common.sh
 
@@ -67,6 +67,9 @@ DOCKERFILE_bitgauge := deployments/docker/Dockerfile
 # --load puts the host-platform image into the local daemon, so docker-run and the image tests can
 # run what docker-build produced.
 DOCKER_BUILD_CMD ?= docker buildx build --load
+
+# The design-system page make demo-parity-servers points at.
+PARITY_PROTOTYPE_PAGE := ui_kits/app/index.html
 
 # Drop-in runtime defaults for `make go-run`
 ARGS ?=

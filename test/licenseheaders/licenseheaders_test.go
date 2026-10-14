@@ -125,7 +125,7 @@ func TestHeaderCases(t *testing.T) {
 		"typescript without a header":    {map[string]string{"web/src/engine/clock.ts": "export {}\n"}, false},
 		"vue without a header":           {map[string]string{"web/src/App.vue": "<template></template>\n"}, false},
 		"dockerfile without a header":    {map[string]string{"deployments/docker/Dockerfile": "FROM scratch\n"}, false},
-		"local make fragment, no header": {map[string]string{".mk/web.mk": "x:\n"}, false},
+		"local make fragment, no header": {map[string]string{".mk/verify.mk": "x:\n"}, false},
 		"makefile without a header":      {map[string]string{"Makefile": makefile}, false},
 		// goHeader's last required line is its ninth: 16 lines before it put it on line 25, the
 		// last line of the window, and one more pushes it out.
