@@ -181,7 +181,7 @@ Each direction has a minimum and a maximum duration taken from the preset (§8):
 - If the condition does not hold, the phase is **extended** past the preset's nominal duration (its
   minimum) up to its **maximum**, so slow links get enough completed requests. An extended phase,
   one whose condition did not hold at a minimum shorter than its maximum, carries the
-  `slow link — test extended` notice. On upload the condition is tested on the confirmed window
+  `test extended` notice. On upload the condition is tested on the confirmed window
   (§8), so the phase keeps sending until the *confirmed* window is long enough.
 - At the maximum without the condition, the direction reports `insufficient data` (§8 Shortfall).
 
@@ -1074,7 +1074,8 @@ instead of reporting a link speed.
 **Notices** shown with the result and, where relevant, live. Each has a code, in parentheses: the
 engine emits the code with the raw values the notice names, and the UI words it.
 
-- `slow link — test extended` (`slow-link-extended`, per direction; §5);
+- `test extended` (`slow-link-extended`, per direction; §5): the phase ran past its minimum,
+  which a slow link needs and a fast one whose ramp settled late needs too;
 - `low confidence` with its reason (`low-confidence`, per direction with its reasons);
 - `data cap reached` (`data-cap-reached`; §5);
 - `server stream limit — N streams` (`stream-limit`, per direction with the lowered cap; §4);
@@ -1087,6 +1088,16 @@ engine emits the code with the raw values the notice names, and the UI words it.
 - `server restarted` (`server-restarted`; epoch change, test aborted; §7.3);
 - `server unreachable` with retry (`server-unreachable`; §10);
 - `proxy buffering suspected` (`proxy-buffering-suspected`; §7.3);
+- `browser upload limit` (`browser-upload-limit`, with the browser's name): the browser's own
+  upload path, not the link, may be the limit. Carried when the upload's largest idle share (§8.2)
+  exceeded **20 %**, in any browser: the engine saw a stream sit idle between requests far longer
+  than a round trip, which is the preparation cost at work. Carried also when the browser is
+  Firefox and the upload headline is at least **100 Mbit/s**, with or without a measured idle
+  share: a phone's preparation rate sits near 1 Gbit/s on a fast device and lower on a slower one,
+  so the name rule is a floor for devices the engine cannot measure in time (§7.2,
+  [edge-cases.md §10](edge-cases.md#10-very-fast-links-where-the-browser-cpu-is-the-bottleneck),
+  [research/browser-upload-limits.md](../research/browser-upload-limits.md)). The number is the
+  server's and stands; the notice says what may bound it;
 - `upload interrupted by a failed request` (HTTP/1.1 or unreported protocol), with the hint that
   HTTP/2 at the proxy lets uploads survive transient failures (`upload-interrupted`; §7.5);
 - `response compression detected` (`response-compression-detected`; §6);

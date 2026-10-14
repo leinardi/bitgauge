@@ -28,6 +28,42 @@ the export shows, and what it should show, with the reason; behaviour comes from
   (`AppHeader.vue`, `TabBar.vue`); with a token it would map into Tailwind 4's `--breakpoint-*`
   theme variables and become a named variant.
 
+### One Test Extended Notice For Both Directions
+
+- **Source:** a specification change: [ui/screens.md §7](../features/ui/screens.md#7-notices) shows
+  `test extended` once, naming the extended direction, or both directions when both extended; the
+  engine still carries one notice per direction. The notice was `slow link — test extended`; a fast
+  link whose ramp settles late extends too, so the name no longer blames the link.
+- **Kit:** `ui_kits/app/TestScreen.jsx` and `ResultDetail.jsx`, the notices of a slow run.
+- **Export today:** one notice per direction, titled "Slow link — test extended", the two
+  differing only in the direction named.
+- **Wanted:** the title "Test extended"; a single notice when both directions extended, with a
+  body that names both.
+- **Why:** the Vue app follows the specification and merges them (`noticeViews` in
+  `web/src/components/test/notices.ts`). No parity capture holds the notice, so the run does not
+  see the gap; the note keeps the kit in step for the next export.
+
+### The Browser Upload Limit Notice
+
+- **Source:** a specification change, not a triage cluster: the `browser-upload-limit` notice of
+  [measurement.md §16](../features/measurement.md#16-confidence-and-notices), carried by a result
+  whose upload idle share exceeded 20 % or by a Firefox result whose upload headline is at least
+  100 Mbit/s, in the Confidence group of
+  [ui/screens.md §7](../features/ui/screens.md#7-notices), tone info, with a "Known browser limits"
+  link to [research/browser-upload-limits.md](../research/browser-upload-limits.md).
+- **Kit:** `ui_kits/app/TestScreen.jsx` and `ResultDetail.jsx`, the notices of the complete result;
+  `components/notices.md`, the tone table.
+- **Export today:** no such notice; the tone table lists no browser notice.
+- **Wanted:** a notice `Firefox may limit the upload`, info tone, Lucide `info` icon, body "On fast
+  links Firefox's own upload path, not the network, can bound the upload number; the measurement
+  is the server's and stands. Compare with another browser on this device to tell the two apart.",
+  one action "Known browser limits" styled as the docs link of the proxy buffering notice; shown in
+  the complete-result state when the prototype's browser is Firefox and the upload is at least
+  100 Mbit/s, and listed under info in the tone table.
+- **Why:** the Vue app follows the specification and shows it. The demo's wiring does not report
+  Firefox, so the parity run does not see the gap; the note keeps the kit in step for the next
+  export.
+
 ### Kit Literals With No Token
 
 - **Source:** the design-system-guard skill. These values are drawn as literals in the app kit, no

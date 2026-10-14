@@ -35,6 +35,9 @@ const LAN: Scenario = { rate: () => 312_500_000, perRequest: 62_500_000, rttMs: 
 /** 300 kbit/s and 300 ms RTT over a VPN (measurement.md section 19.1). */
 const VPN: Scenario = { rate: () => 37_500, rttMs: 300, protocol: 'h2' }
 const LINK: Scenario = { rate: () => 1_000_000, rttMs: 50, protocol: 'h2' }
+/** A 1 Gbit/s link from a phone that prepares each body at 600 Mbit/s before sending it (section 7.2). */
+const PHONE: Scenario = { rate: () => 125_000_000, prepareBytesPerSecond: 75_000_000, rttMs: 8, protocol: 'http/1.1' }
+const CHROME = { name: 'Chrome', major: 131, os: 'Android' }
 
 const STANDARD: RunSettings = {
   preset: 'standard',
@@ -119,7 +122,8 @@ describe('a fast LAN Standard run', () => {
         crossOriginIsolated: true,
       },
       settings: { preset: 'standard', phases: ['idle', 'download', 'upload'], streams: { mode: 'auto', max: 6 }, pingCount: 20 },
-      notices: [],
+      // The fake wiring reports Firefox, whose upload path may bound a 2.5 Gbit/s headline.
+      notices: [{ code: 'browser-upload-limit', browser: 'Firefox' }],
     })
     expect(emitted.id).toMatch(/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/)
     expect(emitted.idle?.samples).toHaveLength(19)
@@ -241,6 +245,27 @@ describe('confidence', () => {
     const emitted = await result({ scenario: VPN, busy: 0.95 })
     expect(emitted.upload?.confidence).toEqual({ level: 'cpu-bound', reasons: ['insufficient-samples'] })
     expect(emitted.notices.filter((notice) => notice.code === 'low-confidence')).toEqual([])
+  })
+})
+
+describe('the browser upload limit notice', () => {
+  const carried = (emitted: Result) => emitted.notices.some((notice) => notice.code === 'browser-upload-limit')
+
+  it('is carried by a Firefox result with an upload headline of at least 100 Mbit/s', async () => {
+    const emitted = await result({ scenario: LAN })
+    expect(emitted.client.browser.name).toBe('Firefox')
+    expect(emitted.notices).toContainEqual({ code: 'browser-upload-limit', browser: 'Firefox' })
+  })
+
+  it('is carried, with the browser name, when any browser showed an idle share over 20 %', async () => {
+    const emitted = await result({ scenario: { ...PHONE, browser: CHROME } })
+    expect(emitted.notices).toContainEqual({ code: 'browser-upload-limit', browser: 'Chrome' })
+  })
+
+  it('is absent below 100 Mbit/s on Firefox and without an idle share in other browsers', async () => {
+    expect(carried(await result({ scenario: LINK }))).toBe(false)
+    expect(carried(await result({ scenario: { ...LAN, browser: { ...CHROME, os: 'Linux' } } }))).toBe(false)
+    expect(carried(await result({ scenario: { ...LINK, browser: CHROME } }))).toBe(false)
   })
 })
 

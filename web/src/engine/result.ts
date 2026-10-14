@@ -17,10 +17,12 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { DirectionResult, IdleResult, Notice, Result } from '@/engine/messages'
+import type { DirectionResult, IdleResult, Notice, Result, UploadResult } from '@/engine/messages'
 import { downloadResult, resultNotices, skippedDirection, uploadResult } from '@/engine/result/direction'
 import type { RunReport } from '@/engine/run/report'
-import type { Clock } from '@/engine/types'
+import type { BrowserIdentity, Clock } from '@/engine/types'
+import type { UploadOutcome } from '@/engine/upload/outcome'
+import { IDLE_SHARE } from '@/engine/upload/streams'
 
 // The versioned result object of measurement.md section 17, v0.1 field set: what a run reports,
 // with the client's timer resolution and cross-origin isolation (edge-cases.md section 9). The
@@ -86,6 +88,19 @@ function directionNotices(notices: readonly Notice[] | undefined, block: Directi
   })
 }
 
+/** The floor of the Firefox name rule of measurement.md section 16: a phone prepares near 1 Gbit/s or slower. */
+const FIREFOX_LIMIT_BITS = 100e6
+
+/**
+ * The browser-upload-limit notice (measurement.md section 16): the upload's largest idle share
+ * exceeded 20 % in any browser, or the browser is Firefox and the headline is at least 100 Mbit/s.
+ */
+function browserUploadLimit(browser: BrowserIdentity, outcome: UploadOutcome | null, upload: UploadResult): Notice[] {
+  const seen = (outcome?.idleShare ?? 0) > IDLE_SHARE
+  const firefox = browser.name === 'Firefox' && (upload.bitsPerSecond ?? 0) >= FIREFOX_LIMIT_BITS
+  return seen || firefox ? [{ code: 'browser-upload-limit', browser: browser.name }] : []
+}
+
 export function buildResult(context: ResultContext): Result {
   const { report, clock } = context
   const { settings, info } = report
@@ -125,6 +140,6 @@ export function buildResult(context: ResultContext): Result {
     download,
     upload,
     dataUsedBytes: report.dataUsedBytes,
-    notices: resultNotices([directionNotices(report.download?.notices, download), directionNotices(report.upload?.notices, upload), report.notices], percent),
+    notices: resultNotices([directionNotices(report.download?.notices, download), directionNotices(report.upload?.notices, upload), report.notices, browserUploadLimit(report.browser, report.upload, upload)], percent),
   }
 }

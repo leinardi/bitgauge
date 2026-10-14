@@ -62,6 +62,7 @@ const NOTICES: Record<NoticeCode, true> = {
   'server-restarted': true,
   'server-unreachable': true,
   'proxy-buffering-suspected': true,
+  'browser-upload-limit': true,
   'upload-interrupted': true,
   'response-compression-detected': true,
   'overhead-compensation': true,

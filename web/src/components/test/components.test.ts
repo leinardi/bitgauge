@@ -28,7 +28,7 @@ import type { Component } from 'vue'
 
 import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
-import { noticeView } from '@/components/test/notices'
+import { noticeView, noticeViews } from '@/components/test/notices'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import StartButton from '@/components/test/StartButton.vue'
 import { directionTile, packetLossTile } from '@/components/test/tiles'
@@ -58,6 +58,7 @@ const EVERY: Record<NoticeCode, Notice> = {
   'server-restarted': { code: 'server-restarted' },
   'server-unreachable': { code: 'server-unreachable' },
   'proxy-buffering-suspected': { code: 'proxy-buffering-suspected' },
+  'browser-upload-limit': { code: 'browser-upload-limit', browser: 'Firefox' },
   'upload-interrupted': { code: 'upload-interrupted' },
   'response-compression-detected': { code: 'response-compression-detected' },
   'overhead-compensation': { code: 'overhead-compensation', percent: 2.5 },
@@ -74,6 +75,7 @@ const TONES: Record<NoticeCode, string> = {
   'slow-link-extended': 'info',
   'stream-limit': 'info',
   'overhead-compensation': 'info',
+  'browser-upload-limit': 'info',
   'websocket-reopened': 'info',
   'websocket-unavailable': 'info',
   'low-confidence': 'warn',
@@ -111,6 +113,20 @@ describe('the notices', () => {
     expect(noticeView(EVERY['stopped-early'], context).body).toBe(`Upload is based on a 3.6${NB}s steady window.`)
     expect(noticeView(EVERY['url-parameter-ignored'], context).body).toContain('streams')
     expect(noticeView(EVERY['low-confidence'], context).body).toBe('Upload: few samples.')
+  })
+
+  it('shows one test-extended notice naming both directions when both extended, in place of the first', () => {
+    const down = EVERY['slow-link-extended']
+    const up = { code: 'slow-link-extended', direction: 'upload' } as const
+    const single = noticeViews([down, EVERY['page-hidden']], context)
+    expect(single.map((view) => view.body)).toEqual([noticeView(down, context).body, noticeView(EVERY['page-hidden'], context).body])
+    const both = noticeViews([down, EVERY['page-hidden'], up], context)
+    expect(both).toHaveLength(2)
+    expect(both[0]?.title).toBe('Test extended')
+    expect(both[0]?.body).toBe('Neither download nor upload had a steady window at its minimum duration, so both were extended up to their maximum.')
+    expect(both[1]?.body).toBe(noticeView(EVERY['page-hidden'], context).body)
+    const wrapper = mountWith(NoticeList, { notices: [down, up] })
+    expect(wrapper.findAll('[data-testid="notice"]')).toHaveLength(1)
   })
 
   it('makes danger notices alerts, the others status messages, and wires the actions', async () => {

@@ -17,7 +17,7 @@ thin (`floor-limited`); upload is server-timed; phases extend up to their maximu
 timeouts scale with the running median and cap at 10 s. The slow-link budget is worked out in
 [measurement.md §19.1](measurement.md#191-slow-link-budget-300-kbits-300-ms-rtt-standard).
 
-**User sees.** `slow link — test extended` when a phase extends; `insufficient data` with an offer
+**User sees.** `test extended` when a phase extends; `insufficient data` with an offer
 of the next larger preset when even the maximum is not enough; data used is always shown.
 
 ## 2. Mobile Browsers Throttling Background Tabs and Workers
@@ -189,13 +189,20 @@ body before its first byte leaves, Firefox at about 4–5 Gbit/s on a desktop an
 on a phone. The engine lets one request prepare at a time while the others send
 ([measurement.md §7.2](measurement.md#72-client-side)); where preparation is still slower than the
 link, the server sees short pauses between bursts, and the upload is reported as measured, usually
-with `low` confidence for `unstable`. Firefox's ceiling is a known, open browser issue. The harness
-tolerance at ≥ 2.5 Gbit/s is ±20 %
+with `low` confidence for `unstable`. Firefox's ceiling is a known, open browser issue. A result
+whose upload idle share exceeded 20 %, in any browser, and a Firefox result with an upload headline
+of at least 100 Mbit/s carry the `browser-upload-limit` notice
+([measurement.md §16](measurement.md#16-confidence-and-notices)), which links to the reports
+collected in [research/browser-upload-limits.md](../research/browser-upload-limits.md). The
+harness tolerance at
+≥ 2.5 Gbit/s is ±20 %
 ([technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness)); the confidence
 level is defined in [measurement.md §16](measurement.md#16-confidence-and-notices).
 
 **User sees.** "Limited by this device's CPU, not by the network", with tips: close other tabs, use
-a desktop browser, compare with `networkQuality` or iperf3.
+a desktop browser, compare with `networkQuality` or iperf3; where the browser's preparation
+showed, or on Firefox at 100 Mbit/s and above, `browser upload limit` with a link to the known
+reports.
 
 ## 11. Server Restart Mid-Test
 

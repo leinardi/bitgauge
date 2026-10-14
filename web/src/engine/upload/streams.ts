@@ -33,7 +33,7 @@ const BUFFERING_MIN_MS = 1000
 const BUFFERING_SHARE = 0.1
 
 /** A stream idle, beyond the round trip, for more than this share of a request's client duration is not losing a few round trips. */
-const IDLE_SHARE = 0.2
+export const IDLE_SHARE = 0.2
 
 /** A request's idle share is read only from a server duration of at least one bucket. */
 const IDLE_MIN_DURATION_MS = 100

@@ -261,9 +261,12 @@ Notices appear in the notices area of the Test screen (live where relevant) and 
 detail, each with a short explanation and, where useful, a link to the docs. The full list is
 [../measurement.md §16](../measurement.md#16-confidence-and-notices); the UI groups them:
 
-- **Slow link:** `slow link — test extended`; `insufficient data` with an "Try Standard/Extended"
-  action.
-- **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU").
+- **Duration:** `test extended`, one notice naming the extended direction, or both
+  directions when both extended (the engine carries one per direction, [../measurement.md §16](../measurement.md#16-confidence-and-notices);
+  the notice shown for the download grows to name the upload when that extends too);
+  `insufficient data` with an "Try Standard/Extended" action.
+- **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU");
+  `browser upload limit` with a "Known browser limits" link to the docs.
 - **Limits:** `data cap reached`; `server stream limit — N streams`; `data used: N GB`
   (Continuous); `overhead compensation +p %`.
 - **Settings:** `URL parameter ignored`, naming each invalid parameter.
@@ -277,8 +280,9 @@ detail, each with a short explanation and, where useful, a link to the docs. The
   [../edge-cases.md §20](../edge-cases.md#20-base-path-mismatches)).
 
 Notices are text with an icon, never colour alone, and are announced to screen readers when they
-appear during a run ([i18n-a11y.md](i18n-a11y.md)). Their tones: **info** for slow link — test
-extended, server stream limit, overhead compensation, WebSocket reopened and WebSocket unavailable;
+appear during a run ([i18n-a11y.md](i18n-a11y.md)). Their tones: **info** for test extended,
+server stream limit, overhead compensation, browser upload limit, WebSocket reopened and
+WebSocket unavailable;
 **warn** for low confidence, data cap reached, insufficient data, URL parameter ignored, proxy
 buffering suspected, response compression detected and timer throttling detected; **danger**, with
 `role="alert"`, for server unreachable, upload interrupted and base path mismatch; **neutral** for

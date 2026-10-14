@@ -21,7 +21,7 @@ import type { Direction } from '@/engine/messages'
 import { BUCKET_MS } from '@/engine/stats/units'
 import type { FakeClock } from '@/engine/test/fakeClock'
 import { FakeServer } from '@/engine/test/fakeServer'
-import type { DownloadChunk, DownloadResponse, Info, InfoResult, ProbeTiming, ResourceTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
+import type { BrowserIdentity, DownloadChunk, DownloadResponse, Info, InfoResult, ProbeTiming, ResourceTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
 
 // A Transport for the engine tests that replays a scenario on the FakeClock, on the shared-link
 // model of measurement.md section 19.1: per direction, the requests whose bytes are crossing the
@@ -58,6 +58,8 @@ export interface Scenario {
   /** The server epoch at the start; FakeServer.restart changes it. */
   epoch?: string
   limits?: Partial<Info['limits']>
+  /** The browser identity the fake wiring reports; Firefox 131 on Linux by default. */
+  browser?: BrowserIdentity
   /**
    * A browser that prepares each upload body before its first byte leaves, at this many bytes per
    * second, one body at a time in send order (measurement.md section 7.2); absent, no preparation.

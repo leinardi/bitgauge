@@ -48,13 +48,30 @@ function preset(value: Preset, t: Wording['t']): string {
   return value === 'quick' ? t('test.summary.quick') : value === 'standard' ? t('test.summary.standard') : t('test.summary.extended')
 }
 
+/**
+ * The notices as shown (ui/screens.md section 7): one each, except `slow-link-extended`, which the
+ * engine carries per direction and the UI shows once, naming both directions when both extended.
+ */
+export function noticeViews(notices: readonly Notice[], context: Wording): NoticeView[] {
+  const extended = notices.filter((notice) => notice.code === 'slow-link-extended')
+  if (extended.length < 2) {
+    return notices.map((notice) => noticeView(notice, context))
+  }
+  const first = notices.indexOf(extended[0] as Notice)
+  return notices.flatMap((notice, index) => (notice.code !== 'slow-link-extended' ? [noticeView(notice, context)] : index === first ? [slowLinkExtended(context.t('notices.slowLinkExtended.both'), context)] : []))
+}
+
+function slowLinkExtended(body: string, { t }: Wording): NoticeView {
+  return { tone: 'info', icon: Hourglass, title: t('notices.slowLinkExtended.title'), body, actions: [] }
+}
+
 /** One notice, worded. */
 export function noticeView(notice: Notice, context: Wording): NoticeView {
   const { t, locale } = context
   const docs: NoticeAction = { kind: 'link', href: links.deployment, label: t('notices.actions.docs') }
   switch (notice.code) {
     case 'slow-link-extended':
-      return { tone: 'info', icon: Hourglass, title: t('notices.slowLinkExtended.title'), body: notice.direction === 'download' ? t('notices.slowLinkExtended.download') : t('notices.slowLinkExtended.upload'), actions: [] }
+      return slowLinkExtended(notice.direction === 'download' ? t('notices.slowLinkExtended.download') : t('notices.slowLinkExtended.upload'), context)
     case 'low-confidence': {
       const reasons = confidenceReasons(notice.reasons, context)
       return { tone: 'warn', icon: TriangleAlert, title: t('notices.lowConfidence.title'), body: notice.direction === 'download' ? t('notices.lowConfidence.download', { reasons }) : t('notices.lowConfidence.upload', { reasons }), actions: [] }
@@ -81,6 +98,8 @@ export function noticeView(notice: Notice, context: Wording): NoticeView {
       return { tone: 'danger', icon: ServerOff, title: t('notices.serverUnreachable.title'), body: t('notices.serverUnreachable.body'), actions: [{ kind: 'retry', label: t('notices.actions.retry') }] }
     case 'proxy-buffering-suspected':
       return { tone: 'warn', icon: TriangleAlert, title: t('notices.proxyBufferingSuspected.title'), body: t('notices.proxyBufferingSuspected.body'), actions: [docs] }
+    case 'browser-upload-limit':
+      return { tone: 'info', icon: Info, title: t('notices.browserUploadLimit.title', { browser: notice.browser }), body: t('notices.browserUploadLimit.body', { browser: notice.browser }), actions: [{ kind: 'link', href: links.browserUploadLimits, label: t('notices.actions.browserLimits') }] }
     case 'upload-interrupted':
       return { tone: 'danger', icon: CircleAlert, title: t('notices.uploadInterrupted.title'), body: t('notices.uploadInterrupted.body'), actions: [docs] }
     case 'response-compression-detected':

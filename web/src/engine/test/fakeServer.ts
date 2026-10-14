@@ -114,7 +114,7 @@ export class FakeServer {
         reject(new TypeError('network error'))
         return
       }
-      resolve({ info: this.document(), browser: { name: 'Firefox', major: 131, os: 'Linux' } })
+      resolve({ info: this.document(), browser: this.scenario.browser ?? { name: 'Firefox', major: 131, os: 'Linux' } })
     })
   }
 

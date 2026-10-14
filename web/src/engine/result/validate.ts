@@ -148,6 +148,7 @@ const notices: Record<string, Check> = {
   'url-parameter-ignored': object({ code: literal('url-parameter-ignored'), parameter: string }),
   'stopped-early': directed('stopped-early', { coveredMs: amount }),
   'overhead-compensation': object({ code: literal('overhead-compensation'), percent: amount }),
+  'browser-upload-limit': object({ code: literal('browser-upload-limit'), browser: string }),
   ...Object.fromEntries(
     [
       'server-restarted',

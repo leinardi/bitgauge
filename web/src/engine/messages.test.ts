@@ -90,6 +90,7 @@ describe('message contract', () => {
       | 'server-restarted'
       | 'server-unreachable'
       | 'proxy-buffering-suspected'
+      | 'browser-upload-limit'
       | 'upload-interrupted'
       | 'response-compression-detected'
       | 'overhead-compensation'

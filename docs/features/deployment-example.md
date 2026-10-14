@@ -236,6 +236,9 @@ The shipped compose file runs it with BitGauge in the shape of §2:
       HTTP/1.1 may measure higher throughput, because six HTTP/1.1 connections spread loss across
       six congestion windows while HTTP/2 shares one
       ([edge-cases.md §12](edge-cases.md#12-http2-single-connection-vs-multi-connection-ramp)).
+      Firefox clients are another reason to keep HTTP/1.1 for the test endpoints: Firefox before
+      115 uploads slowly over HTTP/2, and its HTTP/3 uploads are still slower than its HTTP/1.1
+      ones ([research/browser-upload-limits.md](../research/browser-upload-limits.md)).
 - [ ] **`public_url`** set (or forwarding headers from a trusted proxy) if networkQuality or the
       LibreSpeed server list is used.
 

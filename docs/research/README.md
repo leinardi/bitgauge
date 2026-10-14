@@ -26,6 +26,7 @@ inform is specified in [../features/](../features/README.md), which is canonical
 | [Cloudflare](cloudflare.md) | `@cloudflare/speedtest` | The 1 s request-size rule, Resource Timing for HTTP probes, `Server-Timing`, loaded-latency throttle, AIM score tables |
 | [Apple networkQuality](networkquality.md) | Apple's server specification and reference configurations, draft-ietf-ippm-responsiveness-05, `goresponsiveness` | The compatibility layer, the trimmed-mean RPM formula for the browser-feasible half |
 | [ndt7](ndt7.md) | The ndt7 protocol specification | Server-side measurement of upload, message size scaling as a cross-check |
+| [Browser upload limits](browser-upload-limits.md) | Mozilla bug reports, other tests' issue trackers and settings, BitGauge's own probes | The preparation turn, the upload gauge window and the `browser-upload-limit` notice |
 | [Prior-art summary](prior-art-summary.md) | All of the above plus fast.com and Waveform | Who each idea comes from |
 
 ## Licences of the Sources

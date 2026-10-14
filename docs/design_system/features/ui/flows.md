@@ -50,7 +50,7 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 3. Idle latency measures a high RTT (for example 300 ms); timeouts adapt to it.
 4. Download starts with one stream and 64 KiB requests; the gauge moves slowly; the ramp may skip
    trials (`floor-limited`).
-5. The phase extends past its nominal duration: the `slow link — test extended` notice appears live.
+5. The phase extends past its nominal duration: the `test extended` notice appears live.
    - **Branch: the window condition is met.** Download reports a number.
    - **Branch: the maximum is reached without it.** Download shows `insufficient data`, data used,
      and "Try Extended"; upload still runs.

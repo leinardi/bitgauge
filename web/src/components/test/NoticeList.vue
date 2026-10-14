@@ -21,7 +21,7 @@ import { ExternalLink, RefreshCw, Timer } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { noticeView, type Tone } from '@/components/test/notices'
+import { noticeViews, type Tone } from '@/components/test/notices'
 import { Button } from '@/components/ui/button'
 import type { Notice, Preset } from '@/engine/messages'
 
@@ -40,7 +40,7 @@ const TONES: Record<Tone, { box: string; icon: string }> = {
   neutral: { box: 'border-input bg-muted', icon: 'text-subtle-foreground' },
 }
 
-const views = computed(() => props.notices.map((notice, index) => ({ key: `${notice.code}-${index}`, view: noticeView(notice, { t, locale: locale.value }) })))
+const views = computed(() => noticeViews(props.notices, { t, locale: locale.value }).map((view, index) => ({ key: `${index}`, view })))
 </script>
 
 <template>

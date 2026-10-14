@@ -2,9 +2,10 @@
   "notices": {
     "label": "Notices",
     "slowLinkExtended": {
-      "title": "Slow link — test extended",
+      "title": "Test extended",
       "download": "Download had no steady window at its minimum duration, so it was extended up to its maximum.",
-      "upload": "Upload had no steady window at its minimum duration, so it was extended up to its maximum."
+      "upload": "Upload had no steady window at its minimum duration, so it was extended up to its maximum.",
+      "both": "Neither download nor upload had a steady window at its minimum duration, so both were extended up to their maximum."
     },
     "lowConfidence": {
       "title": "Low confidence",
@@ -47,6 +48,10 @@
       "title": "Proxy buffering suspected",
       "body": "Upload requests finished much later than the server read them, which suggests a proxy buffers request bodies."
     },
+    "browserUploadLimit": {
+      "title": "{browser} may limit the upload",
+      "body": "On fast links {browser}'s own upload path, not the network, can bound the upload number; the measurement is the server's and stands. Compare with another browser on this device to tell the two apart."
+    },
     "uploadInterrupted": {
       "title": "Upload interrupted by a failed request",
       "body": "Over HTTP/1.1 a failed upload request ends the phase; HTTP/2 at the reverse proxy lets uploads survive transient failures."
@@ -86,7 +91,8 @@
     "actions": {
       "docs": "Deployment guide",
       "retry": "Retry",
-      "tryPreset": "Try {preset}"
+      "tryPreset": "Try {preset}",
+      "browserLimits": "Known browser limits"
     }
   }
 }

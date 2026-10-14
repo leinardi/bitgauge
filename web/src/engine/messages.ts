@@ -102,6 +102,8 @@ export type Notice =
   | { code: 'server-restarted' }
   | { code: 'server-unreachable' }
   | { code: 'proxy-buffering-suspected' }
+  /** The browser's own upload path may bound the headline (measurement.md section 16); `browser` is its family. */
+  | { code: 'browser-upload-limit'; browser: string }
   | { code: 'upload-interrupted' }
   | { code: 'response-compression-detected' }
   | { code: 'overhead-compensation'; percent: number }

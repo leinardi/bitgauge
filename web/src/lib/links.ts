@@ -22,6 +22,7 @@
 
 const REPOSITORY = 'https://github.com/leinardi/bitgauge'
 const DOCS = `${REPOSITORY}/blob/main/docs/features`
+const RESEARCH = `${REPOSITORY}/blob/main/docs/research`
 
 export const links = {
   source: REPOSITORY,
@@ -30,4 +31,5 @@ export const links = {
   packetLoss: `${DOCS}/measurement.md#18-future-packet-loss-via-webrtcturn`,
   deployment: `${DOCS}/deployment-example.md`,
   subPathGuide: `${DOCS}/deployment-example.md#6-sub-path-deployment`,
+  browserUploadLimits: `${RESEARCH}/browser-upload-limits.md`,
 } as const
