@@ -277,7 +277,7 @@ describe('validateLedger: across clusters', () => {
 
 describe('ruleScenarios', () => {
   it('is every scenario for a rule that names none, and the union of its items otherwise', () => {
-    expect(ruleScenarios(match()).size).toBe(24)
+    expect(ruleScenarios(match()).size).toBe(25)
     expect([...ruleScenarios(match({ scenarios: ['about/*', 'test/idle', 'about'] }))].sort()).toEqual(['about', 'about/unreachable', 'test/idle'])
   })
 })

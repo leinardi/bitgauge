@@ -33,6 +33,7 @@ export const V01_TEST_STATES = [
   'download',
   'upload',
   'complete',
+  'upload-interrupted',
   'error',
   'error-early',
   'cancelled',

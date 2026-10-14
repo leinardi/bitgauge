@@ -74,6 +74,9 @@ export const DEMO_SCENARIOS = {
   error: { link: 'lan', start: true, fault: at('download', 6400) },
   // The kit's early error is the server going away during idle latency, whatever the panel says.
   'error-early': { link: 'lan', start: true, fault: { ...at('idle', 1200), kind: 'unreachable' } },
+  // Over HTTP/1.1 the first failed upload request ends the upload, not the run: the result is
+  // complete, with the upload's window up to the failure (measurement.md section 7.5).
+  'upload-interrupted': { link: 'lan-http1', start: true, fault: { ...at('upload', 8200), kind: 'requests' } },
   cancelled: { link: 'lan', start: true, stop: at('upload', 3100) },
   'cancelled-late': { link: 'lan', start: true, stop: at('upload', 14_000) },
   'cancelled-latency': { link: 'lan', start: true, stop: at('idle', 1200) },

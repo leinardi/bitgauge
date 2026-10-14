@@ -106,8 +106,8 @@ The reporter prints a coverage table after every run:
 
 ```text
 demo parity · run f9d1bbd8 · matrix full · scenarios all · complete · mode check
-  expected  96 pairs (4 projects × 24 scenarios)
-  compared  96
+  expected  100 pairs (4 projects × 25 scenarios)
+  compared  100
   baseline  4066 checked · not checked this run: 0 (project not selected), 0 (scenario filtered out), 0 (not compared)
 ```
 

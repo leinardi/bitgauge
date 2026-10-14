@@ -102,6 +102,7 @@ export const VUE_STARTING_STATES: ReadonlySet<TestState> = new Set<TestState>([
   'ws-fallback',
   'upload',
   'complete',
+  'upload-interrupted',
   'error',
   'error-early',
   'cancelled',

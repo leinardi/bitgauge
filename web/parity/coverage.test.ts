@@ -138,7 +138,7 @@ describe('Test screen states', () => {
 
 describe('the Vue driver', () => {
   it('knows which demo states start a run', () => {
-    const flags = captures(source('../src/demo/scenarios.ts'), /^ {2}'?([a-z-]+)'?: \{ link: '[a-z]+', start: (true|false)\b/gm, 'the start flags of DEMO_SCENARIOS')
+    const flags = captures(source('../src/demo/scenarios.ts'), /^ {2}'?([a-z-]+)'?: \{ link: '[a-z0-9-]+', start: (true|false)\b/gm, 'the start flags of DEMO_SCENARIOS')
     expect(sorted(flags.map(([state]) => state ?? '')), 'a demo state has no start flag this test can read').toEqual(sorted(V01_TEST_STATES))
     expect(sorted(VUE_STARTING_STATES)).toEqual(sorted(flags.filter(([, start]) => start === 'true').map(([state]) => state ?? '')))
   })

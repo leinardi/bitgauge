@@ -22,11 +22,11 @@ import type { Info } from '@/engine/types'
 
 // The demo's servers and links, named as in the design export's UI kit (ui_kits/app/TestScreen.jsx):
 // "Basement NAS" reached over the LAN at 612 Mbit/s down and 438 Mbit/s up with 3.1 ms of idle
-// latency over HTTP/2, or over a VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s
-// link of its insufficient-data state. The GET /info answers are what the server would send to
+// latency over HTTP/2, or the same LAN over HTTP/1.1 for its upload-interrupted state; over a VPN
+// at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s link of its insufficient-data state. The GET /info answers are what the server would send to
 // that client with its default configuration (configuration.md section 1).
 
-export type DemoLinkName = 'lan' | 'vpn' | 'insufficient'
+export type DemoLinkName = 'lan' | 'lan-http1' | 'vpn' | 'insufficient'
 
 const MIB = 1024 * 1024
 
@@ -62,6 +62,16 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
     jitterMs: 0.8,
     protocol: 'h2',
   },
+  // The same LAN behind a proxy that speaks HTTP/1.1, where the first failed upload request ends
+  // the upload (measurement.md section 7.5).
+  'lan-http1': {
+    downloadBitsPerSecond: 612e6,
+    uploadBitsPerSecond: 438e6,
+    perRequestBitsPerSecond: 110e6,
+    rttMs: 3.1,
+    jitterMs: 0.8,
+    protocol: 'http/1.1',
+  },
   vpn: {
     downloadBitsPerSecond: 640e3,
     uploadBitsPerSecond: 210e3,
@@ -80,5 +90,5 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
 
 /** The GET /info answer the link's client sees: the kit's 192.168.1.42 on the LAN, 10.8.0.6 otherwise. */
 export function infoFor(link: DemoLinkName, basePath = '/'): Info {
-  return info(link === 'lan' ? '192.168.1.42' : '10.8.0.6', basePath)
+  return info(link === 'lan' || link === 'lan-http1' ? '192.168.1.42' : '10.8.0.6', basePath)
 }
