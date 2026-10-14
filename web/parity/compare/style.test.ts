@@ -74,6 +74,22 @@ describe('compareStyles', () => {
     ])
   })
 
+  it('ignores a border colour where neither side draws a border', () => {
+    const transparent = el({ 'border-top-width': '1px', 'border-top-color': 'rgba(0, 0, 0, 0)' })
+    const none = el({ 'border-top-width': '0px', 'border-top-color': 'rgba(26, 30, 37, 255)' })
+    expect(compareStyles([transparent], [none], ['main'])).toEqual([])
+    const drawn = el({ 'border-top-width': '1px', 'border-top-color': 'rgba(26, 30, 37, 255)' })
+    expect(compareStyles([transparent], [drawn], ['main']).map((f) => f.kind)).toEqual(['border-top-color'])
+  })
+
+  it('compares the radius a corner is drawn with', () => {
+    const pill = (radius: string) => el({ 'border-top-left-radius': radius, height: '24.0px', width: '57.0px' })
+    expect(compareStyles([pill('9999px')], [pill('3.35544e+07px')], ['main'])).toEqual([])
+    expect(compareStyles([pill('9999px')], [pill('6px')], ['main'])).toEqual([
+      { layer: 'style', path: 'main > button "Start"', kind: 'border-top-left-radius', detail: '12px → 6px' },
+    ])
+  })
+
   describe('an icon-only button in the same centred box', () => {
     const iconBox = {
       display: 'inline-flex',

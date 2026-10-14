@@ -46,7 +46,8 @@ state (`test/<state>`, the kit's `TEST_STATES` without the continuous ones, whic
   from `localStorage` (`bitgauge-kit-demo`) when the page loads, and a forced state wins over its
   run timeline, so the driver stores the state and loads the page again. The Vue side picks the
   state in `DemoPanel`'s Force state control, which plays that state's scenario and holds it at the
-  kit's instant.
+  kit's instant. The one exception is `basepath`: the kit's state is the page-path mismatch, so the
+  Vue demo, built for `/`, is opened under `/speed/`, where the page detects it before any request.
 - **A screen** is reached by its navigation item's name in the Primary navigation the window shows;
   the item marked current is the proof it landed.
 - **An unreachable server** is the prototype panel's Server unreachable switch and the Vue demo's
@@ -54,7 +55,9 @@ state (`test/<state>`, the kit's `TEST_STATES` without the continuous ones, whic
 
 Before reading anything, both pages are put in the same state: the wall clock fixed, UTC, en-US,
 reduced motion, the project's colour scheme, and the prototype's theme and v0.1 scope set to the
-product's defaults (System, no History). Then the harness waits until the DOM has stopped changing.
+product's defaults (System, no History), with its Demo panel's browser on Chrome, since the harness
+drives Chromium and the panel defaults to Firefox. Then the harness waits until the DOM has stopped
+changing.
 
 | Layer | Reads | Produces |
 | --- | --- | --- |
@@ -68,14 +71,18 @@ product's defaults (System, no History). Then the harness waits until the DOM ha
 - a paragraph and its text;
 - decorative icons;
 - empty live regions;
+- each side's own page host: the Vue demo shows the origin it is served from and the prototype a
+  mocked host, as the spec asks of both, so either reads as one token (never any other host);
 - a measured value: the number of a rate, latency, size, duration or share, the prefix of a data
   size, the number of streams in use, and the digits of a time of day. A range (a phase's estimated
   duration, a scale's bounds) is never measured, so it is compared as written.
 
 Anything added there hides a class of difference for good, so it needs the same justification.
-`web/parity/compare/style.ts` skips a property only where it cannot render: a border colour with no
-border, a gap outside flex and grid, and the padding, gap and weight of an icon-only button centred
-in a box of the same size on both sides.
+`web/parity/compare/style.ts` skips a property only where it cannot render: a border colour where
+neither side draws a border (no width, or a fully transparent colour), a gap outside flex and grid,
+and the padding, gap and weight of an icon-only button centred in a box of the same size on both
+sides. A corner radius is compared as drawn, at most half the box's shorter side, so `9999px` and
+`calc(infinity * 1px)` are the same pill.
 
 ### Why the Runs Repeat
 

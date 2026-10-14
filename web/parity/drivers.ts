@@ -66,16 +66,19 @@ async function storeAndReload(page: Page, key: string, patch: Record<string, unk
 export const proto: Driver = {
   side: 'proto',
   startUrl: `${PROTO_ORIGIN}/ui_kits/app/index.html`,
+  // The kit's mocked server (ui_kits/app/fixtures.js).
+  pageHost: 'speed.home.lan',
   overlaySelector: OVERLAYS,
   toastSelector: '.toast',
   styleRegions: STYLE_REGIONS,
   // Before the first load only, so a later choice survives a reload: the v0.1 scope (no History),
+  // Chrome as the browser, since the harness drives Chromium and the panel defaults to Firefox,
   // and the theme on System, which is the product's default and the Vue demo's, where the prototype
   // starts on Dark. With System both sides follow the project's emulated colour scheme.
   prepare: async (context: BrowserContext) => {
     await context.addInitScript(
       ({ demoKey, prefsKey }) => {
-        if (localStorage.getItem(demoKey) === null) localStorage.setItem(demoKey, JSON.stringify({ v01: true }))
+        if (localStorage.getItem(demoKey) === null) localStorage.setItem(demoKey, JSON.stringify({ v01: true, browser: 'Chrome' }))
         if (localStorage.getItem(prefsKey) === null) localStorage.setItem(prefsKey, JSON.stringify({ theme: 'system' }))
       },
       { demoKey: KIT_DEMO_KEY, prefsKey: KIT_PREFS_KEY },
@@ -142,6 +145,7 @@ async function closePanel(page: Page): Promise<void> {
 export const vue: Driver = {
   side: 'vue',
   startUrl: `${VUE_ORIGIN}/`,
+  pageHost: new URL(VUE_ORIGIN).host,
   overlaySelector: OVERLAYS,
   // v0.1 shows no toast.
   toastSelector: null,
@@ -154,6 +158,23 @@ export const vue: Driver = {
     // The auto-start countdown runs in the page, not in the engine, so the demo's hold cannot stop
     // it. It pauses while the page is hidden (ui/flows.md section 2), so from the next load on the
     // page reads as hidden, and the countdown stays at its start, as the prototype's forced one does.
+    // The kit's base path state is the page-path mismatch: the page opened under /speed/ while the
+    // server is configured for /, which the page detects before any request (edge-cases.md section
+    // 20). The demo build is configured for /, so opening it there is that state.
+    if (state === 'basepath') {
+      // The build's assets are relative to the page, so under /speed/ they are asked for at
+      // /speed/assets/, which the preview server answers with index.html; they are served from where
+      // the build put them, as the reverse proxy in front of such a deployment would.
+      await page.route(`${VUE_ORIGIN}/speed/**`, (route) => {
+        const url = new URL(route.request().url())
+        if (url.pathname === '/speed/') return route.continue()
+        url.pathname = url.pathname.slice('/speed'.length)
+        return route.continue({ url: url.toString() })
+      })
+      await page.goto(`${VUE_ORIGIN}/speed/`)
+      await waitForSettled(page, RUN_ARRIVED_QUIET_MS)
+      return
+    }
     if (state === 'countdown') {
       await page.addInitScript(() => Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }))
     }

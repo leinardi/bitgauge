@@ -30,6 +30,7 @@ const driver: SideDriver = {
   overlaySelector: '[role=dialog], [role=alertdialog]',
   toastSelector: '.toast',
   styleRegions: [['main', 'main']],
+  pageHost: '127.0.0.1:5180',
   prepare: () => Promise.resolve(),
 }
 

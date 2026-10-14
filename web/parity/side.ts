@@ -42,6 +42,10 @@ export interface SideDriver {
   // Each region's root element on this side, for the style layer, first match wins: an element
   // inside an overlay belongs to the overlay, and one inside main to main.
   styleRegions: [Region, string][]
+  // The host the side shows for its own page: the Vue demo reads the origin it is served from, the
+  // prototype mocks one. Both show what the spec asks (ui/screens.md section 1), so the content layer
+  // reads either as the same token.
+  pageHost: string
   // Readies a fresh context before its first page loads, such as the product defaults a side keeps
   // in storage.
   prepare: (context: BrowserContext) => Promise<void>

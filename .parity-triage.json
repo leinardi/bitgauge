@@ -482,9 +482,9 @@
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main( > (term|definition))?$",
+        "path": null,
         "kind": null,
-        "detail": "^(text \"(This page was|, but the server|\\. Its API|/|GET )|term|definition|text \"Check\" → )"
+        "detail": "(This page was served for the base path|Base path reported by the API)"
       },
       "type": "adapter",
       "aspect": null,
@@ -505,29 +505,69 @@
       },
       "decision": {
         "kind": "confirmation",
-        "rationale": "The kit shows the page-path variant (page at /speed/, server at /); the demo must reach the same variant to compare its copy.",
+        "rationale": "The kit shows the page-path variant (page at /speed/, server at /); the demo must reach the same variant to compare its copy. Once it does, what is left is the copy of that variant, a content difference for its own cluster.",
         "on": "2026-10-14"
       },
       "owned": {
         "test/basepath": {
           "599414d6c37f": "*",
-          "5f810cc6e8f6": "*",
           "94868523e01c": "*",
           "9b5fb4ae3134": "*",
           "bc5ab16a589a": "*",
-          "d43d4c0b266c": "*",
-          "eb72a8aa7296": "*"
+          "d43d4c0b266c": "*"
         }
       },
       "actions": [
         {
           "target": "harness",
           "what": "web/parity/drivers.ts: the Vue side reaches test/basepath by opening the demo at /speed/, so the page-path check fails before any request.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-14",
+        "run": {
+          "runId": "52b67fb4-3893-4aae-b996-1fa98a11af3d",
+          "finishedAt": "2026-10-14T21:34:57.138Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "adapter-kit-browser",
@@ -573,11 +613,53 @@
         {
           "target": "harness",
           "what": "web/parity/drivers.ts: seed the kit's demo state with browser 'Chrome' alongside v01.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-14",
+        "run": {
+          "runId": "52b67fb4-3893-4aae-b996-1fa98a11af3d",
+          "finishedAt": "2026-10-14T21:34:57.138Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "content-result-time",
@@ -671,11 +753,53 @@
         {
           "target": "fixture",
           "what": "web/src/demo/fixtures.ts infoFor: the insufficient link reports 192.168.1.42; update the fixtures comment.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-14",
+        "run": {
+          "runId": "52b67fb4-3893-4aae-b996-1fa98a11af3d",
+          "finishedAt": "2026-10-14T21:34:57.138Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "fixture-slow-context",
@@ -870,11 +994,53 @@
         {
           "target": "harness",
           "what": "Replace each side's own page host (prototype speed.home.lan, Vue the demo origin's host) with one token in the content capture before normalisation; unit test; a bullet with its reason in demo-parity.md § What It Compares.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-14",
+        "run": {
+          "runId": "52b67fb4-3893-4aae-b996-1fa98a11af3d",
+          "finishedAt": "2026-10-14T21:34:57.138Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "harness-pill-radius",
@@ -918,11 +1084,53 @@
         {
           "target": "harness",
           "what": "web/parity/compare/style.ts: compare a corner radius as min(r, min(width, height)/2) per side, with the length tolerance; unit test; note it in demo-parity.md.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-14",
+        "run": {
+          "runId": "52b67fb4-3893-4aae-b996-1fa98a11af3d",
+          "finishedAt": "2026-10-14T21:34:57.138Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "harness-transparent-border",
@@ -1229,17 +1437,81 @@
         {
           "target": "harness",
           "what": "web/parity/compare/style.ts: skip a border colour when one side's border is transparent and the other side's has no width; unit test; note the skip in demo-parity.md.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-14",
+        "run": {
+          "runId": "52b67fb4-3893-4aae-b996-1fa98a11af3d",
+          "finishedAt": "2026-10-14T21:34:57.138Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "layout-results-metrics",
       "title": "Data used, duration and packet loss: a 'Test' term/definition list inside Results (kit) vs three tiles after it (Vue)",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/cancelled",
+          "test/cancelled-download",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/complete",
+          "test/connecting",
+          "test/countdown",
+          "test/download",
+          "test/error",
+          "test/error-early",
+          "test/idle",
+          "test/insufficient",
+          "test/latency",
+          "test/param-ignored",
+          "test/slow",
+          "test/slowdone",
+          "test/upload",
+          "test/upload-interrupted",
+          "test/ws-fallback"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main( > region \"Results\")?$",

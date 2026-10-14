@@ -145,6 +145,23 @@ function sameValue(a: string, b: string): boolean {
   return pa !== null && pb !== null && Math.abs(pa - pb) <= LENGTH_TOLERANCE_PX
 }
 
+// The radius a corner is drawn with: a radius larger than half the box's shorter side is scaled down
+// to it (CSS Backgrounds 3, overlapping curves), so 9999px and Tailwind's calc(infinity * 1px), which
+// a browser reports as 3.35544e+07px, both draw the same pill. Corners are assumed uniform, as only
+// the top-left one is read.
+function drawnRadius(side: Record<string, string>): string {
+  const radius = Number.parseFloat(side['border-top-left-radius'] ?? '')
+  const width = px(side['width'] ?? '')
+  const height = px(side['height'] ?? '')
+  if (Number.isNaN(radius) || width === null || height === null) return side['border-top-left-radius'] ?? ''
+  return `${Math.min(radius, Math.min(width, height) / 2)}px`
+}
+
+// A border draws only with a width and a colour that is not fully transparent.
+function drawsBorder(side: Record<string, string>): boolean {
+  return (px(side['border-top-width'] ?? '') ?? 0) > 0 && !/, 0\)$/.test(side['border-top-color'] ?? '')
+}
+
 // An icon-only button: no text, at most one child, centred in a symmetric flex or grid box.
 function isCentredIconBox(side: Record<string, string>): boolean {
   return (
@@ -160,8 +177,9 @@ function isCentredIconBox(side: Record<string, string>): boolean {
 
 const ICON_BOX_UNRENDERED = new Set(['padding-top', 'padding-right', 'padding-bottom', 'padding-left', 'column-gap', 'font-weight'])
 
-// Properties that only show under a condition: a border colour with no border width, or a gap on
-// an element that is neither flex nor grid, draws nothing however it differs. Neither does the
+// Properties that only show under a condition: a border colour on a border that draws on neither
+// side (no width, or fully transparent, as the kit's buttons carry), or a gap on an element that is
+// neither flex nor grid, draws nothing however it differs. Neither does the
 // padding, gap or weight of an icon-only button whose box is the same size on both sides: the icon
 // sits centred whatever the padding, there is no second child to space and no text to weigh.
 function applies(prop: string, a: Record<string, string>, b: Record<string, string>): boolean {
@@ -173,7 +191,7 @@ function applies(prop: string, a: Record<string, string>, b: Record<string, stri
     sameValue(a['height'] ?? '', b['height'] ?? '')
   )
     return false
-  if (prop === 'border-top-color') return (px(a['border-top-width'] ?? '') ?? 0) > 0 || (px(b['border-top-width'] ?? '') ?? 0) > 0
+  if (prop === 'border-top-color') return drawsBorder(a) || drawsBorder(b)
   if (prop === 'column-gap') return [a, b].some((side) => /flex|grid/.test(side['display'] ?? ''))
   return true
 }
@@ -187,8 +205,9 @@ export function compareStyles(proto: readonly StyledElement[], vue: readonly Sty
     if (v === undefined) continue
     const where = `${p.region} > ${roleClass(p.role)} "${p.name}"${p.occurrence > 1 ? ` #${p.occurrence}` : ''}`
     for (const prop of STYLE_PROPS) {
-      const a = p.props[prop] ?? ''
-      const b = v.props[prop] ?? ''
+      const radius = prop === 'border-top-left-radius'
+      const a = radius ? drawnRadius(p.props) : (p.props[prop] ?? '')
+      const b = radius ? drawnRadius(v.props) : (v.props[prop] ?? '')
       if (applies(prop, p.props, v.props) && !sameValue(a, b)) out.push(finding('style', where, prop, `${a} → ${b}`))
     }
   }

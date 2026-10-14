@@ -20,7 +20,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { normalizeTree, normalizeValue } from '../normalize.ts'
+import { normalizeTree, normalizeValue, PAGE_HOST } from '../normalize.ts'
 import { parseAriaSnapshot } from './ariaTree.ts'
 import { compareContent, textChange, type RegionTrees } from './content.ts'
 
@@ -82,6 +82,14 @@ describe('compareContent', () => {
     expect(diff('- heading "Speed test" [level=1]', '- heading "Speed test" [level=1]\n- status: Download started')).toEqual([
       'extra main | status',
     ])
+  })
+})
+
+describe('normalizeTree', () => {
+  it("reads each side's own page host as one token, and no other host", () => {
+    const tree = parseAriaSnapshot('- text: Basement NAS, connected speed.home.lan, not example.org')
+    expect(normalizeTree(tree, 'speed.home.lan')[0]?.name).toBe(`Basement NAS, connected ${PAGE_HOST}, not example.org`)
+    expect(normalizeTree(tree)[0]?.name).toBe('Basement NAS, connected speed.home.lan, not example.org')
   })
 })
 

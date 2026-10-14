@@ -90,10 +90,10 @@ export async function capture(driver: SideDriver, page: Page): Promise<Capture> 
     dialogs: await snapshotAll(page, driver.overlaySelector, toasts),
   }
   const trees: RegionTrees = {
-    header: normalizeTree(parseAriaSnapshot(raw.header)),
-    main: normalizeTree(contents(raw.main)),
-    notices: normalizeTree(parseAriaSnapshot(raw.notices)),
-    dialogs: normalizeTree(parseAriaSnapshot(raw.dialogs)),
+    header: normalizeTree(parseAriaSnapshot(raw.header), driver.pageHost),
+    main: normalizeTree(contents(raw.main), driver.pageHost),
+    notices: normalizeTree(parseAriaSnapshot(raw.notices), driver.pageHost),
+    dialogs: normalizeTree(parseAriaSnapshot(raw.dialogs), driver.pageHost),
   }
   return { trees, raw, styles: await collectStyles(page, driver.styleRegions) }
 }

@@ -96,17 +96,25 @@ function isEmptyLiveRegion(node: AriaNode, children: readonly AriaNode[]): boole
   return LIVE_ROLES.has(node.role) && normalizeText(node.name) === '' && children.length === 0
 }
 
-export function normalizeTree(nodes: readonly AriaNode[]): AriaNode[] {
+// The page's own host, which each side shows as the spec asks: the demo's is wherever it is served,
+// the prototype's a mocked name. Only the side's own host is replaced, never a host in general.
+export const PAGE_HOST = '<page host>'
+
+function replaceHost(text: string, pageHost: string | undefined): string {
+  return pageHost === undefined || pageHost === '' ? text : text.split(pageHost).join(PAGE_HOST)
+}
+
+export function normalizeTree(nodes: readonly AriaNode[], pageHost?: string): AriaNode[] {
   const out: AriaNode[] = []
   for (const node of nodes) {
     if (isDecorative(node)) continue
-    const children = normalizeTree(node.children)
+    const children = normalizeTree(node.children, pageHost)
     if (isEmptyLiveRegion(node, children)) continue
     if (TRANSPARENT_ROLES.has(node.role)) {
       out.push(...children)
       continue
     }
-    const name = normalizeValue(node.name)
+    const name = normalizeValue(replaceHost(node.name, pageHost))
     // A lone text child that repeats its parent's name is the name again: Playwright leaves it out
     // when the label is the element's only content, and keeps it when an icon sits beside it.
     const only = children.length === 1 ? children[0] : undefined
