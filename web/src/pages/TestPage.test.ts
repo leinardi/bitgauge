@@ -105,6 +105,7 @@ async function started() {
 
 const text = (element: { text(): string }) => element.text().replaceAll(NB, ' ')
 const tiles = (page: Awaited<ReturnType<typeof mountApp>>) => page.findAll('[data-testid="metric-tile"]').map(text)
+const facts = (page: Awaited<ReturnType<typeof mountApp>>) => page.findAll('dl > div').map(text)
 
 beforeAll(() => {
   const meta = document.createElement('meta')
@@ -177,7 +178,8 @@ describe('the Test screen', () => {
     expect(page.find('[data-testid="result-bar"]').exists()).toBe(false)
     expect(page.find('[data-testid="download-json"]').exists()).toBe(false)
     expect(page.text()).toContain('No test has run yet.')
-    expect(tiles(page)).toHaveLength(7)
+    expect(tiles(page)).toHaveLength(4)
+    expect(facts(page)).toEqual(['Data used—', 'Duration—', "Packet lossBrowsers can't see packet loss over TCP Not measuredWhy?"])
     page.unmount()
   })
 
@@ -213,7 +215,7 @@ describe('the Test screen', () => {
     expect(page.get('[data-testid="connection-protocol"]').text()).toContain('HTTP/2')
     expect(page.get('[data-testid="connection-streams"]').text()).toContain('4')
     expect(tiles(page)[0]).toContain('warming up')
-    expect(tiles(page)[4]).toContain('2.5')
+    expect(facts(page)[0]).toContain('2.5')
     expect(page.find('[data-testid="throughput-chart"]').exists()).toBe(true)
     await emit(phase('download', 'finished'), phase('upload', 'started', { streams: 2 }))
     await emit({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 0, sending: 4e7, dataUsedBytes: 3_000_000 })

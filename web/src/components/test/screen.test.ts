@@ -172,7 +172,7 @@ describe('screenTiles', () => {
     const done = screenTiles(run({ status: 'ended', result: resultFixture(), dataUsedBytes: 1_300_000_000 }), SETTINGS, context)
     expect(done.main.map((tile) => tile.number)).toEqual(['612', '438', '3.1', '0.4'])
     expect(done.more.map((tile) => tile.number)).toEqual(['1.3', '28.6'])
-    expect(done.packetLoss.lines[0]?.text).toBe('not measured')
+    expect(done.packetLoss.lines[0]?.text).toBe('Not measured')
     const idle = screenTiles(run({ status: 'idle', result: resultFixture(), idle: { pings: 2, count: 20 }, dataUsedBytes: 5 }), SETTINGS, context)
     expect([...idle.main, ...idle.more].every((tile) => tile.number === null && !tile.live)).toBe(true)
   })

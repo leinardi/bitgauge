@@ -28,9 +28,11 @@ import CountdownRing from '@/components/gauge/CountdownRing.vue'
 import LiveGauge from '@/components/gauge/Gauge.vue'
 import { startK } from '@/components/gauge/window'
 import OfflineNotice from '@/components/OfflineNotice.vue'
+import MetaList, { type MetaRow } from '@/components/layout/MetaList.vue'
 import AutoStartNotice from '@/components/test/AutoStartNotice.vue'
 import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
+import NotMeasured from '@/components/test/NotMeasured.vue'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
@@ -81,6 +83,17 @@ const units = computed(() => shownSettings.value?.units ?? 'bits')
 const steps = computed(() => (shownSettings.value === null ? [] : phaseSteps(view.value, shownSettings.value, locale.value)))
 const gauge = computed(() => gaugeInput(view.value, wording.value))
 const tiles = computed(() => (shownSettings.value === null ? null : screenTiles(view.value, shownSettings.value, wording.value)))
+// Data used, duration and the packet-loss slot, whose reason stays in view (ui/screens.md section 6).
+const facts = computed<MetaRow[]>(() => {
+  if (tiles.value === null) {
+    return []
+  }
+  const { more, packetLoss } = tiles.value
+  return [
+    ...more.map((tile) => ({ key: tile.label, icon: tile.icon, label: tile.label, value: tile.number === null ? null : `${tile.number} ${tile.unit}` })),
+    { key: 'packet-loss', icon: packetLoss.icon, label: packetLoss.label, sub: t('test.tiles.whyNot') },
+  ]
+})
 
 // The URL parameters ignored; before the first run they show as the notices a run will carry.
 const ignored = computed(() => (defaults.value === null ? url.ignored : urlOverride(url, defaults.value).ignored))
@@ -292,18 +305,17 @@ watch(run.error, (error) => {
           :key="tile.label"
           :tile="tile"
         />
+        <MetaList
+          :title="$t('test.tiles.meta')"
+          :rows="facts"
+          :columns="3"
+          class="col-span-full"
+        >
+          <template #value-packet-loss>
+            <NotMeasured :href="links.packetLoss" />
+          </template>
+        </MetaList>
       </section>
-      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-4">
-        <MetricTile
-          v-for="tile in tiles.more"
-          :key="tile.label"
-          :tile="tile"
-        />
-        <MetricTile
-          :tile="tiles.packetLoss"
-          :why="links.packetLoss"
-        />
-      </div>
     </template>
   </main>
 </template>

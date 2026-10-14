@@ -20,14 +20,17 @@
 // @vitest-environment jsdom
 
 // The Test screen's components: the notices for every v0.1 code with their tones and actions, the
-// metric tile and its packet-loss slot, the phase indicator's states, and the start control.
+// metric tile, the Test list with its packet-loss slot, the phase indicator's states, and the start control.
 
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import type { Component } from 'vue'
+import { type Component, h } from 'vue'
+
+import MetaList from '@/components/layout/MetaList.vue'
 
 import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
+import NotMeasured from '@/components/test/NotMeasured.vue'
 import { noticeView, noticeViews } from '@/components/test/notices'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import StartButton from '@/components/test/StartButton.vue'
@@ -178,12 +181,30 @@ describe('a metric tile', () => {
     expect(wrapper.text()).toContain('warming up')
   })
 
-  it('keeps the packet-loss slot as not measured, with the why link', () => {
-    const wrapper = mountWith(MetricTile, { tile: packetLossTile(context), why: links.packetLoss })
-    expect(wrapper.get('[data-testid="tile-number"]').text()).toBe('—')
-    expect(wrapper.get('[data-testid="tile-not-measured"]').text()).toBe('not measured')
-    expect(wrapper.text()).toContain("Browsers can't see packet loss over TCP.")
-    expect(wrapper.get('a').attributes('href')).toBe(links.packetLoss)
+})
+
+describe('the Test list', () => {
+  it('shows each row as a term and its value, a dash without one, and a slot for any other value', () => {
+    const loss = packetLossTile(context)
+    const wrapper = mount(MetaList, {
+      props: {
+        title: 'Test',
+        rows: [
+          { key: 'data', icon: loss.icon, label: 'Data used', value: '1.3 GB' },
+          { key: 'duration', icon: loss.icon, label: 'Duration', value: null },
+          { key: 'packet-loss', icon: loss.icon, label: loss.label, sub: "Browsers can't see packet loss over TCP" },
+        ],
+      },
+      slots: { 'value-packet-loss': () => h(NotMeasured, { href: links.packetLoss }) },
+      global: { plugins: [i18n()] },
+    })
+    expect(wrapper.findAll('dt').map((term) => term.text())).toEqual(['Data used', 'Duration', "Packet lossBrowsers can't see packet loss over TCP"])
+    const values = wrapper.findAll('dd')
+    expect(values.map((value) => value.text())).toEqual(['1.3 GB', '—', 'Not measuredWhy?'])
+    expect(values[1]?.classes()).toContain('text-subtle-foreground')
+    const why = wrapper.get('a')
+    expect(why.attributes('href')).toBe(links.packetLoss)
+    expect(why.attributes('aria-label')).toBe("Why packet loss is not measured: Browsers can't see packet loss over TCP")
   })
 })
 

@@ -123,9 +123,11 @@
       "pathHttp": "HTTP · {loss} probe timeouts",
       "unavailable": "unavailable",
       "jitterNote": "mean of consecutive differences",
-      "notMeasured": "not measured",
-      "whyNot": "Browsers can't see packet loss over TCP.",
+      "notMeasured": "Not measured",
+      "whyNot": "Browsers can't see packet loss over TCP",
       "why": "Why?",
+      "whyName": "Why packet loss is not measured: {reason}",
+      "meta": "Test",
       "errorCause": {
         "requestsFailed": "error · requests failed",
         "networkChanged": "error · network changed",

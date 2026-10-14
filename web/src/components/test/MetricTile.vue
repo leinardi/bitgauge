@@ -20,11 +20,10 @@
 import type { TileView } from '@/components/test/tiles'
 
 // One metric tile (design_system/components/tiles.md): an eyebrow with its icon, the number with
-// its unit apart, and the qualifier lines; "—" when there is no number. The packet-loss slot is
-// given `why`, the link that explains why it is never measured. The number fades in when it first
-// arrives, not on each update, unless motion is reduced.
+// its unit apart, and the qualifier lines; "—" when there is no number. The number fades in when
+// it first arrives, not on each update, unless motion is reduced.
 
-defineProps<{ tile: TileView; why?: string }>()
+defineProps<{ tile: TileView }>()
 </script>
 
 <template>
@@ -63,31 +62,13 @@ defineProps<{ tile: TileView; why?: string }>()
         class="text-(length:--text-sm) text-muted-foreground"
         data-testid="tile-unit"
       >{{ tile.unit }}</span>
-      <span
-        v-if="why"
-        class="rounded-full border border-dashed border-input px-2 text-(length:--text-caption) text-subtle-foreground"
-        data-testid="tile-not-measured"
-      >{{ tile.lines[0]?.text }}</span>
     </div>
-    <template v-if="why">
-      <span class="text-(length:--text-caption) text-subtle-foreground">
-        {{ $t('test.tiles.whyNot') }}
-        <a
-          :href="why"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-primary-text underline"
-        >{{ $t('test.tiles.why') }}</a>
-      </span>
-    </template>
-    <template v-else>
-      <span
-        v-for="(line, index) in tile.lines"
-        :key="index"
-        class="font-mono text-(length:--text-caption)"
-        :class="line.tone === 'danger' ? 'text-(--danger-fg)' : line.tone === 'warn' ? 'text-(--warn-fg)' : 'text-subtle-foreground'"
-        data-testid="tile-line"
-      >{{ line.text }}</span>
-    </template>
+    <span
+      v-for="(line, index) in tile.lines"
+      :key="index"
+      class="font-mono text-(length:--text-caption)"
+      :class="line.tone === 'danger' ? 'text-(--danger-fg)' : line.tone === 'warn' ? 'text-(--warn-fg)' : 'text-subtle-foreground'"
+      data-testid="tile-line"
+    >{{ line.text }}</span>
   </div>
 </template>

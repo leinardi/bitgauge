@@ -142,6 +142,6 @@ describe('the other tiles', () => {
   })
 
   it('keeps the packet-loss slot without a number', () => {
-    expect(packetLossTile(context)).toMatchObject({ label: 'Packet loss', number: null, lines: [{ text: 'not measured' }] })
+    expect(packetLossTile(context)).toMatchObject({ label: 'Packet loss', number: null, lines: [{ text: 'Not measured' }] })
   })
 })

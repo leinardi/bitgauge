@@ -1515,9 +1515,9 @@
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main( > region \"Results\")?$",
+        "path": "^main( > region \"Results\"( > term)?)?$",
         "kind": null,
-        "detail": "^(link \"Why\\?\"|text \"Data used|text \"… Idle latency — Jitter — Test\" → |term|definition)( \\(#\\d+\\))?"
+        "detail": "^(link \"Why\\?\"|text \"Data used(?!.* → \"Data used\")|text \"… Idle latency — Jitter — Test\" → |term|definition|text \"Packet loss\" → \"Packet loss Browsers can't see packet loss over TCP\")( \\(#\\d+\\))?"
       },
       "type": "conflict",
       "aspect": "a11y",
@@ -1552,7 +1552,8 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
-          "8bf0c3ae8415": "*"
+          "8bf0c3ae8415": "*",
+          "d05c034f6b6d": "*"
         },
         "test/cancelled-download": {
           "15ce4c28e074": "*",
@@ -1562,7 +1563,8 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
-          "8bf0c3ae8415": "*"
+          "8bf0c3ae8415": "*",
+          "d05c034f6b6d": "*"
         },
         "test/cancelled-late": {
           "15ce4c28e074": "*",
@@ -1572,7 +1574,8 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
-          "8bf0c3ae8415": "*"
+          "8bf0c3ae8415": "*",
+          "d05c034f6b6d": "*"
         },
         "test/cancelled-latency": {
           "15ce4c28e074": "*",
@@ -1582,6 +1585,7 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
+          "d05c034f6b6d": "*",
           "e9af64061f35": "*"
         },
         "test/cancelled-slow": {
@@ -1592,7 +1596,8 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
-          "8bf0c3ae8415": "*"
+          "8bf0c3ae8415": "*",
+          "d05c034f6b6d": "*"
         },
         "test/cancelled-slow-up": {
           "15ce4c28e074": "*",
@@ -1602,7 +1607,8 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
-          "8bf0c3ae8415": "*"
+          "8bf0c3ae8415": "*",
+          "d05c034f6b6d": "*"
         },
         "test/complete": {
           "15ce4c28e074": "*",
@@ -1612,7 +1618,8 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
-          "8bf0c3ae8415": "*"
+          "8bf0c3ae8415": "*",
+          "d05c034f6b6d": "*"
         },
         "test/connecting": {
           "15ce4c28e074": "*",
@@ -1623,6 +1630,7 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
+          "d05c034f6b6d": "*",
           "f18d38ecff95": "*"
         },
         "test/countdown": {
@@ -1633,6 +1641,7 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
+          "d05c034f6b6d": "*",
           "e9af64061f35": "*",
           "f18d38ecff95": "*"
         },
@@ -1644,7 +1653,8 @@
           "562387e4872f": "*",
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
-          "83f84b59fb98": "*"
+          "83f84b59fb98": "*",
+          "d05c034f6b6d": "*"
         },
         "test/error": {
           "15ce4c28e074": "*",
@@ -1654,7 +1664,8 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
-          "8bf0c3ae8415": "*"
+          "8bf0c3ae8415": "*",
+          "d05c034f6b6d": "*"
         },
         "test/error-early": {
           "15ce4c28e074": "*",
@@ -1664,7 +1675,8 @@
           "562387e4872f": "*",
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
-          "83f84b59fb98": "*"
+          "83f84b59fb98": "*",
+          "d05c034f6b6d": "*"
         },
         "test/idle": {
           "15ce4c28e074": "*",
@@ -1674,6 +1686,7 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
+          "d05c034f6b6d": "*",
           "e9af64061f35": "*",
           "f18d38ecff95": "*"
         },
@@ -1685,7 +1698,8 @@
           "562387e4872f": "*",
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
-          "83f84b59fb98": "*"
+          "83f84b59fb98": "*",
+          "d05c034f6b6d": "*"
         },
         "test/latency": {
           "15ce4c28e074": "*",
@@ -1695,7 +1709,8 @@
           "562387e4872f": "*",
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
-          "83f84b59fb98": "*"
+          "83f84b59fb98": "*",
+          "d05c034f6b6d": "*"
         },
         "test/param-ignored": {
           "15ce4c28e074": "*",
@@ -1705,6 +1720,7 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
+          "d05c034f6b6d": "*",
           "e9af64061f35": "*",
           "f18d38ecff95": "*"
         },
@@ -1716,7 +1732,8 @@
           "562387e4872f": "*",
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
-          "83f84b59fb98": "*"
+          "83f84b59fb98": "*",
+          "d05c034f6b6d": "*"
         },
         "test/slowdone": {
           "15ce4c28e074": "*",
@@ -1726,7 +1743,8 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
-          "8bf0c3ae8415": "*"
+          "8bf0c3ae8415": "*",
+          "d05c034f6b6d": "*"
         },
         "test/upload": {
           "15ce4c28e074": "*",
@@ -1736,7 +1754,8 @@
           "562387e4872f": "*",
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
-          "83f84b59fb98": "*"
+          "83f84b59fb98": "*",
+          "d05c034f6b6d": "*"
         },
         "test/upload-interrupted": {
           "15ce4c28e074": "*",
@@ -1746,7 +1765,8 @@
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
           "83f84b59fb98": "*",
-          "8bf0c3ae8415": "*"
+          "8bf0c3ae8415": "*",
+          "d05c034f6b6d": "*"
         },
         "test/ws-fallback": {
           "15ce4c28e074": "*",
@@ -1756,14 +1776,15 @@
           "562387e4872f": "*",
           "5f8f2c3a10ef": "*",
           "8162f73e93b0": "*",
-          "83f84b59fb98": "*"
+          "83f84b59fb98": "*",
+          "d05c034f6b6d": "*"
         }
       },
       "actions": [
         {
           "target": "vue",
           "what": "TestPage.vue: the three metrics as one 'Test' <dl> card inside the Results section (full width; three columns from sm); packet loss as a Not measured badge, the visible reason and a Why? link named 'Why packet loss is not measured: …'.",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
@@ -1771,7 +1792,7 @@
           "done": false
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
