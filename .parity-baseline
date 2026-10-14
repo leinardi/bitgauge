@@ -19,10 +19,6 @@ dark-narrow,light-narrow	about	content	header > banner	missing	img "BitGauge"	tr
 *	about	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
 *	about	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
 *	about	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
-light-desktop,light-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(218, 149, 44, 82) → rgba(26, 30, 37, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-dark-desktop,dark-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(243, 182, 73, 87) → rgba(241, 243, 245, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-dark-desktop,dark-narrow	about	style	main > button "LICENSE file in the repository"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
-light-desktop,light-narrow	about	style	main > button "LICENSE file in the repository"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	about	style	main > button "LICENSE file in the repository"	column-gap	8px → 6px	present when the harness was adopted
 *	about	style	main > button "LICENSE file in the repository"	font-weight	600 → 500	present when the harness was adopted
 *	about	style	main > button "LICENSE file in the repository"	height	28.0px → 32.0px	present when the harness was adopted
@@ -31,7 +27,6 @@ light-desktop,light-narrow	about	style	main > button "LICENSE file in the reposi
 dark-desktop,light-desktop	about	style	main > button "LICENSE file in the repository"	width	306.0px → 199.0px	present when the harness was adopted
 dark-narrow,light-narrow	about	style	main > button "LICENSE file in the repository"	width	324.0px → 199.0px	present when the harness was adopted
 dark-desktop,dark-narrow	about	style	main > button "Source repository"	background-color	rgba(35, 41, 48, 255) → rgba(53, 60, 66, 77)	present when the harness was adopted
-light-desktop,light-narrow	about	style	main > button "Source repository"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	about	style	main > button "Source repository"	font-weight	600 → 500	present when the harness was adopted
 *	about	style	main > button "Source repository"	height	34.0px → 36.0px	present when the harness was adopted
 *	about	style	main > button "Source repository"	padding-bottom	14px → 8px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
@@ -54,10 +49,6 @@ dark-narrow,light-narrow	about/unreachable	content	header > banner	missing	img "
 *	about/unreachable	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
 *	about/unreachable	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
 *	about/unreachable	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
-light-desktop,light-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(218, 149, 44, 82) → rgba(26, 30, 37, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(243, 182, 73, 87) → rgba(241, 243, 245, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
-light-desktop,light-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	about/unreachable	style	main > button "LICENSE file in the repository"	column-gap	8px → 6px	present when the harness was adopted
 *	about/unreachable	style	main > button "LICENSE file in the repository"	font-weight	600 → 500	present when the harness was adopted
 *	about/unreachable	style	main > button "LICENSE file in the repository"	height	28.0px → 32.0px	present when the harness was adopted
@@ -72,7 +63,6 @@ light-desktop,light-narrow	about/unreachable	style	main > button "Retry"	border-
 *	about/unreachable	style	main > button "Retry"	height	28.0px → 32.0px	present when the harness was adopted
 *	about/unreachable	style	main > button "Retry"	width	74.0px → 77.0px	present when the harness was adopted
 dark-desktop,dark-narrow	about/unreachable	style	main > button "Source repository"	background-color	rgba(35, 41, 48, 255) → rgba(53, 60, 66, 77)	present when the harness was adopted
-light-desktop,light-narrow	about/unreachable	style	main > button "Source repository"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	about/unreachable	style	main > button "Source repository"	font-weight	600 → 500	present when the harness was adopted
 *	about/unreachable	style	main > button "Source repository"	height	34.0px → 36.0px	present when the harness was adopted
 *	about/unreachable	style	main > button "Source repository"	padding-bottom	14px → 8px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
@@ -92,7 +82,6 @@ dark-narrow,light-narrow	about/unreachable	style	main > button "Source repositor
 *	test/basepath	content	main > region "Deployment hint"	missing	text "."	present when the harness was adopted
 *	test/basepath	content	main > region "Deployment hint"	missing	text "prefix at the proxy so BitGauge is served from"	present when the harness was adopted
 dark-desktop,dark-narrow	test/basepath	style	main > button "Deployment docs"	background-color	rgba(35, 41, 48, 255) → rgba(53, 60, 66, 77)	present when the harness was adopted
-light-desktop,light-narrow	test/basepath	style	main > button "Deployment docs"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	test/basepath	style	main > button "Deployment docs"	font-weight	600 → 500	present when the harness was adopted
 *	test/basepath	style	main > button "Deployment docs"	height	34.0px → 36.0px	present when the harness was adopted
 *	test/basepath	style	main > button "Deployment docs"	padding-bottom	0px → 8px	present when the harness was adopted
@@ -237,7 +226,6 @@ dark-desktop,dark-narrow	test/countdown	style	main > button "Cancel"	border-top-
 *	test/countdown	style	main > button "Cancel"	column-gap	8px → 6px	present when the harness was adopted
 *	test/countdown	style	main > button "Cancel"	font-weight	600 → 500	present when the harness was adopted
 *	test/countdown	style	main > button "Cancel"	height	28.0px → 32.0px	present when the harness was adopted
-*	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	font-size	14px → 16px	present when the harness was adopted
 *	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	padding-left	14px → 16px	present when the harness was adopted
 *	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	padding-right	14px → 16px	present when the harness was adopted
 dark-narrow,light-narrow	test/download	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
@@ -353,6 +341,5 @@ dark-narrow,light-narrow	test/ws-fallback	content	header > banner	missing	img "B
 *	test/ws-fallback	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/ws-fallback	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/ws-fallback	content	main > region "Speed test"	missing	text "Throughput Download Warm-up # s / # s"	present when the harness was adopted
-*	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	font-size	14px → 16px	present when the harness was adopted
 *	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	padding-left	14px → 16px	present when the harness was adopted
 *	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	padding-right	14px → 16px	present when the harness was adopted
