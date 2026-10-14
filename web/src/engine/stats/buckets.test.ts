@@ -19,7 +19,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { BucketSeries, coefficientOfVariation, mean, percentile } from '@/engine/stats/buckets'
+import { BucketSeries, coefficientOfVariation, groupSums, mean, percentile } from '@/engine/stats/buckets'
 
 describe('BucketSeries', () => {
   it('appends cells after the last one and reads them back by index', () => {
@@ -136,6 +136,24 @@ describe('percentile', () => {
     expect(() => percentile([1], -1)).toThrow(RangeError)
     expect(() => percentile([1], 101)).toThrow(RangeError)
     expect(() => percentile([1], Number.NaN)).toThrow(RangeError)
+  })
+})
+
+describe('groupSums', () => {
+  it('sums the cells per group, leaving out a group with an unknown cell or short of the group', () => {
+    expect(groupSums([1, 2, 3, 4, 5, 6, null, 8, 9, 10, 11, 12], 5)).toEqual([15])
+    expect(groupSums([1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3], 5)).toEqual([5, 10])
+    expect(groupSums([1, 2], 5)).toEqual([])
+  })
+
+  it('reads a burst-and-pause delivery as steady at the group size, and alternating buckets as not', () => {
+    // 100 ms stalls followed by catch-up: a flat 500 ms sum.
+    const bursty = Array.from({ length: 20 }, (_, index) => (index % 4 === 0 ? 5 : index % 4 === 1 ? 25 : 15))
+    expect(coefficientOfVariation(bursty) ?? 0).toBeGreaterThan(0.4)
+    expect(coefficientOfVariation(groupSums(bursty, 5)) ?? 1).toBeLessThan(0.1)
+    // A rate that steps every second swings the sums, at any alignment of the groups.
+    const stepping = Array.from({ length: 40 }, (_, index) => (Math.floor((index + 2) / 10) % 2 === 0 ? 6 : 14))
+    expect(coefficientOfVariation(groupSums(stepping, 5)) ?? 0).toBeGreaterThan(0.25)
   })
 })
 

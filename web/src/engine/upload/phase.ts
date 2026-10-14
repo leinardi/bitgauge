@@ -309,6 +309,7 @@ export class UploadPhase {
     this.halted = reason
     this.halts.add(reason)
     this.haltedAt ??= this.clock.now()
+    this.ledger.halt([...this.inFlight].map(({ request }) => ({ id: request.id, stream: request.stream })))
     if (this.tickTimer !== null) {
       this.clock.clearTimer(this.tickTimer)
     }

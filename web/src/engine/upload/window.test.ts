@@ -105,6 +105,54 @@ describe('steadyWindow', () => {
   })
 })
 
+describe('the drain (section 7.5)', () => {
+  /** Confirms a request of `stream` sent at `sentAt`, 1 s on the server from `startMs`. */
+  const confirm = (ledger: UploadLedger, sentAt: number, startMs: number): { id: number; stream: number } => {
+    const id = ledger.send(sentAt)
+    ledger.confirm(id, startMs + 1100, { firstBucket: startMs / 100, buckets: Array.from({ length: 10 }, () => 1000), startMs, durationMs: 1000 })
+    return { id, stream: 0 }
+  }
+
+  it('ends the measurement where the first stream falls quiet, before the other streams drain', () => {
+    const ledger = new UploadLedger()
+    confirm(ledger, 0, 100)
+    // Two streams in flight at the stop: stream 0 ends at 2.1 s, stream 1 at 2.6 s.
+    const a = ledger.send(1100)
+    const b = ledger.send(1600)
+    ledger.halt([
+      { id: a, stream: 0 },
+      { id: b, stream: 1 },
+    ])
+    ledger.confirm(a, 2200, { firstBucket: 11, buckets: Array.from({ length: 10 }, () => 1000), startMs: 1100, durationMs: 1000 })
+    ledger.confirm(b, 2700, { firstBucket: 16, buckets: Array.from({ length: 10 }, () => 1000), startMs: 1600, durationMs: 1000 })
+    expect(ledger.measurementEnd()).toBe(2100)
+    expect(ledger.windowEnd()).toBe(2100)
+  })
+
+  it('takes the latest end of a stream with two requests in flight, an early one included', () => {
+    const ledger = new UploadLedger()
+    const a = ledger.send(0)
+    const b = ledger.send(800)
+    ledger.halt([
+      { id: a, stream: 0 },
+      { id: b, stream: 0 },
+    ])
+    ledger.confirm(a, 1200, { firstBucket: 1, buckets: Array.from({ length: 10 }, () => 1000), startMs: 100, durationMs: 1000 })
+    ledger.confirm(b, 2200, { firstBucket: 11, buckets: Array.from({ length: 10 }, () => 1000), startMs: 1100, durationMs: 1000 })
+    expect(ledger.measurementEnd()).toBe(2100)
+  })
+
+  it('falls back to the latest confirmed end while none of the requests in flight has confirmed', () => {
+    const ledger = new UploadLedger()
+    confirm(ledger, 0, 100)
+    const a = ledger.send(1100)
+    ledger.halt([{ id: a, stream: 0 }])
+    expect(ledger.measurementEnd()).toBe(1100)
+    ledger.end(a, 1500)
+    expect(ledger.measurementEnd()).toBe(1100)
+  })
+})
+
 describe('UploadGrid', () => {
   it('rejects invalid counts without adding any of them', () => {
     const grid = new UploadGrid()

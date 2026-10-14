@@ -57,6 +57,21 @@ export function percentile(values: readonly number[], q: number): number | null 
 }
 
 /**
+ * The sums of `cells` per `group` consecutive cells; a group with an unknown cell, or short of
+ * `group` at the end, is left out (measurement.md section 8.3).
+ */
+export function groupSums(cells: readonly Cell[], group: number): number[] {
+  const sums: number[] = []
+  for (let index = 0; index + group <= cells.length; index += group) {
+    const slice = cells.slice(index, index + group)
+    if (!slice.some((cell) => cell === null)) {
+      sums.push(slice.reduce<number>((sum, cell) => sum + (cell ?? 0), 0))
+    }
+  }
+  return sums
+}
+
+/**
  * The coefficient of variation: the population standard deviation over the mean. Null without
  * values or with a mean of zero, where it has no value (measurement.md section 2).
  */

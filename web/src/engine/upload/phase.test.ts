@@ -210,8 +210,10 @@ describe('section 19.4, 2.5 Gbit/s LAN', () => {
     expect(outcome).toMatchObject({ status: 'measured', streams: 6, plateau: 'cap', warmupEndMs: 8100, notices: [] })
     expect(phase.haltedAt).toBe(15_000)
     expect(endedAt).toBeCloseTo(15_760, -1)
-    // The last requests drain at 0.5 Gbit/s each once no new one is issued: ≈ 97 % of the link.
-    expect((outcome.window?.bitsPerSecond ?? 0) / 1e9).toBeCloseTo(2.43, 2)
+    // The window ends where the first stream falls quiet, ≈ 15.4 s, before the others drain at
+    // 0.5 Gbit/s each: the link's rate, not 97 % of it.
+    expect(outcome.windowEndMs).toBeCloseTo(15_377, 0)
+    expect((outcome.window?.bitsPerSecond ?? 0) / 1e9).toBeCloseTo(2.5, 2)
     expect(outcome.bytes / 1e9).toBeCloseTo(3.7, 1)
   })
 

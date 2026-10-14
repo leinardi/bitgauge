@@ -66,6 +66,8 @@ export class UploadLedger {
   /** The upload requests' nextHopProtocol; empty while unreported. */
   protocol = ''
   private readonly entries: Entry[] = []
+  /** The requests in flight when the phase stopped issuing, by stream; empty until then. */
+  private readonly drain: RequestId[][] = []
 
   /** Records a request sent at client instant `sentAt` (t_send) and returns its id. */
   send(sentAt: number): RequestId {
@@ -89,6 +91,16 @@ export class UploadLedger {
     this.entries[id] = { state: 'ended', sentAt: entry.sentAt, endedAt }
   }
 
+  /**
+   * Records that the phase stopped issuing with these requests in flight, each with its stream:
+   * the window ends where the first of their streams falls quiet (measurement.md section 7.5).
+   */
+  halt(inFlight: Iterable<{ id: RequestId; stream: number }>): void {
+    for (const { id, stream } of inFlight) {
+      ;(this.drain[stream] ??= []).push(id)
+    }
+  }
+
   /** The telemetry of the confirmed requests, in send order. */
   confirmed(): ConfirmedTelemetry[] {
     return this.confirmedEntries().map((entry) => entry.telemetry)
@@ -100,10 +112,23 @@ export class UploadLedger {
     return starts.length === 0 ? null : Math.min(...starts)
   }
 
-  /** M_end_so_far (M_end once the phase and its grace are over); null before the first. */
+  /**
+   * M_end_so_far (M_end once the phase and its grace are over); null before the first. After the
+   * stop, the instant the first stream fell quiet: the smallest, over the streams with requests in
+   * flight at the stop, of the latest server end among those of them that confirmed; the maximum
+   * over every confirmed request while none of them has, or when none was in flight.
+   */
   measurementEnd(): number | null {
     const ends = this.confirmedEntries().map(serverEnd)
-    return ends.length === 0 ? null : Math.max(...ends)
+    if (ends.length === 0) {
+      return null
+    }
+    const quiet = this.drain
+      .filter((ids) => ids !== undefined)
+      .map((ids) => ids.map((id) => this.entries[id]).filter((entry): entry is Confirmed => entry?.state === 'confirmed').map(serverEnd))
+      .filter((stream) => stream.length > 0)
+      .map((stream) => Math.max(...stream))
+    return quiet.length === 0 ? Math.max(...ends) : Math.min(...quiet)
   }
 
   /**

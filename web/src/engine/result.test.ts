@@ -217,6 +217,11 @@ describe('the series', () => {
 describe('confidence', () => {
   /** 1 MB/s that swings between 0.6 and 1.4 MB/s every 100 ms for the first seconds of the run. */
   const choppy = (untilMs: number): Scenario => ({ ...LINK, rate: (_direction, atMs) => (atMs < untilMs ? (Math.floor(atMs / 100) % 2 === 0 ? 600_000 : 1_400_000) : 1_000_000) })
+  /** 1 MB/s that steps between 0.6 and 1.4 MB/s every second from `fromMs` on, choppy at 100 ms before. */
+  const stepping = (fromMs: number): Scenario => ({
+    ...LINK,
+    rate: (_direction, atMs) => (atMs < fromMs ? (Math.floor(atMs / 100) % 2 === 0 ? 600_000 : 1_400_000) : Math.floor(atMs / 1000) % 2 === 0 ? 600_000 : 1_400_000),
+  })
 
   it('drops unstable when the steady window is stable, with its notice', async () => {
     const emitted = await result({ scenario: choppy(9600) })
@@ -227,9 +232,24 @@ describe('confidence', () => {
     expect(emitted.notices.filter((notice) => notice.code === 'low-confidence')).toEqual([])
   })
 
-  it('keeps unstable when the steady window swings too', async () => {
+  it('reads the window at 500 ms: a swing within a bucket pair is delivery, not the link', async () => {
     const emitted = await result({ scenario: choppy(60_000) })
     expect(emitted.download?.series?.warmupEndMs).toBe(7400)
+    expect(emitted.download?.confidence).toEqual({ level: 'normal', reasons: [] })
+  })
+
+  it('keeps unstable when the steady window steps too', async () => {
+    const emitted = await result({ scenario: stepping(7400) })
+    expect(emitted.download?.series?.warmupEndMs).toBe(7400)
+    expect(emitted.download?.confidence).toEqual({ level: 'low', reasons: ['unstable'] })
+    expect(emitted.notices).toContainEqual({ code: 'low-confidence', direction: 'download', reasons: ['unstable'] })
+  })
+
+  it('sets unstable from the steady window alone, after a warm-up that saw a steady link', async () => {
+    /** 1 MB/s that starts stepping only once the warm-up has ended. */
+    const late: Scenario = { ...LINK, rate: (_direction, atMs) => (atMs < 6000 ? 1_000_000 : Math.floor(atMs / 1000) % 2 === 0 ? 600_000 : 1_400_000) }
+    const emitted = await result({ scenario: late })
+    expect(emitted.download?.series?.warmupEndMs).toBeLessThan(6000)
     expect(emitted.download?.confidence).toEqual({ level: 'low', reasons: ['unstable'] })
     expect(emitted.notices).toContainEqual({ code: 'low-confidence', direction: 'download', reasons: ['unstable'] })
   })

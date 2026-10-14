@@ -164,9 +164,9 @@ carries a recommendation; where the specification already relies on an answer, i
     with the display offset. Recomputed on the shared-link model, the §19.4 link needs a
     per-request ceiling of ≈ 0.5 Gbit/s for its ramp to gain up to 6 streams (one stream at
     ≈ 1.6 Gbit/s would plateau at 4); its upload warm-up then ends at ≈ 8.1 s and its window is
-    confirmed at ≈ 11.8 s (they were ≈ 9.5 s and ≈ 13.5 s), and the window averages ≈ 97 % of the
-    link as the last requests drain. Recommendation: keep it; confirm §19.4 on the harness ceiling
-    profile. See [measurement.md §5](measurement.md#5-adaptive-duration),
+    confirmed at ≈ 11.8 s (they were ≈ 9.5 s and ≈ 13.5 s), and the window ends where the first
+    stream falls quiet, before the last requests drain. Recommendation: keep it; confirm §19.4 on
+    the harness ceiling profile. See [measurement.md §5](measurement.md#5-adaptive-duration),
     [§7.3](measurement.md#73-server-telemetry-per-request),
     [§8.2](measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare),
     [§17](measurement.md#17-result-object) and

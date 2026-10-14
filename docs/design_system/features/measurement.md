@@ -198,9 +198,10 @@ Each direction has a minimum and a maximum duration taken from the preset (§8):
   in-flight request's expected duration rather than on the fixed 1 s target is what the slow-link
   budget in §19.1 needs (2 × 1.75 s); it is the current answer to an item tracked in
   [open-questions.md](open-questions.md). A phase that runs to its maximum therefore ends at most
-  about 1 s after it. Aborted requests only lower the confirmed watermark; because no request is
-  issued after the decision, the final window is never shorter than the window that satisfied the
-  condition.
+  about 1 s after it. The window ends where the first stream falls quiet, before the drain of the
+  others (`M_end`, §7.5). Aborted requests only lower the confirmed watermark; because no request
+  is issued after the decision, and every request in flight at it ends after the confirmed window
+  that satisfied the condition, the final window is never shorter than that window.
 
 **Timeouts and failures.** The engine aborts any request after **30 s** and counts it as failed.
 An upload that ends with an error result, a user stop or a server restart aborts its requests in
@@ -356,10 +357,16 @@ error under load is unbounded, and it never feeds a number.
 ### 7.5 Phase Start, Measurement End and the Confirmed Watermark
 
 - **Phase start** `P_start` = min `startMs` over confirmed requests of the phase.
-- **Measurement end** `M_end` = max `startMs + durationMs` over confirmed requests, once the phase
-  is over and the grace period has elapsed (no more responses can arrive). `M_end_so_far` is the
-  same maximum over the requests confirmed so far. Both `P_start` and `M_end` are finite for every
-  phase that confirmed at least one request.
+- **Measurement end** `M_end`, once the phase is over and the grace period has elapsed (no more
+  responses can arrive): the instant the first stream fell quiet. When the phase stopped issuing
+  (§5) with requests in flight, the streams go quiet one at a time as those requests end, and the
+  cells after the first of them carry fewer streams than the window measured, the **drain**; so for
+  each stream with requests in flight at the stop, take the latest server end `startMs + durationMs`
+  among those of them that confirmed, and `M_end` is the smallest of these over the streams. When
+  no stream had a request in flight at the stop, or none of them confirmed (a stop aborts them
+  all, §7.8), `M_end` is the maximum of `startMs + durationMs` over the confirmed requests.
+  `M_end_so_far` is that maximum over the requests confirmed so far, until the phase is over. Both
+  `P_start` and `M_end` are finite for every phase that confirmed at least one request.
 - **Confirmed cell.** A cell is confirmed when every request that could have been active in it is
   confirmed; otherwise it is `unknown`.
 - **Lower bound.** Let *U* be the set of requests without telemetry (in flight, aborted, failed).
@@ -612,12 +619,18 @@ evaluation series gains a bucket:
 `max(3 s, 25 % of the phase max)` for bounded phases, or an **absolute 10 s** for Continuous (which
 has no max), warm-up ends there and the result carries `confidence: low` with one reason per
 unmet condition, in the `reasons` array of the result (§17): condition 1 gives `ramp-unsettled`,
-condition 2 or 4 gives `insufficient-samples`, condition 3 gives `unstable`. `unstable` is read
-again at the end of the phase over the steady window (§8.4): when the coefficient of variation of
-the window's known buckets is at most 10 %, the window shows the stability the warm-up could not
-(a browser that sends each request in one burst can keep the first seconds choppy on a steady
-link), the reason is dropped, and a direction left with no reason has `normal` confidence. The
-other two reasons stay: the window shows nothing about them.
+condition 2 or 4 gives `insufficient-samples`, condition 3 gives `unstable`. At the end of the
+phase `unstable` is set by the steady window alone (§8.4), whatever the warm-up saw, and at the
+gauge's resolution (§14): the window's known buckets are summed per **5** (500 ms; a group with an
+unknown bucket, or short of five at the end, is left out), and the reason holds when the
+coefficient of variation of those sums exceeds 10 %, dropped otherwise. The warm-up reads single
+buckets because it has only ten; the window has seconds, and a browser that hands the body to
+the page in bursts with pauses of about a bucket (Safari does) swings adjacent buckets while
+their sums are flat, which is delivery, not the link. The window therefore shows the stability
+the warm-up could not (a browser that sends each request in one burst can keep the first seconds
+choppy on a steady link) and the instability a quiet warm-up missed (a rate that steps for
+seconds at a time). A direction left with no reason has `normal` confidence. The other two
+reasons stay as the warm-up set them: the window shows nothing about them.
 
 **A running ramp moves the bounded cap.** A full ramp needs at least `I_s + 2 × I_m` for the
 baseline plus `I_s + I_m` per trial, ≈ 6.5 s at the 1 s and 500 ms floors, more than Standard's
@@ -1058,8 +1071,8 @@ Fixed-size rings keep memory constant however long the run lasts.
 
 | Level | Condition |
 | --- | --- |
-| `normal` | warm-up ended by the guarded rule and the window condition held |
-| `low` | warm-up ended at the cap and a reason remains after the window is read: `ramp-unsettled`, `unstable` or `insufficient-samples` (§8.3) |
+| `normal` | no reason remains after the window is read (§8.3) and the window condition held |
+| `low` | a reason remains after the window is read: `ramp-unsettled` or `insufficient-samples` from the warm-up's cap, or `unstable` from the steady window (§8.3) |
 | `cpu-bound` | the Worker's busy fraction exceeded 90 % over the steady window |
 
 `cpu-bound` takes precedence over the other two levels: `reasons` still lists the warm-up's
@@ -1369,9 +1382,9 @@ The shaper carries ≈ 0.478 Mbit/s of goodput, 1448 payload bytes in each 1514-
   baseline is decided at ≈ 2.6 s and the trials to 2, 4 and 6 streams at ≈ 4.6, 6.6 and 8.8 s.
   Plateau `cap`; warm-up ends at ≈ 8.1 s on the server timeline, known on the client at ≈ 8.8 s.
   The 3 s window is confirmed at ≈ 11.8 s, inside the 15 s minimum, so new requests stop at 15 s;
-  the last in-flight requests confirm at ≈ 15.8 s, and the window is ≈ 8.1–15.8 s. Once no new
-  request is issued the last ones drain at 0.5 Gbit/s each, so the window averages ≈ 2.43 Gbit/s,
-  ≈ 97 % of the link. A stop before
+  the last in-flight requests confirm at ≈ 15.8 s. The first stream falls quiet at ≈ 15.4 s and
+  the window ends there (§7.5), ≈ 8.1–15.4 s, before the other five drain at 0.5 Gbit/s each: it
+  averages ≈ 2.5 Gbit/s, the link. A stop before
   ≈ 11.8 s leaves a confirmed window under 3 s, so a cancelled upload shows no number (§7.8).
 - **CPU.** The Worker's busy fraction is recorded; above 90 % the direction is `cpu-bound` and the
   harness tolerance is ±20 %.
