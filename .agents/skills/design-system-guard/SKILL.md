@@ -43,7 +43,7 @@ Names used throughout:
 | Component contracts | `docs/design_system/components/*.md`, `components/*/` | Gauge, tiles, phase indicator, notices, charts, share panel, save bar; each primitive folder's `*.prompt.md`, `*.d.ts` and `*.jsx` (read for reference, never copied) |
 | Visual and interaction reference | the app kit (`ui_kits/app/`) | How each screen and state looks and moves; its breakpoint (desktop from 1140 px) |
 | Product contract | `docs/features/ui/*.md` | Screens, states, flows, URL parameters, copy, i18n and accessibility |
-| Tailwind mapping | `web/src/styles/index.css` | Imports `colors_and_type.css` and maps its tokens into Tailwind 4 `@theme` variables ([frontend.md §8](../../../docs/features/technical-stack/frontend.md#8-theming-hook)) |
+| Tailwind mapping | `web/src/styles/index.css` | Imports `colors_and_type.css` and maps its tokens into Tailwind 4 `@theme` variables, and `base.css`'s element defaults into the base layer ([frontend.md §8](../../../docs/features/technical-stack/frontend.md#8-theming-hook)) |
 | shadcn-vue primitives | `web/src/components/ui/` | Vendored: extend by composition only |
 | Custom components | `web/src/components/**` | `gauge/`, `chart/`, `test/` (tiles, phase indicator, notices, start button, result bar), `layout/`, `connection/`, `a11y/` |
 | Theme | `web/src/composables/useTheme.ts` | `data-theme` on `<html>`, the system's until one is chosen |

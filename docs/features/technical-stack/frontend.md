@@ -195,7 +195,9 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   [../../design_system/README.md](../../design_system/README.md); shadcn-vue defaults cover what
   the export does not, and nothing visual is hand-authored.
 - `styles/` imports the export's `colors_and_type.css` and maps its tokens into Tailwind 4 `@theme`
-  variables; components use only those tokens.
+  variables; components use only those tokens. It imports the export's `base.css`, the element
+  defaults (body type and line height, links, focus, selection), into Tailwind's base layer after
+  the preflight, so every utility still overrides them.
 - Light and dark themes switch with `data-theme="light"` or `data-theme="dark"` on `<html>`, the
   attribute the export's tokens key on, defaulting to the system preference; the `theme` URL
   parameter, the Settings screen and the header's theme toggle override it.

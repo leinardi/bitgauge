@@ -24,6 +24,9 @@
 
 @import 'tailwindcss' source('../');
 @import '@design/colors_and_type.css';
+/* The export's element defaults (body type, links, focus, selection), after Tailwind's preflight in
+   the same layer, so every utility still overrides them. */
+@import '@design/base.css' layer(base);
 
 @theme inline {
   --color-background: var(--bg-base);

@@ -67,7 +67,7 @@ function cycleTheme(): void {
       <RouterLink
         to="/"
         :aria-label="t('app.brand.home')"
-        class="flex items-center gap-2 text-foreground no-underline"
+        class="flex items-center gap-2 leading-(--lh-tight) text-foreground no-underline"
       >
         <BrandLogo :size="28" />
         <span class="text-(length:--text-lg) font-semibold tracking-(--tracking-tight)">{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
@@ -147,7 +147,7 @@ function cycleTheme(): void {
   </header>
   <header class="flex h-13 items-center gap-2.5 border-b border-border bg-background px-4 text-foreground min-[1140px]:hidden">
     <BrandLogo :size="26" />
-    <div class="flex min-w-0 flex-col leading-[1.15]">
+    <div class="flex min-w-0 flex-col leading-(--lh-tight)">
       <span class="text-(length:--text-md) font-semibold tracking-(--tracking-tight)">{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
       <span
         v-if="known"

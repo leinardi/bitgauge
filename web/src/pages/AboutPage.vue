@@ -72,7 +72,7 @@ const credits = computed(() => [
   >
     <div class="flex flex-col gap-4">
       <header class="flex flex-col gap-2">
-        <h1 class="text-(length:--text-3xl) font-semibold tracking-(--tracking-tight) sm:text-(length:--text-4xl)">
+        <h1 class="text-(length:--text-3xl) leading-(--lh-snug) font-semibold tracking-(--tracking-tight) sm:text-(length:--text-4xl) sm:leading-(--lh-tight)">
           {{ t('about.clients.title') }}
         </h1>
         <p class="text-(length:--text-base) leading-[1.55] text-muted-foreground">

@@ -3198,9 +3198,14 @@
           "target": "vue",
           "what": "web/src/styles/index.css: import the export's base.css in layer(base); give buttons, headings and the brand link the kit's --lh-* tokens; full re-run for the 16→14px body ripple.",
           "done": false
+        },
+        {
+          "target": "vue",
+          "what": "The buttons' --lh-tight comes with the AppButton wrapper of style-buttons, and the text links' with the AppLink of style-methodology-link.",
+          "done": false
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
