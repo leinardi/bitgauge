@@ -2,199 +2,368 @@
   "version": 1,
   "clusters": [
     {
-      "id": "a11y-context-name",
-      "title": "Context chip's accessible name: LAN (kit) vs Context: LAN (Vue)",
+      "id": "a11y-brand-logo",
+      "title": "Header brand: the kit's logo is an img named BitGauge, Vue's is not exposed",
       "match": {
         "scenarios": null,
         "projects": null,
         "layer": "content",
-        "path": "^main( > button \"(LAN|—)\")?$",
+        "path": "^header > banner$",
+        "kind": "^missing$",
+        "detail": "^img \"BitGauge\"$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "silent on logos"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/navigation/AppHeader.jsx:27-28; components/brand/Logo.jsx:13",
+          "says": "compact header: <Logo/> with role=img 'BitGauge' next to the visible wordmark 'BitGauge' (read twice); Logo drops role=img when it renders the wordmark itself"
+        },
+        "vue": {
+          "ref": "web/src/components/brand/BrandLogo.vue:20-31",
+          "says": "svg aria-hidden: the wordmark names it"
+        },
+        "notes": "Narrow layout only."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "about/unreachable": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/cancelled": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-download": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-late": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-latency": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-slow": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-slow-up": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/complete": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/connecting": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/countdown": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/download": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/error": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/error-early": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/idle": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/insufficient": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/latency": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/offline": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/param-ignored": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/slow": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/slowdone": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/upload": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/upload-interrupted": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/ws-fallback": {
+          "b9830e9bca39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the compact AppHeader renders the mark with role=img 'BitGauge' next to the visible wordmark; hide the mark (aria-hidden) or use Logo's wordmark mode.",
+          "done": false
+        }
+      ],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "a11y-context-name",
+      "title": "Context chip's name: 'Context: LAN, suggested' (kit contract) vs 'Context: LAN'",
+      "match": {
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
+          "about",
+          "about/unreachable"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
         "kind": null,
-        "detail": "^(button \"(LAN|—)\" → \"Context: (LAN|—)\"|text \"(LAN|—)\"|text \"Context\"|button \"Context: LAN\"|button \"LAN\")$"
+        "detail": "^(button \"Context: LAN, suggested\"( → \"Context: LAN\")?|button \"Context: LAN\"|text \"Context\")$"
       },
       "type": "conflict",
       "aspect": "a11y",
       "evidence": {
         "spec": {
           "ref": "docs/features/ui/screens.md:17-18",
-          "says": "suggested context label (LAN, VPN or none), editable; silent on the accessible name"
+          "says": "suggested context label, editable; silent on the name"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:670-677",
-          "says": "caption <span>Context</span>, then a menu button named by its content: 'LAN', or '—' offline"
+          "ref": "docs/design_system/components/navigation.md:39-43; components/actions/Menu.jsx",
+          "says": "name '<purpose>: <value>[, <hint>]' ('Context: LAN, suggested'); visible hint aria-hidden"
         },
         "vue": {
-          "ref": "web/src/components/connection/ConnectionStrip.vue:111-113",
-          "says": "aria-label 'Context: {label}'"
-        },
-        "notes": "Vue's name contains the visible text (WCAG 2.5.3). '—' alone says nothing about what the menu changes."
-      },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "a11y-kbd-hints",
-      "title": "Enter and Esc hints inside the main button's accessible name",
-      "match": {
-        "scenarios": null,
-        "projects": null,
-        "layer": "content",
-        "path": "^main > region \"Speed test\"$",
-        "kind": null,
-        "detail": "^button \"([^\"]*) (Enter|Esc)\" → \"\\1\"$"
-      },
-      "type": "conflict",
-      "aspect": "a11y",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/i18n-a11y.md:109-110 (§2.4)",
-          "says": "Desktop layouts show the Enter and Escape hints on the button; silent on the accessible name"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:867-874",
-          "says": "<kbd>Enter</kbd> inside the button, so its name is 'Start test Enter'"
-        },
-        "vue": {
-          "ref": "web/src/components/test/StartButton.vue:82-85",
-          "says": "<kbd aria-hidden=\"true\">, name 'Start test'"
-        },
-        "notes": "aria-keyshortcuts is the ARIA way to expose the shortcut; neither side uses it."
-      },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "a11y-live-region-placement",
-      "title": "Polite live region: inside the Speed test section (kit) vs directly in main (Vue)",
-      "match": {
-        "scenarios": [
-          "test/cancelled",
-          "test/cancelled-download",
-          "test/cancelled-late",
-          "test/cancelled-latency",
-          "test/cancelled-slow",
-          "test/cancelled-slow-up",
-          "test/complete",
-          "test/connecting",
-          "test/countdown",
-          "test/download",
-          "test/error",
-          "test/error-early",
-          "test/latency",
-          "test/offline",
-          "test/slow",
-          "test/slowdone",
-          "test/upload",
-          "test/ws-fallback",
-          "test/idle"
-        ],
-        "projects": null,
-        "layer": "content",
-        "path": "^main( > region \"Speed test\")?$",
-        "kind": null,
-        "detail": "^status$"
-      },
-      "type": "conflict",
-      "aspect": "a11y",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/i18n-a11y.md:70-72 (§2.1)",
-          "says": "a separate, visually hidden polite live region announces the phase and the rate; silent on its DOM position"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:822-824",
-          "says": "role=status aria-live=polite, visually hidden, inside the gauge in <section aria-label=\"Speed test\">"
-        },
-        "vue": {
-          "ref": "web/src/pages/TestPage.vue:193-196; components/a11y/LiveRegions.vue",
-          "says": "<LiveRegions> directly in <main>, before the section"
-        },
-        "notes": "Placement changes nothing announced, but it makes the harness mis-pair notices in many scenarios."
-      },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "a11y-notices-list",
-      "title": "Notices wrapped in a labelled list (Vue) vs bare notices (kit)",
-      "match": {
-        "scenarios": null,
-        "projects": null,
-        "layer": "content",
-        "path": "^main$",
-        "kind": "^extra$",
-        "detail": "^list \"Notices\"$"
-      },
-      "type": "conflict",
-      "aspect": "a11y",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/screens.md#7-notices",
-          "says": "silent on a list wrapper"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:193-195,741-757",
-          "says": "N(...) renders bare divs with role status or alert"
-        },
-        "vue": {
-          "ref": "web/src/components/test/NoticeList.vue",
-          "says": "<ul :aria-label=\"$t('notices.label')\"> with one <li> per notice"
-        },
-        "notes": "A labelled list tells screen-reader users how many notices there are; the kit's bare notices are simpler. The wrapper also shifts the notices' paths."
-      },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "a11y-result-summary",
-      "title": "Result-summary live region (i18n-a11y §2.7): Vue has it, the kit does not",
-      "match": {
-        "scenarios": null,
-        "projects": null,
-        "layer": "content",
-        "path": "^main$",
-        "kind": "^extra$",
-        "detail": "^status \\(#2\\)$"
-      },
-      "type": "conflict",
-      "aspect": "a11y",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/i18n-a11y.md (§2.7)",
-          "says": "a result-summary live region announces the finished result"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
-          "says": "no result-summary region"
-        },
-        "vue": {
-          "ref": "web/src/components/a11y/LiveRegions.vue:97-113",
-          "says": "second sr-only <p role=\"status\" aria-live=\"polite\"> for the result summary"
+          "ref": "web/src/components/connection/ConnectionStrip.vue:113,159-161",
+          "says": "'Context: {label}'; visible 'suggested' exposed as text"
         }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The kit's navigation contract names a menu trigger '<purpose>: <value>[, <hint>]' with the visible hint hidden, one announcement carrying the suggestion state; the spec is silent.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "test/cancelled": {
+          "25150fae1ab6": "*",
+          "2bf725c61d8c": "*",
+          "47ab20473572": "*",
+          "ab98a2cf4960": "*"
+        },
+        "test/cancelled-download": {
+          "25150fae1ab6": "*",
+          "2bf725c61d8c": "*",
+          "47ab20473572": "*",
+          "ab98a2cf4960": "*"
+        },
+        "test/cancelled-late": {
+          "25150fae1ab6": "*",
+          "2bf725c61d8c": "*",
+          "47ab20473572": "*",
+          "ab98a2cf4960": "*"
+        },
+        "test/cancelled-latency": {
+          "e12923c27b14": "*"
+        },
+        "test/cancelled-slow": {
+          "25150fae1ab6": "*",
+          "47ab20473572": "*",
+          "ab98a2cf4960": "*"
+        },
+        "test/cancelled-slow-up": {
+          "25150fae1ab6": "*",
+          "47ab20473572": "*",
+          "ab98a2cf4960": "*"
+        },
+        "test/complete": {
+          "25150fae1ab6": "*",
+          "2bf725c61d8c": "*",
+          "47ab20473572": "*",
+          "ab98a2cf4960": "*"
+        },
+        "test/connecting": {
+          "e12923c27b14": "*"
+        },
+        "test/countdown": {
+          "e12923c27b14": "*"
+        },
+        "test/download": {
+          "e12923c27b14": "*"
+        },
+        "test/error": {
+          "e12923c27b14": "*"
+        },
+        "test/error-early": {
+          "e12923c27b14": "*"
+        },
+        "test/idle": {
+          "e12923c27b14": "*"
+        },
+        "test/insufficient": {
+          "e12923c27b14": "*"
+        },
+        "test/latency": {
+          "e12923c27b14": "*"
+        },
+        "test/param-ignored": {
+          "e12923c27b14": "*"
+        },
+        "test/upload": {
+          "e12923c27b14": "*"
+        },
+        "test/upload-interrupted": {
+          "e12923c27b14": "*"
+        },
+        "test/ws-fallback": {
+          "e12923c27b14": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "ConnectionStrip.vue: name 'Context: {label}, suggested' while the label is the server's suggestion, and aria-hidden on the visible 'suggested'; i18n key and test.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
       "id": "a11y-speedtest-heading",
-      "title": "Visually hidden h1 Speed test on the Test screen",
+      "title": "Visually hidden h1 Speed test on the Test screen (Vue only)",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main$",
@@ -205,94 +374,209 @@
       "aspect": "a11y",
       "evidence": {
         "spec": {
-          "ref": "docs/features/ui/i18n-a11y.md §2, §2.3",
-          "says": "silent on headings; WCAG 2.2 AA, skip link, logical focus order"
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "silent on headings"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:659-760",
-          "says": "the Test screen has no heading"
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:614",
+          "says": "no h1 on the Test screen; 'Speed test' is the section's label"
         },
         "vue": {
           "ref": "web/src/pages/TestPage.vue:190-192",
-          "says": "<h1 class=\"sr-only\">Speed test</h1>, also the section's aria-label"
+          "says": "<h1 class=\"sr-only\">Speed test</h1>"
         },
-        "notes": "An h1 is a best practice for heading navigation, not a WCAG AA requirement."
+        "notes": "Other screens have a visible h1 on both sides."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "behavior-cancel-during-latency",
-      "title": "Stop during idle latency with enough pings: kit keeps a partial result, Vue returns to Idle",
-      "match": {
-        "scenarios": [
-          "test/cancelled-latency"
-        ],
-        "projects": null,
-        "layer": "content",
-        "path": "^main( > region \"Speed test\")?$",
-        "kind": null,
-        "detail": "^(region \"Result status\"|button \"Run again( Enter)?\" → \"Start test\")$"
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.",
+        "on": "2026-10-14"
       },
-      "type": "conflict",
-      "aspect": "behavior",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/flows.md:89-90; measurement.md:810-812",
-          "says": "returns to Idle when 'nothing was measured yet (stopped during info or idle latency with too few samples)'; fewer than 5 samples → idle latency unavailable"
+      "owned": {
+        "test/cancelled": {
+          "6895f1b2d64b": "*"
         },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:349-360",
-          "says": "cancel at 12 of 20 pings keeps idle latency and jitter as 'Partial — stopped early', Run again, a result bar"
+        "test/cancelled-download": {
+          "6895f1b2d64b": "*"
         },
-        "vue": {
-          "ref": "web/src/engine/run.ts:224-233; composables/useRunState.ts:145-160",
-          "says": "an interrupted idle phase returns null, so no result and the screen returns to Idle"
+        "test/cancelled-late": {
+          "6895f1b2d64b": "*"
         },
-        "notes": "The spec implies 5+ samples give a partial result (kit), but screens.md:41 ties Keep to a finished phase. Needs a spec clarification, then an engine change."
-      },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "behavior-error-no-phase",
-      "title": "Error before any phase finished: kit offers Download JSON in a result bar, Vue shows none",
-      "match": {
-        "scenarios": [
-          "test/error-early"
-        ],
-        "projects": null,
-        "layer": "content",
-        "path": "^main$",
-        "kind": "^missing$",
-        "detail": "^region \"Result status\"$"
-      },
-      "type": "conflict",
-      "aspect": "behavior",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/flows.md:112-114 (§5.4)",
-          "says": "If no phase completed, there is nothing to keep"
+        "test/cancelled-latency": {
+          "6895f1b2d64b": "*"
         },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:435-445,534",
-          "says": "error-early: result bar 'Partial results are not saved · Download the JSON to keep them.' with Download JSON"
+        "test/cancelled-slow": {
+          "6895f1b2d64b": "*"
         },
-        "vue": {
-          "ref": "web/src/pages/TestPage.vue:275",
-          "says": "<ResultBar v-if=\"... run.result.value !== null\"> (no result, no bar)"
+        "test/cancelled-slow-up": {
+          "6895f1b2d64b": "*"
+        },
+        "test/complete": {
+          "6895f1b2d64b": "*"
+        },
+        "test/connecting": {
+          "6895f1b2d64b": "*"
+        },
+        "test/countdown": {
+          "6895f1b2d64b": "*"
+        },
+        "test/download": {
+          "6895f1b2d64b": "*"
+        },
+        "test/error": {
+          "6895f1b2d64b": "*"
+        },
+        "test/error-early": {
+          "6895f1b2d64b": "*"
+        },
+        "test/idle": {
+          "6895f1b2d64b": "*"
+        },
+        "test/insufficient": {
+          "6895f1b2d64b": "*"
+        },
+        "test/latency": {
+          "6895f1b2d64b": "*"
+        },
+        "test/param-ignored": {
+          "6895f1b2d64b": "*"
+        },
+        "test/slow": {
+          "6895f1b2d64b": "*"
+        },
+        "test/slowdone": {
+          "6895f1b2d64b": "*"
+        },
+        "test/upload": {
+          "6895f1b2d64b": "*"
+        },
+        "test/upload-interrupted": {
+          "6895f1b2d64b": "*"
+        },
+        "test/ws-fallback": {
+          "6895f1b2d64b": "*"
         }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "actions": [
+        {
+          "target": "spec",
+          "what": "ui/i18n-a11y.md §2: every screen has one h1; on the Test screen it is visually hidden ('Speed test').",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's Test screen has no h1; add a visually hidden 'Speed test' h1 as the spec requires.",
+          "done": false
+        }
+      ],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "adapter-basepath-variant",
+      "title": "Base path: the demo reaches the API-mismatch variant, the kit the page-path one",
+      "match": {
+        "scenarios": [
+          "test/basepath"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main( > (term|definition))?$",
+        "kind": null,
+        "detail": "^(text \"(This page was|, but the server|\\. Its API|/|GET )|term|definition|text \"Check\" → )"
+      },
+      "type": "adapter",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/edge-cases.md:358-376",
+          "says": "page-path failures are checked before any request; the user sees base path mismatch with page path, server base path and, when it differs, the API's"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:582-594",
+          "says": "page at /speed/, server configured for /"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts basepath; web/parity/drivers.ts",
+          "says": "/info reports /speed for a page at / (the API-mismatch variant)"
+        },
+        "notes": "Opening the Vue demo at /speed/ triggers pageMismatch before any request: the kit's variant."
+      },
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "The kit shows the page-path variant (page at /speed/, server at /); the demo must reach the same variant to compare its copy.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "test/basepath": {
+          "599414d6c37f": "*",
+          "5f810cc6e8f6": "*",
+          "94868523e01c": "*",
+          "9b5fb4ae3134": "*",
+          "bc5ab16a589a": "*",
+          "d43d4c0b266c": "*",
+          "eb72a8aa7296": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "harness",
+          "what": "web/parity/drivers.ts: the Vue side reaches test/basepath by opening the demo at /speed/, so the page-path check fails before any request.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "adapter-kit-browser",
+      "title": "The kit's Demo panel defaults to Firefox, so it shows the browser upload limit notice the Chromium run does not",
+      "match": {
+        "scenarios": [
+          "test/complete"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": null,
+        "detail": "^(link \"Known browser limits\"|text \"Firefox may limit)"
+      },
+      "type": "adapter",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §7; measurement.md §16",
+          "says": "browser upload limit carried for Firefox ≥ 100 Mbit/s upload, with a Known browser limits link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/App.jsx:12",
+          "says": "Demo panel default browser: 'Firefox'"
+        },
+        "vue": {
+          "ref": "web/parity/drivers.ts:78; web/src/components/test/notices.ts:101",
+          "says": "harness seeds only {v01:true}; parity runs Chromium, so Vue shows no Firefox notice (it has the notice and link)"
+        }
+      },
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "Parity drives Chromium; the kit's Demo panel defaults to Firefox and shows the Firefox-only browser upload limit notice.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "test/complete": {
+          "ac2c3e09bbe7": "*",
+          "f3f39462009c": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "harness",
+          "what": "web/parity/drivers.ts: seed the kit's demo state with browser 'Chrome' alongside v01.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -335,6 +619,9 @@
         },
         "test/slowdone": {
           "e33df25c9501": "*"
+        },
+        "test/upload-interrupted": {
+          "e33df25c9501": "*"
         }
       },
       "actions": [],
@@ -342,70 +629,52 @@
       "resolution": null
     },
     {
-      "id": "feature-edit-link",
-      "title": "Edit link to Settings in the settings summary (v0.2)",
+      "id": "fixture-insufficient-ip",
+      "title": "Insufficient-data link: the demo's client is 10.8.0.6, the kit's 192.168.1.42",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/insufficient"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main$",
-        "kind": "^missing$",
-        "detail": "^link \"Edit\"$"
+        "kind": null,
+        "detail": "192\\.168\\.1\\.42.*10\\.8\\.0\\.6|^text \"Client IP 192\\.168\\.1\\.42 IPv4 Protocol HTTP/2 Streams # auto Standard preset · Auto streams · No data cap\"$|10\\.8\\.0\\.6 IPv4 Protocol h2 Streams — auto, up to 6 Standard preset"
       },
-      "type": "conflict",
-      "aspect": "feature",
+      "type": "fixture",
+      "aspect": null,
       "evidence": {
         "spec": {
-          "ref": "docs/features/ui/screens.md:87 (Before v0.2)",
-          "says": "The settings summary shows the effective values without an Edit link"
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the 20 kbit/s and 19 kbit/s link of the insufficient-data state; silent on its client address"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:735-738",
-          "says": "<a><sliders/>Edit</a>, unconditional, leads to Settings"
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:73",
+          "says": "Client IP slow ? '10.8.0.6' : '192.168.1.42' (insufficient is not slow)"
         },
         "vue": {
-          "ref": "web/src/components/connection/SettingsSummary.vue:28-30",
-          "says": "v0.1 has no Settings screen, so there is no Edit link"
+          "ref": "web/src/demo/fixtures.ts infoFor",
+          "says": "192.168.1.42 only for lan links, 10.8.0.6 otherwise"
         }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "feature-nav-v02",
-      "title": "Settings and History in the navigation (v0.2 screens), with the tab widths they cause",
-      "match": {
-        "scenarios": null,
-        "projects": null,
-        "layer": null,
-        "path": "^header > ((banner > )?navigation \"Primary\"$|button \"(Test|About)\"$)",
-        "kind": "^(missing|width)$",
-        "detail": "^(link \"(Settings|History)\"|[\\d.]+px → 195\\.0px)$"
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "The kit's insufficient-data state uses the LAN client 192.168.1.42; only its slow states use 10.8.0.6.",
+        "on": "2026-10-14"
       },
-      "type": "conflict",
-      "aspect": "feature",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/screens.md:79-81; docs/STATUS.md:33",
-          "says": "v0.1 has no Settings screen: navigation shows Test and About; Settings is Spec'd (v0.2)"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/Nav.jsx:32; App.jsx:123",
-          "says": "v0.1 scope filters only 'history', and About never receives v01"
-        },
-        "vue": {
-          "ref": "web/src/components/layout/navigation.ts",
-          "says": "items = [test, about]"
-        },
-        "notes": "Includes the narrow tab widths (2 tabs in Vue, 3-4 in the kit)."
+      "owned": {
+        "test/insufficient": {
+          "84b9c55e59a4": "*"
+        }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "actions": [
+        {
+          "target": "fixture",
+          "what": "web/src/demo/fixtures.ts infoFor: the insufficient link reports 192.168.1.42; update the fixtures comment.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -420,9 +689,9 @@
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main( > button \"VPN\")?$",
+        "path": "^main( > button \"Context: VPN, suggested\")?$",
         "kind": null,
-        "detail": "^(button \"VPN\"( → \"Context: LAN\")?|text \"LAN\")$"
+        "detail": "^(button \"Context: VPN, suggested\"( → \"Context: LAN\")?|text \"VPN\" → \"LAN\")$"
       },
       "type": "conflict",
       "aspect": "content",
@@ -449,18 +718,24 @@
       },
       "owned": {
         "test/cancelled-slow": {
-          "642bfd1176af": "*"
+          "642bfd1176af": "*",
+          "726e58c32220": "*"
         },
         "test/cancelled-slow-up": {
-          "642bfd1176af": "*"
+          "642bfd1176af": "*",
+          "726e58c32220": "*"
         },
         "test/slow": {
+          "160562394872": "*",
           "5612a371099e": "*",
-          "ae01e4ec4fc6": "*"
+          "ae01e4ec4fc6": "*",
+          "e6aa164c6834": "*"
         },
         "test/slowdone": {
+          "160562394872": "*",
           "5612a371099e": "*",
-          "ae01e4ec4fc6": "*"
+          "ae01e4ec4fc6": "*",
+          "e6aa164c6834": "*"
         }
       },
       "actions": [
@@ -482,7 +757,7 @@
         "layer": "content",
         "path": "^header > banner$",
         "kind": "^changed$",
-        "detail": "connected speed\\.home\\.lan\" → \".*connected 127\\.0\\.0\\.1:5180\"$"
+        "detail": "(connected|unreachable) speed\\.home\\.lan\" → \".*\\1 127\\.0\\.0\\.1:5180\"$"
       },
       "type": "harness",
       "aspect": null,
@@ -509,6 +784,16 @@
       "owned": {
         "about": {
           "ae2b2767ebbf": "*"
+        },
+        "about/unreachable": {
+          "44e4308ad945": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f1a224d7750b": [
+            "dark-narrow",
+            "light-narrow"
+          ]
         },
         "test/cancelled": {
           "ae2b2767ebbf": "*"
@@ -552,6 +837,16 @@
         "test/latency": {
           "ae2b2767ebbf": "*"
         },
+        "test/offline": {
+          "44e4308ad945": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f1a224d7750b": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
         "test/param-ignored": {
           "ae2b2767ebbf": "*"
         },
@@ -564,6 +859,9 @@
         "test/upload": {
           "ae2b2767ebbf": "*"
         },
+        "test/upload-interrupted": {
+          "ae2b2767ebbf": "*"
+        },
         "test/ws-fallback": {
           "ae2b2767ebbf": "*"
         }
@@ -572,6 +870,54 @@
         {
           "target": "harness",
           "what": "Replace each side's own page host (prototype speed.home.lan, Vue the demo origin's host) with one token in the content capture before normalisation; unit test; a bullet with its reason in demo-parity.md § What It Compares.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "harness-pill-radius",
+      "title": "Fully rounded radius: 9999px vs 3.35544e+07px, and the chip width it sits with",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > button \"Context: —\"$",
+        "kind": "^border-top-left-radius$",
+        "detail": null
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "—"
+        },
+        "kit": {
+          "ref": "docs/design_system/colors_and_type.css:409",
+          "says": "--radius-full: 9999px"
+        },
+        "vue": {
+          "ref": "web/src/components/connection/ConnectionStrip.vue:112",
+          "says": "rounded-full = calc(infinity*1px), serialised 3.35544e+07px"
+        },
+        "notes": "Both clamp to min(w,h)/2 and render the same pill; compare the effective radius per side."
+      },
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "9999px and Tailwind's calc(infinity*1px) both clamp to half the box's height and draw the same pill.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "test/offline": {
+          "662b15333a6b": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "harness",
+          "what": "web/parity/compare/style.ts: compare a corner radius as min(r, min(width, height)/2) per side, with the length tolerance; unit test; note it in demo-parity.md.",
           "done": false
         }
       ],
@@ -862,6 +1208,14 @@
             "light-narrow"
           ]
         },
+        "test/upload-interrupted": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
         "test/ws-fallback": {
           "33b476bfa363": [
             "dark-narrow"
@@ -883,108 +1237,354 @@
     },
     {
       "id": "layout-results-metrics",
-      "title": "Data used, duration and packet loss: one card inside Results (kit) vs three tiles after it (Vue)",
+      "title": "Data used, duration and packet loss: a 'Test' term/definition list inside Results (kit) vs three tiles after it (Vue)",
       "match": {
         "scenarios": null,
         "projects": null,
         "layer": "content",
         "path": "^main( > region \"Results\")?$",
         "kind": null,
-        "detail": "^(link \"Why\\?\"|text \"Data used|text \"… Idle latency — Jitter — Test Data used)"
+        "detail": "^(link \"Why\\?\"|text \"Data used|text \"… Idle latency — Jitter — Test\" → |term|definition)( \\(#\\d+\\))?"
       },
       "type": "conflict",
       "aspect": "a11y",
       "evidence": {
         "spec": {
-          "ref": "docs/features/ui/screens.md:38-40,75-78,251",
-          "says": "v0.1 metrics: download, upload, idle latency, jitter, data used, duration and the packet loss slot; silent on grouping"
+          "ref": "docs/features/ui/screens.md §6, :89-91",
+          "says": "v0.1 metrics include data used, duration and the packet loss slot; packet loss shows \"browsers can't see packet loss over TCP\" and a link to why"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:1060,1200-1235",
-          "says": "one 'Test' card (Data used, Duration, Packet loss with Not measured and Why?) inside <section aria-label=\"Results\">"
+          "ref": "docs/design_system/components/tiles.md:43-45; components/layout/MetaList.jsx; ui_kits/app/TestScreen.jsx:627-631",
+          "says": "a MetaList titled 'Test' (<dl>: Data used, Duration, Packet loss) inside the Results section; packet loss: Not measured badge + Why? link with the reason as tooltip and in its name"
         },
         "vue": {
-          "ref": "web/src/pages/TestPage.vue:285-307",
-          "says": "Results section holds the main tiles; data used, duration and packet loss are three tiles in an unlabelled div after it"
+          "ref": "web/src/pages/TestPage.vue:285-306; MetricTile.vue:66-83",
+          "says": "three tiles in a div after Results; visible reason + Why?"
         },
-        "notes": "Vue's inline reason 'Browsers can't see packet loss over TCP' plus a docs link is what the spec asks for; the kit hides the reason in a title tooltip."
+        "notes": "The spec lists the reason among the qualifiers shown, so the kit's tooltip-only reason contradicts it."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "style-about-link-layout",
-      "title": "About: source, licence and methodology links stacked full width (kit) vs in a row or stretched (Vue)",
-      "match": {
-        "scenarios": null,
-        "projects": null,
-        "layer": "style",
-        "path": "^main > button \"(LICENSE file in the repository|Source repository|Methodology in the BitGauge docs)\"",
-        "kind": "^width$",
-        "detail": "^(306|324|214)\\.0px → "
+      "decision": {
+        "kind": "verdict",
+        "winner": "new",
+        "text": "Kit layout, spec reason: data used, duration and packet loss move into the Results section as the kit's 'Test' term/definition card with the Not measured badge and the descriptive Why? name, while the packet-loss reason stays visible as the spec lists it among the qualifiers shown.",
+        "rationale": "The export decides layout and markup (the spec is silent and counts these among the result metrics); the spec decides the reason is shown, so the kit's tooltip-only reason gets an upstream note.",
+        "on": "2026-10-14"
       },
-      "type": "conflict",
-      "aspect": "style",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/screens.md:223,228",
-          "says": "source link; methodology summary linking to the docs; silent on layout"
+      "owned": {
+        "test/cancelled": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "8bf0c3ae8415": "*"
         },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/About.jsx:179-196",
-          "says": "Source repository and LICENSE full width, centred, in a column; methodology link alignSelf flex-start"
+        "test/cancelled-download": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "8bf0c3ae8415": "*"
         },
-        "vue": {
-          "ref": "web/src/pages/AboutPage.vue:112-160",
-          "says": "buttons in a flex-wrap row; methodology inline-flex link stretched across its flex-col section"
+        "test/cancelled-late": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "8bf0c3ae8415": "*"
+        },
+        "test/cancelled-latency": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "e9af64061f35": "*"
+        },
+        "test/cancelled-slow": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "8bf0c3ae8415": "*"
+        },
+        "test/cancelled-slow-up": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "8bf0c3ae8415": "*"
+        },
+        "test/complete": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "8bf0c3ae8415": "*"
+        },
+        "test/connecting": {
+          "15ce4c28e074": "*",
+          "195b1e298967": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "f18d38ecff95": "*"
+        },
+        "test/countdown": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "e9af64061f35": "*",
+          "f18d38ecff95": "*"
+        },
+        "test/download": {
+          "15ce4c28e074": "*",
+          "195b1e298967": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*"
+        },
+        "test/error": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "8bf0c3ae8415": "*"
+        },
+        "test/error-early": {
+          "15ce4c28e074": "*",
+          "195b1e298967": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*"
+        },
+        "test/idle": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "e9af64061f35": "*",
+          "f18d38ecff95": "*"
+        },
+        "test/insufficient": {
+          "15ce4c28e074": "*",
+          "195b1e298967": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*"
+        },
+        "test/latency": {
+          "15ce4c28e074": "*",
+          "195b1e298967": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*"
+        },
+        "test/param-ignored": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "e9af64061f35": "*",
+          "f18d38ecff95": "*"
+        },
+        "test/slow": {
+          "15ce4c28e074": "*",
+          "195b1e298967": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*"
+        },
+        "test/slowdone": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "8bf0c3ae8415": "*"
+        },
+        "test/upload": {
+          "15ce4c28e074": "*",
+          "195b1e298967": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*"
+        },
+        "test/upload-interrupted": {
+          "15ce4c28e074": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*",
+          "8bf0c3ae8415": "*"
+        },
+        "test/ws-fallback": {
+          "15ce4c28e074": "*",
+          "195b1e298967": "*",
+          "2cf3e87fe950": "*",
+          "4c1c07f2b0a2": "*",
+          "562387e4872f": "*",
+          "5f8f2c3a10ef": "*",
+          "8162f73e93b0": "*",
+          "83f84b59fb98": "*"
         }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "actions": [
+        {
+          "target": "vue",
+          "what": "TestPage.vue: the three metrics as one 'Test' <dl> card inside the Results section (full width; three columns from sm); packet loss as a Not measured badge, the visible reason and a Why? link named 'Why packet loss is not measured: …'.",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the packet-loss reason is shown text per screens.md §6, not only a tooltip.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
-      "id": "style-base-typography",
-      "title": "Base typography: the kit's body 14px and line-height normal vs Tailwind preflight's 16px/1.5",
+      "id": "style-about-links",
+      "title": "About: Source repository and LICENSE stacked full width (kit) vs in a row (Vue)",
       "match": {
         "scenarios": null,
         "projects": null,
         "layer": "style",
-        "path": null,
-        "kind": "^(line-height|height|font-size)$",
-        "detail": "^(normal → |17\\.0px → 19\\.5px$|32\\.0px → 36\\.0px$|39\\.0px → 45\\.0px$|14px → 16px$)"
+        "path": "^main > button \"(LICENSE file in the repository|Source repository)\"$",
+        "kind": "^width$",
+        "detail": "^(306|324)\\.0px"
       },
       "type": "conflict",
       "aspect": "style",
       "evidence": {
         "spec": {
           "ref": "silent",
-          "says": "visuals come from the export (docs/README.md#precedence)"
+          "says": "—"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/app.css:20-25",
-          "says": "body { font-size: var(--text-base) } and no line-height anywhere, so line-height stays normal"
+          "ref": "docs/design_system/ui_kits/app/About.jsx:118-120",
+          "says": "column of block buttons (full width) with a github icon on Source repository"
         },
         "vue": {
-          "ref": "web/src/App.vue:52; Tailwind preflight",
-          "says": "no base text size (16px) and html { line-height: 1.5 }; text-sm adds leading calc(1.25/.875) on the export's 13px"
-        },
-        "notes": "One root cause under ~295 differences: header items, brand, buttons, notices, headings, links. Fix: kit's base size and line-height normal globally, then a full re-run."
+          "ref": "web/src/pages/AboutPage.vue:112-138",
+          "says": "flex-wrap row"
+        }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export lays the About links out as a column of full-width buttons.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "0b7c9fb5d944": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1ed425315ff0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "95c90163143a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "fed84940acdb": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "about/unreachable": {
+          "0b7c9fb5d944": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1ed425315ff0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "95c90163143a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "fed84940acdb": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "AboutPage.vue: Source repository and LICENSE stacked full width (block), Source repository with the github icon.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
       "id": "style-basepath-heading",
-      "title": "Base path heading size: kit literal 22px/28px at line-height 1.2 vs Vue's --text-3xl",
+      "title": "Base path heading: kit 22px / 26px vs Vue --text-3xl",
       "match": {
         "scenarios": null,
         "projects": null,
@@ -997,101 +1597,646 @@
       "aspect": "style",
       "evidence": {
         "spec": {
-          "ref": "docs/features/edge-cases.md#20-base-path-mismatches",
-          "says": "silent on typography"
+          "ref": "silent",
+          "says": "—"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:66,609",
-          "says": "h1 fontSize 22px narrow / 28px desktop, lineHeight 1.2"
+          "ref": "docs/design_system/components/feedback/feedback.css:59-60; colors_and_type.css:335-336",
+          "says": ".fse-t --type-state-title 26px (compact 22px), --lh-tight"
         },
         "vue": {
           "ref": "web/src/components/BasePathError.vue:57-60",
-          "says": "text-(length:--text-3xl) (24px) leading-[1.2] at every width"
-        },
-        "notes": "design-system-guard: a kit literal no token expresses is copied exactly, with a row in design-system-upstream.md 'Kit Literals With No Token'."
+          "says": "--text-3xl 24px leading-[1.2] (old kit literal)"
+        }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The heading is now token-defined (--type-state-title 26px, compact 22px, --lh-tight); the old 1.2 literal exception no longer applies.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "test/basepath": {
+          "174bd6375b42": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3a432f9b20b4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "681fbea3f1c1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "98802cbd1ec6": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ce337b72e0ea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ecce4d1b7040": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "BasePathError.vue: title at --type-state-title-compact, --type-state-title from the desktop breakpoint, --lh-tight; drop the stale 1.2 row from design-system-upstream.md.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
-      "id": "style-buttons",
-      "title": "Button anatomy: kit .btn/.btn.sm sizes and secondary fill vs shadcn sizes and unmapped secondary tokens",
+      "id": "style-brand",
+      "title": "Header brand link: kit weight 600",
       "match": {
         "scenarios": null,
         "projects": null,
         "layer": "style",
-        "path": "^main > button \"(Download JSON|Retry|LICENSE file in the repository|Cancel|Source repository|Deployment docs|Reload)\"",
-        "kind": "^(?!line-height$)",
-        "detail": "^(?!rgba\\(0, 0, 0, 0\\) → )(?!(306|324)\\.0px → )"
-      },
-      "type": "conflict",
-      "aspect": "style",
-      "evidence": {
-        "spec": {
-          "ref": "silent",
-          "says": "visuals from the export; shadcn defaults only where it is silent"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/buttons.css:4-48; components/actions/Button.d.ts:8",
-          "says": ".btn 34px, 0 14px, gap 8px, semibold; .btn.sm 28px, 0 10px, 12px; .btn.secondary surface-3 fill, border-default border; sizes sm 28 / md 34 / lg 38"
-        },
-        "vue": {
-          "ref": "web/src/components/ui/button/index.ts; web/src/styles/index.css",
-          "says": "shadcn sm h-8 px-3 font-medium, default h-9 px-4; --color-secondary and --color-accent are not mapped, so secondary renders unstyled and outline's light border is near-black currentColor"
-        },
-        "notes": "The unmapped tokens come from tokens.md's Tailwind mapping copied verbatim; mapping them in index.css needs an upstream note."
-      },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "style-notice-box",
-      "title": "Notice box spacing: kit padding 12px 14px, 18px icon, 10px/12px gaps, 220px body basis",
-      "match": {
-        "scenarios": null,
-        "projects": null,
-        "layer": "style",
-        "path": "^main > status \"(Auto-start|WebSocket unavailable)",
-        "kind": "^(padding-left|padding-right|height)$",
+        "path": "^header > button \"BitGauge home\"$",
+        "kind": "^font-weight$",
         "detail": null
       },
       "type": "conflict",
       "aspect": "style",
       "evidence": {
         "spec": {
-          "ref": "docs/features/ui/screens.md:282-290 (§7)",
-          "says": "notices are text with an icon; tones; silent on spacing"
+          "ref": "silent",
+          "says": "—"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:743-747; app.css:297 .signal",
-          "says": "gap '10px 12px', padding '12px 14px', icon 18, body flex '1 1 220px', actions marginLeft auto"
+          "ref": "docs/design_system/components/navigation/navigation.css:2,6",
+          "says": ".wm { font-weight 600; line-height --lh-tight } on the link itself"
         },
         "vue": {
-          "ref": "web/src/components/test/NoticeList.vue:59; AutoStartNotice.vue:42",
-          "says": "flex flex-wrap items-start gap-3 border px-4 py-3; icon 16; body flex-1"
+          "ref": "web/src/components/layout/AppHeader.vue:67-73",
+          "says": "font-semibold on the inner span; the link is 400"
         },
-        "notes": "Narrow height also depends on the notice wording (wave 2)."
+        "notes": "Renders the same; moving the classes to the link is free."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The kit puts the wordmark's type on the home link itself; matching it is free.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "about/unreachable": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-download": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-late": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-latency": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-slow": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-slow-up": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/complete": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/connecting": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/countdown": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/download": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/error": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/error-early": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/idle": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/insufficient": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/latency": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/offline": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/param-ignored": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/slow": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/slowdone": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/upload": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/upload-interrupted": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/ws-fallback": {
+          "ad4bdbc2c620": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "AppHeader.vue: move the wordmark's size, weight, tracking and --lh-tight onto the RouterLink.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
-      "id": "style-partial-status-width",
-      "title": "Partial results status width: the kit's empty time span adds 8px",
+      "id": "style-button-kit-bug",
+      "title": "Kit bug: the Callout .block class leaks onto Button block (amber border on LICENSE, extra padding on Source repository)",
       "match": {
         "scenarios": null,
         "projects": null,
         "layer": "style",
-        "path": "^main > status \"Partial results are not saved\"",
+        "path": "^main > button \"(LICENSE file in the repository|Source repository)\"$",
+        "kind": "^(border-top-color|padding-(top|bottom|left|right))$",
+        "detail": "^(rgba\\((218, 149, 44, 82|243, 182, 73, 87)\\)|(14|16)px → (8|12)px$)"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "—"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/feedback/feedback.css:75; components/actions/actions.css:16",
+          "says": ".block { border: 1px solid var(--warn-border); padding: … } (Callout) also matches Button's block modifier"
+        },
+        "vue": {
+          "ref": "web/src/pages/AboutPage.vue",
+          "says": "no amber border, standard padding"
+        },
+        "notes": "The kit breaks its own Button contract; the amber border on the ghost LICENSE button is visible."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "0f3253e776d4": "*",
+          "1adb8bd9ddc3": "*",
+          "8294c263ff70": "*",
+          "af9a8c43c74b": "*",
+          "df14dbd3099c": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "f37f0488b31b": [
+            "light-desktop",
+            "light-narrow"
+          ]
+        },
+        "about/unreachable": {
+          "0f3253e776d4": "*",
+          "1adb8bd9ddc3": "*",
+          "8294c263ff70": "*",
+          "af9a8c43c74b": "*",
+          "df14dbd3099c": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "f37f0488b31b": [
+            "light-desktop",
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Callout .block rule (feedback.css) also matches Button's block modifier (actions.css), giving the ghost LICENSE button an amber border and Source repository extra padding; rename one of them.",
+          "done": false
+        }
+      ],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "style-buttons",
+      "title": "Button anatomy and variants: kit .btn sizes, weight 600, secondary fill vs shadcn sizes and unmapped tokens",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > button \"(Download JSON|Retry|LICENSE file in the repository|Cancel|Source repository|Deployment docs|Reload)\"$",
+        "kind": "^(?!line-height$)",
+        "detail": "^(?!rgba\\(0, 0, 0, 0\\) → )(?!rgba\\((218, 149, 44, 82|243, 182, 73, 87)\\))(?!(306|324)\\.0px)(?!(14|16)px → (8|12)px$)"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "visuals from the export"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/actions/actions.css:3-26; Button.d.ts:38; tokens.md:46-85",
+          "says": ".btn height --control-h-md 34, padding 0 14px, gap 8, 600; .sm 28, 0 10px, 12px; .secondary surface-3 + border-default; .ghost fg-muted; tokens.md now maps secondary, accent, popover, destructive"
+        },
+        "vue": {
+          "ref": "web/src/components/ui/button/index.ts; web/src/styles/index.css:28-60",
+          "says": "shadcn sm h-8 px-3 500, default h-9 px-4; secondary/accent unmapped (secondary transparent, outline border currentColor); Retry, Source repository, Deployment docs use outline where the kit uses secondary"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The kit's Button contract (sizes 28/34, weight 600, secondary fill) and tokens.md's shadcn mapping are the visual source; the unstyled secondary and near-black outline borders are unintended.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "053498adae42": "*",
+          "0d1a1a94eb35": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "80a69f002d47": "*",
+          "83c8c4394faa": "*",
+          "958047112fab": "*",
+          "a54ff18b4c2c": "*",
+          "bff7796676c3": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "c70cedcaa84e": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "cef37e0e5758": "*",
+          "f50ab5832701": "*",
+          "f5bf892b35d7": [
+            "light-desktop",
+            "light-narrow"
+          ]
+        },
+        "about/unreachable": {
+          "053498adae42": "*",
+          "0d1a1a94eb35": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "1388c8402953": "*",
+          "50e1fa87e04c": "*",
+          "541f3f304f16": "*",
+          "80a69f002d47": "*",
+          "83c8c4394faa": "*",
+          "8dbb508fcb58": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "958047112fab": "*",
+          "a54ff18b4c2c": "*",
+          "ac9a1b303dab": "*",
+          "bff7796676c3": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "c70cedcaa84e": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "cb17a8671dec": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "cef37e0e5758": "*",
+          "f50ab5832701": "*",
+          "f5bf892b35d7": [
+            "light-desktop",
+            "light-narrow"
+          ]
+        },
+        "test/basepath": {
+          "01150b2a1813": "*",
+          "396c6015a19d": "*",
+          "4976c3aad0b1": "*",
+          "68c6bc837099": "*",
+          "79f69ecb2782": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "b2ba9002b309": "*",
+          "bce3ab7c3e8c": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "d402e8a33e38": "*",
+          "d7502ce97701": "*",
+          "db70e2525a19": "*",
+          "e3e4d60a0fde": "*",
+          "e51d77f38667": "*"
+        },
+        "test/cancelled": {
+          "09d88417571b": "*",
+          "29564bcab4c1": "*",
+          "7d6d6eaed61b": "*",
+          "7ee90ca78ac7": "*",
+          "ba682f21d4a8": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "df184d57d57f": [
+            "dark-desktop",
+            "dark-narrow"
+          ]
+        },
+        "test/cancelled-download": {
+          "09d88417571b": "*",
+          "29564bcab4c1": "*",
+          "7d6d6eaed61b": "*",
+          "7ee90ca78ac7": "*",
+          "ba682f21d4a8": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "df184d57d57f": [
+            "dark-desktop",
+            "dark-narrow"
+          ]
+        },
+        "test/cancelled-late": {
+          "09d88417571b": "*",
+          "29564bcab4c1": "*",
+          "7d6d6eaed61b": "*",
+          "7ee90ca78ac7": "*",
+          "ba682f21d4a8": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "df184d57d57f": [
+            "dark-desktop",
+            "dark-narrow"
+          ]
+        },
+        "test/cancelled-slow": {
+          "09d88417571b": "*",
+          "29564bcab4c1": "*",
+          "7d6d6eaed61b": "*",
+          "7ee90ca78ac7": "*",
+          "ba682f21d4a8": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "df184d57d57f": [
+            "dark-desktop",
+            "dark-narrow"
+          ]
+        },
+        "test/cancelled-slow-up": {
+          "09d88417571b": "*",
+          "29564bcab4c1": "*",
+          "7d6d6eaed61b": "*",
+          "7ee90ca78ac7": "*",
+          "ba682f21d4a8": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "df184d57d57f": [
+            "dark-desktop",
+            "dark-narrow"
+          ]
+        },
+        "test/complete": {
+          "09d88417571b": "*",
+          "22f91efdbd21": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "29564bcab4c1": "*",
+          "310330e037a6": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "460798e0c71c": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "7d6d6eaed61b": "*",
+          "7ee90ca78ac7": "*",
+          "e3f7b96141c8": [
+            "light-desktop",
+            "light-narrow"
+          ]
+        },
+        "test/countdown": {
+          "115b596f6f6d": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "192a96c5b092": "*",
+          "3bbec3530226": "*",
+          "a5f9240a621f": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "c98eb959df6e": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "d3b393b85ef9": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "d6ca783ba769": "*"
+        },
+        "test/error": {
+          "09d88417571b": "*",
+          "29564bcab4c1": "*",
+          "7d6d6eaed61b": "*",
+          "7ee90ca78ac7": "*",
+          "ba682f21d4a8": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "df184d57d57f": [
+            "dark-desktop",
+            "dark-narrow"
+          ]
+        },
+        "test/offline": {
+          "1388c8402953": "*",
+          "50e1fa87e04c": "*",
+          "541f3f304f16": "*",
+          "8dbb508fcb58": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "ac9a1b303dab": "*",
+          "cb17a8671dec": [
+            "dark-desktop",
+            "dark-narrow"
+          ]
+        },
+        "test/slowdone": {
+          "09d88417571b": "*",
+          "22f91efdbd21": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "29564bcab4c1": "*",
+          "310330e037a6": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "460798e0c71c": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "7d6d6eaed61b": "*",
+          "7ee90ca78ac7": "*",
+          "e3f7b96141c8": [
+            "light-desktop",
+            "light-narrow"
+          ]
+        },
+        "test/upload-interrupted": {
+          "09d88417571b": "*",
+          "22f91efdbd21": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "29564bcab4c1": "*",
+          "310330e037a6": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "460798e0c71c": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "7d6d6eaed61b": "*",
+          "7ee90ca78ac7": "*",
+          "e3f7b96141c8": [
+            "light-desktop",
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "Sync web/src/styles/index.css with tokens.md's Tailwind mapping (secondary, accent, popover, destructive, status triads); an app-level AppButton wrapper with the kit's sm/md anatomy and variants, never editing components/ui; Retry, Source repository and Deployment docs use secondary.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "style-context-chip",
+      "title": "Context chip anatomy: kit tokens (padding 8/6, gap 4) vs Vue literals (9/7, gap 5)",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > button \"Context: —\"$",
         "kind": "^width$",
         "detail": null
       },
@@ -1103,24 +2248,958 @@
           "says": "—"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:1007-1013",
-          "says": "always renders the time span, empty when partial, plus an 8px gap"
+          "ref": "docs/design_system/components/actions/actions.css:67-71",
+          "says": ".menu-trigger padding 0 6px 0 8px, gap 4px (tokens)"
         },
         "vue": {
-          "ref": "web/src/components/test/ResultBar.vue:51-65",
-          "says": "time span only when complete (v-if)"
-        },
-        "notes": "8px of an empty element: nothing visible."
+          "ref": "web/src/components/connection/ConnectionStrip.vue:112",
+          "says": "pl-[9px] pr-[7px] gap-[5px] (old kit literals)"
+        }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The kit's menu trigger is now token-defined (padding 8/6, gap 4); Vue still carries the old literals.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "test/offline": {
+          "430ede9121a7": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "ConnectionStrip.vue: the context chip at --chip-h-sm with pl-2 pr-1.5 gap-1.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "style-line-height",
+      "title": "Line heights: the kit's line-height tokens (1.15 controls, 1.5 body, headings) vs Tailwind's 1.5 and text-* leading",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^(?!main > heading \"The base path)",
+        "kind": "^(line-height|height)$",
+        "detail": "^(?!(28|34|306|324|17)\\.0px)(?!(117\\.7|97\\.1|62\\.3|50\\.6|29\\.9)px)"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "visuals come from the export"
+        },
+        "kit": {
+          "ref": "docs/design_system/base.css:13-14; colors_and_type.css:321-326; components/actions/actions.css:7,11",
+          "says": "body { font-size: var(--text-base); line-height: var(--lh-normal) }; .btn line-height var(--lh-tight); headings --lh-tight/--lh-snug"
+        },
+        "vue": {
+          "ref": "web/src/styles/index.css:25-60; web/src/App.vue:52",
+          "says": "imports colors_and_type.css only, not base.css; no base size (16px); preflight 1.5; text-sm leading calc(1.25/.875)"
+        },
+        "notes": "Many rows render nothing (fixed-height buttons, icon-only header items); the About heading, Methodology link and notice text do render. Importing base.css needs layer(base) so its a{color} does not beat utilities."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export defines the body type and each component's leading as tokens; the spec leaves visuals to the export.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "31c1cd47b052": "*",
+          "3573a2fba9eb": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "39eeaf7ecac2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "419925fb79e8": "*",
+          "5e95895b26a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c29a94935259": "*",
+          "d392e3f0a75b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "dd7ebde7d395": "*",
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "about/unreachable": {
+          "31c1cd47b052": "*",
+          "3573a2fba9eb": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "39eeaf7ecac2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "419925fb79e8": "*",
+          "5e95895b26a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8227de3e8f08": "*",
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c29a94935259": "*",
+          "d392e3f0a75b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "dd7ebde7d395": "*",
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/basepath": {
+          "69aefbf93f30": "*",
+          "ee9ab23c8284": "*"
+        },
+        "test/cancelled": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c4370ef2b2dd": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-download": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c4370ef2b2dd": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-late": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c4370ef2b2dd": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-latency": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-slow": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c4370ef2b2dd": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-slow-up": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c4370ef2b2dd": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/complete": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c4370ef2b2dd": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/connecting": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/countdown": {
+          "42aecb95836f": "*",
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b762bb2fe52c": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/download": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/error": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c4370ef2b2dd": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/error-early": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/idle": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/insufficient": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/latency": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/offline": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8227de3e8f08": "*",
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/param-ignored": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/slow": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/slowdone": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c4370ef2b2dd": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/upload": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/upload-interrupted": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c4370ef2b2dd": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/ws-fallback": {
+          "644b4762d72d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7faced8b3e57": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "892a7d25307a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a1f1139c1997": "*",
+          "d42e3237a029": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6b4077fad52": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/styles/index.css: import the export's base.css in layer(base); give buttons, headings and the brand link the kit's --lh-* tokens; full re-run for the 16→14px body ripple.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "style-methodology-link",
+      "title": "Methodology link weight: kit 600",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > button \"Methodology",
+        "kind": "^font-weight$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md:115-119",
+          "says": "no information by colour alone"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/actions/actions.css:48-50; Link.jsx",
+          "says": ".link semibold, primary-text, inherits 14px; 'all text links semibold'"
+        },
+        "vue": {
+          "ref": "web/src/pages/AboutPage.vue:149-155",
+          "says": "13px, regular weight"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The kit's Link component makes every text link semibold.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "70ebfa5ad6d2": "*"
+        },
+        "about/unreachable": {
+          "70ebfa5ad6d2": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "A small AppLink component (inline-flex, gap-1, primary-text, semibold) used for the About methodology link and the other standalone text links.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "style-notice-box",
+      "title": "Notice box: kit 14px text, 14px side padding, and the heights that follow",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > status \"(Auto-start|WebSocket unavailable)",
+        "kind": "^(font-size|padding-left|padding-right|height)$",
+        "detail": "^(?!21px)"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §7",
+          "says": "icon and text; anatomy silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/feedback/feedback.css:2-10; components/notices.md",
+          "says": "padding 12 14, gap 10/12, body basis 220, title lh-snug, body 12px lh-compact, actions ml-auto; screens never build their own notice box"
+        },
+        "vue": {
+          "ref": "web/src/components/test/NoticeList.vue:59; AutoStartNotice.vue:42",
+          "says": "px-4 py-3 gap-3, body flex-1, 13px text; the box is duplicated in two files"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The kit's Notice component and notices.md define the box; screens never build their own.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "test/countdown": {
+          "0e53d71d9a7f": "*",
+          "69761a9c8a48": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8710218d34b5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "cb1ecd2bd3ae": "*",
+          "e02656bc8785": "*"
+        },
+        "test/ws-fallback": {
+          "2925e85f3ccd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "45f6130bab0f": "*",
+          "9ace17930de6": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "dc9ab0eba84f": "*",
+          "f48dd2906f97": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "Extract one NoticeBox.vue with the kit's Notice anatomy (padding 12/14, gaps 10/12, body basis 220px, title lh-snug, body caption lh-compact, actions ml-auto) and use it in NoticeList and AutoStartNotice.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
       "id": "style-theme-control",
-      "title": "Header theme radios: kit .seg-btn 13px semibold with 6px gap",
+      "title": "Theme radio: selected colour --primary-text (kit) vs --primary (Vue)",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^header > (radio \"(Light|Dark|Follow system)\"|button \"Theme: )",
+        "kind": "^color$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "—"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/forms/forms.css .seg-btn.on",
+          "says": "color: var(--primary-text)"
+        },
+        "vue": {
+          "ref": "web/src/components/layout/AppHeader.vue:136",
+          "says": "text-primary (--primary)"
+        },
+        "notes": "Light theme only: rgba(0,114,128) vs (0,120,134). Visible on the selected icon."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The selected segment uses --primary-text in the kit's Segmented contract.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "about/unreachable": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/cancelled": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-download": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-late": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-latency": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-slow": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-slow-up": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/complete": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/connecting": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/countdown": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/download": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/error": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/error-early": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/idle": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/insufficient": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/latency": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/offline": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/param-ignored": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/slow": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/slowdone": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/upload": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/upload-interrupted": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        },
+        "test/ws-fallback": {
+          "159f4747884b": [
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "AppHeader.vue: the selected theme radio uses text-primary-text.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "style-theme-typography",
+      "title": "Theme radios' and narrow theme button's text styles on icon-only boxes",
       "match": {
         "scenarios": null,
         "projects": null,
@@ -1133,57 +3212,1043 @@
       "aspect": "style",
       "evidence": {
         "spec": {
-          "ref": "docs/features/ui/screens.md:81-86",
-          "says": "theme chosen in the header; silent on visuals"
+          "ref": "silent",
+          "says": "—"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/app.css:144",
-          "says": ".seg-btn { gap: var(--space-1-5); font-size: var(--text-sm); font-weight: var(--weight-semibold) }"
+          "ref": "docs/design_system/components/forms/forms.css:25-33; actions.css",
+          "says": ".seg-btn font-size --text-sm, weight 600, gap 6; .seg-sm 12px; narrow .btn 13px"
         },
         "vue": {
           "ref": "web/src/components/layout/AppHeader.vue:135,179",
-          "says": "radio: inline-flex h-7 items-center border-r px-2 (no size, weight or gap)"
+          "says": "inherit 16px/400, no gap"
         },
-        "notes": "The radios are icon-only fixed boxes: these properties render nothing visible today."
+        "notes": "Icon-only fixed boxes: nothing renders. The harness's icon-box exemption needs justify-content:center, which the radios lack, and does not cover font-size."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
-      "id": "style-why-link",
-      "title": "Why? link weight: kit 600 standalone, Vue 400 underlined inline",
-      "match": {
-        "scenarios": null,
-        "projects": null,
-        "layer": "style",
-        "path": "^main > button \"Why\\?\"",
-        "kind": "^font-weight$",
-        "detail": null
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "Copy the kit's .seg-btn and icon-button text styles so the header controls match the component exactly, even though the icon-only boxes render the same.",
+        "on": "2026-10-14"
       },
-      "type": "conflict",
-      "aspect": "style",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/screens.md:251; ui/i18n-a11y.md:119",
-          "says": "packet loss slot with a link to why; no information by colour alone"
+      "owned": {
+        "about": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
         },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:1222-1224",
-          "says": "standalone <a> fontWeight 600, no underline, next to a Not measured pill"
+        "about/unreachable": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
         },
-        "vue": {
-          "ref": "web/src/components/test/MetricTile.vue:72-81",
-          "says": "inline <a class=\"text-primary-text underline\"> after a caption sentence, weight 400"
+        "test/cancelled": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
         },
-        "notes": "If the link stays inline in a sentence, the underline is the non-colour cue."
+        "test/cancelled-download": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-late": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-latency": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-slow": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/cancelled-slow-up": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/complete": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/connecting": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/countdown": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/download": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/error": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/error-early": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/idle": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/insufficient": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/latency": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/offline": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/param-ignored": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/slow": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/slowdone": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/upload": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/upload-interrupted": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/ws-fallback": {
+          "097d35b1bc8a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1f22a409616d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a7358c6d985": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb041e394be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c18b589753f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f1be42081d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "896d036905d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9856362cf91d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c9bf85fccba1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e869295d102f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "actions": [
+        {
+          "target": "vue",
+          "what": "AppHeader.vue: theme radios gap-1.5, caption size, semibold (the kit's .seg-sm .seg-btn); narrow theme button text-sm at --lh-tight.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     }
   ]

@@ -5,6 +5,7 @@
 # Maintained by the harness, never by hand: make demo-parity-update removes what has been fixed,
 # make demo-parity-accept REASON=... adds what is accepted. See docs/engineering/demo-parity.md.
 *	about	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-narrow,light-narrow	about	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	about	content	main	changed	text "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or…	present when the harness was adopted
 *	about	content	main > complementary	changed	text "Privacy No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser. Credits" → "No accounts, no tracking, no ads.…	present when the harness was adopted
 *	about	content	main > complementary	extra	heading "Credits"	present when the harness was adopted
@@ -28,6 +29,8 @@ dark-desktop,light-desktop	about	style	header > radio "Follow system"	column-gap
 dark-desktop,light-desktop	about	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,light-desktop	about	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	about	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+light-desktop,light-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(218, 149, 44, 82) → rgba(26, 30, 37, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
+dark-desktop,dark-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(243, 182, 73, 87) → rgba(241, 243, 245, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
 dark-desktop,dark-narrow	about	style	main > button "LICENSE file in the repository"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
 light-desktop,light-narrow	about	style	main > button "LICENSE file in the repository"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	about	style	main > button "LICENSE file in the repository"	column-gap	8px → 6px	present when the harness was adopted
@@ -41,8 +44,13 @@ dark-desktop,dark-narrow	about	style	main > button "Source repository"	backgroun
 light-desktop,light-narrow	about	style	main > button "Source repository"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	about	style	main > button "Source repository"	font-weight	600 → 500	present when the harness was adopted
 *	about	style	main > button "Source repository"	height	34.0px → 36.0px	present when the harness was adopted
+*	about	style	main > button "Source repository"	padding-bottom	14px → 8px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
+*	about	style	main > button "Source repository"	padding-left	16px → 12px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
+*	about	style	main > button "Source repository"	padding-right	16px → 12px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
+*	about	style	main > button "Source repository"	padding-top	14px → 8px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
 dark-desktop,light-desktop	about	style	main > button "Source repository"	width	306.0px → 155.0px	present when the harness was adopted
 dark-narrow,light-narrow	about	style	main > button "Source repository"	width	324.0px → 155.0px	present when the harness was adopted
+dark-narrow,light-narrow	about/unreachable	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	about/unreachable	content	main	changed	text "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or…	present when the harness was adopted
 *	about/unreachable	content	main > alert	changed	text "Server unreachable The commands below are built from this page's address, https://speed.home.lan. BitGauge can't check which clients the operator enabled…	present when the harness was adopted
 *	about/unreachable	content	main > complementary	changed	text "Privacy No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser. Credits" → "No accounts, no tracking, no ads.…	present when the harness was adopted
@@ -66,6 +74,8 @@ dark-desktop,light-desktop	about/unreachable	style	header > radio "Follow system
 dark-desktop,light-desktop	about/unreachable	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,light-desktop	about/unreachable	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	about/unreachable	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+light-desktop,light-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(218, 149, 44, 82) → rgba(26, 30, 37, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
+dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(243, 182, 73, 87) → rgba(241, 243, 245, 255)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
 dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	color	rgba(178, 182, 188, 255) → rgba(241, 243, 245, 255)	present when the harness was adopted
 light-desktop,light-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	color	rgba(81, 86, 94, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	about/unreachable	style	main > button "LICENSE file in the repository"	column-gap	8px → 6px	present when the harness was adopted
@@ -85,6 +95,10 @@ dark-desktop,dark-narrow	about/unreachable	style	main > button "Source repositor
 light-desktop,light-narrow	about/unreachable	style	main > button "Source repository"	border-top-color	rgba(204, 208, 213, 255) → rgba(26, 30, 37, 255)	present when the harness was adopted
 *	about/unreachable	style	main > button "Source repository"	font-weight	600 → 500	present when the harness was adopted
 *	about/unreachable	style	main > button "Source repository"	height	34.0px → 36.0px	present when the harness was adopted
+*	about/unreachable	style	main > button "Source repository"	padding-bottom	14px → 8px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
+*	about/unreachable	style	main > button "Source repository"	padding-left	16px → 12px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
+*	about/unreachable	style	main > button "Source repository"	padding-right	16px → 12px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
+*	about/unreachable	style	main > button "Source repository"	padding-top	14px → 8px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
 dark-desktop,light-desktop	about/unreachable	style	main > button "Source repository"	width	306.0px → 155.0px	present when the harness was adopted
 dark-narrow,light-narrow	about/unreachable	style	main > button "Source repository"	width	324.0px → 155.0px	present when the harness was adopted
 *	test/basepath	content	main	changed	text "BitGauge Deployment error" → "BitGauge Base path mismatch"	present when the harness was adopted
@@ -122,8 +136,9 @@ dark-desktop,dark-narrow	test/basepath	style	main > button "Reload"	border-top-c
 *	test/basepath	style	main > button "Reload"	width	95.0px → 90.0px	present when the harness was adopted
 dark-narrow,light-narrow	test/basepath	style	main > heading "The base path doesn't match this URL"	font-size	22px → 24px	present when the harness was adopted
 *	test/cancelled	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/cancelled	content	main	extra	button "Context: LAN"	present when the harness was adopted
-*	test/cancelled	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/cancelled	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled	content	main	extra	text "Context"	present when the harness was adopted
@@ -152,8 +167,9 @@ light-desktop,light-narrow	test/cancelled	style	main > button "Download JSON"	co
 *	test/cancelled	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
 *	test/cancelled	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
 *	test/cancelled-download	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-download	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/cancelled-download	content	main	extra	button "Context: LAN"	present when the harness was adopted
-*	test/cancelled-download	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled-download	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-download	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/cancelled-download	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-download	content	main	extra	text "Context"	present when the harness was adopted
@@ -181,8 +197,9 @@ light-desktop,light-narrow	test/cancelled-download	style	main > button "Download
 *	test/cancelled-download	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
 *	test/cancelled-download	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
 *	test/cancelled-late	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-late	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/cancelled-late	content	main	extra	button "Context: LAN"	present when the harness was adopted
-*	test/cancelled-late	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled-late	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-late	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/cancelled-late	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-late	content	main	extra	text "Context"	present when the harness was adopted
@@ -212,7 +229,8 @@ light-desktop,light-narrow	test/cancelled-late	style	main > button "Download JSO
 *	test/cancelled-late	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
 *	test/cancelled-late	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
 *	test/cancelled-latency	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/cancelled-latency	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-latency	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/cancelled-latency	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-latency	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/cancelled-latency	content	main	extra	text "Data used — Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/cancelled-latency	content	main	extra	text "No test has run yet."	present when the harness was adopted
@@ -231,13 +249,15 @@ dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Follow s
 dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/cancelled-latency	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 *	test/cancelled-slow	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/cancelled-slow	content	main	extra	button "Context: LAN"	present when the harness was adopted
-*	test/cancelled-slow	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled-slow	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-slow	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/cancelled-slow	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-slow	content	main	extra	text "Context"	present when the harness was adopted
 *	test/cancelled-slow	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/cancelled-slow	content	main	extra	text "suggested Client IP 10.8.0.6 IPv4 Protocol h2 Streams # auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-slow	content	main	missing	button "Context: VPN, suggested"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/cancelled-slow	content	main	missing	text "Context"	present when the harness was adopted
 *	test/cancelled-slow	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/cancelled-slow	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
@@ -259,13 +279,15 @@ light-desktop,light-narrow	test/cancelled-slow	style	main > button "Download JSO
 *	test/cancelled-slow	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
 *	test/cancelled-slow	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
 *	test/cancelled-slow-up	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
+dark-narrow,light-narrow	test/cancelled-slow-up	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/cancelled-slow-up	content	main	extra	button "Context: LAN"	present when the harness was adopted
-*	test/cancelled-slow-up	content	main	extra	heading "Speed test"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-slow-up	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main	extra	text "Context"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/cancelled-slow-up	content	main	extra	text "suggested Client IP 10.8.0.6 IPv4 Protocol h2 Streams # auto, up to 6 Standard preset · Auto streams · No data cap"	present when the harness was adopted
+*	test/cancelled-slow-up	content	main	missing	button "Context: VPN, suggested"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/cancelled-slow-up	content	main	missing	text "Context"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 10 kbit/s –…" → "Download # kbit/s log scale · 10 kbit/s –…"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
@@ -289,7 +311,8 @@ light-desktop,light-narrow	test/cancelled-slow-up	style	main > button "Download 
 *	test/cancelled-slow-up	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
 *	test/cancelled-slow-up	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
 *	test/complete	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/complete	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/complete	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/complete	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/complete	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/complete	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/complete	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.
@@ -315,7 +338,8 @@ dark-desktop,dark-narrow	test/complete	style	main > button "Download JSON"	borde
 *	test/complete	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
 *	test/complete	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
 *	test/connecting	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/connecting	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/connecting	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/connecting	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/connecting	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/connecting	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/connecting	content	main > region "Speed test"	changed	text "Connecting… Basement NAS · reading server info log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
@@ -332,7 +356,8 @@ dark-desktop,light-desktop	test/connecting	style	header > radio "Follow system"	
 dark-desktop,light-desktop	test/connecting	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/connecting	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 *	test/countdown	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/countdown	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/countdown	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/countdown	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/countdown	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/countdown	content	main	extra	text "Data used — Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/countdown	content	main	extra	text "No test has run yet."	present when the harness was adopted
@@ -361,7 +386,8 @@ dark-desktop,dark-narrow	test/countdown	style	main > button "Cancel"	border-top-
 *	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	padding-left	14px → 16px	present when the harness was adopted
 *	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	padding-right	14px → 16px	present when the harness was adopted
 *	test/download	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/download	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/download	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/download	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/download	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/download	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/download	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
@@ -377,7 +403,8 @@ dark-desktop,light-desktop	test/download	style	header > radio "Follow system"	fo
 dark-desktop,light-desktop	test/download	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/download	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 *	test/error	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/error	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/error	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/error	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/error	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/error	content	main	extra	status	present when the harness was adopted
 *	test/error	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
@@ -404,7 +431,8 @@ light-desktop,light-narrow	test/error	style	main > button "Download JSON"	color	
 *	test/error	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
 dark-desktop,light-desktop	test/error-early	content	header > banner	changed	text "Basement NAS , unreachable speed.home.lan" → "Basement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
 dark-narrow,light-narrow	test/error-early	content	header > banner	changed	text "BitGauge Basement NAS , unreachable speed.home.lan" → "BitGauge Basement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/error-early	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/error-early	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/error-early	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/error-early	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/error-early	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/error-early	content	main	missing	region "Result status"	present when the harness was adopted
@@ -422,7 +450,8 @@ dark-desktop,light-desktop	test/error-early	style	header > radio "Follow system"
 dark-desktop,light-desktop	test/error-early	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/error-early	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 *	test/idle	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/idle	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/idle	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/idle	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/idle	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/idle	content	main	extra	text "Data used — Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/idle	content	main	extra	text "No test has run yet."	present when the harness was adopted
@@ -441,7 +470,8 @@ dark-desktop,light-desktop	test/idle	style	header > radio "Follow system"	font-w
 dark-desktop,light-desktop	test/idle	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/idle	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 *	test/insufficient	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/insufficient	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/insufficient	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/insufficient	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/insufficient	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/insufficient	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/insufficient	content	main	missing	status	present when the harness was adopted
@@ -458,7 +488,8 @@ dark-desktop,light-desktop	test/insufficient	style	header > radio "Follow system
 dark-desktop,light-desktop	test/insufficient	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/insufficient	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 *	test/latency	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/latency	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/latency	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/latency	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/latency	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/latency	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/latency	content	main > region "Speed test"	changed	text "Latency # ms median 3.1 · ping 14 of 20 log scale · 1 – 1000 ms" → "Idle latency # ms log scale · 1 – 1000 ms"	present when the harness was adopted
@@ -473,6 +504,7 @@ dark-desktop,light-desktop	test/latency	style	header > radio "Follow system"	col
 dark-desktop,light-desktop	test/latency	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,light-desktop	test/latency	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/latency	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-narrow,light-narrow	test/offline	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/offline	content	main	changed	text "…P — Protocol — Streams — Standard preset · Auto streams · No data cap" → "…P — Protocol — Streams —"	present when the harness was adopted
 *	test/offline	content	main	extra	alert	present when the harness was adopted
 *	test/offline	content	main	extra	heading "Speed test"	present when the harness was adopted
@@ -501,7 +533,8 @@ light-desktop,light-narrow	test/offline	style	main > button "Retry"	border-top-c
 *	test/offline	style	main > button "Retry"	height	28.0px → 32.0px	present when the harness was adopted
 *	test/offline	style	main > button "Retry"	width	74.0px → 77.0px	present when the harness was adopted
 *	test/param-ignored	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/param-ignored	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/param-ignored	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/param-ignored	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/param-ignored	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/param-ignored	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/param-ignored	content	main	extra	text "Data used — Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
@@ -522,9 +555,12 @@ dark-desktop,light-desktop	test/param-ignored	style	header > radio "Follow syste
 dark-desktop,light-desktop	test/param-ignored	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/param-ignored	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 *	test/slow	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/slow	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/slow	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/slow	content	main	changed	button "Context: VPN, suggested" → "Context: LAN"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
+*	test/slow	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/slow	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/slow	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/slow	content	main > button "Context: VPN, suggested"	changed	text "VPN" → "LAN"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/slow	content	main > region "Speed test"	changed	text "…load · sending # kbit/s avg so far 217 · peak 258 log scale · 10 kbit/s – …" → "…load · sending # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
 *	test/slow	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/slow	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up # s"	present when the harness was adopted
@@ -538,11 +574,14 @@ dark-desktop,light-desktop	test/slow	style	header > radio "Follow system"	font-w
 dark-desktop,light-desktop	test/slow	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/slow	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
 *	test/slowdone	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/slowdone	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/slowdone	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/slowdone	content	main	changed	button "Context: VPN, suggested" → "Context: LAN"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
+*	test/slowdone	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/slowdone	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/slowdone	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/slowdone	content	main	extra	status	present when the harness was adopted
 *	test/slowdone	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
+*	test/slowdone	content	main > button "Context: VPN, suggested"	changed	text "VPN" → "LAN"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/slowdone	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.
 *	test/slowdone	content	main > region "Results"	changed	text "Download # kbit/s peak 702 · 2 streams · plateau: no-gain Upload # kbit/s peak 224 · 2 streams · plateau: no-gain Idle latency # ms min 41 · p90 # ms · W…	present when the harness was adopted
 *	test/slowdone	content	main > region "Speed test"	changed	text "Download # kbit/s # kbit/s upload log scale · 10 kbit/s – …" → "Download # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
@@ -566,7 +605,8 @@ dark-desktop,dark-narrow	test/slowdone	style	main > button "Download JSON"	borde
 *	test/slowdone	style	main > button "Download JSON"	height	28.0px → 32.0px	present when the harness was adopted
 *	test/slowdone	style	main > button "Download JSON"	width	136.0px → 138.0px	present when the harness was adopted
 *	test/upload	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/upload	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/upload	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/upload	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/upload	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/upload	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/upload	content	main > region "Speed test"	changed	text "…load · sending # Mbit/s avg so far 439 · peak 450 log scale · 1 Mbit/s – 1…" → "…load · sending # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
@@ -581,8 +621,12 @@ dark-desktop,light-desktop	test/upload	style	header > radio "Follow system"	colu
 dark-desktop,light-desktop	test/upload	style	header > radio "Follow system"	font-weight	600 → 400	present when the harness was adopted
 dark-desktop,light-desktop	test/upload	style	header > radio "Light"	column-gap	6px → normal	present when the harness was adopted
 dark-desktop,light-desktop	test/upload	style	header > radio "Light"	font-weight	600 → 400	present when the harness was adopted
+dark-narrow,light-narrow	test/upload-interrupted	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/upload-interrupted	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
+*	test/upload-interrupted	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.
 *	test/ws-fallback	content	header > banner	changed	text "…asement NAS , connected speed.home.lan" → "…asement NAS , connected 127.0.0.1:5180"	present when the harness was adopted
-*	test/ws-fallback	content	main	extra	heading "Speed test"	present when the harness was adopted
+dark-narrow,light-narrow	test/ws-fallback	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
+*	test/ws-fallback	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/ws-fallback	content	main	extra	link "Why?"	present when the harness was adopted
 *	test/ws-fallback	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/ws-fallback	content	main	extra	text "Data used # B Duration — Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
