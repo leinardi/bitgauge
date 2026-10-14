@@ -1,4 +1,1190 @@
 {
   "version": 1,
-  "clusters": []
+  "clusters": [
+    {
+      "id": "a11y-context-name",
+      "title": "Context chip's accessible name: LAN (kit) vs Context: LAN (Vue)",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main( > button \"(LAN|—)\")?$",
+        "kind": null,
+        "detail": "^(button \"(LAN|—)\" → \"Context: (LAN|—)\"|text \"(LAN|—)\"|text \"Context\"|button \"Context: LAN\"|button \"LAN\")$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:17-18",
+          "says": "suggested context label (LAN, VPN or none), editable; silent on the accessible name"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:670-677",
+          "says": "caption <span>Context</span>, then a menu button named by its content: 'LAN', or '—' offline"
+        },
+        "vue": {
+          "ref": "web/src/components/connection/ConnectionStrip.vue:111-113",
+          "says": "aria-label 'Context: {label}'"
+        },
+        "notes": "Vue's name contains the visible text (WCAG 2.5.3). '—' alone says nothing about what the menu changes."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "a11y-kbd-hints",
+      "title": "Enter and Esc hints inside the main button's accessible name",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": null,
+        "detail": "^button \"([^\"]*) (Enter|Esc)\" → \"\\1\"$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md:109-110 (§2.4)",
+          "says": "Desktop layouts show the Enter and Escape hints on the button; silent on the accessible name"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:867-874",
+          "says": "<kbd>Enter</kbd> inside the button, so its name is 'Start test Enter'"
+        },
+        "vue": {
+          "ref": "web/src/components/test/StartButton.vue:82-85",
+          "says": "<kbd aria-hidden=\"true\">, name 'Start test'"
+        },
+        "notes": "aria-keyshortcuts is the ARIA way to expose the shortcut; neither side uses it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "a11y-live-region-placement",
+      "title": "Polite live region: inside the Speed test section (kit) vs directly in main (Vue)",
+      "match": {
+        "scenarios": [
+          "test/cancelled",
+          "test/cancelled-download",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/complete",
+          "test/connecting",
+          "test/countdown",
+          "test/download",
+          "test/error",
+          "test/error-early",
+          "test/latency",
+          "test/offline",
+          "test/slow",
+          "test/slowdone",
+          "test/upload",
+          "test/ws-fallback",
+          "test/idle"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main( > region \"Speed test\")?$",
+        "kind": null,
+        "detail": "^status$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md:70-72 (§2.1)",
+          "says": "a separate, visually hidden polite live region announces the phase and the rate; silent on its DOM position"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:822-824",
+          "says": "role=status aria-live=polite, visually hidden, inside the gauge in <section aria-label=\"Speed test\">"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue:193-196; components/a11y/LiveRegions.vue",
+          "says": "<LiveRegions> directly in <main>, before the section"
+        },
+        "notes": "Placement changes nothing announced, but it makes the harness mis-pair notices in many scenarios."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "a11y-notices-list",
+      "title": "Notices wrapped in a labelled list (Vue) vs bare notices (kit)",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^extra$",
+        "detail": "^list \"Notices\"$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md#7-notices",
+          "says": "silent on a list wrapper"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:193-195,741-757",
+          "says": "N(...) renders bare divs with role status or alert"
+        },
+        "vue": {
+          "ref": "web/src/components/test/NoticeList.vue",
+          "says": "<ul :aria-label=\"$t('notices.label')\"> with one <li> per notice"
+        },
+        "notes": "A labelled list tells screen-reader users how many notices there are; the kit's bare notices are simpler. The wrapper also shifts the notices' paths."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "a11y-result-summary",
+      "title": "Result-summary live region (i18n-a11y §2.7): Vue has it, the kit does not",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^extra$",
+        "detail": "^status \\(#2\\)$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md (§2.7)",
+          "says": "a result-summary live region announces the finished result"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "no result-summary region"
+        },
+        "vue": {
+          "ref": "web/src/components/a11y/LiveRegions.vue:97-113",
+          "says": "second sr-only <p role=\"status\" aria-live=\"polite\"> for the result summary"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "a11y-speedtest-heading",
+      "title": "Visually hidden h1 Speed test on the Test screen",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^extra$",
+        "detail": "^heading \"Speed test\"$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2, §2.3",
+          "says": "silent on headings; WCAG 2.2 AA, skip link, logical focus order"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:659-760",
+          "says": "the Test screen has no heading"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue:190-192",
+          "says": "<h1 class=\"sr-only\">Speed test</h1>, also the section's aria-label"
+        },
+        "notes": "An h1 is a best practice for heading navigation, not a WCAG AA requirement."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "behavior-cancel-during-latency",
+      "title": "Stop during idle latency with enough pings: kit keeps a partial result, Vue returns to Idle",
+      "match": {
+        "scenarios": [
+          "test/cancelled-latency"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main( > region \"Speed test\")?$",
+        "kind": null,
+        "detail": "^(region \"Result status\"|button \"Run again( Enter)?\" → \"Start test\")$"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md:89-90; measurement.md:810-812",
+          "says": "returns to Idle when 'nothing was measured yet (stopped during info or idle latency with too few samples)'; fewer than 5 samples → idle latency unavailable"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:349-360",
+          "says": "cancel at 12 of 20 pings keeps idle latency and jitter as 'Partial — stopped early', Run again, a result bar"
+        },
+        "vue": {
+          "ref": "web/src/engine/run.ts:224-233; composables/useRunState.ts:145-160",
+          "says": "an interrupted idle phase returns null, so no result and the screen returns to Idle"
+        },
+        "notes": "The spec implies 5+ samples give a partial result (kit), but screens.md:41 ties Keep to a finished phase. Needs a spec clarification, then an engine change."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "behavior-error-no-phase",
+      "title": "Error before any phase finished: kit offers Download JSON in a result bar, Vue shows none",
+      "match": {
+        "scenarios": [
+          "test/error-early"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^missing$",
+        "detail": "^region \"Result status\"$"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md:112-114 (§5.4)",
+          "says": "If no phase completed, there is nothing to keep"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:435-445,534",
+          "says": "error-early: result bar 'Partial results are not saved · Download the JSON to keep them.' with Download JSON"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue:275",
+          "says": "<ResultBar v-if=\"... run.result.value !== null\"> (no result, no bar)"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "content-result-time",
+      "title": "Result status time of day: kit's literal 24-hour sample vs Intl in the active locale",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Result status\"",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md:42 (§1.3)",
+          "says": "Dates and times use Intl.DateTimeFormat with the active locale and the browser's time zone"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:490",
+          "says": "saved: { time: '15:26:40' } (literal sample)"
+        },
+        "vue": {
+          "ref": "web/src/components/test/ResultBar.vue",
+          "says": "Intl.DateTimeFormat(locale, { timeStyle: 'medium' }) → 3:26:40 PM for en"
+        },
+        "notes": "The kit's literal cannot carry a locale. Side note: the active locale is the language only, so en-GB users get 12-hour time too."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "test/complete": {
+          "e33df25c9501": "*"
+        },
+        "test/slowdone": {
+          "e33df25c9501": "*"
+        }
+      },
+      "actions": [],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "feature-edit-link",
+      "title": "Edit link to Settings in the settings summary (v0.2)",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^missing$",
+        "detail": "^link \"Edit\"$"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:87 (Before v0.2)",
+          "says": "The settings summary shows the effective values without an Edit link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:735-738",
+          "says": "<a><sliders/>Edit</a>, unconditional, leads to Settings"
+        },
+        "vue": {
+          "ref": "web/src/components/connection/SettingsSummary.vue:28-30",
+          "says": "v0.1 has no Settings screen, so there is no Edit link"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "feature-nav-v02",
+      "title": "Settings and History in the navigation (v0.2 screens), with the tab widths they cause",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": null,
+        "path": "^header > ((banner > )?navigation \"Primary\"$|button \"(Test|About)\"$)",
+        "kind": "^(missing|width)$",
+        "detail": "^(link \"(Settings|History)\"|[\\d.]+px → 195\\.0px)$"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:79-81; docs/STATUS.md:33",
+          "says": "v0.1 has no Settings screen: navigation shows Test and About; Settings is Spec'd (v0.2)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Nav.jsx:32; App.jsx:123",
+          "says": "v0.1 scope filters only 'history', and About never receives v01"
+        },
+        "vue": {
+          "ref": "web/src/components/layout/navigation.ts",
+          "says": "items = [test, about]"
+        },
+        "notes": "Includes the narrow tab widths (2 tabs in Vue, 3-4 in the kit)."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "fixture-slow-context",
+      "title": "Slow scenarios: the kit suggests VPN for the private address 10.8.0.6, the spec and demo LAN",
+      "match": {
+        "scenarios": [
+          "test/slow",
+          "test/slowdone",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main( > button \"VPN\")?$",
+        "kind": null,
+        "detail": "^(button \"VPN\"( → \"Context: LAN\")?|text \"LAN\")$"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md:265-266; wire-protocol.md:172-175",
+          "says": "both client addresses are private, so the suggested label is LAN for each; suggestedLabel is VPN for cgnat, LAN for private"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:93,98",
+          "says": "sel = ctxSel || (slow ? 'VPN' : 'LAN'); Client IP slow ? '10.8.0.6' : '192.168.1.42'"
+        },
+        "vue": {
+          "ref": "web/src/demo/fixtures.ts:36-37",
+          "says": "addressClass: 'private', suggestedLabel: 'LAN' for every link"
+        },
+        "notes": "The kit's 10.8.0.6 with VPN contradicts the address-class mapping; the spec records LAN for the demo on purpose."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "test/cancelled-slow": {
+          "642bfd1176af": "*"
+        },
+        "test/cancelled-slow-up": {
+          "642bfd1176af": "*"
+        },
+        "test/slow": {
+          "5612a371099e": "*",
+          "ae01e4ec4fc6": "*"
+        },
+        "test/slowdone": {
+          "5612a371099e": "*",
+          "ae01e4ec4fc6": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's slow client should use a CGNAT address (e.g. 100.101.4.17) if it suggests VPN, or suggest LAN for 10.8.0.6 (wire-protocol §5).",
+          "done": false
+        }
+      ],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "harness-page-host",
+      "title": "Page host in the header: the kit's speed.home.lan vs the demo's own origin",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^header > banner$",
+        "kind": "^changed$",
+        "detail": "connected speed\\.home\\.lan\" → \".*connected 127\\.0\\.0\\.1:5180\"$"
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:15-16",
+          "says": "Server name ... in the persistent header with the page's host"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Nav.jsx:44",
+          "says": "host: this.props.host || 'speed.home.lan'"
+        },
+        "vue": {
+          "ref": "web/src/components/layout/AppHeader.vue:39",
+          "says": "const host = window.location.host"
+        },
+        "notes": "Both follow the spec; the value is where the page is served from. Normalise each side's own page host in the content capture (web/parity/side.ts, capture.ts)."
+      },
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "Both sides show the page's own host as the spec asks; the value depends only on where each page is served from, so the harness treats each side's own host as equal.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/cancelled": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/cancelled-download": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/cancelled-late": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/cancelled-latency": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/cancelled-slow": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/cancelled-slow-up": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/complete": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/connecting": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/countdown": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/download": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/error": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/idle": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/insufficient": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/latency": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/param-ignored": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/slow": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/slowdone": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/upload": {
+          "ae2b2767ebbf": "*"
+        },
+        "test/ws-fallback": {
+          "ae2b2767ebbf": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "harness",
+          "what": "Replace each side's own page host (prototype speed.home.lan, Vue the demo origin's host) with one token in the content capture before normalisation; unit test; a bullet with its reason in demo-parity.md § What It Compares.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "harness-transparent-border",
+      "title": "Border colour of a 1px transparent border compared with a 0-width border",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": null,
+        "kind": "^border-top-color$",
+        "detail": "^rgba\\(0, 0, 0, 0\\) → "
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "says nothing on borders of icon or ghost buttons"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/buttons.css:4",
+          "says": ".btn{border:1px solid transparent}"
+        },
+        "vue": {
+          "ref": "web/src/components/ui/button/index.ts",
+          "says": "ghost and default variants have no border (0 width, currentColor)"
+        },
+        "notes": "A transparent 1px border and a 0-width border render the same; web/parity/compare/style.ts applies() compares the colour because the kit's side has width."
+      },
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "A 1px transparent border and a 0-width border render the same; their colours are not a difference.",
+        "on": "2026-10-14"
+      },
+      "owned": {
+        "about": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "82e621399cbb": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "9d6f6e53bc76": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "about/unreachable": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "82e621399cbb": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "9d6f6e53bc76": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/basepath": {
+          "14ece28f9cfb": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "c2c1bb403905": [
+            "light-desktop",
+            "light-narrow"
+          ]
+        },
+        "test/cancelled": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "e795473cd7f3": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "eff05923e4f0": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-download": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "e795473cd7f3": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "eff05923e4f0": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-late": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "e795473cd7f3": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "eff05923e4f0": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-latency": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-slow": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "e795473cd7f3": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "eff05923e4f0": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-slow-up": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "e795473cd7f3": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "eff05923e4f0": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/complete": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/connecting": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/countdown": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/download": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/error": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "e795473cd7f3": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "eff05923e4f0": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/error-early": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/idle": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/insufficient": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/latency": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/offline": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/param-ignored": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/slow": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/slowdone": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/upload": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        },
+        "test/ws-fallback": {
+          "33b476bfa363": [
+            "dark-narrow"
+          ],
+          "f00e727af50d": [
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "harness",
+          "what": "web/parity/compare/style.ts: skip a border colour when one side's border is transparent and the other side's has no width; unit test; note the skip in demo-parity.md.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "layout-results-metrics",
+      "title": "Data used, duration and packet loss: one card inside Results (kit) vs three tiles after it (Vue)",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main( > region \"Results\")?$",
+        "kind": null,
+        "detail": "^(link \"Why\\?\"|text \"Data used|text \"… Idle latency — Jitter — Test Data used)"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:38-40,75-78,251",
+          "says": "v0.1 metrics: download, upload, idle latency, jitter, data used, duration and the packet loss slot; silent on grouping"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:1060,1200-1235",
+          "says": "one 'Test' card (Data used, Duration, Packet loss with Not measured and Why?) inside <section aria-label=\"Results\">"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue:285-307",
+          "says": "Results section holds the main tiles; data used, duration and packet loss are three tiles in an unlabelled div after it"
+        },
+        "notes": "Vue's inline reason 'Browsers can't see packet loss over TCP' plus a docs link is what the spec asks for; the kit hides the reason in a title tooltip."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "style-about-link-layout",
+      "title": "About: source, licence and methodology links stacked full width (kit) vs in a row or stretched (Vue)",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > button \"(LICENSE file in the repository|Source repository|Methodology in the BitGauge docs)\"",
+        "kind": "^width$",
+        "detail": "^(306|324|214)\\.0px → "
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:223,228",
+          "says": "source link; methodology summary linking to the docs; silent on layout"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/About.jsx:179-196",
+          "says": "Source repository and LICENSE full width, centred, in a column; methodology link alignSelf flex-start"
+        },
+        "vue": {
+          "ref": "web/src/pages/AboutPage.vue:112-160",
+          "says": "buttons in a flex-wrap row; methodology inline-flex link stretched across its flex-col section"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "style-base-typography",
+      "title": "Base typography: the kit's body 14px and line-height normal vs Tailwind preflight's 16px/1.5",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": null,
+        "kind": "^(line-height|height|font-size)$",
+        "detail": "^(normal → |17\\.0px → 19\\.5px$|32\\.0px → 36\\.0px$|39\\.0px → 45\\.0px$|14px → 16px$)"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "visuals come from the export (docs/README.md#precedence)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/app.css:20-25",
+          "says": "body { font-size: var(--text-base) } and no line-height anywhere, so line-height stays normal"
+        },
+        "vue": {
+          "ref": "web/src/App.vue:52; Tailwind preflight",
+          "says": "no base text size (16px) and html { line-height: 1.5 }; text-sm adds leading calc(1.25/.875) on the export's 13px"
+        },
+        "notes": "One root cause under ~295 differences: header items, brand, buttons, notices, headings, links. Fix: kit's base size and line-height normal globally, then a full re-run."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "style-basepath-heading",
+      "title": "Base path heading size: kit literal 22px/28px at line-height 1.2 vs Vue's --text-3xl",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > heading \"The base path",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/edge-cases.md#20-base-path-mismatches",
+          "says": "silent on typography"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:66,609",
+          "says": "h1 fontSize 22px narrow / 28px desktop, lineHeight 1.2"
+        },
+        "vue": {
+          "ref": "web/src/components/BasePathError.vue:57-60",
+          "says": "text-(length:--text-3xl) (24px) leading-[1.2] at every width"
+        },
+        "notes": "design-system-guard: a kit literal no token expresses is copied exactly, with a row in design-system-upstream.md 'Kit Literals With No Token'."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "style-buttons",
+      "title": "Button anatomy: kit .btn/.btn.sm sizes and secondary fill vs shadcn sizes and unmapped secondary tokens",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > button \"(Download JSON|Retry|LICENSE file in the repository|Cancel|Source repository|Deployment docs|Reload)\"",
+        "kind": "^(?!line-height$)",
+        "detail": "^(?!rgba\\(0, 0, 0, 0\\) → )(?!(306|324)\\.0px → )"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "visuals from the export; shadcn defaults only where it is silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/buttons.css:4-48; components/actions/Button.d.ts:8",
+          "says": ".btn 34px, 0 14px, gap 8px, semibold; .btn.sm 28px, 0 10px, 12px; .btn.secondary surface-3 fill, border-default border; sizes sm 28 / md 34 / lg 38"
+        },
+        "vue": {
+          "ref": "web/src/components/ui/button/index.ts; web/src/styles/index.css",
+          "says": "shadcn sm h-8 px-3 font-medium, default h-9 px-4; --color-secondary and --color-accent are not mapped, so secondary renders unstyled and outline's light border is near-black currentColor"
+        },
+        "notes": "The unmapped tokens come from tokens.md's Tailwind mapping copied verbatim; mapping them in index.css needs an upstream note."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "style-notice-box",
+      "title": "Notice box spacing: kit padding 12px 14px, 18px icon, 10px/12px gaps, 220px body basis",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > status \"(Auto-start|WebSocket unavailable)",
+        "kind": "^(padding-left|padding-right|height)$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:282-290 (§7)",
+          "says": "notices are text with an icon; tones; silent on spacing"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:743-747; app.css:297 .signal",
+          "says": "gap '10px 12px', padding '12px 14px', icon 18, body flex '1 1 220px', actions marginLeft auto"
+        },
+        "vue": {
+          "ref": "web/src/components/test/NoticeList.vue:59; AutoStartNotice.vue:42",
+          "says": "flex flex-wrap items-start gap-3 border px-4 py-3; icon 16; body flex-1"
+        },
+        "notes": "Narrow height also depends on the notice wording (wave 2)."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "style-partial-status-width",
+      "title": "Partial results status width: the kit's empty time span adds 8px",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > status \"Partial results are not saved\"",
+        "kind": "^width$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "—"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:1007-1013",
+          "says": "always renders the time span, empty when partial, plus an 8px gap"
+        },
+        "vue": {
+          "ref": "web/src/components/test/ResultBar.vue:51-65",
+          "says": "time span only when complete (v-if)"
+        },
+        "notes": "8px of an empty element: nothing visible."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "style-theme-control",
+      "title": "Header theme radios: kit .seg-btn 13px semibold with 6px gap",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^header > (radio \"(Light|Dark|Follow system)\"|button \"Theme: )",
+        "kind": "^(font-size|font-weight|column-gap)$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:81-86",
+          "says": "theme chosen in the header; silent on visuals"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/app.css:144",
+          "says": ".seg-btn { gap: var(--space-1-5); font-size: var(--text-sm); font-weight: var(--weight-semibold) }"
+        },
+        "vue": {
+          "ref": "web/src/components/layout/AppHeader.vue:135,179",
+          "says": "radio: inline-flex h-7 items-center border-r px-2 (no size, weight or gap)"
+        },
+        "notes": "The radios are icon-only fixed boxes: these properties render nothing visible today."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "style-why-link",
+      "title": "Why? link weight: kit 600 standalone, Vue 400 underlined inline",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > button \"Why\\?\"",
+        "kind": "^font-weight$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:251; ui/i18n-a11y.md:119",
+          "says": "packet loss slot with a link to why; no information by colour alone"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:1222-1224",
+          "says": "standalone <a> fontWeight 600, no underline, next to a Not measured pill"
+        },
+        "vue": {
+          "ref": "web/src/components/test/MetricTile.vue:72-81",
+          "says": "inline <a class=\"text-primary-text underline\"> after a caption sentence, weight 400"
+        },
+        "notes": "If the link stays inline in a sentence, the underline is the non-colour cue."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    }
+  ]
 }
