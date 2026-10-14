@@ -80,7 +80,7 @@ make go-vet-image      # go vet -tags=image
 make go-vet-harness    # go vet -tags=harness
 make web-install       # npm ci in web/
 make web-dev           # Vite dev server
-make web-build         # npm ci && npm run build in web/
+make web-build         # install the dependencies when needed, then npm run build in web/
 make web-test          # vitest (unit, component, engine)
 make web-lint          # eslint + vue-tsc
 make api-types         # regenerate the SPA's API types from api/openapi.yaml

@@ -85,7 +85,7 @@ func TestFallowHookRunsThePinnedBinary(t *testing.T) {
 	// A plain multi-line YAML scalar folds its line breaks into spaces, so this is one line.
 	entry, ok := fallowHook(t)["entry"].(string)
 	if !ok {
-		t.Fatalf("the frontend-fallow hook has no entry")
+		t.Fatalf("the web-fallow hook has no entry")
 	}
 
 	wants := []struct {
@@ -159,7 +159,7 @@ func TestFallowBaselineMatchesThePinnedVersion(t *testing.T) {
 	if writtenBy != pinned {
 		t.Errorf(
 			"%s was written by fallow %s but the hook runs %s; regenerate both baselines with "+
-				"the commands in the frontend-fallow hook's comment",
+				"the commands in the web-fallow hook's comment",
 			regressionBaselineFile,
 			writtenBy,
 			pinned,
@@ -546,14 +546,14 @@ func requireInstalledFallow(t *testing.T) string {
 	return toolgate.Lookup(t, toolgate.Fallow)
 }
 
-// fallowHook returns the frontend-fallow hook's mapping.
+// fallowHook returns the web-fallow hook's mapping.
 func fallowHook(t *testing.T) preCommitHook {
 	t.Helper()
 
-	hooks := preCommitHooks(t)["frontend-fallow"]
+	hooks := preCommitHooks(t)["web-fallow"]
 	if len(hooks) != 1 {
 		t.Fatalf(
-			".pre-commit-config.yaml defines the frontend-fallow hook %d times, want once",
+			".pre-commit-config.yaml defines the web-fallow hook %d times, want once",
 			len(hooks),
 		)
 	}

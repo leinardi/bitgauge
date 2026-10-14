@@ -123,14 +123,14 @@ var Gates = []Gate{
 			Pattern: "web/src/**/*.{ts,vue}",
 			Exclude: []string{"web/src/api/types.gen.ts", "web/src/components/ui/**/*"},
 		}},
-		Hooks:                       []string{"frontend-eslint", "frontend-typecheck"},
+		Hooks:                       []string{"web-eslint", "web-typecheck"},
 		WebSteps:                    []string{"lint", "typecheck"},
 		FallowNoIgnoredDependencies: true,
 	},
 	{
 		Name:     "frontend unit tests",
 		Files:    []Glob{{Pattern: "web/src/**/*.test.ts"}},
-		Hooks:    []string{"frontend-test"},
+		Hooks:    []string{"web-test"},
 		WebSteps: []string{"unit-test"},
 	},
 	{

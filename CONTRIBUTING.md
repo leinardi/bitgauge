@@ -42,7 +42,8 @@ in [AGENTS.md](AGENTS.md#common-commands) (its validation matrix); their design 
 
 `make docker-build`, `make go-test-image` and the accuracy harness targets pull the `dhi.io` base
 images, which need a `dhi.io` account: run `docker login dhi.io` first, or leave those targets to
-CI. Everything else, `make e2e` included (it runs a host-built binary), needs no account.
+CI. Everything else, `make e2e` and `make run` included (both run a host-built binary), needs no
+account.
 
 ## Before You Commit
 

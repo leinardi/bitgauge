@@ -111,8 +111,8 @@ repos:
       #   npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health
       #     --baseline .fallow-baseline.json
       #     --save-regression-baseline .fallow-regression-baseline.json
-      - id: frontend-fallow
-        name: frontend fallow
+      - id: web-fallow
+        name: web fallow
         entry: npm --prefix web exec --no -- fallow --quiet --skip dupes --skip health
           --baseline .fallow-baseline.json
           --fail-on-regression --regression-baseline .fallow-regression-baseline.json
@@ -161,22 +161,22 @@ repos:
       # the whole workspace rather than the staged files: a change to one module can break the
       # types or the tests of another. ESLint also reads the ceiling of .file-budgets, so a change
       # there lints again. Need the web workspace installed (npm --prefix web ci).
-      - id: frontend-eslint
-        name: frontend eslint
+      - id: web-eslint
+        name: web eslint
         entry: npm --prefix web run lint
         language: system
         pass_filenames: false
         require_serial: true
         files: ^(web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|parity/.*\.ts|[^/]+\.config\.ts|package(-lock)?\.json)|\.file-budgets)$
-      - id: frontend-typecheck
-        name: frontend typecheck
+      - id: web-typecheck
+        name: web typecheck
         entry: npm --prefix web run typecheck
         language: system
         pass_filenames: false
         require_serial: true
         files: ^web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|parity/.*\.ts|[^/]+\.config\.ts|tsconfig.*\.json|package(-lock)?\.json)$
-      - id: frontend-test
-        name: frontend test
+      - id: web-test
+        name: web test
         entry: npm --prefix web run test
         language: system
         pass_filenames: false
@@ -198,7 +198,7 @@ repos:
       # rather than a file list, and always runs because deleting a budgeted file leaves an entry
       # behind, and pre-commit drops deleted paths from the list.
       - id: check-file-budgets
-        name: frontend file budgets
+        name: web file budgets
         entry: scripts/check-file-budgets.sh
         language: system
         pass_filenames: false

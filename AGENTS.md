@@ -84,9 +84,10 @@ make verify            # both of the above
 make audit-deps        # pinned govulncheck -test ./... and npm audit in web/ (network)
 make go-build          # ./dist/bitgauge for the host platform, embedding whatever web/dist holds
 make go-run            # run the binary (ARGS="...")
+make run               # build, then serve on 127.0.0.1:8080 until Ctrl+C (RUN_PORT, RUN_BIND, ARGS)
 make build             # web-build, then go-build: the binary with the current SPA embedded
 make web-install       # npm ci in web/
-make web-build         # npm ci, then vite build into web/dist
+make web-build         # install the dependencies when needed, then vite build into web/dist
 make web-dev           # Vite dev server
 make web-demo          # Vite dev server in demo mode: the engine against a simulated link
 make web-build-demo    # the demo SPA into web/dist-demo, which never ships
@@ -241,8 +242,8 @@ passes on nothing: no `--passWithNoTests`, `|| true`, `continue-on-error` or `if
 | Gate | Prerequisite | Requires |
 | --- | --- | --- |
 | API types | `api/openapi.yaml` | `api-types-generate` hook; `web.yaml` step `types-drift` |
-| Frontend lint and typecheck | any hand-written `web/src/**/*.{ts,vue}` (not `src/api/types.gen.ts` or `src/components/ui/**`) | `frontend-eslint`, `frontend-typecheck` hooks; `web.yaml` steps `lint`, `typecheck`; fallow `ignoreDependencies` empty |
-| Frontend unit tests | any `web/src/**/*.test.ts` | `frontend-test` hook; `web.yaml` step `unit-test` |
+| Frontend lint and typecheck | any hand-written `web/src/**/*.{ts,vue}` (not `src/api/types.gen.ts` or `src/components/ui/**`) | `web-eslint`, `web-typecheck` hooks; `web.yaml` steps `lint`, `typecheck`; fallow `ignoreDependencies` empty |
+| Frontend unit tests | any `web/src/**/*.test.ts` | `web-test` hook; `web.yaml` step `unit-test` |
 | Web build | `web/index.html` and `web/src/main.ts` | `web.yaml` steps `build`, `dist-urls`, `chunk-size` |
 | Binary build | `cmd/bitgauge/main.go` | `ci.yaml` step `go-build` |
 | Image and image tests | binary build, web build, `web/embed.go`, STATUS rows "Single binary, embedded SPA…" and "Native API…" not Spec'd | `ci.yaml` jobs `credentials` and `image` (running `make go-test-image`), both needed by `ci-result` |

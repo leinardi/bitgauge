@@ -27,38 +27,47 @@ MK_LOCAL_WEB_INCLUDED := 1
 
 WEB_DIR := $(REPO_ROOT)/web
 
+# npm ci only when the lockfile, the manifest or the install policy changed since the last one.
+# npm writes this hidden lockfile itself; the touch makes it newer than its prerequisites even when
+# npm leaves it as it was.
+WEB_INSTALLED := $(WEB_DIR)/node_modules/.package-lock.json
+
+$(WEB_INSTALLED): $(WEB_DIR)/package.json $(WEB_DIR)/package-lock.json $(WEB_DIR)/.npmrc
+	npm --prefix "$(WEB_DIR)" ci
+	touch "$@"
+
 .PHONY: web-install
 web-install: ## Install the web dependencies exactly as locked (npm ci)
 	npm --prefix "$(WEB_DIR)" ci
 
 .PHONY: web-dev
-web-dev: ## Start the Vite dev server
+web-dev: $(WEB_INSTALLED) ## Start the Vite dev server
 	npm --prefix "$(WEB_DIR)" run dev
 
 # The build is vite build only; the type check is its own gate, in web-lint.
 .PHONY: web-build
-web-build: web-install ## Build the SPA into web/dist (npm ci, then vite build)
+web-build: $(WEB_INSTALLED) ## Install the dependencies when needed, then build the SPA into web/dist
 	npm --prefix "$(WEB_DIR)" run build
 
 .PHONY: web-demo
-web-demo: ## Start the Vite dev server in demo mode: the engine against a simulated link
+web-demo: $(WEB_INSTALLED) ## Start the Vite dev server in demo mode, the engine against a simulated link
 	npm --prefix "$(WEB_DIR)" run dev:demo
 
 .PHONY: web-build-demo
-web-build-demo: web-install ## Build the demo SPA into web/dist-demo, which never ships
+web-build-demo: $(WEB_INSTALLED) ## Install the dependencies when needed, then build the demo SPA into web/dist-demo, which never ships
 	npm --prefix "$(WEB_DIR)" run build:demo
 
 .PHONY: web-test
-web-test: ## Run the Vitest suites (unit, component, engine)
+web-test: $(WEB_INSTALLED) ## Run the Vitest suites (unit, component, engine)
 	npm --prefix "$(WEB_DIR)" run test
 
 .PHONY: web-lint
-web-lint: ## Lint the web sources with ESLint, then vue-tsc
+web-lint: $(WEB_INSTALLED) ## Lint the web sources with ESLint, then vue-tsc
 	npm --prefix "$(WEB_DIR)" run lint
 	npm --prefix "$(WEB_DIR)" run typecheck
 
 .PHONY: api-types
-api-types: ## Regenerate web/src/api/types.gen.ts from api/openapi.yaml
+api-types: $(WEB_INSTALLED) ## Regenerate web/src/api/types.gen.ts from api/openapi.yaml
 	npm --prefix "$(WEB_DIR)" run api-types
 
 # The production binary embeds web/dist, so the SPA is built first. go-build runs from the recipe

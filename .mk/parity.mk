@@ -31,7 +31,7 @@ PARITY_ENV = PARITY_MATRIX="$(MATRIX)" PARITY_SCENARIOS="$(SCENARIO)"
 # Installs the pinned Chromium only when it is missing: playwright install refuses to run on an OS
 # release it does not list yet, even with the browser already in the cache and working.
 .PHONY: demo-parity-browsers
-demo-parity-browsers: web-install ## Install the Chromium the parity harness drives, when it is missing
+demo-parity-browsers: $(WEB_INSTALLED) ## Install the Chromium the parity harness drives, when it is missing
 	@cd "$(WEB_DIR)" && \
 	  chrome="$$(node -e "import('@playwright/test').then((m) => process.stdout.write(m.chromium.executablePath()))")" && \
 	  if [ ! -x "$$chrome" ]; then npm exec --no -- playwright install chromium; fi
@@ -54,7 +54,7 @@ export PARITY_REASON = $(value REASON)
 
 .PHONY: demo-parity-accept
 demo-parity-accept: demo-parity-browsers ## Accept a complete run's differences into .parity-baseline (REASON= required)
-ifeq ($(strip $(REASON)),)
+ifeq ($(strip $(value REASON)),)
 	@echo "demo-parity-accept: REASON= is required: say why these differences are accepted" >&2; exit 2
 else
 	cd "$(WEB_DIR)" && $(PARITY_ENV) PARITY_BASELINE=accept npm run parity
@@ -67,7 +67,7 @@ demo-parity-report: ## Open the last demo-parity HTML report (screenshots, heatm
 # The triage helper over .parity-triage.json and the last run (web/parity/triage/cli.ts):
 # CMD="drafts", CMD="show <id>", CMD="snapshot <id>" and so on; status when CMD is unset.
 # PARITY_TRIAGE_LEDGER and PARITY_BASELINE_FILE point it at scratch copies instead; a relative path
-# is taken from the repository root, not from web/ where the helper runs. No web-install: the
+# is taken from the repository root, not from web/ where the helper runs. No dependency install: the
 # helper loads only Node built-ins and the parity modules, so it needs no node_modules.
 .PHONY: demo-parity-triage
 demo-parity-triage: ## Triage the parity differences with the helper; status unless CMD names a command
@@ -76,7 +76,7 @@ demo-parity-triage: ## Triage the parity differences with the helper; status unl
 # Both sides on the harness's own ports, in the foreground, for looking at a difference by hand.
 # Ctrl+C stops both.
 .PHONY: demo-parity-servers
-demo-parity-servers: web-install ## Serve the prototype on port 5181 and the Vue demo build on 5180, for triage
+demo-parity-servers: $(WEB_INSTALLED) ## Serve the prototype on port 5181 and the Vue demo build on 5180, for triage
 	@cd "$(WEB_DIR)" && { \
 	  npm run parity:serve:prototype & proto=$$!; \
 	  trap 'kill $$proto 2>/dev/null' EXIT INT TERM; \

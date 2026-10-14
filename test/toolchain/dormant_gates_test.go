@@ -213,9 +213,9 @@ func TestPrematureHookFails(t *testing.T) {
 	t.Parallel()
 
 	f := newFixture(t)
-	f.hooks("frontend-eslint")
+	f.hooks("web-eslint")
 	f.expect(
-		"frontend lint and typecheck is dormant but pre-commit hook frontend-eslint already exists",
+		"frontend lint and typecheck is dormant but pre-commit hook web-eslint already exists",
 	)
 }
 
@@ -227,14 +227,14 @@ func TestMissingActivatedHookFails(t *testing.T) {
 	f := newFixture(t)
 	f.write("web/src/engine/clock.ts", "export {}\n")
 	f.expect(
-		"pre-commit hook frontend-eslint is missing",
-		"pre-commit hook frontend-typecheck is missing",
+		"pre-commit hook web-eslint is missing",
+		"pre-commit hook web-typecheck is missing",
 		"web.yaml step lint is missing",
 		"web.yaml step typecheck is missing",
 		"web.yaml exists: false, but a web gate is active: true",
 	)
 
-	f.hooks("frontend-eslint", "frontend-typecheck")
+	f.hooks("web-eslint", "web-typecheck")
 	f.webWorkflow("lint", "typecheck")
 	f.expect()
 
@@ -302,7 +302,7 @@ func TestImageWaitsForStatus(t *testing.T) {
 
 	f.write("web/index.html", "<!doctype html>\n")
 	f.write("web/src/main.ts", "export {}\n")
-	f.hooks("frontend-eslint", "frontend-typecheck")
+	f.hooks("web-eslint", "web-typecheck")
 	f.webWorkflowWithJobs(fixtureGoBuild, "lint", "typecheck", "build", "dist-urls", "chunk-size")
 	f.expect(
 		"ci.yaml job credentials is missing",
