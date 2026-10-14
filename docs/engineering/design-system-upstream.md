@@ -64,6 +64,21 @@ the export shows, and what it should show, with the reason; behaviour comes from
   Firefox, so the parity run does not see the gap; the note keeps the kit in step for the next
   export.
 
+### The Packet Loss Reason In View
+
+- **Source:** triage cluster `layout-results-metrics`, decided for a new layout: the kit's `Test`
+  list inside the Results section, with the reason the specification asks for.
+- **Kit:** `components/measurement/NotMeasured.jsx` and `components/tiles.md` (Special tiles,
+  NotMeasured), used by the `Test` MetaList of `ui_kits/app/TestScreen.jsx`.
+- **Export today:** the packet-loss row shows only the "Not measured" badge and the "Why?" link;
+  the reason "Browsers can't see packet loss over TCP" is a tooltip and part of the link's name.
+- **Wanted:** the reason as visible text in the row, as the MetaList row's `sub` line under the
+  "Packet loss" label, with the badge and the link kept as they are.
+- **Why:** [ui/screens.md §6](../features/ui/screens.md#6-result-metrics-units-and-precision)
+  lists the reason among the qualifiers the slot shows, and a tooltip is not shown on touch or to a
+  reader who does not hover. The Vue app shows it as the `sub` line (`TestPage.vue`,
+  `MetaList.vue`).
+
 ### Kit Literals With No Token
 
 - **Source:** the design-system-guard skill. These values are drawn as literals in the app kit, no

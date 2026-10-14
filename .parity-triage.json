@@ -1789,7 +1789,7 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the packet-loss reason is shown text per screens.md §6, not only a tooltip.",
-          "done": false
+          "done": true
         }
       ],
       "status": "in-progress",
