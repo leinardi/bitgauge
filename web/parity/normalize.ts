@@ -57,8 +57,9 @@ const NUMBER = String.raw`\d+(?:[.,]\d+)*`
 const MEASURED = new RegExp(String.raw`(~?${NUMBER}(?: ?${UNIT})? ?– ?${NUMBER}(?: ?${UNIT})?)|(?<![\w.])${NUMBER}(?= ?${UNIT})`, 'g')
 
 // A time of day. The demo stamps a result with the wall clock of its Worker, which the page's fixed
-// clock does not reach; the format around the digits is still compared.
-const TIME_OF_DAY = /(?<![\w.])\d{1,2}:\d{2}(?::\d{2})?(?![\w.])/g
+// clock does not reach; the format around the digits is still compared, with a 12-hour clock's
+// AM or PM marker read as one marker, so that a run after noon finds the baseline of one before.
+const TIME_OF_DAY = /(?<![\w.])\d{1,2}:\d{2}(?::\d{2})?(?: [AP]M)?(?![\w.])/g
 
 // The data a run has used crosses a unit boundary (997 MB, then 1.0 GB) at a slightly different
 // instant each run, so its prefix is part of the measured value. A rate's prefix is kept: no demo
@@ -71,7 +72,7 @@ const STREAMS_IN_USE = /\bStreams \d+\b/g
 
 export function normalizeValue(text: string): string {
   return normalizeText(text)
-    .replace(TIME_OF_DAY, (time) => time.replace(/\d+/g, '#'))
+    .replace(TIME_OF_DAY, (time) => time.replace(/\d+/g, '#').replace(/[AP]M$/, '#M'))
     .replace(MEASURED, (_value, range: string | undefined) => range ?? '#')
     .replace(DATA_SIZE, '# B')
     .replace(STREAMS_IN_USE, 'Streams #')

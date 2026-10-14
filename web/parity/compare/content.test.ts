@@ -95,7 +95,8 @@ describe('normalizeValue', () => {
     ['Protocol h2 Streams 2 auto, up to 6', 'Protocol h2 Streams # auto, up to 6'],
     ['Idle latency done · 2.9 ms, 0 % probe timeouts', 'Idle latency done · # ms, # % probe timeouts'],
     ['Auto-start in 3 seconds, 2.5 s left', 'Auto-start in # seconds, # s left'],
-    ['Test complete 5:41:54 PM', 'Test complete #:#:# PM'],
+    ['Test complete 5:41:54 PM', 'Test complete #:#:# #M'],
+    ['Test complete 8:02:10 AM', 'Test complete #:#:# #M'],
   ])('reads %j as %j', (raw, normalized) => {
     expect(normalizeValue(raw)).toBe(normalized)
   })

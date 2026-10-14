@@ -600,7 +600,7 @@ dark-narrow,light-narrow	test/complete	content	header > navigation "Primary"	mis
 *	test/complete	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/complete	content	main	missing	link "Edit"	present when the harness was adopted
 *	test/complete	content	main > button "LAN"	extra	text "LAN"	present when the harness was adopted
-*	test/complete	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# PM"	present when the harness was adopted
+*	test/complete	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	the time of day's AM or PM marker is normalised as one marker, so a run on either side of noon finds the baseline of the other
 *	test/complete	content	main > region "Results"	changed	text "Download # Mbit/s peak 641 · 6 streams · plateau: cap Upload # Mbit/s peak 455 · 6 streams · plateau: cap Idle latency # ms min 2.4 · p90 # ms · WebSocke…	present when the harness was adopted
 *	test/complete	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
 dark-desktop,light-desktop	test/complete	content	main > region "Speed test"	changed	button "Run again Enter" → "Run again"	present when the harness was adopted
@@ -1242,7 +1242,7 @@ dark-narrow,light-narrow	test/slowdone	content	header > navigation "Primary"	mis
 *	test/slowdone	content	main	extra	text "Data used # B Duration # s Packet loss — not measured Browsers can't see packet loss over TCP."	present when the harness was adopted
 *	test/slowdone	content	main	missing	link "Edit"	present when the harness was adopted
 *	test/slowdone	content	main > button "VPN"	extra	text "LAN"	present when the harness was adopted
-*	test/slowdone	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# PM"	present when the harness was adopted
+*	test/slowdone	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	the time of day's AM or PM marker is normalised as one marker, so a run on either side of noon finds the baseline of the other
 *	test/slowdone	content	main > region "Results"	changed	text "Download # kbit/s peak 702 · 2 streams · plateau: no-gain Upload # kbit/s peak 224 · 2 streams · plateau: no-gain Idle latency # ms min 41 · p90 # ms · W…	present when the harness was adopted
 *	test/slowdone	content	main > region "Results"	missing	link "Why?"	present when the harness was adopted
 dark-desktop,light-desktop	test/slowdone	content	main > region "Speed test"	changed	button "Run again Enter" → "Run again"	present when the harness was adopted
