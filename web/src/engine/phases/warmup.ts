@@ -31,8 +31,8 @@ const RECENT = 10
 const NON_EMPTY = 8
 /** Condition 2: confirmed (or completed) requests per active stream. */
 const REQUESTS_PER_STREAM = 2
-/** Condition 3: the largest coefficient of variation that is stable. */
-const MAX_VARIATION = 0.1
+/** Condition 3: the largest coefficient of variation that is stable; the steady window is read with it too. */
+export const MAX_VARIATION = 0.1
 /** The cap: max(3 s, 25 % of the phase max), moved by a running ramp to at most 50 % of the max. */
 const CAP_FLOOR_MS = 3000
 const CAP_SHARE = 0.25

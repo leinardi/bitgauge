@@ -211,6 +211,25 @@ describe('the series', () => {
 })
 
 describe('confidence', () => {
+  /** 1 MB/s that swings between 0.6 and 1.4 MB/s every 100 ms for the first seconds of the run. */
+  const choppy = (untilMs: number): Scenario => ({ ...LINK, rate: (_direction, atMs) => (atMs < untilMs ? (Math.floor(atMs / 100) % 2 === 0 ? 600_000 : 1_400_000) : 1_000_000) })
+
+  it('drops unstable when the steady window is stable, with its notice', async () => {
+    const emitted = await result({ scenario: choppy(9600) })
+    // The same series as the choppy run below up to the warm-up end, which the running ramp moved
+    // to its settle instant, 7.4 s: unstable there, and steady over the window.
+    expect(emitted.download?.series?.warmupEndMs).toBe(7400)
+    expect(emitted.download?.confidence).toEqual({ level: 'normal', reasons: [] })
+    expect(emitted.notices.filter((notice) => notice.code === 'low-confidence')).toEqual([])
+  })
+
+  it('keeps unstable when the steady window swings too', async () => {
+    const emitted = await result({ scenario: choppy(60_000) })
+    expect(emitted.download?.series?.warmupEndMs).toBe(7400)
+    expect(emitted.download?.confidence).toEqual({ level: 'low', reasons: ['unstable'] })
+    expect(emitted.notices).toContainEqual({ code: 'low-confidence', direction: 'download', reasons: ['unstable'] })
+  })
+
   it('is cpu-bound when the Worker is busy over 90 % of the steady window', async () => {
     const emitted = await result({ busy: 0.95 })
     expect(emitted.download?.confidence?.level).toBe('cpu-bound')

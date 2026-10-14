@@ -19,7 +19,7 @@
 
 // The server-timed upload phase end to end: the worked timelines of measurement.md sections 19.1
 // and 19.4, worked example B through the runner, the grace, protocol-dependent failures, epoch
-// validation and the proxy-buffering notice.
+// validation, the proxy-buffering notice and the preparation turn.
 
 import { describe, expect, it } from 'vitest'
 
@@ -27,9 +27,10 @@ import { FIRST_SIZE } from '@/engine/phases/sizing'
 import { FakeClock } from '@/engine/test/fakeClock'
 import { type Failure, FakeTransport, type Scenario } from '@/engine/test/fakeTransport'
 import { steadyTelemetry } from '@/engine/test/telemetry'
-import type { Transport, UploadResponse } from '@/engine/types'
+import type { Transport, UploadResponse, UploadTelemetry } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
 import { type UploadOptions, UploadPhase } from '@/engine/upload/phase'
+import { UploadStreams } from '@/engine/upload/streams'
 
 const MIB = 1024 * 1024
 const EPOCH = 'epoch-1'
@@ -41,6 +42,8 @@ const SLOW: Scenario = { rate: () => 37_500, rttMs: 300, protocol: 'h2' }
 const LAN: Scenario = { rate: () => 312_500_000, perRequest: 62_500_000, rttMs: 0.3, protocol: 'h2' }
 /** 1 MB/s and 50 ms RTT, for the failure rules. */
 const LINK: Scenario = { rate: () => 1_000_000, rttMs: 50, protocol: 'h2' }
+/** 1 Gbit/s on a phone whose browser prepares each body at 600 Mbit/s before sending it (section 8.2). */
+const PHONE: Scenario = { rate: () => 125_000_000, prepareBytesPerSecond: 75_000_000, rttMs: 8, protocol: 'http/1.1' }
 
 type Upload = Transport['upload']
 
@@ -208,15 +211,63 @@ describe('section 19.4, 2.5 Gbit/s LAN', () => {
     expect(phase.haltedAt).toBe(15_000)
     expect(endedAt).toBeCloseTo(15_760, -1)
     // The last requests drain at 0.5 Gbit/s each once no new one is issued: ≈ 97 % of the link.
-    expect((outcome.window?.bitsPerSecond ?? 0) / 1e9).toBeCloseTo(2.42, 2)
+    expect((outcome.window?.bitsPerSecond ?? 0) / 1e9).toBeCloseTo(2.43, 2)
     expect(outcome.bytes / 1e9).toBeCloseTo(3.7, 1)
   })
 
   it('has its 3 s window confirmed at ≈ 11.8 s', async () => {
     // With a 5 s minimum the phase stops at the first instant the condition holds.
     const { phase, outcome } = await run(LAN, { bounds: { minMs: 5000, maxMs: 25_000 } })
-    expect(phase.haltedAt).toBeCloseTo(11_832, 0)
+    expect(phase.haltedAt).toBeCloseTo(11_831, 0)
     expect(outcome.window?.windowMs).toBeGreaterThanOrEqual(3000)
+  })
+})
+
+describe('a browser that prepares each body', () => {
+  it('reads an idle share from a confirmed request of at least one bucket, beyond the round trip', () => {
+    const telemetry = (startMs: number, durationMs: number, bytes: number): UploadTelemetry => {
+      const steady = steadyTelemetry(startMs, startMs + durationMs, bytes)
+      return { epoch: EPOCH, bucketMs: 100, firstBucket: steady.firstBucket, buckets: [...steady.buckets], bytes, startMs, durationMs }
+    }
+    const streams = new UploadStreams(8)
+    const stream = streams.add()
+    const request = streams.issue(1, stream, 125_000_000, 1000)
+    // 1 s of sending inside 2.667 s on the client: idle (2667 − 1000 − 8) / 2667.
+    streams.confirm(request, telemetry(2667, 1000, 125_000_000), 3667)
+    expect(streams.idleShare).toBeCloseTo(0.622, 3)
+    // A shorter server duration reads nothing; a smaller idle than the share does not lower it.
+    streams.confirm(streams.issue(2, stream, 4_000_000, 4000), telemetry(5000, 50, 4_000_000), 4200)
+    streams.confirm(streams.issue(3, stream, 125_000_000, 5000), telemetry(6000, 1000, 125_000_000), 6100)
+    expect(streams.idleShare).toBeCloseTo(0.622, 3)
+  })
+
+  it('ramps past the gaps of a single stream, which read as no gain over the shorter intervals', async () => {
+    const { outcome } = await run(PHONE)
+    // The single stream sends for 1 s and prepares for 1.67 s; with 6 streams the preparation
+    // rate, 600 Mbit/s, is the ceiling, reached in bursts the warm-up bound leaves unsettled.
+    expect(outcome).toMatchObject({ status: 'measured', streams: 6, plateau: 'cap' })
+    expect(outcome.warmup?.confidence.reasons).toContain('ramp-unsettled')
+    expect((outcome.window?.bitsPerSecond ?? 0) / 1e6).toBeGreaterThan(500)
+  })
+})
+
+describe('the preparation turn', () => {
+  /** 100 MB/s and 100 ms RTT on two fixed streams: a first byte reaches the server 50 ms after its send. */
+  const TWO: Partial<UploadOptions> = { streams: { mode: 'fixed', fixed: 2, max: 6 }, bounds: { minMs: 4000, maxMs: 6000 } }
+  const FAST: Scenario = { rate: () => 100_000_000, rttMs: 100, protocol: 'h2' }
+  const sizes = (sends: Harness['sends']): string[] => sends.slice(0, 8).map((send) => `${send.at} ${(send.size / MIB).toFixed(2)}`)
+
+  it('sends a request of 1 MiB or more only once the previous one reported its first byte', async () => {
+    const { sends } = await run(FAST, TWO)
+    // The 64 KiB and 512 KiB requests go together; each 4 and 32 MiB pair 50 ms apart.
+    expect(sizes(sends)).toEqual(['0 0.06', '0 0.06', '102 0.50', '102 0.50', '213 4.00', '263 4.00', '355 32.00', '405 32.00'])
+  })
+
+  it('stops waiting once a confirmed request reported no progress', async () => {
+    const quiet = (upload: Upload): Upload => (size, _onProgress, signal) => upload(size, () => undefined, signal)
+    const { sends } = await run(FAST, TWO, quiet)
+    // The second 4 MiB request waits for the first one's answer at 355 ms; from then on none waits.
+    expect(sizes(sends)).toEqual(['0 0.06', '0 0.06', '102 0.50', '102 0.50', '213 4.00', '355 32.00', '355 4.00', '539 32.00'])
   })
 })
 

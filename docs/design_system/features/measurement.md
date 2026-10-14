@@ -22,6 +22,7 @@ Defaults used throughout:
 | Growth per step | at most 8× | §3 |
 | Server cap per request (download and upload) | 256 MiB | §3 |
 | Maximum streams | 6 | §4 |
+| Upload preparation turn: requests from, held at most | 1 MiB, 1 s | §7.2 |
 | Engine per-request timeout | 30 s | §5 |
 | Server upload request lifetime | 120 s | §7 |
 | Loaded-latency probe interval | 300 ms | §11 |
@@ -267,7 +268,20 @@ therefore comes **only** from server-reported arrival counts of confirmed reques
   repeated parts, the engine keeps one master `Blob` that grows by doubling to the largest size
   needed and sends `slice(0, N)` of it, so memory stays at about the largest request size.
 - `Content-Type: application/octet-stream`, explicit `Content-Length` (never chunked).
-- `upload.onprogress` drives only the live gauge and the faint `sending` line of the chart.
+- `upload.onprogress` drives only the live gauge and the faint `sending` line of the chart. Some
+  browsers report a request's progress in one event once its body is handed to the network stack
+  (Firefox does), so the gauge reads it over a longer window than the download's (§14).
+- **One request prepares at a time.** Some browsers read or copy an upload body before its first
+  byte leaves (Firefox does, at a rate that on a phone is close to a 1 Gbit/s link), and requests
+  sent together share that work: when every stream sends at once, the link idles while all the
+  bodies are prepared together. So of the requests of at least **1 MiB**, only one may be
+  *preparing* at a time: from its `send()` until upload progress first reports a byte sent, the
+  request ends (response, failure or abort), or **1 s** passes, whichever comes first. A stream
+  whose next request would be 1 MiB or more waits for that turn, in the order the streams asked for
+  it, and then sizes its request as usual (§3); a smaller request neither waits nor holds the turn.
+  When a request of at least 1 MiB is confirmed without upload progress ever reporting a byte, the
+  browser does not report upload progress, and no request waits for the rest of the phase. The wait
+  happens before `t_send`, between two requests of the stream, like the round trip between them.
 - The engine records `t_send` (just before `send()`) and `t_done` (response received) per request
   on the client clock; these are used only for the watermark's causal ordering (§7.5) and the
   display offset.
@@ -530,6 +544,16 @@ either 100 round trips, over which those few cost no more than the noise of a me
 request cycle, the 1 s request target (§3) and one round trip, over which every interval holds one
 gap; whichever is shorter. Over 10 ms of RTT that is the cycle; on a LAN it is the 500 ms floor.
 
+**An idle stream stretches `I_m` (upload).** A browser that prepares each body before sending it
+(§7.2) leaves a stream idle between its requests for far longer than a round trip. Each confirmed
+request whose server duration is at least one bucket gives its stream's **idle share**: its client
+duration `t_done − t_send` minus the server duration and the RTT, over the client duration. Once
+the largest share seen exceeds **20 %**, a stream's request cycle is about
+`(1 s + RTT) / (1 − share)`, the aggregate of *N* streams started one at a time repeats about every
+cycle / *N*, and `I_m` is at least that from then on, the cycle capped at 3 s: a shorter interval
+would read a burst or a gap of the pattern and compare noise. Below 20 % the idle is the few round
+trips the formula already allows for.
+
 1. **Baseline.** Start with 1 stream. After `I_s` from the first confirmed bucket, measure `T_prev`
    and `T_cur` over two consecutive `I_m`. While `T_cur > 1.05 × T_prev` (the single stream is
    still growing) keep measuring, up to a baseline cap of 3 s after `I_s`; `T_base` is the last
@@ -588,7 +612,12 @@ evaluation series gains a bucket:
 `max(3 s, 25 % of the phase max)` for bounded phases, or an **absolute 10 s** for Continuous (which
 has no max), warm-up ends there and the result carries `confidence: low` with one reason per
 unmet condition, in the `reasons` array of the result (§17): condition 1 gives `ramp-unsettled`,
-condition 2 or 4 gives `insufficient-samples`, condition 3 gives `unstable`.
+condition 2 or 4 gives `insufficient-samples`, condition 3 gives `unstable`. `unstable` is read
+again at the end of the phase over the steady window (§8.4): when the coefficient of variation of
+the window's known buckets is at most 10 %, the window shows the stability the warm-up could not
+(a browser that sends each request in one burst can keep the first seconds choppy on a steady
+link), the reason is dropped, and a direction left with no reason has `normal` confidence. The
+other two reasons stay: the window shows nothing about them.
 
 **A running ramp moves the bounded cap.** A full ramp needs at least `I_s + 2 × I_m` for the
 baseline plus `I_s + I_m` per trial, ≈ 6.5 s at the 1 s and 500 ms floors, more than Standard's
@@ -940,8 +969,10 @@ bound with respect to loss, and the UI notes this next to them.
   sizes, not rates.
 - **Precision.** Three significant digits for rates (e.g. 472 kbit/s, 94.1 Mbit/s, 2.38 Gbit/s);
   latencies in whole milliseconds above 10 ms and one decimal below.
-- **Gauge value.** The needle shows the rate over the last 5 buckets (on upload, the client's
-  sending progress, §2). The numeric readout always shows the exact value.
+- **Gauge value.** The needle shows the rate over the last 5 buckets; on upload, the client's
+  sending progress (§2) over the last **10** buckets (1 s), because a browser that reports each
+  request's progress in one burst (§7.2) makes a shorter window swing with every burst. The
+  numeric readout always shows the exact value.
 - **Gauge window.** The gauge is logarithmic and shows **four decades** at a time, `[10^k,
   10^(k+4))`, with ticks per decade. In bits mode k = 4, 5 or 6 (bit/s): 10 kbit/s–100 Mbit/s,
   100 kbit/s–1 Gbit/s or 1 Mbit/s–10 Gbit/s. In bytes mode the windows are byte decades, k = 3, 4,
@@ -1028,7 +1059,7 @@ Fixed-size rings keep memory constant however long the run lasts.
 | Level | Condition |
 | --- | --- |
 | `normal` | warm-up ended by the guarded rule and the window condition held |
-| `low` | warm-up ended at the cap; reason `ramp-unsettled`, `unstable` or `insufficient-samples` (§8.3) |
+| `low` | warm-up ended at the cap and a reason remains after the window is read: `ramp-unsettled`, `unstable` or `insufficient-samples` (§8.3) |
 | `cpu-bound` | the Worker's busy fraction exceeded 90 % over the steady window |
 
 `cpu-bound` takes precedence over the other two levels: `reasons` still lists the warm-up's
@@ -1328,7 +1359,7 @@ The shaper carries ≈ 0.478 Mbit/s of goodput, 1448 payload bytes in each 1514-
   Plateau `cap`; warm-up ends at ≈ 8.1 s on the server timeline, known on the client at ≈ 8.8 s.
   The 3 s window is confirmed at ≈ 11.8 s, inside the 15 s minimum, so new requests stop at 15 s;
   the last in-flight requests confirm at ≈ 15.8 s, and the window is ≈ 8.1–15.8 s. Once no new
-  request is issued the last ones drain at 0.5 Gbit/s each, so the window averages ≈ 2.42 Gbit/s,
+  request is issued the last ones drain at 0.5 Gbit/s each, so the window averages ≈ 2.43 Gbit/s,
   ≈ 97 % of the link. A stop before
   ≈ 11.8 s leaves a confirmed window under 3 s, so a cancelled upload shows no number (§7.8).
 - **CPU.** The Worker's busy fraction is recorded; above 90 % the direction is `cpu-bound` and the

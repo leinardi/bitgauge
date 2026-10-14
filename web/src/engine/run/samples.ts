@@ -32,6 +32,10 @@ type Sample = Extract<EngineEvent, { type: 'sample' }>
 
 /** The gauge reads the last 5 buckets: half a second. */
 const GAUGE_BUCKETS = 5
+
+/** The upload gauge reads the sending progress over the last 10 ticks: a browser may report a request in one burst. */
+const SENDING_BUCKETS = 10
+
 const PEAK_PERCENTILE = 90
 
 /** The average and p90 of a set of bucket values over their time. */
@@ -78,7 +82,7 @@ export class SampleFeed {
   upload(phase: UploadPhase, dataUsedBefore: number, now: number): Sample {
     const sent = phase.dataUsed
     this.progress.push({ at: now, bytes: sent })
-    if (this.progress.length > GAUGE_BUCKETS + 1) {
+    if (this.progress.length > SENDING_BUCKETS + 1) {
       this.progress.shift()
     }
     const oldest = this.progress[0] ?? { at: now, bytes: sent }

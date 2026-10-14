@@ -47,6 +47,9 @@ const CYCLE_ROUND_TRIPS = 100
 /** The RTT the intervals use when idle latency was skipped. */
 const DEFAULT_RTT_MS = 100
 
+/** An idle stream's request cycle stretches a measurement interval to at most this (measurement.md section 8.2). */
+const IDLE_CYCLE_CAP_MS = 3000
+
 export interface RampOptions {
   mode: StreamMode
   /** The stream count of fixed mode. */
@@ -107,12 +110,15 @@ export class Ramp {
   /** I_s in buckets. */
   readonly settle: number
 
-  private readonly im: number
+  /** I_m from the RTT alone; an idle stream on upload stretches the interval read. */
+  private readonly baseIm: number
+  private readonly rttMs: number
+  private im: number
   private stage: Stage
   /** Where the current step's I_s starts on the series; null until known. */
   private start: number | null = null
-  /** How many intervals of the current step have been taken. */
-  private taken = 0
+  /** The start of the next interval of the current step, once I_s has passed. */
+  private from: number | null = null
   /** How many of them measured something. */
   private measuredCount = 0
   /** T_prev during the baseline, T_base after it. */
@@ -123,7 +129,9 @@ export class Ramp {
   constructor(options: RampOptions) {
     this.cap = Math.max(1, Math.min(options.max, options.serverMax))
     this.settle = settleBuckets(options.rttMs)
-    this.im = measureBuckets(options.rttMs)
+    this.rttMs = options.rttMs ?? DEFAULT_RTT_MS
+    this.baseIm = measureBuckets(options.rttMs)
+    this.im = this.baseIm
     if (options.mode === 'auto') {
       this.streams = 1
       this.stage = 'baseline'
@@ -153,7 +161,7 @@ export class Ramp {
     }
     this.start = bucket
     this.lastAdd = bucket
-    this.taken = 0
+    this.from = null
     this.measuredCount = 0
     this.stage = 'trial'
   }
@@ -174,9 +182,17 @@ export class Ramp {
     }
   }
 
-  /** Advances as far as the known buckets of the evaluation series allow. */
-  update(series: BucketSeries): void {
+  /**
+   * Advances as far as the known buckets of the evaluation series allow. On upload, `idleShare`
+   * is the largest share of a request's client duration its stream sat idle beyond the round
+   * trip (measurement.md section 8.2): a stream's request cycle is then about the request target
+   * and the round trip over (1 − share), the aggregate of N staggered streams repeats about every
+   * cycle / N, and an interval reads at least that, the cycle capped at 3 s.
+   */
+  update(series: BucketSeries, idleShare: number | null = null): void {
     this.seen = Math.max(this.seen, series.end)
+    const cycleMs = idleShare === null ? 0 : Math.min((REQUEST_CYCLE_MS + this.rttMs) / (1 - idleShare), IDLE_CYCLE_CAP_MS)
+    this.im = Math.max(this.baseIm, wholeBuckets(cycleMs / this.streams))
     if (this.start === null) {
       // The baseline, and a fixed count, start at the first bucket holding bytes.
       const first = this.stage === 'baseline' || this.stage === 'fixed' ? firstWithBytes(series) : null
@@ -194,11 +210,11 @@ export class Ramp {
       return
     }
     while (this.stage === 'baseline' || this.stage === 'trial') {
-      const from = start + this.settle + this.taken * this.im
+      const from = this.from ?? start + this.settle
       if (series.end < from + this.im) {
         return
       }
-      this.taken++
+      this.from = from + this.im
       const mean = series.mean(from, from + this.im)
       if (this.stage === 'baseline') {
         this.baselineMeasured(mean)
@@ -226,8 +242,9 @@ export class Ramp {
     }
   }
 
+  /** Whether one more interval of the baseline would end within its cap after I_s. */
   private nextIntervalFits(): boolean {
-    return (this.taken + 1) * this.im <= wholeBuckets(BASELINE_CAP_MS)
+    return this.intervalEnd() + this.im - ((this.start ?? this.seen) + this.settle) <= wholeBuckets(BASELINE_CAP_MS)
   }
 
   /** Compare: keep the trial on a 5 % gain, otherwise plateau. */
@@ -264,9 +281,9 @@ export class Ramp {
     this.stage = 'placing'
   }
 
-  /** The end of the interval measured last. */
+  /** The end of the interval measured last, or where the first one starts when none was. */
   private intervalEnd(): number {
-    return (this.start ?? this.seen) + this.settle + this.taken * this.im
+    return this.from ?? (this.start ?? this.seen) + this.settle
   }
 
   private finish(plateau: Plateau | undefined, at: number): void {

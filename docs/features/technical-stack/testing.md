@@ -62,6 +62,9 @@ Scenarios:
   11 cells, 0.69 Mbit/s), plus random overlaps checked against a brute-force reference.
 - **Failures:** failure gaps on h2/h3 (`lb`, `ub`, excluded cells, the series continuing), and on
   HTTP/1.1 the first failure ending the phase; three consecutive failures giving an error result.
+- **Upload preparation turn:** one request of at least 1 MiB preparing at a time, the turn passing
+  on the first progress, at the request's end or after 1 s, smaller requests never waiting, and the
+  turn dropped once a confirmed request reported no progress.
 - **Data cap:** requests shrunk to fit, the cap never exceeded, the phase ending at the floor and
   later phases skipped.
 - **Warm-up guards behind the confirmation delay:** all four conditions, evaluation on confirmed

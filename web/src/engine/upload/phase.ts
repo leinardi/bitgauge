@@ -27,6 +27,7 @@ import { cellOf } from '@/engine/upload/grid'
 import { type Halt, uploadOutcome, type UploadOutcome } from '@/engine/upload/outcome'
 import { type UploadRequest, UploadStreams } from '@/engine/upload/streams'
 import { type ClientEvent, validTelemetry } from '@/engine/upload/timeline'
+import { NO_HOLD, PreparationTurn, type TurnHold } from '@/engine/upload/turn'
 import { allowsUpperBound, UploadLedger } from '@/engine/upload/watermark'
 import { confirmedSeries, steadyWindow } from '@/engine/upload/window'
 
@@ -65,7 +66,8 @@ export class UploadPhase {
 
   private readonly options: UploadOptions
   private readonly clock: Clock
-  private readonly streams = new UploadStreams()
+  private readonly streams: UploadStreams
+  private readonly turn: PreparationTurn
   private readonly ramp: Ramp
   private readonly warmup: Warmup
   private readonly rule: DurationRule
@@ -89,6 +91,8 @@ export class UploadPhase {
   constructor(options: UploadOptions) {
     this.options = options
     this.clock = options.clock
+    this.turn = new PreparationTurn(options.clock)
+    this.streams = new UploadStreams(options.rttMs)
     const { mode, fixed, max } = options.streams
     this.ramp = new Ramp({ mode, fixed, max, serverMax: options.limits.maxStreamsPerClient, rttMs: options.rttMs })
     this.warmup = new Warmup({ direction: 'upload', maxMs: options.bounds.maxMs, fixedMs: options.warmup === 'auto' ? null : options.warmup })
@@ -161,13 +165,27 @@ export class UploadPhase {
 
   private async loop(stream: number): Promise<void> {
     while (this.halted === null && stream < this.ramp.streams) {
-      const size = this.streams.nextSize(stream, this.options.limits.maxUploadBytes, this.budget())
+      let size = this.nextSize(stream)
+      let hold = NO_HOLD
+      if (size !== null && this.turn.waits(size)) {
+        hold = await this.turn.take()
+        if (this.halted !== null || stream >= this.ramp.streams) {
+          hold.release()
+          return
+        }
+        size = this.nextSize(stream)
+      }
       if (size === null) {
+        hold.release()
         this.halt('data-cap')
         return
       }
-      await this.request(stream, size)
+      await this.request(stream, size, hold)
     }
+  }
+
+  private nextSize(stream: number): number | null {
+    return this.streams.nextSize(stream, this.options.limits.maxUploadBytes, this.budget())
   }
 
   /** What the data cap still allows after data used and the bytes still to send in flight. */
@@ -179,7 +197,8 @@ export class UploadPhase {
     return dataBudget(this.options, this.dataUsed, pending)
   }
 
-  private async request(stream: number, size: number): Promise<void> {
+  /** Sends one request; `hold` is its hold on the preparation turn (measurement.md section 7.2). */
+  private async request(stream: number, size: number, hold: TurnHold): Promise<void> {
     const sentAt = this.clock.now()
     const request = this.streams.issue(this.ledger.send(sentAt), stream, size, sentAt)
     const flight: InFlight = { request, controller: new AbortController(), closed: false }
@@ -187,14 +206,17 @@ export class UploadPhase {
     const timeout = this.clock.setTimer(TIMEOUT_MS, () => flight.controller.abort())
     const progress = (sent: number): void => {
       request.sent = Math.max(request.sent, Math.min(sent, size))
+      hold.progress(sent)
     }
     let response: UploadResponse | null = null
+    hold.sent()
     try {
       response = await this.options.transport.upload(size, progress, flight.controller.signal)
     } catch {
       // Aborted, timed out, or a network error.
     }
     this.clock.clearTimer(timeout)
+    hold.release()
     if (flight.closed) {
       return
     }
@@ -223,6 +245,7 @@ export class UploadPhase {
     if (telemetry !== null && validTelemetry(telemetry, request.size)) {
       this.ledger.confirm(request.id, now, telemetry)
       this.streams.confirm(request, telemetry, now)
+      this.turn.confirmed(request.size, request.sent)
       this.failures = 0
       this.decide()
       return
@@ -265,7 +288,7 @@ export class UploadPhase {
         }
       }
       const before = this.ramp.streams
-      this.ramp.update(series)
+      this.ramp.update(series, this.streams.idleShare)
       if (this.ramp.streams > before) {
         this.addedFrom = before
       }
@@ -338,6 +361,7 @@ export class UploadPhase {
       protocol: this.protocol,
       streamLimit: this.streamLimit,
       bufferingSuspected: this.streams.bufferingSuspected,
+      idleShare: this.streams.idleShare,
       displayOffsetMs: this.streams.displayOffset(),
       events: this.clientEvents,
       startAt: this.start,

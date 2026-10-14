@@ -183,8 +183,14 @@ cross-origin isolated, in the result detail.
 CPU core before the link saturates.
 
 **Behaviour.** The engine measures the Worker's busy fraction; above 90 % over the steady window the
-direction is `confidence: cpu-bound`. Requests at the 256 MiB cap and up to 6 streams keep
-per-request overhead negligible. The harness tolerance at ≥ 2.5 Gbit/s is ±20 %
+direction is `confidence: cpu-bound`. Requests at the 256 MiB cap and up to 6 streams keep the
+round trip between requests small, but not every per-request cost: some browsers prepare each upload
+body before its first byte leaves, Firefox at about 4–5 Gbit/s on a desktop and close to 1 Gbit/s
+on a phone. The engine lets one request prepare at a time while the others send
+([measurement.md §7.2](measurement.md#72-client-side)); where preparation is still slower than the
+link, the server sees short pauses between bursts, and the upload is reported as measured, usually
+with `low` confidence for `unstable`. Firefox's ceiling is a known, open browser issue. The harness
+tolerance at ≥ 2.5 Gbit/s is ±20 %
 ([technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness)); the confidence
 level is defined in [measurement.md §16](measurement.md#16-confidence-and-notices).
 

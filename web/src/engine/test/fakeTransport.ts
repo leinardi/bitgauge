@@ -58,6 +58,11 @@ export interface Scenario {
   /** The server epoch at the start; FakeServer.restart changes it. */
   epoch?: string
   limits?: Partial<Info['limits']>
+  /**
+   * A browser that prepares each upload body before its first byte leaves, at this many bytes per
+   * second, one body at a time in send order (measurement.md section 7.2); absent, no preparation.
+   */
+  prepareBytesPerSecond?: number
 }
 
 interface Transfer {
@@ -139,6 +144,8 @@ export class FakeTransport implements Transport {
   readonly peakInFlight: Record<Direction, number> = { download: 0, upload: 0 }
   private ticking = false
   private lastTick = -1
+  /** When the browser's body preparation is free again, on the client clock. */
+  private prepareFreeAt = 0
 
   constructor(clock: FakeClock, scenario: Scenario) {
     this.clock = clock
@@ -190,8 +197,14 @@ export class FakeTransport implements Transport {
         timing: this.entry({ requestStart: sentAt, responseStart: sentAt + this.scenario.rttMs, responseEnd: sentAt }),
       }))
     }
+    const prepare = this.scenario.prepareBytesPerSecond
+    let firstByteAt = sentAt + half
+    if (prepare !== undefined) {
+      this.prepareFreeAt = Math.max(sentAt, this.prepareFreeAt) + (size / prepare) * 1000
+      firstByteAt = this.prepareFreeAt + half
+    }
     return new Promise((resolve, reject) => {
-      const transfer = this.start('upload', failure?.bytes ?? size, sentAt + half, {
+      const transfer = this.start('upload', failure?.bytes ?? size, firstByteAt, {
         moved: (_bytes, total, at) => onProgress(Math.round(total), at),
         done: (at) => {
           const startMs = (transfer.startMs ?? at) + offset

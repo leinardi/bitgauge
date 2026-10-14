@@ -42,13 +42,13 @@ interface Step {
  * A download phase on the client timeline: the first chunk arrives at `firstChunkMs`, then each
  * bucket holds `bytesFor(streams)`. Streams the ramp adds take effect at the bucket of the add.
  */
-function download(ramp: Ramp, bytesFor: (streams: number) => number, buckets: number, firstChunkMs = 300): Step[] {
+function download(ramp: Ramp, bytesFor: (streams: number) => number, buckets: number, firstChunkMs = 300, idleShare: number | null = null): Step[] {
   const series = new BucketSeries(0)
   const steps: Step[] = []
   for (let bucket = 0; bucket < buckets && !ramp.settled; bucket++) {
     series.append(bucket * 100 < firstChunkMs ? 0 : bytesFor(ramp.streams))
     const before = ramp.streams
-    ramp.update(series)
+    ramp.update(series, idleShare)
     if (ramp.placing) {
       ramp.stepStarted(series.end)
     }
@@ -74,6 +74,35 @@ describe('interval lengths', () => {
     expect(measureBuckets(1200)).toBe(24)
     // Idle latency skipped: an RTT of 100 ms.
     expect([settleBuckets(null), measureBuckets(null)]).toEqual([10, 11])
+  })
+})
+
+describe('an idle share on upload', () => {
+  const LAN: RampOptions = { ...AUTO, rttMs: 8 }
+
+  it('stretches I_m to the request cycle over the stream count, so every interval holds a burst and a gap', () => {
+    // An idle share of 62 %: the cycle is (1 s + 8 ms) / 0.38 ≈ 2.65 s, so I_m is 27 buckets on one
+    // stream and 14 on two; on four and six the 8 buckets of the RTT alone (100 RTT) are longer.
+    const ramp = new Ramp(LAN)
+    expect(download(ramp, (streams) => streams * FULL_LINK, 200, 0, 0.62)).toEqual([
+      { atMs: 6400, streams: 2 },
+      { atMs: 8800, streams: 4 },
+      { atMs: 10_600, streams: 6 },
+      { atMs: 12_400, streams: 6, plateau: 'cap' },
+    ])
+  })
+
+  it('caps the cycle at 3 s', () => {
+    const ramp = new Ramp(LAN)
+    // A 90 % share would make a 10 s cycle; capped, the baseline's intervals are 30 buckets each.
+    expect(download(ramp, (streams) => streams * FULL_LINK, 200, 0, 0.9)[0]).toEqual({ atMs: 7000, streams: 2 })
+  })
+
+  it('changes nothing without one', () => {
+    const plain = download(new Ramp(LAN), (streams) => streams * FULL_LINK, 200, 0)
+    expect(download(new Ramp(LAN), (streams) => streams * FULL_LINK, 200, 0, null)).toEqual(plain)
+    // I_s of 10 buckets, then two intervals of 8 (100 RTT).
+    expect(plain[0]).toEqual({ atMs: 2600, streams: 2 })
   })
 })
 

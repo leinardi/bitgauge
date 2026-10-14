@@ -32,6 +32,15 @@ const BUFFERING_MIN_MS = 1000
 /** Below this share of the client duration, the server's read time suggests a buffering proxy. */
 const BUFFERING_SHARE = 0.1
 
+/** A stream idle, beyond the round trip, for more than this share of a request's client duration is not losing a few round trips. */
+const IDLE_SHARE = 0.2
+
+/** A request's idle share is read only from a server duration of at least one bucket. */
+const IDLE_MIN_DURATION_MS = 100
+
+/** The RTT the idle share subtracts when idle latency was skipped. */
+const DEFAULT_RTT_MS = 100
+
 /** One request of a stream, from its send to its telemetry or its end. */
 export interface UploadRequest {
   id: RequestId
@@ -77,6 +86,18 @@ export class UploadStreams {
     return nextSize(state.rate, state.size, SIZE_FLOOR, cap, budget)
   }
 
+  /**
+   * The largest share of a confirmed request's client duration in which its stream sat idle beyond
+   * the round trip, such as a browser preparing the body before sending it (measurement.md section
+   * 8.2); null while no request lost more than IDLE_SHARE.
+   */
+  idleShare: number | null = null
+  private readonly rttMs: number
+
+  constructor(rttMs: number | null) {
+    this.rttMs = rttMs ?? DEFAULT_RTT_MS
+  }
+
   /** Records a request as sent. */
   issue(id: RequestId, stream: number, size: number, sentAt: number): UploadRequest {
     const state = this.state(stream)
@@ -95,6 +116,10 @@ export class UploadStreams {
     state.confirmed++
     state.firstStartMs ??= telemetry.startMs
     const clientMs = doneAt - request.sentAt
+    const idle = (clientMs - telemetry.durationMs - this.rttMs) / clientMs
+    if (telemetry.durationMs >= IDLE_MIN_DURATION_MS && idle > IDLE_SHARE) {
+      this.idleShare = Math.max(this.idleShare ?? 0, idle)
+    }
     if (clientMs >= BUFFERING_MIN_MS && telemetry.durationMs < BUFFERING_SHARE * clientMs) {
       this.bufferingSuspected = true
     }

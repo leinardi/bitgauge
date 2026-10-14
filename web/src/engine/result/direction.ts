@@ -19,9 +19,9 @@
 
 import type { DownloadOutcome } from '@/engine/download/phase'
 import type { Confidence, DirectionResult, Notice, ResultSeries, UploadResult } from '@/engine/messages'
-import type { WarmupEnd } from '@/engine/phases/warmup'
+import { MAX_VARIATION, type WarmupEnd } from '@/engine/phases/warmup'
 import { windowConditionHolds } from '@/engine/phases/window'
-import { type Cell, percentile } from '@/engine/stats/buckets'
+import { type Cell, coefficientOfVariation, percentile } from '@/engine/stats/buckets'
 import { cpuBound } from '@/engine/stats/busy'
 import { BUCKET_MS, bitsPerSecond, bucketRate } from '@/engine/stats/units'
 import type { UploadOutcome } from '@/engine/upload/outcome'
@@ -53,9 +53,17 @@ export function downsample(values: readonly Cell[], times: Omit<ResultSeries, 'b
   return { bucketMs: group * BUCKET_MS, ...times, values: points }
 }
 
-/** The warm-up's confidence, or cpu-bound when the Worker was busy over 90 % of the window. */
-function confidence(warmup: WarmupEnd, fraction: number | null): Confidence {
-  return cpuBound(fraction) ? { level: 'cpu-bound', reasons: warmup.confidence.reasons } : warmup.confidence
+/**
+ * The warm-up's confidence, `unstable` dropped when the steady window's own variation is stable
+ * (section 8.3), or cpu-bound when the Worker was busy over 90 % of the window.
+ */
+function confidence(warmup: WarmupEnd, fraction: number | null, variation: number | null): Confidence {
+  const stable = variation !== null && variation <= MAX_VARIATION
+  const reasons = stable ? warmup.confidence.reasons.filter((reason) => reason !== 'unstable') : warmup.confidence.reasons
+  if (cpuBound(fraction)) {
+    return { level: 'cpu-bound', reasons }
+  }
+  return reasons.length === 0 ? { level: 'normal', reasons: [] } : { level: 'low', reasons }
 }
 
 /** The number's fields, compensated by `1 + p / 100`, the uncompensated headline kept. */
@@ -100,7 +108,7 @@ export function downloadResult(outcome: DownloadOutcome, startAt: number, contex
     ...base(outcome),
     ...(measured ? number(bitsPerSecond(window.bytes, windowMs), bucketRate(peak), context.overheadCompensationPercent) : {}),
     windowMs,
-    confidence: confidence(warmup, fraction),
+    confidence: confidence(warmup, fraction, coefficientOfVariation(values)),
     series: downsample(values, { firstCellMs: window.fromMs, warmupEndMs: window.fromMs, endMs: window.toMs }),
   }
 }
@@ -121,7 +129,7 @@ export function uploadResult(outcome: UploadOutcome, context: DirectionContext):
     ...block,
     ...(measured ? number(bits, peak, context.overheadCompensationPercent) : {}),
     windowMs: window.windowMs,
-    confidence: confidence(warmup, fraction),
+    confidence: confidence(warmup, fraction, series.coefficientOfVariation(firstCell, Math.floor(windowEndMs / BUCKET_MS))),
     series: downsample(values, { firstCellMs: firstCell * BUCKET_MS - phaseStartMs, warmupEndMs: warmupEndMs - phaseStartMs, endMs: windowEndMs - phaseStartMs }),
   }
 }

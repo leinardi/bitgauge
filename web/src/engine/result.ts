@@ -71,9 +71,19 @@ function idleResult(idle: IdleResult, resolutionMs: number): IdleResult {
   }
 }
 
-/** A cpu-bound direction drops its low-confidence notice: that level takes precedence (section 16). */
+/**
+ * The low-confidence notice follows the direction's final confidence: dropped when the level is
+ * normal (the steady window dropped `unstable`, section 8.3) or cpu-bound (that level takes
+ * precedence, section 16), and carrying the remaining reasons otherwise.
+ */
 function directionNotices(notices: readonly Notice[] | undefined, block: DirectionResult): readonly Notice[] {
-  return block.confidence?.level === 'cpu-bound' ? (notices ?? []).filter((notice) => notice.code !== 'low-confidence') : (notices ?? [])
+  const confidence = block.confidence
+  return (notices ?? []).flatMap((notice): Notice[] => {
+    if (notice.code !== 'low-confidence') {
+      return [notice]
+    }
+    return confidence?.level === 'low' ? [{ ...notice, reasons: confidence.reasons }] : []
+  })
 }
 
 export function buildResult(context: ResultContext): Result {

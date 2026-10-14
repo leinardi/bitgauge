@@ -47,6 +47,8 @@ export interface UploadOutcome {
   /** Every byte sent, warm-up and failed or aborted requests included. */
   bytes: number
   confirmedRequests: number
+  /** The largest idle share a confirmed request showed (measurement.md section 8.2), null below 20 %. */
+  idleShare: number | null
   /** nextHopProtocol of the latest answer with a timing entry, `unknown` when empty. */
   protocol: string | null
   /** The display-only offset of section 7.4, client minus server; null before a confirmation. */
@@ -70,6 +72,7 @@ export interface PhaseRecord {
   protocol: string | null
   streamLimit: number | null
   bufferingSuspected: boolean
+  idleShare: number | null
   displayOffsetMs: number | null
   events: readonly ClientEvent[]
   /** The phase start on the client clock. */
@@ -124,6 +127,7 @@ export function uploadOutcome(record: PhaseRecord): UploadOutcome {
     plateau: record.plateau,
     bytes: record.bytes,
     confirmedRequests: ledger.confirmed().length,
+    idleShare: record.idleShare,
     protocol: record.protocol,
     displayOffsetMs: record.displayOffsetMs,
     notices,
