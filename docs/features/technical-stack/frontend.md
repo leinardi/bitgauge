@@ -258,10 +258,13 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   failing, the server unreachable, a restart, or a network change sent as the `network` command; a
   scenario may fix its own kind, as `error-early` does with a server that stops answering during
   idle latency, which [../ui/flows.md
-  §5](../ui/flows.md#5-error-mid-test) ends as `network changed` once the WebSocket closes. The
-  fixtures are the kit's: "Basement NAS" over the LAN at 612 Mbit/s down and 438 Mbit/s up, 3.1 ms
-  and HTTP/2, with a 110 Mbit/s ceiling per request so that the ramp settles on six streams; over a
-  VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s and 19 kbit/s link of the
+  §5](../ui/flows.md#5-error-mid-test) ends as `network changed` once the WebSocket closes, and
+  `upload-interrupted` does with every request failing from 8.2 s into upload. The fixtures are the
+  kit's: "Basement NAS" over the LAN at 612 Mbit/s down and 438 Mbit/s up, 3.1 ms and HTTP/2, with
+  a 110 Mbit/s ceiling per request so that the ramp settles on six streams; the same LAN over
+  HTTP/1.1 for the upload-interrupted state, where the first failed upload request ends the upload
+  ([../measurement.md §7.5](../measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark));
+  over a VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s and 19 kbit/s link of the
   insufficient-data state. `GET /info` answers what the server would send: both client addresses are
   private, so the suggested label is LAN for each.
 - **Panel** (`demo/DemoPanel.vue`, with `demo/control.ts`). The v0.1 part of the kit's Demo state
