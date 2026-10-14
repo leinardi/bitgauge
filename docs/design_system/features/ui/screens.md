@@ -20,13 +20,15 @@ from the design export; this page fixes content and behaviour only. Terms follow
 - **Settings summary:** the settings that differ from the server defaults, one chip each (for
   example "Extended", "4 streams", "Cap 500 MB"), or the preset name when nothing differs, with
   an Edit link to Settings.
-- **Start / Stop** button (one control that changes role: Start, Stop, Run again, Retry, Start
-  now); keyboard accessible, including the page-wide Enter shortcut
+- **Start / Stop** button (one control that changes role, each with its label: Start "Start
+  test", Stop "Stop test", Run again "Run again", Retry "Retry test", Start now "Start now");
+  keyboard accessible, including the page-wide Enter shortcut
   ([i18n-a11y.md §2.4](i18n-a11y.md#24-keyboard)).
 - **Phase indicator:** idle latency → download → upload in the configured order. The info phase
   is shown as "Connecting…" on the first step rather than as a step of its own. Each step is
   pending, active (with progress or time left), done, failed, cancelled, skipped, or capped (the
-  data cap ended it).
+  data cap ended it). A phase that reaches its maximum without a value is done, with its
+  direction's status as the detail: "done · insufficient data".
 - **Live gauge:** the auto-windowed logarithmic gauge of
   [../measurement.md §14](../measurement.md#14-units-and-gauge), with a numeric readout and a
   caption naming the current window; during idle latency it switches to milliseconds; during
@@ -63,7 +65,7 @@ from the design export; this page fixes content and behaviour only. Terms follow
 | State | What the screen shows |
 | --- | --- |
 | Idle | Server name, connection info (from `GET /info`), Start, the last result line if any, the settings summary. |
-| Running: info | "Connecting…" on the first phase step; Start becomes Stop. |
+| Running: info | "Connecting…" on the first phase step and in the gauge readout; Start becomes Stop. |
 | Running: idle latency | Gauge in milliseconds, ping counter, live median. |
 | Running: download / upload | Gauge, chart, stream count, protocol, data used; per-direction "measuring" or "warming up" hint; loaded latency live. |
 | Done | Result metrics, notices, save bar (v0.2), Details link, Download JSON, Run again. |
@@ -283,10 +285,12 @@ Notices are text with an icon, never colour alone, and are announced to screen r
 appear during a run ([i18n-a11y.md](i18n-a11y.md)). Their tones: **info** for test extended,
 server stream limit, overhead compensation, browser upload limit, WebSocket reopened and
 WebSocket unavailable;
-**warn** for low confidence, data cap reached, insufficient data, URL parameter ignored, proxy
-buffering suspected, response compression detected and timer throttling detected; **danger**, with
-`role="alert"`, for server unreachable, upload interrupted and base path mismatch; **neutral** for
-partial — stopped early, server restarted, network changed and page was hidden.
+**warn** for low confidence, cpu-bound, data cap reached, insufficient data, URL parameter
+ignored, proxy buffering suspected, response compression detected and timer throttling detected;
+**danger**, with `role="alert"`, for server unreachable, upload interrupted and base path mismatch;
+**neutral** for partial — stopped early, server restarted, network changed and page was hidden.
+The Error state's message (what failed and in which phase) is not a notice, but takes the same
+**danger** tone with `role="alert"`.
 
 ## Related
 
