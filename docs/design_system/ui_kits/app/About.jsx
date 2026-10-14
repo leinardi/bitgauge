@@ -5,17 +5,20 @@
  *   librespeed: boolean  (default true)
  *   networkquality: boolean  (default true)
  *   unreachable: boolean  (default false) — /api/v1/info failed: snippets come from the page's own origin, layer state unknown
+ *   caps: version scope (caps.clients false before v0.3: no snippets, v0.1 methodology)
+ *   server: string | null — server.display_name; null while /info fails
  */
 class About extends React.Component {
   renderVals() {
-    const cm = 'var(--slate-5)', cmd = 'var(--teal-5)', tx = 'var(--slate-2)';
-    const ln = (t, c) => ({ t, c: c || tx });
+    const cm = 'comment', cmd = 'command';
+    const ln = (t, kind) => ({ t, kind });
     const flag = (k) => { const v = this.props[k]; return v == null ? true : !(v === false || v === 'false' || v === '0' || v === 0); };
     const m = !!this.props.mobile && this.props.mobile !== 'false';
     const un = !!this.props.unreachable && this.props.unreachable !== 'false';
     // Snippets are always built from the page's own origin (location.origin + base path); the kit mocks it.
-    const host = 'https://speed.home.lan', hostName = host.replace(/^https?:\/\//, '');
-    const srvName = un ? hostName : 'Basement NAS';
+    const host = BG.KIT.origin, hostName = BG.KIT.host;
+    const srvName = this.props.server || hostName;
+    const caps = this.props.caps || { clients: true };
     const on = un ? { ost: true, ls: true, nq: true } : { ost: flag('openspeedtest'), ls: flag('librespeed'), nq: flag('networkquality') };
     const clients = [
       { k: 'ost', name: 'OpenSpeedTest™ web UI', icon: 'globe', tag: 'Web UI',
@@ -41,11 +44,15 @@ class About extends React.Component {
     ].map(c => ({ ...c, hid: 'cl-' + c.k, on: on[c.k], off: !on[c.k], note: c.note || null, unk: un, docsAria: c.name + ' in the BitGauge docs' }));
     const names = { ost: 'OpenSpeedTest', ls: 'LibreSpeed', nq: 'networkQuality' };
     const enabled = Object.keys(on).filter(k => on[k]).map(k => names[k]);
+    const S = BG.KIT.server;
     return {
-      mobile: m, desktop: !m, un, host,
-      L: m ? { pad: '16px 16px 24px', cols: 'minmax(0,1fr)', h1: 'var(--text-3xl)' } : { pad: '24px 40px 48px', cols: 'minmax(0,1fr) 340px', h1: 'var(--text-4xl)' },
-      clients,
-      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], ['Clients', 'Unknown']] : [['Version', 'v1.4.0 · a1b2c3d · 2026-09-30'], ['License', 'GPL-3.0-or-later'], ['Server name', 'Basement NAS'], ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled']]).map(([k, v]) => ({ k, v })),
+      mobile: m, un, host, clients, layers: !!caps.clients,
+      L: m ? { cols: 'minmax(0,1fr)' } : { cols: 'minmax(0,1fr) var(--layout-rail)' },
+      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], ['Clients', 'Unknown']]
+        : [['Version', S.version + ' · ' + S.commit + ' · ' + S.buildDate], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], ['Clients', !caps.clients ? 'Arrive in v0.3' : enabled.length ? enabled.join(' · ') : 'None enabled']]).map(([k, v]) => ({ label: k, value: v })),
+      // Before v0.3 the methodology summary covers the v0.1 metrics only (screens.md §5).
+      method: caps.clients ? 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load — the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers.'
+        : 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Idle latency and jitter are measured over WebSocket (HTTP if unavailable). Each result also reports the data used and the test duration.',
       credits: [
         { n: 'OpenSpeedTest™', d: 'Protocol compatibility for its web UI.' },
         { n: 'LibreSpeed', d: 'Protocol compatibility for librespeed-cli.' },
@@ -57,176 +64,89 @@ class About extends React.Component {
   }
   render() {
     const v = this.renderVals();
+    const status = this.props.srvStatus || (v.un ? 'unreachable' : 'connected');
+    const pill = (txt, dashed) => <DS.StatusPill size="sm" dot={false} dashed={dashed}>{txt}</DS.StatusPill>;
     return (
-      <div style={{ background: "var(--bg-base)", color: "var(--fg)", fontFamily: "var(--font-sans)", minHeight: "100%" }}>
-        {v.desktop ? (
-          <Nav variant="top" active="about" status={this.props.srvStatus || (this.props.unreachable && this.props.unreachable !== "false" ? "unreachable" : "connected")} />
-        ) : null}
-        {v.mobile ? (
-          <Nav variant="mobile-top" active="about" status={this.props.srvStatus || (this.props.unreachable && this.props.unreachable !== "false" ? "unreachable" : "connected")} />
-        ) : null}
-        <main style={{ maxWidth: "1200px", margin: "0 auto", padding: v.L?.pad, display: "grid", gridTemplateColumns: v.L?.cols, gap: "24px", alignItems: "start" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: "0" }}>
-            <header style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <h1 style={{ margin: "0", fontSize: v.L?.h1, fontWeight: "600", letterSpacing: "var(--tracking-tight)" }}>Use with other clients</h1>
-              <p style={{ margin: "0", fontSize: "var(--text-base)", color: "var(--fg-muted)", maxWidth: "640px", lineHeight: "1.55", textWrap: "pretty" }}>
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
+        <Nav variant={v.mobile ? "mobile-top" : "top"} active="about" status={status} />
+        <main className={"page" + (v.mobile ? " compact" : "")} style={{ display: "grid", gridTemplateColumns: v.L.cols, gap: "var(--space-6)", alignItems: "start" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", minWidth: 0 }}>
+            <header style={{ display: "flex", flexDirection: "column", gap: "var(--space-1-5)" }}>
+              <h1 className={v.mobile ? "ds-h2" : "ds-h1"} style={{ margin: 0 }}>Use with other clients</h1>
+              <p className="ds-body-sm" style={{ margin: 0, fontSize: "var(--text-base)", maxWidth: "640px", lineHeight: "var(--lh-prose)" }}>
                 This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.
               </p>
             </header>
             {v.un ? (
-              <div role="alert" style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "10px 12px", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--warn-border)", background: "var(--warn-bg)" }}>
-                <span style={{ color: "var(--warn)", display: "flex", marginTop: "1px" }}><bg-icon name="server-off" size="17" /></span>
-                <div style={{ flex: "1 1 260px", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span style={{ fontSize: "var(--text-sm)", fontWeight: "600", color: "var(--warn-fg)" }}>Server unreachable</span>
-                  <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "1.5", textWrap: "pretty" }}>
-                    {"The commands below are built from this page's address, "}
-                    <span style={{ fontFamily: "var(--font-mono)", overflowWrap: "anywhere" }}>{v.host}</span>
-                    . BitGauge can't check which clients the operator enabled, or the server's name, until the server answers.
-                  </span>
-                </div>
-                <button className="btn secondary sm" style={{ marginLeft: "auto" }}><bg-icon name="refresh-cw" size="14" />Retry</button>
-              </div>
+              <DS.Notice tone="danger" icon="server-off" title="Server unreachable" actions={<DS.Button size="sm" icon="refresh-cw">Retry</DS.Button>}>
+                {"The commands below are built from this page's address, " + v.host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers."}
+              </DS.Notice>
             ) : null}
-            {(v.clients || []).map((c, $index) => (
-              <React.Fragment key={$index}>
-                <section className="card" aria-labelledby={c?.hid} style={{ overflow: "hidden" }}>
-                  <div className="card-h">
-                    <span className="ico" style={{ display: "flex" }}><bg-icon name={c?.icon} size="16" /></span>
-                    <span className="t" id={c?.hid}>{c?.name}</span>
-                    <span className="pill neutral" style={{ height: "20px", fontSize: "10px" }}>{c?.tag}</span>
-                    {c?.off ? (
-                      <span className="pill neutral" style={{ height: "20px", fontSize: "10px", background: "transparent", borderStyle: "dashed" }}>Off</span>
-                    ) : null}
-                    {c?.unk ? (
-                      <span className="pill neutral" style={{ height: "20px", fontSize: "10px", background: "transparent", borderStyle: "dashed" }}>Not confirmed</span>
-                    ) : null}
-                    <a className="right" href="#" aria-label={c?.docsAria} style={{ fontSize: "var(--text-caption)", color: "var(--primary-text)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }}>
-                      BitGauge docs
-                      <bg-icon name="external-link" size="12" />
-                    </a>
+            {!v.layers ? (
+              <DS.Notice tone="info" icon="layers" live={false} title="Other clients arrive in v0.3">
+                The LibreSpeed, OpenSpeedTest and networkQuality layers are not part of this version, so there are no snippets yet.
+              </DS.Notice>
+            ) : v.clients.map(c => (
+              <DS.Card key={c.k} as="section" labelledBy={c.hid} padded={false}
+                title={<span id={c.hid}>{c.name}</span>} icon={c.icon}
+                actions={<>{pill(c.tag)}{c.off ? pill('Off', true) : null}{c.unk ? pill('Not confirmed', true) : null}<DS.Link external href="#" aria-label={c.docsAria}>BitGauge docs</DS.Link></>}>
+                {c.on ? (
+                  <div style={{ padding: "var(--space-3) var(--space-4) var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                    <span className="ds-body-sm">{c.desc}</span>
+                    {c.blocks.map((b, i) => <DS.Snippet key={i} caption={b.cap} copyLabel={b.copy} lines={b.lines} />)}
+                    {c.note ? <span className="ds-caption" style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-start", color: "var(--fg-muted)", lineHeight: "var(--lh-normal)" }}><span style={{ display: "flex", color: "var(--info)" }}><DS.Icon name="info" size={14} /></span>{c.note}</span> : null}
                   </div>
-                  {c?.on ? (
-                    <>
-                      <div style={{ padding: "12px 16px 4px", fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "1.5", textWrap: "pretty" }}>
-                      {c?.desc}
+                ) : (
+                  <div style={{ padding: "var(--space-3-5) var(--space-4) var(--space-4)", display: "flex", gap: "var(--space-2-5)", alignItems: "flex-start" }}>
+                    <span style={{ display: "flex", color: "var(--fg-subtle)" }}><DS.Icon name="circle-minus" size={16} /></span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-0-5)", minWidth: 0 }}>
+                      <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)" }}>Not enabled on this server — the operator can enable it.</span>
+                      <span className="ds-caption">{c.offWhat}</span>
                     </div>
-                      {(c?.blocks || []).map((b, $index) => (
-                      <React.Fragment key={$index}>
-                        <div style={{ padding: "8px 16px 0", display: "flex", flexDirection: "column", gap: "6px" }}>
-                          {b?.cap ? (
-                            <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>{b?.cap}</span>
-                          ) : null}
-                          <div style={{ position: "relative", background: "var(--term-bg)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-md)" }}>
-                            <pre style={{ margin: "0", padding: "12px 52px 12px 14px", fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", lineHeight: "1.7", color: "var(--term-fg)", whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{(b?.lines || []).map((l, $index) => (
-                                <React.Fragment key={$index}>
-                                  <span style={{ display: "block", color: l?.c }}>{l?.t}</span>
-                                </React.Fragment>
-                              ))}</pre>
-                            <button className="btn ghost icon sm" aria-label={b?.copy} style={{ position: "absolute", top: "6px", right: "6px", width: "30px", color: "var(--slate-3)" }}>
-                              <bg-icon name="copy" size="14" />
-                            </button>
-                          </div>
-                        </div>
-                      </React.Fragment>
-                    ))}
-                      {c?.note ? (
-                      <div style={{ margin: "10px 16px 0", display: "flex", gap: "8px", alignItems: "flex-start", fontSize: "var(--text-caption)", color: "var(--fg-muted)", lineHeight: "1.5" }}>
-                        <span style={{ display: "flex", color: "var(--info)", marginTop: "1px" }}><bg-icon name="info" size="14" /></span>
-                        <span style={{ textWrap: "pretty" }}>{c?.note}</span>
-                      </div>
-                    ) : null}
-                      <div style={{ height: "16px" }} />
-                    </>
-                  ) : null}
-                  {c?.off ? (
-                    <div style={{ padding: "14px 16px 16px", display: "flex", gap: "10px", alignItems: "flex-start" }}>
-                      <span style={{ display: "flex", color: "var(--fg-subtle)", marginTop: "1px" }}><bg-icon name="circle-minus" size="16" /></span>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "0" }}>
-                        <span style={{ fontSize: "var(--text-sm)", fontWeight: "500", color: "var(--fg)" }}>Not enabled on this server — the operator can enable it.</span>
-                        <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.5" }}>{c?.offWhat}</span>
-                      </div>
-                    </div>
-                  ) : null}
-                </section>
-              </React.Fragment>
+                  </div>
+                )}
+              </DS.Card>
             ))}
           </div>
-          <aside style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: "0" }}>
-            <section className="card" style={{ overflow: "hidden" }}>
-              <div style={{ padding: "18px 16px 14px", display: "flex", alignItems: "center", gap: "12px", borderBottom: "1px solid var(--border-subtle)" }}>
-                <bg-logo size="40" style={{ color: "var(--fg)" }} />
-                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-semibold)", letterSpacing: "var(--tracking-tight)" }}>
-                    Bit
-                    <span style={{ color: "var(--primary-text)", fontWeight: "var(--weight-semibold)" }}>Gauge</span>
-                  </span>
-                  <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>Self-hosted network speed test</span>
-                </div>
+          <aside style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", minWidth: 0 }}>
+            <DS.Card padded={false}>
+              <div style={{ padding: "var(--space-4-5) var(--space-4) var(--space-3-5)", display: "flex", flexDirection: "column", gap: "var(--space-0-5)", borderBottom: "1px solid var(--border-subtle)" }}>
+                <DS.Logo size={40} wordmark />
+                <span className="ds-caption" style={{ paddingLeft: "calc(40px + var(--space-3))" }}>Self-hosted network speed test</span>
               </div>
-              <dl style={{ margin: "0", padding: "4px 16px 8px" }}>
-                {(v.facts || []).map((f, $index) => (
-                  <React.Fragment key={$index}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", padding: "9px 0", borderBottom: "1px solid var(--border-subtle)" }}>
-                      <dt style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)", flex: "none" }}>{f?.k}</dt>
-                      <dd style={{ margin: "0", fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg)", textAlign: "right", minWidth: "0" }}>
-                        {f?.v}
-                      </dd>
-                    </div>
-                  </React.Fragment>
-                ))}
-              </dl>
-              <div style={{ padding: "8px 16px 16px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                <a className="btn secondary" href="#" style={{ justifyContent: "center", textDecoration: "none" }}>
-                  <bg-icon name="github" size="15" />
-                  Source repository
-                  <bg-icon name="external-link" size="13" />
-                </a>
-                <a className="btn ghost sm" href="#" style={{ justifyContent: "center", textDecoration: "none" }}>LICENSE file in the repository</a>
+              <div style={{ padding: "var(--space-1) var(--space-4) var(--space-2)" }}><DS.MetaList facts rows={v.facts} /></div>
+              <div style={{ padding: "var(--space-2) var(--space-4) var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+                <DS.Button href="#" block icon="github" iconAfter="external-link">Source repository</DS.Button>
+                <DS.Button href="#" block variant="ghost" size="sm">LICENSE file in the repository</DS.Button>
               </div>
-            </section>
-            <section className="card card-b" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <span style={{ fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
-                How it measures
-              </span>
-              <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "1.55", textWrap: "pretty" }}>
-                Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load — the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers.
-              </span>
-              <a href="#" style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: "4px", fontSize: "var(--text-sm)", color: "var(--primary-text)", textDecoration: "none" }}>
-                Methodology in the BitGauge docs
-                <bg-icon name="external-link" size="12" />
-              </a>
-            </section>
-            <section className="card card-b" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <span style={{ fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
-                Privacy
-              </span>
-              <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "1.55" }}>
-                No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.
-              </span>
-            </section>
-            <section className="card card-b" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <span style={{ fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
-                Credits
-              </span>
-              <ul style={{ margin: "0", padding: "0", listStyle: "none", display: "flex", flexDirection: "column", gap: "10px" }}>
-                {(v.credits || []).map((cr, $index) => (
-                  <React.Fragment key={$index}>
-                    <li style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                      <span style={{ fontSize: "var(--text-sm)", fontWeight: "500", color: "var(--fg)" }}>{cr?.n}</span>
-                      <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-muted)", lineHeight: "1.5", textWrap: "pretty" }}>{cr?.d}</span>
-                    </li>
-                  </React.Fragment>
-                ))}
-              </ul>
-              <span style={{ paddingTop: "10px", borderTop: "1px solid var(--border-subtle)", fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.5", textWrap: "pretty" }}>
-                OpenSpeedTest™ is a trademark of its owner. BitGauge is an independent project, not affiliated with or endorsed by OpenSpeedTest, LibreSpeed, Cloudflare, Apple or Waveform.
-              </span>
-            </section>
+            </DS.Card>
+            <DS.Card>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
+                <span className="ds-eyebrow">How it measures</span>
+                <span className="ds-body-sm" style={{ lineHeight: "var(--lh-prose)" }}>{v.method}</span>
+                <DS.Link external href="#">Methodology in the BitGauge docs</DS.Link>
+              </div>
+            </DS.Card>
+            <DS.Card>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
+                <span className="ds-eyebrow">Privacy</span>
+                <span className="ds-body-sm" style={{ lineHeight: "var(--lh-prose)" }}>No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.</span>
+              </div>
+            </DS.Card>
+            <DS.Card>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+                <span className="ds-eyebrow">Credits</span>
+                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
+                  {v.credits.map(cr => <li key={cr.n} style={{ display: "flex", flexDirection: "column", gap: "var(--space-0-5)" }}><span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)" }}>{cr.n}</span><span className="ds-caption" style={{ color: "var(--fg-muted)", lineHeight: "var(--lh-normal)" }}>{cr.d}</span></li>)}
+                </ul>
+                <span className="ds-caption" style={{ paddingTop: "var(--space-2-5)", borderTop: "1px solid var(--border-subtle)", lineHeight: "var(--lh-normal)" }}>
+                  OpenSpeedTest™ is a trademark of its owner. BitGauge is an independent project, not affiliated with or endorsed by OpenSpeedTest, LibreSpeed, Cloudflare, Apple or Waveform.
+                </span>
+              </div>
+            </DS.Card>
           </aside>
         </main>
-        {v.mobile ? (
-          <Nav variant="mobile-bottom" active="about" status={this.props.srvStatus || (this.props.unreachable && this.props.unreachable !== "false" ? "unreachable" : "connected")} />
-        ) : null}
+        {v.mobile ? <Nav variant="mobile-bottom" active="about" status={status} /> : null}
       </div>
     );
   }

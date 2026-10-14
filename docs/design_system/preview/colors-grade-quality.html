@@ -1,13 +1,46 @@
 <!-- @dsCard group="Colors" name="Grade & quality bands" viewport="700x180" -->
 <!doctype html><html data-theme="dark"><head><meta charset="utf-8">
-<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="card.css">
-<link rel="stylesheet" href="../ui_kits/app/app.css">
-<script src="../ui_kits/app/bg-lib.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../_ds_bundle.js"></script>
+<script>/* Renders the bundle's Logo / Icon into <span data-ds="Logo|Icon" data-size=… data-name=… data-variant=…> placeholders (no Babel). */
+(function () {
+  const NS = 'BitGaugeDesignSystem_1ab699';
+  const KEYS = ['size', 'variant', 'geometry', 'wordmark', 'wordmarkSize', 'name', 'stroke'];
+  function props(el) {
+    const p = {};
+    for (const k of KEYS) {
+      const v = el.dataset[k];
+      if (v === undefined) continue;
+      p[k] = v === '' ? true : /^-?\d+(\.\d+)?$/.test(v) ? +v : v;
+    }
+    return p;
+  }
+  function mount() {
+    const ns = window[NS];
+    if (!ns || !window.React || !window.ReactDOM) return false;
+    document.querySelectorAll('[data-ds]:not([data-ds-mounted])').forEach(el => {
+      const C = ns[el.dataset.ds];
+      if (!C) { console.warn('preview mount: no component ' + el.dataset.ds); return; }
+      el.setAttribute('data-ds-mounted', '');
+      el.style.display = el.style.display || 'inline-flex';
+      ReactDOM.createRoot(el).render(React.createElement(C, props(el)));
+    });
+    return true;
+  }
+  function start() {
+    if (!mount()) { setTimeout(start, 50); return; }
+    new MutationObserver(mount).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
 <style></style>
 </head><body>
 <div class="lbl">Bufferbloat grade · letter is the signal, tone reinforces</div>
 <div class="row wrap gap-2 mt-3"><span class="row gap-2" style="padding:var(--space-1-5) var(--space-2-5);border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface-2)"><b class="mono" style="color:var(--grade-good);font-size:var(--text-lg)">A+</b><span style="font-size:var(--text-caption);color:var(--fg-muted)">Minimal</span></span><span class="row gap-2" style="padding:var(--space-1-5) var(--space-2-5);border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface-2)"><b class="mono" style="color:var(--grade-good);font-size:var(--text-lg)">A</b><span style="font-size:var(--text-caption);color:var(--fg-muted)">Low</span></span><span class="row gap-2" style="padding:var(--space-1-5) var(--space-2-5);border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface-2)"><b class="mono" style="color:var(--grade-good);font-size:var(--text-lg)">B</b><span style="font-size:var(--text-caption);color:var(--fg-muted)">Mild</span></span><span class="row gap-2" style="padding:var(--space-1-5) var(--space-2-5);border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface-2)"><b class="mono" style="color:var(--grade-fair);font-size:var(--text-lg)">C</b><span style="font-size:var(--text-caption);color:var(--fg-muted)">Moderate</span></span><span class="row gap-2" style="padding:var(--space-1-5) var(--space-2-5);border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface-2)"><b class="mono" style="color:var(--grade-fair);font-size:var(--text-lg)">D</b><span style="font-size:var(--text-caption);color:var(--fg-muted)">High</span></span><span class="row gap-2" style="padding:var(--space-1-5) var(--space-2-5);border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface-2)"><b class="mono" style="color:var(--grade-poor);font-size:var(--text-lg)">F</b><span style="font-size:var(--text-caption);color:var(--fg-muted)">Severe</span></span></div>
 <div class="lbl mt-4">Quality bands · always icon + label</div>
-<div class="row wrap gap-4 mt-2"><span class="row gap-1" style="color:var(--quality-great);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><bg-icon name="circle-check" size="15"></bg-icon>Great</span><span class="row gap-1" style="color:var(--quality-good);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><bg-icon name="circle-check" size="15"></bg-icon>Good</span><span class="row gap-1" style="color:var(--quality-average);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><bg-icon name="circle-minus" size="15"></bg-icon>Average</span><span class="row gap-1" style="color:var(--quality-poor);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><bg-icon name="triangle-alert" size="15"></bg-icon>Poor</span><span class="row gap-1" style="color:var(--quality-bad);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><bg-icon name="circle-x" size="15"></bg-icon>Bad</span></div>
+<div class="row wrap gap-4 mt-2"><span class="row gap-1" style="color:var(--quality-great);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><span data-ds="Icon" data-name="circle-check" data-size="15"></span>Great</span><span class="row gap-1" style="color:var(--quality-good);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><span data-ds="Icon" data-name="circle-check" data-size="15"></span>Good</span><span class="row gap-1" style="color:var(--quality-average);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><span data-ds="Icon" data-name="circle-minus" data-size="15"></span>Average</span><span class="row gap-1" style="color:var(--quality-poor);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><span data-ds="Icon" data-name="triangle-alert" data-size="15"></span>Poor</span><span class="row gap-1" style="color:var(--quality-bad);font-size:var(--text-sm);font-weight:var(--weight-semibold)"><span data-ds="Icon" data-name="circle-x" data-size="15"></span>Bad</span></div>
 </body></html>

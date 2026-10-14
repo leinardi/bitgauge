@@ -1,15 +1,5 @@
-/* BitGauge web UI kit — kit-only styles
-   Page reset, link colours, hover states lifted from the screens, and the
-   Demo state panel (kit-only debug scaffolding, not a product control). */
-
-html, body { margin: 0; background: var(--bg-base); }
-a { color: var(--primary-text); }
-a:hover { color: var(--primary-hover, var(--primary)); }
-
-/* Hover states (screens) */
-.hv-nav-1:hover { background:var(--surface-3) !important; color:var(--fg) !important; }
-.hv-testsc-1:hover { background:var(--surface-3) !important; border-color:var(--border-strong) !important; }
-.hv-testsc-2:hover { background:var(--surface-3) !important; }
+/* BitGauge web UI kit — kit-only styles: the Demo state panel (debug scaffolding, not a product control).
+   Page defaults, links and every component look come from ../../styles.css. Nothing here styles the product. */
 
 /* Demo state panel — anchored in the empty middle of the top bar */
 .demo { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: var(--z-skip-link); width: 300px; max-height: calc(100vh - 20px); display: flex; flex-direction: column; font-family: var(--font-sans); color: var(--fg); background: var(--surface-2); border: 1px solid var(--border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-pop); }
@@ -28,7 +18,7 @@ a:hover { color: var(--primary-hover, var(--primary)); }
 .demo-row .seg.seg-sm .seg-btn { padding: 0 var(--space-2); }
 .demo-chk { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-caption); color: var(--fg-muted); cursor: pointer; }
 .demo-chk input { appearance: auto; -webkit-appearance: checkbox; width: 14px; height: 14px; flex: none; accent-color: var(--primary); margin: 0; }
-.demo-note { font-size: var(--text-caption); color: var(--fg-subtle); line-height: 1.45; }
+.demo-note { font-size: var(--text-caption); color: var(--fg-subtle); line-height: var(--lh-compact); }
 .demo .t-long { display: none; }
 /* Mobile layout (below the 1140 px desktop breakpoint): 52 px header, logo left, theme button right.
    Collapsed: a compact pill just left of the theme button. Open: full width under the top edge. */

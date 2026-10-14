@@ -1,0 +1,35 @@
+/* Dialog — scrim, .modal shell (.mh / .mi / .mt / .md / .mbody / .scope / .mf). */
+.dlg-layer { position: fixed; inset: 0; z-index: var(--z-overlay); display: flex; align-items: center; justify-content: center; padding: var(--space-4); }
+.dlg-layer.top { align-items: flex-start; padding-top: var(--space-16); }
+.scrim { position: fixed; inset: 0; background: var(--scrim); backdrop-filter: blur(2px); z-index: calc(var(--z-overlay) - 2); opacity: 0; animation: fade var(--dur-base) var(--ease-out) forwards; }
+@keyframes fade { to { opacity: 1; } }
+.modal {
+  position: relative; z-index: calc(var(--z-overlay) + 1); width: var(--modal-w); max-width: 92vw; max-height: calc(100vh - var(--space-8));
+  background: var(--surface-2); border: 1px solid var(--border-default); border-radius: var(--radius-xl); box-shadow: var(--shadow-pop);
+  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  transform: translateY(6px) scale(0.99); opacity: 0; animation: pop var(--dur-base) var(--ease-out) forwards;
+}
+.modal.static { opacity: 1; transform: none; animation: none; }
+@keyframes pop { to { transform: none; opacity: 1; } }
+.modal.wide { width: var(--modal-w-wide); }
+.modal.xl { width: var(--modal-w-xl); }
+.modal .mh { display: flex; gap: var(--space-3-5); padding: var(--space-4-5) var(--space-5) var(--space-3-5); }
+.modal .mh .mtx { flex: 1; min-width: 0; }
+.modal .mh .mx { align-self: flex-start; margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-1-5)) 0 0; }
+.modal .mi { width: 36px; height: 36px; flex: none; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; }
+.modal .mi.danger { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-fg); }
+.modal .mi.primary { background: var(--primary-bg); border: 1px solid var(--primary-border); color: var(--primary); }
+.modal .mt { font-size: var(--text-lg); font-weight: var(--weight-semibold); line-height: var(--lh-snug); text-wrap: pretty; }
+.modal .md { font-size: var(--text-sm); color: var(--fg-muted); line-height: var(--lh-prose); margin-top: var(--space-1); text-wrap: pretty; }
+.modal .md b { color: var(--fg); font-family: var(--font-mono); font-weight: var(--weight-medium); }
+.modal .mbody { padding: 0 var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); }
+.modal .mbody.flush { padding: 0; gap: 0; border-top: 1px solid var(--border-subtle); }
+.modal .scope {
+  margin: var(--space-3-5) var(--space-5) 0; padding: var(--space-2-5) var(--space-3); border-radius: var(--radius-md);
+  background: var(--surface-1); border: 1px solid var(--border-subtle); display: flex; align-items: center; gap: var(--space-2);
+  font-size: var(--text-caption); color: var(--fg-subtle); line-height: var(--lh-normal);
+}
+.modal .scope .ico { color: var(--ok); flex: none; display: inline-flex; }
+.modal .mf { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2-5); justify-content: flex-end; padding: var(--space-4) var(--space-5); margin-top: var(--space-3-5); background: var(--surface-2); }
+.modal .mf.stack { flex-direction: column-reverse; align-items: stretch; }
+.modal .mf.stack .btn { justify-content: center; }

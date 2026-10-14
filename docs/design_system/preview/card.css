@@ -1,8 +1,7 @@
-/* Shared framing for Design System preview cards. Each card imports
-   ../colors_and_type.css, this file, then the kit CSS it demonstrates. */
-* { box-sizing: border-box; }
-html, body { margin: 0; height: auto; }
-body { background: var(--bg-base); color: var(--fg); font-family: var(--font-sans); padding: var(--space-6); -webkit-font-smoothing: antialiased; }
+/* Shared framing for Design System preview cards. Each card links ../styles.css (tokens → base → components),
+   then this file. Card layout helpers only — no component looks. Logo / Icon come from the bundle via each page's inline mount script. */
+html, body { height: auto; }
+body { padding: var(--space-6); }
 .col { display: flex; flex-direction: column; }
 .row { display: flex; align-items: center; }
 .wrap { flex-wrap: wrap; }
@@ -12,3 +11,5 @@ body { background: var(--bg-base); color: var(--fg); font-family: var(--font-san
 .lbl { font-family: var(--font-cond); font-weight: var(--weight-semibold); font-size: var(--text-micro); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--fg-subtle); }
 .sw { border-radius: var(--radius-md); border: 1px solid var(--border-subtle); }
 .tok { font-family: var(--font-mono); font-size: var(--text-micro); color: var(--fg-subtle); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.subtle { color: var(--fg-subtle); }

@@ -1,6 +1,7 @@
 # Charts
 
-uPlot. Spec: `features/ui/screens.md` §1 (Live chart), §2 (Per-phase charts), §3 (Trend chart).
+Component `Chart` (`components/charts/`; production uPlot with the same series and hooks), numbers via
+`Format`. Spec: `features/ui/screens.md` §1 (Live chart), §2 (Per-phase charts), §3 (Trend chart).
 
 ## Series and marks
 
@@ -35,7 +36,10 @@ entry. Mobile: one metric at a time with a selector.
 
 ## Chart or table
 
-Every chart is `role="img"` with a summary label and a "View as table" toggle. The table is the
+Every chart is `role="img"` whose label is a **summary of the data shown** ("Throughput: Download 590 Mbit/s,
+7.5 s / 10 s; warm-up shaded; marked: Extended"), never a static title such as "Throughput chart". `Chart`
+requires `summary`; the live chart's summary follows the readout and does not need to be live itself (the
+screen's LiveRegion announces). Result-detail charts add a "View as table" toggle. The table is the
 text alternative: rows of 2 s windows from warm-up end, throughput as bytes over known time ("—"
 for a window with no known time; a shorter edge row shows its real span), and median latency per
 window. For cells coarser than 2 s (Continuous), one row per stored cell with the header naming the

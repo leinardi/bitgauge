@@ -1,6 +1,7 @@
 # Share panel
 
-Result detail rail; the same content in ShareDialog from the save bar. Spec:
+Result detail rail; the same content in ShareDialog (`Dialog` wide, from the save bar). The image preview is
+the `SharePreview` component; the summary preview is a `Snippet`. Spec:
 `features/ui/screens.md` §2, `features/ui/flows.md` §8.
 
 ## Anatomy

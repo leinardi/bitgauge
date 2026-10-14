@@ -1,7 +1,9 @@
 # Save bar
 
-Card + Input + ToggleGroup. v0.2 (with history). Spec: `features/ui/screens.md` §1,
-`features/ui/flows.md` §4.
+Component `SaveBar` (`components/feedback/`; Card + Input + Chip). v0.2 (with history). Spec:
+`features/ui/screens.md` §1, `features/ui/flows.md` §4. Statuses: `saved`, `unsaved` (partial / error,
+Keep in history offered), `kept` (after Keep in history), `complete` (v0.1: "Test complete", not stored,
+Download JSON only). The Download JSON action carries the tooltip "Contains your IP address and notes".
 
 ## Complete run
 

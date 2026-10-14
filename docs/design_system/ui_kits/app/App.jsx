@@ -9,12 +9,12 @@
 const DEMO_KEY = 'bitgauge-kit-demo';
 const DEMO_DEFAULTS = {
   scenario: 'normal', speed: '1', mobile: false,
-  testState: '', v01: false, cpu: false,
+  testState: '', v01: false, cpu: false, browser: 'Firefox', uploadPauses: false,
   errKind: 'requests', probe: 'auto', resp: 'ok', timerRes: '0.1',
   historyVariant: '', resultState: 'result', resultKind: 'standard', resultDemo: 'none', resultOverhead: '0',
   openspeedtest: true, librespeed: true, networkquality: true, aboutUnreachable: false
 };
-const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'cancelled-slow-up', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
+const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'upload-interrupted', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'cancelled-slow-up', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
 const HISTORY_VARIANTS = ['populated', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 
 function DemoSelect({ label, value, options, onChange }) {
@@ -55,11 +55,11 @@ function DemoPanel({ d, set, reset }) {
   return (
     <aside className={'demo' + (open ? '' : ' closed')} aria-label="Demo state">
       <div className="demo-h" onClick={open ? undefined : () => setOpen(true)} style={open ? undefined : { cursor: 'pointer' }}>
-        <bg-icon name="sliders" size="14" style={{ color: 'var(--primary-text)' }}></bg-icon>
+        <DS.Icon name="sliders" size={14} style={{ color: 'var(--primary-text)' }} />
         <span className="t">Demo<span className="t-long"> state{open ? '' : ' \u00b7 ' + (d.mobile ? 'Mobile' : 'Auto') + ' \u00b7 ' + d.scenario}</span></span>
         {open ? <button type="button" className="btn ghost sm" onClick={reset}>Reset</button> : null}
         <button type="button" className="btn ghost sm icon" aria-label={open ? 'Collapse demo panel' : 'Expand demo panel'} onClick={() => setOpen(!open)}>
-          <bg-icon name={open ? 'chevron-down' : 'chevron-up'} size="14"></bg-icon>
+          <DS.Icon name={open ? 'chevron-down' : 'chevron-up'} size={14} />
         </button>
       </div>
       {open ? (
@@ -74,16 +74,22 @@ function DemoPanel({ d, set, reset }) {
             <span className="st">View</span>
             <DemoSeg label="Frame" value={d.mobile ? 'm' : 'd'} options={[['d', 'Auto'], ['m', 'Mobile']]} onChange={v => set({ mobile: v === 'm' })} />
             <span className="demo-note">Auto: desktop from 1140 px wide, mobile below.</span>
+            <DemoCheck label="v0.1 scope (no history, settings, share)" value={d.v01} onChange={v => set({ v01: v })} />
           </div>
           <div className="demo-sec">
             <span className="st">Test screen</span>
             <DemoSelect label="Force state" value={d.testState} options={[['', 'follow run'], ...TEST_STATES]} onChange={v => set({ testState: v })} />
-            <DemoCheck label="v0.1 scope (no history)" value={d.v01} onChange={v => set({ v01: v })} />
+            <span className="demo-note">Version scope applies to every screen and the navigation: see View.</span>
             <DemoCheck label="CPU-bound" value={d.cpu} onChange={v => set({ cpu: v })} />
             <DemoSelect label="Error kind" value={d.errKind} options={['requests', 'unreachable', 'restarted', 'network']} onChange={v => set({ errKind: v })} />
             <DemoSelect label="Latency probe" value={d.probe} options={['auto', 'WebSocket', 'HTTP/2 probe', 'HTTP/1.1 reserved']} onChange={v => set({ probe: v })} />
             <DemoSelect label="Responsiveness" value={d.resp} options={['ok', 'uncertain', 'needs-h2', 'not-reported', 'few-samples']} onChange={v => set({ resp: v })} />
             <DemoSelect label="Timer resolution" value={d.timerRes} options={[['0.1', '0.1 ms'], ['1', '1 ms']]} onChange={v => set({ timerRes: v })} />
+          </div>
+          <div className="demo-sec">
+            <span className="st">Browser · Test screen and Result detail</span>
+            <DemoSelect label="Browser" value={d.browser} options={['Firefox', 'Chrome', 'Safari', 'Edge']} onChange={v => set({ browser: v })} />
+            <DemoCheck label="Upload pauses seen" value={d.uploadPauses} onChange={v => set({ uploadPauses: v })} />
           </div>
           <div className="demo-sec">
             <span className="st">History</span>
@@ -116,18 +122,20 @@ function App() {
   });
   React.useEffect(() => { try { localStorage.setItem(DEMO_KEY, JSON.stringify(d)); } catch (e) {} }, [d]);
   const set = patch => setD(prev => Object.assign({}, prev, patch));
-  const testExtra = { v01: d.v01, cpu: d.cpu, errKind: d.errKind, probe: d.probe, resp: d.resp, timerRes: d.timerRes };
+  const testExtra = { cpu: d.cpu, errKind: d.errKind, probe: d.probe, resp: d.resp, timerRes: d.timerRes, browser: d.browser, uploadPauses: d.uploadPauses };
   if (d.testState) testExtra.state = d.testState;
   const historyExtra = d.historyVariant ? { variant: d.historyVariant } : {};
-  const resultExtra = { state: d.resultState, kind: d.resultKind, demo: d.resultDemo, overhead: d.resultOverhead };
+  const resultExtra = { state: d.resultState, kind: d.resultKind, demo: d.resultDemo, overhead: d.resultOverhead, browser: d.browser, uploadPauses: d.uploadPauses };
   const aboutExtra = { openspeedtest: d.openspeedtest, librespeed: d.librespeed, networkquality: d.networkquality, unreachable: d.aboutUnreachable };
   return (
     <>
-      <Prototype scenario={d.scenario} speed={d.speed} mobile={d.mobile}
+      <Prototype scenario={d.scenario} speed={d.speed} mobile={d.mobile} scope={d.v01 ? 'v0.1' : 'v0.3'}
         testExtra={testExtra} historyExtra={historyExtra} resultExtra={resultExtra} aboutExtra={aboutExtra} />
       <DemoPanel d={d} set={set} reset={() => setD(Object.assign({}, DEMO_DEFAULTS))} />
     </>
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+// Mounted by index.html once window.DS is ready — never at load: this file is also swept into the design
+// system bundle, where a mount would take over every consumer's #root.
+window.App = App;

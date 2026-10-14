@@ -12,8 +12,8 @@ class History extends React.Component {
     const v = this.props.variant || 'populated';
     const is = k => v === k;
     const BG = window.BG;
-    const L = m ? { pad: '16px 16px 24px', gap: '14px', h1: 'var(--text-3xl)', chipWrap: 'nowrap', filterML: '0', legendML: '0', cardPad: '14px', trendCols: 'minmax(0,1fr)', tw: 311, th: 120, thpx: '120px', tL: '12px', tR: '12px', tB: '76px', cfAlign: 'flex-end', cfTop: '0', cfW: '100%', cfRad: 'var(--radius-xl) var(--radius-xl) 0 0' }
-      : { pad: '24px 40px 48px', gap: '18px', h1: 'var(--text-4xl)', chipWrap: 'wrap', filterML: 'auto', legendML: 'auto', cardPad: '16px 20px', trendCols: 'repeat(3, minmax(0,1fr))', tw: 340, th: 130, thpx: '130px', tL: 'auto', tR: '24px', tB: '24px', cfAlign: 'flex-start', cfTop: '140px', cfW: '460px', cfRad: 'var(--radius-xl)' };
+    const L = m ? { pad: 'var(--space-4) var(--space-4) var(--space-6)', gap: 'var(--space-3-5)', h1: 'var(--text-3xl)', chipWrap: 'nowrap', filterML: '0', legendML: '0', cardPad: '14px', trendCols: 'minmax(0,1fr)', tw: 311, th: 120, thpx: '120px', tL: '12px', tR: '12px', tB: '76px', cfAlign: 'flex-end', cfTop: '0', cfW: '100%', cfRad: 'var(--radius-xl) var(--radius-xl) 0 0' }
+      : { pad: 'var(--space-6) var(--space-10) var(--space-12)', gap: 'var(--space-4-5)', h1: 'var(--text-4xl)', chipWrap: 'wrap', filterML: 'auto', legendML: 'auto', cardPad: '16px 20px', trendCols: 'repeat(3, minmax(0,1fr))', tw: 340, th: 130, thpx: '130px', tL: 'auto', tR: '24px', tB: '24px', cfAlign: 'flex-start', cfTop: '140px', cfW: '460px', cfRad: 'var(--radius-xl)' };
     const empty = is('empty'), unavail = is('unavailable'), loading = is('loading'), nomatch = is('nomatch'), deleted = is('deleted');
     const hasData = !empty && !unavail && !loading;
     const total = deleted ? 46 : is('importresult') ? 60 : 48;
@@ -120,9 +120,7 @@ class History extends React.Component {
       ranges: [['Last 7 days', 3], ['Last 30 days', 8, true], ['Last 90 days', 8], ['All time', 8]].map(([t, n, on]) => ({ t, n, on: !!on, aria: on ? 'true' : 'false', bg: on ? 'var(--primary-bg)' : 'transparent', c: on ? 'var(--primary-text)' : 'var(--fg)' }))
     };
   }
-  componentDidMount() { if (!window.BG) { this._h = () => this.forceUpdate(); window.addEventListener('bg-lib-ready', this._h); } }
-  componentWillUnmount() { if (this._h) window.removeEventListener('bg-lib-ready', this._h); }
-  render() {
+    render() {
     const v = this.renderVals();
     return (
       <div style={{ position: "relative", background: "var(--bg-base)", color: "var(--fg)", fontFamily: "var(--font-sans)", minHeight: "100%", height: v.rootH, overflow: v.rootOv, display: "flex", flexDirection: "column" }}>
@@ -132,219 +130,136 @@ class History extends React.Component {
         {v.mobile ? (
           <Nav variant="mobile-top" active="history" status={this.props.srvStatus || "connected"} />
         ) : null}
-        <main style={{ flex: "1", width: "100%", maxWidth: "1200px", margin: "0 auto", boxSizing: "border-box", padding: v.L?.pad, display: "flex", flexDirection: "column", gap: v.L?.gap }}>
-          <header style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px 16px" }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-              <h1 style={{ margin: "0", fontSize: v.L?.h1, fontWeight: "600", letterSpacing: "var(--tracking-tight)" }}>History</h1>
+        <main style={{ flex: "1", width: "100%", maxWidth: "var(--layout-max)", margin: "0 auto", boxSizing: "border-box", padding: v.L?.pad, display: "flex", flexDirection: "column", gap: v.L?.gap }}>
+          <header style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-3) var(--space-4)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-2-5)" }}>
+              <h1 style={{ margin: "0", fontSize: v.L?.h1, fontWeight: "var(--weight-semibold)", letterSpacing: "var(--tracking-tight)" }}>History</h1>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)", color: "var(--fg-subtle)" }}>{v.countText}</span>
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginLeft: "auto" }}>
-              <button className="btn secondary sm" disabled={v.importDisabled}><bg-icon name="upload" size="14" />{v.importLabel}</button>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)", marginLeft: "auto" }}>
+              <DS.Button size="sm" icon="upload" disabled={v.importDisabled}>{v.importLabel}</DS.Button>
               {v.hasData ? (
                 <>
-                  <div style={{ position: "relative" }}>
-                  <button className="btn secondary sm" aria-haspopup="menu" aria-expanded={v.exportAria}>
-                    <bg-icon name="download" size="14" />
-                    Export
-                    <bg-icon name="chevron-down" size="13" />
-                  </button>
-                  {v.showExport ? (
-                    <div role="menu" aria-label="Export" style={{ position: "absolute", right: "0", top: "calc(100% + 6px)", zIndex: "20", background: "var(--surface-2)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-pop)", padding: "6px", display: "flex", flexDirection: "column", textAlign: "left", width: "320px" }}>
+                  <DS.Popover open={!!v.showExport} role="menu" label="Export" width={320}
+                    trigger={<DS.Button size="sm" icon="download" iconAfter="chevron-down" aria-haspopup="menu" aria-expanded={v.exportAria}>Export</DS.Button>}>
                       {(v.exportFormats || []).map((f, $index) => (
                         <React.Fragment key={$index}>
-                          <div role="group" aria-label={f?.t} style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "8px 10px" }}>
-                            <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
-                              <span style={{ color: "var(--fg-muted)", display: "flex", marginTop: "1px" }}><bg-icon name={f?.icon} size="16" /></span>
-                              <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                                <span style={{ fontSize: "var(--text-sm)", fontWeight: "600", color: "var(--fg)" }}>{f?.t}</span>
+                          <div role="group" aria-label={f?.t} style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", padding: "var(--space-2) var(--space-2-5)" }}>
+                            <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-2-5)" }}>
+                              <span style={{ color: "var(--fg-muted)", display: "flex", marginTop: "1px" }}><DS.Icon name={f?.icon} size={16} /></span>
+                              <span style={{ display: "flex", flexDirection: "column", gap: "var(--space-0-5)" }}>
+                                <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--fg)" }}>{f?.t}</span>
                                 <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>{f?.s}</span>
                               </span>
                             </div>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: "6px", paddingLeft: "26px" }}>
-                              <button className="btn secondary sm" role="menuitem" style={{ justifyContent: "center" }}>All results ({v.total})</button>
-                              <button className="btn secondary sm" role="menuitem" style={{ justifyContent: "center" }}>Current filter ({v.shownN})</button>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: "var(--space-1-5)", paddingLeft: "26px" }}>
+                              <DS.Button size="sm" block role="menuitem">{'All results (' + v.total + ')'}</DS.Button>
+                              <DS.Button size="sm" block role="menuitem">{'Current filter (' + v.shownN + ')'}</DS.Button>
                             </div>
                           </div>
                         </React.Fragment>
                       ))}
-                      <div style={{ height: "1px", background: "var(--border-subtle)", margin: "4px 2px" }} />
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", padding: "6px 10px 4px" }}>
-                        <span style={{ color: "var(--warn)", display: "flex", marginTop: "1px" }}><bg-icon name="triangle-alert" size="13" stroke="2" /></span>
-                        <span style={{ fontSize: "var(--text-micro)", color: "var(--fg-muted)", lineHeight: "1.45" }}>
+                      <div className="pop-sep" />
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-2)", padding: "var(--space-1-5) var(--space-2-5) var(--space-1)" }}>
+                        <span style={{ color: "var(--warn)", display: "flex", marginTop: "1px" }}><DS.Icon name="triangle-alert" size={13} stroke={2} /></span>
+                        <span style={{ fontSize: "var(--text-micro)", color: "var(--fg-muted)", lineHeight: "var(--lh-compact)" }}>
                           Contains client IP addresses, labels and notes. Files are created in your browser.
                         </span>
                       </div>
-                    </div>
-                  ) : null}
-                </div>
-                  <button className="btn danger sm"><bg-icon name="trash" size="14" />Clear all</button>
+                    </DS.Popover>
+                  <DS.Button variant="danger" size="sm" icon="trash">Clear all</DS.Button>
                 </>
               ) : null}
             </div>
           </header>
           {v.showOrigin ? (
-            <div role="note" style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "10px 14px", borderRadius: "var(--radius-md)", background: "var(--info-bg)", border: "1px solid var(--info-border)" }}>
-              <span style={{ color: "var(--info)", display: "flex", marginTop: "1px" }}><bg-icon name="hard-drive" size="16" /></span>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px", minWidth: "0", fontSize: "var(--text-sm)", lineHeight: "1.5" }}>
-                <span style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "4px 8px" }}>
-                  <b style={{ color: "var(--fg)", fontWeight: "600" }}>
-                    {"Stored only in this browser, for "}
-                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: "500", overflowWrap: "anywhere" }}>https://speed.home.lan</span>
-                  </b>
-                  <button aria-expanded={v.whyAria} onClick={v.toggleWhy} style={{ all: "unset", cursor: "pointer", color: "var(--info-fg)", textDecoration: "underline", textUnderlineOffset: "2px" }}>
-                    Why?
-                  </button>
-                </span>
-                {v.whyOpen ? (
-                  <span style={{ color: "var(--fg-muted)", maxWidth: "760px", textWrap: "pretty" }}>
-                    {"Browsers keep site data per address — scheme, host and port. Opening BitGauge at another address, such as "}
-                    <span style={{ fontFamily: "var(--font-mono)" }}>http://192.168.1.10:8080</span>
-                    , shows a separate, empty history. The server keeps no results. Export JSON to move them.
-                  </span>
-                ) : null}
-              </div>
-            </div>
+            <DS.Notice tone="info" icon="hard-drive" live={false}
+              title={<>{"Stored only in this browser, for "}<span className="ds-num">{BG.KIT.origin}</span></>}
+              actions={<DS.Button variant="ghost" size="sm" aria-expanded={v.whyAria} onClick={v.toggleWhy}>Why?</DS.Button>}>
+              {v.whyOpen ? "Browsers keep site data per address — scheme, host and port. Opening BitGauge at another address, such as http://192.168.1.10:8080, shows a separate, empty history. The server keeps no results. Export JSON to move them." : null}
+            </DS.Notice>
           ) : null}
           {v.safari ? (
-            <div role="note" style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "10px 12px", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--warn-border)", background: "var(--warn-bg)" }}>
-              <span style={{ color: "var(--warn)", display: "flex", marginTop: "1px" }}><bg-icon name="triangle-alert" size="17" /></span>
-              <div style={{ flex: "1 1 260px", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span style={{ fontSize: "var(--text-sm)", fontWeight: "600", color: "var(--warn-fg)" }}>Safari may delete this history</span>
-                <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "1.5", textWrap: "pretty" }}>
-                  Safari removes site data for sites you haven't opened in 7 days of browsing. Export a JSON copy to keep your results.
-                </span>
-              </div>
-              <div style={{ display: "flex", gap: "6px", alignItems: "center", marginLeft: "auto" }}>
-                <button className="btn secondary sm"><bg-icon name="download" size="14" />Export JSON</button>
-                <button className="btn ghost icon sm" aria-label="Dismiss" style={{ width: "28px" }}><bg-icon name="x" size="14" /></button>
-              </div>
-            </div>
+            <DS.Notice tone="warn" title="Safari may delete this history" live={false}
+              actions={<><DS.Button size="sm" icon="download">Export JSON</DS.Button><DS.Button variant="ghost" size="sm" iconOnly icon="x" aria-label="Dismiss" /></>}>
+              Safari removes site data for sites you haven't opened in 7 days of browsing. Export a JSON copy to keep your results.
+            </DS.Notice>
           ) : null}
           {v.importing ? (
-            <div role="status" aria-live="polite" style={{ position: "relative", overflow: "hidden", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 12px", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-default)", background: "var(--surface-2)" }}>
-              <span style={{ color: "var(--primary-text)", display: "flex" }}><bg-icon name="upload" size="17" /></span>
-              <div style={{ flex: "1 1 260px", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>
-                  {"Importing "}
-                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: "500" }}>bitgauge-2026-10-01.json</span>
-                </span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>Checking 9 of 16 results…</span>
-              </div>
-              <button className="btn ghost sm" style={{ marginLeft: "auto" }}>Cancel</button>
-              <div role="progressbar" aria-label="Import progress" aria-valuemin="0" aria-valuemax="16" aria-valuenow="9" style={{ position: "absolute", left: "0", right: "0", bottom: "0", height: "2px", background: "var(--border-subtle)" }}>
-                <div style={{ width: "56%", height: "100%", background: "var(--primary)" }} />
-              </div>
-            </div>
+            <DS.Notice tone="neutral" icon="upload" title={<>{"Importing "}<span className="ds-num">bitgauge-2026-10-01.json</span></>}
+              actions={<DS.Button variant="ghost" size="sm">Cancel</DS.Button>}>
+              <span className="ds-num">Checking 9 of 16 results…</span>
+              <span role="progressbar" aria-label="Import progress" aria-valuemin="0" aria-valuemax="16" aria-valuenow="9" className="ph-bar" style={{ display: "block", marginTop: "var(--space-1-5)" }}><span style={{ width: "56%", background: "var(--primary)" }}></span></span>
+            </DS.Notice>
           ) : null}
           {v.importResult ? (
-            <div role="status" style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "10px 12px", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-default)", background: "var(--surface-2)" }}>
-              <span style={{ color: "var(--ok)", display: "flex", marginTop: "1px" }}><bg-icon name="circle-check" size="17" /></span>
-              <div style={{ flex: "1 1 260px", minWidth: "0", display: "flex", flexDirection: "column", gap: "6px" }}>
-                <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>
-                  {"Imported "}
-                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: "500" }}>bitgauge-2026-10-01.json</span>
-                </span>
-                <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "1.5" }}>
-                  12 added, 3 skipped as duplicates, 1 rejected: schema version 3 is newer than this app
-                </span>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  <span className="pill ok" style={{ height: "20px" }}><span className="d" />12 added</span>
-                  <span className="pill neutral" style={{ height: "20px" }}>3 skipped</span>
-                  <span className="pill warn" style={{ height: "20px" }}><span className="d" />1 rejected</span>
-                </div>
-              </div>
-              <button className="btn ghost icon sm" aria-label="Dismiss" style={{ width: "28px", marginLeft: "auto" }}><bg-icon name="x" size="14" /></button>
-            </div>
+            <DS.Notice tone="ok" title={<>{"Imported "}<span className="ds-num">bitgauge-2026-10-01.json</span></>}
+              actions={<DS.Button variant="ghost" size="sm" iconOnly icon="x" aria-label="Dismiss" />}>
+              12 added, 3 skipped as duplicates, 1 rejected: schema version 3 is newer than this app
+              <span style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-1-5)", marginTop: "var(--space-1-5)" }}>
+                <DS.StatusPill tone="ok" size="sm">12 added</DS.StatusPill><DS.StatusPill tone="neutral" size="sm" dot={false}>3 skipped</DS.StatusPill><DS.StatusPill tone="warn" size="sm">1 rejected</DS.StatusPill>
+              </span>
+            </DS.Notice>
           ) : null}
           {v.importError ? (
-            <div role="alert" style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "10px 12px", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--danger-border)", background: "var(--danger-bg)" }}>
-              <span style={{ color: "var(--danger)", display: "flex", marginTop: "1px" }}><bg-icon name="file-json" size="18" /></span>
-              <div style={{ flex: "1 1 260px", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span style={{ fontSize: "var(--text-sm)", fontWeight: "600", color: "var(--danger-fg)" }}>
-                  {"Couldn't import "}
-                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: "500" }}>bitgauge-2026-10-01.csv</span>
-                </span>
-                <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "1.5" }}>
-                  Import accepts BitGauge JSON exports only. CSV exports are summaries and can't be restored. Nothing in your history was changed.
-                </span>
-              </div>
-              <div style={{ display: "flex", gap: "6px", alignItems: "center", marginLeft: "auto" }}>
-                <button className="btn secondary sm"><bg-icon name="upload" size="14" />Choose another file</button>
-                <button className="btn ghost icon sm" aria-label="Dismiss" style={{ width: "28px" }}><bg-icon name="x" size="14" /></button>
-              </div>
-            </div>
+            <DS.Notice tone="danger" icon="file-json" title={<>{"Couldn't import "}<span className="ds-num">bitgauge-2026-10-01.csv</span></>}
+              actions={<><DS.Button size="sm" icon="upload">Choose another file</DS.Button><DS.Button variant="ghost" size="sm" iconOnly icon="x" aria-label="Dismiss" /></>}>
+              Import accepts BitGauge JSON exports only. CSV exports are summaries and can't be restored. Nothing in your history was changed.
+            </DS.Notice>
           ) : null}
           {v.isEmpty ? (
-            <section className="card">
-              <div className="empty">
-                <div className="eg"><bg-icon name="history" size="22" /></div>
-                <div className="et">No results yet</div>
-                <div className="em">
-                  Each finished test is saved here automatically, with its label and note. Run a test on this device, or import a JSON export from another browser.
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px", marginTop: "8px" }}>
-                  <button className="btn primary"><bg-icon name="play" size="15" />Start a test</button>
-                  <button className="btn secondary"><bg-icon name="upload" size="15" />Import JSON</button>
-                </div>
-              </div>
-            </section>
+            <DS.Card as="section" padded={false}>
+              <DS.EmptyState icon="history" title="No results yet" actions={<><DS.Button variant="primary" icon="play">Start a test</DS.Button>
+                  <DS.Button variant="secondary" icon="upload">Import JSON</DS.Button></>}>Each finished test is saved here automatically, with its label and note. Run a test on this device, or import a JSON export from another browser.</DS.EmptyState>
+            </DS.Card>
           ) : null}
           {v.unavailable ? (
-            <section className="card">
-              <div className="empty">
-                <div className="eg"><bg-icon name="hard-drive" size="22" /></div>
-                <div className="et">History isn't available in this window</div>
-                <div className="em">
-                  The browser isn't letting this site store data — usually because this is a private window. Tests still run, and you can copy or download each result, but nothing is saved here. Open BitGauge in a normal window to keep history.
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px", marginTop: "8px" }}>
-                  <button className="btn primary"><bg-icon name="play" size="15" />Start a test</button>
-                </div>
-              </div>
-            </section>
+            <DS.Card as="section" padded={false}>
+              <DS.EmptyState icon="hard-drive" title="History isn't available in this window" actions={<><DS.Button variant="primary" icon="play">Start a test</DS.Button></>}>The browser isn't letting this site store data — usually because this is a private window. Tests still run, and you can copy or download each result, but nothing is saved here. Open BitGauge in a normal window to keep history.</DS.EmptyState>
+            </DS.Card>
           ) : null}
           {v.loading ? (
             <div aria-busy="true" aria-label="Loading history" style={{ display: "flex", flexDirection: "column", gap: v.L?.gap }}>
-              <div style={{ display: "flex", gap: "6px", overflow: "hidden" }}>
+              <div style={{ display: "flex", gap: "var(--space-1-5)", overflow: "hidden" }}>
                 {(v.skChips || []).map((c, $index) => (
                   <React.Fragment key={$index}>
-                    <span className="skel" style={{ flex: "none", width: c?.w, height: "28px", borderRadius: "var(--radius-full)" }} />
+                    <DS.Skeleton width={c?.w} height={"28px"} style={{ flex: "none", borderRadius: "var(--radius-full)" }} />
                   </React.Fragment>
                 ))}
               </div>
-              <section className="card" style={{ padding: v.L?.cardPad, display: "flex", flexDirection: "column", gap: "14px" }}>
-                <span className="skel" style={{ width: "180px", height: "14px", display: "block" }} />
-                <div style={{ display: "grid", gridTemplateColumns: v.L?.trendCols, gap: "20px" }}>
+              <DS.Card as="section" padded={false} style={{ padding: v.L?.cardPad, display: "flex", flexDirection: "column", gap: "var(--space-3-5)" }}>
+                <DS.Skeleton width={"180px"} height={"14px"} />
+                <div style={{ display: "grid", gridTemplateColumns: v.L?.trendCols, gap: "var(--space-5)" }}>
                   {(v.skTrends || []).map((t, $index) => (
                     <React.Fragment key={$index}>
-                      <span className="skel" style={{ display: "block", height: v.L?.thpx }} />
+                      <DS.Skeleton height={v.L?.thpx} />
                     </React.Fragment>
                   ))}
                 </div>
-              </section>
+              </DS.Card>
               {v.desktop ? (
-                <section className="card" style={{ overflow: "hidden" }}>
+                <DS.Card as="section" padded={false} style={{ overflow: "hidden" }}>
                   <div style={{ height: "38px", borderBottom: "1px solid var(--border-default)" }} />
                   {(v.skRows || []).map((sr, $index) => (
                     <React.Fragment key={$index}>
                       <div className="skel-row">
                         {(sr?.cols || []).map((sc, $index) => (
                           <React.Fragment key={$index}>
-                            <span className="skel" style={{ display: "block", height: "12px", width: sc?.w, flex: sc?.f }} />
+                            <DS.Skeleton width={sc?.w} height={"12px"} style={{ flex: sc?.f }} />
                           </React.Fragment>
                         ))}
                       </div>
                     </React.Fragment>
                   ))}
-                </section>
+                </DS.Card>
               ) : null}
               {v.mobile ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                   {(v.skRows || []).map((sr, $index) => (
                     <React.Fragment key={$index}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "14px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)", background: "var(--surface-2)" }}>
-                        <span className="skel" style={{ display: "block", width: "60%", height: "13px" }} />
-                        <span className="skel" style={{ display: "block", width: "90%", height: "12px" }} />
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2-5)", padding: "var(--space-3-5)", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)", background: "var(--surface-2)" }}>
+                        <DS.Skeleton width={"60%"} height={"13px"} />
+                        <DS.Skeleton width={"90%"} height={"12px"} />
                       </div>
                     </React.Fragment>
                   ))}
@@ -353,12 +268,12 @@ class History extends React.Component {
             </div>
           ) : null}
           {v.showFilters ? (
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 10px" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: "0", maxWidth: "100%" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2) var(--space-2-5)" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", minWidth: "0", maxWidth: "100%" }}>
                 {(v.chipGroups || []).map((g, $index) => (
                   <React.Fragment key={$index}>
-                    <div role="group" aria-label={g?.aria} style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: v.L?.chipWrap, overflowX: "auto", maxWidth: "100%" }}>
-                      <span aria-hidden="true" style={{ flex: "none", width: "56px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+                    <div role="group" aria-label={g?.aria} style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)", flexWrap: v.L?.chipWrap, overflowX: "auto", maxWidth: "100%" }}>
+                      <span aria-hidden="true" style={{ flex: "none", width: "56px", fontFamily: "var(--font-cond)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-micro)", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
                         {g?.t}
                       </span>
                       {(g?.chips || []).map((c, $index) => (
@@ -370,98 +285,62 @@ class History extends React.Component {
                   </React.Fragment>
                 ))}
               </div>
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginLeft: v.L?.filterML }}>
-                <div style={{ position: "relative" }}>
-                  <button className="btn secondary sm" aria-haspopup="dialog" aria-expanded={v.dateAria} style={{ height: "30px" }}>
-                    <bg-icon name="calendar" size="14" />
-                    {v.dateLabel}
-                    <bg-icon name="chevron-down" size="13" />
-                  </button>
-                  {v.showDate ? (
-                    <div role="dialog" aria-label="Date range" style={{ position: "absolute", right: "0", top: "calc(100% + 6px)", zIndex: "20", background: "var(--surface-2)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-pop)", padding: "6px", display: "flex", flexDirection: "column", textAlign: "left", width: "300px", gap: "2px" }}>
-                      <div role="radiogroup" aria-label="Preset range" style={{ display: "flex", flexDirection: "column" }}>
-                        {(v.ranges || []).map((rg, $index) => (
-                          <React.Fragment key={$index}>
-                            <button role="radio" aria-checked={rg?.aria} style={{ all: "unset", boxSizing: "border-box", display: "flex", alignItems: "center", gap: "10px", minHeight: "34px", padding: "0 10px", borderRadius: "var(--radius-md)", background: rg?.bg, color: rg?.c, fontSize: "var(--text-sm)", cursor: "pointer" }}>
-                              {rg?.t}
-                              <span style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>{rg?.n}</span>
-                              <span style={{ width: "14px", display: "flex", color: "var(--primary-text)" }}>
-                                {rg?.on ? (
-                                  <bg-icon name="check" size="14" stroke="2.25" />
-                                ) : null}
-                              </span>
-                            </button>
-                          </React.Fragment>
-                        ))}
-                      </div>
-                      <div style={{ height: "1px", background: "var(--border-subtle)", margin: "4px 2px" }} />
-                      <span style={{ padding: "4px 10px 2px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+              <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", marginLeft: v.L?.filterML }}>
+                <DS.Popover open={!!v.showDate} role="dialog" label="Date range" width={300}
+                    trigger={<DS.Button size="sm" icon="calendar" iconAfter="chevron-down" aria-haspopup="dialog" aria-expanded={v.dateAria}>{v.dateLabel}</DS.Button>}>
+                      <DS.OptionRows label="Preset range" options={(v.ranges || []).map(rg => ({ value: rg.t, label: rg.t, meta: rg.n }))} selected={((v.ranges || []).find(rg => rg.on) || {}).t} />
+                      <div className="pop-sep" />
+                      <span className="ds-eyebrow" style={{ padding: "var(--space-1) var(--space-2-5) var(--space-0-5)" }}>
                         Custom range
                       </span>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "4px 10px 8px" }}>
-                        <label className="input sm mono" style={{ flex: "1", minWidth: "0" }}><input value="2026-09-08" aria-label="From date" onChange={v.noop} /></label>
+                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)", padding: "var(--space-1) var(--space-2-5) var(--space-2)" }}>
+                        <DS.Input size="sm" mono style={{ flex: "1", minWidth: "0" }} value="2026-09-08" aria-label="From date" onChange={v.noop} />
                         <span style={{ color: "var(--fg-subtle)" }}>–</span>
-                        <label className="input sm mono" style={{ flex: "1", minWidth: "0" }}><input value="2026-10-08" aria-label="To date" onChange={v.noop} /></label>
+                        <DS.Input size="sm" mono style={{ flex: "1", minWidth: "0" }} value="2026-10-08" aria-label="To date" onChange={v.noop} />
                       </div>
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "6px", padding: "6px 6px 2px", borderTop: "1px solid var(--border-subtle)" }}>
-                        <button className="btn ghost sm">Cancel</button>
-                        <button className="btn primary sm">Apply</button>
+                      <div className="pop-foot">
+                        <DS.Button variant="ghost" size="sm">Cancel</DS.Button>
+                        <DS.Button variant="primary" size="sm">Apply</DS.Button>
                       </div>
-                    </div>
-                  ) : null}
-                </div>
+                    </DS.Popover>
                 {v.desktop ? (
-                  <label className="input sm" style={{ height: "30px", width: "220px" }}>
-                    <bg-icon name="search" size="14" />
-                    <input placeholder="Search labels and notes" aria-label="Search" value={v.searchVal} onChange={v.noop} />
-                  </label>
+                  <DS.Input size="sm" icon="search" style={{ width: "220px" }} placeholder="Search labels and notes" aria-label="Search" value={v.searchVal} onChange={v.noop} />
                 ) : null}
               </div>
             </div>
           ) : null}
           {v.noMatch ? (
-            <section className="card">
-              <div className="empty">
-                <div className="eg"><bg-icon name="search" size="22" /></div>
-                <div className="et">No results match these filters</div>
-                <div className="em">{v.noMatchText}</div>
-                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px", marginTop: "8px" }}>
-                  <button className="btn secondary"><bg-icon name="x" size="15" />Clear filters</button>
-                </div>
-              </div>
-            </section>
+            <DS.Card as="section" padded={false}>
+              <DS.EmptyState icon="search" title="No results match these filters" actions={<><DS.Button variant="secondary" icon="x">Clear filters</DS.Button></>}>{v.noMatchText}</DS.EmptyState>
+            </DS.Card>
           ) : null}
           {v.showResults ? (
             <>
-              <section className="card" aria-label="Trend" style={{ padding: v.L?.cardPad, display: "flex", flexDirection: "column", gap: "12px" }}>
-              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 14px" }}>
-                <span style={{ fontSize: "var(--text-base)", fontWeight: "600" }}>Trend</span>
-                <span className="pill neutral" style={{ gap: "5px", color: "var(--fg)" }}><bg-icon name="shield" size="12" stroke="2" />VPN</span>
+              <DS.Card as="section" label="Trend" padded={false} style={{ padding: v.L?.cardPad, display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2) var(--space-3-5)" }}>
+                <span style={{ fontSize: "var(--text-base)", fontWeight: "var(--weight-semibold)" }}>Trend</span>
+                <DS.Chip size="sm" icon="shield">VPN</DS.Chip>
                 <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>{v.trendMeta}</span>
-                <div role="list" aria-label="Legend" style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", marginLeft: v.L?.legendML, fontSize: "var(--text-caption)", color: "var(--fg-muted)" }}>
-                  <span role="listitem" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <div role="list" aria-label="Legend" style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-1-5) var(--space-3-5)", marginLeft: v.L?.legendML, fontSize: "var(--text-caption)", color: "var(--fg-muted)" }}>
+                  <span role="listitem" style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)" }}>
                     <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--fg-muted)" }} />
                     Complete
                   </span>
-                  <span role="listitem" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span role="listitem" style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)" }}>
                     <span style={{ width: "8px", height: "8px", boxSizing: "border-box", borderRadius: "50%", border: "1.5px solid var(--fg-muted)" }} />
                     Partial or error
                   </span>
                 </div>
                 {v.mobile ? (
-                  <div className="seg seg-sm" role="radiogroup" aria-label="Metric">
-                    <button className="seg-btn on" role="radio" aria-checked="true">Download</button>
-                    <button className="seg-btn" role="radio" aria-checked="false">Upload</button>
-                    <button className="seg-btn" role="radio" aria-checked="false">Latency</button>
-                  </div>
+                  <DS.Segmented size="sm" ariaLabel="Metric" options={["Download", "Upload", "Latency"]} value="Download" />
                 ) : null}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: v.L?.trendCols, gap: "20px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: v.L?.trendCols, gap: "var(--space-5)" }}>
                 {(v.trends || []).map((tr, $index) => (
                   <React.Fragment key={$index}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: "0" }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--text-caption)", color: "var(--fg-muted)" }}>
-                        <span style={{ color: tr?.c, display: "flex" }}><bg-icon name={tr?.icon} size="13" stroke="2" /></span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", minWidth: "0" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)", fontSize: "var(--text-caption)", color: "var(--fg-muted)" }}>
+                        <span style={{ color: tr?.c, display: "flex" }}><DS.Icon name={tr?.icon} size={13} stroke={2} /></span>
                         {tr?.title}
                         <span style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", color: "var(--fg-subtle)" }}>{tr?.scale}</span>
                       </span>
@@ -479,7 +358,7 @@ class History extends React.Component {
                             </React.Fragment>
                           ))}
                         </svg>
-                        <div aria-hidden="true" style={{ position: "absolute", inset: "0", pointerEvents: "none", fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--fg-subtle)" }}>
+                        <div aria-hidden="true" style={{ position: "absolute", inset: "0", pointerEvents: "none", fontFamily: "var(--font-mono)", fontSize: "var(--text-nano)", color: "var(--fg-subtle)" }}>
                           {(tr?.grid || []).map((gl, $index) => (
                             <React.Fragment key={$index}>
                               <span style={{ position: "absolute", left: `${tr?.lx ?? ""}px`, top: `${gl?.y ?? ""}px`, transform: "translate(-100%,-50%)" }}>{gl?.t}</span>
@@ -498,9 +377,9 @@ class History extends React.Component {
                   </React.Fragment>
                 ))}
               </div>
-            </section>
+            </DS.Card>
               {v.desktop ? (
-              <section className="card" aria-label="Results" style={{ overflow: "hidden", position: "relative" }}>
+              <DS.Card as="section" label="Results" padded={false} style={{ overflow: "hidden", position: "relative" }}>
                 <table className="tbl">
                   <thead>
                     <tr>
@@ -510,10 +389,10 @@ class History extends React.Component {
                       {(v.cols || []).map((h, $index) => (
                         <React.Fragment key={$index}>
                           <th aria-sort={h?.aria} style={{ textAlign: h?.align }}>
-                            <button style={{ all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px", color: h?.c }}>
+                            <button style={{ all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "var(--space-1)", color: h?.c }}>
                               {h?.t}
                               {h?.on ? (
-                                <bg-icon name="chevron-down" size="12" stroke="2" />
+                                <DS.Icon name="chevron-down" size={12} stroke={2} />
                               ) : null}
                             </button>
                           </th>
@@ -529,7 +408,7 @@ class History extends React.Component {
                           <td>
                             {r?.sel ? (
                               <span role="checkbox" aria-checked="true" tabIndex="0" style={{ width: "16px", height: "16px", borderRadius: "4px", background: "var(--primary)", color: "var(--primary-fg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <bg-icon name="check" size="12" stroke="3" />
+                                <DS.Icon name="check" size={12} stroke={3} />
                               </span>
                             ) : null}
                             {r?.unsel ? (
@@ -538,22 +417,22 @@ class History extends React.Component {
                           </td>
                           <td style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg-muted)", whiteSpace: "nowrap" }}>{r?.d}</td>
                           <td>
-                            <span style={{ display: "flex", alignItems: "center", gap: "6px 8px", flexWrap: "wrap" }}>
-                              <a href="#" style={{ color: "var(--fg)", fontWeight: "500", textDecoration: "none" }}>{r?.label}</a>
+                            <span style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5) var(--space-2)", flexWrap: "wrap" }}>
+                              <a href="#" style={{ color: "var(--fg)", fontWeight: "var(--weight-medium)", textDecoration: "none" }}>{r?.label}</a>
                               {r?.flag ? (
-                                <span className="pill warn" style={{ height: "18px", fontSize: "10px", padding: "0 7px" }}><span className="d" />{r?.flag}</span>
+                                <DS.StatusPill tone="warn" size="sm">{r?.flag}</DS.StatusPill>
                               ) : null}
                             </span>
                           </td>
                           <td>
-                            <span className="pill neutral" style={{ height: "20px", gap: "4px", color: "var(--fg-muted)" }}>
-                              <bg-icon name={r?.cicon} size="11" stroke="2" />
+                            <span className="pill neutral" style={{ height: "20px", gap: "var(--space-1)", color: "var(--fg-muted)" }}>
+                              <DS.Icon name={r?.cicon} size={11} stroke={2} />
                               {r?.ctx}
                             </span>
                           </td>
                           <td style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg-muted)", whiteSpace: "nowrap" }}>{r?.proto}</td>
                           <td>
-                            <span className={r?.stCls} style={{ height: "20px", fontSize: "10px", padding: "0 8px" }}>
+                            <span className={r?.stCls} style={{ height: "20px", fontSize: "var(--text-nano)", padding: "0 var(--space-2)" }}>
                               {r?.stDot ? (
                                 <span className="d" />
                               ) : null}
@@ -565,14 +444,12 @@ class History extends React.Component {
                           <td className="num">{r?.lat}{" "}<span style={{ color: "var(--fg-subtle)", fontSize: "var(--text-micro)" }}>ms</span></td>
                           <td className="num">{r?.jit}{" "}<span style={{ color: "var(--fg-subtle)", fontSize: "var(--text-micro)" }}>ms</span></td>
                           <td style={{ textAlign: "center" }}>
-                            <span role="img" aria-label={r?.gAria} title={r?.gAria} style={{ display: "inline-flex", width: "26px", height: "22px", boxSizing: "border-box", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-sm)", border: `1px solid ${r?.gbd ?? ""}`, background: r?.gbg, color: r?.gfg, fontFamily: "var(--font-mono)", fontWeight: "600", fontSize: "var(--text-caption)" }}>
+                            <span role="img" aria-label={r?.gAria} title={r?.gAria} style={{ display: "inline-flex", width: "26px", height: "22px", boxSizing: "border-box", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-sm)", border: `1px solid ${r?.gbd ?? ""}`, background: r?.gbg, color: r?.gfg, fontFamily: "var(--font-mono)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-caption)" }}>
                               {r?.grade}
                             </span>
                           </td>
                           <td>
-                            <button className="btn ghost icon sm" aria-label={`Actions for ${r?.label ?? ""}`} aria-haspopup="menu" style={{ width: "28px" }}>
-                              <bg-icon name="ellipsis" size="15" />
-                            </button>
+                            <DS.Button variant="ghost" size="sm" iconOnly icon="ellipsis" aria-label={`Actions for ${r?.label ?? ""}`} aria-haspopup="menu" />
                           </td>
                         </tr>
                       </React.Fragment>
@@ -580,93 +457,89 @@ class History extends React.Component {
                   </tbody>
                 </table>
                 {v.hasSel ? (
-                  <div role="toolbar" aria-label="Selection" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 12px", padding: "10px 14px", borderTop: "1px solid var(--border-default)", background: "var(--surface-1)" }}>
-                    <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>{v.selN}{" selected"}</span>
+                  <div role="toolbar" aria-label="Selection" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2) var(--space-3)", padding: "var(--space-2-5) var(--space-3-5)", borderTop: "1px solid var(--border-default)", background: "var(--surface-1)" }}>
+                    <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>{v.selN}{" selected"}</span>
                     <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>{v.selSummary}</span>
-                    <div style={{ marginLeft: "auto", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px" }}>
+                    <div style={{ marginLeft: "auto", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2)" }}>
                       {v.cmpHint ? (
-                        <span id="cmp-hint" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--text-caption)", color: "var(--fg-muted)" }}>
-                          <bg-icon name="info" size="13" />
+                        <span id="cmp-hint" style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)", fontSize: "var(--text-caption)", color: "var(--fg-muted)" }}>
+                          <DS.Icon name="info" size={13} />
                           Compare needs exactly 2
                         </span>
                       ) : null}
-                      <button className="btn ghost sm">Clear selection</button>
-                      <button className="btn danger sm"><bg-icon name="trash" size="14" />Delete selected</button>
-                      <button className="btn primary sm" disabled={v.cmpDisabled} aria-describedby="cmp-hint"><bg-icon name="git-compare" size="14" />Compare</button>
+                      <DS.Button variant="ghost" size="sm">Clear selection</DS.Button>
+                      <DS.Button variant="danger" size="sm" icon="trash">Delete selected</DS.Button>
+                      <DS.Button variant="primary" size="sm" icon="git-compare" disabled={v.cmpDisabled} aria-describedby="cmp-hint">Compare</DS.Button>
                     </div>
                   </div>
                 ) : null}
-              </section>
+              </DS.Card>
             ) : null}
               {v.mobile ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>
                   <span>Newest first</span>
-                  <button className="btn ghost sm"><bg-icon name="sort-desc" size="14" />Sort</button>
+                  <DS.Button variant="ghost" size="sm" icon="sort-desc">Sort</DS.Button>
                 </div>
                 {(v.rows || []).map((r, $index) => (
                   <React.Fragment key={$index}>
                     <div style={{ display: "flex", alignItems: "stretch", borderRadius: "var(--radius-lg)", border: `1px solid ${r?.cardBd ?? ""}`, background: r?.cardBg }}>
-                      <button role="checkbox" aria-checked={r?.selAria} aria-label={`Select ${r?.label ?? ""}, ${r?.d ?? ""}`} style={{ all: "unset", boxSizing: "border-box", flex: "none", width: "44px", minHeight: "44px", display: "flex", justifyContent: "center", paddingTop: "14px", cursor: "pointer" }}>
+                      <button role="checkbox" aria-checked={r?.selAria} aria-label={`Select ${r?.label ?? ""}, ${r?.d ?? ""}`} style={{ all: "unset", boxSizing: "border-box", flex: "none", width: "44px", minHeight: "44px", display: "flex", justifyContent: "center", paddingTop: "var(--space-3-5)", cursor: "pointer" }}>
                         {r?.sel ? (
                           <span style={{ width: "18px", height: "18px", borderRadius: "4px", background: "var(--primary)", color: "var(--primary-fg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <bg-icon name="check" size="12" stroke="3" />
+                            <DS.Icon name="check" size={12} stroke={3} />
                           </span>
                         ) : null}
                         {r?.unsel ? (
                           <span style={{ width: "18px", height: "18px", boxSizing: "border-box", borderRadius: "4px", border: "1.5px solid var(--border-strong)", display: "block" }} />
                         ) : null}
                       </button>
-                      <a href="#" style={{ flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "10px", padding: "12px 0", color: "var(--fg)", textDecoration: "none", minHeight: "44px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "0", flex: "1" }}>
-                          <span style={{ fontWeight: "600", fontSize: "var(--text-sm)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <a href="#" style={{ flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "var(--space-2-5)", padding: "var(--space-3) 0", color: "var(--fg)", textDecoration: "none", minHeight: "44px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-0-5)", minWidth: "0", flex: "1" }}>
+                          <span style={{ fontWeight: "var(--weight-semibold)", fontSize: "var(--text-sm)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {r?.label}
                           </span>
                           <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>{r?.d}{" · "}{r?.proto}</span>
                         </div>
                         {r?.flag ? (
-                          <span className="pill warn" style={{ height: "18px", fontSize: "10px", padding: "0 7px" }}><span className="d" />{r?.flag}</span>
+                          <DS.StatusPill tone="warn" size="sm">{r?.flag}</DS.StatusPill>
                         ) : null}
                         {r?.stM ? (
-                          <span className={r?.stCls} style={{ height: "18px", fontSize: "10px", padding: "0 7px" }}><span className="d" />{r?.st}</span>
+                          <span className={r?.stCls} style={{ height: "18px", fontSize: "var(--text-nano)", padding: "0 7px" }}><span className="d" />{r?.st}</span>
                         ) : null}
-                        <span role="img" aria-label={r?.gAria} title={r?.gAria} style={{ display: "inline-flex", width: "28px", height: "24px", boxSizing: "border-box", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-sm)", border: `1px solid ${r?.gbd ?? ""}`, background: r?.gbg, color: r?.gfg, fontFamily: "var(--font-mono)", fontWeight: "600", fontSize: "var(--text-caption)" }}>
+                        <span role="img" aria-label={r?.gAria} title={r?.gAria} style={{ display: "inline-flex", width: "28px", height: "24px", boxSizing: "border-box", alignItems: "center", justifyContent: "center", borderRadius: "var(--radius-sm)", border: `1px solid ${r?.gbd ?? ""}`, background: r?.gbg, color: r?.gfg, fontFamily: "var(--font-mono)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-caption)" }}>
                           {r?.grade}
                         </span>
                       </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: "8px", fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)" }}>
-                        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                          <span style={{ color: "var(--primary-text)", display: "flex" }}><bg-icon name="arrow-down" size="12" stroke="2.25" /></span>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: "var(--space-2)", fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)" }}>
+                        <span style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
+                          <span style={{ color: "var(--primary-text)", display: "flex" }}><DS.Icon name="arrow-down" size={12} stroke={2.25} /></span>
                           {r?.down}
-                          <span style={{ color: "var(--fg-subtle)", fontSize: "10px" }}>{r?.du}</span>
+                          <span style={{ color: "var(--fg-subtle)", fontSize: "var(--text-nano)" }}>{r?.du}</span>
                         </span>
-                        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                          <span style={{ color: "var(--series-upload)", display: "flex" }}><bg-icon name="arrow-up" size="12" stroke="2.25" /></span>
+                        <span style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
+                          <span style={{ color: "var(--series-upload)", display: "flex" }}><DS.Icon name="arrow-up" size={12} stroke={2.25} /></span>
                           {r?.up}
-                          <span style={{ color: "var(--fg-subtle)", fontSize: "10px" }}>{r?.uu}</span>
+                          <span style={{ color: "var(--fg-subtle)", fontSize: "var(--text-nano)" }}>{r?.uu}</span>
                         </span>
-                        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                          <span style={{ color: "var(--series-latency)", display: "flex" }}><bg-icon name="activity" size="12" stroke="2.25" /></span>
+                        <span style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
+                          <span style={{ color: "var(--series-latency)", display: "flex" }}><DS.Icon name="activity" size={12} stroke={2.25} /></span>
                           {r?.lat}
-                          <span style={{ color: "var(--fg-subtle)", fontSize: "10px" }}>ms</span>
+                          <span style={{ color: "var(--fg-subtle)", fontSize: "var(--text-nano)" }}>ms</span>
                         </span>
                       </div>
                     </a>
-                      <button className="btn ghost icon" aria-label={`Actions for ${r?.label ?? ""}`} aria-haspopup="menu" style={{ flex: "none", width: "44px", height: "44px", marginTop: "4px" }}>
-                        <bg-icon name="ellipsis" size="16" />
-                      </button>
+                      <DS.Button variant="ghost" iconOnly icon="ellipsis" aria-label={`Actions for ${r?.label ?? ""}`} aria-haspopup="menu" style={{ flex: "none", width: "44px", height: "44px", marginTop: "var(--space-1)" }}></DS.Button>
                     </div>
                   </React.Fragment>
                 ))}
                 {v.hasSel ? (
-                  <div role="toolbar" aria-label="Selection" style={{ position: "sticky", bottom: "12px", display: "flex", alignItems: "center", gap: "4px", padding: "6px 6px 6px 14px", borderRadius: "var(--radius-lg)", background: "var(--surface-3)", border: "1px solid var(--border-default)", boxShadow: "var(--shadow-md)" }}>
-                    <span style={{ fontSize: "var(--text-sm)", fontWeight: "600", marginRight: "auto" }}>{v.selN}{" selected"}</span>
-                    <button className="btn ghost icon" aria-label="Clear selection" style={{ width: "44px", height: "44px" }}><bg-icon name="x" size="17" /></button>
-                    <button className="btn ghost icon" aria-label="Delete selected" style={{ width: "44px", height: "44px", color: "var(--danger-fg)" }}>
-                      <bg-icon name="trash" size="17" />
-                    </button>
-                    <button className="btn primary" disabled={v.cmpDisabled} style={{ height: "44px" }}><bg-icon name="git-compare" size="15" />Compare</button>
+                  <div role="toolbar" aria-label="Selection" style={{ position: "sticky", bottom: "12px", display: "flex", alignItems: "center", gap: "var(--space-1)", padding: "var(--space-1-5) var(--space-1-5) var(--space-1-5) var(--space-3-5)", borderRadius: "var(--radius-lg)", background: "var(--surface-3)", border: "1px solid var(--border-default)", boxShadow: "var(--shadow-md)" }}>
+                    <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", marginRight: "auto" }}>{v.selN}{" selected"}</span>
+                    <DS.Button variant="ghost" iconOnly icon="x" aria-label="Clear selection" style={{ width: "44px", height: "44px" }}></DS.Button>
+                    <DS.Button variant="ghost" iconOnly icon="trash" aria-label="Delete selected" style={{ width: "44px", height: "44px", color: "var(--danger-fg)" }}></DS.Button>
+                    <DS.Button variant="primary" icon="git-compare" disabled={v.cmpDisabled} style={{ height: "44px" }}>Compare</DS.Button>
                   </div>
                 ) : null}
               </div>
@@ -679,31 +552,15 @@ class History extends React.Component {
         ) : null}
         {v.toast ? (
           <div style={{ position: "absolute", left: v.L?.tL, right: v.L?.tR, bottom: v.L?.tB, zIndex: "50", display: "flex", justifyContent: "flex-end" }}>
-            <div className="toast info" role="status" aria-live="polite" style={{ maxWidth: "100%", boxSizing: "border-box", alignItems: "center" }}>
-              <span className="i" style={{ display: "flex" }}><bg-icon name="trash" size="16" stroke="2" /></span>
-              <div style={{ flex: "1", minWidth: "0" }}><div className="t">2 results deleted.</div><div className="m">Removed from history in 8 s.</div></div>
-              <button className="btn secondary sm"><bg-icon name="undo-2" size="13" />Undo</button>
-              <button className="btn ghost sm icon" aria-label="Dismiss"><bg-icon name="x" size="14" /></button>
-            </div>
+            <DS.Toast tone="info" icon="trash" title="2 results deleted." message="Removed from history in 8 s." action={<DS.Button size="sm" icon="undo-2">Undo</DS.Button>} onDismiss={() => {}} />
           </div>
         ) : null}
         {v.showCompareD ? (
-          <div style={{ position: "absolute", inset: "0", background: "var(--scrim)", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "64px" }}>
-            <div role="dialog" aria-modal="true" aria-labelledby="cmp-t" style={{ width: "760px", background: "var(--surface-2)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-pop)", overflow: "hidden" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px 20px", borderBottom: "1px solid var(--border-subtle)" }}>
-                <span style={{ width: "34px", height: "34px", borderRadius: "var(--radius-md)", background: "var(--primary-bg)", border: "1px solid var(--primary-border)", color: "var(--primary-text)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <bg-icon name="git-compare" size="17" />
-                </span>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span id="cmp-t" style={{ fontSize: "var(--text-lg)", fontWeight: "600" }}>Compare results</span>
-                  <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>Change is B relative to A</span>
-                </div>
-                <button className="btn ghost icon sm" aria-label="Close" style={{ marginLeft: "auto", width: "28px" }}><bg-icon name="x" size="15" /></button>
-              </div>
+          <DS.Dialog size="xl" flush icon="git-compare" title="Compare results" onClose={() => {}} align="top" body={<>
               {v.cmpWarn ? (
-                <div role="note" style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "10px 20px", background: "var(--warn-bg)", borderBottom: "1px solid var(--warn-border)", fontSize: "var(--text-sm)", lineHeight: "1.5" }}>
-                  <span style={{ color: "var(--warn)", display: "flex", marginTop: "2px" }}><bg-icon name="triangle-alert" size="15" stroke="2" /></span>
-                  <span style={{ color: "var(--fg)" }}><b style={{ fontWeight: "600", color: "var(--warn-fg)" }}>Not directly comparable:</b>{" "}{v.cmpWarn}</span>
+                <div role="note" style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-2-5)", padding: "var(--space-2-5) var(--space-5)", background: "var(--warn-bg)", borderBottom: "1px solid var(--warn-border)", fontSize: "var(--text-sm)", lineHeight: "var(--lh-normal)" }}>
+                  <span style={{ color: "var(--warn)", display: "flex", marginTop: "var(--space-0-5)" }}><DS.Icon name="triangle-alert" size={15} stroke={2} /></span>
+                  <span style={{ color: "var(--fg)" }}><b style={{ fontWeight: "var(--weight-semibold)", color: "var(--warn-fg)" }}>Not directly comparable:</b>{" "}{v.cmpWarn}</span>
                 </div>
               ) : null}
               <table className="tbl" style={{ tableLayout: "fixed" }}>
@@ -711,15 +568,15 @@ class History extends React.Component {
                   <tr>
                     <th style={{ width: "30%", background: "var(--surface-2)" }}>Metric</th>
                     <th style={{ background: "var(--surface-2)", textAlign: "right" }}>
-                      <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px", textTransform: "none", letterSpacing: "0" }}>
-                        <span style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)", color: "var(--fg)", fontWeight: "600" }}>A · VPN · office</span>
-                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: "400", color: "var(--fg-subtle)" }}>2026-09-26 18:20</span>
+                      <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-0-5)", textTransform: "none", letterSpacing: "0" }}>
+                        <span style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)", color: "var(--fg)", fontWeight: "var(--weight-semibold)" }}>A · VPN · office</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: "var(--weight-regular)", color: "var(--fg-subtle)" }}>2026-09-26 18:20</span>
                       </span>
                     </th>
                     <th style={{ background: "var(--surface-2)", textAlign: "right" }}>
-                      <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px", textTransform: "none", letterSpacing: "0" }}>
-                        <span style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)", color: "var(--fg)", fontWeight: "600" }}>B · VPN · office</span>
-                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: "400", color: "var(--fg-subtle)" }}>2026-10-02 09:05</span>
+                      <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-0-5)", textTransform: "none", letterSpacing: "0" }}>
+                        <span style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)", color: "var(--fg)", fontWeight: "var(--weight-semibold)" }}>B · VPN · office</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: "var(--weight-regular)", color: "var(--fg-subtle)" }}>2026-10-02 09:05</span>
                       </span>
                     </th>
                     <th style={{ background: "var(--surface-2)", textAlign: "right", width: "24%" }}>Change</th>
@@ -730,7 +587,7 @@ class History extends React.Component {
                     <React.Fragment key={$index}>
                       {c?.head ? (
                         <tr>
-                          <td style={{ paddingTop: "14px", paddingBottom: "6px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+                          <td style={{ paddingTop: "var(--space-3-5)", paddingBottom: "var(--space-1-5)", fontFamily: "var(--font-cond)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-micro)", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
                             {c?.k}
                           </td>
                           <td />
@@ -744,8 +601,8 @@ class History extends React.Component {
                           <td className="num" style={{ whiteSpace: "normal" }}>{c?.a}</td>
                           <td className="num" style={{ color: "var(--fg)", whiteSpace: "normal" }}>{c?.b}</td>
                           <td style={{ textAlign: "right" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: c?.dc, fontSize: "var(--text-caption)" }}>
-                              <bg-icon name={c?.di} size="13" stroke="2" />
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1-5)", color: c?.dc, fontSize: "var(--text-caption)" }}>
+                              <DS.Icon name={c?.di} size={13} stroke={2} />
                               {c?.d ? (
                                 <span style={{ fontFamily: "var(--font-mono)" }}>{c?.d}</span>
                               ) : null}
@@ -758,69 +615,64 @@ class History extends React.Component {
                   ))}
                 </tbody>
               </table>
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", padding: "14px 20px", borderTop: "1px solid var(--border-subtle)" }}>
-                <button className="btn secondary"><bg-icon name="copy" size="14" />Copy comparison</button>
-                <button className="btn primary">Done</button>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--space-2)", padding: "var(--space-3-5) var(--space-5)", borderTop: "1px solid var(--border-subtle)" }}>
+                <DS.Button variant="secondary" icon="copy">Copy comparison</DS.Button>
+                <DS.Button variant="primary">Done</DS.Button>
               </div>
-            </div>
-          </div>
+            </>}>Change is B relative to A</DS.Dialog>
         ) : null}
         {v.showCompareM ? (
           <div role="dialog" aria-modal="true" aria-labelledby="cmpm-t" style={{ position: "absolute", inset: "0", zIndex: "40", background: "var(--bg-base)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 8px 6px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-1-5) var(--space-2) var(--space-1-5) var(--space-4)", borderBottom: "1px solid var(--border-subtle)" }}>
               <div style={{ display: "flex", flexDirection: "column", flex: "1", minWidth: "0" }}>
-                <span id="cmpm-t" style={{ fontSize: "var(--text-lg)", fontWeight: "600" }}>Compare results</span>
+                <span id="cmpm-t" style={{ fontSize: "var(--text-lg)", fontWeight: "var(--weight-semibold)" }}>Compare results</span>
                 <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>Change is shown on B, relative to A</span>
               </div>
-              <button className="btn ghost icon" aria-label="Close" style={{ width: "44px", height: "44px" }}><bg-icon name="x" size="18" /></button>
+              <DS.Button variant="ghost" iconOnly icon="x" aria-label="Close" style={{ width: "44px", height: "44px" }}></DS.Button>
             </div>
-            <div style={{ flex: "1", minHeight: "0", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", padding: "12px 0 16px" }}>
+            <div style={{ flex: "1", minHeight: "0", overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--space-3)", padding: "var(--space-3) 0 var(--space-4)" }}>
               {v.cmpWarn ? (
-                <div role="note" style={{ margin: "0 16px", display: "flex", alignItems: "flex-start", gap: "10px", padding: "10px 12px", borderRadius: "var(--radius-md)", background: "var(--warn-bg)", border: "1px solid var(--warn-border)", fontSize: "var(--text-sm)", lineHeight: "1.5" }}>
-                  <span style={{ color: "var(--warn)", display: "flex", marginTop: "2px" }}><bg-icon name="triangle-alert" size="15" stroke="2" /></span>
-                  <span style={{ color: "var(--fg)" }}><b style={{ fontWeight: "600", color: "var(--warn-fg)" }}>Not directly comparable:</b>{" "}{v.cmpWarn}</span>
+                <div role="note" style={{ margin: "0 var(--space-4)", display: "flex", alignItems: "flex-start", gap: "var(--space-2-5)", padding: "var(--space-2-5) var(--space-3)", borderRadius: "var(--radius-md)", background: "var(--warn-bg)", border: "1px solid var(--warn-border)", fontSize: "var(--text-sm)", lineHeight: "var(--lh-normal)" }}>
+                  <span style={{ color: "var(--warn)", display: "flex", marginTop: "var(--space-0-5)" }}><DS.Icon name="triangle-alert" size={15} stroke={2} /></span>
+                  <span style={{ color: "var(--fg)" }}><b style={{ fontWeight: "var(--weight-semibold)", color: "var(--warn-fg)" }}>Not directly comparable:</b>{" "}{v.cmpWarn}</span>
                 </div>
               ) : null}
-              <div style={{ display: "flex", alignItems: "center", gap: "4px", padding: "0 8px" }}>
-                <button className="btn ghost icon" aria-label="Previous result" disabled={true} style={{ width: "44px", height: "44px" }}>
-                  <bg-icon name="chevron-left" size="18" />
-                </button>
-                <div style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", padding: "0 var(--space-2)" }}>
+                <DS.Button variant="ghost" iconOnly icon="chevron-left" aria-label="Previous result" disabled={true} style={{ width: "44px", height: "44px" }}></DS.Button>
+                <div style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-1-5)" }}>
                   <span aria-live="polite" style={{ fontSize: "var(--text-caption)", color: "var(--fg-muted)" }}>Result A · 1 of 2</span>
-                  <span aria-hidden="true" style={{ display: "flex", gap: "6px" }}>
+                  <span aria-hidden="true" style={{ display: "flex", gap: "var(--space-1-5)" }}>
                     <span style={{ width: "16px", height: "4px", borderRadius: "2px", background: "var(--primary)" }} />
                     <span style={{ width: "6px", height: "4px", borderRadius: "2px", background: "var(--border-strong)" }} />
                   </span>
                 </div>
-                <button className="btn ghost icon" aria-label="Next result" style={{ width: "44px", height: "44px" }}>
-                  <bg-icon name="chevron-right" size="18" />
-                </button>
+                <DS.Button variant="ghost" iconOnly icon="chevron-right" aria-label="Next result" style={{ width: "44px", height: "44px" }}></DS.Button>
               </div>
-              <div role="group" aria-label="Results, swipe to page" style={{ display: "flex", gap: "10px", overflowX: "auto", scrollSnapType: "x mandatory", padding: "0 16px", scrollPadding: "0 16px" }}>
+              <div role="group" aria-label="Results, swipe to page" style={{ display: "flex", gap: "var(--space-2-5)", overflowX: "auto", scrollSnapType: "x mandatory", padding: "0 var(--space-4)", scrollPadding: "0 16px" }}>
                 {(v.cmpCards || []).map((cd, $index) => (
                   <React.Fragment key={$index}>
-                    <section aria-label={cd?.aria} style={{ flex: "0 0 calc(100% - 28px)", boxSizing: "border-box", scrollSnapAlign: "start", display: "flex", flexDirection: "column", padding: "14px", borderRadius: "var(--radius-lg)", background: "var(--surface-2)", border: "1px solid var(--border-subtle)" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "10px" }}>
-                        <span style={{ width: "26px", height: "26px", borderRadius: "var(--radius-sm)", background: "var(--surface-3)", border: "1px solid var(--border-default)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-mono)", fontWeight: "600", fontSize: "var(--text-caption)" }}>
+                    <section aria-label={cd?.aria} style={{ flex: "0 0 calc(100% - 28px)", boxSizing: "border-box", scrollSnapAlign: "start", display: "flex", flexDirection: "column", padding: "var(--space-3-5)", borderRadius: "var(--radius-lg)", background: "var(--surface-2)", border: "1px solid var(--border-subtle)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2-5)", paddingBottom: "var(--space-2-5)" }}>
+                        <span style={{ width: "26px", height: "26px", borderRadius: "var(--radius-sm)", background: "var(--surface-3)", border: "1px solid var(--border-default)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-mono)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-caption)" }}>
                           {cd?.id}
                         </span>
                         <div style={{ display: "flex", flexDirection: "column", minWidth: "0" }}>
-                          <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>{cd?.label}</span>
+                          <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>{cd?.label}</span>
                           <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>{cd?.date}</span>
                         </div>
                       </div>
-                      <span style={{ padding: "8px 0 4px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+                      <span style={{ padding: "var(--space-2) 0 var(--space-1)", fontFamily: "var(--font-cond)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-micro)", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
                         Parameters
                       </span>
                       {(cd?.params || []).map((p, $index) => (
                         <React.Fragment key={$index}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", padding: "7px 0", borderTop: "1px solid var(--border-subtle)", fontSize: "var(--text-sm)" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "var(--space-3)", padding: "7px 0", borderTop: "1px solid var(--border-subtle)", fontSize: "var(--text-sm)" }}>
                             <span style={{ color: "var(--fg-muted)" }}>{p?.k}</span>
-                            <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px", textAlign: "right" }}>
+                            <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-0-5)", textAlign: "right" }}>
                               <span style={{ fontFamily: "var(--font-mono)" }}>{p?.v}</span>
                               {p?.ch ? (
-                                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: p?.dc, fontSize: "var(--text-micro)" }}>
-                                  <bg-icon name={p?.di} size="11" stroke="2" />
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)", color: p?.dc, fontSize: "var(--text-micro)" }}>
+                                  <DS.Icon name={p?.di} size={11} stroke={2} />
                                   {p?.dw}
                                 </span>
                               ) : null}
@@ -828,18 +680,18 @@ class History extends React.Component {
                           </div>
                         </React.Fragment>
                       ))}
-                      <span style={{ padding: "12px 0 4px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+                      <span style={{ padding: "var(--space-3) 0 var(--space-1)", fontFamily: "var(--font-cond)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-micro)", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
                         Results
                       </span>
                       {(cd?.metrics || []).map((p, $index) => (
                         <React.Fragment key={$index}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", padding: "7px 0", borderTop: "1px solid var(--border-subtle)", fontSize: "var(--text-sm)" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "var(--space-3)", padding: "7px 0", borderTop: "1px solid var(--border-subtle)", fontSize: "var(--text-sm)" }}>
                             <span style={{ color: "var(--fg-muted)" }}>{p?.k}</span>
-                            <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px", textAlign: "right" }}>
+                            <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-0-5)", textAlign: "right" }}>
                               <span style={{ fontFamily: "var(--font-mono)" }}>{p?.v}</span>
                               {p?.ch ? (
-                                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: p?.dc, fontSize: "var(--text-micro)" }}>
-                                  <bg-icon name={p?.di} size="11" stroke="2" />
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)", color: p?.dc, fontSize: "var(--text-micro)" }}>
+                                  <DS.Icon name={p?.di} size={11} stroke={2} />
                                   {p?.d ? (
                                     <span style={{ fontFamily: "var(--font-mono)" }}>{p?.d}</span>
                                   ) : null}
@@ -855,46 +707,18 @@ class History extends React.Component {
                 ))}
               </div>
             </div>
-            <div style={{ display: "flex", gap: "8px", padding: "10px 16px 16px", borderTop: "1px solid var(--border-subtle)", background: "var(--surface-1)" }}>
-              <button className="btn secondary" style={{ flex: "1", height: "44px", justifyContent: "center" }}><bg-icon name="copy" size="14" />Copy</button>
-              <button className="btn primary" style={{ flex: "1", height: "44px", justifyContent: "center" }}>Done</button>
+            <div style={{ display: "flex", gap: "var(--space-2)", padding: "var(--space-2-5) var(--space-4) var(--space-4)", borderTop: "1px solid var(--border-subtle)", background: "var(--surface-1)" }}>
+              <DS.Button variant="secondary" icon="copy" style={{ flex: "1", height: "44px", justifyContent: "center" }}>Copy</DS.Button>
+              <DS.Button variant="primary" style={{ flex: "1", height: "44px", justifyContent: "center" }}>Done</DS.Button>
             </div>
           </div>
         ) : null}
         {v.showConfirm ? (
-          <div style={{ position: "absolute", inset: "0", zIndex: "40", background: "var(--scrim)", display: "flex", alignItems: v.L?.cfAlign, justifyContent: "center", paddingTop: v.L?.cfTop }}>
-            <div className="modal" role="alertdialog" aria-modal="true" aria-labelledby="clr-t" style={{ width: v.L?.cfW, maxWidth: "100%", boxSizing: "border-box", borderRadius: v.L?.cfRad }}>
-              <div className="mh">
-                <div className="mi danger"><bg-icon name="trash" size="17" /></div>
-                <div>
-                  <div className="mt" id="clr-t">Clear all history?</div>
-                  <div className="md">
-                    {"This removes "}
-                    <b>48 results</b>
-                    {" with their labels and notes from this browser. This cannot be undone. Export first if you want a copy."}
-                  </div>
-                </div>
-              </div>
-              {v.desktop ? (
-                <div className="mf">
-                  <button className="btn ghost"><bg-icon name="download" size="14" />Export JSON first</button>
-                  <span style={{ flex: "1" }} />
-                  <button className="btn secondary">Cancel</button>
-                  <button className="btn danger-solid"><bg-icon name="trash" size="14" />Clear 48 results</button>
-                </div>
-              ) : null}
-              {v.mobile ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", padding: "4px 16px 20px" }}>
-                  <button className="btn danger-solid" style={{ height: "44px", justifyContent: "center" }}><bg-icon name="trash" size="15" />Clear 48 results</button>
-                  <button className="btn secondary" style={{ height: "44px", justifyContent: "center" }}>
-                    <bg-icon name="download" size="15" />
-                    Export JSON first
-                  </button>
-                  <button className="btn ghost" style={{ height: "44px", justifyContent: "center" }}>Cancel</button>
-                </div>
-              ) : null}
-            </div>
-          </div>
+          <DS.Dialog tone="danger" icon="trash" title="Clear all history?" align={v.mobile ? 'top' : 'center'} footerStack={v.mobile} onClose={() => {}}
+            footer={v.desktop ? <><DS.Button variant="ghost" icon="download">Export JSON first</DS.Button><span style={{ flex: "1" }} /><DS.Button>Cancel</DS.Button><DS.Button variant="danger-solid" icon="trash">Clear 48 results</DS.Button></>
+              : <><DS.Button variant="ghost" touch>Cancel</DS.Button><DS.Button icon="download" touch>Export JSON first</DS.Button><DS.Button variant="danger-solid" icon="trash" touch>Clear 48 results</DS.Button></>}>
+            {"This removes "}<b>48 results</b>{" with their labels and notes from this browser. This cannot be undone. Export first if you want a copy."}
+          </DS.Dialog>
         ) : null}
       </div>
     );

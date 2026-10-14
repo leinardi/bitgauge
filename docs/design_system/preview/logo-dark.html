@@ -1,13 +1,46 @@
 <!-- @dsCard group="Brand" name="Logo on dark" viewport="700x160" -->
 <!doctype html><html data-theme="dark"><head><meta charset="utf-8">
-<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="card.css">
-<link rel="stylesheet" href="../ui_kits/app/app.css">
-<script src="../ui_kits/app/bg-lib.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../_ds_bundle.js"></script>
+<script>/* Renders the bundle's Logo / Icon into <span data-ds="Logo|Icon" data-size=… data-name=… data-variant=…> placeholders (no Babel). */
+(function () {
+  const NS = 'BitGaugeDesignSystem_1ab699';
+  const KEYS = ['size', 'variant', 'geometry', 'wordmark', 'wordmarkSize', 'name', 'stroke'];
+  function props(el) {
+    const p = {};
+    for (const k of KEYS) {
+      const v = el.dataset[k];
+      if (v === undefined) continue;
+      p[k] = v === '' ? true : /^-?\d+(\.\d+)?$/.test(v) ? +v : v;
+    }
+    return p;
+  }
+  function mount() {
+    const ns = window[NS];
+    if (!ns || !window.React || !window.ReactDOM) return false;
+    document.querySelectorAll('[data-ds]:not([data-ds-mounted])').forEach(el => {
+      const C = ns[el.dataset.ds];
+      if (!C) { console.warn('preview mount: no component ' + el.dataset.ds); return; }
+      el.setAttribute('data-ds-mounted', '');
+      el.style.display = el.style.display || 'inline-flex';
+      ReactDOM.createRoot(el).render(React.createElement(C, props(el)));
+    });
+    return true;
+  }
+  function start() {
+    if (!mount()) { setTimeout(start, 50); return; }
+    new MutationObserver(mount).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
 <style>html,body{background:var(--bg-base)!important;min-height:100%}.theme-scope{background:var(--bg-base);color:var(--fg);position:fixed;inset:0;padding:var(--space-6);overflow:hidden}</style>
 </head><body data-theme="dark"><div class="theme-scope" data-theme="dark">
 <div class="lbl">Logo · mark + wordmark (dark)</div><div class="row gap-8 mt-3" style="gap:var(--space-10)">
-<div class="col gap-2"><div style="width:72px;height:72px;border-radius:var(--radius-lg);background:var(--surface-2);border:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:center"><bg-logo size="44"></bg-logo></div><span class="tok">bitgauge-mark.svg</span></div>
-<div class="col gap-2"><div class="row gap-2"><bg-logo size="34" style="color:var(--fg)"></bg-logo><span style="font:600 25px var(--font-sans);letter-spacing:var(--tracking-tight);color:var(--fg)">Bit<span style="color:var(--primary-text)">Gauge</span></span></div><span class="tok">primary lockup</span></div>
-<div class="col gap-2"><div class="row" style="height:44px;color:var(--fg-muted)"><bg-logo size="34" variant="mono"></bg-logo></div><span class="tok">bitgauge-mark-mono.svg</span></div></div>
+<div class="col gap-2"><div style="width:72px;height:72px;border-radius:var(--radius-lg);background:var(--surface-2);border:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:center"><span data-ds="Logo" data-size="44"></span></div><span class="tok">bitgauge-mark.svg</span></div>
+<div class="col gap-2"><div class="row gap-2"><span data-ds="Logo" data-size="34" style="color:var(--fg)"></span><span style="font:600 25px var(--font-sans);letter-spacing:var(--tracking-tight);color:var(--fg)">Bit<span style="color:var(--primary-text)">Gauge</span></span></div><span class="tok">primary lockup</span></div>
+<div class="col gap-2"><div class="row" style="height:44px;color:var(--fg-muted)"><span data-ds="Logo" data-size="34" data-variant="mono"></span></div><span class="tok">bitgauge-mark-mono.svg</span></div></div>
 </div></body></html>

@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" viewport="700x190" name="Actions · Button & Tooltip" subtitle="Variants, sizes, icon-only, kbd hint, disabled-with-reason" -->
+<!-- @dsCard group="Components" viewport="700x220" name="Actions · Button, StartButton, Link, Menu, Tooltip" subtitle="Variants, sizes, Start/Stop roles, kbd hint (aria-keyshortcuts), disabled reason, links, menu button" -->
 <!doctype html><html data-theme="dark"><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../styles.css">
 <link rel="stylesheet" href="../../preview/card.css">
@@ -10,11 +10,12 @@
 </head><body><div id="root"></div>
 <script type="text/babel">
 const NS = window.BitGaugeDesignSystem_1ab699;
-const { Button } = NS;
-function Demo(){ return <div className="col gap-3" style={{paddingTop:28}}>
-<div className="row wrap gap-2"><Button variant="primary" size="lg" icon="play" kbd="Enter">Start test</Button><Button size="lg" icon="square" kbd="Esc">Stop test</Button><Button variant="primary" size="lg" icon="rotate-ccw">Run again</Button></div>
-<div className="row wrap gap-2"><Button variant="primary" icon="play">Start test</Button><Button icon="download">Download JSON</Button><Button variant="ghost" icon="copy">Copy summary</Button><Button variant="danger" icon="trash">Delete</Button><Button variant="danger-solid">Clear all</Button></div>
-<div className="row wrap gap-2"><Button variant="primary" size="sm">Run again</Button><Button size="sm">Edit</Button><Button iconOnly icon="ellipsis" aria-label="More" /><Button variant="primary" disabled disabledReason="Server unreachable">Start test</Button></div>
+const { Button, StartButton, Link, Menu } = NS;
+function Demo(){ const [c,setC]=React.useState('LAN'); return <div className="col gap-3" style={{paddingTop:28}}>
+<div className="row wrap gap-2" style={{alignItems:'center'}}><StartButton role="start" /><StartButton role="stop" /><StartButton role="start" disabledReason="Server unreachable — use Retry first" /></div>
+<div className="row wrap gap-2"><Button variant="primary" icon="play">Start test</Button><Button icon="download">Download JSON</Button><Button variant="ghost" icon="copy">Copy summary</Button><Button variant="danger" icon="trash">Delete</Button><Button variant="danger-solid">Clear all</Button><Button size="sm" iconAfter="chevron-right">Details</Button></div>
+<div className="row wrap gap-3" style={{alignItems:'center'}}><Button size="sm">Edit</Button><Button size="sm" iconOnly icon="x" aria-label="Dismiss" /><Link icon="sliders">Edit</Link><Link>Why?</Link><Link external>Known browser limits</Link>
+<Menu label="Context" value={c} icon="house" hint="suggested" selected={c} onSelect={setC} options={[{value:'LAN',label:'LAN',icon:'house'},{value:'VPN',label:'VPN',icon:'shield'}]} /></div>
 </div>; }
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
 </script></body></html>

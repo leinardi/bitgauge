@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"6fce05445985","components/actions/Tooltip.jsx":"f42dbb8ea713","components/brand/Icon.jsx":"e1019af90087","components/brand/Logo.jsx":"7598e30a00fc","components/dialog/Dialog.jsx":"6c14394e9387","components/feedback/EmptyState.jsx":"1b92bb9fd6e5","components/feedback/Notice.jsx":"cd02eee12687","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"0603b9239c67","components/forms/Input.jsx":"2dd0d901408e","components/forms/Segmented.jsx":"678f79aef18c","components/forms/Switch.jsx":"e693da722e8c","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"e279cc965bd0","components/layout/Card.jsx":"6ce9811f3210","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/MetricTile.jsx":"1ed90beb34a6","components/measurement/PhaseStep.jsx":"10935a8a0774","components/status/Chip.jsx":"71ff738f21d8","components/status/StatusBadge.jsx":"825b7d61b854","components/status/StatusPill.jsx":"64955672fda0","ui_kits/app/About.jsx":"1fe8663c1083","ui_kits/app/App.jsx":"df6e1685731f","ui_kits/app/History.jsx":"a1a617fcd078","ui_kits/app/Nav.jsx":"8814dc09ed2f","ui_kits/app/Prototype.jsx":"775d3774d2ee","ui_kits/app/ResultDetail.jsx":"75e88fbc8c7a","ui_kits/app/Settings.jsx":"dc35143606c0","ui_kits/app/TestScreen.jsx":"be712b016ad6","ui_kits/app/bg-lib.js":"8fbb4a97dbb5"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"cdd402910254","components/charts/Chart.jsx":"782ff33154d8","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"2124fcb54dce","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a97f3d8fabf3","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"e30f7acc2605","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"14f29a665bbe","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"a2465007a54a","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"31850600bf8e","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"75dd23fa34f4","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"4fe5f9c1a214","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"3f2fcc6fb0b6","ui_kits/app/App.jsx":"c6e8aa88e02e","ui_kits/app/History.jsx":"db776ce9c197","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"3110e25c179e","ui_kits/app/ResultDetail.jsx":"27602012bed0","ui_kits/app/Settings.jsx":"bc1c7460a524","ui_kits/app/TestScreen.jsx":"fc3ebd1fc253","ui_kits/app/ds.js":"a320b5501d34","ui_kits/app/fixtures.js":"34bbc80f3c59"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"}]} */
 
 (() => {
 
@@ -17,16 +17,10 @@ function Tooltip({
   children
 }) {
   return /*#__PURE__*/React.createElement("span", {
-    className: 'has-tip' + (align === 'end' ? ' tip-end' : ''),
-    style: {
-      display: 'inline-flex'
-    }
+    className: 'has-tip' + (align === 'end' ? ' tip-end' : '')
   }, children, /*#__PURE__*/React.createElement("span", {
-    className: "tip",
-    role: "tooltip",
-    style: open ? {
-      opacity: 1
-    } : undefined
+    className: 'tip' + (open ? ' open' : ''),
+    role: "tooltip"
   }, content));
 }
 Object.assign(__ds_scope, { Tooltip });
@@ -55,6 +49,7 @@ const G = {
   'refresh-cw': '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
   pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
   'triangle-alert': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  'network': '<rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/>',
   'wifi-off': '<path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/>',
   'circle-check': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
   'circle-x': '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
@@ -152,59 +147,329 @@ Object.assign(__ds_scope, { ICON_NAMES, Icon });
 try { (() => {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 const cx = (...a) => a.filter(Boolean).join(' ');
+const ICON = {
+  sm: 14,
+  md: 15,
+  lg: 16,
+  xl: 16
+};
+let n = 0;
 function Button({
   variant = 'secondary',
   size = 'md',
   icon,
+  iconAfter,
   iconOnly = false,
   kbd,
+  block = false,
+  touch = false,
+  href,
   disabled = false,
   disabledReason,
+  tipAlign = 'center',
   children,
   className,
   ...rest
 }) {
-  const iconSize = size === 'lg' ? 16 : size === 'sm' ? 14 : 15;
+  const [tipId] = React.useState(() => 'bg-tip-' + ++n);
   const soft = !!disabledReason && disabled;
-  const btn = /*#__PURE__*/React.createElement("button", _extends({
-    type: "button",
-    className: cx('btn', variant, size !== 'md' && size, iconOnly && 'icon', className),
-    disabled: disabled && !soft,
-    "aria-disabled": soft ? 'true' : undefined
-  }, rest), icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+  const cls = cx('btn', variant, size !== 'md' && size, iconOnly && 'icon', block && 'block', touch && 'touch', className);
+  const isz = ICON[size] || 15;
+  const inner = /*#__PURE__*/React.createElement(React.Fragment, null, icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon,
-    size: iconSize
-  }) : null, iconOnly ? null : children, kbd ? /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--font-mono)',
-      fontSize: 'var(--text-micro)',
-      opacity: 0.8,
-      color: variant === 'primary' ? 'var(--primary-fg)' : 'var(--fg-subtle)'
-    }
+    size: isz,
+    stroke: size === 'xl' ? 2 : 1.75
+  }) : null, iconOnly ? null : children, iconAfter ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: iconAfter,
+    size: isz - 1
+  }) : null, kbd ? /*#__PURE__*/React.createElement("span", {
+    className: "kbd",
+    "aria-hidden": "true"
   }, kbd) : null);
-  if (!soft) return btn;
+  const a11y = {
+    'aria-keyshortcuts': kbd || undefined,
+    'aria-disabled': soft ? 'true' : undefined,
+    'aria-describedby': soft ? tipId : undefined
+  };
+  const el = href && !disabled ? /*#__PURE__*/React.createElement("a", _extends({
+    className: cls,
+    href: href
+  }, a11y, rest), inner) : /*#__PURE__*/React.createElement("button", _extends({
+    type: "button",
+    className: cls,
+    disabled: disabled && !soft
+  }, a11y, rest), inner);
+  if (!soft) return el;
   return /*#__PURE__*/React.createElement("span", {
-    className: "has-tip",
-    style: {
-      display: 'inline-flex'
-    }
-  }, btn, /*#__PURE__*/React.createElement("span", {
+    className: cx('has-tip', tipAlign === 'end' && 'tip-end', block && 'block')
+  }, el, /*#__PURE__*/React.createElement("span", {
     className: "tip",
-    role: "tooltip"
+    role: "tooltip",
+    id: tipId
   }, disabledReason));
 }
 Object.assign(__ds_scope, { Button });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/Button.jsx", error: String((e && e.message) || e) }); }
 
+// components/actions/Link.jsx
+try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+function Link({
+  href = '#',
+  icon,
+  external = false,
+  children,
+  className,
+  ...rest
+}) {
+  return /*#__PURE__*/React.createElement("a", _extends({
+    href: href,
+    className: 'link' + (className ? ' ' + className : '')
+  }, rest), icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 13
+  }) : null, children, external ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "external-link",
+    size: 12
+  }) : null);
+}
+Object.assign(__ds_scope, { Link });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/Link.jsx", error: String((e && e.message) || e) }); }
+
+// components/actions/Menu.jsx
+try { (() => {
+// Menu button + menu of single-choice (menuitemradio) or action (menuitem) rows.
+function Menu({
+  label,
+  value,
+  icon,
+  hint,
+  options = [],
+  selected,
+  onSelect,
+  open: openProp,
+  onOpenChange,
+  align = 'start',
+  footer,
+  trigger
+}) {
+  const [openState, setOpenState] = React.useState(false);
+  const open = openProp ?? openState;
+  const setOpen = o => {
+    if (openProp == null) setOpenState(o);
+    onOpenChange && onOpenChange(o);
+  };
+  const btn = React.useRef(null);
+  const close = () => {
+    setOpen(false);
+    btn.current && btn.current.focus();
+  };
+  const radio = selected !== undefined;
+  const name = label + (value != null ? ': ' + value : '') + (hint ? ', ' + hint : '');
+  return /*#__PURE__*/React.createElement("span", {
+    className: "menu-wrap",
+    onKeyDown: e => {
+      if (e.key === 'Escape' && open) {
+        e.stopPropagation();
+        close();
+      }
+    }
+  }, trigger ? React.cloneElement(trigger, {
+    ref: btn,
+    'aria-haspopup': 'menu',
+    'aria-expanded': open,
+    onClick: () => setOpen(!open)
+  }) : /*#__PURE__*/React.createElement("button", {
+    ref: btn,
+    type: "button",
+    className: "menu-trigger",
+    "aria-haspopup": "menu",
+    "aria-expanded": open,
+    "aria-label": name,
+    onClick: () => setOpen(!open)
+  }, icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 12,
+    stroke: 2
+  }) : null, value, /*#__PURE__*/React.createElement("span", {
+    className: "chev"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "chevron-down",
+    size: 12,
+    stroke: 2
+  }))), hint && !trigger ? /*#__PURE__*/React.createElement("span", {
+    className: "menu-hint",
+    "aria-hidden": "true"
+  }, hint) : null, open ? /*#__PURE__*/React.createElement("div", {
+    role: "menu",
+    "aria-label": label,
+    className: 'menu' + (align === 'end' ? ' end' : '')
+  }, options.map(o => {
+    const on = radio && o.value === selected;
+    return /*#__PURE__*/React.createElement("button", {
+      key: o.value,
+      type: "button",
+      role: radio ? 'menuitemradio' : 'menuitem',
+      "aria-checked": radio ? on : undefined,
+      className: 'menu-item' + (o.danger ? ' danger' : ''),
+      onClick: () => {
+        onSelect && onSelect(o.value);
+        if (!o.keepOpen) close();
+      }
+    }, o.icon ? /*#__PURE__*/React.createElement("span", {
+      className: "ic"
+    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: o.icon,
+      size: 14
+    })) : null, /*#__PURE__*/React.createElement("span", {
+      className: "lb"
+    }, o.label), on ? /*#__PURE__*/React.createElement("span", {
+      className: "ck"
+    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: "check",
+      size: 14,
+      stroke: 2
+    })) : null);
+  }), footer ? /*#__PURE__*/React.createElement("div", {
+    className: "menu-foot"
+  }, footer) : null) : null);
+}
+Object.assign(__ds_scope, { Menu });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/Menu.jsx", error: String((e && e.message) || e) }); }
+
+// components/actions/Popover.jsx
+try { (() => {
+// Floating panel anchored under its trigger (export menu, date range). role "menu" or "dialog"; named by label.
+function Popover({
+  trigger,
+  open = false,
+  role = 'dialog',
+  label,
+  width = 300,
+  align = 'end',
+  children
+}) {
+  return /*#__PURE__*/React.createElement("span", {
+    className: "pop-wrap"
+  }, trigger, open ? /*#__PURE__*/React.createElement("div", {
+    role: role,
+    "aria-label": label,
+    className: 'pop' + (align === 'start' ? ' start' : ''),
+    style: {
+      width
+    }
+  }, children) : null);
+}
+// Single-choice rows (role="radio") with an optional mono count and a check on the selected row.
+function OptionRows({
+  label,
+  options = [],
+  selected,
+  onSelect
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    role: "radiogroup",
+    "aria-label": label,
+    className: "optrows"
+  }, options.map(o => {
+    const on = o.value === selected;
+    return /*#__PURE__*/React.createElement("button", {
+      key: o.value,
+      type: "button",
+      role: "radio",
+      "aria-checked": on,
+      className: "menu-item",
+      onClick: () => onSelect && onSelect(o.value)
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "lb"
+    }, o.label), o.meta != null ? /*#__PURE__*/React.createElement("span", {
+      className: "mt"
+    }, o.meta) : null, /*#__PURE__*/React.createElement("span", {
+      className: "ck"
+    }, on ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: "check",
+      size: 14,
+      stroke: 2.25
+    }) : null));
+  }));
+}
+Object.assign(__ds_scope, { Popover, OptionRows });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/Popover.jsx", error: String((e && e.message) || e) }); }
+
+// components/actions/StartButton.jsx
+try { (() => {
+// The Start / Stop control: one button that changes role (features/ui/screens.md §1).
+const ROLE = {
+  start: {
+    label: 'Start test',
+    icon: 'play',
+    variant: 'primary',
+    kbd: 'Enter'
+  },
+  stop: {
+    label: 'Stop test',
+    icon: 'square',
+    variant: 'secondary',
+    kbd: 'Esc'
+  },
+  again: {
+    label: 'Run again',
+    icon: 'rotate-ccw',
+    variant: 'primary',
+    kbd: 'Enter'
+  },
+  retry: {
+    label: 'Retry test',
+    icon: 'refresh-cw',
+    variant: 'primary',
+    kbd: 'Enter'
+  },
+  now: {
+    label: 'Start now',
+    icon: 'play',
+    variant: 'primary',
+    kbd: 'Enter'
+  }
+};
+const START_ROLES = Object.keys(ROLE);
+function StartButton({
+  role = 'start',
+  compact = false,
+  disabledReason,
+  onClick,
+  label
+}) {
+  const r = ROLE[role] || ROLE.start;
+  return /*#__PURE__*/React.createElement(__ds_scope.Button, {
+    className: "start",
+    variant: r.variant,
+    size: "xl",
+    icon: r.icon,
+    kbd: compact ? undefined : r.kbd,
+    block: compact,
+    touch: compact,
+    disabled: !!disabledReason,
+    disabledReason: disabledReason,
+    onClick: onClick
+  }, label || r.label);
+}
+Object.assign(__ds_scope, { START_ROLES, StartButton });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/StartButton.jsx", error: String((e && e.message) || e) }); }
+
 // components/brand/Logo.jsx
 try { (() => {
 const FULL = (d, u, l) => '<path d="M14.32 53.68 A25 25 0 1 1 49.68 53.68" fill="none" stroke="currentColor" stroke-opacity=".14" stroke-width="5" stroke-linecap="round"/>' + '<path d="M14.32 53.68 A25 25 0 1 1 53.65 23.5" fill="none" style="stroke:' + d + '" stroke-width="5" stroke-linecap="round"/>' + '<path d="M19.98 48.02 A17 17 0 0 1 32 19" fill="none" style="stroke:' + u + '" stroke-width="5" stroke-linecap="round"/>' + '<path d="M25.64 42.36 A9 9 0 0 1 27.5 28.21" fill="none" style="stroke:' + l + '" stroke-width="4" stroke-dasharray="2.6 3"/>';
 const SMALL = (d, u) => '<path d="M15.03 48.97 A24 24 0 1 1 48.97 48.97" fill="none" stroke="currentColor" stroke-opacity=".2" stroke-width="7" stroke-linecap="round"/>' + '<path d="M15.03 48.97 A24 24 0 1 1 54.35 23.24" fill="none" style="stroke:' + d + '" stroke-width="7" stroke-linecap="round"/>' + '<path d="M23.51 40.49 A12 12 0 0 1 32 20" fill="none" style="stroke:' + u + '" stroke-width="7" stroke-linecap="round"/>';
+// Wordmark text size per mark size (header 28 → lg, compact header 26 → md, About 40 → xl, share image 15 → sm).
+const WM = s => s >= 36 ? 'xl' : s >= 27 ? 'lg' : s >= 20 ? 'md' : 'sm';
 function Logo({
   size = 28,
   variant = 'color',
   geometry,
   wordmark = false,
+  wordmarkSize,
+  href,
+  label = 'BitGauge home',
   style
 }) {
   const g = geometry || (size <= 20 ? 'small' : 'full');
@@ -218,7 +483,8 @@ function Logo({
     "aria-label": wordmark ? undefined : 'BitGauge',
     style: {
       display: 'block',
-      flex: 'none'
+      flex: 'none',
+      color: variant === 'mono' ? undefined : 'var(--fg)'
     },
     dangerouslySetInnerHTML: {
       __html: g === 'small' ? SMALL(c[0], c[1]) : FULL(...c)
@@ -231,29 +497,634 @@ function Logo({
       ...style
     }
   }, mark);
-  return /*#__PURE__*/React.createElement("span", {
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: Math.round(size * 0.32),
-      fontFamily: 'var(--font-sans)',
-      fontWeight: 600,
-      fontSize: Math.round(size * 0.6),
-      letterSpacing: '-0.01em',
-      color: 'var(--fg)',
-      ...style
-    }
-  }, mark, /*#__PURE__*/React.createElement("span", null, "Bit", /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--primary-text)'
-    }
+  const inner = /*#__PURE__*/React.createElement(React.Fragment, null, mark, /*#__PURE__*/React.createElement("span", null, "Bit", /*#__PURE__*/React.createElement("span", {
+    className: "g"
   }, "Gauge")));
+  const cls = 'wm ' + (wordmarkSize || WM(size));
+  return href ? /*#__PURE__*/React.createElement("a", {
+    className: cls,
+    href: href,
+    "aria-label": label,
+    style: style
+  }, inner) : /*#__PURE__*/React.createElement("span", {
+    className: cls,
+    style: style
+  }, inner);
 }
 Object.assign(__ds_scope, { Logo });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/brand/Logo.jsx", error: String((e && e.message) || e) }); }
 
+// components/charts/Format.jsx
+try { (() => {
+// tokens.md "Number formatting" — the one implementation. Production: Intl.NumberFormat with the same rules.
+const sig = x => x >= 99.95 ? Math.round(x).toString() : x >= 9.995 ? x.toFixed(1) : x >= 0.9995 ? x.toFixed(2) : x.toPrecision(3);
+function scaled(v, U) {
+  let i = Math.max(0, Math.min(U.length - 1, Math.floor(Math.log10(Math.max(v, 1)) / 3) - 1)),
+    x = v / Math.pow(10, 3 * (i + 1));
+  if (x >= 999.5 && i < U.length - 1) {
+    i++;
+    x /= 1000;
+  }
+  return {
+    n: sig(x),
+    u: U[i]
+  };
+}
+function rate(bps, units) {
+  const b = units === 'bytes';
+  return scaled(b ? bps / 8 : bps, b ? ['kB/s', 'MB/s', 'GB/s'] : ['kbit/s', 'Mbit/s', 'Gbit/s']);
+}
+const rateStr = (bps, units) => {
+  const r = rate(bps, units);
+  return r.n + ' ' + r.u;
+};
+// Latency / jitter: one decimal below 10 ms, whole ms from 10, "< res" below the timer resolution.
+const ms = (v, res = 0.1) => v < res ? '< ' + (res >= 1 ? String(Math.round(res)) : String(+res.toFixed(2))) : res >= 1 || v >= 9.95 ? Math.round(v).toString() : v.toFixed(1);
+const bytes = b => {
+  const r = scaled(b, ['kB', 'MB', 'GB', 'TB']);
+  return r.n + ' ' + r.u;
+};
+const Format = {
+  sig,
+  rate,
+  rateStr,
+  ms,
+  jitter: ms,
+  bytes
+};
+Object.assign(__ds_scope, { Format });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/charts/Format.jsx", error: String((e && e.message) || e) }); }
+
+// components/charts/Chart.jsx
+try { (() => {
+function niceMax(v) {
+  const e = Math.pow(10, Math.floor(Math.log10(v)));
+  for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * e >= v) return m * e;
+  return 10 * e;
+}
+// Geometry: pure function of the data and the plot size (charts.md). Production: uPlot with the same series and hooks.
+function chartGeometry(o) {
+  const all = o.series.map(s => s.pts).flat();
+  const ym = o.yMax || niceMax(Math.max(1, ...all.map(p => p[1])) * 1.08);
+  const lab = f => {
+    const v = ym * f,
+      r = o.ms ? {
+        n: __ds_scope.Format.ms(v),
+        u: 'ms'
+      } : __ds_scope.Format.rate(v, o.units);
+    return f === 0 ? '0' : r.n + (f === 1 ? ' ' + r.u : '');
+  };
+  const CH = 6.7,
+    fit = (min, s) => Math.max(min, Math.ceil(s.length * CH) + 14);
+  const pl = fit(44, lab(1));
+  const lm = o.lat ? o.latMax || niceMax(Math.max(...o.lat.map(p => p[1])) * 1.9) : 0;
+  const pr = o.lat ? fit(40, Math.round(lm) + ' ms') : 12,
+    pt = 10,
+    pb = 22,
+    W = o.w - pl - pr,
+    H = o.h - pt - pb;
+  const X = t => pl + W * t / o.xMax,
+    Y = v => pt + H * (1 - v / ym);
+  const grid = [0, 0.25, 0.5, 0.75, 1].map(f => ({
+    y: Y(ym * f),
+    x1: pl,
+    x2: pl + W,
+    t: lab(f),
+    ly: Y(ym * f) + 3.5,
+    lx: pl - 8
+  }));
+  const xt = [];
+  let stepX = o.xStep || niceMax(o.xMax / 6);
+  if (!(stepX > 0) || !isFinite(stepX)) stepX = o.xMax > 0 ? o.xMax : 1;
+  for (let t = 0; t <= o.xMax + 1e-9; t += stepX) xt.push({
+    x: X(t),
+    y: o.h - 6,
+    t: o.xLabel ? o.xLabel(t) : Math.round(t * 10) / 10 + 's'
+  });
+  const line = pts => pts.map((p, i) => (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1)).join('');
+  const series = o.series.map(s => {
+    const l = line(s.pts),
+      last = s.pts[s.pts.length - 1];
+    return {
+      ...s,
+      line: l,
+      area: l + 'L' + X(last[0]).toFixed(1) + ' ' + Y(0) + 'L' + X(s.pts[0][0]).toFixed(1) + ' ' + Y(0) + 'Z',
+      endX: X(last[0]),
+      endY: Y(last[1])
+    };
+  });
+  const LY = v => pt + H * (1 - v / lm);
+  const lat = o.lat ? {
+    line: o.lat.map((p, i) => (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + LY(p[1]).toFixed(1)).join(''),
+    ticks: [0, 0.5, 1].map(f => ({
+      y: LY(lm * f) + 3.5,
+      x: pl + W + 8,
+      t: Math.round(lm * f) + (f === 1 ? ' ms' : '')
+    }))
+  } : null;
+  const seps = (o.seps || []).map(q => ({
+    x: X(q.t),
+    lx: X(q.t) + 6,
+    ly: pt + 12,
+    t: q.label
+  }));
+  const wins = (o.wins || []).map(q => ({
+    x: X(q.t0),
+    w: X(q.t1) - X(q.t0),
+    lx: X(q.t0) + 4,
+    ly: pt + H - 8,
+    t: q.label
+  }));
+  const marks = (o.marks || []).map(q => ({
+    x: X(q.t),
+    t: q.label,
+    c: q.c || null,
+    lx: X(q.t) - 6,
+    ly: pt + 12
+  }));
+  const bands = (o.bands || []).filter(q => q.t1 > q.t0).map(q => ({
+    x: X(q.t0),
+    w: X(q.t1) - X(q.t0),
+    x1: X(q.t1)
+  }));
+  return {
+    grid,
+    xt,
+    series,
+    lat,
+    seps,
+    wins,
+    marks,
+    bands,
+    pl,
+    pr: pl + W,
+    pt,
+    pb: pt + H,
+    nowX: o.now != null ? X(o.now) : null
+  };
+}
+function Chart({
+  title,
+  meta,
+  legend = [],
+  summary,
+  empty,
+  data,
+  height = 300,
+  compact = false,
+  markColor = 'var(--fg-muted)',
+  endDot = true,
+  units = 'bits'
+}) {
+  const ref = React.useRef(null);
+  const [w, setW] = React.useState(compact ? 311 : 672);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || !window.ResizeObserver) return;
+    const ro = new ResizeObserver(([e]) => {
+      const x = Math.floor(e.contentRect.width);
+      if (x > 0) setW(x);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const h = compact ? 150 : height;
+  const g = chartGeometry({
+    units,
+    ...data,
+    series: data.series || [],
+    w,
+    h,
+    xStep: data.xStep || (compact && data.xMax > 20 ? data.xMax > 40 ? 18 : 8 : null)
+  });
+  const last = g.series[g.series.length - 1];
+  const dot = endDot && last ? last : null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "chart"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "chart-h"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "t"
+  }, title), /*#__PURE__*/React.createElement("div", {
+    className: "lg"
+  }, legend.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: i
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sw",
+    style: {
+      borderTop: '2px ' + (l.dashed ? 'dashed' : 'solid') + ' ' + l.color,
+      opacity: l.faint ? 0.4 : 1
+    }
+  }), l.label)), g.bands.length ? /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "sw band"
+  }), "Warm-up") : null), meta ? /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, meta) : null), /*#__PURE__*/React.createElement("div", {
+    ref: ref,
+    className: "chart-plot"
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: w,
+    height: h,
+    role: "img",
+    "aria-label": summary
+  }, g.bands.map((b, i) => /*#__PURE__*/React.createElement("g", {
+    key: 'b' + i
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: b.x,
+    y: g.pt,
+    width: b.w,
+    height: g.pb - g.pt,
+    style: {
+      fill: 'var(--chart-band)'
+    }
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: b.x,
+    y1: g.pt,
+    x2: b.x,
+    y2: g.pb,
+    className: "edge"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: b.x1,
+    y1: g.pt,
+    x2: b.x1,
+    y2: g.pb,
+    className: "edge"
+  }))), g.grid.map((l, i) => /*#__PURE__*/React.createElement("line", {
+    key: 'g' + i,
+    x1: l.x1,
+    y1: l.y,
+    x2: l.x2,
+    y2: l.y,
+    className: "grid"
+  })), g.seps.map((s, i) => /*#__PURE__*/React.createElement("line", {
+    key: 's' + i,
+    x1: s.x,
+    y1: g.pt,
+    x2: s.x,
+    y2: g.pb,
+    className: "sep"
+  })), g.wins.map((s, i) => /*#__PURE__*/React.createElement("rect", {
+    key: 'w' + i,
+    x: s.x,
+    y: g.pt,
+    width: s.w,
+    height: g.pb - g.pt,
+    className: "win"
+  })), g.series.map((s, i) => /*#__PURE__*/React.createElement("g", {
+    key: 'l' + i
+  }, /*#__PURE__*/React.createElement("path", {
+    d: s.area,
+    style: {
+      fill: s.color,
+      fillOpacity: s.faint ? 0 : 0.1,
+      stroke: 'none'
+    }
+  }), /*#__PURE__*/React.createElement("path", {
+    d: s.line,
+    style: {
+      fill: 'none',
+      stroke: s.color,
+      strokeOpacity: s.faint ? 0.4 : 1,
+      strokeWidth: 1.75,
+      strokeLinejoin: 'round'
+    }
+  }))), g.lat ? /*#__PURE__*/React.createElement("path", {
+    d: g.lat.line,
+    className: "lat"
+  }) : null, g.marks.map((m, i) => /*#__PURE__*/React.createElement("line", {
+    key: 'm' + i,
+    x1: m.x,
+    y1: g.pt,
+    x2: m.x,
+    y2: g.pb,
+    className: "mark",
+    style: {
+      stroke: m.c || markColor
+    }
+  })), g.nowX != null ? /*#__PURE__*/React.createElement("line", {
+    x1: g.nowX,
+    y1: g.pt,
+    x2: g.nowX,
+    y2: g.pb,
+    className: "now"
+  }) : null, dot ? /*#__PURE__*/React.createElement("circle", {
+    cx: dot.endX,
+    cy: dot.endY,
+    r: "4",
+    style: {
+      fill: 'var(--surface-2)',
+      stroke: dot.color,
+      strokeWidth: 2
+    }
+  }) : null), /*#__PURE__*/React.createElement("div", {
+    className: "chart-lb",
+    "aria-hidden": "true"
+  }, g.grid.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: 'g' + i,
+    className: "y",
+    style: {
+      left: l.lx,
+      top: l.ly
+    }
+  }, l.t)), g.xt.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: 'x' + i,
+    className: "x",
+    style: {
+      left: l.x,
+      top: l.y
+    }
+  }, l.t)), g.seps.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: 's' + i,
+    className: "sp",
+    style: {
+      left: l.lx,
+      top: l.ly
+    }
+  }, l.t)), g.lat ? g.lat.ticks.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: 't' + i,
+    className: "lt",
+    style: {
+      left: l.x,
+      top: l.y
+    }
+  }, l.t)) : null, g.wins.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: 'w' + i,
+    className: "wn",
+    style: {
+      left: l.lx,
+      top: l.ly
+    }
+  }, l.t)), g.marks.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: 'm' + i,
+    className: "mk",
+    style: {
+      left: l.lx,
+      top: l.ly,
+      color: l.c || markColor
+    }
+  }, l.t))), empty ? /*#__PURE__*/React.createElement("div", {
+    className: "chart-empty",
+    style: {
+      top: g.pt,
+      left: g.pl,
+      width: g.pr - g.pl,
+      height: g.pb - g.pt
+    }
+  }, /*#__PURE__*/React.createElement("span", null, empty)) : null));
+}
+Object.assign(__ds_scope, { chartGeometry, Chart });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/charts/Chart.jsx", error: String((e && e.message) || e) }); }
+
+// components/charts/PhaseChart.jsx
+try { (() => {
+// charts.md — Result-detail per-phase chart: stored series with null gaps, warm-up as a hatched excluded interval,
+// event chips, latency under load dashed on its own axis, and the Chart / table toggle.
+function PhaseChart({
+  title,
+  icon,
+  color,
+  meta,
+  summary,
+  pts = [],
+  lat,
+  xMax,
+  ms = false,
+  xStep,
+  xLabel,
+  units = 'bits',
+  width,
+  height = 170,
+  warmup,
+  marks = [],
+  gapLabel = 'No known data',
+  view = 'chart',
+  onViewChange,
+  className,
+  style,
+  children
+}) {
+  const known = pts.filter(p => p[1] != null),
+    latK = lat ? lat.filter(p => p[1] != null) : null;
+  const top = (() => {
+    const n = known.length ? Math.max(...known.map(p => p[1])) * 1.08 : 1;
+    const e = Math.pow(10, Math.floor(Math.log10(n)));
+    for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * e >= n) return m * e;
+    return 10 * e;
+  })();
+  const g = __ds_scope.chartGeometry({
+    units,
+    w: width,
+    h: height,
+    xMax,
+    yMax: top,
+    ms,
+    xStep,
+    xLabel,
+    series: [{
+      pts: known.length ? known : [[0, 0]],
+      color
+    }],
+    lat: latK
+  });
+  const X = t => g.pl + (g.pr - g.pl) * t / xMax,
+    Y = v => g.pb - (g.pb - g.pt) * v / top;
+  const path = s => s.map((p, i) => (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1)).join('');
+  // A gap spans exactly its null cells; the series before it holds its last value to the gap start.
+  const S = [],
+    gaps = [];
+  let cur = [],
+    g0 = null;
+  pts.forEach(p => {
+    if (p[1] == null) {
+      if (g0 == null) {
+        g0 = p[0];
+        if (cur.length) {
+          cur.push([p[0], cur[cur.length - 1][1]]);
+          S.push(cur);
+          cur = [];
+        }
+      }
+    } else {
+      if (g0 != null) {
+        gaps.push([g0, p[0]]);
+        g0 = null;
+      }
+      cur.push(p);
+    }
+  });
+  if (cur.length) S.push(cur);
+  const placed = [];
+  const chips = marks.map(m => {
+    const x = X(m.t),
+      cw = m.label.length * 6 + 22,
+      left = x + 4 + cw > g.pr,
+      x0 = left ? x - 4 - cw : x + 4,
+      x1 = x0 + cw;
+    let row = 0;
+    while (row < 6 && placed.some(p => p.row === row && x0 < p.x1 + 4 && x1 > p.x0 - 4)) row++;
+    placed.push({
+      x0,
+      x1,
+      row
+    });
+    return Object.assign({
+      x,
+      lx: left ? x - 4 : x + 4,
+      ly: g.pt + 2 + row * 18,
+      left
+    }, m);
+  });
+  const H = g.pb - g.pt;
+  return /*#__PURE__*/React.createElement("section", {
+    className: 'card pchart' + (className ? ' ' + className : ''),
+    style: style
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pchart-h"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "t"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ic",
+    style: {
+      color
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 14,
+    stroke: 2
+  })), title), meta ? /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, meta) : null, lat && view === 'chart' ? /*#__PURE__*/React.createElement("span", {
+    className: "lg"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sw"
+  }), "Latency under load") : null, /*#__PURE__*/React.createElement("div", {
+    className: "seg seg-sm",
+    role: "radiogroup",
+    "aria-label": title + ' view'
+  }, ['chart', 'table'].map(k => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    type: "button",
+    role: "radio",
+    "aria-checked": view === k,
+    className: 'seg-btn' + (view === k ? ' on' : ''),
+    onClick: () => onViewChange && onViewChange(k)
+  }, k === 'chart' ? 'Chart' : 'Table')))), view === 'chart' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "chart-plot",
+    style: {
+      alignSelf: 'flex-start'
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: width,
+    height: height,
+    role: "img",
+    "aria-label": summary
+  }, g.grid.map((l, i) => /*#__PURE__*/React.createElement("line", {
+    key: i,
+    x1: l.x1,
+    y1: l.y,
+    x2: l.x2,
+    y2: l.y,
+    className: "grid"
+  })), S.map((s, i) => {
+    const l = path(s);
+    return /*#__PURE__*/React.createElement("g", {
+      key: i
+    }, /*#__PURE__*/React.createElement("path", {
+      d: l + 'L' + X(s[s.length - 1][0]).toFixed(1) + ' ' + g.pb + 'L' + X(s[0][0]).toFixed(1) + ' ' + g.pb + 'Z',
+      style: {
+        fill: color,
+        fillOpacity: 0.1
+      }
+    }), /*#__PURE__*/React.createElement("path", {
+      d: l,
+      style: {
+        fill: 'none',
+        stroke: color,
+        strokeWidth: 1.5,
+        strokeLinejoin: 'round'
+      }
+    }));
+  }), g.lat ? /*#__PURE__*/React.createElement("path", {
+    d: g.lat.line,
+    className: "lat"
+  }) : null, chips.map((m, i) => /*#__PURE__*/React.createElement("line", {
+    key: i,
+    x1: m.x,
+    y1: g.pt,
+    x2: m.x,
+    y2: g.pb,
+    className: "mark",
+    style: {
+      stroke: m.c
+    }
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "chart-lb",
+    "aria-hidden": "true"
+  }, warmup ? /*#__PURE__*/React.createElement("span", {
+    className: "hatch",
+    style: {
+      left: g.pl,
+      top: g.pt,
+      width: Math.max(2, X(warmup.t1) - g.pl),
+      height: H
+    }
+  }) : null, gaps.map(([a, b], i) => /*#__PURE__*/React.createElement("span", {
+    key: 'g' + i,
+    className: "gap",
+    style: {
+      left: X(a),
+      top: g.pt,
+      width: X(b) - X(a),
+      height: H
+    }
+  })), g.grid.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: 'y' + i,
+    className: "y",
+    style: {
+      left: l.lx,
+      top: l.ly
+    }
+  }, l.t)), g.xt.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: 'x' + i,
+    className: "x",
+    style: {
+      left: l.x,
+      top: l.y
+    }
+  }, l.t)), g.lat ? g.lat.ticks.map((l, i) => /*#__PURE__*/React.createElement("span", {
+    key: 't' + i,
+    className: "lt",
+    style: {
+      left: l.x,
+      top: l.y
+    }
+  }, l.t)) : null, chips.map((m, i) => /*#__PURE__*/React.createElement("span", {
+    key: 'c' + i,
+    className: 'chip-ev' + (m.left ? ' left' : ''),
+    style: {
+      left: m.lx,
+      top: m.ly,
+      borderColor: m.bd,
+      color: m.fg
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: m.icon,
+    size: 10,
+    stroke: 2.25
+  }), m.label)))), warmup || gaps.length ? /*#__PURE__*/React.createElement("div", {
+    className: "pchart-k"
+  }, warmup ? /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "sw hatch"
+  }), warmup.label) : null, gaps.length ? /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "sw gap"
+  }), gapLabel) : null) : null) : children);
+}
+Object.assign(__ds_scope, { PhaseChart });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/charts/PhaseChart.jsx", error: String((e && e.message) || e) }); }
+
 // components/dialog/Dialog.jsx
 try { (() => {
+let n = 0;
 function Dialog({
   open = true,
   inline = false,
@@ -261,21 +1132,26 @@ function Dialog({
   icon,
   title,
   children,
+  body,
   scope,
   footer,
+  footerStack = false,
   wide = false,
-  onClose
+  size,
+  flush = false,
+  onClose,
+  closeLabel = 'Close',
+  align = 'center'
 }) {
+  const [id] = React.useState(() => 'bg-dlg-' + ++n);
   if (!open) return null;
   const box = /*#__PURE__*/React.createElement("div", {
-    className: 'modal' + (wide ? ' wide' : ''),
+    className: 'modal' + (wide || size === 'wide' ? ' wide' : '') + (size === 'xl' ? ' xl' : '') + (inline ? ' static' : ''),
     role: tone === 'danger' ? 'alertdialog' : 'dialog',
     "aria-modal": inline ? undefined : 'true',
-    style: inline ? {
-      opacity: 1,
-      transform: 'none',
-      animation: 'none'
-    } : undefined
+    "aria-labelledby": id + '-t',
+    "aria-describedby": children ? id + '-d' : undefined,
+    onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
     className: "mh"
   }, icon ? /*#__PURE__*/React.createElement("div", {
@@ -283,11 +1159,25 @@ function Dialog({
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon,
     size: 18
-  })) : null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "mt"
+  })) : null, /*#__PURE__*/React.createElement("div", {
+    className: "mtx"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mt",
+    id: id + '-t'
   }, title), children ? /*#__PURE__*/React.createElement("div", {
-    className: "md"
-  }, children) : null)), scope ? /*#__PURE__*/React.createElement("div", {
+    className: "md",
+    id: id + '-d'
+  }, children) : null), onClose ? /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn ghost sm icon mx",
+    "aria-label": closeLabel,
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "x",
+    size: 16
+  })) : null), body ? /*#__PURE__*/React.createElement("div", {
+    className: 'mbody' + (flush ? ' flush' : '')
+  }, body) : null, scope ? /*#__PURE__*/React.createElement("div", {
     className: "scope"
   }, /*#__PURE__*/React.createElement("span", {
     className: "ico"
@@ -295,21 +1185,20 @@ function Dialog({
     name: "shield",
     size: 14
   })), scope) : null, footer ? /*#__PURE__*/React.createElement("div", {
-    className: "mf"
+    className: 'mf' + (footerStack ? ' stack' : '')
   }, footer) : null);
   if (inline) return box;
   return /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'fixed',
-      inset: 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 'var(--z-overlay)'
+    className: 'dlg-layer' + (align === 'top' ? ' top' : ''),
+    onClick: onClose,
+    onKeyDown: e => {
+      if (e.key === 'Escape' && onClose) {
+        e.stopPropagation();
+        onClose();
+      }
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "scrim",
-    onClick: onClose
+    className: "scrim"
   }), box);
 }
 Object.assign(__ds_scope, { Dialog });
@@ -337,14 +1226,69 @@ function EmptyState({
   }, title), children ? /*#__PURE__*/React.createElement("div", {
     className: "em"
   }, children) : null, actions ? /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 'var(--space-2)'
-    }
+    className: "ea"
   }, actions) : null);
 }
 Object.assign(__ds_scope, { EmptyState });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/feedback/EmptyState.jsx", error: String((e && e.message) || e) }); }
+
+// components/feedback/FullScreenError.jsx
+try { (() => {
+// Full-screen error (base path mismatch): nothing else loads, so it carries its own wordmark.
+function FullScreenError({
+  eyebrow = 'Deployment error',
+  title,
+  children,
+  facts,
+  hint,
+  actions,
+  compact = false
+}) {
+  return /*#__PURE__*/React.createElement("main", {
+    role: "alert",
+    "aria-labelledby": "fse-title",
+    className: 'fse' + (compact ? ' compact' : '')
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fse-in"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Logo, {
+    size: 22,
+    wordmark: true
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "fse-h"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ds-eyebrow fse-eb"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "circle-alert",
+    size: 13,
+    stroke: 2.25
+  }), eyebrow), /*#__PURE__*/React.createElement("h1", {
+    id: "fse-title",
+    className: "fse-t"
+  }, title), children ? /*#__PURE__*/React.createElement("p", {
+    className: "fse-d"
+  }, children) : null), facts, hint, actions ? /*#__PURE__*/React.createElement("div", {
+    className: "fse-a"
+  }, actions) : null));
+}
+Object.assign(__ds_scope, { FullScreenError });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/feedback/FullScreenError.jsx", error: String((e && e.message) || e) }); }
+
+// components/feedback/LiveRegion.jsx
+try { (() => {
+// The one place a screen's spoken status lives: visually hidden, polite, not the 10 Hz readout.
+function LiveRegion({
+  message,
+  assertive = false
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "sr-only",
+    role: assertive ? 'alert' : 'status',
+    "aria-live": assertive ? 'assertive' : 'polite',
+    "aria-atomic": "true"
+  }, message || '');
+}
+Object.assign(__ds_scope, { LiveRegion });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/feedback/LiveRegion.jsx", error: String((e && e.message) || e) }); }
 
 // components/feedback/Notice.jsx
 try { (() => {
@@ -352,37 +1296,35 @@ const DEF = {
   info: 'info',
   warn: 'triangle-alert',
   danger: 'circle-x',
-  ok: 'circle-check'
+  ok: 'circle-check',
+  neutral: 'circle-minus'
 };
 function Notice({
   tone = 'info',
   icon,
   title,
   children,
-  actions
+  actions,
+  live = true,
+  attached = false
 }) {
   return /*#__PURE__*/React.createElement("div", {
-    className: 'signal ' + tone,
-    role: tone === 'danger' ? 'alert' : undefined
+    className: 'signal ' + tone + (attached ? ' attached' : ''),
+    role: tone === 'danger' ? 'alert' : live ? 'status' : undefined
   }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--' + tone + ')',
-      display: 'inline-flex'
-    }
+    className: "ic"
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon || DEF[tone],
     size: 16
   })), /*#__PURE__*/React.createElement("div", {
     className: "body"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", {
     className: "st"
-  }, title), children ? /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 'var(--text-caption)',
-      color: 'var(--fg-muted)',
-      marginTop: 2
-    }
-  }, children) : null), actions);
+  }, title), children ? /*#__PURE__*/React.createElement("span", {
+    className: "sd"
+  }, children) : null), actions ? /*#__PURE__*/React.createElement("div", {
+    className: "sa"
+  }, actions) : null);
 }
 Object.assign(__ds_scope, { Notice });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/feedback/Notice.jsx", error: String((e && e.message) || e) }); }
@@ -440,33 +1382,121 @@ function Toast({
   title,
   message,
   action,
+  onDismiss,
   animate = true
 }) {
   return /*#__PURE__*/React.createElement("div", {
-    className: 'toast ' + tone,
+    className: 'toast ' + tone + (animate ? '' : ' static'),
     role: "status",
-    style: animate ? undefined : {
-      opacity: 1,
-      transform: 'none',
-      animation: 'none'
-    }
+    "aria-live": "polite"
   }, /*#__PURE__*/React.createElement("span", {
     className: "i"
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon || DEF[tone],
     size: 16
   })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
+    className: "tb"
   }, /*#__PURE__*/React.createElement("div", {
     className: "t"
   }, title), message ? /*#__PURE__*/React.createElement("div", {
     className: "m"
-  }, message) : null), action);
+  }, message) : null), action, onDismiss ? /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn ghost sm icon",
+    "aria-label": "Dismiss",
+    onClick: onDismiss
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "x",
+    size: 14
+  })) : null);
 }
-Object.assign(__ds_scope, { Toast });
+function ToastRegion({
+  aboveTabBar = false,
+  children
+}) {
+  return children ? /*#__PURE__*/React.createElement("div", {
+    className: 'toast-region' + (aboveTabBar ? ' above-tabbar' : '')
+  }, children) : null;
+}
+Object.assign(__ds_scope, { Toast, ToastRegion });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/feedback/Toast.jsx", error: String((e && e.message) || e) }); }
+
+// components/forms/Checkbox.jsx
+try { (() => {
+// Checkbox — role="checkbox" button (Reka UI Checkbox): 16 px box, teal when checked, optional glyph before the label.
+function Checkbox({
+  checked = false,
+  onChange,
+  disabled = false,
+  icon,
+  iconColor,
+  size = 'md',
+  children
+}) {
+  return /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    role: "checkbox",
+    "aria-checked": checked,
+    disabled: disabled,
+    className: 'cbx' + (size === 'sm' ? ' sm' : ''),
+    onClick: () => onChange && onChange(!checked)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: 'box' + (checked ? ' on' : ''),
+    "aria-hidden": "true"
+  }, checked ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "check",
+    size: 12,
+    stroke: 3
+  }) : null), icon ? /*#__PURE__*/React.createElement("span", {
+    className: "ic",
+    style: iconColor ? {
+      color: iconColor
+    } : undefined
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 14,
+    stroke: 2
+  })) : null, /*#__PURE__*/React.createElement("span", null, children));
+}
+// ChoiceCard — one option of a card radio group (preset picker). Put several in a role="radiogroup".
+function ChoiceCard({
+  selected = false,
+  icon,
+  title,
+  badge,
+  children,
+  onSelect
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    role: "radio",
+    "aria-checked": selected,
+    tabIndex: 0,
+    className: 'choice' + (selected ? ' on' : ''),
+    onClick: onSelect,
+    onKeyDown: e => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        onSelect && onSelect();
+      }
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "choice-h"
+  }, icon ? /*#__PURE__*/React.createElement("span", {
+    className: "ic"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 16
+  })) : null, /*#__PURE__*/React.createElement("span", {
+    className: "t"
+  }, title), badge, /*#__PURE__*/React.createElement("span", {
+    className: "rd",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("span", null))), children ? /*#__PURE__*/React.createElement("span", {
+    className: "choice-d"
+  }, children) : null);
+}
+Object.assign(__ds_scope, { Checkbox, ChoiceCard });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/forms/Checkbox.jsx", error: String((e && e.message) || e) }); }
 
 // components/forms/Input.jsx
 try { (() => {
@@ -474,6 +1504,7 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
 const cx = (...a) => a.filter(Boolean).join(' ');
 function Input({
   icon,
+  suffix,
   mono = false,
   size = 'md',
   invalid = false,
@@ -484,23 +1515,21 @@ function Input({
   ...rest
 }) {
   const shell = /*#__PURE__*/React.createElement("div", {
-    className: cx('input', mono && 'mono', size === 'sm' && 'sm', invalid || error ? 'invalid' : '', className),
+    className: cx('input', mono && 'mono', size === 'sm' && 'sm', (invalid || error) && 'invalid', className),
     style: style
   }, icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon,
-    size: 15
+    size: size === 'sm' ? 13 : 15
   }) : null, /*#__PURE__*/React.createElement("input", _extends({
     "aria-invalid": invalid || !!error || undefined
-  }, rest)));
+  }, rest)), suffix ? /*#__PURE__*/React.createElement("span", {
+    className: "sfx"
+  }, suffix) : null);
   if (!label && !error) return shell;
   return /*#__PURE__*/React.createElement("label", {
     className: "field"
   }, label ? /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 'var(--text-sm)',
-      fontWeight: 'var(--weight-medium)',
-      color: 'var(--fg)'
-    }
+    className: "field-l"
   }, label) : null, shell, error ? /*#__PURE__*/React.createElement("span", {
     className: "fmsg"
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
@@ -508,7 +1537,22 @@ function Input({
     size: 12
   }), error) : null);
 }
-Object.assign(__ds_scope, { Input });
+// Inline field error, linked from its input with aria-describedby (the input keeps focus; Tab leaves as usual).
+function FieldError({
+  id,
+  children,
+  style
+}) {
+  return /*#__PURE__*/React.createElement("span", {
+    className: "fmsg",
+    id: id,
+    style: style
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "circle-alert",
+    size: 12
+  }), children);
+}
+Object.assign(__ds_scope, { Input, FieldError });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/forms/Input.jsx", error: String((e && e.message) || e) }); }
 
 // components/forms/Segmented.jsx
@@ -518,10 +1562,12 @@ function Segmented({
   value,
   onChange,
   size = 'md',
+  block = false,
   ariaLabel
 }) {
+  const iconOnly = options.every(o => typeof o === 'object' && o.icon && o.iconOnly);
   return /*#__PURE__*/React.createElement("div", {
-    className: 'seg' + (size === 'sm' ? ' seg-sm' : ''),
+    className: 'seg' + (size === 'sm' ? ' seg-sm' : '') + (iconOnly ? ' seg-icon' : '') + (block ? ' block' : ''),
     role: "radiogroup",
     "aria-label": ariaLabel
   }, options.map(o => {
@@ -535,52 +1581,81 @@ function Segmented({
       type: "button",
       role: "radio",
       "aria-checked": on,
+      "aria-label": opt.iconOnly ? opt.label : undefined,
       className: 'seg-btn' + (on ? ' on' : ''),
       onClick: () => onChange && onChange(opt.value)
     }, opt.icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
       name: opt.icon,
-      size: 14
-    }) : null, opt.label);
+      size: 14,
+      stroke: opt.color ? 2 : 1.75,
+      style: opt.color ? {
+        color: opt.color
+      } : undefined
+    }) : null, opt.iconOnly ? null : opt.label);
   }));
 }
 Object.assign(__ds_scope, { Segmented });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/forms/Segmented.jsx", error: String((e && e.message) || e) }); }
 
+// components/forms/Select.jsx
+try { (() => {
+// Native select in the Input shell (36 px; sm 28). Options: strings or { value, label }.
+function Select({
+  icon,
+  options = [],
+  size = 'md',
+  mono = false,
+  className,
+  style,
+  ...rest
+}) {
+  return /*#__PURE__*/React.createElement("label", {
+    className: 'input select' + (size === 'sm' ? ' sm' : '') + (mono ? ' mono' : '') + (className ? ' ' + className : ''),
+    style: style
+  }, icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 14
+  }) : null, /*#__PURE__*/React.createElement("select", rest, options.map(o => {
+    const x = typeof o === 'object' ? o : {
+      value: o,
+      label: o
+    };
+    return /*#__PURE__*/React.createElement("option", {
+      key: x.value,
+      value: x.value
+    }, x.label);
+  })), /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "chevron-down",
+    size: 14
+  }));
+}
+Object.assign(__ds_scope, { Select });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/forms/Select.jsx", error: String((e && e.message) || e) }); }
+
 // components/forms/Switch.jsx
 try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 function Switch({
   checked = false,
   onChange,
   label,
-  disabled = false
+  disabled = false,
+  ...rest
 }) {
-  const sw = /*#__PURE__*/React.createElement("button", {
+  const sw = /*#__PURE__*/React.createElement("button", _extends({
     type: "button",
     role: "switch",
     "aria-checked": checked,
     disabled: disabled,
     className: 'switch' + (checked ? ' on' : ''),
-    onClick: () => onChange && onChange(!checked),
-    style: {
-      padding: 0,
-      opacity: disabled ? 0.45 : 1
-    }
-  }, /*#__PURE__*/React.createElement("span", {
+    onClick: () => onChange && onChange(!checked)
+  }, rest), /*#__PURE__*/React.createElement("span", {
     className: "knob"
   }));
   if (!label) return sw;
-  return /*#__PURE__*/React.createElement("span", {
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 'var(--space-2)'
-    }
-  }, sw, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 'var(--text-sm)',
-      color: checked ? 'var(--fg)' : 'var(--fg-muted)'
-    }
-  }, label));
+  return /*#__PURE__*/React.createElement("label", {
+    className: 'switch-l' + (checked ? ' on' : '')
+  }, sw, /*#__PURE__*/React.createElement("span", null, label));
 }
 Object.assign(__ds_scope, { Switch });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/forms/Switch.jsx", error: String((e && e.message) || e) }); }
@@ -724,27 +1799,55 @@ function useTweenK(k, reduce, resetKey) {
   }, [k, reduce, resetKey]);
   return kd;
 }
+const TEXT_STATES = {
+  idle: 1,
+  connecting: 1,
+  cancelled: 1,
+  error: 1,
+  offline: 1
+};
+const ST_COLOR = {
+  cancelled: 'var(--fg-subtle)',
+  error: 'var(--danger)',
+  offline: 'var(--danger)'
+};
+// gauge.md — modes (rate, ms) × states (live, countdown, idle, connecting, cancelled, error, offline).
 function Gauge({
-  size = 300,
+  size,
+  compact = false,
   value,
   mode = 'rate',
   units = 'bits',
+  state = 'live',
   startDecade,
   onWindowChange,
   bandLo,
   bandHi,
   peak,
   inner,
+  innerLabel,
   color = 'var(--series-download)',
   eyebrow,
   eyebrowIcon,
   readout,
   unit,
+  note,
   sub,
-  numSize
+  captionNote,
+  title,
+  message,
+  detail,
+  icon,
+  action,
+  countdownTotal = 3,
+  countdownLeft
 }) {
+  size = size || (compact ? 272 : 300);
   const reduce = useReducedMotion();
-  const k = useGaugeWindow(value, mode, units, startDecade, onWindowChange);
+  const live = state === 'live',
+    cd = state === 'countdown',
+    textual = !!TEXT_STATES[state];
+  const k = useGaugeWindow(live ? value : null, mode, units, startDecade, onWindowChange);
   const kd = useTweenK(k, reduce, units + '|' + mode + '|' + (startDecade ?? ''));
   const shifting = kd !== k;
   const cx = size / 2,
@@ -754,7 +1857,7 @@ function Gauge({
     hi = mode === 'ms' ? 1000 : Math.pow(10, k + 4);
   const dlo = mode === 'ms' ? lo : Math.pow(10, kd),
     dhi = mode === 'ms' ? hi : Math.pow(10, kd + 4);
-  const caption = mode === 'ms' ? 'log scale · 1 – 1000 ms' : 'log scale · ' + rateLabel(lo, units) + ' – ' + rateLabel(hi, units) + ' · auto';
+  const caption = (mode === 'ms' ? 'log scale · 1 – 1000 ms' : 'log scale · ' + rateLabel(lo, units) + ' – ' + rateLabel(hi, units) + ' · auto') + (captionNote ? ' · ' + captionNote : '');
   const L0 = Math.log10(dlo),
     L1 = Math.log10(dhi);
   const f = v => (Math.log10(Math.min(Math.max(v, dlo), dhi)) - L0) / (L1 - L0);
@@ -787,23 +1890,24 @@ function Gauge({
       }
     });
   }
-  const has = value != null,
-    fv = has ? f(value) : 0,
-    dot = has ? pt(cx, cy, r, A0 + SW * fv) : null;
-  const pk = peak != null ? [pt(cx, cy, r + 8, A0 + SW * f(peak)), pt(cx, cy, r - 8, A0 + SW * f(peak))] : null;
-  const ns = numSize || Math.round(size * 0.193);
+  // Countdown: the ring drains linearly; under reduced motion it steps once per second with the number.
+  const left = Math.max(0, countdownLeft ?? countdownTotal),
+    secs = Math.max(1, Math.ceil(left - 1e-9));
+  const cdFrac = Math.max(0.002, (reduce ? secs : left) / countdownTotal);
+  const has = value != null && (live || state === 'cancelled'),
+    fv = has ? f(value) : 0;
+  const dot = has && live ? pt(cx, cy, r, A0 + SW * fv) : null;
+  const pk = has && live && peak != null ? [pt(cx, cy, r + 8, A0 + SW * f(peak)), pt(cx, cy, r - 8, A0 + SW * f(peak))] : null;
   const tween = reduce || shifting ? undefined : 'd var(--dur-base) var(--ease-out)';
+  const stc = ST_COLOR[state] || 'var(--fg-subtle)';
   return /*#__PURE__*/React.createElement("div", {
+    className: 'gauge' + (compact ? ' compact' : ''),
     style: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: 'var(--space-1)',
       width: size
     }
   }, /*#__PURE__*/React.createElement("div", {
+    className: "gauge-dial",
     style: {
-      position: 'relative',
       width: size,
       height: size
     }
@@ -811,11 +1915,7 @@ function Gauge({
     width: size,
     height: size,
     "aria-hidden": "true",
-    focusable: "false",
-    style: {
-      display: 'block',
-      overflow: 'visible'
-    }
+    focusable: "false"
   }, /*#__PURE__*/React.createElement("path", {
     d: arc(cx, cy, r, 0, 1),
     style: {
@@ -835,7 +1935,15 @@ function Gauge({
       strokeWidth: t.w,
       opacity: t.o
     }
-  })), has && bandLo != null ? /*#__PURE__*/React.createElement("path", {
+  })), cd ? /*#__PURE__*/React.createElement("path", {
+    d: arc(cx, cy, r, 0, cdFrac),
+    style: {
+      fill: 'none',
+      stroke: 'var(--primary)',
+      strokeWidth: 10,
+      strokeLinecap: 'round'
+    }
+  }) : null, has && live && bandLo != null ? /*#__PURE__*/React.createElement("path", {
     d: arc(cx, cy, r, f(bandLo), f(bandHi)),
     style: {
       fill: 'none',
@@ -860,7 +1968,7 @@ function Gauge({
       strokeWidth: 4,
       strokeLinecap: 'round'
     }
-  }) : null, has && pk ? /*#__PURE__*/React.createElement("line", {
+  }) : null, pk ? /*#__PURE__*/React.createElement("line", {
     x1: pk[0][0],
     y1: pk[0][1],
     x2: pk[1][0],
@@ -882,74 +1990,56 @@ function Gauge({
   }) : null), labels.map((l, i) => /*#__PURE__*/React.createElement("span", {
     key: i,
     "aria-hidden": "true",
+    className: "gauge-tick",
     style: {
-      position: 'absolute',
       left: l.x,
-      top: l.y,
-      transform: 'translate(-50%,-80%)',
-      fontFamily: 'var(--font-mono)',
-      fontSize: 11,
-      color: 'var(--fg-subtle)',
-      whiteSpace: 'nowrap'
+      top: l.y
     }
   }, l.t)), /*#__PURE__*/React.createElement("div", {
+    className: "gauge-rd"
+  }, textual ? /*#__PURE__*/React.createElement(React.Fragment, null, icon ? /*#__PURE__*/React.createElement("span", {
+    className: "gauge-st-ic",
     style: {
-      position: 'absolute',
-      inset: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 3,
-      paddingTop: 8,
-      textAlign: 'center'
+      color: stc
     }
-  }, eyebrow ? /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 22
+  })) : null, /*#__PURE__*/React.createElement("span", {
+    className: "gauge-title"
+  }, title), message ? /*#__PURE__*/React.createElement("span", {
+    className: "gauge-msg"
+  }, message) : null, detail ? /*#__PURE__*/React.createElement("span", {
+    className: "gauge-detail"
+  }, detail) : null, action ? /*#__PURE__*/React.createElement("span", {
+    className: "gauge-act"
+  }, action) : null) : /*#__PURE__*/React.createElement(React.Fragment, null, eyebrow ? /*#__PURE__*/React.createElement("span", {
+    className: "gauge-eb",
     style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 5,
-      fontFamily: 'var(--font-cond)',
-      fontWeight: 600,
-      fontSize: 12,
-      letterSpacing: 'var(--tracking-caps)',
-      textTransform: 'uppercase',
-      color
+      color: cd ? 'var(--primary-text)' : color
     }
   }, eyebrowIcon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: eyebrowIcon,
     size: 13,
     stroke: 2.25
   }) : null, eyebrow) : null, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--font-mono)',
-      fontWeight: 500,
-      fontSize: ns,
-      lineHeight: 1.05,
-      letterSpacing: '-0.03em',
-      color: has ? 'var(--fg)' : 'var(--fg-subtle)',
-      fontVariantNumeric: 'tabular-nums'
-    }
-  }, readout ?? (has ? '' : '—')), unit ? /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 'var(--text-md)',
-      fontWeight: 500,
-      color: 'var(--fg-muted)'
-    }
-  }, unit) : null)), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--font-mono)',
-      fontSize: 'var(--text-caption)',
-      color: 'var(--fg-subtle)',
-      whiteSpace: 'nowrap'
-    }
+    className: 'gauge-num' + (cd || value != null ? '' : ' none')
+  }, cd ? String(secs) : readout ?? (value != null ? '' : '—')), unit ? /*#__PURE__*/React.createElement("span", {
+    className: "gauge-unit"
+  }, cd && typeof unit === 'object' ? secs === 1 ? unit[0] : unit[1] : unit) : null, note ? /*#__PURE__*/React.createElement("span", {
+    className: "gauge-note"
+  }, note) : null, innerLabel ? /*#__PURE__*/React.createElement("span", {
+    className: "gauge-inner"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ic"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "arrow-up",
+    size: 12,
+    stroke: 2.25
+  })), innerLabel) : null))), /*#__PURE__*/React.createElement("span", {
+    className: "gauge-cap"
   }, caption), sub ? /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: 'var(--font-mono)',
-      fontSize: 'var(--text-caption)',
-      color: 'var(--fg-subtle)',
-      whiteSpace: 'nowrap'
-    }
+    className: "gauge-sub"
   }, sub) : null);
 }
 Object.assign(__ds_scope, { Gauge });
@@ -963,21 +2053,23 @@ function Card({
   actions,
   children,
   padded = true,
+  clip = true,
+  as = 'div',
+  label,
+  labelledBy,
+  className,
   style
 }) {
-  return /*#__PURE__*/React.createElement("div", {
-    className: "card",
-    style: {
-      overflow: 'hidden',
-      ...style
-    }
+  const T = as;
+  return /*#__PURE__*/React.createElement(T, {
+    className: 'card' + (clip ? ' clip' : '') + (className ? ' ' + className : ''),
+    "aria-label": label,
+    "aria-labelledby": labelledBy,
+    style: style
   }, title ? /*#__PURE__*/React.createElement("div", {
     className: "card-h"
   }, icon ? /*#__PURE__*/React.createElement("span", {
-    className: "ico",
-    style: {
-      display: 'inline-flex'
-    }
+    className: "ico"
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon,
     size: 15
@@ -991,6 +2083,107 @@ function Card({
 }
 Object.assign(__ds_scope, { Card });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/layout/Card.jsx", error: String((e && e.message) || e) }); }
+
+// components/layout/MetaList.jsx
+try { (() => {
+// Label / value rows. Values are mono; "—" renders in --fg-subtle.
+function MetaList({
+  rows = [],
+  columns = 1,
+  title,
+  compact = false,
+  facts = false,
+  className,
+  style
+}) {
+  const list = /*#__PURE__*/React.createElement("dl", {
+    className: 'mlist' + (facts ? ' facts' : ''),
+    style: columns > 1 ? {
+      gridTemplateColumns: 'repeat(' + columns + ', minmax(0, 1fr))'
+    } : undefined
+  }, rows.map((r, i) => /*#__PURE__*/React.createElement("div", {
+    className: "mrow",
+    key: r.key || i
+  }, r.icon ? /*#__PURE__*/React.createElement("span", {
+    className: "ic",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: r.icon,
+    size: 15
+  })) : null, /*#__PURE__*/React.createElement("dt", {
+    className: "lb"
+  }, /*#__PURE__*/React.createElement("span", null, r.label), r.sub ? /*#__PURE__*/React.createElement("span", {
+    className: "sub"
+  }, r.sub) : null), r.node ? /*#__PURE__*/React.createElement("dd", {
+    className: "val"
+  }, r.node) : /*#__PURE__*/React.createElement("dd", {
+    className: 'val' + (r.value == null || r.value === '—' ? ' empty' : '') + (r.tone === 'danger' ? ' danger' : '')
+  }, r.value ?? '—'))));
+  if (!title) return list;
+  return /*#__PURE__*/React.createElement("div", {
+    className: 'card tile' + (compact ? ' compact' : '') + (className ? ' ' + className : ''),
+    style: style
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ds-eyebrow"
+  }, title), list);
+}
+// One labelled value in a horizontal strip (connection info): eyebrow label, mono value, subtle qualifier.
+function Stat({
+  label,
+  value,
+  sub,
+  children
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "stat"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ds-eyebrow"
+  }, label), children || /*#__PURE__*/React.createElement("span", {
+    className: "stat-v"
+  }, value, sub ? /*#__PURE__*/React.createElement("span", {
+    className: "stat-s"
+  }, sub) : null));
+}
+Object.assign(__ds_scope, { MetaList, Stat });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/layout/MetaList.jsx", error: String((e && e.message) || e) }); }
+
+// components/layout/Snippet.jsx
+try { (() => {
+// Code / config snippet on the terminal surface, with an optional copy button.
+function Snippet({
+  lines = [],
+  caption,
+  copyLabel,
+  onCopy
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "snip"
+  }, caption ? /*#__PURE__*/React.createElement("span", {
+    className: "snip-cap"
+  }, caption) : null, /*#__PURE__*/React.createElement("div", {
+    className: "snip-box"
+  }, /*#__PURE__*/React.createElement("pre", {
+    className: copyLabel ? 'has-copy' : undefined
+  }, lines.map((l, i) => {
+    const o = typeof l === 'string' ? {
+      t: l
+    } : l;
+    return /*#__PURE__*/React.createElement("span", {
+      key: i,
+      className: o.kind ? 'k-' + o.kind : undefined
+    }, o.t);
+  })), copyLabel ? /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn ghost sm icon snip-copy",
+    "aria-label": copyLabel,
+    onClick: onCopy
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "copy",
+    size: 14
+  })) : null));
+}
+Object.assign(__ds_scope, { Snippet });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/layout/Snippet.jsx", error: String((e && e.message) || e) }); }
 
 // components/layout/Table.jsx
 try { (() => {
@@ -1054,93 +2247,10 @@ function Tabs({
 Object.assign(__ds_scope, { Tabs });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/layout/Tabs.jsx", error: String((e && e.message) || e) }); }
 
-// components/measurement/MetricTile.jsx
-try { (() => {
-const NOTE = {
-  partial: 'var(--warn-fg)',
-  incomplete: 'var(--warn-fg)',
-  'insufficient-data': 'var(--warn-fg)',
-  'low-confidence': 'var(--warn-fg)',
-  error: 'var(--danger-fg)'
-};
-const NO_NUMBER = {
-  empty: 1,
-  error: 1,
-  incomplete: 1,
-  'insufficient-data': 1
-};
-function MetricTile({
-  label,
-  value,
-  unit,
-  note,
-  state = 'done',
-  accent
-}) {
-  const empty = NO_NUMBER[state] || value == null;
-  const word = state === 'live' && value == null;
-  return /*#__PURE__*/React.createElement("div", {
-    className: "card",
-    style: {
-      padding: 'var(--space-3-5) var(--space-4)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "ds-eyebrow",
-    style: {
-      fontSize: 11,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, accent ? /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 8,
-      height: 2,
-      borderRadius: 1,
-      background: accent
-    }
-  }) : null, label), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'baseline',
-      gap: 'var(--space-1)',
-      marginTop: 'var(--space-1-5)',
-      minHeight: 34
-    }
-  }, word ? /*#__PURE__*/React.createElement("span", {
-    className: "mono",
-    style: {
-      fontSize: 'var(--text-sm)',
-      fontWeight: 500,
-      color: 'var(--fg-subtle)'
-    }
-  }, "warming up") : /*#__PURE__*/React.createElement("span", {
-    className: "mono",
-    style: {
-      fontSize: 24,
-      fontWeight: 500,
-      letterSpacing: '-0.02em',
-      fontVariantNumeric: 'tabular-nums',
-      color: empty ? 'var(--fg-subtle)' : 'var(--fg)'
-    }
-  }, empty ? '—' : value), !empty && unit ? /*#__PURE__*/React.createElement("span", {
-    className: "mono",
-    style: {
-      fontSize: 'var(--text-caption)',
-      color: 'var(--fg-muted)'
-    }
-  }, unit) : null), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 'var(--text-caption)',
-      color: NOTE[state] || 'var(--fg-subtle)'
-    }
-  }, note ?? (state === 'done' ? '' : state.replace('-', ' '))));
-}
-Object.assign(__ds_scope, { MetricTile });
-})(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/MetricTile.jsx", error: String((e && e.message) || e) }); }
-
 // components/measurement/PhaseStep.jsx
 try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+// phase-indicator.md — icon + "state · detail" carry the state, never colour alone.
 const ST = {
   pending: {
     icon: 'circle-dashed',
@@ -1181,6 +2291,11 @@ const DIR = {
     c: 'var(--series-latency)'
   }
 };
+const NAME = {
+  latency: 'Idle latency',
+  download: 'Download',
+  upload: 'Upload'
+};
 const BAR = {
   failed: 'var(--danger)',
   capped: 'var(--fg-subtle)',
@@ -1191,94 +2306,320 @@ function PhaseStep({
   label,
   state = 'pending',
   progress = 0,
-  detail
+  detail,
+  stacked = false,
+  as = 'div'
 }) {
   const s = state === 'active' ? DIR[phase] : ST[state];
-  const fill = state === 'pending' || state === 'skipped' ? 0 : state === 'done' ? 1 : progress;
-  const bar = BAR[state] || DIR[phase].c;
-  return /*#__PURE__*/React.createElement("div", {
-    "aria-current": state === 'active' ? 'step' : undefined,
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'var(--space-1)'
-    }
+  const fill = state === 'pending' || state === 'skipped' ? 0 : state === 'done' ? 1 : Math.max(0, Math.min(1, progress));
+  const T = as;
+  return /*#__PURE__*/React.createElement(T, {
+    className: 'ph' + (stacked ? ' stacked' : ''),
+    "aria-current": state === 'active' ? 'step' : undefined
   }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'var(--space-2)'
-    }
+    className: "ph-r"
   }, /*#__PURE__*/React.createElement("span", {
+    className: "ic",
     style: {
-      color: s.c,
-      display: 'inline-flex'
+      color: s.c
     }
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: s.icon,
     size: 15
   })), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 'var(--text-sm)',
-      fontWeight: 'var(--weight-semibold)'
-    }
-  }, label || phase[0].toUpperCase() + phase.slice(1)), /*#__PURE__*/React.createElement("span", {
-    className: "mono",
-    style: {
-      marginLeft: 'auto',
-      fontSize: 'var(--text-caption)',
-      color: 'var(--fg-subtle)'
-    }
+    className: "nm"
+  }, label || NAME[phase]), /*#__PURE__*/React.createElement("span", {
+    className: "mt"
   }, state, detail ? ' · ' + detail : '')), /*#__PURE__*/React.createElement("div", {
+    className: "ph-bar",
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("span", {
     style: {
-      height: 4,
-      borderRadius: 2,
-      background: 'var(--surface-3)',
-      overflow: 'hidden'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: '100%',
       width: Math.round(fill * 100) + '%',
-      background: bar,
-      transition: 'width var(--dur-base) var(--ease-out)'
+      background: BAR[state] || DIR[phase].c
     }
   })));
 }
-Object.assign(__ds_scope, { PhaseStep });
+function PhaseIndicator({
+  steps = [],
+  compact = false
+}) {
+  return /*#__PURE__*/React.createElement("ol", {
+    className: 'phases' + (compact ? ' compact' : ''),
+    "aria-label": "Test phases",
+    style: {
+      gridTemplateColumns: 'repeat(' + Math.max(1, steps.length) + ', minmax(0, 1fr))'
+    }
+  }, steps.map((s, i) => /*#__PURE__*/React.createElement(PhaseStep, _extends({
+    key: s.phase + i
+  }, s, {
+    stacked: compact,
+    as: "li"
+  }))));
+}
+Object.assign(__ds_scope, { PhaseStep, PhaseIndicator });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/PhaseStep.jsx", error: String((e && e.message) || e) }); }
+
+// components/navigation/AppHeader.jsx
+try { (() => {
+const THEMES = [{
+  value: 'light',
+  label: 'Light',
+  icon: 'sun',
+  iconOnly: true
+}, {
+  value: 'dark',
+  label: 'Dark',
+  icon: 'moon',
+  iconOnly: true
+}, {
+  value: 'system',
+  label: 'Follow system',
+  icon: 'monitor',
+  iconOnly: true
+}];
+// Server identity: name from GET /info when known, the page's host always; status as dot + text.
+function Server({
+  name,
+  host,
+  down
+}) {
+  const [ann, setAnn] = React.useState('');
+  const last = React.useRef(undefined);
+  React.useEffect(() => {
+    const s = down ? 'unreachable' : 'connected';
+    if (last.current !== undefined && last.current !== s) setAnn(down ? 'Server unreachable' : 'Server connected');
+    last.current = s;
+  }, [down]);
+  return /*#__PURE__*/React.createElement("div", {
+    className: 'srv' + (down ? ' down' : ''),
+    title: down ? 'Server unreachable' : 'Server connected'
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "dot",
+    "aria-hidden": "true"
+  }), name ? /*#__PURE__*/React.createElement("span", {
+    className: "nm"
+  }, name) : null, /*#__PURE__*/React.createElement("span", {
+    className: "sr-only"
+  }, down ? ', unreachable' : ', connected'), down ? /*#__PURE__*/React.createElement("span", {
+    className: "st",
+    "aria-hidden": "true"
+  }, name ? 'Unreachable' : 'Unreachable ·') : null, /*#__PURE__*/React.createElement("span", {
+    className: "host"
+  }, host), /*#__PURE__*/React.createElement("span", {
+    className: "sr-only",
+    role: "status",
+    "aria-live": "polite"
+  }, ann));
+}
+function AppHeader({
+  compact = false,
+  server,
+  host,
+  status = 'connected',
+  items = [],
+  active,
+  theme = 'system',
+  onThemeChange,
+  onNavigate
+}) {
+  const down = status === 'unreachable';
+  const nav = (e, it) => {
+    if (onNavigate) {
+      e.preventDefault();
+      onNavigate(it.key);
+    }
+  };
+  if (compact) {
+    const cur = THEMES.find(t => t.value === theme) || THEMES[2];
+    const next = THEMES[(THEMES.indexOf(cur) + 1) % 3].value;
+    return /*#__PURE__*/React.createElement("header", {
+      className: "hdr compact"
+    }, /*#__PURE__*/React.createElement(__ds_scope.Logo, {
+      size: 26
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "hdr-id"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "wm md"
+    }, /*#__PURE__*/React.createElement("span", null, "Bit", /*#__PURE__*/React.createElement("span", {
+      className: "g"
+    }, "Gauge"))), /*#__PURE__*/React.createElement(Server, {
+      name: server,
+      host: host,
+      down: down
+    })), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "btn ghost icon touch hdr-theme",
+      "aria-label": 'Theme: ' + cur.label,
+      onClick: () => onThemeChange && onThemeChange(next)
+    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: cur.icon,
+      size: 18
+    })));
+  }
+  return /*#__PURE__*/React.createElement("header", {
+    className: "hdr"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hdr-in"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Logo, {
+    size: 28,
+    wordmark: true,
+    href: "#"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "hdr-sep",
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement(Server, {
+    name: server,
+    host: host,
+    down: down
+  }), /*#__PURE__*/React.createElement("nav", {
+    className: "nav",
+    "aria-label": "Primary"
+  }, items.map(it => /*#__PURE__*/React.createElement("a", {
+    key: it.key,
+    href: it.href || '#',
+    className: "nav-l",
+    "aria-current": it.key === active ? 'page' : undefined,
+    onClick: e => nav(e, it)
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: it.icon,
+    size: 15
+  }), it.label))), /*#__PURE__*/React.createElement(__ds_scope.Segmented, {
+    size: "sm",
+    ariaLabel: "Theme",
+    options: THEMES,
+    value: theme,
+    onChange: onThemeChange
+  })));
+}
+function TabBar({
+  items = [],
+  active,
+  onNavigate
+}) {
+  return /*#__PURE__*/React.createElement("nav", {
+    className: "tabbar",
+    "aria-label": "Primary"
+  }, items.map(it => /*#__PURE__*/React.createElement("a", {
+    key: it.key,
+    href: it.href || '#',
+    className: "tab-l",
+    "aria-current": it.key === active ? 'page' : undefined,
+    onClick: e => {
+      if (onNavigate) {
+        e.preventDefault();
+        onNavigate(it.key);
+      }
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: it.icon,
+    size: 20
+  }), it.label)));
+}
+Object.assign(__ds_scope, { AppHeader, TabBar });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/navigation/AppHeader.jsx", error: String((e && e.message) || e) }); }
 
 // components/status/Chip.jsx
 try { (() => {
 function Chip({
   selected = false,
+  changed = false,
   icon,
   count,
   sort = false,
+  size = 'md',
   onClick,
   children
 }) {
-  const cls = 'chip' + (selected ? ' on' : '') + (sort ? ' sort' : '');
+  const cls = 'chip' + (selected ? ' on' : '') + (changed ? ' changed' : '') + (sort ? ' sort' : '') + (size === 'sm' ? ' sm' : '');
   const inner = /*#__PURE__*/React.createElement(React.Fragment, null, icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon,
-    size: 14
+    size: size === 'sm' ? 12 : 14,
+    stroke: size === 'sm' ? 2 : 1.75
   }) : null, children, count != null ? /*#__PURE__*/React.createElement("span", {
     className: "n"
   }, count) : null);
   return onClick ? /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: cls,
-    "aria-pressed": selected,
+    "aria-pressed": sort ? undefined : selected,
     onClick: onClick
   }, inner) : /*#__PURE__*/React.createElement("span", {
     className: cls
   }, inner);
 }
-Object.assign(__ds_scope, { Chip });
+// "changed" marker next to a setting that differs from the server default (screens.md §4).
+function ChangedMark() {
+  return /*#__PURE__*/React.createElement("span", {
+    className: "chgd"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "d",
+    "aria-hidden": "true"
+  }), "changed");
+}
+Object.assign(__ds_scope, { Chip, ChangedMark });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/status/Chip.jsx", error: String((e && e.message) || e) }); }
+
+// components/feedback/SaveBar.jsx
+try { (() => {
+const ST = {
+  saved: ['circle-check', 'ok'],
+  kept: ['circle-check', 'ok'],
+  complete: ['circle-check', 'ok'],
+  unsaved: ['circle-minus', 'muted']
+};
+function SaveBar({
+  status = 'saved',
+  title,
+  time,
+  message,
+  label,
+  actions
+}) {
+  const s = ST[status] || ST.saved;
+  return /*#__PURE__*/React.createElement("section", {
+    className: "card savebar",
+    "aria-label": "Result status"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sb-st",
+    role: "status"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: 'ic ' + s[1]
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: s[0],
+    size: 16
+  })), title, time ? /*#__PURE__*/React.createElement("span", {
+    className: "tm"
+  }, time) : null), message ? /*#__PURE__*/React.createElement("span", {
+    className: "sb-msg"
+  }, message) : null, label ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
+    className: "input sb-in"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "tag",
+    size: 14
+  }), /*#__PURE__*/React.createElement("input", {
+    "aria-label": "Result label",
+    value: label.value || '',
+    placeholder: label.placeholder || 'Add a label, e.g. Home Wi-Fi',
+    onChange: label.onChange
+  })), label.suggestions && label.suggestions.length ? /*#__PURE__*/React.createElement("div", {
+    className: "sb-chips",
+    role: "group",
+    "aria-label": "Suggested labels"
+  }, label.suggestions.map(c => /*#__PURE__*/React.createElement(__ds_scope.Chip, {
+    key: c,
+    size: "sm",
+    onClick: () => label.onSuggest && label.onSuggest(c)
+  }, c))) : null) : null, actions ? /*#__PURE__*/React.createElement("div", {
+    className: "sb-act"
+  }, actions) : null);
+}
+Object.assign(__ds_scope, { SaveBar });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/feedback/SaveBar.jsx", error: String((e && e.message) || e) }); }
 
 // components/status/StatusBadge.jsx
 try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 const DEF = {
   ok: 'circle-check',
   warn: 'triangle-alert',
@@ -1290,35 +2631,461 @@ function StatusBadge({
   tone = 'neutral',
   icon,
   dashed = false,
-  children
+  size = 'md',
+  children,
+  ...rest
 }) {
-  return /*#__PURE__*/React.createElement("span", {
-    className: 'sbadge ' + tone,
-    style: dashed ? {
-      borderStyle: 'dashed'
-    } : undefined
-  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+  return /*#__PURE__*/React.createElement("span", _extends({
+    className: 'sbadge ' + tone + (dashed ? ' dashed' : '') + (size === 'sm' ? ' sm' : '')
+  }, rest), /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon || DEF[tone],
-    size: 13
+    size: size === 'sm' ? 12 : 13,
+    stroke: 2
   }), children);
 }
 Object.assign(__ds_scope, { StatusBadge });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/status/StatusBadge.jsx", error: String((e && e.message) || e) }); }
 
+// components/measurement/NotMeasured.jsx
+try { (() => {
+const WHY = "Browsers can't see packet loss over TCP";
+function NotMeasured({
+  href = '#',
+  reason = WHY
+}) {
+  return /*#__PURE__*/React.createElement("span", {
+    className: "notmeasured"
+  }, /*#__PURE__*/React.createElement(__ds_scope.StatusBadge, {
+    tone: "neutral",
+    dashed: true,
+    size: "sm",
+    title: reason
+  }, "Not measured"), /*#__PURE__*/React.createElement(__ds_scope.Link, {
+    href: href,
+    title: reason,
+    "aria-label": 'Why packet loss is not measured: ' + reason
+  }, "Why?"));
+}
+Object.assign(__ds_scope, { NotMeasured });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/NotMeasured.jsx", error: String((e && e.message) || e) }); }
+
+// components/measurement/QualityList.jsx
+try { (() => {
+// tiles.md QualityList — band name + icon, never colour alone.
+const QUALITY = {
+  Great: {
+    tone: 'ok',
+    icon: 'circle-check'
+  },
+  Good: {
+    tone: 'ok',
+    icon: 'check'
+  },
+  Average: {
+    tone: 'warn',
+    icon: 'circle-minus'
+  },
+  Poor: {
+    tone: 'warn',
+    icon: 'circle-alert'
+  },
+  Bad: {
+    tone: 'danger',
+    icon: 'circle-x'
+  }
+};
+const ROWS = [['Streaming', 'tv'], ['Gaming', 'gamepad'], ['Video calls', 'video']];
+function QualityList({
+  bands = [],
+  missing = [],
+  basis,
+  packetLoss = false,
+  compact = false,
+  className,
+  style
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: 'card tile qlist' + (compact ? ' compact' : '') + (className ? ' ' + className : ''),
+    style: style
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ds-eyebrow"
+  }, "Good for", basis ? /*#__PURE__*/React.createElement("span", {
+    className: "chip sm"
+  }, basis) : null), ROWS.map(([label, icon], i) => {
+    const b = bands[i];
+    const Q = b ? QUALITY[b] : null;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "qrow",
+      key: label
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "ic"
+    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: icon,
+      size: 16
+    })), /*#__PURE__*/React.createElement("span", {
+      className: "lb"
+    }, label), Q ? /*#__PURE__*/React.createElement(__ds_scope.StatusBadge, {
+      tone: Q.tone,
+      icon: Q.icon
+    }, b) : /*#__PURE__*/React.createElement("span", {
+      className: "none"
+    }, (Array.isArray(missing) ? missing[i] : missing) || '—'));
+  }), packetLoss ? /*#__PURE__*/React.createElement("div", {
+    className: "qrow"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ic"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "signal",
+    size: 16
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "lb"
+  }, "Packet loss"), /*#__PURE__*/React.createElement(__ds_scope.NotMeasured, null)) : null, /*#__PURE__*/React.createElement("span", {
+    className: "foot"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "info",
+    size: 12
+  }), "Upper bound: packet loss is not measured"));
+}
+Object.assign(__ds_scope, { QUALITY, QualityList });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/QualityList.jsx", error: String((e && e.message) || e) }); }
+
 // components/status/StatusPill.jsx
 try { (() => {
 function StatusPill({
   tone = 'neutral',
+  size = 'md',
+  dot = true,
+  dashed = false,
   children
 }) {
   return /*#__PURE__*/React.createElement("span", {
-    className: 'pill ' + tone
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "d"
-  }), children);
+    className: 'pill ' + tone + (size === 'sm' ? ' sm' : '') + (dot ? '' : ' nodot') + (dashed ? ' dashed' : '')
+  }, dot ? /*#__PURE__*/React.createElement("span", {
+    className: "d",
+    "aria-hidden": "true"
+  }) : null, children);
 }
 Object.assign(__ds_scope, { StatusPill });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/status/StatusPill.jsx", error: String((e && e.message) || e) }); }
+
+// components/measurement/LoadCard.jsx
+try { (() => {
+// tiles.md LoadCard — grade letter + words (never colour alone), loaded latency per direction, RPM.
+const GRADES = {
+  'A+': {
+    tone: 'ok',
+    text: 'Minimal bufferbloat'
+  },
+  A: {
+    tone: 'ok',
+    text: 'Low bufferbloat'
+  },
+  B: {
+    tone: 'ok',
+    text: 'Mild bufferbloat'
+  },
+  C: {
+    tone: 'warn',
+    text: 'Moderate bufferbloat'
+  },
+  D: {
+    tone: 'warn',
+    text: 'High bufferbloat'
+  },
+  F: {
+    tone: 'danger',
+    text: 'Severe bufferbloat'
+  }
+};
+const DIR = {
+  download: ['arrow-down', 'var(--series-download)'],
+  upload: ['arrow-up', 'var(--series-upload)']
+};
+function GradeBadge({
+  grade,
+  text
+}) {
+  const G = grade ? GRADES[grade] : null;
+  const words = text || (G ? G.text : 'Graded after upload');
+  return /*#__PURE__*/React.createElement("div", {
+    className: "grade"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: 'grade-l ' + (G ? G.tone : 'none'),
+    role: "img",
+    "aria-label": G ? 'Bufferbloat grade ' + grade + ', ' + words : 'Bufferbloat grade pending'
+  }, grade || '—'), /*#__PURE__*/React.createElement("div", {
+    className: "grade-s"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grade-strip",
+    "aria-hidden": "true"
+  }, Object.keys(GRADES).map(g => /*#__PURE__*/React.createElement("span", {
+    key: g,
+    className: g === grade ? 'on ' + GRADES[g].tone : undefined
+  }, g))), /*#__PURE__*/React.createElement("span", {
+    className: "grade-t"
+  }, words)));
+}
+function NumU({
+  value,
+  unit,
+  live,
+  uncertain
+}) {
+  const none = value == null || value === '—';
+  return /*#__PURE__*/React.createElement("span", {
+    className: 'num-u' + (none ? ' none' : live ? ' live' : uncertain ? ' uncertain' : '')
+  }, none ? '—' : value, !none && unit ? /*#__PURE__*/React.createElement("span", {
+    className: "u"
+  }, unit) : null);
+}
+function LoadCard({
+  grade,
+  gradeText,
+  rows = [],
+  responsiveness,
+  compact = false,
+  className,
+  style
+}) {
+  const r = responsiveness || {};
+  return /*#__PURE__*/React.createElement("div", {
+    className: 'card tile load' + (compact ? ' compact' : '') + (className ? ' ' + className : ''),
+    style: style
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "load-g"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ds-eyebrow"
+  }, "Bufferbloat"), /*#__PURE__*/React.createElement(GradeBadge, {
+    grade: grade,
+    text: gradeText
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "load-r"
+  }, rows.map((x, i) => /*#__PURE__*/React.createElement("div", {
+    className: "lrow",
+    key: i
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ic",
+    style: {
+      color: DIR[x.dir][1]
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: DIR[x.dir][0],
+    size: 14,
+    stroke: 2
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "lb"
+  }, /*#__PURE__*/React.createElement("span", null, x.label), /*#__PURE__*/React.createElement("span", {
+    className: "sub"
+  }, x.sub)), /*#__PURE__*/React.createElement(NumU, {
+    value: x.value,
+    unit: "ms",
+    live: x.live
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "rpm"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "rpm-h"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ic",
+    style: {
+      color: 'var(--fg-subtle)',
+      marginTop: 2
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "gauge",
+    size: 14,
+    stroke: 2
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "lb"
+  }, /*#__PURE__*/React.createElement("span", null, "HTTP loaded responsiveness \u2014 connection sharing not verifiable"), r.note ? /*#__PURE__*/React.createElement("span", {
+    className: "sub"
+  }, r.note) : null), /*#__PURE__*/React.createElement("div", {
+    className: "tags"
+  }, r.tag ? /*#__PURE__*/React.createElement(__ds_scope.StatusPill, {
+    size: "sm",
+    tone: "warn"
+  }, r.tag) : null, r.protocol ? /*#__PURE__*/React.createElement("span", {
+    className: "proto"
+  }, r.protocol) : null)), /*#__PURE__*/React.createElement("div", {
+    className: "rpm-d"
+  }, (r.dirs || []).map((d, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ic",
+    style: {
+      color: DIR[d.dir][1]
+    }
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: DIR[d.dir][0],
+    size: 12,
+    stroke: 2.25
+  })), d.value != null ? /*#__PURE__*/React.createElement(NumU, {
+    value: d.value,
+    unit: "RPM",
+    uncertain: d.uncertain
+  }) : /*#__PURE__*/React.createElement("span", {
+    className: "txt"
+  }, d.text || '—')))))));
+}
+Object.assign(__ds_scope, { GRADES, GradeBadge, LoadCard });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/LoadCard.jsx", error: String((e && e.message) || e) }); }
+
+// components/measurement/MetricTile.jsx
+try { (() => {
+// tiles.md — the number always ships with its qualifier; some states never show a number.
+const NO_NUMBER = {
+  empty: 1,
+  'warming-up': 1,
+  error: 1,
+  'insufficient-data': 1,
+  skipped: 1
+};
+const TAG = {
+  live: ['info', 'Live'],
+  'warming-up': ['info', 'Live'],
+  partial: ['warn', 'Partial'],
+  'insufficient-data': ['warn', 'Insufficient data'],
+  'low-confidence': ['warn', 'Low confidence'],
+  error: ['danger', 'Error']
+};
+const Q = {
+  partial: 'warn',
+  'insufficient-data': 'warn',
+  'low-confidence': 'warn',
+  error: 'danger'
+};
+const WORD = {
+  partial: 'partial',
+  'insufficient-data': 'insufficient data',
+  'low-confidence': 'low confidence',
+  skipped: 'skipped',
+  error: 'error'
+};
+function MetricTile({
+  label,
+  icon,
+  accent,
+  value,
+  unit,
+  note,
+  notes,
+  state = 'done',
+  tag,
+  compact = false,
+  className,
+  style
+}) {
+  const none = NO_NUMBER[state] || value == null;
+  const t = TAG[state];
+  const q = note ?? WORD[state] ?? '';
+  return /*#__PURE__*/React.createElement("div", {
+    className: 'card tile' + (compact ? ' compact' : '') + (className ? ' ' + className : ''),
+    style: style
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "tile-h"
+  }, icon ? /*#__PURE__*/React.createElement("span", {
+    className: "ic",
+    style: accent ? {
+      color: accent
+    } : undefined
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 14,
+    stroke: 2
+  })) : null, /*#__PURE__*/React.createElement("span", {
+    className: "ds-eyebrow"
+  }, label), t || tag ? /*#__PURE__*/React.createElement(__ds_scope.StatusPill, {
+    size: "sm",
+    tone: t ? t[0] : 'neutral'
+  }, tag || t[1]) : null), /*#__PURE__*/React.createElement("div", {
+    className: "tile-v"
+  }, state === 'warming-up' ? /*#__PURE__*/React.createElement("span", {
+    className: "w"
+  }, "warming up") : /*#__PURE__*/React.createElement("span", {
+    className: 'n' + (none ? ' none' : '')
+  }, none ? '—' : value), !none && unit ? /*#__PURE__*/React.createElement("span", {
+    className: "u"
+  }, unit) : null), /*#__PURE__*/React.createElement("span", {
+    className: 'tile-q' + (Q[state] ? ' ' + Q[state] : '')
+  }, q), (notes || []).map((x, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "tile-q"
+  }, x)));
+}
+Object.assign(__ds_scope, { MetricTile });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/MetricTile.jsx", error: String((e && e.message) || e) }); }
+
+// components/measurement/SharePreview.jsx
+try { (() => {
+// share-panel.md — preview of the 1200×630 share image (always dark). Sizes are the image scaled into the card.
+function SharePreview({
+  head,
+  blocks = [],
+  grade,
+  foot = [],
+  where,
+  label = 'Share image preview'
+}) {
+  const G = grade ? __ds_scope.GRADES[grade] : null;
+  return /*#__PURE__*/React.createElement("div", {
+    "data-theme": "dark",
+    className: "sharep",
+    role: "img",
+    "aria-label": label
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "sharep-h"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Logo, {
+    size: 15,
+    wordmark: true
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "hd"
+  }, head)), /*#__PURE__*/React.createElement("div", {
+    className: "sharep-b"
+  }, blocks.map((b, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k",
+    style: {
+      color: b.color
+    }
+  }, b.label), /*#__PURE__*/React.createElement("span", {
+    className: "n"
+  }, b.value, /*#__PURE__*/React.createElement("span", {
+    className: "u"
+  }, b.unit)))), G ? /*#__PURE__*/React.createElement("span", {
+    className: "sharep-g"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: 'grade-l ' + G.tone
+  }, grade), /*#__PURE__*/React.createElement("span", {
+    className: "w"
+  }, /*#__PURE__*/React.createElement("b", null, G.text.split(' ')[0]), /*#__PURE__*/React.createElement("span", null, "bufferbloat"))) : null), /*#__PURE__*/React.createElement("div", {
+    className: "sharep-f"
+  }, foot.map((f, i) => /*#__PURE__*/React.createElement("span", {
+    key: i
+  }, f)), /*#__PURE__*/React.createElement("span", {
+    className: "w"
+  }, where)));
+}
+// The idle-state "last result" line: when, headline numbers, label, link to its detail (screens.md §1).
+function LastResult({
+  when,
+  values,
+  label,
+  href = '#'
+}) {
+  return /*#__PURE__*/React.createElement("a", {
+    className: "lastres",
+    href: href
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "history",
+    size: 13
+  }), 'Last test ' + when + ' · ', /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, values), label ? ' · ' + label : '', /*#__PURE__*/React.createElement("span", {
+    className: "go"
+  }, "View"));
+}
+Object.assign(__ds_scope, { SharePreview, LastResult });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/SharePreview.jsx", error: String((e && e.message) || e) }); }
 
 // ui_kits/app/About.jsx
 try { (() => {
@@ -1329,15 +3096,16 @@ try { (() => {
  *   librespeed: boolean  (default true)
  *   networkquality: boolean  (default true)
  *   unreachable: boolean  (default false) — /api/v1/info failed: snippets come from the page's own origin, layer state unknown
+ *   caps: version scope (caps.clients false before v0.3: no snippets, v0.1 methodology)
+ *   server: string | null — server.display_name; null while /info fails
  */
 class About extends React.Component {
   renderVals() {
-    const cm = 'var(--slate-5)',
-      cmd = 'var(--teal-5)',
-      tx = 'var(--slate-2)';
-    const ln = (t, c) => ({
+    const cm = 'comment',
+      cmd = 'command';
+    const ln = (t, kind) => ({
       t,
-      c: c || tx
+      kind
     });
     const flag = k => {
       const v = this.props[k];
@@ -1346,9 +3114,12 @@ class About extends React.Component {
     const m = !!this.props.mobile && this.props.mobile !== 'false';
     const un = !!this.props.unreachable && this.props.unreachable !== 'false';
     // Snippets are always built from the page's own origin (location.origin + base path); the kit mocks it.
-    const host = 'https://speed.home.lan',
-      hostName = host.replace(/^https?:\/\//, '');
-    const srvName = un ? hostName : 'Basement NAS';
+    const host = BG.KIT.origin,
+      hostName = BG.KIT.host;
+    const srvName = this.props.server || hostName;
+    const caps = this.props.caps || {
+      clients: true
+    };
     const on = un ? {
       ost: true,
       ls: true,
@@ -1424,25 +3195,24 @@ class About extends React.Component {
       nq: 'networkQuality'
     };
     const enabled = Object.keys(on).filter(k => on[k]).map(k => names[k]);
+    const S = BG.KIT.server;
     return {
       mobile: m,
-      desktop: !m,
       un,
       host,
-      L: m ? {
-        pad: '16px 16px 24px',
-        cols: 'minmax(0,1fr)',
-        h1: 'var(--text-3xl)'
-      } : {
-        pad: '24px 40px 48px',
-        cols: 'minmax(0,1fr) 340px',
-        h1: 'var(--text-4xl)'
-      },
       clients,
-      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], ['Clients', 'Unknown']] : [['Version', 'v1.4.0 · a1b2c3d · 2026-09-30'], ['License', 'GPL-3.0-or-later'], ['Server name', 'Basement NAS'], ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled']]).map(([k, v]) => ({
-        k,
-        v
+      layers: !!caps.clients,
+      L: m ? {
+        cols: 'minmax(0,1fr)'
+      } : {
+        cols: 'minmax(0,1fr) var(--layout-rail)'
+      },
+      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], ['Clients', 'Unknown']] : [['Version', S.version + ' · ' + S.commit + ' · ' + S.buildDate], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], ['Clients', !caps.clients ? 'Arrive in v0.3' : enabled.length ? enabled.join(' · ') : 'None enabled']]).map(([k, v]) => ({
+        label: k,
+        value: v
       })),
+      // Before v0.3 the methodology summary covers the v0.1 metrics only (screens.md §5).
+      method: caps.clients ? 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load — the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers.' : 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Idle latency and jitter are measured over WebSocket (HTTP if unavailable). Each result also reports the data used and the test duration.',
       credits: [{
         n: 'OpenSpeedTest™',
         d: 'Protocol compatibility for its web UI.'
@@ -1463,518 +3233,267 @@ class About extends React.Component {
   }
   render() {
     const v = this.renderVals();
+    const status = this.props.srvStatus || (v.un ? 'unreachable' : 'connected');
+    const pill = (txt, dashed) => /*#__PURE__*/React.createElement(DS.StatusPill, {
+      size: "sm",
+      dot: false,
+      dashed: dashed
+    }, txt);
     return /*#__PURE__*/React.createElement("div", {
       style: {
-        background: "var(--bg-base)",
-        color: "var(--fg)",
-        fontFamily: "var(--font-sans)",
+        display: "flex",
+        flexDirection: "column",
         minHeight: "100%"
       }
-    }, v.desktop ? /*#__PURE__*/React.createElement(Nav, {
-      variant: "top",
+    }, /*#__PURE__*/React.createElement(Nav, {
+      variant: v.mobile ? "mobile-top" : "top",
       active: "about",
-      status: this.props.srvStatus || (this.props.unreachable && this.props.unreachable !== "false" ? "unreachable" : "connected")
-    }) : null, v.mobile ? /*#__PURE__*/React.createElement(Nav, {
-      variant: "mobile-top",
-      active: "about",
-      status: this.props.srvStatus || (this.props.unreachable && this.props.unreachable !== "false" ? "unreachable" : "connected")
-    }) : null, /*#__PURE__*/React.createElement("main", {
+      status: status
+    }), /*#__PURE__*/React.createElement("main", {
+      className: "page" + (v.mobile ? " compact" : ""),
       style: {
-        maxWidth: "1200px",
-        margin: "0 auto",
-        padding: v.L?.pad,
         display: "grid",
-        gridTemplateColumns: v.L?.cols,
-        gap: "24px",
+        gridTemplateColumns: v.L.cols,
+        gap: "var(--space-6)",
         alignItems: "start"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "16px",
-        minWidth: "0"
+        gap: "var(--space-4)",
+        minWidth: 0
       }
     }, /*#__PURE__*/React.createElement("header", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("h1", {
+      className: v.mobile ? "ds-h2" : "ds-h1",
       style: {
-        margin: "0",
-        fontSize: v.L?.h1,
-        fontWeight: "600",
-        letterSpacing: "var(--tracking-tight)"
+        margin: 0
       }
     }, "Use with other clients"), /*#__PURE__*/React.createElement("p", {
+      className: "ds-body-sm",
       style: {
-        margin: "0",
+        margin: 0,
         fontSize: "var(--text-base)",
-        color: "var(--fg-muted)",
         maxWidth: "640px",
-        lineHeight: "1.55",
-        textWrap: "pretty"
+        lineHeight: "var(--lh-prose)"
       }
-    }, "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.")), v.un ? /*#__PURE__*/React.createElement("div", {
-      role: "alert",
+    }, "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.")), v.un ? /*#__PURE__*/React.createElement(DS.Notice, {
+      tone: "danger",
+      icon: "server-off",
+      title: "Server unreachable",
+      actions: /*#__PURE__*/React.createElement(DS.Button, {
+        size: "sm",
+        icon: "refresh-cw"
+      }, "Retry")
+    }, "The commands below are built from this page's address, " + v.host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers.") : null, !v.layers ? /*#__PURE__*/React.createElement(DS.Notice, {
+      tone: "info",
+      icon: "layers",
+      live: false,
+      title: "Other clients arrive in v0.3"
+    }, "The LibreSpeed, OpenSpeedTest and networkQuality layers are not part of this version, so there are no snippets yet.") : v.clients.map(c => /*#__PURE__*/React.createElement(DS.Card, {
+      key: c.k,
+      as: "section",
+      labelledBy: c.hid,
+      padded: false,
+      title: /*#__PURE__*/React.createElement("span", {
+        id: c.hid
+      }, c.name),
+      icon: c.icon,
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, pill(c.tag), c.off ? pill('Off', true) : null, c.unk ? pill('Not confirmed', true) : null, /*#__PURE__*/React.createElement(DS.Link, {
+        external: true,
+        href: "#",
+        "aria-label": c.docsAria
+      }, "BitGauge docs"))
+    }, c.on ? /*#__PURE__*/React.createElement("div", {
       style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "flex-start",
-        gap: "10px 12px",
-        padding: "12px 14px",
-        borderRadius: "var(--radius-md)",
-        border: "1px solid var(--warn-border)",
-        background: "var(--warn-bg)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--warn)",
-        display: "flex",
-        marginTop: "1px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "server-off",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1 1 260px",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "600",
-        color: "var(--warn-fg)"
-      }
-    }, "Server unreachable"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.5",
-        textWrap: "pretty"
-      }
-    }, "The commands below are built from this page's address, ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        overflowWrap: "anywhere"
-      }
-    }, v.host), ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers.")), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm",
-      style: {
-        marginLeft: "auto"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "refresh-cw",
-      size: "14"
-    }), "Retry")) : null, (v.clients || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-labelledby": c?.hid,
-      style: {
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "ico",
-      style: {
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: c?.icon,
-      size: "16"
-    })), /*#__PURE__*/React.createElement("span", {
-      className: "t",
-      id: c?.hid
-    }, c?.name), /*#__PURE__*/React.createElement("span", {
-      className: "pill neutral",
-      style: {
-        height: "20px",
-        fontSize: "10px"
-      }
-    }, c?.tag), c?.off ? /*#__PURE__*/React.createElement("span", {
-      className: "pill neutral",
-      style: {
-        height: "20px",
-        fontSize: "10px",
-        background: "transparent",
-        borderStyle: "dashed"
-      }
-    }, "Off") : null, c?.unk ? /*#__PURE__*/React.createElement("span", {
-      className: "pill neutral",
-      style: {
-        height: "20px",
-        fontSize: "10px",
-        background: "transparent",
-        borderStyle: "dashed"
-      }
-    }, "Not confirmed") : null, /*#__PURE__*/React.createElement("a", {
-      className: "right",
-      href: "#",
-      "aria-label": c?.docsAria,
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--primary-text)",
-        textDecoration: "none",
-        display: "flex",
-        alignItems: "center",
-        gap: "4px"
-      }
-    }, "BitGauge docs", /*#__PURE__*/React.createElement("bg-icon", {
-      name: "external-link",
-      size: "12"
-    }))), c?.on ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "12px 16px 4px",
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.5",
-        textWrap: "pretty"
-      }
-    }, c?.desc), (c?.blocks || []).map((b, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "8px 16px 0",
+        padding: "var(--space-3) var(--space-4) var(--space-4)",
         display: "flex",
         flexDirection: "column",
-        gap: "6px"
+        gap: "var(--space-2)"
       }
-    }, b?.cap ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, b?.cap) : null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "relative",
-        background: "var(--term-bg)",
-        border: "1px solid var(--border-subtle)",
-        borderRadius: "var(--radius-md)"
-      }
-    }, /*#__PURE__*/React.createElement("pre", {
-      style: {
-        margin: "0",
-        padding: "12px 52px 12px 14px",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        lineHeight: "1.7",
-        color: "var(--term-fg)",
-        whiteSpace: "pre-wrap",
-        wordBreak: "break-all"
-      }
-    }, (b?.lines || []).map((l, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
     }, /*#__PURE__*/React.createElement("span", {
+      className: "ds-body-sm"
+    }, c.desc), c.blocks.map((b, i) => /*#__PURE__*/React.createElement(DS.Snippet, {
+      key: i,
+      caption: b.cap,
+      copyLabel: b.copy,
+      lines: b.lines
+    })), c.note ? /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption",
       style: {
-        display: "block",
-        color: l?.c
-      }
-    }, l?.t)))), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
-      "aria-label": b?.copy,
-      style: {
-        position: "absolute",
-        top: "6px",
-        right: "6px",
-        width: "30px",
-        color: "var(--slate-3)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "copy",
-      size: "14"
-    })))))), c?.note ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        margin: "10px 16px 0",
         display: "flex",
-        gap: "8px",
+        gap: "var(--space-2)",
         alignItems: "flex-start",
-        fontSize: "var(--text-caption)",
         color: "var(--fg-muted)",
-        lineHeight: "1.5"
+        lineHeight: "var(--lh-normal)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
-        color: "var(--info)",
-        marginTop: "1px"
+        color: "var(--info)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "info",
-      size: "14"
-    })), /*#__PURE__*/React.createElement("span", {
+      size: 14
+    })), c.note) : null) : /*#__PURE__*/React.createElement("div", {
       style: {
-        textWrap: "pretty"
-      }
-    }, c?.note)) : null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        height: "16px"
-      }
-    })) : null, c?.off ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "14px 16px 16px",
+        padding: "var(--space-3-5) var(--space-4) var(--space-4)",
         display: "flex",
-        gap: "10px",
+        gap: "var(--space-2-5)",
         alignItems: "flex-start"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
-        color: "var(--fg-subtle)",
-        marginTop: "1px"
+        color: "var(--fg-subtle)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "circle-minus",
-      size: "16"
+      size: 16
     })), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "2px",
-        minWidth: "0"
+        gap: "var(--space-0-5)",
+        minWidth: 0
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "500",
-        color: "var(--fg)"
+        fontWeight: "var(--weight-medium)"
       }
     }, "Not enabled on this server \u2014 the operator can enable it."), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.5"
-      }
-    }, c?.offWhat))) : null)))), /*#__PURE__*/React.createElement("aside", {
+      className: "ds-caption"
+    }, c.offWhat)))))), /*#__PURE__*/React.createElement("aside", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "16px",
-        minWidth: "0"
+        gap: "var(--space-4)",
+        minWidth: 0
       }
-    }, /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      style: {
-        overflow: "hidden"
-      }
+    }, /*#__PURE__*/React.createElement(DS.Card, {
+      padded: false
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        padding: "18px 16px 14px",
+        padding: "var(--space-4-5) var(--space-4) var(--space-3-5)",
         display: "flex",
-        alignItems: "center",
-        gap: "12px",
+        flexDirection: "column",
+        gap: "var(--space-0-5)",
         borderBottom: "1px solid var(--border-subtle)"
       }
-    }, /*#__PURE__*/React.createElement("bg-logo", {
-      size: "40",
+    }, /*#__PURE__*/React.createElement(DS.Logo, {
+      size: 40,
+      wordmark: true
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption",
       style: {
-        color: "var(--fg)"
+        paddingLeft: "calc(40px + var(--space-3))"
       }
-    }), /*#__PURE__*/React.createElement("div", {
+    }, "Self-hosted network speed test")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        padding: "var(--space-1) var(--space-4) var(--space-2)"
+      }
+    }, /*#__PURE__*/React.createElement(DS.MetaList, {
+      facts: true,
+      rows: v.facts
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        padding: "var(--space-2) var(--space-4) var(--space-4)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-2)"
+      }
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      href: "#",
+      block: true,
+      icon: "github",
+      iconAfter: "external-link"
+    }, "Source repository"), /*#__PURE__*/React.createElement(DS.Button, {
+      href: "#",
+      block: true,
+      variant: "ghost",
+      size: "sm"
+    }, "LICENSE file in the repository"))), /*#__PURE__*/React.createElement(DS.Card, null, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "2px"
+        gap: "var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-xl)",
-        fontWeight: "var(--weight-semibold)",
-        letterSpacing: "var(--tracking-tight)"
-      }
-    }, "Bit", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--primary-text)",
-        fontWeight: "var(--weight-semibold)"
-      }
-    }, "Gauge")), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, "Self-hosted network speed test"))), /*#__PURE__*/React.createElement("dl", {
-      style: {
-        margin: "0",
-        padding: "4px 16px 8px"
-      }
-    }, (v.facts || []).map((f, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: "12px",
-        padding: "9px 0",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("dt", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        flex: "none"
-      }
-    }, f?.k), /*#__PURE__*/React.createElement("dd", {
-      style: {
-        margin: "0",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg)",
-        textAlign: "right",
-        minWidth: "0"
-      }
-    }, f?.v))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "8px 16px 16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px"
-      }
-    }, /*#__PURE__*/React.createElement("a", {
-      className: "btn secondary",
-      href: "#",
-      style: {
-        justifyContent: "center",
-        textDecoration: "none"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "github",
-      size: "15"
-    }), "Source repository", /*#__PURE__*/React.createElement("bg-icon", {
-      name: "external-link",
-      size: "13"
-    })), /*#__PURE__*/React.createElement("a", {
-      className: "btn ghost sm",
-      href: "#",
-      style: {
-        justifyContent: "center",
-        textDecoration: "none"
-      }
-    }, "LICENSE file in the repository"))), /*#__PURE__*/React.createElement("section", {
-      className: "card card-b",
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
-      }
+      className: "ds-eyebrow"
     }, "How it measures"), /*#__PURE__*/React.createElement("span", {
+      className: "ds-body-sm",
       style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.55",
-        textWrap: "pretty"
+        lineHeight: "var(--lh-prose)"
       }
-    }, "Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load \u2014 the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers."), /*#__PURE__*/React.createElement("a", {
-      href: "#",
-      style: {
-        alignSelf: "flex-start",
-        display: "flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-sm)",
-        color: "var(--primary-text)",
-        textDecoration: "none"
-      }
-    }, "Methodology in the BitGauge docs", /*#__PURE__*/React.createElement("bg-icon", {
-      name: "external-link",
-      size: "12"
-    }))), /*#__PURE__*/React.createElement("section", {
-      className: "card card-b",
+    }, v.method), /*#__PURE__*/React.createElement(DS.Link, {
+      external: true,
+      href: "#"
+    }, "Methodology in the BitGauge docs"))), /*#__PURE__*/React.createElement(DS.Card, null, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
-      }
+      className: "ds-eyebrow"
     }, "Privacy"), /*#__PURE__*/React.createElement("span", {
+      className: "ds-body-sm",
       style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.55"
+        lineHeight: "var(--lh-prose)"
       }
-    }, "No accounts, no tracking, no ads. The server keeps no results \u2014 history lives only in your browser.")), /*#__PURE__*/React.createElement("section", {
-      className: "card card-b",
+    }, "No accounts, no tracking, no ads. The server keeps no results \u2014 history lives only in your browser."))), /*#__PURE__*/React.createElement(DS.Card, null, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "12px"
+        gap: "var(--space-3)"
       }
     }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
-      }
+      className: "ds-eyebrow"
     }, "Credits"), /*#__PURE__*/React.createElement("ul", {
       style: {
-        margin: "0",
-        padding: "0",
+        margin: 0,
+        padding: 0,
         listStyle: "none",
         display: "flex",
         flexDirection: "column",
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
-    }, (v.credits || []).map((cr, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("li", {
+    }, v.credits.map(cr => /*#__PURE__*/React.createElement("li", {
+      key: cr.n,
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "2px"
+        gap: "var(--space-0-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "500",
-        color: "var(--fg)"
+        fontWeight: "var(--weight-medium)"
       }
-    }, cr?.n), /*#__PURE__*/React.createElement("span", {
+    }, cr.n), /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption",
       style: {
-        fontSize: "var(--text-caption)",
         color: "var(--fg-muted)",
-        lineHeight: "1.5",
-        textWrap: "pretty"
+        lineHeight: "var(--lh-normal)"
       }
-    }, cr?.d))))), /*#__PURE__*/React.createElement("span", {
+    }, cr.d)))), /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption",
       style: {
-        paddingTop: "10px",
+        paddingTop: "var(--space-2-5)",
         borderTop: "1px solid var(--border-subtle)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.5",
-        textWrap: "pretty"
+        lineHeight: "var(--lh-normal)"
       }
-    }, "OpenSpeedTest\u2122 is a trademark of its owner. BitGauge is an independent project, not affiliated with or endorsed by OpenSpeedTest, LibreSpeed, Cloudflare, Apple or Waveform.")))), v.mobile ? /*#__PURE__*/React.createElement(Nav, {
+    }, "OpenSpeedTest\u2122 is a trademark of its owner. BitGauge is an independent project, not affiliated with or endorsed by OpenSpeedTest, LibreSpeed, Cloudflare, Apple or Waveform."))))), v.mobile ? /*#__PURE__*/React.createElement(Nav, {
       variant: "mobile-bottom",
       active: "about",
-      status: this.props.srvStatus || (this.props.unreachable && this.props.unreachable !== "false" ? "unreachable" : "connected")
+      status: status
     }) : null);
   }
 }
@@ -1999,6 +3518,8 @@ const DEMO_DEFAULTS = {
   testState: '',
   v01: false,
   cpu: false,
+  browser: 'Firefox',
+  uploadPauses: false,
   errKind: 'requests',
   probe: 'auto',
   resp: 'ok',
@@ -2013,7 +3534,7 @@ const DEMO_DEFAULTS = {
   networkquality: true,
   aboutUnreachable: false
 };
-const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'cancelled-slow-up', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
+const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'upload-interrupted', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'cancelled-slow-up', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
 const HISTORY_VARIANTS = ['populated', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 function DemoSelect({
   label,
@@ -2087,9 +3608,9 @@ function DemoPanel({
     style: open ? undefined : {
       cursor: 'pointer'
     }
-  }, /*#__PURE__*/React.createElement("bg-icon", {
+  }, /*#__PURE__*/React.createElement(DS.Icon, {
     name: "sliders",
-    size: "14",
+    size: 14,
     style: {
       color: 'var(--primary-text)'
     }
@@ -2106,9 +3627,9 @@ function DemoPanel({
     className: "btn ghost sm icon",
     "aria-label": open ? 'Collapse demo panel' : 'Expand demo panel',
     onClick: () => setOpen(!open)
-  }, /*#__PURE__*/React.createElement("bg-icon", {
+  }, /*#__PURE__*/React.createElement(DS.Icon, {
     name: open ? 'chevron-down' : 'chevron-up',
-    size: "14"
+    size: 14
   }))), open ? /*#__PURE__*/React.createElement("div", {
     className: "demo-b"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2145,7 +3666,13 @@ function DemoPanel({
     })
   }), /*#__PURE__*/React.createElement("span", {
     className: "demo-note"
-  }, "Auto: desktop from 1140 px wide, mobile below.")), /*#__PURE__*/React.createElement("div", {
+  }, "Auto: desktop from 1140 px wide, mobile below."), /*#__PURE__*/React.createElement(DemoCheck, {
+    label: "v0.1 scope (no history, settings, share)",
+    value: d.v01,
+    onChange: v => set({
+      v01: v
+    })
+  })), /*#__PURE__*/React.createElement("div", {
     className: "demo-sec"
   }, /*#__PURE__*/React.createElement("span", {
     className: "st"
@@ -2156,13 +3683,9 @@ function DemoPanel({
     onChange: v => set({
       testState: v
     })
-  }), /*#__PURE__*/React.createElement(DemoCheck, {
-    label: "v0.1 scope (no history)",
-    value: d.v01,
-    onChange: v => set({
-      v01: v
-    })
-  }), /*#__PURE__*/React.createElement(DemoCheck, {
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "demo-note"
+  }, "Version scope applies to every screen and the navigation: see View."), /*#__PURE__*/React.createElement(DemoCheck, {
     label: "CPU-bound",
     value: d.cpu,
     onChange: v => set({
@@ -2195,6 +3718,23 @@ function DemoPanel({
     options: [['0.1', '0.1 ms'], ['1', '1 ms']],
     onChange: v => set({
       timerRes: v
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "demo-sec"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "st"
+  }, "Browser \xB7 Test screen and Result detail"), /*#__PURE__*/React.createElement(DemoSelect, {
+    label: "Browser",
+    value: d.browser,
+    options: ['Firefox', 'Chrome', 'Safari', 'Edge'],
+    onChange: v => set({
+      browser: v
+    })
+  }), /*#__PURE__*/React.createElement(DemoCheck, {
+    label: "Upload pauses seen",
+    value: d.uploadPauses,
+    onChange: v => set({
+      uploadPauses: v
     })
   })), /*#__PURE__*/React.createElement("div", {
     className: "demo-sec"
@@ -2284,12 +3824,13 @@ function App() {
   }, [d]);
   const set = patch => setD(prev => Object.assign({}, prev, patch));
   const testExtra = {
-    v01: d.v01,
     cpu: d.cpu,
     errKind: d.errKind,
     probe: d.probe,
     resp: d.resp,
-    timerRes: d.timerRes
+    timerRes: d.timerRes,
+    browser: d.browser,
+    uploadPauses: d.uploadPauses
   };
   if (d.testState) testExtra.state = d.testState;
   const historyExtra = d.historyVariant ? {
@@ -2299,7 +3840,9 @@ function App() {
     state: d.resultState,
     kind: d.resultKind,
     demo: d.resultDemo,
-    overhead: d.resultOverhead
+    overhead: d.resultOverhead,
+    browser: d.browser,
+    uploadPauses: d.uploadPauses
   };
   const aboutExtra = {
     openspeedtest: d.openspeedtest,
@@ -2311,6 +3854,7 @@ function App() {
     scenario: d.scenario,
     speed: d.speed,
     mobile: d.mobile,
+    scope: d.v01 ? 'v0.1' : 'v0.3',
     testExtra: testExtra,
     historyExtra: historyExtra,
     resultExtra: resultExtra,
@@ -2321,7 +3865,10 @@ function App() {
     reset: () => setD(Object.assign({}, DEMO_DEFAULTS))
   }));
 }
-ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
+
+// Mounted by index.html once window.DS is ready — never at load: this file is also swept into the design
+// system bundle, where a mount would take over every consumer's #root.
+window.App = App;
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/app/App.jsx", error: String((e && e.message) || e) }); }
 
 // ui_kits/app/History.jsx
@@ -2343,8 +3890,8 @@ class History extends React.Component {
     const is = k => v === k;
     const BG = window.BG;
     const L = m ? {
-      pad: '16px 16px 24px',
-      gap: '14px',
+      pad: 'var(--space-4) var(--space-4) var(--space-6)',
+      gap: 'var(--space-3-5)',
       h1: 'var(--text-3xl)',
       chipWrap: 'nowrap',
       filterML: '0',
@@ -2362,8 +3909,8 @@ class History extends React.Component {
       cfW: '100%',
       cfRad: 'var(--radius-xl) var(--radius-xl) 0 0'
     } : {
-      pad: '24px 40px 48px',
-      gap: '18px',
+      pad: 'var(--space-6) var(--space-10) var(--space-12)',
+      gap: 'var(--space-4-5)',
       h1: 'var(--text-4xl)',
       chipWrap: 'wrap',
       filterML: 'auto',
@@ -2735,15 +4282,6 @@ class History extends React.Component {
       }))
     };
   }
-  componentDidMount() {
-    if (!window.BG) {
-      this._h = () => this.forceUpdate();
-      window.addEventListener('bg-lib-ready', this._h);
-    }
-  }
-  componentWillUnmount() {
-    if (this._h) window.removeEventListener('bg-lib-ready', this._h);
-  }
   render() {
     const v = this.renderVals();
     return /*#__PURE__*/React.createElement("div", {
@@ -2770,7 +4308,7 @@ class History extends React.Component {
       style: {
         flex: "1",
         width: "100%",
-        maxWidth: "1200px",
+        maxWidth: "var(--layout-max)",
         margin: "0 auto",
         boxSizing: "border-box",
         padding: v.L?.pad,
@@ -2783,19 +4321,19 @@ class History extends React.Component {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "12px 16px"
+        gap: "var(--space-3) var(--space-4)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "baseline",
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("h1", {
       style: {
         margin: "0",
         fontSize: v.L?.h1,
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         letterSpacing: "var(--tracking-tight)"
       }
     }, "History"), /*#__PURE__*/React.createElement("span", {
@@ -2808,47 +4346,25 @@ class History extends React.Component {
       style: {
         display: "flex",
         flexWrap: "wrap",
-        gap: "8px",
+        gap: "var(--space-2)",
         marginLeft: "auto"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm",
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      size: "sm",
+      icon: "upload",
       disabled: v.importDisabled
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "upload",
-      size: "14"
-    }), v.importLabel), v.hasData ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "relative"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm",
-      "aria-haspopup": "menu",
-      "aria-expanded": v.exportAria
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "download",
-      size: "14"
-    }), "Export", /*#__PURE__*/React.createElement("bg-icon", {
-      name: "chevron-down",
-      size: "13"
-    })), v.showExport ? /*#__PURE__*/React.createElement("div", {
+    }, v.importLabel), v.hasData ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Popover, {
+      open: !!v.showExport,
       role: "menu",
-      "aria-label": "Export",
-      style: {
-        position: "absolute",
-        right: "0",
-        top: "calc(100% + 6px)",
-        zIndex: "20",
-        background: "var(--surface-2)",
-        border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "var(--shadow-pop)",
-        padding: "6px",
-        display: "flex",
-        flexDirection: "column",
-        textAlign: "left",
-        width: "320px"
-      }
+      label: "Export",
+      width: 320,
+      trigger: /*#__PURE__*/React.createElement(DS.Button, {
+        size: "sm",
+        icon: "download",
+        iconAfter: "chevron-down",
+        "aria-haspopup": "menu",
+        "aria-expanded": v.exportAria
+      }, "Export")
     }, (v.exportFormats || []).map((f, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
     }, /*#__PURE__*/React.createElement("div", {
@@ -2857,14 +4373,14 @@ class History extends React.Component {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "8px",
-        padding: "8px 10px"
+        gap: "var(--space-2)",
+        padding: "var(--space-2) var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "flex-start",
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -2872,19 +4388,19 @@ class History extends React.Component {
         display: "flex",
         marginTop: "1px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: f?.icon,
-      size: "16"
+      size: 16
     })), /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "2px"
+        gap: "var(--space-0-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         color: "var(--fg)"
       }
     }, f?.t), /*#__PURE__*/React.createElement("span", {
@@ -2896,33 +4412,25 @@ class History extends React.Component {
       style: {
         display: "grid",
         gridTemplateColumns: "repeat(2, minmax(0,1fr))",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         paddingLeft: "26px"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm",
-      role: "menuitem",
-      style: {
-        justifyContent: "center"
-      }
-    }, "All results (", v.total, ")"), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm",
-      role: "menuitem",
-      style: {
-        justifyContent: "center"
-      }
-    }, "Current filter (", v.shownN, ")"))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        height: "1px",
-        background: "var(--border-subtle)",
-        margin: "4px 2px"
-      }
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      size: "sm",
+      block: true,
+      role: "menuitem"
+    }, 'All results (' + v.total + ')'), /*#__PURE__*/React.createElement(DS.Button, {
+      size: "sm",
+      block: true,
+      role: "menuitem"
+    }, 'Current filter (' + v.shownN + ')'))))), /*#__PURE__*/React.createElement("div", {
+      className: "pop-sep"
     }), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "flex-start",
-        gap: "8px",
-        padding: "6px 10px 4px"
+        gap: "var(--space-2)",
+        padding: "var(--space-1-5) var(--space-2-5) var(--space-1)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -2930,428 +4438,144 @@ class History extends React.Component {
         display: "flex",
         marginTop: "1px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "triangle-alert",
-      size: "13",
-      stroke: "2"
+      size: 13,
+      stroke: 2
     })), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-micro)",
         color: "var(--fg-muted)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
-    }, "Contains client IP addresses, labels and notes. Files are created in your browser."))) : null), /*#__PURE__*/React.createElement("button", {
-      className: "btn danger sm"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "trash",
-      size: "14"
-    }), "Clear all")) : null)), v.showOrigin ? /*#__PURE__*/React.createElement("div", {
-      role: "note",
-      style: {
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "10px",
-        padding: "10px 14px",
-        borderRadius: "var(--radius-md)",
-        background: "var(--info-bg)",
-        border: "1px solid var(--info-border)"
-      }
+    }, "Contains client IP addresses, labels and notes. Files are created in your browser."))), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "danger",
+      size: "sm",
+      icon: "trash"
+    }, "Clear all")) : null)), v.showOrigin ? /*#__PURE__*/React.createElement(DS.Notice, {
+      tone: "info",
+      icon: "hard-drive",
+      live: false,
+      title: /*#__PURE__*/React.createElement(React.Fragment, null, "Stored only in this browser, for ", /*#__PURE__*/React.createElement("span", {
+        className: "ds-num"
+      }, BG.KIT.origin)),
+      actions: /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        size: "sm",
+        "aria-expanded": v.whyAria,
+        onClick: v.toggleWhy
+      }, "Why?")
+    }, v.whyOpen ? "Browsers keep site data per address — scheme, host and port. Opening BitGauge at another address, such as http://192.168.1.10:8080, shows a separate, empty history. The server keeps no results. Export JSON to move them." : null) : null, v.safari ? /*#__PURE__*/React.createElement(DS.Notice, {
+      tone: "warn",
+      title: "Safari may delete this history",
+      live: false,
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        size: "sm",
+        icon: "download"
+      }, "Export JSON"), /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        size: "sm",
+        iconOnly: true,
+        icon: "x",
+        "aria-label": "Dismiss"
+      }))
+    }, "Safari removes site data for sites you haven't opened in 7 days of browsing. Export a JSON copy to keep your results.") : null, v.importing ? /*#__PURE__*/React.createElement(DS.Notice, {
+      tone: "neutral",
+      icon: "upload",
+      title: /*#__PURE__*/React.createElement(React.Fragment, null, "Importing ", /*#__PURE__*/React.createElement("span", {
+        className: "ds-num"
+      }, "bitgauge-2026-10-01.json")),
+      actions: /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        size: "sm"
+      }, "Cancel")
     }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--info)",
-        display: "flex",
-        marginTop: "1px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "hard-drive",
-      size: "16"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        minWidth: "0",
-        fontSize: "var(--text-sm)",
-        lineHeight: "1.5"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "baseline",
-        gap: "4px 8px"
-      }
-    }, /*#__PURE__*/React.createElement("b", {
-      style: {
-        color: "var(--fg)",
-        fontWeight: "600"
-      }
-    }, "Stored only in this browser, for ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "500",
-        overflowWrap: "anywhere"
-      }
-    }, "https://speed.home.lan")), /*#__PURE__*/React.createElement("button", {
-      "aria-expanded": v.whyAria,
-      onClick: v.toggleWhy,
-      style: {
-        all: "unset",
-        cursor: "pointer",
-        color: "var(--info-fg)",
-        textDecoration: "underline",
-        textUnderlineOffset: "2px"
-      }
-    }, "Why?")), v.whyOpen ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-muted)",
-        maxWidth: "760px",
-        textWrap: "pretty"
-      }
-    }, "Browsers keep site data per address — scheme, host and port. Opening BitGauge at another address, such as ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)"
-      }
-    }, "http://192.168.1.10:8080"), ", shows a separate, empty history. The server keeps no results. Export JSON to move them.") : null)) : null, v.safari ? /*#__PURE__*/React.createElement("div", {
-      role: "note",
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "flex-start",
-        gap: "10px 12px",
-        padding: "12px 14px",
-        borderRadius: "var(--radius-md)",
-        border: "1px solid var(--warn-border)",
-        background: "var(--warn-bg)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--warn)",
-        display: "flex",
-        marginTop: "1px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "triangle-alert",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1 1 260px",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "600",
-        color: "var(--warn-fg)"
-      }
-    }, "Safari may delete this history"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.5",
-        textWrap: "pretty"
-      }
-    }, "Safari removes site data for sites you haven't opened in 7 days of browsing. Export a JSON copy to keep your results.")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: "6px",
-        alignItems: "center",
-        marginLeft: "auto"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "download",
-      size: "14"
-    }), "Export JSON"), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
-      "aria-label": "Dismiss",
-      style: {
-        width: "28px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "14"
-    })))) : null, v.importing ? /*#__PURE__*/React.createElement("div", {
-      role: "status",
-      "aria-live": "polite",
-      style: {
-        position: "relative",
-        overflow: "hidden",
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "10px 12px",
-        padding: "12px 14px",
-        borderRadius: "var(--radius-md)",
-        border: "1px solid var(--border-default)",
-        background: "var(--surface-2)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--primary-text)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "upload",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1 1 260px",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "600"
-      }
-    }, "Importing ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "500"
-      }
-    }, "bitgauge-2026-10-01.json")), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, "Checking 9 of 16 results\u2026")), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost sm",
-      style: {
-        marginLeft: "auto"
-      }
-    }, "Cancel"), /*#__PURE__*/React.createElement("div", {
+      className: "ds-num"
+    }, "Checking 9 of 16 results\u2026"), /*#__PURE__*/React.createElement("span", {
       role: "progressbar",
       "aria-label": "Import progress",
       "aria-valuemin": "0",
       "aria-valuemax": "16",
       "aria-valuenow": "9",
+      className: "ph-bar",
       style: {
-        position: "absolute",
-        left: "0",
-        right: "0",
-        bottom: "0",
-        height: "2px",
-        background: "var(--border-subtle)"
+        display: "block",
+        marginTop: "var(--space-1-5)"
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("span", {
       style: {
         width: "56%",
-        height: "100%",
         background: "var(--primary)"
       }
-    }))) : null, v.importResult ? /*#__PURE__*/React.createElement("div", {
-      role: "status",
+    }))) : null, v.importResult ? /*#__PURE__*/React.createElement(DS.Notice, {
+      tone: "ok",
+      title: /*#__PURE__*/React.createElement(React.Fragment, null, "Imported ", /*#__PURE__*/React.createElement("span", {
+        className: "ds-num"
+      }, "bitgauge-2026-10-01.json")),
+      actions: /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        size: "sm",
+        iconOnly: true,
+        icon: "x",
+        "aria-label": "Dismiss"
+      })
+    }, "12 added, 3 skipped as duplicates, 1 rejected: schema version 3 is newer than this app", /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         flexWrap: "wrap",
-        alignItems: "flex-start",
-        gap: "10px 12px",
-        padding: "12px 14px",
-        borderRadius: "var(--radius-md)",
-        border: "1px solid var(--border-default)",
-        background: "var(--surface-2)"
+        gap: "var(--space-1-5)",
+        marginTop: "var(--space-1-5)"
       }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--ok)",
-        display: "flex",
-        marginTop: "1px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-check",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1 1 260px",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "600"
-      }
-    }, "Imported ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "500"
-      }
-    }, "bitgauge-2026-10-01.json")), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.5"
-      }
-    }, "12 added, 3 skipped as duplicates, 1 rejected: schema version 3 is newer than this app"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "6px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "pill ok",
-      style: {
-        height: "20px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "d"
-    }), "12 added"), /*#__PURE__*/React.createElement("span", {
-      className: "pill neutral",
-      style: {
-        height: "20px"
-      }
-    }, "3 skipped"), /*#__PURE__*/React.createElement("span", {
-      className: "pill warn",
-      style: {
-        height: "20px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "d"
-    }), "1 rejected"))), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
-      "aria-label": "Dismiss",
-      style: {
-        width: "28px",
-        marginLeft: "auto"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "14"
-    }))) : null, v.importError ? /*#__PURE__*/React.createElement("div", {
-      role: "alert",
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "flex-start",
-        gap: "10px 12px",
-        padding: "12px 14px",
-        borderRadius: "var(--radius-md)",
-        border: "1px solid var(--danger-border)",
-        background: "var(--danger-bg)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--danger)",
-        display: "flex",
-        marginTop: "1px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "file-json",
-      size: "18"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1 1 260px",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "600",
-        color: "var(--danger-fg)"
-      }
-    }, "Couldn't import ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "500"
-      }
-    }, "bitgauge-2026-10-01.csv")), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.5"
-      }
-    }, "Import accepts BitGauge JSON exports only. CSV exports are summaries and can't be restored. Nothing in your history was changed.")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: "6px",
-        alignItems: "center",
-        marginLeft: "auto"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "upload",
-      size: "14"
-    }), "Choose another file"), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
-      "aria-label": "Dismiss",
-      style: {
-        width: "28px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "14"
-    })))) : null, v.isEmpty ? /*#__PURE__*/React.createElement("section", {
-      className: "card"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "empty"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "eg"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "history",
-      size: "22"
-    })), /*#__PURE__*/React.createElement("div", {
-      className: "et"
-    }, "No results yet"), /*#__PURE__*/React.createElement("div", {
-      className: "em"
-    }, "Each finished test is saved here automatically, with its label and note. Run a test on this device, or import a JSON export from another browser."), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "8px",
-        marginTop: "8px"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn primary"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "play",
-      size: "15"
-    }), "Start a test"), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "upload",
-      size: "15"
-    }), "Import JSON")))) : null, v.unavailable ? /*#__PURE__*/React.createElement("section", {
-      className: "card"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "empty"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "eg"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "hard-drive",
-      size: "22"
-    })), /*#__PURE__*/React.createElement("div", {
-      className: "et"
-    }, "History isn't available in this window"), /*#__PURE__*/React.createElement("div", {
-      className: "em"
-    }, "The browser isn't letting this site store data \u2014 usually because this is a private window. Tests still run, and you can copy or download each result, but nothing is saved here. Open BitGauge in a normal window to keep history."), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "8px",
-        marginTop: "8px"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn primary"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "play",
-      size: "15"
-    }), "Start a test")))) : null, v.loading ? /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement(DS.StatusPill, {
+      tone: "ok",
+      size: "sm"
+    }, "12 added"), /*#__PURE__*/React.createElement(DS.StatusPill, {
+      tone: "neutral",
+      size: "sm",
+      dot: false
+    }, "3 skipped"), /*#__PURE__*/React.createElement(DS.StatusPill, {
+      tone: "warn",
+      size: "sm"
+    }, "1 rejected"))) : null, v.importError ? /*#__PURE__*/React.createElement(DS.Notice, {
+      tone: "danger",
+      icon: "file-json",
+      title: /*#__PURE__*/React.createElement(React.Fragment, null, "Couldn't import ", /*#__PURE__*/React.createElement("span", {
+        className: "ds-num"
+      }, "bitgauge-2026-10-01.csv")),
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        size: "sm",
+        icon: "upload"
+      }, "Choose another file"), /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        size: "sm",
+        iconOnly: true,
+        icon: "x",
+        "aria-label": "Dismiss"
+      }))
+    }, "Import accepts BitGauge JSON exports only. CSV exports are summaries and can't be restored. Nothing in your history was changed.") : null, v.isEmpty ? /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      padded: false
+    }, /*#__PURE__*/React.createElement(DS.EmptyState, {
+      icon: "history",
+      title: "No results yet",
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "primary",
+        icon: "play"
+      }, "Start a test"), /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "secondary",
+        icon: "upload"
+      }, "Import JSON"))
+    }, "Each finished test is saved here automatically, with its label and note. Run a test on this device, or import a JSON export from another browser.")) : null, v.unavailable ? /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      padded: false
+    }, /*#__PURE__*/React.createElement(DS.EmptyState, {
+      icon: "hard-drive",
+      title: "History isn't available in this window",
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "primary",
+        icon: "play"
+      }, "Start a test"))
+    }, "The browser isn't letting this site store data \u2014 usually because this is a private window. Tests still run, and you can copy or download each result, but nothing is saved here. Open BitGauge in a normal window to keep history.")) : null, v.loading ? /*#__PURE__*/React.createElement("div", {
       "aria-busy": "true",
       "aria-label": "Loading history",
       style: {
@@ -3362,50 +4586,43 @@ class History extends React.Component {
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         overflow: "hidden"
       }
     }, (v.skChips || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "skel",
+    }, /*#__PURE__*/React.createElement(DS.Skeleton, {
+      width: c?.w,
+      height: "28px",
       style: {
         flex: "none",
-        width: c?.w,
-        height: "28px",
         borderRadius: "var(--radius-full)"
       }
-    })))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
+    })))), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      padded: false,
       style: {
         padding: v.L?.cardPad,
         display: "flex",
         flexDirection: "column",
-        gap: "14px"
+        gap: "var(--space-3-5)"
       }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "skel",
-      style: {
-        width: "180px",
-        height: "14px",
-        display: "block"
-      }
+    }, /*#__PURE__*/React.createElement(DS.Skeleton, {
+      width: "180px",
+      height: "14px"
     }), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
         gridTemplateColumns: v.L?.trendCols,
-        gap: "20px"
+        gap: "var(--space-5)"
       }
     }, (v.skTrends || []).map((t, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "skel",
-      style: {
-        display: "block",
-        height: v.L?.thpx
-      }
-    }))))), v.desktop ? /*#__PURE__*/React.createElement("section", {
-      className: "card",
+    }, /*#__PURE__*/React.createElement(DS.Skeleton, {
+      height: v.L?.thpx
+    }))))), v.desktop ? /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      padded: false,
       style: {
         overflow: "hidden"
       }
@@ -3420,19 +4637,17 @@ class History extends React.Component {
       className: "skel-row"
     }, (sr?.cols || []).map((sc, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "skel",
+    }, /*#__PURE__*/React.createElement(DS.Skeleton, {
+      width: sc?.w,
+      height: "12px",
       style: {
-        display: "block",
-        height: "12px",
-        width: sc?.w,
         flex: sc?.f
       }
     }))))))) : null, v.mobile ? /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "8px"
+        gap: "var(--space-2)"
       }
     }, (v.skRows || []).map((sr, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
@@ -3440,38 +4655,30 @@ class History extends React.Component {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "10px",
-        padding: "14px",
+        gap: "var(--space-2-5)",
+        padding: "var(--space-3-5)",
         borderRadius: "var(--radius-lg)",
         border: "1px solid var(--border-subtle)",
         background: "var(--surface-2)"
       }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "skel",
-      style: {
-        display: "block",
-        width: "60%",
-        height: "13px"
-      }
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "skel",
-      style: {
-        display: "block",
-        width: "90%",
-        height: "12px"
-      }
+    }, /*#__PURE__*/React.createElement(DS.Skeleton, {
+      width: "60%",
+      height: "13px"
+    }), /*#__PURE__*/React.createElement(DS.Skeleton, {
+      width: "90%",
+      height: "12px"
     }))))) : null) : null, v.showFilters ? /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "8px 10px"
+        gap: "var(--space-2) var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "8px",
+        gap: "var(--space-2)",
         minWidth: "0",
         maxWidth: "100%"
       }
@@ -3483,7 +4690,7 @@ class History extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         flexWrap: v.L?.chipWrap,
         overflowX: "auto",
         maxWidth: "100%"
@@ -3494,8 +4701,8 @@ class History extends React.Component {
         flex: "none",
         width: "56px",
         fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
+        fontWeight: "var(--weight-semibold)",
+        fontSize: "var(--text-micro)",
         letterSpacing: "var(--tracking-caps)",
         textTransform: "uppercase",
         color: "var(--fg-subtle)"
@@ -3513,220 +4720,122 @@ class History extends React.Component {
     }, c?.n)))))))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
-        gap: "8px",
+        gap: "var(--space-2)",
         flexWrap: "wrap",
         marginLeft: v.L?.filterML
       }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "relative"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm",
-      "aria-haspopup": "dialog",
-      "aria-expanded": v.dateAria,
-      style: {
-        height: "30px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "calendar",
-      size: "14"
-    }), v.dateLabel, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "chevron-down",
-      size: "13"
-    })), v.showDate ? /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement(DS.Popover, {
+      open: !!v.showDate,
       role: "dialog",
-      "aria-label": "Date range",
-      style: {
-        position: "absolute",
-        right: "0",
-        top: "calc(100% + 6px)",
-        zIndex: "20",
-        background: "var(--surface-2)",
-        border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "var(--shadow-pop)",
-        padding: "6px",
-        display: "flex",
-        flexDirection: "column",
-        textAlign: "left",
-        width: "300px",
-        gap: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      role: "radiogroup",
-      "aria-label": "Preset range",
-      style: {
-        display: "flex",
-        flexDirection: "column"
-      }
-    }, (v.ranges || []).map((rg, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      role: "radio",
-      "aria-checked": rg?.aria,
-      style: {
-        all: "unset",
-        boxSizing: "border-box",
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        minHeight: "34px",
-        padding: "0 10px",
-        borderRadius: "var(--radius-md)",
-        background: rg?.bg,
-        color: rg?.c,
-        fontSize: "var(--text-sm)",
-        cursor: "pointer"
-      }
-    }, rg?.t, /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: "auto",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, rg?.n), /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "14px",
-        display: "flex",
-        color: "var(--primary-text)"
-      }
-    }, rg?.on ? /*#__PURE__*/React.createElement("bg-icon", {
-      name: "check",
-      size: "14",
-      stroke: "2.25"
-    }) : null))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        height: "1px",
-        background: "var(--border-subtle)",
-        margin: "4px 2px"
-      }
+      label: "Date range",
+      width: 300,
+      trigger: /*#__PURE__*/React.createElement(DS.Button, {
+        size: "sm",
+        icon: "calendar",
+        iconAfter: "chevron-down",
+        "aria-haspopup": "dialog",
+        "aria-expanded": v.dateAria
+      }, v.dateLabel)
+    }, /*#__PURE__*/React.createElement(DS.OptionRows, {
+      label: "Preset range",
+      options: (v.ranges || []).map(rg => ({
+        value: rg.t,
+        label: rg.t,
+        meta: rg.n
+      })),
+      selected: ((v.ranges || []).find(rg => rg.on) || {}).t
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "pop-sep"
     }), /*#__PURE__*/React.createElement("span", {
+      className: "ds-eyebrow",
       style: {
-        padding: "4px 10px 2px",
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
+        padding: "var(--space-1) var(--space-2-5) var(--space-0-5)"
       }
     }, "Custom range"), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "6px",
-        padding: "4px 10px 8px"
+        gap: "var(--space-1-5)",
+        padding: "var(--space-1) var(--space-2-5) var(--space-2)"
       }
-    }, /*#__PURE__*/React.createElement("label", {
-      className: "input sm mono",
+    }, /*#__PURE__*/React.createElement(DS.Input, {
+      size: "sm",
+      mono: true,
       style: {
         flex: "1",
         minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+      },
       value: "2026-09-08",
       "aria-label": "From date",
       onChange: v.noop
-    })), /*#__PURE__*/React.createElement("span", {
+    }), /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg-subtle)"
       }
-    }, "\u2013"), /*#__PURE__*/React.createElement("label", {
-      className: "input sm mono",
+    }, "\u2013"), /*#__PURE__*/React.createElement(DS.Input, {
+      size: "sm",
+      mono: true,
       style: {
         flex: "1",
         minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+      },
       value: "2026-10-08",
       "aria-label": "To date",
       onChange: v.noop
-    }))), /*#__PURE__*/React.createElement("div", {
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "pop-foot"
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm"
+    }, "Cancel"), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "primary",
+      size: "sm"
+    }, "Apply"))), v.desktop ? /*#__PURE__*/React.createElement(DS.Input, {
+      size: "sm",
+      icon: "search",
       style: {
-        display: "flex",
-        justifyContent: "flex-end",
-        gap: "6px",
-        padding: "6px 6px 2px",
-        borderTop: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost sm"
-    }, "Cancel"), /*#__PURE__*/React.createElement("button", {
-      className: "btn primary sm"
-    }, "Apply"))) : null), v.desktop ? /*#__PURE__*/React.createElement("label", {
-      className: "input sm",
-      style: {
-        height: "30px",
         width: "220px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "search",
-      size: "14"
-    }), /*#__PURE__*/React.createElement("input", {
+      },
       placeholder: "Search labels and notes",
       "aria-label": "Search",
       value: v.searchVal,
       onChange: v.noop
-    })) : null)) : null, v.noMatch ? /*#__PURE__*/React.createElement("section", {
-      className: "card"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "empty"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "eg"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "search",
-      size: "22"
-    })), /*#__PURE__*/React.createElement("div", {
-      className: "et"
-    }, "No results match these filters"), /*#__PURE__*/React.createElement("div", {
-      className: "em"
-    }, v.noMatchText), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "8px",
-        marginTop: "8px"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "15"
-    }), "Clear filters")))) : null, v.showResults ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-label": "Trend",
+    }) : null)) : null, v.noMatch ? /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      padded: false
+    }, /*#__PURE__*/React.createElement(DS.EmptyState, {
+      icon: "search",
+      title: "No results match these filters",
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "secondary",
+        icon: "x"
+      }, "Clear filters"))
+    }, v.noMatchText)) : null, v.showResults ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      label: "Trend",
+      padded: false,
       style: {
         padding: v.L?.cardPad,
         display: "flex",
         flexDirection: "column",
-        gap: "12px"
+        gap: "var(--space-3)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "8px 14px"
+        gap: "var(--space-2) var(--space-3-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-base)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
-    }, "Trend"), /*#__PURE__*/React.createElement("span", {
-      className: "pill neutral",
-      style: {
-        gap: "5px",
-        color: "var(--fg)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "shield",
-      size: "12",
-      stroke: "2"
-    }), "VPN"), /*#__PURE__*/React.createElement("span", {
+    }, "Trend"), /*#__PURE__*/React.createElement(DS.Chip, {
+      size: "sm",
+      icon: "shield"
+    }, "VPN"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)"
@@ -3737,7 +4846,7 @@ class History extends React.Component {
       style: {
         display: "flex",
         flexWrap: "wrap",
-        gap: "6px 14px",
+        gap: "var(--space-1-5) var(--space-3-5)",
         marginLeft: v.L?.legendML,
         fontSize: "var(--text-caption)",
         color: "var(--fg-muted)"
@@ -3747,7 +4856,7 @@ class History extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -3761,7 +4870,7 @@ class History extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -3771,27 +4880,16 @@ class History extends React.Component {
         borderRadius: "50%",
         border: "1.5px solid var(--fg-muted)"
       }
-    }), "Partial or error")), v.mobile ? /*#__PURE__*/React.createElement("div", {
-      className: "seg seg-sm",
-      role: "radiogroup",
-      "aria-label": "Metric"
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "seg-btn on",
-      role: "radio",
-      "aria-checked": "true"
-    }, "Download"), /*#__PURE__*/React.createElement("button", {
-      className: "seg-btn",
-      role: "radio",
-      "aria-checked": "false"
-    }, "Upload"), /*#__PURE__*/React.createElement("button", {
-      className: "seg-btn",
-      role: "radio",
-      "aria-checked": "false"
-    }, "Latency")) : null), /*#__PURE__*/React.createElement("div", {
+    }), "Partial or error")), v.mobile ? /*#__PURE__*/React.createElement(DS.Segmented, {
+      size: "sm",
+      ariaLabel: "Metric",
+      options: ["Download", "Upload", "Latency"],
+      value: "Download"
+    }) : null), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
         gridTemplateColumns: v.L?.trendCols,
-        gap: "20px"
+        gap: "var(--space-5)"
       }
     }, (v.trends || []).map((tr, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
@@ -3799,14 +4897,14 @@ class History extends React.Component {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "8px",
+        gap: "var(--space-2)",
         minWidth: "0"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         fontSize: "var(--text-caption)",
         color: "var(--fg-muted)"
       }
@@ -3815,10 +4913,10 @@ class History extends React.Component {
         color: tr?.c,
         display: "flex"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: tr?.icon,
-      size: "13",
-      stroke: "2"
+      size: 13,
+      stroke: 2
     })), tr?.title, /*#__PURE__*/React.createElement("span", {
       style: {
         marginLeft: "auto",
@@ -3874,7 +4972,7 @@ class History extends React.Component {
         inset: "0",
         pointerEvents: "none",
         fontFamily: "var(--font-mono)",
-        fontSize: "10px",
+        fontSize: "var(--text-nano)",
         color: "var(--fg-subtle)"
       }
     }, (tr?.grid || []).map((gl, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
@@ -3896,9 +4994,10 @@ class History extends React.Component {
         transform: "translateX(-50%)",
         whiteSpace: "nowrap"
       }
-    }, xt?.t)))))))))), v.desktop ? /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-label": "Results",
+    }, xt?.t)))))))))), v.desktop ? /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      label: "Results",
+      padded: false,
       style: {
         overflow: "hidden",
         position: "relative"
@@ -3930,13 +5029,13 @@ class History extends React.Component {
         cursor: "pointer",
         display: "inline-flex",
         alignItems: "center",
-        gap: "4px",
+        gap: "var(--space-1)",
         color: h?.c
       }
-    }, h?.t, h?.on ? /*#__PURE__*/React.createElement("bg-icon", {
+    }, h?.t, h?.on ? /*#__PURE__*/React.createElement(DS.Icon, {
       name: "chevron-down",
-      size: "12",
-      stroke: "2"
+      size: 12,
+      stroke: 2
     }) : null)))), /*#__PURE__*/React.createElement("th", {
       style: {
         width: "40px"
@@ -3959,10 +5058,10 @@ class History extends React.Component {
         alignItems: "center",
         justifyContent: "center"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "check",
-      size: "12",
-      stroke: "3"
+      size: 12,
+      stroke: 3
     })) : null, r?.unsel ? /*#__PURE__*/React.createElement("span", {
       role: "checkbox",
       "aria-checked": "false",
@@ -3986,36 +5085,30 @@ class History extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "6px 8px",
+        gap: "var(--space-1-5) var(--space-2)",
         flexWrap: "wrap"
       }
     }, /*#__PURE__*/React.createElement("a", {
       href: "#",
       style: {
         color: "var(--fg)",
-        fontWeight: "500",
+        fontWeight: "var(--weight-medium)",
         textDecoration: "none"
       }
-    }, r?.label), r?.flag ? /*#__PURE__*/React.createElement("span", {
-      className: "pill warn",
-      style: {
-        height: "18px",
-        fontSize: "10px",
-        padding: "0 7px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "d"
-    }), r?.flag) : null)), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("span", {
+    }, r?.label), r?.flag ? /*#__PURE__*/React.createElement(DS.StatusPill, {
+      tone: "warn",
+      size: "sm"
+    }, r?.flag) : null)), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("span", {
       className: "pill neutral",
       style: {
         height: "20px",
-        gap: "4px",
+        gap: "var(--space-1)",
         color: "var(--fg-muted)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: r?.cicon,
-      size: "11",
-      stroke: "2"
+      size: 11,
+      stroke: 2
     }), r?.ctx)), /*#__PURE__*/React.createElement("td", {
       style: {
         fontFamily: "var(--font-mono)",
@@ -4027,8 +5120,8 @@ class History extends React.Component {
       className: r?.stCls,
       style: {
         height: "20px",
-        fontSize: "10px",
-        padding: "0 8px"
+        fontSize: "var(--text-nano)",
+        padding: "0 var(--space-2)"
       }
     }, r?.stDot ? /*#__PURE__*/React.createElement("span", {
       className: "d"
@@ -4080,35 +5173,32 @@ class History extends React.Component {
         background: r?.gbg,
         color: r?.gfg,
         fontFamily: "var(--font-mono)",
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         fontSize: "var(--text-caption)"
       }
-    }, r?.grade)), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
+    }, r?.grade)), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm",
+      iconOnly: true,
+      icon: "ellipsis",
       "aria-label": `Actions for ${r?.label ?? ""}`,
-      "aria-haspopup": "menu",
-      style: {
-        width: "28px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "ellipsis",
-      size: "15"
-    })))))))), v.hasSel ? /*#__PURE__*/React.createElement("div", {
+      "aria-haspopup": "menu"
+    }))))))), v.hasSel ? /*#__PURE__*/React.createElement("div", {
       role: "toolbar",
       "aria-label": "Selection",
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "8px 12px",
-        padding: "10px 14px",
+        gap: "var(--space-2) var(--space-3)",
+        padding: "var(--space-2-5) var(--space-3-5)",
         borderTop: "1px solid var(--border-default)",
         background: "var(--surface-1)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
     }, v.selN, " selected"), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -4121,39 +5211,38 @@ class History extends React.Component {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "8px"
+        gap: "var(--space-2)"
       }
     }, v.cmpHint ? /*#__PURE__*/React.createElement("span", {
       id: "cmp-hint",
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         fontSize: "var(--text-caption)",
         color: "var(--fg-muted)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "info",
-      size: "13"
-    }), "Compare needs exactly 2") : null, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost sm"
-    }, "Clear selection"), /*#__PURE__*/React.createElement("button", {
-      className: "btn danger sm"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "trash",
-      size: "14"
-    }), "Delete selected"), /*#__PURE__*/React.createElement("button", {
-      className: "btn primary sm",
+      size: 13
+    }), "Compare needs exactly 2") : null, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm"
+    }, "Clear selection"), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "danger",
+      size: "sm",
+      icon: "trash"
+    }, "Delete selected"), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "primary",
+      size: "sm",
+      icon: "git-compare",
       disabled: v.cmpDisabled,
       "aria-describedby": "cmp-hint"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "git-compare",
-      size: "14"
-    }), "Compare"))) : null) : null, v.mobile ? /*#__PURE__*/React.createElement("div", {
+    }, "Compare"))) : null) : null, v.mobile ? /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "8px"
+        gap: "var(--space-2)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -4163,12 +5252,11 @@ class History extends React.Component {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)"
       }
-    }, /*#__PURE__*/React.createElement("span", null, "Newest first"), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost sm"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "sort-desc",
-      size: "14"
-    }), "Sort")), (v.rows || []).map((r, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
+    }, /*#__PURE__*/React.createElement("span", null, "Newest first"), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm",
+      icon: "sort-desc"
+    }, "Sort")), (v.rows || []).map((r, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -4190,7 +5278,7 @@ class History extends React.Component {
         minHeight: "44px",
         display: "flex",
         justifyContent: "center",
-        paddingTop: "14px",
+        paddingTop: "var(--space-3-5)",
         cursor: "pointer"
       }
     }, r?.sel ? /*#__PURE__*/React.createElement("span", {
@@ -4204,10 +5292,10 @@ class History extends React.Component {
         alignItems: "center",
         justifyContent: "center"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "check",
-      size: "12",
-      stroke: "3"
+      size: 12,
+      stroke: 3
     })) : null, r?.unsel ? /*#__PURE__*/React.createElement("span", {
       style: {
         width: "18px",
@@ -4224,8 +5312,8 @@ class History extends React.Component {
         minWidth: "0",
         display: "flex",
         flexDirection: "column",
-        gap: "10px",
-        padding: "12px 0",
+        gap: "var(--space-2-5)",
+        padding: "var(--space-3) 0",
         color: "var(--fg)",
         textDecoration: "none",
         minHeight: "44px"
@@ -4234,19 +5322,19 @@ class History extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px"
+        gap: "var(--space-2)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "2px",
+        gap: "var(--space-0-5)",
         minWidth: "0",
         flex: "1"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         fontSize: "var(--text-sm)",
         whiteSpace: "nowrap",
         overflow: "hidden",
@@ -4258,20 +5346,14 @@ class History extends React.Component {
         fontSize: "var(--text-micro)",
         color: "var(--fg-subtle)"
       }
-    }, r?.d, " · ", r?.proto)), r?.flag ? /*#__PURE__*/React.createElement("span", {
-      className: "pill warn",
-      style: {
-        height: "18px",
-        fontSize: "10px",
-        padding: "0 7px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "d"
-    }), r?.flag) : null, r?.stM ? /*#__PURE__*/React.createElement("span", {
+    }, r?.d, " · ", r?.proto)), r?.flag ? /*#__PURE__*/React.createElement(DS.StatusPill, {
+      tone: "warn",
+      size: "sm"
+    }, r?.flag) : null, r?.stM ? /*#__PURE__*/React.createElement("span", {
       className: r?.stCls,
       style: {
         height: "18px",
-        fontSize: "10px",
+        fontSize: "var(--text-nano)",
         padding: "0 7px"
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -4292,14 +5374,14 @@ class History extends React.Component {
         background: r?.gbg,
         color: r?.gfg,
         fontFamily: "var(--font-mono)",
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         fontSize: "var(--text-caption)"
       }
     }, r?.grade)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
         gridTemplateColumns: "repeat(3, minmax(0,1fr))",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-sm)"
       }
@@ -4307,76 +5389,75 @@ class History extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "4px"
+        gap: "var(--space-1)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--primary-text)",
         display: "flex"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "arrow-down",
-      size: "12",
-      stroke: "2.25"
+      size: 12,
+      stroke: 2.25
     })), r?.down, /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg-subtle)",
-        fontSize: "10px"
+        fontSize: "var(--text-nano)"
       }
     }, r?.du)), /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "4px"
+        gap: "var(--space-1)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--series-upload)",
         display: "flex"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "arrow-up",
-      size: "12",
-      stroke: "2.25"
+      size: 12,
+      stroke: 2.25
     })), r?.up, /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg-subtle)",
-        fontSize: "10px"
+        fontSize: "var(--text-nano)"
       }
     }, r?.uu)), /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "4px"
+        gap: "var(--space-1)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--series-latency)",
         display: "flex"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "activity",
-      size: "12",
-      stroke: "2.25"
+      size: 12,
+      stroke: 2.25
     })), r?.lat, /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg-subtle)",
-        fontSize: "10px"
+        fontSize: "var(--text-nano)"
       }
-    }, "ms")))), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon",
+    }, "ms")))), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      iconOnly: true,
+      icon: "ellipsis",
       "aria-label": `Actions for ${r?.label ?? ""}`,
       "aria-haspopup": "menu",
       style: {
         flex: "none",
         width: "44px",
         height: "44px",
-        marginTop: "4px"
+        marginTop: "var(--space-1)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "ellipsis",
-      size: "16"
-    }))))), v.hasSel ? /*#__PURE__*/React.createElement("div", {
+    })))), v.hasSel ? /*#__PURE__*/React.createElement("div", {
       role: "toolbar",
       "aria-label": "Selection",
       style: {
@@ -4384,8 +5465,8 @@ class History extends React.Component {
         bottom: "12px",
         display: "flex",
         alignItems: "center",
-        gap: "4px",
-        padding: "6px 6px 6px 14px",
+        gap: "var(--space-1)",
+        padding: "var(--space-1-5) var(--space-1-5) var(--space-1-5) var(--space-3-5)",
         borderRadius: "var(--radius-lg)",
         background: "var(--surface-3)",
         border: "1px solid var(--border-default)",
@@ -4394,40 +5475,36 @@ class History extends React.Component {
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         marginRight: "auto"
       }
-    }, v.selN, " selected"), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon",
+    }, v.selN, " selected"), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      iconOnly: true,
+      icon: "x",
       "aria-label": "Clear selection",
       style: {
         width: "44px",
         height: "44px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon",
+    }), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      iconOnly: true,
+      icon: "trash",
       "aria-label": "Delete selected",
       style: {
         width: "44px",
         height: "44px",
         color: "var(--danger-fg)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "trash",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("button", {
-      className: "btn primary",
+    }), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "primary",
+      icon: "git-compare",
       disabled: v.cmpDisabled,
       style: {
         height: "44px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "git-compare",
-      size: "15"
-    }), "Compare")) : null) : null) : null), v.mobile ? /*#__PURE__*/React.createElement("div", {
+    }, "Compare")) : null) : null) : null), v.mobile ? /*#__PURE__*/React.createElement("div", {
       style: {
         marginTop: "auto",
         position: "sticky",
@@ -4448,280 +5525,187 @@ class History extends React.Component {
         display: "flex",
         justifyContent: "flex-end"
       }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "toast info",
-      role: "status",
-      "aria-live": "polite",
-      style: {
-        maxWidth: "100%",
-        boxSizing: "border-box",
-        alignItems: "center"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "i",
-      style: {
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "trash",
-      size: "16",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "t"
-    }, "2 results deleted."), /*#__PURE__*/React.createElement("div", {
-      className: "m"
-    }, "Removed from history in 8 s.")), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "undo-2",
-      size: "13"
-    }), "Undo"), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost sm icon",
-      "aria-label": "Dismiss"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "14"
-    })))) : null, v.showCompareD ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "absolute",
-        inset: "0",
-        background: "var(--scrim)",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "center",
-        paddingTop: "64px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      role: "dialog",
-      "aria-modal": "true",
-      "aria-labelledby": "cmp-t",
-      style: {
-        width: "760px",
-        background: "var(--surface-2)",
-        border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-xl)",
-        boxShadow: "var(--shadow-pop)",
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "12px",
-        padding: "16px 20px",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "34px",
-        height: "34px",
-        borderRadius: "var(--radius-md)",
-        background: "var(--primary-bg)",
-        border: "1px solid var(--primary-border)",
-        color: "var(--primary-text)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "git-compare",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      id: "cmp-t",
-      style: {
-        fontSize: "var(--text-lg)",
-        fontWeight: "600"
-      }
-    }, "Compare results"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, "Change is B relative to A")), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
-      "aria-label": "Close",
-      style: {
-        marginLeft: "auto",
-        width: "28px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "15"
-    }))), v.cmpWarn ? /*#__PURE__*/React.createElement("div", {
-      role: "note",
-      style: {
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "10px",
-        padding: "10px 20px",
-        background: "var(--warn-bg)",
-        borderBottom: "1px solid var(--warn-border)",
-        fontSize: "var(--text-sm)",
-        lineHeight: "1.5"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--warn)",
-        display: "flex",
-        marginTop: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "triangle-alert",
-      size: "15",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg)"
-      }
-    }, /*#__PURE__*/React.createElement("b", {
-      style: {
-        fontWeight: "600",
-        color: "var(--warn-fg)"
-      }
-    }, "Not directly comparable:"), " ", v.cmpWarn)) : null, /*#__PURE__*/React.createElement("table", {
-      className: "tbl",
-      style: {
-        tableLayout: "fixed"
-      }
-    }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
-      style: {
-        width: "30%",
-        background: "var(--surface-2)"
-      }
-    }, "Metric"), /*#__PURE__*/React.createElement("th", {
-      style: {
-        background: "var(--surface-2)",
-        textAlign: "right"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-end",
-        gap: "2px",
-        textTransform: "none",
-        letterSpacing: "0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-sm)",
-        color: "var(--fg)",
-        fontWeight: "600"
-      }
-    }, "A \xB7 VPN \xB7 office"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "400",
-        color: "var(--fg-subtle)"
-      }
-    }, "2026-09-26 18:20"))), /*#__PURE__*/React.createElement("th", {
-      style: {
-        background: "var(--surface-2)",
-        textAlign: "right"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-end",
-        gap: "2px",
-        textTransform: "none",
-        letterSpacing: "0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-sm)",
-        color: "var(--fg)",
-        fontWeight: "600"
-      }
-    }, "B \xB7 VPN \xB7 office"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "400",
-        color: "var(--fg-subtle)"
-      }
-    }, "2026-10-02 09:05"))), /*#__PURE__*/React.createElement("th", {
-      style: {
-        background: "var(--surface-2)",
-        textAlign: "right",
-        width: "24%"
-      }
-    }, "Change"))), /*#__PURE__*/React.createElement("tbody", null, (v.cmpRows || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, c?.head ? /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
-      style: {
-        paddingTop: "14px",
-        paddingBottom: "6px",
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
-      }
-    }, c?.k), /*#__PURE__*/React.createElement("td", null), /*#__PURE__*/React.createElement("td", null), /*#__PURE__*/React.createElement("td", null)) : null, c?.row ? /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
-      style: {
-        color: "var(--fg-muted)"
-      }
-    }, c?.k), /*#__PURE__*/React.createElement("td", {
-      className: "num",
-      style: {
-        whiteSpace: "normal"
-      }
-    }, c?.a), /*#__PURE__*/React.createElement("td", {
-      className: "num",
-      style: {
-        color: "var(--fg)",
-        whiteSpace: "normal"
-      }
-    }, c?.b), /*#__PURE__*/React.createElement("td", {
-      style: {
-        textAlign: "right"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "6px",
-        color: c?.dc,
-        fontSize: "var(--text-caption)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: c?.di,
-      size: "13",
-      stroke: "2"
-    }), c?.d ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)"
-      }
-    }, c?.d) : null, /*#__PURE__*/React.createElement("span", null, c?.dw)))) : null)))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "flex-end",
-        gap: "8px",
-        padding: "14px 20px",
-        borderTop: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "copy",
-      size: "14"
-    }), "Copy comparison"), /*#__PURE__*/React.createElement("button", {
-      className: "btn primary"
-    }, "Done")))) : null, v.showCompareM ? /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement(DS.Toast, {
+      tone: "info",
+      icon: "trash",
+      title: "2 results deleted.",
+      message: "Removed from history in 8 s.",
+      action: /*#__PURE__*/React.createElement(DS.Button, {
+        size: "sm",
+        icon: "undo-2"
+      }, "Undo"),
+      onDismiss: () => {}
+    })) : null, v.showCompareD ? /*#__PURE__*/React.createElement(DS.Dialog, {
+      size: "xl",
+      flush: true,
+      icon: "git-compare",
+      title: "Compare results",
+      onClose: () => {},
+      align: "top",
+      body: /*#__PURE__*/React.createElement(React.Fragment, null, v.cmpWarn ? /*#__PURE__*/React.createElement("div", {
+        role: "note",
+        style: {
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "var(--space-2-5)",
+          padding: "var(--space-2-5) var(--space-5)",
+          background: "var(--warn-bg)",
+          borderBottom: "1px solid var(--warn-border)",
+          fontSize: "var(--text-sm)",
+          lineHeight: "var(--lh-normal)"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "var(--warn)",
+          display: "flex",
+          marginTop: "var(--space-0-5)"
+        }
+      }, /*#__PURE__*/React.createElement(DS.Icon, {
+        name: "triangle-alert",
+        size: 15,
+        stroke: 2
+      })), /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "var(--fg)"
+        }
+      }, /*#__PURE__*/React.createElement("b", {
+        style: {
+          fontWeight: "var(--weight-semibold)",
+          color: "var(--warn-fg)"
+        }
+      }, "Not directly comparable:"), " ", v.cmpWarn)) : null, /*#__PURE__*/React.createElement("table", {
+        className: "tbl",
+        style: {
+          tableLayout: "fixed"
+        }
+      }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+        style: {
+          width: "30%",
+          background: "var(--surface-2)"
+        }
+      }, "Metric"), /*#__PURE__*/React.createElement("th", {
+        style: {
+          background: "var(--surface-2)",
+          textAlign: "right"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-end",
+          gap: "var(--space-0-5)",
+          textTransform: "none",
+          letterSpacing: "0"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontFamily: "var(--font-sans)",
+          fontSize: "var(--text-sm)",
+          color: "var(--fg)",
+          fontWeight: "var(--weight-semibold)"
+        }
+      }, "A \xB7 VPN \xB7 office"), /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontFamily: "var(--font-mono)",
+          fontWeight: "var(--weight-regular)",
+          color: "var(--fg-subtle)"
+        }
+      }, "2026-09-26 18:20"))), /*#__PURE__*/React.createElement("th", {
+        style: {
+          background: "var(--surface-2)",
+          textAlign: "right"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-end",
+          gap: "var(--space-0-5)",
+          textTransform: "none",
+          letterSpacing: "0"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontFamily: "var(--font-sans)",
+          fontSize: "var(--text-sm)",
+          color: "var(--fg)",
+          fontWeight: "var(--weight-semibold)"
+        }
+      }, "B \xB7 VPN \xB7 office"), /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontFamily: "var(--font-mono)",
+          fontWeight: "var(--weight-regular)",
+          color: "var(--fg-subtle)"
+        }
+      }, "2026-10-02 09:05"))), /*#__PURE__*/React.createElement("th", {
+        style: {
+          background: "var(--surface-2)",
+          textAlign: "right",
+          width: "24%"
+        }
+      }, "Change"))), /*#__PURE__*/React.createElement("tbody", null, (v.cmpRows || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
+        key: $index
+      }, c?.head ? /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+        style: {
+          paddingTop: "var(--space-3-5)",
+          paddingBottom: "var(--space-1-5)",
+          fontFamily: "var(--font-cond)",
+          fontWeight: "var(--weight-semibold)",
+          fontSize: "var(--text-micro)",
+          letterSpacing: "var(--tracking-caps)",
+          textTransform: "uppercase",
+          color: "var(--fg-subtle)"
+        }
+      }, c?.k), /*#__PURE__*/React.createElement("td", null), /*#__PURE__*/React.createElement("td", null), /*#__PURE__*/React.createElement("td", null)) : null, c?.row ? /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+        style: {
+          color: "var(--fg-muted)"
+        }
+      }, c?.k), /*#__PURE__*/React.createElement("td", {
+        className: "num",
+        style: {
+          whiteSpace: "normal"
+        }
+      }, c?.a), /*#__PURE__*/React.createElement("td", {
+        className: "num",
+        style: {
+          color: "var(--fg)",
+          whiteSpace: "normal"
+        }
+      }, c?.b), /*#__PURE__*/React.createElement("td", {
+        style: {
+          textAlign: "right"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "var(--space-1-5)",
+          color: c?.dc,
+          fontSize: "var(--text-caption)"
+        }
+      }, /*#__PURE__*/React.createElement(DS.Icon, {
+        name: c?.di,
+        size: 13,
+        stroke: 2
+      }), c?.d ? /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontFamily: "var(--font-mono)"
+        }
+      }, c?.d) : null, /*#__PURE__*/React.createElement("span", null, c?.dw)))) : null)))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "var(--space-2)",
+          padding: "var(--space-3-5) var(--space-5)",
+          borderTop: "1px solid var(--border-subtle)"
+        }
+      }, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "secondary",
+        icon: "copy"
+      }, "Copy comparison"), /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "primary"
+      }, "Done")))
+    }, "Change is B relative to A") : null, v.showCompareM ? /*#__PURE__*/React.createElement("div", {
       role: "dialog",
       "aria-modal": "true",
       "aria-labelledby": "cmpm-t",
@@ -4738,8 +5722,8 @@ class History extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
-        padding: "6px 8px 6px 16px",
+        gap: "var(--space-2)",
+        padding: "var(--space-1-5) var(--space-2) var(--space-1-5) var(--space-4)",
         borderBottom: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -4753,91 +5737,89 @@ class History extends React.Component {
       id: "cmpm-t",
       style: {
         fontSize: "var(--text-lg)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
     }, "Compare results"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)"
       }
-    }, "Change is shown on B, relative to A")), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon",
+    }, "Change is shown on B, relative to A")), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      iconOnly: true,
+      icon: "x",
       "aria-label": "Close",
       style: {
         width: "44px",
         height: "44px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "18"
-    }))), /*#__PURE__*/React.createElement("div", {
+    })), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: "1",
         minHeight: "0",
         overflowY: "auto",
         display: "flex",
         flexDirection: "column",
-        gap: "12px",
-        padding: "12px 0 16px"
+        gap: "var(--space-3)",
+        padding: "var(--space-3) 0 var(--space-4)"
       }
     }, v.cmpWarn ? /*#__PURE__*/React.createElement("div", {
       role: "note",
       style: {
-        margin: "0 16px",
+        margin: "0 var(--space-4)",
         display: "flex",
         alignItems: "flex-start",
-        gap: "10px",
-        padding: "10px 12px",
+        gap: "var(--space-2-5)",
+        padding: "var(--space-2-5) var(--space-3)",
         borderRadius: "var(--radius-md)",
         background: "var(--warn-bg)",
         border: "1px solid var(--warn-border)",
         fontSize: "var(--text-sm)",
-        lineHeight: "1.5"
+        lineHeight: "var(--lh-normal)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--warn)",
         display: "flex",
-        marginTop: "2px"
+        marginTop: "var(--space-0-5)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "triangle-alert",
-      size: "15",
-      stroke: "2"
+      size: 15,
+      stroke: 2
     })), /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg)"
       }
     }, /*#__PURE__*/React.createElement("b", {
       style: {
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         color: "var(--warn-fg)"
       }
     }, "Not directly comparable:"), " ", v.cmpWarn)) : null, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "4px",
-        padding: "0 8px"
+        gap: "var(--space-1)",
+        padding: "0 var(--space-2)"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon",
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      iconOnly: true,
+      icon: "chevron-left",
       "aria-label": "Previous result",
       disabled: true,
       style: {
         width: "44px",
         height: "44px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "chevron-left",
-      size: "18"
-    })), /*#__PURE__*/React.createElement("div", {
+    }), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: "1",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       "aria-live": "polite",
@@ -4849,7 +5831,7 @@ class History extends React.Component {
       "aria-hidden": "true",
       style: {
         display: "flex",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -4865,25 +5847,24 @@ class History extends React.Component {
         borderRadius: "2px",
         background: "var(--border-strong)"
       }
-    }))), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon",
+    }))), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      iconOnly: true,
+      icon: "chevron-right",
       "aria-label": "Next result",
       style: {
         width: "44px",
         height: "44px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "chevron-right",
-      size: "18"
-    }))), /*#__PURE__*/React.createElement("div", {
+    })), /*#__PURE__*/React.createElement("div", {
       role: "group",
       "aria-label": "Results, swipe to page",
       style: {
         display: "flex",
-        gap: "10px",
+        gap: "var(--space-2-5)",
         overflowX: "auto",
         scrollSnapType: "x mandatory",
-        padding: "0 16px",
+        padding: "0 var(--space-4)",
         scrollPadding: "0 16px"
       }
     }, (v.cmpCards || []).map((cd, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
@@ -4896,7 +5877,7 @@ class History extends React.Component {
         scrollSnapAlign: "start",
         display: "flex",
         flexDirection: "column",
-        padding: "14px",
+        padding: "var(--space-3-5)",
         borderRadius: "var(--radius-lg)",
         background: "var(--surface-2)",
         border: "1px solid var(--border-subtle)"
@@ -4905,8 +5886,8 @@ class History extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "10px",
-        paddingBottom: "10px"
+        gap: "var(--space-2-5)",
+        paddingBottom: "var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -4919,7 +5900,7 @@ class History extends React.Component {
         alignItems: "center",
         justifyContent: "center",
         fontFamily: "var(--font-mono)",
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         fontSize: "var(--text-caption)"
       }
     }, cd?.id), /*#__PURE__*/React.createElement("div", {
@@ -4931,7 +5912,7 @@ class History extends React.Component {
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
     }, cd?.label), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -4941,10 +5922,10 @@ class History extends React.Component {
       }
     }, cd?.date))), /*#__PURE__*/React.createElement("span", {
       style: {
-        padding: "8px 0 4px",
+        padding: "var(--space-2) 0 var(--space-1)",
         fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
+        fontWeight: "var(--weight-semibold)",
+        fontSize: "var(--text-micro)",
         letterSpacing: "var(--tracking-caps)",
         textTransform: "uppercase",
         color: "var(--fg-subtle)"
@@ -4956,7 +5937,7 @@ class History extends React.Component {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "flex-start",
-        gap: "12px",
+        gap: "var(--space-3)",
         padding: "7px 0",
         borderTop: "1px solid var(--border-subtle)",
         fontSize: "var(--text-sm)"
@@ -4970,7 +5951,7 @@ class History extends React.Component {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-end",
-        gap: "2px",
+        gap: "var(--space-0-5)",
         textAlign: "right"
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -4981,20 +5962,20 @@ class History extends React.Component {
       style: {
         display: "inline-flex",
         alignItems: "center",
-        gap: "4px",
+        gap: "var(--space-1)",
         color: p?.dc,
         fontSize: "var(--text-micro)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: p?.di,
-      size: "11",
-      stroke: "2"
+      size: 11,
+      stroke: 2
     }), p?.dw) : null)))), /*#__PURE__*/React.createElement("span", {
       style: {
-        padding: "12px 0 4px",
+        padding: "var(--space-3) 0 var(--space-1)",
         fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
+        fontWeight: "var(--weight-semibold)",
+        fontSize: "var(--text-micro)",
         letterSpacing: "var(--tracking-caps)",
         textTransform: "uppercase",
         color: "var(--fg-subtle)"
@@ -5006,7 +5987,7 @@ class History extends React.Component {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "flex-start",
-        gap: "12px",
+        gap: "var(--space-3)",
         padding: "7px 0",
         borderTop: "1px solid var(--border-subtle)",
         fontSize: "var(--text-sm)"
@@ -5020,7 +6001,7 @@ class History extends React.Component {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-end",
-        gap: "2px",
+        gap: "var(--space-0-5)",
         textAlign: "right"
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -5031,14 +6012,14 @@ class History extends React.Component {
       style: {
         display: "inline-flex",
         alignItems: "center",
-        gap: "4px",
+        gap: "var(--space-1)",
         color: p?.dc,
         fontSize: "var(--text-micro)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: p?.di,
-      size: "11",
-      stroke: "2"
+      size: 11,
+      stroke: 2
     }), p?.d ? /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: "var(--font-mono)"
@@ -5046,112 +6027,55 @@ class History extends React.Component {
     }, p?.d) : null, p?.dw) : null))))))))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
-        gap: "8px",
-        padding: "10px 16px 16px",
+        gap: "var(--space-2)",
+        padding: "var(--space-2-5) var(--space-4) var(--space-4)",
         borderTop: "1px solid var(--border-subtle)",
         background: "var(--surface-1)"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary",
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "secondary",
+      icon: "copy",
       style: {
         flex: "1",
         height: "44px",
         justifyContent: "center"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "copy",
-      size: "14"
-    }), "Copy"), /*#__PURE__*/React.createElement("button", {
-      className: "btn primary",
+    }, "Copy"), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "primary",
       style: {
         flex: "1",
         height: "44px",
         justifyContent: "center"
       }
-    }, "Done"))) : null, v.showConfirm ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "absolute",
-        inset: "0",
-        zIndex: "40",
-        background: "var(--scrim)",
-        display: "flex",
-        alignItems: v.L?.cfAlign,
-        justifyContent: "center",
-        paddingTop: v.L?.cfTop
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "modal",
-      role: "alertdialog",
-      "aria-modal": "true",
-      "aria-labelledby": "clr-t",
-      style: {
-        width: v.L?.cfW,
-        maxWidth: "100%",
-        boxSizing: "border-box",
-        borderRadius: v.L?.cfRad
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "mh"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "mi danger"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "trash",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      className: "mt",
-      id: "clr-t"
-    }, "Clear all history?"), /*#__PURE__*/React.createElement("div", {
-      className: "md"
-    }, "This removes ", /*#__PURE__*/React.createElement("b", null, "48 results"), " with their labels and notes from this browser. This cannot be undone. Export first if you want a copy."))), v.desktop ? /*#__PURE__*/React.createElement("div", {
-      className: "mf"
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "download",
-      size: "14"
-    }), "Export JSON first"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        flex: "1"
-      }
-    }), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary"
-    }, "Cancel"), /*#__PURE__*/React.createElement("button", {
-      className: "btn danger-solid"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "trash",
-      size: "14"
-    }), "Clear 48 results")) : null, v.mobile ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-        padding: "4px 16px 20px"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn danger-solid",
-      style: {
-        height: "44px",
-        justifyContent: "center"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "trash",
-      size: "15"
-    }), "Clear 48 results"), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary",
-      style: {
-        height: "44px",
-        justifyContent: "center"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "download",
-      size: "15"
-    }), "Export JSON first"), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost",
-      style: {
-        height: "44px",
-        justifyContent: "center"
-      }
-    }, "Cancel")) : null)) : null);
+    }, "Done"))) : null, v.showConfirm ? /*#__PURE__*/React.createElement(DS.Dialog, {
+      tone: "danger",
+      icon: "trash",
+      title: "Clear all history?",
+      align: v.mobile ? 'top' : 'center',
+      footerStack: v.mobile,
+      onClose: () => {},
+      footer: v.desktop ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        icon: "download"
+      }, "Export JSON first"), /*#__PURE__*/React.createElement("span", {
+        style: {
+          flex: "1"
+        }
+      }), /*#__PURE__*/React.createElement(DS.Button, null, "Cancel"), /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "danger-solid",
+        icon: "trash"
+      }, "Clear 48 results")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        touch: true
+      }, "Cancel"), /*#__PURE__*/React.createElement(DS.Button, {
+        icon: "download",
+        touch: true
+      }, "Export JSON first"), /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "danger-solid",
+        icon: "trash",
+        touch: true
+      }, "Clear 48 results"))
+    }, "This removes ", /*#__PURE__*/React.createElement("b", null, "48 results"), " with their labels and notes from this browser. This cannot be undone. Export first if you want a copy.") : null);
   }
 }
 window.History = History;
@@ -5159,443 +6083,56 @@ window.History = History;
 
 // ui_kits/app/Nav.jsx
 try { (() => {
-/* BitGauge web UI kit — Nav
- * Props:
- *   variant: "top" | "mobile-top" | "mobile-bottom"  (default "top")
- *   active: "test" | "history" | "settings" | "about"  (default "test")
- *   theme: "light" | "dark" | "system"  (default "system")
- *   server: string  (default "Basement NAS")
- *   host: string  (default "speed.home.lan")
- *   status: "connected" | "unreachable"  (default "connected") — passed by every screen; "offline" is accepted as unreachable
- */
-/* Prefs context: the prototype provides the current theme so every Nav shows it. */
+/* BitGauge web UI kit — Nav: composes DS.AppHeader / DS.TabBar with app state from BGPrefs.
+ * Props: variant "top" | "mobile-top" | "mobile-bottom", active, status "connected" | "unreachable".
+ * Server name, host, theme and the version-scoped navigation items come from the Prototype (context);
+ * nothing here defaults to sample data. */
 window.BGPrefs = window.BGPrefs || React.createContext({
-  theme: 'system'
+  theme: 'system',
+  caps: {},
+  server: null,
+  host: ''
 });
-class Nav extends React.Component {
-  static contextType = window.BGPrefs;
-  state = {
-    ann: ''
-  };
-  componentDidMount() {
-    this._srv();
-  }
-  componentDidUpdate() {
-    this._srv();
-  }
-  down() {
-    return this.props.status === 'offline' || this.props.status === 'unreachable';
-  }
-  // The current state is always present as visually hidden text (not live). The polite live region announces
-  // only CHANGES seen by this header; mounting (every screen change) is silent. No global: the status comes in as a prop.
-  _srv() {
-    if (this.props.variant === 'mobile-bottom') return;
-    const s = this.down() ? 'unreachable' : 'connected';
-    if (s === this._last) return;
-    const prev = this._last;
-    this._last = s;
-    if (prev !== undefined) this.setState({
-      ann: s === 'unreachable' ? 'Server unreachable' : 'Server connected'
-    });
-  }
-  renderVals() {
-    const v = this.props.variant || 'top';
-    const active = this.props.active || 'test';
-    const items = [['test', 'Test', 'gauge'], ['history', 'History', 'history'], ['settings', 'Settings', 'sliders'], ['about', 'About', 'info']].filter(([k]) => !(this.props.v01 && this.props.v01 !== 'false' && k === 'history')).map(([k, label, icon]) => ({
-      label,
-      icon,
-      on: k === active,
-      off: k !== active
-    }));
-    const th = this.props.theme || this.context && this.context.theme || 'system';
-    const themes = [['light', 'Light', 'sun'], ['dark', 'Dark', 'moon'], ['system', 'Follow system', 'monitor']].map(([k, label, icon]) => ({
-      label,
-      icon,
-      on: k === th,
-      off: k !== th
-    }));
-    const cur = themes.find(t => t.on);
-    const down = this.down();
-    return {
-      isTop: v === 'top',
-      isMobileTop: v === 'mobile-top',
-      isMobileBottom: v === 'mobile-bottom',
-      items,
-      themes,
-      themeIcon: cur.icon,
-      themeLabel: cur.label,
-      down,
-      dotBg: down ? 'transparent' : 'var(--ok)',
-      dotBd: down ? '1.5px solid var(--warn)' : '0',
-      ann: this.state.ann,
-      dotTitle: down ? 'Server unreachable' : 'Server connected',
-      stateText: down ? ', unreachable' : ', connected',
-      server: this.props.server || 'Basement NAS',
-      host: this.props.host || 'speed.home.lan'
-    };
-  }
-  render() {
-    const v = this.renderVals();
-    return /*#__PURE__*/React.createElement(React.Fragment, null, v.isTop ? /*#__PURE__*/React.createElement("header", {
-      style: {
-        height: "56px",
-        display: "flex",
-        alignItems: "center",
-        borderBottom: "1px solid var(--border-subtle)",
-        background: "var(--bg-base)",
-        fontFamily: "var(--font-sans)",
-        color: "var(--fg)"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1",
-        maxWidth: "1200px",
-        margin: "0 auto",
-        padding: "0 40px",
-        display: "flex",
-        alignItems: "center",
-        gap: "20px"
-      }
-    }, /*#__PURE__*/React.createElement("a", {
-      href: "#",
-      "aria-label": "BitGauge home",
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-2)",
-        textDecoration: "none",
-        color: "var(--fg)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-logo", {
-      size: "28",
-      style: {
-        color: "var(--fg)"
-      }
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-lg)",
-        fontWeight: "var(--weight-semibold)",
-        letterSpacing: "var(--tracking-tight)"
-      }
-    }, "Bit", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--primary-text)",
-        fontWeight: "var(--weight-semibold)"
-      }
-    }, "Gauge"))), /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "1px",
-        height: "20px",
-        background: "var(--border-default)"
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      title: v.dotTitle,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      "aria-hidden": "true",
-      style: {
-        width: "7px",
-        height: "7px",
-        boxSizing: "border-box",
-        borderRadius: "50%",
-        background: v.dotBg,
-        border: v.dotBd,
-        flex: "none"
-      }
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "500",
-        color: "var(--fg)"
-      }
-    }, v.server), /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        width: "1px",
-        height: "1px",
-        padding: "0",
-        margin: "-1px",
-        overflow: "hidden",
-        clip: "rect(0,0,0,0)",
-        whiteSpace: "nowrap",
-        border: "0"
-      }
-    }, v.stateText), /*#__PURE__*/React.createElement("span", {
-      "aria-live": "polite",
-      style: {
-        position: "absolute",
-        width: "1px",
-        height: "1px",
-        padding: "0",
-        margin: "-1px",
-        overflow: "hidden",
-        clip: "rect(0,0,0,0)",
-        whiteSpace: "nowrap",
-        border: "0"
-      }
-    }, v.ann), v.down ? /*#__PURE__*/React.createElement("span", {
-      "aria-hidden": "true",
-      style: {
-        fontSize: "var(--text-caption)",
-        fontWeight: "500",
-        color: "var(--warn-fg)"
-      }
-    }, "Unreachable") : null, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, v.host)), /*#__PURE__*/React.createElement("nav", {
-      "aria-label": "Primary",
-      style: {
-        marginLeft: "auto",
-        display: "flex",
-        gap: "2px"
-      }
-    }, (v.items || []).map((it, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, it?.on ? /*#__PURE__*/React.createElement("a", {
-      href: "#",
-      "aria-current": "page",
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "7px",
-        height: "32px",
-        padding: "0 12px",
-        borderRadius: "var(--radius-md)",
-        background: "var(--surface-3)",
-        color: "var(--fg)",
-        fontSize: "var(--text-sm)",
-        fontWeight: "600",
-        textDecoration: "none"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: it?.icon,
-      size: "15"
-    }), it?.label) : null, it?.off ? /*#__PURE__*/React.createElement("a", {
-      className: "hv-nav-1",
-      href: "#",
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "7px",
-        height: "32px",
-        padding: "0 12px",
-        borderRadius: "var(--radius-md)",
-        color: "var(--fg-muted)",
-        fontSize: "var(--text-sm)",
-        fontWeight: "500",
-        textDecoration: "none"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: it?.icon,
-      size: "15"
-    }), it?.label) : null))), /*#__PURE__*/React.createElement("div", {
-      className: "seg",
-      role: "radiogroup",
-      "aria-label": "Theme",
-      style: {
-        height: "30px"
-      }
-    }, (v.themes || []).map((t, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, t?.on ? /*#__PURE__*/React.createElement("button", {
-      className: "seg-btn on",
-      role: "radio",
-      "aria-checked": "true",
-      "aria-label": t?.label,
-      style: {
-        height: "28px",
-        padding: "0 8px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: t?.icon,
-      size: "14"
-    })) : null, t?.off ? /*#__PURE__*/React.createElement("button", {
-      className: "seg-btn",
-      role: "radio",
-      "aria-checked": "false",
-      "aria-label": t?.label,
-      style: {
-        height: "28px",
-        padding: "0 8px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: t?.icon,
-      size: "14"
-    })) : null))))) : null, v.isMobileTop ? /*#__PURE__*/React.createElement("header", {
-      style: {
-        height: "52px",
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        padding: "0 16px",
-        borderBottom: "1px solid var(--border-subtle)",
-        background: "var(--bg-base)",
-        fontFamily: "var(--font-sans)",
-        color: "var(--fg)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-logo", {
-      size: "26",
-      style: {
-        color: "var(--fg)"
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        minWidth: "0",
-        lineHeight: "1.15"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-md)",
-        fontWeight: "var(--weight-semibold)",
-        letterSpacing: "var(--tracking-tight)"
-      }
-    }, "Bit", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--primary-text)",
-        fontWeight: "var(--weight-semibold)"
-      }
-    }, "Gauge")), /*#__PURE__*/React.createElement("span", {
-      title: v.dotTitle,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "5px",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      "aria-hidden": "true",
-      style: {
-        width: "6px",
-        height: "6px",
-        boxSizing: "border-box",
-        borderRadius: "50%",
-        background: v.dotBg,
-        border: v.dotBd
-      }
-    }), v.server, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        width: "1px",
-        height: "1px",
-        padding: "0",
-        margin: "-1px",
-        overflow: "hidden",
-        clip: "rect(0,0,0,0)",
-        whiteSpace: "nowrap",
-        border: "0"
-      }
-    }, v.stateText), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        minWidth: "0",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap"
-      }
-    }, v.host), /*#__PURE__*/React.createElement("span", {
-      "aria-live": "polite",
-      style: {
-        position: "absolute",
-        width: "1px",
-        height: "1px",
-        padding: "0",
-        margin: "-1px",
-        overflow: "hidden",
-        clip: "rect(0,0,0,0)",
-        whiteSpace: "nowrap",
-        border: "0"
-      }
-    }, v.ann), v.down ? /*#__PURE__*/React.createElement("span", {
-      "aria-hidden": "true",
-      style: {
-        color: "var(--warn-fg)",
-        fontWeight: "500"
-      }
-    }, "\xB7 Unreachable") : null)), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon",
-      "aria-label": `Theme: ${v.themeLabel ?? ""}`,
-      style: {
-        marginLeft: "auto",
-        width: "44px",
-        height: "44px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.themeIcon,
-      size: "18"
-    }))) : null, v.isMobileBottom ? /*#__PURE__*/React.createElement("nav", {
-      "aria-label": "Primary",
-      style: {
-        position: "sticky",
-        bottom: "0",
-        zIndex: "var(--z-nav)",
-        height: "64px",
-        display: "grid",
-        gridTemplateColumns: `repeat(${(v.items || []).length || 4}, minmax(0,1fr))`,
-        borderTop: "1px solid var(--border-subtle)",
-        background: "var(--surface-1)",
-        fontFamily: "var(--font-sans)",
-        paddingBottom: "4px"
-      }
-    }, (v.items || []).map((it, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, it?.on ? /*#__PURE__*/React.createElement("a", {
-      href: "#",
-      "aria-current": "page",
-      style: {
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "4px",
-        color: "var(--primary-text)",
-        fontSize: "var(--text-micro)",
-        fontWeight: "600",
-        textDecoration: "none"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        top: "-1px",
-        left: "28%",
-        right: "28%",
-        height: "2px",
-        borderRadius: "2px",
-        background: "var(--primary)"
-      }
-    }), /*#__PURE__*/React.createElement("bg-icon", {
-      name: it?.icon,
-      size: "20"
-    }), it?.label) : null, it?.off ? /*#__PURE__*/React.createElement("a", {
-      href: "#",
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "4px",
-        color: "var(--fg-subtle)",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        textDecoration: "none"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: it?.icon,
-      size: "20"
-    }), it?.label) : null))) : null);
-  }
+const NAV_ITEMS = [{
+  key: 'test',
+  label: 'Test',
+  icon: 'gauge'
+}, {
+  key: 'history',
+  label: 'History',
+  icon: 'history',
+  cap: 'history'
+}, {
+  key: 'settings',
+  label: 'Settings',
+  icon: 'sliders',
+  cap: 'settings'
+}, {
+  key: 'about',
+  label: 'About',
+  icon: 'info'
+}];
+function Nav({
+  variant = 'top',
+  active = 'test',
+  status = 'connected'
+}) {
+  const p = React.useContext(window.BGPrefs);
+  const items = NAV_ITEMS.filter(it => !it.cap || p.caps && p.caps[it.cap]);
+  const st = status === 'offline' || status === 'unreachable' ? 'unreachable' : 'connected';
+  if (variant === 'mobile-bottom') return /*#__PURE__*/React.createElement(DS.TabBar, {
+    items: items,
+    active: active
+  });
+  return /*#__PURE__*/React.createElement(DS.AppHeader, {
+    compact: variant === 'mobile-top',
+    server: p.server,
+    host: p.host,
+    status: st,
+    items: items,
+    active: active,
+    theme: p.theme
+  });
 }
 window.Nav = Nav;
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/app/Nav.jsx", error: String((e && e.message) || e) }); }
@@ -5957,11 +6494,37 @@ class Prototype extends React.Component {
   theme() {
     return this.state.theme || 'dark';
   }
+  // Version scope (features/ui/screens.md "Before v0.2" / About "Before v0.3"): one source for every screen and the nav.
+  caps() {
+    const s = this.props.scope || 'v0.3';
+    const v02 = s !== 'v0.1';
+    return {
+      scope: s,
+      history: v02,
+      settings: v02,
+      share: v02,
+      loaded: v02,
+      clients: s === 'v0.3'
+    };
+  }
+  // The server's display name is known once GET /info has answered; it is unknown while /info fails.
+  serverName() {
+    const S = this.state.screen;
+    if (S === 'test' && this.cur() === 'offline') return null;
+    if (S === 'about' && this.props.aboutExtra && this.props.aboutExtra.unreachable) return null;
+    return BG.KIT.server.displayName;
+  }
   renderVals() {
     const m = !!this.props.mobile && this.props.mobile !== 'false' || !!this.state.narrow;
     const th = this.theme();
     const sysDark = typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches;
-    const S = this.state.screen;
+    const S = this.state.screen,
+      caps = this.caps(),
+      gated = {
+        history: 'history',
+        result: 'history',
+        settings: 'settings'
+      }[S];
     return {
       ts: this.state.ts,
       p: this.state.p,
@@ -5969,6 +6532,10 @@ class Prototype extends React.Component {
       mobile: m,
       theme: th,
       srv: this.srvOf(),
+      caps,
+      server: this.serverName(),
+      notAvailable: !!gated && !caps[gated],
+      notAvailableActive: S === 'result' ? 'history' : S,
       themeAttr: th === 'system' ? sysDark ? 'dark' : 'light' : th,
       frameW: m && !this.state.narrow ? '390px' : 'none',
       frameBd: m && !this.state.narrow ? '1px solid var(--border-subtle)' : 'none',
@@ -5986,7 +6553,7 @@ class Prototype extends React.Component {
       isAbout: S === 'about',
       onClick: e => {
         const el = e.target.closest && e.target.closest('a,button');
-        if (!el) return;
+        if (!el || el.getAttribute('aria-disabled') === 'true') return;
         if (el.tagName === 'A' && el.getAttribute('href') === '#') e.preventDefault();
         const t = (el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim();
         this.route(t, el);
@@ -5997,7 +6564,10 @@ class Prototype extends React.Component {
     const v = this.renderVals();
     return /*#__PURE__*/React.createElement(BGPrefs.Provider, {
       value: {
-        theme: v.theme
+        theme: v.theme,
+        caps: v.caps,
+        server: v.server,
+        host: BG.KIT.host
       }
     }, /*#__PURE__*/React.createElement(ThemeSync, {
       theme: v.themeAttr
@@ -6026,15 +6596,22 @@ class Prototype extends React.Component {
       state: v.ts,
       progress: v.p,
       mobile: v.mobile,
-      theme: v.theme
-    }, v.testExtra || {})) : null, v.isHistory ? /*#__PURE__*/React.createElement(History, _extends({
+      theme: v.theme,
+      caps: v.caps,
+      server: v.server
+    }, v.testExtra || {})) : null, v.notAvailable ? /*#__PURE__*/React.createElement(NotAvailable, {
+      mobile: v.mobile,
+      active: v.notAvailableActive,
+      srvStatus: v.srv,
+      scope: v.caps.scope
+    }) : null, v.isHistory && !v.notAvailable ? /*#__PURE__*/React.createElement(History, _extends({
       variant: v.hv,
       mobile: v.mobile,
       srvStatus: v.srv
-    }, v.historyExtra || {})) : null, v.isResult ? /*#__PURE__*/React.createElement(ResultDetail, _extends({
+    }, v.historyExtra || {})) : null, v.isResult && !v.notAvailable ? /*#__PURE__*/React.createElement(ResultDetail, _extends({
       mobile: v.mobile,
       srvStatus: v.srv
-    }, v.resultExtra || {})) : null, v.isSettings ? /*#__PURE__*/React.createElement(Settings, _extends({
+    }, v.resultExtra || {})) : null, v.isSettings && !v.notAvailable ? /*#__PURE__*/React.createElement(Settings, _extends({
       mobile: v.mobile,
       preset: "standard",
       theme: v.theme,
@@ -6043,15 +6620,52 @@ class Prototype extends React.Component {
       srvStatus: v.srv
     }, v.settingsExtra || {})) : null, v.isAbout ? /*#__PURE__*/React.createElement(About, _extends({
       mobile: v.mobile,
-      srvStatus: v.srv
+      srvStatus: v.srv,
+      caps: v.caps,
+      server: v.server
     }, v.aboutExtra || {})) : null)));
   }
+}
+
+// v0.1: /history, /settings and /result/{id} stay on the route list and render this page (screens.md "Before v0.2").
+function NotAvailable({
+  mobile,
+  active,
+  srvStatus,
+  scope
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      minHeight: "100%"
+    }
+  }, /*#__PURE__*/React.createElement(Nav, {
+    variant: mobile ? "mobile-top" : "top",
+    active: active,
+    status: srvStatus
+  }), /*#__PURE__*/React.createElement("main", {
+    className: "page" + (mobile ? " compact" : "")
+  }, /*#__PURE__*/React.createElement(DS.EmptyState, {
+    icon: "circle-minus",
+    title: "Not available in this version",
+    actions: /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "primary",
+      size: "sm",
+      href: "#"
+    }, "Test")
+  }, "This page arrives in a later version of BitGauge. This server runs " + scope + ".")), mobile ? /*#__PURE__*/React.createElement(Nav, {
+    variant: "mobile-bottom",
+    active: active,
+    status: srvStatus
+  }) : null);
 }
 window.Prototype = Prototype;
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/app/Prototype.jsx", error: String((e && e.message) || e) }); }
 
 // ui_kits/app/ResultDetail.jsx
 try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 /* BitGauge web UI kit — ResultDetail
  * Props:
  *   mobile: boolean  (default false)
@@ -6061,6 +6675,8 @@ try { (() => {
  *   includeLabel: boolean  (default false)
  *   demo: "none" | "deleted" | "clipboard-denied"  (default "none")
  *   overhead: "0" | "6" | "5.13" | "3.69" | "8.1"  (default "0") — overhead compensation preset (§9.3)
+ *   browser: "Firefox" | "Chrome" | "Safari" | "Edge"  (default "Firefox") — browser family of the run
+ *   uploadPauses: boolean  (default false) — the engine saw the browser pause between upload requests (idle share > 20 %)
  */
 class ResultDetail extends React.Component {
   state = {
@@ -6075,17 +6691,12 @@ class ResultDetail extends React.Component {
   };
   preRef = React.createRef();
   componentDidMount() {
-    if (!window.BG) {
-      this._h = () => this.forceUpdate();
-      window.addEventListener('bg-lib-ready', this._h);
-    }
     this._sel();
   }
   componentDidUpdate() {
     this._sel();
   }
   componentWillUnmount() {
-    if (this._h) window.removeEventListener('bg-lib-ready', this._h);
     clearTimeout(this._tt);
     clearInterval(this._di);
   }
@@ -6135,22 +6746,22 @@ class ResultDetail extends React.Component {
     const inc = this.state.inc ?? on(this.props.includeLabel);
     const denied = this.denied();
     const L = m ? {
-      pad: '14px 16px 24px',
+      pad: 'var(--space-3-5) var(--space-4) var(--space-6)',
       h1: 'var(--text-3xl)',
       cols: 'minmax(0,1fr)',
       tileCols: 'repeat(2, minmax(0,1fr))',
-      tileGap: '10px',
+      tileGap: 'var(--space-2-5)',
       tileNum: '24px',
       midCols: 'minmax(0,1fr)',
       chartCols: 'minmax(0,1fr)',
       confCols: 'minmax(0,1fr)',
       nfMargin: '40px auto'
     } : {
-      pad: '20px 40px 48px',
+      pad: 'var(--space-5) var(--space-10) var(--space-12)',
       h1: 'var(--text-4xl)',
       cols: 'minmax(0,1fr) 352px',
       tileCols: 'repeat(4, minmax(0,1fr))',
-      tileGap: '12px',
+      tileGap: 'var(--space-3)',
       tileNum: '28px',
       midCols: 'minmax(0,1.4fr) minmax(0,1fr)',
       chartCols: 'repeat(2, minmax(0,1fr))',
@@ -6158,7 +6769,7 @@ class ResultDetail extends React.Component {
       nfMargin: '96px auto'
     };
 
-    // bg-lib formatting: 3 significant digits with an auto-scaled unit; latency/jitter one decimal below 10 ms.
+    // DS.Format (via fixtures.js): 3 significant digits with an auto-scaled unit; latency/jitter one decimal below 10 ms.
     const BGF = window.BG || {
       rate: v => ({
         n: String(Math.round(v / 1e6)),
@@ -6186,12 +6797,35 @@ class ResultDetail extends React.Component {
       info: 'var(--info)',
       neutral: 'var(--fg-subtle)'
     };
-    const it = (tone, icon, title, body) => ({
+    const it = (tone, icon, title, body, link) => ({
       c: T[tone],
       icon,
       title,
-      body
+      body,
+      link: link || null
     });
+    const BRW = {
+        Chrome: {
+          name: 'Chrome',
+          major: 130,
+          os: 'Linux'
+        },
+        Safari: {
+          name: 'Safari',
+          major: 18,
+          os: 'macOS'
+        },
+        Edge: {
+          name: 'Edge',
+          major: 130,
+          os: 'Windows'
+        }
+      }[this.props.browser] || {
+        name: 'Firefox',
+        major: 131,
+        os: 'Linux'
+      },
+      PAUSES = on(this.props.uploadPauses);
 
     // Overhead compensation (§9.3): 0 % in the example. A preset multiplies every rate and is named next to each one.
     const OHP = parseFloat(this.props.overhead) || 0,
@@ -6315,7 +6949,7 @@ class ResultDetail extends React.Component {
     const worstStr = '+' + jit(D.worst[1]) + ' ms loaded (' + D.worst[0] + ')';
     const summary = ['BitGauge' + (inc ? ' · ' + D.label : ''), D.short, cont ? 'Download ' + rs(D.down) + ' (2 h average) · Upload not measured' : 'Download ' + rs(D.down) + ' · Upload ' + rs(D.up)].concat(OH ? [OH] : []).concat(['Idle latency ' + BGF.ms(IDLE) + ' ms · Jitter ' + jit(JIT) + ' ms', 'Loaded latency +' + jit(D.worst[1]) + ' ms (' + D.worst[0] + ')', 'Bufferbloat grade ' + grade + ' · ' + gradeWords, 'Server: ' + D.server]).join('\n');
 
-    // Quality scores: the same AIM function as the Test screen (bg-lib). Standard: Good/Good/Good (55/25/35 points);
+    // Quality scores: the same AIM function as the Test screen (fixtures.js). Standard: Good/Good/Good (55/25/35 points);
     // Continuous (download +15 ms): Great/Great/Great (60/30/40).
     const SC = BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
     const tiles = [{
@@ -6392,6 +7026,12 @@ class ResultDetail extends React.Component {
     };
     const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.');
     const N_RESP = it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.');
+    // Browser upload limit: any browser that paused between upload requests; always Firefox at ≥ 100 Mbit/s upload.
+    const BUL = !cont && (PAUSES || BRW.name === 'Firefox' && D.up >= 100e6);
+    const N_BUL = BUL ? [it('info', 'globe', BRW.name + ' may limit the upload', 'On fast links ' + BRW.name + '’s own upload path, not the network, can bound the upload number; the measurement is the server’s and stands. Compare with another browser on this device to tell the two apart.', {
+      label: 'Known browser limits',
+      href: '#'
+    })] : [];
     const N_OH = OH ? [it('neutral', 'sliders', OH, 'Throughput is multiplied by ' + OHF.toFixed(OHP % 1 ? 4 : 2).replace(/0+$/, '') + '. The uncompensated values are kept in the JSON.')] : [];
     const confGroups = cont ? [{
       h: 'Confidence',
@@ -6401,7 +7041,7 @@ class ResultDetail extends React.Component {
       items: [it('neutral', 'database', 'Data used: ' + cUsed, 'Data-used notices appeared at 1 GB, 10 GB and 100 GB.'), it('neutral', 'circle-dashed', 'Upload not measured', 'Continuous runs one direction.'), N_LOSS, N_RESP].concat(N_OH)
     }] : [{
       h: 'Confidence',
-      items: [it('ok', 'circle-check', 'Both directions reached the 6-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 9.5 s (each upload ramp step waits for confirmation) — and the window condition held. Level: normal.'), it('info', 'info', '94 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 10.4–10.8 s is left out; the average uses known time only.')]
+      items: [it('ok', 'circle-check', 'Both directions reached the 6-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 9.5 s (each upload ramp step waits for confirmation) — and the window condition held. Level: normal.'), it('info', 'info', '94 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 10.4–10.8 s is left out; the average uses known time only.')].concat(N_BUL)
     }, {
       h: 'Notices',
       items: [N_LOSS, N_RESP].concat(N_OH)
@@ -6414,7 +7054,7 @@ class ResultDetail extends React.Component {
         v
       }))
     });
-    const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', 'Firefox 131 · Linux'], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
+    const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', BRW.name + ' ' + BRW.major + ' · ' + BRW.os], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
     const params = cont ? [P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · 6 · plateau: cap']]), P('Limits', [['Run length', '2 h'], ['Stored cells', '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]), env] : [P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', 'Auto · 6 · plateau: cap']]), P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', '16.0 s · min 15 · max 25'], ['Data cap', 'Off · ' + sUsed.toFixed(2) + ' GB used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]), env];
     // Share shows only where the browser can share files (the PNG goes to the system sheet).
     let canShare = false;
@@ -6688,9 +7328,9 @@ class ResultDetail extends React.Component {
             contextLabel: D.ctx,
             protocol: 'h2',
             browser: {
-              name: 'Firefox',
-              major: 131,
-              os: 'Linux'
+              name: BRW.name,
+              major: BRW.major,
+              os: BRW.os
             }
           },
           settings: {
@@ -6781,7 +7421,10 @@ class ResultDetail extends React.Component {
           notices: (cont ? [1e9, 1e10, 1e11].map(v => ({
             code: 'data-used',
             bytes: v
-          })) : []).concat(OHP ? [{
+          })) : []).concat(BUL ? [{
+            code: 'browser-upload-limit',
+            browser: BRW.name
+          }] : []).concat(OHP ? [{
             code: 'overhead-compensation',
             percent: OHP
           }] : [])
@@ -6824,7 +7467,7 @@ class ResultDetail extends React.Component {
         c: 'var(--info)',
         fg: 'var(--info-fg)',
         bd: 'var(--info-border)',
-        t: 'Slow link — test extended'
+        t: 'Test extended'
       },
       cap: {
         icon: 'database',
@@ -6959,7 +7602,39 @@ class ResultDetail extends React.Component {
       });
       const v = view(o.key),
         tbl = v === 'table';
+      const pc = {
+        title: o.title,
+        icon: o.icon,
+        color: o.c,
+        meta: o.meta,
+        pts: o.pts,
+        lat: o.lat,
+        xMax: o.xMax,
+        ms: o.ms,
+        xStep: o.xStep,
+        xLabel: o.xLabel,
+        width: o.w,
+        height: o.h,
+        units: 'bits',
+        warmup: o.wu != null ? {
+          t1: o.wu,
+          label: 'Warm-up · not stored (' + o.wuText + ')'
+        } : null,
+        marks: (o.marks || []).map(([t, type]) => Object.assign({}, EV[type], {
+          t,
+          label: EV[type].t
+        })),
+        gapLabel: o.gapLabel || 'No known data',
+        summary: o.title + (o.meta ? ': ' + o.meta : '') + (o.wu != null ? '; warm-up excluded' : '') + (o.marks && o.marks.length ? '; events: ' + o.marks.map(q => EV[q[1]].t + ' at ' + (o.xLabel ? mmss(q[0]) : q[0] + ' s')).join(', ') : ''),
+        view: v,
+        onViewChange: nv => this.setState(s => ({
+          views: Object.assign({}, s.views || {}, {
+            [o.key]: nv
+          })
+        }))
+      };
       return {
+        pc,
         title: o.title,
         icon: o.icon,
         c: o.c,
@@ -7155,7 +7830,7 @@ class ResultDetail extends React.Component {
     }) : null, v.notFound ? /*#__PURE__*/React.createElement("main", {
       style: {
         flex: "1",
-        maxWidth: "1200px",
+        maxWidth: "var(--layout-max)",
         width: "100%",
         boxSizing: "border-box",
         margin: "0 auto",
@@ -7172,7 +7847,7 @@ class ResultDetail extends React.Component {
         flexDirection: "column",
         alignItems: "center",
         textAlign: "center",
-        gap: "12px"
+        gap: "var(--space-3)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -7186,14 +7861,14 @@ class ResultDetail extends React.Component {
         justifyContent: "center",
         color: "var(--fg-subtle)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: v.nf?.icon,
-      size: "22"
+      size: 22
     })), /*#__PURE__*/React.createElement("h1", {
       style: {
-        margin: "4px 0 0",
+        margin: "var(--space-1) 0 0",
         fontSize: "var(--text-2xl)",
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         letterSpacing: "var(--tracking-tight)"
       }
     }, v.nf?.title), /*#__PURE__*/React.createElement("p", {
@@ -7201,29 +7876,26 @@ class ResultDetail extends React.Component {
         margin: "0",
         fontSize: "var(--text-sm)",
         color: "var(--fg-muted)",
-        lineHeight: "1.55",
+        lineHeight: "var(--lh-prose)",
         textWrap: "pretty"
       }
-    }, v.nf?.body), /*#__PURE__*/React.createElement("a", {
-      className: "btn primary",
+    }, v.nf?.body), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "primary",
       href: "#",
+      icon: "history",
       style: {
-        marginTop: "8px",
-        textDecoration: "none"
+        marginTop: "var(--space-2)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "history",
-      size: "15"
-    }), "Go to History"))) : null, v.found ? /*#__PURE__*/React.createElement("main", {
+    }, "Go to History"))) : null, v.found ? /*#__PURE__*/React.createElement("main", {
       style: {
-        maxWidth: "1200px",
+        maxWidth: "var(--layout-max)",
         width: "100%",
         boxSizing: "border-box",
         margin: "0 auto",
         padding: v.L?.pad,
         display: "flex",
         flexDirection: "column",
-        gap: "20px",
+        gap: "var(--space-5)",
         opacity: v.dimOp,
         transition: "opacity var(--dur-base) var(--ease-out)"
       }
@@ -7232,7 +7904,7 @@ class ResultDetail extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         fontSize: "var(--text-sm)",
         color: "var(--fg-subtle)"
       }
@@ -7243,68 +7915,33 @@ class ResultDetail extends React.Component {
         textDecoration: "none",
         display: "flex",
         alignItems: "center",
-        gap: "4px"
+        gap: "var(--space-1)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "chevron-left",
-      size: "14"
+      size: 14
     }), "History"), /*#__PURE__*/React.createElement("span", null, "/"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-caption)"
       }
-    }, v.D?.crumb)), v.hu ? /*#__PURE__*/React.createElement("div", {
-      role: "status",
-      style: {
-        display: "flex",
-        gap: "12px",
-        padding: "12px 14px",
-        borderRadius: "var(--radius-md)",
-        border: "1px solid var(--warn-border)",
-        background: "var(--warn-bg)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--warn)",
-        display: "flex",
-        marginTop: "1px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "database",
-      size: "16",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "600"
-      }
-    }, "History unavailable"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.5",
-        textWrap: "pretty"
-      }
-    }, "This browser is blocking storage, so results can't be saved. You're seeing this session's result from memory; it's gone when you close the tab. Download JSON to keep it."))) : null, /*#__PURE__*/React.createElement("header", {
+    }, v.D?.crumb)), v.hu ? /*#__PURE__*/React.createElement(DS.Notice, {
+      tone: "warn",
+      icon: "database",
+      title: "History unavailable",
+      live: false
+    }, "This browser is blocking storage, so results can't be saved. You're seeing this session's result from memory; it's gone when you close the tab. Download JSON to keep it.") : null, /*#__PURE__*/React.createElement("header", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "flex-start",
-        gap: "16px 24px"
+        gap: "var(--space-4) var(--space-6)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "8px",
+        gap: "var(--space-2)",
         minWidth: "0",
         flex: "1 1 360px"
       }
@@ -7312,29 +7949,32 @@ class ResultDetail extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px"
+        gap: "var(--space-2)"
       }
     }, /*#__PURE__*/React.createElement("h1", {
       style: {
         margin: "0",
         fontSize: v.L?.h1,
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         letterSpacing: "var(--tracking-tight)",
-        lineHeight: "1.15"
+        lineHeight: "var(--lh-tight)"
       }
-    }, v.D?.label), v.canEdit ? /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
+    }, v.D?.label), v.canEdit ? /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm",
+      iconOnly: true,
+      icon: "pencil",
       "aria-label": "Edit label",
       style: {
         width: "28px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "pencil",
-      size: "14"
-    })) : null, v.hu ? /*#__PURE__*/React.createElement("span", {
+    }) : null, v.hu ? /*#__PURE__*/React.createElement("span", {
       className: "has-tip"
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm",
+      iconOnly: true,
+      icon: "pencil",
       "aria-label": "Edit label",
       "aria-disabled": "true",
       "aria-describedby": "tip-label",
@@ -7342,10 +7982,7 @@ class ResultDetail extends React.Component {
         width: "28px",
         opacity: "0.45"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "pencil",
-      size: "14"
-    })), /*#__PURE__*/React.createElement("span", {
+    }), /*#__PURE__*/React.createElement("span", {
       className: "tip",
       role: "tooltip",
       id: "tip-label"
@@ -7354,21 +7991,14 @@ class ResultDetail extends React.Component {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "8px 12px",
+        gap: "var(--space-2) var(--space-3)",
         fontSize: "var(--text-sm)",
         color: "var(--fg-muted)"
       }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "pill neutral",
-      style: {
-        gap: "5px",
-        color: "var(--fg)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.D?.ctxIcon,
-      size: "12",
-      stroke: "2"
-    }), v.D?.ctx), /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement(DS.Chip, {
+      size: "sm",
+      icon: v.D?.ctxIcon
+    }, v.D?.ctx), /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-caption)"
@@ -7386,43 +8016,37 @@ class ResultDetail extends React.Component {
       style: {
         display: "flex",
         flexWrap: "wrap",
-        gap: "8px",
+        gap: "var(--space-2)",
         alignItems: "center"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary",
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "secondary",
+      icon: "file-json",
       onClick: v.dlJson,
       "aria-describedby": "json-warn"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "file-json",
-      size: "15"
-    }), "Download JSON"), /*#__PURE__*/React.createElement("button", {
-      className: "btn primary"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "rotate-ccw",
-      size: "15"
-    }), "Run again"), v.canEdit ? /*#__PURE__*/React.createElement("button", {
-      className: "btn danger icon",
+    }, "Download JSON"), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "primary",
+      icon: "rotate-ccw"
+    }, "Run again"), v.canEdit ? /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "danger",
+      iconOnly: true,
+      icon: "trash",
       "aria-label": "Delete result",
       title: "Delete result",
       onClick: v.del
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "trash",
-      size: "15"
-    })) : null, v.hu ? /*#__PURE__*/React.createElement("span", {
+    }) : null, v.hu ? /*#__PURE__*/React.createElement("span", {
       className: "has-tip tip-end"
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn danger icon",
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "danger",
+      iconOnly: true,
+      icon: "trash",
       "aria-label": "Delete result",
       "aria-disabled": "true",
       "aria-describedby": "tip-del",
       style: {
         opacity: "0.45"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "trash",
-      size: "15"
-    })), /*#__PURE__*/React.createElement("span", {
+    }), /*#__PURE__*/React.createElement("span", {
       className: "tip",
       role: "tooltip",
       id: "tip-del"
@@ -7441,22 +8065,22 @@ class ResultDetail extends React.Component {
         color: "var(--warn)",
         display: "flex"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "triangle-alert",
-      size: "12",
-      stroke: "2"
+      size: 12,
+      stroke: 2
     })), "JSON contains client IP and notes"))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
         gridTemplateColumns: v.L?.cols,
-        gap: "24px",
+        gap: "var(--space-6)",
         alignItems: "start"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "16px",
+        gap: "var(--space-4)",
         minWidth: "0"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -7467,416 +8091,61 @@ class ResultDetail extends React.Component {
       }
     }, (v.tiles || []).map((t, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "card",
-      style: {
-        padding: "14px 16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: t?.ic,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: t?.icon,
-      size: "14",
-      stroke: "2"
-    })), t?.label), /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "baseline",
-        gap: "6px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "500",
-        fontSize: v.L?.tileNum,
-        letterSpacing: "-0.02em",
-        lineHeight: "1.1",
-        color: t?.nc
-      }
-    }, t?.num), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)"
-      }
-    }, t?.unit)), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.45"
-      }
-    }, t?.sub))))), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement(DS.MetricTile, {
+      label: t?.label,
+      icon: t?.icon,
+      accent: t?.ic,
+      value: t?.num === '—' ? undefined : t?.num,
+      unit: t?.unit,
+      note: t?.sub,
+      notes: t?.notes,
+      state: t?.num === '—' ? 'empty' : 'done',
+      compact: v.mobile
+    })))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
         gridTemplateColumns: v.L?.midCols,
-        gap: "12px"
+        gap: "var(--space-3)"
       }
+    }, /*#__PURE__*/React.createElement(DS.LoadCard, {
+      grade: v.grade,
+      gradeText: v.gradeWords + (v.gradeBasis ? ' · ' + v.gradeBasis : ''),
+      compact: v.mobile,
+      rows: (v.loadRows || []).map(r => ({
+        dir: r.icon === 'arrow-up' ? 'upload' : 'download',
+        label: r.label,
+        sub: r.sub,
+        value: r.num
+      })),
+      responsiveness: {
+        protocol: 'h2',
+        note: v.rpmSub,
+        dirs: (v.rpm || []).map(d => ({
+          dir: d.icon === 'arrow-up' ? 'upload' : 'download',
+          value: d.num
+        }))
+      }
+    }), /*#__PURE__*/React.createElement(DS.QualityList, {
+      packetLoss: true,
+      compact: v.mobile,
+      bands: (v.fit || []).map(f => f.rating || null)
+    })), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      labelledBy: "conf-h",
+      padded: false,
+      icon: "shield",
+      title: /*#__PURE__*/React.createElement("span", {
+        id: "conf-h"
+      }, "Confidence and notices"),
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.StatusPill, {
+        tone: v.conf?.tone
+      }, v.conf?.label))
     }, /*#__PURE__*/React.createElement("div", {
-      className: "card",
-      style: {
-        padding: "14px 16px",
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "16px",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1 0 150px",
-        maxWidth: "220px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
-      }
-    }, "Bufferbloat"), /*#__PURE__*/React.createElement("span", {
-      role: "img",
-      "aria-label": v.gradeAria,
-      title: v.gradeAria,
-      style: {
-        width: "52px",
-        height: "52px",
-        boxSizing: "border-box",
-        borderRadius: "var(--radius-lg)",
-        border: `1px solid ${v.gBd ?? ""}`,
-        background: v.gBg,
-        color: v.gFg,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "var(--font-mono)",
-        fontWeight: "600",
-        fontSize: "24px"
-      }
-    }, v.grade), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "500"
-      }
-    }, v.gradeWords), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.45",
-        textWrap: "pretty"
-      }
-    }, v.gradeBasis)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "999 1 260px",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column"
-      }
-    }, (v.loadRows || []).map((r, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        padding: "8px 0",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: r?.ic,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: r?.icon,
-      size: "14",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        flex: "1",
-        display: "flex",
-        flexDirection: "column"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)"
-      }
-    }, r?.label), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, r?.sub)), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-lg)",
-        fontWeight: "500",
-        whiteSpace: "nowrap"
-      }
-    }, r?.num, " ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)",
-        fontWeight: "400"
-      }
-    }, r?.unit))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-        paddingTop: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        display: "flex",
-        marginTop: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "gauge",
-      size: "14",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        lineHeight: "1.4",
-        textWrap: "pretty"
-      }
-    }, "HTTP loaded responsiveness \u2014 connection sharing not verifiable"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, v.rpmSub)), /*#__PURE__*/React.createElement("span", {
-      style: {
-        flex: "none",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-muted)",
-        border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-xs)",
-        padding: "1px 6px",
-        whiteSpace: "nowrap"
-      }
-    }, "h2")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "6px 18px",
-        paddingLeft: "24px"
-      }
-    }, (v.rpm || []).map((rd, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: rd?.ic,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: rd?.icon,
-      size: "12",
-      stroke: "2.25"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-lg)",
-        fontWeight: "500",
-        whiteSpace: "nowrap"
-      }
-    }, rd?.num, " ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)",
-        fontWeight: "400"
-      }
-    }, "RPM"))))))))), /*#__PURE__*/React.createElement("div", {
-      className: "card",
-      style: {
-        padding: "14px 16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)",
-        marginBottom: "4px"
-      }
-    }, "Good for"), (v.fit || []).map((f, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        minHeight: "38px",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: f?.icon,
-      size: "16"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        flex: "1"
-      }
-    }, f?.label), /*#__PURE__*/React.createElement("span", {
-      className: f?.cls
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: f?.ricon,
-      size: "13",
-      stroke: "2"
-    }), f?.rating)))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        minHeight: "38px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "signal",
-      size: "16"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        flex: "1"
-      }
-    }, "Packet loss"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        flex: "none"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      title: "Browsers can't see packet loss over TCP",
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "5px",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        border: "1px dashed var(--border-strong)",
-        borderRadius: "var(--radius-full)",
-        padding: "2px 8px",
-        whiteSpace: "nowrap"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-dashed",
-      size: "12"
-    }), "Not measured"), /*#__PURE__*/React.createElement("a", {
-      href: "#",
-      title: "Browsers can't see packet loss over TCP",
-      style: {
-        fontSize: "var(--text-caption)",
-        fontWeight: "600",
-        color: "var(--primary-text)",
-        textDecoration: "none"
-      }
-    }, "Why?"))), /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        marginTop: "6px",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.4"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "info",
-      size: "12"
-    }), "Upper bound: packet loss is not measured"))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      style: {
-        overflow: "hidden",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)"
-      },
-      "aria-labelledby": "conf-h"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "shield",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t",
-      id: "conf-h"
-    }, "Confidence and notices"), /*#__PURE__*/React.createElement("span", {
-      className: "right",
-      style: {
-        marginLeft: "auto"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: `pill ${v.conf?.tone ?? ""}`
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "d"
-    }), v.conf?.label))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
         gridTemplateColumns: v.L?.confCols,
-        gap: "0 24px",
-        padding: "4px 16px 8px"
+        gap: "0 var(--space-6)",
+        padding: "var(--space-1) var(--space-4) var(--space-2)"
       }
     }, (v.confGroups || []).map((cg, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
@@ -7888,10 +8157,10 @@ class ResultDetail extends React.Component {
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        padding: "10px 0 4px",
+        padding: "var(--space-2-5) 0 var(--space-1)",
         fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
+        fontWeight: "var(--weight-semibold)",
+        fontSize: "var(--text-micro)",
         letterSpacing: "var(--tracking-caps)",
         textTransform: "uppercase",
         color: "var(--fg-subtle)"
@@ -7907,7 +8176,7 @@ class ResultDetail extends React.Component {
     }, /*#__PURE__*/React.createElement("li", {
       style: {
         display: "flex",
-        gap: "10px",
+        gap: "var(--space-2-5)",
         padding: "9px 0",
         borderTop: "1px solid var(--border-subtle)"
       }
@@ -7915,311 +8184,62 @@ class ResultDetail extends React.Component {
       style: {
         color: n?.c,
         display: "flex",
-        marginTop: "2px"
+        marginTop: "var(--space-0-5)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: n?.icon,
-      size: "15",
-      stroke: "2"
+      size: 15,
+      stroke: 2
     })), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: "1",
         minWidth: "0",
         display: "flex",
         flexDirection: "column",
-        gap: "2px"
+        gap: "var(--space-0-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "500",
-        lineHeight: "1.4"
+        fontWeight: "var(--weight-medium)",
+        lineHeight: "var(--lh-compact)"
       }
     }, n?.title), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-muted)",
-        lineHeight: "1.45",
+        lineHeight: "var(--lh-compact)",
         textWrap: "pretty"
       }
-    }, n?.body))))))))))), /*#__PURE__*/React.createElement("div", {
+    }, n?.body), n?.link ? /*#__PURE__*/React.createElement("a", {
+      href: n?.link?.href,
+      style: {
+        alignSelf: "flex-start",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "var(--space-1)",
+        marginTop: "var(--space-0-5)",
+        fontSize: "var(--text-caption)",
+        fontWeight: "var(--weight-semibold)",
+        color: "var(--primary-text)",
+        textDecoration: "none"
+      }
+    }, n?.link?.label, /*#__PURE__*/React.createElement(DS.Icon, {
+      name: "external-link",
+      size: 12
+    })) : null)))))))))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
         gridTemplateColumns: v.L?.chartCols,
-        gap: "12px"
+        gap: "var(--space-3)"
       }
     }, (v.charts || []).map((k, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
-    }, /*#__PURE__*/React.createElement("section", {
-      className: "card",
+    }, /*#__PURE__*/React.createElement(DS.PhaseChart, _extends({}, k.pc, {
       style: {
-        gridColumn: k?.span,
-        padding: "14px 16px 12px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        minWidth: "0",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)"
+        gridColumn: k?.span
       }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "6px 14px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        fontSize: "var(--text-sm)",
-        fontWeight: "600"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: k?.c,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: k?.icon,
-      size: "14",
-      stroke: "2"
-    })), k?.title), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, k?.meta), k?.c2 ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: "auto",
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "14px",
-        borderTop: "2px dashed var(--series-latency)"
-      }
-    }), "Latency under load") : null, /*#__PURE__*/React.createElement("div", {
-      className: "seg",
-      role: "radiogroup",
-      "aria-label": `${k?.title ?? ""} view`,
-      style: {
-        marginLeft: k?.toggleML
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: k?.chartCls,
-      role: "radio",
-      "aria-checked": k?.chartAria,
-      onClick: k?.toChart,
-      style: {
-        height: "28px",
-        padding: "0 10px",
-        fontSize: "var(--text-caption)"
-      }
-    }, "Chart"), /*#__PURE__*/React.createElement("button", {
-      className: k?.tableCls,
-      role: "radio",
-      "aria-checked": k?.tableAria,
-      onClick: k?.toTable,
-      style: {
-        height: "28px",
-        padding: "0 10px",
-        fontSize: "var(--text-caption)"
-      }
-    }, "Table"))), k?.isChart ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "relative",
-        alignSelf: "flex-start"
-      }
-    }, /*#__PURE__*/React.createElement("svg", {
-      width: k?.g?.w,
-      height: k?.g?.h,
-      style: {
-        display: "block",
-        overflow: "visible"
-      },
-      role: "img",
-      "aria-label": k?.aria
-    }, (k?.g?.grid || []).map((gl, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("line", {
-      x1: gl?.x1,
-      y1: gl?.y,
-      x2: gl?.x2,
-      y2: gl?.y,
-      style: {
-        stroke: "var(--border-subtle)"
-      }
-    }))), (k?.segs || []).map((sg, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("path", {
-      d: sg?.area,
-      style: {
-        fill: k?.c,
-        fillOpacity: "0.1"
-      }
-    }), /*#__PURE__*/React.createElement("path", {
-      d: sg?.line,
-      style: {
-        fill: "none",
-        stroke: k?.c,
-        strokeWidth: "1.5",
-        strokeLinejoin: "round"
-      }
-    }))), (k?.latSegs || []).map((ls, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("path", {
-      d: ls,
-      style: {
-        fill: "none",
-        stroke: "var(--series-latency)",
-        strokeWidth: "1.25",
-        strokeDasharray: "4 3"
-      }
-    }))), (k?.marks || []).map((mk, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("line", {
-      x1: mk?.x,
-      y1: k?.g?.plotT,
-      x2: mk?.x,
-      y2: k?.g?.plotB,
-      style: {
-        stroke: mk?.c,
-        strokeWidth: "1.25",
-        strokeDasharray: "3 3"
-      }
-    })))), /*#__PURE__*/React.createElement("div", {
-      "aria-hidden": "true",
-      style: {
-        position: "absolute",
-        inset: "0",
-        pointerEvents: "none",
-        fontFamily: "var(--font-mono)",
-        fontSize: "10px",
-        color: "var(--fg-subtle)"
-      }
-    }, k?.wu ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${k?.wu?.x ?? ""}px`,
-        top: `${k?.wu?.y ?? ""}px`,
-        width: `${k?.wu?.w ?? ""}px`,
-        height: `${k?.wu?.h ?? ""}px`,
-        boxSizing: "border-box",
-        borderRight: "1px solid var(--chart-hatch)",
-        background: "repeating-linear-gradient(135deg, var(--chart-hatch) 0 1px, transparent 1px 6px)"
-      }
-    }) : null, (k?.gaps || []).map((gp, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${gp?.x ?? ""}px`,
-        top: `${gp?.y ?? ""}px`,
-        width: `${gp?.w ?? ""}px`,
-        height: `${gp?.h ?? ""}px`,
-        boxSizing: "border-box",
-        borderLeft: "1px dashed var(--chart-hatch)",
-        borderRight: "1px dashed var(--chart-hatch)"
-      }
-    }))), (k?.g?.grid || []).map((gl, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${gl?.lx ?? ""}px`,
-        top: `${gl?.ly ?? ""}px`,
-        transform: "translate(-100%,-75%)",
-        whiteSpace: "nowrap"
-      }
-    }, gl?.t))), (k?.g?.xt || []).map((xt, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${xt?.x ?? ""}px`,
-        top: `${xt?.y ?? ""}px`,
-        transform: "translate(-50%,-75%)"
-      }
-    }, xt?.t))), k?.g?.lat ? /*#__PURE__*/React.createElement(React.Fragment, null, (k?.g?.lat?.ticks || []).map((lt, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${lt?.x ?? ""}px`,
-        top: `${lt?.y ?? ""}px`,
-        transform: "translateY(-75%)",
-        whiteSpace: "nowrap",
-        color: "var(--series-latency)"
-      }
-    }, lt?.t)))) : null, (k?.marks || []).map((mk, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${mk?.lx ?? ""}px`,
-        top: `${mk?.ly ?? ""}px`,
-        transform: mk?.tf,
-        display: "flex",
-        alignItems: "center",
-        gap: "3px",
-        padding: "1px 5px",
-        borderRadius: "var(--radius-xs)",
-        background: "var(--surface-2)",
-        border: `1px solid ${mk?.bd ?? ""}`,
-        color: mk?.fg,
-        fontFamily: "var(--font-sans)",
-        fontSize: "10px",
-        fontWeight: "600",
-        whiteSpace: "nowrap"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: mk?.icon,
-      size: "10",
-      stroke: "2.25"
-    }), mk?.t))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "4px 14px",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, k?.wu ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "14px",
-        height: "10px",
-        boxSizing: "border-box",
-        borderRight: "1px solid var(--chart-hatch)",
-        background: "repeating-linear-gradient(135deg, var(--chart-hatch) 0 1px, transparent 1px 4px)"
-      }
-    }), k?.wuLabel) : null, k?.hasGaps ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "12px",
-        height: "10px",
-        boxSizing: "border-box",
-        borderLeft: "1px dashed var(--chart-hatch)",
-        borderRight: "1px dashed var(--chart-hatch)"
-      }
-    }), k?.gapLabel) : null)) : null, k?.isTable ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    }), k?.isTable ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         maxHeight: k?.tblMaxH,
         overflow: "auto",
@@ -8253,40 +8273,41 @@ class ResultDetail extends React.Component {
       style: {
         fontSize: "var(--text-micro)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.5",
+        lineHeight: "var(--lh-normal)",
         textWrap: "pretty"
       }
     }, k?.foot)) : null))))), /*#__PURE__*/React.createElement("aside", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "16px",
+        gap: "var(--space-4)",
         minWidth: "0"
       }
-    }, /*#__PURE__*/React.createElement("section", {
-      className: "card",
+    }, /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      padded: false,
       style: {
-        padding: "14px 16px",
+        padding: "var(--space-3-5) var(--space-4)",
         display: "flex",
         flexDirection: "column",
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("label", {
       htmlFor: "note",
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
+        fontWeight: "var(--weight-semibold)",
+        fontSize: "var(--text-micro)",
         letterSpacing: "var(--tracking-caps)",
         textTransform: "uppercase",
         color: "var(--fg-subtle)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "file-text",
-      size: "13"
+      size: 13
     }), "Note"), v.canEdit ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("textarea", {
       id: "note",
       rows: "3",
@@ -8300,8 +8321,8 @@ class ResultDetail extends React.Component {
         color: "var(--fg)",
         fontFamily: "var(--font-sans)",
         fontSize: "var(--text-sm)",
-        lineHeight: "1.5",
-        padding: "8px 10px"
+        lineHeight: "var(--lh-normal)",
+        padding: "var(--space-2) var(--space-2-5)"
       }
     }), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -8331,193 +8352,43 @@ class ResultDetail extends React.Component {
         color: "var(--fg)",
         fontFamily: "var(--font-sans)",
         fontSize: "var(--text-sm)",
-        lineHeight: "1.5",
-        padding: "8px 10px"
+        lineHeight: "var(--lh-normal)",
+        padding: "var(--space-2) var(--space-2-5)"
       }
     }), /*#__PURE__*/React.createElement("span", {
       className: "tip",
       role: "tooltip",
       id: "tip-note"
-    }, "History unavailable \xB7 notes can't be saved")) : null), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      style: {
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "image",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t"
-    }, "Share image"), /*#__PURE__*/React.createElement("span", {
-      className: "right",
-      style: {
-        marginLeft: "auto",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, "1200 \xD7 630 PNG")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "14px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      "data-theme": "dark",
-      role: "img",
-      "aria-label": v.shareAria,
-      style: {
-        aspectRatio: "1200/630",
-        borderRadius: "var(--radius-md)",
-        background: "var(--bg-base)",
-        border: "1px solid var(--border-default)",
-        padding: "12px 14px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        gap: "6px",
-        color: "var(--fg)",
-        boxSizing: "border-box"
-      }
+    }, "History unavailable \xB7 notes can't be saved")) : null), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      padded: false,
+      icon: "image",
+      title: "Share image",
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, "1200 \xD7 630 PNG")
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        fontSize: "11px",
-        fontWeight: "600",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("bg-logo", {
-      size: "15",
-      style: {
-        color: "var(--fg)"
-      }
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        letterSpacing: "var(--tracking-tight)"
-      }
-    }, "Bit", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--primary-text)",
-        fontWeight: "var(--weight-semibold)"
-      }
-    }, "Gauge")), /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: "auto",
-        display: "flex",
-        gap: "5px",
-        minWidth: "0",
-        fontFamily: "var(--font-mono)",
-        fontWeight: "400",
-        fontSize: "9px",
-        color: "var(--fg-subtle)",
-        whiteSpace: "nowrap"
-      }
-    }, v.inc ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg)",
-        overflow: "hidden",
-        textOverflow: "ellipsis"
-      }
-    }, v.D?.label) : null)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: "16px",
-        alignItems: "flex-end"
-      }
-    }, (v.shareBlocks || []).map((b, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
+        padding: "var(--space-3-5)",
         display: "flex",
         flexDirection: "column",
-        gap: "2px"
+        gap: "var(--space-3)"
       }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontSize: "8px",
-        letterSpacing: ".08em",
-        color: b?.c,
-        fontWeight: "600"
-      }
-    }, b?.k), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "24px",
-        fontWeight: "500",
-        lineHeight: "1"
-      }
-    }, b?.n, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-sans)",
-        fontSize: "10px",
-        color: "var(--fg-muted)",
-        marginLeft: "3px"
-      }
-    }, b?.u))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginLeft: "auto",
-        display: "flex",
-        alignItems: "center",
-        gap: "6px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "30px",
-        height: "30px",
-        boxSizing: "border-box",
-        borderRadius: "var(--radius-sm)",
-        border: `1px solid ${v.gBd ?? ""}`,
-        background: v.gBg,
-        color: v.gFg,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "var(--font-mono)",
-        fontWeight: "600",
-        fontSize: "15px"
-      }
-    }, v.grade), /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        fontSize: "9px",
-        lineHeight: "1.25"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontWeight: "600"
-      }
-    }, v.gShort), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)"
-      }
-    }, "bufferbloat")))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "3px 10px",
-        fontFamily: "var(--font-mono)",
-        fontSize: "9px",
-        color: "var(--fg-muted)"
-      }
-    }, (v.shareFoot || []).map((f, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", null, f))), /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: "auto",
-        color: "var(--fg-subtle)"
-      }
-    }, v.D?.server))), /*#__PURE__*/React.createElement("label", {
+    }, /*#__PURE__*/React.createElement(DS.SharePreview, {
+      label: v.shareAria,
+      head: v.inc ? v.D?.label : '',
+      grade: v.grade,
+      blocks: (v.shareBlocks || []).map(b => ({
+        label: b.k,
+        color: b.c,
+        value: b.n,
+        unit: b.u
+      })),
+      foot: v.shareFoot,
+      where: v.D?.server
+    }), /*#__PURE__*/React.createElement("label", {
       style: {
         display: "flex",
         alignItems: "flex-start",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
         cursor: "pointer"
       }
@@ -8528,7 +8399,7 @@ class ResultDetail extends React.Component {
       style: {
         width: "16px",
         height: "16px",
-        margin: "2px 0 0",
+        margin: "var(--space-0-5) 0 0",
         accentColor: "var(--primary)"
       }
     }), /*#__PURE__*/React.createElement("span", {
@@ -8546,74 +8417,39 @@ class ResultDetail extends React.Component {
       style: {
         display: "grid",
         gridTemplateColumns: v.shareCols,
-        gap: "8px"
+        gap: "var(--space-2)"
       }
-    }, v.canShare ? /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary",
+    }, v.canShare ? /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "secondary",
+      icon: "share",
       onClick: v.share,
       title: "Sends the image to the system share sheet",
       style: {
         justifyContent: "center"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "share",
-      size: "15"
-    }), "Share") : null, /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary",
+    }, "Share") : null, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "secondary",
+      icon: "download",
       onClick: v.dlImg,
       style: {
         justifyContent: "center"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "download",
-      size: "15"
-    }), "Download image")))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      style: {
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "file-text",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t"
-    }, "Text summary"), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost sm right",
-      onClick: v.copy,
-      style: {
-        marginLeft: "auto"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "copy",
-      size: "13"
-    }), "Copy")), v.denied ? /*#__PURE__*/React.createElement("div", {
-      role: "alert",
-      style: {
-        display: "flex",
-        gap: "8px",
-        padding: "10px 16px",
-        background: "var(--warn-bg)",
-        borderBottom: "1px solid var(--warn-border)",
-        fontSize: "var(--text-caption)",
-        lineHeight: "1.45"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--warn)",
-        display: "flex",
-        marginTop: "1px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "triangle-alert",
-      size: "14",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        textWrap: "pretty"
-      }
-    }, "Clipboard access was denied. The text below is selected — press ", /*#__PURE__*/React.createElement("span", {
+    }, "Download image")))), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      padded: false,
+      icon: "file-text",
+      title: "Text summary",
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        size: "sm",
+        icon: "copy",
+        onClick: v.copy
+      }, "Copy"))
+    }, v.denied ? /*#__PURE__*/React.createElement(DS.Notice, {
+      attached: true,
+      tone: "warn",
+      title: "Clipboard access was denied"
+    }, "The text below is selected — press ", /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: "var(--font-mono)"
       }
@@ -8621,48 +8457,38 @@ class ResultDetail extends React.Component {
       style: {
         fontFamily: "var(--font-mono)"
       }
-    }, "\u2318C"), " on Mac) to copy it.")) : null, /*#__PURE__*/React.createElement("pre", {
+    }, "\u2318C"), " on Mac) to copy it.") : null, /*#__PURE__*/React.createElement("pre", {
       ref: v.preRef,
       tabIndex: "0",
       "aria-label": "Text summary",
       style: {
         margin: "0",
-        padding: "12px 16px",
+        padding: "var(--space-3) var(--space-4)",
         background: "var(--term-bg)",
         color: "var(--term-fg)",
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-micro)",
-        lineHeight: "1.65",
+        lineHeight: "var(--lh-relaxed)",
         whiteSpace: "pre-wrap",
         userSelect: "text",
         outline: v.preOutline,
         outlineOffset: "-2px"
       }
-    }, v.summary)), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      style: {
-        overflow: "hidden"
-      }
+    }, v.summary)), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      padded: false
     }, v.mobile ? /*#__PURE__*/React.createElement("button", {
-      className: "card-h",
+      type: "button",
+      className: "disclosure",
       onClick: v.toggleParams,
       "aria-expanded": v.paramsAria,
       "aria-controls": "params",
       style: {
-        width: "100%",
-        boxSizing: "border-box",
-        background: "none",
-        border: "0",
-        borderBottom: v.paramsBorder,
-        color: "inherit",
-        font: "inherit",
-        textAlign: "left",
-        cursor: "pointer",
-        minHeight: "44px"
+        borderBottom: v.paramsBorder
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "sliders",
-      size: "15"
+      size: 15
     }), /*#__PURE__*/React.createElement("span", {
       className: "t"
     }, "Test parameters"), /*#__PURE__*/React.createElement("span", {
@@ -8671,20 +8497,22 @@ class ResultDetail extends React.Component {
         display: "flex",
         color: "var(--fg-subtle)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: v.paramsChevron,
-      size: "16"
+      size: 16
     }))) : null, v.desktop ? /*#__PURE__*/React.createElement("div", {
       className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "ico"
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "sliders",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
+      size: 15
+    })), /*#__PURE__*/React.createElement("span", {
       className: "t"
     }, "Test parameters")) : null, v.paramsShown ? /*#__PURE__*/React.createElement("div", {
       id: "params",
       style: {
-        padding: "2px 16px 10px"
+        padding: "var(--space-0-5) var(--space-4) var(--space-2-5)"
       }
     }, (v.params || []).map((pg, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
@@ -8695,10 +8523,10 @@ class ResultDetail extends React.Component {
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        padding: "12px 0 4px",
+        padding: "var(--space-3) 0 var(--space-1)",
         fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
+        fontWeight: "var(--weight-semibold)",
+        fontSize: "var(--text-micro)",
         letterSpacing: "var(--tracking-caps)",
         textTransform: "uppercase",
         color: "var(--fg-subtle)"
@@ -8713,7 +8541,7 @@ class ResultDetail extends React.Component {
       style: {
         display: "flex",
         justifyContent: "space-between",
-        gap: "12px",
+        gap: "var(--space-3)",
         padding: "7px 0",
         borderTop: "1px solid var(--border-subtle)"
       }
@@ -8740,7 +8568,7 @@ class ResultDetail extends React.Component {
         zIndex: "50",
         display: "flex",
         justifyContent: "flex-end",
-        padding: "16px",
+        padding: "var(--space-4)",
         pointerEvents: "none"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -8758,10 +8586,10 @@ class ResultDetail extends React.Component {
       style: {
         display: "flex"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: v.toast?.icon,
-      size: "16",
-      stroke: "2"
+      size: 16,
+      stroke: 2
     })), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: "1",
@@ -8771,20 +8599,19 @@ class ResultDetail extends React.Component {
       className: "t"
     }, v.toast?.t), v.toast?.m ? /*#__PURE__*/React.createElement("div", {
       className: "m"
-    }, v.toast?.m) : null), v.toast?.undo ? /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm",
+    }, v.toast?.m) : null), v.toast?.undo ? /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "secondary",
+      size: "sm",
+      icon: "undo-2",
       onClick: v.undo
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "undo-2",
-      size: "13"
-    }), "Undo") : null, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost sm icon",
+    }, "Undo") : null, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm",
+      iconOnly: true,
+      icon: "x",
       "aria-label": "Dismiss",
       onClick: v.dismiss
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "14"
-    })))) : null, v.mobile ? /*#__PURE__*/React.createElement(Nav, {
+    }))) : null, v.mobile ? /*#__PURE__*/React.createElement(Nav, {
       variant: "mobile-bottom",
       active: "history",
       status: this.props.srvStatus || "connected"
@@ -8796,6 +8623,7 @@ window.ResultDetail = ResultDetail;
 
 // ui_kits/app/Settings.jsx
 try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 /* BitGauge web UI kit — Settings
  * Props:
  *   mobile: boolean  (default false)
@@ -9276,7 +9104,7 @@ class Settings extends React.Component {
       desktop: !m,
       stop: ev => ev.stopPropagation(),
       L: m ? {
-        pad: '16px 16px 24px',
+        pad: 'var(--space-4) var(--space-4) var(--space-6)',
         cols: 'minmax(0,1fr)',
         h1: 'var(--text-3xl)',
         presetCols: 'minmax(0,1fr)',
@@ -9286,7 +9114,7 @@ class Settings extends React.Component {
         cfW: '100%',
         cfRad: 'var(--radius-xl) var(--radius-xl) 0 0'
       } : {
-        pad: '24px 40px 48px',
+        pad: 'var(--space-6) var(--space-10) var(--space-12)',
         cols: 'minmax(0,1fr) 340px',
         h1: 'var(--text-4xl)',
         presetCols: 'repeat(2, minmax(0,1fr))',
@@ -9463,6 +9291,23 @@ class Settings extends React.Component {
   }
   render() {
     const v = this.renderVals();
+    // Segmented props from the option rows renderVals builds ({ t, icon, c, aria, on }).
+    const seg = (opts = []) => {
+      const cur = opts.find(o => o.aria === true || o.aria === 'true') || {};
+      return {
+        options: opts.map(o => ({
+          value: o.t,
+          label: o.t,
+          icon: o.icon,
+          color: o.c
+        })),
+        value: cur.t,
+        onChange: val => {
+          const o = opts.find(x => x.t === val);
+          o && o.on && o.on();
+        }
+      };
+    };
     return /*#__PURE__*/React.createElement("div", {
       style: {
         position: "relative",
@@ -9485,33 +9330,33 @@ class Settings extends React.Component {
       style: {
         flex: "1",
         width: "100%",
-        maxWidth: "1200px",
+        maxWidth: "var(--layout-max)",
         margin: "0 auto",
         boxSizing: "border-box",
         padding: v.L?.pad,
         display: "grid",
         gridTemplateColumns: v.L?.cols,
-        gap: "24px",
+        gap: "var(--space-6)",
         alignItems: "start"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "16px",
+        gap: "var(--space-4)",
         minWidth: "0"
       }
     }, /*#__PURE__*/React.createElement("header", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("h1", {
       style: {
         margin: "0",
         fontSize: v.L?.h1,
-        fontWeight: "600",
+        fontWeight: "var(--weight-semibold)",
         letterSpacing: "var(--tracking-tight)"
       }
     }, "Settings"), /*#__PURE__*/React.createElement("div", {
@@ -9519,7 +9364,7 @@ class Settings extends React.Component {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "6px 12px",
+        gap: "var(--space-1-5) var(--space-3)",
         fontSize: "var(--text-sm)",
         color: "var(--fg-subtle)"
       }
@@ -9531,9 +9376,9 @@ class Settings extends React.Component {
         gap: "5px",
         color: "var(--ok-fg)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "circle-check",
-      size: "14"
+      size: 14
     }), "Saved") : null, v.hasErr ? /*#__PURE__*/React.createElement("span", {
       role: "status",
       style: {
@@ -9542,26 +9387,21 @@ class Settings extends React.Component {
         gap: "5px",
         color: "var(--danger-fg)"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "circle-alert",
-      size: "14"
-    }), v.errCountLabel) : null, /*#__PURE__*/React.createElement("span", null, "Changes save automatically in this browser and apply to the next test."))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-labelledby": "s-preset"
+      size: 14
+    }), v.errCountLabel) : null, /*#__PURE__*/React.createElement("span", null, "Changes save automatically in this browser and apply to the next test."))), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      labelledBy: "s-preset",
+      icon: "gauge",
+      title: /*#__PURE__*/React.createElement("span", {
+        id: "s-preset"
+      }, "Test preset")
     }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "gauge",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t",
-      id: "s-preset"
-    }, "Test preset")), /*#__PURE__*/React.createElement("div", {
-      className: "card-b",
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "16px"
+        gap: "var(--space-4)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       role: "radiogroup",
@@ -9569,80 +9409,20 @@ class Settings extends React.Component {
       style: {
         display: "grid",
         gridTemplateColumns: v.L?.presetCols,
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
     }, (v.presets || []).map((p, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      role: "radio",
-      "aria-checked": p?.aria,
-      tabIndex: "0",
-      onClick: p?.pick,
-      onKeyDown: p?.key,
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        padding: "12px 14px",
-        borderRadius: "var(--radius-md)",
-        border: `1px solid ${p?.bd ?? ""}`,
-        background: p?.bg,
-        cursor: "pointer",
-        minHeight: "44px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: p?.ic,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: p?.icon,
-      size: "16"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "600"
-      }
-    }, p?.t), p?.def ? /*#__PURE__*/React.createElement("span", {
-      className: "pill neutral",
-      style: {
-        height: "18px",
-        fontSize: "10px",
-        padding: "0 7px"
-      }
-    }, "Default") : null, /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: "auto",
-        width: "16px",
-        height: "16px",
-        boxSizing: "border-box",
-        borderRadius: "50%",
-        border: p?.ring,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: p?.dot
-      }
-    }))), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.45"
-      }
-    }, p?.d))))), v.isCont ? /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement(DS.ChoiceCard, {
+      selected: p?.aria === 'true' || p?.aria === true,
+      icon: p?.icon,
+      title: p?.t,
+      badge: p?.def ? /*#__PURE__*/React.createElement(DS.StatusPill, {
+        size: "sm",
+        dot: false
+      }, "Default") : null,
+      onSelect: p?.pick
+    }, p?.d)))), v.isCont ? /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
@@ -9655,8 +9435,8 @@ class Settings extends React.Component {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "12px 14px",
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3) var(--space-3-5)",
         borderBottom: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -9669,44 +9449,23 @@ class Settings extends React.Component {
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
     }, "Direction"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
-    }, "Continuous measures one direction until you stop it.")), /*#__PURE__*/React.createElement("div", {
-      className: "seg",
-      role: "radiogroup",
-      "aria-label": "Continuous direction"
-    }, (v.S?.dir || []).map((o, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      className: o?.cls,
-      role: "radio",
-      "aria-checked": o?.aria,
-      onClick: o?.on,
-      style: {
-        whiteSpace: "nowrap"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: o?.c,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: o?.icon,
-      size: "14",
-      stroke: "2"
-    })), o?.t))))), /*#__PURE__*/React.createElement("div", {
+    }, "Continuous measures one direction until you stop it.")), /*#__PURE__*/React.createElement(DS.Segmented, _extends({
+      ariaLabel: "Continuous direction"
+    }, seg(v.S?.dir)))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "12px 14px"
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3) var(--space-3-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -9718,42 +9477,37 @@ class Settings extends React.Component {
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
     }, "Run length"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, "Optional. No limit by default. 1 minute to 7 days.")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-end",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px"
+        gap: "var(--space-2)"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: v.runSw?.cls,
-      role: "switch",
-      "aria-checked": v.runSw?.aria,
+    }, /*#__PURE__*/React.createElement(DS.Switch, {
+      checked: v.runSw?.aria === 'true',
       "aria-label": "Stop after a set time",
-      onClick: v.runSw?.on
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "knob"
-    })), v.runLimit ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
-      className: v.F?.runVal?.cls,
+      onChange: v.runSw?.on
+    }), v.runLimit ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
+      invalid: v.F?.runVal?.bad,
       style: {
-        width: "72px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+        width: "72px"
+      },
       value: v.F?.runVal?.val,
       "aria-label": "Run length",
       "aria-invalid": v.F?.runVal?.aria,
@@ -9761,119 +9515,62 @@ class Settings extends React.Component {
       onChange: v.F?.runVal?.onChange,
       onBlur: v.F?.runVal?.onBlur,
       onKeyDown: v.F?.runVal?.onKeyDown
-    })), /*#__PURE__*/React.createElement("label", {
-      className: "input",
-      style: {
-        width: "112px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("select", {
+    }), /*#__PURE__*/React.createElement(DS.Select, {
       "aria-label": "Run length unit",
       value: v.runUnit,
-      onChange: v.setRunUnit
-    }, /*#__PURE__*/React.createElement("option", {
-      value: "m"
-    }, "minutes"), /*#__PURE__*/React.createElement("option", {
-      value: "h"
-    }, "hours"), /*#__PURE__*/React.createElement("option", {
-      value: "d"
-    }, "days")), /*#__PURE__*/React.createElement("bg-icon", {
-      name: "chevron-down",
-      size: "14"
-    }))) : null, v.noRunLimit ? /*#__PURE__*/React.createElement("span", {
+      onChange: v.setRunUnit,
+      options: [{
+        value: 'm',
+        label: 'minutes'
+      }, {
+        value: 'h',
+        label: 'hours'
+      }, {
+        value: 'd',
+        label: 'days'
+      }],
+      style: {
+        width: "112px"
+      }
+    })) : null, v.noRunLimit ? /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
         color: "var(--fg-muted)"
       }
-    }, "No limit") : null), v.F?.runVal?.bad ? /*#__PURE__*/React.createElement("span", {
-      className: "fmsg",
+    }, "No limit") : null), v.F?.runVal?.bad ? /*#__PURE__*/React.createElement(DS.FieldError, {
       id: v.F?.runVal?.eid,
       style: {
         maxWidth: "280px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "12"
-    }), v.F?.runVal?.err) : null))) : null, /*#__PURE__*/React.createElement("div", {
+    }, v.F?.runVal?.err) : null))) : null, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 16px",
+        gap: "var(--space-2-5) var(--space-4)",
         opacity: v.phasesOpacity
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
         color: "var(--fg-muted)"
       }
-    }, "Phases", v.C?.phases ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        color: "var(--primary-text)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: "var(--primary)"
-      }
-    }), "changed") : null), (v.phases || []).map((ph, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
+    }, "Phases", v.C?.phases ? /*#__PURE__*/React.createElement(DS.ChangedMark, null) : null), (v.phases || []).map((ph, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      role: "checkbox",
-      "aria-checked": ph?.aria,
+    }, /*#__PURE__*/React.createElement(DS.Checkbox, {
+      checked: ph?.aria === 'true' || ph?.aria === true,
       disabled: ph?.dis,
-      onClick: ph?.on,
-      style: {
-        all: "unset",
-        boxSizing: "border-box",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        fontSize: "var(--text-sm)",
-        minHeight: "32px",
-        cursor: "pointer"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "16px",
-        height: "16px",
-        boxSizing: "border-box",
-        borderRadius: "4px",
-        background: ph?.bg,
-        border: ph?.bd,
-        color: "var(--primary-fg)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      }
-    }, ph?.on2 ? /*#__PURE__*/React.createElement("bg-icon", {
-      name: "check",
-      size: "12",
-      stroke: "3"
-    }) : null), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: ph?.c,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: ph?.icon,
-      size: "14",
-      stroke: "2"
-    })), ph?.t))), /*#__PURE__*/React.createElement("div", {
+      onChange: ph?.on,
+      icon: ph?.icon,
+      iconColor: ph?.c
+    }, ph?.t))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         marginLeft: v.L?.orderMl,
         opacity: v.orderOpacity,
         pointerEvents: v.orderPe
@@ -9883,38 +9580,23 @@ class Settings extends React.Component {
         fontSize: "var(--text-sm)",
         color: "var(--fg-muted)"
       }
-    }, "Order"), /*#__PURE__*/React.createElement("div", {
-      className: "seg",
-      role: "radiogroup",
-      "aria-label": "Phase order"
-    }, (v.S?.order || []).map((o, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      className: o?.cls,
-      role: "radio",
-      "aria-checked": o?.aria,
-      onClick: o?.on,
-      style: {
-        whiteSpace: "nowrap"
-      }
-    }, o?.t))))), /*#__PURE__*/React.createElement("span", {
+    }, "Order"), /*#__PURE__*/React.createElement(DS.Segmented, _extends({
+      ariaLabel: "Phase order"
+    }, seg(v.S?.order)))), /*#__PURE__*/React.createElement("span", {
       style: {
         flexBasis: "100%",
         fontSize: "var(--text-micro)",
         color: "var(--fg-subtle)"
       }
-    }, v.phasesHelp)))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-labelledby": "s-conn"
+    }, v.phasesHelp)))), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      labelledBy: "s-conn",
+      icon: "layers",
+      title: /*#__PURE__*/React.createElement("span", {
+        id: "s-conn"
+      }, "Connections and limits"),
+      padded: false
     }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "layers",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t",
-      id: "s-conn"
-    }, "Connections and limits")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column"
@@ -9924,8 +9606,8 @@ class Settings extends React.Component {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "14px 16px",
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)",
         borderBottom: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -9939,51 +9621,26 @@ class Settings extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
-    }, "Parallel streams", v.C?.streams ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        color: "var(--primary-text)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: "var(--primary)"
-      }
-    }), "changed") : null), /*#__PURE__*/React.createElement("span", {
+    }, "Parallel streams", v.C?.streams ? /*#__PURE__*/React.createElement(DS.ChangedMark, null) : null), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, "Auto ramps 1 \u2192 2 \u2192 4 \u2192 6 streams and stops when adding streams no longer helps. Fixed runs 1\u20136. Single shows one connection.")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         flexWrap: "wrap"
       }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "seg",
-      role: "radiogroup",
-      "aria-label": "Parallel streams"
-    }, (v.S?.streams || []).map((o, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      className: o?.cls,
-      role: "radio",
-      "aria-checked": o?.aria,
-      onClick: o?.on
-    }, o?.t)))), v.isFixed ? /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement(DS.Segmented, _extends({
+      ariaLabel: "Parallel streams"
+    }, seg(v.S?.streams))), v.isFixed ? /*#__PURE__*/React.createElement("div", {
       role: "group",
       "aria-label": "Stream count",
       style: {
@@ -9995,8 +9652,11 @@ class Settings extends React.Component {
         overflow: "hidden",
         background: "var(--surface-1)"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm",
+      iconOnly: true,
+      icon: "minus",
       "aria-label": "Fewer streams",
       disabled: v.nMin,
       onClick: v.nDec,
@@ -10005,10 +9665,7 @@ class Settings extends React.Component {
         width: "32px",
         borderRadius: "0"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "minus",
-      size: "14"
-    })), /*#__PURE__*/React.createElement("span", {
+    }), /*#__PURE__*/React.createElement("span", {
       "aria-live": "polite",
       style: {
         width: "34px",
@@ -10016,8 +9673,11 @@ class Settings extends React.Component {
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-sm)"
       }
-    }, v.n), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
+    }, v.n), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm",
+      iconOnly: true,
+      icon: "plus",
       "aria-label": "More streams",
       disabled: v.nMax,
       onClick: v.nInc,
@@ -10026,16 +9686,13 @@ class Settings extends React.Component {
         width: "32px",
         borderRadius: "0"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "plus",
-      size: "14"
-    }))) : null)), v.timed ? /*#__PURE__*/React.createElement("div", {
+    })) : null)), v.timed ? /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "flex-start",
-        gap: "12px 20px",
-        padding: "14px 16px",
+        gap: "var(--space-3) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)",
         borderBottom: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -10048,38 +9705,38 @@ class Settings extends React.Component {
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
     }, "Duration per direction"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, "A direction ends after the minimum once results are stable, and runs up to the maximum on slow or noisy links.")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px"
+        gap: "var(--space-2)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         width: "118px",
         display: "flex",
         alignItems: "center",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         fontSize: "var(--text-sm)"
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -10087,17 +9744,17 @@ class Settings extends React.Component {
         color: "var(--series-download)",
         display: "flex"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "arrow-down",
-      size: "14",
-      stroke: "2"
+      size: 14,
+      stroke: 2
     })), "Download", v.C?.dl ? /*#__PURE__*/React.createElement("span", {
       style: {
         display: "inline-flex",
         alignItems: "center",
-        gap: "4px",
+        gap: "var(--space-1)",
         fontSize: "var(--text-micro)",
-        fontWeight: "500",
+        fontWeight: "var(--weight-medium)",
         color: "var(--primary-text)"
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -10107,13 +9764,13 @@ class Settings extends React.Component {
         borderRadius: "50%",
         background: "var(--primary)"
       }
-    }), "custom") : null), /*#__PURE__*/React.createElement("label", {
-      className: v.F?.dlMin?.cls,
+    }), "custom") : null), /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
+      invalid: v.F?.dlMin?.bad,
+      suffix: "s",
       style: {
-        width: "76px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+        width: "76px"
+      },
       value: v.F?.dlMin?.val,
       "aria-label": "Download minimum seconds",
       "aria-invalid": v.F?.dlMin?.aria,
@@ -10125,17 +9782,13 @@ class Settings extends React.Component {
       style: {
         color: "var(--fg-subtle)"
       }
-    }, "s")), /*#__PURE__*/React.createElement("span", {
+    }, "\u2013"), /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
+      invalid: v.F?.dlMax?.bad,
+      suffix: "s",
       style: {
-        color: "var(--fg-subtle)"
-      }
-    }, "\u2013"), /*#__PURE__*/React.createElement("label", {
-      className: v.F?.dlMax?.cls,
-      style: {
-        width: "76px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+        width: "76px"
+      },
       value: v.F?.dlMax?.val,
       "aria-label": "Download maximum seconds",
       "aria-invalid": v.F?.dlMax?.aria,
@@ -10143,46 +9796,34 @@ class Settings extends React.Component {
       onChange: v.F?.dlMax?.onChange,
       onBlur: v.F?.dlMax?.onBlur,
       onKeyDown: v.F?.dlMax?.onKeyDown
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)"
-      }
-    }, "s"))), v.F?.dlMin?.bad ? /*#__PURE__*/React.createElement("span", {
-      className: "fmsg",
+    })), v.F?.dlMin?.bad ? /*#__PURE__*/React.createElement(DS.FieldError, {
       id: v.F?.dlMin?.eid,
       style: {
         maxWidth: "320px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "12"
-    }), v.F?.dlMin?.err) : null, v.F?.dlMax?.bad ? /*#__PURE__*/React.createElement("span", {
-      className: "fmsg",
+    }, v.F?.dlMin?.err) : null, v.F?.dlMax?.bad ? /*#__PURE__*/React.createElement(DS.FieldError, {
       id: v.F?.dlMax?.eid,
       style: {
         maxWidth: "320px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "12"
-    }), v.F?.dlMax?.err) : null), /*#__PURE__*/React.createElement("div", {
+    }, v.F?.dlMax?.err) : null), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px"
+        gap: "var(--space-2)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         width: "118px",
         display: "flex",
         alignItems: "center",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         fontSize: "var(--text-sm)"
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -10190,17 +9831,17 @@ class Settings extends React.Component {
         color: "var(--series-upload)",
         display: "flex"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "arrow-up",
-      size: "14",
-      stroke: "2"
+      size: 14,
+      stroke: 2
     })), "Upload", v.C?.ul ? /*#__PURE__*/React.createElement("span", {
       style: {
         display: "inline-flex",
         alignItems: "center",
-        gap: "4px",
+        gap: "var(--space-1)",
         fontSize: "var(--text-micro)",
-        fontWeight: "500",
+        fontWeight: "var(--weight-medium)",
         color: "var(--primary-text)"
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -10210,13 +9851,13 @@ class Settings extends React.Component {
         borderRadius: "50%",
         background: "var(--primary)"
       }
-    }), "custom") : null), /*#__PURE__*/React.createElement("label", {
-      className: v.F?.ulMin?.cls,
+    }), "custom") : null), /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
+      invalid: v.F?.ulMin?.bad,
+      suffix: "s",
       style: {
-        width: "76px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+        width: "76px"
+      },
       value: v.F?.ulMin?.val,
       "aria-label": "Upload minimum seconds",
       "aria-invalid": v.F?.ulMin?.aria,
@@ -10228,17 +9869,13 @@ class Settings extends React.Component {
       style: {
         color: "var(--fg-subtle)"
       }
-    }, "s")), /*#__PURE__*/React.createElement("span", {
+    }, "\u2013"), /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
+      invalid: v.F?.ulMax?.bad,
+      suffix: "s",
       style: {
-        color: "var(--fg-subtle)"
-      }
-    }, "\u2013"), /*#__PURE__*/React.createElement("label", {
-      className: v.F?.ulMax?.cls,
-      style: {
-        width: "76px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+        width: "76px"
+      },
       value: v.F?.ulMax?.val,
       "aria-label": "Upload maximum seconds",
       "aria-invalid": v.F?.ulMax?.aria,
@@ -10246,35 +9883,23 @@ class Settings extends React.Component {
       onChange: v.F?.ulMax?.onChange,
       onBlur: v.F?.ulMax?.onBlur,
       onKeyDown: v.F?.ulMax?.onKeyDown
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)"
-      }
-    }, "s"))), v.F?.ulMin?.bad ? /*#__PURE__*/React.createElement("span", {
-      className: "fmsg",
+    })), v.F?.ulMin?.bad ? /*#__PURE__*/React.createElement(DS.FieldError, {
       id: v.F?.ulMin?.eid,
       style: {
         maxWidth: "320px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "12"
-    }), v.F?.ulMin?.err) : null, v.F?.ulMax?.bad ? /*#__PURE__*/React.createElement("span", {
-      className: "fmsg",
+    }, v.F?.ulMin?.err) : null, v.F?.ulMax?.bad ? /*#__PURE__*/React.createElement(DS.FieldError, {
       id: v.F?.ulMax?.eid,
       style: {
         maxWidth: "320px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "12"
-    }), v.F?.ulMax?.err) : null))) : null, /*#__PURE__*/React.createElement("div", {
+    }, v.F?.ulMax?.err) : null))) : null, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "14px 16px"
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -10287,61 +9912,41 @@ class Settings extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
-    }, "Data cap per test", v.C?.cap ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        color: "var(--primary-text)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: "var(--primary)"
-      }
-    }), "changed") : null), /*#__PURE__*/React.createElement("span", {
+    }, "Data cap per test", v.C?.cap ? /*#__PURE__*/React.createElement(DS.ChangedMark, null) : null), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, "Useful on metered mobile links. A direction stops early when the cap is reached and the result is marked.")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-end",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: v.capSw?.cls,
-      role: "switch",
-      "aria-checked": v.capSw?.aria,
+    }, /*#__PURE__*/React.createElement(DS.Switch, {
+      checked: v.capSw?.aria === 'true',
       "aria-label": "Data cap",
-      onClick: v.capSw?.on
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "knob"
-    })), /*#__PURE__*/React.createElement("label", {
-      className: v.F?.capMB?.cls,
+      onChange: v.capSw?.on
+    }), /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
+      invalid: v.F?.capMB?.bad,
+      suffix: "MB",
       style: {
         width: "110px",
-        height: "34px",
         opacity: v.capOpacity
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+      },
       value: v.F?.capMB?.val,
       disabled: v.capOff,
       "aria-label": "Data cap in MB",
@@ -10350,31 +9955,20 @@ class Settings extends React.Component {
       onChange: v.F?.capMB?.onChange,
       onBlur: v.F?.capMB?.onBlur,
       onKeyDown: v.F?.capMB?.onKeyDown
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)"
-      }
-    }, "MB"))), v.F?.capMB?.bad ? /*#__PURE__*/React.createElement("span", {
-      className: "fmsg",
+    })), v.F?.capMB?.bad ? /*#__PURE__*/React.createElement(DS.FieldError, {
       id: v.F?.capMB?.eid,
       style: {
         maxWidth: "280px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "12"
-    }), v.F?.capMB?.err) : null)))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-labelledby": "s-disp"
+    }, v.F?.capMB?.err) : null)))), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      labelledBy: "s-disp",
+      icon: "monitor",
+      title: /*#__PURE__*/React.createElement("span", {
+        id: "s-disp"
+      }, "Display and behaviour"),
+      padded: false
     }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "monitor",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t",
-      id: "s-disp"
-    }, "Display and behaviour")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column"
@@ -10384,8 +9978,8 @@ class Settings extends React.Component {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "14px 16px",
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)",
         borderBottom: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -10396,47 +9990,19 @@ class Settings extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
-    }, "Units", v.C?.units ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        color: "var(--primary-text)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: "var(--primary)"
-      }
-    }), "changed") : null)), /*#__PURE__*/React.createElement("div", {
-      className: "seg",
-      role: "radiogroup",
-      "aria-label": "Units"
-    }, (v.S?.units || []).map((o, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      className: o?.cls,
-      role: "radio",
-      "aria-checked": o?.aria,
-      onClick: o?.on,
-      style: {
-        whiteSpace: "nowrap"
-      }
-    }, o?.t))))), /*#__PURE__*/React.createElement("div", {
+    }, "Units", v.C?.units ? /*#__PURE__*/React.createElement(DS.ChangedMark, null) : null)), /*#__PURE__*/React.createElement(DS.Segmented, _extends({
+      ariaLabel: "Units"
+    }, seg(v.S?.units)))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "14px 16px",
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)",
         borderBottom: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -10447,47 +10013,19 @@ class Settings extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
-    }, "Theme", v.C?.theme ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        color: "var(--primary-text)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: "var(--primary)"
-      }
-    }), "changed") : null)), /*#__PURE__*/React.createElement("div", {
-      className: "seg",
-      role: "radiogroup",
-      "aria-label": "Theme"
-    }, (v.S?.theme || []).map((o, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      className: o?.cls,
-      role: "radio",
-      "aria-checked": o?.aria,
-      onClick: o?.on
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: o?.icon,
-      size: "14"
-    }), o?.t))))), /*#__PURE__*/React.createElement("div", {
+    }, "Theme", v.C?.theme ? /*#__PURE__*/React.createElement(DS.ChangedMark, null) : null)), /*#__PURE__*/React.createElement(DS.Segmented, _extends({
+      ariaLabel: "Theme"
+    }, seg(v.S?.theme)))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "14px 16px",
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)",
         borderBottom: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -10500,35 +10038,28 @@ class Settings extends React.Component {
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
     }, "Language"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
-    }, "Only shipped languages are listed.")), /*#__PURE__*/React.createElement("label", {
-      className: "input",
+    }, "Only shipped languages are listed.")), /*#__PURE__*/React.createElement(DS.Select, {
+      icon: "languages",
+      "aria-label": "Language",
+      options: ['English'],
       style: {
-        width: "200px",
-        height: "34px"
+        width: "200px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "languages",
-      size: "14"
-    }), /*#__PURE__*/React.createElement("select", {
-      "aria-label": "Language"
-    }, /*#__PURE__*/React.createElement("option", null, "English")), /*#__PURE__*/React.createElement("bg-icon", {
-      name: "chevron-down",
-      size: "14"
-    }))), /*#__PURE__*/React.createElement("div", {
+    })), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "14px 16px"
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -10541,31 +10072,15 @@ class Settings extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
-    }, "Auto-start on page load", v.C?.auto ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        color: "var(--primary-text)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: "var(--primary)"
-      }
-    }), "changed") : null), /*#__PURE__*/React.createElement("span", {
+    }, "Auto-start on page load", v.C?.auto ? /*#__PURE__*/React.createElement(DS.ChangedMark, null) : null), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, "Shows a countdown first, so you can cancel. Also available as ", /*#__PURE__*/React.createElement("span", {
       style: {
@@ -10576,30 +10091,26 @@ class Settings extends React.Component {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-end",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: v.autoSw?.cls,
-      role: "switch",
-      "aria-checked": v.autoSw?.aria,
+    }, /*#__PURE__*/React.createElement(DS.Switch, {
+      checked: v.autoSw?.aria === 'true',
       "aria-label": "Auto-start",
-      onClick: v.autoSw?.on
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "knob"
-    })), /*#__PURE__*/React.createElement("label", {
-      className: v.F?.countdown?.cls,
+      onChange: v.autoSw?.on
+    }), /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
+      invalid: v.F?.countdown?.bad,
+      suffix: "s",
       style: {
         width: "96px",
-        height: "34px",
         opacity: v.autoOpacity
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+      },
       value: v.F?.countdown?.val,
       disabled: v.autoOff,
       "aria-label": "Countdown seconds",
@@ -10608,470 +10119,291 @@ class Settings extends React.Component {
       onChange: v.F?.countdown?.onChange,
       onBlur: v.F?.countdown?.onBlur,
       onKeyDown: v.F?.countdown?.onKeyDown
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)"
-      }
-    }, "s"))), v.F?.countdown?.bad ? /*#__PURE__*/React.createElement("span", {
-      className: "fmsg",
+    })), v.F?.countdown?.bad ? /*#__PURE__*/React.createElement(DS.FieldError, {
       id: v.F?.countdown?.eid,
       style: {
         maxWidth: "280px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "12"
-    }), v.F?.countdown?.err) : null)))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-labelledby": "s-adv"
+    }, v.F?.countdown?.err) : null)))), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      labelledBy: "s-adv",
+      padded: false
     }, /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "disclosure",
       "aria-expanded": v.advAria,
       "aria-controls": "adv-body",
-      onClick: v.toggleAdv,
-      style: {
-        all: "unset",
-        boxSizing: "border-box",
-        width: "100%",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        padding: "12px 16px",
-        minHeight: "44px"
-      }
+      onClick: v.toggleAdv
     }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+      className: "ic"
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "sliders",
-      size: "15"
+      size: 15
     })), /*#__PURE__*/React.createElement("span", {
-      id: "s-adv",
-      style: {
-        fontSize: "var(--text-base)",
-        fontWeight: "600"
-      }
+      className: "t",
+      id: "s-adv"
     }, "Advanced"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        minWidth: "0",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap"
-      }
+      className: "sum"
     }, v.advSummary), /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: "auto",
-        color: "var(--fg-subtle)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+      className: "chev"
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: v.advIcon,
-      size: "16"
+      size: 16
     }))), v.advOpen ? /*#__PURE__*/React.createElement("div", {
-      id: "adv-body",
-      style: {
-        borderTop: "1px solid var(--border-subtle)",
-        display: "flex",
-        flexDirection: "column"
-      }
+      id: "adv-body"
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "14px 16px",
-        borderBottom: "1px solid var(--border-subtle)"
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)",
+        borderTop: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         flex: "1 1 240px",
         display: "flex",
         flexDirection: "column",
-        gap: "3px"
+        gap: "var(--space-0-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
-    }, "Warm-up", v.C?.warm ? /*#__PURE__*/React.createElement("span", {
+    }, "Warm-up", v.C?.warm ? /*#__PURE__*/React.createElement(DS.ChangedMark, null) : null), /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption",
       style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        color: "var(--primary-text)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: "var(--primary)"
-      }
-    }), "changed") : null), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, "Auto ends warm-up once throughput settles. Samples during warm-up are discarded.")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-end",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px"
+        gap: "var(--space-2)"
       }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "seg",
-      role: "radiogroup",
-      "aria-label": "Warm-up"
-    }, (v.S?.warm || []).map((o, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      className: o?.cls,
-      role: "radio",
-      "aria-checked": o?.aria,
-      onClick: o?.on
-    }, o?.t)))), v.warmFixed ? /*#__PURE__*/React.createElement("label", {
-      className: v.F?.warmS?.cls,
+    }, /*#__PURE__*/React.createElement(DS.Segmented, _extends({
+      ariaLabel: "Warm-up"
+    }, seg(v.S?.warm))), v.warmFixed ? /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
+      invalid: v.F?.warmS?.bad,
+      suffix: "s",
       style: {
-        width: "84px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+        width: "84px"
+      },
       value: v.F?.warmS?.val,
       "aria-label": "Warm-up seconds",
-      "aria-invalid": v.F?.warmS?.aria,
       "aria-describedby": v.F?.warmS?.desc,
       onChange: v.F?.warmS?.onChange,
       onBlur: v.F?.warmS?.onBlur,
       onKeyDown: v.F?.warmS?.onKeyDown
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)"
-      }
-    }, "s")) : null), v.F?.warmS?.bad ? /*#__PURE__*/React.createElement("span", {
-      className: "fmsg",
+    }) : null), v.F?.warmS?.bad ? /*#__PURE__*/React.createElement(DS.FieldError, {
       id: v.F?.warmS?.eid,
       style: {
         maxWidth: "280px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "12"
-    }), v.F?.warmS?.err) : null)), /*#__PURE__*/React.createElement("div", {
+    }, v.F?.warmS?.err) : null)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "14px 16px",
-        borderBottom: "1px solid var(--border-subtle)"
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)",
+        borderTop: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         flex: "1 1 240px",
         display: "flex",
         flexDirection: "column",
-        gap: "3px"
+        gap: "var(--space-0-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
-    }, "Ping count", v.C?.pings ? /*#__PURE__*/React.createElement("span", {
+    }, "Ping count", v.C?.pings ? /*#__PURE__*/React.createElement(DS.ChangedMark, null) : null), /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption",
       style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        color: "var(--primary-text)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: "var(--primary)"
-      }
-    }), "changed") : null), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, "Used for idle latency and jitter. ", v.pingsHelp)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-end",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
-    }, /*#__PURE__*/React.createElement("label", {
-      className: v.F?.pings?.cls,
+    }, /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
+      invalid: v.F?.pings?.bad,
+      suffix: "pings",
       style: {
-        width: "110px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+        width: "110px"
+      },
       value: v.F?.pings?.val,
       "aria-label": "Ping count",
-      "aria-invalid": v.F?.pings?.aria,
       "aria-describedby": v.F?.pings?.desc,
       onChange: v.F?.pings?.onChange,
       onBlur: v.F?.pings?.onBlur,
       onKeyDown: v.F?.pings?.onKeyDown
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)"
-      }
-    }, "pings")), v.F?.pings?.bad ? /*#__PURE__*/React.createElement("span", {
-      className: "fmsg",
+    }), v.F?.pings?.bad ? /*#__PURE__*/React.createElement(DS.FieldError, {
       id: v.F?.pings?.eid,
       style: {
         maxWidth: "280px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "12"
-    }), v.F?.pings?.err) : null)), /*#__PURE__*/React.createElement("div", {
+    }, v.F?.pings?.err) : null)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "10px 20px",
-        padding: "14px 16px"
+        gap: "var(--space-2-5) var(--space-5)",
+        padding: "var(--space-3-5) var(--space-4)",
+        borderTop: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         flex: "1 1 240px",
         display: "flex",
         flexDirection: "column",
-        gap: "3px"
+        gap: "var(--space-0-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "var(--space-2)",
         fontSize: "var(--text-sm)",
-        fontWeight: "600"
+        fontWeight: "var(--weight-semibold)"
       }
-    }, "Overhead compensation", v.C?.overhead ? /*#__PURE__*/React.createElement("span", {
+    }, "Overhead compensation", v.C?.overhead ? /*#__PURE__*/React.createElement(DS.ChangedMark, null) : null), /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption",
       style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        color: "var(--primary-text)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        background: "var(--primary)"
-      }
-    }), "changed") : null), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, "Adds estimated protocol overhead to measured throughput. Shown next to every number when not 0 %."), v.C?.overhead ? /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption",
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "8px",
-        marginTop: "4px",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
+        gap: "var(--space-2)",
+        marginTop: "var(--space-1)"
       }
-    }, "Shown as", /*#__PURE__*/React.createElement("span", {
+    }, "Shown as ", /*#__PURE__*/React.createElement("span", {
+      className: "ds-num",
       style: {
-        fontFamily: "var(--font-mono)",
         color: "var(--fg)"
       }
-    }, "941 Mbit/s"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-muted)",
-        border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-full)",
-        padding: "1px 7px"
-      }
-    }, "+", v.overhead, " % overhead compensation")) : null), /*#__PURE__*/React.createElement("label", {
-      className: "input",
-      style: {
-        width: "240px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("select", {
+    }, "941 Mbit/s"), /*#__PURE__*/React.createElement(DS.Chip, {
+      size: "sm"
+    }, '+' + v.overhead + ' % overhead compensation')) : null), /*#__PURE__*/React.createElement(DS.Select, {
       "aria-label": "Overhead compensation",
       value: v.overhead,
-      onChange: v.setOverhead
-    }, (v.overheadOpts || []).map((o, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("option", {
-      value: o?.v
-    }, o?.t)))), /*#__PURE__*/React.createElement("bg-icon", {
-      name: "chevron-down",
-      size: "14"
-    })))) : null)), /*#__PURE__*/React.createElement("aside", {
+      onChange: v.setOverhead,
+      options: (v.overheadOpts || []).map(o => ({
+        value: o.v,
+        label: o.t
+      })),
+      style: {
+        width: "240px"
+      }
+    }))) : null)), /*#__PURE__*/React.createElement("aside", {
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "16px",
+        gap: "var(--space-4)",
         minWidth: "0"
       }
-    }, /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-labelledby": "s-share"
+    }, /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      labelledBy: "s-share",
+      icon: "link",
+      title: /*#__PURE__*/React.createElement("span", {
+        id: "s-share"
+      }, "Shareable link")
     }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "link",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t",
-      id: "s-share"
-    }, "Shareable link")), /*#__PURE__*/React.createElement("div", {
-      className: "card-b",
       style: {
         display: "flex",
         flexDirection: "column",
-        gap: "10px"
+        gap: "var(--space-2-5)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-caption)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, "Opens BitGauge with the settings that differ from the defaults. Phase order, per-direction durations, ping count, warm-up and overhead compensation aren't link parameters."), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
-    }, /*#__PURE__*/React.createElement("label", {
-      className: "input mono sm",
-      style: {
-        flex: "1",
-        minWidth: "0",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
+    }, /*#__PURE__*/React.createElement(DS.Input, {
+      mono: true,
       readOnly: true,
       value: v.url,
       "aria-label": "Shareable URL",
       style: {
-        fontSize: "var(--text-caption)"
+        flex: "1",
+        minWidth: "0"
       }
-    })), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary icon",
+    }), /*#__PURE__*/React.createElement(DS.Button, {
+      iconOnly: true,
+      icon: v.copyIcon,
       "aria-label": "Copy link",
       onClick: v.copyUrl
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.copyIcon,
-      size: "15"
-    }))), /*#__PURE__*/React.createElement("button", {
-      role: "checkbox",
-      "aria-checked": v.incRunAria,
-      onClick: v.toggleIncRun,
-      style: {
-        all: "unset",
-        boxSizing: "border-box",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)",
-        minHeight: "32px",
-        cursor: "pointer"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "16px",
-        height: "16px",
-        flex: "none",
-        boxSizing: "border-box",
-        borderRadius: "4px",
-        background: v.incRunBg,
-        border: v.incRunBd,
-        color: "var(--primary-fg)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      }
-    }, v.incRun ? /*#__PURE__*/React.createElement("bg-icon", {
-      name: "check",
-      size: "12",
-      stroke: "3"
-    }) : null), /*#__PURE__*/React.createElement("span", null, "Include ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)"
-      }
-    }, "run=1"), " (start automatically)")), v.hasNotInUrl ? /*#__PURE__*/React.createElement("span", {
+    })), /*#__PURE__*/React.createElement(DS.Checkbox, {
+      size: "sm",
+      checked: v.incRunAria === 'true' || v.incRunAria === true,
+      onChange: v.toggleIncRun
+    }, "Include ", /*#__PURE__*/React.createElement("span", {
+      className: "ds-num"
+    }, "run=1"), " (start automatically)"), v.hasNotInUrl ? /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         alignItems: "flex-start",
-        gap: "6px",
+        gap: "var(--space-1-5)",
         fontSize: "var(--text-micro)",
         color: "var(--fg-subtle)",
-        lineHeight: "1.45"
+        lineHeight: "var(--lh-compact)"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         marginTop: "1px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "info",
-      size: "12"
-    })), "Not in the link: ", v.notInUrl) : null)), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-labelledby": "s-changed"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "sliders",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t",
-      id: "s-changed"
-    }, "Changed from defaults"), /*#__PURE__*/React.createElement("span", {
-      className: "right",
+      size: 12
+    })), "Not in the link: ", v.notInUrl) : null)), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      labelledBy: "s-changed",
+      icon: "sliders",
+      title: /*#__PURE__*/React.createElement("span", {
+        id: "s-changed"
+      }, "Changed from defaults"),
+      actions: /*#__PURE__*/React.createElement("span", {
+        className: "ds-mono-sm"
+      }, v.changedCount),
+      padded: false
+    }, v.hasChanges ? /*#__PURE__*/React.createElement("div", {
       style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, v.changedCount)), v.hasChanges ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "4px 16px 4px"
+        padding: "var(--space-1) var(--space-4) var(--space-1)"
       }
     }, (v.changed || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
@@ -11079,8 +10411,8 @@ class Settings extends React.Component {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: "10px",
-        padding: "8px 0",
+        gap: "var(--space-2-5)",
+        padding: "var(--space-2) 0",
         borderBottom: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -11107,39 +10439,38 @@ class Settings extends React.Component {
         color: "var(--primary-text)",
         textAlign: "right"
       }
-    }, c?.v), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost icon sm",
+    }, c?.v), /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "ghost",
+      size: "sm",
+      iconOnly: true,
+      icon: "rotate-ccw",
       "aria-label": c?.label,
       title: c?.label,
       onClick: c?.reset,
       style: {
         width: "28px"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "rotate-ccw",
-      size: "13"
-    })))))) : null, v.noChanges ? /*#__PURE__*/React.createElement("div", {
+    }))))) : null, v.noChanges ? /*#__PURE__*/React.createElement("div", {
       style: {
-        padding: "14px 16px 2px",
+        padding: "var(--space-3-5) var(--space-4) var(--space-0-5)",
         fontSize: "var(--text-sm)",
         color: "var(--fg-muted)"
       }
     }, "Everything is at its default.") : null, /*#__PURE__*/React.createElement("div", {
       style: {
-        padding: "12px 16px"
+        padding: "var(--space-3) var(--space-4)"
       }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn danger sm",
+    }, /*#__PURE__*/React.createElement(DS.Button, {
+      variant: "danger",
+      size: "sm",
+      icon: "rotate-ccw",
       disabled: v.noChanges,
       onClick: v.openReset,
       style: {
         width: "100%",
         justifyContent: "center"
       }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "rotate-ccw",
-      size: "14"
-    }), "Reset all to defaults"))))), v.mobile ? /*#__PURE__*/React.createElement("div", {
+    }, "Reset all to defaults"))))), v.mobile ? /*#__PURE__*/React.createElement("div", {
       style: {
         marginTop: "auto",
         position: "sticky",
@@ -11150,120 +10481,40 @@ class Settings extends React.Component {
       variant: "mobile-bottom",
       active: "settings",
       status: this.props.srvStatus || "connected"
-    })) : null, v.confirm ? /*#__PURE__*/React.createElement("div", {
-      onClick: v.closeReset,
-      style: {
-        position: "absolute",
-        inset: "0",
-        zIndex: "40",
-        background: "var(--scrim)",
-        backdropFilter: "blur(2px)",
-        display: "flex",
-        alignItems: v.L?.cfAlign,
-        justifyContent: "center",
-        paddingTop: v.L?.cfTop
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "modal",
-      role: "alertdialog",
-      "aria-modal": "true",
-      "aria-labelledby": "rst-t",
-      "aria-describedby": "rst-d",
-      onClick: v.stop,
-      style: {
-        width: v.L?.cfW,
-        maxWidth: "100%",
-        maxHeight: "none",
-        boxSizing: "border-box",
-        borderRadius: v.L?.cfRad
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "mh"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "mi danger"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "rotate-ccw",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      className: "mt",
-      id: "rst-t"
-    }, "Reset all settings?"), /*#__PURE__*/React.createElement("div", {
-      className: "md",
-      id: "rst-d"
-    }, v.resetLine))), /*#__PURE__*/React.createElement("div", {
-      className: "mf"
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        flex: "1"
-      }
-    }), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary",
-      onClick: v.closeReset
-    }, "Cancel"), /*#__PURE__*/React.createElement("button", {
-      className: "btn danger",
-      onClick: v.doReset
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "rotate-ccw",
-      size: "14"
-    }), "Reset all")))) : null, v.keepAsk ? /*#__PURE__*/React.createElement("div", {
-      onClick: v.keepCancel,
-      style: {
-        position: "absolute",
-        inset: "0",
-        zIndex: "40",
-        background: "var(--scrim)",
-        backdropFilter: "blur(2px)",
-        display: "flex",
-        alignItems: v.L?.cfAlign,
-        justifyContent: "center",
-        paddingTop: v.L?.cfTop
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "modal",
-      role: "alertdialog",
-      "aria-modal": "true",
-      "aria-labelledby": "keep-t",
-      "aria-describedby": "keep-d",
-      onClick: v.stop,
-      style: {
-        width: v.L?.cfW,
-        maxWidth: "100%",
-        maxHeight: "none",
-        boxSizing: "border-box",
-        borderRadius: v.L?.cfRad
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "mh"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "mi"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "timer",
-      size: "17"
-    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      className: "mt",
-      id: "keep-t"
-    }, v.keepTitle), /*#__PURE__*/React.createElement("div", {
-      className: "md",
-      id: "keep-d"
-    }, v.keepLine))), /*#__PURE__*/React.createElement("div", {
-      className: "mf",
-      style: {
-        flexWrap: "wrap"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost",
-      onClick: v.keepCancel
-    }, "Cancel"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        flex: "1"
-      }
-    }), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary",
-      onClick: v.keepPreset
-    }, v.keepUse), /*#__PURE__*/React.createElement("button", {
-      className: "btn primary",
-      onClick: v.keepCustom
-    }, "Keep custom durations")))) : null);
+    })) : null, v.confirm ? /*#__PURE__*/React.createElement(DS.Dialog, {
+      tone: "danger",
+      icon: "rotate-ccw",
+      title: "Reset all settings?",
+      onClose: v.closeReset,
+      align: v.mobile ? 'top' : 'center',
+      footerStack: v.mobile,
+      footer: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        onClick: v.closeReset
+      }, "Cancel"), /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "danger",
+        icon: "rotate-ccw",
+        onClick: v.doReset
+      }, "Reset all"))
+    }, v.resetLine) : null, v.keepAsk ? /*#__PURE__*/React.createElement(DS.Dialog, {
+      icon: "timer",
+      title: v.keepTitle,
+      onClose: v.keepCancel,
+      align: v.mobile ? 'top' : 'center',
+      footerStack: v.mobile,
+      footer: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        onClick: v.keepCancel
+      }, "Cancel"), /*#__PURE__*/React.createElement("span", {
+        style: {
+          flex: "1"
+        }
+      }), /*#__PURE__*/React.createElement(DS.Button, {
+        onClick: v.keepPreset
+      }, v.keepUse), /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "primary",
+        onClick: v.keepCustom
+      }, "Keep custom durations"))
+    }, v.keepLine) : null);
   }
 }
 window.Settings = Settings;
@@ -11271,6 +10522,7 @@ window.Settings = Settings;
 
 // ui_kits/app/TestScreen.jsx
 try { (() => {
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 /* BitGauge web UI kit — TestScreen
  * Props:
  *   state: "idle" | "countdown" | "connecting" | "latency" | "download" | "upload" | "complete" | "error" | "error-early" | "cancelled" | "cancelled-late" | "cancelled-latency" | "cancelled-download" | "cancelled-slow" | "cancelled-slow-up" | "slow" | "slowdone" | "continuous" | "cont-warmup" | "cont-done" | "offline" | "basepath" | "ws-fallback" | "insufficient" | "param-ignored"  (default "download")
@@ -11278,17 +10530,21 @@ try { (() => {
  *   custom: boolean  (default false)
  *   units: "bits" | "bytes"  (default "bits")
  *   theme: "light" | "dark" | "system"  (default "system")
- *   v01: boolean  (default false)
+ *   caps: { history, settings, share, loaded, clients } — version scope from the Prototype (one source)
+ *   server: string | null — server.display_name, null while GET /info fails (the host is shown instead)
  *   kept: boolean  (default false)
  *   share: boolean  (default false)
  *   label: string  (default "")
  *   tips: boolean  (default false)
  *   resp: "ok" | "uncertain" | "needs-h2" | "not-reported" | "few-samples"  (default "ok")
  *   probe: "auto" | "WebSocket" | "HTTP/2 probe" | "HTTP/1.1 reserved"  (default "auto")
- *   errKind: "requests" | "unreachable" | "restarted" | "network"  (default "requests")
+ *   errKind: "requests" | "unreachable" | "restarted" | "network"  (default "requests") — the Error state's cause
+ *   (state "upload-interrupted" is separate: not an Error state, the run completes)
  *   overhead: boolean  (default false)
  *   cpu: boolean  (default false)
  *   timerRes: number  (default 0.1) — the page's timer resolution in ms; latencies below it read "< 1 ms" etc.
+ *   browser: "Firefox" | "Chrome" | "Safari" | "Edge"  (default "Firefox") — browser family, named by the browser upload limit notice
+ *   uploadPauses: boolean  (default false) — the engine saw the browser pause between upload requests (idle share > 20 %)
  */
 class TestScreen extends React.Component {
   state = {
@@ -11300,7 +10556,6 @@ class TestScreen extends React.Component {
     share: null,
     label: null,
     inc: false,
-    cw: null,
     toast: null
   };
   _toast(t) {
@@ -11312,71 +10567,16 @@ class TestScreen extends React.Component {
       toast: null
     }), 8000);
   }
-  chartRef = React.createRef();
-  // The chart fills its card: measure the container and redraw on resize.
-  _obs() {
-    const el = this.chartRef.current;
-    if (el === this._obsEl) return;
-    if (this._ro) this._ro.disconnect();
-    this._obsEl = el;
-    if (!el || !window.ResizeObserver) return;
-    this._ro = new ResizeObserver(([e]) => {
-      const w = Math.floor(e.contentRect.width);
-      if (w > 0 && w !== this.state.cw) this.setState({
-        cw: w
-      });
-    });
-    this._ro.observe(el);
-  }
   componentDidMount() {
-    if (!window.BG) {
-      this._h = () => this.forceUpdate();
-      window.addEventListener('bg-lib-ready', this._h);
-    }
     this._tick();
-    this._obs();
-    this._animK();
   }
   componentWillUnmount() {
-    if (this._h) window.removeEventListener('bg-lib-ready', this._h);
-    if (this._ro) this._ro.disconnect();
-    cancelAnimationFrame(this._raf);
     clearTimeout(this._tt);
   }
   componentDidUpdate() {
     this._tick();
-    this._obs();
-    this._animK();
   }
-  _rm() {
-    return typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }
-  // Gauge window shift: tween the decade k over BG.SHIFT_MS (ease-out, log space); reduced motion jumps.
-  _animK() {
-    const to = this._kT;
-    if (to == null || to === this._kTo) return;
-    const from = this._kA ? this._kA.cur : this._kTo;
-    this._kTo = to;
-    cancelAnimationFrame(this._raf);
-    if (from == null || this._rm()) {
-      this._kA = null;
-      return;
-    }
-    const t0 = performance.now(),
-      D = window.BG.SHIFT_MS;
-    this._kA = {
-      cur: from
-    };
-    const step = now => {
-      if (!this._kA) return;
-      const f = Math.min(1, (now - t0) / D);
-      this._kA.cur = from + (to - from) * (1 - Math.pow(1 - f, 3));
-      if (f < 1) this._raf = requestAnimationFrame(step);else this._kA = null;
-      this.forceUpdate();
-    };
-    this._raf = requestAnimationFrame(step);
-  }
-  // Visually hidden polite region: phase changes immediately, live rate at most every 5 s. The 10 Hz readout is not live.
+  // The screen's one LiveRegion: phase changes immediately, live rate at most every 5 s. The 10 Hz readout is not live.
   _tick() {
     const c = this._live;
     if (!c) return;
@@ -11398,26 +10598,27 @@ class TestScreen extends React.Component {
     const BG = window.BG;
     const on = v => !!v && v !== 'false';
     const m = on(this.props.mobile);
+    const caps = this.props.caps || {
+      history: true,
+      settings: true,
+      share: true,
+      loaded: true,
+      clients: true
+    };
     const st = this.props.state || 'idle',
       bp = st === 'basepath',
-      v01 = on(this.props.v01);
+      v01 = !caps.history;
+    // Server name from GET /info; while it is unknown the page's host stands in. Never a hard-coded name.
+    const SRV = this.props.server || BG.KIT.host;
     const base = {
       mobile: m,
       desktop: !m,
-      srvStatus: st === 'offline' || st === 'error-early' || st === 'error' && ['unreachable', 'restarted'].includes(this.props.errKind) ? 'offline' : 'online',
+      srvStatus: st === 'offline' || st === 'error-early' || st === 'error' && this.props.errKind === 'unreachable' ? 'offline' : 'online',
       navMobile: m && !bp,
       navDesktop: !m && !bp,
       basePath: bp,
       v01,
-      BP: m ? {
-        pad: '28px 16px 40px',
-        h: '22px',
-        minH: '720px'
-      } : {
-        pad: '72px 40px',
-        h: '28px',
-        minH: '760px'
-      },
+      caps,
       theme: this.props.theme || 'system',
       liveMsg: this.state.ann || ''
     };
@@ -11439,68 +10640,31 @@ class TestScreen extends React.Component {
       down: 'var(--series-download)',
       up: 'var(--series-upload)'
     };
+    // Screen layout only (template level): tracks and paddings around components, tokens only.
     const L = m ? {
-      pad: '16px 16px 24px',
-      gap: '14px',
-      tileGap: '10px',
       instCols: 'minmax(0,1fr)',
-      gPad: '20px 16px 20px',
-      cPad: '14px 16px 16px',
+      gPad: 'var(--space-5) var(--space-4)',
+      cPad: 'var(--space-3-5) var(--space-4) var(--space-4)',
       bl: 'none',
       bt: '1px solid var(--border-subtle)',
-      gSize: 272,
-      gNum: '46px',
-      gTitle: '22px',
-      btnW: '100%',
-      btnH: '52px',
-      kbd: false,
-      chartW: 311,
-      chartH: 150,
-      stepPad: '12px 14px',
-      stepGap: '10px',
-      stepDir: 'column',
-      stepAlign: 'flex-start',
-      stepInnerGap: '2px',
-      metaML: '0',
-      metaWS: 'normal',
+      stepPad: 'var(--space-3) var(--space-3-5)',
       resCols: 'repeat(2, minmax(0,1fr))',
-      tilePad: '12px 14px',
-      tileNum: '24px',
+      tileGap: 'var(--layout-tile-gap-compact)',
       loadSpan: 'span 2',
       fitSpan: 'span 2',
-      metaSpan: 'span 2',
-      loadCols: 'minmax(0,1fr)'
+      metaSpan: 'span 2'
     } : {
-      pad: '24px 40px 40px',
-      gap: '20px',
-      tileGap: '16px',
-      instCols: '400px minmax(0,1fr)',
-      gPad: '28px 24px 28px',
-      cPad: '20px 24px 20px',
+      instCols: 'var(--layout-instrument) minmax(0,1fr)',
+      gPad: 'var(--space-6)',
+      cPad: 'var(--space-5) var(--space-6)',
       bl: '1px solid var(--border-subtle)',
       bt: 'none',
-      gSize: 316,
-      gNum: '58px',
-      gTitle: '26px',
-      btnW: '248px',
-      btnH: '46px',
-      kbd: true,
-      chartW: 672,
-      chartH: 300,
-      stepPad: '16px 24px',
-      stepGap: '24px',
-      stepDir: 'row',
-      stepAlign: 'center',
-      stepInnerGap: '8px',
-      metaML: 'auto',
-      metaWS: 'nowrap',
+      stepPad: 'var(--space-4) var(--space-6)',
       resCols: 'repeat(4, minmax(0,1fr))',
-      tilePad: '16px 18px',
-      tileNum: '30px',
+      tileGap: 'var(--layout-tile-gap)',
       loadSpan: 'span 2',
       fitSpan: 'span 1',
-      metaSpan: 'span 1',
-      loadCols: '172px minmax(0,1fr)'
+      metaSpan: 'span 1'
     };
     const slow = ['slow', 'slowdone', 'cancelled-slow', 'cancelled-slow-up'].includes(st);
     const after = ['complete', 'cancelled', 'cancelled-late', 'slowdone'].includes(st);
@@ -11571,75 +10735,19 @@ class TestScreen extends React.Component {
       down: ['Download', 'arrow-down'],
       up: ['Upload', 'arrow-up']
     };
-    const ph = (k, status, meta, pct, label) => {
-      const S = {
-        pending: {
-          bar: 'transparent',
-          icon: null,
-          ic: '',
-          lc: 'var(--fg-muted)',
-          mc: 'var(--fg-subtle)',
-          pct: 0
-        },
-        active: {
-          bar: C[k],
-          icon: PI[k][1],
-          ic: C[k],
-          lc: 'var(--fg)',
-          mc: 'var(--fg-muted)'
-        },
-        done: {
-          bar: C[k],
-          icon: 'circle-check',
-          ic: 'var(--ok)',
-          lc: 'var(--fg)',
-          mc: 'var(--fg-muted)',
-          pct: 100
-        },
-        failed: {
-          bar: 'var(--danger)',
-          icon: 'circle-x',
-          ic: 'var(--danger)',
-          lc: 'var(--fg)',
-          mc: 'var(--danger-fg)'
-        },
-        cancelled: {
-          bar: 'var(--fg-subtle)',
-          icon: 'circle-minus',
-          ic: 'var(--fg-subtle)',
-          lc: 'var(--fg)',
-          mc: 'var(--fg-muted)'
-        },
-        skipped: {
-          bar: 'transparent',
-          icon: 'circle-dashed',
-          ic: 'var(--fg-subtle)',
-          lc: 'var(--fg-subtle)',
-          mc: 'var(--fg-subtle)',
-          pct: 0
-        },
-        capped: {
-          bar: 'var(--warn)',
-          icon: 'triangle-alert',
-          ic: 'var(--warn)',
-          lc: 'var(--fg)',
-          mc: 'var(--warn-fg)'
-        }
-      }[status];
-      return {
-        label: label || PI[k][0],
-        meta,
-        pct: (S.pct ?? pct) + '%',
-        bar: S.bar,
-        icon: S.icon,
-        ic: S.ic,
-        lc: S.lc,
-        mc: S.mc,
-        hasIcon: !!S.icon,
-        isPending: !S.icon,
-        aria: status === 'active' ? 'step' : 'false'
-      };
+    // PhaseStep props (phase-indicator.md): meta renders as "<state> · <detail>".
+    const PK = {
+      lat: 'latency',
+      down: 'download',
+      up: 'upload'
     };
+    const ph = (k, status, meta, pct, label) => ({
+      phase: PK[k],
+      state: status,
+      detail: meta || undefined,
+      progress: (status === 'done' ? 100 : pct || 0) / 100,
+      label
+    });
     const PD = {
       lat: '~2 s',
       down: '~10–20 s',
@@ -11675,12 +10783,11 @@ class TestScreen extends React.Component {
       label,
       icon,
       ic,
-      nc: 'var(--fg-subtle)',
-      sub: sub || ''
+      state: sub === 'not run' ? 'skipped' : 'empty',
+      sub: sub === 'not run' ? 'skipped' : sub || ''
     });
     const LIVE = {
-      tag: 'Live',
-      tagCls: 'pill info'
+      state: 'live'
     };
     const msT = (label, icon, v, sub, o) => T(Object.assign({
       label,
@@ -11730,6 +10837,16 @@ class TestScreen extends React.Component {
         peak: q90(v)
       };
     };
+    // Live direction tile (screens.md §1): "warming up" until warm-up ends, then the steady-window average and peak so far.
+    const LT = (label, icon, ic, sw) => sw ? rt(label, icon, ic, sw.avg, {
+      sub: 'peak ' + rn(sw.peak),
+      state: 'live'
+    }) : T({
+      label,
+      icon,
+      ic,
+      state: 'warming-up'
+    });
     const liveSub = sw => sw ? 'avg so far ' + rn(sw.avg) + ' · peak ' + rn(sw.peak) : 'warming up';
     const tail = pts => {
       const tl = pts[pts.length - 1][0],
@@ -11839,7 +10956,7 @@ class TestScreen extends React.Component {
       gText: text
     } : {});
     // §11: grade from the worse gradable increase. §13: AIM points; packet loss is fixed at 0 points; upload is not an input.
-    // Shared with Result detail (bg-lib): one grade rule and one AIM table.
+    // Shared with Result detail (fixtures.js): one grade rule and one AIM table.
     const gradeOf = BG.gradeOf,
       aim = (lat, jit, dl, inc) => BG.aim(lat, jit, dl, inc).bands;
     const FIT = [['Streaming', 'tv'], ['Gaming', 'gamepad'], ['Video calls', 'video']];
@@ -11879,52 +10996,56 @@ class TestScreen extends React.Component {
       value: dur,
       vc: dur === '—' ? 'var(--fg-subtle)' : 'var(--fg)'
     }, PL];
-    const N = (tone, icon, title, body, actions) => {
-      const t = tone === 'neutral' ? {
-        bg: 'var(--surface-2)',
-        bd: 'var(--border-default)',
-        fg: 'var(--fg)',
-        ic: 'var(--fg-subtle)'
-      } : {
-        bg: 'var(--' + tone + '-bg)',
-        bd: 'var(--' + tone + '-border)',
-        fg: 'var(--' + tone + '-fg)',
-        ic: 'var(--' + tone + ')'
-      };
-      return Object.assign(t, {
-        icon,
-        title,
-        body,
-        actions: actions || [],
-        role: tone === 'danger' ? 'alert' : 'status'
-      });
-    };
+    // Notice props (notices.md): the tone decides surface and role (danger → alert); screens pass nothing else.
+    const N = (tone, icon, title, body, actions) => ({
+      tone,
+      icon,
+      title,
+      body,
+      actions: actions || []
+    });
+    // Test extended (Duration): the engine reports one per direction; the UI shows one notice and rewords it to both
+    // directions when the upload extends too. Never a second notice.
+    const EXT = (d, u) => N('info', 'hourglass', 'Test extended', d && u ? 'Neither download nor upload had a steady window at its minimum duration, so both were extended up to their maximum.' : (d ? 'Download' : 'Upload') + ' had no steady window at its minimum duration, so it was extended up to its maximum.');
+    // Browser upload limit (Confidence): complete results only, never live. Any browser when the engine saw it pause
+    // between upload requests; always for Firefox once the upload is at least 100 Mbit/s.
+    const BRW = this.props.browser || 'Firefox',
+      PAUSES = on(this.props.uploadPauses);
+    const BUL = up => PAUSES || BRW === 'Firefox' && up >= 100e6 ? [N('info', 'globe', BRW + ' may limit the upload', 'On fast links ' + BRW + '’s own upload path, not the network, can bound the upload number; the measurement is the server’s and stands. Compare with another browser on this device to tell the two apart.', [{
+      label: 'Known browser limits',
+      href: '#'
+    }])] : [];
     const BTN = {
       start: {
+        role: 'start',
         label: 'Start test',
         icon: 'play',
         cls: 'btn lg primary',
         kbd: 'Enter'
       },
       stop: {
+        role: 'stop',
         label: 'Stop test',
         icon: 'square',
         cls: 'btn lg secondary',
         kbd: 'Esc'
       },
       again: {
+        role: 'again',
         label: 'Run again',
         icon: 'rotate-ccw',
         cls: 'btn lg primary',
         kbd: 'Enter'
       },
       retry: {
+        role: 'retry',
         label: 'Retry test',
         icon: 'refresh-cw',
         cls: 'btn lg primary',
         kbd: 'Enter'
       },
       now: {
+        role: 'now',
         label: 'Start now',
         icon: 'play',
         cls: 'btn lg primary',
@@ -12025,6 +11146,13 @@ class TestScreen extends React.Component {
     const ROW_D = lrow('down', 18, {
       p90: 24
     });
+    // screens.md §7: the Error state's message (what failed, in which phase) is always danger + role="alert".
+    // When the cause is itself a §7 notice (server restarted, network changed: neutral), it is shown alongside.
+    const ERRK = this.props.errKind || 'requests';
+    const CAUSE = {
+      restarted: ['refresh-cw', 'Server restarted', 'The server restarted during the test, so the phase that was running reports nothing.'],
+      network: ['network', 'Network changed', 'The network changed during the test; the completed phases are kept.']
+    }[ERRK];
     const EK = {
       requests: ['3 requests in a row failed during download', '3 requests in a row failed'],
       unreachable: ['server unreachable', 'server unreachable'],
@@ -12098,7 +11226,7 @@ class TestScreen extends React.Component {
             R: {
               textual: true,
               title: 'Connecting…',
-              sub: 'Basement NAS · reading server info',
+              sub: SRV + ' · reading server info',
               icon: null
             },
             chart: EMPTY,
@@ -12201,9 +11329,7 @@ class TestScreen extends React.Component {
               legend: [LG.d, LG.l],
               meta: t.toFixed(1) + ' s / 10 s'
             },
-            prim: [rt('Download', 'arrow-down', C.down, d.cur, Object.assign({
-              sub: liveSub(sw)
-            }, LIVE)), eUp('up next'), latT(), jitT()],
+            prim: [LT('Download', 'arrow-down', C.down, sw), eUp('up next'), latT(), jitT()],
             load: load(null, [lrow('down', lastLat(lp, 3.2), {
               p90: latP90(lp),
               live: true
@@ -12266,9 +11392,7 @@ class TestScreen extends React.Component {
               legend: [LG.d, LG.ur, LG.us, LG.l],
               meta: (10 + t).toFixed(1) + ' s / ' + (10 + UEND) + ' s'
             },
-            prim: [DONE_D, rt('Upload', 'arrow-up', C.up, rc || u.cur, Object.assign({
-              sub: liveSub(sw)
-            }, LIVE)), latT(), jitT()],
+            prim: [DONE_D, LT('Upload', 'arrow-up', C.up, sw), latT(), jitT()],
             load: load(null, [ROW_D, lrow('up', lastLat(lp, 3.2), {
               p90: latP90(lp),
               live: true
@@ -12326,7 +11450,7 @@ class TestScreen extends React.Component {
             })], respB(1420, 980)),
             fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 42 - IDLE.v)),
             meta: meta(BG.bytes(USED_D + used(UPC)), '', (PRE + 10 + UEND).toFixed(1) + ' s', ''),
-            notices: on(this.props.cpu) ? [N('warn', 'cpu', "Limited by this device's CPU", 'The browser ran at full CPU during download, so the link may be faster than measured. Close other tabs or test from a faster device.')] : [],
+            notices: (on(this.props.cpu) ? [N('warn', 'cpu', "Limited by this device's CPU", 'The browser ran at full CPU during download, so the link may be faster than measured. Close other tabs or test from a faster device.')] : []).concat(BUL(438e6)),
             btn: BTN.again,
             saved: {
               time: '14:02:11',
@@ -12336,8 +11460,82 @@ class TestScreen extends React.Component {
             share: {
               blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 438e6, C.up]],
               foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+39 ms under load', 'B · Mild bufferbloat'],
-              lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +39 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', 'Basement NAS']
+              lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +39 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV]
             }
+          };
+        }
+        break;
+      // Upload interrupted (flows.md §1 branch, measurement.md §7.5): over HTTP/1.1 the first failed upload request ends
+      // only the upload phase. It is NOT the Error state: the run is complete, upload reports the window up to the failure.
+      case 'upload-interrupted':
+        {
+          const UF = 8.2,
+            UPF = UPC.filter(p => p[0] <= UF),
+            UL = BG.lat(9, 3.1, 40, UF);
+          S = {
+            phases: [ph('lat', 'done', LATD), ph('down', 'done', rs(612e6)), ph('up', 'done', rs(402e6))],
+            gauge: {
+              opts: {
+                value: 612e6,
+                inner: 402e6
+              },
+              prev: DOWN,
+              c: C.down
+            },
+            R: {
+              numeric: true,
+              eyebrow: 'Download',
+              icon: 'arrow-down',
+              ec: C.down,
+              num: rn(612e6),
+              unit: BG.rate(612e6, unit).u,
+              sub: '',
+              up: rs(402e6) + ' upload',
+              oh: OH[0]
+            },
+            chart: {
+              xMax: 10 + UF,
+              series: [ser(DOWN, C.down), ser(shift(UPF, 10), C.up)],
+              lat: DLAT.concat(shift(UL, 10)),
+              seps: [{
+                t: 0,
+                label: 'Download'
+              }, {
+                t: 10,
+                label: 'Upload'
+              }],
+              bands: [DBAND, ubBand(UWU)],
+              marks: [{
+                t: 10 + UF,
+                label: 'Request failed'
+              }],
+              markColor: 'var(--danger)',
+              title: 'Throughput',
+              legend: [LG.d, LG.u, LG.l],
+              meta: (PRE + 10 + UF).toFixed(1) + ' s total',
+              noEnd: true
+            },
+            prim: [DONE_D, rt('Upload', 'arrow-up', C.up, 402e6, {
+              sub: 'window up to the failed request at ' + UF + ' s'
+            }), latT(), jitT()],
+            load: load('B', [ROW_D, lrow('up', 40, {
+              p90: 52
+            })], respB(1420, 960)),
+            fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 40 - IDLE.v)),
+            meta: meta(BG.bytes(USED_D + used(UPF)), '', (PRE + 10 + UF).toFixed(1) + ' s', ''),
+            notices: [N('danger', 'circle-x', 'Upload interrupted by a failed request', 'Over HTTP/1.1 one failed request ends the upload, so its number covers the window up to the failure. HTTP/2 at the proxy lets uploads survive transient failures.')],
+            btn: BTN.again,
+            saved: {
+              time: '14:02:11',
+              label: '',
+              chips: ['LAN', 'Home Wi-Fi', 'Office']
+            },
+            share: {
+              blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 402e6, C.up]],
+              foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+37 ms under load', 'B · Mild bufferbloat'],
+              lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(402e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +37 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV]
+            },
+            ann: 'Test complete. Upload interrupted by a failed request; upload ' + rs(402e6) + ' from the window before it.'
           };
         }
         break;
@@ -12345,7 +11543,7 @@ class TestScreen extends React.Component {
         {
           const ep = BG.thr(3, 575e6, 6.4);
           S = {
-            phases: [ph('lat', 'done', LATD), ph('down', 'failed', 'Error at 6.4 s', 64), ph('up', 'skipped', 'Not run')],
+            phases: [ph('lat', 'done', LATD), ph('down', 'failed', 'interrupted at 6.4 s', 64), ph('up', 'skipped')],
             gauge: {
               opts: {}
             },
@@ -12379,10 +11577,8 @@ class TestScreen extends React.Component {
               label: 'Download',
               icon: 'arrow-down',
               ic: C.down,
-              nc: 'var(--fg-subtle)',
-              tag: 'Error',
-              tagCls: 'pill danger',
-              sub: EK[1]
+              state: 'error',
+              sub: 'error · ' + EK[1]
             }), eUp('not run'), latT(), jitT()],
             load: load(null, [lrow('down', null, {
               sub: 'not measured · download failed'
@@ -12391,7 +11587,7 @@ class TestScreen extends React.Component {
             })], respB(null, null), 'Not graded — test incomplete'),
             fit: fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']),
             meta: meta(BG.bytes(used(ep)), 'not saved', (PRE + 6.4).toFixed(1) + ' s', ''),
-            notices: [N('danger', 'wifi-off', 'Connection to Basement NAS lost — ' + EK[0], 'Download stopped at 6.4 s. Latency finished before the error.')],
+            notices: [N('danger', 'wifi-off', 'Connection to ' + SRV + ' lost — ' + EK[0], 'Download stopped at 6.4 s. Latency finished before the error.')].concat(CAUSE ? [N('neutral', CAUSE[0], CAUSE[1], CAUSE[2])] : []),
             btn: BTN.retry,
             partial: {
               kind: 'error',
@@ -12471,15 +11667,15 @@ class TestScreen extends React.Component {
             stopAt = (10 + Tt).toFixed(1),
             Ts = Tt.toFixed(1);
           const PT = {
-              tag: 'Partial — stopped early',
-              tagCls: 'pill warn'
+              state: 'partial',
+              tag: 'Partial — stopped early'
             },
             gD = gradeOf(K.dLL - IDLE.v);
           // Partial loaded latency: median and p90 of the same probe curve over the confirmed window.
           const lw = lp.filter(q => q[0] >= K.wu - 1e-6 && q[0] < wEnd - 1e-6).map(q => q[1]).sort((x, y) => x - y);
           const uLLc = part && lw.length ? [Math.round(lw[lw.length >> 1]), Math.round(q90(lw))] : K.uLL;
           S = {
-            phases: [ph('lat', 'done', LATD), ph('down', 'done', rs(K.dV)), ph('up', 'cancelled', 'Cancelled at ' + Ts + ' s', Math.min(100, Tt / K.span * 100))],
+            phases: [ph('lat', 'done', LATD), ph('down', 'done', rs(K.dV)), ph('up', 'cancelled', Ts + ' s', Math.min(100, Tt / K.span * 100))],
             gauge: {
               opts: Object.assign({
                 value: K.dV
@@ -12533,9 +11729,7 @@ class TestScreen extends React.Component {
               label: 'Upload',
               icon: 'arrow-up',
               ic: C.up,
-              nc: 'var(--fg-subtle)',
-              tag: 'Cancelled',
-              tagCls: 'pill neutral',
+              state: 'insufficient-data',
               sub: 'Insufficient data — confirmed steady window shorter than 3 s' + (inWarm ? ' (stopped in warm-up)' : ''),
               notes: [BG.bytes(uUsed) + ' used']
             }), latT(), jitT()],
@@ -12567,11 +11761,11 @@ class TestScreen extends React.Component {
             k = n - 1,
             lp = BG.lat(5, 3.1, 3.1, t, 0.1, 0.35),
             PT = {
-              tag: 'Partial — stopped early',
-              tagCls: 'pill warn'
+              state: 'partial',
+              tag: 'Partial — stopped early'
             };
           S = {
-            phases: [ph('lat', 'cancelled', 'Cancelled · ' + n + ' / 20 pings', p * 100), ph('down', 'skipped', 'Not run'), ph('up', 'skipped', 'Not run')],
+            phases: [ph('lat', 'cancelled', n + ' / 20 pings', p * 100), ph('down', 'skipped'), ph('up', 'skipped')],
             gauge: {
               opts: {
                 mode: 'ms',
@@ -12646,7 +11840,7 @@ class TestScreen extends React.Component {
             inc = D.ll - IDLE.v,
             g = part ? gradeOf(inc) : null;
           S = {
-            phases: [ph('lat', 'done', LATD), ph('down', 'cancelled', 'Cancelled at ' + t.toFixed(1) + ' s', p * 100), ph('up', 'skipped', 'Not run')],
+            phases: [ph('lat', 'done', LATD), ph('down', 'cancelled', t.toFixed(1) + ' s', p * 100), ph('up', 'skipped')],
             gauge: {
               opts: {
                 value: part ? sw.avg : dp[dp.length - 1][1]
@@ -12686,16 +11880,14 @@ class TestScreen extends React.Component {
               noEnd: true
             },
             prim: [part ? rt('Download', 'arrow-down', C.down, sw.avg, {
+              state: 'partial',
               tag: 'Partial — stopped early',
-              tagCls: 'pill warn',
               sub: 'based on a ' + win.toFixed(1) + ' s steady window'
             }) : T({
               label: 'Download',
               icon: 'arrow-down',
               ic: C.down,
-              nc: 'var(--fg-subtle)',
-              tag: 'Cancelled',
-              tagCls: 'pill neutral',
+              state: 'insufficient-data',
               sub: t < D.warm ? 'Insufficient data — stopped during warm-up' : 'Insufficient data — steady window shorter than 3 s',
               notes: [ub + ' used']
             }), eUp('not run'), latT(), jitT()],
@@ -12767,9 +11959,7 @@ class TestScreen extends React.Component {
                 legend: [LG.d, LG.l],
                 meta: t.toFixed(1) + ' s / 10 s'
               },
-              prim: [rt('Download', 'arrow-down', C.down, d.cur, Object.assign({
-                sub: liveSub(sw)
-              }, LIVE)), eUp('up next'), latT(), jitT()],
+              prim: [LT('Download', 'arrow-down', C.down, sw), eUp('up next'), latT(), jitT()],
               load: load(null, [lrow('down', lastLat(lp, 49), {
                 p90: latP90(lp),
                 live: true
@@ -12836,9 +12026,7 @@ class TestScreen extends React.Component {
               },
               prim: [rt('Download', 'arrow-down', C.down, 640e3, {
                 sub: 'peak ' + rn(702e3) + ' · 2 streams · plateau: no-gain'
-              }), rt('Upload', 'arrow-up', C.up, rc || u.cur, Object.assign({
-                sub: liveSub(sw)
-              }, LIVE)), latT(), jitT()],
+              }), LT('Upload', 'arrow-up', C.up, sw), latT(), jitT()],
               load: load(null, [lrow('down', 162, {
                 p90: 205
               }), lrow('up', lastLat(lp, 49), {
@@ -12925,7 +12113,7 @@ class TestScreen extends React.Component {
             share: {
               blocks: [['↓ DOWNLOAD', 640e3, C.down], ['↑ UPLOAD', 210e3, C.up]],
               foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+262 ms under load', 'D · High bufferbloat'],
-              lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +262 ms (worse direction)', 'Bufferbloat D · High bufferbloat', 'Basement NAS']
+              lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +262 ms (worse direction)', 'Bufferbloat D · High bufferbloat', SRV]
             }
           };
         }
@@ -12939,7 +12127,7 @@ class TestScreen extends React.Component {
           R: {
             textual: true,
             title: 'Server unreachable',
-            sub: "Basement NAS didn't respond. Next check in 8 s.",
+            sub: SRV + " didn't respond. Next check in 8 s.",
             icon: 'server-off',
             ec: 'var(--danger)',
             action: {
@@ -12948,7 +12136,7 @@ class TestScreen extends React.Component {
             }
           },
           chart: Object.assign({}, EMPTY, {
-            empty: 'Nothing to measure yet. The chart fills in once Basement NAS responds.'
+            empty: 'Nothing to measure yet. The chart fills in once ' + SRV + ' responds.'
           }),
           prim: [eDown(), eUp(), eLat(), eJit()],
           load: preLoad(),
@@ -12976,7 +12164,7 @@ class TestScreen extends React.Component {
             u = tail(snd),
             lp = BG.lat(15, 48, 210, t, 0.25, 0.25, 2);
           S = {
-            phases: [ph('lat', 'done', LATD), ph('down', 'capped', 'insufficient data', 100), ph('up', 'active', uext ? 'extended · up to 25 s' : (UMIN - t).toFixed(1) + ' s left', p * 100)],
+            phases: [ph('lat', 'done', LATD), ph('down', 'done', 'insufficient data', 100), ph('up', 'active', uext ? 'extended · up to 25 s' : (UMIN - t).toFixed(1) + ' s left', p * 100)],
             gauge: {
               opts: {
                 value: u.cur,
@@ -13037,18 +12225,16 @@ class TestScreen extends React.Component {
               label: 'Download',
               icon: 'arrow-down',
               ic: C.down,
-              nc: 'var(--fg-subtle)',
-              tag: 'Insufficient data',
-              tagCls: 'pill warn',
+              state: 'insufficient-data',
               sub: 'only 1 request contributed within the 20 s max',
               notes: [BG.bytes(50e3) + ' used']
-            }), T(Object.assign({
+            }), T({
               label: 'Upload',
               icon: 'arrow-up',
               ic: C.up,
-              nc: 'var(--fg-subtle)',
+              state: 'warming-up',
               sub: 'no confirmed request yet'
-            }, LIVE)), latT(), jitT()],
+            }), latT(), jitT()],
             load: load(null, [lrow('down', 140, {
               p90: 176
             }), lrow('up', lastLat(lp, 49), {
@@ -13057,7 +12243,7 @@ class TestScreen extends React.Component {
             })], respB(null, null), 'Graded after upload'),
             fit: fit(null),
             meta: meta(BG.bytes(50e3 + used(snd)), 'so far · download ' + BG.bytes(50e3), (t + PRE + 20).toFixed(1) + ' s', 'elapsed'),
-            notices: [N('info', 'hourglass', 'Slow link — test extended', 'Download had no steady window at its 10 s minimum, so it was extended up to its 20 s maximum.' + (uext ? ' Upload passed its 15 s minimum without a confirmed window too, so it keeps sending, up to its 25 s maximum.' : '')), N('warn', 'database', 'Download: insufficient data', 'Download reached its 20 s maximum with the first 64 KiB request still in flight, so only one request contributed bytes and there is no value. ' + BG.bytes(50e3) + ' used. Upload continues; Extended allows up to 40 s per direction.', [{
+            notices: [EXT(true, uext), N('warn', 'database', 'Download: insufficient data', 'Download reached its 20 s maximum with the first 64 KiB request still in flight, so only one request contributed bytes and there is no value. ' + BG.bytes(50e3) + ' used. Upload continues; Extended allows up to 40 s per direction.', [{
               label: 'Try Extended',
               icon: 'timer',
               cls: 'btn sm secondary'
@@ -13070,7 +12256,7 @@ class TestScreen extends React.Component {
         {
           const lp = BG.lat(5, 3.1, 3.1, 1.2, 0.1, 0.35);
           S = {
-            phases: [ph('lat', 'failed', 'Error at 1.2 s', 60), ph('down', 'skipped', 'Not run'), ph('up', 'skipped', 'Not run')],
+            phases: [ph('lat', 'failed', 'interrupted at 1.2 s', 60), ph('down', 'skipped'), ph('up', 'skipped')],
             gauge: {
               opts: {}
             },
@@ -13100,10 +12286,8 @@ class TestScreen extends React.Component {
               label: 'Idle latency',
               icon: 'activity',
               ic: C.lat,
-              nc: 'var(--fg-subtle)',
-              tag: 'Error',
-              tagCls: 'pill danger',
-              sub: '12 of 20 pings before the error'
+              state: 'error',
+              sub: 'error · 12 of 20 pings before the error'
             }), eJit()],
             load: load(null, [lrow('down', null, {
               sub: 'Not run'
@@ -13112,7 +12296,7 @@ class TestScreen extends React.Component {
             })], respB(null, null), 'Not graded — test incomplete'),
             fit: fit(null, 'needs a full test'),
             meta: meta(BG.bytes(9e3), '', '1.8 s', ''),
-            notices: [N('danger', 'wifi-off', 'Connection to Basement NAS lost — server stopped responding', 'The test stopped at 1.2 s, during latency. No phase finished.')],
+            notices: [N('danger', 'wifi-off', 'Connection to ' + SRV + ' lost — server stopped responding', 'The test stopped at 1.2 s, during latency. No phase finished.')],
             btn: BTN.retry,
             partial: {
               kind: 'error',
@@ -13127,7 +12311,7 @@ class TestScreen extends React.Component {
           const pts = BG.thr(19, 921e6, 6.2, 0.1, 0.05, 10),
             d = tail(pts);
           S = {
-            phases: [ph('lat', 'done', LATD), ph('down', 'cancelled', 'stopped in warm-up · 0:06', 1, 'Download · continuous')],
+            phases: [ph('lat', 'done', LATD), ph('down', 'cancelled', 'in warm-up · 0:06', 1, 'Download · continuous')],
             gauge: {
               opts: {
                 value: d.cur
@@ -13304,7 +12488,7 @@ class TestScreen extends React.Component {
             share: {
               blocks: [['↓ AVERAGE', 921e6, C.down], ['PEAK · P90', 936e6, C.down]],
               foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+18 ms under load', 'continuous · 42:18'],
-              lines: ['↓ avg ' + rs(921e6) + ' · peak ' + rs(936e6) + ' (p90)', 'Continuous · 42:18', 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +18 ms', 'Basement NAS']
+              lines: ['↓ avg ' + rs(921e6) + ' · peak ' + rs(936e6) + ' (p90)', 'Continuous · 42:18', 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +18 ms', SRV]
             }
           }, common) : Object.assign({
             phases: [ph('lat', 'done', LATD), ph('down', 'active', '42:18 of 2:00:00', 35, 'Download · continuous')],
@@ -13359,9 +12543,6 @@ class TestScreen extends React.Component {
         }
         break;
     }
-    S.phases.forEach((p, i) => {
-      p.num = String(i + 1);
-    });
     const tipO = on(this.props.tips) ? '1' : '';
     const kept = this.state.kept ?? on(this.props.kept);
     const label = this.state.label ?? (this.props.label || (S.saved ? S.saved.label : ''));
@@ -13459,77 +12640,15 @@ class TestScreen extends React.Component {
       dateT = '2026-10-12 ' + (S.saved ? S.saved.time.slice(0, 5) : '');
     const share = SH ? {
       blocks: SH.blocks.map(([k, v, c]) => ({
-        k,
-        c,
-        n: rn(v),
-        u: BG.rate(v, unit).u
+        label: k,
+        color: c,
+        value: rn(v),
+        unit: BG.rate(v, unit).u
       })),
       foot: SH.foot,
       head: inc ? label : '',
-      where: 'Basement NAS · 12 Oct 2026 ' + (S.saved ? S.saved.time.slice(0, 5) : ''),
+      where: SRV + ' · 12 Oct 2026 ' + (S.saved ? S.saved.time.slice(0, 5) : ''),
       text: ['BitGauge · ' + (inc ? label + ' · ' : '') + dateT].concat(SH.lines).join('\n')
-    } : null;
-    const gopts = Object.assign({
-      size: L.gSize
-    }, S.gauge.opts);
-    let gScale = S.gauge.scale || 'log scale · 1 – 1000 ms';
-    if (!gopts.mode) {
-      let k = BG.track(S.gauge.prev || [], {
-        unit
-      }).k;
-      if (S.gauge.src) k = BG.track(S.gauge.src, {
-        unit,
-        k0: k
-      }).k;
-      if (unit === 'bytes') ['value', 'bandLo', 'bandHi', 'peak', 'inner'].forEach(n => {
-        if (gopts[n] != null) gopts[n] /= 8;
-      });
-      this._kT = k;
-      const kS = this._kA ? this._kA.cur : this._kTo != null && this._kTo !== k && !this._rm() ? this._kTo : k;
-      gopts.lo = Math.pow(10, kS);
-      gopts.hi = Math.pow(10, kS + 4);
-      gScale = BG.winLabel(k, unit) + (S.gauge.note ? ' · ' + S.gauge.note : '');
-    } else {
-      cancelAnimationFrame(this._raf);
-      this._kT = null;
-      this._kTo = null;
-      this._kA = null;
-    }
-    const g = BG.gauge(gopts);
-    // Countdown ring drains linearly; under reduced motion it shows whole seconds left, stepping once per second.
-    if (S.countdown) g.fill = BG.arc(L.gSize / 2, L.gSize / 2, L.gSize / 2 - 10, 0, Math.max(0.002, this._rm() ? cdN / 3 : 1 - pv(0.2)));
-    if (S.gauge.noDot) g.dot = null;
-    g.sizePx = L.gSize + 'px';
-    g.scale = gScale;
-    const gc = S.countdown ? 'var(--primary)' : S.gauge.c || C.down;
-    const cc = S.chart;
-    const c = BG.chart({
-      unit,
-      w: this.state.cw || L.chartW,
-      h: L.chartH,
-      xMax: cc.xMax,
-      yMax: cc.yMax,
-      ms: cc.ms,
-      series: cc.series.map(s => s.pts),
-      lat: cc.lat,
-      now: cc.now,
-      seps: cc.seps,
-      wins: cc.wins,
-      marks: cc.marks,
-      bands: cc.bands,
-      xStep: cc.xStep || (m && cc.xMax > 20 ? cc.xMax > 40 ? 18 : 8 : null),
-      xLabel: cc.xLabel
-    });
-    const series = c.series.map((s, i) => Object.assign(s, {
-      c: cc.series[i].c,
-      so: cc.series[i].so,
-      fo: cc.series[i].fo
-    }));
-    const lastS = series[series.length - 1];
-    const endDot = lastS && !cc.noEnd ? {
-      x: lastS.endX,
-      y: lastS.endY,
-      c: lastS.c
     } : null;
     const R = Object.assign({
       numeric: false,
@@ -13540,17 +12659,161 @@ class TestScreen extends React.Component {
       faint: null,
       action: null
     }, S.R);
+    // Gauge props (gauge.md modes × states). Values in bit/s; bytes mode passes B/s.
+    const G = S.gauge.opts || {},
+      div = unit === 'bytes' && G.mode !== 'ms' ? 8 : 1,
+      sc = x => x == null ? undefined : x / div;
+    const gState = S.countdown ? 'countdown' : st === 'idle' || st === 'param-ignored' ? 'idle' : st === 'connecting' ? 'connecting' : st === 'offline' ? 'offline' : st === 'error' || st === 'error-early' ? 'error' : R.textual ? 'cancelled' : 'live';
+    const gauge = {
+      compact: m,
+      state: gState,
+      mode: G.mode || 'rate',
+      units: unit,
+      value: sc(G.value),
+      bandLo: sc(G.bandLo),
+      bandHi: sc(G.bandHi),
+      peak: sc(G.peak),
+      inner: sc(G.inner),
+      innerLabel: R.up || undefined,
+      startDecade: S.gauge.prev && G.mode !== 'ms' ? BG.track(S.gauge.prev, {
+        unit
+      }).k : undefined,
+      color: S.gauge.c || C.down,
+      captionNote: S.gauge.note,
+      eyebrow: R.eyebrow,
+      eyebrowIcon: R.icon,
+      readout: R.num,
+      unit: S.countdown ? ['second', 'seconds'] : R.unit,
+      note: R.numeric ? R.sub : undefined,
+      sub: R.oh || undefined,
+      title: R.title,
+      message: R.textual ? R.sub : undefined,
+      detail: R.faint || undefined,
+      icon: R.textual ? R.icon : undefined,
+      countdownLeft: 3 * (1 - pv(0.2))
+    };
+    // Chart props (charts.md): the accessible label is a summary of the data, never the static title.
+    const cc = S.chart,
+      bandsOn = (cc.bands || []).some(b => b.t1 > b.t0);
+    const chart = {
+      title: cc.title,
+      meta: cc.meta,
+      empty: cc.empty || undefined,
+      markColor: cc.markColor || 'var(--fg-muted)',
+      endDot: !cc.noEnd,
+      units: unit,
+      compact: m,
+      legend: (cc.legend || []).map(l => ({
+        label: l.t,
+        color: l.c,
+        dashed: l.dash === 'dashed',
+        faint: (l.o || 1) < 1
+      })),
+      data: {
+        xMax: cc.xMax,
+        yMax: cc.yMax,
+        ms: cc.ms,
+        series: cc.series.map(s => ({
+          pts: s.pts,
+          color: s.c,
+          faint: s.so < 1
+        })),
+        lat: cc.lat,
+        now: cc.now,
+        seps: cc.seps,
+        wins: cc.wins,
+        marks: cc.marks,
+        bands: cc.bands,
+        xStep: cc.xStep,
+        xLabel: cc.xLabel
+      },
+      summary: cc.title + (cc.empty ? ': no data yet' : ': ' + [R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : R.title, cc.meta].filter(Boolean).join(', ')) + (bandsOn ? '; warm-up shaded' : '') + ((cc.marks || []).length ? '; marked: ' + cc.marks.map(x => x.label).join(', ') : '')
+    };
+    // MetricTile props (tiles.md).
+    const tile = x => ({
+      label: x.label,
+      icon: x.icon,
+      accent: x.ic,
+      value: x.num === '—' ? undefined : x.num,
+      unit: x.unit,
+      note: x.sub,
+      notes: x.notes,
+      state: x.state || (x.num === '—' || x.num == null ? 'empty' : 'done'),
+      tag: x.state === 'partial' ? x.tag : undefined,
+      compact: m,
+      style: x.span && x.span !== 'auto' ? {
+        gridColumn: x.span
+      } : undefined
+    });
+    const DIRK = {
+      'arrow-down': 'download',
+      'arrow-up': 'upload'
+    };
+    const loadP = S.load ? {
+      grade: S.load.grade === '—' ? null : S.load.grade,
+      gradeText: S.load.gText,
+      compact: m,
+      style: {
+        gridColumn: L.loadSpan
+      },
+      rows: S.load.rows.map(r => ({
+        dir: DIRK[r.icon],
+        label: r.label,
+        sub: r.sub,
+        value: r.num === '—' ? null : r.num,
+        live: r.nc === 'var(--primary-text)'
+      })),
+      responsiveness: {
+        protocol: S.load.resp.proto,
+        note: S.load.resp.note,
+        tag: S.load.resp.tag || undefined,
+        dirs: S.load.resp.dirs.map(d => ({
+          dir: DIRK[d.icon],
+          value: d.num || null,
+          text: d.text || undefined,
+          uncertain: d.nc === 'var(--fg-muted)'
+        }))
+      }
+    } : null;
+    const fitP = S.fit ? {
+      bands: S.fit.map(f => f.rating || null),
+      missing: S.fit.map(f => f.none || '—'),
+      basis: S.fitBasis || undefined,
+      compact: m,
+      style: {
+        gridColumn: L.fitSpan
+      }
+    } : null;
+    const mcols = S.metaCols ? +(S.metaCols.match(/repeat\((\d+)/) || [0, 1])[1] : 1;
+    const metaP = {
+      title: S.metaTitle || 'Test',
+      compact: m,
+      columns: mcols,
+      style: {
+        gridColumn: S.metaSpan || L.metaSpan
+      },
+      rows: S.meta.map(r => r.na ? {
+        icon: r.icon,
+        label: r.label,
+        node: 'NM'
+      } : {
+        icon: r.icon,
+        label: r.label,
+        sub: r.sub || undefined,
+        value: r.value
+      })
+    };
     const PH = {
       countdown: 'Test starts automatically in ' + cdN + ' seconds. Press Escape to cancel.',
-      connecting: 'Connecting to Basement NAS.',
+      connecting: 'Connecting to ' + SRV + '.',
       latency: 'Measuring latency.',
       download: 'Latency 3.1 milliseconds. Measuring download.',
       upload: 'Download finished: ' + rs(612e6) + '. Measuring upload.',
       complete: 'Upload finished: ' + rs(438e6) + '. Test complete and saved to history.',
-      error: 'Connection to Basement NAS lost: ' + EK[0] + '. Partial results were not saved.',
+      error: 'Connection to ' + SRV + ' lost: ' + EK[0] + '. Partial results were not saved.',
       slowdone: 'Upload finished: ' + rs(210e3) + '. Test complete and saved to history.',
       continuous: 'Continuous download running.',
-      offline: 'Server unreachable. Start is unavailable until Basement NAS responds.',
+      offline: 'Server unreachable. Start is unavailable until ' + SRV + ' responds.',
       'ws-fallback': 'WebSocket unavailable, using HTTP latency fallback. Measuring download.',
       insufficient: 'Download has insufficient data. Measuring upload.',
       'param-ignored': 'URL parameter streams=12 ignored, allowed 1 to 6.',
@@ -13574,51 +12837,71 @@ class TestScreen extends React.Component {
     return {
       ...base,
       ready: true,
-      chartRef: this.chartRef,
       L,
+      SRV,
       ctx,
-      ctxOpts,
-      conn,
-      custom,
-      notCustom: !custom,
+      sel,
+      ctxOptions: CO.map(([label, icon]) => ({
+        value: label,
+        label,
+        icon,
+        keepOpen: label === 'Custom…'
+      })),
+      onCtx: val => this.setState({
+        ctxSel: val,
+        ctxOpen: val === 'Custom…'
+      }),
       ctxOpen: this.state.ctxOpen,
-      ctxOpenStr: this.state.ctxOpen ? 'true' : 'false',
+      setCtxOpen: o => this.setState({
+        ctxOpen: o
+      }),
       ctxIsCustom: sel === 'Custom…',
       ctxCustom: this.state.ctxCustom,
-      toggleCtx: () => this.setState(s => ({
-        ctxOpen: !s.ctxOpen
-      })),
       onCtxCustom: e => this.setState({
         ctxCustom: e.target.value
       }),
       onCtxKey: e => {
-        if (e.key === 'Enter' || e.key === 'Escape') this.setState({
+        if (e.key === 'Enter') this.setState({
           ctxOpen: false
         });
       },
+      conn,
+      custom,
       customChips: bytesOnly && !this.props.chips ? [{
         t: 'Units · MB/s',
         icon: 'sliders'
       }] : customChips,
       customCount: (bytesOnly && !this.props.chips ? 1 : customChips.length) + ' changed:',
       phases: S.phases,
-      phaseCols: 'repeat(' + S.phases.length + ', minmax(0,1fr))',
-      g,
-      gc,
-      R,
+      gauge,
+      chart,
       btn: S.btn,
-      ch: {
-        title: cc.title,
-        legend: cc.legend,
-        meta: cc.meta,
-        empty: cc.empty || null,
-        markColor: cc.markColor || 'var(--fg-muted)',
-        band: c.bands.length > 0,
-        aria: cc.title + ' chart' + (c.bands.length ? '; warm-up shaded' : '')
-      },
-      fitBasis: S.fitBasis || '',
+      notices: S.notices,
+      tiles: S.prim.map(tile),
+      resCols: S.resCols || L.resCols,
+      load: loadP,
+      fit: fitP,
+      meta: metaP,
+      bar,
+      shareOpen,
+      share,
+      label,
+      incLabel: inc,
+      incDis: !label,
+      incNote: label ? '“' + label + '”' : 'no label set',
+      toggleInc: e => this.setState({
+        inc: e.target.checked
+      }),
+      closeShare: () => this.setState({
+        share: false
+      }),
+      onLabel: e => this.setState({
+        label: e.target.value
+      }),
+      pickLabel: c => this.setState({
+        label: c
+      }),
       toast: this.state.toast,
-      toastB: m ? '76px' : '16px',
       dismissToast: () => {
         clearTimeout(this._tt);
         this.setState({
@@ -13634,60 +12917,52 @@ class TestScreen extends React.Component {
           t: 'Removed from history.'
         });
       },
-      c,
-      series,
-      endDot,
-      notices: S.notices,
-      noop: () => {},
-      bar,
-      shareOpen,
-      share,
-      label,
-      incLabel: inc,
-      incDis: !label,
-      incNote: label ? '“' + label + '”' : 'no label set',
-      incC: label ? 'var(--fg)' : 'var(--fg-subtle)',
-      toggleInc: e => this.setState({
-        inc: e.target.checked
-      }),
-      closeShare: () => this.setState({
-        share: false
-      }),
-      stopProp: e => e.stopPropagation(),
-      onLabel: e => this.setState({
-        label: e.target.value
-      }),
-      SD: m ? {
-        pad: '56px 12px 24px',
-        dir: 'column-reverse'
-      } : {
-        pad: '72px 24px',
-        dir: 'row'
-      },
-      btnWrap: S.btn.tip ? 'has-tip' : '',
-      btnDis: S.btn.dis ? 'true' : 'false',
-      btnOp: S.btn.dis ? '0.45' : '1',
-      btnTipId: S.btn.tip ? 'start-tip' : null,
-      tipO,
-      prim: S.prim,
-      resCols: S.resCols || L.resCols,
-      load: S.load,
-      fit: S.fit,
-      meta: S.meta,
-      metaTitle: S.metaTitle || 'Test',
-      metaSpan: S.metaSpan || L.metaSpan,
-      metaCols: S.metaCols || 'minmax(0,1fr)',
-      lastLine: !!S.lastLine
+      lastLine: !!S.lastLine,
+      tipO: !!tipO
     };
   }
   render() {
     const v = this.renderVals();
+    const variant = cls => /primary/.test(cls) ? 'primary' : /ghost/.test(cls) ? 'ghost' : 'secondary';
+    const act = (a, i) => a.href ? /*#__PURE__*/React.createElement(DS.Link, {
+      key: i,
+      href: a.href,
+      external: true
+    }, a.label) : /*#__PURE__*/React.createElement(DS.Button, {
+      key: i,
+      size: "sm",
+      variant: variant(a.cls || ''),
+      icon: a.icon
+    }, a.label);
+    const barAct = (a, i) => {
+      const b = /*#__PURE__*/React.createElement(DS.Button, {
+        key: i,
+        size: "sm",
+        variant: variant(a.cls),
+        icon: a.icon || undefined,
+        iconAfter: a.after || undefined,
+        onClick: a.on
+      }, a.text);
+      return a.tip ? /*#__PURE__*/React.createElement(DS.Tooltip, {
+        key: i,
+        align: "end",
+        open: v.tipO,
+        content: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+          style: {
+            color: 'var(--warn)',
+            display: 'inline-flex'
+          }
+        }, /*#__PURE__*/React.createElement(DS.Icon, {
+          name: "triangle-alert",
+          size: 12,
+          stroke: 2
+        })), a.tip)
+      }, b) : b;
+    };
+    const barStatus = b => b.title === 'Saved to history' ? 'saved' : b.title === 'Test complete' ? 'complete' : /^Saved as/.test(b.title) ? 'kept' : 'unsaved';
     return /*#__PURE__*/React.createElement("div", {
       style: {
         position: "relative",
-        background: "var(--bg-base)",
-        color: "var(--fg)",
-        fontFamily: "var(--font-sans)",
         display: "flex",
         flexDirection: "column",
         minHeight: "100%"
@@ -13695,2452 +12970,352 @@ class TestScreen extends React.Component {
     }, v.navMobile ? /*#__PURE__*/React.createElement(Nav, {
       variant: "mobile-top",
       active: "test",
-      v01: v.v01,
       status: v.srvStatus
     }) : null, v.navDesktop ? /*#__PURE__*/React.createElement(Nav, {
       variant: "top",
       active: "test",
-      theme: v.theme,
-      v01: v.v01,
       status: v.srvStatus
-    }) : null, v.basePath ? /*#__PURE__*/React.createElement("main", {
-      role: "alert",
-      "aria-labelledby": "bp-title",
-      style: {
-        flex: "1",
-        minHeight: v.BP?.minH,
-        boxSizing: "border-box",
-        padding: v.BP?.pad,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: "100%",
-        maxWidth: "600px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "22px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        fontSize: "var(--text-md)",
-        fontWeight: "600",
-        letterSpacing: "var(--tracking-tight)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-logo", {
-      size: "22",
-      style: {
-        color: "var(--fg)"
-      }
-    }), /*#__PURE__*/React.createElement("span", null, "Bit", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--primary-text)"
-      }
-    }, "Gauge"))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--danger-fg)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-alert",
-      size: "13",
-      stroke: "2.25"
-    }), "Deployment error"), /*#__PURE__*/React.createElement("h1", {
-      id: "bp-title",
-      style: {
-        margin: "0",
-        fontSize: v.BP?.h,
-        lineHeight: "1.2",
-        fontWeight: "600",
-        letterSpacing: "var(--tracking-tight)",
-        textWrap: "pretty"
-      }
-    }, "The base path doesn't match this URL"), /*#__PURE__*/React.createElement("p", {
-      style: {
-        margin: "0",
-        fontSize: "var(--text-base)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.55",
-        textWrap: "pretty"
-      }
+    }) : null, v.basePath ? /*#__PURE__*/React.createElement(DS.FullScreenError, {
+      compact: v.mobile,
+      title: "The base path doesn't match this URL",
+      facts: /*#__PURE__*/React.createElement(DS.MetaList, {
+        facts: true,
+        rows: [{
+          label: 'Page path',
+          value: '/speed/'
+        }, {
+          label: 'Server base path',
+          value: '/ · BITGAUGE_SERVER__BASE_PATH not set'
+        }, {
+          label: 'Check',
+          value: 'GET /api/v1/info → 404',
+          tone: 'danger'
+        }]
+      }),
+      hint: /*#__PURE__*/React.createElement(DS.Card, {
+        as: "section",
+        label: "Deployment hint",
+        title: "How to fix it",
+        icon: "terminal"
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-2-5)"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "ds-body-sm"
+      }, "Set the base path to the reverse-proxy prefix and restart the container:"), /*#__PURE__*/React.createElement(DS.Snippet, {
+        lines: ['environment:', {
+          t: '  BITGAUGE_SERVER__BASE_PATH: /speed/',
+          kind: 'command'
+        }]
+      }), /*#__PURE__*/React.createElement("span", {
+        className: "ds-body-sm"
+      }, "Or strip the ", /*#__PURE__*/React.createElement("code", {
+        className: "ds-code"
+      }, "/speed"), " prefix at the proxy so BitGauge is served from ", /*#__PURE__*/React.createElement("code", {
+        className: "ds-code"
+      }, "/"), "."))),
+      actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "primary",
+        icon: "refresh-cw"
+      }, "Reload"), /*#__PURE__*/React.createElement(DS.Button, {
+        href: "#",
+        icon: "external-link"
+      }, "Deployment docs"))
     }, "This page was opened at ", /*#__PURE__*/React.createElement("code", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "0.92em",
-        color: "var(--fg)",
-        background: "var(--surface-3)",
-        padding: "1px 5px",
-        borderRadius: "var(--radius-xs)"
-      }
+      className: "ds-code"
     }, "/speed/"), ", but the server is configured for ", /*#__PURE__*/React.createElement("code", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "0.92em",
-        color: "var(--fg)",
-        background: "var(--surface-3)",
-        padding: "1px 5px",
-        borderRadius: "var(--radius-xs)"
-      }
-    }, "/"), ". Its API answers at a different path, so no test can run from here.")), /*#__PURE__*/React.createElement("dl", {
-      style: {
-        margin: "0",
-        display: "flex",
-        flexDirection: "column",
-        borderTop: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
+      className: "ds-code"
+    }, "/"), ". Its API answers at a different path, so no test can run from here.") : null, v.ready ? /*#__PURE__*/React.createElement("main", {
+      className: "page" + (v.mobile ? " compact" : "")
+    }, /*#__PURE__*/React.createElement(DS.LiveRegion, {
+      message: v.liveMsg
+    }), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
-        justifyContent: "space-between",
-        gap: "4px 16px",
-        padding: "9px 0",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("dt", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)"
-      }
-    }, "Page path"), /*#__PURE__*/React.createElement("dd", {
-      style: {
-        margin: "0",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg)"
-      }
-    }, "/speed/")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-        gap: "4px 16px",
-        padding: "9px 0",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("dt", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)"
-      }
-    }, "Server base path"), /*#__PURE__*/React.createElement("dd", {
-      style: {
-        margin: "0",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg)"
-      }
-    }, "/ \xB7 BITGAUGE_SERVER__BASE_PATH not set")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-        gap: "4px 16px",
-        padding: "9px 0",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("dt", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)"
-      }
-    }, "Check"), /*#__PURE__*/React.createElement("dd", {
-      style: {
-        margin: "0",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--danger-fg)"
-      }
-    }, "GET /api/v1/info \u2192 404"))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-label": "Deployment hint",
-      style: {
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "terminal",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t"
-    }, "How to fix it")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "14px 16px 16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("p", {
-      style: {
-        margin: "0",
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.5"
-      }
-    }, "Set the base path to the reverse-proxy prefix and restart the container:"), /*#__PURE__*/React.createElement("pre", {
-      style: {
-        margin: "0",
-        padding: "10px 12px",
-        borderRadius: "var(--radius-md)",
-        background: "var(--term-bg)",
-        color: "var(--term-fg)",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        lineHeight: "1.6",
-        whiteSpace: "pre-wrap"
-      }
-    }, "environment:\n  BITGAUGE_SERVER__BASE_PATH: /speed/"), /*#__PURE__*/React.createElement("p", {
-      style: {
-        margin: "0",
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.5"
-      }
-    }, "Or strip the ", /*#__PURE__*/React.createElement("code", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "0.92em",
-        color: "var(--fg)"
-      }
-    }, "/speed"), " prefix at the proxy so BitGauge is served from ", /*#__PURE__*/React.createElement("code", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "0.92em",
-        color: "var(--fg)"
-      }
-    }, "/"), "."))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "8px"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn primary"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "refresh-cw",
-      size: "15"
-    }), "Reload"), /*#__PURE__*/React.createElement("a", {
-      className: "btn secondary",
-      href: "#",
-      style: {
-        textDecoration: "none"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "external-link",
-      size: "15"
-    }), "Deployment docs")))) : null, v.ready ? /*#__PURE__*/React.createElement("main", {
-      style: {
-        flex: "1",
-        width: "100%",
-        maxWidth: "1200px",
-        margin: "0 auto",
-        boxSizing: "border-box",
-        padding: v.L?.pad,
-        display: "flex",
-        flexDirection: "column",
-        gap: v.L?.gap
+        alignItems: "flex-end",
+        gap: "var(--space-3) var(--space-6)"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
         alignItems: "flex-end",
-        gap: "12px 28px"
+        gap: "var(--space-2-5) var(--space-6)"
       }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "flex-end",
-        gap: "10px 24px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
-      }
-    }, "Context"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-        gap: "6px"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "hv-testsc-1",
-      "aria-haspopup": "menu",
-      "aria-expanded": v.ctxOpenStr,
-      onClick: v.toggleCtx,
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "5px",
-        height: "24px",
-        padding: "0 7px 0 9px",
-        borderRadius: "var(--radius-full)",
-        border: "1px solid var(--border-default)",
-        background: "var(--surface-2)",
-        color: "var(--fg)",
-        fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-caption)",
-        fontWeight: "600",
-        cursor: "pointer"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.ctx?.icon,
-      size: "12",
-      stroke: "2"
-    }), v.ctx?.label, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "chevron-down",
-      size: "12",
-      stroke: "2"
-    }))), v.ctx?.suggested ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, "suggested") : null, v.ctxOpen ? /*#__PURE__*/React.createElement("div", {
-      role: "menu",
-      "aria-label": "Context",
-      style: {
-        position: "absolute",
-        top: "calc(100% + 6px)",
-        left: "0",
-        zIndex: "20",
-        width: "212px",
-        boxSizing: "border-box",
-        background: "var(--surface-2)",
-        border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-md)",
-        boxShadow: "var(--shadow-pop)",
-        padding: "4px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px"
-      }
-    }, (v.ctxOpts || []).map((o, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "hv-testsc-2",
-      role: "menuitemradio",
-      "aria-checked": o?.checked,
-      onClick: o?.pick,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        height: "32px",
-        padding: "0 8px",
-        border: "0",
-        borderRadius: "var(--radius-sm)",
-        background: o?.bg,
-        color: "var(--fg)",
-        fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-sm)",
-        textAlign: "left",
-        cursor: "pointer"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: o?.icon,
-      size: "14"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        flex: "1"
-      }
-    }, o?.label), o?.on ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--primary-text)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "check",
-      size: "14",
-      stroke: "2"
-    })) : null))), v.ctxIsCustom ? /*#__PURE__*/React.createElement("label", {
-      className: "input",
-      style: {
-        height: "32px",
-        margin: "4px 2px 2px"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
-      "aria-label": "Custom context",
-      value: v.ctxCustom,
-      placeholder: "e.g. Hotel Wi-Fi",
-      onChange: v.onCtxCustom,
-      onKeyDown: v.onCtxKey
-    })) : null) : null)), (v.conn || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
-      }
-    }, c?.k), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-base)",
-        color: "var(--fg)",
-        lineHeight: "22px"
-      }
-    }, c?.v, " ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        fontSize: "var(--text-caption)"
-      }
-    }, c?.s)))))), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement(DS.Stat, {
+      label: "Context"
+    }, /*#__PURE__*/React.createElement(DS.Menu, {
+      label: "Context",
+      value: v.ctx.label,
+      icon: v.ctx.icon,
+      hint: v.ctx.suggested ? 'suggested' : undefined,
+      options: v.ctxOptions,
+      selected: v.sel,
+      onSelect: v.onCtx,
+      open: v.ctxOpen,
+      onOpenChange: v.setCtxOpen,
+      footer: v.ctxIsCustom ? /*#__PURE__*/React.createElement(DS.Input, {
+        size: "sm",
+        "aria-label": "Custom context",
+        value: v.ctxCustom,
+        placeholder: "e.g. Hotel Wi-Fi",
+        onChange: v.onCtxCustom,
+        onKeyDown: v.onCtxKey
+      }) : null
+    })), v.conn.map(c => /*#__PURE__*/React.createElement(DS.Stat, {
+      key: c.k,
+      label: c.k,
+      value: c.v,
+      sub: c.s
+    }))), /*#__PURE__*/React.createElement("div", {
       style: {
         marginLeft: "auto",
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
-        gap: "6px"
+        gap: "var(--space-1-5)"
       }
     }, v.custom ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        marginRight: "2px"
-      }
-    }, v.customCount), (v.customChips || []).map((ch, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "5px",
-        height: "24px",
-        padding: "0 9px",
-        borderRadius: "var(--radius-full)",
-        background: "var(--primary-bg)",
-        border: "1px solid var(--primary-border)",
-        color: "var(--primary-text)",
-        fontSize: "var(--text-caption)",
-        fontWeight: "600"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: ch?.icon,
-      size: "12",
-      stroke: "2"
-    }), ch?.t)))) : null, v.notCustom ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, "Standard preset \xB7 Auto streams \xB7 No data cap") : null, /*#__PURE__*/React.createElement("a", {
-      href: "#",
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "5px",
-        height: "28px",
-        padding: "0 8px",
-        borderRadius: "var(--radius-md)",
-        color: "var(--primary-text)",
-        fontSize: "var(--text-caption)",
-        fontWeight: "600",
-        textDecoration: "none"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "sliders",
-      size: "13"
-    }), "Edit"))), (v.notices || []).map((n, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
+      className: "ds-caption"
+    }, v.customCount), v.customChips.map(ch => /*#__PURE__*/React.createElement(DS.Chip, {
+      key: ch.t,
+      size: "sm",
+      changed: true,
+      icon: ch.icon
+    }, ch.t))) : /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption"
+    }, "Standard preset \xB7 Auto streams \xB7 No data cap"), v.caps.settings ? /*#__PURE__*/React.createElement(DS.Link, {
+      icon: "sliders",
+      href: "#"
+    }, "Edit") : null)), v.notices.map((n, i) => /*#__PURE__*/React.createElement(DS.Notice, {
+      key: i,
+      tone: n.tone,
+      icon: n.icon,
+      title: n.title,
+      actions: n.actions.length ? n.actions.map(act) : null
+    }, n.body)), /*#__PURE__*/React.createElement(DS.Card, {
+      as: "section",
+      label: "Speed test",
+      padded: false
     }, /*#__PURE__*/React.createElement("div", {
-      role: n?.role,
       style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "flex-start",
-        gap: "10px 12px",
-        padding: "12px 14px",
-        borderRadius: "var(--radius-md)",
-        border: `1px solid ${n?.bd ?? ""}`,
-        background: n?.bg
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: n?.ic,
-        display: "flex",
-        marginTop: "1px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: n?.icon,
-      size: "18"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1 1 220px",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "600",
-        color: n?.fg
-      }
-    }, n?.title), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.5",
-        textWrap: "pretty"
-      }
-    }, n?.body)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: "8px",
-        alignItems: "center",
-        marginLeft: "auto"
-      }
-    }, (n?.actions || []).map((a, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      className: a?.cls
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: a?.icon,
-      size: "14"
-    }), a?.label))))))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-label": "Speed test",
-      style: {
-        overflow: "hidden",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)"
-      }
-    }, /*#__PURE__*/React.createElement("ol", {
-      "aria-label": "Test phases",
-      style: {
-        display: "grid",
-        gridTemplateColumns: v.phaseCols,
-        gap: v.L?.stepGap,
-        listStyle: "none",
-        margin: "0",
-        padding: v.L?.stepPad,
+        padding: v.L.stepPad,
         borderBottom: "1px solid var(--border-subtle)"
       }
-    }, (v.phases || []).map((p, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("li", {
-      "aria-current": p?.aria,
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "9px",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        height: "3px",
-        borderRadius: "2px",
-        background: "var(--surface-4)",
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        height: "100%",
-        width: p?.pct,
-        background: p?.bar,
-        borderRadius: "2px"
-      }
+    }, /*#__PURE__*/React.createElement(DS.PhaseIndicator, {
+      steps: v.phases,
+      compact: v.mobile
     })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: v.L?.stepDir,
-        alignItems: v.L?.stepAlign,
-        gap: v.L?.stepInnerGap,
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "7px",
-        minWidth: "0"
-      }
-    }, p?.isPending ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "16px",
-        height: "16px",
-        boxSizing: "border-box",
-        borderRadius: "50%",
-        border: "1.5px solid var(--border-strong)",
-        fontFamily: "var(--font-mono)",
-        fontSize: "10px",
-        fontWeight: "600",
-        color: "var(--fg-subtle)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flex: "none"
-      }
-    }, p?.num) : null, p?.hasIcon ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: p?.ic,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: p?.icon,
-      size: "16"
-    })) : null, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: "600",
-        color: p?.lc,
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis"
-      }
-    }, p?.label)), /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: v.L?.metaML,
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: p?.mc,
-        whiteSpace: v.L?.metaWS,
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        maxWidth: "100%",
-        lineHeight: "1.35"
-      }
-    }, p?.meta)))))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
-        gridTemplateColumns: v.L?.instCols
+        gridTemplateColumns: v.L.instCols
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        padding: v.L?.gPad,
+        padding: v.L.gPad,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "14px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "relative",
-        width: v.g?.sizePx,
-        height: v.g?.sizePx
-      }
-    }, /*#__PURE__*/React.createElement("svg", {
-      width: v.g?.size,
-      height: v.g?.size,
-      "aria-hidden": "true",
-      style: {
-        display: "block",
-        overflow: "visible"
-      }
-    }, /*#__PURE__*/React.createElement("path", {
-      d: v.g?.track,
-      style: {
-        fill: "none",
-        stroke: "var(--surface-3)",
-        strokeWidth: "10",
-        strokeLinecap: "round"
-      }
-    }), (v.g?.ticks || []).map((t, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("line", {
-      x1: t?.x1,
-      y1: t?.y1,
-      x2: t?.x2,
-      y2: t?.y2,
-      style: {
-        stroke: "var(--fg-faint)",
-        strokeWidth: t?.w,
-        opacity: t?.o
-      }
-    }))), v.g?.band ? /*#__PURE__*/React.createElement("path", {
-      d: v.g?.band,
-      style: {
-        fill: "none",
-        stroke: v.gc,
-        strokeOpacity: "0.2",
-        strokeWidth: "22"
-      }
-    }) : null, v.g?.fill ? /*#__PURE__*/React.createElement("path", {
-      d: v.g?.fill,
-      style: {
-        fill: "none",
-        stroke: v.gc,
-        strokeWidth: "10",
-        strokeLinecap: "round"
-      }
-    }) : null, v.g?.inner ? /*#__PURE__*/React.createElement("path", {
-      d: v.g?.inner,
-      style: {
-        fill: "none",
-        stroke: "var(--series-upload)",
-        strokeWidth: "4",
-        strokeLinecap: "round"
-      }
-    }) : null, v.g?.peak ? /*#__PURE__*/React.createElement("line", {
-      x1: v.g?.peak?.x1,
-      y1: v.g?.peak?.y1,
-      x2: v.g?.peak?.x2,
-      y2: v.g?.peak?.y2,
-      style: {
-        stroke: "var(--fg-muted)",
-        strokeWidth: "2",
-        strokeLinecap: "round"
-      }
-    }) : null, v.g?.dot ? /*#__PURE__*/React.createElement("circle", {
-      cx: v.g?.dot?.x,
-      cy: v.g?.dot?.y,
-      r: "7",
-      style: {
-        fill: "var(--surface-2)",
-        stroke: v.gc,
-        strokeWidth: "3"
-      }
-    }) : null), (v.g?.labels || []).map((l, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      "aria-hidden": "true",
-      style: {
-        position: "absolute",
-        left: `${l?.x ?? ""}px`,
-        top: `${l?.y ?? ""}px`,
-        transform: "translate(-50%,-80%)",
-        fontFamily: "var(--font-mono)",
-        fontSize: "11px",
-        color: "var(--fg-subtle)",
-        whiteSpace: "nowrap"
-      }
-    }, l?.t))), /*#__PURE__*/React.createElement("div", {
-      role: "status",
-      "aria-live": "polite",
-      style: {
-        position: "absolute",
-        width: "1px",
-        height: "1px",
-        overflow: "hidden",
-        clip: "rect(0 0 0 0)",
-        clipPath: "inset(50%)",
-        whiteSpace: "nowrap"
-      }
-    }, v.liveMsg), /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "absolute",
-        inset: "0",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "3px",
-        paddingTop: "8px",
-        textAlign: "center"
-      }
-    }, v.R?.numeric ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "5px",
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "12px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: v.R?.ec
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.R?.icon,
-      size: "13",
-      stroke: "2.25"
-    }), v.R?.eyebrow), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "500",
-        fontSize: v.L?.gNum,
-        lineHeight: "1.05",
-        letterSpacing: "-0.03em",
-        color: "var(--fg)",
-        fontVariantNumeric: "tabular-nums"
-      }
-    }, v.R?.num), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-md)",
-        fontWeight: "500",
-        color: "var(--fg-muted)"
-      }
-    }, v.R?.unit), /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginTop: "6px",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, v.R?.sub), v.R?.oh ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, v.R?.oh) : null, v.R?.up ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "5px",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--series-upload)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "arrow-up",
-      size: "12",
-      stroke: "2.25"
-    })), v.R?.up) : null) : null, v.R?.textual ? /*#__PURE__*/React.createElement(React.Fragment, null, v.R?.icon ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: v.R?.ec,
-        display: "flex",
-        marginBottom: "4px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.R?.icon,
-      size: "22"
-    })) : null, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: v.L?.gTitle,
-        fontWeight: "600",
-        letterSpacing: "var(--tracking-tight)",
-        color: "var(--fg)"
-      }
-    }, v.R?.title), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-subtle)",
-        maxWidth: "180px",
-        lineHeight: "1.4"
-      }
-    }, v.R?.sub), v.R?.faint ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginTop: "4px",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, v.R?.faint) : null, v.R?.action ? /*#__PURE__*/React.createElement("button", {
-      className: "btn sm secondary",
-      style: {
-        marginTop: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.R?.action?.icon,
-      size: "14"
-    }), v.R?.action?.label) : null) : null)), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)",
-        marginTop: "-18px"
-      }
-    }, v.g?.scale), /*#__PURE__*/React.createElement("span", {
-      className: v.btnWrap,
-      style: {
-        position: "relative",
-        display: "flex",
-        width: v.L?.btnW
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: v.btn?.cls,
-      "aria-disabled": v.btnDis,
-      "aria-describedby": v.btnTipId,
-      style: {
-        height: v.L?.btnH,
-        width: "100%",
-        opacity: v.btnOp,
-        justifyContent: "center",
-        fontSize: "var(--text-md)",
-        gap: "10px",
-        borderRadius: "var(--radius-md)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.btn?.icon,
-      size: "16",
-      stroke: "2"
-    }), v.btn?.label, v.L?.kbd ? /*#__PURE__*/React.createElement("kbd", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        fontWeight: "500",
-        padding: "1px 6px",
-        borderRadius: "var(--radius-xs)",
-        border: "1px solid currentColor",
-        opacity: "0.6",
-        marginLeft: "4px"
-      }
-    }, v.btn?.kbd) : null), v.btn?.tip ? /*#__PURE__*/React.createElement("span", {
-      className: "tip",
-      role: "tooltip",
-      id: "start-tip",
-      style: {
-        opacity: v.tipO
-      }
-    }, v.btn?.tip) : null)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        minWidth: "0",
-        padding: v.L?.cPad,
-        borderLeft: v.L?.bl,
-        borderTop: v.L?.bt,
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "8px 16px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-base)",
-        fontWeight: "600"
-      }
-    }, v.ch?.title), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "6px 14px"
-      }
-    }, (v.ch?.legend || []).map((lg, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "14px",
-        height: "0",
-        borderTop: `2px ${lg?.dash ?? ""} ${lg?.c ?? ""}`,
-        opacity: lg?.o
-      }
-    }), lg?.t))), v.ch?.band ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "12px",
-        height: "10px",
-        boxSizing: "border-box",
-        background: "var(--chart-band)",
-        borderLeft: "1px solid var(--chart-hatch)",
-        borderRight: "1px solid var(--chart-hatch)"
-      }
-    }), "Warm-up") : null), /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: "auto",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, v.ch?.meta)), /*#__PURE__*/React.createElement("div", {
-      ref: v.chartRef,
-      style: {
-        position: "relative"
-      }
-    }, /*#__PURE__*/React.createElement("svg", {
-      width: v.c?.w,
-      height: v.c?.h,
-      style: {
-        display: "block",
-        overflow: "visible"
-      },
-      role: "img",
-      "aria-label": v.ch?.aria
-    }, (v.c?.bands || []).map((wb, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("rect", {
-      x: wb?.x,
-      y: wb?.y,
-      width: wb?.w,
-      height: wb?.h,
-      style: {
-        fill: "var(--chart-band)"
-      }
-    }), /*#__PURE__*/React.createElement("line", {
-      x1: wb?.x,
-      y1: wb?.y,
-      x2: wb?.x,
-      y2: wb?.y2,
-      style: {
-        stroke: "var(--chart-hatch)",
-        strokeWidth: "1"
-      }
-    }), /*#__PURE__*/React.createElement("line", {
-      x1: wb?.x1,
-      y1: wb?.y,
-      x2: wb?.x1,
-      y2: wb?.y2,
-      style: {
-        stroke: "var(--chart-hatch)",
-        strokeWidth: "1"
-      }
-    }))), (v.c?.grid || []).map((gl, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("line", {
-      x1: gl?.x1,
-      y1: gl?.y,
-      x2: gl?.x2,
-      y2: gl?.y,
-      style: {
-        stroke: "var(--border-subtle)",
-        strokeWidth: "1"
-      }
-    }))), (v.c?.seps || []).map((sp, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("line", {
-      x1: sp?.x,
-      y1: sp?.y1,
-      x2: sp?.x,
-      y2: sp?.y2,
-      style: {
-        stroke: "var(--border-default)",
-        strokeWidth: "1",
-        strokeDasharray: "2 3"
-      }
-    }))), (v.c?.wins || []).map((w, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("rect", {
-      x: w?.x,
-      y: w?.y,
-      width: w?.w,
-      height: w?.h,
-      style: {
-        fill: "var(--series-upload)",
-        fillOpacity: "0.08",
-        stroke: "var(--series-upload)",
-        strokeOpacity: "0.4",
-        strokeDasharray: "2 3"
-      }
-    }))), (v.series || []).map((s, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("path", {
-      d: s?.area,
-      style: {
-        fill: s?.c,
-        fillOpacity: s?.fo,
-        stroke: "none"
-      }
-    }), /*#__PURE__*/React.createElement("path", {
-      d: s?.line,
-      style: {
-        fill: "none",
-        stroke: s?.c,
-        strokeOpacity: s?.so,
-        strokeWidth: "1.75",
-        strokeLinejoin: "round"
-      }
-    }))), v.c?.lat ? /*#__PURE__*/React.createElement("path", {
-      d: v.c?.lat?.line,
-      style: {
-        fill: "none",
-        stroke: "var(--series-latency)",
-        strokeWidth: "1.25",
-        strokeDasharray: "4 3",
-        opacity: "0.9"
-      }
-    }) : null, (v.c?.marks || []).map((mk, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("line", {
-      x1: mk?.x,
-      y1: mk?.y1,
-      x2: mk?.x,
-      y2: mk?.y2,
-      style: {
-        stroke: mk?.c || v.ch?.markColor,
-        strokeWidth: "1.5",
-        strokeDasharray: "3 3"
-      }
-    }))), v.c?.nowX ? /*#__PURE__*/React.createElement("line", {
-      x1: v.c?.nowX,
-      y1: v.c?.plotT,
-      x2: v.c?.nowX,
-      y2: v.c?.plotB,
-      style: {
-        stroke: "var(--fg-subtle)",
-        strokeWidth: "1",
-        opacity: "0.5"
-      }
-    }) : null, v.endDot ? /*#__PURE__*/React.createElement("circle", {
-      cx: v.endDot?.x,
-      cy: v.endDot?.y,
-      r: "4",
-      style: {
-        fill: "var(--surface-2)",
-        stroke: v.endDot?.c,
-        strokeWidth: "2"
-      }
-    }) : null), /*#__PURE__*/React.createElement("div", {
-      "aria-hidden": "true",
-      style: {
-        position: "absolute",
-        inset: "0",
-        pointerEvents: "none",
-        fontFamily: "var(--font-mono)",
-        fontSize: "10px",
-        color: "var(--fg-subtle)"
-      }
-    }, (v.c?.grid || []).map((gl, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${gl?.lx ?? ""}px`,
-        top: `${gl?.ly ?? ""}px`,
-        transform: "translate(-100%,-75%)",
-        whiteSpace: "nowrap"
-      }
-    }, gl?.t))), (v.c?.xt || []).map((xt, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${xt?.x ?? ""}px`,
-        top: `${xt?.y ?? ""}px`,
-        transform: "translate(-50%,-75%)",
-        whiteSpace: "nowrap"
-      }
-    }, xt?.t))), (v.c?.seps || []).map((sp, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${sp?.lx ?? ""}px`,
-        top: `${sp?.ly ?? ""}px`,
-        transform: "translateY(-75%)",
-        whiteSpace: "nowrap",
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        letterSpacing: "0.08em",
-        textTransform: "uppercase"
-      }
-    }, sp?.t))), v.c?.lat ? /*#__PURE__*/React.createElement(React.Fragment, null, (v.c?.lat?.ticks || []).map((lt, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${lt?.x ?? ""}px`,
-        top: `${lt?.y ?? ""}px`,
-        transform: "translateY(-75%)",
-        whiteSpace: "nowrap",
-        color: "var(--series-latency)"
-      }
-    }, lt?.t)))) : null, (v.c?.wins || []).map((w, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${w?.lx ?? ""}px`,
-        top: `${w?.ly ?? ""}px`,
-        transform: "translateY(-75%)",
-        whiteSpace: "nowrap",
-        color: "var(--series-upload)"
-      }
-    }, w?.t))), (v.c?.marks || []).map((mk, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        position: "absolute",
-        left: `${mk?.lx ?? ""}px`,
-        top: `${mk?.ly ?? ""}px`,
-        transform: "translate(-100%,-75%)",
-        whiteSpace: "nowrap",
-        fontFamily: "var(--font-sans)",
-        fontWeight: "600",
-        fontSize: "11px",
-        color: mk?.c || v.ch?.markColor
-      }
-    }, mk?.t)))), v.ch?.empty ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "absolute",
-        top: `${v.c?.plotT ?? 0}px`,
-        left: `${v.c?.plotL ?? 44}px`,
-        width: `${(v.c?.plotR ?? 0) - (v.c?.plotL ?? 0)}px`,
-        height: `${(v.c?.plotB ?? 0) - (v.c?.plotT ?? 0)}px`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        padding: "0 16px",
-        boxSizing: "border-box"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-subtle)",
-        maxWidth: "300px",
-        lineHeight: "1.45",
-        textWrap: "pretty",
-        textAlign: "left",
-        padding: "8px 14px",
-        background: "var(--surface-2)",
-        border: "1px solid var(--border-subtle)",
-        borderRadius: "var(--radius-md)"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "activity",
-      size: "15",
-      style: {
-        flex: "none",
-        color: "var(--fg-faint)"
-      }
-    }), v.ch?.empty)) : null)))), v.bar ? /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      "aria-label": "Result status",
-      style: {
-        overflow: "visible",
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "10px 14px",
-        padding: "12px 16px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      role: "status",
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        fontSize: "var(--text-sm)",
-        fontWeight: "600"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: v.bar?.ic,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.bar?.icon,
-      size: "16"
-    })), v.bar?.title, " ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "400",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, v.bar?.time)), v.bar?.sub ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        flex: "1 1 220px",
-        minWidth: "0",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.45",
-        textWrap: "pretty"
-      }
-    }, v.bar?.sub) : null, v.bar?.labelled ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
-      className: "input",
-      style: {
-        flex: "1 1 200px",
-        maxWidth: "340px",
-        height: "34px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "tag",
-      size: "14"
-    }), /*#__PURE__*/React.createElement("input", {
-      "aria-label": "Result label",
-      value: v.label,
-      placeholder: "Add a label, e.g. Home Wi-Fi",
-      onChange: v.onLabel
+        gap: "var(--space-3-5)"
+      }
+    }, /*#__PURE__*/React.createElement(DS.Gauge, _extends({}, v.gauge, {
+      action: v.gauge.state === 'offline' ? /*#__PURE__*/React.createElement(DS.Button, {
+        size: "sm",
+        icon: "refresh-cw"
+      }, "Retry") : null
+    })), /*#__PURE__*/React.createElement(DS.StartButton, {
+      role: v.btn.role,
+      compact: v.mobile,
+      disabledReason: v.btn.dis ? v.btn.tip : undefined
     })), /*#__PURE__*/React.createElement("div", {
       style: {
-        display: "flex",
-        gap: "6px",
-        flexWrap: "wrap"
+        minWidth: 0,
+        padding: v.L.cPad,
+        borderLeft: v.L.bl,
+        borderTop: v.L.bt
       }
-    }, (v.bar?.chips || []).map((sc, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "chip",
-      style: {
-        height: "26px",
-        fontSize: "var(--text-caption)",
-        padding: "0 10px"
-      }
-    }, sc))))) : null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "4px",
-        marginLeft: "auto"
-      }
-    }, (v.bar?.actions || []).map((a, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      className: a?.wrap,
-      style: {
-        display: "inline-flex"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: a?.cls,
-      onClick: a?.on
-    }, a?.icon ? /*#__PURE__*/React.createElement("bg-icon", {
-      name: a?.icon,
-      size: "14"
-    }) : null, a?.text, a?.after ? /*#__PURE__*/React.createElement("bg-icon", {
-      name: a?.after,
-      size: "14"
-    }) : null), a?.tip ? /*#__PURE__*/React.createElement("span", {
-      className: "tip",
-      role: "tooltip",
-      style: {
-        opacity: a?.tipO,
-        display: "flex",
-        alignItems: "center",
-        gap: "6px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--warn)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "triangle-alert",
-      size: "12",
-      stroke: "2"
-    })), a?.tip) : null))))) : null, /*#__PURE__*/React.createElement("section", {
+    }, /*#__PURE__*/React.createElement(DS.Chart, v.chart)))), v.bar ? /*#__PURE__*/React.createElement(DS.SaveBar, {
+      status: barStatus(v.bar),
+      title: v.bar.title,
+      time: v.bar.time,
+      message: v.bar.sub,
+      label: v.bar.labelled ? {
+        value: v.label,
+        onChange: v.onLabel,
+        suggestions: v.bar.chips,
+        onSuggest: v.pickLabel
+      } : undefined,
+      actions: v.bar.actions.map(barAct)
+    }) : null, /*#__PURE__*/React.createElement("section", {
       "aria-label": "Results",
       style: {
         display: "grid",
         gridTemplateColumns: v.resCols,
-        gap: v.L?.tileGap
-      }
-    }, (v.prim || []).map((t, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        gridColumn: t?.span,
-        background: "var(--surface-2)",
-        border: "1px solid var(--border-subtle)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)",
-        padding: v.L?.tilePad,
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "6px",
-        minHeight: "20px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: t?.ic,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: t?.icon,
-      size: "14",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis"
-      }
-    }, t?.label), t?.tag ? /*#__PURE__*/React.createElement("span", {
-      className: t?.tagCls,
-      style: {
-        marginLeft: "auto",
-        height: "18px",
-        padding: "0 7px",
-        fontSize: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "d"
-    }), t?.tag) : null), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "baseline",
-        gap: "6px",
-        flexWrap: "wrap"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontWeight: "500",
-        fontSize: v.L?.tileNum,
-        lineHeight: "1.1",
-        letterSpacing: "-0.02em",
-        color: t?.nc,
-        fontVariantNumeric: "tabular-nums"
-      }
-    }, t?.num), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg-muted)"
-      }
-    }, t?.unit)), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)",
-        minHeight: "15px",
-        lineHeight: "1.45",
-        textWrap: "pretty"
-      }
-    }, t?.sub), (t?.notes || []).map((nt, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)",
-        marginTop: "-4px"
-      }
-    }, nt)))))), v.load ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        gridColumn: v.L?.loadSpan,
-        background: "var(--surface-2)",
-        border: "1px solid var(--border-subtle)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)",
-        padding: v.L?.tilePad,
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "16px 20px",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1 0 172px",
-        maxWidth: "220px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)"
-      }
-    }, "Bufferbloat"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      "aria-label": v.load?.gAria,
-      style: {
-        width: "52px",
-        height: "52px",
-        boxSizing: "border-box",
-        borderRadius: "var(--radius-lg)",
-        border: `1px ${v.load?.gStyle ?? ""} ${v.load?.gBd ?? ""}`,
-        background: v.load?.gBg,
-        color: v.load?.gFg,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "var(--font-mono)",
-        fontWeight: "600",
-        fontSize: "24px",
-        letterSpacing: "-0.02em",
-        flex: "none"
-      }
-    }, v.load?.grade), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      "aria-hidden": "true",
-      style: {
-        display: "flex",
-        gap: "2px"
-      }
-    }, (v.load?.scale || []).map((gs, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: "17px",
-        height: "17px",
-        borderRadius: "var(--radius-xs)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "var(--font-mono)",
-        fontSize: "9px",
-        fontWeight: gs?.w,
-        background: gs?.bg,
-        color: gs?.c
-      }
-    }, gs?.g)))), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)",
-        lineHeight: "1.3"
-      }
-    }, v.load?.gText)))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "999 1 260px",
-        display: "flex",
-        flexDirection: "column",
-        minWidth: "0"
-      }
-    }, (v.load?.rows || []).map((r, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        padding: "7px 0",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: r?.ic,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: r?.icon,
-      size: "14",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        minWidth: "0",
-        flex: "1"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg)"
-      }
-    }, r?.label), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, r?.sub)), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-lg)",
-        fontWeight: "500",
-        color: r?.nc,
-        whiteSpace: "nowrap"
-      }
-    }, r?.num, " ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)",
-        fontWeight: "400"
-      }
-    }, r?.unit))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-        paddingTop: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        display: "flex",
-        marginTop: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "gauge",
-      size: "14",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1",
-        minWidth: "0",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        color: "var(--fg)",
-        lineHeight: "1.4",
-        textWrap: "pretty"
-      }
-    }, "HTTP loaded responsiveness \u2014 connection sharing not verifiable"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.4"
-      }
-    }, v.load?.resp?.note)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: "6px",
-        alignItems: "center",
-        flex: "none"
-      }
-    }, v.load?.resp?.tag ? /*#__PURE__*/React.createElement("span", {
-      className: "pill warn",
-      style: {
-        height: "18px",
-        padding: "0 7px",
-        fontSize: "10px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "d"
-    }), v.load?.resp?.tag) : null, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-muted)",
-        border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-xs)",
-        padding: "1px 6px",
-        whiteSpace: "nowrap"
-      }
-    }, v.load?.resp?.proto))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "6px 18px",
-        paddingLeft: "24px"
-      }
-    }, (v.load?.resp?.dirs || []).map((rd, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: rd?.ic,
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: rd?.icon,
-      size: "12",
-      stroke: "2.25"
-    })), rd?.num ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-lg)",
-        fontWeight: "500",
-        color: rd?.nc,
-        whiteSpace: "nowrap"
-      }
-    }, rd?.num, " ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)",
-        fontWeight: "400"
-      }
-    }, rd?.unit)) : null, rd?.text ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, rd?.text) : null))))))) : null, v.fit ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        gridColumn: v.L?.fitSpan,
-        background: "var(--surface-2)",
-        border: "1px solid var(--border-subtle)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)",
-        padding: v.L?.tilePad,
-        display: "flex",
-        flexDirection: "column",
-        gap: "4px",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "6px",
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)",
-        marginBottom: "4px"
-      }
-    }, "Good for", v.fitBasis ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-sans)",
-        fontWeight: "500",
-        letterSpacing: "0",
-        textTransform: "none",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-muted)",
-        border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-full)",
-        padding: "0 7px"
-      }
-    }, v.fitBasis) : null), (v.fit || []).map((f, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        minHeight: "36px",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: f?.icon,
-      size: "16"
-    })), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)",
-        flex: "1"
-      }
-    }, f?.label), f?.rating ? /*#__PURE__*/React.createElement("span", {
-      className: f?.cls
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: f?.ricon,
-      size: "13",
-      stroke: "2"
-    }), f?.rating) : null, f?.none ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)"
-      }
-    }, f?.none) : null))), /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        marginTop: "6px",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)",
-        lineHeight: "1.4"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "info",
-      size: "12"
-    }), "Upper bound: packet loss is not measured")) : null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        gridColumn: v.metaSpan,
-        background: "var(--surface-2)",
-        border: "1px solid var(--border-subtle)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "inset 0 1px 0 var(--card-highlight)",
-        padding: v.L?.tilePad,
-        display: "flex",
-        flexDirection: "column",
-        gap: "4px",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontWeight: "600",
-        fontSize: "11px",
-        letterSpacing: "var(--tracking-caps)",
-        textTransform: "uppercase",
-        color: "var(--fg-subtle)",
-        marginBottom: "4px"
-      }
-    }, v.metaTitle), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "grid",
-        gridTemplateColumns: v.metaCols,
-        columnGap: "24px"
-      }
-    }, (v.meta || []).map((mr, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        minHeight: "36px",
-        borderBottom: "1px solid var(--border-subtle)"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--fg-subtle)",
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: mr?.icon,
-      size: "15"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1",
-        display: "flex",
-        flexDirection: "column",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-sm)"
-      }
-    }, mr?.label), mr?.sub ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, mr?.sub) : null), mr?.na ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        flex: "none"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      title: "Browsers can't see packet loss over TCP",
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "5px",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        border: "1px dashed var(--border-strong)",
-        borderRadius: "var(--radius-full)",
-        padding: "2px 8px",
-        whiteSpace: "nowrap"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "circle-dashed",
-      size: "12"
-    }), "Not measured"), /*#__PURE__*/React.createElement("a", {
-      href: "#",
-      title: "Browsers can't see packet loss over TCP",
-      style: {
-        fontSize: "var(--text-caption)",
-        fontWeight: "600",
-        color: "var(--primary-text)",
-        textDecoration: "none"
-      }
-    }, "Why?")) : null, mr?.value ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-sm)",
-        color: mr?.vc,
-        whiteSpace: "nowrap"
-      }
-    }, mr?.value) : null)))))), v.lastLine ? /*#__PURE__*/React.createElement("a", {
-      href: "#",
-      style: {
-        alignSelf: "flex-start",
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: "6px 10px",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-subtle)",
-        textDecoration: "none"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "history",
-      size: "13"
-    }), "Last test 2 h ago · ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        color: "var(--fg-muted)"
-      }
-    }, "\u2193 612 \xB7 \u2191 438 Mbit/s \xB7 3.1 ms"), " · Home Wi-Fi", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--primary-text)",
-        fontWeight: "600"
-      }
-    }, "View")) : null) : null, v.toast ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "sticky",
-        bottom: v.toastB,
-        zIndex: "50",
-        display: "flex",
-        justifyContent: "flex-end",
-        padding: "0 16px",
-        marginTop: "-56px",
-        pointerEvents: "none"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "toast info",
-      role: "status",
-      "aria-live": "polite",
-      style: {
-        pointerEvents: "auto",
-        maxWidth: "100%",
-        boxSizing: "border-box",
-        alignItems: "center"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "i",
-      style: {
-        display: "flex"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: v.toast?.icon,
-      size: "16",
-      stroke: "2"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "t"
-    }, v.toast?.t)), v.toast?.undo ? /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary sm",
-      onClick: v.undoKeep
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "undo-2",
-      size: "13"
-    }), "Undo") : null, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost sm icon",
-      "aria-label": "Dismiss",
-      onClick: v.dismissToast
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "14"
-    })))) : null, v.navMobile ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginTop: "auto",
-        position: "sticky",
-        bottom: "0",
-        zIndex: "var(--z-nav)"
-      }
-    }, /*#__PURE__*/React.createElement(Nav, {
+        gap: v.L.tileGap
+      }
+    }, v.tiles.map((t, i) => /*#__PURE__*/React.createElement(DS.MetricTile, _extends({
+      key: i
+    }, t))), v.load ? /*#__PURE__*/React.createElement(DS.LoadCard, v.load) : null, v.fit ? /*#__PURE__*/React.createElement(DS.QualityList, v.fit) : null, /*#__PURE__*/React.createElement(DS.MetaList, _extends({}, v.meta, {
+      rows: v.meta.rows.map(r => r.node === 'NM' ? Object.assign({}, r, {
+        node: /*#__PURE__*/React.createElement(DS.NotMeasured, null)
+      }) : r)
+    }))), v.lastLine ? /*#__PURE__*/React.createElement(DS.LastResult, {
+      when: "2 h ago",
+      values: "\u2193 612 \xB7 \u2191 438 Mbit/s \xB7 3.1 ms",
+      label: "Home Wi-Fi"
+    }) : null) : null, v.toast ? /*#__PURE__*/React.createElement(DS.ToastRegion, {
+      aboveTabBar: v.navMobile
+    }, /*#__PURE__*/React.createElement(DS.Toast, {
+      tone: "info",
+      icon: v.toast.icon,
+      title: v.toast.t,
+      onDismiss: v.dismissToast,
+      action: v.toast.undo ? /*#__PURE__*/React.createElement(DS.Button, {
+        size: "sm",
+        icon: "undo-2",
+        onClick: v.undoKeep
+      }, "Undo") : null
+    })) : null, v.navMobile ? /*#__PURE__*/React.createElement(Nav, {
       variant: "mobile-bottom",
       active: "test",
-      v01: v.v01,
       status: v.srvStatus
-    })) : null, v.shareOpen ? /*#__PURE__*/React.createElement("div", {
-      onClick: v.closeShare,
-      style: {
-        position: "absolute",
-        inset: "0",
-        zIndex: "60",
-        background: "var(--scrim)",
-        backdropFilter: "blur(2px)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        padding: v.SD?.pad,
-        boxSizing: "border-box"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "modal",
-      role: "dialog",
-      "aria-modal": "true",
-      "aria-labelledby": "share-title",
-      onClick: v.stopProp,
-      style: {
-        width: "540px",
-        maxWidth: "100%",
-        maxHeight: "none"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "mh"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "mi primary"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "share-2",
-      size: "18"
-    })), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "1",
-        minWidth: "0"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "mt",
-      id: "share-title"
-    }, "Share result"), /*#__PURE__*/React.createElement("div", {
-      className: "md"
-    }, "Speeds and latency only. Your IP address and notes are never included.")), /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost sm icon",
-      "aria-label": "Close",
-      onClick: v.closeShare,
-      style: {
-        alignSelf: "flex-start",
-        margin: "-4px -6px 0 0"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "x",
-      size: "16"
-    }))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "0 20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px"
-      }
-    }, /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      style: {
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "image",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t"
-    }, "Share image"), /*#__PURE__*/React.createElement("span", {
-      className: "right",
-      style: {
-        marginLeft: "auto",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        color: "var(--fg-subtle)"
-      }
-    }, "1200 \xD7 630 PNG")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "14px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      "data-theme": "dark",
-      "aria-label": "Share image preview",
-      style: {
-        aspectRatio: "1200/630",
-        borderRadius: "var(--radius-md)",
-        background: "var(--bg-base)",
-        border: "1px solid var(--border-default)",
-        padding: "14px 16px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        color: "var(--fg)",
-        boxSizing: "border-box"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        fontSize: "11px",
-        fontWeight: "600"
-      }
-    }, /*#__PURE__*/React.createElement("bg-logo", {
-      size: "15",
-      style: {
-        color: "var(--fg)"
-      }
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        letterSpacing: "var(--tracking-tight)"
-      }
-    }, "Bit", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "var(--primary-text)",
-        fontWeight: "var(--weight-semibold)"
-      }
-    }, "Gauge")), /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: "auto",
-        fontFamily: "var(--font-mono)",
-        fontWeight: "400",
-        fontSize: "9px",
-        color: "var(--fg-subtle)"
-      }
-    }, v.share?.head)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: "18px",
-        alignItems: "flex-end"
-      }
-    }, (v.share?.blocks || []).map((b, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-cond)",
-        fontSize: "8px",
-        letterSpacing: ".08em",
-        color: b?.c,
-        fontWeight: "600"
-      }
-    }, b?.k), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "26px",
-        fontWeight: "500",
-        lineHeight: "1"
-      }
-    }, b?.n, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-sans)",
-        fontSize: "10px",
-        color: "var(--fg-muted)",
-        marginLeft: "3px"
-      }
-    }, b?.u)))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "4px 12px",
-        fontFamily: "var(--font-mono)",
-        fontSize: "9px",
-        color: "var(--fg-muted)"
-      }
-    }, (v.share?.foot || []).map((f, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
-      key: $index
-    }, /*#__PURE__*/React.createElement("span", null, f))), /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginLeft: "auto",
-        color: "var(--fg-subtle)"
-      }
-    }, v.share?.where))), /*#__PURE__*/React.createElement("label", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        fontSize: "var(--text-sm)",
-        color: v.incC,
-        cursor: "pointer"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
-      type: "checkbox",
-      checked: v.incLabel,
-      disabled: v.incDis,
-      onChange: v.toggleInc,
-      style: {
-        width: "16px",
-        height: "16px",
-        margin: "0",
-        accentColor: "var(--primary)"
-      }
-    }), " Include label ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-caption)",
-        color: "var(--fg-muted)"
-      }
-    }, v.incNote)))), /*#__PURE__*/React.createElement("section", {
-      className: "card",
-      style: {
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "card-h"
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "file-text",
-      size: "15"
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "t"
-    }, "Text summary")), /*#__PURE__*/React.createElement("pre", {
-      style: {
-        margin: "0",
-        padding: "12px 16px",
-        background: "var(--term-bg)",
-        color: "var(--term-fg)",
-        fontFamily: "var(--font-mono)",
-        fontSize: "var(--text-micro)",
-        lineHeight: "1.65",
-        whiteSpace: "pre-wrap"
-      }
-    }, v.share?.text))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: v.SD?.dir,
-        flexWrap: "wrap",
-        justifyContent: "flex-end",
-        gap: "8px",
-        padding: "16px 20px 18px"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "btn ghost",
-      title: "Opens the system share sheet. Shown only when the browser supports it.",
-      style: {
-        justifyContent: "center"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "share",
-      size: "15"
-    }), "Share via\u2026"), /*#__PURE__*/React.createElement("button", {
-      className: "btn secondary",
-      style: {
-        justifyContent: "center"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "copy",
-      size: "15"
-    }), "Copy summary"), /*#__PURE__*/React.createElement("button", {
-      className: "btn primary",
-      style: {
-        justifyContent: "center"
-      }
-    }, /*#__PURE__*/React.createElement("bg-icon", {
-      name: "download",
-      size: "15"
-    }), "Download image")))) : null);
+    }) : null, v.shareOpen ? /*#__PURE__*/React.createElement(DS.Dialog, {
+      wide: true,
+      icon: "share-2",
+      title: "Share result",
+      onClose: v.closeShare,
+      align: v.mobile ? 'top' : 'center',
+      footerStack: v.mobile,
+      body: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Card, {
+        title: "Share image",
+        icon: "image",
+        actions: /*#__PURE__*/React.createElement("span", {
+          className: "ds-mono-sm"
+        }, "1200 \xD7 630 PNG")
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-3)"
+        }
+      }, /*#__PURE__*/React.createElement(DS.SharePreview, {
+        grade: v.load ? v.load.grade : null,
+        head: v.share.head,
+        blocks: v.share.blocks,
+        foot: v.share.foot,
+        where: v.share.where
+      }), /*#__PURE__*/React.createElement("label", {
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2)",
+          fontSize: "var(--text-sm)",
+          color: v.incDis ? "var(--fg-subtle)" : "var(--fg)",
+          cursor: "pointer"
+        }
+      }, /*#__PURE__*/React.createElement("input", {
+        type: "checkbox",
+        checked: v.incLabel,
+        disabled: v.incDis,
+        onChange: v.toggleInc,
+        style: {
+          accentColor: "var(--primary)"
+        }
+      }), "Include label ", /*#__PURE__*/React.createElement("span", {
+        className: "ds-mono-sm"
+      }, v.incNote)))), /*#__PURE__*/React.createElement(DS.Card, {
+        title: "Text summary",
+        icon: "file-text"
+      }, /*#__PURE__*/React.createElement(DS.Snippet, {
+        lines: v.share.text.split('\n')
+      }))),
+      footer: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        icon: "share",
+        title: "Opens the system share sheet. Shown only when the browser supports it."
+      }, "Share via\u2026"), /*#__PURE__*/React.createElement(DS.Button, {
+        icon: "copy"
+      }, "Copy summary"), /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "primary",
+        icon: "download"
+      }, "Download image"))
+    }, "Speeds and latency only. Your IP address and notes are never included.") : null);
   }
 }
 window.TestScreen = TestScreen;
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/app/TestScreen.jsx", error: String((e && e.message) || e) }); }
 
-// ui_kits/app/bg-lib.js
+// ui_kits/app/ds.js
 try { (() => {
-/* BitGauge design helpers: <bg-icon> (Lucide glyphs), number formatting, gauge + chart geometry.
-   Production: @lucide/vue for icons; the math below ports 1:1 to a composable. */
+/* BitGauge web UI kit — ds.js: resolves the design system for the kit as `window.DS`.
+   The kit is a consumer: every component comes from the design system's namespace. When the compiled
+   bundle (../../_ds_bundle.js, loaded first) already exports everything the kit needs, DS is that namespace.
+   While the bundle is stale (a component was just added and the bundle hasn't been rebuilt yet), DS is
+   compiled in the page from the same component sources. Either way there is one definition per component.
+   No-op outside the kit page (this file is also swept into the bundle, where it must do nothing). */
 (function () {
-  const G = {
-    play: '<polygon points="6 3 20 12 6 21 6 3"/>',
-    square: '<rect width="14" height="14" x="5" y="5" rx="2"/>',
-    'arrow-down': '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
-    'arrow-up': '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
-    activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
-    gauge: '<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
-    history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
-    sliders: '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
-    info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
-    copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
-    download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
-    upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
-    image: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
-    trash: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
-    'rotate-ccw': '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
-    'refresh-cw': '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
-    pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
-    'triangle-alert': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
-    'wifi-off': '<path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/>',
-    'circle-check': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
-    'circle-x': '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
-    'circle-minus': '<circle cx="12" cy="12" r="10"/><path d="M8 12h8"/>',
-    'circle-alert': '<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
-    'circle-dashed': '<path d="M10.1 2.182a10 10 0 0 1 3.8 0"/><path d="M13.9 21.818a10 10 0 0 1-3.8 0"/><path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"/><path d="M2.182 13.9a10 10 0 0 1 0-3.8"/><path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"/><path d="M21.818 10.1a10 10 0 0 1 0 3.8"/><path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"/><path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"/>',
-    'circle-dot': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/>',
-    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
-    moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
-    monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
-    tv: '<rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>',
-    gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
-    video: '<path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
-    timer: '<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
-    database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>',
-    'hard-drive': '<line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/>',
-    'git-compare': '<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/>',
-    filter: '<path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/>',
-    calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
-    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
-    check: '<path d="M20 6 9 17l-5-5"/>',
-    'chevron-down': '<path d="m6 9 6 6 6-6"/>',
-    'chevron-right': '<path d="m9 18 6-6-6-6"/>',
-    'chevron-left': '<path d="m15 18-6-6 6-6"/>',
-    'chevron-up': '<path d="m18 15-6-6-6 6"/>',
-    'arrow-up-down': '<path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/>',
-    'sort-desc': '<path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M11 4h10"/><path d="M11 8h7"/><path d="M11 12h4"/>',
-    'external-link': '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3"/>',
-    github: '<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/>',
-    terminal: '<polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/>',
-    hourglass: '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
-    link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
-    globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
-    infinity: '<path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.33-6 4Z"/>',
-    zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
-    'file-json': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1"/><path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1"/>',
-    'file-text': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
-    enter: '<polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/>',
-    languages: '<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>',
-    signal: '<path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/>',
-    shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
-    house: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
-    layers: '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
-    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
-    tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/>',
-    plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
-    minus: '<path d="M5 12h14"/>',
-    pause: '<rect x="14" y="3" width="5" height="18" rx="1"/><rect x="5" y="3" width="5" height="18" rx="1"/>',
-    ellipsis: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
-    'list': '<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>',
-    'trending-up': '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
-    cpu: '<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>',
-    'share-2': '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
-    share: '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>',
-    'undo-2': '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
-    'server-off': '<path d="M7 2h13a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-5"/><path d="M10 10 2.5 2.5C2 2 2 2.5 2 5v3a2 2 0 0 0 2 2h6z"/><path d="M22 17v-1a2 2 0 0 0-2-2h-1"/><path d="M4 14a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16.5l1-.5.5.5-8-8H4z"/><path d="M6 18h.01"/><path d="m2 2 20 20"/>'
-  };
-  if (!customElements.get('bg-icon')) {
-    customElements.define('bg-icon', class extends HTMLElement {
-      static get observedAttributes() {
-        return ['name', 'size', 'stroke'];
-      }
-      connectedCallback() {
-        this.r();
-      }
-      attributeChangedCallback() {
-        this.r();
-      }
-      r() {
-        if (!this.shadowRoot) this.attachShadow({
-          mode: 'open'
-        });
-        const s = this.getAttribute('size') || 16,
-          w = this.getAttribute('stroke') || 1.75;
-        this.setAttribute('aria-hidden', 'true');
-        this.shadowRoot.innerHTML = `<style>:host{display:inline-flex;flex:none;line-height:0;vertical-align:middle}svg{display:block}</style><svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${G[this.getAttribute('name')] || '<rect x="4" y="4" width="16" height="16" rx="3" stroke-dasharray="2 2"/>'}</svg>`;
-      }
-    });
-  }
-
-  // ---------- formatting ----------
-  // Three significant digits for every rate and data amount: "9.40 kbit/s", "94.1 Mbit/s", "12.3 Gbit/s", "12.3 MB".
-  // The tier is picked on the ROUNDED value, so a decade carry re-rounds: 9.996 → "10.0", 99.96 → "100", 0.9996 → "1.00".
-  const sig = x => x >= 99.95 ? Math.round(x).toString() : x >= 9.995 ? x.toFixed(1) : x >= 0.9995 ? x.toFixed(2) : x.toPrecision(3);
-  // Picks the unit from the decimal prefix; a value that rounds to 1000 moves up one unit.
-  function scaled(v, U) {
-    let i = Math.max(0, Math.min(U.length - 1, Math.floor(Math.log10(Math.max(v, 1)) / 3) - 1)),
-      x = v / Math.pow(10, 3 * (i + 1));
-    if (x >= 999.5 && i < U.length - 1) {
-      i++;
-      x /= 1000;
+  const me = document.currentScript;
+  if (!me || !me.hasAttribute('data-kit')) return;
+  const NS = 'BitGaugeDesignSystem_1ab699';
+  const ROOT = me.getAttribute('data-root') || '../../';
+  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'NotMeasured', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart'];
+  const FILES = ['brand/Icon', 'brand/Logo', 'status/StatusPill', 'status/StatusBadge', 'status/Chip', 'actions/Link', 'actions/Tooltip', 'actions/Button', 'actions/StartButton', 'actions/Menu', 'actions/Popover', 'forms/Input', 'forms/Select', 'forms/Segmented', 'forms/Switch', 'forms/Toggle', 'forms/Checkbox', 'layout/Card', 'layout/Tabs', 'layout/Table', 'layout/MetaList', 'layout/Snippet', 'feedback/Notice', 'feedback/Toast', 'feedback/EmptyState', 'feedback/Skeleton', 'feedback/LiveRegion', 'feedback/SaveBar', 'feedback/FullScreenError', 'dialog/Dialog', 'charts/Format', 'charts/Chart', 'charts/PhaseChart', 'gauge/Gauge', 'measurement/MetricTile', 'measurement/PhaseStep', 'measurement/LoadCard', 'measurement/NotMeasured', 'measurement/QualityList', 'measurement/SharePreview', 'navigation/AppHeader'];
+  window.DS_READY = (async () => {
+    const ns = window[NS];
+    if (ns && NEED.every(k => ns[k])) {
+      window.DS = ns;
+      return ns;
     }
-    return {
-      n: sig(x),
-      u: U[i]
-    };
-  }
-  function rate(bps, unit) {
-    const bytes = unit === 'bytes';
-    return scaled(bytes ? bps / 8 : bps, bytes ? ['kB/s', 'MB/s', 'GB/s'] : ['kbit/s', 'Mbit/s', 'Gbit/s']);
-  }
-  const rateStr = (b, u) => {
-    const r = rate(b, u);
-    return r.n + ' ' + r.u;
-  };
-  // Latency and jitter: one decimal below 10 ms, whole ms at/above 10 (9.96 → "10", re-rounded after the carry),
-  // "< res" below the timer resolution. res = the page's timer resolution in ms (0.1 default; a 1 ms timer
-  // gives "< 1" and whole ms only, never false precision). Callers pass it: BG.ms(v, res).
-  const jit = (v, res = 0.1) => v < res ? '< ' + (res >= 1 ? String(Math.round(res)) : String(+res.toFixed(2))) : res >= 1 || v >= 9.95 ? Math.round(v).toString() : v.toFixed(1);
-  const ms = jit;
-  const bytes = b => {
-    const r = scaled(b, ['kB', 'MB', 'GB', 'TB']);
-    return r.n + ' ' + r.u;
-  };
-  const tickLabel = v => v >= 1e9 ? v / 1e9 + 'G' : v >= 1e6 ? v / 1e6 + 'M' : v >= 1e3 ? v / 1e3 + 'k' : String(v);
+    const scope = {};
+    for (const f of FILES) {
+      const src = await (await fetch(ROOT + 'components/' + f + '.jsx')).text();
+      const names = [...src.matchAll(/export\s+(?:function|const|let|class)\s+(\w+)/g)].map(m => m[1]);
+      const body = src.replace(/^\s*import[^;]*;\s*$/mg, '').replace(/export\s+(?=(?:function|const|let|class)\b)/g, '');
+      const code = Babel.transform(body, {
+        presets: ['react']
+      }).code;
+      const keys = Object.keys(scope);
+      Object.assign(scope, new Function('React', ...keys, code + '\nreturn {' + names.join(',') + '};')(React, ...keys.map(k => scope[k])));
+    }
+    window.DS = scope;
+    return scope;
+  })();
+})();
+})(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/app/ds.js", error: String((e && e.message) || e) }); }
 
-  // ---------- gauge (270° log arc) ----------
-  const A0 = 135,
-    SW = 270;
-  const pt = (cx, cy, r, a) => [cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)];
-  function arc(cx, cy, r, f0, f1) {
-    f0 = Math.max(0, Math.min(1, f0));
-    f1 = Math.max(f0 + 0.0005, Math.min(1, f1));
-    const a0 = A0 + SW * f0,
-      a1 = A0 + SW * f1,
-      p0 = pt(cx, cy, r, a0),
-      p1 = pt(cx, cy, r, a1);
-    return `M${p0[0].toFixed(2)} ${p0[1].toFixed(2)}A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${p1[0].toFixed(2)} ${p1[1].toFixed(2)}`;
-  }
-  // ---------- gauge window (picked by the gauge component from the value stream) ----------
-  // Windows are 4 log decades [10^k, 10^(k+4)) in the display unit.
-  //   bits:  k 4..6 (10 kbit/s–100 Mbit/s … 1 Mbit/s–10 Gbit/s), start k = 6. Pin edges 10 kbit/s / 10 Gbit/s.
-  //   bytes: k 3..6 (1 kB/s–10 MB/s … 1 MB/s–10 GB/s), start k = 5 (100 kB/s–1 GB/s). Pin edges 1 kB/s / 10 GB/s.
-  // The FIRST throughput direction of a run (download or upload per configured order, or the single
-  // Continuous direction) starts at the start window; the SECOND passes k0 = first.k. Nothing carries between runs.
-  // Shift down one decade after `hold` s continuously in the bottom decade (< 10^(k+1)),
-  // up one decade after `hold` s continuously in the top decade (> 10^(k+3)). One decade per shift.
-  // pts: [[t s, bit/s]] at 10 Hz. Returns final k plus the shift log and per-sample k.
+// ui_kits/app/fixtures.js
+try { (() => {
+/* BitGauge web UI kit — fixtures.js: KIT-ONLY fixture layer and engine stand-ins (window.BG).
+   Everything visual comes from the design system (window.DS): icons, logo, gauge, chart, formatting.
+   What stays here is what production gets from the engine or the server, mocked for the prototype:
+   sample data (KIT), synthetic series (rng/thr/lat), the gauge window replay used to hand the second
+   direction its start window (track), grade + AIM point tables (engine side in production), and the
+   Result-detail chart geometry that has not moved to DS.Chart yet (see CHANGELOG "Remaining migration"). */
+(function () {
+  // Sample data. Components never default to these; screens pass them as props.
+  const KIT = {
+    origin: 'https://speed.home.lan',
+    host: 'speed.home.lan',
+    server: {
+      displayName: 'Basement NAS',
+      version: 'v1.4.0',
+      commit: 'a1b2c3d',
+      buildDate: '2026-09-30'
+    }
+  };
+  const F = () => window.DS.Format;
+  // Formatting delegates to DS.Format (tokens.md "Number formatting") — one implementation.
+  const rate = (bps, unit) => F().rate(bps, unit);
+  const rateStr = (b, u) => F().rateStr(b, u);
+  const ms = (v, res = 0.1) => F().ms(v, res);
+  const jit = ms;
+  const bytes = b => F().bytes(b);
+  // Gauge window replay (gauge.md rule 3) over a finished direction's samples, so the UI can pass the
+  // second direction its start window (Gauge startDecade). The live window itself is DS.Gauge's.
   function track(pts, o = {}) {
     const by = o.unit === 'bytes',
       kMin = by ? 3 : 4,
@@ -16182,113 +13357,6 @@ try { (() => {
       holdFor: dir ? tl - since : 0
     };
   }
-  const decStr = (e, unit) => {
-    const U = unit === 'bytes' ? ['kB/s', 'MB/s', 'GB/s'] : ['kbit/s', 'Mbit/s', 'Gbit/s'];
-    const i = Math.max(0, Math.min(2, Math.floor((e - 3) / 3)));
-    return Math.pow(10, e - 3 - 3 * i) + ' ' + U[i];
-  };
-  const winLabel = (k, unit) => 'log scale · ' + decStr(k, unit) + ' – ' + decStr(k + 4, unit) + ' · auto';
-  // Shift tween: 280 ms ease-out in log space. The caller animates k and passes the fractional value as
-  // lo = 10^k, hi = 10^(k+4) (TestScreen._animK); under prefers-reduced-motion it jumps.
-  const SHIFT_MS = 280;
-
-  // mode: 'rate' | 'ms'. lo/hi are the gauge's own window (track above); default 1 Mbit/s–10 Gbit/s, ms fixed 1–1000.
-  // Out-of-range values pin the needle at the start or end; the readout stays exact.
-  function gauge({
-    size,
-    value,
-    lo,
-    hi,
-    mode = 'rate',
-    bandLo,
-    bandHi,
-    peak,
-    inner
-  }) {
-    const cx = size / 2,
-      cy = size / 2,
-      r = size / 2 - 10;
-    if (lo == null) {
-      if (mode === 'ms') {
-        lo = 1;
-        hi = 1000;
-      } else {
-        lo = 1e6;
-        hi = 1e10;
-      }
-    }
-    const L0 = Math.log10(lo),
-      L1 = Math.log10(hi);
-    const f = v => (Math.log10(Math.min(Math.max(v, lo), hi)) - L0) / (L1 - L0);
-    const ticks = [],
-      labels = [];
-    for (let d = Math.floor(L0 + 1e-9); d <= Math.ceil(L1 - 1e-9); d++) {
-      const base = Math.pow(10, d);
-      [1, 2, 5].forEach(m => {
-        const v = base * m;
-        if (v > hi * 1.0001 || v < lo * 0.9999) return;
-        const major = m === 1,
-          fr = f(v),
-          a = A0 + SW * fr;
-        const p1 = pt(cx, cy, r - 14, a),
-          p2 = pt(cx, cy, r - (major ? 22 : 18), a);
-        ticks.push({
-          x1: p1[0].toFixed(1),
-          y1: p1[1].toFixed(1),
-          x2: p2[0].toFixed(1),
-          y2: p2[1].toFixed(1),
-          w: major ? 1.5 : 1,
-          o: major ? 1 : 0.6
-        });
-        if (major) {
-          const pl = pt(cx, cy, r - 36, a);
-          labels.push({
-            x: pl[0].toFixed(1),
-            y: (pl[1] + 4).toFixed(1),
-            t: mode === 'ms' ? String(v) : tickLabel(v)
-          });
-        }
-      });
-    }
-    const out = {
-      size,
-      vb: `0 0 ${size} ${size}`,
-      track: arc(cx, cy, r, 0, 1),
-      ticks,
-      labels,
-      fill: '',
-      band: '',
-      hasValue: value != null,
-      dot: null,
-      peak: null,
-      pinned: value == null ? null : value < lo ? 'start' : value > hi ? 'end' : null
-    };
-    if (value != null) {
-      const fv = f(value);
-      out.fill = arc(cx, cy, r, 0, fv);
-      const d = pt(cx, cy, r, A0 + SW * fv);
-      out.dot = {
-        x: d[0].toFixed(1),
-        y: d[1].toFixed(1)
-      };
-      if (bandLo != null) out.band = arc(cx, cy, r, f(bandLo), f(bandHi));
-      if (inner != null) out.inner = arc(cx, cy, r - 10, 0, f(inner));
-      if (peak != null) {
-        const a = A0 + SW * f(peak),
-          q1 = pt(cx, cy, r + 8, a),
-          q2 = pt(cx, cy, r - 8, a);
-        out.peak = {
-          x1: q1[0].toFixed(1),
-          y1: q1[1].toFixed(1),
-          x2: q2[0].toFixed(1),
-          y2: q2[1].toFixed(1)
-        };
-      }
-    }
-    return out;
-  }
-
-  // ---------- series + chart ----------
   function rng(seed) {
     return function () {
       seed |= 0;
@@ -16316,6 +13384,7 @@ try { (() => {
     for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * e >= v) return m * e;
     return 10 * e;
   }
+
   // opts: {w,h,xMax, series:[pts], yMax?, lat?:pts, latMax?, unit:'bits'|'bytes', xLabel?:fn}
   function chart(o) {
     const all = o.series.flat();
@@ -16438,59 +13507,6 @@ try { (() => {
       nowX: o.now != null ? X(o.now).toFixed(1) : null
     };
   }
-  function spark(pts, w, h, yMax) {
-    const xm = pts[pts.length - 1][0] || 1,
-      ym = yMax || Math.max(...pts.map(p => p[1])) * 1.1;
-    return pts.map((p, i) => (i ? 'L' : 'M') + (w * p[0] / xm).toFixed(1) + ' ' + (h - 2 - (h - 4) * p[1] / ym).toFixed(1)).join('');
-  }
-  const GRADES = {
-    'A+': {
-      tone: 'ok',
-      text: 'Minimal bufferbloat'
-    },
-    A: {
-      tone: 'ok',
-      text: 'Low bufferbloat'
-    },
-    B: {
-      tone: 'ok',
-      text: 'Mild bufferbloat'
-    },
-    C: {
-      tone: 'warn',
-      text: 'Moderate bufferbloat'
-    },
-    D: {
-      tone: 'warn',
-      text: 'High bufferbloat'
-    },
-    F: {
-      tone: 'danger',
-      text: 'Severe bufferbloat'
-    }
-  };
-  const QUALITY = {
-    Great: {
-      tone: 'ok',
-      icon: 'circle-check'
-    },
-    Good: {
-      tone: 'ok',
-      icon: 'check'
-    },
-    Average: {
-      tone: 'warn',
-      icon: 'circle-minus'
-    },
-    Poor: {
-      tone: 'warn',
-      icon: 'circle-alert'
-    },
-    Bad: {
-      tone: 'danger',
-      icon: 'circle-x'
-    }
-  };
 
   // ---------- grade + quality scores (measurement §11, §13) ----------
   const gradeOf = inc => inc < 5 ? 'A+' : inc < 30 ? 'A' : inc < 60 ? 'B' : inc < 200 ? 'C' : inc < 400 ? 'D' : 'F';
@@ -16516,67 +13532,44 @@ try { (() => {
   // Data used (bytes) of a sampled rate series [[t s, bit/s]] at `step` s: the integral of the curve.
   const usedBytes = (pts, step = 0.1) => pts.reduce((a, q) => a + (q[1] || 0), 0) * step / 8;
   window.BG = {
+    KIT,
     rate,
     rateStr,
     ms,
     jit,
     bytes,
-    gauge,
     track,
-    winLabel,
-    decStr,
-    SHIFT_MS,
-    arc,
     thr,
     lat,
     chart,
-    spark,
     niceMax,
     rng,
-    GRADES,
-    QUALITY,
+    get GRADES() {
+      return window.DS.GRADES;
+    },
+    get QUALITY() {
+      return window.DS.QUALITY;
+    },
     gradeOf,
     aim,
-    usedBytes,
-    glyphs: Object.keys(G)
+    usedBytes
   };
-  window.dispatchEvent(new Event('bg-lib-ready'));
 })();
-
-/* <bg-logo size="28" variant="color|mono">: BitGauge mark (1f Three series).
-   color: --series-download / --series-upload / --series-latency (dashed). mono: every arc in currentColor.
-   size <= 20 switches to the favicon geometry: two heavier arcs, no dashed latency arc. */
-(function () {
-  if (customElements.get('bg-logo')) return;
-  const FULL = (d, u, l) => '<path d="M14.32 53.68 A25 25 0 1 1 49.68 53.68" fill="none" stroke="currentColor" stroke-opacity=".14" stroke-width="5" stroke-linecap="round"/>' + '<path d="M14.32 53.68 A25 25 0 1 1 53.65 23.5" fill="none" style="stroke:' + d + '" stroke-width="5" stroke-linecap="round"/>' + '<path d="M19.98 48.02 A17 17 0 0 1 32 19" fill="none" style="stroke:' + u + '" stroke-width="5" stroke-linecap="round"/>' + '<path d="M25.64 42.36 A9 9 0 0 1 27.5 28.21" fill="none" style="stroke:' + l + '" stroke-width="4" stroke-dasharray="2.6 3"/>';
-  const SMALL = (d, u) => '<path d="M15.03 48.97 A24 24 0 1 1 48.97 48.97" fill="none" stroke="currentColor" stroke-opacity=".2" stroke-width="7" stroke-linecap="round"/>' + '<path d="M15.03 48.97 A24 24 0 1 1 54.35 23.24" fill="none" style="stroke:' + d + '" stroke-width="7" stroke-linecap="round"/>' + '<path d="M23.51 40.49 A12 12 0 0 1 32 20" fill="none" style="stroke:' + u + '" stroke-width="7" stroke-linecap="round"/>';
-  class BgLogo extends HTMLElement {
-    static get observedAttributes() {
-      return ['size', 'variant', 'geometry'];
-    }
-    connectedCallback() {
-      this.render();
-    }
-    attributeChangedCallback() {
-      this.render();
-    }
-    render() {
-      const s = this.getAttribute('size') || '28',
-        mono = this.getAttribute('variant') === 'mono';
-      const g = this.getAttribute('geometry') || (parseFloat(s) <= 20 ? 'small' : 'full');
-      const c = mono ? ['currentColor', 'currentColor', 'currentColor'] : ['var(--series-download)', 'var(--series-upload)', 'var(--series-latency)'];
-      // Shadow root: React owns this element's light-DOM children.
-      if (!this.shadowRoot) this.attachShadow({
-        mode: 'open'
-      });
-      this.shadowRoot.innerHTML = '<style>:host{display:inline-flex;flex:none;line-height:0}svg{display:block}</style><svg width="' + s + '" height="' + s + '" viewBox="0 0 64 64" aria-hidden="true">' + (g === 'small' ? SMALL(c[0], c[1]) : FULL(...c)) + '</svg>';
-    }
-  }
-  customElements.define('bg-logo', BgLogo);
-})();
-})(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/app/bg-lib.js", error: String((e && e.message) || e) }); }
+})(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/app/fixtures.js", error: String((e && e.message) || e) }); }
 
 __ds_ns.Button = __ds_scope.Button;
+
+__ds_ns.Link = __ds_scope.Link;
+
+__ds_ns.Menu = __ds_scope.Menu;
+
+__ds_ns.Popover = __ds_scope.Popover;
+
+__ds_ns.OptionRows = __ds_scope.OptionRows;
+
+__ds_ns.START_ROLES = __ds_scope.START_ROLES;
+
+__ds_ns.StartButton = __ds_scope.StartButton;
 
 __ds_ns.Tooltip = __ds_scope.Tooltip;
 
@@ -16586,11 +13579,23 @@ __ds_ns.Icon = __ds_scope.Icon;
 
 __ds_ns.Logo = __ds_scope.Logo;
 
+__ds_ns.Chart = __ds_scope.Chart;
+
+__ds_ns.Format = __ds_scope.Format;
+
+__ds_ns.PhaseChart = __ds_scope.PhaseChart;
+
 __ds_ns.Dialog = __ds_scope.Dialog;
 
 __ds_ns.EmptyState = __ds_scope.EmptyState;
 
+__ds_ns.FullScreenError = __ds_scope.FullScreenError;
+
+__ds_ns.LiveRegion = __ds_scope.LiveRegion;
+
 __ds_ns.Notice = __ds_scope.Notice;
+
+__ds_ns.SaveBar = __ds_scope.SaveBar;
 
 __ds_ns.Skeleton = __ds_scope.Skeleton;
 
@@ -16598,9 +13603,19 @@ __ds_ns.SkeletonRows = __ds_scope.SkeletonRows;
 
 __ds_ns.Toast = __ds_scope.Toast;
 
+__ds_ns.ToastRegion = __ds_scope.ToastRegion;
+
+__ds_ns.Checkbox = __ds_scope.Checkbox;
+
+__ds_ns.ChoiceCard = __ds_scope.ChoiceCard;
+
 __ds_ns.Input = __ds_scope.Input;
 
+__ds_ns.FieldError = __ds_scope.FieldError;
+
 __ds_ns.Segmented = __ds_scope.Segmented;
+
+__ds_ns.Select = __ds_scope.Select;
 
 __ds_ns.Switch = __ds_scope.Switch;
 
@@ -16610,15 +13625,45 @@ __ds_ns.Gauge = __ds_scope.Gauge;
 
 __ds_ns.Card = __ds_scope.Card;
 
+__ds_ns.MetaList = __ds_scope.MetaList;
+
+__ds_ns.Stat = __ds_scope.Stat;
+
+__ds_ns.Snippet = __ds_scope.Snippet;
+
 __ds_ns.Table = __ds_scope.Table;
 
 __ds_ns.Tabs = __ds_scope.Tabs;
 
+__ds_ns.GRADES = __ds_scope.GRADES;
+
+__ds_ns.GradeBadge = __ds_scope.GradeBadge;
+
+__ds_ns.LoadCard = __ds_scope.LoadCard;
+
 __ds_ns.MetricTile = __ds_scope.MetricTile;
+
+__ds_ns.NotMeasured = __ds_scope.NotMeasured;
 
 __ds_ns.PhaseStep = __ds_scope.PhaseStep;
 
+__ds_ns.PhaseIndicator = __ds_scope.PhaseIndicator;
+
+__ds_ns.QUALITY = __ds_scope.QUALITY;
+
+__ds_ns.QualityList = __ds_scope.QualityList;
+
+__ds_ns.SharePreview = __ds_scope.SharePreview;
+
+__ds_ns.LastResult = __ds_scope.LastResult;
+
+__ds_ns.AppHeader = __ds_scope.AppHeader;
+
+__ds_ns.TabBar = __ds_scope.TabBar;
+
 __ds_ns.Chip = __ds_scope.Chip;
+
+__ds_ns.ChangedMark = __ds_scope.ChangedMark;
 
 __ds_ns.StatusBadge = __ds_scope.StatusBadge;
 

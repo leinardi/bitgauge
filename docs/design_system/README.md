@@ -22,40 +22,49 @@ snippets). Full spec in `features/`.
 
 ## Index
 
-| Path | What it is |
-| --- | --- |
-| `styles.css` | Entry point — `@import`s tokens + kit CSS. Link this one file. |
-| `colors_and_type.css` | All tokens: self-hosted IBM Plex `@font-face`, primitives, semantic tokens (dark + light), measurement layer, type, spacing, radii, motion, z. |
-| `tokens.md` | Token reference, Tailwind 4 mapping, WCAG contrast table, number formatting. |
-| `components/<group>/` | React components (`.jsx` + `.d.ts` + `.prompt.md`) and one `*.card.html` per group. |
-| `components/*.md` | Behaviour contracts: `gauge`, `charts`, `tiles`, `notices`, `phase-indicator`, `save-bar`, `share-panel`. |
-| `ui_kits/app/` | Clickable prototype of the web UI (`index.html`) + kit CSS (`app.css`, `buttons.css`, `badges.css`, `inputs.css`, `surfaces.css`, `tables.css`, `dialog.css`) and `bg-lib.js`. |
-| `preview/` | Foundation cards: colours, type, spacing, radii, logo, app icons. |
-| `assets/` | Logo marks, favicons, app icons, webmanifest, `fonts/` (IBM Plex woff2, SIL OFL 1.1). |
-| `features/` | Product spec: `product.md`, `principles.md`, `measurement.md` (measurement methodology and result object), `ui/` (screens, flows, url-params, i18n-a11y). The spec decides content and behaviour. |
-| `explorations/` | Logo explorations (history of the mark). |
-| `SKILL.md` | Agent-Skills entry point. |
+The system is layered (atomic design): **tokens → base → components (atoms → molecules → organisms) →
+templates (page shells) → screens (UI kit)**. Each rule lives in exactly one layer; a higher layer composes
+the one below and never restyles it. See `CHANGELOG.md` for the structure audit.
+
+| Path | Layer | What it is |
+| --- | --- | --- |
+| `styles.css` | entry | `@import`s only: tokens → base → components. Link this one file. |
+| `colors_and_type.css` | tokens | IBM Plex `@font-face`, primitives, semantic tokens (dark + light), measurement layer, type scale + role tokens, line heights, spacing, layout, control sizes, radii, motion, z, semantic type classes (`.ds-*`). |
+| `base.css` | base | Element defaults: box model, body font, size **and line height**, links, focus ring, selection, scrollbars, reduced motion, `.sr-only`. |
+| `components/components.css` | components | Imports one CSS file per component group — the single visual definition each component renders. |
+| `components/<group>/` | components | React components (`.jsx` + `.d.ts` + `.prompt.md`), the group's CSS, one `*.card.html`. |
+| `components/*.md` | contracts | Behaviour, wording and accessibility contracts: `gauge`, `charts`, `tiles`, `notices`, `phase-indicator`, `save-bar`, `share-panel`, `navigation`. |
+| `tokens.md` | docs | Token reference, Tailwind 4 / shadcn-vue mapping, WCAG contrast table, number formatting. |
+| `ui_kits/app/` | screens | Clickable prototype (`index.html`) — a **consumer**: links `styles.css`, uses components from the bundle namespace, adds only kit-only CSS (`kit.css`, Demo panel) and fixtures (`fixtures.js`). |
+| `preview/` | docs | Foundation cards: colours, type, spacing, radii, logo, app icons. |
+| `assets/` | assets | Logo marks, favicons, app icons, webmanifest, `fonts/` (IBM Plex woff2, SIL OFL 1.1). |
+| `features/` | spec | Product spec (maintained outside this project): `product.md`, `principles.md`, `measurement.md`, `ui/` (screens, flows, url-params, i18n-a11y). The spec decides content and behaviour. |
+| `explorations/` | — | Logo explorations (history of the mark). |
+| `SKILL.md` | — | Agent-Skills entry point. |
+| `CHANGELOG.md` | — | Structure audit: what moved where, tokens/variants/rules added, remaining migration, open questions. |
 
 ## Components
 
-All exported on the bundle namespace; styles come from `styles.css` classes + tokens.
+All exported on the bundle namespace (`window.BitGaugeDesignSystem_1ab699`); looks come from the
+group CSS + tokens. Components take data from props only — no sample data, no defaults that pretend to know
+the server.
 
-- **brand/** — `Icon` (+ `ICON_NAMES`), `Logo`
-- **actions/** — `Button`, `Tooltip`
-- **status/** — `StatusPill`, `StatusBadge`, `Chip`
-- **feedback/** — `Notice`, `Toast`, `EmptyState`, `Skeleton`, `SkeletonRows`
-- **forms/** — `Input`, `Segmented`, `Switch`, `Toggle`
-- **layout/** — `Card`, `Tabs`, `Table`
+- **brand/** — `Icon` (+ `ICON_NAMES`), `Logo` (mark, wordmark, home link)
+- **actions/** — `Button`, `StartButton`, `Link`, `Tooltip`, `Menu`, `Popover`, `OptionRows`
+- **status/** — `StatusPill`, `StatusBadge`, `Chip`, `ChangedMark`
+- **forms/** — `Input`, `FieldError`, `Select`, `Segmented`, `Switch`, `Toggle`, `Checkbox`, `ChoiceCard`
+- **layout/** — `Card`, `Tabs`, `Table`, `MetaList`, `Stat`, `Snippet`
+- **feedback/** — `Notice`, `Toast`, `ToastRegion`, `EmptyState`, `Skeleton`, `SkeletonRows`, `LiveRegion`, `SaveBar`, `FullScreenError`
 - **dialog/** — `Dialog`
+- **charts/** — `Chart`, `PhaseChart`, `Format` (number formatting)
 - **gauge/** — `Gauge`
-- **measurement/** — `MetricTile`, `PhaseStep`
-
-The inventory follows the kit's CSS families and the component contracts. Charts (uPlot), the
-share image, save bar and share panel live in the UI kit only (see `components/*.md`).
+- **measurement/** — `MetricTile`, `PhaseStep`, `PhaseIndicator`, `LoadCard`, `GradeBadge`, `QualityList`, `NotMeasured`, `SharePreview`, `LastResult`
+- **navigation/** — `AppHeader`, `TabBar`
 
 ### Intentional additions
-- `Icon` — React wrapper over the kit's bundled Lucide glyph map (`<bg-icon>` in the kit).
-- `Logo` — React wrapper over the kit's `<bg-logo>` element.
+- `Icon` — React wrapper over the bundled Lucide glyph map; plain-HTML cards render it (and `Logo`) with a small inline mount script.
+- `Format` — the one implementation of tokens.md "Number formatting".
+- `LiveRegion`, `Stat`, `LastResult` — small pieces the screens hand-rolled; now one definition each.
 
 ## UI kit
 
@@ -98,7 +107,7 @@ Calm, exact, never breathless. BitGauge measures and reports; it never overclaim
 
 ## Iconography
 
-- **Lucide**, outline, **1.75 px stroke**, 14–20 px, `currentColor`, round caps/joins. Production uses `@lucide/vue`; here the glyphs are bundled inline (`components/brand/Icon.jsx`, kit `bg-lib.js` → `<bg-icon>`), so nothing loads from a CDN.
+- **Lucide**, outline, **1.75 px stroke**, 14–20 px, `currentColor`, round caps/joins. Production uses `@lucide/vue`; here the glyphs are bundled inline (`components/brand/Icon.jsx`), so nothing loads from a CDN.
 - Common glyphs: `arrow-down` / `arrow-up` (directions), `activity` (latency), `gauge`, `circle-check`, `circle-x`, `circle-dashed` (pending), `circle-minus` (cancelled/skipped), `triangle-alert`, `info`, `wifi-off`, `copy`, `download`, `share-2`, `history`, `settings`, `timer`, `layers`, `database`, `tag`.
 - No icon font, no PNG icons, **no emoji**, no unicode pictographs (only `·`, `—`, `–`, `→` as typography).
 - Icons pair with text; icon-only buttons need `aria-label`.

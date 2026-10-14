@@ -1,9 +1,9 @@
 # Gauge
 
-A 270° logarithmic arc in custom SVG. **The engine supplies gauge values only; the UI's gauge
-component picks and shifts the window from them.** The engine never chooses, sends or knows the
-window. The window is presentation only: it never feeds a number, and the caption names it. Spec:
-`features/measurement.md` §14, `features/ui/screens.md` §1 (Live gauge).
+A 270° logarithmic arc in custom SVG — component `Gauge` (`components/gauge/`). **The engine supplies
+gauge values only; the gauge component picks and shifts the window from them.** The engine never chooses,
+sends or knows the window. The window is presentation only: it never feeds a number, and the caption names
+it. Spec: `features/measurement.md` §14, `features/ui/screens.md` §1 (Live gauge).
 
 ## Anatomy
 
@@ -13,9 +13,14 @@ window. The window is presentation only: it never feeds a number, and the captio
 - **Range band:** min–max of the last 10 gauge values (1 s).
 - **Peak tick:** download = steady-window p90 so far, hidden while warming up. Upload: **none while
   running** (the gauge shows sending progress, not a measurement). Continuous: p90, last hour.
-- **Inner arc:** on completion, shows the upload headline.
-- Eyebrow (phase, e.g. "Upload · sending"), readout (Plex Mono 500, 58/46 px), separate unit span,
-  caption naming the current window: `log scale · 100 kbit/s – 1 Gbit/s · auto`.
+- **Inner arc:** on completion, shows the upload headline, with `innerLabel` text ("438 Mbit/s upload") so
+  it is not colour-only.
+- Inside the dial: eyebrow (phase, e.g. "Upload · sending"), readout (Plex Mono 500,
+  `--type-gauge-readout` 58 px / compact 46 px), separate unit span, one mono `note` line
+  ("median 3.1 · ping 12 of 20", "avg so far 598 · peak 612", "Esc cancels").
+- Under the dial: the caption naming the current window (`log scale · 100 kbit/s – 1 Gbit/s · auto`,
+  optionally `· session average`), then an optional `sub` line (overhead compensation).
+- Size: 300 px; 272 px in the compact layout. Screens never pass font sizes.
 
 ## Units
 
@@ -44,7 +49,7 @@ window. The window is presentation only: it never feeds a number, and the captio
    sequences.
 5. **Start:** the first throughput direction of a run (per configured order, or the only direction
    of a Continuous run) starts in the start window. The second direction starts in the window the
-   first ended in; the UI carries it. Nothing carries over between runs.
+   first ended in; the UI carries it (`startDecade`). Nothing carries over between runs.
 6. From the start window a slow link reaches the floor after at most two shifts in either mode. In
    bytes mode a link above 100 MB/s shifts up once.
 7. **Out of range:** beyond the floor or ceiling window the needle pins at the arc ends
@@ -56,8 +61,20 @@ window. The window is presentation only: it never feeds a number, and the captio
 
 ## Modes and states
 
-Rate (throughput), ms (idle latency, with ping counter and live median), idle, countdown, cancelled,
-error ("Server unreachable" + Retry).
+Two **modes** (`mode`): `rate` (throughput) and `ms` (idle latency). Seven **states** (`state`), one per
+Test-screen state of `features/ui/screens.md` §1:
+
+| `state` | Test-screen state | Dial | Readout |
+| --- | --- | --- | --- |
+| `idle` | Idle, URL parameter ignored | track only | title "Ready", message "Press Enter to start" (desktop) / "Tap Start test to begin" |
+| `countdown` | Auto-start countdown | `--primary` ring drains | "Auto-start in", whole seconds left, "second(s)", note "Esc cancels" |
+| `connecting` | Running: info | track only | title "Connecting…" (the info phase also shows "Connecting…" on the first phase step), message "<server> · reading server info" |
+| `live` | Running: idle latency (`ms`), download / upload (`rate`), Continuous | value arc, needle, band, peak | eyebrow, readout, unit, note |
+| `cancelled` | Cancelled, Continuous stopped in warm-up | final value arc, **no needle** | icon `circle-minus`, title "Cancelled" / "Stopped", message "Partial results · not saved" |
+| `error` | Error | track only | icon in `--danger`, title "Connection lost", message "Error during <phase>", detail (last sample) |
+| `offline` | Offline / retry | track only | icon `server-off` in `--danger`, title "Server unreachable", message "<server or host> didn't respond…", Retry button |
+
+Done uses `live` with the final value, no band, and the inner upload arc.
 
 **Countdown:** the ring drains linearly over the countdown, one third per second for the 3 s
 countdown, and the readout shows the whole seconds left. Under `prefers-reduced-motion` the ring
@@ -68,7 +85,8 @@ with the number, so the number carries the count without any motion.
 
 - The arc, ticks, band and needle are `aria-hidden`. The numeric readout (eyebrow, number, unit)
   is the accessible value, as plain text; no `role="img"` label carries the number.
-- The 10 Hz readout is **not** `aria-live`. A separate visually hidden `aria-live="polite"` region
-  announces each phase change, the current rate at most once every 5 s, and each direction's
-  headline once when it finishes.
+- The 10 Hz readout is **not** `aria-live`, and the Gauge renders **no** live region.
+- The screen renders exactly one `LiveRegion` (visually hidden, polite) as a direct child of `<main>`.
+  It announces each phase change, the current rate at most once every 5 s, and each direction's
+  headline once when it finishes (`features/ui/i18n-a11y.md` §2.1).
 - Arcs meet 3:1; the readout meets 4.5:1.

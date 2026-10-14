@@ -56,15 +56,22 @@ function useTweenK(k, reduce, resetKey) {
   }, [k, reduce, resetKey]);
   return kd;
 }
-export function Gauge({ size = 300, value, mode = 'rate', units = 'bits', startDecade, onWindowChange, bandLo, bandHi, peak, inner, color = 'var(--series-download)', eyebrow, eyebrowIcon, readout, unit, sub, numSize }) {
+const TEXT_STATES = { idle: 1, connecting: 1, cancelled: 1, error: 1, offline: 1 };
+const ST_COLOR = { cancelled: 'var(--fg-subtle)', error: 'var(--danger)', offline: 'var(--danger)' };
+// gauge.md — modes (rate, ms) × states (live, countdown, idle, connecting, cancelled, error, offline).
+export function Gauge({ size, compact = false, value, mode = 'rate', units = 'bits', state = 'live', startDecade, onWindowChange, bandLo, bandHi, peak, inner, innerLabel,
+  color = 'var(--series-download)', eyebrow, eyebrowIcon, readout, unit, note, sub, captionNote,
+  title, message, detail, icon, action, countdownTotal = 3, countdownLeft }) {
+  size = size || (compact ? 272 : 300);
   const reduce = useReducedMotion();
-  const k = useGaugeWindow(value, mode, units, startDecade, onWindowChange);
+  const live = state === 'live', cd = state === 'countdown', textual = !!TEXT_STATES[state];
+  const k = useGaugeWindow(live ? value : null, mode, units, startDecade, onWindowChange);
   const kd = useTweenK(k, reduce, units + '|' + mode + '|' + (startDecade ?? ''));
   const shifting = kd !== k;
   const cx = size / 2, cy = size / 2, r = size / 2 - 10;
   const lo = mode === 'ms' ? 1 : Math.pow(10, k), hi = mode === 'ms' ? 1000 : Math.pow(10, k + 4);
   const dlo = mode === 'ms' ? lo : Math.pow(10, kd), dhi = mode === 'ms' ? hi : Math.pow(10, kd + 4);
-  const caption = mode === 'ms' ? 'log scale · 1 – 1000 ms' : 'log scale · ' + rateLabel(lo, units) + ' – ' + rateLabel(hi, units) + ' · auto';
+  const caption = (mode === 'ms' ? 'log scale · 1 – 1000 ms' : 'log scale · ' + rateLabel(lo, units) + ' – ' + rateLabel(hi, units) + ' · auto') + (captionNote ? ' · ' + captionNote : '');
   const L0 = Math.log10(dlo), L1 = Math.log10(dhi);
   const f = v => (Math.log10(Math.min(Math.max(v, dlo), dhi)) - L0) / (L1 - L0);
   const ticks = [], labels = [];
@@ -75,29 +82,44 @@ export function Gauge({ size = 300, value, mode = 'rate', units = 'bits', startD
       ticks.push({ x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1], w: major ? 1.5 : 1, o: major ? 1 : 0.6 });
       if (major && size >= 220) { const pl = pt(cx, cy, r - 36, a); labels.push({ x: pl[0], y: pl[1] + 4, t: mode === 'ms' ? String(v) : tickLabel(v) }); } });
   }
-  const has = value != null, fv = has ? f(value) : 0, dot = has ? pt(cx, cy, r, A0 + SW * fv) : null;
-  const pk = peak != null ? [pt(cx, cy, r + 8, A0 + SW * f(peak)), pt(cx, cy, r - 8, A0 + SW * f(peak))] : null;
-  const ns = numSize || Math.round(size * 0.193);
+  // Countdown: the ring drains linearly; under reduced motion it steps once per second with the number.
+  const left = Math.max(0, countdownLeft ?? countdownTotal), secs = Math.max(1, Math.ceil(left - 1e-9));
+  const cdFrac = Math.max(0.002, (reduce ? secs : left) / countdownTotal);
+  const has = value != null && (live || state === 'cancelled'), fv = has ? f(value) : 0;
+  const dot = has && live ? pt(cx, cy, r, A0 + SW * fv) : null;
+  const pk = has && live && peak != null ? [pt(cx, cy, r + 8, A0 + SW * f(peak)), pt(cx, cy, r - 8, A0 + SW * f(peak))] : null;
   const tween = reduce || shifting ? undefined : 'd var(--dur-base) var(--ease-out)';
-  return <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1)', width: size }}>
-    <div style={{ position: 'relative', width: size, height: size }}>
-    <svg width={size} height={size} aria-hidden="true" focusable="false" style={{ display: 'block', overflow: 'visible' }}>
+  const stc = ST_COLOR[state] || 'var(--fg-subtle)';
+  return <div className={'gauge' + (compact ? ' compact' : '')} style={{ width: size }}>
+    <div className="gauge-dial" style={{ width: size, height: size }}>
+    <svg width={size} height={size} aria-hidden="true" focusable="false">
       <path d={arc(cx, cy, r, 0, 1)} style={{ fill: 'none', stroke: 'var(--surface-3)', strokeWidth: 10, strokeLinecap: 'round' }} />
       {ticks.map((t, i) => <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} style={{ stroke: 'var(--fg-faint)', strokeWidth: t.w, opacity: t.o }} />)}
-      {has && bandLo != null ? <path d={arc(cx, cy, r, f(bandLo), f(bandHi))} style={{ fill: 'none', stroke: color, strokeOpacity: 0.2, strokeWidth: 22 }} /> : null}
+      {cd ? <path d={arc(cx, cy, r, 0, cdFrac)} style={{ fill: 'none', stroke: 'var(--primary)', strokeWidth: 10, strokeLinecap: 'round' }} /> : null}
+      {has && live && bandLo != null ? <path d={arc(cx, cy, r, f(bandLo), f(bandHi))} style={{ fill: 'none', stroke: color, strokeOpacity: 0.2, strokeWidth: 22 }} /> : null}
       {has ? <path d={arc(cx, cy, r, 0, fv)} style={{ fill: 'none', stroke: color, strokeWidth: 10, strokeLinecap: 'round', transition: tween }} /> : null}
       {has && inner != null ? <path d={arc(cx, cy, r - 10, 0, f(inner))} style={{ fill: 'none', stroke: 'var(--series-upload)', strokeWidth: 4, strokeLinecap: 'round' }} /> : null}
-      {has && pk ? <line x1={pk[0][0]} y1={pk[0][1]} x2={pk[1][0]} y2={pk[1][1]} style={{ stroke: 'var(--fg-muted)', strokeWidth: 2, strokeLinecap: 'round' }} /> : null}
+      {pk ? <line x1={pk[0][0]} y1={pk[0][1]} x2={pk[1][0]} y2={pk[1][1]} style={{ stroke: 'var(--fg-muted)', strokeWidth: 2, strokeLinecap: 'round' }} /> : null}
       {dot ? <circle cx={dot[0]} cy={dot[1]} r="7" style={{ fill: 'var(--surface-2)', stroke: color, strokeWidth: 3 }} /> : null}
     </svg>
-    {labels.map((l, i) => <span key={i} aria-hidden="true" style={{ position: 'absolute', left: l.x, top: l.y, transform: 'translate(-50%,-80%)', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-subtle)', whiteSpace: 'nowrap' }}>{l.t}</span>)}
-    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, paddingTop: 8, textAlign: 'center' }}>
-      {eyebrow ? <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-cond)', fontWeight: 600, fontSize: 12, letterSpacing: 'var(--tracking-caps)', textTransform: 'uppercase', color }}>{eyebrowIcon ? <Icon name={eyebrowIcon} size={13} stroke={2.25} /> : null}{eyebrow}</span> : null}
-      <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 500, fontSize: ns, lineHeight: 1.05, letterSpacing: '-0.03em', color: has ? 'var(--fg)' : 'var(--fg-subtle)', fontVariantNumeric: 'tabular-nums' }}>{readout ?? (has ? '' : '—')}</span>
-      {unit ? <span style={{ fontSize: 'var(--text-md)', fontWeight: 500, color: 'var(--fg-muted)' }}>{unit}</span> : null}
+    {labels.map((l, i) => <span key={i} aria-hidden="true" className="gauge-tick" style={{ left: l.x, top: l.y }}>{l.t}</span>)}
+    <div className="gauge-rd">
+      {textual ? <>
+        {icon ? <span className="gauge-st-ic" style={{ color: stc }}><Icon name={icon} size={22} /></span> : null}
+        <span className="gauge-title">{title}</span>
+        {message ? <span className="gauge-msg">{message}</span> : null}
+        {detail ? <span className="gauge-detail">{detail}</span> : null}
+        {action ? <span className="gauge-act">{action}</span> : null}
+      </> : <>
+        {eyebrow ? <span className="gauge-eb" style={{ color: cd ? 'var(--primary-text)' : color }}>{eyebrowIcon ? <Icon name={eyebrowIcon} size={13} stroke={2.25} /> : null}{eyebrow}</span> : null}
+        <span className={'gauge-num' + (cd || value != null ? '' : ' none')}>{cd ? String(secs) : readout ?? (value != null ? '' : '—')}</span>
+        {unit ? <span className="gauge-unit">{cd && typeof unit === 'object' ? (secs === 1 ? unit[0] : unit[1]) : unit}</span> : null}
+        {note ? <span className="gauge-note">{note}</span> : null}
+        {innerLabel ? <span className="gauge-inner"><span className="ic"><Icon name="arrow-up" size={12} stroke={2.25} /></span>{innerLabel}</span> : null}
+      </>}
     </div>
     </div>
-    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-caption)', color: 'var(--fg-subtle)', whiteSpace: 'nowrap' }}>{caption}</span>
-    {sub ? <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-caption)', color: 'var(--fg-subtle)', whiteSpace: 'nowrap' }}>{sub}</span> : null}
+    <span className="gauge-cap">{caption}</span>
+    {sub ? <span className="gauge-sub">{sub}</span> : null}
   </div>;
 }

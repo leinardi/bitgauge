@@ -6,10 +6,15 @@ shadcn-vue + Tailwind 4).
 
 ## Run it
 
-Open `index.html`. It loads React 18 + Babel from CDN, the design-system tokens
-(`../../colors_and_type.css`), the kit styles (`app.css`, `kit.css`) and `bg-lib.js` (icons, logo,
-formatting, gauge and chart geometry). The production app makes no outbound calls; the CDN is for
-this design artifact only.
+Open `index.html`. It loads React 18 + Babel from CDN (design artifact only; production makes no outbound
+calls), the design system's one stylesheet (`../../styles.css`), the component bundle
+(`../../_ds_bundle.js`) and `ds.js`, which exposes the components as `window.DS` (it compiles the same
+component sources in the page if the bundle is older than the sources), then `fixtures.js` and the screens.
+
+**The kit is a consumer, not a source.** Screens compose `DS.*` components and pass props and content; they
+add layout (grid tracks, spacing between components, with tokens) and nothing else. Anything that looks like
+a component belongs in `components/`. Kit-only CSS is `kit.css` (Demo state panel); kit-only data is
+`fixtures.js` (`window.BG`: sample server, synthetic series, engine stand-ins).
 
 ## Try the flows
 
@@ -38,23 +43,21 @@ compatibility layers. Its values persist in `localStorage`.
 
 | File | Role |
 | --- | --- |
-| `index.html` | Single entry point; loads deps and mounts `<App>`. |
-| `App.jsx` | Mounts the prototype and the Demo state panel. |
-| `Prototype.jsx` | Routing between screens, the test run timeline per scenario, global Enter / Escape. |
-| `Nav.jsx` | Desktop header, mobile header, mobile bottom tab bar. |
+| `index.html` | Entry point; loads deps, mounts `<App>` once `window.DS` is ready. |
+| `ds.js` | Resolves the design system as `window.DS` (bundle, or the same sources compiled in-page). |
+| `fixtures.js` | Kit-only fixture layer (`window.BG`): `KIT` sample server/host, synthetic series, gauge window replay, grade + AIM tables, legacy Result-detail chart geometry. Formatting delegates to `DS.Format`. |
+| `App.jsx` | The Demo state panel and the version-scope switch; no mount (the bundle also sweeps this file). |
+| `Prototype.jsx` | Routing, run timeline per scenario, global Enter / Escape, version scope (`caps`), server name, "Not available in this version". |
+| `Nav.jsx` | Composes `DS.AppHeader` / `DS.TabBar` with scope-filtered items. |
 | `TestScreen.jsx` | Test (Home), all states — `features/ui/screens.md` §1. |
 | `ResultDetail.jsx` | Result detail — §2. |
 | `History.jsx` | History — §3. |
 | `Settings.jsx` | Settings — §4. |
 | `About.jsx` | Other clients / About — §5. |
-| `bg-lib.js` | `<bg-icon>` (Lucide glyphs, inline), `<bg-logo>`, number formatting, gauge and chart geometry. Ports 1:1 to Vue composables. |
-| `app.css` | App shell + shared layer; imports the component files below. |
-| `buttons.css` · `badges.css` · `inputs.css` · `surfaces.css` · `tables.css` · `dialog.css` | Component styles (see the root README). |
-| `kit.css` | Kit-only: page reset, hover states, Demo state panel. |
+| `kit.css` | Kit-only: Demo state panel. |
 
 Each `.jsx` exports its component to `window` (Babel scripts don't share scope). Screens are class
-components: `renderVals()` computes everything the markup shows, `render()` is plain JSX over it —
-the same split as a Vue SFC's `<script setup>` and `<template>`.
+components: `renderVals()` computes the props, `render()` composes components over them.
 
 ## Component inventory (production mapping)
 

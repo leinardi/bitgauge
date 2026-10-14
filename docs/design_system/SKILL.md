@@ -16,4 +16,6 @@ Hard rules:
 - Download teal, upload violet, latency blue and dashed. No other meanings.
 - `--fg-faint` is non-text only; smallest text uses `--fg-subtle`.
 - Style with `var(--token)` only. No CDNs in production, no external fonts, no emoji.
+- Compose components; never restyle one inline. Missing looks become a component variant, not local CSS.
+- Components take data from props; sample data lives in the screen / fixture layer.
 - Text contrast 4.5:1, non-text 3:1, in both themes.

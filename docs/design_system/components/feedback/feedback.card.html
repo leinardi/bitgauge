@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" viewport="700x400" name="Feedback · Notice, Toast, Empty, Skeleton" subtitle="Inline notices, toasts, empty state and skeleton rows" -->
+<!-- @dsCard group="Components" viewport="700x620" name="Feedback · Notice, SaveBar, Toast, Empty, Skeleton" subtitle="Notice tones incl. neutral, save bar, toasts with undo, empty state, skeleton" -->
 <!doctype html><html data-theme="dark"><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../styles.css">
 <link rel="stylesheet" href="../../preview/card.css">
@@ -10,11 +10,14 @@
 </head><body><div id="root"></div>
 <script type="text/babel">
 const NS = window.BitGaugeDesignSystem_1ab699;
-const { Notice, Toast, EmptyState, SkeletonRows, Button, Card } = NS;
+const { Notice, Toast, EmptyState, SkeletonRows, Button, Link, SaveBar } = NS;
 function Demo(){ return <div className="col gap-3">
 <Notice tone="warn" title="Low confidence — upload: insufficient samples" />
-<Notice tone="danger" icon="wifi-off" title="Server unreachable" actions={<Button size="sm">Retry</Button>}>speed.home.lan didn't answer. Check the VPN, then retry.</Notice>
-<div className="row gap-3" style={{alignItems:'flex-start'}}><Toast animate={false} title="Summary copied." /><Toast animate={false} tone="info" icon="trash" title="Result deleted." message="It is removed when this message closes." action={<Button variant="ghost" size="sm">Undo</Button>} /></div>
+<Notice tone="danger" icon="wifi-off" title="Server unreachable" actions={<Button size="sm" icon="refresh-cw">Retry</Button>}>speed.home.lan didn't answer. Check the VPN, then retry.</Notice>
+<Notice tone="neutral" title="Test cancelled during download">Latency completed. Download stopped before a 3 s steady window, so it has no value.</Notice>
+<Notice icon="globe" title="Firefox may limit the upload" actions={<Link external>Known browser limits</Link>}>On fast links the browser's own upload path can bound the upload number.</Notice>
+<SaveBar status="unsaved" title="Partial results are not saved" actions={<><Button size="sm" icon="history">Keep in history</Button><Button variant="ghost" size="sm" icon="file-json">Download JSON</Button></>} />
+<div className="row gap-3" style={{alignItems:'flex-start'}}><Toast animate={false} title="Summary copied." /><Toast animate={false} tone="info" icon="trash" title="Result deleted." message="It is removed when this message closes." action={<Button size="sm" icon="undo-2">Undo</Button>} onDismiss={()=>{}} /></div>
 <div className="row gap-3" style={{alignItems:'stretch'}}><div className="card" style={{flex:1}}><EmptyState style={{padding:'var(--space-4)'}} title="No results yet" actions={<><Button variant="primary" size="sm">Start a test</Button><Button size="sm">Import JSON</Button></>}>Results are stored only in this browser.</EmptyState></div><div className="card" style={{flex:1}}><SkeletonRows rows={4} /></div></div>
 </div>; }
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);

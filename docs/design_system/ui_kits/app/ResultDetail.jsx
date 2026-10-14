@@ -7,13 +7,15 @@
  *   includeLabel: boolean  (default false)
  *   demo: "none" | "deleted" | "clipboard-denied"  (default "none")
  *   overhead: "0" | "6" | "5.13" | "3.69" | "8.1"  (default "0") — overhead compensation preset (§9.3)
+ *   browser: "Firefox" | "Chrome" | "Safari" | "Edge"  (default "Firefox") — browser family of the run
+ *   uploadPauses: boolean  (default false) — the engine saw the browser pause between upload requests (idle share > 20 %)
  */
 class ResultDetail extends React.Component {
   state = { views: null, inc: null, clipDenied: null, toast: null, del: null, delN: 8, paramsOpen: false, note: null };
   preRef = React.createRef();
-  componentDidMount() { if (!window.BG) { this._h = () => this.forceUpdate(); window.addEventListener('bg-lib-ready', this._h); } this._sel(); }
+  componentDidMount() { this._sel(); }
   componentDidUpdate() { this._sel(); }
-  componentWillUnmount() { if (this._h) window.removeEventListener('bg-lib-ready', this._h); clearTimeout(this._tt); clearInterval(this._di); }
+  componentWillUnmount() { clearTimeout(this._tt); clearInterval(this._di); }
   on(v) { return !!v && v !== 'false'; }
   denied() { return this.state.clipDenied ?? (this.props.demo === 'clipboard-denied'); }
   // Clipboard fallback: select the summary text so the user can copy it by hand.
@@ -31,17 +33,18 @@ class ResultDetail extends React.Component {
     const notFound = st === 'not-found' || delSt === 'done';
     const inc = this.state.inc ?? on(this.props.includeLabel);
     const denied = this.denied();
-    const L = m ? { pad: '14px 16px 24px', h1: 'var(--text-3xl)', cols: 'minmax(0,1fr)', tileCols: 'repeat(2, minmax(0,1fr))', tileGap: '10px', tileNum: '24px', midCols: 'minmax(0,1fr)', chartCols: 'minmax(0,1fr)', confCols: 'minmax(0,1fr)', nfMargin: '40px auto' }
-      : { pad: '20px 40px 48px', h1: 'var(--text-4xl)', cols: 'minmax(0,1fr) 352px', tileCols: 'repeat(4, minmax(0,1fr))', tileGap: '12px', tileNum: '28px', midCols: 'minmax(0,1.4fr) minmax(0,1fr)', chartCols: 'repeat(2, minmax(0,1fr))', confCols: 'repeat(2, minmax(0,1fr))', nfMargin: '96px auto' };
+    const L = m ? { pad: 'var(--space-3-5) var(--space-4) var(--space-6)', h1: 'var(--text-3xl)', cols: 'minmax(0,1fr)', tileCols: 'repeat(2, minmax(0,1fr))', tileGap: 'var(--space-2-5)', tileNum: '24px', midCols: 'minmax(0,1fr)', chartCols: 'minmax(0,1fr)', confCols: 'minmax(0,1fr)', nfMargin: '40px auto' }
+      : { pad: 'var(--space-5) var(--space-10) var(--space-12)', h1: 'var(--text-4xl)', cols: 'minmax(0,1fr) 352px', tileCols: 'repeat(4, minmax(0,1fr))', tileGap: 'var(--space-3)', tileNum: '28px', midCols: 'minmax(0,1.4fr) minmax(0,1fr)', chartCols: 'repeat(2, minmax(0,1fr))', confCols: 'repeat(2, minmax(0,1fr))', nfMargin: '96px auto' };
 
-    // bg-lib formatting: 3 significant digits with an auto-scaled unit; latency/jitter one decimal below 10 ms.
+    // DS.Format (via fixtures.js): 3 significant digits with an auto-scaled unit; latency/jitter one decimal below 10 ms.
     const BGF = window.BG || { rate: v => ({ n: String(Math.round(v / 1e6)), u: 'Mbit/s' }), rateStr: v => Math.round(v / 1e6) + ' Mbit/s', jit: v => v < 9.95 ? v.toFixed(1) : String(Math.round(v)), ms: v => v < 9.95 ? v.toFixed(1) : String(Math.round(v)) };
     const rn = v => v == null ? '—' : BGF.rate(v, 'bits').n, ru = v => v == null ? '' : BGF.rate(v, 'bits').u, rs = v => v == null ? '—' : BGF.rateStr(v, 'bits');
     const jit = v => BGF.jit(v);
     const med = a => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y), h = s.length >> 1; return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; };
     const mmss = s => Math.floor(s / 60) + ':' + String(Math.round(s % 60)).padStart(2, '0');
     const T = { ok: 'var(--ok)', warn: 'var(--warn)', danger: 'var(--danger)', info: 'var(--info)', neutral: 'var(--fg-subtle)' };
-    const it = (tone, icon, title, body) => ({ c: T[tone], icon, title, body });
+    const it = (tone, icon, title, body, link) => ({ c: T[tone], icon, title, body, link: link || null });
+    const BRW = { Chrome: { name: 'Chrome', major: 130, os: 'Linux' }, Safari: { name: 'Safari', major: 18, os: 'macOS' }, Edge: { name: 'Edge', major: 130, os: 'Windows' } }[this.props.browser] || { name: 'Firefox', major: 131, os: 'Linux' }, PAUSES = on(this.props.uploadPauses);
 
     // Overhead compensation (§9.3): 0 % in the example. A preset multiplies every rate and is named next to each one.
     const OHP = parseFloat(this.props.overhead) || 0, OHF = 1 + OHP / 100, OH = OHP ? '+' + OHP + ' % overhead compensation' : '';
@@ -101,7 +104,7 @@ class ResultDetail extends React.Component {
       'Server: ' + D.server
     ]).join('\n');
 
-    // Quality scores: the same AIM function as the Test screen (bg-lib). Standard: Good/Good/Good (55/25/35 points);
+    // Quality scores: the same AIM function as the Test screen (fixtures.js). Standard: Good/Good/Good (55/25/35 points);
     // Continuous (download +15 ms): Great/Great/Great (60/30/40).
     const SC = BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
     const tiles = [
@@ -119,6 +122,9 @@ class ResultDetail extends React.Component {
     const conf = { label: 'Confidence: normal', tone: 'ok' };
     const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.');
     const N_RESP = it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.');
+    // Browser upload limit: any browser that paused between upload requests; always Firefox at ≥ 100 Mbit/s upload.
+    const BUL = !cont && (PAUSES || (BRW.name === 'Firefox' && D.up >= 100e6));
+    const N_BUL = BUL ? [it('info', 'globe', BRW.name + ' may limit the upload', 'On fast links ' + BRW.name + '’s own upload path, not the network, can bound the upload number; the measurement is the server’s and stands. Compare with another browser on this device to tell the two apart.', { label: 'Known browser limits', href: '#' })] : [];
     const N_OH = OH ? [it('neutral', 'sliders', OH, 'Throughput is multiplied by ' + OHF.toFixed(OHP % 1 ? 4 : 2).replace(/0+$/, '') + '. The uncompensated values are kept in the JSON.')] : [];
     const confGroups = cont ? [
       { h: 'Confidence', items: [
@@ -133,13 +139,13 @@ class ResultDetail extends React.Component {
       { h: 'Confidence', items: [
         it('ok', 'circle-check', 'Both directions reached the 6-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 9.5 s (each upload ramp step waits for confirmation) — and the window condition held. Level: normal.'),
         it('info', 'info', '94 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 10.4–10.8 s is left out; the average uses known time only.')
-      ] },
+      ].concat(N_BUL) },
       { h: 'Notices', items: [N_LOSS, N_RESP].concat(N_OH) }
     ];
 
     const OHV = OH ? '+' + OHP + ' %' : 'None · 0 %';
     const P = (h, rows) => ({ h, rows: rows.map(([k, v]) => ({ k, v })) });
-    const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', 'Firefox 131 · Linux'], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
+    const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', BRW.name + ' ' + BRW.major + ' · ' + BRW.os], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
     const params = cont ? [
       P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · 6 · plateau: cap']]),
       P('Limits', [['Run length', '2 h'], ['Stored cells', '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]),
@@ -219,7 +225,7 @@ class ResultDetail extends React.Component {
           schema: 'bitgauge.result', schemaVersion: 1, id: cont ? 'c41e9a07-5d2b-4f7e-9a31-6b0d2e8f4c15' : '0b6f2d18-9c4a-4e1b-8f37-2a5c6d9e0f41',
           startedAt: D.iso, durationMs: cont ? Math.round((0.6 + 2.0 + CEND) * 1000) : 28600, status: 'complete', label: D.label, note: this.state.note ?? D.note,
           server: { name: D.server, version: '1.4.0', epoch: '2026-09-30T08:12:44.000Z' },
-          client: { ip: '192.168.1.42', contextLabel: D.ctx, protocol: 'h2', browser: { name: 'Firefox', major: 131, os: 'Linux' } },
+          client: { ip: '192.168.1.42', contextLabel: D.ctx, protocol: 'h2', browser: { name: BRW.name, major: BRW.major, os: BRW.os } },
           settings: { preset: D.preset.toLowerCase(), phases: cont ? ['idle', 'download'] : ['idle', 'download', 'upload'], streams: { mode: 'auto', max: 6 }, dataCapBytes: null, overheadCompensationPercent: OHP, warmup: 'auto', pingCount: 20 },
           idle: { path: 'websocket', lossPercent: 0, minMs: 2.4, medianMs: IDLE, p90Ms: 4.1, jitterMs: JIT, samples: idleS },
           download: cont
@@ -230,7 +236,7 @@ class ResultDetail extends React.Component {
           bufferbloat: { grade, basis: cont ? 'download' : 'download+upload', increaseMs: D.worst[1] },
           scores,
           dataUsedBytes: cont ? cUsedB : SUSED.down + SUSED.up,
-          notices: (cont ? [1e9, 1e10, 1e11].map(v => ({ code: 'data-used', bytes: v })) : []).concat(OHP ? [{ code: 'overhead-compensation', percent: OHP }] : [])
+          notices: (cont ? [1e9, 1e10, 1e11].map(v => ({ code: 'data-used', bytes: v })) : []).concat(BUL ? [{ code: 'browser-upload-limit', browser: BRW.name }] : []).concat(OHP ? [{ code: 'overhead-compensation', percent: OHP }] : [])
         };
         // History export format with one entry (ui/screens.md §1), so it re-imports as is.
         const obj = { format: 'bitgauge.history', formatVersion: 1, exportedAt: new Date().toISOString(), results: [result] };
@@ -242,7 +248,7 @@ class ResultDetail extends React.Component {
 
     // ---------- charts ----------
     const EV = {
-      extended: { icon: 'timer', c: 'var(--info)', fg: 'var(--info-fg)', bd: 'var(--info-border)', t: 'Slow link — test extended' },
+      extended: { icon: 'timer', c: 'var(--info)', fg: 'var(--info-fg)', bd: 'var(--info-border)', t: 'Test extended' },
       cap: { icon: 'database', c: 'var(--warn)', fg: 'var(--warn-fg)', bd: 'var(--warn-border)', t: 'Data cap' },
       cancelled: { icon: 'square', c: 'var(--fg-muted)', fg: 'var(--fg-muted)', bd: 'var(--border-strong)', t: 'Cancelled' },
       error: { icon: 'circle-x', c: 'var(--danger)', fg: 'var(--danger-fg)', bd: 'var(--danger-border)', t: 'Error' }
@@ -280,8 +286,12 @@ class ResultDetail extends React.Component {
         return Object.assign({ x: x.toFixed(1), lx: (left ? x - 4 : x + 4).toFixed(1), ly: g.plotT + 2 + row * 18, tf: left ? 'translateX(-100%)' : 'none' }, e);
       });
       const v = view(o.key), tbl = v === 'table';
+      const pc = { title: o.title, icon: o.icon, color: o.c, meta: o.meta, pts: o.pts, lat: o.lat, xMax: o.xMax, ms: o.ms, xStep: o.xStep, xLabel: o.xLabel, width: o.w, height: o.h, units: 'bits',
+        warmup: o.wu != null ? { t1: o.wu, label: 'Warm-up · not stored (' + o.wuText + ')' } : null, marks: (o.marks || []).map(([t, type]) => Object.assign({}, EV[type], { t, label: EV[type].t })), gapLabel: o.gapLabel || 'No known data',
+        summary: o.title + (o.meta ? ': ' + o.meta : '') + (o.wu != null ? '; warm-up excluded' : '') + (o.marks && o.marks.length ? '; events: ' + o.marks.map(q => EV[q[1]].t + ' at ' + (o.xLabel ? mmss(q[0]) : q[0] + ' s')).join(', ') : ''),
+        view: v, onViewChange: nv => this.setState(s => ({ views: Object.assign({}, s.views || {}, { [o.key]: nv }) })) };
       return {
-        title: o.title, icon: o.icon, c: o.c, meta: o.meta, span: o.span, g, segs, gaps, marks, hasGaps: gaps.length > 0, gapLabel: o.gapLabel || 'No known data',
+        pc, title: o.title, icon: o.icon, c: o.c, meta: o.meta, span: o.span, g, segs, gaps, marks, hasGaps: gaps.length > 0, gapLabel: o.gapLabel || 'No known data',
         latSegs: o.lat ? split(o.lat).map(s => path(s, LY)) : [],
         wu: o.wu != null ? { x: g.plotL, y: g.plotT, w: Math.max(2, X(o.wu) - g.plotL).toFixed(1), h: H } : null, wuLabel: o.wu != null ? 'Warm-up · not stored (' + o.wuText + ')' : '',
         aria: o.title + ' chart' + (o.marks && o.marks.length ? '; events: ' + o.marks.map(q => EV[q[1]].t + ' at ' + (o.xLabel ? mmss(q[0]) : q[0] + ' s')).join(', ') : ''),
@@ -350,56 +360,48 @@ class ResultDetail extends React.Component {
           <Nav variant="mobile-top" active="history" status={this.props.srvStatus || "connected"} />
         ) : null}
         {v.notFound ? (
-          <main style={{ flex: "1", maxWidth: "1200px", width: "100%", boxSizing: "border-box", margin: "0 auto", padding: v.L?.pad, display: "flex", justifyContent: "center" }}>
-            <div role="status" style={{ maxWidth: "440px", margin: v.L?.nfMargin, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "12px" }}>
+          <main style={{ flex: "1", maxWidth: "var(--layout-max)", width: "100%", boxSizing: "border-box", margin: "0 auto", padding: v.L?.pad, display: "flex", justifyContent: "center" }}>
+            <div role="status" style={{ maxWidth: "440px", margin: v.L?.nfMargin, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "var(--space-3)" }}>
               <span style={{ width: "48px", height: "48px", borderRadius: "var(--radius-lg)", background: "var(--surface-2)", border: "1px solid var(--border-default)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--fg-subtle)" }}>
-                <bg-icon name={v.nf?.icon} size="22" />
+                <DS.Icon name={v.nf?.icon} size={22} />
               </span>
-              <h1 style={{ margin: "4px 0 0", fontSize: "var(--text-2xl)", fontWeight: "600", letterSpacing: "var(--tracking-tight)" }}>{v.nf?.title}</h1>
-              <p style={{ margin: "0", fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "1.55", textWrap: "pretty" }}>{v.nf?.body}</p>
-              <a className="btn primary" href="#" style={{ marginTop: "8px", textDecoration: "none" }}><bg-icon name="history" size="15" />Go to History</a>
+              <h1 style={{ margin: "var(--space-1) 0 0", fontSize: "var(--text-2xl)", fontWeight: "var(--weight-semibold)", letterSpacing: "var(--tracking-tight)" }}>{v.nf?.title}</h1>
+              <p style={{ margin: "0", fontSize: "var(--text-sm)", color: "var(--fg-muted)", lineHeight: "var(--lh-prose)", textWrap: "pretty" }}>{v.nf?.body}</p>
+              <DS.Button variant="primary" href="#" icon="history" style={{ marginTop: "var(--space-2)" }}>Go to History</DS.Button>
             </div>
           </main>
         ) : null}
         {v.found ? (
-          <main style={{ maxWidth: "1200px", width: "100%", boxSizing: "border-box", margin: "0 auto", padding: v.L?.pad, display: "flex", flexDirection: "column", gap: "20px", opacity: v.dimOp, transition: "opacity var(--dur-base) var(--ease-out)" }}>
-            <nav aria-label="Breadcrumb" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--text-sm)", color: "var(--fg-subtle)" }}>
-              <a href="#" style={{ color: "var(--fg-muted)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }}>
-                <bg-icon name="chevron-left" size="14" />
+          <main style={{ maxWidth: "var(--layout-max)", width: "100%", boxSizing: "border-box", margin: "0 auto", padding: v.L?.pad, display: "flex", flexDirection: "column", gap: "var(--space-5)", opacity: v.dimOp, transition: "opacity var(--dur-base) var(--ease-out)" }}>
+            <nav aria-label="Breadcrumb" style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)", fontSize: "var(--text-sm)", color: "var(--fg-subtle)" }}>
+              <a href="#" style={{ color: "var(--fg-muted)", textDecoration: "none", display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
+                <DS.Icon name="chevron-left" size={14} />
                 History
               </a>
               <span>/</span>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)" }}>{v.D?.crumb}</span>
             </nav>
             {v.hu ? (
-              <div role="status" style={{ display: "flex", gap: "12px", padding: "12px 14px", borderRadius: "var(--radius-md)", border: "1px solid var(--warn-border)", background: "var(--warn-bg)" }}>
-                <span style={{ color: "var(--warn)", display: "flex", marginTop: "1px" }}><bg-icon name="database" size="16" stroke="2" /></span>
-                <div style={{ flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>History unavailable</span>
-                  <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-muted)", lineHeight: "1.5", textWrap: "pretty" }}>
-                    This browser is blocking storage, so results can't be saved. You're seeing this session's result from memory; it's gone when you close the tab. Download JSON to keep it.
-                  </span>
-                </div>
-              </div>
+              <DS.Notice tone="warn" icon="database" title="History unavailable" live={false}>
+                This browser is blocking storage, so results can't be saved. You're seeing this session's result from memory; it's gone when you close the tab. Download JSON to keep it.
+              </DS.Notice>
             ) : null}
-            <header style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "16px 24px" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", minWidth: "0", flex: "1 1 360px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <h1 style={{ margin: "0", fontSize: v.L?.h1, fontWeight: "600", letterSpacing: "var(--tracking-tight)", lineHeight: "1.15" }}>{v.D?.label}</h1>
+            <header style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "var(--space-4) var(--space-6)" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", minWidth: "0", flex: "1 1 360px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                  <h1 style={{ margin: "0", fontSize: v.L?.h1, fontWeight: "var(--weight-semibold)", letterSpacing: "var(--tracking-tight)", lineHeight: "var(--lh-tight)" }}>{v.D?.label}</h1>
                   {v.canEdit ? (
-                    <button className="btn ghost icon sm" aria-label="Edit label" style={{ width: "28px" }}><bg-icon name="pencil" size="14" /></button>
+                    <DS.Button variant="ghost" size="sm" iconOnly icon="pencil" aria-label="Edit label" style={{ width: "28px" }}></DS.Button>
                   ) : null}
                   {v.hu ? (
                     <span className="has-tip">
-                      <button className="btn ghost icon sm" aria-label="Edit label" aria-disabled="true" aria-describedby="tip-label" style={{ width: "28px", opacity: "0.45" }}>
-                        <bg-icon name="pencil" size="14" />
-                      </button>
+                      <DS.Button variant="ghost" size="sm" iconOnly icon="pencil" aria-label="Edit label" aria-disabled="true" aria-describedby="tip-label" style={{ width: "28px", opacity: "0.45" }}></DS.Button>
                       <span className="tip" role="tooltip" id="tip-label">History unavailable · labels can't be saved</span>
                     </span>
                   ) : null}
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 12px", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
-                  <span className="pill neutral" style={{ gap: "5px", color: "var(--fg)" }}><bg-icon name={v.D?.ctxIcon} size="12" stroke="2" />{v.D?.ctx}</span>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2) var(--space-3)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+                  <DS.Chip size="sm" icon={v.D?.ctxIcon}>{v.D?.ctx}</DS.Chip>
                   <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)" }} title={v.D?.abs}>{v.D?.when}</span>
                   <span style={{ color: "var(--fg-subtle)" }}>·</span>
                   <span>{v.D?.preset}{" preset"}</span>
@@ -407,159 +409,58 @@ class ResultDetail extends React.Component {
                   <span>{v.D?.server}</span>
                 </div>
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
-                <button className="btn secondary" onClick={v.dlJson} aria-describedby="json-warn"><bg-icon name="file-json" size="15" />Download JSON</button>
-                <button className="btn primary"><bg-icon name="rotate-ccw" size="15" />Run again</button>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)", alignItems: "center" }}>
+                <DS.Button variant="secondary" icon="file-json" onClick={v.dlJson} aria-describedby="json-warn">Download JSON</DS.Button>
+                <DS.Button variant="primary" icon="rotate-ccw">Run again</DS.Button>
                 {v.canEdit ? (
-                  <button className="btn danger icon" aria-label="Delete result" title="Delete result" onClick={v.del}><bg-icon name="trash" size="15" /></button>
+                  <DS.Button variant="danger" iconOnly icon="trash" aria-label="Delete result" title="Delete result" onClick={v.del}></DS.Button>
                 ) : null}
                 {v.hu ? (
                   <span className="has-tip tip-end">
-                    <button className="btn danger icon" aria-label="Delete result" aria-disabled="true" aria-describedby="tip-del" style={{ opacity: "0.45" }}>
-                      <bg-icon name="trash" size="15" />
-                    </button>
+                    <DS.Button variant="danger" iconOnly icon="trash" aria-label="Delete result" aria-disabled="true" aria-describedby="tip-del" style={{ opacity: "0.45" }}></DS.Button>
                     <span className="tip" role="tooltip" id="tip-del">History unavailable · nothing saved to delete</span>
                   </span>
                 ) : null}
                 <span id="json-warn" style={{ flexBasis: "100%", display: "flex", alignItems: "center", gap: "5px", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>
-                  <span style={{ color: "var(--warn)", display: "flex" }}><bg-icon name="triangle-alert" size="12" stroke="2" /></span>
+                  <span style={{ color: "var(--warn)", display: "flex" }}><DS.Icon name="triangle-alert" size={12} stroke={2} /></span>
                   JSON contains client IP and notes
                 </span>
               </div>
             </header>
-            <div style={{ display: "grid", gridTemplateColumns: v.L?.cols, gap: "24px", alignItems: "start" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: "0" }}>
+            <div style={{ display: "grid", gridTemplateColumns: v.L?.cols, gap: "var(--space-6)", alignItems: "start" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", minWidth: "0" }}>
                 <div style={{ display: "grid", gridTemplateColumns: v.L?.tileCols, gap: v.L?.tileGap }}>
                   {(v.tiles || []).map((t, $index) => (
                     <React.Fragment key={$index}>
-                      <div className="card" style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "6px", boxShadow: "inset 0 1px 0 var(--card-highlight)" }}>
-                        <span style={{ display: "flex", alignItems: "center", gap: "6px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
-                          <span style={{ color: t?.ic, display: "flex" }}><bg-icon name={t?.icon} size="14" stroke="2" /></span>
-                          {t?.label}
-                        </span>
-                        <span style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
-                          <span style={{ fontFamily: "var(--font-mono)", fontWeight: "500", fontSize: v.L?.tileNum, letterSpacing: "-0.02em", lineHeight: "1.1", color: t?.nc }}>
-                            {t?.num}
-                          </span>
-                          <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>{t?.unit}</span>
-                        </span>
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>{t?.sub}</span>
-                      </div>
+                      <DS.MetricTile label={t?.label} icon={t?.icon} accent={t?.ic} value={t?.num === '—' ? undefined : t?.num} unit={t?.unit} note={t?.sub} notes={t?.notes} state={t?.num === '—' ? 'empty' : 'done'} compact={v.mobile} />
                     </React.Fragment>
                   ))}
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: v.L?.midCols, gap: "12px" }}>
-                  <div className="card" style={{ padding: "14px 16px", display: "flex", flexWrap: "wrap", gap: "16px", boxShadow: "inset 0 1px 0 var(--card-highlight)" }}>
-                    <div style={{ flex: "1 0 150px", maxWidth: "220px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                      <span style={{ fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
-                        Bufferbloat
-                      </span>
-                      <span role="img" aria-label={v.gradeAria} title={v.gradeAria} style={{ width: "52px", height: "52px", boxSizing: "border-box", borderRadius: "var(--radius-lg)", border: `1px solid ${v.gBd ?? ""}`, background: v.gBg, color: v.gFg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-mono)", fontWeight: "600", fontSize: "24px" }}>
-                        {v.grade}
-                      </span>
-                      <span style={{ fontSize: "var(--text-sm)", fontWeight: "500" }}>{v.gradeWords}</span>
-                      <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-muted)", lineHeight: "1.45", textWrap: "pretty" }}>{v.gradeBasis}</span>
-                    </div>
-                    <div style={{ flex: "999 1 260px", minWidth: "0", display: "flex", flexDirection: "column" }}>
-                      {(v.loadRows || []).map((r, $index) => (
-                        <React.Fragment key={$index}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 0", borderBottom: "1px solid var(--border-subtle)" }}>
-                            <span style={{ color: r?.ic, display: "flex" }}><bg-icon name={r?.icon} size="14" stroke="2" /></span>
-                            <span style={{ flex: "1", display: "flex", flexDirection: "column" }}>
-                              <span style={{ fontSize: "var(--text-sm)" }}>{r?.label}</span>
-                              <span style={{ fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>{r?.sub}</span>
-                            </span>
-                            <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-lg)", fontWeight: "500", whiteSpace: "nowrap" }}>
-                              {r?.num}{" "}
-                              <span style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-caption)", color: "var(--fg-muted)", fontWeight: "400" }}>{r?.unit}</span>
-                            </span>
-                          </div>
-                        </React.Fragment>
-                      ))}
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px", paddingTop: "10px" }}>
-                        <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
-                          <span style={{ color: "var(--fg-subtle)", display: "flex", marginTop: "2px" }}><bg-icon name="gauge" size="14" stroke="2" /></span>
-                          <div style={{ flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
-                            <span style={{ fontSize: "var(--text-sm)", lineHeight: "1.4", textWrap: "pretty" }}>
-                              HTTP loaded responsiveness — connection sharing not verifiable
-                            </span>
-                            <span style={{ fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>{v.rpmSub}</span>
-                          </div>
-                          <span style={{ flex: "none", fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-muted)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)", padding: "1px 6px", whiteSpace: "nowrap" }}>
-                            h2
-                          </span>
-                        </div>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px", paddingLeft: "24px" }}>
-                          {(v.rpm || []).map((rd, $index) => (
-                            <React.Fragment key={$index}>
-                              <div style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: "0" }}>
-                                <span style={{ color: rd?.ic, display: "flex" }}><bg-icon name={rd?.icon} size="12" stroke="2.25" /></span>
-                                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-lg)", fontWeight: "500", whiteSpace: "nowrap" }}>
-                                  {rd?.num}{" "}
-                                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-caption)", color: "var(--fg-muted)", fontWeight: "400" }}>RPM</span>
-                                </span>
-                              </div>
-                            </React.Fragment>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="card" style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "2px", boxShadow: "inset 0 1px 0 var(--card-highlight)" }}>
-                    <span style={{ fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)", marginBottom: "4px" }}>
-                      Good for
-                    </span>
-                    {(v.fit || []).map((f, $index) => (
-                      <React.Fragment key={$index}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px", minHeight: "38px", borderBottom: "1px solid var(--border-subtle)" }}>
-                          <span style={{ color: "var(--fg-subtle)", display: "flex" }}><bg-icon name={f?.icon} size="16" /></span>
-                          <span style={{ fontSize: "var(--text-sm)", flex: "1" }}>{f?.label}</span>
-                          <span className={f?.cls}><bg-icon name={f?.ricon} size="13" stroke="2" />{f?.rating}</span>
-                        </div>
-                      </React.Fragment>
-                    ))}
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", minHeight: "38px" }}>
-                      <span style={{ color: "var(--fg-subtle)", display: "flex" }}><bg-icon name="signal" size="16" /></span>
-                      <span style={{ fontSize: "var(--text-sm)", flex: "1" }}>Packet loss</span>
-                      <span style={{ display: "flex", alignItems: "center", gap: "8px", flex: "none" }}>
-                        <span title="Browsers can't see packet loss over TCP" style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "var(--text-caption)", color: "var(--fg-subtle)", border: "1px dashed var(--border-strong)", borderRadius: "var(--radius-full)", padding: "2px 8px", whiteSpace: "nowrap" }}>
-                          <bg-icon name="circle-dashed" size="12" />
-                          Not measured
-                        </span>
-                        <a href="#" title="Browsers can't see packet loss over TCP" style={{ fontSize: "var(--text-caption)", fontWeight: "600", color: "var(--primary-text)", textDecoration: "none" }}>
-                          Why?
-                        </a>
-                      </span>
-                    </div>
-                    <span style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px", fontSize: "var(--text-micro)", color: "var(--fg-subtle)", lineHeight: "1.4" }}>
-                      <bg-icon name="info" size="12" />
-                      Upper bound: packet loss is not measured
-                    </span>
-                  </div>
+                <div style={{ display: "grid", gridTemplateColumns: v.L?.midCols, gap: "var(--space-3)" }}>
+                  <DS.LoadCard grade={v.grade} gradeText={v.gradeWords + (v.gradeBasis ? ' · ' + v.gradeBasis : '')} compact={v.mobile}
+                    rows={(v.loadRows || []).map(r => ({ dir: r.icon === 'arrow-up' ? 'upload' : 'download', label: r.label, sub: r.sub, value: r.num }))}
+                    responsiveness={{ protocol: 'h2', note: v.rpmSub, dirs: (v.rpm || []).map(d => ({ dir: d.icon === 'arrow-up' ? 'upload' : 'download', value: d.num })) }} />
+                  <DS.QualityList packetLoss compact={v.mobile} bands={(v.fit || []).map(f => f.rating || null)} />
                 </div>
-                <section className="card" style={{ overflow: "hidden", boxShadow: "inset 0 1px 0 var(--card-highlight)" }} aria-labelledby="conf-h">
-                  <div className="card-h">
-                    <bg-icon name="shield" size="15" />
-                    <span className="t" id="conf-h">Confidence and notices</span>
-                    <span className="right" style={{ marginLeft: "auto" }}>
-                      <span className={`pill ${v.conf?.tone ?? ""}`}><span className="d" />{v.conf?.label}</span>
-                    </span>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: v.L?.confCols, gap: "0 24px", padding: "4px 16px 8px" }}>
+                <DS.Card as="section" labelledBy="conf-h" padded={false} icon="shield" title={<span id="conf-h">Confidence and notices</span>} actions={<><DS.StatusPill tone={v.conf?.tone}>{v.conf?.label}</DS.StatusPill></>}>
+                  <div style={{ display: "grid", gridTemplateColumns: v.L?.confCols, gap: "0 var(--space-6)", padding: "var(--space-1) var(--space-4) var(--space-2)" }}>
                     {(v.confGroups || []).map((cg, $index) => (
                       <React.Fragment key={$index}>
                         <div style={{ display: "flex", flexDirection: "column", minWidth: "0" }}>
-                          <span style={{ padding: "10px 0 4px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+                          <span style={{ padding: "var(--space-2-5) 0 var(--space-1)", fontFamily: "var(--font-cond)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-micro)", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
                             {cg?.h}
                           </span>
                           <ul style={{ listStyle: "none", margin: "0", padding: "0" }}>
                             {(cg?.items || []).map((n, $index) => (
                               <React.Fragment key={$index}>
-                                <li style={{ display: "flex", gap: "10px", padding: "9px 0", borderTop: "1px solid var(--border-subtle)" }}>
-                                  <span style={{ color: n?.c, display: "flex", marginTop: "2px" }}><bg-icon name={n?.icon} size="15" stroke="2" /></span>
-                                  <div style={{ flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
-                                    <span style={{ fontSize: "var(--text-sm)", fontWeight: "500", lineHeight: "1.4" }}>{n?.title}</span>
-                                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-muted)", lineHeight: "1.45", textWrap: "pretty" }}>{n?.body}</span>
+                                <li style={{ display: "flex", gap: "var(--space-2-5)", padding: "9px 0", borderTop: "1px solid var(--border-subtle)" }}>
+                                  <span style={{ color: n?.c, display: "flex", marginTop: "var(--space-0-5)" }}><DS.Icon name={n?.icon} size={15} stroke={2} /></span>
+                                  <div style={{ flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "var(--space-0-5)" }}>
+                                    <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)", lineHeight: "var(--lh-compact)" }}>{n?.title}</span>
+                                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-muted)", lineHeight: "var(--lh-compact)", textWrap: "pretty" }}>{n?.body}</span>
+                                    {n?.link ? (
+                                      <a href={n?.link?.href} style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: "var(--space-1)", marginTop: "var(--space-0-5)", fontSize: "var(--text-caption)", fontWeight: "var(--weight-semibold)", color: "var(--primary-text)", textDecoration: "none" }}>{n?.link?.label}<DS.Icon name="external-link" size={12} /></a>
+                                    ) : null}
                                   </div>
                                 </li>
                               </React.Fragment>
@@ -569,116 +470,11 @@ class ResultDetail extends React.Component {
                       </React.Fragment>
                     ))}
                   </div>
-                </section>
-                <div style={{ display: "grid", gridTemplateColumns: v.L?.chartCols, gap: "12px" }}>
+                </DS.Card>
+                <div style={{ display: "grid", gridTemplateColumns: v.L?.chartCols, gap: "var(--space-3)" }}>
                   {(v.charts || []).map((k, $index) => (
                     <React.Fragment key={$index}>
-                      <section className="card" style={{ gridColumn: k?.span, padding: "14px 16px 12px", display: "flex", flexDirection: "column", gap: "10px", minWidth: "0", boxShadow: "inset 0 1px 0 var(--card-highlight)" }}>
-                        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 14px" }}>
-                          <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--text-sm)", fontWeight: "600" }}>
-                            <span style={{ color: k?.c, display: "flex" }}><bg-icon name={k?.icon} size="14" stroke="2" /></span>
-                            {k?.title}
-                          </span>
-                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>{k?.meta}</span>
-                          {k?.c2 ? (
-                            <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--text-caption)", color: "var(--fg-muted)" }}>
-                              <span style={{ width: "14px", borderTop: "2px dashed var(--series-latency)" }} />
-                              Latency under load
-                            </span>
-                          ) : null}
-                          <div className="seg" role="radiogroup" aria-label={`${k?.title ?? ""} view`} style={{ marginLeft: k?.toggleML }}>
-                            <button className={k?.chartCls} role="radio" aria-checked={k?.chartAria} onClick={k?.toChart} style={{ height: "28px", padding: "0 10px", fontSize: "var(--text-caption)" }}>
-                              Chart
-                            </button>
-                            <button className={k?.tableCls} role="radio" aria-checked={k?.tableAria} onClick={k?.toTable} style={{ height: "28px", padding: "0 10px", fontSize: "var(--text-caption)" }}>
-                              Table
-                            </button>
-                          </div>
-                        </div>
-                        {k?.isChart ? (
-                          <>
-                            <div style={{ position: "relative", alignSelf: "flex-start" }}>
-                            <svg width={k?.g?.w} height={k?.g?.h} style={{ display: "block", overflow: "visible" }} role="img" aria-label={k?.aria}>
-                              {(k?.g?.grid || []).map((gl, $index) => (
-                                <React.Fragment key={$index}>
-                                  <line x1={gl?.x1} y1={gl?.y} x2={gl?.x2} y2={gl?.y} style={{ stroke: "var(--border-subtle)" }} />
-                                </React.Fragment>
-                              ))}
-                              {(k?.segs || []).map((sg, $index) => (
-                                <React.Fragment key={$index}>
-                                  <path d={sg?.area} style={{ fill: k?.c, fillOpacity: "0.1" }} />
-                                  <path d={sg?.line} style={{ fill: "none", stroke: k?.c, strokeWidth: "1.5", strokeLinejoin: "round" }} />
-                                </React.Fragment>
-                              ))}
-                              {(k?.latSegs || []).map((ls, $index) => (
-                                <React.Fragment key={$index}>
-                                  <path d={ls} style={{ fill: "none", stroke: "var(--series-latency)", strokeWidth: "1.25", strokeDasharray: "4 3" }} />
-                                </React.Fragment>
-                              ))}
-                              {(k?.marks || []).map((mk, $index) => (
-                                <React.Fragment key={$index}>
-                                  <line x1={mk?.x} y1={k?.g?.plotT} x2={mk?.x} y2={k?.g?.plotB} style={{ stroke: mk?.c, strokeWidth: "1.25", strokeDasharray: "3 3" }} />
-                                </React.Fragment>
-                              ))}
-                            </svg>
-                            <div aria-hidden="true" style={{ position: "absolute", inset: "0", pointerEvents: "none", fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--fg-subtle)" }}>
-                              {k?.wu ? (
-                                <span style={{ position: "absolute", left: `${k?.wu?.x ?? ""}px`, top: `${k?.wu?.y ?? ""}px`, width: `${k?.wu?.w ?? ""}px`, height: `${k?.wu?.h ?? ""}px`, boxSizing: "border-box", borderRight: "1px solid var(--chart-hatch)", background: "repeating-linear-gradient(135deg, var(--chart-hatch) 0 1px, transparent 1px 6px)" }} />
-                              ) : null}
-                              {(k?.gaps || []).map((gp, $index) => (
-                                <React.Fragment key={$index}>
-                                  <span style={{ position: "absolute", left: `${gp?.x ?? ""}px`, top: `${gp?.y ?? ""}px`, width: `${gp?.w ?? ""}px`, height: `${gp?.h ?? ""}px`, boxSizing: "border-box", borderLeft: "1px dashed var(--chart-hatch)", borderRight: "1px dashed var(--chart-hatch)" }} />
-                                </React.Fragment>
-                              ))}
-                              {(k?.g?.grid || []).map((gl, $index) => (
-                                <React.Fragment key={$index}>
-                                  <span style={{ position: "absolute", left: `${gl?.lx ?? ""}px`, top: `${gl?.ly ?? ""}px`, transform: "translate(-100%,-75%)", whiteSpace: "nowrap" }}>
-                                    {gl?.t}
-                                  </span>
-                                </React.Fragment>
-                              ))}
-                              {(k?.g?.xt || []).map((xt, $index) => (
-                                <React.Fragment key={$index}>
-                                  <span style={{ position: "absolute", left: `${xt?.x ?? ""}px`, top: `${xt?.y ?? ""}px`, transform: "translate(-50%,-75%)" }}>{xt?.t}</span>
-                                </React.Fragment>
-                              ))}
-                              {k?.g?.lat ? (
-                                <>
-                                  {(k?.g?.lat?.ticks || []).map((lt, $index) => (
-                                  <React.Fragment key={$index}>
-                                    <span style={{ position: "absolute", left: `${lt?.x ?? ""}px`, top: `${lt?.y ?? ""}px`, transform: "translateY(-75%)", whiteSpace: "nowrap", color: "var(--series-latency)" }}>
-                                      {lt?.t}
-                                    </span>
-                                  </React.Fragment>
-                                ))}
-                                </>
-                              ) : null}
-                              {(k?.marks || []).map((mk, $index) => (
-                                <React.Fragment key={$index}>
-                                  <span style={{ position: "absolute", left: `${mk?.lx ?? ""}px`, top: `${mk?.ly ?? ""}px`, transform: mk?.tf, display: "flex", alignItems: "center", gap: "3px", padding: "1px 5px", borderRadius: "var(--radius-xs)", background: "var(--surface-2)", border: `1px solid ${mk?.bd ?? ""}`, color: mk?.fg, fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: "600", whiteSpace: "nowrap" }}>
-                                    <bg-icon name={mk?.icon} size="10" stroke="2.25" />
-                                    {mk?.t}
-                                  </span>
-                                </React.Fragment>
-                              ))}
-                            </div>
-                          </div>
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>
-                            {k?.wu ? (
-                              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                <span style={{ width: "14px", height: "10px", boxSizing: "border-box", borderRight: "1px solid var(--chart-hatch)", background: "repeating-linear-gradient(135deg, var(--chart-hatch) 0 1px, transparent 1px 4px)" }} />
-                                {k?.wuLabel}
-                              </span>
-                            ) : null}
-                            {k?.hasGaps ? (
-                              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                <span style={{ width: "12px", height: "10px", boxSizing: "border-box", borderLeft: "1px dashed var(--chart-hatch)", borderRight: "1px dashed var(--chart-hatch)" }} />
-                                {k?.gapLabel}
-                              </span>
-                            ) : null}
-                          </div>
-                          </>
-                        ) : null}
+                      <DS.PhaseChart {...k.pc} style={{ gridColumn: k?.span }}>
                         {k?.isTable ? (
                           <>
                             <div style={{ maxHeight: k?.tblMaxH, overflow: "auto", margin: "0 -4px" }}>
@@ -709,23 +505,23 @@ class ResultDetail extends React.Component {
                               </tbody>
                             </table>
                           </div>
-                            <span style={{ fontSize: "var(--text-micro)", color: "var(--fg-subtle)", lineHeight: "1.5", textWrap: "pretty" }}>{k?.foot}</span>
+                            <span style={{ fontSize: "var(--text-micro)", color: "var(--fg-subtle)", lineHeight: "var(--lh-normal)", textWrap: "pretty" }}>{k?.foot}</span>
                           </>
                         ) : null}
-                      </section>
+                      </DS.PhaseChart>
                     </React.Fragment>
                   ))}
                 </div>
               </div>
-              <aside style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: "0" }}>
-                <section className="card" style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <label htmlFor="note" style={{ display: "flex", alignItems: "center", gap: "6px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
-                    <bg-icon name="file-text" size="13" />
+              <aside style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", minWidth: "0" }}>
+                <DS.Card as="section" padded={false} style={{ padding: "var(--space-3-5) var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
+                  <label htmlFor="note" style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)", fontFamily: "var(--font-cond)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-micro)", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+                    <DS.Icon name="file-text" size={13} />
                     Note
                   </label>
                   {v.canEdit ? (
                     <>
-                      <textarea id="note" rows="3" onChange={v.setNote} value={v.note} style={{ resize: "vertical", background: "var(--surface-1)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-md)", color: "var(--fg)", fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)", lineHeight: "1.5", padding: "8px 10px" }} />
+                      <textarea id="note" rows="3" onChange={v.setNote} value={v.note} style={{ resize: "vertical", background: "var(--surface-1)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-md)", color: "var(--fg)", fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)", lineHeight: "var(--lh-normal)", padding: "var(--space-2) var(--space-2-5)" }} />
                       <span style={{ fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>
                       Saved automatically in this browser. Never included when you share.
                     </span>
@@ -733,66 +529,16 @@ class ResultDetail extends React.Component {
                   ) : null}
                   {v.hu ? (
                     <div className="has-tip" style={{ display: "flex", flexDirection: "column" }}>
-                      <textarea id="note" rows="3" readOnly={true} aria-disabled="true" aria-describedby="tip-note" placeholder="Add a note" style={{ resize: "none", cursor: "not-allowed", opacity: "0.45", background: "var(--surface-1)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-md)", color: "var(--fg)", fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)", lineHeight: "1.5", padding: "8px 10px" }} />
+                      <textarea id="note" rows="3" readOnly={true} aria-disabled="true" aria-describedby="tip-note" placeholder="Add a note" style={{ resize: "none", cursor: "not-allowed", opacity: "0.45", background: "var(--surface-1)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-md)", color: "var(--fg)", fontFamily: "var(--font-sans)", fontSize: "var(--text-sm)", lineHeight: "var(--lh-normal)", padding: "var(--space-2) var(--space-2-5)" }} />
                       <span className="tip" role="tooltip" id="tip-note">History unavailable · notes can't be saved</span>
                     </div>
                   ) : null}
-                </section>
-                <section className="card" style={{ overflow: "hidden" }}>
-                  <div className="card-h">
-                    <bg-icon name="image" size="15" />
-                    <span className="t">Share image</span>
-                    <span className="right" style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>
-                      1200 × 630 PNG
-                    </span>
-                  </div>
-                  <div style={{ padding: "14px", display: "flex", flexDirection: "column", gap: "12px" }}>
-                    <div data-theme="dark" role="img" aria-label={v.shareAria} style={{ aspectRatio: "1200/630", borderRadius: "var(--radius-md)", background: "var(--bg-base)", border: "1px solid var(--border-default)", padding: "12px 14px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "6px", color: "var(--fg)", boxSizing: "border-box" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", fontWeight: "600", minWidth: "0" }}>
-                        <bg-logo size="15" style={{ color: "var(--fg)" }} />
-                        <span style={{ letterSpacing: "var(--tracking-tight)" }}>
-                          Bit
-                          <span style={{ color: "var(--primary-text)", fontWeight: "var(--weight-semibold)" }}>Gauge</span>
-                        </span>
-                        <span style={{ marginLeft: "auto", display: "flex", gap: "5px", minWidth: "0", fontFamily: "var(--font-mono)", fontWeight: "400", fontSize: "9px", color: "var(--fg-subtle)", whiteSpace: "nowrap" }}>
-                          {v.inc ? (
-                            <span style={{ color: "var(--fg)", overflow: "hidden", textOverflow: "ellipsis" }}>{v.D?.label}</span>
-                          ) : null}
-                        </span>
-                      </div>
-                      <div style={{ display: "flex", gap: "16px", alignItems: "flex-end" }}>
-                        {(v.shareBlocks || []).map((b, $index) => (
-                          <React.Fragment key={$index}>
-                            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                              <span style={{ fontFamily: "var(--font-cond)", fontSize: "8px", letterSpacing: ".08em", color: b?.c, fontWeight: "600" }}>{b?.k}</span>
-                              <span style={{ fontFamily: "var(--font-mono)", fontSize: "24px", fontWeight: "500", lineHeight: "1" }}>
-                                {b?.n}
-                                <span style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "var(--fg-muted)", marginLeft: "3px" }}>{b?.u}</span>
-                              </span>
-                            </div>
-                          </React.Fragment>
-                        ))}
-                        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "6px" }}>
-                          <span style={{ width: "30px", height: "30px", boxSizing: "border-box", borderRadius: "var(--radius-sm)", border: `1px solid ${v.gBd ?? ""}`, background: v.gBg, color: v.gFg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-mono)", fontWeight: "600", fontSize: "15px" }}>
-                            {v.grade}
-                          </span>
-                          <span style={{ display: "flex", flexDirection: "column", fontSize: "9px", lineHeight: "1.25" }}>
-                            <span style={{ fontWeight: "600" }}>{v.gShort}</span>
-                            <span style={{ color: "var(--fg-subtle)" }}>bufferbloat</span>
-                          </span>
-                        </div>
-                      </div>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 10px", fontFamily: "var(--font-mono)", fontSize: "9px", color: "var(--fg-muted)" }}>
-                        {(v.shareFoot || []).map((f, $index) => (
-                          <React.Fragment key={$index}>
-                            <span>{f}</span>
-                          </React.Fragment>
-                        ))}
-                        <span style={{ marginLeft: "auto", color: "var(--fg-subtle)" }}>{v.D?.server}</span>
-                      </div>
-                    </div>
-                    <label style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "var(--text-sm)", cursor: "pointer" }}>
-                      <input type="checkbox" checked={v.inc} onChange={v.toggleInc} style={{ width: "16px", height: "16px", margin: "2px 0 0", accentColor: "var(--primary)" }} />
+                </DS.Card>
+                <DS.Card as="section" padded={false} icon="image" title={"Share image"} actions={<>1200 × 630 PNG</>}>
+                  <div style={{ padding: "var(--space-3-5)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+                    <DS.SharePreview label={v.shareAria} head={v.inc ? v.D?.label : ''} grade={v.grade} blocks={(v.shareBlocks || []).map(b => ({ label: b.k, color: b.c, value: b.n, unit: b.u }))} foot={v.shareFoot} where={v.D?.server} />
+                    <label style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-2)", fontSize: "var(--text-sm)", cursor: "pointer" }}>
+                      <input type="checkbox" checked={v.inc} onChange={v.toggleInc} style={{ width: "16px", height: "16px", margin: "var(--space-0-5) 0 0", accentColor: "var(--primary)" }} />
                       <span style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
                         {"Include label "}
                         <span style={{ fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>
@@ -800,60 +546,47 @@ class ResultDetail extends React.Component {
                         </span>
                       </span>
                     </label>
-                    <div style={{ display: "grid", gridTemplateColumns: v.shareCols, gap: "8px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: v.shareCols, gap: "var(--space-2)" }}>
                       {v.canShare ? (
-                        <button className="btn secondary" onClick={v.share} title="Sends the image to the system share sheet" style={{ justifyContent: "center" }}>
-                          <bg-icon name="share" size="15" />
-                          Share
-                        </button>
+                        <DS.Button variant="secondary" icon="share" onClick={v.share} title="Sends the image to the system share sheet" style={{ justifyContent: "center" }}>Share</DS.Button>
                       ) : null}
-                      <button className="btn secondary" onClick={v.dlImg} style={{ justifyContent: "center" }}><bg-icon name="download" size="15" />Download image</button>
+                      <DS.Button variant="secondary" icon="download" onClick={v.dlImg} style={{ justifyContent: "center" }}>Download image</DS.Button>
                     </div>
                   </div>
-                </section>
-                <section className="card" style={{ overflow: "hidden" }}>
-                  <div className="card-h">
-                    <bg-icon name="file-text" size="15" />
-                    <span className="t">Text summary</span>
-                    <button className="btn ghost sm right" onClick={v.copy} style={{ marginLeft: "auto" }}><bg-icon name="copy" size="13" />Copy</button>
-                  </div>
+                </DS.Card>
+                <DS.Card as="section" padded={false} icon="file-text" title={"Text summary"} actions={<><DS.Button variant="ghost" size="sm" icon="copy" onClick={v.copy}>Copy</DS.Button></>}>
                   {v.denied ? (
-                    <div role="alert" style={{ display: "flex", gap: "8px", padding: "10px 16px", background: "var(--warn-bg)", borderBottom: "1px solid var(--warn-border)", fontSize: "var(--text-caption)", lineHeight: "1.45" }}>
-                      <span style={{ color: "var(--warn)", display: "flex", marginTop: "1px" }}><bg-icon name="triangle-alert" size="14" stroke="2" /></span>
-                      <span style={{ textWrap: "pretty" }}>
-                        {"Clipboard access was denied. The text below is selected — press "}
+                    <DS.Notice attached tone="warn" title="Clipboard access was denied">{"The text below is selected — press "}
                         <span style={{ fontFamily: "var(--font-mono)" }}>Ctrl+C</span>
                         {" ("}
                         <span style={{ fontFamily: "var(--font-mono)" }}>⌘C</span>
-                        {" on Mac) to copy it."}
-                      </span>
-                    </div>
+                        {" on Mac) to copy it."}</DS.Notice>
                   ) : null}
-                  <pre ref={v.preRef} tabIndex="0" aria-label="Text summary" style={{ margin: "0", padding: "12px 16px", background: "var(--term-bg)", color: "var(--term-fg)", fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", lineHeight: "1.65", whiteSpace: "pre-wrap", userSelect: "text", outline: v.preOutline, outlineOffset: "-2px" }}>{v.summary}</pre>
-                </section>
-                <section className="card" style={{ overflow: "hidden" }}>
+                  <pre ref={v.preRef} tabIndex="0" aria-label="Text summary" style={{ margin: "0", padding: "var(--space-3) var(--space-4)", background: "var(--term-bg)", color: "var(--term-fg)", fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", lineHeight: "var(--lh-relaxed)", whiteSpace: "pre-wrap", userSelect: "text", outline: v.preOutline, outlineOffset: "-2px" }}>{v.summary}</pre>
+                </DS.Card>
+                <DS.Card as="section" padded={false}>
                   {v.mobile ? (
-                    <button className="card-h" onClick={v.toggleParams} aria-expanded={v.paramsAria} aria-controls="params" style={{ width: "100%", boxSizing: "border-box", background: "none", border: "0", borderBottom: v.paramsBorder, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer", minHeight: "44px" }}>
-                      <bg-icon name="sliders" size="15" />
+                    <button type="button" className="disclosure" onClick={v.toggleParams} aria-expanded={v.paramsAria} aria-controls="params" style={{ borderBottom: v.paramsBorder }}>
+                      <DS.Icon name="sliders" size={15} />
                       <span className="t">Test parameters</span>
-                      <span style={{ marginLeft: "auto", display: "flex", color: "var(--fg-subtle)" }}><bg-icon name={v.paramsChevron} size="16" /></span>
+                      <span style={{ marginLeft: "auto", display: "flex", color: "var(--fg-subtle)" }}><DS.Icon name={v.paramsChevron} size={16} /></span>
                     </button>
                   ) : null}
                   {v.desktop ? (
-                    <div className="card-h"><bg-icon name="sliders" size="15" /><span className="t">Test parameters</span></div>
+                    <div className="card-h"><span className="ico"><DS.Icon name="sliders" size={15} /></span><span className="t">Test parameters</span></div>
                   ) : null}
                   {v.paramsShown ? (
-                    <div id="params" style={{ padding: "2px 16px 10px" }}>
+                    <div id="params" style={{ padding: "var(--space-0-5) var(--space-4) var(--space-2-5)" }}>
                       {(v.params || []).map((pg, $index) => (
                         <React.Fragment key={$index}>
                           <div style={{ display: "flex", flexDirection: "column" }}>
-                            <span style={{ padding: "12px 0 4px", fontFamily: "var(--font-cond)", fontWeight: "600", fontSize: "11px", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
+                            <span style={{ padding: "var(--space-3) 0 var(--space-1)", fontFamily: "var(--font-cond)", fontWeight: "var(--weight-semibold)", fontSize: "var(--text-micro)", letterSpacing: "var(--tracking-caps)", textTransform: "uppercase", color: "var(--fg-subtle)" }}>
                               {pg?.h}
                             </span>
                             <dl style={{ margin: "0" }}>
                               {(pg?.rows || []).map((p, $index) => (
                                 <React.Fragment key={$index}>
-                                  <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", padding: "7px 0", borderTop: "1px solid var(--border-subtle)" }}>
+                                  <div style={{ display: "flex", justifyContent: "space-between", gap: "var(--space-3)", padding: "7px 0", borderTop: "1px solid var(--border-subtle)" }}>
                                     <dt style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)", flex: "none" }}>{p?.k}</dt>
                                     <dd style={{ margin: "0", fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg)", textAlign: "right", minWidth: "0", textWrap: "pretty" }}>
                                       {p?.v}
@@ -867,15 +600,15 @@ class ResultDetail extends React.Component {
                       ))}
                     </div>
                   ) : null}
-                </section>
+                </DS.Card>
               </aside>
             </div>
           </main>
         ) : null}
         {v.toast ? (
-          <div style={{ position: "sticky", bottom: "16px", zIndex: "50", display: "flex", justifyContent: "flex-end", padding: "16px", pointerEvents: "none" }}>
+          <div style={{ position: "sticky", bottom: "16px", zIndex: "50", display: "flex", justifyContent: "flex-end", padding: "var(--space-4)", pointerEvents: "none" }}>
             <div className={`toast ${v.toast?.kind ?? ""}`} role="status" aria-live="polite" style={{ pointerEvents: "auto", maxWidth: "100%", boxSizing: "border-box", alignItems: "center" }}>
-              <span className="i" style={{ display: "flex" }}><bg-icon name={v.toast?.icon} size="16" stroke="2" /></span>
+              <span className="i" style={{ display: "flex" }}><DS.Icon name={v.toast?.icon} size={16} stroke={2} /></span>
               <div style={{ flex: "1", minWidth: "0" }}>
                 <div className="t">{v.toast?.t}</div>
                 {v.toast?.m ? (
@@ -883,9 +616,9 @@ class ResultDetail extends React.Component {
                 ) : null}
               </div>
               {v.toast?.undo ? (
-                <button className="btn secondary sm" onClick={v.undo}><bg-icon name="undo-2" size="13" />Undo</button>
+                <DS.Button variant="secondary" size="sm" icon="undo-2" onClick={v.undo}>Undo</DS.Button>
               ) : null}
-              <button className="btn ghost sm icon" aria-label="Dismiss" onClick={v.dismiss}><bg-icon name="x" size="14" /></button>
+              <DS.Button variant="ghost" size="sm" iconOnly icon="x" aria-label="Dismiss" onClick={v.dismiss}></DS.Button>
             </div>
           </div>
         ) : null}

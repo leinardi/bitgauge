@@ -153,8 +153,8 @@ class Settings extends React.Component {
 
     return {
       mobile: m, desktop: !m, stop: ev => ev.stopPropagation(),
-      L: m ? { pad: '16px 16px 24px', cols: 'minmax(0,1fr)', h1: 'var(--text-3xl)', presetCols: 'minmax(0,1fr)', orderMl: '0', cfAlign: 'flex-end', cfTop: '0', cfW: '100%', cfRad: 'var(--radius-xl) var(--radius-xl) 0 0' }
-           : { pad: '24px 40px 48px', cols: 'minmax(0,1fr) 340px', h1: 'var(--text-4xl)', presetCols: 'repeat(2, minmax(0,1fr))', orderMl: 'auto', cfAlign: 'flex-start', cfTop: '160px', cfW: '460px', cfRad: 'var(--radius-xl)' },
+      L: m ? { pad: 'var(--space-4) var(--space-4) var(--space-6)', cols: 'minmax(0,1fr)', h1: 'var(--text-3xl)', presetCols: 'minmax(0,1fr)', orderMl: '0', cfAlign: 'flex-end', cfTop: '0', cfW: '100%', cfRad: 'var(--radius-xl) var(--radius-xl) 0 0' }
+           : { pad: 'var(--space-6) var(--space-10) var(--space-12)', cols: 'minmax(0,1fr) 340px', h1: 'var(--text-4xl)', presetCols: 'repeat(2, minmax(0,1fr))', orderMl: 'auto', cfAlign: 'flex-start', cfTop: '160px', cfW: '460px', cfRad: 'var(--radius-xl)' },
       allSaved: !errKeys.length, hasErr: !!errKeys.length, errCountLabel: errKeys.length === 1 ? '1 value not saved' : errKeys.length + ' values not saved',
       presets, isCont, timed, C, F, phases,
       S: {
@@ -196,6 +196,9 @@ class Settings extends React.Component {
   }
   render() {
     const v = this.renderVals();
+    // Segmented props from the option rows renderVals builds ({ t, icon, c, aria, on }).
+    const seg = (opts = []) => { const cur = opts.find(o => o.aria === true || o.aria === 'true') || {};
+      return { options: opts.map(o => ({ value: o.t, label: o.t, icon: o.icon, color: o.c })), value: cur.t, onChange: val => { const o = opts.find(x => x.t === val); o && o.on && o.on(); } }; };
     return (
       <div style={{ position: "relative", background: "var(--bg-base)", color: "var(--fg)", fontFamily: "var(--font-sans)", minHeight: "100%", display: "flex", flexDirection: "column" }}>
         {v.desktop ? (
@@ -204,93 +207,60 @@ class Settings extends React.Component {
         {v.mobile ? (
           <Nav variant="mobile-top" active="settings" status={this.props.srvStatus || "connected"} />
         ) : null}
-        <main style={{ flex: "1", width: "100%", maxWidth: "1200px", margin: "0 auto", boxSizing: "border-box", padding: v.L?.pad, display: "grid", gridTemplateColumns: v.L?.cols, gap: "24px", alignItems: "start" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: "0" }}>
-            <header style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <h1 style={{ margin: "0", fontSize: v.L?.h1, fontWeight: "600", letterSpacing: "var(--tracking-tight)" }}>Settings</h1>
-              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 12px", fontSize: "var(--text-sm)", color: "var(--fg-subtle)" }}>
+        <main style={{ flex: "1", width: "100%", maxWidth: "var(--layout-max)", margin: "0 auto", boxSizing: "border-box", padding: v.L?.pad, display: "grid", gridTemplateColumns: v.L?.cols, gap: "var(--space-6)", alignItems: "start" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", minWidth: "0" }}>
+            <header style={{ display: "flex", flexDirection: "column", gap: "var(--space-1-5)" }}>
+              <h1 style={{ margin: "0", fontSize: v.L?.h1, fontWeight: "var(--weight-semibold)", letterSpacing: "var(--tracking-tight)" }}>Settings</h1>
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-1-5) var(--space-3)", fontSize: "var(--text-sm)", color: "var(--fg-subtle)" }}>
                 {v.allSaved ? (
                   <span role="status" style={{ display: "inline-flex", alignItems: "center", gap: "5px", color: "var(--ok-fg)" }}>
-                    <bg-icon name="circle-check" size="14" />
+                    <DS.Icon name="circle-check" size={14} />
                     Saved
                   </span>
                 ) : null}
                 {v.hasErr ? (
                   <span role="status" style={{ display: "inline-flex", alignItems: "center", gap: "5px", color: "var(--danger-fg)" }}>
-                    <bg-icon name="circle-alert" size="14" />
+                    <DS.Icon name="circle-alert" size={14} />
                     {v.errCountLabel}
                   </span>
                 ) : null}
                 <span>Changes save automatically in this browser and apply to the next test.</span>
               </div>
             </header>
-            <section className="card" aria-labelledby="s-preset">
-              <div className="card-h"><bg-icon name="gauge" size="15" /><span className="t" id="s-preset">Test preset</span></div>
-              <div className="card-b" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div role="radiogroup" aria-labelledby="s-preset" style={{ display: "grid", gridTemplateColumns: v.L?.presetCols, gap: "10px" }}>
+            <DS.Card as="section" labelledBy="s-preset" icon="gauge" title={<span id="s-preset">Test preset</span>}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+                <div role="radiogroup" aria-labelledby="s-preset" style={{ display: "grid", gridTemplateColumns: v.L?.presetCols, gap: "var(--space-2-5)" }}>
                   {(v.presets || []).map((p, $index) => (
                     <React.Fragment key={$index}>
-                      <div role="radio" aria-checked={p?.aria} tabIndex="0" onClick={p?.pick} onKeyDown={p?.key} style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "12px 14px", borderRadius: "var(--radius-md)", border: `1px solid ${p?.bd ?? ""}`, background: p?.bg, cursor: "pointer", minHeight: "44px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <span style={{ color: p?.ic, display: "flex" }}><bg-icon name={p?.icon} size="16" /></span>
-                          <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>{p?.t}</span>
-                          {p?.def ? (
-                            <span className="pill neutral" style={{ height: "18px", fontSize: "10px", padding: "0 7px" }}>Default</span>
-                          ) : null}
-                          <span style={{ marginLeft: "auto", width: "16px", height: "16px", boxSizing: "border-box", borderRadius: "50%", border: p?.ring, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: p?.dot }} />
-                          </span>
-                        </div>
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg-muted)", lineHeight: "1.45" }}>{p?.d}</span>
-                      </div>
+                      <DS.ChoiceCard selected={p?.aria === 'true' || p?.aria === true} icon={p?.icon} title={p?.t} badge={p?.def ? <DS.StatusPill size="sm" dot={false}>Default</DS.StatusPill> : null} onSelect={p?.pick}>{p?.d}</DS.ChoiceCard>
                     </React.Fragment>
                   ))}
                 </div>
                 {v.isCont ? (
                   <div style={{ display: "flex", flexDirection: "column", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-md)", background: "var(--surface-1)" }}>
-                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "12px 14px", borderBottom: "1px solid var(--border-subtle)" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3) var(--space-3-5)", borderBottom: "1px solid var(--border-subtle)" }}>
                       <div style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                        <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>Direction</span>
-                        <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
+                        <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>Direction</span>
+                        <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
                           Continuous measures one direction until you stop it.
                         </span>
                       </div>
-                      <div className="seg" role="radiogroup" aria-label="Continuous direction">
-                        {(v.S?.dir || []).map((o, $index) => (
-                          <React.Fragment key={$index}>
-                            <button className={o?.cls} role="radio" aria-checked={o?.aria} onClick={o?.on} style={{ whiteSpace: "nowrap" }}>
-                              <span style={{ color: o?.c, display: "flex" }}><bg-icon name={o?.icon} size="14" stroke="2" /></span>
-                              {o?.t}
-                            </button>
-                          </React.Fragment>
-                        ))}
-                      </div>
+                      <DS.Segmented ariaLabel="Continuous direction" {...seg(v.S?.dir)} />
                     </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "12px 14px" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3) var(--space-3-5)" }}>
                       <div style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                        <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>Run length</span>
-                        <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
+                        <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>Run length</span>
+                        <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
                           Optional. No limit by default. 1 minute to 7 days.
                         </span>
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <button className={v.runSw?.cls} role="switch" aria-checked={v.runSw?.aria} aria-label="Stop after a set time" onClick={v.runSw?.on}>
-                            <span className="knob" />
-                          </button>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-1-5)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                          <DS.Switch checked={v.runSw?.aria === 'true'} aria-label="Stop after a set time" onChange={v.runSw?.on} />
                           {v.runLimit ? (
                             <>
-                              <label className={v.F?.runVal?.cls} style={{ width: "72px", height: "34px" }}>
-                              <input value={v.F?.runVal?.val} aria-label="Run length" aria-invalid={v.F?.runVal?.aria} aria-describedby={v.F?.runVal?.desc} onChange={v.F?.runVal?.onChange} onBlur={v.F?.runVal?.onBlur} onKeyDown={v.F?.runVal?.onKeyDown} />
-                            </label>
-                              <label className="input" style={{ width: "112px", height: "34px" }}>
-                              <select aria-label="Run length unit" value={v.runUnit} onChange={v.setRunUnit}>
-                                <option value="m">minutes</option>
-                                <option value="h">hours</option>
-                                <option value="d">days</option>
-                              </select>
-                              <bg-icon name="chevron-down" size="14" />
-                            </label>
+                              <DS.Input mono invalid={v.F?.runVal?.bad} style={{ width: "72px" }} value={v.F?.runVal?.val} aria-label="Run length" aria-invalid={v.F?.runVal?.aria} aria-describedby={v.F?.runVal?.desc} onChange={v.F?.runVal?.onChange} onBlur={v.F?.runVal?.onBlur} onKeyDown={v.F?.runVal?.onKeyDown} />
+                              <DS.Select aria-label="Run length unit" value={v.runUnit} onChange={v.setRunUnit} options={[{ value: 'm', label: 'minutes' }, { value: 'h', label: 'hours' }, { value: 'd', label: 'days' }]} style={{ width: "112px" }} />
                             </>
                           ) : null}
                           {v.noRunLimit ? (
@@ -298,489 +268,295 @@ class Settings extends React.Component {
                           ) : null}
                         </div>
                         {v.F?.runVal?.bad ? (
-                          <span className="fmsg" id={v.F?.runVal?.eid} style={{ maxWidth: "280px" }}><bg-icon name="circle-alert" size="12" />{v.F?.runVal?.err}</span>
+                          <DS.FieldError id={v.F?.runVal?.eid} style={{ maxWidth: "280px" }}>{v.F?.runVal?.err}</DS.FieldError>
                         ) : null}
                       </div>
                     </div>
                   </div>
                 ) : null}
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 16px", opacity: v.phasesOpacity }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-4)", opacity: v.phasesOpacity }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
                     Phases
                     {v.C?.phases ? (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
-                        <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
-                        changed
-                      </span>
+                      <DS.ChangedMark />
                     ) : null}
                   </span>
                   {(v.phases || []).map((ph, $index) => (
                     <React.Fragment key={$index}>
-                      <button role="checkbox" aria-checked={ph?.aria} disabled={ph?.dis} onClick={ph?.on} style={{ all: "unset", boxSizing: "border-box", display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", minHeight: "32px", cursor: "pointer" }}>
-                        <span style={{ width: "16px", height: "16px", boxSizing: "border-box", borderRadius: "4px", background: ph?.bg, border: ph?.bd, color: "var(--primary-fg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          {ph?.on2 ? (
-                            <bg-icon name="check" size="12" stroke="3" />
-                          ) : null}
-                        </span>
-                        <span style={{ color: ph?.c, display: "flex" }}><bg-icon name={ph?.icon} size="14" stroke="2" /></span>
-                        {ph?.t}
-                      </button>
+                      <DS.Checkbox checked={ph?.aria === 'true' || ph?.aria === true} disabled={ph?.dis} onChange={ph?.on} icon={ph?.icon} iconColor={ph?.c}>{ph?.t}</DS.Checkbox>
                     </React.Fragment>
                   ))}
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: v.L?.orderMl, opacity: v.orderOpacity, pointerEvents: v.orderPe }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginLeft: v.L?.orderMl, opacity: v.orderOpacity, pointerEvents: v.orderPe }}>
                     <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>Order</span>
-                    <div className="seg" role="radiogroup" aria-label="Phase order">
-                      {(v.S?.order || []).map((o, $index) => (
-                        <React.Fragment key={$index}>
-                          <button className={o?.cls} role="radio" aria-checked={o?.aria} onClick={o?.on} style={{ whiteSpace: "nowrap" }}>{o?.t}</button>
-                        </React.Fragment>
-                      ))}
-                    </div>
+                    <DS.Segmented ariaLabel="Phase order" {...seg(v.S?.order)} />
                   </div>
                   <span style={{ flexBasis: "100%", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>{v.phasesHelp}</span>
                 </div>
               </div>
-            </section>
-            <section className="card" aria-labelledby="s-conn">
-              <div className="card-h"><bg-icon name="layers" size="15" /><span className="t" id="s-conn">Connections and limits</span></div>
+            </DS.Card>
+            <DS.Card as="section" labelledBy="s-conn" icon="layers" title={<span id="s-conn">Connections and limits</span>} padded={false}>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "14px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderBottom: "1px solid var(--border-subtle)" }}>
                   <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", fontWeight: "600" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>
                       Parallel streams
                       {v.C?.streams ? (
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
-                          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
-                          changed
-                        </span>
+                        <DS.ChangedMark />
                       ) : null}
                     </span>
-                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
+                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
                       Auto ramps 1 → 2 → 4 → 6 streams and stops when adding streams no longer helps. Fixed runs 1–6. Single shows one connection.
                     </span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                    <div className="seg" role="radiogroup" aria-label="Parallel streams">
-                      {(v.S?.streams || []).map((o, $index) => (
-                        <React.Fragment key={$index}>
-                          <button className={o?.cls} role="radio" aria-checked={o?.aria} onClick={o?.on}>{o?.t}</button>
-                        </React.Fragment>
-                      ))}
-                    </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" }}>
+                    <DS.Segmented ariaLabel="Parallel streams" {...seg(v.S?.streams)} />
                     {v.isFixed ? (
                       <div role="group" aria-label="Stream count" style={{ display: "flex", alignItems: "center", border: "1px solid var(--border-default)", borderRadius: "var(--radius-md)", height: "34px", overflow: "hidden", background: "var(--surface-1)" }}>
-                        <button className="btn ghost icon sm" aria-label="Fewer streams" disabled={v.nMin} onClick={v.nDec} style={{ height: "32px", width: "32px", borderRadius: "0" }}>
-                          <bg-icon name="minus" size="14" />
-                        </button>
+                        <DS.Button variant="ghost" size="sm" iconOnly icon="minus" aria-label="Fewer streams" disabled={v.nMin} onClick={v.nDec} style={{ height: "32px", width: "32px", borderRadius: "0" }}></DS.Button>
                         <span aria-live="polite" style={{ width: "34px", textAlign: "center", fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)" }}>{v.n}</span>
-                        <button className="btn ghost icon sm" aria-label="More streams" disabled={v.nMax} onClick={v.nInc} style={{ height: "32px", width: "32px", borderRadius: "0" }}>
-                          <bg-icon name="plus" size="14" />
-                        </button>
+                        <DS.Button variant="ghost" size="sm" iconOnly icon="plus" aria-label="More streams" disabled={v.nMax} onClick={v.nInc} style={{ height: "32px", width: "32px", borderRadius: "0" }}></DS.Button>
                       </div>
                     ) : null}
                   </div>
                 </div>
                 {v.timed ? (
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "12px 20px", padding: "14px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: "var(--space-3) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderBottom: "1px solid var(--border-subtle)" }}>
                     <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                      <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>Duration per direction</span>
-                      <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
+                      <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>Duration per direction</span>
+                      <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
                         A direction ends after the minimum once results are stable, and runs up to the maximum on slow or noisy links.
                       </span>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <span style={{ width: "118px", display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--text-sm)" }}>
-                            <span style={{ color: "var(--series-download)", display: "flex" }}><bg-icon name="arrow-down" size="14" stroke="2" /></span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1-5)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                          <span style={{ width: "118px", display: "flex", alignItems: "center", gap: "var(--space-1-5)", fontSize: "var(--text-sm)" }}>
+                            <span style={{ color: "var(--series-download)", display: "flex" }}><DS.Icon name="arrow-down" size={14} stroke={2} /></span>
                             Download
                             {v.C?.dl ? (
-                              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)", fontSize: "var(--text-micro)", fontWeight: "var(--weight-medium)", color: "var(--primary-text)" }}>
                                 <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
                                 custom
                               </span>
                             ) : null}
                           </span>
-                          <label className={v.F?.dlMin?.cls} style={{ width: "76px", height: "34px" }}>
-                            <input value={v.F?.dlMin?.val} aria-label="Download minimum seconds" aria-invalid={v.F?.dlMin?.aria} aria-describedby={v.F?.dlMin?.desc} onChange={v.F?.dlMin?.onChange} onBlur={v.F?.dlMin?.onBlur} onKeyDown={v.F?.dlMin?.onKeyDown} />
-                            <span style={{ color: "var(--fg-subtle)" }}>s</span>
-                          </label>
+                          <DS.Input mono invalid={v.F?.dlMin?.bad} suffix="s" style={{ width: "76px" }} value={v.F?.dlMin?.val} aria-label="Download minimum seconds" aria-invalid={v.F?.dlMin?.aria} aria-describedby={v.F?.dlMin?.desc} onChange={v.F?.dlMin?.onChange} onBlur={v.F?.dlMin?.onBlur} onKeyDown={v.F?.dlMin?.onKeyDown} />
                           <span style={{ color: "var(--fg-subtle)" }}>–</span>
-                          <label className={v.F?.dlMax?.cls} style={{ width: "76px", height: "34px" }}>
-                            <input value={v.F?.dlMax?.val} aria-label="Download maximum seconds" aria-invalid={v.F?.dlMax?.aria} aria-describedby={v.F?.dlMax?.desc} onChange={v.F?.dlMax?.onChange} onBlur={v.F?.dlMax?.onBlur} onKeyDown={v.F?.dlMax?.onKeyDown} />
-                            <span style={{ color: "var(--fg-subtle)" }}>s</span>
-                          </label>
+                          <DS.Input mono invalid={v.F?.dlMax?.bad} suffix="s" style={{ width: "76px" }} value={v.F?.dlMax?.val} aria-label="Download maximum seconds" aria-invalid={v.F?.dlMax?.aria} aria-describedby={v.F?.dlMax?.desc} onChange={v.F?.dlMax?.onChange} onBlur={v.F?.dlMax?.onBlur} onKeyDown={v.F?.dlMax?.onKeyDown} />
                         </div>
                         {v.F?.dlMin?.bad ? (
-                          <span className="fmsg" id={v.F?.dlMin?.eid} style={{ maxWidth: "320px" }}><bg-icon name="circle-alert" size="12" />{v.F?.dlMin?.err}</span>
+                          <DS.FieldError id={v.F?.dlMin?.eid} style={{ maxWidth: "320px" }}>{v.F?.dlMin?.err}</DS.FieldError>
                         ) : null}
                         {v.F?.dlMax?.bad ? (
-                          <span className="fmsg" id={v.F?.dlMax?.eid} style={{ maxWidth: "320px" }}><bg-icon name="circle-alert" size="12" />{v.F?.dlMax?.err}</span>
+                          <DS.FieldError id={v.F?.dlMax?.eid} style={{ maxWidth: "320px" }}>{v.F?.dlMax?.err}</DS.FieldError>
                         ) : null}
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <span style={{ width: "118px", display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--text-sm)" }}>
-                            <span style={{ color: "var(--series-upload)", display: "flex" }}><bg-icon name="arrow-up" size="14" stroke="2" /></span>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1-5)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                          <span style={{ width: "118px", display: "flex", alignItems: "center", gap: "var(--space-1-5)", fontSize: "var(--text-sm)" }}>
+                            <span style={{ color: "var(--series-upload)", display: "flex" }}><DS.Icon name="arrow-up" size={14} stroke={2} /></span>
                             Upload
                             {v.C?.ul ? (
-                              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)", fontSize: "var(--text-micro)", fontWeight: "var(--weight-medium)", color: "var(--primary-text)" }}>
                                 <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
                                 custom
                               </span>
                             ) : null}
                           </span>
-                          <label className={v.F?.ulMin?.cls} style={{ width: "76px", height: "34px" }}>
-                            <input value={v.F?.ulMin?.val} aria-label="Upload minimum seconds" aria-invalid={v.F?.ulMin?.aria} aria-describedby={v.F?.ulMin?.desc} onChange={v.F?.ulMin?.onChange} onBlur={v.F?.ulMin?.onBlur} onKeyDown={v.F?.ulMin?.onKeyDown} />
-                            <span style={{ color: "var(--fg-subtle)" }}>s</span>
-                          </label>
+                          <DS.Input mono invalid={v.F?.ulMin?.bad} suffix="s" style={{ width: "76px" }} value={v.F?.ulMin?.val} aria-label="Upload minimum seconds" aria-invalid={v.F?.ulMin?.aria} aria-describedby={v.F?.ulMin?.desc} onChange={v.F?.ulMin?.onChange} onBlur={v.F?.ulMin?.onBlur} onKeyDown={v.F?.ulMin?.onKeyDown} />
                           <span style={{ color: "var(--fg-subtle)" }}>–</span>
-                          <label className={v.F?.ulMax?.cls} style={{ width: "76px", height: "34px" }}>
-                            <input value={v.F?.ulMax?.val} aria-label="Upload maximum seconds" aria-invalid={v.F?.ulMax?.aria} aria-describedby={v.F?.ulMax?.desc} onChange={v.F?.ulMax?.onChange} onBlur={v.F?.ulMax?.onBlur} onKeyDown={v.F?.ulMax?.onKeyDown} />
-                            <span style={{ color: "var(--fg-subtle)" }}>s</span>
-                          </label>
+                          <DS.Input mono invalid={v.F?.ulMax?.bad} suffix="s" style={{ width: "76px" }} value={v.F?.ulMax?.val} aria-label="Upload maximum seconds" aria-invalid={v.F?.ulMax?.aria} aria-describedby={v.F?.ulMax?.desc} onChange={v.F?.ulMax?.onChange} onBlur={v.F?.ulMax?.onBlur} onKeyDown={v.F?.ulMax?.onKeyDown} />
                         </div>
                         {v.F?.ulMin?.bad ? (
-                          <span className="fmsg" id={v.F?.ulMin?.eid} style={{ maxWidth: "320px" }}><bg-icon name="circle-alert" size="12" />{v.F?.ulMin?.err}</span>
+                          <DS.FieldError id={v.F?.ulMin?.eid} style={{ maxWidth: "320px" }}>{v.F?.ulMin?.err}</DS.FieldError>
                         ) : null}
                         {v.F?.ulMax?.bad ? (
-                          <span className="fmsg" id={v.F?.ulMax?.eid} style={{ maxWidth: "320px" }}><bg-icon name="circle-alert" size="12" />{v.F?.ulMax?.err}</span>
+                          <DS.FieldError id={v.F?.ulMax?.eid} style={{ maxWidth: "320px" }}>{v.F?.ulMax?.err}</DS.FieldError>
                         ) : null}
                       </div>
                     </div>
                   </div>
                 ) : null}
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "14px 16px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)" }}>
                   <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", fontWeight: "600" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>
                       Data cap per test
                       {v.C?.cap ? (
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
-                          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
-                          changed
-                        </span>
+                        <DS.ChangedMark />
                       ) : null}
                     </span>
-                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
+                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
                       Useful on metered mobile links. A direction stops early when the cap is reached and the result is marked.
                     </span>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <button className={v.capSw?.cls} role="switch" aria-checked={v.capSw?.aria} aria-label="Data cap" onClick={v.capSw?.on}>
-                        <span className="knob" />
-                      </button>
-                      <label className={v.F?.capMB?.cls} style={{ width: "110px", height: "34px", opacity: v.capOpacity }}>
-                        <input value={v.F?.capMB?.val} disabled={v.capOff} aria-label="Data cap in MB" aria-invalid={v.F?.capMB?.aria} aria-describedby={v.F?.capMB?.desc} onChange={v.F?.capMB?.onChange} onBlur={v.F?.capMB?.onBlur} onKeyDown={v.F?.capMB?.onKeyDown} />
-                        <span style={{ color: "var(--fg-subtle)" }}>MB</span>
-                      </label>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-1-5)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2-5)" }}>
+                      <DS.Switch checked={v.capSw?.aria === 'true'} aria-label="Data cap" onChange={v.capSw?.on} />
+                      <DS.Input mono invalid={v.F?.capMB?.bad} suffix="MB" style={{ width: "110px", opacity: v.capOpacity }} value={v.F?.capMB?.val} disabled={v.capOff} aria-label="Data cap in MB" aria-invalid={v.F?.capMB?.aria} aria-describedby={v.F?.capMB?.desc} onChange={v.F?.capMB?.onChange} onBlur={v.F?.capMB?.onBlur} onKeyDown={v.F?.capMB?.onKeyDown} />
                     </div>
                     {v.F?.capMB?.bad ? (
-                      <span className="fmsg" id={v.F?.capMB?.eid} style={{ maxWidth: "280px" }}><bg-icon name="circle-alert" size="12" />{v.F?.capMB?.err}</span>
+                      <DS.FieldError id={v.F?.capMB?.eid} style={{ maxWidth: "280px" }}>{v.F?.capMB?.err}</DS.FieldError>
                     ) : null}
                   </div>
                 </div>
               </div>
-            </section>
-            <section className="card" aria-labelledby="s-disp">
-              <div className="card-h"><bg-icon name="monitor" size="15" /><span className="t" id="s-disp">Display and behaviour</span></div>
+            </DS.Card>
+            <DS.Card as="section" labelledBy="s-disp" icon="monitor" title={<span id="s-disp">Display and behaviour</span>} padded={false}>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "14px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderBottom: "1px solid var(--border-subtle)" }}>
                   <div style={{ flex: "1 1 240px" }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", fontWeight: "600" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>
                       Units
                       {v.C?.units ? (
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
-                          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
-                          changed
-                        </span>
+                        <DS.ChangedMark />
                       ) : null}
                     </span>
                   </div>
-                  <div className="seg" role="radiogroup" aria-label="Units">
-                    {(v.S?.units || []).map((o, $index) => (
-                      <React.Fragment key={$index}>
-                        <button className={o?.cls} role="radio" aria-checked={o?.aria} onClick={o?.on} style={{ whiteSpace: "nowrap" }}>{o?.t}</button>
-                      </React.Fragment>
-                    ))}
-                  </div>
+                  <DS.Segmented ariaLabel="Units" {...seg(v.S?.units)} />
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "14px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderBottom: "1px solid var(--border-subtle)" }}>
                   <div style={{ flex: "1 1 240px" }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", fontWeight: "600" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>
                       Theme
                       {v.C?.theme ? (
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
-                          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
-                          changed
-                        </span>
+                        <DS.ChangedMark />
                       ) : null}
                     </span>
                   </div>
-                  <div className="seg" role="radiogroup" aria-label="Theme">
-                    {(v.S?.theme || []).map((o, $index) => (
-                      <React.Fragment key={$index}>
-                        <button className={o?.cls} role="radio" aria-checked={o?.aria} onClick={o?.on}><bg-icon name={o?.icon} size="14" />{o?.t}</button>
-                      </React.Fragment>
-                    ))}
-                  </div>
+                  <DS.Segmented ariaLabel="Theme" {...seg(v.S?.theme)} />
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "14px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderBottom: "1px solid var(--border-subtle)" }}>
                   <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                    <span style={{ fontSize: "var(--text-sm)", fontWeight: "600" }}>Language</span>
-                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>Only shipped languages are listed.</span>
+                    <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>Language</span>
+                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>Only shipped languages are listed.</span>
                   </div>
-                  <label className="input" style={{ width: "200px", height: "34px" }}>
-                    <bg-icon name="languages" size="14" />
-                    <select aria-label="Language"><option>English</option></select>
-                    <bg-icon name="chevron-down" size="14" />
-                  </label>
+                  <DS.Select icon="languages" aria-label="Language" options={['English']} style={{ width: "200px" }} />
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "14px 16px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)" }}>
                   <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", fontWeight: "600" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>
                       Auto-start on page load
                       {v.C?.auto ? (
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
-                          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
-                          changed
-                        </span>
+                        <DS.ChangedMark />
                       ) : null}
                     </span>
-                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
+                    <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
                       {"Shows a countdown first, so you can cancel. Also available as "}
                       <span style={{ fontFamily: "var(--font-mono)" }}>?run=1</span>
                       .
                     </span>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <button className={v.autoSw?.cls} role="switch" aria-checked={v.autoSw?.aria} aria-label="Auto-start" onClick={v.autoSw?.on}>
-                        <span className="knob" />
-                      </button>
-                      <label className={v.F?.countdown?.cls} style={{ width: "96px", height: "34px", opacity: v.autoOpacity }}>
-                        <input value={v.F?.countdown?.val} disabled={v.autoOff} aria-label="Countdown seconds" aria-invalid={v.F?.countdown?.aria} aria-describedby={v.F?.countdown?.desc} onChange={v.F?.countdown?.onChange} onBlur={v.F?.countdown?.onBlur} onKeyDown={v.F?.countdown?.onKeyDown} />
-                        <span style={{ color: "var(--fg-subtle)" }}>s</span>
-                      </label>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-1-5)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2-5)" }}>
+                      <DS.Switch checked={v.autoSw?.aria === 'true'} aria-label="Auto-start" onChange={v.autoSw?.on} />
+                      <DS.Input mono invalid={v.F?.countdown?.bad} suffix="s" style={{ width: "96px", opacity: v.autoOpacity }} value={v.F?.countdown?.val} disabled={v.autoOff} aria-label="Countdown seconds" aria-invalid={v.F?.countdown?.aria} aria-describedby={v.F?.countdown?.desc} onChange={v.F?.countdown?.onChange} onBlur={v.F?.countdown?.onBlur} onKeyDown={v.F?.countdown?.onKeyDown} />
                     </div>
                     {v.F?.countdown?.bad ? (
-                      <span className="fmsg" id={v.F?.countdown?.eid} style={{ maxWidth: "280px" }}><bg-icon name="circle-alert" size="12" />{v.F?.countdown?.err}</span>
+                      <DS.FieldError id={v.F?.countdown?.eid} style={{ maxWidth: "280px" }}>{v.F?.countdown?.err}</DS.FieldError>
                     ) : null}
                   </div>
                 </div>
               </div>
-            </section>
-            <section className="card" aria-labelledby="s-adv">
-              <button aria-expanded={v.advAria} aria-controls="adv-body" onClick={v.toggleAdv} style={{ all: "unset", boxSizing: "border-box", width: "100%", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", padding: "12px 16px", minHeight: "44px" }}>
-                <span style={{ color: "var(--fg-subtle)", display: "flex" }}><bg-icon name="sliders" size="15" /></span>
-                <span id="s-adv" style={{ fontSize: "var(--text-base)", fontWeight: "600" }}>Advanced</span>
-                <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", minWidth: "0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {v.advSummary}
-                </span>
-                <span style={{ marginLeft: "auto", color: "var(--fg-subtle)", display: "flex" }}><bg-icon name={v.advIcon} size="16" /></span>
+            </DS.Card>
+            <DS.Card as="section" labelledBy="s-adv" padded={false}>
+              <button type="button" className="disclosure" aria-expanded={v.advAria} aria-controls="adv-body" onClick={v.toggleAdv}>
+                <span className="ic"><DS.Icon name="sliders" size={15} /></span>
+                <span className="t" id="s-adv">Advanced</span>
+                <span className="sum">{v.advSummary}</span>
+                <span className="chev"><DS.Icon name={v.advIcon} size={16} /></span>
               </button>
               {v.advOpen ? (
-                <div id="adv-body" style={{ borderTop: "1px solid var(--border-subtle)", display: "flex", flexDirection: "column" }}>
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "14px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
-                    <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", fontWeight: "600" }}>
-                        Warm-up
-                        {v.C?.warm ? (
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
-                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
-                            changed
-                          </span>
-                        ) : null}
-                      </span>
-                      <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
-                        Auto ends warm-up once throughput settles. Samples during warm-up are discarded.
-                      </span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <div className="seg" role="radiogroup" aria-label="Warm-up">
-                          {(v.S?.warm || []).map((o, $index) => (
-                            <React.Fragment key={$index}>
-                              <button className={o?.cls} role="radio" aria-checked={o?.aria} onClick={o?.on}>{o?.t}</button>
-                            </React.Fragment>
-                          ))}
-                        </div>
-                        {v.warmFixed ? (
-                          <label className={v.F?.warmS?.cls} style={{ width: "84px", height: "34px" }}>
-                            <input value={v.F?.warmS?.val} aria-label="Warm-up seconds" aria-invalid={v.F?.warmS?.aria} aria-describedby={v.F?.warmS?.desc} onChange={v.F?.warmS?.onChange} onBlur={v.F?.warmS?.onBlur} onKeyDown={v.F?.warmS?.onKeyDown} />
-                            <span style={{ color: "var(--fg-subtle)" }}>s</span>
-                          </label>
-                        ) : null}
-                      </div>
-                      {v.F?.warmS?.bad ? (
-                        <span className="fmsg" id={v.F?.warmS?.eid} style={{ maxWidth: "280px" }}><bg-icon name="circle-alert" size="12" />{v.F?.warmS?.err}</span>
-                      ) : null}
-                    </div>
+                <div id="adv-body">
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderTop: "1px solid var(--border-subtle)" }}>
+                  <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "var(--space-0-5)" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>Warm-up{v.C?.warm ? <DS.ChangedMark /> : null}</span>
+                    <span className="ds-caption" style={{ lineHeight: "var(--lh-compact)" }}>Auto ends warm-up once throughput settles. Samples during warm-up are discarded.</span>
                   </div>
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "14px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
-                    <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", fontWeight: "600" }}>
-                        Ping count
-                        {v.C?.pings ? (
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
-                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
-                            changed
-                          </span>
-                        ) : null}
-                      </span>
-                      <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
-                        {"Used for idle latency and jitter. "}{v.pingsHelp}
-                      </span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-1-5)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                      <DS.Segmented ariaLabel="Warm-up" {...seg(v.S?.warm)} />
+                      {v.warmFixed ? <DS.Input mono invalid={v.F?.warmS?.bad} suffix="s" style={{ width: "84px" }} value={v.F?.warmS?.val} aria-label="Warm-up seconds" aria-describedby={v.F?.warmS?.desc} onChange={v.F?.warmS?.onChange} onBlur={v.F?.warmS?.onBlur} onKeyDown={v.F?.warmS?.onKeyDown} /> : null}
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
-                      <label className={v.F?.pings?.cls} style={{ width: "110px", height: "34px" }}>
-                        <input value={v.F?.pings?.val} aria-label="Ping count" aria-invalid={v.F?.pings?.aria} aria-describedby={v.F?.pings?.desc} onChange={v.F?.pings?.onChange} onBlur={v.F?.pings?.onBlur} onKeyDown={v.F?.pings?.onKeyDown} />
-                        <span style={{ color: "var(--fg-subtle)" }}>pings</span>
-                      </label>
-                      {v.F?.pings?.bad ? (
-                        <span className="fmsg" id={v.F?.pings?.eid} style={{ maxWidth: "280px" }}><bg-icon name="circle-alert" size="12" />{v.F?.pings?.err}</span>
-                      ) : null}
-                    </div>
+                    {v.F?.warmS?.bad ? <DS.FieldError id={v.F?.warmS?.eid} style={{ maxWidth: "280px" }}>{v.F?.warmS?.err}</DS.FieldError> : null}
                   </div>
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 20px", padding: "14px 16px" }}>
-                    <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "3px" }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-sm)", fontWeight: "600" }}>
-                        Overhead compensation
-                        {v.C?.overhead ? (
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "var(--text-micro)", fontWeight: "500", color: "var(--primary-text)" }}>
-                            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--primary)" }} />
-                            changed
-                          </span>
-                        ) : null}
-                      </span>
-                      <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
-                        Adds estimated protocol overhead to measured throughput. Shown next to every number when not 0 %.
-                      </span>
-                      {v.C?.overhead ? (
-                        <span style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px", fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>
-                          Shown as
-                          <span style={{ fontFamily: "var(--font-mono)", color: "var(--fg)" }}>941 Mbit/s</span>
-                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-muted)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-full)", padding: "1px 7px" }}>
-                            +{v.overhead}{" % overhead compensation"}
-                          </span>
-                        </span>
-                      ) : null}
-                    </div>
-                    <label className="input" style={{ width: "240px", height: "34px" }}>
-                      <select aria-label="Overhead compensation" value={v.overhead} onChange={v.setOverhead}>
-                        {(v.overheadOpts || []).map((o, $index) => (
-                          <React.Fragment key={$index}>
-                            <option value={o?.v}>{o?.t}</option>
-                          </React.Fragment>
-                        ))}
-                      </select>
-                      <bg-icon name="chevron-down" size="14" />
-                    </label>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderTop: "1px solid var(--border-subtle)" }}>
+                  <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "var(--space-0-5)" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>Ping count{v.C?.pings ? <DS.ChangedMark /> : null}</span>
+                    <span className="ds-caption" style={{ lineHeight: "var(--lh-compact)" }}>Used for idle latency and jitter. {v.pingsHelp}</span>
                   </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-1-5)" }}>
+                    <DS.Input mono invalid={v.F?.pings?.bad} suffix="pings" style={{ width: "110px" }} value={v.F?.pings?.val} aria-label="Ping count" aria-describedby={v.F?.pings?.desc} onChange={v.F?.pings?.onChange} onBlur={v.F?.pings?.onBlur} onKeyDown={v.F?.pings?.onKeyDown} />
+                    {v.F?.pings?.bad ? <DS.FieldError id={v.F?.pings?.eid} style={{ maxWidth: "280px" }}>{v.F?.pings?.err}</DS.FieldError> : null}
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderTop: "1px solid var(--border-subtle)" }}>
+                  <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "var(--space-0-5)" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>Overhead compensation{v.C?.overhead ? <DS.ChangedMark /> : null}</span>
+                    <span className="ds-caption" style={{ lineHeight: "var(--lh-compact)" }}>Adds estimated protocol overhead to measured throughput. Shown next to every number when not 0 %.</span>
+                    {v.C?.overhead ? <span className="ds-caption" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginTop: "var(--space-1)" }}>Shown as <span className="ds-num" style={{ color: "var(--fg)" }}>941 Mbit/s</span><DS.Chip size="sm">{'+' + v.overhead + ' % overhead compensation'}</DS.Chip></span> : null}
+                  </div>
+                  <DS.Select aria-label="Overhead compensation" value={v.overhead} onChange={v.setOverhead} options={(v.overheadOpts || []).map(o => ({ value: o.v, label: o.t }))} style={{ width: "240px" }} />
+                </div>
                 </div>
               ) : null}
-            </section>
+            </DS.Card>
           </div>
-          <aside style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: "0" }}>
-            <section className="card" aria-labelledby="s-share">
-              <div className="card-h"><bg-icon name="link" size="15" /><span className="t" id="s-share">Shareable link</span></div>
-              <div className="card-b" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
+          <aside style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", minWidth: "0" }}>
+            <DS.Card as="section" labelledBy="s-share" icon="link" title={<span id="s-share">Shareable link</span>}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
+                <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
                   Opens BitGauge with the settings that differ from the defaults. Phase order, per-direction durations, ping count, warm-up and overhead compensation aren't link parameters.
                 </span>
-                <div style={{ display: "flex", gap: "6px" }}>
-                  <label className="input mono sm" style={{ flex: "1", minWidth: "0", height: "34px" }}>
-                    <input readOnly value={v.url} aria-label="Shareable URL" style={{ fontSize: "var(--text-caption)" }} />
-                  </label>
-                  <button className="btn secondary icon" aria-label="Copy link" onClick={v.copyUrl}><bg-icon name={v.copyIcon} size="15" /></button>
+                <div style={{ display: "flex", gap: "var(--space-1-5)" }}>
+                  <DS.Input mono readOnly value={v.url} aria-label="Shareable URL" style={{ flex: "1", minWidth: "0" }} />
+                  <DS.Button iconOnly icon={v.copyIcon} aria-label="Copy link" onClick={v.copyUrl} />
                 </div>
-                <button role="checkbox" aria-checked={v.incRunAria} onClick={v.toggleIncRun} style={{ all: "unset", boxSizing: "border-box", display: "flex", alignItems: "center", gap: "8px", fontSize: "var(--text-caption)", color: "var(--fg-muted)", minHeight: "32px", cursor: "pointer" }}>
-                  <span style={{ width: "16px", height: "16px", flex: "none", boxSizing: "border-box", borderRadius: "4px", background: v.incRunBg, border: v.incRunBd, color: "var(--primary-fg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {v.incRun ? (
-                      <bg-icon name="check" size="12" stroke="3" />
-                    ) : null}
-                  </span>
-                  <span>{"Include "}<span style={{ fontFamily: "var(--font-mono)" }}>run=1</span>{" (start automatically)"}</span>
-                </button>
+                <DS.Checkbox size="sm" checked={v.incRunAria === 'true' || v.incRunAria === true} onChange={v.toggleIncRun}>{"Include "}<span className="ds-num">run=1</span>{" (start automatically)"}</DS.Checkbox>
                 {v.hasNotInUrl ? (
-                  <span style={{ display: "flex", alignItems: "flex-start", gap: "6px", fontSize: "var(--text-micro)", color: "var(--fg-subtle)", lineHeight: "1.45" }}>
-                    <span style={{ display: "flex", marginTop: "1px" }}><bg-icon name="info" size="12" /></span>
+                  <span style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-1-5)", fontSize: "var(--text-micro)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
+                    <span style={{ display: "flex", marginTop: "1px" }}><DS.Icon name="info" size={12} /></span>
                     {"Not in the link: "}{v.notInUrl}
                   </span>
                 ) : null}
               </div>
-            </section>
-            <section className="card" aria-labelledby="s-changed">
-              <div className="card-h">
-                <bg-icon name="sliders" size="15" />
-                <span className="t" id="s-changed">Changed from defaults</span>
-                <span className="right" style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>
-                  {v.changedCount}
-                </span>
-              </div>
+            </DS.Card>
+            <DS.Card as="section" labelledBy="s-changed" icon="sliders" title={<span id="s-changed">Changed from defaults</span>} actions={<span className="ds-mono-sm">{v.changedCount}</span>} padded={false}>
               {v.hasChanges ? (
-                <div style={{ padding: "4px 16px 4px" }}>
+                <div style={{ padding: "var(--space-1) var(--space-4) var(--space-1)" }}>
                   {(v.changed || []).map((c, $index) => (
                     <React.Fragment key={$index}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 0", borderBottom: "1px solid var(--border-subtle)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2-5)", padding: "var(--space-2) 0", borderBottom: "1px solid var(--border-subtle)" }}>
                         <span style={{ flex: "1", minWidth: "0", display: "flex", flexDirection: "column" }}>
                           <span style={{ fontSize: "var(--text-sm)" }}>{c?.k}</span>
                           <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>{"default "}{c?.d}</span>
                         </span>
                         <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--primary-text)", textAlign: "right" }}>{c?.v}</span>
-                        <button className="btn ghost icon sm" aria-label={c?.label} title={c?.label} onClick={c?.reset} style={{ width: "28px" }}>
-                          <bg-icon name="rotate-ccw" size="13" />
-                        </button>
+                        <DS.Button variant="ghost" size="sm" iconOnly icon="rotate-ccw" aria-label={c?.label} title={c?.label} onClick={c?.reset} style={{ width: "28px" }}></DS.Button>
                       </div>
                     </React.Fragment>
                   ))}
                 </div>
               ) : null}
               {v.noChanges ? (
-                <div style={{ padding: "14px 16px 2px", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>Everything is at its default.</div>
+                <div style={{ padding: "var(--space-3-5) var(--space-4) var(--space-0-5)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>Everything is at its default.</div>
               ) : null}
-              <div style={{ padding: "12px 16px" }}>
-                <button className="btn danger sm" disabled={v.noChanges} onClick={v.openReset} style={{ width: "100%", justifyContent: "center" }}>
-                  <bg-icon name="rotate-ccw" size="14" />
-                  Reset all to defaults
-                </button>
+              <div style={{ padding: "var(--space-3) var(--space-4)" }}>
+                <DS.Button variant="danger" size="sm" icon="rotate-ccw" disabled={v.noChanges} onClick={v.openReset} style={{ width: "100%", justifyContent: "center" }}>Reset all to defaults</DS.Button>
               </div>
-            </section>
+            </DS.Card>
           </aside>
         </main>
         {v.mobile ? (
           <div style={{ marginTop: "auto", position: "sticky", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="settings" status={this.props.srvStatus || "connected"} /></div>
         ) : null}
         {v.confirm ? (
-          <div onClick={v.closeReset} style={{ position: "absolute", inset: "0", zIndex: "40", background: "var(--scrim)", backdropFilter: "blur(2px)", display: "flex", alignItems: v.L?.cfAlign, justifyContent: "center", paddingTop: v.L?.cfTop }}>
-            <div className="modal" role="alertdialog" aria-modal="true" aria-labelledby="rst-t" aria-describedby="rst-d" onClick={v.stop} style={{ width: v.L?.cfW, maxWidth: "100%", maxHeight: "none", boxSizing: "border-box", borderRadius: v.L?.cfRad }}>
-              <div className="mh">
-                <div className="mi danger"><bg-icon name="rotate-ccw" size="17" /></div>
-                <div><div className="mt" id="rst-t">Reset all settings?</div><div className="md" id="rst-d">{v.resetLine}</div></div>
-              </div>
-              <div className="mf">
-                <span style={{ flex: "1" }} />
-                <button className="btn secondary" onClick={v.closeReset}>Cancel</button>
-                <button className="btn danger" onClick={v.doReset}><bg-icon name="rotate-ccw" size="14" />Reset all</button>
-              </div>
-            </div>
-          </div>
+          <DS.Dialog tone="danger" icon="rotate-ccw" title="Reset all settings?" onClose={v.closeReset} align={v.mobile ? 'top' : 'center'} footerStack={v.mobile}
+            footer={<><DS.Button onClick={v.closeReset}>Cancel</DS.Button><DS.Button variant="danger" icon="rotate-ccw" onClick={v.doReset}>Reset all</DS.Button></>}>{v.resetLine}</DS.Dialog>
         ) : null}
         {v.keepAsk ? (
-          <div onClick={v.keepCancel} style={{ position: "absolute", inset: "0", zIndex: "40", background: "var(--scrim)", backdropFilter: "blur(2px)", display: "flex", alignItems: v.L?.cfAlign, justifyContent: "center", paddingTop: v.L?.cfTop }}>
-            <div className="modal" role="alertdialog" aria-modal="true" aria-labelledby="keep-t" aria-describedby="keep-d" onClick={v.stop} style={{ width: v.L?.cfW, maxWidth: "100%", maxHeight: "none", boxSizing: "border-box", borderRadius: v.L?.cfRad }}>
-              <div className="mh">
-                <div className="mi"><bg-icon name="timer" size="17" /></div>
-                <div><div className="mt" id="keep-t">{v.keepTitle}</div><div className="md" id="keep-d">{v.keepLine}</div></div>
-              </div>
-              <div className="mf" style={{ flexWrap: "wrap" }}>
-                <button className="btn ghost" onClick={v.keepCancel}>Cancel</button>
-                <span style={{ flex: "1" }} />
-                <button className="btn secondary" onClick={v.keepPreset}>{v.keepUse}</button>
-                <button className="btn primary" onClick={v.keepCustom}>Keep custom durations</button>
-              </div>
-            </div>
-          </div>
+          <DS.Dialog icon="timer" title={v.keepTitle} onClose={v.keepCancel} align={v.mobile ? 'top' : 'center'} footerStack={v.mobile}
+            footer={<><DS.Button variant="ghost" onClick={v.keepCancel}>Cancel</DS.Button><span style={{ flex: "1" }} /><DS.Button onClick={v.keepPreset}>{v.keepUse}</DS.Button><DS.Button variant="primary" onClick={v.keepCustom}>Keep custom durations</DS.Button></>}>{v.keepLine}</DS.Dialog>
         ) : null}
       </div>
     );

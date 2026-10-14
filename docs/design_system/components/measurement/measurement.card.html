@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" viewport="700x340" name="Measurement · MetricTile, PhaseStep" subtitle="Metric tile states and phase indicator rows" -->
+<!-- @dsCard group="Components" viewport="700x760" name="Measurement · Tiles, phases, load, quality" subtitle="Phase indicator, metric tile states, load card, quality list, meta list with packet-loss slot" -->
 <!doctype html><html data-theme="dark"><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../styles.css">
 <link rel="stylesheet" href="../../preview/card.css">
@@ -10,10 +10,22 @@
 </head><body><div id="root"></div>
 <script type="text/babel">
 const NS = window.BitGaugeDesignSystem_1ab699;
-const { MetricTile, PhaseStep } = NS;
-function Demo(){ return <div className="row gap-5" style={{alignItems:'flex-start'}}>
-<div style={{flex:1,minWidth:0,display:'grid',gridTemplateColumns:'1fr 1fr',gap:'var(--space-3)'}}><MetricTile label="Download" value="612" unit="Mbit/s" note="peak 640 Mbit/s" accent="var(--series-download)" /><MetricTile label="Upload" value="8.9" unit="Mbit/s" state="partial" accent="var(--series-upload)" /><MetricTile label="Latency" value="3.1" unit="ms" note="idle · 120 samples" accent="var(--series-latency)" /><MetricTile label="Jitter" state="empty" /><MetricTile label="Upload" value="1.1" unit="Mbit/s" state="insufficient-data" accent="var(--series-upload)" /><MetricTile label="Download" state="error" accent="var(--series-download)" /></div>
-<div className="col gap-3" style={{flex:1,minWidth:0}}><PhaseStep phase="latency" state="done" detail="3.1 ms" /><PhaseStep phase="download" state="active" progress={0.62} detail="4.6 s left" /><PhaseStep phase="upload" state="pending" detail="~15–25 s" /><PhaseStep phase="upload" state="capped" progress={0.64} detail="data cap" /></div>
+const { MetricTile, PhaseIndicator, LoadCard, QualityList, MetaList, NotMeasured } = NS;
+function Demo(){ return <div className="col gap-3">
+<PhaseIndicator steps={[{ phase: 'latency', state: 'done', detail: '3.1 ms' }, { phase: 'download', state: 'active', progress: 0.62, detail: '4.6 s left' }, { phase: 'upload', state: 'pending', detail: '~15–25 s' }]} />
+<div style={{display:'grid',gridTemplateColumns:'repeat(3, minmax(0,1fr))',gap:'var(--space-3)'}}>
+<MetricTile label="Download" icon="arrow-down" accent="var(--series-download)" value="612" unit="Mbit/s" note="peak 641 · 6 streams" />
+<MetricTile label="Upload" icon="arrow-up" accent="var(--series-upload)" state="warming-up" />
+<MetricTile label="Upload" icon="arrow-up" accent="var(--series-upload)" value="402" unit="Mbit/s" state="partial" tag="Partial — stopped early" note="3.6 s steady window · 21 requests" />
+<MetricTile label="Download" icon="arrow-down" accent="var(--series-download)" state="insufficient-data" note="Insufficient data — steady window shorter than 3 s" />
+<MetricTile label="Download" icon="arrow-down" accent="var(--series-download)" state="error" note="error · connection lost" />
+<MetricTile label="Jitter" icon="activity" accent="var(--series-latency)" state="empty" />
+</div>
+<div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:'var(--space-3)'}}>
+<LoadCard grade="B" rows={[{ dir: 'download', label: 'During download · WebSocket', sub: 'p90 24 · +15 ms vs idle', value: '18' }, { dir: 'upload', label: 'During upload · WebSocket', sub: 'p90 55 · +39 ms vs idle', value: '42' }]} responsiveness={{ protocol: 'h2', note: 'round trips per minute, one per direction', dirs: [{ dir: 'download', value: '1,420' }, { dir: 'upload', value: '980' }] }} />
+<QualityList bands={['Great', 'Great', 'Good']} />
+</div>
+<MetaList title="Test" rows={[{ icon: 'database', label: 'Data used', value: '1.23 GB' }, { icon: 'timer', label: 'Duration', value: '28.6 s' }, { icon: 'signal', label: 'Packet loss', node: <NotMeasured /> }]} />
 </div>; }
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
 </script></body></html>

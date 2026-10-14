@@ -6,8 +6,14 @@ export interface LogoProps {
   variant?: 'color' | 'mono';
   /** Force geometry. @default size <= 20 ? "small" : "full" */
   geometry?: 'full' | 'small';
-  /** Append the wordmark: "Bit" in --fg + "Gauge" in teal --primary-text, IBM Plex Sans 600. @default false */
+  /** Append the wordmark: "Bit" in --fg + "Gauge" in --primary-text, IBM Plex Sans 600 (navigation.css `.wm`). @default false */
   wordmark?: boolean;
+  /** Wordmark text size (sm 11 · md 15 · lg 16 · xl 18 px). @default from size: ≥36 xl, ≥27 lg, ≥20 md, else sm */
+  wordmarkSize?: 'sm' | 'md' | 'lg' | 'xl';
+  /** Render the wordmark as a home link. */
+  href?: string;
+  /** Accessible name of the home link. @default "BitGauge home" */
+  label?: string;
   style?: React.CSSProperties;
 }
 export declare function Logo(props: LogoProps): JSX.Element;

@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" viewport="700x380" name="Measurement · Gauge" subtitle="Rate gauge in its auto window (caption names it); latency mode, fixed 1–1000 ms" -->
+<!-- @dsCard group="Components" viewport="700x700" name="Measurement · Gauge" subtitle="Rate and ms modes; countdown and offline states; caption names the auto window" -->
 <!doctype html><html data-theme="dark"><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../styles.css">
 <link rel="stylesheet" href="../../preview/card.css">
@@ -10,10 +10,12 @@
 </head><body><div id="root"></div>
 <script type="text/babel">
 const NS = window.BitGaugeDesignSystem_1ab699;
-const { Gauge } = NS;
-function Demo(){ return <div className="card row gap-5" style={{alignItems:'center',justifyContent:'center',padding:'var(--space-3)'}}>
-<Gauge size={300} value={612e6} bandLo={560e6} bandHi={640e6} peak={640e6} eyebrow="Download" eyebrowIcon="arrow-down" readout="612" unit="Mbit/s" />
-<Gauge size={240} mode="ms" value={3.1} color="var(--series-latency)" eyebrow="Latency" eyebrowIcon="activity" readout="3.1" unit="ms" sub="median 3.1 · ping 12 of 20" />
+const { Gauge, Button } = NS;
+function Demo(){ return <div className="card row wrap gap-5" style={{alignItems:'center',justifyContent:'center',padding:'var(--space-3)'}}>
+<Gauge value={612e6} bandLo={560e6} bandHi={640e6} peak={640e6} eyebrow="Download" eyebrowIcon="arrow-down" readout="612" unit="Mbit/s" note="avg so far 598 · peak 612" />
+<Gauge compact mode="ms" value={3.1} color="var(--series-latency)" eyebrow="Latency" eyebrowIcon="activity" readout="3.1" unit="ms" note="median 3.1 · ping 12 of 20" />
+<Gauge compact state="countdown" countdownLeft={2.4} eyebrow="Auto-start in" eyebrowIcon="timer" unit={['second','seconds']} note="Esc cancels" />
+<Gauge compact state="offline" icon="server-off" title="Server unreachable" message="speed.home.lan didn't respond." action={<Button size="sm" icon="refresh-cw">Retry</Button>} />
 </div>; }
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
 </script></body></html>

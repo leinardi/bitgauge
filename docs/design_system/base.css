@@ -1,0 +1,42 @@
+/* ============================================================================
+   BitGauge Design System — base.css (foundation layer)
+   Element defaults every consumer gets: box model, body type (font, size AND
+   line height), links, focus, selection, scrollbars, reduced motion, the
+   visually-hidden utility. Tokens only. Imported by styles.css after tokens.
+   ============================================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+    background: var(--bg-base);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--lh-normal);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--primary-text); }
+a:hover { color: var(--primary-hover); }
+::selection { background: var(--primary-bg); }
+
+/* Focus: solid 2 px ring, 2 px offset, on every interactive element. */
+:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+* { scrollbar-width: thin; }
+html { scrollbar-color: var(--surface-4) transparent; }
+
+/* Visually hidden, still read by screen readers (live regions, state text). */
+.sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* Reduced motion: no tweening, no pulsing. [data-reduce-motion] forces it for previews. */
+[data-reduce-motion] *, [data-reduce-motion] *::before, [data-reduce-motion] *::after {
+    animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}

@@ -1,6 +1,6 @@
 # Tokens
 
-Source: `colors_and_type.css`. Theme with `data-theme="dark" | "light"` on `<html>` (dark is
+Source: `colors_and_type.css` (tokens) and `base.css` (element defaults: body font, size **and line height**, links, focus). Theme with `data-theme="dark" | "light"` on `<html>` (dark is
 `:root`'s default). Density with `data-density="compact"`.
 
 ## Colour — semantic
@@ -39,17 +39,34 @@ Source: `colors_and_type.css`. Theme with `data-theme="dark" | "light"` on `<htm
 ## Tailwind 4 mapping
 
 ```css
-/* tokens.css — import colors_and_type.css first */
+/* tokens.css — import styles.css (colors_and_type.css) first */
 @theme inline {
-  --color-background: var(--bg-base);  --color-foreground: var(--fg);
-  --color-card: var(--surface-2);      --color-muted: var(--surface-3);
-  --color-muted-foreground: var(--fg-muted);
+  /* shadcn-vue / Reka UI semantic set — every key a library expects is mapped, so nothing falls back
+     to an unstyled default or currentColor. */
+  --color-background: var(--bg-base);          --color-foreground: var(--fg);
+  --color-card: var(--surface-2);              --color-card-foreground: var(--fg);
+  --color-popover: var(--surface-2);           --color-popover-foreground: var(--fg);
+  --color-primary: var(--primary);             --color-primary-foreground: var(--primary-fg);
+  --color-secondary: var(--surface-3);         --color-secondary-foreground: var(--fg);        /* = Button secondary */
+  --color-muted: var(--surface-3);             --color-muted-foreground: var(--fg-muted);
+  --color-accent: var(--surface-3);            --color-accent-foreground: var(--fg);           /* hover / highlighted rows, menu items */
+  --color-destructive: var(--danger-solid);    --color-destructive-foreground: var(--fg-on-solid);
+  --color-border: var(--border-subtle);        --color-input: var(--border-default);
+  --color-ring: var(--focus-ring);             /* ring-2 ring-offset-2 */
+  --color-chart-1: var(--series-download);     --color-chart-2: var(--series-upload);
+  --color-chart-3: var(--series-latency);      --color-chart-4: var(--sending);
+  --color-chart-5: var(--fg-subtle);
+  --color-sidebar: var(--surface-1);           --color-sidebar-foreground: var(--fg);
+  --color-sidebar-primary: var(--primary);     --color-sidebar-primary-foreground: var(--primary-fg);
+  --color-sidebar-accent: var(--surface-3);    --color-sidebar-accent-foreground: var(--fg);
+  --color-sidebar-border: var(--border-subtle); --color-sidebar-ring: var(--focus-ring);
+  /* BitGauge additions */
   --color-subtle-foreground: var(--fg-subtle);
-  --color-border: var(--border-subtle); --color-input: var(--border-default);
-  --color-primary: var(--primary);     --color-primary-foreground: var(--primary-fg);
   --color-primary-text: var(--primary-text);
-  --color-destructive: var(--danger);
-  --color-ring: var(--focus-ring);     /* ring-2 ring-offset-2 */
+  --color-ok: var(--ok);   --color-ok-foreground: var(--ok-fg);   --color-ok-bg: var(--ok-bg);   --color-ok-border: var(--ok-border);
+  --color-warn: var(--warn); --color-warn-foreground: var(--warn-fg); --color-warn-bg: var(--warn-bg); --color-warn-border: var(--warn-border);
+  --color-danger: var(--danger); --color-danger-foreground: var(--danger-fg); --color-danger-bg: var(--danger-bg); --color-danger-border: var(--danger-border);
+  --color-info: var(--info); --color-info-foreground: var(--info-fg); --color-info-bg: var(--info-bg); --color-info-border: var(--info-border);
   --color-series-download: var(--series-download);
   --color-series-upload: var(--series-upload);
   --color-series-latency: var(--series-latency);
@@ -60,11 +77,15 @@ Source: `colors_and_type.css`. Theme with `data-theme="dark" | "light"` on `<htm
   --color-quality-great: var(--quality-great); --color-quality-good: var(--quality-good);
   --color-quality-average: var(--quality-average); --color-quality-poor: var(--quality-poor);
   --color-quality-bad: var(--quality-bad);
-  --radius: 7px;
+  --color-term: var(--term-bg); --color-term-foreground: var(--term-fg);
+  --radius: 7px;   /* = --radius-md. Same-named theme keys can't reference themselves, so these are literals */
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-condensed: var(--font-cond);
+  --leading-normal: var(--lh-normal);
 }
-/* --fg-faint is non-text only: no text-faint utility. */
+/* Destructive is the solid fill (--danger-solid) so a destructive Button label meets 4.5:1;
+   outline-danger text uses text-danger-foreground. --fg-faint is non-text only: no text-faint utility. */
 ```
 
 Frontend aliases also resolve: `--surface-background`, `--surface-elevated`, `--surface-muted`,
@@ -114,6 +135,22 @@ need 3:1. Measured against `--bg-base` and `--surface-2`; tinted rows composite 
 | `--quality-poor` | text | 4.5 | 10.7 | 9.3 | 5.3 | 5.9 |
 | `--quality-bad` | text | 4.5 | 9.7 | 8.4 | 5.9 | 6.6 |
 
+## Layout and control sizes
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--layout-max` | 1200 px | content column |
+| `--layout-gutter` / `-compact` | 40 / 16 px | page side padding |
+| `--layout-section-gap` / `-compact` | 20 / 14 px | between sections |
+| `--layout-tile-gap` / `-compact` | 16 / 10 px | between tiles |
+| `--layout-rail`, `--layout-instrument` | 340, 400 px | side rail; Test gauge column |
+| `--control-h-sm / -md / -lg / -xl` | 28 / 34 / 38 / 46 px | Button sizes (xl = Start/Stop) |
+| `--control-h-touch`, `--control-h-touch-xl` | 44, 52 px | touch minimum; Start/Stop compact |
+| `--input-h`, `--pill-h`, `--pill-h-sm`, `--chip-h`, `--chip-h-sm`, `--tab-h` | 36, 22, 20, 30, 24, 36 px | |
+| `--header-h` / `-compact`, `--tabbar-h` | 56 / 52, 64 px | AppHeader, TabBar |
+| `--modal-w`, `--modal-w-wide`, `--start-w` | 452, 540, 248 px | Dialog; StartButton min width |
+| `--term-comment`, `--term-command`, `--term-muted` | slate-5, teal-5, slate-3 | Snippet syntax on `--term-bg` |
+
 ## Type
 
 | Role | Spec |
@@ -128,6 +165,10 @@ need 3:1. Measured against `--bg-base` and `--surface-2`; tinted rows composite 
 | Data / meta | Plex Mono 400 · 11–13 · tabular |
 
 Scale tokens: `--text-nano` 10 … `--text-6xl` 48. Weights 400/500/600/700.
+Role tokens: `--type-gauge-readout` 58 / `-compact` 46, `--type-metric-value` 30 / 24,
+`--type-page-title` 30 / 24, `--type-state-title` 26 / 22; tracking `--tracking-readout` −0.03em,
+`--tracking-metric` −0.02em. Line heights: `--lh-tight` 1.15 · `--lh-snug` 1.3 · `--lh-compact` 1.45 ·
+`--lh-normal` 1.5 (body default, set in `base.css`) · `--lh-prose` 1.55 · `--lh-relaxed` 1.65.
 
 ## Number formatting
 

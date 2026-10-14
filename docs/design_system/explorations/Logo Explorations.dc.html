@@ -9,9 +9,40 @@
 <x-dc>
 <helmet>
   <meta name="design_doc_mode" content="canvas">
-  <link rel="stylesheet" href="../colors_and_type.css">
-  <link rel="stylesheet" href="../ui_kits/app/app.css">
-  <script src="../ui_kits/app/bg-lib.js"></script>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="../_ds_bundle.js"></script>
+  <script>/* Renders the bundle's Logo / Icon into <span data-ds="Logo|Icon" data-size=… data-name=… data-variant=…> placeholders (no Babel). */
+(function () {
+  const NS = 'BitGaugeDesignSystem_1ab699';
+  const KEYS = ['size', 'variant', 'geometry', 'wordmark', 'wordmarkSize', 'name', 'stroke'];
+  function props(el) {
+    const p = {};
+    for (const k of KEYS) {
+      const v = el.dataset[k];
+      if (v === undefined) continue;
+      p[k] = v === '' ? true : /^-?\d+(\.\d+)?$/.test(v) ? +v : v;
+    }
+    return p;
+  }
+  function mount() {
+    const ns = window[NS];
+    if (!ns || !window.React || !window.ReactDOM) return false;
+    document.querySelectorAll('[data-ds]:not([data-ds-mounted])').forEach(el => {
+      const C = ns[el.dataset.ds];
+      if (!C) { console.warn('preview mount: no component ' + el.dataset.ds); return; }
+      el.setAttribute('data-ds-mounted', '');
+      el.style.display = el.style.display || 'inline-flex';
+      ReactDOM.createRoot(el).render(React.createElement(C, props(el)));
+    });
+    return true;
+  }
+  function start() {
+    if (!mount()) { setTimeout(start, 50); return; }
+    new MutationObserver(mount).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
   <style>
     body{margin:0;background:oklch(0.9 0.006 255) !important;font-family:"IBM Plex Sans",system-ui,sans-serif;color:oklch(0.235 0.014 255)}
     a{color:oklch(0.55 0.105 207)} a:hover{color:oklch(0.62 0.115 205)}
@@ -73,13 +104,13 @@
       <a href="#t2" style="font:600 11px 'IBM Plex Mono',monospace; padding:3px 8px; background:oklch(0.235 0.014 255); color:#fff; border-radius:4px; text-decoration:none">Turn 2</a>
       <span style="font:600 22px/1.2 'IBM Plex Sans',sans-serif; letter-spacing:-.01em"><a href="#1f" style="color:inherit">1f</a> Three series — production set</span>
     </div>
-    <p style="font:400 14px/1.5 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255); margin:0; max-width:860px; text-wrap:pretty">The chosen mark with its monochrome variant, favicon geometry, app icons and the one wordmark used everywhere. Files are in <span style="font-family:'IBM Plex Mono',monospace">assets/</span>; the live component is <span style="font-family:'IBM Plex Mono',monospace">&lt;bg-logo&gt;</span> in bg-lib.js.</p>
+    <p style="font:400 14px/1.5 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255); margin:0; max-width:860px; text-wrap:pretty">The chosen mark with its monochrome variant, favicon geometry, app icons and the one wordmark used everywhere. Files are in <span style="font-family:'IBM Plex Mono',monospace">assets/</span>; the live component is <span style="font-family:'IBM Plex Mono',monospace">Logo</span> in components/brand/Logo.jsx.</p>
   </div>
 
   <div style="display:flex; flex-direction:column; gap:14px">
     <div style="display:flex; flex-direction:column; gap:4px"><span style="font:600 15px 'IBM Plex Sans',sans-serif">Colour and monochrome</span><span style="font:400 13px/1.5 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255); max-width:820px; text-wrap:pretty">Colour uses the series tokens, so it follows the theme. Mono draws every arc in one ink (currentColor) with the track at 14% — for single-colour print, embossing and OS template icons. The dashed latency arc keeps the inner ring readable without hue.</span></div>
     <div style="display:flex; flex-wrap:wrap; gap:20px">
-      <div style="display:flex; flex-direction:column; gap:8px"><div data-theme="dark" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:var(--bg-base); color:var(--fg)"><bg-logo size="112"></bg-logo></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">Colour · dark</span></div><div style="display:flex; flex-direction:column; gap:8px"><div data-theme="light" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:var(--bg-base); color:var(--fg)"><bg-logo size="112"></bg-logo></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">Colour · light</span></div><div style="display:flex; flex-direction:column; gap:8px"><div data-theme="dark" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:var(--bg-base); color:var(--fg)"><bg-logo size="112" variant="mono"></bg-logo></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">Mono · dark</span></div><div style="display:flex; flex-direction:column; gap:8px"><div data-theme="light" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:var(--bg-base); color:var(--fg)"><bg-logo size="112" variant="mono"></bg-logo></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">Mono · light</span></div>
+      <div style="display:flex; flex-direction:column; gap:8px"><div data-theme="dark" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:var(--bg-base); color:var(--fg)"><span data-ds="Logo" data-size="112"></span></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">Colour · dark</span></div><div style="display:flex; flex-direction:column; gap:8px"><div data-theme="light" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:var(--bg-base); color:var(--fg)"><span data-ds="Logo" data-size="112"></span></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">Colour · light</span></div><div style="display:flex; flex-direction:column; gap:8px"><div data-theme="dark" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:var(--bg-base); color:var(--fg)"><span data-ds="Logo" data-size="112" data-variant="mono"></span></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">Mono · dark</span></div><div style="display:flex; flex-direction:column; gap:8px"><div data-theme="light" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:var(--bg-base); color:var(--fg)"><span data-ds="Logo" data-size="112" data-variant="mono"></span></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">Mono · light</span></div>
     </div>
   </div>
 
@@ -89,14 +120,14 @@
       <div style="width:300px"><div data-theme="light" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; display:flex; flex-direction:column; background:var(--surface-1); color:var(--fg)">
   <div style="display:flex; align-items:center; gap:8px; height:34px; padding:0 12px; background:var(--surface-3); border-bottom:1px solid var(--border-subtle); font:400 12px 'IBM Plex Sans',sans-serif"><img src="../assets/favicon-16.png" width="16" height="16" alt=""><span>BitGauge · Basement NAS</span><span style="margin-left:auto; color:var(--fg-subtle)">light tab</span></div>
   <div style="display:flex; align-items:flex-end; gap:28px; padding:20px 20px 16px">
-    <div style="display:flex; flex-direction:column; gap:8px; align-items:center"><bg-logo size="16"></bg-logo><span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">svg 16</span></div>
-    <div style="display:flex; flex-direction:column; gap:8px; align-items:center"><bg-logo size="32"></bg-logo><span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">svg 32</span></div>
+    <div style="display:flex; flex-direction:column; gap:8px; align-items:center"><span data-ds="Logo" data-size="16"></span><span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">svg 16</span></div>
+    <div style="display:flex; flex-direction:column; gap:8px; align-items:center"><span data-ds="Logo" data-size="32"></span><span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">svg 32</span></div>
   </div></div></div>
       <div style="width:300px"><div data-theme="dark" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; display:flex; flex-direction:column; background:var(--surface-1); color:var(--fg)">
   <div style="display:flex; align-items:center; gap:8px; height:34px; padding:0 12px; background:var(--surface-3); border-bottom:1px solid var(--border-subtle); font:400 12px 'IBM Plex Sans',sans-serif"><img src="../assets/favicon-16.png" width="16" height="16" alt=""><span>BitGauge · Basement NAS</span><span style="margin-left:auto; color:var(--fg-subtle)">dark tab</span></div>
   <div style="display:flex; align-items:flex-end; gap:28px; padding:20px 20px 16px">
-    <div style="display:flex; flex-direction:column; gap:8px; align-items:center"><bg-logo size="16"></bg-logo><span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">svg 16</span></div>
-    <div style="display:flex; flex-direction:column; gap:8px; align-items:center"><bg-logo size="32"></bg-logo><span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">svg 32</span></div>
+    <div style="display:flex; flex-direction:column; gap:8px; align-items:center"><span data-ds="Logo" data-size="16"></span><span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">svg 16</span></div>
+    <div style="display:flex; flex-direction:column; gap:8px; align-items:center"><span data-ds="Logo" data-size="32"></span><span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">svg 32</span></div>
   </div></div></div>
       <div style="display:flex; flex-direction:column; gap:8px"><div style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:128px; height:128px; display:flex; align-items:center; justify-content:center; background:#fff; background-image:linear-gradient(45deg, oklch(0.94 0.004 255) 25%, transparent 25%, transparent 75%, oklch(0.94 0.004 255) 75%), linear-gradient(45deg, oklch(0.94 0.004 255) 25%, transparent 25%, transparent 75%, oklch(0.94 0.004 255) 75%); background-size:16px 16px; background-position:0 0, 8px 8px"><img src="../assets/favicon-16.png" width="96" height="96" alt="" style="image-rendering:pixelated"></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">favicon-16.png · 6×</span></div>
       <div style="display:flex; flex-direction:column; gap:8px"><div style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; width:128px; height:128px; display:flex; align-items:center; justify-content:center; background:#fff; background-image:linear-gradient(45deg, oklch(0.94 0.004 255) 25%, transparent 25%, transparent 75%, oklch(0.94 0.004 255) 75%), linear-gradient(45deg, oklch(0.94 0.004 255) 25%, transparent 25%, transparent 75%, oklch(0.94 0.004 255) 75%); background-size:16px 16px; background-position:0 0, 8px 8px"><img src="../assets/favicon-32.png" width="96" height="96" alt="" style="image-rendering:pixelated"></div><span style="font:400 12px/1.4 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255)">favicon-32.png · 3×</span></div>
@@ -120,19 +151,19 @@
     <div style="display:flex; flex-direction:column; gap:4px"><span style="font:600 15px 'IBM Plex Sans',sans-serif">Wordmark · the same everywhere</span><span style="font:400 13px/1.5 'IBM Plex Sans',sans-serif; color:oklch(0.45 0.014 255); max-width:820px; text-wrap:pretty">Bit in --fg, Gauge in --primary-text (teal), IBM Plex Sans 600, tight tracking, one word. Mark-to-word gap is 0.3× the mark. Used as-is in the nav (28 · 18 px), mobile header (26 · 16), About (40 · 20), base-path screen (22 · 16) and share image (15 · 11). Mono lockup drops the teal.</span></div>
     <div style="display:flex; flex-wrap:wrap; gap:20px">
       <div style="width:260px"><div data-theme="dark" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; display:flex; flex-direction:column; gap:18px; padding:22px 24px; background:var(--bg-base); color:var(--fg); font-family:var(--font-sans)">
-  <span style="display:flex; align-items:center; gap:12px"><bg-logo size="40"></bg-logo><span style="font-size:var(--text-xl); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
-  <span style="display:flex; align-items:center; gap:var(--space-2)"><bg-logo size="28"></bg-logo><span style="font-size:var(--text-lg); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
-  <span style="display:flex; align-items:center; gap:6px"><bg-logo size="15"></bg-logo><span style="font-size:11px; font-weight:600; letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
+  <span style="display:flex; align-items:center; gap:12px"><span data-ds="Logo" data-size="40"></span><span style="font-size:var(--text-xl); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
+  <span style="display:flex; align-items:center; gap:var(--space-2)"><span data-ds="Logo" data-size="28"></span><span style="font-size:var(--text-lg); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
+  <span style="display:flex; align-items:center; gap:6px"><span data-ds="Logo" data-size="15"></span><span style="font-size:11px; font-weight:600; letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
   <span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">colour · dark</span></div></div>
       <div style="width:260px"><div data-theme="light" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; display:flex; flex-direction:column; gap:18px; padding:22px 24px; background:var(--bg-base); color:var(--fg); font-family:var(--font-sans)">
-  <span style="display:flex; align-items:center; gap:12px"><bg-logo size="40"></bg-logo><span style="font-size:var(--text-xl); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
-  <span style="display:flex; align-items:center; gap:var(--space-2)"><bg-logo size="28"></bg-logo><span style="font-size:var(--text-lg); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
-  <span style="display:flex; align-items:center; gap:6px"><bg-logo size="15"></bg-logo><span style="font-size:11px; font-weight:600; letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
+  <span style="display:flex; align-items:center; gap:12px"><span data-ds="Logo" data-size="40"></span><span style="font-size:var(--text-xl); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
+  <span style="display:flex; align-items:center; gap:var(--space-2)"><span data-ds="Logo" data-size="28"></span><span style="font-size:var(--text-lg); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
+  <span style="display:flex; align-items:center; gap:6px"><span data-ds="Logo" data-size="15"></span><span style="font-size:11px; font-weight:600; letter-spacing:var(--tracking-tight)">Bit<span style="color:var(--primary-text)">Gauge</span></span></span>
   <span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">colour · light</span></div></div>
       <div style="width:260px"><div data-theme="light" style="border:1px solid oklch(0 0 0 / .12); border-radius:10px; box-shadow:0 2px 10px oklch(0.3 0.02 255 / .12); overflow:hidden; display:flex; flex-direction:column; gap:18px; padding:22px 24px; background:var(--bg-base); color:var(--fg); font-family:var(--font-sans)">
-  <span style="display:flex; align-items:center; gap:12px"><bg-logo size="40" variant="mono"></bg-logo><span style="font-size:var(--text-xl); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:inherit">Gauge</span></span></span>
-  <span style="display:flex; align-items:center; gap:var(--space-2)"><bg-logo size="28" variant="mono"></bg-logo><span style="font-size:var(--text-lg); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:inherit">Gauge</span></span></span>
-  <span style="display:flex; align-items:center; gap:6px"><bg-logo size="15" variant="mono"></bg-logo><span style="font-size:11px; font-weight:600; letter-spacing:var(--tracking-tight)">Bit<span style="color:inherit">Gauge</span></span></span>
+  <span style="display:flex; align-items:center; gap:12px"><span data-ds="Logo" data-size="40" data-variant="mono"></span><span style="font-size:var(--text-xl); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:inherit">Gauge</span></span></span>
+  <span style="display:flex; align-items:center; gap:var(--space-2)"><span data-ds="Logo" data-size="28" data-variant="mono"></span><span style="font-size:var(--text-lg); font-weight:var(--weight-semibold); letter-spacing:var(--tracking-tight)">Bit<span style="color:inherit">Gauge</span></span></span>
+  <span style="display:flex; align-items:center; gap:6px"><span data-ds="Logo" data-size="15" data-variant="mono"></span><span style="font-size:11px; font-weight:600; letter-spacing:var(--tracking-tight)">Bit<span style="color:inherit">Gauge</span></span></span>
   <span style="font:400 11px 'IBM Plex Mono',monospace; color:var(--fg-subtle)">mono</span></div></div>
     </div>
   </div>
@@ -147,9 +178,10 @@
 &lt;link rel="manifest" href="site.webmanifest"&gt;              &lt;!-- 192, 512, 512 maskable --&gt;
 &lt;meta name="theme-color" content="#0b0f14"&gt;
 
-&lt;bg-logo size="28"&gt;                 colour, full mark
-&lt;bg-logo size="28" variant="mono"&gt;  one ink, currentColor
-&lt;bg-logo size="16"&gt;                 ≤ 20 px switches to the favicon geometry</pre>
+&lt;Logo size={28} /&gt;                  colour, full mark
+&lt;Logo size={28} variant="mono" /&gt;   one ink, currentColor
+&lt;Logo size={16} /&gt;                  ≤ 20 px switches to the favicon geometry
+&lt;Logo size={28} wordmark href="/" /&gt; mark + wordmark, home link</pre>
   </div>
 </section>
 
