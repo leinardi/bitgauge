@@ -88,7 +88,7 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
   },
 }
 
-/** The GET /info answer the link's client sees: the kit's 192.168.1.42 on the LAN, 10.8.0.6 otherwise. */
+/** The GET /info answer the link's client sees: the kit's 10.8.0.6 behind the VPN, 192.168.1.42 otherwise. */
 export function infoFor(link: DemoLinkName, basePath = '/'): Info {
-  return info(link === 'lan' || link === 'lan-http1' ? '192.168.1.42' : '10.8.0.6', basePath)
+  return info(link === 'vpn' ? '10.8.0.6' : '192.168.1.42', basePath)
 }
