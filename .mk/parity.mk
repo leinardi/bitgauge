@@ -36,15 +36,23 @@ MK_COMMON_PARITY_INCLUDED := 1
 # What the consumer's web app provides:
 #   npm scripts parity                  the harness (PARITY_MATRIX, PARITY_SCENARIOS,
 #                                       PARITY_BASELINE=update|accept and PARITY_REASON from here)
-#               parity:serve:prototype  the prototype on 127.0.0.1:5181
-#               parity:serve:demo       the demo build on 127.0.0.1:5180
+#               parity:serve:prototype  the prototype on 127.0.0.1:$PARITY_PROTO_PORT
+#               parity:serve:demo       the demo build on 127.0.0.1:$PARITY_DEMO_PORT
+#   the harness's origins               read from the same two variables
 #   parity/triage/cli.ts                the triage helper over the last run
 #   playwright-report/                  the HTML report the harness writes
 
 # The prototype page demo-parity-servers points at, relative to the prototype server's root.
 PARITY_PROTOTYPE_PAGE ?= index.html
 
-PARITY_ENV = PARITY_MATRIX="$(MATRIX)" PARITY_SCENARIOS="$(SCENARIO)"
+# The ports the two sides are served on. A consumer sets its own pair with ?= before including this
+# file, so two projects can run the harness side by side; a single run overrides them on the command
+# line. A port already in use still fails the run, rather than comparing another project's server.
+PARITY_DEMO_PORT ?= 5180
+PARITY_PROTO_PORT ?= 5181
+
+PARITY_PORTS = PARITY_DEMO_PORT="$(PARITY_DEMO_PORT)" PARITY_PROTO_PORT="$(PARITY_PROTO_PORT)"
+PARITY_ENV = PARITY_MATRIX="$(MATRIX)" PARITY_SCENARIOS="$(SCENARIO)" $(PARITY_PORTS)
 
 # The targets need web.mk's WEB_DIR and install stamp, which this file cannot provide; a parity goal
 # without it stops here rather than running npm in the wrong directory.
@@ -98,16 +106,16 @@ demo-parity-report: ## Open the last demo-parity HTML report (screenshots, heatm
 demo-parity-triage: ## Triage the parity differences with the helper; status unless CMD names a command
 	cd "$(WEB_DIR)" && node parity/triage/cli.ts $(or $(CMD),status)
 
-# Both sides on the harness's own ports, in the foreground, for looking at a difference by hand.
+# Both sides on the harness's own ports (PARITY_PROTO_PORT and PARITY_DEMO_PORT), in the foreground, for looking at a difference by hand.
 # Ctrl+C stops both.
 .PHONY: demo-parity-servers
-demo-parity-servers: $(WEB_INSTALLED) ## Serve the prototype on port 5181 and the demo build on 5180, for triage
+demo-parity-servers: $(WEB_INSTALLED) ## Serve the prototype and the demo build on the harness's ports, for triage
 	@cd "$(WEB_DIR)" && { \
-	  npm run parity:serve:prototype & proto=$$!; \
+	  $(PARITY_PORTS) npm run parity:serve:prototype & proto=$$!; \
 	  trap 'kill $$proto 2>/dev/null' EXIT INT TERM; \
-	  echo "prototype: http://127.0.0.1:5181/$(PARITY_PROTOTYPE_PAGE)"; \
-	  echo "demo:      http://127.0.0.1:5180/"; \
-	  npm run parity:serve:demo; \
+	  echo "prototype: http://127.0.0.1:$(PARITY_PROTO_PORT)/$(PARITY_PROTOTYPE_PAGE)"; \
+	  echo "demo:      http://127.0.0.1:$(PARITY_DEMO_PORT)/"; \
+	  $(PARITY_PORTS) npm run parity:serve:demo; \
 	}
 
 endif  # MK_COMMON_PARITY_INCLUDED
