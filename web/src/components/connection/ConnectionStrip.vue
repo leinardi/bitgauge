@@ -60,6 +60,10 @@ const chipText = computed(() => {
   return current.value?.label ?? ''
 })
 const isSuggested = computed(() => choice.value === 'suggested' && suggested.value !== null && suggested.value !== undefined)
+// The trigger's name carries the suggestion, as the kit's Menu does; the visible hint is hidden.
+const chipName = computed(() =>
+  isSuggested.value ? t('test.connection.contextFieldSuggested', { label: chipText.value }) : t('test.connection.contextField', { label: chipText.value }),
+)
 
 const facts = computed(() => {
   const info = props.info
@@ -110,7 +114,7 @@ function pick(value: unknown): void {
         <DropdownMenu>
           <DropdownMenuTrigger
             class="inline-flex h-6 items-center gap-[5px] rounded-full border border-input bg-card pr-[7px] pl-[9px] text-(length:--text-caption) font-semibold text-foreground hover:bg-muted"
-            :aria-label="t('test.connection.contextField', { label: chipText })"
+            :aria-label="chipName"
             data-testid="context-label"
           >
             <component
@@ -157,6 +161,7 @@ function pick(value: unknown): void {
         </DropdownMenu>
         <span
           v-if="isSuggested"
+          aria-hidden="true"
           class="text-(length:--text-caption) text-subtle-foreground"
         >{{ t('test.connection.suggested') }}</span>
         <Input

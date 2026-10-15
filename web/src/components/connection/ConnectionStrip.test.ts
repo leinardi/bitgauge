@@ -55,6 +55,8 @@ describe('the context label', () => {
     const wrapper = await mountApp(ConnectionStrip, '/', { props: { info } })
     expect(wrapper.get('[data-testid="context-label"]').text()).toBe(chip)
     expect(wrapper.text().includes('suggested')).toBe(hinted)
+    // One announcement carries the suggestion; the visible hint is hidden from it.
+    expect(wrapper.get('[data-testid="context-label"]').attributes('aria-label')).toBe(hinted ? `Context: ${chip}, suggested` : `Context: ${chip}`)
     expect(wrapper.get('[data-testid="connection-ip"]').text()).toMatch(new RegExp(`${ip.replace(/\./g, '\\.')}\\s*IPv${ipVersion}`))
   })
 

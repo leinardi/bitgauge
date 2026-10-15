@@ -22,7 +22,8 @@
       "streamsFixed": "fixed",
       "streamsSingle": "single",
       "unknown": "—",
-      "contextField": "Context: {label}"
+      "contextField": "Context: {label}",
+      "contextFieldSuggested": "Context: {label}, suggested"
     },
     "summary": {
       "changed": "{n} changed:",

@@ -210,10 +210,6 @@
           "test/cancelled-late",
           "test/cancelled-latency",
           "test/cancelled-download",
-          "test/cancelled-slow",
-          "test/cancelled-slow-up",
-          "test/slow",
-          "test/slowdone",
           "test/basepath",
           "test/ws-fallback",
           "test/insufficient",
@@ -271,16 +267,6 @@
         "test/cancelled-latency": {
           "e12923c27b14": "*"
         },
-        "test/cancelled-slow": {
-          "25150fae1ab6": "*",
-          "47ab20473572": "*",
-          "ab98a2cf4960": "*"
-        },
-        "test/cancelled-slow-up": {
-          "25150fae1ab6": "*",
-          "47ab20473572": "*",
-          "ab98a2cf4960": "*"
-        },
         "test/complete": {
           "25150fae1ab6": "*",
           "2bf725c61d8c": "*",
@@ -329,11 +315,53 @@
         {
           "target": "vue",
           "what": "ConnectionStrip.vue: name 'Context: {label}, suggested' while the label is the server's suggestion, and aria-hidden on the visible 'suggested'; i18n key and test.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-15",
+        "run": {
+          "runId": "92812eaf-fbc6-4ba6-8350-6ea707c0fa53",
+          "finishedAt": "2026-10-15T06:43:56.807Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "a11y-speedtest-heading",
@@ -816,7 +844,7 @@
         "layer": "content",
         "path": "^main( > button \"Context: VPN, suggested\")?$",
         "kind": null,
-        "detail": "^(button \"Context: VPN, suggested\"( → \"Context: LAN\")?|text \"VPN\" → \"LAN\")$"
+        "detail": "^(button \"Context: VPN, suggested\"( → \"Context: LAN(, suggested)?\")?|button \"Context: LAN, suggested\"|text \"Context\"|text \"VPN\" → \"LAN\")$"
       },
       "type": "conflict",
       "aspect": "content",
@@ -843,24 +871,32 @@
       },
       "owned": {
         "test/cancelled-slow": {
+          "25150fae1ab6": "*",
           "642bfd1176af": "*",
-          "726e58c32220": "*"
+          "726e58c32220": "*",
+          "9520f96abb63": "*",
+          "ab98a2cf4960": "*"
         },
         "test/cancelled-slow-up": {
+          "25150fae1ab6": "*",
           "642bfd1176af": "*",
-          "726e58c32220": "*"
+          "726e58c32220": "*",
+          "9520f96abb63": "*",
+          "ab98a2cf4960": "*"
         },
         "test/slow": {
           "160562394872": "*",
           "5612a371099e": "*",
           "ae01e4ec4fc6": "*",
-          "e6aa164c6834": "*"
+          "e6aa164c6834": "*",
+          "fbfcb26d291c": "*"
         },
         "test/slowdone": {
           "160562394872": "*",
           "5612a371099e": "*",
           "ae01e4ec4fc6": "*",
-          "e6aa164c6834": "*"
+          "e6aa164c6834": "*",
+          "fbfcb26d291c": "*"
         }
       },
       "actions": [
