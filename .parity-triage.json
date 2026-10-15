@@ -31,9 +31,9 @@
       },
       "decision": {
         "kind": "verdict",
-        "winner": "keep",
-        "rationale": "Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.",
-        "on": "2026-10-14"
+        "winner": "vue",
+        "rationale": "The fifth-pass export took Vue's side through the upstream note, so Vue was right and nothing changes in it. Recorded by the maintainer on 2026-10-15; was keep until the export fixed it: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.",
+        "on": "2026-10-15"
       },
       "owned": {
         "about": {
@@ -188,8 +188,50 @@
           "done": true
         }
       ],
-      "status": "accepted",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "the fifth-pass export carries the fix; nothing changed in Vue",
+        "on": "2026-10-15",
+        "run": {
+          "runId": "1ce930cb-9432-4b4a-9eca-0257131cb00d",
+          "finishedAt": "2026-10-15T14:17:19.032Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "a11y-chart-summary",
@@ -200,7 +242,7 @@
         "layer": "content",
         "path": "^main > region \"Speed test\"$",
         "kind": "^(missing|extra)$",
-        "detail": "^(img \"Throughput:|figure |text \"Throughput )"
+        "detail": "^(img \"Throughput:|figure( |$)|text \"Throughput )"
       },
       "type": "conflict",
       "aspect": "a11y",
@@ -217,7 +259,7 @@
           "ref": "web/src/components/chart/ThroughputChart.vue:193-201,231-254; i18n/locales/en/test.json:54-57",
           "says": "a figure holding a div role=img \"Throughput over time: download, latest {rate}\" and a figcaption legend; no time, warm-up or marks"
         },
-        "notes": "Extended on 2026-10-15 with the chart's visible title, legend and meta line (\"# s total\", \"Warm-up stopped at # s\"), which share the decision."
+        "notes": "Extended on 2026-10-15 with the chart's visible title, legend and meta line (\"# s total\", \"Warm-up stopped at # s\"), which share the decision. Extended again on 2026-10-15 with the empty chart's unnamed figure."
       },
       "decision": {
         "kind": "verdict",
@@ -266,11 +308,13 @@
         },
         "test/connecting": {
           "052cb514c121": "*",
+          "3bc40e8ab8a1": "*",
           "3f4e4c42af93": "*",
           "7d91b5d609ad": "*"
         },
         "test/countdown": {
           "052cb514c121": "*",
+          "3bc40e8ab8a1": "*",
           "3f4e4c42af93": "*",
           "7d91b5d609ad": "*"
         },
@@ -284,8 +328,12 @@
           "716cf622a481": "*",
           "9d9fa3b8b2a9": "*"
         },
+        "test/error-early": {
+          "3bc40e8ab8a1": "*"
+        },
         "test/idle": {
           "052cb514c121": "*",
+          "3bc40e8ab8a1": "*",
           "3f4e4c42af93": "*",
           "7d91b5d609ad": "*"
         },
@@ -294,11 +342,15 @@
           "94143877edfc": "*",
           "e61a0d42442f": "*"
         },
+        "test/latency": {
+          "3bc40e8ab8a1": "*"
+        },
         "test/offline": {
           "3f4e4c42af93": "*"
         },
         "test/param-ignored": {
           "052cb514c121": "*",
+          "3bc40e8ab8a1": "*",
           "3f4e4c42af93": "*",
           "7d91b5d609ad": "*"
         },
@@ -688,9 +740,9 @@
       },
       "decision": {
         "kind": "verdict",
-        "winner": "keep",
-        "rationale": "Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.",
-        "on": "2026-10-14"
+        "winner": "vue",
+        "rationale": "The fifth-pass export took Vue's side through the upstream note, so Vue was right and nothing changes in it. Recorded by the maintainer on 2026-10-15; was keep until the export fixed it: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.",
+        "on": "2026-10-15"
       },
       "owned": {
         "test/cancelled": {
@@ -769,8 +821,50 @@
           "done": true
         }
       ],
-      "status": "accepted",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "the fifth-pass export carries the fix; nothing changed in Vue",
+        "on": "2026-10-15",
+        "run": {
+          "runId": "1ce930cb-9432-4b4a-9eca-0257131cb00d",
+          "finishedAt": "2026-10-15T14:17:19.032Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "adapter-basepath-variant",
@@ -1023,6 +1117,56 @@
       "resolution": null
     },
     {
+      "id": "behavior-error-early-result-bar",
+      "title": "error-early: the kit's Result status bar after no phase finished vs flows.md's nothing to keep",
+      "match": {
+        "scenarios": [
+          "test/error-early"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^missing$",
+        "detail": "^region \"Result status\"$"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md §5 step 4",
+          "says": "If no phase completed, there is nothing to keep"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:518-524",
+          "says": "the v0.1 bar \"Partial results are not saved / Download the JSON to keep them.\" even when no phase finished"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue:288-291",
+          "says": "the ResultBar renders only when run.result is not null"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "No phase completed, so there is no result to keep or download; the failed tiles show the failure, not a result.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: in v0.1 the kit shows no Result status bar when no phase finished (flows.md §5).",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/error-early": {
+          "9850eccf6f7a": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
       "id": "behavior-stop-in-latency",
       "title": "Stop during idle latency: the kit keeps a partial idle latency and skips the directions, Vue discards the samples and returns to Idle",
       "match": {
@@ -1031,9 +1175,9 @@
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main > region \"(Speed test\"( > list \"Test phases\" > listitem)?|Results\"( > definition)?)$",
+        "path": "^main( > region \"(Speed test\"( > list \"Test phases\" > listitem)?|Results\"( > definition)?))?$",
         "kind": null,
-        "detail": "^(?!img |link \"Why)"
+        "detail": "^(?!img |link \"Why|text \"No test has run yet)"
       },
       "type": "conflict",
       "aspect": "behavior",
@@ -1050,7 +1194,7 @@
           "ref": "web/src/engine/run.ts:238-242; composables/useRunState.ts:152-158; useRun.test.ts:326",
           "says": "any stop during idle latency returns null and the page goes back to Idle with every step pending"
         },
-        "notes": "The demo stops at idle + 1200 ms as the kit does (demo/scenarios.ts:82)."
+        "notes": "The demo stops at idle + 1200 ms as the kit does (demo/scenarios.ts:82). Extended on 2026-10-15 with the missing Result status region, which follows the partial result."
       },
       "decision": {
         "kind": "verdict",
@@ -1078,11 +1222,102 @@
           "41b392b8c48a": "*",
           "758fe75f5904": "*",
           "89200e3410cd": "*",
+          "9850eccf6f7a": "*",
           "a15e75dce156": "*",
           "a6efe82d88f4": "*",
           "c7265acf7bb4": "*",
           "d80f009df534": "*",
           "fcd1764dc717": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-about-page",
+      "title": "About page details: headings, the Clients row, License spelling, version and date, credits' versions, intro and privacy text",
+      "match": {
+        "scenarios": [
+          "about",
+          "about/unreachable"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main( > complementary( > (term|definition|list > listitem))?)?$",
+        "kind": null,
+        "detail": "^(?!text \"(Other clients arrive|How it measures))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:77,224-236; i18n-a11y.md:42; wire-protocol.md:129-131",
+          "says": "facts: server name, version, licence, source link; Privacy, Credits, the methodology summary; v0.3 layers mentioned, no snippets; v0.1 has no history (against :226's history sentence); dates through Intl; version \"0.1.0\" with no v"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/About.jsx:51-61,77,125-138; fixtures.js:11",
+          "says": "eyebrow spans for the sections; a Clients row (Arrive in v0.3); License; v1.4.0 · 2026-09-30 joined raw; credits without versions; an intro claiming LibreSpeed and OpenSpeedTest answers; privacy text about a browser history"
+        },
+        "vue": {
+          "ref": "web/src/pages/AboutPage.vue:40-57,147-169; i18n/locales/en/about.json",
+          "says": "h2 headings; version, licence and server rows; Licence; 1.4.0 · Sep 30, 2026; credits with , from v0.3 / v0.2; an intro true for v0.1 with the v0.3 sentence; privacy text with no history"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "new",
+        "text": "Vue's About everywhere except the spelling: h2 headings, no Clients row, the spec's version with the Intl date, the credits' version notes, an intro true for v0.1 (its v0.3 sentence moves into the kit's v0.3 Notice) and a privacy text without history; License in US English, which the project now uses everywhere.",
+        "rationale": "The spec and v0.1 side with Vue on the rows, the version, the intro and privacy; headings help navigation; the maintainer chose US English for the whole project.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "US English across docs/ (licence → license, internationalisation → internationalization, …), with the convention written down; screens.md:226's privacy sentence made true for v0.1 (no history).",
+          "done": false
+        },
+        {
+          "target": "vue",
+          "what": "Locale files in US English (Licence → License); AboutPage.vue's intro drops the v0.3 sentence the kit's v0.3 Notice now carries.",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: About uses h2 section headings, no Clients row, the spec's version with an Intl date, the credits' version notes, an intro true for v0.1 and a privacy text without history.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "about": {
+          "0ca756a59c68": "*",
+          "24be41184f39": "*",
+          "27b2fb6ec804": "*",
+          "3dfbd0ed79e3": "*",
+          "6581bc06c5c8": "*",
+          "6a19550d1555": "*",
+          "742e8fb4c1b6": "*",
+          "7b0c6613c3e9": "*",
+          "8c16f7caebbd": "*",
+          "aa8713df2f3c": "*",
+          "b905864bf06f": "*",
+          "bfebf529a224": "*",
+          "d329a5ed8170": "*",
+          "fdeac76eb8dc": "*"
+        },
+        "about/unreachable": {
+          "0ca756a59c68": "*",
+          "24be41184f39": "*",
+          "3dfbd0ed79e3": "*",
+          "6581bc06c5c8": "*",
+          "6a19550d1555": "*",
+          "742e8fb4c1b6": "*",
+          "7b0c6613c3e9": "*",
+          "8c16f7caebbd": "*",
+          "aa8713df2f3c": "*",
+          "b905864bf06f": "*",
+          "bfebf529a224": "*",
+          "d329a5ed8170": "*",
+          "fdeac76eb8dc": "*"
         }
       },
       "resolution": null
@@ -1333,6 +1568,273 @@
         },
         "test/ws-fallback": {
           "04cf7ebb4c09": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-countdown-notice",
+      "title": "Countdown notice: the kit's \"with autostart enabled\" vs Vue's \"that starts a test automatically\"",
+      "match": {
+        "scenarios": [
+          "test/countdown"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": "^changed$",
+        "detail": "^text \"… was opened from a link"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/url-params.md:56; ui/screens.md:191; flows.md:39-42",
+          "says": "the terms Auto-start and start automatically; no wording for the notice"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:231",
+          "says": "\"This page was opened from a link with autostart enabled.\""
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/test.json:181",
+          "says": "\"…was opened from a link that starts a test automatically.\""
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "Vue's wording follows the spec's own term, start automatically.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the auto-start countdown notice says the link starts a test automatically, the spec's term, not autostart enabled.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/countdown": {
+          "440a4c836d49": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-empty-results",
+      "title": "Empty Results: Vue's \"No test has run yet.\" vs the kit's empty tiles",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^extra$",
+        "detail": "^text \"No test has run yet\\.\"$"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:67",
+          "says": "Idle: Start, the last result line if any, the settings summary; silent on empty-state text"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:92,630",
+          "says": "the Results section always renders, with empty tiles"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue:292-297",
+          "says": "a paragraph \"No test has run yet.\" when idle and connected"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export decides the empty layout where the spec is silent.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "TestPage.vue: drop \"No test has run yet.\"; the Results section shows its empty tiles.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/cancelled-latency": {
+          "328ec6b70007": "*"
+        },
+        "test/countdown": {
+          "328ec6b70007": "*"
+        },
+        "test/idle": {
+          "328ec6b70007": "*"
+        },
+        "test/param-ignored": {
+          "328ec6b70007": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-error-alert",
+      "title": "Error alert: the kit's server, cause, stop time and what was kept vs Vue's phase-named alert",
+      "match": {
+        "scenarios": [
+          "test/error",
+          "test/error-early"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > alert$",
+        "kind": "^changed$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:73,292-293; flows.md §5",
+          "says": "what failed and in which phase; danger with role=alert; a server that stops answering mid-run ends as network changed; silent on the server name and stop time"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:298,434",
+          "says": "\"Connection to Basement NAS lost — 3 requests in a row failed during download. Download stopped at # s. Latency finished before the error.\"; error-early \"…server stopped responding. The test stopped at # s, during latency. No phase finished.\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/RunFailure.vue:61-81; i18n/locales/en/test.json:170-175; errors.json",
+          "says": "\"Test failed during download\" / \"Three requests in a row failed.\" / \"The phases that finished before the error are kept.\"; \"Test failed during idle latency\" / \"The server stopped answering.\""
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The spec is silent on the alert's wording, so the export decides; the error-early cause follows flows.md §5.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "RunFailure.vue and the locale: the kit's alert (Connection to <server> lost — <cause> during <phase>; stopped at <s>; what finished before the error), with error-early's cause worded as flows.md §5's network changed.",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's error-early alert names the network-changed ending of flows.md §5, not \"server stopped responding\".",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/error": {
+          "7772483af61d": "*"
+        },
+        "test/error-early": {
+          "11c89d849aa0": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-gauge-readout",
+      "title": "Gauge readout per state: gauge.md's title, message, note, detail, inner label and scale caption vs Vue's Ready fallback",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": "^changed$",
+        "detail": "^text \"(Ready |Connecting… |Latency # ms |Download # (Mbit|kbit)/s (avg|# )|…load · sending |Connection lost |…in # seconds)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:68,69,73; i18n-a11y.md:119",
+          "says": "Connecting… on the first step and in the gauge readout; idle latency shows the gauge in ms, ping counter and live median; the error says what failed and in which phase; nothing conveyed by colour alone"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/gauge.md:16-22,71-76; ui_kits/app/TestScreen.jsx:108,228-293,429,532-535",
+          "says": "Ready + Press Enter to start / Tap Start test to begin; Connecting… + <server> · reading server info; Latency + median · ping n of 20; avg so far · peak, or warming up; the upload result as the inner arc's labelled value; Connection lost + Error during <phase> + last sample; the scale caption under the dial, countdown included"
+        },
+        "vue": {
+          "ref": "web/src/components/gauge/Gauge.vue:36-57; CountdownRing.vue:95-96; components/test/screen.ts:152-180",
+          "says": "label, number and unit only; every non-running state reads Ready; the inner arc has no text; the countdown has no scale caption"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export's gauge contract defines the readout per state and screens.md agrees where it speaks; the inner label also keeps the upload result from being colour-only.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "Gauge.vue, CountdownRing.vue and screen.ts: gauge.md's title, message, note and detail per state (Ready, Connecting…, Latency with median · ping n of 20, avg so far · peak or warming up, Connection lost · Error during <phase> · last sample), the inner arc's label, and the scale caption under the countdown.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/complete": {
+          "7a2b4440ca78": "*"
+        },
+        "test/connecting": {
+          "e5a7313f353a": "*"
+        },
+        "test/countdown": {
+          "522b8f23fc40": "*"
+        },
+        "test/download": {
+          "9cf8621f89da": "*"
+        },
+        "test/error": {
+          "5584942d18a0": "*"
+        },
+        "test/error-early": {
+          "dac993e91223": "*"
+        },
+        "test/idle": {
+          "26061e09231d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ab561ed90912": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/insufficient": {
+          "319df26103ff": "*"
+        },
+        "test/latency": {
+          "c1f6c62b3371": "*"
+        },
+        "test/param-ignored": {
+          "26061e09231d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ab561ed90912": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/slow": {
+          "dc206e0265dd": "*"
+        },
+        "test/slowdone": {
+          "28610fd36a30": "*"
+        },
+        "test/upload": {
+          "a80788549165": "*"
+        },
+        "test/ws-fallback": {
+          "9cf8621f89da": "*"
         }
       },
       "resolution": null
@@ -1747,7 +2249,7 @@
         "layer": "content",
         "path": "^main > region \"Speed test\"$",
         "kind": "^missing$",
-        "detail": "^img \"Latency samples:"
+        "detail": "^(img \"Latency samples:|text \"Latency samples )"
       },
       "type": "conflict",
       "aspect": "feature",
@@ -1763,7 +2265,8 @@
         "vue": {
           "ref": "web/src/pages/TestPage.vue:278; docs/STATUS.md:27",
           "says": "the throughput chart only; no latency chart"
-        }
+        },
+        "notes": "Extended on 2026-10-15 with the chart's visible title and meta text."
       },
       "decision": {
         "kind": "verdict",
@@ -1789,10 +2292,12 @@
           "2943454ae18c": "*"
         },
         "test/error-early": {
-          "1ed382bccbae": "*"
+          "1ed382bccbae": "*",
+          "c7265acf7bb4": "*"
         },
         "test/latency": {
-          "67b701a88ff2": "*"
+          "67b701a88ff2": "*",
+          "dae16a55d437": "*"
         }
       },
       "resolution": null
@@ -2642,16 +3147,16 @@
     },
     {
       "id": "layout-offline-state",
-      "title": "Offline: the kit's unreachable readout with countdown and Retry in the gauge vs Vue's Ready gauge and alert above the section",
+      "title": "Offline: the kit's unreachable readout, empty phases and tiles and Start tooltip vs Vue's Ready gauge, alert and hidden sections",
       "match": {
         "scenarios": [
           "test/offline"
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main > region \"Speed test\"$",
+        "path": "^main( > region \"Speed test\"( > list \"Test phases\")?)?$",
         "kind": null,
-        "detail": "^(?!img )"
+        "detail": "^(?!img |figure)"
       },
       "type": "conflict",
       "aspect": "content",
@@ -2662,18 +3167,19 @@
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:404-410",
-          "says": "the gauge readout: Server unreachable, <host> didn't respond. Next check in # s., with Retry; the empty chart: Nothing to measure yet. The chart fills in once <host> responds."
+          "says": "the gauge readout: Server unreachable, <host> didn't respond. Next check in # s., with Retry; the empty chart: Nothing to measure yet. The chart fills in once <host> responds.; empty phases, empty Results tiles, the preset summary from defaults /info never delivered, and Start's tip \"Server unreachable — use Retry first\"; no role=\"alert\" notice"
         },
         "vue": {
           "ref": "web/src/components/test/screen.ts:153; OfflineNotice.vue; pages/TestPage.vue:210-214; StartButton.vue:87-92",
-          "says": "the gauge reads Ready; an alert notice with Retry above the section; Start's disabled reason as visible text"
+          "says": "the gauge reads Ready; an alert notice with Retry above the section; Start's disabled reason as visible text; the phase list, the Results tiles and the preset summary are hidden without /info"
         },
-        "notes": "The demo reaches the state (demo/control.ts:59-65)."
+        "notes": "The demo reaches the state (demo/control.ts:59-65). Extended on 2026-10-15 with the older offline differences; the alert difference moved here from markup-notices-list."
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The export decides where the state is drawn; Vue keeps the spec's role=\"alert\" danger notice.",
+        "winner": "new",
+        "text": "Kit for the layout: the unreachable readout with countdown and Retry, the empty chart text, empty phases, empty Results tiles and Start's tooltip. Vue keeps the spec's role=\"alert\" notice and shows no preset summary, as the settings are unknown without /info.",
+        "rationale": "The export decides layout where the spec is silent; the spec requires the alert, and a summary of settings /info never delivered would not be honest.",
         "on": "2026-10-15"
       },
       "actions": [
@@ -2681,17 +3187,33 @@
           "target": "vue",
           "what": "The gauge readout carries the unreachable state (Server unreachable, <host> didn't respond. Next check in # s.) with Retry, and the empty chart the kit's text; the role=\"alert\" notice stays.",
           "done": false
+        },
+        {
+          "target": "vue",
+          "what": "Without /info: the phase list and the Results tiles stay, empty; Start's tooltip reads Server unreachable — use Retry first.",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's offline state carries the role=\"alert\" danger notice (screens.md:290) and no preset summary, since /info never delivered the settings.",
+          "done": false
         }
       ],
       "status": "decided",
       "owned": {
         "test/offline": {
+          "0444906086e5": "*",
           "178e0bec946e": "*",
           "339f40739d80": "*",
           "3bc40e8ab8a1": "*",
           "41ca23d98283": "*",
           "43d668ff77da": "*",
           "63a06f153dc3": "*",
+          "696e04deeedd": "*",
+          "72733b0f51d2": "*",
+          "a2e6014f5882": "*",
+          "b12f49951c33": "*",
+          "e68efe57a494": "*",
           "e9bef9a4d59b": "*"
         }
       },
@@ -3223,7 +3745,30 @@
       "id": "markup-notices-list",
       "title": "Notices: Vue's <ul aria-label=\"Notices\"> list vs the kit's sibling Notices with a top-level alert",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main$",
@@ -3244,7 +3789,8 @@
         "vue": {
           "ref": "web/src/components/test/NoticeList.vue:42-44; NoticeBox.vue:41",
           "says": "a <ul aria-label=\"Notices\"> with the alert inside it"
-        }
+        },
+        "notes": "The offline state's alert belongs to layout-offline-state, where Vue keeps it."
       },
       "decision": {
         "kind": "verdict",
@@ -3275,9 +3821,6 @@
         },
         "test/cancelled-slow-up": {
           "b2b6051be1cd": "*"
-        },
-        "test/offline": {
-          "0444906086e5": "*"
         },
         "test/param-ignored": {
           "b2b6051be1cd": "*"
@@ -3853,9 +4396,9 @@
       },
       "decision": {
         "kind": "verdict",
-        "winner": "keep",
-        "rationale": "The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.",
-        "on": "2026-10-14"
+        "winner": "vue",
+        "rationale": "The fifth-pass export took Vue's side through the upstream note, so Vue was right and nothing changes in it. Recorded by the maintainer on 2026-10-15; was keep until the export fixed it: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.",
+        "on": "2026-10-15"
       },
       "owned": {
         "about": {
@@ -3918,8 +4461,50 @@
           "done": true
         }
       ],
-      "status": "accepted",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "the fifth-pass export carries the fix; nothing changed in Vue",
+        "on": "2026-10-15",
+        "run": {
+          "runId": "1ce930cb-9432-4b4a-9eca-0257131cb00d",
+          "finishedAt": "2026-10-15T14:17:19.032Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "style-buttons",
