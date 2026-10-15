@@ -292,10 +292,10 @@
         {
           "target": "vue",
           "what": "ThroughputChart.vue and test.json: the chart is role=img labelled with charts.md's summary (title, readout, elapsed / total, warm-up shaded, marked: …, no data yet), in markup the kit's chart matches. The chart also shows the kit's title, legend wording and meta line.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "done",
       "owned": {
         "test/cancelled": {
           "0abe9c585292": "*",
@@ -401,7 +401,49 @@
           "e02b18720344": "*"
         }
       },
-      "resolution": null
+      "resolution": {
+        "note": null,
+        "on": "2026-10-15",
+        "run": {
+          "runId": "cdc0538f-a54a-4bd7-89c1-98304dd3122f",
+          "finishedAt": "2026-10-15T17:17:49.277Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "a11y-context-name",

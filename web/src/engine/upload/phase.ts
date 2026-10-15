@@ -285,8 +285,9 @@ export class UploadPhase {
     if (this.halted !== null) {
       return
     }
-    // On HTTP/1.1 or an unreported protocol a failed request stays open and freezes the window.
+    // On HTTP/1.1 or an unreported protocol a failed request stays open, freezes the window and ends the phase.
     if (!allowsUpperBound(this.ledger.protocol)) {
+      this.clientEvents.push({ code: 'error', at: this.clock.now(), notice: 'upload-interrupted' })
       this.halt('interrupted')
       return
     }

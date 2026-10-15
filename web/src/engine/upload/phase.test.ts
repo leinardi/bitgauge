@@ -399,12 +399,13 @@ describe('worked example B through the phase runner', () => {
 })
 
 describe('a failed request', () => {
-  it('on HTTP/1.1 ends the phase with the window up to the failure and upload-interrupted', async () => {
+  it('on HTTP/1.1 ends the phase with the window up to the failure, upload-interrupted and its error event', async () => {
     const { phase, sends, answers, outcome } = await run(failing({ ...LINK, protocol: 'http/1.1' }, (index) => (index === 6 ? { kind: 'status', status: 429 } : null)))
     const failedAt = answers[6] ?? 0
     expect(sends.filter((send) => send.at > failedAt)).toEqual([])
     expect(outcome.windowEndMs).toBe(phase.ledger.lowerBound(6))
     expect(outcome.notices).toContainEqual({ code: 'upload-interrupted' })
+    expect(outcome.events).toContainEqual(expect.objectContaining({ code: 'error', notice: 'upload-interrupted' }))
     expect(outcome.notices).not.toContainEqual(expect.objectContaining({ code: 'stream-limit' }))
   })
 
