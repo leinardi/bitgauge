@@ -29,12 +29,18 @@ export interface PhaseStep {
   state: StepState
   /** Active: how much of the phase has run, 0 to 1; failed, cancelled and capped stop the bar there. */
   progress?: number
-  /** Active: the time left to the phase's minimum, when known. */
+  /** Active: the time left to the phase's minimum, or past it to its maximum, when known. */
   leftMs?: number
-  /** Pending: the phase's duration range. */
-  estimate?: { minMs: number; maxMs: number }
+  /** Active idle latency: the pings so far, of the count. */
+  pings?: { n: number; count: number }
+  /** Pending: the phase's duration range, or for idle latency its approximate length. */
+  estimate?: { minMs: number; maxMs: number } | { aboutMs: number }
   /** Done: the phase's result, already formatted. */
   value?: string
+  /** Done: the direction reached its maximum without a number. */
+  insufficient?: boolean
   /** Cancelled: how long the phase ran. */
   coveredMs?: number
+  /** Failed: how long the phase ran before it was interrupted. */
+  interruptedMs?: number
 }

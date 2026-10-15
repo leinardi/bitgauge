@@ -44,6 +44,8 @@ export interface RunView {
 }
 
 const BUCKET_MS = 100
+/** Idle latency sends a ping no sooner than this after the previous one (measurement.md section 10). */
+const PING_SPACING_MS = 100
 
 export function screenState(run: Pick<RunView, 'status' | 'result' | 'error'>): ScreenState {
   if (run.status === 'running') {
@@ -76,14 +78,18 @@ function elapsedMs(direction: Direction, live: DirectionLive | null): number | n
 
 function activeStep(phase: MeasuringPhase, run: RunView, settings: TestSettings): PhaseStep {
   if (phase === 'idle') {
-    return run.idle === null ? { phase, state: 'active' } : { phase, state: 'active', progress: run.idle.pings / run.idle.count }
+    const idle = run.idle
+    return idle === null ? { phase, state: 'active' } : { phase, state: 'active', progress: idle.pings / idle.count, pings: { n: idle.pings, count: idle.count } }
   }
-  const elapsed = elapsedMs(phase, run.live[phase])
+  const elapsed = run.live[phase]?.phaseMs ?? null
   if (elapsed === null) {
     return { phase, state: 'active', progress: 0 }
   }
+  // The phase's own time, on the client clock as its duration rule runs; time left to the minimum,
+  // and past it, while the phase extends, to the maximum.
   const { minMs, maxMs } = settings[phase]
-  return { phase, state: 'active', progress: elapsed / maxMs, ...(elapsed < minMs ? { leftMs: minMs - elapsed } : {}) }
+  const left = (elapsed < minMs ? minMs : maxMs) - elapsed
+  return { phase, state: 'active', progress: elapsed / maxMs, ...(left > 0 ? { leftMs: left } : {}) }
 }
 
 /** A finished measuring phase as the result tells it: done with its value, capped, cancelled or failed. */
@@ -95,7 +101,12 @@ function finishedStep(phase: MeasuringPhase, run: RunView, units: 'bits' | 'byte
   }
   const direction = result?.[phase]
   if (direction === undefined) {
-    return { phase, state: 'done' }
+    // Mid-run, before the result: the headline its phase event carried, or none at all.
+    const headline = run.phases[phase].headlineBitsPerSecond
+    return headline === undefined ? { phase, state: 'done', insufficient: true } : { phase, state: 'done', value: formatRate(headline, units, locale) }
+  }
+  if (direction.status === 'insufficient-data') {
+    return { phase, state: 'done', insufficient: true }
   }
   if (direction.status === 'error') {
     return { phase, state: 'failed', progress: 1 }
@@ -120,7 +131,7 @@ export const PENDING_STEPS: PhaseStep[] = [
 /** The phase indicator's steps, in the run's order; between runs every step is pending. */
 export function phaseSteps(run: RunView, settings: TestSettings, locale: string): PhaseStep[] {
   return settings.phases.map((phase): PhaseStep => {
-    const pending: PhaseStep = phase === 'idle' ? { phase, state: 'pending' } : { phase, state: 'pending', estimate: settings[phase] }
+    const pending: PhaseStep = { phase, state: 'pending', estimate: phase === 'idle' ? { aboutMs: settings.pingCount * PING_SPACING_MS } : settings[phase] }
     if (run.status === 'idle') {
       return pending
     }
@@ -133,8 +144,10 @@ export function phaseSteps(run: RunView, settings: TestSettings, locale: string)
         return run.status === 'running' ? activeStep(phase, run, settings) : { phase, state: 'cancelled' }
       case 'finished':
         return finishedStep(phase, run, settings.units, locale)
-      case 'failed':
-        return { phase, state: 'failed', progress: 1 }
+      case 'failed': {
+        const ranMs = run.phases[phase].ranMs
+        return { phase, state: 'failed', progress: 1, ...(ranMs === undefined ? {} : { interruptedMs: ranMs }) }
+      }
       case 'skipped':
         return { phase, state: 'skipped' }
     }

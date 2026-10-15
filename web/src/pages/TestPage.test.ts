@@ -227,7 +227,7 @@ describe('the Test screen', () => {
   it('runs download and upload with the gauge, the protocol, the streams, the chart and data used', async () => {
     const { page, emit } = await started()
     await emit(phase('info', 'finished', { protocol: 'HTTP/2' }), phase('idle', 'finished'), phase('download', 'started', { protocol: 'h2' }))
-    await emit({ type: 'sample', direction: 'download', fromBucket: 0, values: [1_250_000, 1_250_000], gauge: 1e8, streams: 4, dataUsedBytes: 2_500_000 })
+    await emit({ type: 'sample', direction: 'download', fromBucket: 0, values: [1_250_000, 1_250_000], gauge: 1e8, streams: 4, phaseMs: 0, dataUsedBytes: 2_500_000 })
     expect(text(page.get('[data-testid="gauge-number"]'))).toBe('12.5')
     expect(page.get('[data-testid="connection-protocol"]').text()).toContain('HTTP/2')
     expect(page.get('[data-testid="connection-streams"]').text()).toContain('4')
@@ -237,7 +237,7 @@ describe('the Test screen', () => {
     expect(facts(page)[1]).toContain('elapsed')
     expect(page.find('[data-testid="throughput-chart"]').exists()).toBe(true)
     await emit(phase('download', 'finished'), phase('upload', 'started', { streams: 2 }))
-    await emit({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 0, streams: 2, sending: 4e7, dataUsedBytes: 3_000_000 })
+    await emit({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 0, streams: 2, phaseMs: 0, sending: 4e7, dataUsedBytes: 3_000_000 })
     expect(page.get('[data-testid="gauge-label"]').text()).toBe('Upload · sending')
     expect(text(page.get('[data-testid="gauge-number"]'))).toBe('5.00')
     page.unmount()

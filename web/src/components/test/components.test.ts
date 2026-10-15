@@ -245,7 +245,27 @@ describe('the phase indicator', () => {
 
   it('shows the info phase as Connecting… on the first step', () => {
     const wrapper = mountWith(PhaseIndicator, { steps: [{ phase: 'download', state: 'pending' }, { phase: 'upload', state: 'pending' }], connecting: true })
-    expect(wrapper.findAll('[data-testid="phase-meta"]').map((meta) => meta.text())).toEqual(['Connecting…', 'pending'])
+    expect(wrapper.findAll('li').map((item) => item.text())).toEqual(['Connecting…active · server info', 'Uploadpending'])
+    expect(wrapper.get('li').attributes('aria-current')).toBe('step')
+  })
+
+  it('words each step state with its detail: estimate, pings, time left, result, insufficient data, interruption', () => {
+    const wrapper = mountWith(PhaseIndicator, {
+      steps: [
+        { phase: 'idle', state: 'pending', estimate: { aboutMs: 2000 } },
+        { phase: 'idle', state: 'active', progress: 0.6, pings: { n: 12, count: 20 } },
+        { phase: 'download', state: 'active', progress: 0.3, leftMs: 4600 },
+        { phase: 'download', state: 'done', insufficient: true },
+        { phase: 'upload', state: 'failed', progress: 0.4, interruptedMs: 6400 },
+      ],
+    })
+    expect(wrapper.findAll('[data-testid="phase-meta"]').map((meta) => meta.text().replaceAll(NB, ' '))).toEqual([
+      'pending · ~2 s',
+      'active · 12 / 20 pings',
+      'active · 4.6 s left',
+      'done · insufficient data',
+      'failed · interrupted at 6.4 s',
+    ])
   })
 })
 

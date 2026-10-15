@@ -1277,7 +1277,7 @@
       "decision": {
         "kind": "verdict",
         "winner": "spec",
-        "rationale": "flows.md returns to Idle only with too few samples, so a stop with enough samples keeps a partial idle latency, as the kit shows.",
+        "rationale": "flows.md returns to Idle only with too few samples, so a stop with enough samples keeps a partial idle latency, as the kit shows. Extended 2026-10-15 with the re-identified phase line of test/cancelled-latency.",
         "on": "2026-10-15"
       },
       "actions": [
@@ -1295,6 +1295,7 @@
       "status": "decided",
       "owned": {
         "test/cancelled-latency": {
+          "030c578364fb": "*",
           "3170c835226b": [
             "dark-desktop",
             "light-desktop"
@@ -2178,12 +2179,17 @@
       },
       "actions": [
         {
+          "target": "spec",
+          "what": "architecture.md §4: a failed phase event carries how long the phase ran, and each sample how long its phase has run on the client clock (both display only), for failed · interrupted at and the time left before an upload confirms (decided 2026-10-15).",
+          "done": true
+        },
+        {
           "target": "vue",
           "what": "PhaseIndicator.vue, screen.ts, test.json: every detail of phase-indicator.md (idle estimate, ping count, mid-run done · result, done · insufficient data, active · time left, failed · interrupted at), and the first step labelled Connecting… (active · server info) during the info phase.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/connecting": {
           "ce9b55ed6a88": "*"

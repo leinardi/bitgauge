@@ -68,6 +68,7 @@ export class Run {
   private readonly interrupted: Promise<null>
   private current: Stoppable | null = null
   private phase: PhaseName = 'info'
+  private enteredAt = 0
   private connection: Connection | null = null
   private readonly page: PageState
   private restartIdle = false
@@ -95,10 +96,7 @@ export class Run {
     })
   }
 
-  /**
-   * Runs every phase and emits the result object; resolves with the report, or null when no
-   * phase has a result to keep, which emits no result.
-   */
+  /** Runs every phase and emits the result object; resolves with the report, or null when no phase has a result to keep, which emits no result. */
   async start(): Promise<RunReport | null> {
     const startedAt = new Date()
     const startAt = this.clock.now()
@@ -339,7 +337,7 @@ export class Run {
     const { phase, before } = sampling
     const event = phase instanceof DownloadPhase ? feed.download(phase, before) : feed.upload(phase, before, now)
     if (event !== null) {
-      this.options.emit(event)
+      this.options.emit({ ...event, phaseMs: now - this.enteredAt })
     }
   }
 
@@ -372,6 +370,7 @@ export class Run {
 
   private enter(phase: PhaseName): void {
     this.phase = phase
+    this.enteredAt = this.clock.now()
     this.event(phase, 'started')
   }
 
@@ -391,6 +390,7 @@ export class Run {
       ...(streams === undefined ? {} : { streams }),
       ...(headline === undefined ? {} : { headlineBitsPerSecond: headline }),
       ...(bytes === undefined ? {} : { bytes }),
+      ...(state === 'failed' ? { ranMs: this.clock.now() - this.enteredAt } : {}),
     })
   }
 }

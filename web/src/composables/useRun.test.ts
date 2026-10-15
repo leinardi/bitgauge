@@ -243,14 +243,14 @@ describe('useRun', () => {
   it('writes sample ranges into each direction\'s series buffer with the live numbers', () => {
     const { run, worker, scope } = started()
     run.start()
-    worker.emit({ type: 'sample', direction: 'download', fromBucket: 0, values: [1000, 2000], gauge: 120_000, streams: 1, dataUsedBytes: 3000 })
-    worker.emit({ type: 'sample', direction: 'download', fromBucket: 2, values: [null], gauge: 80_000, streams: 2, steady: { avgBitsPerSecond: 90_000, peakBitsPerSecond: 150_000 }, dataUsedBytes: 3000 })
-    expect(run.live.value.download).toEqual({ firstBucket: 0, values: [1000, 2000, null], windowEnd: null, gauge: 80_000, sending: null, steady: { avgBitsPerSecond: 90_000, peakBitsPerSecond: 150_000 }, warmupEnd: null, start: null, sendingTrace: [], streams: 2 })
+    worker.emit({ type: 'sample', direction: 'download', fromBucket: 0, values: [1000, 2000], gauge: 120_000, streams: 1, phaseMs: 0, dataUsedBytes: 3000 })
+    worker.emit({ type: 'sample', direction: 'download', fromBucket: 2, values: [null], gauge: 80_000, streams: 2, phaseMs: 0, steady: { avgBitsPerSecond: 90_000, peakBitsPerSecond: 150_000 }, dataUsedBytes: 3000 })
+    expect(run.live.value.download).toEqual({ firstBucket: 0, values: [1000, 2000, null], windowEnd: null, gauge: 80_000, sending: null, steady: { avgBitsPerSecond: 90_000, peakBitsPerSecond: 150_000 }, warmupEnd: null, start: null, sendingTrace: [], streams: 2, phaseMs: 0 })
     expect(run.direction.value).toBe('download')
 
     // Upload cells arrive in batches on the server grid, far from 0; a hole between ranges is unknown.
-    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 9000, values: [10, 20, 30], windowEnd: 9003, gauge: 2400, streams: 1, sending: 5000, startBucket: 8999.5, sendingBucket: 9004.2, dataUsedBytes: 3060 })
-    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 9004, values: [40], windowEnd: 9005, gauge: 3200, streams: 1, sending: 5100, startBucket: 8999.5, sendingBucket: 9005.1, warmupEndBucket: 9002, dataUsedBytes: 3100 })
+    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 9000, values: [10, 20, 30], windowEnd: 9003, gauge: 2400, streams: 1, phaseMs: 0, sending: 5000, startBucket: 8999.5, sendingBucket: 9004.2, dataUsedBytes: 3060 })
+    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 9004, values: [40], windowEnd: 9005, gauge: 3200, streams: 1, phaseMs: 0, sending: 5100, startBucket: 8999.5, sendingBucket: 9005.1, warmupEndBucket: 9002, dataUsedBytes: 3100 })
     expect(run.live.value.upload).toMatchObject({ firstBucket: 9000, values: [10, 20, 30, null, 40], windowEnd: 9005, gauge: 3200, sending: 5100, steady: null, warmupEnd: 9002, start: 8999.5 })
     expect(run.live.value.upload?.sendingTrace).toEqual([
       { cell: 9004.2, bitsPerSecond: 5000 },
@@ -260,7 +260,7 @@ describe('useRun', () => {
     expect(run.dataUsedBytes.value).toBe(3100)
     // A new record per sample, so that a component given it as a prop sees the change.
     const before = run.live.value
-    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 9005, values: [], gauge: 3200, streams: 1, dataUsedBytes: 3100 })
+    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 9005, values: [], gauge: 3200, streams: 1, phaseMs: 0, dataUsedBytes: 3100 })
     expect(run.live.value).not.toBe(before)
     expect(run.live.value.upload).not.toBe(before.upload)
     expect(run.live.value.download?.values).toHaveLength(3)
@@ -270,10 +270,10 @@ describe('useRun', () => {
   it('anchors the upload buffer at its first confirmed cell, after the empty samples before it', () => {
     const { run, worker, scope } = started()
     run.start()
-    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 1e6, streams: 1, sending: 1e6, dataUsedBytes: 10 })
-    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 2e6, streams: 1, sending: 2e6, dataUsedBytes: 20 })
-    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 2 ** 31, values: [10, 20], windowEnd: 2 ** 31 + 2, gauge: 2e6, streams: 1, sending: 2e6, startBucket: 2 ** 31, sendingBucket: 2 ** 31 + 3, dataUsedBytes: 30 })
-    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 2 ** 31 + 2, values: [30], gauge: 2e6, streams: 1, dataUsedBytes: 40 })
+    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 1e6, streams: 1, phaseMs: 0, sending: 1e6, dataUsedBytes: 10 })
+    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 2e6, streams: 1, phaseMs: 0, sending: 2e6, dataUsedBytes: 20 })
+    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 2 ** 31, values: [10, 20], windowEnd: 2 ** 31 + 2, gauge: 2e6, streams: 1, phaseMs: 0, sending: 2e6, startBucket: 2 ** 31, sendingBucket: 2 ** 31 + 3, dataUsedBytes: 30 })
+    worker.emit({ type: 'sample', direction: 'upload', fromBucket: 2 ** 31 + 2, values: [30], gauge: 2e6, streams: 1, phaseMs: 0, dataUsedBytes: 40 })
     expect(run.live.value.upload?.firstBucket).toBe(2 ** 31)
     expect(run.live.value.upload?.values).toEqual([10, 20, 30])
     scope.stop()
@@ -295,7 +295,7 @@ describe('useRun', () => {
     const { run, worker, scope } = started()
     run.start()
     worker.emit(phase('info', 'finished'), phase('idle', 'finished'), phase('download', 'started'))
-    worker.emit({ type: 'sample', direction: 'download', fromBucket: 0, values: [500], gauge: 40_000, streams: 1, dataUsedBytes: 500 })
+    worker.emit({ type: 'sample', direction: 'download', fromBucket: 0, values: [500], gauge: 40_000, streams: 1, phaseMs: 0, dataUsedBytes: 500 })
     worker.emit({ type: 'error', code: 'network-changed', messageKey: 'errors.network-changed', phase: 'download', partial: true })
     worker.emit(phase('download', 'failed'), phase('upload', 'skipped'))
     // The idle latency finished, so a result is still to come.

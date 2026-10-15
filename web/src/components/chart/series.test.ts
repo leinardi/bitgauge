@@ -27,7 +27,7 @@ import { buildChart, STEPPED } from '@/components/chart/series'
 import type { DirectionLive } from '@/composables/useRunState'
 
 function live(overrides: Partial<DirectionLive>): DirectionLive {
-  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, ...overrides }
+  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, phaseMs: 0, ...overrides }
 }
 
 /** Rounds x to the millisecond, so floating sums compare. */

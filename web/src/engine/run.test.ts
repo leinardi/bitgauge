@@ -343,6 +343,10 @@ describe('a network change', () => {
     expect(report?.download?.bytes).toBeGreaterThan(0)
     expect(report?.download?.events).toEqual([expect.objectContaining({ code: 'error', notice: 'network-changed' })])
     expect(phases(harness)).toContain('download:failed')
+    // The failed phase says how long it ran, display only; a finished one does not.
+    const ended = harness.events.flatMap(({ event }) => (event.type === 'phase' && event.state !== 'started' ? [event] : []))
+    expect(ended.find((event) => event.phase === 'download')?.ranMs).toBeGreaterThanOrEqual(0)
+    expect(ended.find((event) => event.phase === 'idle')?.ranMs).toBeUndefined()
   })
 
   it('after the run has ended is ignored', async () => {
@@ -508,10 +512,13 @@ describe('the data cap', () => {
 })
 
 describe('samples', () => {
-  it('carry the stream count the ramp has reached, which the finished phase event repeats', async () => {
+  it('carry the stream count the ramp has reached, which the finished phase event repeats, and the phase time', async () => {
     const harness = start()
     await finish(harness)
     for (const direction of ['download', 'upload'] as const) {
+      const times = harness.events.flatMap(({ event }) => (event.type === 'sample' && event.direction === direction ? [event.phaseMs] : []))
+      expect(times.every((time, index) => time >= (times[index - 1] ?? 0))).toBe(true)
+      expect(times.at(-1)).toBeGreaterThan(0)
       const counts = harness.events.flatMap(({ event }) => (event.type === 'sample' && event.direction === direction ? [event.streams] : []))
       const finished = harness.events.find(({ event }) => event.type === 'phase' && event.phase === direction && event.state === 'finished')?.event
       expect(counts.every((count) => count >= 1)).toBe(true)

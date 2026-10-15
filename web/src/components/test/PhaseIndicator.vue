@@ -56,19 +56,29 @@ function name(phase: MeasuringPhase): string {
 const seconds = (ms: number) => formatDuration(ms, locale.value)
 const whole = (ms: number) => new Intl.NumberFormat(locale.value, { maximumFractionDigits: 0 }).format(ms / 1000)
 
-function meta(step: PhaseStep, first: boolean): string {
-  if (first && props.connecting) {
-    return t('test.phases.connecting')
+function pending(estimate: PhaseStep['estimate']): string {
+  if (estimate === undefined) {
+    return t('test.phases.pending')
   }
+  return 'aboutMs' in estimate ? t('test.phases.pendingAbout', { about: whole(Math.max(estimate.aboutMs, 1000)) }) : t('test.phases.pendingFor', { min: whole(estimate.minMs), max: whole(estimate.maxMs) })
+}
+
+function meta(step: PhaseStep): string {
   switch (step.state) {
     case 'pending':
-      return step.estimate === undefined ? t('test.phases.pending') : t('test.phases.pendingFor', { min: whole(step.estimate.minMs), max: whole(step.estimate.maxMs) })
+      return pending(step.estimate)
     case 'active':
+      if (step.pings !== undefined) {
+        return t('test.phases.activePings', step.pings)
+      }
       return step.leftMs === undefined ? t('test.phases.active') : t('test.phases.activeLeft', { left: seconds(step.leftMs) })
     case 'done':
+      if (step.insufficient === true) {
+        return t('test.phases.doneInsufficient')
+      }
       return step.value === undefined ? t('test.phases.done') : t('test.phases.doneWith', { value: step.value })
     case 'failed':
-      return t('test.phases.failed')
+      return step.interruptedMs === undefined ? t('test.phases.failed') : t('test.phases.failedAt', { at: seconds(step.interruptedMs) })
     case 'cancelled':
       return step.coveredMs === undefined ? t('test.phases.cancelled') : t('test.phases.cancelledAfter', { covered: seconds(step.coveredMs) })
     case 'skipped':
@@ -97,11 +107,14 @@ function bar(step: PhaseStep): { width: number; colour: string } {
   }
 }
 
+// While connecting, the first step stands for the info phase: active, named Connecting….
 const rows = computed(() =>
   props.steps.map((step, index) => {
-    const active = step.state === 'active'
-    const marker = step.state === 'active' ? { icon: DIRECTION_ICON[step.phase], colour: SERIES[step.phase] } : STATE_ICON[step.state]
-    return { key: step.phase, step, name: name(step.phase), meta: meta(step, index === 0), marker, bar: bar(step), active }
+    const connecting = index === 0 && props.connecting
+    const active = step.state === 'active' || connecting
+    const marker = step.state === 'active' || connecting ? { icon: DIRECTION_ICON[step.phase], colour: SERIES[step.phase] } : STATE_ICON[step.state]
+    const label = connecting ? t('test.phases.connecting') : name(step.phase)
+    return { key: step.phase, step, name: label, meta: connecting ? t('test.phases.connectingMeta') : meta(step), marker, bar: bar(step), active }
   }),
 )
 </script>

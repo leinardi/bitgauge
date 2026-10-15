@@ -252,6 +252,8 @@ export type EngineEvent =
       headlineBitsPerSecond?: number
       /** A finished or failed download or upload: its bytes, the result's `bytes` for it. */
       bytes?: number
+      /** A failed phase: how long it ran, in ms from its start on the engine's clock (display only). */
+      ranMs?: number
       notices: Notice[]
     }
   | {
@@ -279,6 +281,8 @@ export type EngineEvent =
       sendingBucket?: number
       /** The stream count the ramp has reached (measurement.md section 4). */
       streams: number
+      /** How long the phase has run, in ms on the client clock (display only). */
+      phaseMs: number
       dataUsedBytes: number
     }
   /**

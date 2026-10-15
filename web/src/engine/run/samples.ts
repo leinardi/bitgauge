@@ -28,7 +28,8 @@ import { confirmedSeries, steadyWindow } from '@/engine/upload/window'
 // section 14): the buckets that became known since the last message, the gauge, and the steady
 // window's average and peak so far once warm-up has ended. Nothing here feeds a result.
 
-type Sample = Extract<EngineEvent, { type: 'sample' }>
+/** A sample as the feed builds it; the run adds how long the phase has run. */
+type Sample = Omit<Extract<EngineEvent, { type: 'sample' }>, 'phaseMs'>
 
 /** The gauge reads the last 5 buckets: half a second. */
 const GAUGE_BUCKETS = 5

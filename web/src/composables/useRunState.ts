@@ -49,6 +49,8 @@ export interface PhaseView {
   headlineBitsPerSecond?: number
   /** A finished or failed direction's bytes, as its phase event carried them. */
   bytes?: number
+  /** A failed phase: how long it ran, as its phase event carried it. */
+  ranMs?: number
 }
 
 /** The live numbers of one direction, as the last `sample` carried them. */
@@ -73,6 +75,8 @@ export interface DirectionLive {
   sendingTrace: { cell: number; bitsPerSecond: number }[]
   /** The stream count the ramp has reached. */
   streams: number
+  /** How long the phase has run on the client clock. */
+  phaseMs: number
 }
 
 /** Idle latency so far, as the last `idle` event carried it. */
@@ -98,7 +102,7 @@ function emptyLive(): Record<Direction, DirectionLive | null> {
 
 /** Writes a sample's range of buckets into the direction's buffer, unknown across any hole. */
 function record(live: DirectionLive | null, event: Extract<EngineEvent, { type: 'sample' }>): DirectionLive {
-  const buffer = live ?? { firstBucket: event.fromBucket, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: event.streams }
+  const buffer = live ?? { firstBucket: event.fromBucket, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: event.streams, phaseMs: event.phaseMs }
   // Until a bucket is known, the buffer follows the samples: an upload sends empty ones before its
   // first confirmation, and its cells start far from 0.
   if (buffer.values.length === 0) {
@@ -112,6 +116,7 @@ function record(live: DirectionLive | null, event: Extract<EngineEvent, { type: 
   buffer.windowEnd = event.windowEnd ?? null
   buffer.gauge = event.gauge
   buffer.streams = event.streams
+  buffer.phaseMs = event.phaseMs
   buffer.sending = event.sending ?? null
   buffer.steady = event.steady ?? null
   buffer.warmupEnd = event.warmupEndBucket ?? buffer.warmupEnd
@@ -178,6 +183,9 @@ export function createRunState() {
     }
     if (event.bytes !== undefined) {
       view.bytes = event.bytes
+    }
+    if (event.ranMs !== undefined) {
+      view.ranMs = event.ranMs
     }
     seenPhase = true
     phases.value = { ...phases.value, [event.phase]: view }

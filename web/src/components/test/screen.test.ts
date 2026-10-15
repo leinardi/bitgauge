@@ -56,7 +56,7 @@ function present<T>(value: T | undefined): T {
 }
 
 function live(overrides: Partial<DirectionLive>): DirectionLive {
-  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, ...overrides }
+  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, phaseMs: 0, ...overrides }
 }
 
 function phases(states: Partial<Record<PhaseName, PhaseView['state']>>): Record<PhaseName, PhaseView> {
@@ -83,7 +83,7 @@ describe('phaseSteps', () => {
   it('shows every configured phase pending, with the durations, between runs', () => {
     const steps = phaseSteps(run({ status: 'idle', phases: phases({ idle: 'finished' }) }), SETTINGS, 'en')
     expect(steps).toEqual([
-      { phase: 'idle', state: 'pending' },
+      { phase: 'idle', state: 'pending', estimate: { aboutMs: 2000 } },
       { phase: 'download', state: 'pending', estimate: { minMs: 10_000, maxMs: 20_000 } },
       { phase: 'upload', state: 'pending', estimate: { minMs: 15_000, maxMs: 25_000 } },
     ])
@@ -92,14 +92,26 @@ describe('phaseSteps', () => {
 
   it('counts idle latency by its pings, and a direction by its time against the duration', () => {
     const idle = phaseSteps(run({ phases: phases({ info: 'finished', idle: 'started' }), idle: { pings: 5, count: 20 } }), SETTINGS, 'en')
-    expect(idle[0]).toEqual({ phase: 'idle', state: 'active', progress: 0.25 })
-    const download = phaseSteps(run({ phases: phases({ idle: 'finished', download: 'started' }), live: { download: live({ values: new Array(40).fill(1) }), upload: null } }), SETTINGS, 'en')
+    expect(idle[0]).toEqual({ phase: 'idle', state: 'active', progress: 0.25, pings: { n: 5, count: 20 } })
+    const download = phaseSteps(run({ phases: phases({ idle: 'finished', download: 'started' }), live: { download: live({ phaseMs: 4000 }), upload: null } }), SETTINGS, 'en')
     expect(download[1]).toEqual({ phase: 'download', state: 'active', progress: 0.2, leftMs: 6000 })
-    const upload = live({ start: 100, sendingTrace: [{ cell: 260, bitsPerSecond: 1e8 }] })
-    const steps = phaseSteps(run({ phases: phases({ upload: 'started' }), live: { download: null, upload } }), SETTINGS, 'en')
-    expect(steps[2]).toEqual({ phase: 'upload', state: 'active', progress: 16_000 / 25_000 })
-    // Before a request has confirmed, the upload's place on the grid is unknown.
-    expect(phaseSteps(run({ phases: phases({ upload: 'started' }), live: { download: null, upload: live({}) } }), SETTINGS, 'en')[2]).toEqual({ phase: 'upload', state: 'active', progress: 0 })
+    // Past its minimum the phase extends, and the time left runs to its maximum; an upload counts
+    // its time before any request has confirmed.
+    const steps = phaseSteps(run({ phases: phases({ upload: 'started' }), live: { download: null, upload: live({ phaseMs: 16_000 }) } }), SETTINGS, 'en')
+    expect(steps[2]).toEqual({ phase: 'upload', state: 'active', progress: 16_000 / 25_000, leftMs: 9000 })
+    // Before its first sample, the phase's time is unknown.
+    expect(phaseSteps(run({ phases: phases({ upload: 'started' }) }), SETTINGS, 'en')[2]).toEqual({ phase: 'upload', state: 'active', progress: 0 })
+  })
+
+  it('gives a direction finished mid-run its headline, or insufficient data, and a failed phase how long it ran', () => {
+    const view = phases({ idle: 'finished', download: 'finished', upload: 'started' })
+    view.download = { state: 'finished', headlineBitsPerSecond: 612e6 }
+    const mid = phaseSteps(run({ phases: view }), SETTINGS, 'en')
+    expect(mid[1]?.value?.replaceAll(NB, ' ')).toBe('612 Mbit/s')
+    view.download = { state: 'finished' }
+    expect(phaseSteps(run({ phases: view }), SETTINGS, 'en')[1]).toEqual({ phase: 'download', state: 'done', insufficient: true })
+    view.download = { state: 'failed', ranMs: 6400 }
+    expect(phaseSteps(run({ status: 'ended', phases: view }), SETTINGS, 'en')[1]).toEqual({ phase: 'download', state: 'failed', progress: 1, interruptedMs: 6400 })
   })
 
   it('gives finished phases their values from the result', () => {
