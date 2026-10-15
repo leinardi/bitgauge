@@ -28,8 +28,9 @@ in flight. Whether streams share one TCP connection depends on the HTTP version 
 Reaching it ends the current phase early with a notice and skips the remaining throughput phases
 (§5).
 
-**Data used.** Total bytes transferred by the test in both directions, including warm-up and
-aborted requests. Always reported, whether or not a data cap is set.
+**Data used.** Total bytes of the download and upload transfers, including warm-up and aborted
+requests. The idle latency probes are not counted. Always reported, whether or not a data cap is
+set.
 
 ## Sampling and Windows
 

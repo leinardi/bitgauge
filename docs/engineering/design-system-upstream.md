@@ -111,3 +111,14 @@ the export shows, and what it should show, with the reason; behavior comes from
   so its version and name are unknown until it answers."
 - **Why:** v0.1 shows no snippets, and the facts read "— · server unreachable" and "—" while the
   server does not answer.
+
+### Data Used During Idle Latency
+
+- **Source:** triage cluster `content-test-card`, decided for the spec.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the `meta(...)` rows of the latency and early-error
+  states.
+- **Export today:** data used counts the pings, about 17 kB "so far" while idle latency runs, and
+  that count after an error in it.
+- **Wanted:** "—" with no qualifier until the first download byte, as in the connecting state.
+- **Why:** data used counts the download and upload transfers only
+  ([glossary](../features/glossary.md)); the engine cannot see a probe's bytes on the wire.

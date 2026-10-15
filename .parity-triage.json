@@ -2369,17 +2369,27 @@
       "decision": {
         "kind": "verdict",
         "winner": "kit",
-        "rationale": "The export's MetaList carries these qualifiers and the spec is silent on them.",
+        "rationale": "The export's MetaList carries these qualifiers and the spec is silent on them. Data used counts the download and upload transfers only; the kit's ping bytes during idle latency go upstream (decided 2026-10-15).",
         "on": "2026-10-15"
       },
       "actions": [
         {
           "target": "vue",
           "what": "TestPage.vue, screen.ts and test.json: the Test card's sub lines (so far, elapsed, not saved, so far · download <bytes>), the elapsed duration live from the page's clock since the run started, and — for data used until the first byte.",
-          "done": false
+          "done": true
+        },
+        {
+          "target": "spec",
+          "what": "glossary.md: data used counts the download and upload transfers only, not the idle latency probes.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's data used during idle latency and after an early error reads — until the first download byte.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/connecting": {
           "8a5bc6e8b7c8": "*",
@@ -2395,6 +2405,7 @@
           "8057437fe8b6": "*"
         },
         "test/error-early": {
+          "41b392b8c48a": "*",
           "a6efe82d88f4": "*"
         },
         "test/insufficient": {
@@ -2403,6 +2414,7 @@
           "eb007cd2509b": "*"
         },
         "test/latency": {
+          "41b392b8c48a": "*",
           "601a6b7464da": "*",
           "9508a6c880ad": "*",
           "a6efe82d88f4": "*"
