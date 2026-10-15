@@ -83,7 +83,8 @@ export const DEMO_SCENARIOS = {
   'upload-interrupted': { link: 'lan-http1', start: true, fault: { ...at('upload', 12_000), kind: 'requests' } },
   cancelled: { link: 'lan', start: true, stop: at('upload', 3100) },
   'cancelled-late': { link: 'lan', start: true, stop: at('upload', 14_000) },
-  'cancelled-latency': { link: 'lan', start: true, stop: at('idle', 1200) },
+  // The kit's stop after 12 of 20 pings at 1.2 s, between two pings as for the latency state.
+  'cancelled-latency': { link: 'lan', start: true, stop: at('idle', 1150) },
   'cancelled-download': { link: 'lan', start: true, stop: at('download', 5200) },
   // The kit stops at 8 s with a 3.5 s steady window; on the demo's VPN warm-up ends later, so it
   // stops at 8.8 s for the same window and a partial download.
