@@ -200,7 +200,7 @@
         "layer": "content",
         "path": "^main > region \"Speed test\"$",
         "kind": "^(missing|extra)$",
-        "detail": "^(img \"Throughput:|figure )"
+        "detail": "^(img \"Throughput:|figure |text \"Throughput )"
       },
       "type": "conflict",
       "aspect": "a11y",
@@ -216,7 +216,8 @@
         "vue": {
           "ref": "web/src/components/chart/ThroughputChart.vue:193-201,231-254; i18n/locales/en/test.json:54-57",
           "says": "a figure holding a div role=img \"Throughput over time: download, latest {rate}\" and a figcaption legend; no time, warm-up or marks"
-        }
+        },
+        "notes": "Extended on 2026-10-15 with the chart's visible title, legend and meta line (\"# s total\", \"Warm-up stopped at # s\"), which share the decision."
       },
       "decision": {
         "kind": "verdict",
@@ -227,54 +228,69 @@
       "actions": [
         {
           "target": "vue",
-          "what": "ThroughputChart.vue and test.json: the chart is role=img labelled with charts.md's summary (title, readout, elapsed / total, warm-up shaded, marked: …, no data yet), in markup the kit's chart matches.",
+          "what": "ThroughputChart.vue and test.json: the chart is role=img labelled with charts.md's summary (title, readout, elapsed / total, warm-up shaded, marked: …, no data yet), in markup the kit's chart matches. The chart also shows the kit's title, legend wording and meta line.",
           "done": false
         }
       ],
       "status": "decided",
       "owned": {
         "test/cancelled": {
+          "0abe9c585292": "*",
           "94143877edfc": "*",
           "d061dee206c9": "*"
         },
         "test/cancelled-download": {
           "716cf622a481": "*",
+          "9d9fa3b8b2a9": "*",
           "d061dee206c9": "*"
         },
         "test/cancelled-late": {
+          "0abe9c585292": "*",
           "94143877edfc": "*",
           "d061dee206c9": "*"
         },
         "test/cancelled-slow": {
           "716cf622a481": "*",
+          "9d9fa3b8b2a9": "*",
           "d061dee206c9": "*"
         },
         "test/cancelled-slow-up": {
+          "0abe9c585292": "*",
           "94143877edfc": "*",
           "d061dee206c9": "*"
         },
         "test/complete": {
           "532a7862bfcd": "*",
-          "94143877edfc": "*"
+          "94143877edfc": "*",
+          "dd8dd6866c9b": "*"
         },
         "test/connecting": {
-          "3f4e4c42af93": "*"
+          "052cb514c121": "*",
+          "3f4e4c42af93": "*",
+          "7d91b5d609ad": "*"
         },
         "test/countdown": {
-          "3f4e4c42af93": "*"
+          "052cb514c121": "*",
+          "3f4e4c42af93": "*",
+          "7d91b5d609ad": "*"
         },
         "test/download": {
           "11849e3d593d": "*",
-          "716cf622a481": "*"
+          "716cf622a481": "*",
+          "e02b18720344": "*"
         },
         "test/error": {
           "26990cbfe348": "*",
-          "716cf622a481": "*"
+          "716cf622a481": "*",
+          "9d9fa3b8b2a9": "*"
         },
         "test/idle": {
-          "3f4e4c42af93": "*"
+          "052cb514c121": "*",
+          "3f4e4c42af93": "*",
+          "7d91b5d609ad": "*"
         },
         "test/insufficient": {
+          "32980566c521": "*",
           "94143877edfc": "*",
           "e61a0d42442f": "*"
         },
@@ -282,27 +298,34 @@
           "3f4e4c42af93": "*"
         },
         "test/param-ignored": {
-          "3f4e4c42af93": "*"
+          "052cb514c121": "*",
+          "3f4e4c42af93": "*",
+          "7d91b5d609ad": "*"
         },
         "test/slow": {
           "94143877edfc": "*",
-          "b28d9a074f9e": "*"
+          "b28d9a074f9e": "*",
+          "f28597709254": "*"
         },
         "test/slowdone": {
           "94143877edfc": "*",
-          "ae9008a62884": "*"
+          "ae9008a62884": "*",
+          "dd8dd6866c9b": "*"
         },
         "test/upload": {
+          "4fc2b12c6fdc": "*",
           "94143877edfc": "*",
           "ab7e99f7fbe8": "*"
         },
         "test/upload-interrupted": {
           "846317192f78": "*",
-          "94143877edfc": "*"
+          "94143877edfc": "*",
+          "dd8dd6866c9b": "*"
         },
         "test/ws-fallback": {
           "11849e3d593d": "*",
-          "716cf622a481": "*"
+          "716cf622a481": "*",
+          "e02b18720344": "*"
         }
       },
       "resolution": null
@@ -938,6 +961,68 @@
       }
     },
     {
+      "id": "behavior-error-early-header",
+      "title": "error-early: the header shows unreachable after the server stops answering; Vue stays connected",
+      "match": {
+        "scenarios": [
+          "test/error-early"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^header > banner$",
+        "kind": "^changed$",
+        "detail": "^text "
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md §5; edge-cases.md §6 step 3; ui/screens.md:16",
+          "says": "the run ends as network changed and GET /info is checked again; the header's indicator shows the server's state"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Prototype.jsx:81; TestScreen.jsx:46",
+          "says": "the header reads unreachable"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue:189-194; demo/control.ts:60-65; demo/session.ts:137",
+          "says": "/info is re-checked only on server-unreachable; the demo's unreachable fault breaks only the engine's link, never /info"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "flows.md §5 re-checks /info after a network-changed ending, which fails here, so the header shows unreachable, as the kit does.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "TestPage.vue: re-check GET /info after a network-changed ending and update the header's indicator.",
+          "done": false
+        },
+        {
+          "target": "fixture",
+          "what": "demo/control.ts and session.ts: the unreachable fault also makes the demo's /info fail.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/error-early": {
+          "50f1a82cf0e6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a3d5215e14eb": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "resolution": null
+    },
+    {
       "id": "behavior-stop-in-latency",
       "title": "Stop during idle latency: the kit keeps a partial idle latency and skips the directions, Vue discards the samples and returns to Idle",
       "match": {
@@ -998,6 +1083,134 @@
           "c7265acf7bb4": "*",
           "d80f009df534": "*",
           "fcd1764dc717": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-about-unreachable",
+      "title": "About: the unreachable alert's body, the v0.3 Notice and the How it measures text",
+      "match": {
+        "scenarios": [
+          "about",
+          "about/unreachable"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main( > alert| > complementary)?$",
+        "kind": null,
+        "detail": "^text \"(Server unreachable|Other clients arrive|How it measures)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:232-236",
+          "says": "About mentions the v0.3 clients and explains the v0.1 metrics; silent on the alert's body"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/About.jsx:55,80-89",
+          "says": "alert \"The commands below are built from this page's address…\" with no commands in v0.1; info Notice \"Other clients arrive in v0.3 … no snippets yet\"; its How it measures text"
+        },
+        "vue": {
+          "ref": "web/src/pages/AboutPage.vue:79-88; i18n/locales/en/about.json:6,21",
+          "says": "the Test screen's OfflineNotice (\"No test can start…\"); the v0.3 sentence in the header paragraph; its own How it measures text"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "new",
+        "text": "The kit's v0.3 info Notice and How it measures text; the unreachable alert gets an About-specific body (the server is unreachable, so the version and server facts may be out of date), neither the Test screen's nor the kit's commands sentence.",
+        "rationale": "The export decides where the spec is silent, but its alert refers to commands v0.1 does not have, and the Test screen's wording does not fit About.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "AboutPage.vue and about.json: the kit's v0.3 info Notice and How it measures text; an About-specific body for the unreachable alert.",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: About's unreachable alert drops \"The commands below…\" (v0.1 has no commands) and says the server facts may be out of date.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "about": {
+          "72dbb3a55028": "*"
+        },
+        "about/unreachable": {
+          "1f7ebecab78e": "*",
+          "2dce2aa2417b": "*",
+          "72dbb3a55028": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-basepath-error",
+      "title": "Base-path error: the kit's wording and Check row vs edge-cases.md §20's sentence and rows",
+      "match": {
+        "scenarios": [
+          "test/basepath"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": null,
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/edge-cases.md §20",
+          "says": "\"BitGauge is configured for <base> but this page was served at <path>…\"; rows: the page path and the server base path, the API's only when it differs; a page that fails the path checks sends no request"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:586,595",
+          "says": "\"This page was opened at /speed/, but the server is configured for /\"; rows Page path, Server base path \"/ · BITGAUGE_SERVER__BASE_PATH not set\", Check \"GET /api/v1/info → 404\""
+        },
+        "vue": {
+          "ref": "web/src/components/BasePathError.vue:61-90; i18n/locales/en/app.json:33-40",
+          "says": "edge-cases.md §20's sentence, two rows"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "edge-cases.md §20 defines the wording and rows; the page sends no request, so there is no Check result, and the SPA cannot know whether an environment variable is set.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's base-path screen uses edge-cases.md §20's sentence and rows, with no Check row (the page sends no request) and no claim about the environment variable.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/basepath": {
+          "133a935e9b62": "*",
+          "1902147e3346": "*",
+          "1e79ef915ed5": "*",
+          "3810bcc4fd91": "*",
+          "5a4705fb5fd3": "*",
+          "5f810cc6e8f6": "*",
+          "73c2a913981a": "*",
+          "747e6428b700": "*",
+          "7d0358ed45a3": "*",
+          "8298c912240a": "*",
+          "83f7d5e03b18": "*",
+          "c66a8c69789e": "*",
+          "d188ddcc0af1": "*",
+          "df57297eb2e8": "*",
+          "eb72a8aa7296": "*",
+          "ee4228e9dac2": "*",
+          "ef406850e4ef": "*"
         }
       },
       "resolution": null
@@ -1276,6 +1489,256 @@
       "resolution": null
     },
     {
+      "id": "content-results-tiles",
+      "title": "Results tiles per state: finished tiles mid-run, the tile states and pills, their explanations and number format",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Results\"$",
+        "kind": "^changed$",
+        "detail": "^text "
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1, §6, §7; flows.md §4 step 4, §5; measurement.md §7.8; architecture.md §4",
+          "says": "insufficient data shows no number; completed phases kept on error; probe loss one decimal, source http-h2; partial explanation 'based on a 3.6 s steady window, 21 requests' (flows.md) against 'based on the first 7.0 s' (measurement.md); the phase finished message carries only the headline"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/tiles.md; ui_kits/app/TestScreen.jsx",
+          "says": "a finished phase's tile shows its result at once (612 Mbit/s peak 641 · 6 streams · plateau: cap; 3.1 ms min 2.4 · p90 4.1 ms · WebSocket · 0 % probe timeouts); Live, Error, Partial and Insufficient-data pills; up next, warming up / no confirmed request yet, error · 3 requests in a row failed, error-early's failed idle latency with download and upload skipped"
+        },
+        "vue": {
+          "ref": "web/src/components/test/MetricTile.vue; screen.ts; i18n/locales/en/test.json",
+          "says": "finished tiles stay Live until the run ends (insufficient still shows a number); Live pill only; avg so far … · peak … Mbit/s, — warming up, — error · requests failed, all — in error-early; stream cap / no further gain; 0.0 %; HTTP fallback label; based on the first 13.3 s"
+        },
+        "notes": "One text difference per scenario mixes these themes, so one cluster carries the four answers. Some states also differ in the demo's data (cancelled-slow, upload-interrupted), confirmed separately."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "new",
+        "text": "Kit for the finished tiles mid-run (through a phase finished message that carries the tile result), the pills, qualifiers and explanations (flows.md §4's wording, which settles measurement.md §7.8), and the number format (peak without a repeated unit, plateau: cap, HTTP/2 probe), except probe loss, which keeps the spec's one decimal.",
+        "rationale": "The export's tiles contract and flows.md agree on the states and wording; screens.md already asks for no number on insufficient data; the one-decimal probe loss is the spec's.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "architecture.md §4: the phase finished message carries the phase's tile result (idle stats, jitter, peak, streams, plateau, status); measurement.md §7.8 takes flows.md §4's partial wording (based on a <s> steady window, <n> requests).",
+          "done": false
+        },
+        {
+          "target": "vue",
+          "what": "Engine and MetricTile.vue: each finished tile shows its result as soon as its phase ends; Error, Partial and Insufficient-data pills; up next, warming up / no confirmed request yet, error · <n> requests in a row failed; error-early keeps the failed idle latency with download and upload skipped.",
+          "done": false
+        },
+        {
+          "target": "vue",
+          "what": "test.json formats: peak <n> without a repeated unit, plateau: cap / no-gain, min <n> · p90 <n> ms, HTTP/2 probe on the fallback; probe loss stays one decimal.",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's probe timeouts take one decimal (0.0 %), as screens.md §6 sets.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/cancelled": {
+          "042cb2c171de": "*"
+        },
+        "test/cancelled-download": {
+          "2b778e2e5823": "*"
+        },
+        "test/cancelled-late": {
+          "9bdcc634fc34": "*"
+        },
+        "test/cancelled-slow": {
+          "de3e66af0b39": "*"
+        },
+        "test/cancelled-slow-up": {
+          "617e734397a6": "*"
+        },
+        "test/complete": {
+          "e669be3d640f": "*"
+        },
+        "test/download": {
+          "607aa578fc06": "*"
+        },
+        "test/error": {
+          "d5c66c0cba62": "*"
+        },
+        "test/error-early": {
+          "63e73f07af0a": "*"
+        },
+        "test/insufficient": {
+          "92e5837d8026": "*"
+        },
+        "test/latency": {
+          "f385e9c78da9": "*"
+        },
+        "test/slow": {
+          "0142468a259a": "*"
+        },
+        "test/slowdone": {
+          "e4d9c29a9635": "*"
+        },
+        "test/upload": {
+          "0ba34456d02a": "*"
+        },
+        "test/upload-interrupted": {
+          "d4117cbce597": "*"
+        },
+        "test/ws-fallback": {
+          "9d99a44df552": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-test-card",
+      "title": "Test card: the kit's so far / elapsed / not saved qualifiers, live elapsed duration and — before the first byte vs Vue's plain labels",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Results\" > (term|definition)$",
+        "kind": "^changed$",
+        "detail": "^text \"(Duration elapsed|Data used (so far|not saved)|# s\" → \"—|—\" → \"# B|# B\" → \"—)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1, §6",
+          "says": "data used live during the run; data used and duration with the qualifier —; silent on the labels' qualifiers and on a live duration"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:156-160,237-422,523; components/layout/MetaList.prompt.md",
+          "says": "meta(data, dataSub, dur, durSub): Data used so far, Duration elapsed with the elapsed seconds while running, Data used not saved on error, so far · download 50.0 kB when insufficient, — before the first byte"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue:87; components/test/screen.ts:203",
+          "says": "plain labels, no sub except packet loss; duration — until the result; 0 B while connecting"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export's MetaList carries these qualifiers and the spec is silent on them.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "TestPage.vue, screen.ts and test.json: the Test card's sub lines (so far, elapsed, not saved, so far · download <bytes>), the elapsed duration live from the page's clock since the run started, and — for data used until the first byte.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/connecting": {
+          "8a5bc6e8b7c8": "*",
+          "9508a6c880ad": "*",
+          "a6efe82d88f4": "*"
+        },
+        "test/download": {
+          "601a6b7464da": "*",
+          "9508a6c880ad": "*",
+          "a6efe82d88f4": "*"
+        },
+        "test/error": {
+          "8057437fe8b6": "*"
+        },
+        "test/error-early": {
+          "a6efe82d88f4": "*"
+        },
+        "test/insufficient": {
+          "9508a6c880ad": "*",
+          "a6efe82d88f4": "*",
+          "eb007cd2509b": "*"
+        },
+        "test/latency": {
+          "601a6b7464da": "*",
+          "9508a6c880ad": "*",
+          "a6efe82d88f4": "*"
+        },
+        "test/slow": {
+          "601a6b7464da": "*",
+          "9508a6c880ad": "*",
+          "a6efe82d88f4": "*"
+        },
+        "test/upload": {
+          "601a6b7464da": "*",
+          "9508a6c880ad": "*",
+          "a6efe82d88f4": "*"
+        },
+        "test/ws-fallback": {
+          "601a6b7464da": "*",
+          "9508a6c880ad": "*",
+          "a6efe82d88f4": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-ws-notice-body",
+      "title": "WebSocket-fallback notice: the kit's fixed HTTP/2 body with a higher-values sentence vs Vue's protocol-neutral body (the height follows)",
+      "match": {
+        "scenarios": [
+          "test/ws-fallback"
+        ],
+        "projects": null,
+        "layer": "style",
+        "path": "^main > status \"WebSocket unavailable",
+        "kind": "^height$",
+        "detail": "^97\\.1px → 79\\.7px$"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:279; edge-cases.md §6 step 5, §15; measurement.md §11.2",
+          "says": "the title WebSocket unavailable — HTTP latency fallback only; the fallback is http-h1-reserved, http-h2 or http-h3 by protocol"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:254",
+          "says": "\"…did not accept a WebSocket upgrade, so latency is measured with HTTP/2 requests. Values can read slightly higher.\""
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/notices.json:85",
+          "says": "\"The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.\""
+        },
+        "notes": "The 97.1 → 79.7 px height on narrow screens is the kit's longer body wrapping to another line."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The fallback runs over whatever protocol the page negotiated, so a fixed HTTP/2 is wrong on the others, and no spec page says the values read higher.",
+        "on": "2026-10-15"
+      },
+      "owned": {
+        "test/ws-fallback": {
+          "a51d421ede40": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's WebSocket-fallback body does not name HTTP/2 (the fallback follows the page's protocol) and drops \"Values can read slightly higher.\"",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
       "id": "feature-latency-chart",
       "title": "Idle latency: the kit's Latency samples chart, which the v0.1 spec and Vue do not have",
       "match": {
@@ -1333,6 +1796,56 @@
         }
       },
       "resolution": null
+    },
+    {
+      "id": "fixture-demo-results",
+      "title": "Demo data: cancelled-slow and upload-interrupted end with insufficient data where the kit keeps a value",
+      "match": {
+        "scenarios": [
+          "test/upload-interrupted"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": "^changed$",
+        "detail": "^text \"Download # Mbit/s # Mbit/s upload "
+      },
+      "type": "fixture",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/measurement.md §7.5:446-450",
+          "says": "a value when the window meets the minimum; both outcomes are possible"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:278-289,365-372",
+          "says": "cancelled-slow keeps a partial download (574 kbit/s); upload-interrupted keeps upload 402 Mbit/s from the window up to the failed request at 8.2 s"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts:79,83",
+          "says": "both end with insufficient data on the demo's link"
+        },
+        "notes": "The Results tiles of both states are owned by content-results-tiles; cancelled-slow's gauge readout by state-cancel-gauge. complete's inner upload value on the gauge is a separate, baselined difference."
+      },
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "The demo should reach the kit's results; measurement.md allows them, so the demo's stop instant or link is tuned.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "fixture",
+          "what": "demo/scenarios.ts (and the link if needed): cancelled-slow stops after a steady window long enough for a partial download; upload-interrupted's upload window before the failed request at 8.2 s meets the minimum. If the engine is at fault instead, that is a new finding.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/upload-interrupted": {
+          "7a2b4440ca78": "*"
+        }
+      },
+      "resolution": null,
+      "aspect": null
     },
     {
       "id": "fixture-insufficient-ip",
@@ -2128,6 +2641,63 @@
       }
     },
     {
+      "id": "layout-offline-state",
+      "title": "Offline: the kit's unreachable readout with countdown and Retry in the gauge vs Vue's Ready gauge and alert above the section",
+      "match": {
+        "scenarios": [
+          "test/offline"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": null,
+        "detail": "^(?!img )"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:74,290",
+          "says": "\"Server unreachable\" with Retry; Start disabled until /info succeeds; a danger notice with role=\"alert\"; placement silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:404-410",
+          "says": "the gauge readout: Server unreachable, <host> didn't respond. Next check in # s., with Retry; the empty chart: Nothing to measure yet. The chart fills in once <host> responds."
+        },
+        "vue": {
+          "ref": "web/src/components/test/screen.ts:153; OfflineNotice.vue; pages/TestPage.vue:210-214; StartButton.vue:87-92",
+          "says": "the gauge reads Ready; an alert notice with Retry above the section; Start's disabled reason as visible text"
+        },
+        "notes": "The demo reaches the state (demo/control.ts:59-65)."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export decides where the state is drawn; Vue keeps the spec's role=\"alert\" danger notice.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "The gauge readout carries the unreachable state (Server unreachable, <host> didn't respond. Next check in # s.) with Retry, and the empty chart the kit's text; the role=\"alert\" notice stays.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/offline": {
+          "178e0bec946e": "*",
+          "339f40739d80": "*",
+          "3bc40e8ab8a1": "*",
+          "41ca23d98283": "*",
+          "43d668ff77da": "*",
+          "63a06f153dc3": "*",
+          "e9bef9a4d59b": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
       "id": "layout-packet-loss-why",
       "title": "Packet-loss row: the kit's Why? link ends the reason line in the term, Vue's sits beside the badge in the value",
       "match": {
@@ -2648,6 +3218,142 @@
           "complete": true
         }
       }
+    },
+    {
+      "id": "markup-notices-list",
+      "title": "Notices: Vue's <ul aria-label=\"Notices\"> list vs the kit's sibling Notices with a top-level alert",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^(extra|missing)$",
+        "detail": "^(list \"Notices\"|alert)$"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §7 notices",
+          "says": "tones, and role=\"alert\" for danger; silent on a list"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:616",
+          "says": "notices render as siblings; a danger notice is a top-level alert"
+        },
+        "vue": {
+          "ref": "web/src/components/test/NoticeList.vue:42-44; NoticeBox.vue:41",
+          "says": "a <ul aria-label=\"Notices\"> with the alert inside it"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export decides the markup where the spec is silent.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "NoticeList.vue: render the notices as siblings, with no list wrapper.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/cancelled": {
+          "b2b6051be1cd": "*"
+        },
+        "test/cancelled-download": {
+          "b2b6051be1cd": "*"
+        },
+        "test/cancelled-late": {
+          "b2b6051be1cd": "*"
+        },
+        "test/cancelled-slow": {
+          "b2b6051be1cd": "*"
+        },
+        "test/cancelled-slow-up": {
+          "b2b6051be1cd": "*"
+        },
+        "test/offline": {
+          "0444906086e5": "*"
+        },
+        "test/param-ignored": {
+          "b2b6051be1cd": "*"
+        },
+        "test/slowdone": {
+          "b2b6051be1cd": "*"
+        },
+        "test/upload-interrupted": {
+          "b2b6051be1cd": "*",
+          "d12cd2b63ff2": "*"
+        },
+        "test/ws-fallback": {
+          "b2b6051be1cd": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "state-cancel-gauge",
+      "title": "Gauge after a stop: the kit's Cancelled · Partial results · not saved readout vs Vue's last value",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": "^changed$",
+        "detail": "^text \"Cancelled Partial results"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md §4",
+          "says": "silent on the gauge after a stop"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (cancelled states)",
+          "says": "the gauge reads Cancelled with Partial results · not saved"
+        },
+        "vue": {
+          "ref": "web/src/components/test/screen.ts",
+          "says": "the gauge keeps the last direction's value (Download # Mbit/s, or Download —)"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export decides the gauge's readout where the spec is silent.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "screen.ts and the gauge: after a stop the readout is Cancelled with Partial results · not saved.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/cancelled": {
+          "98f598d3b877": "*"
+        },
+        "test/cancelled-download": {
+          "1ecc011c7205": "*"
+        },
+        "test/cancelled-late": {
+          "98f598d3b877": "*"
+        },
+        "test/cancelled-slow": {
+          "cfa90a6c735c": "*"
+        },
+        "test/cancelled-slow-up": {
+          "578c0d2e0d5c": "*"
+        }
+      },
+      "resolution": null
     },
     {
       "id": "style-about-links",
