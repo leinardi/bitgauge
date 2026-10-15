@@ -24,6 +24,7 @@ import { useI18n } from 'vue-i18n'
 import BrandLogo from '@/components/brand/BrandLogo.vue'
 import OfflineNotice from '@/components/OfflineNotice.vue'
 import AppButton from '@/components/actions/AppButton.vue'
+import GithubIcon from '@/components/brand/GithubIcon.vue'
 import { useInfo } from '@/composables/useInfo'
 import { links } from '@/lib/links'
 
@@ -109,18 +110,20 @@ const credits = computed(() => [
             </dd>
           </div>
         </dl>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-col gap-2">
           <AppButton
             as-child
+            block
           >
             <a
               :href="links.source"
               target="_blank"
               rel="noopener noreferrer"
             >
+              <GithubIcon :size="15" />
               {{ t('about.source') }}
               <ExternalLink
-                :size="13"
+                :size="14"
                 aria-hidden="true"
               />
             </a>
@@ -129,6 +132,7 @@ const credits = computed(() => [
             as-child
             variant="ghost"
             size="sm"
+            block
           >
             <a
               :href="links.licence"
