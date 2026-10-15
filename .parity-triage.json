@@ -1461,6 +1461,57 @@
       "resolution": null
     },
     {
+      "id": "content-cancel-slow-window",
+      "title": "Cancelled slow download: the kit captions its start window under a 634 kbit/s value, Vue the floor window it shifted to",
+      "match": {
+        "scenarios": [
+          "test/cancelled-slow"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": "^changed$",
+        "detail": "log scale · 1 Mbit/s – 10 Gbit/s · auto\" → \".*log scale · 10 kbit/s – 100 Mbit/s · auto\"$"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/measurement.md §14; docs/design_system/components/gauge.md Behaviour rules 3, 6",
+          "says": "the gauge picks its window from the values: a value in the bottom decade for 2 s shifts it down, and a slow link reaches the floor window within two shifts; the caption names the current window"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:323 (cancelled-slow); cancelled-slow-up passes the previous window (prev)",
+          "says": "log scale · 1 Mbit/s – 10 Gbit/s · auto under a 634 kbit/s cancelled download: the start window, never shifted"
+        },
+        "vue": {
+          "ref": "web/src/components/gauge/Gauge.vue, gauge/window.ts",
+          "says": "log scale · 10 kbit/s – 100 Mbit/s · auto: the window the slow download shifted to"
+        },
+        "notes": "Hidden inside the gauge readout difference until content-gauge-readout and state-cancel-gauge made both readouts read Cancelled (2026-10-15)."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The window is a function of the values (gauge.md rules, measurement.md §14), which Vue follows; the kit draws its start window because its cancelled-slow state does not carry the window the download reached, as its cancelled-slow-up does.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's cancelled-slow gauge shows the floor window its slow download reached (10 kbit/s – 100 Mbit/s), as cancelled-slow-up does.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/cancelled-slow": {
+          "cb36f64934a8": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
       "id": "content-connection-strip",
       "title": "Connection strip: protocol label, protocol before a run, streams wording and the plateau reason",
       "match": {
