@@ -118,6 +118,11 @@ export class DownloadPhase {
     return this.warmup.end
   }
 
+  /** The stream count the ramp has reached, which each sample reports. */
+  get streamCount(): number {
+    return this.ramp.streams
+  }
+
   /** The bytes read so far in this phase. */
   get dataUsed(): number {
     return this.read

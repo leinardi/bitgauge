@@ -508,6 +508,17 @@ describe('the data cap', () => {
 })
 
 describe('samples', () => {
+  it('carry the stream count the ramp has reached, which the finished phase event repeats', async () => {
+    const harness = start()
+    await finish(harness)
+    for (const direction of ['download', 'upload'] as const) {
+      const counts = harness.events.flatMap(({ event }) => (event.type === 'sample' && event.direction === direction ? [event.streams] : []))
+      const finished = harness.events.find(({ event }) => event.type === 'phase' && event.phase === direction && event.state === 'finished')?.event
+      expect(counts.every((count) => count >= 1)).toBe(true)
+      expect(counts.at(-1)).toBe(finished?.type === 'phase' ? finished.streams : undefined)
+    }
+  })
+
   it('carry each direction’s new buckets, gauge and data used, at most every 100 ms', async () => {
     const harness = start()
     await finish(harness)

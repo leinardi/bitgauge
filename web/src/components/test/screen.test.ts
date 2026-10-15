@@ -56,7 +56,7 @@ function present<T>(value: T | undefined): T {
 }
 
 function live(overrides: Partial<DirectionLive>): DirectionLive {
-  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], ...overrides }
+  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, ...overrides }
 }
 
 function phases(states: Partial<Record<PhaseName, PhaseView['state']>>): Record<PhaseName, PhaseView> {

@@ -277,6 +277,8 @@ export type EngineEvent =
        * fractional cells, placed by the display-only offset of measurement.md section 7.4.
        */
       sendingBucket?: number
+      /** The stream count the ramp has reached (measurement.md section 4). */
+      streams: number
       dataUsedBytes: number
     }
   /**

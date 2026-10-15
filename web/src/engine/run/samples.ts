@@ -69,6 +69,7 @@ export class SampleFeed {
       fromBucket: from,
       values: series.range(from, series.end),
       gauge: bucketRate(series.mean(series.end - GAUGE_BUCKETS, series.end) ?? 0),
+      streams: phase.streamCount,
       dataUsedBytes: dataUsedBefore + phase.dataUsed,
     }
     if (warmupEnd === null) {
@@ -108,6 +109,7 @@ export class SampleFeed {
       values,
       gauge: sending,
       sending,
+      streams: phase.streamCount,
       dataUsedBytes: dataUsedBefore + sent,
       ...(windowEnd === null ? {} : { windowEnd }),
       ...(offset === null || phaseStart === null ? {} : { startBucket: phaseStart / BUCKET_MS, sendingBucket: (now - offset) / BUCKET_MS }),

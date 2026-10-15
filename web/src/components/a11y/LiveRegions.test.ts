@@ -39,7 +39,7 @@ function phase(name: PhaseName, state: PhaseState, extra: Partial<Extract<Engine
 }
 
 function sample(gauge: number): EngineEvent {
-  return { type: 'sample', direction: 'download', fromBucket: 0, values: [], gauge, dataUsedBytes: 0 }
+  return { type: 'sample', direction: 'download', fromBucket: 0, values: [], gauge, streams: 1, dataUsedBytes: 0 }
 }
 
 function regions() {

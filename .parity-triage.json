@@ -1313,6 +1313,7 @@
             "light-narrow"
           ],
           "d80f009df534": "*",
+          "df3ad09927bc": "*",
           "fcd1764dc717": "*"
         }
       },
@@ -1646,7 +1647,30 @@
       "id": "content-connection-strip",
       "title": "Connection strip: protocol label, protocol before a run, streams wording and the plateau reason",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/basepath",
+          "test/cancelled",
+          "test/cancelled-download",
+          "test/cancelled-late",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/complete",
+          "test/connecting",
+          "test/countdown",
+          "test/download",
+          "test/error",
+          "test/error-early",
+          "test/idle",
+          "test/insufficient",
+          "test/latency",
+          "test/offline",
+          "test/param-ignored",
+          "test/slow",
+          "test/slowdone",
+          "test/upload",
+          "test/upload-interrupted",
+          "test/ws-fallback"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main$",
@@ -1674,27 +1698,37 @@
         "kind": "verdict",
         "winner": "new",
         "text": "Vue shows the protocol label (HTTP/2, HTTP/1.1, HTTP/3), the kit's # auto streams wording and the plateau reason after a run; it keeps — not reported before a run and HTTP/1.1 in upload-interrupted, which the kit gets upstream notes for.",
-        "rationale": "The spec decides the label, the plateau reason and the HTTP/1.1 fixture; the protocol is only known from throughput requests, so nothing is reported before a run; the streams wording follows the export.",
+        "rationale": "The spec decides the label, the plateau reason and the HTTP/1.1 fixture; the protocol is only known from throughput requests, so nothing is reported before a run; the streams wording follows the export. Decided 2026-10-15: the sample event carries the live stream count; before a run an automatic count reads — (Vue wins, upstream note); test/cancelled-latency's strip line belongs to behavior-stop-in-latency.",
         "on": "2026-10-15"
       },
       "actions": [
         {
           "target": "spec",
           "what": "screens.md §1 connection strip: before a run the protocol is not reported, as no throughput request has run.",
-          "done": false
+          "done": true
+        },
+        {
+          "target": "spec",
+          "what": "architecture.md §4: the sample event carries the stream count the ramp has reached; screens.md §1: streams read — before a run when the count is automatic.",
+          "done": true
         },
         {
           "target": "vue",
-          "what": "ConnectionStrip.vue and test.json: the protocol shown as its label (HTTP/1.1, HTTP/2, HTTP/3), streams as the kit's # auto, and · plateau: <reason> after a run.",
-          "done": false
+          "what": "engine: each sample carries the ramp's stream count (run/samples.ts, the download and upload phases' streamCount).",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "ConnectionStrip.vue, TestPage.vue and test.json: the protocol shown as its label (HTTP/1.1, HTTP/2, HTTP/3), streams as the kit's # auto, live from each sample, and · plateau: <reason> after a run.",
+          "done": true
         },
         {
           "target": "upstream",
-          "what": "design-system-upstream.md: the kit's strip reports no protocol before a run and HTTP/1.1 in the upload-interrupted state, as its own notice says.",
-          "done": false
+          "what": "design-system-upstream.md: the kit's strip reports no protocol and an automatic stream count of — before a run, HTTP/1.1 in the upload-interrupted state, and the plateau reason after the cancelled slow run, as its own notice and the spec say.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/cancelled": {
           "e0c6eb3f2713": "*"
@@ -1711,9 +1745,11 @@
         "test/cancelled-slow": {
           "cfb3147a79f1": "*",
           "d97736972857": "*",
+          "e5f4e07bce3a": "*",
           "eaf9a414005f": "*"
         },
         "test/cancelled-slow-up": {
+          "40b67e553ef3": "*",
           "cfb3147a79f1": "*",
           "d97736972857": "*",
           "eaf9a414005f": "*"
@@ -1722,10 +1758,12 @@
           "e0c6eb3f2713": "*"
         },
         "test/connecting": {
-          "c47dc29fbff8": "*"
+          "c47dc29fbff8": "*",
+          "df3ad09927bc": "*"
         },
         "test/countdown": {
-          "c47dc29fbff8": "*"
+          "c47dc29fbff8": "*",
+          "df3ad09927bc": "*"
         },
         "test/download": {
           "04cf7ebb4c09": "*"
@@ -1737,7 +1775,8 @@
           "04cf7ebb4c09": "*"
         },
         "test/idle": {
-          "c47dc29fbff8": "*"
+          "c47dc29fbff8": "*",
+          "df3ad09927bc": "*"
         },
         "test/insufficient": {
           "04cf7ebb4c09": "*"
@@ -1746,12 +1785,15 @@
           "04cf7ebb4c09": "*"
         },
         "test/param-ignored": {
-          "c47dc29fbff8": "*"
+          "c47dc29fbff8": "*",
+          "df3ad09927bc": "*"
         },
         "test/slow": {
+          "40b67e553ef3": "*",
           "b1a12e769d8c": "*"
         },
         "test/slowdone": {
+          "40b67e553ef3": "*",
           "e9d08d4b7b68": "*"
         },
         "test/upload": {

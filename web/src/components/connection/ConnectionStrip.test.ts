@@ -96,13 +96,18 @@ describe('the facts before a run', () => {
   it('show the configured stream mode and an unreported protocol', async () => {
     const wrapper = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture() } })
     expect(wrapper.get('[data-testid="connection-protocol"]').text()).toMatch(/—\s*not reported/)
-    expect(wrapper.get('[data-testid="connection-streams"]').text()).toMatch(/—\s*auto, up to 6/)
+    expect(wrapper.get('[data-testid="connection-streams"]').text()).toMatch(/—\s*auto$/)
   })
 
-  it('show the run protocol and live stream count when given', async () => {
-    const wrapper = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture(), protocol: 'HTTP/2', streams: 4 } })
+  it('show the run protocol by its label and live stream count when given', async () => {
+    const wrapper = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture(), protocol: 'h2', streams: 4 } })
     expect(wrapper.get('[data-testid="connection-protocol"]').text()).toMatch(/HTTP\/2$/)
-    expect(wrapper.get('[data-testid="connection-streams"]').text()).toMatch(/4\s*auto, up to 6/)
+    expect(wrapper.get('[data-testid="connection-streams"]').text()).toMatch(/4\s*auto$/)
+    const after = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture(), protocol: 'http/1.1', streams: 4, plateau: 'cap' } })
+    expect(after.get('[data-testid="connection-protocol"]').text()).toMatch(/HTTP\/1\.1$/)
+    expect(after.get('[data-testid="connection-streams"]').text()).toMatch(/4\s*auto · plateau: cap$/)
+    const unreported = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture(), protocol: 'unknown' } })
+    expect(unreported.get('[data-testid="connection-protocol"]').text()).toMatch(/—\s*not reported/)
   })
 
   it('show dashes without the server info', async () => {

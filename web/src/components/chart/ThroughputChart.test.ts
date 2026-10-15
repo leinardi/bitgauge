@@ -35,7 +35,7 @@ import { createAppI18n } from '@/i18n'
 const DURATIONS = { download: { minMs: 10_000, maxMs: 20_000 }, upload: { minMs: 15_000, maxMs: 25_000 } }
 
 function live(overrides: Partial<DirectionLive>): DirectionLive {
-  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], ...overrides }
+  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, ...overrides }
 }
 
 afterEach(() => {
@@ -68,9 +68,9 @@ describe('the throughput chart', () => {
     expect(wrapper.text()).toBe('Throughput Download UploadThroughput over time appears here while the test runs.')
     expect(wrapper.find('figure').exists()).toBe(false)
 
-    state.apply({ type: 'sample', direction: 'download', fromBucket: 0, values: [1_176_250, 1_176_250], gauge: 9.41e7, warmupEndBucket: 1, dataUsedBytes: 2_352_500 })
-    state.apply({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 2e7, sending: 2e7, dataUsedBytes: 2_400_000 })
-    state.apply({ type: 'sample', direction: 'upload', fromBucket: 40, values: [125_000], gauge: 2e7, sending: 2e7, startBucket: 40, sendingBucket: 41.2, dataUsedBytes: 2_500_000 })
+    state.apply({ type: 'sample', direction: 'download', fromBucket: 0, values: [1_176_250, 1_176_250], gauge: 9.41e7, streams: 1, warmupEndBucket: 1, dataUsedBytes: 2_352_500 })
+    state.apply({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 2e7, streams: 1, sending: 2e7, dataUsedBytes: 2_400_000 })
+    state.apply({ type: 'sample', direction: 'upload', fromBucket: 40, values: [125_000], gauge: 2e7, streams: 1, sending: 2e7, startBucket: 40, sendingBucket: 41.2, dataUsedBytes: 2_500_000 })
     Object.assign(props, { state: 'running', readout: 'Upload · sending 20.0 Mbit/s' })
     await flushPromises()
     expect(host.attributes('aria-label')).toBe('Throughput: Upload · sending 20.0 Mbit/s, 0.4 s / 15.2 s; warm-up shaded')

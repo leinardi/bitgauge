@@ -71,6 +71,8 @@ export interface DirectionLive {
   start: number | null
   /** Upload only: the sending values, each at its instant on the server grid in cells. */
   sendingTrace: { cell: number; bitsPerSecond: number }[]
+  /** The stream count the ramp has reached. */
+  streams: number
 }
 
 /** Idle latency so far, as the last `idle` event carried it. */
@@ -96,7 +98,7 @@ function emptyLive(): Record<Direction, DirectionLive | null> {
 
 /** Writes a sample's range of buckets into the direction's buffer, unknown across any hole. */
 function record(live: DirectionLive | null, event: Extract<EngineEvent, { type: 'sample' }>): DirectionLive {
-  const buffer = live ?? { firstBucket: event.fromBucket, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [] }
+  const buffer = live ?? { firstBucket: event.fromBucket, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: event.streams }
   // Until a bucket is known, the buffer follows the samples: an upload sends empty ones before its
   // first confirmation, and its cells start far from 0.
   if (buffer.values.length === 0) {
@@ -109,6 +111,7 @@ function record(live: DirectionLive | null, event: Extract<EngineEvent, { type: 
   buffer.values.splice(offset, event.values.length, ...event.values)
   buffer.windowEnd = event.windowEnd ?? null
   buffer.gauge = event.gauge
+  buffer.streams = event.streams
   buffer.sending = event.sending ?? null
   buffer.steady = event.steady ?? null
   buffer.warmupEnd = event.warmupEndBucket ?? buffer.warmupEnd

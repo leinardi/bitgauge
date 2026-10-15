@@ -106,6 +106,11 @@ export class UploadPhase {
     return this.warmup.end
   }
 
+  /** The stream count the ramp has reached, which each sample reports. */
+  get streamCount(): number {
+    return this.ramp.streams
+  }
+
   /** The display-only offset of section 7.4, client minus server; null before a confirmation. */
   get displayOffset(): number | null {
     return this.streams.displayOffset()
@@ -165,11 +170,7 @@ export class UploadPhase {
     }
   }
 
-  /**
-   * One stream: requests back to back while the phase issues and the stream is within the count,
-   * each sent at the previous one's answer or early (measurement.md section 3), within the
-   * server's in-flight bound.
-   */
+  /** One stream: requests back to back, or early (measurement.md section 3), while the phase issues and the stream is within the count and the server's in-flight bound. */
   private async loop(stream: number): Promise<void> {
     let early = false
     while (this.halted === null && stream < this.ramp.streams) {
@@ -212,10 +213,9 @@ export class UploadPhase {
   }
 
   /**
-   * Sends one request; `hold` is its hold on the preparation turn (measurement.md section 7.2),
-   * `early` whether it was issued before the stream's previous one was answered (section 3), and
-   * `firstByte` is told when upload progress first reports a byte sent, or the send when the
-   * browser reports no progress, which the early issue of the next request watches.
+   * Sends one request: `hold` is its hold on the preparation turn (measurement.md section 7.2),
+   * `early` whether it went before the stream's previous answer (section 3); `firstByte` hears of
+   * the first byte sent, or of the send when the browser reports no progress, for the next early.
    */
   private async request(stream: number, size: number, hold: TurnHold, early: boolean, firstByte: (at: number) => void): Promise<void> {
     const sentAt = this.clock.now()

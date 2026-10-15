@@ -130,7 +130,13 @@ watch(units, (value) => {
 
 const streams = computed(() => {
   const direction = run.direction.value
-  return direction === null || !shown.value ? null : (run.phases.value[direction].streams ?? null)
+  return direction === null || !shown.value ? null : (run.phases.value[direction].streams ?? run.live.value[direction]?.streams ?? null)
+})
+
+// The ramp's plateau reason once the run has a result for the direction the strip shows.
+const plateau = computed(() => {
+  const direction = run.direction.value
+  return direction === null || !shown.value ? null : (run.result.value?.[direction]?.plateau ?? null)
 })
 
 const mode = computed(() => {
@@ -234,6 +240,7 @@ watch(run.error, (error) => {
         :info="reachability === 'unreachable' ? null : info"
         :protocol="shown ? run.protocol.value : null"
         :streams="streams"
+        :plateau="plateau"
       />
       <SettingsSummary
         v-if="reachability === 'connected' && defaults !== null && shownSettings !== null"
