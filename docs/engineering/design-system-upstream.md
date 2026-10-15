@@ -14,4 +14,16 @@ the export shows, and what it should show, with the reason; behaviour comes from
 
 ## Notes
 
-None open: the fifth-pass export carries every note written so far.
+### The Upload-Interrupted Failure After Warm-Up
+
+- **Source:** triage cluster `fixture-demo-results`, confirmed: the demo reaches the kit's upload
+  value, so its failure moved to 12 s into upload.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the `upload-interrupted` state (`UF = 8.2`), with the
+  upload warm-up `UWU = 9.5` it draws through `ubBand(UWU)`.
+- **Export today:** the upload fails at 8.2 s, inside its own 9.5 s warm-up band, yet the upload
+  keeps 402 Mbit/s, "window up to the failed request at 8.2 s".
+- **Wanted:** the failure after the warm-up end plus at least 3 s of steady window, such as at 12 s
+  (`UF = 12`), with the chart, the tile and the totals following it; or, failing at 8.2 s, the
+  upload as `insufficient data`.
+- **Why:** [measurement.md §7.6](../features/measurement.md#76-headline-peak-and-minimum-window)
+  counts only the window from warm-up end to `W_end_final`, and gives no number below 3 s of it.
