@@ -303,7 +303,7 @@ export class Run {
       this.fail(settled.notices.some((notice) => notice.code === 'server-restarted') ? 'server-restarted' : 'requests-failed')
     }
     this.kept ||= settled.status !== 'error'
-    this.event(direction, settled.status === 'error' ? 'failed' : 'finished', settled.streams, settled.status === 'error' ? undefined : headline(settled))
+    this.event(direction, settled.status === 'error' ? 'failed' : 'finished', { streams: settled.streams, headline: settled.status === 'error' ? undefined : headline(settled), bytes: settled.bytes })
     return settled
   }
 
@@ -380,7 +380,7 @@ export class Run {
     return (this.options.settings.ignoredParameters ?? []).map((parameter) => ({ code: 'url-parameter-ignored', parameter }))
   }
 
-  private event(phase: PhaseName, state: PhaseState, streams?: number, headline?: number): void {
+  private event(phase: PhaseName, state: PhaseState, { streams, headline, bytes }: { streams?: number; headline?: number | undefined; bytes?: number } = {}): void {
     const notices: Notice[] = [...this.urlNotices(), ...(this.connection?.notices ?? [])]
     this.options.emit({
       type: 'phase',
@@ -390,6 +390,7 @@ export class Run {
       ...(this.protocol === null ? {} : { protocol: this.protocol }),
       ...(streams === undefined ? {} : { streams }),
       ...(headline === undefined ? {} : { headlineBitsPerSecond: headline }),
+      ...(bytes === undefined ? {} : { bytes }),
     })
   }
 }

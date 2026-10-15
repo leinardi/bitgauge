@@ -250,6 +250,8 @@ export type EngineEvent =
       streams?: number
       /** A finished download or upload: its headline, the result's `bitsPerSecond`, when it has one. */
       headlineBitsPerSecond?: number
+      /** A finished or failed download or upload: its bytes, the result's `bytes` for it. */
+      bytes?: number
       notices: Notice[]
     }
   | {

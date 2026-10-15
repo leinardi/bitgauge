@@ -138,7 +138,7 @@ describe('the phase order', () => {
     expect(harness.transport.server.probed).toEqual(['/api/v1/small'])
   })
 
-  it('carries each finished direction’s headline on its phase event, the result’s number', async () => {
+  it('carries each finished direction’s headline and bytes on its phase event, the result’s', async () => {
     const harness = start({ overheadCompensationPercent: 2 })
     await finish(harness)
     const result = harness.events.flatMap(({ event }) => (event.type === 'result' ? [event.result] : []))[0]
@@ -147,6 +147,10 @@ describe('the phase order', () => {
     expect(headline('download')).toEqual([result?.download?.bitsPerSecond])
     expect(headline('upload')).toEqual([result?.upload?.bitsPerSecond])
     expect(headline('idle')).toEqual([undefined])
+    const bytes = (phase: string) => harness.events.flatMap(({ event }) => (event.type === 'phase' && event.phase === phase && event.state === 'finished' ? [event.bytes] : []))
+    expect(bytes('download')).toEqual([result?.download?.bytes])
+    expect(bytes('upload')).toEqual([result?.upload?.bytes])
+    expect(bytes('idle')).toEqual([undefined])
   })
 
   it('leaves the headline off a direction with no number', async () => {
