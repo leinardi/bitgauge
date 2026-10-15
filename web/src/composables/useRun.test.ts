@@ -323,7 +323,7 @@ describe('useRun', () => {
     scope.stop()
   })
 
-  it('posts stop, and a stop during idle latency returns to idle with nothing to keep', () => {
+  it('posts stop, and a stop during idle latency with too few samples returns to idle with nothing to keep', () => {
     const { run, worker, scope } = started()
     run.start()
     worker.emit(phase('info', 'finished'), phase('idle', 'started'))
@@ -337,6 +337,19 @@ describe('useRun', () => {
     run.start()
     worker.emit(phase('download', 'skipped'), phase('upload', 'skipped'), phase('idle', 'started'))
     expect(run.status.value).toBe('running')
+    scope.stop()
+  })
+
+  it('waits for the partial result of a stop during idle latency that kept its samples', () => {
+    const { run, worker, scope } = started()
+    run.start()
+    worker.emit(phase('info', 'finished'), phase('idle', 'started'))
+    run.stop()
+    worker.emit(phase('idle', 'finished'), phase('download', 'skipped'), phase('upload', 'skipped'))
+    expect(run.status.value).toBe('running')
+    worker.emit({ type: 'result', result: result('partial') })
+    expect(run.status.value).toBe('ended')
+    expect(run.result.value?.status).toBe('partial')
     scope.stop()
   })
 

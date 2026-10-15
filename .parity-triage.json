@@ -685,7 +685,9 @@
         },
         "test/cancelled-latency": {
           "8d508c2162c0": "*",
-          "c87674b69dca": "*"
+          "8dce668032fb": "*",
+          "c87674b69dca": "*",
+          "d5b39e6fcde8": "*"
         },
         "test/cancelled-slow": {
           "165edc16a7c1": "*",
@@ -1253,9 +1255,9 @@
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main( > region \"(Speed test\"( > list \"Test phases\" > listitem)?|Results\"( > definition)?))?$",
+        "path": "^main( > region \"(Speed test\"( > list \"Test phases\" > listitem)?|Results\" > definition))?$",
         "kind": null,
-        "detail": "^(?!img |link \"Why|text \"No test has run yet|text \"Latency samples |text \"Throughput over time appears here)"
+        "detail": "^(?!img |link \"Why|text \"No test has run yet|text \"Latency samples |text \"Throughput over time appears here|status$)"
       },
       "type": "conflict",
       "aspect": "behavior",
@@ -1277,22 +1279,27 @@
       "decision": {
         "kind": "verdict",
         "winner": "spec",
-        "rationale": "flows.md returns to Idle only with too few samples, so a stop with enough samples keeps a partial idle latency, as the kit shows. Extended 2026-10-15 with the re-identified phase line of test/cancelled-latency.",
+        "rationale": "flows.md returns to Idle only with too few samples, so a stop with enough samples keeps a partial idle latency, as the kit shows. Extended 2026-10-15 with the re-identified phase line of test/cancelled-latency. Re-identified lines routed 2026-10-15: the live status to a11y-live-status, the tiles to content-results-tiles; the strip and data used wait on the export.",
         "on": "2026-10-15"
       },
       "actions": [
         {
           "target": "spec",
-          "what": "Check measurement.md for the stop-during-idle-latency rule (the minimum usable samples) and align it with flows.md §4 before the code changes.",
-          "done": false
+          "what": "Check measurement.md for the stop-during-idle-latency rule (the minimum usable samples) and align it with flows.md §4 before the code changes. Done: measurement.md §10 Stop and flows.md §4 name the 5-sample threshold.",
+          "done": true
         },
         {
           "target": "vue",
           "what": "engine/run.ts, useRunState.ts and screen.ts: a stop during idle latency with enough samples keeps a partial idle-latency result (cancelled · n / 20 pings), skips download and upload and offers Run again; useRun.test.ts:326 is rewritten for the too-few-samples case.",
-          "done": false
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the strip's streams read — and data used — after a stop during idle latency (no direction ran; probe bytes are not counted).",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/cancelled-latency": {
           "030c578364fb": "*",
@@ -1308,6 +1315,7 @@
           "9850eccf6f7a": "*",
           "a15e75dce156": "*",
           "a6efe82d88f4": "*",
+          "acee8b683acd": "*",
           "c7265acf7bb4": "*",
           "cda74bb82b44": [
             "dark-narrow",
@@ -2350,6 +2358,9 @@
         "test/cancelled-late": {
           "9bdcc634fc34": "*"
         },
+        "test/cancelled-latency": {
+          "e58367811968": "*"
+        },
         "test/cancelled-slow": {
           "de3e66af0b39": "*"
         },
@@ -2366,6 +2377,7 @@
           "d5c66c0cba62": "*"
         },
         "test/error-early": {
+          "52395266315f": "*",
           "63e73f07af0a": "*"
         },
         "test/insufficient": {

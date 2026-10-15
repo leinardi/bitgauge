@@ -230,13 +230,12 @@ export class Run {
       this.current = idle
       this.idle = idle
       this.restartIdle = false
-      const outcome = await idle.run()
+      // A user stop keeps the samples so far when there are enough; an error keeps nothing.
+      const outcome = (await idle.run()) ?? (this.interrupt?.kind === 'stop' ? idle.partial() : null)
       this.current = null
       this.idle = null
-      if (this.interrupt !== null) {
-        if (this.interrupt.kind === 'error') {
-          this.event('idle', 'failed')
-        }
+      if (this.interrupt?.kind === 'error' || (this.interrupt !== null && outcome === null)) {
+        if (this.interrupt.kind === 'error') this.event('idle', 'failed')
         return null
       }
       if (outcome === null) {

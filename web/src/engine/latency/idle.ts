@@ -223,7 +223,17 @@ export class IdleLatency {
     this.next()
   }
 
+  /** What a user stop keeps (measurement.md section 10): the samples so far, when there are enough. */
+  partial(): IdleOutcome | null {
+    const outcome = this.outcome()
+    return outcome.unavailable ? null : outcome
+  }
+
   private finish(): void {
+    this.settle(this.outcome())
+  }
+
+  private outcome(): IdleOutcome {
     const counted = this.samples.length + this.lost
     const unavailable = this.samples.length < MIN_SAMPLES
     const result: IdleResult = {
@@ -232,7 +242,7 @@ export class IdleLatency {
       samples: [...this.samples],
       ...(unavailable ? {} : idleStatistics(this.samples)),
     }
-    this.settle({ result, unavailable, unreachable: counted > 0 && this.samples.length === 0 })
+    return { result, unavailable, unreachable: counted > 0 && this.samples.length === 0 }
   }
 
   private settle(outcome: IdleOutcome | null): void {

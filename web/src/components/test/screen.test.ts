@@ -27,7 +27,7 @@ import { describe, expect, it } from 'vitest'
 import { gaugeInput, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive, PhaseView } from '@/composables/useRunState'
-import type { PhaseName, TestSettings } from '@/engine/messages'
+import type { DirectionResult, PhaseName, Result, TestSettings } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 import { resultFixture } from '@/test/fixtures'
 
@@ -145,6 +145,28 @@ describe('phaseSteps', () => {
   it('marks a phase still started after the run cancelled: a stop during idle latency', () => {
     const steps = phaseSteps(run({ status: 'ended', phases: phases({ idle: 'started', download: 'skipped', upload: 'skipped' }), error: { code: 'internal', phase: null, partial: false } }), SETTINGS, 'en')
     expect(steps[0]).toEqual({ phase: 'idle', state: 'cancelled' })
+  })
+})
+
+describe('a stop during idle latency that kept its samples', () => {
+  it('shows idle latency cancelled at its pings, the gauge in ms, the latency tiles partial and the directions skipped', () => {
+    const fixture = resultFixture({ status: 'partial' })
+    const skipped: DirectionResult = { status: 'skipped', streams: 0, bytes: 0, events: [] }
+    const rest: Result = { ...fixture, download: skipped, upload: { ...skipped, confirmedRequests: 0 } }
+    const view = run({
+      status: 'ended',
+      phases: phases({ info: 'finished', idle: 'finished', download: 'skipped', upload: 'skipped' }),
+      idle: { pings: 12, count: 20, medianMs: 3.1 },
+      result: rest,
+    })
+    expect(phaseSteps(view, SETTINGS, 'en')).toEqual([
+      { phase: 'idle', state: 'cancelled', progress: 0.6, pings: { n: 12, count: 20 } },
+      { phase: 'download', state: 'skipped' },
+      { phase: 'upload', state: 'skipped' },
+    ])
+    expect(gaugeInput(view, { ...context, units: 'bits', server: 'Basement NAS' })).toMatchObject({ mode: 'ms', value: rest.idle?.medianMs, text: { title: 'Cancelled' } })
+    const { main } = screenTiles(view, SETTINGS, context)
+    expect(main.map((tile) => tile.lines[0]?.text)).toEqual(['skipped', 'skipped', 'partial — stopped early', 'partial — stopped early'])
   })
 })
 

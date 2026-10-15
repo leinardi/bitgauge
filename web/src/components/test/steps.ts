@@ -31,7 +31,7 @@ export interface PhaseStep {
   progress?: number
   /** Active: the time left to the phase's minimum, or past it to its maximum, when known. */
   leftMs?: number
-  /** Active idle latency: the pings so far, of the count. */
+  /** Active or cancelled idle latency: the pings so far, of the count. */
   pings?: { n: number; count: number }
   /** Pending: the phase's duration range, or for idle latency its approximate length. */
   estimate?: { minMs: number; maxMs: number } | { aboutMs: number }

@@ -227,12 +227,28 @@ describe('a stop', () => {
     expect(phases(harness)).toEqual(['info:started', 'idle:skipped', 'download:skipped', 'upload:skipped'])
   })
 
-  it('during idle latency leaves no result, and skips the rest', async () => {
+  it('during idle latency with fewer than 5 samples leaves no result, and skips the rest', async () => {
     const harness = start()
     await harness.clock.advance(400)
     harness.run.stop()
     expect(await finish(harness)).toBeNull()
     expect(phases(harness).slice(-3)).toEqual(['idle:started', 'download:skipped', 'upload:skipped'])
+  })
+
+  it('during idle latency with at least 5 samples keeps a partial idle latency from them', async () => {
+    const harness = start()
+    await reach(harness, 'idle:started')
+    const pings = () => harness.events.filter(({ event }) => event.type === 'idle').length
+    while (pings() < 9) {
+      await harness.clock.advance(10)
+    }
+    harness.run.stop()
+    const report = await finish(harness)
+    expect(report).toMatchObject({ status: 'partial', skipped: ['download', 'upload'], download: null, upload: null })
+    // Nine pings: the warm-up and eight samples.
+    expect(report?.idle?.result.samples).toHaveLength(8)
+    expect(report?.idle?.result.medianMs).toBeGreaterThan(0)
+    expect(phases(harness).slice(-3)).toEqual(['idle:finished', 'download:skipped', 'upload:skipped'])
   })
 
   it('during download gives a partial result with the bytes kept and upload skipped', async () => {

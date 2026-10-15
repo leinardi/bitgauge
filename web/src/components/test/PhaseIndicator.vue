@@ -80,6 +80,9 @@ function meta(step: PhaseStep): string {
     case 'failed':
       return step.interruptedMs === undefined ? t('test.phases.failed') : t('test.phases.failedAt', { at: seconds(step.interruptedMs) })
     case 'cancelled':
+      if (step.pings !== undefined) {
+        return t('test.phases.cancelledPings', step.pings)
+      }
       return step.coveredMs === undefined ? t('test.phases.cancelled') : t('test.phases.cancelledAfter', { covered: seconds(step.coveredMs) })
     case 'skipped':
       return t('test.phases.skipped')

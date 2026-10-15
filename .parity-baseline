@@ -43,9 +43,6 @@
 *	test/cancelled-download	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-late	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-late	content	main > region "Results"	changed	text "Download # Mbit/s peak 641 · 6 streams · plateau: cap Upload Partial — stopped early # Mbit/s based on a # s steady window · 21 requests Idle latency # m…	present when the harness was adopted
-*	test/cancelled-latency	content	main	extra	text "No test has run yet."	present when the harness was adopted
-*	test/cancelled-latency	content	main	missing	region "Result status"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-latency	content	main > region "Speed test"	changed	button "Run again" → "Start test"	present when the harness was adopted
 *	test/cancelled-slow	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/complete	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.

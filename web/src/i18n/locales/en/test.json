@@ -119,6 +119,7 @@
       "failedAt": "failed · interrupted at {at}",
       "cancelled": "cancelled",
       "cancelledAfter": "cancelled · {covered}",
+      "cancelledPings": "cancelled · {n} / {count} pings",
       "skipped": "skipped",
       "capped": "capped · data cap"
     },

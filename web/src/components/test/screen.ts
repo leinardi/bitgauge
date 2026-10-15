@@ -21,7 +21,7 @@ import type { PhaseStep } from '@/components/test/steps'
 import { dataTile, directionTile, durationTile, idleLiveTile, idleTile, jitterTile, packetLossTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive, IdleLive, PhaseView, RunError, RunStatus } from '@/composables/useRunState'
-import type { Direction, MeasuringPhase, PhaseName, Result, TestSettings } from '@/engine/messages'
+import type { Direction, DirectionResult, MeasuringPhase, PhaseName, Result, TestSettings } from '@/engine/messages'
 import { formatBytes, formatLatency, formatRate, latencyNumber, rateParts } from '@/lib/format'
 
 // The Test screen's states (ui/screens.md section 1) and what each shows, derived from the run's
@@ -92,9 +92,18 @@ function activeStep(phase: MeasuringPhase, run: RunView, settings: TestSettings)
   return { phase, state: 'active', progress: elapsed / maxMs, ...(left > 0 ? { leftMs: left } : {}) }
 }
 
+/** A stop during idle latency that kept its samples (measurement.md section 10): no direction ran. */
+function idleStopped(result: Result | null): boolean {
+  const ran = (direction: DirectionResult | undefined) => direction !== undefined && direction.status !== 'skipped'
+  return result?.status === 'partial' && result.idle !== undefined && !ran(result.download) && !ran(result.upload)
+}
+
 /** A finished measuring phase as the result tells it: done with its value, capped, cancelled or failed. */
 function finishedStep(phase: MeasuringPhase, run: RunView, units: 'bits' | 'bytes', locale: string): PhaseStep {
   const result = run.result
+  if (phase === 'idle' && idleStopped(result) && run.idle !== null) {
+    return { phase, state: 'cancelled', progress: run.idle.pings / run.idle.count, pings: { n: run.idle.pings, count: run.idle.count } }
+  }
   if (phase === 'idle') {
     const median = result?.idle?.medianMs ?? run.idle?.medianMs
     return median === undefined ? { phase, state: 'done' } : { phase, state: 'done', value: formatLatency(median, locale, result?.client.timerResolutionMs) }
@@ -288,6 +297,9 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
     // none, with the upload's partial value inside.
     const download = result.download?.bitsPerSecond ?? run.live.download?.gauge ?? null
     const text: GaugeText = { title: t('test.gauge.cancelled'), message: t('test.gauge.notSaved'), touchMessage: null, detail: null, icon: 'cancelled' }
+    if (idleStopped(result)) {
+      return { ...reading, mode: 'ms', value: result.idle?.medianMs ?? null, text }
+    }
     return { ...reading, direction: 'download', value: download, inner: upload, text }
   }
   const download = result.download?.bitsPerSecond ?? null
@@ -351,16 +363,19 @@ export function screenTiles(run: RunView, settings: Pick<TestSettings, 'units' |
   const overheadPercent = settings.overheadCompensationPercent
   const direction = (name: Direction) => {
     const live = running && run.live[name] !== null ? { steady: run.live[name]?.steady ?? null } : null
-    return directionTile({ direction: name, units, live, result: result?.[name] ?? null, overheadPercent }, context)
+    const tile = directionTile({ direction: name, units, live, result: result?.[name] ?? null, overheadPercent }, context)
+    return shown && run.phases[name].state === 'skipped' ? { ...tile, lines: [{ text: context.t('test.tiles.skipped') }] } : tile
   }
   const resolution = result?.client.timerResolutionMs ?? 0
   const idleLive = running ? run.idle : null
+  // A stop during idle latency keeps it, and its jitter, as partial.
+  const stopped = (tile: TileView): TileView => (idleStopped(result) ? { ...tile, lines: [{ text: context.t('test.tiles.partial') }, ...tile.lines] } : tile)
   return {
     main: [
       direction('download'),
       direction('upload'),
-      idleLive === null ? idleTile(result?.idle, resolution, context) : idleLiveTile(idleLive, context),
-      jitterTile(result?.idle, resolution, context),
+      idleLive === null ? stopped(idleTile(result?.idle, resolution, context)) : idleLiveTile(idleLive, context),
+      stopped(jitterTile(result?.idle, resolution, context)),
     ],
     more: [dataUsed(run, context), duration(run, elapsedMs, context)],
     packetLoss: packetLossTile(context),
