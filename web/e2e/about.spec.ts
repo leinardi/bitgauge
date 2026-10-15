@@ -18,18 +18,18 @@
  */
 
 // The About screen (ui/screens.md section 1): reached from the header, it names the version, the
-// licence and the server, and links to the source.
+// license and the server, and links to the source.
 
 import { expect, test } from './fixtures/test'
 
-test('opens from the header with the version, licence and server', async ({ page }) => {
+test('opens from the header with the version, license and server', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'About' }).click()
 
   await expect(page).toHaveURL(/\/about$/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Use with other clients')
   await expect(page.getByTestId('about-version')).toContainText(/\S+ · \S+ · /)
-  await expect(page.getByTestId('about-licence')).toContainText('GPL-3.0-or-later')
+  await expect(page.getByTestId('about-license')).toContainText('GPL-3.0-or-later')
   await expect(page.getByTestId('about-server')).toContainText('BitGauge')
   await expect(page.getByRole('link', { name: 'Source repository' })).toHaveAttribute('target', '_blank')
 })

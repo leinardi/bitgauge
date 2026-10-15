@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { ExternalLink } from '@lucide/vue'
+import { ExternalLink, Layers } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -26,12 +26,13 @@ import OfflineNotice from '@/components/OfflineNotice.vue'
 import AppButton from '@/components/actions/AppButton.vue'
 import AppLink from '@/components/actions/AppLink.vue'
 import GithubIcon from '@/components/brand/GithubIcon.vue'
+import NoticeBox from '@/components/test/NoticeBox.vue'
 import { useInfo } from '@/composables/useInfo'
 import { links } from '@/lib/links'
 
 // The About screen (ui/screens.md section 5, design_system kit About.jsx), as v0.1 has it: the
 // layers for other clients arrive in v0.3, so there are no snippets; what BitGauge is, its build,
-// licence, source, privacy, credits and a methodology summary of the v0.1 metrics.
+// license, source, privacy, credits and a methodology summary of the v0.1 metrics.
 
 const { t, locale } = useI18n()
 const { info, reachability, refresh } = useInfo()
@@ -52,7 +53,7 @@ const facts = computed(() => {
       label: t('about.facts.version'),
       value: server ? t('about.facts.build', { version: server.version, commit: server.commit, date: buildDate(server.buildDate) }) : unknownVersion,
     },
-    { key: 'licence', label: t('about.facts.licence'), value: t('about.facts.licenceValue') },
+    { key: 'license', label: t('about.facts.license'), value: t('about.facts.licenseValue') },
     { key: 'server', label: t('about.facts.serverName'), value: server?.name ?? t('about.facts.unknown') },
   ]
 })
@@ -78,13 +79,21 @@ const credits = computed(() => [
           {{ t('about.clients.title') }}
         </h1>
         <p class="text-(length:--text-base) leading-(--lh-prose) text-muted-foreground">
-          {{ t('about.clients.v03') }}
+          {{ t('about.clients.intro') }}
         </p>
       </header>
       <OfflineNotice
         v-if="reachability === 'unreachable'"
         :host="host"
+        :body="t('about.unreachable', { host })"
         @retry="refresh"
+      />
+      <NoticeBox
+        tone="info"
+        :icon="Layers"
+        :title="t('about.clients.v03Title')"
+        :body="t('about.clients.v03Body')"
+        :live="false"
       />
     </div>
     <aside class="flex flex-col gap-4">
@@ -136,10 +145,10 @@ const credits = computed(() => [
             block
           >
             <a
-              :href="links.licence"
+              :href="links.license"
               target="_blank"
               rel="noopener noreferrer"
-            >{{ t('about.licenceFile') }}</a>
+            >{{ t('about.licenseFile') }}</a>
           </AppButton>
         </div>
       </section>

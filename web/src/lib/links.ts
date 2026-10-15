@@ -26,7 +26,7 @@ const RESEARCH = `${REPOSITORY}/blob/main/docs/research`
 
 export const links = {
   source: REPOSITORY,
-  licence: `${REPOSITORY}/blob/main/LICENSE`,
+  license: `${REPOSITORY}/blob/main/LICENSE`,
   methodology: `${DOCS}/measurement.md`,
   packetLoss: `${DOCS}/measurement.md#18-future-packet-loss-via-webrtcturn`,
   deployment: `${DOCS}/deployment-example.md`,

@@ -22,9 +22,10 @@ import { RefreshCw, ServerOff } from '@lucide/vue'
 import AppButton from '@/components/actions/AppButton.vue'
 
 // The offline state (ui/screens.md section 1, ui/flows.md section 1): GET /api/v1/info failed, so
-// the server is unreachable until Retry succeeds.
+// the server is unreachable until Retry succeeds. A screen can say what that means for it in its
+// own body.
 
-defineProps<{ host: string }>()
+defineProps<{ host: string; body?: string }>()
 defineEmits<{ retry: [] }>()
 </script>
 
@@ -40,7 +41,7 @@ defineEmits<{ retry: [] }>()
     />
     <div class="flex min-w-0 flex-1 flex-col gap-0.5">
       <span class="text-(length:--text-sm) font-semibold text-foreground">{{ $t('app.offline.title') }}</span>
-      <span class="text-(length:--text-sm) text-muted-foreground">{{ $t('app.offline.body', { host }) }}</span>
+      <span class="text-(length:--text-sm) text-muted-foreground">{{ body ?? $t('app.offline.body', { host }) }}</span>
     </div>
     <AppButton
       size="sm"

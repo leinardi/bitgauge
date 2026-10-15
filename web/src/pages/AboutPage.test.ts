@@ -52,9 +52,10 @@ describe('the About screen', () => {
     await flushPromises()
     expect(page.get('[data-testid="about-version"]').text()).toContain('— · server unreachable')
     expect(page.get('[data-testid="about-server"]').text()).toMatch(/—$/)
-    expect(page.get('[data-testid="about-licence"]').text()).toContain('GPL-3.0-or-later')
+    expect(page.get('[data-testid="about-license"]').text()).toContain('GPL-3.0-or-later')
     const alert = page.get('[role="alert"]')
     expect(alert.text()).toContain('Server unreachable')
+    expect(alert.text()).toContain('so its version and name are unknown until it answers.')
 
     vi.mocked(getInfo).mockResolvedValueOnce(infoFixture())
     await alert.get('button').trigger('click')
@@ -64,11 +65,15 @@ describe('the About screen', () => {
     expect(page.get('[data-testid="about-server"]').text()).toContain('Basement NAS')
   })
 
-  it('links the source, the licence and the methodology, credits, and has no snippets before v0.3', async () => {
+  it('links the source, the license and the methodology, credits, and has no snippets before v0.3', async () => {
     const page = await mountApp(AboutPage, '/about')
     const hrefs = page.findAll('a').map((link) => link.attributes('href'))
-    expect(hrefs).toEqual(expect.arrayContaining([links.source, links.licence, links.methodology]))
-    expect(page.text()).toContain('arrives in BitGauge v0.3')
+    expect(hrefs).toEqual(expect.arrayContaining([links.source, links.license, links.methodology]))
+    expect(page.text()).toContain('How to test against this server from other speed test clients')
+    expect(page.text()).toContain('Other clients arrive in v0.3')
+    expect(page.text()).toContain('so there are no snippets yet.')
+    // The v0.3 notice is part of the page, not news: it is no live region.
+    expect(page.find('[role="status"]').exists()).toBe(false)
     expect(page.text()).toContain('OpenSpeedTest™ is a trademark of its owner.')
     for (const credit of ['LibreSpeed', 'Cloudflare', 'Apple networkQuality and the IETF responsiveness draft', 'Waveform']) {
       expect(page.text()).toContain(credit)

@@ -23,10 +23,11 @@ import type { Tone } from '@/components/test/notices'
 
 // One notice (design_system/components/feedback Notice, notices.md): the tone's surface and icon
 // colour, the title and its body, and the actions pushed to the end, wrapping under the text when
-// the box is narrow. Danger is an alert; the other tones are status messages. Screens pass the
-// tone, the icon and the text, never a style of their own.
+// the box is narrow. Danger is an alert; the other tones are status messages, unless the notice is
+// part of the page rather than news (`live` false). Screens pass the tone, the icon and the text,
+// never a style of their own.
 
-defineProps<{ tone: Tone; icon: Component; title: string; body?: string }>()
+withDefaults(defineProps<{ tone: Tone; icon: Component; title: string; body?: string; live?: boolean }>(), { body: undefined, live: true })
 
 const TONES: Record<Tone, { box: string; icon: string }> = {
   info: { box: 'border-(--info-border) bg-(--info-bg)', icon: 'text-(--info)' },
@@ -38,7 +39,7 @@ const TONES: Record<Tone, { box: string; icon: string }> = {
 
 <template>
   <div
-    :role="tone === 'danger' ? 'alert' : 'status'"
+    :role="tone === 'danger' ? 'alert' : live ? 'status' : undefined"
     :data-tone="tone"
     class="flex flex-wrap items-start gap-x-3 gap-y-2.5 rounded-(--radius-md) border px-3.5 py-3"
     :class="TONES[tone].box"

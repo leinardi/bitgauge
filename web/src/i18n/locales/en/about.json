@@ -3,22 +3,25 @@
     "tagline": "Self-hosted network speed test",
     "clients": {
       "title": "Use with other clients",
-      "v03": "Testing against this server from librespeed-cli, an OpenSpeedTest™ web UI or Apple networkQuality arrives in BitGauge v0.3."
+      "intro": "How to test against this server from other speed test clients, and what BitGauge is.",
+      "v03Title": "Other clients arrive in v0.3",
+      "v03Body": "The LibreSpeed, OpenSpeedTest and networkQuality layers are not part of this version, so there are no snippets yet."
     },
+    "unreachable": "BitGauge could not reach the server at {host}, so its version and name are unknown until it answers.",
     "facts": {
       "version": "Version",
       "build": "{version} · {commit} · {date}",
-      "licence": "Licence",
-      "licenceValue": "GPL-3.0-or-later",
+      "license": "License",
+      "licenseValue": "GPL-3.0-or-later",
       "serverName": "Server name",
       "unknown": "—",
       "versionUnreachable": "— · server unreachable"
     },
     "source": "Source repository",
-    "licenceFile": "LICENSE file in the repository",
+    "licenseFile": "LICENSE file in the repository",
     "methodology": {
       "title": "How it measures",
-      "summary": "Download and upload run over one or more HTTP streams; the warm-up is discarded and the rate is the average over the steady window that follows. Idle latency and jitter come from pings over WebSocket, or over HTTP when WebSocket is unavailable. Every result also reports the data used and the duration.",
+      "summary": "Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Idle latency and jitter are measured over WebSocket (HTTP if unavailable). Each result also reports the data used and the test duration.",
       "link": "Methodology in the BitGauge docs"
     },
     "privacy": {
