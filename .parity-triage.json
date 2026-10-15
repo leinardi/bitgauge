@@ -2751,11 +2751,53 @@
         {
           "target": "vue",
           "what": "ConnectionStrip.vue: the context chip at --chip-h-sm with pl-2 pr-1.5 gap-1.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-15",
+        "run": {
+          "runId": "05a5cd35-f733-497f-9181-b64138d70876",
+          "finishedAt": "2026-10-15T06:48:34.014Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "style-line-height",

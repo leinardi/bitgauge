@@ -113,7 +113,7 @@ function pick(value: unknown): void {
       <span class="flex items-center gap-1.5">
         <DropdownMenu>
           <DropdownMenuTrigger
-            class="inline-flex h-6 items-center gap-[5px] rounded-full border border-input bg-card pr-[7px] pl-[9px] text-(length:--text-caption) font-semibold text-foreground hover:bg-muted"
+            class="inline-flex h-(--chip-h-sm) items-center gap-1 rounded-full border border-input bg-card pr-1.5 pl-2 text-(length:--text-caption) font-semibold text-foreground hover:border-(--border-strong) hover:bg-muted"
             :aria-label="chipName"
             data-testid="context-label"
           >
