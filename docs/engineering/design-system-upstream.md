@@ -42,3 +42,17 @@ the export shows, and what it should show, with the reason; behaviour comes from
   [measurement.md §14](../features/measurement.md#14-units-and-gauge): the window shifts down after
   the value stays in the bottom decade for 2 s, and a slow link reaches the floor window within two
   shifts.
+
+### The Slow Upload's Chart Total
+
+- **Source:** triage cluster `content-chart-slow-meta`, decided for Vue: one meta rule for every
+  running state.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the `slow` state's upload branch, whose chart `meta` is
+  `(10 + t).toFixed(1) + ' s'`.
+- **Export today:** the live slow upload reads "22.1 s" with no total, while the LAN upload reads
+  "22.0 s / 26 s" and every live download "7.5 s / 10 s".
+- **Wanted:** the slow upload's elapsed time over its total, as the LAN upload reads it, in the
+  chart's meta line and in its summary.
+- **Why:** [charts.md](../design_system/components/charts.md) (Chart or table) words the live
+  chart's position as elapsed over the phase's length ("7.5 s / 10 s"), and the kit's other running
+  states follow it.

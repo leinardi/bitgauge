@@ -1571,10 +1571,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's slow upload meta reads elapsed over its total, as its LAN upload does.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/slow": {
           "9cf73723a6d1": "*",
