@@ -168,3 +168,28 @@ the export shows, and what it should show, with the reason; behavior comes from
 - **Why:** [screens.md §7](../features/ui/screens.md#7-notices) gives server
   unreachable a danger notice with `role="alert"`, and the preset and the phase durations come
   from the server defaults, which `GET /info` never delivered.
+
+### The Results Tiles' Probe Timeouts and Insufficient-Data Reason
+
+- **Source:** triage cluster `content-results-tiles`, decided for the kit's tiles with two
+  exceptions.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the idle latency tile's `IDLE.sub` and the insufficient
+  download of the `insufficient` state.
+- **Export today:** "0 % probe timeouts"; "Insufficient data — only 1 request contributed within
+  the 20 s max".
+- **Wanted:** "0.0 % probe timeouts"; "Insufficient data — no steady window within the 20 s max".
+- **Why:** [screens.md §6](../features/ui/screens.md#6-result-metrics-units-and-precision) gives
+  the probe-timeout share one decimal, and the result object records no count of contributing
+  requests, so the reason names the maximum it reached instead.
+
+### The Slow Run's Upload Confidence
+
+- **Source:** triage cluster `content-results-tiles`, an upstream note decided on 2026-10-15.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the upload tile of the `slowdone` state.
+- **Export today:** a 210 kbit/s upload on two streams with no confidence qualifier.
+- **Wanted:** the Low confidence pill and "low confidence · few samples" on that upload tile, as on
+  the live status.
+- **Why:** at a few hundred kbit/s the streams added last confirm too few requests before the
+  warm-up's cap, so the upload carries `confidence: low` (`insufficient-samples`), as
+  [measurement.md §19.1](../features/measurement.md#191-slow-link-budget-300-kbits-300-ms-rtt-standard)
+  works out, and the demo's slow link reports it.
