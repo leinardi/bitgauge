@@ -2173,7 +2173,7 @@
       "decision": {
         "kind": "verdict",
         "winner": "kit",
-        "rationale": "The export's phase-indicator contract lists every detail and screens.md is compatible with it; Vue adds them.",
+        "rationale": "The export's phase-indicator contract lists every detail and screens.md is compatible with it; Vue adds them. The offline phases have no estimate without the server defaults (extended 2026-10-15; upstream note in layout-offline-state).",
         "on": "2026-10-15"
       },
       "actions": [
@@ -2206,6 +2206,11 @@
         },
         "test/latency": {
           "9222bf6273d0": "*"
+        },
+        "test/offline": {
+          "6d05e21a6f32": "*",
+          "77488cea19d2": "*",
+          "a09104c51586": "*"
         },
         "test/param-ignored": {
           "77488cea19d2": "*"
@@ -3488,22 +3493,27 @@
       },
       "actions": [
         {
+          "target": "spec",
+          "what": "flows.md §1 and screens.md §5: the automatic re-checks of /info (2, 4, 8, 16 s, then every 30 s, visible only; Retry starts them over), and the phases and metrics staying, pending and empty.",
+          "done": true
+        },
+        {
           "target": "vue",
-          "what": "The gauge readout carries the unreachable state (Server unreachable, <host> didn't respond. Next check in # s.) with Retry, and the empty chart the kit's text; the role=\"alert\" notice stays.",
-          "done": false
+          "what": "The gauge readout carries the unreachable state (Server unreachable, <host> didn't respond. Next check in # s.) with Retry, and the empty chart the kit's text; the role=\"alert\" notice stays. The server is checked again on its own after 2, 4, 8 and 16 s, then every 30 s, while the page is visible (decided 2026-10-15; flows.md §1).",
+          "done": true
         },
         {
           "target": "vue",
           "what": "Without /info: the phase list and the Results tiles stay, empty; Start's tooltip reads Server unreachable — use Retry first.",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
-          "what": "design-system-upstream.md: the kit's offline state carries the role=\"alert\" danger notice (screens.md:290) and no preset summary, since /info never delivered the settings.",
-          "done": false
+          "what": "design-system-upstream.md: the kit's offline state carries the role=\"alert\" danger notice (screens.md:290) and no preset summary, since /info never delivered the settings. Also no phase estimates, which come from the same defaults.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/offline": {
           "0252f447a111": [

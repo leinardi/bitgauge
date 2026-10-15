@@ -135,9 +135,24 @@ describe('the Test screen', () => {
     expect(page.get('[data-testid="connection-ip"]').text()).toContain('—')
     expect(page.find('[data-testid="settings-summary"]').exists()).toBe(false)
     expect(page.get('[data-testid="start-button"]').attributes('aria-disabled')).toBe('true')
-    expect(page.get('[data-testid="start-reason"]').text()).toContain('Server unreachable')
+    expect(page.get('[data-testid="start-reason"]').attributes('role')).toBe('tooltip')
+    expect(page.get('[data-testid="start-reason"]').text()).toBe('Server unreachable — use Retry first')
     await page.get('[data-testid="start-button"]').trigger('click')
     expect(worker?.posted).toEqual([])
+    // The gauge carries the state with the next automatic check and its own Retry; the phases and
+    // the tiles stay, pending and empty, and the chart says what it waits for.
+    const host = window.location.host
+    expect(page.get('[data-testid="gauge-text"]').text()).toBe(`Server unreachable${host} didn't respond. Next check in 2 s. Retry`)
+    expect(page.text()).toContain('Throughput Download Upload')
+    expect(page.text()).toContain(`Nothing to measure yet. The chart fills in once ${host} responds.`)
+    expect(page.findAll('[data-testid="phase-indicator"] li')).toHaveLength(3)
+    expect(tiles(page)).toHaveLength(4)
+    expect(facts(page)[0]).toBe('Data used—')
+    vi.mocked(getInfo).mockClear()
+    vi.mocked(getInfo).mockRejectedValueOnce(new TypeError('network'))
+    await page.get('[data-testid="gauge-text"] button').trigger('click')
+    await flushPromises()
+    expect(getInfo).toHaveBeenCalledOnce()
 
     vi.mocked(getInfo).mockResolvedValueOnce(INFO)
     await alert.get('button').trigger('click')

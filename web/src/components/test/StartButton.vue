@@ -25,7 +25,8 @@ import { Button } from '@/components/ui/button'
 
 // The Test screen's one control (ui/screens.md section 1, kit TestScreen): Start, Stop, Run again,
 // Retry or Start now, with the key that also triggers it. A native button, so Enter and Space
-// press it. When it cannot be used it stays focusable, says why, and ignores presses.
+// press it. When it cannot be used it stays focusable, ignores presses, and says why in a tooltip
+// on hover and focus that also describes it (kit Button's disabledReason).
 
 type StartMode = 'start' | 'stop' | 'again' | 'retry' | 'now'
 
@@ -63,7 +64,7 @@ function press(): void {
 </script>
 
 <template>
-  <div class="flex flex-col gap-1.5">
+  <div class="group relative flex flex-col">
     <Button
       size="lg"
       :variant="look.primary ? 'default' : 'outline'"
@@ -87,7 +88,8 @@ function press(): void {
     <span
       v-if="disabled"
       :id="reasonId"
-      class="text-(length:--text-caption) text-subtle-foreground"
+      role="tooltip"
+      class="pointer-events-none absolute bottom-[calc(100%+var(--tooltip-gap))] left-1/2 z-(--z-tooltip) -translate-x-1/2 rounded-(--radius-sm) border border-border bg-(--surface-4) px-2.5 py-1.5 text-(length:--text-caption) whitespace-nowrap text-foreground opacity-0 shadow-(--shadow-md) transition-opacity duration-(--dur-fast) group-focus-within:opacity-100 motion-reduce:transition-none group-hover:opacity-100"
       data-testid="start-reason"
     >{{ disabledReason }}</span>
   </div>

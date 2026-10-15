@@ -17,10 +17,12 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
+import { RefreshCw } from '@lucide/vue'
 import { computed, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import LiveRegions from '@/components/a11y/LiveRegions.vue'
+import AppButton from '@/components/actions/AppButton.vue'
 import ThroughputChart from '@/components/chart/ThroughputChart.vue'
 import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
@@ -38,7 +40,7 @@ import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
-import { gaugeInput, gaugeReadout, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen'
+import { gaugeInput, gaugeReadout, offlineGauge, PENDING_STEPS, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen'
 import StartButton from '@/components/test/StartButton.vue'
 import { useContextLabel } from '@/composables/useContextLabel'
 import { useCountdown } from '@/composables/useCountdown'
@@ -56,7 +58,7 @@ import { links } from '@/lib/links'
 // page, is configured with the server's defaults and the URL parameters on top as soon as they are
 // known (ui/url-params.md), and ends when the page unmounts.
 
-const { info, reachability, refresh } = useInfo()
+const { info, reachability, refresh, nextCheckS } = useInfo()
 const url = useUrlParams()
 const run = useRun({ override: (base) => urlOverride(url, base).override })
 const { defaults, settings } = run
@@ -83,16 +85,15 @@ const wording = computed(() => ({ t, locale: locale.value }))
 const shownSettings = computed(() => (state.value === 'idle' ? null : run.runSettings.value) ?? settings.value)
 const units = computed(() => shownSettings.value?.units ?? 'bits')
 
-const steps = computed(() => (shownSettings.value === null ? [] : phaseSteps(view.value, shownSettings.value, locale.value)))
+// Without the server's settings the phases and tiles still show, pending and empty.
+const steps = computed(() => (shownSettings.value === null ? PENDING_STEPS : phaseSteps(view.value, shownSettings.value, locale.value)))
 const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host }))
-const gauge = computed(() => gaugeInput(view.value, gaugeContext.value))
+const offline = computed(() => state.value === 'idle' && reachability.value === 'unreachable')
+const gauge = computed(() => (offline.value ? offlineGauge(gaugeContext.value, nextCheckS.value) : gaugeInput(view.value, gaugeContext.value)))
 const elapsed = useElapsed(running, view)
-const tiles = computed(() => (shownSettings.value === null ? null : screenTiles(view.value, shownSettings.value, wording.value, elapsed.value)))
+const tiles = computed(() => screenTiles(view.value, shownSettings.value ?? { units: 'bits', overheadCompensationPercent: 0 }, wording.value, elapsed.value))
 // Data used, duration and the packet-loss slot, whose reason stays in view (ui/screens.md section 6).
 const facts = computed<MetaRow[]>(() => {
-  if (tiles.value === null) {
-    return []
-  }
   const { more, packetLoss } = tiles.value
   return [
     ...more.map((tile) => ({ key: tile.label, icon: tile.icon, label: tile.label, sub: tile.lines[0]?.text, value: tile.number === null ? null : `${tile.number} ${tile.unit}` })),
@@ -105,7 +106,7 @@ const ignored = computed(() => (defaults.value === null ? url.ignored : urlOverr
 const notices = computed<Notice[]>(() => (state.value === 'idle' ? ignored.value.map((parameter) => ({ code: 'url-parameter-ignored', parameter })) : run.notices.value))
 
 // The chart shows the current run, or the last one until the next starts; nothing between runs.
-const order = computed(() => (shownSettings.value?.phases ?? []).filter((phase): phase is Direction => phase !== 'idle'))
+const order = computed(() => (shownSettings.value?.phases ?? PENDING_STEPS.map((step) => step.phase)).filter((phase): phase is Direction => phase !== 'idle'))
 const chartLive = computed(() => (state.value === 'idle' ? { download: null, upload: null } : run.live.value))
 const chartEvents = computed(() => ({ download: run.result.value?.download?.events ?? [], upload: run.result.value?.upload?.events ?? [] }))
 const shown = computed(() => state.value !== 'idle')
@@ -295,7 +296,23 @@ watch(run.error, (error) => {
             :note="gauge.note"
             :inner-label="gauge.innerLabel"
             :text="gauge.text"
-          />
+          >
+            <template
+              v-if="offline"
+              #action
+            >
+              <AppButton
+                size="sm"
+                @click="refresh"
+              >
+                <RefreshCw
+                  :size="14"
+                  aria-hidden="true"
+                />
+                {{ $t('app.offline.retry') }}
+              </AppButton>
+            </template>
+          </LiveGauge>
           <StartButton
             :mode="mode"
             :disabled-reason="disabledReason"
@@ -312,6 +329,7 @@ watch(run.error, (error) => {
             :durations="shownSettings"
             :total-ms="run.result.value?.durationMs ?? null"
             :readout="gaugeReadout(gauge, gaugeContext)"
+            :empty-text="offline ? $t('test.chart.emptyOffline', { server: gaugeContext.server }) : null"
           />
         </div>
       </div>
@@ -326,30 +344,28 @@ watch(run.error, (error) => {
     >
       {{ $t('test.empty') }}
     </p>
-    <template v-if="tiles !== null">
-      <section
-        :aria-label="$t('test.results')"
-        class="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4"
+    <section
+      :aria-label="$t('test.results')"
+      class="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4"
+    >
+      <MetricTile
+        v-for="tile in tiles.main"
+        :key="tile.label"
+        :tile="tile"
+      />
+      <MetaList
+        :title="$t('test.tiles.meta')"
+        :rows="facts"
+        :columns="3"
+        class="col-span-full"
       >
-        <MetricTile
-          v-for="tile in tiles.main"
-          :key="tile.label"
-          :tile="tile"
-        />
-        <MetaList
-          :title="$t('test.tiles.meta')"
-          :rows="facts"
-          :columns="3"
-          class="col-span-full"
-        >
-          <template #sub-packet-loss>
-            <NotMeasuredWhy :href="links.packetLoss" />
-          </template>
-          <template #value-packet-loss>
-            <NotMeasured />
-          </template>
-        </MetaList>
-      </section>
-    </template>
+        <template #sub-packet-loss>
+          <NotMeasuredWhy :href="links.packetLoss" />
+        </template>
+        <template #value-packet-loss>
+          <NotMeasured />
+        </template>
+      </MetaList>
+    </section>
   </main>
 </template>

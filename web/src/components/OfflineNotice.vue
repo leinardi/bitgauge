@@ -22,8 +22,8 @@ import { RefreshCw, ServerOff } from '@lucide/vue'
 import AppButton from '@/components/actions/AppButton.vue'
 
 // The offline state (ui/screens.md section 1, ui/flows.md section 1): GET /api/v1/info failed, so
-// the server is unreachable until Retry succeeds. A screen can say what that means for it in its
-// own body.
+// the server is unreachable until a check, automatic or Retry, succeeds. A screen can say what that
+// means for it in its own body.
 
 defineProps<{ host: string; body?: string }>()
 defineEmits<{ retry: [] }>()

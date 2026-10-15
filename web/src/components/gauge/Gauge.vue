@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { ArrowUp, CircleMinus, WifiOff } from '@lucide/vue'
+import { ArrowUp, CircleMinus, ServerOff, WifiOff } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -67,6 +67,9 @@ const props = withDefaults(
   }>(),
   { direction: null, peak: null, inner: null, at: null, note: null, innerLabel: null, text: null },
 )
+
+// A textual state's icon: cancelled in the subtle colour, a lost run and an unreachable server in danger.
+const STATE_ICONS = { cancelled: CircleMinus, error: WifiOff, offline: ServerOff } as const
 
 /** The window's lowest decade, in the display unit; the parent starts it and carries it between directions. */
 const windowK = defineModel<number>('window', { required: true })
@@ -289,11 +292,11 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
         <span
           v-if="text.icon"
           class="mb-1 flex"
-          :class="text.icon === 'error' ? 'text-danger' : 'text-subtle-foreground'"
+          :class="text.icon === 'cancelled' ? 'text-subtle-foreground' : 'text-danger'"
           aria-hidden="true"
         >
           <component
-            :is="text.icon === 'error' ? WifiOff : CircleMinus"
+            :is="STATE_ICONS[text.icon]"
             :size="22"
           />
         </span>
@@ -311,6 +314,10 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
           v-if="text.detail"
           class="mt-1 font-mono text-(length:--text-caption) text-subtle-foreground"
         >{{ text.detail }}</span>
+        <span
+          v-if="$slots.action"
+          class="mt-2.5 flex"
+        ><slot name="action" /></span>
       </div>
       <div
         v-else

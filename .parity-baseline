@@ -60,13 +60,6 @@ dark-narrow,light-narrow	test/cancelled-latency	content	main > region "Speed tes
 *	test/insufficient	content	main	missing	status	present when the harness was adopted
 *	test/offline	content	main	changed	text "…P — Protocol — Streams — Standard preset · Auto streams · No data cap" → "…P — Protocol — Streams —"	present when the harness was adopted
 *	test/offline	content	main	extra	alert	present when the harness was adopted
-*	test/offline	content	main	missing	region "Results"	present when the harness was adopted
-dark-narrow,light-narrow	test/offline	content	main > region "Speed test"	missing	button "Retry"	present when the harness was adopted
-dark-narrow,light-narrow	test/offline	content	main > region "Speed test"	missing	text "log scale · 1 Mbit/s – 10 Gbit/s · auto"	present when the harness was adopted
-*	test/offline	content	main > region "Speed test"	missing	tooltip "Server unreachable — use Retry first"	present when the harness was adopted
-*	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem	present when the harness was adopted
-*	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem (#2)	present when the harness was adopted
-*	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem (#3)	present when the harness was adopted
 *	test/param-ignored	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/param-ignored	content	main	extra	text "No test has run yet."	present when the harness was adopted
 *	test/param-ignored	content	main	missing	status	present when the harness was adopted

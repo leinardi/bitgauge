@@ -110,6 +110,13 @@ function finishedStep(phase: MeasuringPhase, run: RunView, units: 'bits' | 'byte
   return direction.bitsPerSecond === undefined ? { phase, state: 'done' } : { phase, state: 'done', value: formatRate(direction.bitsPerSecond, units, locale) }
 }
 
+/** The steps before the server's settings are known: each phase pending, with no estimate. */
+export const PENDING_STEPS: PhaseStep[] = [
+  { phase: 'idle', state: 'pending' },
+  { phase: 'download', state: 'pending' },
+  { phase: 'upload', state: 'pending' },
+]
+
 /** The phase indicator's steps, in the run's order; between runs every step is pending. */
 export function phaseSteps(run: RunView, settings: TestSettings, locale: string): PhaseStep[] {
   return settings.phases.map((phase): PhaseStep => {
@@ -141,7 +148,7 @@ export interface GaugeText {
   /** The message on a touch layout, where there is no Enter key. */
   touchMessage: string | null
   detail: string | null
-  icon: 'cancelled' | 'error' | null
+  icon: 'cancelled' | 'error' | 'offline' | null
 }
 
 /** What the gauge shows. */
@@ -212,6 +219,14 @@ function errorText(run: RunView, context: GaugeContext): GaugeText {
   return { title: t('test.gauge.lost'), message, touchMessage: null, detail, icon: 'error' }
 }
 
+const NO_READING = { mode: 'rate', direction: null, value: null, peak: null, inner: null, label: '', at: null, note: null, innerLabel: null, text: null } as const
+
+/** The offline state between runs: the server did not answer, and when it is checked again. */
+export function offlineGauge({ t, server }: GaugeContext, nextCheckS: number | null): GaugeInput {
+  const message = nextCheckS === null ? t('test.gauge.offlineMessage', { server }) : t('test.gauge.offlineNext', { server, seconds: nextCheckS })
+  return { ...NO_READING, text: { title: t('test.gauge.offline'), message, touchMessage: null, detail: null, icon: 'offline' } }
+}
+
 /**
  * The gauge (design_system/components/gauge.md, Modes and states): Ready between runs, Connecting…
  * during the info phase, idle latency in milliseconds with the ping counter, the download rate
@@ -221,7 +236,7 @@ function errorText(run: RunView, context: GaugeContext): GaugeText {
  */
 export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
   const { t, locale, units } = context
-  const reading = { mode: 'rate', direction: null, value: null, peak: null, inner: null, label: '', at: null, note: null, innerLabel: null, text: null } as const
+  const reading = NO_READING
   const textual = (text: Omit<GaugeText, 'touchMessage' | 'detail' | 'icon'> & Partial<GaugeText>): GaugeInput => ({
     ...reading,
     text: { touchMessage: null, detail: null, icon: null, ...text },
@@ -314,7 +329,7 @@ function duration(run: RunView, elapsed: number | null, context: Wording): TileV
 }
 
 /** The metric tiles: the four main ones, then data used and duration, and the packet-loss slot. */
-export function screenTiles(run: RunView, settings: TestSettings, context: Wording, elapsedMs: number | null = null): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
+export function screenTiles(run: RunView, settings: Pick<TestSettings, 'units' | 'overheadCompensationPercent'>, context: Wording, elapsedMs: number | null = null): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
   const shown = run.status !== 'idle'
   const result = shown ? run.result : null
   // Live numbers only while the run is going: a run that ended without a result has none to show.

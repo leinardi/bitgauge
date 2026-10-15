@@ -44,9 +44,11 @@ const props = withDefaults(
       durations?: Pick<TestSettings, 'download' | 'upload'> | null
       totalMs?: number | null
       readout?: string | null
+      /** The empty chart's text in place of the default, as the offline state words it. */
+      emptyText?: string | null
     }
   >(),
-  { events: () => ({}), durations: null, totalMs: null, readout: null },
+  { events: () => ({}), durations: null, totalMs: null, readout: null, emptyText: null },
 )
 
 const { t, locale } = useI18n()
@@ -257,7 +259,7 @@ watch(
         v-if="shownState === 'empty'"
         class="absolute inset-0 flex items-center justify-center px-4 text-center"
       >
-        <span class="max-w-measure-sm rounded-(--radius-md) border border-(--border-subtle) bg-(--surface-2) px-3.5 py-2 text-(length:--text-sm) leading-(--lh-compact) text-pretty text-subtle-foreground">{{ t('test.chart.emptyText') }}</span>
+        <span class="max-w-measure-sm rounded-(--radius-md) border border-(--border-subtle) bg-(--surface-2) px-3.5 py-2 text-(length:--text-sm) leading-(--lh-compact) text-pretty text-subtle-foreground">{{ emptyText ?? t('test.chart.emptyText') }}</span>
       </div>
     </div>
   </div>
