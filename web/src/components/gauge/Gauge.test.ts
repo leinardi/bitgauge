@@ -141,9 +141,21 @@ describe('the gauge', () => {
     const exposed = [...wrapper.element.querySelectorAll('[data-testid]')].filter((element) => !hidden(element)).map((element) => element.getAttribute('data-testid'))
     expect(exposed).toEqual(['gauge-label', 'gauge-number', 'gauge-unit', 'gauge-caption'])
     wrapper.unmount()
-    const ring = mount(CountdownRing, { props: { remainingMs: 2500, totalMs: 3000 }, global: { plugins: [createAppI18n('', ['en'])] } })
+    const ring = mount(CountdownRing, { props: { remainingMs: 2500, totalMs: 3000, caption: 'log scale · 1 Mbit/s – 10 Gbit/s · auto' }, global: { plugins: [createAppI18n('', ['en'])] } })
     expect(ring.get('svg').attributes('aria-hidden')).toBe('true')
     ring.unmount()
+  })
+
+  it('reads a textual state in place of the number, with no needle, and words the inner arc', () => {
+    const text = { title: 'Cancelled', message: 'Partial results · not saved', touchMessage: null, detail: null, icon: 'cancelled' } as const
+    const stopped = gauge({ value: 1e8, direction: 'download', text })
+    expect(stopped.get('[data-testid="gauge-text"]').text()).toBe('CancelledPartial results · not saved')
+    expect(stopped.find('[data-testid="gauge-number"]').exists()).toBe(false)
+    expect(stopped.find('[data-testid="gauge-fill"]').exists()).toBe(true)
+    expect(stopped.find('[data-testid="gauge-needle"]').exists()).toBe(false)
+    const done = gauge({ value: 6e8, inner: 4.38e8, direction: 'download', note: 'avg so far 597 · peak 610', innerLabel: '438 Mbit/s upload' })
+    expect(done.get('[data-testid="gauge-note"]').text()).toBe('avg so far 597 · peak 610')
+    expect(done.get('[data-testid="gauge-inner-label"]').text()).toBe('438 Mbit/s upload')
   })
 
   it('draws the value arc as a fraction of the track', () => {

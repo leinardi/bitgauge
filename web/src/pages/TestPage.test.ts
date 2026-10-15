@@ -169,12 +169,12 @@ describe('the Test screen', () => {
     page.unmount()
   })
 
-  it('shows the idle state: Start, pending phases with their durations, an empty gauge and tiles', async () => {
+  it('shows the idle state: Start, pending phases with their durations, a Ready gauge and empty tiles', async () => {
     vi.stubGlobal('Worker', StubWorker)
     const page = await mountApp(TestPage)
     expect(page.get('[data-testid="start-button"]').text()).toContain('Start test')
     expect(page.findAll('[data-testid="phase-indicator"] li').map((step) => step.attributes('data-state'))).toEqual(['pending', 'pending', 'pending'])
-    expect(page.get('[data-testid="gauge-number"]').text()).toBe('—')
+    expect(page.get('[data-testid="gauge-text"]').text()).toContain('Ready')
     expect(page.find('[data-testid="result-bar"]').exists()).toBe(false)
     expect(page.find('[data-testid="download-json"]').exists()).toBe(false)
     expect(page.text()).toContain('No test has run yet.')
@@ -183,12 +183,13 @@ describe('the Test screen', () => {
     page.unmount()
   })
 
-  it('starts a run with the context label, says Connecting… and turns Start into Stop', async () => {
+  it('starts a run with the context label, says Connecting… on the step and the gauge, and turns Start into Stop', async () => {
     const { page, worker } = await started()
     expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: 'LAN' }, visible: true }])
     await flushPromises()
     expect(page.get('[data-testid="start-button"]').text()).toContain('Stop test')
     expect(page.get('[data-testid="phase-indicator"]').text()).toContain('Connecting…')
+    expect(page.get('[data-testid="gauge-text"]').text()).toContain('Connecting…')
     page.unmount()
   })
 
@@ -197,7 +198,8 @@ describe('the Test screen', () => {
     await emit(phase('info', 'started'), phase('info', 'finished', { protocol: 'HTTP/2' }), phase('idle', 'started'))
     await emit({ type: 'idle', pings: 1, count: 20 }, { type: 'idle', pings: 3, count: 20, rttMs: 3.2, medianMs: 3.1 })
     expect(page.get('[data-testid="gauge-number"]').text()).toBe('3.2')
-    expect(page.get('[data-testid="gauge-label"]').text()).toBe('Idle latency')
+    expect(page.get('[data-testid="gauge-label"]').text()).toBe('Latency')
+    expect(page.get('[data-testid="gauge-note"]').text()).toBe('median 3.1 · ping 3 of 20')
     expect(page.get('[data-testid="gauge-caption"]').text()).toContain('ms')
     const idle = tiles(page)[2]
     expect(idle).toContain('Idle latency')

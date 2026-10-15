@@ -45,7 +45,22 @@
       "ms": "ms",
       "noValue": "—",
       "ready": "Ready",
-      "idle": "Idle latency",
+      "pressEnter": "Press Enter to start",
+      "tapStart": "Tap Start test to begin",
+      "connecting": "Connecting…",
+      "reading": "{server} · reading server info",
+      "idle": "Latency",
+      "median": "median {median} · {ping}",
+      "inner": "{rate} upload",
+      "lost": "Connection lost",
+      "errorDuring": "Error during {phase}",
+      "phase": {
+        "idle": "latency",
+        "download": "download",
+        "upload": "upload"
+      },
+      "lastSample": "last sample {rate}",
+      "pingsBefore": "{n} of {count} pings",
       "download": "Download",
       "upload": "Upload",
       "sending": "Upload · sending"

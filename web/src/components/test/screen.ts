@@ -22,7 +22,7 @@ import { dataTile, directionTile, durationTile, idleLiveTile, idleTile, jitterTi
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive, IdleLive, PhaseView, RunError, RunStatus } from '@/composables/useRunState'
 import type { Direction, MeasuringPhase, PhaseName, Result, TestSettings } from '@/engine/messages'
-import { formatLatency, formatRate } from '@/lib/format'
+import { formatLatency, formatRate, latencyNumber, rateParts } from '@/lib/format'
 
 // The Test screen's states (ui/screens.md section 1) and what each shows, derived from the run's
 // live view: which state, the phase steps, the gauge's input and the metric tiles. Nothing here is
@@ -134,6 +134,16 @@ export function phaseSteps(run: RunView, settings: TestSettings, locale: string)
   })
 }
 
+/** The text a gauge shows in place of a reading: between runs, while connecting, after a stop or an error. */
+export interface GaugeText {
+  title: string
+  message: string | null
+  /** The message on a touch layout, where there is no Enter key. */
+  touchMessage: string | null
+  detail: string | null
+  icon: 'cancelled' | 'error' | null
+}
+
 /** What the gauge shows. */
 export interface GaugeInput {
   mode: 'rate' | 'ms'
@@ -143,40 +153,113 @@ export interface GaugeInput {
   inner: number | null
   label: string
   at: number | null
+  /** The line under the reading: the ping counter and median, or the steady average and peak so far. */
+  note: string | null
+  /** The inner arc's value in words, so it is not told by colour alone. */
+  innerLabel: string | null
+  /** A textual state in place of the reading; the dial then shows no needle. */
+  text: GaugeText | null
+}
+
+/** What the gauge words its readings with besides the run: the display units and the server's name. */
+export interface GaugeContext extends Wording {
+  units: 'bits' | 'bytes'
+  server: string
+}
+
+const PHASE_WORDS: Record<MeasuringPhase, (t: Wording['t']) => string> = {
+  idle: (t) => t('test.gauge.phase.idle'),
+  download: (t) => t('test.gauge.phase.download'),
+  upload: (t) => t('test.gauge.phase.upload'),
+}
+
+function isMeasuring(phase: PhaseName | null): phase is MeasuringPhase {
+  return phase === 'idle' || phase === 'download' || phase === 'upload'
+}
+
+/** "avg so far 597 · peak 610" once warm-up has ended, "warming up" before. */
+function steadyNote(live: DirectionLive | null, { t, locale, units }: GaugeContext): string {
+  const steady = live?.steady
+  if (steady === null || steady === undefined) {
+    return t('test.tiles.warmingUp')
+  }
+  const number = (value: number) => rateParts(value, units, locale).number
+  return t('test.tiles.soFar', { avg: number(steady.avgBitsPerSecond), peak: number(steady.peakBitsPerSecond) })
+}
+
+/** The ping counter, with the running median once there is one. */
+function idleNote(idle: IdleLive | null, { t, locale }: GaugeContext): string | null {
+  if (idle === null) {
+    return null
+  }
+  const ping = t('test.tiles.pings', { n: idle.pings, count: idle.count })
+  return idle.medianMs === undefined ? ping : t('test.gauge.median', { median: latencyNumber(idle.medianMs, locale), ping })
+}
+
+/** The error state: what was lost, in which phase, and the last thing measured before it. */
+function errorText(run: RunView, context: GaugeContext): GaugeText {
+  const { t, locale, units } = context
+  const phase = run.error?.phase ?? null
+  let detail: string | null = null
+  if (phase === 'idle' && run.idle !== null) {
+    detail = t('test.gauge.pingsBefore', { n: run.idle.pings, count: run.idle.count })
+  } else if (phase === 'download' || phase === 'upload') {
+    const live = run.live[phase]
+    const last = phase === 'upload' ? live?.sending : live?.gauge
+    detail = last === null || last === undefined ? null : t('test.gauge.lastSample', { rate: formatRate(last, units, locale) })
+  }
+  const message = isMeasuring(phase) ? t('test.gauge.errorDuring', { phase: PHASE_WORDS[phase](t) }) : null
+  return { title: t('test.gauge.lost'), message, touchMessage: null, detail, icon: 'error' }
 }
 
 /**
- * The gauge: idle latency in milliseconds, the download rate with its steady peak, the upload's
- * sending progress; once a result is in, the download headline with the upload headline inside.
+ * The gauge (design_system/components/gauge.md, Modes and states): Ready between runs, Connecting…
+ * during the info phase, idle latency in milliseconds with the ping counter, the download rate
+ * with its steady peak, the upload's sending progress; once a result is in, the download headline
+ * with the upload headline inside, and after an error what was lost and where.
  */
-export function gaugeInput(run: RunView, { t }: Wording): GaugeInput {
-  const none: GaugeInput = { mode: 'rate', direction: null, value: null, peak: null, inner: null, label: t('test.gauge.ready'), at: null }
+export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
+  const { t, locale, units } = context
+  const reading = { mode: 'rate', direction: null, value: null, peak: null, inner: null, label: '', at: null, note: null, innerLabel: null, text: null } as const
+  const textual = (text: Omit<GaugeText, 'touchMessage' | 'detail' | 'icon'> & Partial<GaugeText>): GaugeInput => ({
+    ...reading,
+    text: { touchMessage: null, detail: null, icon: null, ...text },
+  })
+  const ready = textual({ title: t('test.gauge.ready'), message: t('test.gauge.pressEnter'), touchMessage: t('test.gauge.tapStart') })
   if (run.status === 'running') {
     switch (run.phase) {
       case 'idle':
-        return { ...none, mode: 'ms', value: run.idle?.rttMs ?? null, label: t('test.gauge.idle') }
+        return { ...reading, mode: 'ms', value: run.idle?.rttMs ?? null, label: t('test.gauge.idle'), note: idleNote(run.idle, context) }
       case 'download': {
         const live = run.live.download
-        return { ...none, direction: 'download', value: live?.gauge ?? null, peak: live?.steady?.peakBitsPerSecond ?? null, label: t('test.gauge.download'), at: elapsedMs('download', live) }
+        return { ...reading, direction: 'download', value: live?.gauge ?? null, peak: live?.steady?.peakBitsPerSecond ?? null, label: t('test.gauge.download'), at: elapsedMs('download', live), note: steadyNote(live, context) }
       }
       case 'upload': {
-        const sent = run.live.upload?.sendingTrace.at(-1)
-        return { ...none, direction: 'upload', value: run.live.upload?.sending ?? null, label: t('test.gauge.sending'), at: sent === undefined ? null : sent.cell * BUCKET_MS }
+        const live = run.live.upload
+        const sent = live?.sendingTrace.at(-1)
+        return { ...reading, direction: 'upload', value: live?.sending ?? null, label: t('test.gauge.sending'), at: sent === undefined ? null : sent.cell * BUCKET_MS, note: steadyNote(live, context) }
       }
       default:
-        return none
+        return textual({ title: t('test.gauge.connecting'), message: t('test.gauge.reading', { server: context.server }) })
     }
   }
+  if (run.status === 'idle') {
+    return ready
+  }
+  if (screenState(run) === 'error') {
+    return { ...reading, text: errorText(run, context) }
+  }
   const result = run.result
-  if (run.status === 'idle' || result === null) {
-    return none
+  if (result === null) {
+    return ready
   }
   const download = result.download?.bitsPerSecond ?? null
   const upload = result.upload?.bitsPerSecond ?? null
   if (download === null && upload !== null) {
-    return { ...none, direction: 'upload', value: upload, label: t('test.gauge.upload') }
+    return { ...reading, direction: 'upload', value: upload, label: t('test.gauge.upload') }
   }
-  return { ...none, direction: 'download', value: download, peak: result.download?.peakBitsPerSecond ?? null, inner: upload, label: t('test.gauge.download') }
+  const innerLabel = upload === null ? null : t('test.gauge.inner', { rate: formatRate(upload, units, locale) })
+  return { ...reading, direction: 'download', value: download, peak: result.download?.peakBitsPerSecond ?? null, inner: upload, label: t('test.gauge.download'), innerLabel }
 }
 
 /** The metric tiles: the four main ones, then data used and duration, and the packet-loss slot. */

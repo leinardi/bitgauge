@@ -26,6 +26,7 @@ import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
 import CountdownRing from '@/components/gauge/CountdownRing.vue'
 import LiveGauge from '@/components/gauge/Gauge.vue'
+import { windowCaption } from '@/components/gauge/caption'
 import { startK } from '@/components/gauge/window'
 import OfflineNotice from '@/components/OfflineNotice.vue'
 import MetaList, { type MetaRow } from '@/components/layout/MetaList.vue'
@@ -82,7 +83,7 @@ const shownSettings = computed(() => (state.value === 'idle' ? null : run.runSet
 const units = computed(() => shownSettings.value?.units ?? 'bits')
 
 const steps = computed(() => (shownSettings.value === null ? [] : phaseSteps(view.value, shownSettings.value, locale.value)))
-const gauge = computed(() => gaugeInput(view.value, wording.value))
+const gauge = computed(() => gaugeInput(view.value, { ...wording.value, units: units.value, server: info.value?.server.name ?? host }))
 const tiles = computed(() => (shownSettings.value === null ? null : screenTiles(view.value, shownSettings.value, wording.value)))
 // Data used, duration and the packet-loss slot, whose reason stays in view (ui/screens.md section 6).
 const facts = computed<MetaRow[]>(() => {
@@ -256,6 +257,7 @@ watch(run.error, (error) => {
             v-if="countdown.remainingMs.value !== null"
             :remaining-ms="countdown.remainingMs.value"
             :total-ms="countdown.totalMs"
+            :caption="windowCaption(gaugeWindow, units, wording)"
           />
           <LiveGauge
             v-else
@@ -268,6 +270,9 @@ watch(run.error, (error) => {
             :inner="gauge.inner"
             :label="gauge.label"
             :at="gauge.at"
+            :note="gauge.note"
+            :inner-label="gauge.innerLabel"
+            :text="gauge.text"
           />
           <StartButton
             :mode="mode"

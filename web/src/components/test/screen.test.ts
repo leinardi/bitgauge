@@ -137,20 +137,47 @@ describe('phaseSteps', () => {
 })
 
 describe('gaugeInput', () => {
+  const gaugeContext = { ...context, units: 'bits', server: 'Basement NAS' } as const
+
   it('reads milliseconds during idle latency, the download rate with its peak, and the upload sending', () => {
-    expect(gaugeInput(run({ phase: 'idle', idle: { pings: 3, count: 20, rttMs: 3.2, medianMs: 3.1 } }), context)).toMatchObject({ mode: 'ms', value: 3.2, label: 'Idle latency' })
+    expect(gaugeInput(run({ phase: 'idle', idle: { pings: 3, count: 20, rttMs: 3.2, medianMs: 3.1 } }), gaugeContext)).toMatchObject({ mode: 'ms', value: 3.2, label: 'Latency', note: 'median 3.1 · ping 3 of 20', text: null })
+    expect(gaugeInput(run({ phase: 'idle', idle: { pings: 1, count: 20, rttMs: 3.2 } }), gaugeContext).note).toBe('ping 1 of 20')
     const download = live({ values: [1, 2, 3], gauge: 9e7, steady: { avgBitsPerSecond: 8e7, peakBitsPerSecond: 9.5e7 } })
-    expect(gaugeInput(run({ phase: 'download', live: { download, upload: null } }), context)).toEqual({ mode: 'rate', direction: 'download', value: 9e7, peak: 9.5e7, inner: null, label: 'Download', at: 300 })
-    const upload = live({ sending: 4e7, gauge: 3e7, sendingTrace: [{ cell: 12.5, bitsPerSecond: 4e7 }] })
-    expect(gaugeInput(run({ phase: 'upload', live: { download: null, upload } }), context)).toMatchObject({ direction: 'upload', value: 4e7, label: 'Upload · sending', at: 1250 })
+    expect(gaugeInput(run({ phase: 'download', live: { download, upload: null } }), gaugeContext)).toEqual({
+      mode: 'rate',
+      direction: 'download',
+      value: 9e7,
+      peak: 9.5e7,
+      inner: null,
+      label: 'Download',
+      at: 300,
+      note: 'avg so far 80.0 · peak 95.0',
+      innerLabel: null,
+      text: null,
+    })
+    const upload = live({ sending: 4e7, gauge: 3e7, steady: null, sendingTrace: [{ cell: 12.5, bitsPerSecond: 4e7 }] })
+    expect(gaugeInput(run({ phase: 'upload', live: { download: null, upload } }), gaugeContext)).toMatchObject({ direction: 'upload', value: 4e7, label: 'Upload · sending', at: 1250, note: 'warming up' })
   })
 
-  it('shows nothing while connecting or between runs, and the headlines once a result is in', () => {
-    expect(gaugeInput(run({ phase: 'info' }), context)).toMatchObject({ value: null, label: 'Ready' })
-    expect(gaugeInput(run({ status: 'idle', result: resultFixture() }), context).value).toBeNull()
-    expect(gaugeInput(run({ status: 'ended', result: resultFixture() }), context)).toMatchObject({ direction: 'download', value: 612e6, peak: 641e6, inner: 438e6 })
+  it('reads Ready between runs, Connecting… during the info phase, and the headlines once a result is in', () => {
+    expect(gaugeInput(run({ status: 'idle', result: resultFixture() }), gaugeContext)).toMatchObject({
+      value: null,
+      text: { title: 'Ready', message: 'Press Enter to start', touchMessage: 'Tap Start test to begin', detail: null, icon: null },
+    })
+    expect(gaugeInput(run({ phase: 'info' }), gaugeContext).text).toMatchObject({ title: 'Connecting…', message: 'Basement NAS · reading server info' })
+    expect(gaugeInput(run({ status: 'ended', result: resultFixture() }), gaugeContext)).toMatchObject({ direction: 'download', value: 612e6, peak: 641e6, inner: 438e6, innerLabel: `438${NB}Mbit/s upload`, text: null })
     const uploadOnly = resultFixture({ download: { status: 'skipped', streams: 0, bytes: 0, events: [] } })
-    expect(gaugeInput(run({ status: 'ended', result: uploadOnly }), context)).toMatchObject({ direction: 'upload', value: 438e6, inner: null, label: 'Upload' })
+    expect(gaugeInput(run({ status: 'ended', result: uploadOnly }), gaugeContext)).toMatchObject({ direction: 'upload', value: 438e6, inner: null, innerLabel: null, label: 'Upload' })
+  })
+
+  it('reads Connection lost after an error, with the phase and the last thing measured', () => {
+    const download = live({ gauge: 5.75e8 })
+    const lost = run({ status: 'ended', live: { download, upload: null }, error: { code: 'requests-failed', phase: 'download', partial: false } })
+    expect(gaugeInput(lost, gaugeContext).text).toEqual({ title: 'Connection lost', message: 'Error during download', touchMessage: null, detail: `last sample 575${NB}Mbit/s`, icon: 'error' })
+    const early = run({ status: 'ended', idle: { pings: 12, count: 20 }, error: { code: 'network-changed', phase: 'idle', partial: false } })
+    expect(gaugeInput(early, gaugeContext).text).toMatchObject({ message: 'Error during latency', detail: '12 of 20 pings' })
+    const internal = run({ status: 'ended', error: { code: 'internal', phase: null, partial: false } })
+    expect(gaugeInput(internal, gaugeContext).text).toMatchObject({ title: 'Connection lost', message: null, detail: null })
   })
 })
 

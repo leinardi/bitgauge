@@ -17,20 +17,25 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
+import { ArrowUp, CircleMinus, WifiOff } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { angle, arcPath, fraction, MS_SCALE, point, rateScale, type Scale, START_ANGLE, SWEEP, ticks } from '@/components/gauge/scale'
 import { useWindowTween } from '@/components/gauge/useWindowTween'
+import { windowCaption } from '@/components/gauge/caption'
 import { stepWindow, windowAt, type WindowState } from '@/components/gauge/window'
+import type { GaugeText } from '@/components/test/screen'
 import type { Direction } from '@/engine/messages'
-import { formatRate, latencyNumber, rateParts } from '@/lib/format'
+import { latencyNumber, rateParts } from '@/lib/format'
 
 // The live gauge (measurement.md section 14, design_system/components/gauge.md): a 270° log arc,
 // in rate mode over the four-decade window it picks itself from the values, in ms mode over the
 // fixed 1–1000 ms scale. The needle shows the gauge value, the band the last 10 values, the tick
 // the download's steady p90 so far, the inner arc the upload headline at completion. The arc is
-// decoration (aria-hidden); the readout under it is the accessible value, and it is not live.
+// decoration (aria-hidden); the readout under it is the accessible value, and it is not live. A
+// textual state (Ready, Connecting…, Cancelled, Connection lost) replaces the reading with its
+// title and message, and the dial shows no needle.
 
 defineOptions({ name: 'LiveGauge' })
 
@@ -53,8 +58,14 @@ const props = withDefaults(
      * time with an unchanged value still counts. Without it, the time the value arrives.
      */
     at?: number | null
+    /** The line under the reading. */
+    note?: string | null
+    /** The inner arc's value in words. */
+    innerLabel?: string | null
+    /** A textual state in place of the reading. */
+    text?: GaugeText | null
   }>(),
-  { direction: null, peak: null, inner: null, at: null },
+  { direction: null, peak: null, inner: null, at: null, note: null, innerLabel: null, text: null },
 )
 
 /** The window's lowest decade, in the display unit; the parent starts it and carries it between directions. */
@@ -115,14 +126,15 @@ const place = (value: number) => fraction(value, scale.value)
 
 const track = arcPath(CENTER, CENTER, RADIUS, 0, 1)
 const needle = computed(() => (props.value === null ? 0 : place(display(props.value))))
+const reading = computed(() => props.text === null)
 const band = computed(() => {
-  if (props.value === null || recent.value.length < 2) {
+  if (!reading.value || props.value === null || recent.value.length < 2) {
     return ''
   }
   return arcPath(CENTER, CENTER, RADIUS, place(Math.min(...recent.value)), place(Math.max(...recent.value)))
 })
 const peakTick = computed(() => {
-  if (props.mode !== 'rate' || props.direction !== 'download' || props.peak === null) {
+  if (!reading.value || props.mode !== 'rate' || props.direction !== 'download' || props.peak === null) {
     return null
   }
   const degrees = angle(place(display(props.peak)))
@@ -171,15 +183,7 @@ const readout = computed(() => {
   return rateParts(props.value, props.units, locale.value)
 })
 
-const caption = computed(() => {
-  if (props.mode === 'ms') {
-    return t('test.gauge.fixed', { lo: MS_SCALE.lo, hi: MS_SCALE.hi })
-  }
-  // The decades are in the display unit; the formatter takes bit/s.
-  const bits = (value: number) => (props.units === 'bytes' ? value * 8 : value)
-  const { lo, hi } = rateScale(windowK.value)
-  return t('test.gauge.window', { lo: formatRate(bits(lo), props.units, locale.value, true), hi: formatRate(bits(hi), props.units, locale.value, true) })
-})
+const caption = computed(() => windowCaption(props.mode === 'ms' ? null : windowK.value, props.units, { t, locale: locale.value }))
 </script>
 
 <template>
@@ -262,7 +266,7 @@ const caption = computed(() => {
           data-testid="gauge-peak"
         />
         <g
-          v-if="value !== null"
+          v-if="reading && value !== null"
           :style="{ transform: `rotate(${SWEEP * needle}deg)`, transformOrigin: `${CENTER}px ${CENTER}px` }"
           :class="shifting ? 'transition-none' : 'transition-transform duration-(--dur-base) ease-(--ease-out) motion-reduce:transition-none'"
           data-testid="gauge-needle"
@@ -277,7 +281,41 @@ const caption = computed(() => {
           />
         </g>
       </svg>
-      <div class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pt-2 text-center">
+      <div
+        v-if="text"
+        class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pt-2 text-center"
+        data-testid="gauge-text"
+      >
+        <span
+          v-if="text.icon"
+          class="mb-1 flex"
+          :class="text.icon === 'error' ? 'text-danger' : 'text-subtle-foreground'"
+          aria-hidden="true"
+        >
+          <component
+            :is="text.icon === 'error' ? WifiOff : CircleMinus"
+            :size="22"
+          />
+        </span>
+        <span class="text-(length:--type-state-title-compact) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) text-foreground sm:text-(length:--type-state-title)">{{ text.title }}</span>
+        <span
+          v-if="text.message"
+          class="max-w-measure-xs text-(length:--text-sm) leading-(--lh-compact) text-subtle-foreground"
+          :class="{ 'hidden desktop:inline': text.touchMessage }"
+        >{{ text.message }}</span>
+        <span
+          v-if="text.touchMessage"
+          class="max-w-measure-xs text-(length:--text-sm) leading-(--lh-compact) text-subtle-foreground desktop:hidden"
+        >{{ text.touchMessage }}</span>
+        <span
+          v-if="text.detail"
+          class="mt-1 font-mono text-(length:--text-caption) text-subtle-foreground"
+        >{{ text.detail }}</span>
+      </div>
+      <div
+        v-else
+        class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pt-2 text-center"
+      >
         <span
           class="font-(family-name:--font-cond) text-xs font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase"
           data-testid="gauge-label"
@@ -291,6 +329,24 @@ const caption = computed(() => {
           class="text-(length:--text-md) font-medium text-muted-foreground"
           data-testid="gauge-unit"
         >{{ readout.unit }}</span>
+        <span
+          v-if="note"
+          class="font-mono text-(length:--text-micro) text-subtle-foreground"
+          data-testid="gauge-note"
+        >{{ note }}</span>
+        <span
+          v-if="innerLabel"
+          class="flex items-center gap-1.25 font-mono text-(length:--text-caption) text-muted-foreground"
+          data-testid="gauge-inner-label"
+        >
+          <ArrowUp
+            :size="12"
+            :stroke-width="2.25"
+            class="text-(--series-upload)"
+            aria-hidden="true"
+          />
+          {{ innerLabel }}
+        </span>
       </div>
     </div>
     <p

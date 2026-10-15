@@ -25,9 +25,10 @@ import { arcPath } from '@/components/gauge/scale'
 // The gauge during the auto-start countdown (design_system/components/gauge.md, Countdown): the
 // ring drains linearly, a third per second for the 3 s countdown, and the readout shows the whole
 // seconds left. Under prefers-reduced-motion the ring steps once per second with the number, so
-// the number carries the count without any motion.
+// the number carries the count without any motion. Under the dial, the caption names the window
+// the run will start in.
 
-const props = defineProps<{ remainingMs: number; totalMs: number }>()
+const props = defineProps<{ remainingMs: number; totalMs: number; caption: string }>()
 
 const { t, locale } = useI18n()
 
@@ -90,10 +91,11 @@ const stepped = computed(() => Math.min((seconds.value * 1000) / props.totalMs, 
           data-testid="countdown-number"
         >{{ number }}</span>
         <span class="text-(length:--text-md) font-medium text-muted-foreground">{{ t('test.countdown.unit', seconds) }}</span>
+        <span class="font-mono text-(length:--text-micro) text-subtle-foreground">{{ t('test.countdown.caption') }}</span>
       </div>
     </div>
     <p class="font-mono text-(length:--text-caption) text-subtle-foreground">
-      {{ t('test.countdown.caption') }}
+      {{ caption }}
     </p>
   </div>
 </template>
