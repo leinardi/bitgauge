@@ -832,7 +832,7 @@
     },
     {
       "id": "fixture-slow-context",
-      "title": "Slow scenarios: the kit suggests VPN for the private address 10.8.0.6, the spec and demo LAN",
+      "title": "Slow scenarios: the kit's client is CGNAT 100.101.4.17 suggested as VPN, the spec and demo a private 10.8.0.6 suggested as LAN",
       "match": {
         "scenarios": [
           "test/slow",
@@ -854,20 +854,20 @@
           "says": "both client addresses are private, so the suggested label is LAN for each; suggestedLabel is VPN for cgnat, LAN for private"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:93,98",
-          "says": "sel = ctxSel || (slow ? 'VPN' : 'LAN'); Client IP slow ? '10.8.0.6' : '192.168.1.42'"
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (fifth pass); CHANGELOG.md fifth pass",
+          "says": "the slow states use the CGNAT address 100.101.4.17, so the VPN suggestion matches the address mapping"
         },
         "vue": {
           "ref": "web/src/demo/fixtures.ts:36-37",
           "says": "addressClass: 'private', suggestedLabel: 'LAN' for every link"
         },
-        "notes": "The kit's 10.8.0.6 with VPN contradicts the address-class mapping; the spec records LAN for the demo on purpose."
+        "notes": "The fifth-pass export took the first option of the upstream note; wire-protocol.md §5's /info example is the same 100.101.4.17, cgnat, VPN."
       },
       "decision": {
         "kind": "verdict",
-        "winner": "keep",
-        "rationale": "The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.",
-        "on": "2026-10-14"
+        "winner": "kit",
+        "rationale": "The export took the CGNAT option our upstream note offered, which the address mapping already suggests as VPN; the spec and the demo follow it.",
+        "on": "2026-10-15"
       },
       "owned": {
         "test/cancelled-slow": {
@@ -904,9 +904,19 @@
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's slow client should use a CGNAT address (e.g. 100.101.4.17) if it suggests VPN, or suggest LAN for 10.8.0.6 (wire-protocol §5).",
           "done": true
+        },
+        {
+          "target": "spec",
+          "what": "frontend.md §9: the VPN link's client is the CGNAT address 100.101.4.17, suggested as VPN; the LAN link's stays private and suggested as LAN.",
+          "done": false
+        },
+        {
+          "target": "fixture",
+          "what": "web/src/demo/fixtures.ts and session.test.ts: the vpn link's /info client is 100.101.4.17 with addressClass cgnat and suggestedLabel VPN.",
+          "done": false
         }
       ],
-      "status": "accepted",
+      "status": "decided",
       "resolution": null
     },
     {
@@ -1523,6 +1533,177 @@
       }
     },
     {
+      "id": "layout-packet-loss-why",
+      "title": "Packet-loss row: the kit's Why? link ends the reason line in the term, Vue's sits beside the badge in the value",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": null,
+        "path": "^main( > region \"Results\" > (term|definition)| > button \"Why packet loss is not measured: Browsers can.t…\")$",
+        "kind": "^(missing|extra|line-height|height)$",
+        "detail": "^(link \"Why packet loss is not measured: Browsers can.t see packet loss over TCP\"|15\\.95px → 18px|15\\.9px → 18\\.0px)$"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "the packet-loss slot shows the reason \"browsers can't see packet loss over TCP\" and a link to why; placement silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/tiles.md (NotMeasured); ui_kits/app/TestScreen.jsx:634",
+          "says": "dt: label, then the reason as the sub line ending with <NotMeasuredWhy/>; dd: <NotMeasured link={false}/>, the badge alone"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue:94,314; web/src/components/layout/MetaList.vue:62-76",
+          "says": "dt: label and the reason; dd: the NotMeasured badge with the Why? link"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export decides layout and markup; the spec only asks for the visible reason and a link, which the kit's layout keeps.",
+        "on": "2026-10-15"
+      },
+      "owned": {
+        "test/cancelled": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/cancelled-download": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/cancelled-late": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/cancelled-latency": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/cancelled-slow": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/cancelled-slow-up": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/complete": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/connecting": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/countdown": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/download": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/error": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/error-early": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/idle": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/insufficient": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/latency": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/param-ignored": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/slow": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/slowdone": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/upload": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/upload-interrupted": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        },
+        "test/ws-fallback": {
+          "20021f56ff57": "*",
+          "52e6c9780d79": "*",
+          "a3df928b0a43": "*",
+          "aebfc1576dd2": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "TestPage.vue, MetaList.vue, NotMeasured: the Why? link moves to the end of the reason line in the row's term, at the sub line's type; the value holds the Not measured badge alone.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
       "id": "layout-results-metrics",
       "title": "Data used, duration and packet loss: a 'Test' term/definition list inside Results (kit) vs three tiles after it (Vue)",
       "match": {
@@ -1828,8 +2009,50 @@
           "done": true
         }
       ],
-      "status": "in-progress",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-15",
+        "run": {
+          "runId": "1ce930cb-9432-4b4a-9eca-0257131cb00d",
+          "finishedAt": "2026-10-15T14:17:19.032Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "style-about-links",
@@ -2842,13 +3065,169 @@
       }
     },
     {
+      "id": "style-hidden-heading",
+      "title": "Test screen's visually hidden h1: the kit's browser-default heading type vs Vue's inherited body type",
+      "match": {
+        "scenarios": null,
+        "projects": null,
+        "layer": "style",
+        "path": "^main > heading \"Speed test\"$",
+        "kind": "^(font-size|font-weight|line-height)$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2.8",
+          "says": "every screen has one h1; the Test screen's is visually hidden"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:600; base.css:31",
+          "says": "<h1 className=\"sr-only\">Speed test</h1> with no reset: the browser's default h1, 2em bold (28px/700/42px)"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue",
+          "says": "h1.sr-only under Tailwind's preflight, which makes headings inherit the body type (14px/400/21px)"
+        },
+        "notes": "Visually hidden on both sides, so nothing renders differently."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The export decides visuals; the hidden heading takes the kit's computed type so the two sides match.",
+        "on": "2026-10-15"
+      },
+      "owned": {
+        "test/cancelled": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/cancelled-download": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/cancelled-late": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/cancelled-latency": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/cancelled-slow": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/cancelled-slow-up": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/complete": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/connecting": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/countdown": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/download": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/error": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/error-early": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/idle": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/insufficient": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/latency": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/offline": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/param-ignored": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/slow": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/slowdone": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/upload": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/upload-interrupted": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        },
+        "test/ws-fallback": {
+          "5e20ec3483b9": "*",
+          "800d224f89bd": "*",
+          "80e4e4f4dccd": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "TestPage.vue: give the sr-only h1 the kit's computed heading type (28px, bold, 42px line height) from tokens or scale steps, with no visible change.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
       "id": "style-line-height",
       "title": "Line heights: the kit's line-height tokens (1.15 controls, 1.5 body, headings) vs Tailwind's 1.5 and text-* leading",
       "match": {
         "scenarios": null,
         "projects": null,
         "layer": "style",
-        "path": "^(?!main > heading \"The base path)",
+        "path": "^(?!main > heading \"The base path)(?!main > heading \"Speed test\"$)(?!main > button \"Why packet loss)",
         "kind": "^(line-height|height)$",
         "detail": "^(?!(28|34|306|324|17)\\.0px)(?!(117\\.7|97\\.1|62\\.3|50\\.6|29\\.9)px)"
       },

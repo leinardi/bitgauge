@@ -4,7 +4,6 @@
 # where projects is * for all four projects, or the comma-separated projects it occurs in.
 # Maintained by the harness, never by hand: make demo-parity-update removes what has been fixed,
 # make demo-parity-accept REASON=... adds what is accepted. See docs/engineering/demo-parity.md.
-dark-narrow,light-narrow	about	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	about	content	main	changed	text "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or…	present when the harness was adopted
 *	about	content	main > complementary	changed	text "Privacy No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser. Credits" → "No accounts, no tracking, no ads.…	present when the harness was adopted
 *	about	content	main > complementary	extra	heading "Credits"	present when the harness was adopted
@@ -19,13 +18,6 @@ dark-narrow,light-narrow	about	content	header > banner	missing	img "BitGauge"	tr
 *	about	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
 *	about	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
 *	about	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
-light-desktop,light-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(218, 149, 44, 82) → rgba(0, 0, 0, 0)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-dark-desktop,dark-narrow	about	style	main > button "LICENSE file in the repository"	border-top-color	rgba(243, 182, 73, 87) → rgba(0, 0, 0, 0)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-*	about	style	main > button "Source repository"	padding-bottom	14px → 0px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-*	about	style	main > button "Source repository"	padding-left	16px → 14px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-*	about	style	main > button "Source repository"	padding-right	16px → 14px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-*	about	style	main > button "Source repository"	padding-top	14px → 0px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-dark-narrow,light-narrow	about/unreachable	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	about/unreachable	content	main	changed	text "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or…	present when the harness was adopted
 *	about/unreachable	content	main > complementary	changed	text "Privacy No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser. Credits" → "No accounts, no tracking, no ads.…	present when the harness was adopted
 *	about/unreachable	content	main > complementary	extra	heading "Credits"	present when the harness was adopted
@@ -39,12 +31,6 @@ dark-narrow,light-narrow	about/unreachable	content	header > banner	missing	img "
 *	about/unreachable	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
 *	about/unreachable	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
 *	about/unreachable	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
-light-desktop,light-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(218, 149, 44, 82) → rgba(0, 0, 0, 0)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in the repository"	border-top-color	rgba(243, 182, 73, 87) → rgba(0, 0, 0, 0)	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-*	about/unreachable	style	main > button "Source repository"	padding-bottom	14px → 0px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-*	about/unreachable	style	main > button "Source repository"	padding-left	16px → 14px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-*	about/unreachable	style	main > button "Source repository"	padding-right	16px → 14px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
-*	about/unreachable	style	main > button "Source repository"	padding-top	14px → 0px	triage style-button-kit-bug: The kit's Callout .block class collides with Button's block modifier, against its own Button contract; Vue keeps the contract's look until the export fixes it.
 *	test/basepath	content	main	changed	text "BitGauge Deployment error" → "BitGauge Base path mismatch"	present when the harness was adopted
 *	test/basepath	content	main	missing	code	present when the harness was adopted
 *	test/basepath	content	main	missing	code (#2)	present when the harness was adopted
@@ -55,45 +41,33 @@ dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in 
 *	test/basepath	content	main > region "Deployment hint"	missing	code (#2)	present when the harness was adopted
 *	test/basepath	content	main > region "Deployment hint"	missing	text "."	present when the harness was adopted
 *	test/basepath	content	main > region "Deployment hint"	missing	text "prefix at the proxy so BitGauge is served from"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/cancelled	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 Mbit/s – …" → "Download # Mbit/s log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/cancelled	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/cancelled	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-download	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/cancelled-download	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-download	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-download	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 Mbit/s – …" → "Download — log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/cancelled-download	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/cancelled-download	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-late	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/cancelled-late	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-late	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-late	content	main > region "Results"	changed	text "Download # Mbit/s peak 641 · 6 streams · plateau: cap Upload Partial — stopped early # Mbit/s based on a # s steady window · 21 requests Idle latency # m…	present when the harness was adopted
 *	test/cancelled-late	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 Mbit/s – …" → "Download # Mbit/s log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/cancelled-late	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/cancelled-late	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-latency	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/cancelled-latency	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-latency	content	main	extra	text "No test has run yet."	present when the harness was adopted
 *	test/cancelled-latency	content	main	missing	region "Result status"	present when the harness was adopted
 dark-narrow,light-narrow	test/cancelled-latency	content	main > region "Speed test"	changed	button "Run again" → "Start test"	present when the harness was adopted
 *	test/cancelled-latency	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 – 1000 ms" → "Ready — log scale · 1 Mbit/s – 10 Gbit/s · auto"	present when the harness was adopted
 *	test/cancelled-latency	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/cancelled-latency	content	main > region "Speed test"	missing	text "Latency samples Round-trip time stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-slow	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/cancelled-slow	content	main	extra	button "Context: LAN, suggested"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
-*	test/cancelled-slow	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-slow	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-slow	content	main	extra	text "Context"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/cancelled-slow	content	main	missing	button "Context: VPN, suggested"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/cancelled-slow	content	main	missing	text "Context"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/cancelled-slow	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/cancelled-slow	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/cancelled-slow-up	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/cancelled-slow-up	content	main	extra	button "Context: LAN, suggested"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
-*	test/cancelled-slow-up	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled-slow-up	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main	extra	text "Context"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/cancelled-slow-up	content	main	missing	button "Context: VPN, suggested"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
@@ -102,69 +76,49 @@ dark-narrow,light-narrow	test/cancelled-slow-up	content	header > banner	missing	
 *	test/cancelled-slow-up	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main > status	changed	text "Test cancelled during upload Latency and download completed. Upload stopped at # s, before a # s confirmed steady window (still in warm-up), so it has no…	present when the harness was adopted
-dark-narrow,light-narrow	test/complete	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/complete	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/complete	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.
 *	test/complete	content	main > region "Results"	changed	text "Download # Mbit/s peak 641 · 6 streams · plateau: cap Upload # Mbit/s peak 455 · 6 streams · plateau: cap Idle latency # ms min 2.4 · p90 # ms · WebSocke…	present when the harness was adopted
 *	test/complete	content	main > region "Speed test"	changed	text "Download # Mbit/s # Mbit/s upload log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/complete	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/complete	content	main > region "Speed test"	missing	text "Throughput Download Upload Warm-up # s total"	present when the harness was adopted
-dark-narrow,light-narrow	test/connecting	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/connecting	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/connecting	content	main > region "Speed test"	changed	text "Connecting… Basement NAS · reading server info log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/connecting	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/connecting	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
 *	test/connecting	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
-dark-narrow,light-narrow	test/countdown	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/countdown	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/countdown	content	main	extra	text "No test has run yet."	present when the harness was adopted
 *	test/countdown	content	main > region "Speed test"	changed	text "…in # seconds Esc cancels log scale · 1 Mbit/s – 10 Gbit/s · auto" → "…in # seconds Esc cancels"	present when the harness was adopted
 *	test/countdown	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/countdown	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
 *	test/countdown	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
 *	test/countdown	content	main > status	changed	text "… was opened from a link with autostart enabled." → "… was opened from a link that starts a test automatically."	present when the harness was adopted
-dark-narrow,light-narrow	test/download	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/download	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/download	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/download	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/download	content	main > region "Speed test"	missing	text "Throughput Download Warm-up # s / # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/error	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/error	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/error	content	main	extra	status	present when the harness was adopted
 *	test/error	content	main > alert	changed	text "Connection to Basement NAS lost — 3 requests in a row failed during download Download stopped at # s. Latency finished before the error." → "Test failed …	present when the harness was adopted
 *	test/error	content	main > region "Speed test"	changed	text "Connection lost Error during download last sample # Mbit/s log scale · 1 Mbit/s – …" → "Download — log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/error	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/error	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/error-early	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/error-early	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/error-early	content	main	missing	region "Result status"	present when the harness was adopted
 *	test/error-early	content	main > alert	changed	text "Connection to Basement NAS lost — server stopped responding The test stopped at # s, during latency. No phase finished." → "Test failed during idle laten…	present when the harness was adopted
 *	test/error-early	content	main > region "Speed test"	changed	text "Connection lost Error during latency 12 of 20 pings log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/error-early	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/error-early	content	main > region "Speed test"	missing	text "Latency samples Round-trip time stopped at # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/idle	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/idle	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/idle	content	main	extra	text "No test has run yet."	present when the harness was adopted
 dark-desktop,light-desktop	test/idle	content	main > region "Speed test"	changed	text "Ready Press Enter to start log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
 dark-narrow,light-narrow	test/idle	content	main > region "Speed test"	changed	text "Ready Tap Start test to begin log scale · 1 Mbit/s – …" → "Ready — log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/idle	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/idle	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
 *	test/idle	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
-dark-narrow,light-narrow	test/insufficient	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/insufficient	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/insufficient	content	main	missing	status	present when the harness was adopted
 *	test/insufficient	content	main > region "Speed test"	changed	text "…load · sending # kbit/s warming up log scale · 10 kbit/s – …" → "…load · sending # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
 *	test/insufficient	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/insufficient	content	main > region "Speed test"	missing	text "Throughput Download Upload · sending Warm-up # s / # s max"	present when the harness was adopted
-dark-narrow,light-narrow	test/latency	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/latency	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/latency	content	main > region "Speed test"	changed	text "Latency # ms median 3.1 · ping 14 of 20 log scale · 1 – 1000 ms" → "Idle latency # ms log scale · 1 – 1000 ms"	present when the harness was adopted
 *	test/latency	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/latency	content	main > region "Speed test"	missing	text "Latency samples Round-trip time # s / ~# s"	present when the harness was adopted
-dark-narrow,light-narrow	test/offline	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/offline	content	main	changed	text "…P — Protocol — Streams — Standard preset · Auto streams · No data cap" → "…P — Protocol — Streams —"	present when the harness was adopted
 *	test/offline	content	main	extra	alert	present when the harness was adopted
-*	test/offline	content	main	extra	heading "Speed test"	present when the harness was adopted
 *	test/offline	content	main	missing	region "Results"	present when the harness was adopted
 dark-narrow,light-narrow	test/offline	content	main > region "Speed test"	changed	text "Throughput Download Upload" → "Server unreachable. Start is available again once it answers."	present when the harness was adopted
 *	test/offline	content	main > region "Speed test"	extra	figure	present when the harness was adopted
@@ -174,8 +128,6 @@ dark-narrow,light-narrow	test/offline	content	main > region "Speed test"	missing
 *	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem	present when the harness was adopted
 *	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem (#2)	present when the harness was adopted
 *	test/offline	content	main > region "Speed test" > list "Test phases"	missing	listitem (#3)	present when the harness was adopted
-dark-narrow,light-narrow	test/param-ignored	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/param-ignored	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/param-ignored	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/param-ignored	content	main	extra	text "No test has run yet."	present when the harness was adopted
 *	test/param-ignored	content	main	missing	status	present when the harness was adopted
@@ -184,16 +136,12 @@ dark-narrow,light-narrow	test/param-ignored	content	main > region "Speed test"	c
 *	test/param-ignored	content	main > region "Speed test"	extra	figure	present when the harness was adopted
 *	test/param-ignored	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
 *	test/param-ignored	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
-dark-narrow,light-narrow	test/slow	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/slow	content	main	changed	button "Context: VPN, suggested" → "Context: LAN, suggested"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
-*	test/slow	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/slow	content	main > button "Context: VPN, suggested"	changed	text "VPN" → "LAN"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/slow	content	main > region "Speed test"	changed	text "…load · sending # kbit/s avg so far 217 · peak 258 log scale · 10 kbit/s – …" → "…load · sending # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
 *	test/slow	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/slow	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/slowdone	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/slowdone	content	main	changed	button "Context: VPN, suggested" → "Context: LAN, suggested"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
-*	test/slowdone	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/slowdone	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/slowdone	content	main	extra	status	present when the harness was adopted
 *	test/slowdone	content	main > button "Context: VPN, suggested"	changed	text "VPN" → "LAN"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
@@ -202,16 +150,10 @@ dark-narrow,light-narrow	test/slowdone	content	header > banner	missing	img "BitG
 *	test/slowdone	content	main > region "Speed test"	changed	text "Download # kbit/s # kbit/s upload log scale · 10 kbit/s – …" → "Download # kbit/s log scale · 10 kbit/s – …"	present when the harness was adopted
 *	test/slowdone	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/slowdone	content	main > region "Speed test"	missing	text "Throughput Download Upload Warm-up # s total"	present when the harness was adopted
-dark-narrow,light-narrow	test/upload	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/upload	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/upload	content	main > region "Speed test"	changed	text "…load · sending # Mbit/s avg so far 439 · peak 450 log scale · 1 Mbit/s – 1…" → "…load · sending # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/upload	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/upload	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up # s / # s"	present when the harness was adopted
-dark-narrow,light-narrow	test/upload-interrupted	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/upload-interrupted	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/upload-interrupted	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.
-dark-narrow,light-narrow	test/ws-fallback	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
-*	test/ws-fallback	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/ws-fallback	content	main	extra	list "Notices"	present when the harness was adopted
 *	test/ws-fallback	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/ws-fallback	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
