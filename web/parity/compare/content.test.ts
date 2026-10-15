@@ -105,12 +105,14 @@ describe('normalizeValue', () => {
     ['Auto-start in 3 seconds, 2.5 s left', 'Auto-start in # seconds, # s left'],
     ['Test complete 5:41:54 PM', 'Test complete #:#:# #M'],
     ['Test complete 8:02:10 AM', 'Test complete #:#:# #M'],
+    ['Download 597 Mbit/s avg so far 597 · peak 610', 'Download # Mbit/s avg so far # · peak #'],
+    ['Latency 3.2 ms median 3.1 · ping 14 of 20', 'Latency # ms median # · ping 14 of 20'],
   ])('reads %j as %j', (raw, normalized) => {
     expect(normalizeValue(raw)).toBe(normalized)
   })
 
   it('keeps every number that is not a measured value', () => {
-    for (const fixed of ['Streams — auto, up to 6 streams', 'IPv4 192.168.1.42', 'HTTP/2', 'v1.4.0', 'p90', 'Download pending · ~10–20 s', 'log scale · 1 Mbit/s – 10 Gbit/s', '1 – 1000 ms']) {
+    for (const fixed of ['Streams — auto, up to 6 streams', 'IPv4 192.168.1.42', 'HTTP/2', 'v1.4.0', 'p90', 'Download pending · ~10–20 s', 'log scale · 1 Mbit/s – 10 Gbit/s', '1 – 1000 ms', 'Connection lost 12 of 20 pings', 'median of 11 pings']) {
       expect(normalizeValue(fixed)).toBe(fixed)
     }
   })

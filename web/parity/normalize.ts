@@ -70,12 +70,19 @@ const DATA_SIZE = /# [GMk]?B(?![\w/])/g
 // different instant each run.
 const STREAMS_IN_USE = /\bStreams \d+\b/g
 
+// The gauge's note words measured values without their unit, which the readout above it carries:
+// the steady average and peak so far ("avg so far 597 · peak 610") and the running median ("median
+// 3.1"). They differ from run to run like any other measured value; the words around them, and the
+// ping counter beside the median, are still compared.
+const GAUGE_NOTE = new RegExp(String.raw`\b(avg so far) ${NUMBER} · (peak) ${NUMBER}|\b(median) ${NUMBER}(?= ·)`, 'g')
+
 export function normalizeValue(text: string): string {
   return normalizeText(text)
     .replace(TIME_OF_DAY, (time) => time.replace(/\d+/g, '#').replace(/[AP]M$/, '#M'))
     .replace(MEASURED, (_value, range: string | undefined) => range ?? '#')
     .replace(DATA_SIZE, '# B')
     .replace(STREAMS_IN_USE, 'Streams #')
+    .replace(GAUGE_NOTE, (_note, avg: string | undefined, peak: string | undefined, median: string | undefined) => (median === undefined ? `${avg} # · ${peak} #` : `${median} #`))
 }
 
 // Nodes whose children the comparison reads in their place. A paragraph is a <p> on one side and a
