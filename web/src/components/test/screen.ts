@@ -270,6 +270,18 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
   return { ...reading, direction: 'download', value: download, peak: result.download?.peakBitsPerSecond ?? null, inner: upload, label: t('test.gauge.download'), innerLabel }
 }
 
+/** What the gauge reads, in one line: its state's title, or its label, number and unit. */
+export function gaugeReadout(gauge: GaugeInput, { t, locale, units }: GaugeContext): string | null {
+  if (gauge.text !== null) {
+    return gauge.text.title
+  }
+  if (gauge.value === null) {
+    return null
+  }
+  const { number, unit } = gauge.mode === 'ms' ? { number: latencyNumber(gauge.value, locale), unit: t('test.gauge.ms') } : rateParts(gauge.value, units, locale)
+  return `${gauge.label} ${number} ${unit}`
+}
+
 /** The metric tiles: the four main ones, then data used and duration, and the packet-loss slot. */
 export function screenTiles(run: RunView, settings: TestSettings, context: Wording): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
   const shown = run.status !== 'idle'

@@ -18,7 +18,7 @@
  */
 
 import type { DirectionLive } from '@/composables/useRunState'
-import type { Direction, DirectionEvent } from '@/engine/messages'
+import type { Direction, DirectionEvent, NoticeCode } from '@/engine/messages'
 
 // The live chart's data (ui/screens.md section 1, design_system/components/charts.md), built
 // from the run's live state: each direction is a segment of the time axis, in run order, its
@@ -53,8 +53,8 @@ export interface ChartModel {
   warmup: Span[]
   /** Where each direction after the first begins. */
   separators: number[]
-  /** The events of the result: extended, data cap, cancelled, error. */
-  marks: { at: number; code: MarkCode }[]
+  /** The events of the result: extended, data cap, cancelled, error with the notice it ended on. */
+  marks: { at: number; code: MarkCode; notice?: NoticeCode | 'requests-failed' }[]
   /** The end of the last bucket: the "now" of a live chart. */
   end: number
 }
@@ -155,7 +155,9 @@ export function buildChart(input: ChartInput): ChartModel {
     // Event times run from the phase start: P_start on upload.
     const phaseStart = direction === 'upload' ? at(live.start ?? origin) : offset
     for (const event of input.events?.[direction] ?? []) {
-      if (event.code !== 'failure-gap') {
+      if (event.code === 'error') {
+        marks.push({ at: phaseStart + event.atMs / 1000, code: event.code, notice: event.notice })
+      } else if (event.code !== 'failure-gap') {
         marks.push({ at: phaseStart + event.atMs / 1000, code: event.code })
       }
     }

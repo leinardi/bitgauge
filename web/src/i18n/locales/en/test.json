@@ -68,22 +68,29 @@
       "sending": "Upload · sending"
     },
     "chart": {
-      "summary": "Throughput over time: {parts}",
-      "empty": "Throughput over time: no data yet",
-      "download": "download, latest {rate}",
-      "upload": "upload received, latest {rate}",
+      "title": "Throughput",
+      "summary": "{title}: {parts}",
+      "empty": "{title}: no data yet",
+      "emptyText": "Throughput over time appears here while the test runs.",
+      "warmupShaded": "; warm-up shaded",
+      "marked": "; marked: {marks}",
+      "elapsed": "{s} s / {of} s",
+      "total": "{s} s total",
+      "stopped": "stopped at {s} s",
       "seconds": "{n} s",
       "now": "now",
       "marks": {
-        "extended": "extended",
-        "dataCap": "data cap",
-        "cancelled": "cancelled",
-        "error": "error"
+        "extended": "Extended",
+        "dataCap": "Data cap",
+        "cancelled": "Cancelled",
+        "error": "Connection lost",
+        "requestFailed": "Request failed"
       },
       "legend": {
         "download": "Download",
-        "received": "Upload received",
-        "sending": "sending",
+        "upload": "Upload",
+        "received": "Upload · received",
+        "sending": "Upload · sending",
         "warmup": "Warm-up"
       }
     },

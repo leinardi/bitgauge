@@ -38,7 +38,7 @@ import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
-import { gaugeInput, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen'
+import { gaugeInput, gaugeReadout, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen'
 import StartButton from '@/components/test/StartButton.vue'
 import { useContextLabel } from '@/composables/useContextLabel'
 import { useCountdown } from '@/composables/useCountdown'
@@ -83,7 +83,8 @@ const shownSettings = computed(() => (state.value === 'idle' ? null : run.runSet
 const units = computed(() => shownSettings.value?.units ?? 'bits')
 
 const steps = computed(() => (shownSettings.value === null ? [] : phaseSteps(view.value, shownSettings.value, locale.value)))
-const gauge = computed(() => gaugeInput(view.value, { ...wording.value, units: units.value, server: info.value?.server.name ?? host }))
+const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host }))
+const gauge = computed(() => gaugeInput(view.value, gaugeContext.value))
 const tiles = computed(() => (shownSettings.value === null ? null : screenTiles(view.value, shownSettings.value, wording.value)))
 // Data used, duration and the packet-loss slot, whose reason stays in view (ui/screens.md section 6).
 const facts = computed<MetaRow[]>(() => {
@@ -106,6 +107,18 @@ const order = computed(() => (shownSettings.value?.phases ?? []).filter((phase):
 const chartLive = computed(() => (state.value === 'idle' ? { download: null, upload: null } : run.live.value))
 const chartEvents = computed(() => ({ download: run.result.value?.download?.events ?? [], upload: run.result.value?.upload?.events ?? [] }))
 const shown = computed(() => state.value !== 'idle')
+const chartState = computed(() => {
+  switch (state.value) {
+    case 'idle':
+      return 'empty'
+    case 'running':
+      return 'running'
+    case 'done':
+      return 'done'
+    default:
+      return 'stopped'
+  }
+})
 
 /** The gauge's window, carried between directions and started afresh with each run. */
 const gaugeWindow = shallowRef(startK(units.value))
@@ -286,7 +299,10 @@ watch(run.error, (error) => {
             :live="chartLive"
             :units="units"
             :events="chartEvents"
-            :running="running"
+            :state="chartState"
+            :durations="shownSettings"
+            :total-ms="run.result.value?.durationMs ?? null"
+            :readout="gaugeReadout(gauge, gaugeContext)"
           />
         </div>
       </div>

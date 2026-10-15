@@ -23,17 +23,31 @@ import uPlot from 'uplot'
 import { computed, onBeforeUnmount, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { buildChart, type ChartInput, type MarkCode, STEPPED } from '@/components/chart/series'
+import { buildChart, type ChartData, type ChartInput, STEPPED } from '@/components/chart/series'
+import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, markLabel } from '@/components/chart/text'
 import { useTheme } from '@/composables/useTheme'
+import type { TestSettings } from '@/engine/messages'
 import { formatRate } from '@/lib/format'
 
 // The live throughput chart (ui/screens.md section 1, design_system/components/charts.md): uPlot
 // draws download, upload received and the faint sending line, with unknown buckets as gaps; its
 // hooks draw the warm-up bands under the series and the phase separators, the "now" line and the
-// result's event marks over them. The canvas is decoration for assistive technology: the
-// container is an image whose label summarises the chart.
+// result's event marks over them. Over the plot sit the title, the legend and where the run
+// stands. The canvas is decoration for assistive technology: the plot is an image whose label
+// summarises what it shows, from the gauge's readout. A finished run draws what the server
+// received, without the sending line.
 
-const props = withDefaults(defineProps<ChartInput & { running?: boolean }>(), { events: () => ({}), running: false })
+const props = withDefaults(
+  defineProps<
+    ChartInput & {
+      state: ChartState
+      durations?: Pick<TestSettings, 'download' | 'upload'> | null
+      totalMs?: number | null
+      readout?: string | null
+    }
+  >(),
+  { events: () => ({}), durations: null, totalMs: null, readout: null },
+)
 
 const { t, locale } = useI18n()
 const { applied } = useTheme()
@@ -42,6 +56,18 @@ const plot = shallowRef<uPlot | null>(null)
 let observer: ResizeObserver | null = null
 
 const model = computed(() => buildChart(props))
+// A chart with nothing drawn yet is empty, whatever the run's state: while connecting, say.
+const shownState = computed<ChartState>(() => (model.value.data[0].length === 0 ? 'empty' : props.state))
+const running = computed(() => props.state === 'running')
+const data = computed<ChartData>(() => {
+  const [x, download, received, sending] = model.value.data
+  return props.state === 'done' ? [x, download, received, sending.map(() => null)] : [x, download, received, sending]
+})
+const wording = computed(() => ({ t, locale: locale.value }))
+const textInput = computed<ChartTextInput>(() => ({ ...props, state: shownState.value, model: model.value }))
+const legend = computed(() => chartLegend(textInput.value, wording.value))
+const meta = computed(() => chartMeta(textInput.value, wording.value))
+const summary = computed(() => chartSummary(textInput.value, wording.value))
 
 /** The design tokens the canvas paints with, read from the page since a canvas knows no CSS. */
 function palette() {
@@ -60,13 +86,6 @@ function palette() {
   }
 }
 let colours = palette()
-
-const MARK_LABELS: Record<MarkCode, () => string> = {
-  extended: () => t('test.chart.marks.extended'),
-  'data-cap': () => t('test.chart.marks.dataCap'),
-  cancelled: () => t('test.chart.marks.cancelled'),
-  error: () => t('test.chart.marks.error'),
-}
 
 /** The bands under the series: each direction's warm-up, with hatch-coloured edges. */
 function drawBands(u: uPlot): void {
@@ -108,8 +127,8 @@ function drawMarks(u: uPlot): void {
   ctx.lineWidth = 1
   ctx.font = colours.font
   model.value.separators.forEach((at) => rule(u, at, colours.hatch))
-  model.value.marks.forEach((mark) => rule(u, mark.at, colours.mark, MARK_LABELS[mark.code]()))
-  if (props.running) {
+  model.value.marks.forEach((mark) => rule(u, mark.at, colours.mark, markLabel(mark, wording.value)))
+  if (running.value) {
     rule(u, model.value.end, colours.mark, t('test.chart.now'))
   }
   ctx.restore()
@@ -156,7 +175,7 @@ onMounted(() => {
   if (host.value === null) {
     return
   }
-  plot.value = new uPlot(options(width()), model.value.data, host.value)
+  plot.value = new uPlot(options(width()), data.value, host.value)
   if (typeof ResizeObserver !== 'undefined') {
     observer = new ResizeObserver(() => {
       const next = width()
@@ -166,8 +185,8 @@ onMounted(() => {
   }
 })
 
-watch(model, (next) => plot.value?.setData(next.data))
-watch([applied, () => props.running], () => {
+watch(data, (next) => plot.value?.setData(next))
+watch([applied, running], () => {
   colours = palette()
   plot.value?.redraw()
 })
@@ -176,39 +195,6 @@ onBeforeUnmount(() => {
   observer?.disconnect()
   plot.value?.destroy()
   plot.value = null
-})
-
-// The text alternative: what the chart shows, direction by direction, with its latest bucket.
-const summary = computed(() => {
-  const [, download, received] = model.value.data
-  const last = (series: (number | null)[]) => {
-    for (let index = series.length - 1; index >= 0; index--) {
-      const value = series[index]
-      if (value !== null && value !== undefined) {
-        return value
-      }
-    }
-    return null
-  }
-  const parts = props.order.flatMap((direction) => {
-    const value = last(direction === 'download' ? download : received)
-    if (value === null) {
-      return []
-    }
-    const rate = rateLabel(value)
-    return [direction === 'download' ? t('test.chart.download', { rate }) : t('test.chart.upload', { rate })]
-  })
-  return parts.length === 0 ? t('test.chart.empty') : t('test.chart.summary', { parts: parts.join(', ') })
-})
-
-const legend = computed(() => {
-  const present = new Set(props.order.filter((direction) => props.live[direction] !== null))
-  return [
-    present.has('download') ? { key: 'download', label: t('test.chart.legend.download'), colour: 'var(--series-download)', faint: false, band: false } : null,
-    present.has('upload') ? { key: 'received', label: t('test.chart.legend.received'), colour: 'var(--series-upload)', faint: false, band: false } : null,
-    present.has('upload') ? { key: 'sending', label: t('test.chart.legend.sending'), colour: 'var(--sending)', faint: true, band: false } : null,
-    present.size > 0 ? { key: 'warmup', label: t('test.chart.legend.warmup'), colour: 'var(--chart-band)', faint: false, band: true } : null,
-  ].filter((entry) => entry !== null)
 })
 
 // A new phase cross-fades in, unless motion is reduced.
@@ -228,29 +214,51 @@ watch(
 </script>
 
 <template>
-  <figure class="flex flex-col gap-2">
-    <div
-      ref="host"
-      role="img"
-      :aria-label="summary"
-      class="w-full transition-opacity duration-(--dur-slow) motion-reduce:transition-none"
-      :class="fading ? 'opacity-40' : 'opacity-100'"
-      data-testid="throughput-chart"
-    />
-    <figcaption class="flex flex-wrap gap-x-4 gap-y-1 text-(length:--text-caption) text-subtle-foreground">
-      <span
-        v-for="entry in legend"
-        :key="entry.key"
-        class="flex items-center gap-1.5"
-      >
+  <div class="flex min-w-0 flex-col gap-3">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <span class="text-(length:--text-base) font-semibold">{{ t('test.chart.title') }}</span>
+      <div class="flex flex-wrap gap-x-3.5 gap-y-1.5">
         <span
-          aria-hidden="true"
-          class="inline-block h-0.5 w-4"
-          :class="{ 'opacity-50': entry.faint, 'h-2.5 border border-chart-hatch': entry.band }"
-          :style="{ background: entry.colour }"
-        />
-        {{ entry.label }}
-      </span>
-    </figcaption>
-  </figure>
+          v-for="entry in legend"
+          :key="entry.key"
+          class="flex items-center gap-1.5 text-(length:--text-caption) text-muted-foreground"
+        >
+          <span
+            v-if="entry.band"
+            aria-hidden="true"
+            class="h-(--legend-swatch-h) w-(--legend-band-w) border-x border-chart-hatch bg-(--chart-band)"
+          />
+          <span
+            v-else
+            aria-hidden="true"
+            class="h-0 w-(--legend-swatch-w) border-t-2"
+            :class="{ 'opacity-40': entry.faint }"
+            :style="{ borderTopColor: entry.colour }"
+          />
+          {{ entry.label }}
+        </span>
+      </div>
+      <span
+        v-if="meta"
+        class="ml-auto font-mono text-(length:--text-caption) text-subtle-foreground"
+        data-testid="chart-meta"
+      >{{ meta }}</span>
+    </div>
+    <div class="relative">
+      <div
+        ref="host"
+        role="img"
+        :aria-label="summary"
+        class="w-full transition-opacity duration-(--dur-slow) motion-reduce:transition-none"
+        :class="fading ? 'opacity-40' : 'opacity-100'"
+        data-testid="throughput-chart"
+      />
+      <div
+        v-if="shownState === 'empty'"
+        class="absolute inset-0 flex items-center justify-center px-4 text-center"
+      >
+        <span class="max-w-measure-sm rounded-(--radius-md) border border-(--border-subtle) bg-(--surface-2) px-3.5 py-2 text-(length:--text-sm) leading-(--lh-compact) text-pretty text-subtle-foreground">{{ t('test.chart.emptyText') }}</span>
+      </div>
+    </div>
+  </div>
 </template>
