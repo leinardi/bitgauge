@@ -42,11 +42,9 @@
 *	test/basepath	content	main > region "Deployment hint"	missing	text "."	present when the harness was adopted
 *	test/basepath	content	main > region "Deployment hint"	missing	text "prefix at the proxy so BitGauge is served from"	present when the harness was adopted
 *	test/cancelled	content	main	extra	list "Notices"	present when the harness was adopted
-*	test/cancelled	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 Mbit/s – …" → "Download # Mbit/s log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/cancelled	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/cancelled	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
 *	test/cancelled-download	content	main	extra	list "Notices"	present when the harness was adopted
-*	test/cancelled-download	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 1 Mbit/s – …" → "Download — log scale · 1 Mbit/s – …"	present when the harness was adopted
 *	test/cancelled-download	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/cancelled-download	content	main > region "Speed test"	missing	text "Throughput Download Warm-up stopped at # s"	present when the harness was adopted
 *	test/cancelled-late	content	main	extra	list "Notices"	present when the harness was adopted
@@ -70,7 +68,6 @@ dark-narrow,light-narrow	test/cancelled-latency	content	main > region "Speed tes
 *	test/cancelled-slow-up	content	main	extra	text "Context"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/cancelled-slow-up	content	main	missing	button "Context: VPN, suggested"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
 *	test/cancelled-slow-up	content	main	missing	text "Context"	triage fixture-slow-context: The spec wins: wire-protocol §5 maps a private address to LAN and frontend.md §9 records LAN for the demo on purpose. The kit's VPN on 10.8.0.6 contradicts the mapping, so the difference is kept until the export fixes it.
-*	test/cancelled-slow-up	content	main > region "Speed test"	changed	text "Cancelled Partial results · not saved log scale · 10 kbit/s –…" → "Download # kbit/s log scale · 10 kbit/s –…"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main > region "Speed test"	extra	figure "Download Upload received sending Warm-up"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main > region "Speed test"	missing	text "Throughput Download Upload · received Upload · sending Warm-up stopped at # s"	present when the harness was adopted
 *	test/cancelled-slow-up	content	main > status	changed	text "Test cancelled during upload Latency and download completed. Upload stopped at # s, before a # s confirmed steady window (still in warm-up), so it has no…	present when the harness was adopted

@@ -216,7 +216,8 @@ function errorText(run: RunView, context: GaugeContext): GaugeText {
  * The gauge (design_system/components/gauge.md, Modes and states): Ready between runs, Connecting…
  * during the info phase, idle latency in milliseconds with the ping counter, the download rate
  * with its steady peak, the upload's sending progress; once a result is in, the download headline
- * with the upload headline inside, and after an error what was lost and where.
+ * with the upload headline inside; after a stop Cancelled over the final arc, and after an error
+ * what was lost and where.
  */
 export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
   const { t, locale, units } = context
@@ -253,8 +254,15 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
   if (result === null) {
     return ready
   }
-  const download = result.download?.bitsPerSecond ?? null
   const upload = result.upload?.bitsPerSecond ?? null
+  if (screenState(run) === 'cancelled') {
+    // The final arc stays, without a needle: the download's value, or its last sample when it has
+    // none, with the upload's partial value inside.
+    const download = result.download?.bitsPerSecond ?? run.live.download?.gauge ?? null
+    const text: GaugeText = { title: t('test.gauge.cancelled'), message: t('test.gauge.notSaved'), touchMessage: null, detail: null, icon: 'cancelled' }
+    return { ...reading, direction: 'download', value: download, inner: upload, text }
+  }
+  const download = result.download?.bitsPerSecond ?? null
   if (download === null && upload !== null) {
     return { ...reading, direction: 'upload', value: upload, label: t('test.gauge.upload') }
   }

@@ -52,6 +52,8 @@
       "idle": "Latency",
       "median": "median {median} · {ping}",
       "inner": "{rate} upload",
+      "cancelled": "Cancelled",
+      "notSaved": "Partial results · not saved",
       "lost": "Connection lost",
       "errorDuring": "Error during {phase}",
       "phase": {

@@ -170,6 +170,14 @@ describe('gaugeInput', () => {
     expect(gaugeInput(run({ status: 'ended', result: uploadOnly }), gaugeContext)).toMatchObject({ direction: 'upload', value: 438e6, inner: null, innerLabel: null, label: 'Upload' })
   })
 
+  it('reads Cancelled after a stop, over the final arc with the partial upload inside', () => {
+    const stopped = gaugeInput(run({ status: 'ended', result: resultFixture({ status: 'partial' }) }), gaugeContext)
+    expect(stopped).toMatchObject({ direction: 'download', value: 612e6, inner: 438e6, innerLabel: null })
+    expect(stopped.text).toEqual({ title: 'Cancelled', message: 'Partial results · not saved', touchMessage: null, detail: null, icon: 'cancelled' })
+    const early = resultFixture({ status: 'partial', download: { status: 'insufficient-data', streams: 2, bytes: 1, events: [] }, upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0 } })
+    expect(gaugeInput(run({ status: 'ended', result: early, live: { download: live({ gauge: 5e5 }), upload: null } }), gaugeContext)).toMatchObject({ value: 5e5, inner: null })
+  })
+
   it('reads Connection lost after an error, with the phase and the last thing measured', () => {
     const download = live({ gauge: 5.75e8 })
     const lost = run({ status: 'ended', live: { download, upload: null }, error: { code: 'requests-failed', phase: 'download', partial: false } })
