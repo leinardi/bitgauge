@@ -118,7 +118,7 @@ the export shows, and what it should show, with the reason; behavior comes from
 - **Kit:** `ui_kits/app/TestScreen.jsx`, the `meta(...)` rows of the latency and early-error
   states.
 - **Export today:** data used counts the pings, about 17 kB "so far" while idle latency runs, and
-  that count after an error in it.
+  that count after an error or a stop in it.
 - **Wanted:** "—" with no qualifier until the first download byte, as in the connecting state.
 - **Why:** data used counts the download and upload transfers only
   ([glossary](../features/glossary.md)); the engine cannot see a probe's bytes on the wire.
@@ -132,7 +132,8 @@ the export shows, and what it should show, with the reason; behavior comes from
   over HTTP/1.1. Streams read "6 auto", the cap, before a run, and the cancelled slow run leaves
   out the plateau reason although its download's ramp stopped at no-gain before the stop.
 - **Wanted:** "— not reported" until a run has made a request, and "HTTP/1.1" in the
-  upload-interrupted state; Streams "— auto" before a run, when the count is automatic, and
+  upload-interrupted state; Streams "— auto" before a run and after a stop during idle latency,
+  when the count is automatic and no direction ran, and
   "2 auto · plateau: no-gain" after the cancelled slow run.
 - **Why:** the protocol is read from a request's `nextHopProtocol`
   ([measurement.md §4](../features/measurement.md#4-adaptive-stream-count)), and an automatic

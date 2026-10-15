@@ -70,6 +70,9 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 2. The engine aborts in-flight requests and stops issuing new ones.
 3. **Partial-result rules:**
    - Completed phases keep their results unchanged.
+   - An interrupted idle latency keeps its samples so far when at least 5 succeeded
+     ([../measurement.md §10](../measurement.md#10-idle-latency)); download and upload are then
+     skipped.
    - The interrupted download keeps the bytes already read; its window ends at the stop instant.
    - The interrupted upload's window ends at the confirmed watermark; requests aborted by the stop
      contribute nothing ([../measurement.md
@@ -88,8 +91,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 5. The partial result is **not** saved automatically. The screen offers **Keep in history**, which
    saves it with status `partial` (with an undo toast), and Download JSON.
    - **Branch: the user leaves or runs again without keeping it.** The result is discarded.
-   - **Branch: nothing was measured yet** (stopped during info or idle latency with too few
-     samples). No result exists to keep; the screen returns to Idle.
+   - **Branch: nothing was measured yet** (stopped during info, or during idle latency with
+     fewer than 5 successful samples). No result exists to keep; the screen returns to Idle.
 
 ## 5. Error Mid-Test
 

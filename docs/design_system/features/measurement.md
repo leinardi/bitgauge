@@ -810,6 +810,9 @@ the Resource Timing `transferSize`, falling back to a +0.5 % header estimate
 - **Limits.** The phase stops after 30 s even if the count is not reached. With fewer than 5
   successful samples idle latency is `unavailable`; with all pings lost the test shows the
   `server unreachable` notice with retry.
+- **Stop.** A user stop during the phase keeps the samples so far: with at least 5 successful
+  samples idle latency is reported from them and the result is `partial`, the directions skipped;
+  with fewer, nothing is kept ([ui/flows.md §4](ui/flows.md#4-cancel-mid-test)).
 - **Timer resolution.** Browsers coarsen `performance.now()` (to 100 µs or 1 ms, depending on the
   browser and isolation). Sub-millisecond LAN latencies are therefore reported with the timer's
   resolution and never with false precision ([edge-cases.md](edge-cases.md)).
