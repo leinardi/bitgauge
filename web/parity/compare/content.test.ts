@@ -77,6 +77,15 @@ describe('compareContent', () => {
     expect(diff(proto, vue)).toEqual(['changed main > row "Download 2026-09-30" | cell "2026-09-30" → "9/30/2026"'])
   })
 
+  it('pairs a live region with the one that says the most of the same, not the first', () => {
+    const proto = '- heading "Speed test" [level=1]\n- status: Upload finished. Test complete.'
+    const vue = '- heading "Speed test" [level=1]\n- status: Upload result: 438 megabits per second\n- status: Test complete. Download 612 megabits per second.'
+    expect(diff(proto, vue)).toEqual([
+      'changed main > status | text "Upload finished. Test complete." → "Test complete. Download # megabits per second."',
+      'extra main | status',
+    ])
+  })
+
   it('treats an empty live region as nothing, and a live region with text as content', () => {
     expect(diff('- heading "Speed test" [level=1]', '- heading "Speed test" [level=1]\n- status')).toEqual([])
     expect(diff('- heading "Speed test" [level=1]', '- heading "Speed test" [level=1]\n- status: Download started')).toEqual([

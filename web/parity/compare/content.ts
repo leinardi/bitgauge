@@ -75,8 +75,44 @@ export function textChange(a: string, b: string): string {
   return `"${clip(a)}" → "${clip(b)}"`
 }
 
+// A page can hold several live regions, and which one carries a given message is a choice of
+// structure, not something a person sees: the prototype says everything in one region, the app
+// splits the phase announcements from the result summary. A live region therefore pairs with the
+// leftover one on the other side whose text shares the most words with it, not with the first.
+const LIVE_ROLES = new Set(['status', 'alert', 'log'])
+
+function words(node: AriaNode): Set<string> {
+  return new Set(normalizeText(textOf(node)).toLowerCase().split(/[^\p{L}\p{N}#]+/u).filter((word) => word !== ''))
+}
+
+function shared(a: Set<string>, b: Set<string>): number {
+  let count = 0
+  for (const word of a) if (b.has(word)) count++
+  return count
+}
+
+function pick(proto: AriaNode, candidates: readonly AriaNode[]): number {
+  const same = (vue: AriaNode) => roleClass(vue.role) === roleClass(proto.role)
+  const first = candidates.findIndex(same)
+  if (first === -1 || !LIVE_ROLES.has(proto.role)) return first
+  const own = words(proto)
+  let best = first
+  let bestShared = -1
+  candidates.forEach((vue, index) => {
+    const count = same(vue) ? shared(own, words(vue)) : -1
+    if (count > bestShared) {
+      best = index
+      bestShared = count
+    }
+  })
+  return best
+}
+
 function key(node: AriaNode): string {
-  return `${roleClass(node.role)}\u0000${normalizeText(node.name)}`
+  // A live region's message is its text, so only the same message aligns it as an anchor; otherwise
+  // it is paired by its words (pick).
+  const text = LIVE_ROLES.has(node.role) ? `\u0000${normalizeText(textOf(node))}` : ''
+  return `${roleClass(node.role)}\u0000${normalizeText(node.name)}${text}`
 }
 
 // Index pairs of the longest common subsequence of the two key lists.
@@ -122,13 +158,13 @@ function compareNodes(proto: AriaNode, vue: AriaNode, path: string, out: Finding
 function compareGap(protoGap: AriaNode[], vueGap: AriaNode[], path: string, out: Finding[]): void {
   const unmatchedVue = [...vueGap]
   for (const proto of protoGap) {
-    const index = unmatchedVue.findIndex((vue) => roleClass(vue.role) === roleClass(proto.role))
+    const index = pick(proto, unmatchedVue)
     const vue = index === -1 ? undefined : unmatchedVue.splice(index, 1)[0]
     if (vue === undefined) {
       out.push(finding('content', path, 'missing', describe(proto)))
       continue
     }
-    if (!(nameFromContent(proto) && nameFromContent(vue))) {
+    if (normalizeText(proto.name) !== normalizeText(vue.name) && !(nameFromContent(proto) && nameFromContent(vue))) {
       out.push(finding('content', path, 'changed', `${proto.role} ${textChange(normalizeText(proto.name), normalizeText(vue.name))}`))
     }
     compareLists(proto.children, vue.children, segment(path, proto), out)
