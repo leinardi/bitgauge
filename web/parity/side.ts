@@ -23,13 +23,17 @@
 import type { BrowserContext } from '@playwright/test'
 
 import type { Region } from './compare/content.ts'
+import { portFromEnv } from './selection.ts'
 
 export type Side = 'proto' | 'vue'
 
-// The two local servers of playwright.parity.config.ts: the demo build on 5180 and the export's
-// directory on 5181.
-export const VUE_ORIGIN = 'http://127.0.0.1:5180'
-export const PROTO_ORIGIN = 'http://127.0.0.1:5181'
+// The two local servers of playwright.parity.config.ts: the demo build on 5182 and the export's
+// directory on 5183, off runhold's 5180 and 5181 so both projects can run the harness at once.
+// PARITY_DEMO_PORT and PARITY_PROTO_PORT move them; make demo-parity passes the Makefile's pair.
+export const VUE_PORT = portFromEnv(process.env, 'PARITY_DEMO_PORT', 5182)
+export const PROTO_PORT = portFromEnv(process.env, 'PARITY_PROTO_PORT', 5183)
+export const VUE_ORIGIN = `http://127.0.0.1:${VUE_PORT}`
+export const PROTO_ORIGIN = `http://127.0.0.1:${PROTO_PORT}`
 
 export interface SideDriver {
   side: Side

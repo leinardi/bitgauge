@@ -87,6 +87,18 @@ function parseMode(raw: string | undefined): BaselineMode {
   return value
 }
 
+// A server port from the environment: PARITY_DEMO_PORT or PARITY_PROTO_PORT, which make passes so two
+// projects can run the harness side by side. Unset or empty falls back to this project's own port.
+export function portFromEnv(env: NodeJS.ProcessEnv, name: string, fallback: number): number {
+  const value = env[name]
+  if (value === undefined || value === '') return fallback
+  const port = Number(value)
+  if (!/^\d+$/.test(value) || port < 1 || port > 65_535) {
+    throw new Error(`${name}=${value}: expected a port number`)
+  }
+  return port
+}
+
 // A filter item is an exact scenario id or "prefix/*". An item that selects nothing is an error:
 // a typo must not turn into a run that covers nothing and passes.
 export function filterScenarios<S extends ScenarioRef>(all: readonly S[], filter: string | null): S[] {

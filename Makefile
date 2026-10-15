@@ -71,6 +71,11 @@ DOCKER_BUILD_CMD ?= docker buildx build --load
 # The design-system page make demo-parity-servers points at.
 PARITY_PROTOTYPE_PAGE := ui_kits/app/index.html
 
+# The parity servers' ports, off runhold's 5180 and 5181 so both projects can run the harness at
+# once. A single run moves them with PARITY_DEMO_PORT=... PARITY_PROTO_PORT=... on the command line.
+PARITY_DEMO_PORT ?= 5182
+PARITY_PROTO_PORT ?= 5183
+
 # Drop-in runtime defaults for `make go-run`
 ARGS ?=
 

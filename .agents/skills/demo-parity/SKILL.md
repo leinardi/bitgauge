@@ -49,7 +49,8 @@ snapshots and `findings.json`.
 ## 3. Place one difference
 
 1. Serve both sides: `make demo-parity-servers` (run it in the background). The prototype is on
-   `http://127.0.0.1:5181/ui_kits/app/index.html`, the Vue demo on `http://127.0.0.1:5180/`.
+   `http://127.0.0.1:5183/ui_kits/app/index.html`, the Vue demo on `http://127.0.0.1:5182/`
+   (`PARITY_PROTO_PORT` and `PARITY_DEMO_PORT` move them).
 2. Reproduce it on both sides, in a browser or with
    `npm --prefix web exec --no -- playwright open <url>`. Reach the state through each side's demo
    panel: the kit's **Force state** (with its v0.1 scope on), the Vue demo's **Force state** or the

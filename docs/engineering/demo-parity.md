@@ -176,8 +176,11 @@ For each new difference, decide where it belongs, in this order:
 5. **Intentional.** Accept it with a reason that says why.
 
 `make demo-parity-servers` serves both sides on the harness ports for looking at a difference by
-hand: the prototype on `http://127.0.0.1:5181/ui_kits/app/index.html` and the Vue demo on
-`http://127.0.0.1:5180/`.
+hand: the prototype on `http://127.0.0.1:5183/ui_kits/app/index.html` and the Vue demo on
+`http://127.0.0.1:5182/`. These ports are the Makefile's `PARITY_PROTO_PORT` and `PARITY_DEMO_PORT`,
+off runhold's 5180 and 5181 so both projects can run the harness at once. Any parity target takes
+other ones on the command line (`make demo-parity PARITY_DEMO_PORT=5290 PARITY_PROTO_PORT=5291`); a
+port already in use fails the run rather than comparing another project's server.
 
 ## Triage
 

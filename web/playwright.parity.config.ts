@@ -24,7 +24,7 @@ import { defineConfig } from '@playwright/test'
 
 import { SCENARIOS } from './parity/scenarios.ts'
 import { assertNoPlaywrightFilters, selectionFromEnv, type ParityProject } from './parity/selection.ts'
-import { PROTO_ORIGIN, VUE_ORIGIN } from './parity/side.ts'
+import { PROTO_ORIGIN, PROTO_PORT, VUE_ORIGIN, VUE_PORT } from './parity/side.ts'
 
 assertNoPlaywrightFilters(process.argv)
 const selection = selectionFromEnv(process.env, SCENARIOS)
@@ -51,6 +51,7 @@ export default defineConfig<{ project: ParityProject }>({
       // A production build of the demo, not the dev server: Vite's dev server can reload the page
       // when it discovers a dependency, which would change a page between two reads.
       command: 'npm run parity:serve:demo',
+      env: { PARITY_DEMO_PORT: String(VUE_PORT) },
       url: `${VUE_ORIGIN}/`,
       reuseExistingServer: false,
       timeout: 180_000,
@@ -58,6 +59,7 @@ export default defineConfig<{ project: ParityProject }>({
     {
       // Rooted at docs/design_system because the kit reaches ../../colors_and_type.css.
       command: 'npm run parity:serve:prototype',
+      env: { PARITY_PROTO_PORT: String(PROTO_PORT) },
       url: `${PROTO_ORIGIN}/ui_kits/app/index.html`,
       reuseExistingServer: false,
     },

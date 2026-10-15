@@ -21,7 +21,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { ALL_PROJECTS, assertNoPlaywrightFilters, expectedPairs, filterScenarios, type ScenarioRef, selectionFromEnv, VIEWPORTS } from './selection.ts'
+import { ALL_PROJECTS, assertNoPlaywrightFilters, expectedPairs, filterScenarios, portFromEnv, type ScenarioRef, selectionFromEnv, VIEWPORTS } from './selection.ts'
 
 const scenarios: ScenarioRef[] = [{ id: 'test/idle' }, { id: 'test/download' }, { id: 'about' }]
 
@@ -91,5 +91,24 @@ describe('assertNoPlaywrightFilters', () => {
 
   it('ignores processes that are not the test runner', () => {
     expect(() => assertNoPlaywrightFilters(['node', 'worker.js', '--grep'])).not.toThrow()
+  })
+})
+
+describe('portFromEnv', () => {
+  it('falls back to the project port when the variable is unset or empty', () => {
+    expect(portFromEnv({}, 'PARITY_DEMO_PORT', 5180)).toBe(5180)
+    expect(portFromEnv({ PARITY_DEMO_PORT: '' }, 'PARITY_DEMO_PORT', 5180)).toBe(5180)
+  })
+
+  it('reads the port make passes', () => {
+    expect(portFromEnv({ PARITY_DEMO_PORT: '5290' }, 'PARITY_DEMO_PORT', 5180)).toBe(5290)
+  })
+
+  it('refuses a value that is not a port', () => {
+    for (const value of ['abc', '5180x', '-1', '0', '65536', '51.8']) {
+      expect(() => portFromEnv({ PARITY_DEMO_PORT: value }, 'PARITY_DEMO_PORT', 5180)).toThrow(
+        `PARITY_DEMO_PORT=${value}: expected a port number`,
+      )
+    }
   })
 })

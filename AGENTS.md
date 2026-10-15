@@ -113,7 +113,7 @@ make demo-parity-full    # the same over all four theme × viewport projects
 make demo-parity-update  # drop .parity-baseline entries a complete run no longer finds
 make demo-parity-accept  # accept a complete run's new differences (REASON= required)
 make demo-parity-report  # the HTML report of the last parity run
-make demo-parity-servers # the prototype on :5181 and the demo build on :5180, to look at by hand
+make demo-parity-servers # the prototype on :5183 and the demo build on :5182, to look at by hand
 make demo-parity-browsers # install the Chromium the parity harness drives, when it is missing
 make demo-parity-triage   # the triage helper over .parity-triage.json and the last run (CMD=...)
 make mk-common-update  # refresh the shared make-common snippets
