@@ -40,7 +40,11 @@ from the design export; this page fixes content and behavior only. Terms follow 
 - **Result metrics** (§6), each with its qualifiers. While a direction runs, its tile shows
   "warming up" until warm-up ends, then the steady-window average and peak so far.
 - **Packet loss slot** reading "packet loss — not measured" (§6).
-- **Data used** live during the run.
+- **Data used** and **duration**: data used live during the run, "—" until the first byte and
+  qualified "so far" (while upload runs after a download that ended without a number, "so far ·
+  download" with the download's own bytes); the duration counts up from the run's start,
+  qualified "elapsed", until the result gives it. After an error, data used is qualified "not
+  saved".
 - **Notices** area (§7).
 - **Save bar** after a `complete` run (v0.2, with history): "Saved to history", an inline label
   field with suggested labels (the context label and recent labels from history), Share and
