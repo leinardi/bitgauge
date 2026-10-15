@@ -73,9 +73,11 @@ changing.
 - empty live regions;
 - each side's own page host: the Vue demo shows the origin it is served from and the prototype a
   mocked host, as the spec asks of both, so either reads as one token (never any other host);
-- a measured value: the number of a rate, latency, size, duration or share, the prefix of a data
-  size, the number of streams in use, and the digits of a time of day. A range (a phase's estimated
-  duration, a scale's bounds) is never measured, so it is compared as written.
+- a measured value: the number of a rate, latency, size, duration or share, also where the gauge's
+  note or a result tile words it without its unit (avg so far, peak, median, min, a stopped
+  window's requests), the prefix of a data size, the number of streams in use, and the digits of a
+  time of day. A range (a phase's estimated duration, a scale's bounds) is never measured, so it is
+  compared as written.
 
 Anything added there hides a class of difference for good, so it needs the same justification.
 `web/parity/compare/style.ts` skips a property only where it cannot render: a border color where

@@ -116,12 +116,16 @@ describe('normalizeValue', () => {
     ['Test complete 8:02:10 AM', 'Test complete #:#:# #M'],
     ['Download 597 Mbit/s avg so far 597 · peak 610', 'Download # Mbit/s avg so far # · peak #'],
     ['Latency 3.2 ms median 3.1 · ping 14 of 20', 'Latency # ms median # · ping 14 of 20'],
+    ['Download 612 Mbit/s peak 641 · 6 streams · plateau: cap', 'Download # Mbit/s peak # · 6 streams · plateau: cap'],
+    ['Upload Live 438 Mbit/s peak 455 Idle latency', 'Upload Live # Mbit/s peak # Idle latency'],
+    ['Idle latency 3.1 ms min 2.4 · p90 4.1 ms', 'Idle latency # ms min # · p90 # ms'],
+    ['Upload 438 Mbit/s based on a 3.6 s steady window · 21 requests', 'Upload # Mbit/s based on a # s steady window · # requests'],
   ])('reads %j as %j', (raw, normalized) => {
     expect(normalizeValue(raw)).toBe(normalized)
   })
 
   it('keeps every number that is not a measured value', () => {
-    for (const fixed of ['Streams — auto, up to 6 streams', 'IPv4 192.168.1.42', 'HTTP/2', 'v1.4.0', 'p90', 'Download pending · ~10–20 s', 'log scale · 1 Mbit/s – 10 Gbit/s', '1 – 1000 ms', 'Connection lost 12 of 20 pings', 'median of 11 pings']) {
+    for (const fixed of ['Streams — auto, up to 6 streams', 'IPv4 192.168.1.42', 'HTTP/2', 'v1.4.0', 'p90', 'Download pending · ~10–20 s', 'log scale · 1 Mbit/s – 10 Gbit/s', '1 – 1000 ms', 'Connection lost 12 of 20 pings', 'median of 11 pings', 'error · 3 requests in a row failed']) {
       expect(normalizeValue(fixed)).toBe(fixed)
     }
   })
