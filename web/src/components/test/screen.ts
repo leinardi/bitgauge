@@ -18,7 +18,7 @@
  */
 
 import type { PhaseStep } from '@/components/test/steps'
-import { dataTile, directionTile, durationTile, idleLiveTile, idleTile, jitterTile, packetLossTile, type TileView } from '@/components/test/tiles'
+import { dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, packetLossTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive, IdleLive, PhaseView, RunError, RunStatus } from '@/composables/useRunState'
 import type { Direction, DirectionResult, MeasuringPhase, PhaseName, Result, TestSettings } from '@/engine/messages'
@@ -111,7 +111,7 @@ function finishedStep(phase: MeasuringPhase, run: RunView, units: 'bits' | 'byte
   const direction = result?.[phase]
   if (direction === undefined) {
     // Mid-run, before the result: the headline its phase event carried, or none at all.
-    const headline = run.phases[phase].headlineBitsPerSecond
+    const headline = run.phases[phase].result?.bitsPerSecond
     return headline === undefined ? { phase, state: 'done', insufficient: true } : { phase, state: 'done', value: formatRate(headline, units, locale) }
   }
   if (direction.status === 'insufficient-data') {
@@ -336,7 +336,7 @@ function dataUsed(run: RunView, context: Wording): TileView {
   const download = run.phases.download
   let sub: string | null = null
   if (run.status === 'running') {
-    const share = run.phase === 'upload' && download.headlineBitsPerSecond === undefined ? download.bytes : undefined
+    const share = run.phase === 'upload' && download.result?.bitsPerSecond === undefined ? download.result?.bytes : undefined
     sub = share === undefined ? t('test.tiles.dataSoFar') : t('test.tiles.dataSoFarDownload', { bytes: formatBytes(share, locale) })
   } else if (screenState(run) === 'error') {
     sub = t('test.tiles.notSaved')
@@ -353,30 +353,45 @@ function duration(run: RunView, elapsed: number | null, context: Wording): TileV
   return run.status === 'running' && tile.number !== null ? { ...tile, lines: [{ text: context.t('test.tiles.elapsed') }] } : tile
 }
 
+/** What the tiles need of the settings: the units and overhead, and when known the phases and bounds. */
+export type TileSettings = Pick<TestSettings, 'units' | 'overheadCompensationPercent'> & Partial<Pick<TestSettings, 'phases' | 'download' | 'upload'>>
+
+/** Idle latency for its two tiles: live while it runs, its part of the result once it finished. */
+function idleInput(run: RunView, result: Result | null): IdleInput | null {
+  const protocol = run.phases.info.protocol ?? result?.client.protocol ?? null
+  const resolutionMs = result?.client.timerResolutionMs ?? 0
+  if (run.status === 'running' && run.phase === 'idle') {
+    return run.idle === null ? null : { idle: run.idle, resolutionMs, protocol, live: true }
+  }
+  const idle = result?.idle ?? run.phases.idle.idle
+  if (idle === undefined) {
+    return null
+  }
+  const stopped = idleStopped(result) ? { samples: idle.samples.length, pings: run.idle?.pings ?? idle.samples.length + 1 } : null
+  return { idle, resolutionMs, protocol, live: false, stopped }
+}
+
 /** The metric tiles: the four main ones, then data used and duration, and the packet-loss slot. */
-export function screenTiles(run: RunView, settings: Pick<TestSettings, 'units' | 'overheadCompensationPercent'>, context: Wording, elapsedMs: number | null = null): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
+export function screenTiles(run: RunView, settings: TileSettings, context: Wording, elapsedMs: number | null = null): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
   const shown = run.status !== 'idle'
   const result = shown ? run.result : null
   // Live numbers only while the run is going: a run that ended without a result has none to show.
   const running = run.status === 'running'
-  const units = settings.units
-  const overheadPercent = settings.overheadCompensationPercent
+  const order = (settings.phases ?? ['download', 'upload']).filter((phase): phase is Direction => phase !== 'idle')
+  const current = run.phase === 'download' || run.phase === 'upload' ? order.indexOf(run.phase) : -1
   const direction = (name: Direction) => {
-    const live = running && run.live[name] !== null ? { steady: run.live[name]?.steady ?? null } : null
-    const tile = directionTile({ direction: name, units, live, result: result?.[name] ?? null, overheadPercent }, context)
-    return shown && run.phases[name].state === 'skipped' ? { ...tile, lines: [{ text: context.t('test.tiles.skipped') }] } : tile
+    const view = run.live[name]
+    const live = running && view !== null ? { steady: view.steady, confirmed: view.start !== null } : null
+    // A finished direction shows its part of the result at once, before the run's result.
+    const part = result?.[name] ?? (shown ? run.phases[name].result : undefined) ?? null
+    const upNext = running && current >= 0 && order.indexOf(name) === current + 1 && run.phases[name].state === 'pending'
+    const tile = directionTile({ direction: name, units: settings.units, live, result: part, overheadPercent: settings.overheadCompensationPercent, upNext, ...(settings[name] === undefined ? {} : { maxMs: settings[name].maxMs }) }, context)
+    return shown && part === null && run.phases[name].state === 'skipped' ? { ...tile, lines: [{ text: context.t('test.tiles.skipped') }] } : tile
   }
-  const resolution = result?.client.timerResolutionMs ?? 0
-  const idleLive = running ? run.idle : null
-  // A stop during idle latency keeps it, and its jitter, as partial.
-  const stopped = (tile: TileView): TileView => (idleStopped(result) ? { ...tile, lines: [{ text: context.t('test.tiles.partial') }, ...tile.lines] } : tile)
+  const idle = shown ? idleInput(run, result) : null
+  const idleFailed = shown && idle === null && run.error?.phase === 'idle' && run.idle !== null
   return {
-    main: [
-      direction('download'),
-      direction('upload'),
-      idleLive === null ? stopped(idleTile(result?.idle, resolution, context)) : idleLiveTile(idleLive, context),
-      stopped(jitterTile(result?.idle, resolution, context)),
-    ],
+    main: [direction('download'), direction('upload'), idleFailed && run.idle !== null ? idleErrorTile(run.idle, context) : idleTile(idle, context), jitterTile(idle, context)],
     more: [dataUsed(run, context), duration(run, elapsedMs, context)],
     packetLoss: packetLossTile(context),
   }

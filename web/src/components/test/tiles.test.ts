@@ -24,9 +24,9 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { dataTile, directionTile, durationTile, idleTile, jitterTile, packetLossTile, type TileView } from '@/components/test/tiles'
+import { dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, packetLossTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
-import type { DirectionResult, IdleResult } from '@/engine/messages'
+import type { DirectionResult, IdleResult, UploadResult } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 
 const context: Wording = { t: createAppI18n('', ['en']).global.t as unknown as Wording['t'], locale: 'en' }
@@ -37,100 +37,123 @@ function result(overrides: Partial<DirectionResult>): DirectionResult {
   return { status: 'measured', bitsPerSecond: 94_100_000, peakBitsPerSecond: 98_000_000, streams: 4, plateau: 'no-gain', confidence: { level: 'normal', reasons: [] }, bytes: 1, events: [], ...overrides }
 }
 
-const series = { bucketMs: 100, firstCellMs: 0, warmupEndMs: 2000, endMs: 7000, values: [] }
-
 describe('a direction tile', () => {
-  it('is empty before its direction runs', () => {
-    const tile = directionTile({ direction: 'download', units: 'bits' }, context)
-    expect(tile).toMatchObject({ label: 'Download', number: null, lines: [], live: false })
+  it('is empty before its direction runs, and says up next while the one before it runs', () => {
+    expect(directionTile({ direction: 'download', units: 'bits' }, context)).toMatchObject({ label: 'Download', number: null, lines: [], pill: null })
+    expect(text(directionTile({ direction: 'upload', units: 'bits', upNext: true }, context))).toEqual(['up next'])
   })
 
-  it('says warming up, with no number, until warm-up ends, then shows the average and peak so far', () => {
-    expect(directionTile({ direction: 'upload', units: 'bits', live: { steady: null } }, context)).toMatchObject({ label: 'Upload', number: null, live: true, lines: [{ text: 'warming up' }] })
-    const live = directionTile({ direction: 'download', units: 'bits', live: { steady: { avgBitsPerSecond: 9.41e7, peakBitsPerSecond: 9.8e7 } } }, context)
-    expect(live).toMatchObject({ number: '94.1', unit: 'Mbit/s', live: true })
-    expect(text(live)).toEqual(['avg so far 94.1 Mbit/s · peak 98.0 Mbit/s'])
+  it('says warming up in the number’s place until warm-up ends, then shows the average and the peak so far', () => {
+    const warming = directionTile({ direction: 'upload', units: 'bits', live: { steady: null, confirmed: false } }, context)
+    expect(warming).toMatchObject({ label: 'Upload', number: null, word: 'warming up', pill: { text: 'Live', tone: 'info' } })
+    expect(text(warming)).toEqual(['no confirmed request yet'])
+    expect(text(directionTile({ direction: 'upload', units: 'bits', live: { steady: null, confirmed: true } }, context))).toEqual([])
+    const live = directionTile({ direction: 'download', units: 'bits', live: { steady: { avgBitsPerSecond: 9.41e7, peakBitsPerSecond: 9.8e7 }, confirmed: true } }, context)
+    expect(live).toMatchObject({ number: '94.1', unit: 'Mbit/s', pill: { text: 'Live' } })
+    expect(text(live)).toEqual(['peak 98.0'])
   })
 
-  it('shows a measured headline with its peak, streams and plateau', () => {
+  it('shows a measured headline with its peak, streams and plateau on one line, the peak’s unit only when it differs', () => {
     const tile = directionTile({ direction: 'download', units: 'bits', result: result({}) }, context)
-    expect(tile).toMatchObject({ number: '94.1', unit: 'Mbit/s', live: false })
-    expect(text(tile)).toEqual(['peak 98.0 Mbit/s', '4 streams · no further gain'])
+    expect(tile).toMatchObject({ number: '94.1', unit: 'Mbit/s', pill: null })
+    expect(text(tile)).toEqual(['peak 98.0 · 4 streams · plateau: no-gain'])
+    expect(text(directionTile({ direction: 'download', units: 'bits', result: result({ bitsPerSecond: 990_000, peakBitsPerSecond: 1_020_000, plateau: 'cap' }) }, context))).toEqual(['peak 1.02 Mbit/s · 4 streams · plateau: cap'])
   })
 
-  it('names low confidence with its reasons, and a CPU-bound direction', () => {
+  it('names low confidence with its pill and reasons, and a CPU-bound direction', () => {
     const low = directionTile({ direction: 'download', units: 'bits', result: result({ confidence: { level: 'low', reasons: ['ramp-unsettled', 'unstable'] } }) }, context)
+    expect(low.pill).toEqual({ text: 'Low confidence', tone: 'warn' })
     expect(low.lines).toContainEqual({ text: 'low confidence · ramp unsettled and unstable', tone: 'warn' })
     const cpu = directionTile({ direction: 'download', units: 'bits', result: result({ confidence: { level: 'cpu-bound', reasons: ['unstable'] } }) }, context)
     expect(cpu.lines).toContainEqual({ text: "limited by this device's CPU", tone: 'warn' })
     expect(text(cpu).some((line) => line.startsWith('low confidence'))).toBe(false)
   })
 
-  it('shows a partial number with partial, and none when its window was too short', () => {
-    const partial = directionTile({ direction: 'upload', units: 'bits', result: result({ status: 'partial', plateau: 'cap', streams: 1 }) }, context)
-    expect(partial.number).toBe('94.1')
-    expect(text(partial)).toEqual(['partial — stopped early', 'peak 98.0 Mbit/s', '1 stream · stream cap'])
-    const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, ...short } = result({ status: 'partial', series })
-    expect(directionTile({ direction: 'upload', units: 'bits', result: short }, context)).toMatchObject({ number: null, lines: [{ text: 'partial — stopped early' }, { text: 'insufficient data' }] })
+  it('says what the number of a stopped direction covers: its steady window, and on upload its requests', () => {
+    const upload = directionTile({ direction: 'upload', units: 'bits', result: { ...result({ status: 'partial', windowMs: 3600 }), confirmedRequests: 21 } as UploadResult }, context)
+    expect(upload).toMatchObject({ number: '94.1', pill: { text: 'Partial — stopped early', tone: 'warn' } })
+    expect(text(upload)).toEqual(['based on a 3.6 s steady window · 21 requests'])
+    expect(text(directionTile({ direction: 'download', units: 'bits', result: result({ status: 'partial', windowMs: 3500 }) }, context))).toEqual(['based on a 3.5 s steady window'])
   })
 
-  it('says what the number of a stopped direction covers: the first seconds of its phase (measurement.md section 7.8)', () => {
-    const upload = directionTile({ direction: 'upload', units: 'bits', result: result({ status: 'partial', series }) }, context)
-    expect(text(upload).slice(0, 2)).toEqual(['partial — stopped early', 'upload based on the first 7.0 s'])
-    const download = directionTile({ direction: 'download', units: 'bits', result: result({ status: 'partial', series: { ...series, endMs: 4200 } }) }, context)
-    expect(text(download)[1]).toBe('download based on the first 4.2 s')
-    // A measured direction says nothing of the kind.
-    expect(text(directionTile({ direction: 'upload', units: 'bits', result: result({ series }) }, context)).some((line) => line.includes('first'))).toBe(false)
+  it('shows no number and the reason with the bytes used for insufficient data, stopped or at its maximum', () => {
+    const none = (overrides: Partial<DirectionResult>): DirectionResult => {
+      const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, windowMs: _window, ...rest } = result({ bytes: 142_000_000, ...overrides })
+      return overrides.windowMs === undefined ? rest : { ...rest, windowMs: overrides.windowMs }
+    }
+    const reason = (direction: 'download' | 'upload', value: DirectionResult, maxMs?: number) => directionTile({ direction, units: 'bits', result: value, ...(maxMs === undefined ? {} : { maxMs }) }, context)
+    expect(reason('upload', none({ status: 'partial' }))).toMatchObject({ number: null, pill: { text: 'Insufficient data', tone: 'warn' } })
+    expect(text(reason('upload', none({ status: 'partial' })))).toEqual(['Insufficient data — confirmed steady window shorter than 3 s (stopped in warm-up)', '142 MB used'])
+    expect(text(reason('upload', none({ status: 'partial', windowMs: 2000 })))[0]).toBe('Insufficient data — confirmed steady window shorter than 3 s')
+    expect(text(reason('download', none({ status: 'partial' })))[0]).toBe('Insufficient data — stopped during warm-up')
+    expect(text(reason('download', none({ status: 'partial', windowMs: 2000 })))[0]).toBe('Insufficient data — steady window shorter than 3 s')
+    expect(text(reason('download', none({ status: 'insufficient-data' }), 20_000))[0]).toBe('Insufficient data — no steady window within the 20.0 s max')
+    expect(text(reason('download', none({ status: 'insufficient-data' })))[0]).toBe('Insufficient data — no steady window')
   })
 
-  it('names what ended a direction with an error', () => {
-    const tile = directionTile({ direction: 'upload', units: 'bits', result: result({ status: 'error', events: [{ code: 'error', atMs: 6400, notice: 'network-changed' }] }) }, context)
-    expect(tile).toMatchObject({ number: null, lines: [{ text: 'error · network changed', tone: 'danger' }] })
+  it('names what ended a direction with an error, with its pill', () => {
+    const tile = directionTile({ direction: 'upload', units: 'bits', result: result({ status: 'error', events: [{ code: 'error', atMs: 6400, notice: 'requests-failed' }] }) }, context)
+    expect(tile).toMatchObject({ number: null, pill: { text: 'Error', tone: 'danger' }, lines: [{ text: 'error · 3 requests in a row failed', tone: 'danger' }] })
   })
 
-  it.each([
-    ['insufficient-data', 'insufficient data', undefined],
-    ['skipped', 'skipped', undefined],
-    ['error', 'error', 'danger'],
-  ] as const)('shows no number for %s, even with a value', (status, line, tone) => {
-    const tile = directionTile({ direction: 'download', units: 'bits', result: result({ status }) }, context)
-    expect(tile.number).toBeNull()
-    expect(tile.lines).toEqual([tone === undefined ? { text: line } : { text: line, tone }])
+  it('says how far an upload ended by a failed request over HTTP/1.1 counts', () => {
+    const tile = directionTile({ direction: 'upload', units: 'bits', result: result({ events: [{ code: 'error', atMs: 8200, notice: 'upload-interrupted' }] }) }, context)
+    expect(text(tile)).toEqual(['window up to the failed request at 8.2 s'])
+  })
+
+  it('shows no number when skipped, even with a value', () => {
+    const tile = directionTile({ direction: 'download', units: 'bits', result: result({ status: 'skipped' }) }, context)
+    expect(tile).toMatchObject({ number: null, lines: [{ text: 'skipped' }], pill: null })
   })
 
   it('names the overhead compensation next to the number it changed, and reads bytes', () => {
     const tile = directionTile({ direction: 'download', units: 'bytes', result: result({ plateau: 'floor-limited' }), overheadPercent: 2.5 }, context)
     expect(tile).toMatchObject({ number: '11.8', unit: 'MB/s' })
-    expect(text(tile)).toEqual(['peak 12.3 MB/s', '4 streams · floor-limited', 'includes +2.5 % overhead compensation'])
+    expect(text(tile)).toEqual(['peak 12.3 · 4 streams · plateau: floor-limited', 'includes +2.5 % overhead compensation'])
   })
 })
 
 describe('the latency tiles', () => {
   const idle: IdleResult = { path: 'websocket', lossPercent: 0, minMs: 2.4, medianMs: 3.1, p90Ms: 4.1, jitterMs: 0.8, samples: [] }
+  const input = (overrides: Partial<IdleInput> = {}): IdleInput => ({ idle, resolutionMs: 0.1, protocol: 'h2', live: false, ...overrides })
 
-  it('shows the median with min, p90, the path and the probe timeouts', () => {
-    const tile = idleTile(idle, 0.1, context)
-    expect(tile).toMatchObject({ label: 'Idle latency', number: '3.1', unit: 'ms' })
-    expect(text(tile)).toEqual(['min 2.4 ms · p90 4.1 ms', 'WebSocket · 0.0 % probe timeouts'])
-    expect(text(idleTile({ ...idle, path: 'http', lossPercent: 5 }, 0.1, context))[1]).toBe('HTTP · 5.0 % probe timeouts')
+  it('shows the median with min, p90, the path and the probe timeouts on one line', () => {
+    const tile = idleTile(input(), context)
+    expect(tile).toMatchObject({ label: 'Idle latency', number: '3.1', unit: 'ms', pill: null })
+    expect(text(tile)).toEqual(['min 2.4 · p90 4.1 ms · WebSocket · 0.0 % probe timeouts'])
+    expect(text(idleTile(input({ idle: { ...idle, path: 'http', lossPercent: 5 } }), context))).toEqual(['min 2.4 · p90 4.1 ms · HTTP/2 probe · 5.0 % probe timeouts'])
+    expect(text(idleTile(input({ idle: { ...idle, path: 'http' }, protocol: null }), context))[0]).toContain('HTTP probe')
+  })
+
+  it('is live while idle latency runs, both tiles, and partial after a stop that kept it', () => {
+    expect(idleTile(input({ live: true }), context).pill).toEqual({ text: 'Live', tone: 'info' })
+    expect(jitterTile(input({ live: true }), context).pill).toEqual({ text: 'Live', tone: 'info' })
+    const stopped = idleTile(input({ stopped: { samples: 11, pings: 12 } }), context)
+    expect(stopped.pill).toEqual({ text: 'Partial — stopped early', tone: 'warn' })
+    expect(text(stopped)).toEqual(['median of 11 pings · first of 12 discarded · WebSocket'])
+    expect(jitterTile(input({ stopped: { samples: 11, pings: 12 } }), context).pill?.text).toBe('Partial — stopped early')
+  })
+
+  it('says how far it came when an error ended it', () => {
+    expect(idleErrorTile({ pings: 12, count: 20 }, context)).toMatchObject({ number: null, pill: { text: 'Error' }, lines: [{ text: 'error · 12 of 20 pings before the error', tone: 'danger' }] })
   })
 
   it('reads below the timer resolution as less than it', () => {
-    const tile = idleTile({ ...idle, minMs: 0.4, medianMs: 0.6, p90Ms: 1.2 }, 1, context)
+    const tile = idleTile(input({ idle: { ...idle, minMs: 0.4, medianMs: 0.6, p90Ms: 1.2 }, resolutionMs: 1 }), context)
     expect(tile.number).toBe(`<${NB}1`)
-    expect(text(tile)[0]).toBe('min < 1 ms · p90 1 ms')
+    expect(text(tile)[0]).toBe('min < 1 · p90 1 ms · WebSocket · 0.0 % probe timeouts')
   })
 
   it('is unavailable without a median, and empty before idle latency', () => {
     const { minMs: _min, medianMs: _median, p90Ms: _p90, jitterMs: _jitter, ...lost } = idle
-    expect(idleTile({ ...lost, lossPercent: 100 }, 0.1, context)).toMatchObject({ number: null })
-    expect(text(idleTile({ ...lost, lossPercent: 100 }, 0.1, context))).toEqual(['unavailable', 'WebSocket · 100.0 % probe timeouts'])
-    expect(idleTile(null, 0.1, context).number).toBeNull()
-    expect(jitterTile({ ...lost, lossPercent: 100 }, 0.1, context).number).toBeNull()
+    expect(idleTile(input({ idle: { ...lost, lossPercent: 100 } }), context)).toMatchObject({ number: null })
+    expect(text(idleTile(input({ idle: { ...lost, lossPercent: 100 } }), context))).toEqual(['unavailable', 'WebSocket · 100.0 % probe timeouts'])
+    expect(idleTile(null, context).number).toBeNull()
+    expect(jitterTile(input({ idle: { ...lost, lossPercent: 100 } }), context).number).toBeNull()
   })
 
   it('shows jitter as the mean of consecutive differences', () => {
-    expect(jitterTile(idle, 0.1, context)).toMatchObject({ label: 'Jitter', number: '0.8', unit: 'ms', lines: [{ text: 'mean of consecutive differences' }] })
+    expect(jitterTile(input(), context)).toMatchObject({ label: 'Jitter', number: '0.8', unit: 'ms', lines: [{ text: 'mean of consecutive differences' }] })
   })
 })
 

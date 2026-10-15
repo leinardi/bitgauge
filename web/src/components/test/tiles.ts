@@ -20,17 +20,25 @@
 import { Activity, ArrowDown, ArrowUp, Database, Signal, Timer } from '@lucide/vue'
 import type { Component } from 'vue'
 
-import type { ConfidenceReason, Direction, DirectionResult, IdleResult, Plateau, SteadySoFar } from '@/engine/messages'
+import type { ConfidenceReason, Direction, DirectionResult, IdleResult, SteadySoFar } from '@/engine/messages'
 import type { Wording } from '@/components/test/wording'
-import { bytesParts, formatDuration, formatLatency, formatPercent, formatRate, latencyNumber, rateParts, secondsNumber } from '@/lib/format'
+import { bytesParts, formatBytes, formatDuration, formatPercent, latencyNumber, rateParts, secondsNumber } from '@/lib/format'
+import { protocolLabel } from '@/lib/protocol'
 
 // The metric tiles' contents (ui/screens.md section 6, design_system/components/tiles.md), worded
-// from what the engine sent: a live direction's steady numbers so far, or the result's fields. The
-// error, partial-without-a-window and insufficient-data states never show a number.
+// from what the engine sent: a live tile's numbers so far, or a finished phase's part of the
+// result. Every state but done carries a pill; the error, insufficient-data, skipped and
+// warming-up states never show a number.
 
 export interface TileLine {
   text: string
   tone?: 'warn' | 'danger'
+}
+
+/** The state pill of tiles.md: Live, Partial, Insufficient data, Low confidence or Error. */
+export interface TilePill {
+  text: string
+  tone: 'info' | 'warn' | 'danger'
 }
 
 export interface TileView {
@@ -41,14 +49,18 @@ export interface TileView {
   /** The number, or null for "—". */
   number: string | null
   unit: string
+  /** Words in the number's place, as "warming up". */
+  word: string | null
   lines: TileLine[]
-  /** A live tile is tagged as such. */
-  live: boolean
+  pill: TilePill | null
 }
 
 const SERIES = { download: 'var(--series-download)', upload: 'var(--series-upload)', latency: 'var(--series-latency)', neutral: 'var(--fg-subtle)' }
 
-/** A direction's confidence reasons as a list in words: ramp unsettled and unstable. */
+function blank(label: string, icon: Component, colour: string): TileView {
+  return { label, icon, colour, number: null, unit: '', word: null, lines: [], pill: null }
+}
+
 export function confidenceReasons(list: readonly ConfidenceReason[], { t, locale }: Wording): string {
   const words = list.map((reason) =>
     reason === 'ramp-unsettled' ? t('test.tiles.reasons.rampUnsettled') : reason === 'insufficient-samples' ? t('test.tiles.reasons.insufficientSamples') : t('test.tiles.reasons.unstable'),
@@ -56,8 +68,12 @@ export function confidenceReasons(list: readonly ConfidenceReason[], { t, locale
   return new Intl.ListFormat(locale, { type: 'conjunction' }).format(words)
 }
 
-function plateau(kind: Plateau, streams: string, { t }: Wording): string {
-  return kind === 'no-gain' ? t('test.tiles.plateau.noGain', { streams }) : kind === 'cap' ? t('test.tiles.plateau.cap', { streams }) : t('test.tiles.plateau.floorLimited', { streams })
+const pills = {
+  live: (t: Wording['t']): TilePill => ({ text: t('test.tiles.live'), tone: 'info' }),
+  partial: (t: Wording['t']): TilePill => ({ text: t('test.tiles.pillPartial'), tone: 'warn' }),
+  insufficient: (t: Wording['t']): TilePill => ({ text: t('test.tiles.pillInsufficient'), tone: 'warn' }),
+  low: (t: Wording['t']): TilePill => ({ text: t('test.tiles.pillLowConfidence'), tone: 'warn' }),
+  error: (t: Wording['t']): TilePill => ({ text: t('test.tiles.pillError'), tone: 'danger' }),
 }
 
 /** What ended a direction with an error, from its error event (tiles.md: "error · connection lost"). */
@@ -79,132 +95,164 @@ function errorCause(result: DirectionResult, t: Wording['t']): string {
   }
 }
 
-/** What a direction tile is given: the run's live numbers while it runs, then the result's. */
+/** What a direction tile is given: the run's live numbers while it runs, then its part of the result. */
 export interface DirectionInput {
   direction: Direction
   units: 'bits' | 'bytes'
-  /** While the direction runs: its steady numbers so far, null while warming up. */
-  live?: { steady: SteadySoFar | null } | null
+  /** While the direction runs: its steady numbers so far, null while warming up, and whether a request has confirmed. */
+  live?: { steady: SteadySoFar | null; confirmed: boolean } | null
   result?: DirectionResult | null
   overheadPercent?: number
+  /** The direction runs next, after the one running now. */
+  upNext?: boolean
+  /** The direction's maximum duration, which an insufficient-data reason names. */
+  maxMs?: number
+}
+
+/** A peak in the headline's unit is shown without repeating it: "peak 641". */
+function peakText(peak: number, unit: string, input: DirectionInput, locale: string): string {
+  const parts = rateParts(peak, input.units, locale)
+  return parts.unit === unit ? parts.number : `${parts.number} ${parts.unit}`
+}
+
+/** Why a direction has no number: stopped before or during its window, or its maximum reached without one. */
+function insufficientReason(result: DirectionResult, input: DirectionInput, { t, locale }: Wording): string {
+  if (result.status === 'partial') {
+    const warm = result.windowMs !== undefined
+    if (input.direction === 'download') {
+      return warm ? t('test.tiles.insufficientWindow') : t('test.tiles.insufficientWarmup')
+    }
+    return warm ? t('test.tiles.insufficientConfirmed') : t('test.tiles.insufficientConfirmedWarmup')
+  }
+  return input.maxMs === undefined ? t('test.tiles.insufficient') : t('test.tiles.insufficientMax', { max: formatDuration(input.maxMs, locale) })
 }
 
 export function directionTile(input: DirectionInput, context: Wording): TileView {
   const { t, locale } = context
-  const tile: TileView = {
-    label: input.direction === 'download' ? t('test.tiles.download') : t('test.tiles.upload'),
-    icon: input.direction === 'download' ? ArrowDown : ArrowUp,
-    colour: SERIES[input.direction],
-    number: null,
-    unit: '',
-    lines: [],
-    live: false,
-  }
-  const rate = (bps: number) => formatRate(bps, input.units, locale)
+  const tile = blank(input.direction === 'download' ? t('test.tiles.download') : t('test.tiles.upload'), input.direction === 'download' ? ArrowDown : ArrowUp, SERIES[input.direction])
   const result = input.result ?? null
   if (result === null) {
-    if (input.live === undefined || input.live === null) {
-      return tile
+    const live = input.live ?? null
+    if (live === null) {
+      return input.upNext === true ? { ...tile, lines: [{ text: t('test.tiles.upNext') }] } : tile
     }
-    const steady = input.live.steady
-    if (steady === null) {
-      return { ...tile, live: true, lines: [{ text: t('test.tiles.warmingUp') }] }
+    if (live.steady === null) {
+      const lines = input.direction === 'upload' && !live.confirmed ? [{ text: t('test.tiles.noConfirmed') }] : []
+      return { ...tile, pill: pills.live(t), word: t('test.tiles.warmingUp'), lines }
     }
-    const { number, unit } = rateParts(steady.avgBitsPerSecond, input.units, locale)
-    return { ...tile, live: true, number, unit, lines: [{ text: t('test.tiles.soFar', { avg: rate(steady.avgBitsPerSecond), peak: rate(steady.peakBitsPerSecond) }) }] }
+    const { number, unit } = rateParts(live.steady.avgBitsPerSecond, input.units, locale)
+    return { ...tile, pill: pills.live(t), number, unit, lines: [{ text: t('test.tiles.peak', { peak: peakText(live.steady.peakBitsPerSecond, unit, input, locale) }) }] }
   }
   switch (result.status) {
-    case 'insufficient-data':
-      return { ...tile, lines: [{ text: t('test.tiles.insufficient') }] }
     case 'skipped':
       return { ...tile, lines: [{ text: t('test.tiles.skipped') }] }
     case 'error':
-      return { ...tile, lines: [{ text: errorCause(result, t), tone: 'danger' }] }
-    case 'partial':
-    case 'measured':
+      return { ...tile, pill: pills.error(t), lines: [{ text: errorCause(result, t), tone: 'danger' }] }
+    default:
       break
   }
-  const lines: TileLine[] = []
-  if (result.status === 'partial') {
-    lines.push({ text: t('test.tiles.partial') })
-  }
   if (result.bitsPerSecond === undefined) {
-    return { ...tile, lines: [...lines, { text: t('test.tiles.insufficient') }] }
+    const used = { text: t('test.tiles.used', { bytes: formatBytes(result.bytes, locale) }) }
+    return { ...tile, pill: pills.insufficient(t), lines: [{ text: insufficientReason(result, input, context), tone: 'warn' }, used] }
   }
-  // What a stopped direction's number covers: its window ends at the stop, or on upload at the
-  // confirmed watermark, counted from the phase start (measurement.md section 7.8).
-  const end = result.status === 'partial' ? result.series?.endMs : undefined
-  if (end !== undefined) {
-    const covered = formatDuration(end, locale)
-    lines.push({ text: input.direction === 'download' ? t('test.tiles.basedOnDownload', { covered }) : t('test.tiles.basedOnUpload', { covered }) })
+  const { number, unit } = rateParts(result.bitsPerSecond, input.units, locale)
+  const overhead: TileLine[] = (input.overheadPercent ?? 0) > 0 ? [{ text: t('test.tiles.overhead', { percent: formatPercent(input.overheadPercent ?? 0, locale) }) }] : []
+  if (result.status === 'partial') {
+    // What a stopped direction's number covers: its steady window, and on upload the confirmed requests.
+    const window = formatDuration(result.windowMs ?? 0, locale)
+    const requests = 'confirmedRequests' in result && typeof result.confirmedRequests === 'number' ? result.confirmedRequests : null
+    const covered = requests === null ? t('test.tiles.basedOn', { window }) : t('test.tiles.basedOnRequests', { window, n: requests })
+    return { ...tile, pill: pills.partial(t), number, unit, lines: [{ text: covered }, ...overhead] }
   }
-  if (result.peakBitsPerSecond !== undefined) {
-    lines.push({ text: t('test.tiles.peak', { peak: rate(result.peakBitsPerSecond) }) })
+  const failed = result.events.find((event) => event.code === 'error' && event.notice === 'upload-interrupted')
+  const parts: string[] = []
+  if (failed?.code === 'error') {
+    parts.push(t('test.tiles.failedAt', { at: formatDuration(failed.atMs, locale) }))
+  } else {
+    if (result.peakBitsPerSecond !== undefined) parts.push(t('test.tiles.peak', { peak: peakText(result.peakBitsPerSecond, unit, input, locale) }))
+    parts.push(t('test.tiles.streams', { n: result.streams }, result.streams))
+    if (result.plateau !== undefined) parts.push(t('test.tiles.plateau', { reason: result.plateau }))
   }
+  const lines: TileLine[] = [{ text: parts.join(' · ') }]
+  let pill: TilePill | null = null
   if (result.confidence?.level === 'cpu-bound') {
     lines.push({ text: t('test.tiles.cpuBound'), tone: 'warn' })
   } else if (result.confidence?.level === 'low') {
+    pill = pills.low(t)
     lines.push({ text: t('test.tiles.lowConfidence', { reasons: confidenceReasons(result.confidence.reasons, context) }), tone: 'warn' })
   }
-  const streams = t('test.tiles.streams', { n: result.streams }, result.streams)
-  lines.push({ text: result.plateau === undefined ? streams : plateau(result.plateau, streams, context) })
-  if ((input.overheadPercent ?? 0) > 0) {
-    lines.push({ text: t('test.tiles.overhead', { percent: formatPercent(input.overheadPercent ?? 0, locale) }) })
+  return { ...tile, pill, number, unit, lines: [...lines, ...overhead] }
+}
+
+/** Idle latency as far as it went: live while it runs, then its part of the result. */
+export interface IdleInput {
+  idle: Pick<IdleResult, 'path' | 'medianMs' | 'minMs' | 'p90Ms' | 'jitterMs'> & { lossPercent?: number }
+  resolutionMs: number
+  /** The negotiated protocol token, which names the HTTP probe on the fallback path. */
+  protocol: string | null
+  live: boolean
+  /** Stopped during idle latency (measurement.md section 10): the samples kept, of the pings sent. */
+  stopped?: { samples: number; pings: number } | null
+}
+
+function pathText(input: IdleInput, t: Wording['t']): string {
+  if (input.idle.path === 'websocket') {
+    return t('test.tiles.pathWebsocket')
   }
-  const { number, unit } = rateParts(result.bitsPerSecond, input.units, locale)
-  return { ...tile, number, unit, lines }
+  const protocol = protocolLabel(input.protocol)
+  return protocol === null ? t('test.tiles.pathHttp') : t('test.tiles.pathProbe', { protocol })
 }
 
 /** Idle latency: the median, with min and p90, the path and the probe timeouts. */
-export function idleTile(idle: IdleResult | null | undefined, resolutionMs: number, context: Wording): TileView {
+export function idleTile(input: IdleInput | null, context: Wording): TileView {
   const { t, locale } = context
-  const tile: TileView = { label: t('test.tiles.idle'), icon: Activity, colour: SERIES.latency, number: null, unit: '', lines: [], live: false }
-  if (idle === null || idle === undefined) {
+  const tile = blank(t('test.tiles.idle'), Activity, SERIES.latency)
+  if (input === null) {
     return tile
   }
-  const loss = formatPercent(idle.lossPercent, locale)
-  const path = idle.path === 'websocket' ? t('test.tiles.pathWebsocket', { loss }) : t('test.tiles.pathHttp', { loss })
+  const { idle, resolutionMs } = input
+  const ms = (value: number | undefined) => (value === undefined ? t('test.tiles.empty') : latencyNumber(value, locale, resolutionMs))
+  const loss = idle.lossPercent === undefined ? null : formatPercent(idle.lossPercent, locale)
+  const path = pathText(input, t)
   if (idle.medianMs === undefined) {
-    return { ...tile, lines: [{ text: t('test.tiles.unavailable') }, { text: path }] }
+    return input.live ? { ...tile, pill: pills.live(t) } : { ...tile, lines: [{ text: t('test.tiles.unavailable') }, { text: t('test.tiles.pathLoss', { path, loss: loss ?? t('test.tiles.empty') }) }] }
   }
-  const ms = (value: number | undefined) => (value === undefined ? t('test.tiles.empty') : formatLatency(value, locale, resolutionMs))
-  return {
-    ...tile,
-    number: latencyNumber(idle.medianMs, locale, resolutionMs),
-    unit: 'ms',
-    lines: [{ text: t('test.tiles.idleStats', { min: ms(idle.minMs), p90: ms(idle.p90Ms) }) }, { text: path }],
-  }
+  const pill = input.live ? pills.live(t) : input.stopped ? pills.partial(t) : null
+  const line = input.stopped
+    ? t('test.tiles.idlePartial', { k: input.stopped.samples, n: input.stopped.pings, path })
+    : t('test.tiles.idleLine', { min: ms(idle.minMs), p90: ms(idle.p90Ms), path, loss: loss ?? t('test.tiles.empty') })
+  return { ...tile, pill, number: latencyNumber(idle.medianMs, locale, resolutionMs), unit: 'ms', lines: [{ text: line }] }
 }
 
-/** Idle latency while it runs: the running median and the ping counter. */
-export function idleLiveTile(progress: { pings: number; count: number; medianMs?: number }, context: Wording): TileView {
-  const { t, locale } = context
-  const counter = { text: t('test.tiles.pings', { n: progress.pings, count: progress.count }) }
-  const tile: TileView = { label: t('test.tiles.idle'), icon: Activity, colour: SERIES.latency, number: null, unit: '', lines: [counter], live: true }
-  return progress.medianMs === undefined ? tile : { ...tile, number: latencyNumber(progress.medianMs, locale), unit: 'ms' }
+/** Idle latency that ended with an error: how far it came. */
+export function idleErrorTile(progress: { pings: number; count: number }, context: Wording): TileView {
+  const { t } = context
+  const tile = blank(t('test.tiles.idle'), Activity, SERIES.latency)
+  return { ...tile, pill: pills.error(t), lines: [{ text: t('test.tiles.idleError', { n: progress.pings, count: progress.count }), tone: 'danger' }] }
 }
 
 /** Jitter: the mean of consecutive differences of the idle samples. */
-export function jitterTile(idle: IdleResult | null | undefined, resolutionMs: number, context: Wording): TileView {
+export function jitterTile(input: IdleInput | null, context: Wording): TileView {
   const { t, locale } = context
-  const tile: TileView = { label: t('test.tiles.jitter'), icon: Activity, colour: SERIES.latency, number: null, unit: '', lines: [], live: false }
-  if (idle?.jitterMs === undefined) {
+  const tile = blank(t('test.tiles.jitter'), Activity, SERIES.latency)
+  if (input?.idle.jitterMs === undefined) {
     return tile
   }
-  return { ...tile, number: latencyNumber(idle.jitterMs, locale, resolutionMs), unit: 'ms', lines: [{ text: t('test.tiles.jitterNote') }] }
+  const pill = input.live ? pills.live(t) : input.stopped ? pills.partial(t) : null
+  return { ...tile, pill, number: latencyNumber(input.idle.jitterMs, locale, input.resolutionMs), unit: 'ms', lines: [{ text: t('test.tiles.jitterNote') }] }
 }
 
 export function dataTile(bytes: number | null, context: Wording): TileView {
-  const tile: TileView = { label: context.t('test.tiles.data'), icon: Database, colour: SERIES.neutral, number: null, unit: '', lines: [], live: false }
+  const tile = blank(context.t('test.tiles.data'), Database, SERIES.neutral)
   return bytes === null ? tile : { ...tile, ...bytesParts(bytes, context.locale) }
 }
 
 export function durationTile(ms: number | null, context: Wording): TileView {
-  const tile: TileView = { label: context.t('test.tiles.duration'), icon: Timer, colour: SERIES.neutral, number: null, unit: '', lines: [], live: false }
+  const tile = blank(context.t('test.tiles.duration'), Timer, SERIES.neutral)
   return ms === null ? tile : { ...tile, number: secondsNumber(ms, context.locale), unit: 's' }
 }
 
 /** The packet-loss slot: never a number, since a browser cannot see packet loss over TCP. */
 export function packetLossTile(context: Wording): TileView {
-  return { label: context.t('test.tiles.packetLoss'), icon: Signal, colour: SERIES.neutral, number: null, unit: '', lines: [{ text: context.t('test.tiles.notMeasured') }], live: false }
+  return { ...blank(context.t('test.tiles.packetLoss'), Signal, SERIES.neutral), lines: [{ text: context.t('test.tiles.notMeasured') }] }
 }

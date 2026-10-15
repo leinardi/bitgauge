@@ -29,7 +29,7 @@ import { effectScope, nextTick, ref } from 'vue'
 import { getInfo } from '@/api/info'
 import { useInfo } from '@/composables/useInfo'
 import { useRun } from '@/composables/useRun'
-import type { EngineEvent, MeasuringPhase, Notice, PhaseName, PhaseState, Preset, Result } from '@/engine/messages'
+import type { DirectionResult, EngineEvent, MeasuringPhase, Notice, PhaseName, PhaseState, Preset, Result } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
 import { infoFixture } from '@/test/fixtures'
 
@@ -80,9 +80,11 @@ class StubWorker extends EventTarget {
 const INFO = infoFixture({ server: { basePath: '/speed' } })
 const SETTINGS = settingsFromDefaults(INFO.defaults)
 
-function phase(name: PhaseName, state: PhaseState, extra: { protocol?: string; streams?: number; headlineBitsPerSecond?: number; notices?: Notice[] } = {}): EngineEvent {
+function phase(name: PhaseName, state: PhaseState, extra: { protocol?: string; streams?: number; result?: DirectionResult; notices?: Notice[] } = {}): EngineEvent {
   return { type: 'phase', phase: name, state, notices: [], ...extra }
 }
+
+const MEASURED: DirectionResult = { status: 'measured', bitsPerSecond: 9.41e7, streams: 4, bytes: 1, events: [] }
 
 function result(status: Result['status'], notices: Notice[] = []): Result {
   return { status, notices, dataUsedBytes: 4_000_000 } as Result
@@ -215,21 +217,21 @@ describe('useRun', () => {
     const { run, worker, scope } = started()
     run.start()
     expect(run.idle.value).toBeNull()
-    worker.emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', pings: 1, count: 20 }, { type: 'idle', pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
-    expect(run.idle.value).toEqual({ pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
+    worker.emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', path: 'websocket', pings: 1, count: 20 }, { type: 'idle', path: 'websocket', pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
+    expect(run.idle.value).toEqual({ path: 'websocket', pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
     worker.emit(phase('idle', 'finished'), phase('download', 'skipped'), phase('upload', 'skipped'), { type: 'result', result: result('complete') })
     run.start()
     expect(run.idle.value).toBeNull()
     scope.stop()
   })
 
-  it('applies phase events: state, protocol, streams, headline, the current phase and the notices so far', () => {
+  it('applies phase events: state, protocol, streams, the direction result, the current phase and the notices so far', () => {
     const { run, worker, scope } = started()
     run.start()
     const notice: Notice = { code: 'websocket-unavailable' }
-    worker.emit(phase('info', 'started'), phase('info', 'finished', { protocol: 'h2', notices: [notice] }), phase('download', 'started'), phase('download', 'finished', { streams: 4, headlineBitsPerSecond: 9.41e7 }))
+    worker.emit(phase('info', 'started'), phase('info', 'finished', { protocol: 'h2', notices: [notice] }), phase('download', 'started'), phase('download', 'finished', { streams: 4, result: MEASURED }))
     expect(run.phases.value.info).toEqual({ state: 'finished', protocol: 'h2' })
-    expect(run.phases.value.download).toEqual({ state: 'finished', streams: 4, headlineBitsPerSecond: 9.41e7 })
+    expect(run.phases.value.download).toEqual({ state: 'finished', streams: 4, result: MEASURED })
     expect(run.phases.value.upload).toEqual({ state: 'pending' })
     expect(run.phase.value).toBe('download')
     expect(run.protocol.value).toBe('h2')

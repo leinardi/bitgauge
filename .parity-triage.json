@@ -1684,7 +1684,7 @@
         "layer": "content",
         "path": "^main$",
         "kind": "^(changed|missing|extra)$",
-        "detail": "^text \"(…\\.168\\.1\\.42|Client IP) "
+        "detail": "^text \"(…\\.168\\.1\\.42|Client IP|…[^\"]*(Protocol HTTP|reams [#—] auto))"
       },
       "type": "conflict",
       "aspect": "content",
@@ -1740,12 +1740,14 @@
       "status": "in-progress",
       "owned": {
         "test/cancelled": {
+          "acdadac68b6a": "*",
           "e0c6eb3f2713": "*"
         },
         "test/cancelled-download": {
           "f7d85e723bf7": "*"
         },
         "test/cancelled-late": {
+          "2ddd588fa90e": "*",
           "e0c6eb3f2713": "*"
         },
         "test/cancelled-latency": {
@@ -1764,6 +1766,7 @@
           "eaf9a414005f": "*"
         },
         "test/complete": {
+          "2ddd588fa90e": "*",
           "e0c6eb3f2713": "*"
         },
         "test/connecting": {
@@ -1781,7 +1784,8 @@
           "f7d85e723bf7": "*"
         },
         "test/error-early": {
-          "04cf7ebb4c09": "*"
+          "04cf7ebb4c09": "*",
+          "acee8b683acd": "*"
         },
         "test/idle": {
           "c47dc29fbff8": "*",
@@ -1791,7 +1795,8 @@
           "04cf7ebb4c09": "*"
         },
         "test/latency": {
-          "04cf7ebb4c09": "*"
+          "04cf7ebb4c09": "*",
+          "acee8b683acd": "*"
         },
         "test/param-ignored": {
           "c47dc29fbff8": "*",
@@ -1809,7 +1814,8 @@
           "04cf7ebb4c09": "*"
         },
         "test/upload-interrupted": {
-          "21216e737e9c": "*"
+          "21216e737e9c": "*",
+          "5cfaa651762a": "*"
         },
         "test/ws-fallback": {
           "04cf7ebb4c09": "*"
@@ -2322,32 +2328,37 @@
         "kind": "verdict",
         "winner": "new",
         "text": "Kit for the finished tiles mid-run (through a phase finished message that carries the tile result), the pills, qualifiers and explanations (flows.md §4's wording, which settles measurement.md §7.8), and the number format (peak without a repeated unit, plateau: cap, HTTP/2 probe), except probe loss, which keeps the spec's one decimal.",
-        "rationale": "The export's tiles contract and flows.md agree on the states and wording; screens.md already asks for no number on insufficient data; the one-decimal probe loss is the spec's.",
+        "rationale": "The export's tiles contract and flows.md agree on the states and wording; screens.md already asks for no number on insufficient data; the one-decimal probe loss is the spec's. Decided 2026-10-15: the slowdone upload's low confidence (few samples) is an upstream note; the window's request count is masked by harness-tile-values.",
         "on": "2026-10-15"
       },
       "actions": [
         {
           "target": "spec",
           "what": "architecture.md §4: the phase finished message carries the phase's tile result (idle stats, jitter, peak, streams, plateau, status); measurement.md §7.8 takes flows.md §4's partial wording (based on a <s> steady window, <n> requests).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "Engine and MetricTile.vue: each finished tile shows its result as soon as its phase ends; Error, Partial and Insufficient-data pills; up next, warming up / no confirmed request yet, error · <n> requests in a row failed; error-early keeps the failed idle latency with download and upload skipped.",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "test.json formats: peak <n> without a repeated unit, plateau: cap / no-gain, min <n> · p90 <n> ms, HTTP/2 probe on the fallback; probe loss stays one decimal.",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's probe timeouts take one decimal (0.0 %), as screens.md §6 sets.",
-          "done": false
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's slowdone upload tile shows the Low confidence pill and few samples, as the demo's slow link and measurement.md §19.1 give.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/cancelled": {
           "042cb2c171de": "*"
@@ -2368,6 +2379,7 @@
           "617e734397a6": "*"
         },
         "test/complete": {
+          "3d03456f768c": "*",
           "e669be3d640f": "*"
         },
         "test/download": {
@@ -2381,7 +2393,8 @@
           "63e73f07af0a": "*"
         },
         "test/insufficient": {
-          "92e5837d8026": "*"
+          "92e5837d8026": "*",
+          "f17bea772725": "*"
         },
         "test/latency": {
           "f385e9c78da9": "*"
@@ -2390,6 +2403,7 @@
           "0142468a259a": "*"
         },
         "test/slowdone": {
+          "93d1d4a01fa0": "*",
           "e4d9c29a9635": "*"
         },
         "test/upload": {
@@ -3081,6 +3095,153 @@
         "run": {
           "runId": "52b67fb4-3893-4aae-b996-1fa98a11af3d",
           "finishedAt": "2026-10-14T21:34:57.138Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
+    },
+    {
+      "id": "harness-tile-values",
+      "title": "Result tiles: the peak, minimum and window request count the tiles word without a unit differ from run to run",
+      "match": {
+        "scenarios": [
+          "test/download",
+          "test/upload",
+          "test/slow",
+          "test/latency",
+          "test/error",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/ws-fallback"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Results\"$",
+        "kind": "^changed$",
+        "detail": "^text "
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md#6-result-metrics-units-and-precision",
+          "says": "silent on parity; the tiles show measured peak and minimum values"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "peak 641 · 6 streams; min 2.4 · p90 4.1 ms"
+        },
+        "vue": {
+          "ref": "web/src/components/test/tiles.ts",
+          "says": "peak <n> without a repeated unit; min <n> · p90 <n> ms, from the demo's simulated link"
+        },
+        "notes": "The harness masks a number only before a unit, so the unitless peak and minimum compare the demo's live values with the kit's samples."
+      },
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "The tiles' unitless peak and minimum, and a stopped upload window's request count, are measured values like the gauge note's: parity masks them and compares the words around them.",
+        "on": "2026-10-15"
+      },
+      "owned": {
+        "test/cancelled-download": {
+          "2c889d236f60": "*"
+        },
+        "test/cancelled-slow": {
+          "15743734cc8a": "*"
+        },
+        "test/download": {
+          "cef79ebda7db": [
+            "dark-desktop"
+          ],
+          "d05a36e3f4e7": [
+            "dark-narrow"
+          ],
+          "fa889397ec56": [
+            "light-desktop",
+            "light-narrow"
+          ]
+        },
+        "test/error": {
+          "2c889d236f60": [
+            "dark-desktop",
+            "light-desktop",
+            "light-narrow"
+          ],
+          "99c04b3b8f74": [
+            "dark-narrow"
+          ]
+        },
+        "test/latency": {
+          "94dfef9dc21d": "*"
+        },
+        "test/slow": {
+          "7fe322c7e3c9": "*"
+        },
+        "test/upload": {
+          "7c9e9669afa5": "*"
+        },
+        "test/ws-fallback": {
+          "03e3b7d4ba11": [
+            "light-desktop"
+          ],
+          "059c54899131": [
+            "dark-narrow"
+          ],
+          "37d4e08e7560": [
+            "dark-desktop"
+          ],
+          "4b07735e7435": [
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "harness",
+          "what": "web/parity/normalize.ts: mask the number after peak and min in a tile line, like the gauge note, and the request count of a stopped upload's steady window; unit test; note it in demo-parity.md.",
+          "done": true
+        }
+      ],
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-15",
+        "run": {
+          "runId": "947bef39-0ab9-4495-938e-8f3bb5fe06ce",
+          "finishedAt": "2026-10-15T21:13:25.897Z",
           "matrix": "full",
           "projects": [
             "light-desktop",

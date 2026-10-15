@@ -26,6 +26,7 @@ import type { Plateau } from '@/engine/messages'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { type LabelChoice, useContextLabel } from '@/composables/useContextLabel'
+import { protocolLabel } from '@/lib/protocol'
 
 // The connection info of the Test screen (ui/screens.md section 1, design_system kit TestScreen.jsx):
 // the context label with the server's suggestion, the client IP with its version, the negotiated
@@ -68,8 +69,6 @@ const chipName = computed(() =>
   isSuggested.value ? t('test.connection.contextFieldSuggested', { label: chipText.value }) : t('test.connection.contextField', { label: chipText.value }),
 )
 
-// The protocol as screens.md section 6 labels it, from the request's nextHopProtocol token.
-const PROTOCOLS: Partial<Record<string, string>> = { 'http/1.1': 'HTTP/1.1', h2: 'HTTP/2', h3: 'HTTP/3' }
 
 const facts = computed(() => {
   const info = props.info
@@ -89,7 +88,7 @@ const facts = computed(() => {
   if (props.plateau !== null) {
     streamsNote = t('test.connection.streamsPlateau', { mode: streamsNote, reason: props.plateau })
   }
-  const protocol = props.protocol === null || props.protocol === 'unknown' ? null : (PROTOCOLS[props.protocol] ?? props.protocol)
+  const protocol = protocolLabel(props.protocol)
   return [
     {
       key: 'ip',

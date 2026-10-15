@@ -47,7 +47,7 @@ function phaseStarted(phase: PhaseName, { t }: Wording): string {
 }
 
 function directionFinished(direction: Direction, view: PhaseView, units: Units, { t, locale }: Wording): string {
-  const headline = view.headlineBitsPerSecond
+  const headline = view.result?.bitsPerSecond
   if (headline === undefined) {
     return direction === 'download' ? t('a11y.live.noHeadline.download') : t('a11y.live.noHeadline.upload')
   }

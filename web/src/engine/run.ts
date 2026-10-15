@@ -19,7 +19,7 @@
 
 import { type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
 import { IdleLatency, type IdleOutcome } from '@/engine/latency/idle'
-import type { Direction, EngineEvent, MeasuringPhase, Notice, PhaseName, PhaseState } from '@/engine/messages'
+import type { Direction, DirectionResult, EngineEvent, IdleResult, MeasuringPhase, Notice, PhaseName, PhaseState } from '@/engine/messages'
 import { buildResult } from '@/engine/result'
 import { downloadResult, uploadResult } from '@/engine/result/direction'
 import { Connection } from '@/engine/run/connection'
@@ -168,10 +168,10 @@ export class Run {
       } else if (phase === 'idle') {
         report.idle = await this.idlePhase()
       } else if (phase === 'download') {
-        report.download = this.settle('download', await this.throughput(new DownloadPhase(this.phaseOptions('download', start))), discardedDownload, (outcome) => downloadResult(outcome, this.downloadStartAt ?? 0, directions).bitsPerSecond)
+        report.download = this.settle('download', await this.throughput(new DownloadPhase(this.phaseOptions('download', start))), discardedDownload, (outcome) => downloadResult(outcome, this.downloadStartAt ?? 0, directions))
       } else {
         const options = { ...this.phaseOptions('upload', start), epoch: start.info.server.epoch }
-        report.upload = this.settle('upload', await this.throughput(new UploadPhase(options)), discardedUpload, (outcome) => uploadResult(outcome, directions).bitsPerSecond)
+        report.upload = this.settle('upload', await this.throughput(new UploadPhase(options)), discardedUpload, (outcome) => uploadResult(outcome, directions))
       }
     }
     if (!this.kept) {
@@ -251,7 +251,7 @@ export class Run {
       }
       this.idleMedian = outcome.result.medianMs ?? null
       this.kept = true
-      this.event('idle', 'finished')
+      this.event('idle', 'finished', { idle: outcome.result })
       return outcome
     }
   }
@@ -292,7 +292,7 @@ export class Run {
   }
 
   /** The direction's outcome under the run's interruption, and the errors it raises itself. */
-  private settle<T extends DownloadOutcome | UploadOutcome>(direction: Direction, outcome: T, discard: (outcome: T, code: RunErrorCode) => T, headline: (outcome: T) => number | undefined): T {
+  private settle<T extends DownloadOutcome | UploadOutcome>(direction: Direction, outcome: T, discard: (outcome: T, code: RunErrorCode) => T, tile: (outcome: T) => DirectionResult): T {
     const interrupt = this.interrupt
     // A network change or a restart leaves the current phase with an error and nothing measured.
     const settled = interrupt?.kind === 'error' ? discard(outcome, interrupt.code) : outcome
@@ -300,7 +300,7 @@ export class Run {
       this.fail(settled.notices.some((notice) => notice.code === 'server-restarted') ? 'server-restarted' : 'requests-failed')
     }
     this.kept ||= settled.status !== 'error'
-    this.event(direction, settled.status === 'error' ? 'failed' : 'finished', { streams: settled.streams, headline: settled.status === 'error' ? undefined : headline(settled), bytes: settled.bytes })
+    this.event(direction, settled.status === 'error' ? 'failed' : 'finished', { streams: settled.streams, result: tile(settled) })
     return settled
   }
 
@@ -378,7 +378,7 @@ export class Run {
     return (this.options.settings.ignoredParameters ?? []).map((parameter) => ({ code: 'url-parameter-ignored', parameter }))
   }
 
-  private event(phase: PhaseName, state: PhaseState, { streams, headline, bytes }: { streams?: number; headline?: number | undefined; bytes?: number } = {}): void {
+  private event(phase: PhaseName, state: PhaseState, { streams, result, idle }: { streams?: number; result?: DirectionResult; idle?: IdleResult } = {}): void {
     const notices: Notice[] = [...this.urlNotices(), ...(this.connection?.notices ?? [])]
     this.options.emit({
       type: 'phase',
@@ -387,8 +387,8 @@ export class Run {
       notices,
       ...(this.protocol === null ? {} : { protocol: this.protocol }),
       ...(streams === undefined ? {} : { streams }),
-      ...(headline === undefined ? {} : { headlineBitsPerSecond: headline }),
-      ...(bytes === undefined ? {} : { bytes }),
+      ...(result === undefined ? {} : { result }),
+      ...(idle === undefined ? {} : { idle }),
       ...(state === 'failed' ? { ranMs: this.clock.now() - this.enteredAt } : {}),
     })
   }

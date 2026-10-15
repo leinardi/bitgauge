@@ -118,12 +118,17 @@ export function idleStatistics(
   }
 }
 
-/** Idle latency so far: the pings answered or lost, of `count`, the last RTT and the running median. */
+/** Idle latency so far: its path, the pings answered or lost, of `count`, the last RTT, and the running statistics and probe-timeout share. */
 export interface IdleProgress {
+  path: IdleResult['path']
   pings: number
   count: number
   rttMs?: number
   medianMs?: number
+  minMs?: number
+  p90Ms?: number
+  jitterMs?: number
+  lossPercent?: number
 }
 
 /** One idle-latency run. A page that becomes visible again starts a new one. */
@@ -218,8 +223,9 @@ export class IdleLatency {
         rttMs = result.rttMs
       }
     }
-    const median = this.medianMs
-    this.progress?.({ pings: seq + 1, count: this.count, ...(rttMs === undefined ? {} : { rttMs }), ...(median === null ? {} : { medianMs: median }) })
+    const counted = this.samples.length + this.lost
+    const stats = this.samples.length === 0 ? {} : idleStatistics(this.samples)
+    this.progress?.({ path: this.pinger.path, pings: seq + 1, count: this.count, ...(rttMs === undefined ? {} : { rttMs }), ...stats, ...(counted === 0 ? {} : { lossPercent: (this.lost / counted) * 100 }) })
     this.next()
   }
 

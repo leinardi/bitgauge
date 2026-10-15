@@ -17,13 +17,21 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import type { TileView } from '@/components/test/tiles'
+import type { TilePill, TileView } from '@/components/test/tiles'
 
-// One metric tile (design_system/components/tiles.md): an eyebrow with its icon, the number with
-// its unit apart, and the qualifier lines; "—" when there is no number. The number fades in when
-// it first arrives, not on each update, unless motion is reduced.
+// One metric tile (design_system/components/tiles.md): an eyebrow with its icon and the state pill,
+// the number with its unit apart, or words in its place, and the qualifier lines; "—" when there
+// is no number. The number fades in when it first arrives, not on each update, unless motion is
+// reduced.
 
 defineProps<{ tile: TileView }>()
+
+// The pill's tone (design_system/components/status StatusPill): surface, border, text and dot.
+const TONES: Record<TilePill['tone'], { pill: string; dot: string }> = {
+  info: { pill: 'border-(--info-border) bg-(--info-bg) text-(--info-fg)', dot: 'bg-(--info)' },
+  warn: { pill: 'border-(--warn-border) bg-(--warn-bg) text-(--warn-fg)', dot: 'bg-(--warn)' },
+  danger: { pill: 'border-(--danger-border) bg-(--danger-bg) text-(--danger-fg)', dot: 'bg-(--danger)' },
+}
 </script>
 
 <template>
@@ -40,9 +48,15 @@ defineProps<{ tile: TileView }>()
       />
       <span class="font-(family-name:--font-cond) text-(length:--text-caption) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ tile.label }}</span>
       <span
-        v-if="tile.live"
-        class="ml-auto rounded-full border border-(--info-border) bg-(--info-bg) px-1.5 text-(length:--text-micro) text-(--info-fg)"
-      >{{ $t('test.tiles.live') }}</span>
+        v-if="tile.pill"
+        class="ml-auto inline-flex h-(--pill-h-sm) items-center gap-1 rounded-full border pr-2 pl-1.5 font-(family-name:--font-cond) text-(length:--text-nano) leading-none font-semibold tracking-(--tracking-caps-tight) whitespace-nowrap uppercase"
+        :class="TONES[tile.pill.tone].pill"
+        data-testid="tile-pill"
+      ><span
+        aria-hidden="true"
+        class="size-(--dot-size) flex-none rounded-full"
+        :class="TONES[tile.pill.tone].dot"
+      />{{ tile.pill.text }}</span>
     </div>
     <div class="flex items-baseline gap-1">
       <Transition
@@ -51,6 +65,13 @@ defineProps<{ tile: TileView }>()
         enter-from-class="opacity-0"
       >
         <span
+          v-if="tile.word"
+          key="word"
+          class="font-mono text-(length:--text-sm) font-medium text-subtle-foreground"
+          data-testid="tile-word"
+        >{{ tile.word }}</span>
+        <span
+          v-else
           :key="tile.number === null ? 'empty' : 'value'"
           class="font-mono text-(length:--type-metric-value-compact) font-medium tabular-nums sm:text-(length:--type-metric-value)"
           :class="tile.number === null ? 'text-subtle-foreground' : 'text-foreground'"

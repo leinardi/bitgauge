@@ -21,8 +21,10 @@ import { type ShallowRef, shallowRef } from 'vue'
 
 import type {
   Direction,
+  DirectionResult,
   EngineErrorCode,
   EngineEvent,
+  IdleResult,
   MeasuringPhase,
   Notice,
   PhaseName,
@@ -45,10 +47,10 @@ export interface PhaseView {
   state: PhaseState | 'pending'
   protocol?: string
   streams?: number
-  /** A finished direction's headline, as its phase event carried it. */
-  headlineBitsPerSecond?: number
-  /** A finished or failed direction's bytes, as its phase event carried them. */
-  bytes?: number
+  /** A finished or failed direction's part of the result, as its phase event carried it. */
+  result?: DirectionResult
+  /** A finished idle latency's part of the result, as its phase event carried it. */
+  idle?: IdleResult
   /** A failed phase: how long it ran, as its phase event carried it. */
   ranMs?: number
 }
@@ -178,11 +180,11 @@ export function createRunState() {
     if (event.streams !== undefined) {
       view.streams = event.streams
     }
-    if (event.headlineBitsPerSecond !== undefined) {
-      view.headlineBitsPerSecond = event.headlineBitsPerSecond
+    if (event.result !== undefined) {
+      view.result = event.result
     }
-    if (event.bytes !== undefined) {
-      view.bytes = event.bytes
+    if (event.idle !== undefined) {
+      view.idle = event.idle
     }
     if (event.ranMs !== undefined) {
       view.ranMs = event.ranMs

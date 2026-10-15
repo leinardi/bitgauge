@@ -248,10 +248,10 @@ export type EngineEvent =
       state: PhaseState
       protocol?: string
       streams?: number
-      /** A finished download or upload: its headline, the result's `bitsPerSecond`, when it has one. */
-      headlineBitsPerSecond?: number
-      /** A finished or failed download or upload: its bytes, the result's `bytes` for it. */
-      bytes?: number
+      /** A finished or failed download or upload: the direction object its result will report. */
+      result?: DirectionResult
+      /** A finished idle latency: the idle object its result will report. */
+      idle?: IdleResult
       /** A failed phase: how long it ran, in ms from its start on the engine's clock (display only). */
       ranMs?: number
       notices: Notice[]
@@ -290,8 +290,8 @@ export type EngineEvent =
    * starts, that run's, its override applied.
    */
   | { type: 'settings'; scope: 'configured' | 'run'; settings: TestSettings }
-  /** Idle latency so far, after each ping: the ping counter, the last RTT and the running median. */
-  | { type: 'idle'; pings: number; count: number; rttMs?: number; medianMs?: number }
+  /** Idle latency so far, after each ping: its path, the ping counter, the last RTT, the running statistics and the probe-timeout share. */
+  | { type: 'idle'; path: IdleResult['path']; pings: number; count: number; rttMs?: number; medianMs?: number; minMs?: number; p90Ms?: number; jitterMs?: number; lossPercent?: number }
   | { type: 'result'; result: Result }
   | {
       type: 'error'

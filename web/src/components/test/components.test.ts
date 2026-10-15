@@ -160,12 +160,13 @@ describe('a metric tile', () => {
     expect(wrapper.get('[data-testid="tile-number"]').text()).toBe('94.1')
     expect(wrapper.get('[data-testid="tile-unit"]').text()).toBe('Mbit/s')
     const lines = wrapper.findAll('[data-testid="tile-line"]')
-    expect(lines.map((line) => line.text())).toEqual(['low confidence · unstable', '2 streams'])
-    expect(lines[0]?.classes()).toContain('text-(--warn-fg)')
+    expect(lines.map((line) => line.text())).toEqual(['2 streams', 'low confidence · unstable'])
+    expect(lines[1]?.classes()).toContain('text-(--warn-fg)')
+    expect(wrapper.get('[data-testid="tile-pill"]').text()).toBe('Low confidence')
   })
 
   it('fades a number in when it arrives, then updates it in place', async () => {
-    const live = (avg: number) => directionTile({ direction: 'download', units: 'bits', live: { steady: { avgBitsPerSecond: avg, peakBitsPerSecond: avg } } }, context)
+    const live = (avg: number) => directionTile({ direction: 'download', units: 'bits', live: { steady: { avgBitsPerSecond: avg, peakBitsPerSecond: avg }, confirmed: true } }, context)
     const wrapper = mountWith(MetricTile, { tile: live(9e7) })
     const first = wrapper.get('[data-testid="tile-number"]').element
     await wrapper.setProps({ tile: live(9.5e7) })
@@ -174,10 +175,14 @@ describe('a metric tile', () => {
     expect(updated.element).toBe(first)
   })
 
-  it('shows a dash and no unit without a number', () => {
-    const wrapper = mountWith(MetricTile, { tile: directionTile({ direction: 'upload', units: 'bits', live: { steady: null } }, context) })
-    expect(wrapper.get('[data-testid="tile-number"]').text()).toBe('—')
+  it('shows words in the number’s place while warming up, with the Live pill, and a dash without a number', () => {
+    const wrapper = mountWith(MetricTile, { tile: directionTile({ direction: 'upload', units: 'bits', live: { steady: null, confirmed: false } }, context) })
+    expect(wrapper.find('[data-testid="tile-number"]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="tile-word"]').text()).toBe('warming up')
+    expect(wrapper.get('[data-testid="tile-pill"]').text()).toBe('Live')
     expect(wrapper.find('[data-testid="tile-unit"]').exists()).toBe(false)
+    const empty = mountWith(MetricTile, { tile: directionTile({ direction: 'upload', units: 'bits' }, context) })
+    expect(empty.get('[data-testid="tile-number"]').text()).toBe('—')
     expect(wrapper.text()).toContain('Live')
     expect(wrapper.text()).toContain('warming up')
   })

@@ -211,7 +211,7 @@ describe('the Test screen', () => {
   it('runs idle latency in milliseconds with the ping counter and the live median', async () => {
     const { page, emit } = await started()
     await emit(phase('info', 'started'), phase('info', 'finished', { protocol: 'HTTP/2' }), phase('idle', 'started'))
-    await emit({ type: 'idle', pings: 1, count: 20 }, { type: 'idle', pings: 3, count: 20, rttMs: 3.2, medianMs: 3.1 })
+    await emit({ type: 'idle', path: 'websocket', pings: 1, count: 20 }, { type: 'idle', path: 'websocket', pings: 3, count: 20, rttMs: 3.2, medianMs: 3.1, minMs: 2.4, p90Ms: 4.1, jitterMs: 0.8, lossPercent: 0 })
     expect(page.get('[data-testid="gauge-number"]').text()).toBe('3.2')
     expect(page.get('[data-testid="gauge-label"]').text()).toBe('Latency')
     expect(page.get('[data-testid="gauge-note"]').text()).toBe('median 3.1 · ping 3 of 20')
@@ -219,7 +219,8 @@ describe('the Test screen', () => {
     const idle = tiles(page)[2]
     expect(idle).toContain('Idle latency')
     expect(idle).toContain('3.1')
-    expect(idle).toContain('ping 3 of 20')
+    expect(idle).toContain('Live')
+    expect(idle).toContain('min 2.4 · p90 4.1 ms · WebSocket')
     expect(page.get('[data-testid="phase-indicator"] li[aria-current="step"]').text()).toContain('Idle latency')
     page.unmount()
   })
@@ -297,9 +298,9 @@ describe('the Test screen', () => {
     }
     await emit(phase('upload', 'finished'), { type: 'result', result })
     const upload = tiles(page)[1] ?? ''
-    expect(upload).toContain('partial — stopped early')
-    expect(upload).toContain('upload based on the first 7.0 s')
-    expect(tiles(page)[0]).toContain('insufficient data')
+    expect(upload).toContain('Partial — stopped early')
+    expect(upload).toContain(`based on a 6.1 s steady window · ${present(base.upload).confirmedRequests} requests`)
+    expect(tiles(page)[0]).toContain('Insufficient data')
     expect(page.get('[data-testid="result-bar"]').text()).toContain('Partial results are not saved')
     expect(page.get('[data-testid="result-bar"]').text()).toContain('Download the JSON to keep them.')
     expect(text(page.get('[data-testid="notice"]'))).toContain('Upload is based on a 3.0 s steady window.')
@@ -310,7 +311,7 @@ describe('the Test screen', () => {
 
   it('returns to Idle when a stop leaves nothing measured', async () => {
     const { page, emit } = await started()
-    await emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', pings: 2, count: 20, rttMs: 3, medianMs: 3 })
+    await emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', path: 'websocket', pings: 2, count: 20, rttMs: 3, medianMs: 3 })
     await page.get('[data-testid="start-button"]').trigger('click')
     await emit(phase('download', 'skipped'), phase('upload', 'skipped'))
     expect(page.get('[data-testid="start-button"]').text()).toContain('Start test')
@@ -329,7 +330,7 @@ describe('the Test screen', () => {
     expect(failure.attributes('role')).toBe('alert')
     expect(failure.text()).toContain('Test failed during download')
     expect(failure.text()).toContain('Three requests in a row failed.')
-    expect(tiles(page)[0]).toContain('error · requests failed')
+    expect(tiles(page)[0]).toContain('error · 3 requests in a row failed')
     expect(tiles(page)[2]).toContain('3.1')
     expect(page.get('[data-testid="result-bar"]').text()).toContain('Partial results are not saved')
     expect(page.findAll('button').filter((button) => button.text() === 'Download JSON')).toHaveLength(1)

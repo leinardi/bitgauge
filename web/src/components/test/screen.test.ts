@@ -91,7 +91,7 @@ describe('phaseSteps', () => {
   })
 
   it('counts idle latency by its pings, and a direction by its time against the duration', () => {
-    const idle = phaseSteps(run({ phases: phases({ info: 'finished', idle: 'started' }), idle: { pings: 5, count: 20 } }), SETTINGS, 'en')
+    const idle = phaseSteps(run({ phases: phases({ info: 'finished', idle: 'started' }), idle: { path: 'websocket', pings: 5, count: 20 } }), SETTINGS, 'en')
     expect(idle[0]).toEqual({ phase: 'idle', state: 'active', progress: 0.25, pings: { n: 5, count: 20 } })
     const download = phaseSteps(run({ phases: phases({ idle: 'finished', download: 'started' }), live: { download: live({ phaseMs: 4000 }), upload: null } }), SETTINGS, 'en')
     expect(download[1]).toEqual({ phase: 'download', state: 'active', progress: 0.2, leftMs: 6000 })
@@ -105,7 +105,7 @@ describe('phaseSteps', () => {
 
   it('gives a direction finished mid-run its headline, or insufficient data, and a failed phase how long it ran', () => {
     const view = phases({ idle: 'finished', download: 'finished', upload: 'started' })
-    view.download = { state: 'finished', headlineBitsPerSecond: 612e6 }
+    view.download = { state: 'finished', result: { status: 'measured', bitsPerSecond: 612e6, streams: 6, bytes: 1, events: [] } }
     const mid = phaseSteps(run({ phases: view }), SETTINGS, 'en')
     expect(mid[1]?.value?.replaceAll(NB, ' ')).toBe('612 Mbit/s')
     view.download = { state: 'finished' }
@@ -156,7 +156,7 @@ describe('a stop during idle latency that kept its samples', () => {
     const view = run({
       status: 'ended',
       phases: phases({ info: 'finished', idle: 'finished', download: 'skipped', upload: 'skipped' }),
-      idle: { pings: 12, count: 20, medianMs: 3.1 },
+      idle: { path: 'websocket', pings: 12, count: 20, medianMs: 3.1 },
       result: rest,
     })
     expect(phaseSteps(view, SETTINGS, 'en')).toEqual([
@@ -166,7 +166,8 @@ describe('a stop during idle latency that kept its samples', () => {
     ])
     expect(gaugeInput(view, { ...context, units: 'bits', server: 'Basement NAS' })).toMatchObject({ mode: 'ms', value: rest.idle?.medianMs, text: { title: 'Cancelled' } })
     const { main } = screenTiles(view, SETTINGS, context)
-    expect(main.map((tile) => tile.lines[0]?.text)).toEqual(['skipped', 'skipped', 'partial — stopped early', 'partial — stopped early'])
+    expect(main.map((tile) => tile.lines[0]?.text)).toEqual(['skipped', 'skipped', `median of ${rest.idle?.samples.length} pings · first of 12 discarded · WebSocket`, 'mean of consecutive differences'])
+    expect(main.map((tile) => tile.pill?.text ?? null)).toEqual([null, null, 'Partial — stopped early', 'Partial — stopped early'])
   })
 })
 
@@ -174,8 +175,8 @@ describe('gaugeInput', () => {
   const gaugeContext = { ...context, units: 'bits', server: 'Basement NAS' } as const
 
   it('reads milliseconds during idle latency, the download rate with its peak, and the upload sending', () => {
-    expect(gaugeInput(run({ phase: 'idle', idle: { pings: 3, count: 20, rttMs: 3.2, medianMs: 3.1 } }), gaugeContext)).toMatchObject({ mode: 'ms', value: 3.2, label: 'Latency', note: 'median 3.1 · ping 3 of 20', text: null })
-    expect(gaugeInput(run({ phase: 'idle', idle: { pings: 1, count: 20, rttMs: 3.2 } }), gaugeContext).note).toBe('ping 1 of 20')
+    expect(gaugeInput(run({ phase: 'idle', idle: { path: 'websocket', pings: 3, count: 20, rttMs: 3.2, medianMs: 3.1 } }), gaugeContext)).toMatchObject({ mode: 'ms', value: 3.2, label: 'Latency', note: 'median 3.1 · ping 3 of 20', text: null })
+    expect(gaugeInput(run({ phase: 'idle', idle: { path: 'websocket', pings: 1, count: 20, rttMs: 3.2 } }), gaugeContext).note).toBe('ping 1 of 20')
     const download = live({ values: [1, 2, 3], gauge: 9e7, steady: { avgBitsPerSecond: 8e7, peakBitsPerSecond: 9.5e7 } })
     expect(gaugeInput(run({ phase: 'download', live: { download, upload: null } }), gaugeContext)).toEqual({
       mode: 'rate',
@@ -216,7 +217,7 @@ describe('gaugeInput', () => {
     const download = live({ gauge: 5.75e8 })
     const lost = run({ status: 'ended', live: { download, upload: null }, error: { code: 'requests-failed', phase: 'download', partial: false } })
     expect(gaugeInput(lost, gaugeContext).text).toEqual({ title: 'Connection lost', message: 'Error during download', touchMessage: null, detail: `last sample 575${NB}Mbit/s`, icon: 'error' })
-    const early = run({ status: 'ended', idle: { pings: 12, count: 20 }, error: { code: 'network-changed', phase: 'idle', partial: false } })
+    const early = run({ status: 'ended', idle: { path: 'websocket', pings: 12, count: 20 }, error: { code: 'network-changed', phase: 'idle', partial: false } })
     expect(gaugeInput(early, gaugeContext).text).toMatchObject({ message: 'Error during latency', detail: '12 of 20 pings' })
     const internal = run({ status: 'ended', error: { code: 'internal', phase: null, partial: false } })
     expect(gaugeInput(internal, gaugeContext).text).toMatchObject({ title: 'Connection lost', message: null, detail: null })
@@ -224,17 +225,28 @@ describe('gaugeInput', () => {
 })
 
 describe('screenTiles', () => {
-  it('shows the live numbers while running: warming up, the ping counter and the running median, data used', () => {
-    const view = run({ phase: 'download', idle: { pings: 20, count: 20, medianMs: 3.1 }, live: { download: live({ steady: null }), upload: null }, dataUsedBytes: 1_500_000 })
+  it('shows the live numbers while running, a finished phase’s result at once, and the direction up next', () => {
+    const view = run({
+      phase: 'download',
+      phases: { ...phases({ info: 'finished', download: 'started' }), idle: { state: 'finished', idle: { path: 'websocket', lossPercent: 0, minMs: 2.4, medianMs: 3.1, p90Ms: 4.1, jitterMs: 0.8, samples: [] } } },
+      idle: { path: 'websocket', pings: 20, count: 20, medianMs: 3.1 },
+      live: { download: live({ steady: null }), upload: null },
+      dataUsedBytes: 1_500_000,
+    })
     const { main, more } = screenTiles(view, SETTINGS, context)
-    expect(main.map((tile) => [tile.label, tile.number, tile.live])).toEqual([
-      ['Download', null, true],
-      ['Upload', null, false],
-      ['Idle latency', '3.1', true],
-      ['Jitter', null, false],
+    expect(main.map((tile) => [tile.label, tile.number ?? tile.word, tile.pill?.text ?? null, tile.lines[0]?.text ?? null])).toEqual([
+      ['Download', 'warming up', 'Live', null],
+      ['Upload', null, null, 'up next'],
+      ['Idle latency', '3.1', null, 'min 2.4 · p90 4.1 ms · WebSocket · 0.0\u00a0% probe timeouts'],
+      ['Jitter', '0.8', null, 'mean of consecutive differences'],
     ])
-    expect(main[2]?.lines[0]?.text).toBe('ping 20 of 20')
     expect(more.map((tile) => tile.number)).toEqual(['1.5', null])
+    // While idle latency runs, both latency tiles are live with the statistics so far.
+    const latency = screenTiles(run({ phase: 'idle', idle: { path: 'websocket', pings: 14, count: 20, medianMs: 3.1, minMs: 2.4, p90Ms: 4.1, jitterMs: 0.8, lossPercent: 0 } }), SETTINGS, context)
+    expect(latency.main.slice(2).map((tile) => [tile.number, tile.pill?.text])).toEqual([
+      ['3.1', 'Live'],
+      ['0.8', 'Live'],
+    ])
   })
 
   it('shows the result after a run, and nothing between runs', () => {
@@ -242,8 +254,8 @@ describe('screenTiles', () => {
     expect(done.main.map((tile) => tile.number)).toEqual(['612', '438', '3.1', '0.4'])
     expect(done.more.map((tile) => tile.number)).toEqual(['1.3', '28.6'])
     expect(done.packetLoss.lines[0]?.text).toBe('Not measured')
-    const idle = screenTiles(run({ status: 'idle', result: resultFixture(), idle: { pings: 2, count: 20 }, dataUsedBytes: 5 }), SETTINGS, context)
-    expect([...idle.main, ...idle.more].every((tile) => tile.number === null && !tile.live)).toBe(true)
+    const idle = screenTiles(run({ status: 'idle', result: resultFixture(), idle: { path: 'websocket', pings: 2, count: 20 }, dataUsedBytes: 5 }), SETTINGS, context)
+    expect([...idle.main, ...idle.more].every((tile) => tile.number === null && tile.pill === null)).toBe(true)
   })
 
   it('qualifies data used and the duration on the Test card: so far, elapsed, not saved', () => {
@@ -258,7 +270,7 @@ describe('screenTiles', () => {
       ['4.2', 'elapsed'],
     ])
     const short = phases({ download: 'finished' })
-    short.download = { state: 'finished', bytes: 900_000 }
+    short.download = { state: 'finished', result: { status: 'insufficient-data', streams: 1, bytes: 900_000, events: [] } }
     const upload = screenTiles(run({ phase: 'upload', phases: short, dataUsedBytes: 1_200_000 }), SETTINGS, context, 9000)
     expect(upload.more[0]?.lines[0]?.text).toBe('so far · download 900\u00a0kB')
     const failed = screenTiles(run({ status: 'ended', error: { code: 'server-unreachable', phase: 'upload', partial: true }, dataUsedBytes: 1_200_000 }), SETTINGS, context, 9000)
@@ -269,7 +281,7 @@ describe('screenTiles', () => {
   })
 
   it('shows no live number once a run has ended without a result', () => {
-    const view = run({ status: 'ended', idle: { pings: 4, count: 20, medianMs: 3 }, live: { download: live({ steady: { avgBitsPerSecond: 1e8, peakBitsPerSecond: 1e8 } }), upload: null }, error: { code: 'internal', phase: null, partial: false } })
+    const view = run({ status: 'ended', idle: { path: 'websocket', pings: 4, count: 20, medianMs: 3 }, live: { download: live({ steady: { avgBitsPerSecond: 1e8, peakBitsPerSecond: 1e8 } }), upload: null }, error: { code: 'internal', phase: null, partial: false } })
     expect(screenTiles(view, SETTINGS, context).main.every((tile) => tile.number === null)).toBe(true)
   })
 })
