@@ -1514,10 +1514,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's base-path screen uses edge-cases.md §20's sentence and rows, with no Check row (the page sends no request) and no claim about the environment variable.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/basepath": {
           "133a935e9b62": "*",

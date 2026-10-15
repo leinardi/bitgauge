@@ -138,3 +138,19 @@ the export shows, and what it should show, with the reason; behavior comes from
   ([measurement.md §4](../features/measurement.md#4-adaptive-stream-count)), and an automatic
   stream count is known once the ramp starts, so neither is known before a run;
   [screens.md §1](../features/ui/screens.md#1-test-home--) lists "not reported".
+
+### The Base-Path Error Screen
+
+- **Source:** triage cluster `content-basepath-error`, decided for the spec.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the `FullScreenError` of the base-path state.
+- **Export today:** the eyebrow "Deployment error"; "This page was opened at /speed/, but the
+  server is configured for /"; the rows Page path, Server base path "/ ·
+  BITGAUGE_SERVER__BASE_PATH not set" and Check "GET /api/v1/info → 404"; a hint that offers to
+  strip the `/speed` prefix at the proxy.
+- **Wanted:** the eyebrow "Base path mismatch"; "BitGauge is configured for / but this page was
+  served at /speed/."; the rows Page path and Server base path ("/"), and the base path the API
+  reports only when it differs; a hint that keeps the prefix on forwarded requests.
+- **Why:** [edge-cases.md §20](../features/edge-cases.md#20-base-path-mismatches) gives the
+  sentence and the rows. A page that fails the path checks sends no request, so there is no Check
+  result; the SPA cannot know whether an environment variable is set; and the sub-path
+  instructions say not to strip the prefix, which leaves the page blank.
