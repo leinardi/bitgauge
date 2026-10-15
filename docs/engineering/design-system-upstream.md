@@ -122,3 +122,19 @@ the export shows, and what it should show, with the reason; behavior comes from
 - **Wanted:** "—" with no qualifier until the first download byte, as in the connecting state.
 - **Why:** data used counts the download and upload transfers only
   ([glossary](../features/glossary.md)); the engine cannot see a probe's bytes on the wire.
+
+### The Connection Strip's Protocol and Streams
+
+- **Source:** triage cluster `content-connection-strip`, decided for a new wording.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the `conn` facts of the connection strip.
+- **Export today:** Protocol reads "HTTP/2" in every state: before a run, while connecting and
+  during idle latency, and in the upload-interrupted state, whose own notice says the upload ran
+  over HTTP/1.1. Streams read "6 auto", the cap, before a run, and the cancelled slow run leaves
+  out the plateau reason although its download's ramp stopped at no-gain before the stop.
+- **Wanted:** "— not reported" until a run has made a request, and "HTTP/1.1" in the
+  upload-interrupted state; Streams "— auto" before a run, when the count is automatic, and
+  "2 auto · plateau: no-gain" after the cancelled slow run.
+- **Why:** the protocol is read from a request's `nextHopProtocol`
+  ([measurement.md §4](../features/measurement.md#4-adaptive-stream-count)), and an automatic
+  stream count is known once the ramp starts, so neither is known before a run;
+  [screens.md §1](../features/ui/screens.md#1-test-home--) lists "not reported".

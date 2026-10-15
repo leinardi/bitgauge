@@ -15,8 +15,9 @@ from the design export; this page fixes content and behavior only. Terms follow 
 - **Server name** (`server.display_name`), in the persistent header with the page's host and a
   reachability indicator (dot plus text for screen readers: connected or unreachable).
 - **Connection info:** client IP with IP version; suggested context label (`LAN`, `VPN` or none),
-  editable; negotiated HTTP protocol (`HTTP/1.1`, `HTTP/2`, `HTTP/3`, or "not reported"); stream
-  count, live during a run, with the plateau reason afterwards.
+  editable; negotiated HTTP protocol (`HTTP/1.1`, `HTTP/2`, `HTTP/3`, or "not reported", as it is
+  before a run has made a request); stream count, live during a run ("—" before one when the
+  count is automatic), with the plateau reason afterwards.
 - **Settings summary:** the settings that differ from the server defaults, one chip each (for
   example "Extended", "4 streams", "Cap 500 MB"), or the preset name when nothing differs, with
   an Edit link to Settings.
