@@ -96,7 +96,7 @@ the export shows, and what it should show, with the reason; behaviour comes from
 | `ui_kits/app/TestScreen.jsx` | line height 1.2 | `BasePathError.vue` | a `--lh-*` step |
 | `ui_kits/app/Nav.jsx`, `badges.css` | 1.5 px border of the server-down dot | `AppHeader.vue` | `--border-width-strong` |
 | `ui_kits/app/Nav.jsx` | 28 % inset of the tab bar's active indicator | `TabBar.vue` | `--tab-indicator-inset` |
-| `ui_kits/app/TestScreen.jsx`, `About.jsx` | layout tracks: a 400 px column, a 340 px column, a 220 px flex basis | `TestPage.vue`, `AboutPage.vue`, `ResultBar.vue` | `--layout-*` widths |
-| `ui_kits/app/app.css` | the card's top highlight, `inset 0 1px 0 var(--card-highlight)` | `TestPage.vue` | a `--shadow-*` step that carries it |
+| `ui_kits/app/TestScreen.jsx`, `About.jsx` | layout tracks: a 400 px column, a 340 px column, a 220 px flex basis | `TestPage.vue`, `AboutPage.vue`, `ResultBar.vue`, `NoticeBox.vue` | `--layout-*` widths |
+| `ui_kits/app/app.css` | the card's top highlight, `inset 0 1px 0 var(--card-highlight)` | `TestPage.vue`, `MetaList.vue` | a `--shadow-*` step that carries it |
 | `ui_kits/app/buttons.css` | a tooltip 7 px above its button (`calc(100% + 7px)`) | `DownloadJson.vue` | a `--space-*` step for the offset |
 | `ui_kits/app/kit.css` | the demo panel's 160 px basis and `calc(100vh - 20px)` height | `DemoPanel.vue` (demo builds only, so the least urgent) | `--layout-*` sizes for the panel |

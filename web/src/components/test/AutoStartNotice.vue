@@ -22,6 +22,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import NoticeBox from '@/components/test/NoticeBox.vue'
 
 // The auto-start notice of the countdown (ui/flows.md section 2, kit TestScreen.jsx): the seconds
 // left and why the test is about to start, with Cancel. It is a status message, info in tone.
@@ -36,31 +37,25 @@ const title = computed(() => t('test.countdown.title', { n: new Intl.NumberForma
 </script>
 
 <template>
-  <div
-    role="status"
-    data-tone="info"
-    class="flex flex-wrap items-start gap-3 rounded-(--radius-md) border border-(--info-border) bg-(--info-bg) px-4 py-3"
+  <NoticeBox
+    tone="info"
+    :icon="Timer"
+    :title="title"
+    :body="$t('test.countdown.body')"
     data-testid="auto-start"
   >
-    <Timer
-      :size="16"
-      aria-hidden="true"
-      class="mt-0.5 flex-none text-(--info-fg)"
-    />
-    <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-      <span class="text-(length:--text-sm) font-semibold text-foreground">{{ title }}</span>
-      <span class="text-(length:--text-sm) text-muted-foreground">{{ $t('test.countdown.body') }}</span>
-    </div>
-    <AppButton
-      size="sm"
-      data-testid="auto-start-cancel"
-      @click="$emit('cancel')"
-    >
-      <X
-        :size="14"
-        aria-hidden="true"
-      />
-      {{ $t('test.countdown.cancel') }}
-    </AppButton>
-  </div>
+    <template #actions>
+      <AppButton
+        size="sm"
+        data-testid="auto-start-cancel"
+        @click="$emit('cancel')"
+      >
+        <X
+          :size="14"
+          aria-hidden="true"
+        />
+        {{ $t('test.countdown.cancel') }}
+      </AppButton>
+    </template>
+  </NoticeBox>
 </template>

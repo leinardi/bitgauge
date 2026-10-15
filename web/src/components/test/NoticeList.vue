@@ -21,8 +21,9 @@ import { ExternalLink, RefreshCw, Timer } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { noticeViews, type Tone } from '@/components/test/notices'
 import AppButton from '@/components/actions/AppButton.vue'
+import NoticeBox from '@/components/test/NoticeBox.vue'
+import { noticeViews } from '@/components/test/notices'
 import type { Notice, Preset } from '@/engine/messages'
 
 // The notices area (ui/screens.md section 7): each notice an icon and text, never colour alone,
@@ -32,13 +33,6 @@ const props = defineProps<{ notices: Notice[] }>()
 defineEmits<{ retry: []; preset: [preset: Preset] }>()
 
 const { t, locale } = useI18n()
-
-const TONES: Record<Tone, { box: string; icon: string }> = {
-  info: { box: 'border-(--info-border) bg-(--info-bg)', icon: 'text-(--info-fg)' },
-  warn: { box: 'border-(--warn-border) bg-(--warn-bg)', icon: 'text-(--warn-fg)' },
-  danger: { box: 'border-(--danger-border) bg-(--danger-bg)', icon: 'text-(--danger-fg)' },
-  neutral: { box: 'border-input bg-muted', icon: 'text-subtle-foreground' },
-}
 
 const views = computed(() => noticeViews(props.notices, { t, locale: locale.value }).map((view, index) => ({ key: `${index}`, view })))
 </script>
@@ -53,27 +47,16 @@ const views = computed(() => noticeViews(props.notices, { t, locale: locale.valu
       v-for="{ key, view } in views"
       :key="key"
     >
-      <div
-        :role="view.tone === 'danger' ? 'alert' : 'status'"
-        :data-tone="view.tone"
-        class="flex flex-wrap items-start gap-3 rounded-(--radius-md) border px-4 py-3"
-        :class="TONES[view.tone].box"
+      <NoticeBox
+        :tone="view.tone"
+        :icon="view.icon"
+        :title="view.title"
+        :body="view.body"
         data-testid="notice"
       >
-        <component
-          :is="view.icon"
-          :size="16"
-          aria-hidden="true"
-          class="mt-0.5 flex-none"
-          :class="TONES[view.tone].icon"
-        />
-        <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span class="text-(length:--text-sm) font-semibold text-foreground">{{ view.title }}</span>
-          <span class="text-(length:--text-sm) text-muted-foreground">{{ view.body }}</span>
-        </div>
-        <div
+        <template
           v-if="view.actions.length > 0"
-          class="flex gap-2"
+          #actions
         >
           <template
             v-for="action in view.actions.slice(0, 2)"
@@ -117,8 +100,8 @@ const views = computed(() => noticeViews(props.notices, { t, locale: locale.valu
               />
             </AppButton>
           </template>
-        </div>
-      </div>
+        </template>
+      </NoticeBox>
     </li>
   </ul>
 </template>

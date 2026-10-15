@@ -124,8 +124,6 @@ dark-narrow,light-narrow	test/countdown	content	header > banner	missing	img "Bit
 *	test/countdown	content	main > region "Speed test"	missing	text "Throughput Download Upload"	present when the harness was adopted
 *	test/countdown	content	main > region "Speed test"	missing	text "Throughput over time appears here while the test runs."	present when the harness was adopted
 *	test/countdown	content	main > status	changed	text "… was opened from a link with autostart enabled." → "… was opened from a link that starts a test automatically."	present when the harness was adopted
-*	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	padding-left	14px → 16px	present when the harness was adopted
-*	test/countdown	style	main > status "Auto-start in 3 sThis page was opened from a li…"	padding-right	14px → 16px	present when the harness was adopted
 dark-narrow,light-narrow	test/download	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/download	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/download	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
@@ -219,5 +217,3 @@ dark-narrow,light-narrow	test/ws-fallback	content	header > banner	missing	img "B
 *	test/ws-fallback	content	main > region "Speed test"	changed	text "Download # Mbit/s avg so far 597 · peak 610 log scale · 1 Mbit/s – 1…" → "Download # Mbit/s log scale · 1 Mbit/s – 1…"	present when the harness was adopted
 *	test/ws-fallback	content	main > region "Speed test"	extra	figure "Download Warm-up"	present when the harness was adopted
 *	test/ws-fallback	content	main > region "Speed test"	missing	text "Throughput Download Warm-up # s / # s"	present when the harness was adopted
-*	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	padding-left	14px → 16px	present when the harness was adopted
-*	test/ws-fallback	style	main > status "WebSocket unavailable — HTTP latency fallbackTh…"	padding-right	14px → 16px	present when the harness was adopted

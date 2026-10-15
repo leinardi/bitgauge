@@ -3496,7 +3496,7 @@
         "layer": "style",
         "path": "^main > status \"(Auto-start|WebSocket unavailable)",
         "kind": "^(font-size|padding-left|padding-right|height)$",
-        "detail": "^(?!21px)"
+        "detail": "^(?!21px)(?!97\\.1px → 79\\.7px$)"
       },
       "type": "conflict",
       "aspect": "style",
@@ -3552,11 +3552,53 @@
         {
           "target": "vue",
           "what": "Extract one NoticeBox.vue with the kit's Notice anatomy (padding 12/14, gaps 10/12, body basis 220px, title lh-snug, body caption lh-compact, actions ml-auto) and use it in NoticeList and AutoStartNotice.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-15",
+        "run": {
+          "runId": "1233d838-76d7-445a-ae06-22cda23e7641",
+          "finishedAt": "2026-10-15T06:53:56.280Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "style-theme-control",
