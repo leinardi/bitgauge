@@ -31,7 +31,7 @@ const { items } = useNavigation()
 <template>
   <nav
     :aria-label="$t('app.nav.label')"
-    class="sticky bottom-0 z-(--z-nav) grid h-16 grid-cols-2 border-t border-border bg-(--surface-1) pb-1 min-[1140px]:hidden"
+    class="sticky bottom-0 z-(--z-nav) grid h-16 grid-cols-2 border-t border-border bg-(--surface-1) pb-1 desktop:hidden"
   >
     <RouterLink
       v-for="item in items"
@@ -44,7 +44,7 @@ const { items } = useNavigation()
       <span
         v-if="route.name === item.name"
         aria-hidden="true"
-        class="absolute -top-px right-[28%] left-[28%] h-0.5 rounded-xs bg-primary"
+        class="absolute -top-px inset-x-(--tab-indicator-inset) h-0.5 rounded-xs bg-primary"
       />
       <component
         :is="item.icon"

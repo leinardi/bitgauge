@@ -283,7 +283,7 @@ const caption = computed(() => {
           data-testid="gauge-label"
         >{{ label }}</span>
         <span
-          class="font-mono text-(length:--type-gauge-readout-compact) leading-[1.05] font-medium tracking-(--tracking-readout) tabular-nums sm:text-(length:--type-gauge-readout)"
+          class="font-mono text-(length:--type-gauge-readout-compact) leading-display font-medium tracking-(--tracking-readout) tabular-nums sm:text-(length:--type-gauge-readout)"
           data-testid="gauge-number"
         >{{ readout.number }}</span>
         <span

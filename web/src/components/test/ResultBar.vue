@@ -65,7 +65,7 @@ const body = computed(() => (complete.value ? t('test.bar.completeBody') : t('te
         data-testid="result-bar-time"
       >{{ endedAt }}</span>
     </span>
-    <span class="min-w-0 flex-[1_1_220px] text-(length:--text-caption) text-pretty text-subtle-foreground">{{ body }}</span>
+    <span class="min-w-0 flex-[1_1_var(--layout-text-basis)] text-(length:--text-caption) text-pretty text-subtle-foreground">{{ body }}</span>
     <span class="ml-auto flex">
       <DownloadJson
         :result="result"

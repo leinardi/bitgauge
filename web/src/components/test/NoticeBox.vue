@@ -50,7 +50,7 @@ const TONES: Record<Tone, { box: string; icon: string }> = {
       class="mt-px flex-none"
       :class="TONES[tone].icon"
     />
-    <div class="flex min-w-0 flex-[1_1_220px] flex-col gap-0.5">
+    <div class="flex min-w-0 flex-[1_1_var(--layout-text-basis)] flex-col gap-0.5">
       <span class="text-(length:--text-sm) leading-(--lh-snug) font-semibold text-foreground">{{ title }}</span>
       <span
         v-if="body"

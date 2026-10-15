@@ -35,11 +35,11 @@ export interface MetaRow {
 
 const props = defineProps<{ title: string; rows: MetaRow[]; columns?: 1 | 3 }>()
 
-const COLUMNS = { 1: '', 3: 'min-[1140px]:grid-cols-3' } as const
+const COLUMNS = { 1: '', 3: 'desktop:grid-cols-3' } as const
 </script>
 
 <template>
-  <div class="flex min-w-0 flex-col gap-1.5 rounded-(--radius-lg) border border-border bg-card px-3.5 py-3 shadow-[inset_0_1px_0_var(--card-highlight)] min-[1140px]:px-4.5 min-[1140px]:py-4">
+  <div class="flex min-w-0 flex-col gap-1.5 rounded-(--radius-lg) border border-border bg-card px-3.5 py-3 shadow-card desktop:px-4.5 desktop:py-4">
     <span class="font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ title }}</span>
     <dl
       class="m-0 grid grid-cols-1 gap-x-6"

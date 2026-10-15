@@ -191,14 +191,14 @@ function onTimer(event: Event): void {
 }
 
 const rowClass = 'flex items-center justify-between gap-2 text-(length:--text-caption) text-muted-foreground'
-const selectClass = 'h-7 min-w-0 flex-[0_1_160px] rounded-(--radius-md) border border-input bg-background px-2 text-(length:--text-caption) text-foreground'
+const selectClass = 'h-7 min-w-0 flex-[0_1_var(--demo-row-basis)] rounded-(--radius-md) border border-input bg-background px-2 text-(length:--text-caption) text-foreground'
 </script>
 
 <template>
   <aside
     :aria-label="TEXT.panel"
     data-testid="demo-panel"
-    class="fixed top-2.5 left-1/2 z-(--z-skip-link) flex max-h-[calc(100vh-20px)] -translate-x-1/2 flex-col bg-card font-sans text-foreground"
+    class="fixed top-2.5 left-1/2 z-(--z-skip-link) flex max-h-(--demo-max-h) -translate-x-1/2 flex-col bg-card font-sans text-foreground"
     :class="choice.open ? 'w-75 rounded-(--radius-lg) border border-input shadow-(--shadow-pop)' : 'w-auto rounded-full border border-(--primary-border)'"
   >
     <div

@@ -103,5 +103,20 @@
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --font-condensed: var(--font-cond);
   --leading-normal: var(--lh-normal);
+  --leading-display: var(--lh-display);
+  --leading-stat: var(--lh-stat);
+  --text-pico: 9px;
+  /* Breakpoints must be literals: = --breakpoint-desktop and --breakpoint-tablet. */
+  --breakpoint-desktop: 1140px;
+  --breakpoint-tablet: 768px;
+  --radius-2xs: 2px;
+  --shadow-card: inset 0 1px 0 var(--card-highlight);
+  --shadow-ring-danger: 0 0 0 3px var(--danger-bg);
+  --blur-scrim: var(--scrim-blur);
+  --spacing-tooltip: var(--tooltip-gap);
+  --container-error: var(--layout-error-max);
+  --container-measure-xs: var(--layout-measure-xs);
+  --container-measure-sm: var(--layout-measure-sm);
+  --container-measure-md: var(--layout-measure-md);
 }
 /* --fg-faint is non-text only: no text-faint utility. */

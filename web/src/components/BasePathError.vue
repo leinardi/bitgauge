@@ -41,7 +41,7 @@ function reload(): void {
     aria-labelledby="base-path-title"
     class="flex min-h-dvh justify-center bg-background px-4 py-10 text-foreground sm:px-10"
   >
-    <div class="flex w-full max-w-[600px] flex-col gap-5.5">
+    <div class="flex w-full max-w-error flex-col gap-5.5">
       <span class="flex items-center gap-2 text-(length:--text-md) font-semibold tracking-(--tracking-tight)">
         <BrandLogo :size="22" />
         <span>{{ $t('app.brand.bit') }}<span class="text-primary-text">{{ $t('app.brand.gauge') }}</span></span>
@@ -56,7 +56,7 @@ function reload(): void {
         </span>
         <h1
           id="base-path-title"
-          class="text-(length:--type-state-title-compact) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) min-[1140px]:text-(length:--type-state-title)"
+          class="text-(length:--type-state-title-compact) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) desktop:text-(length:--type-state-title)"
         >
           {{ $t('app.basePath.title') }}
         </h1>

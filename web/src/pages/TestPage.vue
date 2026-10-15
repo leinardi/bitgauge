@@ -240,7 +240,7 @@ watch(run.error, (error) => {
       @preset="begin"
     />
     <section
-      class="overflow-hidden rounded-(--radius-lg) border border-border bg-card shadow-[inset_0_1px_0_var(--card-highlight)]"
+      class="overflow-hidden rounded-(--radius-lg) border border-border bg-card shadow-card"
       :aria-label="$t('test.title')"
     >
       <div class="border-b border-(--border-subtle) px-4 py-3.5 sm:px-6">

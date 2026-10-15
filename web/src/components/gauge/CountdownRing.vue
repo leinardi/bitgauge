@@ -86,7 +86,7 @@ const stepped = computed(() => Math.min((seconds.value * 1000) / props.totalMs, 
       <div class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pt-2 text-center">
         <span class="font-(family-name:--font-cond) text-xs font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ t('test.countdown.label') }}</span>
         <span
-          class="font-mono text-(length:--type-gauge-readout-compact) leading-[1.05] font-medium tracking-(--tracking-readout) tabular-nums sm:text-(length:--type-gauge-readout)"
+          class="font-mono text-(length:--type-gauge-readout-compact) leading-display font-medium tracking-(--tracking-readout) tabular-nums sm:text-(length:--type-gauge-readout)"
           data-testid="countdown-number"
         >{{ number }}</span>
         <span class="text-(length:--text-md) font-medium text-muted-foreground">{{ t('test.countdown.unit', seconds) }}</span>

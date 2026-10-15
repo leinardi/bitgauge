@@ -62,7 +62,7 @@ function cycleTheme(): void {
 </script>
 
 <template>
-  <header class="flex h-14 items-center border-b border-border bg-background text-foreground max-[1139px]:hidden">
+  <header class="flex h-14 items-center border-b border-border bg-background text-foreground max-desktop:hidden">
     <div class="mx-auto flex max-w-(--layout-max) flex-1 items-center gap-5 px-10">
       <RouterLink
         to="/"
@@ -85,7 +85,7 @@ function cycleTheme(): void {
         <span
           aria-hidden="true"
           class="size-1.75 flex-none rounded-full"
-          :class="down ? 'border-[1.5px] border-(--warn) bg-transparent' : 'bg-(--ok)'"
+          :class="down ? 'border-(length:--border-width-strong) border-(--warn) bg-transparent' : 'bg-(--ok)'"
         />
         <span class="text-(length:--text-sm) font-medium">{{ serverName }}</span>
         <span class="sr-only">{{ stateText }}</span>
@@ -145,7 +145,7 @@ function cycleTheme(): void {
       </div>
     </div>
   </header>
-  <header class="flex h-13 items-center gap-2.5 border-b border-border bg-background px-4 text-foreground min-[1140px]:hidden">
+  <header class="flex h-13 items-center gap-2.5 border-b border-border bg-background px-4 text-foreground desktop:hidden">
     <BrandLogo :size="26" />
     <div class="flex min-w-0 flex-col leading-(--lh-tight)">
       <span class="text-(length:--text-md) font-semibold tracking-(--tracking-tight)">{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
@@ -157,7 +157,7 @@ function cycleTheme(): void {
         <span
           aria-hidden="true"
           class="size-1.5 flex-none rounded-full"
-          :class="down ? 'border-[1.5px] border-(--warn) bg-transparent' : 'bg-(--ok)'"
+          :class="down ? 'border-(length:--border-width-strong) border-(--warn) bg-transparent' : 'bg-(--ok)'"
         />
         {{ serverName }}
         <span class="sr-only">{{ stateText }}</span>
