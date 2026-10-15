@@ -56,3 +56,25 @@ the export shows, and what it should show, with the reason; behaviour comes from
 - **Why:** [charts.md](../design_system/components/charts.md) (Chart or table) words the live
   chart's position as elapsed over the phase's length ("7.5 s / 10 s"), and the kit's other running
   states follow it.
+
+### The Live Region's Wording and the Result Summary
+
+- **Source:** triage cluster `a11y-live-status`, decided for the spec:
+  [i18n-a11y.md §2.1](../features/ui/i18n-a11y.md#21-live-region-for-the-gauge) and
+  [§2.7](../features/ui/i18n-a11y.md#27-screen-reader-result-summary) define what is announced.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the per-state `ann` sentences it fills its one
+  `LiveRegion` with (`components/feedback/LiveRegion.jsx`).
+- **Export today:** one region reads a sentence per state, with short units and the server named:
+  "Latency 3.1 milliseconds. Measuring download.", "Download finished: 612 Mbit/s. Measuring
+  upload.", "Upload finished: 438 Mbit/s. Test complete.", "Connection lost during latency.
+  Nothing was saved.".
+- **Wanted:** the live region announces the phase on change ("Measuring download"), the rate the
+  gauge shows at most every 5 s ("Download, 597 megabits per second"; on upload "Upload sending,
+  …"), and each finished direction's headline once ("Download result: 612 megabits per second", or
+  "Download finished without a number"), all with long unit names. When a result is ready, a
+  separate summary region reads it in the order of §2.7: "Test complete. Download 612 megabits per
+  second. Upload 438 megabits per second. Idle latency 3.1 milliseconds, jitter 0.4. Data used
+  1.3 gigabytes." The stopped and failed states put their ending there too ("Partial result: the
+  test was stopped early.", "Test failed. The phases that finished before the error are kept.").
+- **Why:** the spec owns accessibility over the export, and screen readers read abbreviated units
+  such as Mbit/s badly; the result is one message of its own, not the last phase announcement.
