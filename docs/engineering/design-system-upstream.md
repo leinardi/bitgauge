@@ -25,8 +25,8 @@ the export shows, and what it should show, with the reason; behaviour comes from
 - **Wanted:** a semantic token for it, such as `--breakpoint-desktop: 1140px`, in
   `colors_and_type.css` and `tokens.md`, used by the kit's media query.
 - **Why:** the Vue app writes it as the arbitrary values `min-[1140px]` and `max-[1139px]`
-  (`AppHeader.vue`, `TabBar.vue`); with a token it would map into Tailwind 4's `--breakpoint-*`
-  theme variables and become a named variant.
+  (`AppHeader.vue`, `TabBar.vue`, `MetaList.vue`, `BasePathError.vue`); with a token it would map
+  into Tailwind 4's `--breakpoint-*` theme variables and become a named variant.
 
 ### The Packet Loss Reason In View
 
@@ -103,13 +103,11 @@ the export shows, and what it should show, with the reason; behaviour comes from
 
 | Kit source | Value | Vue use | Token it would need |
 | --- | --- | --- | --- |
-| `ui_kits/app/TestScreen.jsx` (`gNum`) | 46 px (narrow), 58 px (desktop) gauge figure | `Gauge.vue`, `CountdownRing.vue` | `--gauge-value-size` per layout |
-| `components/gauge/Gauge.jsx`, `ui_kits/app/TestScreen.jsx` | line height 1.05, letter spacing −0.03em on the gauge figure | `Gauge.vue`, `CountdownRing.vue` | `--lh-display`, `--tracking-display` |
-| `ui_kits/app/surfaces.css`, `dialog.css` | line height 1.55 for body copy | `AboutPage.vue`, `BasePathError.vue` | a `--lh-*` step |
-| `ui_kits/app/kit.css`, `surfaces.css`, `inputs.css` | line height 1.45 | `DemoPanel.vue` | a `--lh-*` step |
-| `ui_kits/app/Nav.jsx`, `badges.css` | 1.5 px border of the server-down dot | `AppHeader.vue` | `--border-width-strong` |
-| `ui_kits/app/Nav.jsx` | 28 % inset of the tab bar's active indicator | `TabBar.vue` | `--tab-indicator-inset` |
-| `ui_kits/app/TestScreen.jsx`, `About.jsx` | layout tracks: a 400 px column, a 340 px column, a 220 px flex basis | `TestPage.vue`, `AboutPage.vue`, `ResultBar.vue`, `NoticeBox.vue` | `--layout-*` widths |
-| `ui_kits/app/app.css` | the card's top highlight, `inset 0 1px 0 var(--card-highlight)` | `TestPage.vue`, `MetaList.vue` | a `--shadow-*` step that carries it |
-| `ui_kits/app/buttons.css` | a tooltip 7 px above its button (`calc(100% + 7px)`) | `DownloadJson.vue` | a `--space-*` step for the offset |
-| `ui_kits/app/kit.css` | the demo panel's 160 px basis and `calc(100vh - 20px)` height | `DemoPanel.vue` (demo builds only, so the least urgent) | `--layout-*` sizes for the panel |
+| `components/gauge/gauge.css` (`.gauge-num`) | line height 1.05 on the gauge figure | `Gauge.vue`, `CountdownRing.vue` | `--lh-display` |
+| `components/navigation/navigation.css` (`.srv.down .dot`), `components/status/status.css` | 1.5 px border of the server-down dot | `AppHeader.vue` | `--border-width-strong` |
+| `components/navigation/navigation.css` (`.tab-l`) | 28 % inset of the tab bar's active indicator | `TabBar.vue` | `--tab-indicator-inset` |
+| `components/feedback/feedback.css` (`.signal .body`, `.sb-msg`) | a 220 px flex basis | `NoticeBox.vue`, `ResultBar.vue` | a `--layout-*` width |
+| `components/feedback/feedback.css` (`.fse-in`) | the full-screen error's 600 px maximum width | `BasePathError.vue` | a `--layout-*` width |
+| `components/layout/layout.css` (`.card`) | the card's top highlight, `inset 0 1px 0 var(--card-highlight)` | `TestPage.vue`, `MetaList.vue` | a `--shadow-*` step that carries it |
+| `components/actions/actions.css` (`.has-tip .tip`) | a tooltip 7 px above its control (`calc(100% + 7px)`) | `DownloadJson.vue` | a `--space-*` step for the offset |
+| `ui_kits/app/kit.css` (`.demo`, `.demo-row`) | the demo panel's 160 px basis and `calc(100vh - 20px)` height | `DemoPanel.vue` (demo builds only, so the least urgent) | `--layout-*` sizes for the panel |

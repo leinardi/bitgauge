@@ -107,16 +107,19 @@ Hard constraints, not style preferences:
   only while
   [`design-system-upstream.md`](../../../docs/engineering/design-system-upstream.md) lists it in a
   note asking the export for a token: the desktop breakpoint (`min-[1140px]`, `max-[1139px]`) and
-  the values of the "Kit Literals With No Token" note (the gauge figure, some line heights, a 1.5 px
-  border, the tab indicator inset, a few layout tracks). It is never rounded to the nearest token:
-  the export wins on visuals. A new one gets its row in that note in the same change.
+  the values of the "Kit Literals With No Token" note (the gauge figure's line height, a 1.5 px
+  border, the tab indicator inset, a flex basis and a width, the card highlight, a tooltip offset).
+  It is never rounded to the nearest token: the export wins on visuals. A new one gets its row in
+  that note in the same change, and a row the export has since tokenised goes, with its literal.
 
-Code written before this skill still carries arbitrary values that a token or a scale step does
-express: `text-[11px]` is `text-(length:--text-micro)`, `max-w-[1200px]` is `max-w-300`, and a px
-size on the 4 px grid or its quarter steps is a spacing step (`w-[316px]` is `w-79`, `gap-[5px]` is
-`gap-1.25`, `h-[46px]` is `h-11.5`; `font-[family-name:var(--font-cond)]` is
-`font-(family-name:--font-cond)`). Replace them when you touch the file, and add no new one. A
-bracket that names properties rather than a value (`transition-[width]`) is not a design value.
+A token wins over a scale step that happens to give the same value: `max-w-[1200px]` is
+`max-w-(--layout-max)`, the Start button's 46 px is `h-(--control-h-xl)`, a 400 px column is
+`var(--layout-instrument)`. Where no token exists, a px size on the 4 px grid or its quarter steps
+is a spacing step (`w-[316px]` is `w-79`, `gap-[5px]` is `gap-1.25`), `text-[11px]` is
+`text-(length:--text-micro)` and `font-[family-name:var(--font-cond)]` is
+`font-(family-name:--font-cond)`. Add no new arbitrary design value. A token inside a bracket
+(`grid-cols-[var(--layout-instrument)_minmax(0,1fr)]`) is not a literal, and a bracket that names
+properties rather than a value (`transition-[width]`) is not a design value.
 
 ---
 
