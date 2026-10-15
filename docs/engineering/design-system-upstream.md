@@ -28,42 +28,6 @@ the export shows, and what it should show, with the reason; behaviour comes from
   (`AppHeader.vue`, `TabBar.vue`); with a token it would map into Tailwind 4's `--breakpoint-*`
   theme variables and become a named variant.
 
-### One Test Extended Notice For Both Directions
-
-- **Source:** a specification change: [ui/screens.md §7](../features/ui/screens.md#7-notices) shows
-  `test extended` once, naming the extended direction, or both directions when both extended; the
-  engine still carries one notice per direction. The notice was `slow link — test extended`; a fast
-  link whose ramp settles late extends too, so the name no longer blames the link.
-- **Kit:** `ui_kits/app/TestScreen.jsx` and `ResultDetail.jsx`, the notices of a slow run.
-- **Export today:** one notice per direction, titled "Slow link — test extended", the two
-  differing only in the direction named.
-- **Wanted:** the title "Test extended"; a single notice when both directions extended, with a
-  body that names both.
-- **Why:** the Vue app follows the specification and merges them (`noticeViews` in
-  `web/src/components/test/notices.ts`). No parity capture holds the notice, so the run does not
-  see the gap; the note keeps the kit in step for the next export.
-
-### The Browser Upload Limit Notice
-
-- **Source:** a specification change, not a triage cluster: the `browser-upload-limit` notice of
-  [measurement.md §16](../features/measurement.md#16-confidence-and-notices), carried by a result
-  whose upload idle share exceeded 20 % or by a Firefox result whose upload headline is at least
-  100 Mbit/s, in the Confidence group of
-  [ui/screens.md §7](../features/ui/screens.md#7-notices), tone info, with a "Known browser limits"
-  link to [research/browser-upload-limits.md](../research/browser-upload-limits.md).
-- **Kit:** `ui_kits/app/TestScreen.jsx` and `ResultDetail.jsx`, the notices of the complete result;
-  `components/notices.md`, the tone table.
-- **Export today:** no such notice; the tone table lists no browser notice.
-- **Wanted:** a notice `Firefox may limit the upload`, info tone, Lucide `info` icon, body "On fast
-  links Firefox's own upload path, not the network, can bound the upload number; the measurement
-  is the server's and stands. Compare with another browser on this device to tell the two apart.",
-  one action "Known browser limits" styled as the docs link of the proxy buffering notice; shown in
-  the complete-result state when the prototype's browser is Firefox and the upload is at least
-  100 Mbit/s, and listed under info in the tone table.
-- **Why:** the Vue app follows the specification and shows it. The demo's wiring does not report
-  Firefox, so the parity run does not see the gap; the note keeps the kit in step for the next
-  export.
-
 ### The Packet Loss Reason In View
 
 - **Source:** triage cluster `layout-results-metrics`, decided for a new layout: the kit's `Test`
@@ -78,6 +42,56 @@ the export shows, and what it should show, with the reason; behaviour comes from
   lists the reason among the qualifiers the slot shows, and a tooltip is not shown on touch or to a
   reader who does not hover. The Vue app shows it as the `sub` line (`TestPage.vue`,
   `MetaList.vue`).
+
+### The Compact Header's Mark
+
+- **Source:** triage cluster `a11y-brand-logo`, kept for now: the Vue app follows the
+  accessibility rule, the kit is to change.
+- **Kit:** `components/navigation/AppHeader.jsx`, the compact header, which renders
+  `<Logo size={26} />` beside its own `wm md` wordmark; `components/brand/Logo.jsx`.
+- **Export today:** without `wordmark`, Logo draws the mark with `role="img"` and the name
+  "BitGauge", so a screen reader reads "BitGauge" twice: the image, then the visible wordmark.
+- **Wanted:** the compact header's mark hidden from assistive technology (`aria-hidden`), as Logo
+  already does in its `wordmark` mode, or the compact header built on Logo's `wordmark` mode.
+- **Why:** a decorative mark next to the name it shows adds nothing for a screen reader; the Vue app
+  hides it (`AppHeader.vue`, `BrandLogo.vue`).
+
+### A Heading For The Test Screen
+
+- **Source:** triage cluster `a11y-speedtest-heading`, kept for now: the Vue app follows
+  [ui/i18n-a11y.md §2.8](../features/ui/i18n-a11y.md#28-headings).
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the Test screen's `main`.
+- **Export today:** the Test screen has no `h1`; About and the base-path error have one.
+- **Wanted:** a visually hidden `h1` "Speed test" at the start of the Test screen's `main`, with the
+  `sr-only` class of `base.css`.
+- **Why:** every screen has one `h1`, its title, and the Test screen's is visually hidden so the
+  gauge and Start stay first; the Vue app has it (`TestPage.vue`).
+
+### The Slow Client's Context
+
+- **Source:** triage cluster `fixture-slow-context`, kept for now: the specification and the demo
+  agree, the kit is to change.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the slow states (`slow`, `slowdone`, `cancelled-slow`,
+  `cancelled-slow-up`): Client IP `10.8.0.6` with the context chip on VPN, suggested.
+- **Export today:** a private IPv4 address with the VPN suggestion.
+- **Wanted:** either a CGNAT client address such as `100.101.4.17`, which is suggested as VPN, or
+  the LAN suggestion for `10.8.0.6`.
+- **Why:** [wire-protocol.md §5](../features/wire-protocol.md#5-get-apiv1info) maps a private address
+  to LAN and suggests VPN only for CGNAT and the Tailscale ULA range, and the Vue demo follows it
+  ([frontend.md §9](../features/technical-stack/frontend.md#9-demo-build)).
+
+### Callout's Block Class Reaches Buttons
+
+- **Source:** triage cluster `style-button-kit-bug`, kept for now: the kit breaks its own Button
+  contract.
+- **Kit:** `components/feedback/feedback.css` (`.block`, the Callout) and
+  `components/actions/actions.css` (`.btn.block`, Button's full-width modifier), as used by the two
+  links of `ui_kits/app/About.jsx`.
+- **Export today:** the Callout's `.block` rule also matches a block Button, so the ghost LICENSE
+  button gets the Callout's amber border and both buttons its padding (14 px by 16 px).
+- **Wanted:** one of the two classes renamed, such as `.callout` for the Callout, so a block Button
+  keeps only its own anatomy.
+- **Why:** the Vue app draws the buttons as the Button contract defines them (`AppButton.vue`).
 
 ### Kit Literals With No Token
 

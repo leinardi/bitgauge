@@ -185,7 +185,7 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the compact AppHeader renders the mark with role=img 'BitGauge' next to the visible wordmark; hide the mark (aria-hidden) or use Logo's wordmark mode.",
-          "done": false
+          "done": true
         }
       ],
       "status": "accepted",
@@ -496,7 +496,7 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Test screen has no h1; add a visually hidden 'Speed test' h1 as the spec requires.",
-          "done": false
+          "done": true
         }
       ],
       "status": "accepted",
@@ -903,7 +903,7 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's slow client should use a CGNAT address (e.g. 100.101.4.17) if it suggests VPN, or suggest LAN for 10.8.0.6 (wire-protocol §5).",
-          "done": false
+          "done": true
         }
       ],
       "status": "accepted",
@@ -2391,7 +2391,7 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the Callout .block rule (feedback.css) also matches Button's block modifier (actions.css), giving the ghost LICENSE button an amber border and Source repository extra padding; rename one of them.",
-          "done": false
+          "done": true
         }
       ],
       "status": "accepted",
