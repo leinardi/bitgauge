@@ -106,11 +106,10 @@ Hard constraints, not style preferences:
   or Tailwind scale step can express is copied exactly as the kit has it, as an arbitrary value,
   only while
   [`design-system-upstream.md`](../../../docs/engineering/design-system-upstream.md) lists it in a
-  note asking the export for a token: the desktop breakpoint (`min-[1140px]`, `max-[1139px]`) and
-  the values of the "Kit Literals With No Token" note (the gauge figure's line height, a 1.5 px
-  border, the tab indicator inset, a flex basis and a width, the card highlight, a tooltip offset).
-  It is never rounded to the nearest token: the export wins on visuals. A new one gets its row in
-  that note in the same change, and a row the export has since tokenised goes, with its literal.
+  "Kit Literals With No Token" note asking the export for a token. None is open today: the export
+  carries a token for every literal the kit drew. It is never rounded to the nearest token: the
+  export wins on visuals. A new one gets its row in that note in the same change, and a row the
+  export has since tokenised goes, with its literal.
 
 A token wins over a scale step that happens to give the same value: `max-w-[1200px]` is
 `max-w-(--layout-max)`, the Start button's 46 px is `h-(--control-h-xl)`, a 400 px column is

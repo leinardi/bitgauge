@@ -12,7 +12,7 @@ token is never invented in this repository.
    is 14 px), a `calc()` of one, or a step of Tailwind's own spacing scale, which takes quarter
    steps of its 4 px unit (`max-w-300` is 1200 px, `gap-1.25` is 5 px).
 2. If the app kit draws it as a literal, the export is missing a token. Add it to the "Kit Literals
-   With No Token" note, or write a note of its own, in
+   With No Token" note (start the note if none is open), or write a note of its own, in
    [`design-system-upstream.md`](../../../../docs/engineering/design-system-upstream.md): the kit
    file and the element, the value, the semantic name it would need (`--gauge-value-size`, never a
    visual one such as `--size-58`), and the surfaces that use it.

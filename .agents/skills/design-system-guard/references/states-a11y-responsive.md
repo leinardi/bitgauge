@@ -40,9 +40,8 @@ What each state contains, says and offers is in
 ## Responsive layout
 
 - **Breakpoint**: the app kit's, desktop from 1140 px wide and the narrow layout below
-  (`ui_kits/app/kit.css`). The export has no breakpoint token and Tailwind's scale has no 1140 px
-  step, so it is written `min-[1140px]` and `max-[1139px]` (the kit's-literal exception of the
-  skill's §3, with its upstream note). Add no other breakpoint.
+  (`ui_kits/app/kit.css`), the export's `--breakpoint-desktop`. `index.css` maps it into Tailwind's
+  theme, so it is written `desktop:` and `max-desktop:`. Add no other breakpoint.
 - **Narrow screens**: the responsive notes in `ui/screens.md` (the gauge and Start above the fold,
   the tab bar in place of the header navigation).
 - **Density**: the export defines `data-density` tokens, but no BitGauge screen sets a density; do
