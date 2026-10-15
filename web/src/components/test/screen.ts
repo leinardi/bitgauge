@@ -22,7 +22,7 @@ import { dataTile, directionTile, durationTile, idleLiveTile, idleTile, jitterTi
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive, IdleLive, PhaseView, RunError, RunStatus } from '@/composables/useRunState'
 import type { Direction, MeasuringPhase, PhaseName, Result, TestSettings } from '@/engine/messages'
-import { formatLatency, formatRate, latencyNumber, rateParts } from '@/lib/format'
+import { formatBytes, formatLatency, formatRate, latencyNumber, rateParts } from '@/lib/format'
 
 // The Test screen's states (ui/screens.md section 1) and what each shows, derived from the run's
 // live view: which state, the phase steps, the gauge's input and the metric tiles. Nothing here is
@@ -282,8 +282,39 @@ export function gaugeReadout(gauge: GaugeInput, { t, locale, units }: GaugeConte
   return `${gauge.label} ${number} ${unit}`
 }
 
+/**
+ * Data used and its qualifier: "—" until the first byte, "so far" while running, with the
+ * download's own bytes while upload runs after a download without a number; "not saved" after an
+ * error.
+ */
+function dataUsed(run: RunView, context: Wording): TileView {
+  const { t, locale } = context
+  const tile = dataTile(run.status === 'idle' || run.dataUsedBytes === 0 ? null : run.dataUsedBytes, context)
+  if (tile.number === null) {
+    return tile
+  }
+  const download = run.phases.download
+  let sub: string | null = null
+  if (run.status === 'running') {
+    const share = run.phase === 'upload' && download.headlineBitsPerSecond === undefined ? download.bytes : undefined
+    sub = share === undefined ? t('test.tiles.dataSoFar') : t('test.tiles.dataSoFarDownload', { bytes: formatBytes(share, locale) })
+  } else if (screenState(run) === 'error') {
+    sub = t('test.tiles.notSaved')
+  }
+  return sub === null ? tile : { ...tile, lines: [{ text: sub }] }
+}
+
+/** The duration: counting up "elapsed" while the run goes on, then the result's, or where it ended without one. */
+function duration(run: RunView, elapsed: number | null, context: Wording): TileView {
+  if (run.status === 'idle') {
+    return durationTile(null, context)
+  }
+  const tile = durationTile(run.result?.durationMs ?? elapsed, context)
+  return run.status === 'running' && tile.number !== null ? { ...tile, lines: [{ text: context.t('test.tiles.elapsed') }] } : tile
+}
+
 /** The metric tiles: the four main ones, then data used and duration, and the packet-loss slot. */
-export function screenTiles(run: RunView, settings: TestSettings, context: Wording): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
+export function screenTiles(run: RunView, settings: TestSettings, context: Wording, elapsedMs: number | null = null): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
   const shown = run.status !== 'idle'
   const result = shown ? run.result : null
   // Live numbers only while the run is going: a run that ended without a result has none to show.
@@ -303,7 +334,7 @@ export function screenTiles(run: RunView, settings: TestSettings, context: Wordi
       idleLive === null ? idleTile(result?.idle, resolution, context) : idleLiveTile(idleLive, context),
       jitterTile(result?.idle, resolution, context),
     ],
-    more: [dataTile(shown ? run.dataUsedBytes : null, context), durationTile(result?.durationMs ?? null, context)],
+    more: [dataUsed(run, context), duration(run, elapsedMs, context)],
     packetLoss: packetLossTile(context),
   }
 }

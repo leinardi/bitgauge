@@ -42,6 +42,7 @@ import { gaugeInput, gaugeReadout, phaseSteps, type RunView, screenState, screen
 import StartButton from '@/components/test/StartButton.vue'
 import { useContextLabel } from '@/composables/useContextLabel'
 import { useCountdown } from '@/composables/useCountdown'
+import { useElapsed } from '@/composables/useElapsed'
 import { useInfo } from '@/composables/useInfo'
 import { useRun } from '@/composables/useRun'
 import { useTestKeys } from '@/composables/useTestKeys'
@@ -85,7 +86,8 @@ const units = computed(() => shownSettings.value?.units ?? 'bits')
 const steps = computed(() => (shownSettings.value === null ? [] : phaseSteps(view.value, shownSettings.value, locale.value)))
 const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host }))
 const gauge = computed(() => gaugeInput(view.value, gaugeContext.value))
-const tiles = computed(() => (shownSettings.value === null ? null : screenTiles(view.value, shownSettings.value, wording.value)))
+const elapsed = useElapsed(running, view)
+const tiles = computed(() => (shownSettings.value === null ? null : screenTiles(view.value, shownSettings.value, wording.value, elapsed.value)))
 // Data used, duration and the packet-loss slot, whose reason stays in view (ui/screens.md section 6).
 const facts = computed<MetaRow[]>(() => {
   if (tiles.value === null) {
@@ -93,7 +95,7 @@ const facts = computed<MetaRow[]>(() => {
   }
   const { more, packetLoss } = tiles.value
   return [
-    ...more.map((tile) => ({ key: tile.label, icon: tile.icon, label: tile.label, value: tile.number === null ? null : `${tile.number} ${tile.unit}` })),
+    ...more.map((tile) => ({ key: tile.label, icon: tile.icon, label: tile.label, sub: tile.lines[0]?.text, value: tile.number === null ? null : `${tile.number} ${tile.unit}` })),
     { key: 'packet-loss', icon: packetLoss.icon, label: packetLoss.label, sub: t('test.tiles.whyNot') },
   ]
 })

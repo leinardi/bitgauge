@@ -218,6 +218,8 @@ describe('the Test screen', () => {
     expect(page.get('[data-testid="connection-streams"]').text()).toContain('4')
     expect(tiles(page)[0]).toContain('warming up')
     expect(facts(page)[0]).toContain('2.5')
+    expect(facts(page)[0]).toContain('so far')
+    expect(facts(page)[1]).toContain('elapsed')
     expect(page.find('[data-testid="throughput-chart"]').exists()).toBe(true)
     await emit(phase('download', 'finished'), phase('upload', 'started', { streams: 2 }))
     await emit({ type: 'sample', direction: 'upload', fromBucket: 0, values: [], gauge: 0, sending: 4e7, dataUsedBytes: 3_000_000 })

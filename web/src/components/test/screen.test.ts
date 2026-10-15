@@ -212,6 +212,28 @@ describe('screenTiles', () => {
     expect([...idle.main, ...idle.more].every((tile) => tile.number === null && !tile.live)).toBe(true)
   })
 
+  it('qualifies data used and the duration on the Test card: so far, elapsed, not saved', () => {
+    const before = screenTiles(run({ phase: 'idle' }), SETTINGS, context, 800)
+    expect(before.more.map((tile) => [tile.number, tile.lines[0]?.text])).toEqual([
+      [null, undefined],
+      ['0.8', 'elapsed'],
+    ])
+    const download = screenTiles(run({ phase: 'download', dataUsedBytes: 1_500_000 }), SETTINGS, context, 4200)
+    expect(download.more.map((tile) => [tile.number, tile.lines[0]?.text])).toEqual([
+      ['1.5', 'so far'],
+      ['4.2', 'elapsed'],
+    ])
+    const short = phases({ download: 'finished' })
+    short.download = { state: 'finished', bytes: 900_000 }
+    const upload = screenTiles(run({ phase: 'upload', phases: short, dataUsedBytes: 1_200_000 }), SETTINGS, context, 9000)
+    expect(upload.more[0]?.lines[0]?.text).toBe('so far · download 900\u00a0kB')
+    const failed = screenTiles(run({ status: 'ended', error: { code: 'server-unreachable', phase: 'upload', partial: true }, dataUsedBytes: 1_200_000 }), SETTINGS, context, 9000)
+    expect(failed.more.map((tile) => [tile.number, tile.lines[0]?.text])).toEqual([
+      ['1.2', 'not saved'],
+      ['9.0', undefined],
+    ])
+  })
+
   it('shows no live number once a run has ended without a result', () => {
     const view = run({ status: 'ended', idle: { pings: 4, count: 20, medianMs: 3 }, live: { download: live({ steady: { avgBitsPerSecond: 1e8, peakBitsPerSecond: 1e8 } }), upload: null }, error: { code: 'internal', phase: null, partial: false } })
     expect(screenTiles(view, SETTINGS, context).main.every((tile) => tile.number === null)).toBe(true)

@@ -47,6 +47,8 @@ export interface PhaseView {
   streams?: number
   /** A finished direction's headline, as its phase event carried it. */
   headlineBitsPerSecond?: number
+  /** A finished or failed direction's bytes, as its phase event carried them. */
+  bytes?: number
 }
 
 /** The live numbers of one direction, as the last `sample` carried them. */
@@ -170,6 +172,9 @@ export function createRunState() {
     }
     if (event.headlineBitsPerSecond !== undefined) {
       view.headlineBitsPerSecond = event.headlineBitsPerSecond
+    }
+    if (event.bytes !== undefined) {
+      view.bytes = event.bytes
     }
     seenPhase = true
     phases.value = { ...phases.value, [event.phase]: view }
