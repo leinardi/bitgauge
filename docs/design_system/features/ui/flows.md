@@ -10,7 +10,9 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 
 1. The user opens the BitGauge URL. The SPA loads and calls `GET /api/v1/info`.
    - **Branch: `/info` fails.** Test screen in the offline state: "Server unreachable", Retry
-     (step 1 again). Start is disabled.
+     (step 1 again). Start is disabled. The SPA asks again on its own after 2, 4, 8 and 16 s, then
+     every 30 s, counting only while the page is visible, and says when the next check is; Retry
+     asks at once and starts that schedule over.
    - **Branch: base path mismatch.** Full-screen error with the deployment hint; nothing else loads.
 2. The Test screen shows the server name, connection info (client IP, suggested label, protocol)
    and the preset from the server defaults. No settings exist yet in this browser, so the server

@@ -154,3 +154,16 @@ the export shows, and what it should show, with the reason; behavior comes from
   sentence and the rows. A page that fails the path checks sends no request, so there is no Check
   result; the SPA cannot know whether an environment variable is set; and the sub-path
   instructions say not to strip the prefix, which leaves the page blank.
+
+### The Offline State Without the Server's Settings
+
+- **Source:** triage cluster `layout-offline-state`, decided for the kit's layout with two
+  exceptions.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the `offline` state.
+- **Export today:** no notice; the preset summary "Standard preset · Auto streams · No data cap";
+  the pending phases with their estimates (~2 s, ~10–20 s, ~15–25 s).
+- **Wanted:** the danger notice "Server unreachable" with `role="alert"` above the strip; no preset
+  summary; the pending phases without estimates.
+- **Why:** [screens.md §7](../features/ui/screens.md#7-notices) gives server
+  unreachable a danger notice with `role="alert"`, and the preset and the phase durations come
+  from the server defaults, which `GET /info` never delivered.
