@@ -14,6 +14,9 @@ export interface LogoProps {
   href?: string;
   /** Accessible name of the home link. @default "BitGauge home" */
   label?: string;
+  /** Hide the mark from assistive technology (aria-hidden, no role or name) because the product name is visible
+   *  next to it, e.g. the compact AppHeader's wordmark. Wordmark mode does this already. @default false */
+  decorative?: boolean;
   style?: React.CSSProperties;
 }
 export declare function Logo(props: LogoProps): JSX.Element;

@@ -10,6 +10,7 @@ Wordmark (home link "BitGauge home") · hairline separator · server identity ·
 theme switch (Segmented, icon-only options named Light / Dark / Follow system). Compact layout (< 1140 px
 or the kit's 390 px frame): 52 px header with the wordmark, the server identity under it, and one
 theme button named "Theme: <current>" that cycles light → dark → system; navigation moves to the TabBar.
+The compact mark is `Logo decorative` (aria-hidden, no role or name): the visible wordmark already names the product.
 
 **Data rules — props only, no defaults, no sample data:**
 

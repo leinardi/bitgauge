@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"cdd402910254","components/charts/Chart.jsx":"782ff33154d8","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"2124fcb54dce","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a97f3d8fabf3","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"e30f7acc2605","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"14f29a665bbe","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"a2465007a54a","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"31850600bf8e","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"75dd23fa34f4","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"4fe5f9c1a214","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"3f2fcc6fb0b6","ui_kits/app/App.jsx":"c6e8aa88e02e","ui_kits/app/History.jsx":"db776ce9c197","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"3110e25c179e","ui_kits/app/ResultDetail.jsx":"27602012bed0","ui_kits/app/Settings.jsx":"bc1c7460a524","ui_kits/app/TestScreen.jsx":"fc3ebd1fc253","ui_kits/app/ds.js":"a320b5501d34","ui_kits/app/fixtures.js":"34bbc80f3c59"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"782ff33154d8","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"2124fcb54dce","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"e30f7acc2605","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"31850600bf8e","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"3f2fcc6fb0b6","ui_kits/app/App.jsx":"c6e8aa88e02e","ui_kits/app/History.jsx":"db776ce9c197","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"bedf92221497","ui_kits/app/ResultDetail.jsx":"27602012bed0","ui_kits/app/Settings.jsx":"bc1c7460a524","ui_kits/app/TestScreen.jsx":"00fde448f079","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"34bbc80f3c59"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"}]} */
 
 (() => {
 
@@ -462,6 +462,7 @@ const FULL = (d, u, l) => '<path d="M14.32 53.68 A25 25 0 1 1 49.68 53.68" fill=
 const SMALL = (d, u) => '<path d="M15.03 48.97 A24 24 0 1 1 48.97 48.97" fill="none" stroke="currentColor" stroke-opacity=".2" stroke-width="7" stroke-linecap="round"/>' + '<path d="M15.03 48.97 A24 24 0 1 1 54.35 23.24" fill="none" style="stroke:' + d + '" stroke-width="7" stroke-linecap="round"/>' + '<path d="M23.51 40.49 A12 12 0 0 1 32 20" fill="none" style="stroke:' + u + '" stroke-width="7" stroke-linecap="round"/>';
 // Wordmark text size per mark size (header 28 → lg, compact header 26 → md, About 40 → xl, share image 15 → sm).
 const WM = s => s >= 36 ? 'xl' : s >= 27 ? 'lg' : s >= 20 ? 'md' : 'sm';
+// The mark is hidden from assistive technology whenever a visible name sits next to it (wordmark, or `decorative`).
 function Logo({
   size = 28,
   variant = 'color',
@@ -470,17 +471,19 @@ function Logo({
   wordmarkSize,
   href,
   label = 'BitGauge home',
+  decorative = false,
   style
 }) {
   const g = geometry || (size <= 20 ? 'small' : 'full');
+  const hidden = wordmark || decorative;
   const c = variant === 'mono' ? ['currentColor', 'currentColor', 'currentColor'] : ['var(--series-download)', 'var(--series-upload)', 'var(--series-latency)'];
   const mark = /*#__PURE__*/React.createElement("svg", {
     width: size,
     height: size,
     viewBox: "0 0 64 64",
-    "aria-hidden": wordmark ? 'true' : undefined,
-    role: wordmark ? undefined : 'img',
-    "aria-label": wordmark ? undefined : 'BitGauge',
+    "aria-hidden": hidden ? 'true' : undefined,
+    role: hidden ? undefined : 'img',
+    "aria-label": hidden ? undefined : 'BitGauge',
     style: {
       display: 'block',
       flex: 'none',
@@ -1214,7 +1217,7 @@ function EmptyState({
   style
 }) {
   return /*#__PURE__*/React.createElement("div", {
-    className: "empty",
+    className: "empty-state",
     style: style
   }, /*#__PURE__*/React.createElement("div", {
     className: "eg"
@@ -1729,8 +1732,18 @@ function useReducedMotion() {
 // Window picker: pure function of the value stream and the clock. The engine never supplies the window.
 function useGaugeWindow(value, mode, units, startDecade, onWindowChange) {
   const R = KR[units] || KR.bits;
-  const start = startDecade ?? R.start;
-  const [k, setK] = React.useState(start);
+  const start = startDecade ?? R.start,
+    key = units + '|' + start;
+  // A new unit or start window applies in the same render (derived), never one stale frame later.
+  const [st, setSt] = React.useState({
+    key,
+    k: start
+  });
+  const k = st.key === key ? st.k : start;
+  const setK = n => setSt({
+    key,
+    k: n
+  });
   const hold = React.useRef({
     zone: 0,
     timer: null
@@ -1744,8 +1757,11 @@ function useGaugeWindow(value, mode, units, startDecade, onWindowChange) {
   };
   React.useEffect(() => {
     clear();
-    setK(start);
-  }, [units, start]);
+    if (st.key !== key) setSt({
+      key,
+      k: start
+    });
+  }, [key]);
   React.useEffect(() => {
     if (mode === 'ms' || value == null) {
       clear();
@@ -1776,6 +1792,8 @@ function useTweenK(k, reduce, resetKey) {
   const cur = React.useRef(k),
     raf = React.useRef(0),
     key = React.useRef(resetKey);
+  // First render after a unit, mode or start-window change: draw at the new window at once (no stale frame).
+  const fresh = key.current !== resetKey;
   React.useEffect(() => {
     cancelAnimationFrame(raf.current);
     const from = cur.current,
@@ -1797,7 +1815,10 @@ function useTweenK(k, reduce, resetKey) {
     raf.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf.current);
   }, [k, reduce, resetKey]);
-  return kd;
+  return {
+    kd: fresh ? k : kd,
+    fresh
+  };
 }
 const TEXT_STATES = {
   idle: 1,
@@ -1848,7 +1869,10 @@ function Gauge({
     cd = state === 'countdown',
     textual = !!TEXT_STATES[state];
   const k = useGaugeWindow(live ? value : null, mode, units, startDecade, onWindowChange);
-  const kd = useTweenK(k, reduce, units + '|' + mode + '|' + (startDecade ?? ''));
+  const {
+    kd,
+    fresh
+  } = useTweenK(k, reduce, units + '|' + mode + '|' + (startDecade ?? ''));
   const shifting = kd !== k;
   const cx = size / 2,
     cy = size / 2,
@@ -1898,7 +1922,10 @@ function Gauge({
     fv = has ? f(value) : 0;
   const dot = has && live ? pt(cx, cy, r, A0 + SW * fv) : null;
   const pk = has && live && peak != null ? [pt(cx, cy, r + 8, A0 + SW * f(peak)), pt(cx, cy, r - 8, A0 + SW * f(peak))] : null;
-  const tween = reduce || shifting ? undefined : 'd var(--dur-base) var(--ease-out)';
+  // Each sample tweens the arc's length along the ring (stroke-dasharray on a static full-track path, pathLength 1);
+  // tweening `d` moved the endpoint along a chord and drew a ring off the dial's centre. Only a window shift and
+  // reduced motion drop the transition. A value at the window floor (fv 0) draws nothing.
+  const tween = reduce || shifting ? undefined : 'stroke-dasharray var(--dur-base) var(--ease-out)';
   const stc = ST_COLOR[state] || 'var(--fg-subtle)';
   return /*#__PURE__*/React.createElement("div", {
     className: 'gauge' + (compact ? ' compact' : ''),
@@ -1952,7 +1979,9 @@ function Gauge({
       strokeWidth: 22
     }
   }) : null, has ? /*#__PURE__*/React.createElement("path", {
-    d: arc(cx, cy, r, 0, fv),
+    d: arc(cx, cy, r, 0, 1),
+    pathLength: "1",
+    strokeDasharray: fv + ' 1',
     style: {
       fill: 'none',
       stroke: color,
@@ -2102,7 +2131,7 @@ function MetaList({
       gridTemplateColumns: 'repeat(' + columns + ', minmax(0, 1fr))'
     } : undefined
   }, rows.map((r, i) => /*#__PURE__*/React.createElement("div", {
-    className: "mrow",
+    className: 'mrow' + (r.node ? ' node' : ''),
     key: r.key || i
   }, r.icon ? /*#__PURE__*/React.createElement("span", {
     className: "ic",
@@ -2436,7 +2465,8 @@ function AppHeader({
     return /*#__PURE__*/React.createElement("header", {
       className: "hdr compact"
     }, /*#__PURE__*/React.createElement(__ds_scope.Logo, {
-      size: 26
+      size: 26,
+      decorative: true
     }), /*#__PURE__*/React.createElement("div", {
       className: "hdr-id"
     }, /*#__PURE__*/React.createElement("span", {
@@ -2648,10 +2678,12 @@ Object.assign(__ds_scope, { StatusBadge });
 
 // components/measurement/NotMeasured.jsx
 try { (() => {
-const WHY = "Browsers can't see packet loss over TCP";
+// The reason is also shown as visible text by the slot (MetaList row `sub`): a tooltip is not seen on touch.
+const NOT_MEASURED_REASON = "Browsers can't see packet loss over TCP";
 function NotMeasured({
   href = '#',
-  reason = WHY
+  reason = NOT_MEASURED_REASON,
+  link = true
 }) {
   return /*#__PURE__*/React.createElement("span", {
     className: "notmeasured"
@@ -2660,13 +2692,23 @@ function NotMeasured({
     dashed: true,
     size: "sm",
     title: reason
-  }, "Not measured"), /*#__PURE__*/React.createElement(__ds_scope.Link, {
+  }, "Not measured"), link ? /*#__PURE__*/React.createElement(NotMeasuredWhy, {
+    href: href,
+    reason: reason
+  }) : null);
+}
+// The "Why?" link alone, to sit after the visible reason line (MetaList row `sub`).
+function NotMeasuredWhy({
+  href = '#',
+  reason = NOT_MEASURED_REASON
+}) {
+  return /*#__PURE__*/React.createElement(__ds_scope.Link, {
     href: href,
     title: reason,
     "aria-label": 'Why packet loss is not measured: ' + reason
-  }, "Why?"));
+  }, "Why?");
 }
-Object.assign(__ds_scope, { NotMeasured });
+Object.assign(__ds_scope, { NOT_MEASURED_REASON, NotMeasured, NotMeasuredWhy });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/NotMeasured.jsx", error: String((e && e.message) || e) }); }
 
 // components/measurement/QualityList.jsx
@@ -6160,7 +6202,8 @@ function ThemeSync({
  * browser, like the product does.
  */
 const PREFS_KEY = 'bitgauge-kit-prefs';
-const DESKTOP_MIN = 1140;
+// Desktop breakpoint from the design-system token (--breakpoint-desktop, 1140 px), read once styles are applied.
+const DESKTOP_MIN = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-desktop'));
 // The first idle ping is a warm-up sample and is discarded, so a latency stop has the 5 usable samples it needs
 // only once 6 pings were sent; with fewer, nothing was measured and the screen returns to Idle.
 const MIN_PINGS_SENT = 6;
@@ -6294,9 +6337,9 @@ class Prototype extends React.Component {
       this.start();
     };
     window.addEventListener('keydown', this._k);
-    // Desktop layouts are fully supported from DESKTOP_MIN px; narrower windows switch to the mobile layout.
+    // Desktop layouts are fully supported from --breakpoint-desktop; narrower windows switch to the mobile layout.
     this._rs = () => {
-      const n = window.innerWidth < DESKTOP_MIN;
+      const n = window.innerWidth < DESKTOP_MIN();
       if (n !== this.state.narrow) this.setState({
         narrow: n
       });
@@ -10694,9 +10737,11 @@ class TestScreen extends React.Component {
       auto = slow || !custom;
     // Fast LAN (§19.4): 1 → 2 → 4 → 6 streams keep gaining, so the ramp stops at the cap. The slow link stops gaining at 2.
     const plateau = auto ? ' · plateau: ' + (slow ? 'no-gain' : 'cap') : '';
-    const conn = [{
+    const conn = [
+    // Slow states read as a VPN link: a CGNAT address (100.64.0.0/10) is suggested as VPN; RFC 1918 would be LAN.
+    {
       k: 'Client IP',
-      v: slow ? '10.8.0.6' : '192.168.1.42',
+      v: slow ? '100.101.4.17' : '192.168.1.42',
       s: 'IPv4'
     }, {
       k: 'Protocol',
@@ -10978,9 +11023,11 @@ class TestScreen extends React.Component {
         none: null
       };
     });
+    // Packet loss slot (screens.md §6): the reason is a visible sub line, not only a tooltip (not seen on touch).
     const PL = {
       icon: 'signal',
       label: 'Packet loss',
+      sub: DS.NOT_MEASURED_REASON,
       na: true
     };
     const meta = (data, dataSub, dur, durSub) => [{
@@ -12795,6 +12842,7 @@ class TestScreen extends React.Component {
       rows: S.meta.map(r => r.na ? {
         icon: r.icon,
         label: r.label,
+        sub: r.sub,
         node: 'NM'
       } : {
         icon: r.icon,
@@ -13030,7 +13078,9 @@ class TestScreen extends React.Component {
       className: "ds-code"
     }, "/"), ". Its API answers at a different path, so no test can run from here.") : null, v.ready ? /*#__PURE__*/React.createElement("main", {
       className: "page" + (v.mobile ? " compact" : "")
-    }, /*#__PURE__*/React.createElement(DS.LiveRegion, {
+    }, /*#__PURE__*/React.createElement("h1", {
+      className: "sr-only"
+    }, "Speed test"), /*#__PURE__*/React.createElement(DS.LiveRegion, {
       message: v.liveMsg
     }), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -13161,7 +13211,10 @@ class TestScreen extends React.Component {
       key: i
     }, t))), v.load ? /*#__PURE__*/React.createElement(DS.LoadCard, v.load) : null, v.fit ? /*#__PURE__*/React.createElement(DS.QualityList, v.fit) : null, /*#__PURE__*/React.createElement(DS.MetaList, _extends({}, v.meta, {
       rows: v.meta.rows.map(r => r.node === 'NM' ? Object.assign({}, r, {
-        node: /*#__PURE__*/React.createElement(DS.NotMeasured, null)
+        node: /*#__PURE__*/React.createElement(DS.NotMeasured, {
+          link: false
+        }),
+        sub: /*#__PURE__*/React.createElement(React.Fragment, null, r.sub, /*#__PURE__*/React.createElement(DS.NotMeasuredWhy, null))
       }) : r)
     }))), v.lastLine ? /*#__PURE__*/React.createElement(DS.LastResult, {
       when: "2 h ago",
@@ -13262,7 +13315,7 @@ try { (() => {
   if (!me || !me.hasAttribute('data-kit')) return;
   const NS = 'BitGaugeDesignSystem_1ab699';
   const ROOT = me.getAttribute('data-root') || '../../';
-  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'NotMeasured', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart'];
+  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'NotMeasured', 'NotMeasuredWhy', 'NOT_MEASURED_REASON', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart'];
   const FILES = ['brand/Icon', 'brand/Logo', 'status/StatusPill', 'status/StatusBadge', 'status/Chip', 'actions/Link', 'actions/Tooltip', 'actions/Button', 'actions/StartButton', 'actions/Menu', 'actions/Popover', 'forms/Input', 'forms/Select', 'forms/Segmented', 'forms/Switch', 'forms/Toggle', 'forms/Checkbox', 'layout/Card', 'layout/Tabs', 'layout/Table', 'layout/MetaList', 'layout/Snippet', 'feedback/Notice', 'feedback/Toast', 'feedback/EmptyState', 'feedback/Skeleton', 'feedback/LiveRegion', 'feedback/SaveBar', 'feedback/FullScreenError', 'dialog/Dialog', 'charts/Format', 'charts/Chart', 'charts/PhaseChart', 'gauge/Gauge', 'measurement/MetricTile', 'measurement/PhaseStep', 'measurement/LoadCard', 'measurement/NotMeasured', 'measurement/QualityList', 'measurement/SharePreview', 'navigation/AppHeader'];
   window.DS_READY = (async () => {
     const ns = window[NS];
@@ -13643,7 +13696,11 @@ __ds_ns.LoadCard = __ds_scope.LoadCard;
 
 __ds_ns.MetricTile = __ds_scope.MetricTile;
 
+__ds_ns.NOT_MEASURED_REASON = __ds_scope.NOT_MEASURED_REASON;
+
 __ds_ns.NotMeasured = __ds_scope.NotMeasured;
+
+__ds_ns.NotMeasuredWhy = __ds_scope.NotMeasuredWhy;
 
 __ds_ns.PhaseStep = __ds_scope.PhaseStep;
 

@@ -11,7 +11,8 @@ function ThemeSync({ theme }) { React.useEffect(() => { document.documentElement
  * browser, like the product does.
  */
 const PREFS_KEY = 'bitgauge-kit-prefs';
-const DESKTOP_MIN = 1140;
+// Desktop breakpoint from the design-system token (--breakpoint-desktop, 1140 px), read once styles are applied.
+const DESKTOP_MIN = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-desktop'));
 // The first idle ping is a warm-up sample and is discarded, so a latency stop has the 5 usable samples it needs
 // only once 6 pings were sent; with fewer, nothing was measured and the screen returns to Idle.
 const MIN_PINGS_SENT = 6;
@@ -66,8 +67,8 @@ class Prototype extends React.Component {
       e.preventDefault(); this.start();
     };
     window.addEventListener('keydown', this._k);
-    // Desktop layouts are fully supported from DESKTOP_MIN px; narrower windows switch to the mobile layout.
-    this._rs = () => { const n = window.innerWidth < DESKTOP_MIN; if (n !== this.state.narrow) this.setState({ narrow: n }); };
+    // Desktop layouts are fully supported from --breakpoint-desktop; narrower windows switch to the mobile layout.
+    this._rs = () => { const n = window.innerWidth < DESKTOP_MIN(); if (n !== this.state.narrow) this.setState({ narrow: n }); };
     window.addEventListener('resize', this._rs);
     this._rs();
     this.reset();

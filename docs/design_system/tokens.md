@@ -83,9 +83,24 @@ Source: `colors_and_type.css` (tokens) and `base.css` (element defaults: body fo
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --font-condensed: var(--font-cond);
   --leading-normal: var(--lh-normal);
+  --leading-display: var(--lh-display);  --leading-stat: var(--lh-stat);  /* leading-none (1) is Tailwind's own = --lh-none */
+  --text-pico: 9px;                    /* = --text-pico (same-named key: literal) */
+  --breakpoint-desktop: 1140px;        /* = --breakpoint-desktop → `desktop:` variant. Breakpoints must be literals */
+  --breakpoint-tablet: 768px;          /* = --breakpoint-tablet (also Tailwind's default md) */
+  --radius-2xs: 2px;                   /* = --radius-2xs (same-named key: literal) */
+  --shadow-card: inset 0 1px 0 var(--card-highlight);   /* = --shadow-card */
+  --shadow-ring-danger: 0 0 0 3px var(--danger-bg);    /* = --shadow-ring-danger */
+  --blur-scrim: var(--scrim-blur);
+  --spacing-tooltip: var(--tooltip-gap);
+  --container-error: var(--layout-error-max);
+  --container-measure-xs: var(--layout-measure-xs); --container-measure-sm: var(--layout-measure-sm);
+  --container-measure-md: var(--layout-measure-md);
 }
 /* Destructive is the solid fill (--danger-solid) so a destructive Button label meets 4.5:1;
-   outline-danger text uses text-danger-foreground. --fg-faint is non-text only: no text-faint utility. */
+   outline-danger text uses text-danger-foreground. --fg-faint is non-text only: no text-faint utility.
+   Optical steps need no mapping: Tailwind's spacing multiplier already gives p-0.25 = 1 px, 0.75 = 3, 1.25 = 5,
+   1.75 = 7 (= --space-0-25 … --space-1-75). Tailwind has no theme keys for border width, opacity or SVG strokes:
+   use border-(length:--border-width-strong), opacity-(--opacity-disabled), stroke-(length:--chart-stroke). */
 ```
 
 Frontend aliases also resolve: `--surface-background`, `--surface-elevated`, `--surface-muted`,
@@ -149,6 +164,24 @@ need 3:1. Measured against `--bg-base` and `--surface-2`; tinted rows composite 
 | `--input-h`, `--pill-h`, `--pill-h-sm`, `--chip-h`, `--chip-h-sm`, `--tab-h` | 36, 22, 20, 30, 24, 36 px | |
 | `--header-h` / `-compact`, `--tabbar-h` | 56 / 52, 64 px | AppHeader, TabBar |
 | `--modal-w`, `--modal-w-wide`, `--start-w` | 452, 540, 248 px | Dialog; StartButton min width |
+| `--modal-max-w`, `--modal-icon` | 92vw, 36 px | Dialog max width on narrow viewports; Dialog icon box |
+| `--layout-text-basis` | 220 px | flex basis of a wrapping text body: Notice body, SaveBar message |
+| `--layout-input-basis`, `--layout-input-max` | 200, 340 px | SaveBar label field |
+| `--layout-grade-basis`, `--layout-grade-max`, `--layout-load-basis` | 172, 220, 260 px | LoadCard grade column; latency rows |
+| `--layout-error-max`, `--layout-error-min-h` / `-compact` | 600, 760 / 720 px | FullScreenError column and height |
+| `--layout-measure-xs / -sm / -md` | 180 / 300 / 420 px | text measure: Gauge state message, Chart empty message, EmptyState message |
+| `--control-h-item` | 32 px | menu items, nav links, Segmented options, Checkbox rows |
+| `--list-row-h` | 36 px | MetaList / QualityList row minimum |
+| `--menu-w`, `--toast-w` | 212, 380 px | Menu popup; Toast |
+| `--check-size` | 16 px | Checkbox box, ChoiceCard radio |
+| `--switch-w`, `--switch-h`, `--switch-knob` | 42, 24, 18 px | Switch (knob travel is computed from these) |
+| `--dot-size`, `--dot-size-lg` | 6, 7 px | status dots; header server dot and offline pill dot |
+| `--progress-h`, `--indicator-h` | 4, 2 px | PhaseStep bar; Tabs underline and TabBar indicator |
+| `--tab-indicator-inset` | 28 % | TabBar indicator inset from each side of its tab |
+| `--tile-value-h`, `--tile-qualifier-h` | 34, 15 px | MetricTile word-value line ( "warming up"); qualifier line minimum |
+| `--grade-size`, `--grade-size-sm`, `--grade-cell` | 52, 30, 17 px | GradeBadge; in SharePreview; scale strip cell |
+| `--empty-glyph` | 46 px | EmptyState glyph box |
+| `--share-aspect` | 1200 / 630 | SharePreview |
 | `--term-comment`, `--term-command`, `--term-muted` | slate-5, teal-5, slate-3 | Snippet syntax on `--term-bg` |
 
 ## Type
@@ -168,7 +201,34 @@ Scale tokens: `--text-nano` 10 … `--text-6xl` 48. Weights 400/500/600/700.
 Role tokens: `--type-gauge-readout` 58 / `-compact` 46, `--type-metric-value` 30 / 24,
 `--type-page-title` 30 / 24, `--type-state-title` 26 / 22; tracking `--tracking-readout` −0.03em,
 `--tracking-metric` −0.02em. Line heights: `--lh-tight` 1.15 · `--lh-snug` 1.3 · `--lh-compact` 1.45 ·
-`--lh-normal` 1.5 (body default, set in `base.css`) · `--lh-prose` 1.55 · `--lh-relaxed` 1.65.
+`--lh-normal` 1.5 (body default, set in `base.css`) · `--lh-prose` 1.55 · `--lh-relaxed` 1.65 · `--lh-none` 1 (pills,
+badges) · `--lh-display` 1.05 (gauge readout) · `--lh-stat` 22 px (Stat value row). `--text-pico` 9 px (grade strip,
+share-image meta); share image `--type-share-value` 26, `--type-share-label` 8 (the 1200 × 630 image's sizes, scaled).
+
+## Breakpoints
+
+- `--breakpoint-desktop` 1140 px: desktop layout from here; below it the `-compact` tokens apply (compact header,
+  TabBar, compact gutters). `--breakpoint-tablet` 768 px: Table `.flip` turns into a card list below it.
+- Media queries can't read custom properties, so an `@media` rule repeats the literal with a comment naming the token
+  (`max-width: 1139px` = below `--breakpoint-desktop`); scripts read the token with `getComputedStyle`.
+
+## Lines, focus, opacity
+
+- `--border-width` 1 px (every hairline) · `--border-width-strong` 1.5 px (hollow dots, Checkbox and radio boxes).
+- Focus: `--focus-width` 2 px solid `--focus-ring`, `--focus-offset` 2 px (inset rings use `calc(-1 * var(--focus-offset))`).
+- `--underline-offset` 2 px (link hover) · `--radius-2xs` 2 px (progress bar, TabBar indicator).
+- `--opacity-disabled` 0.45 · `--opacity-hint` 0.8 (keyboard hint, chip count) · `--scrim-blur` 2 px.
+- Shadows: `--shadow-card` = `inset 0 1px 0 var(--card-highlight)` (Card top edge; transparent in light) ·
+  `--shadow-ring-danger` = `0 0 0 3px var(--danger-bg)` (invalid field, focused).
+
+## Charts (non-colour)
+
+Strokes `--chart-stroke` 1 (grid, edges, separators, now line) · `--chart-stroke-latency` 1.25 · `--chart-stroke-mark` 1.5;
+dashes `--chart-dash-sep` 2 3 · `--chart-dash-latency` 4 3 · `--chart-dash-mark` 3 3; steady window
+`--chart-window-fill` 0.08 / `--chart-window-stroke` 0.4; `--chart-latency-opacity` 0.9, `--chart-now-opacity` 0.5;
+warm-up hatch `--chart-hatch-angle` 135deg, `--chart-hatch-pitch` 6 px; label anchors `--chart-label-anchor` −75 %,
+`--gauge-tick-anchor` −80 %; legend `--legend-swatch-w` 14 × `--legend-swatch-h` 10 px, `--legend-band-w` 12 px,
+`--legend-stroke` 2 px.
 
 ## Number formatting
 
@@ -179,11 +239,16 @@ always a separate, smaller span. Tabular numbers everywhere.
 
 ## Spacing, radius, motion, z
 
-- Spacing: 4 px grid, `--space-0-5` (2) … `--space-20` (80); half-steps below 20 px.
+- Spacing: 4 px grid, `--space-0-5` (2) … `--space-20` (80); half-steps below 20 px. Optical steps off the grid,
+  for 1 px alignment nudges and tight icon-to-text gaps only: `--space-0-25` 1 · `--space-0-75` 3 · `--space-1-25` 5 ·
+  `--space-1-75` 7. `--tooltip-gap` (= `--space-1-75`) between a Tooltip and its control.
   Desktop: content max 1200 px, 40 px gutters, 20 px between sections, 16 px between tiles.
-  Mobile: 16 px gutters, 10–14 px gaps. Touch targets ≥ 44 px; Start/Stop 52 px on mobile.
-- Radius: xs 3 · sm 5 · md 7 (controls) · lg 10 (cards) · xl 14 (dialogs) · full (pills).
+  Mobile (below `--breakpoint-desktop`): 16 px gutters, 10–14 px gaps. Touch targets ≥ 44 px; Start/Stop 52 px on mobile.
 - Motion: `--dur-fast` 120 · `--dur-base` 180 (gauge sample, tile fill-in) · `--dur-slow` 280
-  (phase change, window shift); `--ease-out`, `--ease-standard`. Menus/dialogs fade with a 4 px
-  translate. Reduced motion: no tweening, no pulsing.
+  (phase change, window shift) · `--dur-shimmer` 1.4 s (Skeleton loop); `--ease-out`, `--ease-standard`. Entrances:
+  `--enter-shift-sm` 4 px (page content), `--enter-shift-md` 6 px + `--enter-scale` 0.99 (Dialog), `--enter-shift-lg`
+  10 px (Toast); `--press-shift` 0.5 px (Button pressed). Reduced motion: no tweening, no pulsing.
+- Radius: 2xs 2 · xs 3 · sm 5 · md 7 (controls) · lg 10 (cards) · xl 14 (dialogs) · full (pills, dots).
+- Kit Demo panel only (prototype scaffolding, not product UI): `--demo-w` 300, `--demo-w-compact` 320,
+  `--demo-row-basis` 160 px, `--demo-max-h` `calc(100vh - 20px)`.
 - Z: sticky 20 · tooltip 30 · popover 40 · overlay 50 · toast 60 · nav 80 · skip-link 100.

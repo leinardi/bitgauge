@@ -286,6 +286,10 @@
     --chart-hatch: var(--fg-faint);
     --chart-band: var(--surface-3);
 
+    /* Shadow steps that carry a theme colour */
+    --shadow-card: inset 0 1px 0 var(--card-highlight);   /* Card top-edge highlight (transparent in light) */
+    --shadow-ring-danger: 0 0 0 3px var(--danger-bg);    /* invalid field, focused */
+
     /* Density (comfortable default) */
     --density-row-height: 48px; /* @kind other */
     --density-cell-padding-y: var(--space-3);
@@ -304,6 +308,7 @@
     --font-cond: "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
+    --text-pico: 9px;                  /* grade strip letters, share-image meta */
     --text-nano: 10px;
     --text-micro: 11px;
     --text-caption: 12px;
@@ -324,6 +329,9 @@
     --lh-normal: 1.5; /* @kind other */    /* body default (base.css) */
     --lh-prose: 1.55; /* @kind other */    /* muted explanatory paragraphs, dialog text */
     --lh-relaxed: 1.65; /* @kind other */  /* code blocks, lead text */
+    --lh-none: 1; /* @kind other */        /* pills, badges, share-image numbers */
+    --lh-display: 1.05; /* @kind other */  /* gauge readout */
+    --lh-stat: 22px; /* @kind other */     /* Stat value row (connection strip) */
 
     /* Type roles (tokens.md "Type"). The -compact value is the narrow-layout size. */
     --type-gauge-readout: 58px;
@@ -334,6 +342,8 @@
     --type-page-title-compact: var(--text-3xl);
     --type-state-title: 26px;
     --type-state-title-compact: 22px;
+    --type-share-value: 26px;          /* SharePreview: the 1200 × 630 image's sizes, scaled */
+    --type-share-label: 8px;
     --tracking-readout: -0.03em; /* @kind other */
     --tracking-metric: -0.02em; /* @kind other */
 
@@ -366,8 +376,19 @@
     --space-12: 48px;
     --space-16: 64px;
     --space-20: 80px;
+    /* Optical steps off the 2 px grid: 1 px alignment nudges and tight icon-to-text gaps only. */
+    --space-0-25: 1px;
+    --space-0-75: 3px;
+    --space-1-25: 5px;
+    --space-1-75: 7px;
+    --tooltip-gap: var(--space-1-75);  /* Tooltip above its control */
 
-    /* Layout (tokens.md "Spacing"). -compact = narrow layout (< 1140 px, or the kit's 390 px frame). */
+    /* Breakpoints. Media queries can't read custom properties: an @media rule repeats the literal
+       (max-width: 1139px = below --breakpoint-desktop) and scripts read the token. */
+    --breakpoint-desktop: 1140px;      /* desktop layout from here; below it the -compact values apply */
+    --breakpoint-tablet: 768px;        /* Table .flip turns into a card list below this */
+
+    /* Layout (tokens.md "Spacing"). -compact = narrow layout (< --breakpoint-desktop, or the kit's 390 px frame). */
     --layout-max: 1200px;
     --layout-gutter: var(--space-10);
     --layout-gutter-compact: var(--space-4);
@@ -377,6 +398,18 @@
     --layout-tile-gap-compact: var(--space-2-5);
     --layout-rail: 340px;              /* side rail: About, Result detail share panel */
     --layout-instrument: 400px;        /* Test screen gauge column */
+    --layout-text-basis: 220px;        /* flex basis of a wrapping text body: Notice body, SaveBar message */
+    --layout-input-basis: 200px;       /* SaveBar label field */
+    --layout-input-max: 340px;
+    --layout-grade-basis: 172px;       /* LoadCard grade column */
+    --layout-grade-max: 220px;
+    --layout-load-basis: 260px;        /* LoadCard latency rows */
+    --layout-error-max: 600px;         /* FullScreenError content column */
+    --layout-error-min-h: 760px;
+    --layout-error-min-h-compact: 720px;
+    --layout-measure-xs: 180px;        /* Gauge state message */
+    --layout-measure-sm: 300px;        /* Chart empty-state message */
+    --layout-measure-md: 420px;        /* EmptyState message */
 
     /* Control heights — the one definition; components read these. */
     --control-h-sm: 28px;
@@ -395,11 +428,72 @@
     --header-h: 56px;
     --header-h-compact: 52px;
     --tabbar-h: 64px;
+    --control-h-item: 32px;            /* menu items, nav links, Segmented options, Checkbox rows */
+    --list-row-h: 36px;                /* MetaList / QualityList row minimum */
+    --menu-w: 212px;
+    --toast-w: 380px;
+    --check-size: 16px;                /* Checkbox box, ChoiceCard radio */
+    --switch-w: 42px;
+    --switch-h: 24px;
+    --switch-knob: 18px;
+    --dot-size: 6px;                   /* status dots */
+    --dot-size-lg: 7px;                /* header server dot, offline pill dot */
+    --progress-h: 4px;                 /* PhaseStep bar */
+    --indicator-h: 2px;                /* Tabs underline, TabBar active indicator */
+    --tab-indicator-inset: 28%;        /* TabBar indicator inset from each side of its tab */
+    --tile-value-h: 34px;              /* MetricTile word value ("warming up") line */
+    --tile-qualifier-h: 15px;          /* MetricTile qualifier line minimum */
+    --grade-size: 52px;                /* GradeBadge letter box */
+    --grade-size-sm: 30px;             /* GradeBadge in SharePreview */
+    --grade-cell: 17px;                /* grade scale strip cell */
+    --empty-glyph: 46px;               /* EmptyState glyph box */
+    --modal-icon: 36px;                /* Dialog icon box */
+    --modal-max-w: 92vw; /* @kind other */
+    --share-aspect: 1200 / 630; /* @kind other */
+
+    /* Lines and focus */
+    --border-width: 1px;               /* hairlines */
+    --border-width-strong: 1.5px;      /* hollow dots, Checkbox and radio boxes */
+    --focus-width: 2px;
+    --focus-offset: 2px;
+    --underline-offset: 2px;           /* link hover underline */
+
+    /* Opacity */
+    --opacity-disabled: 0.45; /* @kind other */
+    --opacity-hint: 0.8; /* @kind other */   /* keyboard hint, chip count */
+    --scrim-blur: 2px;
+
+    /* Charts (non-colour) */
+    --chart-stroke: 1; /* @kind other */           /* gridlines, edges, separators, now line */
+    --chart-stroke-latency: 1.25; /* @kind other */
+    --chart-stroke-mark: 1.5; /* @kind other */
+    --chart-dash-sep: 2 3; /* @kind other */       /* phase separators, steady window */
+    --chart-dash-latency: 4 3; /* @kind other */
+    --chart-dash-mark: 3 3; /* @kind other */
+    --chart-window-fill: 0.08; /* @kind other */
+    --chart-window-stroke: 0.4; /* @kind other */
+    --chart-latency-opacity: 0.9; /* @kind other */
+    --chart-now-opacity: 0.5; /* @kind other */
+    --chart-hatch-angle: 135deg; /* @kind other */
+    --chart-hatch-pitch: 6px;
+    --chart-label-anchor: -75%; /* @kind other */  /* axis / mark label vertical anchor */
+    --gauge-tick-anchor: -80%; /* @kind other */   /* Gauge tick label vertical anchor */
+    --legend-swatch-w: 14px;
+    --legend-swatch-h: 10px;
+    --legend-band-w: 12px;
+    --legend-stroke: 2px;
+
+    /* Kit Demo panel only (prototype scaffolding, never product UI) */
+    --demo-w: 300px;
+    --demo-w-compact: 320px;
+    --demo-row-basis: 160px;
+    --demo-max-h: calc(100vh - 2 * var(--space-2-5)); /* @kind other */
 
     --modal-w: 452px; /* @kind other */
     --modal-w-wide: 540px; /* @kind other */
     --modal-w-xl: 760px; /* @kind other */   /* compare dialog */
 
+    --radius-2xs: 2px;                 /* progress bar, TabBar indicator */
     --radius-xs: 3px;
     --radius-sm: 5px;
     --radius-md: 7px;
@@ -413,6 +507,12 @@
     --dur-fast: 120ms; /* @kind other */
     --dur-base: 180ms; /* @kind other */   /* gauge sample tween, tile fill-in */
     --dur-slow: 280ms; /* @kind other */   /* phase change, gauge window shift */
+    --dur-shimmer: 1.4s; /* @kind other */ /* Skeleton loop */
+    --press-shift: 0.5px;              /* Button pressed nudge */
+    --enter-shift-sm: 4px;             /* page content fade-in */
+    --enter-shift-md: 6px;             /* Dialog */
+    --enter-shift-lg: 10px;            /* Toast slide-in */
+    --enter-scale: 0.99; /* @kind other */ /* Dialog */
 
     --z-sticky: 20; /* @kind other */
     --z-tooltip: 30; /* @kind other */

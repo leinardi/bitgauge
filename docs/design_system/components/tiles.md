@@ -41,7 +41,11 @@ Reduced motion: the number appears without fading.
 - **QualityList** (component): Streaming, Gaming, Video calls → Great / Good / Average / Poor / Bad as
   StatusBadges (icon + band name); note "Upper bound: packet loss is not measured".
 - **NotMeasured** (component): packet loss slot in a MetaList row, dashed outline StatusBadge
-  "Not measured" + "Why?" Link with the reason as tooltip and in its accessible name. Never a zero.
+  "Not measured" + "Why?" Link. The reason ("Browsers can't see packet loss over TCP",
+  `NOT_MEASURED_REASON`) is the row's visible sub line under the "Packet loss" label, because a tooltip
+  is not seen on touch; it is also the badge's and link's tooltip and part of the link's accessible
+  name. Layout: label and badge share the first line; the reason runs the row's full width beneath,
+  ending with the "Why?" link (`NotMeasured link={false}` + `NotMeasuredWhy` in the sub). Never a zero.
 - **MetaList** with `title` ("Test", "Session"): data used, duration, packet loss.
 
 Peak is labelled "peak" (p90 of the steady window, never a maximum). Overhead compensation, when

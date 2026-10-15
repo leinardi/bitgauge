@@ -161,7 +161,7 @@ off-scale spacing (28 → 24 px instrument padding, 9 → 8 px fact rows).
 
 5. Whether the History origin note and the import progress / result are notices (no spec tone) — rendered as info /
    neutral / ok Notices.
-6. Narrow layout threshold: the kit uses 1140 px; tokens.md gives mobile values without a breakpoint.
+6. ~~Narrow layout threshold~~ — resolved in the fifth pass: `--breakpoint-desktop` 1140 px.
 
 ## Third pass (2026-10-14): Error state vs features/ui/screens.md §7
 
@@ -186,3 +186,84 @@ off-scale spacing (28 → 24 px instrument padding, 9 → 8 px fact rows).
 - `Logo variant="mono"` now inherits `currentColor` from its parent (it was forced to `--fg`).
 - `NotMeasured` CSS class `.nm` → `.notmeasured` (a global two-letter class collided with card helpers).
 - Removed the leftover `bg-lib-ready` listeners in History / Result detail and the kit's `screenshots/` captures.
+
+## Fifth pass (2026-10-15): remaining literals, contract fixes
+
+No visual value changed: every token holds the literal it replaces. `features/` was read, not edited.
+
+### Tokens added (`colors_and_type.css`, documented in `tokens.md`)
+
+- Breakpoints: `--breakpoint-desktop` 1140px, `--breakpoint-tablet` 768px. `@media` rules can't read custom
+  properties, so `kit.css` (1139px) and `layout.css` (768px) keep the literal with a comment naming the token;
+  `Prototype.jsx` now reads `--breakpoint-desktop` instead of `DESKTOP_MIN = 1140`.
+- Line heights: `--lh-none` 1, `--lh-display` 1.05, `--lh-stat` 22px.
+- Type: `--text-pico` 9px, `--type-share-value` 26px, `--type-share-label` 8px.
+- Spacing (optical steps): `--space-0-25` 1px, `--space-0-75` 3px, `--space-1-25` 5px, `--space-1-75` 7px;
+  `--tooltip-gap` var(--space-1-75) = 7px.
+- Layout: `--layout-text-basis` 220px, `--layout-input-basis` 200px, `--layout-input-max` 340px,
+  `--layout-grade-basis` 172px, `--layout-grade-max` 220px, `--layout-load-basis` 260px, `--layout-error-max` 600px,
+  `--layout-error-min-h` 760px, `--layout-error-min-h-compact` 720px, `--layout-measure-xs` 180px,
+  `--layout-measure-sm` 300px, `--layout-measure-md` 420px.
+- Sizes: `--control-h-item` 32px, `--list-row-h` 36px, `--menu-w` 212px, `--toast-w` 380px, `--check-size` 16px,
+  `--switch-w` 42px, `--switch-h` 24px, `--switch-knob` 18px, `--dot-size` 6px, `--dot-size-lg` 7px, `--progress-h` 4px,
+  `--indicator-h` 2px, `--tab-indicator-inset` 28%, `--tile-value-h` 34px, `--tile-qualifier-h` 15px, `--grade-size` 52px,
+  `--grade-size-sm` 30px, `--grade-cell` 17px, `--empty-glyph` 46px, `--modal-icon` 36px, `--modal-max-w` 92vw,
+  `--share-aspect` 1200 / 630.
+- Lines and focus: `--border-width` 1px, `--border-width-strong` 1.5px, `--focus-width` 2px, `--focus-offset` 2px,
+  `--underline-offset` 2px, `--radius-2xs` 2px.
+- Opacity and overlay: `--opacity-disabled` 0.45, `--opacity-hint` 0.8, `--scrim-blur` 2px.
+- Shadows: `--shadow-card` inset 0 1px 0 var(--card-highlight), `--shadow-ring-danger` 0 0 0 3px var(--danger-bg).
+- Motion: `--dur-shimmer` 1.4s, `--press-shift` 0.5px, `--enter-shift-sm` 4px, `--enter-shift-md` 6px,
+  `--enter-shift-lg` 10px, `--enter-scale` 0.99.
+- Charts: `--chart-stroke` 1, `--chart-stroke-latency` 1.25, `--chart-stroke-mark` 1.5, `--chart-dash-sep` 2 3,
+  `--chart-dash-latency` 4 3, `--chart-dash-mark` 3 3, `--chart-window-fill` 0.08, `--chart-window-stroke` 0.4,
+  `--chart-latency-opacity` 0.9, `--chart-now-opacity` 0.5, `--chart-hatch-angle` 135deg, `--chart-hatch-pitch` 6px,
+  `--chart-label-anchor` -75%, `--gauge-tick-anchor` -80%, `--legend-swatch-w` 14px, `--legend-swatch-h` 10px,
+  `--legend-band-w` 12px, `--legend-stroke` 2px.
+- Kit Demo panel only: `--demo-w` 300px, `--demo-w-compact` 320px, `--demo-row-basis` 160px,
+  `--demo-max-h` calc(100vh - 2 × var(--space-2-5)) = calc(100vh - 20px).
+- Tailwind mapping (tokens.md) gains `--breakpoint-desktop/-tablet`, `--leading-display/-stat`, `--text-pico`,
+  `--radius-2xs`, `--shadow-card`, `--shadow-ring-danger`, `--blur-scrim`, `--spacing-tooltip`, `--container-error`,
+  `--container-measure-xs/-sm/-md`.
+
+On-scale literals now use existing tokens: `.optrows .menu-item` 34px → `--control-h-md`, `.tile-h` 20px →
+`--pill-h-sm`, `.hdr-sep` 20px → `--space-5`, `.optrows .ck` and the Demo checkbox 14px → `--space-3-5`, Demo
+paddings/offsets → `--space-*`, closed Demo button 30px → `--chip-h`, `border-radius: 50%` → `--radius-full`,
+`letter-spacing: 0` → `--tracking-normal`. Dropped the literal fallbacks in `var(--start-w, 248px)` and
+`var(--chip-h-sm, 24px)`. Left as geometry, not design values: `100%` sizes, `50%` / `-50%` / `-100%` centring and
+anchoring, the visually-hidden 1px pattern in `.tbl.flip thead`, the Skeleton gradient stops / `200%` size / `90deg`,
+z-index offsets (`± 1`, `- 2`) and the LoadCard's `flex-grow: 999`.
+
+### Class renamed
+
+- Callout `.block` → `.callout` (`feedback.css`, with `.callout .h`, `.callout .h svg`, `.callout .b`, `.callout .b b`).
+  `.block` also matched `.btn.block` and `.seg.block`, giving block Buttons (About: "Source repository", "LICENSE file
+  in the repository") the Callout's amber border and 14 × 16 px padding. No markup in the kit used the Callout class.
+- EmptyState `.empty` → `.empty-state` (`feedback.css`, with `.empty-state .eg/.et/.em/.ea`; `EmptyState.jsx`).
+  `.empty` also matched MetaList's `.val.empty` dash, giving every unmeasured value 48 × 24 px padding and a flex
+  column: the cause of the Test card's tall, spread-out rows. MetaList keeps `.val.empty`.
+
+### Contract fixes
+
+- **AppHeader compact:** the mark was `role="img"` named "BitGauge" next to the visible wordmark. New `Logo decorative`
+  prop (aria-hidden, no role or name, as wordmark mode already does); the compact header uses it.
+- **Test screen h1:** `<h1 class="sr-only">Speed test</h1>` is the first child of `<main>` (i18n-a11y.md §2.8).
+- **Packet-loss reason visible:** the Test MetaList's packet-loss row shows "Browsers can't see packet loss over TCP"
+  as its sub line under "Packet loss"; badge and "Why?" link unchanged. New export `NOT_MEASURED_REASON`
+  (NotMeasured); tiles.md and NotMeasured.prompt.md updated. MetaList rows with a component value get `.mrow.node`,
+  a small grid: label and value on the first line, the sub line full width beneath. (An interim flex-wrap version
+  inflated the list's intrinsic height and spread the Test card's rows over the whole card; `.mlist` also gets
+  `align-content: start`.) In the Test card the "Why?" link moves to the end of the reason line: new
+  `NotMeasured link` prop (default true) and `NotMeasuredWhy` export.
+- **Slow client context:** the slow states (slow, slowdone, cancelled-slow, cancelled-slow-up) use the CGNAT address
+  100.101.4.17 instead of 10.8.0.6, so "VPN, suggested" matches the address mapping.
+- **Gauge flicker on phase switch** (latency → download → upload): the window decade (`useGaugeWindow`) and its tween
+  (`useTweenK`) reset in effects, so the first render after a mode or start-window change drew the arc and ticks on the
+  previous scale for one frame, and the arc's `d` transition swept from the old phase's arc. Both are now derived in the
+  same render (kept). The real jump was the arc's `d` transition: it moved the endpoint along a straight chord, so for
+  180 ms the stroke was a radius-r arc off the dial's centre (≈ 90 px at t = 0.5 on latency → download), and the
+  large-arc flag flipped mid-tween. The value arc is now a static full-track path with `pathLength="1"` and
+  `stroke-dasharray: <fraction> 1`; only `stroke-dasharray` transitions (180 ms, `--dur-base`), dropped only for a
+  window shift and reduced motion. The interim "snap on phase switch" is reverted, so gauge.md rule 8 holds across
+  phase switches. Behaviour change: a value at the window floor (fraction 0) draws nothing, where the old clamp left a
+  round cap dot at 135°. Matches the shipped app.

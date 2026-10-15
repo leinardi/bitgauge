@@ -1,13 +1,13 @@
 /* Status vocabulary — StatusPill (.pill), StatusBadge (.sbadge), Chip (.chip). */
 .pill, .sbadge {
   display: inline-flex; align-items: center; gap: var(--space-1-5); height: var(--pill-h); padding: 0 var(--space-2-5) 0 var(--space-2);
-  border-radius: var(--radius-full); border: 1px solid; white-space: nowrap; line-height: 1;
+  border-radius: var(--radius-full); border: var(--border-width) solid; white-space: nowrap; line-height: var(--lh-none);
   font-family: var(--font-cond); font-weight: var(--weight-semibold); font-size: var(--text-micro); letter-spacing: var(--tracking-caps-tight); text-transform: uppercase;
 }
 .pill.sm, .sbadge.sm { height: var(--pill-h-sm); padding: 0 var(--space-2) 0 var(--space-1-5); gap: var(--space-1); font-size: var(--text-nano); }
 .pill.nodot { padding: 0 var(--space-2); }
 .pill.dashed, .sbadge.dashed { background: transparent; border-style: dashed; }
-.pill .d { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.pill .d { width: var(--dot-size); height: var(--dot-size); border-radius: var(--radius-full); flex: none; }
 .pill.ok, .sbadge.ok { background: var(--ok-bg); border-color: var(--ok-border); color: var(--ok-fg); }
 .pill.ok .d { background: var(--ok); }
 .pill.warn, .sbadge.warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-fg); }
@@ -19,22 +19,22 @@
 .pill.neutral, .sbadge.neutral { background: var(--surface-3); border-color: var(--border-default); color: var(--fg-muted); }
 .pill.neutral .d { background: var(--fg-faint); }
 .pill.offline { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-fg); }
-.pill.offline .d { background: transparent; border: 1.5px solid var(--warn); width: 7px; height: 7px; }
+.pill.offline .d { background: transparent; border: var(--border-width-strong) solid var(--warn); width: var(--dot-size-lg); height: var(--dot-size-lg); }
 .pill.dashed.neutral, .sbadge.dashed.neutral { border-color: var(--border-strong); }
 .sbadge > svg { flex: none; }
 
 .chip {
   display: inline-flex; align-items: center; gap: var(--space-1-5); height: var(--chip-h); padding: 0 var(--space-3);
-  border-radius: var(--radius-full); border: 1px solid var(--border-default); background: var(--surface-2); color: var(--fg-muted);
+  border-radius: var(--radius-full); border: var(--border-width) solid var(--border-default); background: var(--surface-2); color: var(--fg-muted);
   font-family: var(--font-sans); font-size: var(--text-sm); font-weight: var(--weight-semibold); white-space: nowrap;
 }
 button.chip:hover { background: var(--surface-3); color: var(--fg); }
 .chip.sm { height: var(--chip-h-sm); padding: 0 var(--space-2-5); gap: var(--space-1); font-size: var(--text-caption); }
 .chip.on, .chip.changed { background: var(--primary-bg); border-color: var(--primary-border); color: var(--primary-text); }
-.chip .n { font-family: var(--font-mono); font-size: var(--text-micro); opacity: 0.8; }
+.chip .n { font-family: var(--font-mono); font-size: var(--text-micro); opacity: var(--opacity-hint); }
 .chip.sort { padding: 0 var(--space-2); font-weight: var(--weight-medium); background: none; border-color: transparent; color: var(--fg-muted); }
 .chip.sort:hover { background: var(--surface-3); border-color: var(--border-default); color: var(--fg); }
 .chip.sort > svg:first-child { color: var(--fg-faint); }
 .chip.sort:hover > svg:first-child { color: var(--fg-muted); }
 .chgd { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--text-micro); font-weight: var(--weight-medium); color: var(--primary-text); }
-.chgd .d { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+.chgd .d { width: var(--dot-size); height: var(--dot-size); border-radius: var(--radius-full); background: var(--primary); }

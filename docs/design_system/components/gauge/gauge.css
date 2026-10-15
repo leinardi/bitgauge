@@ -2,20 +2,20 @@
 .gauge { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
 .gauge-dial { position: relative; }
 .gauge-dial svg { display: block; overflow: visible; }
-.gauge-tick { position: absolute; transform: translate(-50%, -80%); font-family: var(--font-mono); font-size: var(--text-micro); color: var(--fg-subtle); white-space: nowrap; }
-.gauge-rd { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding-top: var(--space-2); text-align: center; }
-.gauge-eb { display: flex; align-items: center; gap: 5px; font-family: var(--font-cond); font-weight: var(--weight-semibold); font-size: var(--text-caption); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
-.gauge-num { font-family: var(--font-mono); font-weight: var(--weight-medium); font-size: var(--type-gauge-readout); line-height: 1.05; letter-spacing: var(--tracking-readout); font-variant-numeric: tabular-nums; color: var(--fg); }
+.gauge-tick { position: absolute; transform: translate(-50%, var(--gauge-tick-anchor)); font-family: var(--font-mono); font-size: var(--text-micro); color: var(--fg-subtle); white-space: nowrap; }
+.gauge-rd { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-0-75); padding-top: var(--space-2); text-align: center; }
+.gauge-eb { display: flex; align-items: center; gap: var(--space-1-25); font-family: var(--font-cond); font-weight: var(--weight-semibold); font-size: var(--text-caption); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
+.gauge-num { font-family: var(--font-mono); font-weight: var(--weight-medium); font-size: var(--type-gauge-readout); line-height: var(--lh-display); letter-spacing: var(--tracking-readout); font-variant-numeric: tabular-nums; color: var(--fg); }
 .gauge.compact .gauge-num { font-size: var(--type-gauge-readout-compact); }
 .gauge-num.none { color: var(--fg-subtle); }
 .gauge-unit { font-size: var(--text-md); font-weight: var(--weight-medium); color: var(--fg-muted); }
 .gauge-note { font-family: var(--font-mono); font-size: var(--text-micro); color: var(--fg-subtle); }
-.gauge-inner { display: flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: var(--text-caption); color: var(--fg-muted); }
+.gauge-inner { display: flex; align-items: center; gap: var(--space-1-25); font-family: var(--font-mono); font-size: var(--text-caption); color: var(--fg-muted); }
 .gauge-inner .ic { color: var(--series-upload); display: inline-flex; }
 .gauge-st-ic { display: flex; margin-bottom: var(--space-1); }
 .gauge-title { font-size: var(--type-state-title); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); line-height: var(--lh-tight); color: var(--fg); }
 .gauge.compact .gauge-title { font-size: var(--type-state-title-compact); }
-.gauge-msg { font-size: var(--text-sm); color: var(--fg-subtle); max-width: 180px; line-height: var(--lh-compact); }
+.gauge-msg { font-size: var(--text-sm); color: var(--fg-subtle); max-width: var(--layout-measure-xs); line-height: var(--lh-compact); }
 .gauge-detail { margin-top: var(--space-1); font-family: var(--font-mono); font-size: var(--text-caption); color: var(--fg-subtle); }
 .gauge-act { margin-top: var(--space-2-5); }
 .gauge-cap, .gauge-sub { font-family: var(--font-mono); font-size: var(--text-caption); color: var(--fg-subtle); white-space: nowrap; }

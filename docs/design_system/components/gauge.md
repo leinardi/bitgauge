@@ -56,7 +56,9 @@ it. Spec: `features/measurement.md` §14, `features/ui/screens.md` §1 (Live gau
    (10 kbit/s and 10 Gbit/s; 1 kB/s and 10 GB/s). **The readout stays exact; the number never
    clamps.**
 8. **Motion:** a window shift tweens 280 ms ease-out in log space; ticks, labels and needle move
-   together. Each sample tweens 180 ms. Under `prefers-reduced-motion` there is no transition:
+   together. Each sample tweens 180 ms, phase switches included: the value arc is a full-track path
+   with `pathLength="1"` and `stroke-dasharray: <fraction> 1`, and only the dash transitions, so the
+   sweep stays on the ring (never transition `d`). A value at the window floor draws no arc. Under `prefers-reduced-motion` there is no transition:
    values and windows jump.
 
 ## Modes and states

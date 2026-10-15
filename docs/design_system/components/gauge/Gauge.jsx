@@ -20,11 +20,14 @@ function useReducedMotion() {
 // Window picker: pure function of the value stream and the clock. The engine never supplies the window.
 function useGaugeWindow(value, mode, units, startDecade, onWindowChange) {
   const R = KR[units] || KR.bits;
-  const start = startDecade ?? R.start;
-  const [k, setK] = React.useState(start);
+  const start = startDecade ?? R.start, key = units + '|' + start;
+  // A new unit or start window applies in the same render (derived), never one stale frame later.
+  const [st, setSt] = React.useState({ key, k: start });
+  const k = st.key === key ? st.k : start;
+  const setK = n => setSt({ key, k: n });
   const hold = React.useRef({ zone: 0, timer: null });
   const clear = () => { clearTimeout(hold.current.timer); hold.current = { zone: 0, timer: null }; };
-  React.useEffect(() => { clear(); setK(start); }, [units, start]);
+  React.useEffect(() => { clear(); if (st.key !== key) setSt({ key, k: start }); }, [key]);
   React.useEffect(() => {
     if (mode === 'ms' || value == null) { clear(); return; }
     const zone = value < Math.pow(10, k + 1) && k > R.min ? -1 : value > Math.pow(10, k + 3) && k < R.max ? 1 : 0;
@@ -40,6 +43,8 @@ function useGaugeWindow(value, mode, units, startDecade, onWindowChange) {
 function useTweenK(k, reduce, resetKey) {
   const [kd, setKd] = React.useState(k);
   const cur = React.useRef(k), raf = React.useRef(0), key = React.useRef(resetKey);
+  // First render after a unit, mode or start-window change: draw at the new window at once (no stale frame).
+  const fresh = key.current !== resetKey;
   React.useEffect(() => {
     cancelAnimationFrame(raf.current);
     const from = cur.current, jump = reduce || key.current !== resetKey || typeof requestAnimationFrame === 'undefined';
@@ -54,7 +59,7 @@ function useTweenK(k, reduce, resetKey) {
     raf.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf.current);
   }, [k, reduce, resetKey]);
-  return kd;
+  return { kd: fresh ? k : kd, fresh };
 }
 const TEXT_STATES = { idle: 1, connecting: 1, cancelled: 1, error: 1, offline: 1 };
 const ST_COLOR = { cancelled: 'var(--fg-subtle)', error: 'var(--danger)', offline: 'var(--danger)' };
@@ -66,7 +71,7 @@ export function Gauge({ size, compact = false, value, mode = 'rate', units = 'bi
   const reduce = useReducedMotion();
   const live = state === 'live', cd = state === 'countdown', textual = !!TEXT_STATES[state];
   const k = useGaugeWindow(live ? value : null, mode, units, startDecade, onWindowChange);
-  const kd = useTweenK(k, reduce, units + '|' + mode + '|' + (startDecade ?? ''));
+  const { kd, fresh } = useTweenK(k, reduce, units + '|' + mode + '|' + (startDecade ?? ''));
   const shifting = kd !== k;
   const cx = size / 2, cy = size / 2, r = size / 2 - 10;
   const lo = mode === 'ms' ? 1 : Math.pow(10, k), hi = mode === 'ms' ? 1000 : Math.pow(10, k + 4);
@@ -88,7 +93,10 @@ export function Gauge({ size, compact = false, value, mode = 'rate', units = 'bi
   const has = value != null && (live || state === 'cancelled'), fv = has ? f(value) : 0;
   const dot = has && live ? pt(cx, cy, r, A0 + SW * fv) : null;
   const pk = has && live && peak != null ? [pt(cx, cy, r + 8, A0 + SW * f(peak)), pt(cx, cy, r - 8, A0 + SW * f(peak))] : null;
-  const tween = reduce || shifting ? undefined : 'd var(--dur-base) var(--ease-out)';
+  // Each sample tweens the arc's length along the ring (stroke-dasharray on a static full-track path, pathLength 1);
+  // tweening `d` moved the endpoint along a chord and drew a ring off the dial's centre. Only a window shift and
+  // reduced motion drop the transition. A value at the window floor (fv 0) draws nothing.
+  const tween = reduce || shifting ? undefined : 'stroke-dasharray var(--dur-base) var(--ease-out)';
   const stc = ST_COLOR[state] || 'var(--fg-subtle)';
   return <div className={'gauge' + (compact ? ' compact' : '')} style={{ width: size }}>
     <div className="gauge-dial" style={{ width: size, height: size }}>
@@ -97,7 +105,7 @@ export function Gauge({ size, compact = false, value, mode = 'rate', units = 'bi
       {ticks.map((t, i) => <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} style={{ stroke: 'var(--fg-faint)', strokeWidth: t.w, opacity: t.o }} />)}
       {cd ? <path d={arc(cx, cy, r, 0, cdFrac)} style={{ fill: 'none', stroke: 'var(--primary)', strokeWidth: 10, strokeLinecap: 'round' }} /> : null}
       {has && live && bandLo != null ? <path d={arc(cx, cy, r, f(bandLo), f(bandHi))} style={{ fill: 'none', stroke: color, strokeOpacity: 0.2, strokeWidth: 22 }} /> : null}
-      {has ? <path d={arc(cx, cy, r, 0, fv)} style={{ fill: 'none', stroke: color, strokeWidth: 10, strokeLinecap: 'round', transition: tween }} /> : null}
+      {has ? <path d={arc(cx, cy, r, 0, 1)} pathLength="1" strokeDasharray={fv + ' 1'} style={{ fill: 'none', stroke: color, strokeWidth: 10, strokeLinecap: 'round', transition: tween }} /> : null}
       {has && inner != null ? <path d={arc(cx, cy, r - 10, 0, f(inner))} style={{ fill: 'none', stroke: 'var(--series-upload)', strokeWidth: 4, strokeLinecap: 'round' }} /> : null}
       {pk ? <line x1={pk[0][0]} y1={pk[0][1]} x2={pk[1][0]} y2={pk[1][1]} style={{ stroke: 'var(--fg-muted)', strokeWidth: 2, strokeLinecap: 'round' }} /> : null}
       {dot ? <circle cx={dot[0]} cy={dot[1]} r="7" style={{ fill: 'var(--surface-2)', stroke: color, strokeWidth: 3 }} /> : null}

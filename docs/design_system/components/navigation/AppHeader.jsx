@@ -24,7 +24,7 @@ export function AppHeader({ compact = false, server, host, status = 'connected',
     const cur = THEMES.find(t => t.value === theme) || THEMES[2];
     const next = THEMES[(THEMES.indexOf(cur) + 1) % 3].value;
     return <header className="hdr compact">
-      <Logo size={26} />
+      <Logo size={26} decorative />
       <div className="hdr-id"><span className="wm md"><span>Bit<span className="g">Gauge</span></span></span><Server name={server} host={host} down={down} /></div>
       <button type="button" className="btn ghost icon touch hdr-theme" aria-label={'Theme: ' + cur.label} onClick={() => onThemeChange && onThemeChange(next)}><Icon name={cur.icon} size={18} /></button>
     </header>;

@@ -70,7 +70,8 @@ class TestScreen extends React.Component {
     // Fast LAN (§19.4): 1 → 2 → 4 → 6 streams keep gaining, so the ramp stops at the cap. The slow link stops gaining at 2.
     const plateau = auto ? ' · plateau: ' + (slow ? 'no-gain' : 'cap') : '';
     const conn = [
-      { k: 'Client IP', v: slow ? '10.8.0.6' : '192.168.1.42', s: 'IPv4' },
+      // Slow states read as a VPN link: a CGNAT address (100.64.0.0/10) is suggested as VPN; RFC 1918 would be LAN.
+      { k: 'Client IP', v: slow ? '100.101.4.17' : '192.168.1.42', s: 'IPv4' },
       { k: 'Protocol', v: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? '—' : 'HTTP/2', s: RS === 'not-reported' ? 'not reported' : '' },
       { k: 'Streams', v: streams, s: (auto ? 'auto' : 'fixed') + (after ? plateau : '') }
     ];
@@ -150,7 +151,8 @@ class TestScreen extends React.Component {
       if (!q || q[i] == null) return { label, icon, rating: null, none: nn || '—' };
       const Q = BG.QUALITY[q[i]]; return { label, icon, rating: q[i], cls: 'sbadge ' + Q.tone, ricon: Q.icon, none: null };
     });
-    const PL = { icon: 'signal', label: 'Packet loss', na: true };
+    // Packet loss slot (screens.md §6): the reason is a visible sub line, not only a tooltip (not seen on touch).
+    const PL = { icon: 'signal', label: 'Packet loss', sub: DS.NOT_MEASURED_REASON, na: true };
     const meta = (data, dataSub, dur, durSub) => [
       { icon: 'database', label: 'Data used', sub: dataSub, value: data, vc: data === '—' ? 'var(--fg-subtle)' : 'var(--fg)' },
       { icon: 'timer', label: 'Duration', sub: durSub, value: dur, vc: dur === '—' ? 'var(--fg-subtle)' : 'var(--fg)' },
@@ -546,7 +548,7 @@ class TestScreen extends React.Component {
     const fitP = S.fit ? { bands: S.fit.map(f => f.rating || null), missing: S.fit.map(f => f.none || '—'), basis: S.fitBasis || undefined, compact: m, style: { gridColumn: L.fitSpan } } : null;
     const mcols = S.metaCols ? +((S.metaCols.match(/repeat\((\d+)/) || [0, 1])[1]) : 1;
     const metaP = { title: S.metaTitle || 'Test', compact: m, columns: mcols, style: { gridColumn: S.metaSpan || L.metaSpan },
-      rows: S.meta.map(r => r.na ? { icon: r.icon, label: r.label, node: 'NM' } : { icon: r.icon, label: r.label, sub: r.sub || undefined, value: r.value }) };
+      rows: S.meta.map(r => r.na ? { icon: r.icon, label: r.label, sub: r.sub, node: 'NM' } : { icon: r.icon, label: r.label, sub: r.sub || undefined, value: r.value }) };
     const PH = { countdown: 'Test starts automatically in ' + cdN + ' seconds. Press Escape to cancel.', connecting: 'Connecting to ' + SRV + '.', latency: 'Measuring latency.', download: 'Latency 3.1 milliseconds. Measuring download.', upload: 'Download finished: ' + rs(612e6) + '. Measuring upload.', complete: 'Upload finished: ' + rs(438e6) + '. Test complete and saved to history.', error: 'Connection to ' + SRV + ' lost: ' + EK[0] + '. Partial results were not saved.', slowdone: 'Upload finished: ' + rs(210e3) + '. Test complete and saved to history.', continuous: 'Continuous download running.', offline: 'Server unreachable. Start is unavailable until ' + SRV + ' responds.', 'ws-fallback': 'WebSocket unavailable, using HTTP latency fallback. Measuring download.', insufficient: 'Download has insufficient data. Measuring upload.', 'param-ignored': 'URL parameter streams=12 ignored, allowed 1 to 6.', 'error-early': 'Connection lost during latency. Nothing was saved.', 'cont-warmup': 'Continuous run stopped during warm-up. Partial results were not saved.', 'cont-done': 'Continuous run stopped. Saved to history.', 'cancelled-latency': 'Test cancelled during latency. Partial results were not saved.', 'cancelled-download': 'Test cancelled during download. Partial results were not saved.', 'cancelled-slow': 'Test cancelled during download. Partial results were not saved.', 'cancelled-slow-up': 'Test cancelled during upload. Partial results were not saved.' };
     if (v01) Object.keys(PH).forEach(k => { PH[k] = PH[k].replace(' and saved to history', '').replace(' Saved to history.', ''); });
     this._live = { st, msg: S.ann || PH[st] || '', rate: ['latency', 'download', 'ws-fallback', 'insufficient', 'upload', 'slow', 'continuous'].includes(st) && R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : null };
@@ -595,6 +597,7 @@ class TestScreen extends React.Component {
         ) : null}
         {v.ready ? (
           <main className={"page" + (v.mobile ? " compact" : "")}>
+            <h1 className="sr-only">Speed test</h1>
             <DS.LiveRegion message={v.liveMsg} />
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", gap: "var(--space-3) var(--space-6)" }}>
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", gap: "var(--space-2-5) var(--space-6)" }}>
@@ -628,7 +631,7 @@ class TestScreen extends React.Component {
               {v.tiles.map((t, i) => <DS.MetricTile key={i} {...t} />)}
               {v.load ? <DS.LoadCard {...v.load} /> : null}
               {v.fit ? <DS.QualityList {...v.fit} /> : null}
-              <DS.MetaList {...v.meta} rows={v.meta.rows.map(r => r.node === 'NM' ? Object.assign({}, r, { node: <DS.NotMeasured /> }) : r)} />
+              <DS.MetaList {...v.meta} rows={v.meta.rows.map(r => r.node === 'NM' ? Object.assign({}, r, { node: <DS.NotMeasured link={false} />, sub: <React.Fragment>{r.sub}<DS.NotMeasuredWhy /></React.Fragment> }) : r)} />
             </section>
             {v.lastLine ? <DS.LastResult when="2 h ago" values="↓ 612 · ↑ 438 Mbit/s · 3.1 ms" label="Home Wi-Fi" /> : null}
           </main>
