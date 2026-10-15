@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { RefreshCw, ServerOff } from '@lucide/vue'
 
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/actions/AppButton.vue'
 
 // The offline state (ui/screens.md section 1, ui/flows.md section 1): GET /api/v1/info failed, so
 // the server is unreachable until Retry succeeds.
@@ -42,8 +42,7 @@ defineEmits<{ retry: [] }>()
       <span class="text-(length:--text-sm) font-semibold text-foreground">{{ $t('app.offline.title') }}</span>
       <span class="text-(length:--text-sm) text-muted-foreground">{{ $t('app.offline.body', { host }) }}</span>
     </div>
-    <Button
-      variant="outline"
+    <AppButton
       size="sm"
       @click="$emit('retry')"
     >
@@ -52,6 +51,6 @@ defineEmits<{ retry: [] }>()
         aria-hidden="true"
       />
       {{ $t('app.offline.retry') }}
-    </Button>
+    </AppButton>
   </div>
 </template>

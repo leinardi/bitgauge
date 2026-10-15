@@ -22,7 +22,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { noticeViews, type Tone } from '@/components/test/notices'
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/actions/AppButton.vue'
 import type { Notice, Preset } from '@/engine/messages'
 
 // The notices area (ui/screens.md section 7): each notice an icon and text, never colour alone,
@@ -79,9 +79,8 @@ const views = computed(() => noticeViews(props.notices, { t, locale: locale.valu
             v-for="action in view.actions.slice(0, 2)"
             :key="action.label"
           >
-            <Button
+            <AppButton
               v-if="action.kind === 'retry'"
-              variant="outline"
               size="sm"
               @click="$emit('retry')"
             >
@@ -90,10 +89,9 @@ const views = computed(() => noticeViews(props.notices, { t, locale: locale.valu
                 aria-hidden="true"
               />
               {{ action.label }}
-            </Button>
-            <Button
+            </AppButton>
+            <AppButton
               v-else-if="action.kind === 'preset'"
-              variant="outline"
               size="sm"
               @click="$emit('preset', action.preset)"
             >
@@ -102,8 +100,8 @@ const views = computed(() => noticeViews(props.notices, { t, locale: locale.valu
                 aria-hidden="true"
               />
               {{ action.label }}
-            </Button>
-            <Button
+            </AppButton>
+            <AppButton
               v-else
               as="a"
               variant="ghost"
@@ -117,7 +115,7 @@ const views = computed(() => noticeViews(props.notices, { t, locale: locale.valu
                 :size="14"
                 aria-hidden="true"
               />
-            </Button>
+            </AppButton>
           </template>
         </div>
       </div>

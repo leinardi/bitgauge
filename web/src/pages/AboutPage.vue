@@ -23,7 +23,7 @@ import { useI18n } from 'vue-i18n'
 
 import BrandLogo from '@/components/brand/BrandLogo.vue'
 import OfflineNotice from '@/components/OfflineNotice.vue'
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/actions/AppButton.vue'
 import { useInfo } from '@/composables/useInfo'
 import { links } from '@/lib/links'
 
@@ -110,9 +110,8 @@ const credits = computed(() => [
           </div>
         </dl>
         <div class="flex flex-wrap items-center gap-2">
-          <Button
+          <AppButton
             as-child
-            variant="outline"
           >
             <a
               :href="links.source"
@@ -125,8 +124,8 @@ const credits = computed(() => [
                 aria-hidden="true"
               />
             </a>
-          </Button>
-          <Button
+          </AppButton>
+          <AppButton
             as-child
             variant="ghost"
             size="sm"
@@ -136,7 +135,7 @@ const credits = computed(() => [
               target="_blank"
               rel="noopener noreferrer"
             >{{ t('about.licenceFile') }}</a>
-          </Button>
+          </AppButton>
         </div>
       </section>
       <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">

@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/actions/AppButton.vue'
 
 // History, Settings and Result detail keep their routes in v0.1 and render this page
 // (ui/screens.md section 1).
@@ -35,13 +35,14 @@ import { Button } from '@/components/ui/button'
     <p class="text-(length:--text-base) text-muted-foreground">
       {{ $t('notAvailable.body') }}
     </p>
-    <Button
+    <AppButton
       as-child
-      variant="outline"
+      variant="primary"
+      size="sm"
     >
       <RouterLink to="/">
         {{ $t('notAvailable.back') }}
       </RouterLink>
-    </Button>
+    </AppButton>
   </main>
 </template>

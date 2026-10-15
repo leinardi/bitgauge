@@ -20,7 +20,7 @@
 import { CircleAlert, FileJson, TriangleAlert } from '@lucide/vue'
 import { shallowRef, useId, watch } from 'vue'
 
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/actions/AppButton.vue'
 import type { Result } from '@/engine/messages'
 import { serializeResult } from '@/export/serialize'
 
@@ -29,7 +29,7 @@ import { serializeResult } from '@/export/serialize'
 // IP and notes (security.md section 7) and also describes the button. A result that fails
 // validation is not exported: the button turns to its error state and says why.
 
-const props = defineProps<{ result: Result; variant?: 'default' | 'secondary' | 'ghost' }>()
+const props = defineProps<{ result: Result; variant?: 'secondary' | 'ghost' }>()
 
 const REVOKE_AFTER_MS = 10_000
 
@@ -65,9 +65,9 @@ function download(): void {
 
 <template>
   <span class="group relative inline-flex flex-col items-end gap-1">
-    <Button
+    <AppButton
       size="sm"
-      :variant="failed ? 'outline' : (variant ?? 'ghost')"
+      :variant="failed ? 'secondary' : (variant ?? 'ghost')"
       :aria-describedby="failed ? `${tipId} ${errorId}` : tipId"
       :class="{ 'border-(--danger-border) text-(--danger-fg)': failed }"
       data-testid="download-json"
@@ -75,10 +75,11 @@ function download(): void {
     >
       <component
         :is="failed ? CircleAlert : FileJson"
+        :size="14"
         aria-hidden="true"
       />
       {{ $t('test.export.download') }}
-    </Button>
+    </AppButton>
     <span
       :id="tipId"
       role="tooltip"

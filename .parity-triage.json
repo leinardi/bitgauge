@@ -2188,7 +2188,7 @@
         "layer": "style",
         "path": "^main > button \"(LICENSE file in the repository|Source repository)\"$",
         "kind": "^(border-top-color|padding-(top|bottom|left|right))$",
-        "detail": "^(rgba\\((218, 149, 44, 82|243, 182, 73, 87)\\)|(14|16)px → (8|12)px$)"
+        "detail": "^(rgba\\((218, 149, 44, 82|243, 182, 73, 87)\\)|(14|16)px → (0|8|12|14)px$)"
       },
       "type": "conflict",
       "aspect": "style",
@@ -2217,8 +2217,20 @@
         "about": {
           "0f3253e776d4": "*",
           "1adb8bd9ddc3": "*",
+          "2175ab289418": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "42fb23de4864": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
           "8294c263ff70": "*",
+          "927e24fe6869": "*",
+          "9b3102cc3a2d": "*",
           "af9a8c43c74b": "*",
+          "d0be6a5c9942": "*",
+          "d912f7ce9fcf": "*",
           "df14dbd3099c": [
             "dark-desktop",
             "dark-narrow"
@@ -2231,8 +2243,20 @@
         "about/unreachable": {
           "0f3253e776d4": "*",
           "1adb8bd9ddc3": "*",
+          "2175ab289418": [
+            "light-desktop",
+            "light-narrow"
+          ],
+          "42fb23de4864": [
+            "dark-desktop",
+            "dark-narrow"
+          ],
           "8294c263ff70": "*",
+          "927e24fe6869": "*",
+          "9b3102cc3a2d": "*",
           "af9a8c43c74b": "*",
+          "d0be6a5c9942": "*",
+          "d912f7ce9fcf": "*",
           "df14dbd3099c": [
             "dark-desktop",
             "dark-narrow"
@@ -2262,7 +2286,7 @@
         "layer": "style",
         "path": "^main > button \"(Download JSON|Retry|LICENSE file in the repository|Cancel|Source repository|Deployment docs|Reload)\"$",
         "kind": "^(?!line-height$)",
-        "detail": "^(?!rgba\\(0, 0, 0, 0\\) → )(?!rgba\\((218, 149, 44, 82|243, 182, 73, 87)\\))(?!(306|324)\\.0px)(?!(14|16)px → (8|12)px$)"
+        "detail": "^(?!rgba\\(0, 0, 0, 0\\) → )(?!rgba\\((218, 149, 44, 82|243, 182, 73, 87)\\))(?!(306|324)\\.0px)(?!(14|16)px → (0|8|12|14)px$)"
       },
       "type": "conflict",
       "aspect": "style",
@@ -2559,11 +2583,53 @@
         {
           "target": "vue",
           "what": "Sync web/src/styles/index.css with tokens.md's Tailwind mapping (secondary, accent, popover, destructive, status triads); an app-level AppButton wrapper with the kit's sm/md anatomy and variants, never editing components/ui; Retry, Source repository and Deployment docs use secondary.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-15",
+        "run": {
+          "runId": "8acada27-3b44-48f0-82c6-a7008358edaa",
+          "finishedAt": "2026-10-15T06:38:59.726Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "style-context-chip",

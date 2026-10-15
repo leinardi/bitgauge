@@ -21,7 +21,7 @@ import { Timer, X } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/actions/AppButton.vue'
 
 // The auto-start notice of the countdown (ui/flows.md section 2, kit TestScreen.jsx): the seconds
 // left and why the test is about to start, with Cancel. It is a status message, info in tone.
@@ -51,8 +51,7 @@ const title = computed(() => t('test.countdown.title', { n: new Intl.NumberForma
       <span class="text-(length:--text-sm) font-semibold text-foreground">{{ title }}</span>
       <span class="text-(length:--text-sm) text-muted-foreground">{{ $t('test.countdown.body') }}</span>
     </div>
-    <Button
-      variant="secondary"
+    <AppButton
       size="sm"
       data-testid="auto-start-cancel"
       @click="$emit('cancel')"
@@ -62,6 +61,6 @@ const title = computed(() => t('test.countdown.title', { n: new Intl.NumberForma
         aria-hidden="true"
       />
       {{ $t('test.countdown.cancel') }}
-    </Button>
+    </AppButton>
   </div>
 </template>

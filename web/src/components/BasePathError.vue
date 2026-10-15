@@ -20,7 +20,7 @@
 import { CircleAlert, ExternalLink, RefreshCw, Terminal } from '@lucide/vue'
 
 import BrandLogo from '@/components/brand/BrandLogo.vue'
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/actions/AppButton.vue'
 import type { BasePathMismatch } from '@/lib/basePath'
 import { links } from '@/lib/links'
 
@@ -120,16 +120,18 @@ function reload(): void {
         </div>
       </section>
       <div class="flex flex-wrap gap-2">
-        <Button @click="reload">
+        <AppButton
+          variant="primary"
+          @click="reload"
+        >
           <RefreshCw
             :size="15"
             aria-hidden="true"
           />
           {{ $t('app.basePath.reload') }}
-        </Button>
-        <Button
+        </AppButton>
+        <AppButton
           as-child
-          variant="outline"
         >
           <a
             :href="links.subPathGuide"
@@ -142,7 +144,7 @@ function reload(): void {
             />
             {{ $t('app.basePath.docs') }}
           </a>
-        </Button>
+        </AppButton>
       </div>
     </div>
   </main>

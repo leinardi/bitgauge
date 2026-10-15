@@ -29,19 +29,58 @@
 @import '@design/base.css' layer(base);
 
 @theme inline {
+  /* shadcn-vue and Reka UI's semantic set: every key a library expects is mapped. */
   --color-background: var(--bg-base);
   --color-foreground: var(--fg);
   --color-card: var(--surface-2);
-  --color-muted: var(--surface-3);
-  --color-muted-foreground: var(--fg-muted);
-  --color-subtle-foreground: var(--fg-subtle);
-  --color-border: var(--border-subtle);
-  --color-input: var(--border-default);
+  --color-card-foreground: var(--fg);
+  --color-popover: var(--surface-2);
+  --color-popover-foreground: var(--fg);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-fg);
-  --color-primary-text: var(--primary-text);
-  --color-destructive: var(--danger);
+  --color-secondary: var(--surface-3);
+  --color-secondary-foreground: var(--fg);
+  --color-muted: var(--surface-3);
+  --color-muted-foreground: var(--fg-muted);
+  --color-accent: var(--surface-3);
+  --color-accent-foreground: var(--fg);
+  --color-destructive: var(--danger-solid);
+  --color-destructive-foreground: var(--fg-on-solid);
+  --color-border: var(--border-subtle);
+  --color-input: var(--border-default);
   --color-ring: var(--focus-ring);
+  --color-chart-1: var(--series-download);
+  --color-chart-2: var(--series-upload);
+  --color-chart-3: var(--series-latency);
+  --color-chart-4: var(--sending);
+  --color-chart-5: var(--fg-subtle);
+  --color-sidebar: var(--surface-1);
+  --color-sidebar-foreground: var(--fg);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-fg);
+  --color-sidebar-accent: var(--surface-3);
+  --color-sidebar-accent-foreground: var(--fg);
+  --color-sidebar-border: var(--border-subtle);
+  --color-sidebar-ring: var(--focus-ring);
+  /* BitGauge additions */
+  --color-subtle-foreground: var(--fg-subtle);
+  --color-primary-text: var(--primary-text);
+  --color-ok: var(--ok);
+  --color-ok-foreground: var(--ok-fg);
+  --color-ok-bg: var(--ok-bg);
+  --color-ok-border: var(--ok-border);
+  --color-warn: var(--warn);
+  --color-warn-foreground: var(--warn-fg);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-border: var(--warn-border);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-fg);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-border: var(--danger-border);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-fg);
+  --color-info-bg: var(--info-bg);
+  --color-info-border: var(--info-border);
   --color-series-download: var(--series-download);
   --color-series-upload: var(--series-upload);
   --color-series-latency: var(--series-latency);
@@ -57,8 +96,12 @@
   --color-quality-average: var(--quality-average);
   --color-quality-poor: var(--quality-poor);
   --color-quality-bad: var(--quality-bad);
+  --color-term: var(--term-bg);
+  --color-term-foreground: var(--term-fg);
   --radius: 7px;
   --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-condensed: var(--font-cond);
+  --leading-normal: var(--lh-normal);
 }
 /* --fg-faint is non-text only: no text-faint utility. */
