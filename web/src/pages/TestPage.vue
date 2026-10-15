@@ -201,7 +201,7 @@ watch(run.error, (error) => {
     tabindex="-1"
     class="focus:outline-none mx-auto flex w-full max-w-(--layout-max) flex-1 flex-col gap-4 px-4 py-6 sm:gap-5 sm:px-10"
   >
-    <h1 class="sr-only">
+    <h1 class="sr-only text-[length:calc(2*var(--text-base))] leading-(--lh-normal) font-bold">
       {{ $t('test.title') }}
     </h1>
     <LiveRegions
