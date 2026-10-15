@@ -66,14 +66,16 @@ export const DEMO_SCENARIOS = {
   countdown: { link: 'lan', start: false, query: 'run=1' },
   'param-ignored': { link: 'lan', start: false, query: 'streams=12' },
   connecting: { link: 'lan', start: true, hold: at('info', 0) },
-  latency: { link: 'lan', start: true, hold: at('idle', 1400) },
+  // Pings go out every 100 ms, so the instants of the kit's latency states fall between two: the
+  // kit's ping 14 of 20 at 1.4 s, and 12 of 20 at its early error at 1.2 s.
+  latency: { link: 'lan', start: true, hold: at('idle', 1350) },
   download: { link: 'lan', start: true, hold: at('download', 7500) },
   'ws-fallback': { link: 'lan', start: true, webSocket: false, hold: at('download', 7500) },
   upload: { link: 'lan', start: true, hold: at('upload', 12_000) },
   complete: { link: 'lan', start: true },
   error: { link: 'lan', start: true, fault: at('download', 6400) },
   // The kit's early error is the server going away during idle latency, whatever the panel says.
-  'error-early': { link: 'lan', start: true, fault: { ...at('idle', 1200), kind: 'unreachable' } },
+  'error-early': { link: 'lan', start: true, fault: { ...at('idle', 1150), kind: 'unreachable' } },
   // Over HTTP/1.1 the first failed upload request ends the upload, not the run: the result is
   // complete, with the upload's window up to the failure (measurement.md section 7.5). The kit fails
   // at 8.2 s, before its own 9.5 s warm-up ends; the demo fails at 12 s, after a window of at least

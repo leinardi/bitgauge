@@ -1219,6 +1219,10 @@
       "status": "decided",
       "owned": {
         "test/cancelled-latency": {
+          "3170c835226b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "3bc40e8ab8a1": "*",
           "3d8cac689940": "*",
           "41b392b8c48a": "*",
@@ -1228,6 +1232,10 @@
           "a15e75dce156": "*",
           "a6efe82d88f4": "*",
           "c7265acf7bb4": "*",
+          "cda74bb82b44": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "d80f009df534": "*",
           "fcd1764dc717": "*"
         }
@@ -1777,10 +1785,10 @@
         {
           "target": "vue",
           "what": "Gauge.vue, CountdownRing.vue and screen.ts: gauge.md's title, message, note and detail per state (Ready, Connecting…, Latency with median · ping n of 20, avg so far · peak or warming up, Connection lost · Error during <phase> · last sample), the inner arc's label, and the scale caption under the countdown.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "done",
       "owned": {
         "test/complete": {
           "7a2b4440ca78": "*"
@@ -1842,7 +1850,49 @@
           "9cf8621f89da": "*"
         }
       },
-      "resolution": null
+      "resolution": {
+        "note": null,
+        "on": "2026-10-15",
+        "run": {
+          "runId": "b7db8a0d-7b14-4d18-b17c-1f0ab2bc7845",
+          "finishedAt": "2026-10-15T16:32:07.298Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "content-phase-details",
@@ -3157,6 +3207,10 @@
       "status": "decided",
       "owned": {
         "test/offline": {
+          "0252f447a111": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "0444906086e5": "*",
           "178e0bec946e": "*",
           "339f40739d80": "*",
@@ -3166,6 +3220,10 @@
           "63a06f153dc3": "*",
           "696e04deeedd": "*",
           "72733b0f51d2": "*",
+          "7e67aec5d416": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "a2e6014f5882": "*",
           "b12f49951c33": "*",
           "e68efe57a494": "*",
@@ -3839,7 +3897,13 @@
       "id": "state-cancel-gauge",
       "title": "Gauge after a stop: the kit's Cancelled · Partial results · not saved readout vs Vue's last value",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/cancelled",
+          "test/cancelled-download",
+          "test/cancelled-late",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main > region \"Speed test\"$",
@@ -3860,7 +3924,8 @@
         "vue": {
           "ref": "web/src/components/test/screen.ts",
           "says": "the gauge keeps the last direction's value (Download # Mbit/s, or Download —)"
-        }
+        },
+        "notes": "test/cancelled-latency is left to behavior-stop-in-latency, whose decision decides what a stop during idle latency shows (2026-10-15)."
       },
       "decision": {
         "kind": "verdict",
@@ -3884,6 +3949,7 @@
           "1ecc011c7205": "*"
         },
         "test/cancelled-late": {
+          "6a6e632ab27f": "*",
           "98f598d3b877": "*"
         },
         "test/cancelled-slow": {
