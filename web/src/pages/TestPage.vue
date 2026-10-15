@@ -33,6 +33,7 @@ import AutoStartNotice from '@/components/test/AutoStartNotice.vue'
 import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
 import NotMeasured from '@/components/test/NotMeasured.vue'
+import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
@@ -311,8 +312,11 @@ watch(run.error, (error) => {
           :columns="3"
           class="col-span-full"
         >
+          <template #sub-packet-loss>
+            <NotMeasuredWhy :href="links.packetLoss" />
+          </template>
           <template #value-packet-loss>
-            <NotMeasured :href="links.packetLoss" />
+            <NotMeasured />
           </template>
         </MetaList>
       </section>

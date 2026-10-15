@@ -19,12 +19,9 @@
 <script setup lang="ts">
 import { CircleDashed } from '@lucide/vue'
 
-import AppLink from '@/components/actions/AppLink.vue'
-
-// The packet-loss slot's value (design_system/components/tiles.md NotMeasured): a dashed "Not
-// measured" badge and a Why? link whose name carries the reason. Never a zero.
-
-defineProps<{ href: string }>()
+// The packet-loss slot's value (design_system/components/tiles.md NotMeasured, `link={false}`): a
+// dashed "Not measured" badge, never a zero. Its Why? link is NotMeasuredWhy, at the end of the
+// row's reason line.
 </script>
 
 <template>
@@ -37,13 +34,5 @@ defineProps<{ href: string }>()
       />
       {{ $t('test.tiles.notMeasured') }}
     </span>
-    <AppLink
-      :href="href"
-      target="_blank"
-      rel="noopener noreferrer"
-      :aria-label="$t('test.tiles.whyName', { reason: $t('test.tiles.whyNot') })"
-    >
-      {{ $t('test.tiles.why') }}
-    </AppLink>
   </span>
 </template>

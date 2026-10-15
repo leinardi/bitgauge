@@ -31,6 +31,7 @@ import MetaList from '@/components/layout/MetaList.vue'
 import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
 import NotMeasured from '@/components/test/NotMeasured.vue'
+import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import { noticeView, noticeViews } from '@/components/test/notices'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import StartButton from '@/components/test/StartButton.vue'
@@ -184,7 +185,7 @@ describe('a metric tile', () => {
 })
 
 describe('the Test list', () => {
-  it('shows each row as a term and its value, a dash without one, and a slot for any other value', () => {
+  it('shows each row as a term and its value, a dash without one, a slot for any other value and one after the sub line', () => {
     const loss = packetLossTile(context)
     const wrapper = mount(MetaList, {
       props: {
@@ -195,14 +196,15 @@ describe('the Test list', () => {
           { key: 'packet-loss', icon: loss.icon, label: loss.label, sub: "Browsers can't see packet loss over TCP" },
         ],
       },
-      slots: { 'value-packet-loss': () => h(NotMeasured, { href: links.packetLoss }) },
+      slots: { 'sub-packet-loss': () => h(NotMeasuredWhy, { href: links.packetLoss }), 'value-packet-loss': () => h(NotMeasured) },
       global: { plugins: [i18n()] },
     })
-    expect(wrapper.findAll('dt').map((term) => term.text())).toEqual(['Data used', 'Duration', "Packet lossBrowsers can't see packet loss over TCP"])
+    expect(wrapper.findAll('dt').map((term) => term.text())).toEqual(['Data used', 'Duration', "Packet lossBrowsers can't see packet loss over TCPWhy?"])
     const values = wrapper.findAll('dd')
-    expect(values.map((value) => value.text())).toEqual(['1.3 GB', '—', 'Not measuredWhy?'])
+    expect(values.map((value) => value.text())).toEqual(['1.3 GB', '—', 'Not measured'])
     expect(values[1]?.classes()).toContain('text-subtle-foreground')
-    const why = wrapper.get('a')
+    expect(wrapper.find('dd a').exists()).toBe(false)
+    const why = wrapper.get('dt a')
     expect(why.attributes('href')).toBe(links.packetLoss)
     expect(why.attributes('aria-label')).toBe("Why packet loss is not measured: Browsers can't see packet loss over TCP")
   })

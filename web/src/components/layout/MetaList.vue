@@ -21,8 +21,9 @@ import type { Component } from 'vue'
 
 // A titled card of label and value rows (design_system/components/layout MetaList with a title):
 // the eyebrow, then a definition list whose values are mono and "—" in the subtle colour when
-// there is none. A row's value can be any content through the `value-<key>` slot. The rows stack
-// in one column, and take `columns` from the desktop breakpoint.
+// there is none. A row's value can be any content through the `value-<key>` slot, and its sub line
+// can end in any content through the `sub-<key>` slot, such as a link. The rows stack in one
+// column, and take `columns` from the desktop breakpoint.
 
 export interface MetaRow {
   key: string
@@ -64,7 +65,10 @@ const COLUMNS = { 1: '', 3: 'desktop:grid-cols-3' } as const
           <span
             v-if="row.sub"
             class="text-(length:--text-micro) leading-(--lh-compact) text-subtle-foreground"
-          >{{ row.sub }}</span>
+          >{{ row.sub }}<span
+            v-if="$slots[`sub-${row.key}`]"
+            class="ml-1"
+          ><slot :name="`sub-${row.key}`" /></span></span>
         </dt>
         <dd
           class="m-0 font-mono text-(length:--text-sm) whitespace-nowrap"

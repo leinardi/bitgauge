@@ -179,7 +179,7 @@ describe('the Test screen', () => {
     expect(page.find('[data-testid="download-json"]').exists()).toBe(false)
     expect(page.text()).toContain('No test has run yet.')
     expect(tiles(page)).toHaveLength(4)
-    expect(facts(page)).toEqual(['Data used—', 'Duration—', "Packet lossBrowsers can't see packet loss over TCP Not measuredWhy?"])
+    expect(facts(page)).toEqual(['Data used—', 'Duration—', "Packet lossBrowsers can't see packet loss over TCPWhy? Not measured"])
     page.unmount()
   })
 
