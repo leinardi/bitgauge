@@ -113,7 +113,7 @@ The client IP drives rate limits, `GET /info` and LibreSpeed's `/getIP`.
   every proxy in [deployment-example.md](deployment-example.md) appends the peer it saw to
   `X-Forwarded-For`.
 - With `trusted_proxies` empty (the default), forwarding headers are never trusted.
-- `::ffff:`-mapped IPv4 addresses are normalised to IPv4.
+- `::ffff:`-mapped IPv4 addresses are normalized to IPv4.
 
 The LibreSpeed-compatible `/getIP` uses the same rule as every other consumer of the client IP.
 
@@ -248,7 +248,7 @@ exactly what each includes before anything is downloaded, copied or shared.
   BitGauge must not be exposed to the internet ([product.md](product.md)).
 - **Denial of service from LAN peers:** a peer can saturate the link; per-address limits only bound
   a single address.
-- **Authentication and authorisation:** BitGauge has none. Operators who need it put forward-auth
+- **Authentication and authorization:** BitGauge has none. Operators who need it put forward-auth
   at the proxy in front of the SPA and native API; third-party CLI clients then cannot use the
   compatibility layers unless those routes are exempted.
 - **TLS:** terminated at the reverse proxy.

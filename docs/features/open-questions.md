@@ -14,7 +14,7 @@ carries a recommendation; where the specification already relies on an answer, i
    Recommendation: keep 1 GiB and confirm it against `networkQuality` and `goresponsiveness` on a
    10 Gbit LAN during v0.3. See [compatibility.md §3.1](compatibility.md#31-routes).
 2. Should operators be able to map subnets to context labels (for example a WireGuard range in RFC
-   1918 space labelled `VPN`)? Today the label is suggested from the address class only.
+   1918 space labeled `VPN`)? Today the label is suggested from the address class only.
    Recommendation: **yes, in v0.2**, as an optional list of `{cidr, label}` entries in the server
    configuration, evaluated before the address-class rule and validated fail-closed. See
    [edge-cases.md §16](edge-cases.md#16-ipv6-vs-ipv4-and-the-lanvpn-label) and
@@ -218,10 +218,10 @@ carries a recommendation; where the specification already relies on an answer, i
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [technical-stack/frontend.md §2](technical-stack/frontend.md#2-engine-package-rules).
 25. Which URLs may the built SPA contain? Current answer: **exactly the SVG, XLink and MathML
-    namespaces, the GNU licences URL of the licence header, Tailwind's licence comment URL, Vue's
+    namespaces, the GNU licenses URL of the license header, Tailwind's license comment URL, Vue's
     console error-reference link with its paths, and `https://github.com/leinardi/bitgauge` with
     its paths** (the About screen's source and documentation links, the base-path error's link to
-    the deployment guide); the namespaces, the licence comment and the console link are strings
+    the deployment guide); the namespaces, the license comment and the console link are strings
     the browser never fetches. A hyperlink the user clicks is navigation, not an outbound call, and
     the allowlist is the complete set, checked in every file of the dist, binary files included,
     for `http`, `https`, `ws` and `wss` URLs. Recommendation: keep it. See
@@ -236,7 +236,7 @@ carries a recommendation; where the specification already relies on an answer, i
     version" page from the fixed route list, the test settings are the server defaults with the
     URL parameters on top, the header's theme is the only persisted setting, the settings summary
     has no Edit link, and the stored-language step of locale detection is empty**. The v0.1
-    About screen says the other-client layers arrive in v0.3, shows no snippets, and summarises
+    About screen says the other-client layers arrive in v0.3, shows no snippets, and summarizes
     the v0.1 metrics only. Recommendation: keep it. See
     [ui/screens.md §1](ui/screens.md#1-test-home--), [§5](ui/screens.md#5-other-clients--about--about)
     and [ui/i18n-a11y.md §1.2](ui/i18n-a11y.md#12-locale-detection).
@@ -472,7 +472,7 @@ Resolved and removed:
   maintainer's approval of the specification on 2026-10-12. See
   [ui/screens.md §1](ui/screens.md#1-test-home--) and
   [decisions.md §36](technical-stack/decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen).
-- _Which licence variant: GPL-3.0-only or GPL-3.0-or-later?_ **GPL-3.0-or-later**, used
+- _Which license variant: GPL-3.0-only or GPL-3.0-or-later?_ **GPL-3.0-or-later**, used
   consistently in the README, the image label and source headers. Resolved by the user on
   2026-10-08. See [technical-stack/decisions.md](technical-stack/decisions.md).
 - _Which default listen port?_ **8080.** Resolved by the user on 2026-10-08. See

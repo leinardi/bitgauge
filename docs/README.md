@@ -5,8 +5,8 @@ prior art behind the design:
 
 | Tree | Owns | Authority |
 | --- | --- | --- |
-| [`features/`](features/README.md) | Product spec, measurement methodology, wire protocol, compatibility, architecture, technical stack, security model, UI behaviour, roadmap | Product and technical contract. Technical decisions are **locked** in [`features/technical-stack/decisions.md`](features/technical-stack/decisions.md); that file wins over any summary elsewhere. |
-| [`design_system/`](design_system/README.md) | Brand, tokens, component contracts, UI kits, previews | Visual contract from the Claude Design export, including the `ui_kits/app/` prototype. Where it disagrees with `features/ui/` on behaviour, the spec wins. The export is never hand-edited, except the spec files under `design_system/features/` ([Design Export](#design-export)). |
+| [`features/`](features/README.md) | Product spec, measurement methodology, wire protocol, compatibility, architecture, technical stack, security model, UI behavior, roadmap | Product and technical contract. Technical decisions are **locked** in [`features/technical-stack/decisions.md`](features/technical-stack/decisions.md); that file wins over any summary elsewhere. |
+| [`design_system/`](design_system/README.md) | Brand, tokens, component contracts, UI kits, previews | Visual contract from the Claude Design export, including the `ui_kits/app/` prototype. Where it disagrees with `features/ui/` on behavior, the spec wins. The export is never hand-edited, except the spec files under `design_system/features/` ([Design Export](#design-export)). |
 | [`engineering/`](engineering/README.md) | How the project is run rather than what it does: harness runbooks, checklists, audits | Working notes, not a contract. Nothing here constrains the product. |
 | [`research/`](research/README.md) | How other speed tests work and which ideas BitGauge takes | Background, ideas only. Where it disagrees with `features/`, `features/` wins. |
 
@@ -32,12 +32,12 @@ to write anything under `features/`.
 
 ### Precedence
 
-- **Visuals:** the export is canonical for how things look: colour, type, spacing, iconography,
+- **Visuals:** the export is canonical for how things look: color, type, spacing, iconography,
   motion and layout details.
-- **Behaviour:** [`features/ui/`](features/ui/README.md) is canonical for what each screen
+- **Behavior:** [`features/ui/`](features/ui/README.md) is canonical for what each screen
   contains, which states it has and what each flow does; the numbers' meaning is in
   [`features/measurement.md`](features/measurement.md).
-- **Conflicts:** when the export disagrees with the UI spec on behaviour, the disagreement is
+- **Conflicts:** when the export disagrees with the UI spec on behavior, the disagreement is
   resolved in the spec first and then implemented. Technical decisions in
   [`features/technical-stack/decisions.md`](features/technical-stack/decisions.md) win over both.
 - **Accessibility:** the export must meet the contrast and focus requirements of
@@ -65,7 +65,7 @@ Editing via either path edits the same file. Windows checkouts need
 
 1. Copy the export over `design_system/`.
 2. Run `git diff -- docs/design_system/features/`. It must print nothing: the export's spec files
-   must be byte-identical to the committed ones. Any difference is resolved in favour of the
+   must be byte-identical to the committed ones. Any difference is resolved in favor of the
    committed spec (`git checkout -- docs/design_system/features/`), and the committed files are
    pasted into the Claude Design project so the next export matches.
 3. Check that every relative link in `docs/` still resolves (`go test -count=1 ./test/docs/`), then

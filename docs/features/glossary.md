@@ -148,7 +148,7 @@ C Moderate, D High, F Severe bufferbloat.
 loaded, expressed in round trips per minute.
 
 **RPM.** Round trips per minute. In BitGauge it is HTTP loaded responsiveness only, computed from
-path B as `60000 / TM95(http_l)`. It is labelled "HTTP loaded responsiveness — connection sharing
+path B as `60000 / TM95(http_l)`. It is labeled "HTTP loaded responsiveness — connection sharing
 not verifiable" and is never presented as comparable to Apple's networkQuality RPM (§12).
 
 **Quality score.** A rating of how well the measured link suits streaming, gaming and video calls,

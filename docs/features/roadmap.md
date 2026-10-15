@@ -60,7 +60,7 @@ tiers must additionally show for the features it adds. Progress per feature area
 - Download JSON of the finished result on the Test screen, the harness's extraction path. See
   [ui/screens.md §1](ui/screens.md#1-test-home--) and
   [decisions.md §36](technical-stack/decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen).
-- About screen with version, licence and credits (without the compatibility snippets). See
+- About screen with version, license and credits (without the compatibility snippets). See
   [ui/screens.md](ui/screens.md).
 - URL parameters, including auto-run with the cancellable countdown. See
   [ui/url-params.md](ui/url-params.md).

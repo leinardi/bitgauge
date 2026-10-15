@@ -7,7 +7,7 @@ JavaScript library, which runs in the browser against Cloudflare's edge. BitGaug
 request-size rule, its use of Resource Timing for HTTP probe timing, `Server-Timing` to carry
 server-side timing, its loaded-latency throttle and its AIM score tables.
 
-## 1. Licence
+## 1. License
 
 MIT. BitGauge copies no code; the ideas and the published score tables are reimplemented and
 credited.

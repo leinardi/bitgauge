@@ -65,7 +65,7 @@ time series per direction. That series feeds the live gauge, the live chart and 
   (§7). The aggregate is exact per cell but only known up to the window end; later cells are
   `unknown`, which is distinct from a confirmed zero.
 - The upload gauge is the one exception: it is driven by client `upload.onprogress` for
-  responsiveness and is labelled as sending progress. It never feeds a number.
+  responsiveness and is labeled as sending progress. It never feeds a number.
 
 Every decision (ramp, warm-up, extension, stop) reads only the **evaluation series**: the download
 series up to the current bucket, or the upload series up to the current window end (§8).
@@ -163,7 +163,7 @@ and keeps a step only when it measurably helps, the way fast.com adds connection
 - **Auto** (default): the ramp 1 → 2 → 4 → 6, with baseline, trial, settle and compare steps, as
   specified in §8.
 - **Fixed N**: N streams (1 to the effective cap) start together; no ramp.
-- **Single**: exactly one stream, for single-connection tests; equivalent to fixed 1 and labelled as
+- **Single**: exactly one stream, for single-connection tests; equivalent to fixed 1 and labeled as
   single-connection in the result.
 
 **Effective cap.** The configured maximum (default 6), bounded by the server's
@@ -295,7 +295,7 @@ therefore comes **only** from server-reported arrival counts of confirmed reques
 
 - Uploads use `XMLHttpRequest` in the Worker; `fetch()` has no cross-browser upload progress.
 - The body is a `Blob` built from a 1 MiB buffer filled once per test with
-  `crypto.getRandomValues` (in 64 KiB calls). Because a browser may materialise a `Blob` of
+  `crypto.getRandomValues` (in 64 KiB calls). Because a browser may materialize a `Blob` of
   repeated parts, the engine keeps one master `Blob` that grows by doubling to the largest size
   needed and sends `slice(0, N)` of it, so memory stays at about the largest request size.
 - `Content-Type: application/octet-stream`, explicit `Content-Length` (never chunked).
@@ -479,7 +479,7 @@ error under load is unbounded, and it never feeds a number.
   failure gap), and their bytes are simply not counted on either side of the ratio. Requests
   straddling the warm-up boundary count only for their cells inside *W*. No alignment error term
   exists and no intra-cell split is ever estimated.
-- **Peak.** p90 of `S_up[b]` over *W*, labelled "peak", never the headline.
+- **Peak.** p90 of `S_up[b]` over *W*, labeled "peak", never the headline.
 - **Minimum window.** If `|W| × bucketMs < 3000 ms`, or fewer than 3 confirmed requests lie inside
   *W*, the upload direction status is `insufficient-data` ("insufficient data"): no number, data
   used shown. If the phase was stopped by the user, the result status is `partial`. The phase
@@ -760,7 +760,7 @@ headline = Σ bytes over the full buckets of the steady window / (number of thos
 ```
 
 On upload this is exactly the formula of §7.6. The **peak** is the p90 of bucket rates over the
-same window, shown as a secondary number labelled "peak", never as the headline. The headline
+same window, shown as a secondary number labeled "peak", never as the headline. The headline
 measures goodput: HTTP payload bytes, without TCP/IP or HTTP overhead.
 
 ### 9.3 Overhead Compensation
@@ -856,7 +856,7 @@ overlapping probes queuing behind each other on the one reserved connection.
   `source: http-h1-reserved`. Those samples may grade **only** if the reservation held for the whole
   phase (no sample observed with more than 5 requests in flight) **and** at least 10 samples were
   collected in that direction; otherwise loaded latency is `unavailable` and no grade is shown.
-- **HTTP/2.** The fallback multiplexes on the load connection and is labelled `http-h2` (`http-h3`
+- **HTTP/2.** The fallback multiplexes on the load connection and is labeled `http-h2` (`http-h3`
   on HTTP/3); it may grade under the same sample-count rule. No reservation is needed.
 - Fallback samples are never mixed with WebSocket samples in one statistic.
 
@@ -874,9 +874,9 @@ download and upload increases:
 | D | < 400 ms |
 | F | ≥ 400 ms |
 
-If only one direction has a gradable increase, the grade is computed from it and labelled with that
+If only one direction has a gradable increase, the grade is computed from it and labeled with that
 direction ("download only"). Without any gradable direction, or without idle latency, no grade is
-shown. The grade is displayed as letter and text, never by colour alone
+shown. The grade is displayed as letter and text, never by color alone
 ([ui/i18n-a11y.md](ui/i18n-a11y.md)).
 
 ## 12. HTTP Loaded Responsiveness
@@ -968,7 +968,7 @@ Quality scores follow Cloudflare's AIM (Aggregated Internet Measurement) point t
 | --- | --- |
 | `latency` | idle latency median (ms) |
 | `jitter` | idle jitter (ms) |
-| `loadedLatencyIncrease` | the larger of the per-direction increases from path A or its qualified fallback (ms); when only one direction has an increase (§11.1), that one, and the scores are labelled with the direction ("download only"), as the grade is (§11.3) |
+| `loadedLatencyIncrease` | the larger of the per-direction increases from path A or its qualified fallback (ms); when only one direction has an increase (§11.1), that one, and the scores are labeled with the direction ("download only"), as the grade is (§11.3) |
 | `download` | download headline (bit/s) |
 | `upload` | upload headline (bit/s) |
 | `packetLoss` | **not measured**: fixed at 0 points |
@@ -1086,7 +1086,7 @@ full length when the run starts; nothing grows with run length:
 - Run-wide statistics are **running aggregates** over 1 s cells since the steady window began:
   count, sum (giving the average), min, max, and the data-used counter. They need constant memory.
 - The **peak** for a continuous run is the p90 over the hour ring (the last 60 min of 1 s cells),
-  labelled "p90, last hour", plus the run-wide max. An exact run-wide p90 is **not** computed;
+  labeled "p90, last hour", plus the run-wide max. An exact run-wide p90 is **not** computed;
   an approximate run-wide quantile sketch is a possible later addition.
 - **Unknown cells (upload).** Native cells enter the rings only once confirmed. A native cell that
   overlaps a failure gap (§7.5) is stored as unknown and shown as a gap. Every coarser cell stores
@@ -1305,7 +1305,7 @@ All times are approximate and measured from the start of the phase on the client
 buckets, a request cycle), request target 1 s, size floor 16 KiB. Request size per stream =
 clamp(per-stream rate × 1 s, 16 KiB, cap); the first request on every stream is 64 KiB (§3).
 
-The link is modelled as shared equally among the requests whose bytes are crossing it, with half
+The link is modeled as shared equally among the requests whose bytes are crossing it, with half
 the RTT each way. A stream idles for one RTT between its requests (the response travels back, the
 next request travels out), so one stream with ≈ 1 s requests keeps the link busy for only
 ≈ 1 / 1.3 ≈ 77 % of the time, and a second stream fills those gaps. The engine tests drive the ramp

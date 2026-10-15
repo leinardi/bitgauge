@@ -32,7 +32,7 @@ Serve:   a stateless server, plus optional OpenSpeedTest, LibreSpeed and network
   warm-up; the p90 of bucket rates is shown only as "peak".
 - **No fudge factor.** Overhead compensation is 0 unless the user sets it, and then it is shown.
 - **Loaded latency on its own path.** A WebSocket echo measures latency under load and grades
-  bufferbloat (A+ to F); a separate HTTP probe estimates loaded responsiveness and is labelled as
+  bufferbloat (A+ to F); a separate HTTP probe estimates loaded responsiveness and is labeled as
   not verifiable where the browser cannot prove which connection it used.
 - **Honest qualifiers.** Low confidence, partial results and insufficient data are reported as
   such.

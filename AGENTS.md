@@ -288,18 +288,18 @@ The vendored upstream skills (`vue-best-practices`, `vue-debug-guides`,
 
 ## Project rules
 
-- **Spec first.** The approved specification is the contract; a behaviour change still starts as
+- **Spec first.** The approved specification is the contract; a behavior change still starts as
   a docs change, and code follows the docs. Product code (`cmd/`, the `internal/` packages of
   [architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`,
   `api/openapi.yaml`) implements what the docs specify and nothing else; tooling must not encode
-  product behaviour that the docs do not specify either.
+  product behavior that the docs do not specify either.
 - **Docs are the source of truth.** When code and docs disagree, the docs win until changed
   deliberately; [`decisions.md`](docs/features/technical-stack/decisions.md) wins on technical
   choices.
 - **Stateless server.** No database, no file writes, no volume, no stored results.
 - **No outbound calls, ever.** No telemetry, update checks, CDNs, external fonts or lookups.
 - **No copied code or assets** from OpenSpeedTest, LibreSpeed or any other speed test; their
-  documented behaviour is used for ideas and wire compatibility only.
+  documented behavior is used for ideas and wire compatibility only.
 - **Engine stays framework-free**: no DOM, no Vue, no app imports in `web/src/engine/`.
 - **golangci-lint v2 with all linters** must pass.
 - **Honest numbers.** No fudge factors, no hidden smoothing, no number without its qualifiers.
@@ -348,7 +348,7 @@ Never introduce: Nuxt, SSR (pure SPA), TanStack Query (one `GET /info` and no se
 class-based Vue components (Composition API + `<script setup>` only), or any external URL. The
 engine imports nothing from Vue, the DOM or application code. Visuals come only from the design
 export in `docs/design_system/`, with shadcn-vue defaults for anything it does not cover and no
-hand-authored visual design; behaviour follows [`docs/features/ui/`](docs/features/ui/README.md),
+hand-authored visual design; behavior follows [`docs/features/ui/`](docs/features/ui/README.md),
 which wins where the export disagrees.
 
 ## Go / backend constraints

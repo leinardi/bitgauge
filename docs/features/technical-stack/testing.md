@@ -55,7 +55,7 @@ Scenarios:
   shortfall with the next-preset offer.
 - **h2 vs h1:** protocol detection from `nextHopProtocol` (including an empty value), the 5-stream
   reservation with the HTTP fallback, path B `unavailable_h1` vs `measured`/`uncertain`, and h2
-  multiplexing modelled as one shared window.
+  multiplexing modeled as one shared window.
 - **Cancel mid-request with the watermark rule:** user stop during uploads; worked example B
   reproduced exactly (`C = 7000`, `W_end_final = 7000`, `partial`).
 - **Issue gap:** a browser that takes 150 ms to start each request, download and upload; early issue
@@ -94,7 +94,7 @@ Scenarios:
 
 vitest with `@vue/test-utils` and jsdom:
 
-- Gauge mapping (log scale, edge pinning, readout precision), reduced-motion behaviour.
+- Gauge mapping (log scale, edge pinning, readout precision), reduced-motion behavior.
 - Result cards for every direction status and confidence level; notices; the packet-loss slot.
 - Settings and URL-parameter parsing, defaults from `/info`, shareable URL round-trip.
 - History module against `fake-indexeddb`: save, migrate, export JSON/CSV, import validation,
@@ -114,7 +114,7 @@ Run against the real binary (built image or `go run`) on **Chromium, Firefox and
 - Accessibility checks with axe on every screen.
 
 Playwright's WebKit is not Safari: Worker XHR upload progress, `nextHopProtocol` and suspension
-behaviour are re-checked manually on real Safari (macOS) and iOS Safari before each release
+behavior are re-checked manually on real Safari (macOS) and iOS Safari before each release
 ([../edge-cases.md §17](../edge-cases.md#17-safari-and-ios-quirks)).
 
 ### 4.1 Implementation
@@ -217,11 +217,11 @@ The harness report says which layer each result comes from.
 
 - `tc` shaping jitter (tbf burst sizes, netem timer granularity).
 - Docker bridge overhead at high rates.
-- Playwright WebKit ≠ Safari: Worker XHR and `nextHopProtocol` behaviour must be re-checked on real
+- Playwright WebKit ≠ Safari: Worker XHR and `nextHopProtocol` behavior must be re-checked on real
   Safari.
 - Mobile power management: device runs happen with the screen on.
 
-**What the harness cannot prove:** real Wi-Fi behaviour, real VPN MTU effects, carrier-grade NAT,
+**What the harness cannot prove:** real Wi-Fi behavior, real VPN MTU effects, carrier-grade NAT,
 and anything about networks the project does not target.
 
 ### 5.1 Implementation
@@ -236,7 +236,7 @@ and anything about networks the project does not target.
   BitGauge's network namespace; BitGauge (the built image, read-only) and `iperf3 -s` join it, so
   the iperf3 server is the same endpoint as BitGauge. An optional Traefik or Caddy container sits
   in front. The client is the Playwright image; a `shaper` sidecar shares the **client's** network
-  namespace and shapes it with tbf and netem on egress and an ifb mirror for ingress, modelling the
+  namespace and shapes it with tbf and netem on egress and an ifb mirror for ingress, modeling the
   user's access link. Each direction's tbf queue, 80 ms of data at the profile's rate and at least
   64 KiB (the shaper queue of [measurement.md §19](../measurement.md#19-worked-timelines)), is an
   fq_codel shared among the flows crossing it, as §19.1 models the link: one drop-tail FIFO lets

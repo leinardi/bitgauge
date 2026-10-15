@@ -78,7 +78,7 @@ rules behind each step are in [../measurement.md](../measurement.md) and
      `insufficient data`.
    - **Exception: Continuous.** Stopping is how a Continuous run normally ends; see flow 7.
    - Phases not yet started are `skipped`.
-4. The Test screen shows the Cancelled state: the partial result labelled `partial — stopped early`
+4. The Test screen shows the Cancelled state: the partial result labeled `partial — stopped early`
    with what was covered ("upload based on a 3.6 s steady window, 21 requests"). Whether an
    interrupted direction has a number depends on its confirmed steady window, never on the
    elapsed phase time: a stop before warm-up ends gives "insufficient data — confirmed steady
@@ -191,7 +191,7 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    - **Branch: invalid value.** Inline error on the field; the value is not stored and the
      previous valid value stays in effect.
    - **Branch: preset changed.** Duration fields reset to the preset's values unless they were
-     customised, in which case the user is asked whether to keep them.
+     customized, in which case the user is asked whether to keep them.
 3. The settings summary on the Test screen and the Shareable URL update as fields change.
 4. The user may reset any single setting to its default.
    - **Branch: Reset all to defaults.** After confirmation, stored settings are removed and the

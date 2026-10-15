@@ -54,7 +54,7 @@ state (`test/<state>`, the kit's `TEST_STATES` without the continuous ones, whic
   `offline` scenario.
 
 Before reading anything, both pages are put in the same state: the wall clock fixed, UTC, en-US,
-reduced motion, the project's colour scheme, and the prototype's theme and v0.1 scope set to the
+reduced motion, the project's color scheme, and the prototype's theme and v0.1 scope set to the
 product's defaults (System, no History), with its Demo panel's browser on Chrome, since the harness
 drives Chromium and the panel defaults to Firefox. Then the harness waits until the DOM has stopped
 changing.
@@ -62,7 +62,7 @@ changing.
 | Layer | Reads | Produces |
 | --- | --- | --- |
 | Content | The accessibility tree of each region: the header (the top bar, and on a narrow window the tab bar), the page itself, notices (alerts and statuses outside every landmark), open dialogs | `missing` (only in the prototype), `extra` (only in Vue), `changed` (same element, different name or text), `attrs` (different state such as `disabled` or `level`) |
-| Style | A bounded set of elements (headings, buttons, links, tabs, radios, column headers and statuses), paired by region, role, name and occurrence | One finding per computed property that differs: font, colour, padding, gap, radius, border, size. Lengths within 1px are equal |
+| Style | A bounded set of elements (headings, buttons, links, tabs, radios, column headers and statuses), paired by region, role, name and occurrence | One finding per computed property that differs: font, color, padding, gap, radius, border, size. Lengths within 1px are equal |
 | Visual | Full-page screenshots of both sides and a heatmap | Report attachments only, never a finding |
 
 `web/parity/normalize.ts` lists what is deliberately treated as equal, each with its reason:
@@ -78,9 +78,9 @@ changing.
   duration, a scale's bounds) is never measured, so it is compared as written.
 
 Anything added there hides a class of difference for good, so it needs the same justification.
-`web/parity/compare/style.ts` skips a property only where it cannot render: a border colour where
-neither side draws a border (no width, or a fully transparent colour), a gap outside flex and grid,
-and the padding, gap and weight of an icon-only button centred in a box of the same size on both
+`web/parity/compare/style.ts` skips a property only where it cannot render: a border color where
+neither side draws a border (no width, or a fully transparent color), a gap outside flex and grid,
+and the padding, gap and weight of an icon-only button centered in a box of the same size on both
 sides. A corner radius is compared as drawn, at most half the box's shorter side, so `9999px` and
 `calc(infinity * 1px)` are the same pill.
 
@@ -166,8 +166,8 @@ For each new difference, decide where it belongs, in this order:
    shows, for example a server name or a measured value the fixture gets wrong. Fix the demo.
 2. **The Vue app** renders it differently: a missing label, a different weight, a wrong token. Fix
    the app.
-3. **The spec.** A difference in behaviour (what a state says or offers) is settled by
-   [`docs/features/ui/`](../features/ui/README.md), which wins over the export on behaviour: a gap
+3. **The spec.** A difference in behavior (what a state says or offers) is settled by
+   [`docs/features/ui/`](../features/ui/README.md), which wins over the export on behavior: a gap
    there is a docs change first, and the code follows.
 4. **The export** is wrong or out of date. It is never edited here
    ([docs/README.md](../README.md#design-export)): the export wins on visuals, so a visual
@@ -297,5 +297,5 @@ Dialogs, menus and error states cannot be enumerated, so for every new or change
 - **A new step that cannot reach its target on one side** is a harness error, by design. Keep only
   targets both sides have; the content layer still reports what one side lacks.
 - **The unit tests** (`web/parity/**/*.test.ts`, run by `make verify-web`) cover the parser, the
-  comparisons, the normalisation, the selection, the baseline rules, the capture and settle steps
+  comparisons, the normalization, the selection, the baseline rules, the capture and settle steps
   over fakes, and the scenario coverage. They need no browser.

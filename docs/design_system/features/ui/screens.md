@@ -3,7 +3,7 @@
 [Feature index](../README.md) / [UI](README.md) / Screens
 
 Five screens. For each: purpose, elements, states, notices and responsive notes. Visual design comes
-from the design export; this page fixes content and behaviour only. Terms follow the
+from the design export; this page fixes content and behavior only. Terms follow the
 [glossary](../glossary.md).
 
 ## 1. Test (Home) — `/`
@@ -32,7 +32,7 @@ from the design export; this page fixes content and behaviour only. Terms follow
 - **Live gauge:** the auto-windowed logarithmic gauge of
   [../measurement.md §14](../measurement.md#14-units-and-gauge), with a numeric readout and a
   caption naming the current window; during idle latency it switches to milliseconds; during
-  upload it shows the client's sending progress, labelled "sending".
+  upload it shows the client's sending progress, labeled "sending".
 - **Live chart:** throughput over time (download; upload `received` solid and `sending` faint),
   phase separators, event marks (extended, data cap, cancelled, error), optional loaded-latency
   series toggle on its own axis. Warm-up samples are drawn over a shaded band until warm-up ends:
@@ -222,9 +222,9 @@ field, value not saved; focus is not moved, and Tab leaves the field as usual); 
   - `networkQuality -C …/nq/config` ([../compatibility.md
     §3.5](../compatibility.md#35-client-usage)).
 - **About BitGauge:** server name, **version** (`server.version`) with build commit and date
-  (`server.commit`, `server.buildDate`), **licence** (GPL-3.0-or-later), **source link**.
-- **Privacy:** no accounts, no tracking; the server keeps no results, history lives only in this
-  browser.
+  (`server.commit`, `server.buildDate`), **license** (GPL-3.0-or-later), **source link**.
+- **Privacy:** no accounts, no tracking; the server keeps no results, which exist only in this
+  browser (from v0.2, so does the history).
 - **Credits:** OpenSpeedTest™ trademark note, LibreSpeed, Cloudflare (AIM quality scores), Apple
   `networkQuality` and the IETF responsiveness draft, Waveform (bufferbloat thresholds).
 - Short methodology summary linking to the published docs.
@@ -242,13 +242,13 @@ metrics only: download, upload, idle latency and jitter, with data used and dura
 | Metric | Unit and precision | Qualifiers shown |
 | --- | --- | --- |
 | Download, upload (headline) | auto-scaled kbit/s, Mbit/s, Gbit/s (or kB/s, MB/s, GB/s), 3 significant digits | direction status (`insufficient-data` shown as "insufficient data", `partial`, `skipped`, `error`; `measured` shows the number), confidence and reasons, overhead compensation when non-zero |
-| Peak (per direction) | as above, labelled "peak" (the p90 of the steady window, never a maximum); live, the steady-window p90 so far, hidden during warm-up | Continuous: "p90, last hour" |
+| Peak (per direction) | as above, labeled "peak" (the p90 of the steady window, never a maximum); live, the steady-window p90 so far, hidden during warm-up | Continuous: "p90, last hour" |
 | Idle latency | ms; min, median, p90; whole ms ≥ 10 ms, one decimal below, "< 1 ms" below the timer resolution | path (`websocket` or HTTP), loss percentage |
 | Jitter | ms, same precision | described as the mean of consecutive differences |
-| Idle probe loss | %, one decimal | labelled "probe timeouts", never "packet loss" |
+| Idle probe loss | %, one decimal | labeled "probe timeouts", never "packet loss" |
 | Loaded latency (per direction) | ms; median and p90; increase over idle | label "Loaded latency (WebSocket)" or the fallback source `http-h1-reserved` / `http-h2` / `http-h3`; `unavailable` with reason |
 | Bufferbloat grade | letter plus words: A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe bufferbloat | basis (`download+upload` or one direction) |
-| HTTP loaded responsiveness | RPM, integer | always labelled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples") |
+| HTTP loaded responsiveness | RPM, integer | always labeled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples") |
 | Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great), each band with an icon and its name | missing input named; basis when only one direction has a loaded-latency increase ("download only"); note "upper bound: packet loss is not measured" |
 | Packet loss | reserved slot: "packet loss — not measured" | "browsers can't see packet loss over TCP", link to why ([../measurement.md §18](../measurement.md#18-future-packet-loss-via-webrtcturn)); no promise of a release |
 | Data used | decimal kB, MB, GB, 3 significant digits | — |
@@ -281,7 +281,7 @@ detail, each with a short explanation and, where useful, a link to the docs. The
   `timer throttling detected`; `base path mismatch` (full-screen error,
   [../edge-cases.md §20](../edge-cases.md#20-base-path-mismatches)).
 
-Notices are text with an icon, never colour alone, and are announced to screen readers when they
+Notices are text with an icon, never color alone, and are announced to screen readers when they
 appear during a run ([i18n-a11y.md](i18n-a11y.md)). Their tones: **info** for test extended,
 server stream limit, overhead compensation, browser upload limit, WebSocket reopened and
 WebSocket unavailable;

@@ -8,11 +8,11 @@ Contributor workflow is in [CONTRIBUTING.md](../../../CONTRIBUTING.md).
 
 ## Rules
 
-- **Spec first.** The approved specification is the contract; a behaviour change still starts as
+- **Spec first.** The approved specification is the contract; a behavior change still starts as
   a change to these docs, and code follows the docs, never the other way round. Product code
   (`cmd/`, the `internal/` packages of [architecture §9](../architecture.md#9-planned-package-layout),
   `web/src/`, `api/openapi.yaml`) implements what the docs specify and nothing else; tooling must
-  not encode product behaviour that the docs do not specify either.
+  not encode product behavior that the docs do not specify either.
 - **Docs are the source of truth.** When code and docs disagree, the docs win until they are
   changed deliberately; [decisions.md](decisions.md) wins over any other page on a technical
   choice.
@@ -24,7 +24,7 @@ Contributor workflow is in [CONTRIBUTING.md](../../../CONTRIBUTING.md).
 - **No outbound calls.** Never add a network client to the server or an external URL to the SPA:
   no telemetry, update checks, CDNs, fonts or lookups.
 - **No copying.** Never copy code or assets from OpenSpeedTest, LibreSpeed or any other speed test;
-  use their documented behaviour for ideas and protocol compatibility only.
+  use their documented behavior for ideas and protocol compatibility only.
 - **Lint policy.** golangci-lint v2 with all linters must pass. Do not suppress a finding without a
   `//nolint:<linter> // reason` comment that explains why.
 - **Typed API.** Native API changes start in `api/openapi.yaml`; the SPA uses the generated types.
@@ -52,6 +52,9 @@ Random buffer, drainer and grid live in internal/handlers; clientip and ratelimi
 Compatibility layers depend on the native building blocks, never the reverse.
 Never log request bodies, headers or WebSocket messages.
 ```
+
+Language: US English spelling in the docs, the UI text and code comments (license, behavior, color,
+normalize). `cancelled` keeps its double l, which US usage allows and the result format spells.
 
 ## Related
 

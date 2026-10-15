@@ -37,7 +37,7 @@ Planned ([roadmap](docs/features/roadmap.md)):
 - **v0.2:** loaded latency with a **bufferbloat grade** (A+ to F), **history in your browser
   only** (IndexedDB) with compare, JSON and CSV export, Settings and a share image, and Prometheus
   metrics.
-- **v0.3:** the compatibility layers below, **HTTP loaded responsiveness** (RPM), honestly labelled
+- **v0.3:** the compatibility layers below, **HTTP loaded responsiveness** (RPM), honestly labeled
   where the browser cannot verify it, **quality scores** for streaming, gaming and video calls, and
   **continuous mode** for long runs in constant memory.
 
@@ -99,7 +99,7 @@ in [SECURITY.md](SECURITY.md#verifying-a-release).
 ## Credits
 
 BitGauge copies no code or assets from the projects below; it learns from their documented
-behaviour and implements their wire protocols for compatibility
+behavior and implements their wire protocols for compatibility
 ([research](docs/research/README.md)).
 
 - **OpenSpeedTest**, for its self-hosted model and its web UI, supported through a compatibility

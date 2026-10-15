@@ -43,7 +43,7 @@ Two profiles, each in Chromium, Firefox and WebKit: `floor-300k-300ms-1pct-loss`
 To repeat one profile or one browser: `HARNESS_PROFILES=floor-300k-600ms-vpn
 HARNESS_BROWSERS=firefox make harness-floor`. To inspect a failure:
 `HARNESS_KEEP_ON_FAILURE=1` keeps the containers of a run that errored or failed its tolerances,
-labelled `keep=true`, until a sweep removes them.
+labeled `keep=true`, until a sweep removes them.
 
 Then the two manual floor runs the report lists, which no runner can make:
 
@@ -67,7 +67,7 @@ bridge's veth pair and the report carries the client's CPU and memory for each r
 Then the manual ceiling run the report lists: **real Safari on macOS**, on a machine with at least
 4 cores, against the image on the same LAN, with Activity Monitor's CPU and memory readings for
 the browser written down. Playwright WebKit is not Safari: Worker XHR and `nextHopProtocol`
-behaviour have to be seen on the real thing.
+behavior have to be seen on the real thing.
 
 ## 4. Read a Run
 

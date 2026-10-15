@@ -9,7 +9,7 @@ so that the next export carries it. Once an export with the change has been impo
 removed.
 
 Each note names the triage cluster or the skill it comes from, the kit file and the element, what
-the export shows, and what it should show, with the reason; behaviour comes from
+the export shows, and what it should show, with the reason; behavior comes from
 [`docs/features/ui/`](../features/ui/README.md), visuals from the export's own tokens.
 
 ## Notes
@@ -38,7 +38,7 @@ the export shows, and what it should show, with the reason; behaviour comes from
   window, "log scale · 1 Mbit/s – 10 Gbit/s · auto".
 - **Wanted:** the floor window the slow download reached, "log scale · 10 kbit/s – 100 Mbit/s ·
   auto", as `cancelled-slow-up` and the live slow states show it.
-- **Why:** [gauge.md](../design_system/components/gauge.md) behaviour rules 3 and 6 and
+- **Why:** [gauge.md](../design_system/components/gauge.md) behavior rules 3 and 6 and
   [measurement.md §14](../features/measurement.md#14-units-and-gauge): the window shifts down after
   the value stays in the bottom decade for 2 s, and a slow link reaches the floor window within two
   shifts.

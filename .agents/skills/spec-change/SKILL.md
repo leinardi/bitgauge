@@ -168,6 +168,8 @@ editing STATUS.md or ui/screens.md, and the markdownlint hook for formatting.
 
 ## 7. Form
 
+- US English spelling (license, behavior, color, normalize); `cancelled` keeps its double l
+  ([ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md#conventions)).
 - Prose wraps at about 100 columns; tables, code blocks and headings may run longer (markdownlint
   `line_length: 100`). Lists indent by 2; tables use the compact style the `table-format` rule
   rewrites to.

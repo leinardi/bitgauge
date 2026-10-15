@@ -39,8 +39,8 @@ apply to the page load they appear on; they are not stored unless the user saves
 | `streams` | `auto`, `single`, or an integer 1–6 | server default (`auto`) | Stream mode; an integer means fixed N. |
 | `cap` | size: integer bytes or a number with `kB`, `MB`, `GB`, `KiB`, `MiB`, `GiB`; `0` or `none` | server default (none) | Data cap per test. |
 | `units` | `bits`, `bytes` | server default (`bits`) | Display units. |
-| `lang` | a supported locale tag (`en`, …) | browser language | UI language ([i18n-a11y.md §1](i18n-a11y.md#1-internationalisation)). |
-| `theme` | `system`, `light`, `dark` | `system` | Colour theme. |
+| `lang` | a supported locale tag (`en`, …) | browser language | UI language ([i18n-a11y.md §1](i18n-a11y.md#1-internationalization)). |
+| `theme` | `system`, `light`, `dark` | `system` | Color theme. |
 | `label` | text, at most 64 characters | suggested label | Pre-fills the result's label (for example `VPN`, `LAN`, `Kitchen Wi-Fi`). |
 
 Advanced settings (warm-up, ping count, overhead compensation) are not URL parameters: they change

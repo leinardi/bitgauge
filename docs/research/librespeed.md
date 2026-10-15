@@ -7,10 +7,10 @@ LibreSpeed is a self-hosted speed test with a JavaScript web worker client, PHP 
 offers a compatibility layer for its clients and takes a few ideas; this page records how the
 studied version works. Later versions may differ.
 
-## 1. Licence
+## 1. License
 
 LGPL-3.0 (web client, `speedtest-go` and `librespeed-cli`). BitGauge uses **ideas only**: no code,
-no assets, no configuration is copied. The compatibility layer implements the wire behaviour
+no assets, no configuration is copied. The compatibility layer implements the wire behavior
 described here ([../features/compatibility.md §2](../features/compatibility.md#2-librespeed)).
 
 ## 2. Server Routes
@@ -18,7 +18,7 @@ described here ([../features/compatibility.md §2](../features/compatibility.md#
 The Go server answers every route in four spellings: bare, with a `backend/` prefix, with a `.php`
 suffix, and with both, so clients configured for the PHP backend work unchanged.
 
-| Route | Behaviour |
+| Route | Behavior |
 | --- | --- |
 | `GET /garbage?ckSize=N` | Streams `N` chunks of 1 MiB of random data (`N` documented in MB units). Default 4, maximum 1024 |
 | `GET`, `POST /empty` | Reads and discards any body, answers 200 with an empty body. Used for upload and ping |

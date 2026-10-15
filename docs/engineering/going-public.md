@@ -107,14 +107,14 @@ only make sense on a public repository:
       secrets set.
 - [ ] After the first release, the `ghcr.io/leinardi/bitgauge` package set to public.
 
-## 6. Licence Check
+## 6. License Check
 
 The project is GPL-3.0-or-later ([`LICENSE`](../../LICENSE)).
 
 - [x] A header check: `scripts/check-license-headers.sh`, run by the `licence headers` hook in
       `pre-commit-all`, fails a source file without the GPL header.
 - [ ] A dependency-licence check. GPL-3.0 constrains what may be linked in, and a transitive
-      dependency under an incompatible licence is much more expensive to remove after the first
+      dependency under an incompatible license is much more expensive to remove after the first
       release.
 
 ## 7. Nice to Have: Coverage Reporting

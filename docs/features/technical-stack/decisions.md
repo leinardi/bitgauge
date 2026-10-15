@@ -4,7 +4,7 @@
 
 ## Stack Decisions to Avoid
 
-- Full Nuxt application, Nuxt routing, SSR, or any frontend-server behaviour.
+- Full Nuxt application, Nuxt routing, SSR, or any frontend-server behavior.
 - A React rewrite unless Vue becomes a blocker.
 - Any database, ORM or migration tool on the server.
 - Any outbound network client in the server, or any external URL in the SPA.
@@ -25,7 +25,7 @@ Module `github.com/leinardi/bitgauge`. The Vue SPA is built at image build time 
 `embed.FS`; one binary, one container image, one port. Simple to deploy next to other homelab
 services, nothing to keep in sync between a frontend and a backend deployment.
 
-**Not chosen:** separate frontend container or static hosting (two artefacts and a CORS setup for
+**Not chosen:** separate frontend container or static hosting (two artifacts and a CORS setup for
 no benefit).
 
 ### 2. Server state — Stateless; history in the browser only
@@ -167,7 +167,7 @@ assumption the user did not choose).
 ### 19. Latency probes — WebSocket echo plus a separate HTTP responsiveness probe
 
 300 ms schedule; path A (WebSocket echo, HTTP fallback with reservation rules) grades bufferbloat;
-path B (`GET /api/v1/small`, h2/h3 only) gives HTTP loaded responsiveness labelled as not
+path B (`GET /api/v1/small`, h2/h3 only) gives HTTP loaded responsiveness labeled as not
 verifiable ([measurement.md §11–§12](../measurement.md#11-latency-under-load)). `/api/v1/small` is
 an addition to the native API for this purpose; `/ping` stays 204.
 
@@ -177,7 +177,7 @@ A+ < 5 ms, A < 30, B < 60, C < 200, D < 400, F ≥ 400 ms of added latency, wors
 
 ### 21. Quality scores — Cloudflare AIM point tables
 
-Packet loss fixed at 0 points and labelled "not measured"
+Packet loss fixed at 0 points and labeled "not measured"
 ([measurement.md §13](../measurement.md#13-quality-scores)).
 
 ### 22. Presets — Quick, Standard, Extended, Continuous
@@ -268,7 +268,7 @@ A test always runs against the server that served the page. Decided by the user 
 **Not chosen:** a server list with lowest-latency selection (complexity and a `server` URL parameter
 for a single-server homelab tool).
 
-### 32. Licence — GPL-3.0-or-later
+### 32. License — GPL-3.0-or-later
 
 Used consistently in the README, the image label and source headers. Decided by the user on
 2026-10-08.
@@ -339,7 +339,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 22 | The `network` command, the browser identity from the transport, and the run sequence's skips, samples, pauses and run-imposed errors | v0.1 |
 | 23 | The v0.1 result field set with later fields absent, the timer resolution and isolation in `client`, `validateResult` as the one runtime export of `engine/messages.ts` | v0.1 |
 | 24 | The Worker's message loop with one run at a time; busy time, timer resolution, timing-entry lookup and user-agent table of the browser wiring | v0.1 |
-| 25 | The dist URL allowlist: the SVG, XLink and MathML namespaces, the GNU licences URL, the Tailwind licence comment, Vue's console error reference and the project repository; clicked links are not calls | v0.1 |
+| 25 | The dist URL allowlist: the SVG, XLink and MathML namespaces, the GNU licenses URL, the Tailwind license comment, Vue's console error reference and the project repository; clicked links are not calls | v0.1 |
 | 26 | The engine Worker chunk budget, 128 KiB minified, in `.chunk-budget` | v0.1 |
 | 27 | v0.1 without a Settings screen: Test and About navigation, placeholder pages, server defaults plus URL parameters, the About screen before v0.3 | v0.1 |
 | 28 | The design export's root assets served from the base path as an explicit file list | v0.1 |

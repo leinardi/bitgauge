@@ -465,7 +465,7 @@ repository is public**, because several pieces are limited on a private reposito
 This is one reason the process is [provisional](#release) and is revisited before going public.
 
 1. **The `release` environment**, restricted to `main` with a deployment branch rule, as a
-   server-side second line of defence behind the `guard` job. Add required reviewers too if a
+   server-side second line of defense behind the `guard` job. Add required reviewers too if a
    release should wait for a human. A run that references a missing environment creates it with no
    protection rules.
 2. **The `dhi.io` credentials.** The build stages pull `dhi.io/golang` and `dhi.io/node`, the

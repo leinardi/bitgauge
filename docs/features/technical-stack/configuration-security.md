@@ -67,7 +67,7 @@ if peer is not inside any server.trusted_proxies CIDR:
     return peer
 entries := all X-Forwarded-For header lines joined with ",", split on ",", whitespace trimmed
 for entry in entries, from right to left:
-    addr := parse entry as an IP address (normalised as above)
+    addr := parse entry as an IP address (normalized as above)
     if parsing fails:
         return peer                      # malformed chain: fail closed to the proxy's address
     if addr is not inside any trusted_proxies CIDR:

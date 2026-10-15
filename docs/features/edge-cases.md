@@ -3,7 +3,7 @@
 [Feature index](README.md) / Edge Cases
 
 Situations where a naive speed test gives a wrong number, hangs or loses data, and what BitGauge
-does in each. Each entry gives the situation, the behaviour and what the user sees. Notices are
+does in each. Each entry gives the situation, the behavior and what the user sees. Notices are
 listed in [measurement.md §16](measurement.md#16-confidence-and-notices).
 
 ## 1. Sub-1 Mbit and High-RTT VPN Links
@@ -11,7 +11,7 @@ listed in [measurement.md §16](measurement.md#16-confidence-and-notices).
 **Situation.** Mobile over VPN at 300 kbit/s to 1 Mbit/s with 300–600 ms RTT. Fixed large requests
 never complete; client-side upload progress runs seconds ahead of the link.
 
-**Behaviour.** Requests start at 64 KiB and are sized to about 1 s at the observed per-stream rate,
+**Behavior.** Requests start at 64 KiB and are sized to about 1 s at the observed per-stream rate,
 down to a 16 KiB floor; the ramp starts at one stream and skips trials that would make requests too
 thin (`floor-limited`); upload is server-timed; phases extend up to their maximum; idle-latency
 timeouts scale with the running median and cap at 10 s. The slow-link budget is worked out in
@@ -26,7 +26,7 @@ of the next larger preset when even the maximum is not enough; data used is alwa
 the tab is in the background or the screen locks (iOS suspends almost immediately; Android Chrome
 throttles hidden pages).
 
-**Behaviour.** During a test the SPA requests a screen wake lock (`navigator.wakeLock`) where
+**Behavior.** During a test the SPA requests a screen wake lock (`navigator.wakeLock`) where
 available, requests it again when the page becomes visible during the test (the browser releases
 it while the page is hidden), and releases it when the run ends; a refused request changes
 nothing else. The Worker runs a 100 ms housekeeping tick; a tick that arrives more than 1 s late
@@ -42,7 +42,7 @@ the page was visible (for example Low Power Mode); the advice to keep the screen
 stream, six per origin), HTTP/2 (all streams on one connection) or HTTP/3. BitGauge itself always
 speaks HTTP/1.1 to the proxy.
 
-**Behaviour.** The engine reads `nextHopProtocol` from each request's Resource Timing entry and
+**Behavior.** The engine reads `nextHopProtocol` from each request's Resource Timing entry and
 records it. On HTTP/1.1 with the WebSocket unavailable, the HTTP latency fallback reserves one
 connection and caps streams at 5; path B (HTTP loaded responsiveness) is `unavailable_h1`. On HTTP/2
 and HTTP/3, path B runs and transient upload failures leave failure gaps instead of ending the phase
@@ -59,7 +59,7 @@ a buffering middleware) receives the whole body before forwarding it. Client-tim
 measure the client-to-proxy hop plus buffer, and server-timed tests see each body arrive in one
 burst.
 
-**Behaviour.** Arrival counts stay exact for what the server saw, so no number is invented, but the
+**Behavior.** Arrival counts stay exact for what the server saw, so no number is invented, but the
 series becomes bursts and gaps and fails the stability test. When a request's server duration is
 below 10 % of its client duration (requests of at least 1 s), the engine flags it
 ([measurement.md §7.3](measurement.md#73-server-telemetry-per-request)).
@@ -74,7 +74,7 @@ throttled or suspended almost at once; desktop browsers throttle the hidden page
 usually keep a dedicated Worker's timers and network callbacks running. Only suspension or
 throttling of the Worker makes chunk timestamps and probe timings stop reflecting the network.
 
-**Behaviour.** The SPA forwards `visibilitychange` to the Worker, and the Worker watches its own
+**Behavior.** The SPA forwards `visibilitychange` to the Worker, and the Worker watches its own
 100 ms housekeeping tick (§2). While the page is hidden:
 
 - If no tick arrives more than 1 s late, the engine keeps measuring; the Worker's timing is intact.
@@ -109,7 +109,7 @@ change of `navigator.connection.type` where the browser exposes it (for example 
 `cellular`). Changes of `effectiveType`, `downlink` or `rtt` are ignored: they are the browser's
 own throughput and RTT estimates, and the test itself moves them.
 
-**Behaviour.**
+**Behavior.**
 
 - **On a network event**, the path the test is measuring has changed: the engine stops the test
   with an error result for the current phase, keeps completed phases, and does not merge
@@ -142,7 +142,7 @@ phases remain visible. Or, when the network did not change, one of the two WebSo
 **Situation.** Some private-browsing modes disable IndexedDB, keep it in memory only, or impose tiny
 quotas; storage can also be blocked by policy.
 
-**Behaviour.** The history module opens its database at startup; if that fails or the quota is
+**Behavior.** The history module opens its database at startup; if that fails or the quota is
 exhausted, history is disabled for the session. Tests run normally; the current result can still
 be exported as JSON or CSV and shared as an image.
 
@@ -154,7 +154,7 @@ History screen and after each test.
 **Situation.** The same BitGauge is reached as `http://192.168.1.10:8080` on the LAN and as
 `https://speed.vpn.example` over the VPN. Browser storage is per origin.
 
-**Behaviour.** Each origin has its own history. Export from one and import into the other merges
+**Behavior.** Each origin has its own history. Export from one and import into the other merges
 them; import deduplicates by result `id`.
 
 **User sees.** The History screen names the origin it shows ("stored only in this browser, for
@@ -165,14 +165,14 @@ speed.vpn.example") and points to export/import.
 **Situation.** Browsers coarsen `performance.now()`: commonly to 100 µs, to 1 ms in some browsers
 or modes, and finer (5 µs in Chromium) only when the page is cross-origin isolated.
 
-**Behaviour.** The SPA is served with COOP and COEP headers
+**Behavior.** The SPA is served with COOP and COEP headers
 ([security.md §5](security.md#5-content-security-policy-and-security-headers)) to get the finest
 timer available. Cross-origin isolation, like the wake lock (§2) and persistent storage (§17),
 needs a **secure context**: it takes effect behind an HTTPS proxy (or on `localhost`), not on a
 plain-HTTP LAN address such as `http://192.168.1.10:8080`, where timers stay coarser. 100 ms buckets
 are unaffected by any of these resolutions. Latency statistics are reported no finer than the
 detected resolution; a sub-resolution LAN RTT is shown as "< 1 ms" rather than as 0. Jitter on
-sub-millisecond LANs is quantised and labelled with the resolution.
+sub-millisecond LANs is quantized and labeled with the resolution.
 
 **User sees.** Honest latency numbers on LANs; the timer resolution, and whether the page was
 cross-origin isolated, in the result detail.
@@ -182,7 +182,7 @@ cross-origin isolated, in the result detail.
 **Situation.** At 2.5–10 Gbit/s the browser's network stack and the Worker's chunk loop saturate a
 CPU core before the link saturates.
 
-**Behaviour.** The engine measures the Worker's busy fraction; above 90 % over the steady window the
+**Behavior.** The engine measures the Worker's busy fraction; above 90 % over the steady window the
 direction is `confidence: cpu-bound`. Requests at the 256 MiB cap and up to 6 streams keep the
 round trip between requests small, but not every per-request cost: some browsers prepare each upload
 body before its first byte leaves, Firefox at about 4–5 Gbit/s on a desktop and close to 1 Gbit/s
@@ -213,7 +213,7 @@ reports.
 **Situation.** The container restarts (deploy, crash, image update) during a test. Upload grid
 indices from before and after the restart cannot be combined, and in-flight requests fail.
 
-**Behaviour.** A restart is detected by an epoch change, whichever arrives first:
+**Behavior.** A restart is detected by an epoch change, whichever arrives first:
 
 - an upload response whose `epoch` differs from the one `GET /info` returned at test start; or
 - the `GET /info` call of the WebSocket-close sequence (§6, step 2) returning a different epoch.
@@ -230,7 +230,7 @@ congestion window. On high-RTT or lossy paths a single connection recovers more 
 and can measure lower than six HTTP/1.1 connections, which spread loss across six windows. The
 browser cannot be made to open more connections.
 
-**Behaviour.** The engine does not correct for it; it records the protocol and the plateau reason.
+**Behavior.** The engine does not correct for it; it records the protocol and the plateau reason.
 The ramp still adds streams (each is an HTTP/2 stream) and keeps them only if throughput rises.
 
 **User sees.** The protocol next to the number. The deployment guide notes that HTTP/2 is optional
@@ -244,7 +244,7 @@ bad links; an operator can expose an HTTP/1.1-only entrypoint to compare
 compresses responses. Random bytes do not shrink, but the proxy may buffer, drop
 `Content-Length`, switch to chunked encoding and add CPU latency.
 
-**Behaviour.** BitGauge never compresses API responses. The engine checks each throughput response
+**Behavior.** BitGauge never compresses API responses. The engine checks each throughput response
 for a `Content-Encoding` header.
 
 **User sees.** `response compression detected`, with the advice to exclude BitGauge's routes from
@@ -256,7 +256,7 @@ compression.
 default), Traefik entrypoint `readTimeout` (60 s by default in v3), load balancers in front of the
 proxy. Continuous runs last hours.
 
-**Behaviour.** Throughput requests last about 1 s and are re-issued continuously, so they never hit
+**Behavior.** Throughput requests last about 1 s and are re-issued continuously, so they never hit
 idle timeouts; a connection closed by the proxy between requests is simply reopened. The WebSocket
 carries a ping every 300 ms during load; if the proxy still closes it, the WebSocket-close sequence
 of §6 runs: with the same epoch and no network event, the WebSocket is reopened and the test
@@ -272,7 +272,7 @@ guide sets read timeouts above the 120 s upload lifetime.
 **Situation.** nginx needs explicit `Upgrade` and `Connection` headers to proxy WebSockets; some
 proxies or security appliances block upgrades entirely.
 
-**Behaviour.** If `/api/v1/ws` cannot be opened, including a handshake that neither opens nor
+**Behavior.** If `/api/v1/ws` cannot be opened, including a handshake that neither opens nor
 fails within 10 s (the ceiling of the idle-latency timeout), path A uses the HTTP fallback
 ([measurement.md §11.2](measurement.md#112-path-a-fallback--http-probe)): on HTTP/1.1 with the
 5-stream reservation and grading only under its conditions; on HTTP/2 or HTTP/3 multiplexed on
@@ -287,8 +287,8 @@ result detail;
 **Situation.** Dual-stack networks: the browser may reach BitGauge over IPv6 with a global address
 even on the LAN, or over IPv4 through the VPN. Proxies report the address they saw.
 
-**Behaviour.** The client IP is derived through trusted proxies only; IPv4-mapped IPv6 addresses
-are normalised to IPv4. The suggested label comes from the address class
+**Behavior.** The client IP is derived through trusted proxies only; IPv4-mapped IPv6 addresses
+are normalized to IPv4. The suggested label comes from the address class
 ([wire-protocol.md §5](wire-protocol.md#5-get-apiv1info)): private, link-local and ULA addresses
 suggest `LAN`, CGNAT and the Tailscale range suggest `VPN`, and a global IPv6 address suggests
 nothing. A configurable subnet-to-label mapping is an open question
@@ -305,12 +305,12 @@ bugs; JavaScript is suspended when the screen locks; script-writable storage of 
 interaction for seven days of browser use may be deleted (Intelligent Tracking Prevention); Low
 Power Mode throttles timers.
 
-**Behaviour.** An empty protocol is treated as HTTP/1.1 for the probe reservation and makes path B
+**Behavior.** An empty protocol is treated as HTTP/1.1 for the probe reservation and makes path B
 `unavailable_h1` ([measurement.md §12.3](measurement.md#123-path-b-procedure)). The engine requests
 a wake lock and handles suspension as §2 and §5. The history module asks for persistent storage
 (`navigator.storage.persist()`, available in a secure context only, see §9) and the History screen
 recommends export on Safari. Playwright's
-WebKit is not Safari, so Worker XHR and `nextHopProtocol` behaviour are re-checked on real Safari
+WebKit is not Safari, so Worker XHR and `nextHopProtocol` behavior are re-checked on real Safari
 and iOS before each release ([technical-stack/testing.md](technical-stack/testing.md)).
 
 **User sees.** "Protocol not reported — treated as HTTP/1.1" where relevant; a storage-persistence
@@ -318,10 +318,10 @@ hint on Safari.
 
 ## 18. Clock Skew Between Server and Client Timing
 
-**Situation.** Server and client clocks are unrelated: different hosts, no synchronisation, and the
+**Situation.** Server and client clocks are unrelated: different hosts, no synchronization, and the
 server grid deliberately reveals no wall-clock time.
 
-**Behaviour.** No number depends on aligning them. Download timing is purely client-side; upload
+**Behavior.** No number depends on aligning them. Download timing is purely client-side; upload
 aggregation, warm-up and the watermark use only the server grid plus causal ordering of client
 events ([measurement.md §7.4](measurement.md#74-common-timeline-and-aggregation)); WebSocket and
 HTTP RTTs are purely client-side. The only cross-clock element is the display offset between the
@@ -335,7 +335,7 @@ too.
 
 **Situation.** The user set a data cap and it is reached while a direction is running.
 
-**Behaviour.** Requests are sized so the cap is never exceeded; when less than the 16 KiB floor
+**Behavior.** Requests are sized so the cap is never exceeded; when less than the 16 KiB floor
 remains, the current phase ends as if its maximum had been reached, so the window condition decides
 between a number and `insufficient data`, and remaining throughput phases are skipped
 ([measurement.md §5](measurement.md#5-adaptive-duration)).
@@ -348,7 +348,7 @@ between a number and `insufficient data`, and remaining throughput phases are sk
 proxy forwards `/speed` to an instance configured for `/`. Either the page itself is not found, or
 it loads with broken asset paths or calls API routes that do not exist.
 
-**Behaviour.** BitGauge routes on the full path and never guesses. The embedded `index.html` is a
+**Behavior.** BitGauge routes on the full path and never guesses. The embedded `index.html` is a
 template: once, at startup, the server substitutes the configured base path into its asset URLs
 and into a `<meta name="bitgauge-base-path" content="/speed">` element, and serves the result from
 memory. It uses neither `<base href>` (the CSP sets `base-uri 'none'`) nor an inline script (the

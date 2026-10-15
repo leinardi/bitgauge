@@ -13,7 +13,7 @@ measurement engine ([principles.md §2.7](principles.md#27-compatibility-is-a-la
 - All routes are mounted under `server.base_path`, like the native API.
 - No layer stores anything: LibreSpeed's telemetry and results routes are not implemented.
 - No OpenSpeedTest or LibreSpeed code or assets are copied or served. BitGauge implements their
-  wire contracts from the documented behaviour ([research/](../research/README.md)); the names are
+  wire contracts from the documented behavior ([research/](../research/README.md)); the names are
   used only to describe compatibility. OpenSpeedTest™ is a trademark of its owner.
 - Numbers reported by these clients come from their own methodologies, not BitGauge's: client-timed
   upload, fixed request sizes and overhead factors stay theirs.
@@ -31,7 +31,7 @@ ships the OpenSpeedTest UI; the user hosts it (for example in the old container)
 
 ### 1.1 Routes and Parameters
 
-| Method | Path | Behaviour |
+| Method | Path | Behavior |
 | --- | --- | --- |
 | `GET`, `HEAD` | `/downloading?n=…` | `200`, exactly 30 MiB (31 457 280 bytes) of incompressible random data from the shared buffer, `Content-Type: application/octet-stream`, `Content-Length`, no `Content-Encoding` (`HEAD`: headers only) |
 | `GET`, `HEAD` | `/upload?n=…` | `200`, empty body. This is OpenSpeedTest's ping, which accepts **only** status 200 |
@@ -118,7 +118,7 @@ Each route exists in four spellings, matching LibreSpeed's Go server: bare (`/ga
 `backend/` prefix (`/backend/garbage`), with the `.php` suffix (`/garbage.php`) and with both
 (`/backend/garbage.php`).
 
-| Method | Path (bare form) | Behaviour |
+| Method | Path (bare form) | Behavior |
 | --- | --- | --- |
 | `GET` | `/garbage?ckSize=N` | `200`, `N` chunks of 1 MiB of random data (`N` in MB units as LibreSpeed documents it, sent as 1 MiB chunks as its Go server does). Default 4. Capped at `min(1024, floor(limits.max_download_bytes / 1 MiB))` = 256 with defaults. `Content-Type: application/octet-stream`, `Content-Length`, no `Content-Encoding`, `Cache-Control: no-store` |
 | `GET`, `POST` | `/empty` | Drain any body, then `200`, empty body, `Cache-Control: no-store`, `Connection: keep-alive` on HTTP/1.1. Used for both upload and ping |
@@ -249,7 +249,7 @@ Apple's default paths would collide with BitGauge's `/api/v1`.
 
 ### 3.1 Routes
 
-| Method | Path | Behaviour |
+| Method | Path | Behavior |
 | --- | --- | --- |
 | `GET` | `/nq/config` | `200`, config JSON (§3.2), `Content-Type: application/json`, `Cache-Control: no-store` |
 | `GET` | `/.well-known/nq` | Same response as `/nq/config` (discovery path from the IETF draft) |
@@ -337,7 +337,7 @@ networkQuality -C https://speed.example.lan/nq/config -v      # verbose, per-flo
   same `RPM = 60000 / TM95` formula over the self-probe samples.
 - What differs: `networkQuality` adds foreign probes on new connections, controls its connections
   and runs its own load; the browser can do neither and cannot verify which connection a probe used.
-  BitGauge's number is labelled "HTTP loaded responsiveness — connection sharing not verifiable" and
+  BitGauge's number is labeled "HTTP loaded responsiveness — connection sharing not verifiable" and
   is never presented as comparable ([measurement.md
   §12](measurement.md#12-http-loaded-responsiveness)).
 

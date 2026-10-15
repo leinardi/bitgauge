@@ -6,7 +6,7 @@ Every browser speed test uploads from JavaScript, so the browser's own networkin
 between the test and the link. On fast links that stack, not the link, can be the limit, and the
 upload number then describes the browser on that device. This page records what is known about it,
 with the public reports, so that a user who sees one browser below another at multi-Gbit rates can
-tell why. The behaviour BitGauge derives from it is specified in
+tell why. The behavior BitGauge derives from it is specified in
 [../features/measurement.md §7.2 and §16](../features/measurement.md#72-client-side) and
 [../features/edge-cases.md §10](../features/edge-cases.md#10-very-fast-links-where-the-browser-cpu-is-the-bottleneck).
 Facts were checked in October 2026; the bugs change, so a reader should follow the links.
@@ -44,7 +44,7 @@ The Firefox floor is low on purpose: the preparation rate measured on a high-end
 | [1852924](https://bugzilla.mozilla.org/show_bug.cgi?id=1852924) | HTTP/3 uploads up to three times slower than other browsers; improved since, still the slowest of the three protocols. | Fixed in part |
 | [1708868](https://bugzilla.mozilla.org/show_bug.cgi?id=1708868) | Slow uploads of large files with HTTP/3 enabled. | Open |
 | [1556022](https://bugzilla.mozilla.org/show_bug.cgi?id=1556022) | Firefox for Android (GeckoView) at about 90 % of Chrome's download and 50 % of its upload on a public speed test; network preferences did not change it. | Open |
-| [1187239](https://bugzilla.mozilla.org/show_bug.cgi?id=1187239) | The last upload progress event waits for the start of the server's response; a Mozilla engineer's [note](https://lists.w3.org/Archives/Public/public-webapps/2011JanMar/0994.html) explains that upload progress events fire from a timer, not per byte. | Fixed; the timer behaviour remains |
+| [1187239](https://bugzilla.mozilla.org/show_bug.cgi?id=1187239) | The last upload progress event waits for the start of the server's response; a Mozilla engineer's [note](https://lists.w3.org/Archives/Public/public-webapps/2011JanMar/0994.html) explains that upload progress events fire from a timer, not per byte. | Fixed; the timer behavior remains |
 
 ### 1.2 What other tests do
 

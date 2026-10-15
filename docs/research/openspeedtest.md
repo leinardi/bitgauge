@@ -5,11 +5,11 @@
 OpenSpeedTest is a widely used self-hosted speed test with a web app and a Docker image. This page
 records how the studied version works, from its web app (`app-2.5.4.js` and `index.html`) and its
 Docker image (`openspeedtest/latest`: nginx configuration and entrypoint), and the contract a
-compatibility layer has to honour.
+compatibility layer has to honor.
 
-## 1. Licence and Trademark
+## 1. License and Trademark
 
-- MIT licence. OpenSpeedTest™ is a trademark of its owner.
+- MIT license. OpenSpeedTest™ is a trademark of its owner.
 - BitGauge copies no code or assets and uses the name only to describe compatibility. The README
   credits OpenSpeedTest and notes the trademark.
 
@@ -81,7 +81,7 @@ entrypoint script.
 What a client running the OpenSpeedTest web app requires of a server. It is wider than
 `GET /downloading` plus `POST /upload`, because the ping also uses `/upload`:
 
-| Method | Path | Required behaviour |
+| Method | Path | Required behavior |
 | --- | --- | --- |
 | `GET` | `/downloading?n=…` | 200, about 30 MiB of incompressible data, no `Content-Encoding` |
 | `GET`, `HEAD` | `/upload?n=…` | 200 with an empty body (the ping) |

@@ -80,7 +80,7 @@ answering on HTTP/1.1 between proxy and server
 
 ### 3.3 Trimmed Means and RPM
 
-- Each probe kind is summarised by a **95 % trimmed mean** (`TMP`): the slowest 5 % of samples
+- Each probe kind is summarized by a **95 % trimmed mean** (`TMP`): the slowest 5 % of samples
   over the last `MAD` intervals are dropped and the rest averaged.
 - The foreign component is the mean of the trimmed means of `tcp_f`, `tls_f` and `http_f`; the
   final responsiveness weighs the foreign component and the trimmed mean of `http_l` equally:
@@ -121,7 +121,7 @@ that is unavailable, and never presented as comparable to Apple's RPM
   `goresponsiveness` can test against a LAN or VPN host.
 - The one-byte small object, shared by `/nq/small` and the native `/api/v1/small`.
 - The trimmed-mean formula and the 1 s interval for the browser-feasible half.
-- The honesty rule: what cannot be measured in a browser is labelled, not approximated silently.
+- The honesty rule: what cannot be measured in a browser is labeled, not approximated silently.
 
 ## Related
 

@@ -86,7 +86,7 @@ it is how the audit notices the day it starts to exist.
 >    documented but not read, and validation that fails open rather than exiting with status 2.
 > 6. **Wire compatibility**: drift between `internal/compat/` and
 >    `docs/features/wire-protocol.md`, and any code or asset that looks copied from OpenSpeedTest
->    or LibreSpeed rather than written from their documented behaviour.
+>    or LibreSpeed rather than written from their documented behavior.
 > 7. **Hygiene and tests**: dead code, `nolint` directives whose reason no longer holds, swallowed
 >    errors, goroutines without a context, duplicated rules, and `time.Sleep` where a wait belongs.
 

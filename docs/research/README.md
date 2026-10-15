@@ -3,16 +3,16 @@
 [Feature index](../features/README.md) / Research
 
 Prior art studied while specifying BitGauge: how other speed tests measure and which ideas
-BitGauge takes. These pages record facts and ideas; the BitGauge behaviour they
+BitGauge takes. These pages record facts and ideas; the BitGauge behavior they
 inform is specified in [../features/](../features/README.md), which is canonical.
 
 ## Ideas Only, No Code
 
 - **No code, assets, configuration files or text are copied** from any source below, whatever its
-  licence. BitGauge implements its own engine and, for the compatibility layers, the documented
+  license. BitGauge implements its own engine and, for the compatibility layers, the documented
   wire contracts ([../features/compatibility.md](../features/compatibility.md)).
 - Short identifiers (route names, parameter names, JSON keys, constant names) are quoted only to
-  describe behaviour and wire compatibility.
+  describe behavior and wire compatibility.
 - A fact is recorded with where it came from (file, configuration or document), so it can be
   re-checked when the source changes. Source versions are the ones studied in October 2026.
 - Product names are used only to identify the tools. OpenSpeedTest™ is a trademark of its owner.
@@ -29,12 +29,12 @@ inform is specified in [../features/](../features/README.md), which is canonical
 | [Browser upload limits](browser-upload-limits.md) | Mozilla bug reports, other tests' issue trackers and settings, BitGauge's own probes | The preparation turn, the upload gauge window and the `browser-upload-limit` notice |
 | [Prior-art summary](prior-art-summary.md) | All of the above plus fast.com and Waveform | Who each idea comes from |
 
-## Licences of the Sources
+## Licenses of the Sources
 
-The licence decides nothing here, because nothing is copied; it is recorded so the "ideas only"
+The license decides nothing here, because nothing is copied; it is recorded so the "ideas only"
 rule is easy to audit.
 
-| Source | Licence |
+| Source | License |
 | --- | --- |
 | OpenSpeedTest (web app and Docker image) | MIT; OpenSpeedTest™ is a trademark of its owner |
 | LibreSpeed (`speedtest`, `speedtest-go`, `librespeed-cli`) | LGPL-3.0 |

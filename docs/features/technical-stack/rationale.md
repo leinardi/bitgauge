@@ -70,7 +70,7 @@ LibreSpeed's `ckSize` chunks) can legitimately take minutes on a slow link.
 | SQLite, `sqlc`, `goose` | No server-side persistence at all; the server must stay stateless. |
 | TanStack Query | One `GET /info` per run; nothing to cache or invalidate. |
 | Docker Go SDK, agents, agent auth | BitGauge manages nothing; it is a measurement endpoint. |
-| Authentication, authorisation, audit log | No users, no actions to audit, nothing stored to protect; auth, if wanted, belongs to the proxy. |
+| Authentication, authorization, audit log | No users, no actions to audit, nothing stored to protect; auth, if wanted, belongs to the proxy. |
 | Cron scheduler, notifications | No background work; scheduled tests are run by external clients such as `librespeed-cli`. |
 | xterm.js, log streaming | No terminals or logs to show. |
 | Separate agent image | One binary, one image. |
