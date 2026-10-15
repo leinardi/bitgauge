@@ -17,11 +17,12 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { ExternalLink, RefreshCw, Timer } from '@lucide/vue'
+import { RefreshCw, Timer } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import AppLink from '@/components/actions/AppLink.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import { noticeViews } from '@/components/test/notices'
 import type { Notice, Preset } from '@/engine/messages'
@@ -84,21 +85,13 @@ const views = computed(() => noticeViews(props.notices, { t, locale: locale.valu
               />
               {{ action.label }}
             </AppButton>
-            <AppButton
+            <AppLink
               v-else
-              as="a"
-              variant="ghost"
-              size="sm"
               :href="action.href"
-              target="_blank"
-              rel="noopener noreferrer"
+              external
             >
               {{ action.label }}
-              <ExternalLink
-                :size="14"
-                aria-hidden="true"
-              />
-            </AppButton>
+            </AppLink>
           </template>
         </template>
       </NoticeBox>

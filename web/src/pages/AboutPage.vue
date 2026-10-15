@@ -24,6 +24,7 @@ import { useI18n } from 'vue-i18n'
 import BrandLogo from '@/components/brand/BrandLogo.vue'
 import OfflineNotice from '@/components/OfflineNotice.vue'
 import AppButton from '@/components/actions/AppButton.vue'
+import AppLink from '@/components/actions/AppLink.vue'
 import GithubIcon from '@/components/brand/GithubIcon.vue'
 import { useInfo } from '@/composables/useInfo'
 import { links } from '@/lib/links'
@@ -149,18 +150,12 @@ const credits = computed(() => [
         <p class="text-(length:--text-sm) leading-normal text-muted-foreground">
           {{ t('about.methodology.summary') }}
         </p>
-        <a
+        <AppLink
           :href="links.methodology"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-1 text-(length:--text-sm) text-primary-text hover:underline"
+          external
         >
           {{ t('about.methodology.link') }}
-          <ExternalLink
-            :size="12"
-            aria-hidden="true"
-          />
-        </a>
+        </AppLink>
       </section>
       <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
         <h2 class="font-(family-name:--font-cond) text-[11px] font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
