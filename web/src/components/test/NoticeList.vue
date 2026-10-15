@@ -29,6 +29,7 @@ import type { Notice, Preset } from '@/engine/messages'
 
 // The notices area (ui/screens.md section 7): each notice an icon and text, never colour alone,
 // in its tone, with up to two actions. Danger notices are alerts; the others are status messages.
+// The notices sit in the page's column as siblings, as the export's TestScreen places them.
 
 const props = defineProps<{ notices: Notice[] }>()
 defineEmits<{ retry: []; preset: [preset: Preset] }>()
@@ -39,62 +40,53 @@ const views = computed(() => noticeViews(props.notices, { t, locale: locale.valu
 </script>
 
 <template>
-  <ul
-    v-if="views.length > 0"
-    :aria-label="$t('notices.label')"
-    class="flex flex-col gap-2"
+  <NoticeBox
+    v-for="{ key, view } in views"
+    :key="key"
+    :tone="view.tone"
+    :icon="view.icon"
+    :title="view.title"
+    :body="view.body"
+    data-testid="notice"
   >
-    <li
-      v-for="{ key, view } in views"
-      :key="key"
+    <template
+      v-if="view.actions.length > 0"
+      #actions
     >
-      <NoticeBox
-        :tone="view.tone"
-        :icon="view.icon"
-        :title="view.title"
-        :body="view.body"
-        data-testid="notice"
+      <template
+        v-for="action in view.actions.slice(0, 2)"
+        :key="action.label"
       >
-        <template
-          v-if="view.actions.length > 0"
-          #actions
+        <AppButton
+          v-if="action.kind === 'retry'"
+          size="sm"
+          @click="$emit('retry')"
         >
-          <template
-            v-for="action in view.actions.slice(0, 2)"
-            :key="action.label"
-          >
-            <AppButton
-              v-if="action.kind === 'retry'"
-              size="sm"
-              @click="$emit('retry')"
-            >
-              <RefreshCw
-                :size="14"
-                aria-hidden="true"
-              />
-              {{ action.label }}
-            </AppButton>
-            <AppButton
-              v-else-if="action.kind === 'preset'"
-              size="sm"
-              @click="$emit('preset', action.preset)"
-            >
-              <Timer
-                :size="14"
-                aria-hidden="true"
-              />
-              {{ action.label }}
-            </AppButton>
-            <AppLink
-              v-else
-              :href="action.href"
-              external
-            >
-              {{ action.label }}
-            </AppLink>
-          </template>
-        </template>
-      </NoticeBox>
-    </li>
-  </ul>
+          <RefreshCw
+            :size="14"
+            aria-hidden="true"
+          />
+          {{ action.label }}
+        </AppButton>
+        <AppButton
+          v-else-if="action.kind === 'preset'"
+          size="sm"
+          @click="$emit('preset', action.preset)"
+        >
+          <Timer
+            :size="14"
+            aria-hidden="true"
+          />
+          {{ action.label }}
+        </AppButton>
+        <AppLink
+          v-else
+          :href="action.href"
+          external
+        >
+          {{ action.label }}
+        </AppLink>
+      </template>
+    </template>
+  </NoticeBox>
 </template>

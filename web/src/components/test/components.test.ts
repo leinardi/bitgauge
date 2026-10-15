@@ -135,9 +135,9 @@ describe('the notices', () => {
 
   it('makes danger notices alerts, the others status messages, and wires the actions', async () => {
     const wrapper = mountWith(NoticeList, { notices: [EVERY['server-unreachable'], EVERY['insufficient-data'], EVERY['page-hidden'], EVERY['proxy-buffering-suspected']] })
-    // The list keeps its items; the roles sit inside them.
-    expect(wrapper.findAll('ul > li').every((item) => item.attributes('role') === undefined)).toBe(true)
-    const items = wrapper.findAll('li > [data-testid="notice"]')
+    // The notices are siblings, with no list around them, as the export places them.
+    expect(wrapper.find('ul').exists()).toBe(false)
+    const items = wrapper.findAll('[data-testid="notice"]')
     expect(items.map((item) => item.attributes('role'))).toEqual(['alert', 'status', 'status', 'status'])
     expect(items.every((item) => item.find('svg').exists())).toBe(true)
     await items[0]?.get('button').trigger('click')
@@ -149,7 +149,7 @@ describe('the notices', () => {
   })
 
   it('renders nothing without notices', () => {
-    expect(mountWith(NoticeList, { notices: [] }).find('ul').exists()).toBe(false)
+    expect(mountWith(NoticeList, { notices: [] }).find('[data-testid="notice"]').exists()).toBe(false)
   })
 })
 

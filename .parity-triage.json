@@ -4347,10 +4347,10 @@
         {
           "target": "vue",
           "what": "NoticeList.vue: render the notices as siblings, with no list wrapper.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "done",
       "owned": {
         "test/cancelled": {
           "b2b6051be1cd": "*"
@@ -4381,7 +4381,49 @@
           "b2b6051be1cd": "*"
         }
       },
-      "resolution": null
+      "resolution": {
+        "note": null,
+        "on": "2026-10-15",
+        "run": {
+          "runId": "891df7a0-d5c0-4c50-816d-43c402fecf00",
+          "finishedAt": "2026-10-15T21:18:05.179Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "state-cancel-gauge",

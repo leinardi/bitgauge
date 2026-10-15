@@ -1,6 +1,5 @@
 {
   "notices": {
-    "label": "Notices",
     "slowLinkExtended": {
       "title": "Test extended",
       "download": "Download had no steady window at its minimum duration, so it was extended up to its maximum.",
