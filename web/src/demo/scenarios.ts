@@ -75,13 +75,17 @@ export const DEMO_SCENARIOS = {
   // The kit's early error is the server going away during idle latency, whatever the panel says.
   'error-early': { link: 'lan', start: true, fault: { ...at('idle', 1200), kind: 'unreachable' } },
   // Over HTTP/1.1 the first failed upload request ends the upload, not the run: the result is
-  // complete, with the upload's window up to the failure (measurement.md section 7.5).
-  'upload-interrupted': { link: 'lan-http1', start: true, fault: { ...at('upload', 8200), kind: 'requests' } },
+  // complete, with the upload's window up to the failure (measurement.md section 7.5). The kit fails
+  // at 8.2 s, before its own 9.5 s warm-up ends; the demo fails at 12 s, after a window of at least
+  // 3 s, so that upload keeps a value as the kit's does.
+  'upload-interrupted': { link: 'lan-http1', start: true, fault: { ...at('upload', 12_000), kind: 'requests' } },
   cancelled: { link: 'lan', start: true, stop: at('upload', 3100) },
   'cancelled-late': { link: 'lan', start: true, stop: at('upload', 14_000) },
   'cancelled-latency': { link: 'lan', start: true, stop: at('idle', 1200) },
   'cancelled-download': { link: 'lan', start: true, stop: at('download', 5200) },
-  'cancelled-slow': { link: 'vpn', start: true, stop: at('download', 8000) },
+  // The kit stops at 8 s with a 3.5 s steady window; on the demo's VPN warm-up ends later, so it
+  // stops at 8.8 s for the same window and a partial download.
+  'cancelled-slow': { link: 'vpn', start: true, stop: at('download', 8800) },
   'cancelled-slow-up': { link: 'vpn', start: true, stop: at('upload', 8000) },
   slow: { link: 'vpn', start: true, hold: at('upload', 12_100) },
   slowdone: { link: 'vpn', start: true },

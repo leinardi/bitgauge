@@ -622,6 +622,7 @@
           "c87674b69dca": "*"
         },
         "test/cancelled-slow": {
+          "165edc16a7c1": "*",
           "e2a28e799bf7": "*",
           "e620de75454b": "*"
         },
@@ -676,6 +677,7 @@
         },
         "test/upload-interrupted": {
           "175319af37a4": "*",
+          "54b94ed200b8": "*",
           "8dce668032fb": "*"
         },
         "test/ws-fallback": {
@@ -1833,6 +1835,9 @@
         "test/upload": {
           "a80788549165": "*"
         },
+        "test/upload-interrupted": {
+          "7a2b4440ca78": "*"
+        },
         "test/ws-fallback": {
           "9cf8621f89da": "*"
         }
@@ -2301,56 +2306,6 @@
         }
       },
       "resolution": null
-    },
-    {
-      "id": "fixture-demo-results",
-      "title": "Demo data: cancelled-slow and upload-interrupted end with insufficient data where the kit keeps a value",
-      "match": {
-        "scenarios": [
-          "test/upload-interrupted"
-        ],
-        "projects": null,
-        "layer": "content",
-        "path": "^main > region \"Speed test\"$",
-        "kind": "^changed$",
-        "detail": "^text \"Download # Mbit/s # Mbit/s upload "
-      },
-      "type": "fixture",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/measurement.md §7.5:446-450",
-          "says": "a value when the window meets the minimum; both outcomes are possible"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:278-289,365-372",
-          "says": "cancelled-slow keeps a partial download (574 kbit/s); upload-interrupted keeps upload 402 Mbit/s from the window up to the failed request at 8.2 s"
-        },
-        "vue": {
-          "ref": "web/src/demo/scenarios.ts:79,83",
-          "says": "both end with insufficient data on the demo's link"
-        },
-        "notes": "The Results tiles of both states are owned by content-results-tiles; cancelled-slow's gauge readout by state-cancel-gauge. complete's inner upload value on the gauge is a separate, baselined difference."
-      },
-      "decision": {
-        "kind": "confirmation",
-        "rationale": "The demo should reach the kit's results; measurement.md allows them, so the demo's stop instant or link is tuned.",
-        "on": "2026-10-15"
-      },
-      "actions": [
-        {
-          "target": "fixture",
-          "what": "demo/scenarios.ts (and the link if needed): cancelled-slow stops after a steady window long enough for a partial download; upload-interrupted's upload window before the failed request at 8.2 s meets the minimum. If the engine is at fault instead, that is a new finding.",
-          "done": false
-        }
-      ],
-      "status": "decided",
-      "owned": {
-        "test/upload-interrupted": {
-          "7a2b4440ca78": "*"
-        }
-      },
-      "resolution": null,
-      "aspect": null
     },
     {
       "id": "fixture-insufficient-ip",
@@ -3890,6 +3845,7 @@
           "98f598d3b877": "*"
         },
         "test/cancelled-slow": {
+          "46d0c0b0a44a": "*",
           "cfa90a6c735c": "*"
         },
         "test/cancelled-slow-up": {
