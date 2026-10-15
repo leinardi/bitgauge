@@ -198,7 +198,7 @@ watch(run.error, (error) => {
   <main
     id="main"
     tabindex="-1"
-    class="focus:outline-none mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-4 px-4 py-6 sm:gap-5 sm:px-10"
+    class="focus:outline-none mx-auto flex w-full max-w-(--layout-max) flex-1 flex-col gap-4 px-4 py-6 sm:gap-5 sm:px-10"
   >
     <h1 class="sr-only">
       {{ $t('test.title') }}
@@ -249,7 +249,7 @@ watch(run.error, (error) => {
           :connecting="running && (run.phase.value === null || run.phase.value === 'info')"
         />
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-[400px_minmax(0,1fr)]">
+      <div class="grid grid-cols-1 lg:grid-cols-[var(--layout-instrument)_minmax(0,1fr)]">
         <div class="flex flex-col items-center gap-3.5 px-4 py-5 sm:px-6 sm:py-7">
           <CountdownRing
             v-if="countdown.remainingMs.value !== null"

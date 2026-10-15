@@ -47,7 +47,7 @@ const stepped = computed(() => Math.min((seconds.value * 1000) / props.totalMs, 
     class="flex flex-col items-center gap-3.5"
     data-testid="countdown"
   >
-    <div class="relative aspect-square w-[272px] sm:w-[316px]">
+    <div class="relative aspect-square w-68 sm:w-79">
       <svg
         :viewBox="`0 0 ${SIZE} ${SIZE}`"
         class="block size-full overflow-visible"
@@ -84,9 +84,9 @@ const stepped = computed(() => Math.min((seconds.value * 1000) / props.totalMs, 
         />
       </svg>
       <div class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pt-2 text-center">
-        <span class="font-[family-name:var(--font-cond)] text-xs font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ t('test.countdown.label') }}</span>
+        <span class="font-(family-name:--font-cond) text-xs font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ t('test.countdown.label') }}</span>
         <span
-          class="font-mono text-[46px] leading-[1.05] font-medium tracking-[-0.03em] tabular-nums sm:text-[58px]"
+          class="font-mono text-(length:--type-gauge-readout-compact) leading-[1.05] font-medium tracking-(--tracking-readout) tabular-nums sm:text-(length:--type-gauge-readout)"
           data-testid="countdown-number"
         >{{ number }}</span>
         <span class="text-(length:--text-md) font-medium text-muted-foreground">{{ t('test.countdown.unit', seconds) }}</span>

@@ -38,7 +38,7 @@ defineProps<{ tile: TileView }>()
         aria-hidden="true"
         :style="{ color: tile.colour }"
       />
-      <span class="font-[family-name:var(--font-cond)] text-(length:--text-caption) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ tile.label }}</span>
+      <span class="font-(family-name:--font-cond) text-(length:--text-caption) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ tile.label }}</span>
       <span
         v-if="tile.live"
         class="ml-auto rounded-full border border-(--info-border) bg-(--info-bg) px-1.5 text-(length:--text-micro) text-(--info-fg)"
@@ -52,7 +52,7 @@ defineProps<{ tile: TileView }>()
       >
         <span
           :key="tile.number === null ? 'empty' : 'value'"
-          class="font-mono text-[24px] font-medium tabular-nums sm:text-[30px]"
+          class="font-mono text-(length:--type-metric-value-compact) font-medium tabular-nums sm:text-(length:--type-metric-value)"
           :class="tile.number === null ? 'text-subtle-foreground' : 'text-foreground'"
           data-testid="tile-number"
         >{{ tile.number ?? $t('test.tiles.empty') }}</span>

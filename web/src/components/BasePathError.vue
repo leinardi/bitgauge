@@ -41,13 +41,13 @@ function reload(): void {
     aria-labelledby="base-path-title"
     class="flex min-h-dvh justify-center bg-background px-4 py-10 text-foreground sm:px-10"
   >
-    <div class="flex w-full max-w-[600px] flex-col gap-[22px]">
+    <div class="flex w-full max-w-[600px] flex-col gap-5.5">
       <span class="flex items-center gap-2 text-(length:--text-md) font-semibold tracking-(--tracking-tight)">
         <BrandLogo :size="22" />
         <span>{{ $t('app.brand.bit') }}<span class="text-primary-text">{{ $t('app.brand.gauge') }}</span></span>
       </span>
       <div class="flex flex-col gap-2.5">
-        <span class="flex items-center gap-1.5 font-(family-name:--font-cond) text-[11px] font-semibold tracking-(--tracking-caps) text-(--danger-fg) uppercase">
+        <span class="flex items-center gap-1.5 font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-(--danger-fg) uppercase">
           <CircleAlert
             :size="13"
             aria-hidden="true"
@@ -62,19 +62,19 @@ function reload(): void {
         </h1>
         <p
           v-if="mismatch.apiBasePath === null"
-          class="text-(length:--text-base) leading-[1.55] text-muted-foreground"
+          class="text-(length:--text-base) leading-(--lh-prose) text-muted-foreground"
         >
           {{ $t('app.basePath.body', { basePath: mismatch.basePath, pagePath: mismatch.pagePath }) }}
         </p>
         <p
           v-else
-          class="text-(length:--text-base) leading-[1.55] text-muted-foreground"
+          class="text-(length:--text-base) leading-(--lh-prose) text-muted-foreground"
         >
           {{ $t('app.basePath.apiBody', { basePath: mismatch.basePath, apiBasePath: mismatch.apiBasePath }) }}
         </p>
       </div>
       <dl class="flex flex-col border-t border-border">
-        <div class="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-border py-[9px]">
+        <div class="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-border py-2.25">
           <dt class="text-(length:--text-sm) text-muted-foreground">
             {{ $t('app.basePath.pagePath') }}
           </dt>
@@ -82,7 +82,7 @@ function reload(): void {
             {{ mismatch.pagePath }}
           </dd>
         </div>
-        <div class="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-border py-[9px]">
+        <div class="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-border py-2.25">
           <dt class="text-(length:--text-sm) text-muted-foreground">
             {{ $t('app.basePath.serverBasePath') }}
           </dt>
@@ -92,7 +92,7 @@ function reload(): void {
         </div>
         <div
           v-if="mismatch.apiBasePath !== null"
-          class="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-border py-[9px]"
+          class="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-border py-2.25"
         >
           <dt class="text-(length:--text-sm) text-muted-foreground">
             {{ $t('app.basePath.apiBasePath') }}

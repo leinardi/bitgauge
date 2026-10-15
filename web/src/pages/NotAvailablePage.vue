@@ -27,7 +27,7 @@ import AppButton from '@/components/actions/AppButton.vue'
   <main
     id="main"
     tabindex="-1"
-    class="focus:outline-none mx-auto flex w-full max-w-[1200px] flex-1 flex-col items-center justify-center gap-3 px-4 py-10 text-center"
+    class="focus:outline-none mx-auto flex w-full max-w-(--layout-max) flex-1 flex-col items-center justify-center gap-3 px-4 py-10 text-center"
   >
     <h1 class="text-(length:--text-2xl) font-semibold tracking-(--tracking-tight)">
       {{ $t('notAvailable.title') }}

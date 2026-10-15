@@ -69,7 +69,7 @@ function press(): void {
       :variant="look.primary ? 'default' : 'outline'"
       :aria-disabled="disabled ? 'true' : undefined"
       :aria-describedby="disabled ? reasonId : undefined"
-      class="h-[52px] w-full sm:h-[46px] sm:w-[248px]"
+      class="h-(--control-h-touch-xl) w-full sm:h-(--control-h-xl) sm:w-(--start-w)"
       :class="{ 'cursor-not-allowed opacity-50': disabled }"
       data-testid="start-button"
       @click="press"

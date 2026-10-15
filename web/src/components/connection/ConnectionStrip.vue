@@ -106,8 +106,8 @@ function pick(value: unknown): void {
 
 <template>
   <div class="flex flex-wrap items-end gap-x-6 gap-y-2.5">
-    <div class="flex flex-col gap-[5px]">
-      <span class="font-(family-name:--font-cond) text-[11px] font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+    <div class="flex flex-col gap-1.25">
+      <span class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
         {{ t('test.connection.context') }}
       </span>
       <span class="flex items-center gap-1.5">
@@ -131,7 +131,7 @@ function pick(value: unknown): void {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
-            class="w-[212px]"
+            class="w-53"
           >
             <DropdownMenuRadioGroup
               :model-value="shown"
@@ -176,13 +176,13 @@ function pick(value: unknown): void {
     <div
       v-for="fact in facts"
       :key="fact.key"
-      class="flex flex-col gap-[5px]"
+      class="flex flex-col gap-1.25"
       :data-testid="`connection-${fact.key}`"
     >
-      <span class="font-(family-name:--font-cond) text-[11px] font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+      <span class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
         {{ fact.label }}
       </span>
-      <span class="font-mono text-(length:--text-base) leading-[22px] text-foreground">
+      <span class="font-mono text-(length:--text-base) leading-5.5 text-foreground">
         {{ fact.value }}
         <span class="text-(length:--text-caption) text-subtle-foreground">{{ fact.note }}</span>
       </span>

@@ -70,14 +70,14 @@ const credits = computed(() => [
   <main
     id="main"
     tabindex="-1"
-    class="focus:outline-none mx-auto grid w-full max-w-[1200px] flex-1 grid-cols-1 content-start gap-6 px-4 pt-4 pb-6 sm:px-10 sm:pt-6 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_340px]"
+    class="focus:outline-none mx-auto grid w-full max-w-(--layout-max) flex-1 grid-cols-1 content-start gap-6 px-4 pt-4 pb-6 sm:px-10 sm:pt-6 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_var(--layout-rail)]"
   >
     <div class="flex flex-col gap-4">
       <header class="flex flex-col gap-2">
         <h1 class="text-(length:--text-3xl) leading-(--lh-snug) font-semibold tracking-(--tracking-tight) sm:text-(length:--text-4xl) sm:leading-(--lh-tight)">
           {{ t('about.clients.title') }}
         </h1>
-        <p class="text-(length:--text-base) leading-[1.55] text-muted-foreground">
+        <p class="text-(length:--text-base) leading-(--lh-prose) text-muted-foreground">
           {{ t('about.clients.v03') }}
         </p>
       </header>
@@ -144,7 +144,7 @@ const credits = computed(() => [
         </div>
       </section>
       <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
-        <h2 class="font-(family-name:--font-cond) text-[11px] font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
           {{ t('about.methodology.title') }}
         </h2>
         <p class="text-(length:--text-sm) leading-normal text-muted-foreground">
@@ -158,7 +158,7 @@ const credits = computed(() => [
         </AppLink>
       </section>
       <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
-        <h2 class="font-(family-name:--font-cond) text-[11px] font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
           {{ t('about.privacy.title') }}
         </h2>
         <p class="text-(length:--text-sm) leading-normal text-muted-foreground">
@@ -166,7 +166,7 @@ const credits = computed(() => [
         </p>
       </section>
       <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
-        <h2 class="font-(family-name:--font-cond) text-[11px] font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
           {{ t('about.credits.title') }}
         </h2>
         <ul class="flex flex-col gap-2">

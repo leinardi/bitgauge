@@ -199,7 +199,7 @@ const selectClass = 'h-7 min-w-0 flex-[0_1_160px] rounded-(--radius-md) border b
     :aria-label="TEXT.panel"
     data-testid="demo-panel"
     class="fixed top-2.5 left-1/2 z-(--z-skip-link) flex max-h-[calc(100vh-20px)] -translate-x-1/2 flex-col bg-card font-sans text-foreground"
-    :class="choice.open ? 'w-[300px] rounded-(--radius-lg) border border-input shadow-(--shadow-pop)' : 'w-auto rounded-full border border-(--primary-border)'"
+    :class="choice.open ? 'w-75 rounded-(--radius-lg) border border-input shadow-(--shadow-pop)' : 'w-auto rounded-full border border-(--primary-border)'"
   >
     <div
       class="flex items-center gap-2"
@@ -284,7 +284,7 @@ const selectClass = 'h-7 min-w-0 flex-[0_1_160px] rounded-(--radius-md) border b
             </button>
           </div>
         </div>
-        <span class="text-(length:--text-caption) leading-[1.45] text-subtle-foreground">{{ TEXT.startNote }}</span>
+        <span class="text-(length:--text-caption) leading-(--lh-compact) text-subtle-foreground">{{ TEXT.startNote }}</span>
       </section>
       <section class="flex flex-col gap-2 border-t border-border pt-3">
         <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.testScreen }}</span>

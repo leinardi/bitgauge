@@ -63,7 +63,7 @@ function cycleTheme(): void {
 
 <template>
   <header class="flex h-14 items-center border-b border-border bg-background text-foreground max-[1139px]:hidden">
-    <div class="mx-auto flex max-w-[1200px] flex-1 items-center gap-5 px-10">
+    <div class="mx-auto flex max-w-(--layout-max) flex-1 items-center gap-5 px-10">
       <RouterLink
         to="/"
         :aria-label="t('app.brand.home')"
@@ -84,7 +84,7 @@ function cycleTheme(): void {
       >
         <span
           aria-hidden="true"
-          class="size-[7px] flex-none rounded-full"
+          class="size-1.75 flex-none rounded-full"
           :class="down ? 'border-[1.5px] border-(--warn) bg-transparent' : 'bg-(--ok)'"
         />
         <span class="text-(length:--text-sm) font-medium">{{ serverName }}</span>
@@ -109,7 +109,7 @@ function cycleTheme(): void {
           :key="item.name"
           :to="item.to"
           :aria-current="route.name === item.name ? 'page' : undefined"
-          class="flex h-8 items-center gap-[7px] rounded-(--radius-md) px-3 text-(length:--text-sm) no-underline"
+          class="flex h-8 items-center gap-1.75 rounded-(--radius-md) px-3 text-(length:--text-sm) no-underline"
           :class="route.name === item.name ? 'bg-muted font-semibold text-foreground' : 'font-medium text-muted-foreground hover:bg-muted hover:text-foreground'"
         >
           <component
@@ -123,7 +123,7 @@ function cycleTheme(): void {
       <div
         role="radiogroup"
         :aria-label="t('app.theme.label')"
-        class="inline-flex h-[30px] overflow-hidden rounded-(--radius-md) border border-input bg-(--surface-1)"
+        class="inline-flex h-7.5 overflow-hidden rounded-(--radius-md) border border-input bg-(--surface-1)"
       >
         <button
           v-for="option in themes"
@@ -152,7 +152,7 @@ function cycleTheme(): void {
       <span
         v-if="known"
         :title="dotTitle"
-        class="flex items-center gap-[5px] text-(length:--text-micro) text-subtle-foreground"
+        class="flex items-center gap-1.25 text-(length:--text-micro) text-subtle-foreground"
       >
         <span
           aria-hidden="true"

@@ -64,7 +64,7 @@ const line = computed(() => baseParts(props.settings).map((part) => text(part, t
       <span
         v-for="chip in changed"
         :key="chip.kind"
-        class="inline-flex h-6 items-center gap-[5px] rounded-full border border-(--primary-border) bg-(--primary-bg) px-[9px] text-(length:--text-caption) font-semibold text-primary-text"
+        class="inline-flex h-6 items-center gap-1.25 rounded-full border border-(--primary-border) bg-(--primary-bg) px-2.25 text-(length:--text-caption) font-semibold text-primary-text"
       >
         <component
           :is="chip.icon"
