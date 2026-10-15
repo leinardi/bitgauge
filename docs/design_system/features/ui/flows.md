@@ -54,8 +54,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    trials (`floor-limited`).
 5. The phase extends past its nominal duration: the `test extended` notice appears live.
    - **Branch: the window condition is met.** Download reports a number.
-   - **Branch: the maximum is reached without it.** Download shows `insufficient data`, data used,
-     and "Try Extended"; upload still runs.
+   - **Branch: the maximum is reached without it.** Download shows `insufficient data` ("no steady
+     window within the 20 s max"), data used, and "Try Extended"; upload still runs.
 6. Upload runs server-timed; the gauge shows sending progress, and the received line in the chart
    lags behind it by the confirmation delay.
    - **Branch: the screen locks or the user switches apps.** If the browser pauses the engine, the
@@ -84,7 +84,7 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    - **Exception: Continuous.** Stopping is how a Continuous run normally ends; see flow 7.
    - Phases not yet started are `skipped`.
 4. The Test screen shows the Cancelled state: the partial result labeled `partial — stopped early`
-   with what was covered ("upload based on a 3.6 s steady window, 21 requests"). Whether an
+   with what was covered ("based on a 3.6 s steady window · 21 requests" on upload). Whether an
    interrupted direction has a number depends on its confirmed steady window, never on the
    elapsed phase time: a stop before warm-up ends gives "insufficient data — confirmed steady
    window shorter than 3 s".

@@ -551,8 +551,9 @@ Then:
 
 Confirmed cells end at server time 7000 ms. r8's cells from 7000 to 7400 are known, but they sit
 after `W_end` because r9 might have been active there, so they are excluded. The window is the full
-cells inside `[warm-up end, 7000)`; the result is `partial` and the UI says "stopped early, upload
-based on the first 7.0 s".
+cells inside `[warm-up end, 7000)`; the result is `partial`, and the UI names what it covers as
+[ui/flows.md §4](ui/flows.md#4-cancel-mid-test) does: "based on a <window> s steady window · <n>
+requests", the window's length and the confirmed requests.
 
 Had the phase instead ended cleanly (r9 and r10 confirmed, say ending at 8200 and 8600), *U* would
 be empty, `M_end = 8600`, `W_end_final = 8600`, and the window would be every full cell up to 8600.
