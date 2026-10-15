@@ -27,3 +27,18 @@ the export shows, and what it should show, with the reason; behaviour comes from
   upload as `insufficient data`.
 - **Why:** [measurement.md §7.6](../features/measurement.md#76-headline-peak-and-minimum-window)
   counts only the window from warm-up end to `W_end_final`, and gives no number below 3 s of it.
+
+### The Cancelled Slow Download's Gauge Window
+
+- **Source:** triage cluster `content-cancel-slow-window`, decided for the spec: the gauge's window
+  follows its values.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the `cancelled-slow` state of the `cancelled-download`
+  branch, whose gauge passes no previous window, unlike `cancelled-slow-up`'s `prev`.
+- **Export today:** the Cancelled gauge over the 634 kbit/s download is captioned with the start
+  window, "log scale · 1 Mbit/s – 10 Gbit/s · auto".
+- **Wanted:** the floor window the slow download reached, "log scale · 10 kbit/s – 100 Mbit/s ·
+  auto", as `cancelled-slow-up` and the live slow states show it.
+- **Why:** [gauge.md](../design_system/components/gauge.md) behaviour rules 3 and 6 and
+  [measurement.md §14](../features/measurement.md#14-units-and-gauge): the window shifts down after
+  the value stays in the bottom decade for 2 s, and a slow link reaches the floor window within two
+  shifts.

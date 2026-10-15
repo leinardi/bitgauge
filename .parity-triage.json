@@ -1500,10 +1500,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's cancelled-slow gauge shows the floor window its slow download reached (10 kbit/s – 100 Mbit/s), as cancelled-slow-up does.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/cancelled-slow": {
           "cb36f64934a8": "*"
