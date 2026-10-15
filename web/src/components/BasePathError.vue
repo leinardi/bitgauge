@@ -56,7 +56,7 @@ function reload(): void {
         </span>
         <h1
           id="base-path-title"
-          class="text-(length:--text-3xl) leading-[1.2] font-semibold tracking-(--tracking-tight)"
+          class="text-(length:--type-state-title-compact) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) min-[1140px]:text-(length:--type-state-title)"
         >
           {{ $t('app.basePath.title') }}
         </h1>

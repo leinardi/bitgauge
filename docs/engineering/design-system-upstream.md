@@ -93,7 +93,6 @@ the export shows, and what it should show, with the reason; behaviour comes from
 | `components/gauge/Gauge.jsx`, `ui_kits/app/TestScreen.jsx` | line height 1.05, letter spacing −0.03em on the gauge figure | `Gauge.vue`, `CountdownRing.vue` | `--lh-display`, `--tracking-display` |
 | `ui_kits/app/surfaces.css`, `dialog.css` | line height 1.55 for body copy | `AboutPage.vue`, `BasePathError.vue` | a `--lh-*` step |
 | `ui_kits/app/kit.css`, `surfaces.css`, `inputs.css` | line height 1.45 | `DemoPanel.vue` | a `--lh-*` step |
-| `ui_kits/app/TestScreen.jsx` | line height 1.2 | `BasePathError.vue` | a `--lh-*` step |
 | `ui_kits/app/Nav.jsx`, `badges.css` | 1.5 px border of the server-down dot | `AppHeader.vue` | `--border-width-strong` |
 | `ui_kits/app/Nav.jsx` | 28 % inset of the tab bar's active indicator | `TabBar.vue` | `--tab-indicator-inset` |
 | `ui_kits/app/TestScreen.jsx`, `About.jsx` | layout tracks: a 400 px column, a 340 px column, a 220 px flex basis | `TestPage.vue`, `AboutPage.vue`, `ResultBar.vue`, `NoticeBox.vue` | `--layout-*` widths |

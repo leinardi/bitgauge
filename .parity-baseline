@@ -55,7 +55,6 @@ dark-desktop,dark-narrow	about/unreachable	style	main > button "LICENSE file in 
 *	test/basepath	content	main > region "Deployment hint"	missing	code (#2)	present when the harness was adopted
 *	test/basepath	content	main > region "Deployment hint"	missing	text "."	present when the harness was adopted
 *	test/basepath	content	main > region "Deployment hint"	missing	text "prefix at the proxy so BitGauge is served from"	present when the harness was adopted
-dark-narrow,light-narrow	test/basepath	style	main > heading "The base path doesn't match this URL"	font-size	22px → 24px	present when the harness was adopted
 dark-narrow,light-narrow	test/cancelled	content	header > banner	missing	img "BitGauge"	triage a11y-brand-logo: Vue is right: a mark next to its own visible wordmark is decorative, as the kit's Logo itself treats it; the compact header reads BitGauge twice. Kept until the export fixes it.
 *	test/cancelled	content	main	extra	heading "Speed test"	triage a11y-speedtest-heading: Vue is right: every screen has one h1, and the Test screen's is visually hidden. The spec gains the rule; the difference is kept until the export adds the heading.
 *	test/cancelled	content	main	extra	list "Notices"	present when the harness was adopted
