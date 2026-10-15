@@ -133,7 +133,7 @@ function cycleTheme(): void {
           :aria-checked="theme.choice.value === option.choice"
           :aria-label="option.label"
           class="inline-flex h-7 items-center gap-1.5 border-r border-border px-2 text-(length:--text-caption) font-semibold last:border-r-0"
-          :class="theme.choice.value === option.choice ? 'bg-(--primary-bg) text-primary' : 'text-muted-foreground'"
+          :class="theme.choice.value === option.choice ? 'bg-(--primary-bg) text-primary-text' : 'text-muted-foreground'"
           @click="theme.setTheme(option.choice)"
         >
           <component
