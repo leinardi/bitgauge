@@ -237,7 +237,28 @@
       "id": "a11y-chart-summary",
       "title": "Throughput chart: the kit's role=img data summary vs Vue's figure with a shorter summary",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main > region \"Speed test\"$",
@@ -259,7 +280,7 @@
           "ref": "web/src/components/chart/ThroughputChart.vue:193-201,231-254; i18n/locales/en/test.json:54-57",
           "says": "a figure holding a div role=img \"Throughput over time: download, latest {rate}\" and a figcaption legend; no time, warm-up or marks"
         },
-        "notes": "Extended on 2026-10-15 with the chart's visible title, legend and meta line (\"# s total\", \"Warm-up stopped at # s\"), which share the decision. Extended again on 2026-10-15 with the empty chart's unnamed figure."
+        "notes": "Extended on 2026-10-15 with the chart's visible title, legend and meta line (\"# s total\", \"Warm-up stopped at # s\"), which share the decision. Extended again on 2026-10-15 with the empty chart's unnamed figure. The chart differences of latency, error-early and cancelled-latency, where the kit draws its Latency samples chart, are feature-latency-chart's (2026-10-15)."
       },
       "decision": {
         "kind": "verdict",
@@ -1179,7 +1200,7 @@
         "layer": "content",
         "path": "^main( > region \"(Speed test\"( > list \"Test phases\" > listitem)?|Results\"( > definition)?))?$",
         "kind": null,
-        "detail": "^(?!img |link \"Why|text \"No test has run yet)"
+        "detail": "^(?!img |link \"Why|text \"No test has run yet|text \"Latency samples |text \"Throughput over time appears here)"
       },
       "type": "conflict",
       "aspect": "behavior",
@@ -1507,6 +1528,57 @@
       "owned": {
         "test/cancelled-slow": {
           "cb36f64934a8": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "content-chart-slow-meta",
+      "title": "Slow upload, live: the kit's chart meta has no total, unlike its LAN upload and its download",
+      "match": {
+        "scenarios": [
+          "test/slow"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": "^changed$",
+        "detail": "# s(;[^\"]*)?\" → \".*# s / # s"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/design_system/components/charts.md (Chart or table)",
+          "says": "the summary example reads \"7.5 s / 10 s\": elapsed over the phase duration"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:385",
+          "says": "slow upload meta \"(10 + t) s\" with no total, while the LAN upload reads \"(10 + t) s / 26 s\" and every download \"t s / 10 s\""
+        },
+        "vue": {
+          "ref": "web/src/components/chart/text.ts chartMeta",
+          "says": "elapsed over the current phase minimum in every running state"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "One rule for every running state, as charts.md's example and the kit's other states read; the kit's slow upload is the odd one out.",
+        "on": "2026-10-15"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's slow upload meta reads elapsed over its total, as its LAN upload does.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/slow": {
+          "9cf73723a6d1": "*",
+          "dc2576c6a3f3": "*"
         }
       },
       "resolution": null
@@ -2350,12 +2422,16 @@
       "id": "feature-latency-chart",
       "title": "Idle latency: the kit's Latency samples chart, which the v0.1 spec and Vue do not have",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/latency",
+          "test/error-early",
+          "test/cancelled-latency"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main > region \"Speed test\"$",
-        "kind": "^missing$",
-        "detail": "^(img \"Latency samples:|text \"Latency samples )"
+        "kind": "^(missing|changed|extra)$",
+        "detail": "^(img \"Latency samples:|text \"Latency samples |text \"Throughput over time appears here)"
       },
       "type": "conflict",
       "aspect": "feature",
@@ -2372,7 +2448,7 @@
           "ref": "web/src/pages/TestPage.vue:278; docs/STATUS.md:27",
           "says": "the throughput chart only; no latency chart"
         },
-        "notes": "Extended on 2026-10-15 with the chart's visible title and meta text."
+        "notes": "Extended on 2026-10-15 with the chart's visible title and meta text. Widened on 2026-10-15: with the kit-style throughput chart in place, the kit's Latency samples chart pairs with Vue's chart as changed, and Vue's empty-chart text stands where the latency chart belongs."
       },
       "decision": {
         "kind": "verdict",
@@ -2395,15 +2471,68 @@
       "status": "decided",
       "owned": {
         "test/cancelled-latency": {
-          "2943454ae18c": "*"
+          "274a2acf8f56": "*",
+          "2943454ae18c": "*",
+          "68becece99c5": "*",
+          "6be69719c0aa": "*"
         },
         "test/error-early": {
           "1ed382bccbae": "*",
+          "274a2acf8f56": "*",
+          "3c06d632cdec": "*",
+          "68becece99c5": "*",
           "c7265acf7bb4": "*"
         },
         "test/latency": {
+          "274a2acf8f56": "*",
+          "28f986d469fd": "*",
           "67b701a88ff2": "*",
-          "dae16a55d437": "*"
+          "dae16a55d437": "*",
+          "e98c75f73da6": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "feature-live-extension-marks",
+      "title": "Live chart during an extension: the kit reads the total as the phase maximum and marks Extended and the download maximum while the run goes on; Vue knows of an extension only from the result",
+      "match": {
+        "scenarios": [
+          "test/insufficient"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": "^changed$",
+        "detail": "# s max"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/design_system/components/charts.md (Series and marks); docs/features/measurement.md §17 events",
+          "says": "the chart draws event marks (extended, data cap, cancelled, error) via hooks; the result's events carry them, and nothing reports an extension during the run"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:419",
+          "says": "insufficient, live: meta \"# s / # s max\", marks Extended at 10 s and \"20 s max\" at 20 s"
+        },
+        "vue": {
+          "ref": "web/src/components/chart/text.ts, series.ts",
+          "says": "meta elapsed over the current phase minimum; marks only from the result's events, so none while running"
+        }
+      },
+      "decision": {
+        "kind": "deferral",
+        "rationale": "Live extension and maximum marks need the engine to report an extension during the run, which the spec does not define yet; deferred until that is specified.",
+        "on": "2026-10-15"
+      },
+      "actions": [],
+      "status": "deferred",
+      "owned": {
+        "test/insufficient": {
+          "4237a173c693": "*",
+          "bd6b84888992": "*"
         }
       },
       "resolution": null
@@ -3264,10 +3393,12 @@
           ],
           "0444906086e5": "*",
           "178e0bec946e": "*",
+          "3230306c4391": "*",
           "339f40739d80": "*",
           "3bc40e8ab8a1": "*",
           "41ca23d98283": "*",
           "43d668ff77da": "*",
+          "5d2ea48d2e79": "*",
           "63a06f153dc3": "*",
           "696e04deeedd": "*",
           "72733b0f51d2": "*",
