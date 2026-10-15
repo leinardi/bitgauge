@@ -17,7 +17,6 @@
 *	about	content	main > complementary > list > listitem	changed	text "…erbloat grade thresholds." → "…erbloat grade thresholds, from v0.2."	present when the harness was adopted
 *	about	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
 *	about	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
-*	about	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
 *	about/unreachable	content	main	changed	text "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or…	present when the harness was adopted
 *	about/unreachable	content	main > complementary	changed	text "Privacy No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser. Credits" → "No accounts, no tracking, no ads.…	present when the harness was adopted
 *	about/unreachable	content	main > complementary	extra	heading "Credits"	present when the harness was adopted
@@ -30,7 +29,6 @@
 *	about/unreachable	content	main > complementary > list > listitem	changed	text "…erbloat grade thresholds." → "…erbloat grade thresholds, from v0.2."	present when the harness was adopted
 *	about/unreachable	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
 *	about/unreachable	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
-*	about/unreachable	content	main > complementary > term	changed	text "License" → "Licence"	present when the harness was adopted
 *	test/basepath	content	main	changed	text "BitGauge Deployment error" → "BitGauge Base path mismatch"	present when the harness was adopted
 *	test/basepath	content	main	missing	code	present when the harness was adopted
 *	test/basepath	content	main	missing	code (#2)	present when the harness was adopted

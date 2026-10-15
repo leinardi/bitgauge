@@ -78,3 +78,36 @@ the export shows, and what it should show, with the reason; behavior comes from
   test was stopped early.", "Test failed. The phases that finished before the error are kept.").
 - **Why:** the spec owns accessibility over the export, and screen readers read abbreviated units
   such as Mbit/s badly; the result is one message of its own, not the last phase announcement.
+
+### About in v0.1
+
+- **Source:** triage cluster `content-about-page`, decided for a new About that keeps Vue's page
+  with the US spelling "License".
+- **Kit:** `ui_kits/app/About.jsx` before v0.3 (`caps.clients` false), and its facts in
+  `ui_kits/app/fixtures.js`.
+- **Export today:** the sections are eyebrow spans; the facts have a Clients row ("Arrive in
+  v0.3"); the version reads "v1.4.0 · a1b2c3d · 2026-09-30"; the credits have no version notes;
+  the intro says the server answers the LibreSpeed and OpenSpeedTest protocols and serves a
+  networkQuality config; the privacy text says history lives in the browser.
+- **Wanted:** h2 section headings ("How it measures", "Privacy", "Credits") in the eyebrow style;
+  no Clients row before v0.3; the version as the server reports it, without a "v", and the build
+  date through `Intl` ("1.4.0 · a1b2c3d · Sep 30, 2026"); each credit with the version its feature
+  arrives in (", from v0.3.", ", from v0.2."); the intro "How to test against this server from other
+  speed test clients, and what BitGauge is."; and the privacy text "No accounts, no tracking, no
+  ads. The server keeps no results: a result exists only in this browser."
+- **Why:** [screens.md §5](../features/ui/screens.md#5-other-clients--about--about) lists the
+  facts and makes the privacy line true for v0.1, which has no history;
+  [i18n-a11y.md §1.3](../features/ui/i18n-a11y.md#13-number-unit-and-date-formatting) formats dates
+  through `Intl`, and §2.8 asks for headings that structure each screen; v0.1 answers none of the
+  other clients' protocols.
+
+### About's Unreachable Alert
+
+- **Source:** triage cluster `content-about-unreachable`, decided for an About-specific body.
+- **Kit:** `ui_kits/app/About.jsx`, the danger `Notice` shown when the server is unreachable.
+- **Export today:** "The commands below are built from this page's address, … BitGauge can't
+  check which clients the operator enabled, or the server's name, until the server answers."
+- **Wanted:** before v0.3, which has no commands: "BitGauge could not reach the server at <host>,
+  so its version and name are unknown until it answers."
+- **Why:** v0.1 shows no snippets, and the facts read "— · server unreachable" and "—" while the
+  server does not answer.

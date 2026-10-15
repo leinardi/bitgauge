@@ -1330,7 +1330,7 @@
         "layer": "content",
         "path": "^main( > complementary( > (term|definition|list > listitem))?)?$",
         "kind": null,
-        "detail": "^(?!text \"(Other clients arrive|How it measures))"
+        "detail": "^(?!text \"Other clients arrive)"
       },
       "type": "conflict",
       "aspect": "content",
@@ -1346,7 +1346,8 @@
         "vue": {
           "ref": "web/src/pages/AboutPage.vue:40-57,147-169; i18n/locales/en/about.json",
           "says": "h2 headings; version, licence and server rows; Licence; 1.4.0 · Sep 30, 2026; credits with , from v0.3 / v0.2; an intro true for v0.1 with the v0.3 sentence; privacy text with no history"
-        }
+        },
+        "notes": "The intro reads \"How to test against this server from other speed test clients, and what BitGauge is.\", the maintainer's choice on 2026-10-15; the How it measures heading joined from content-about-unreachable once its text matched."
       },
       "decision": {
         "kind": "verdict",
@@ -1359,20 +1360,20 @@
         {
           "target": "spec",
           "what": "US English across docs/ (licence → license, internationalisation → internationalization, …), with the convention written down; screens.md:226's privacy sentence made true for v0.1 (no history).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "Locale files in US English (Licence → License); AboutPage.vue's intro drops the v0.3 sentence the kit's v0.3 Notice now carries.",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: About uses h2 section headings, no Clients row, the spec's version with an Intl date, the credits' version notes, an intro true for v0.1 and a privacy text without history.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "about": {
           "0ca756a59c68": "*",
@@ -1388,6 +1389,7 @@
           "b905864bf06f": "*",
           "bfebf529a224": "*",
           "d329a5ed8170": "*",
+          "e6cf414779d5": "*",
           "fdeac76eb8dc": "*"
         },
         "about/unreachable": {
@@ -1403,6 +1405,7 @@
           "b905864bf06f": "*",
           "bfebf529a224": "*",
           "d329a5ed8170": "*",
+          "e6cf414779d5": "*",
           "fdeac76eb8dc": "*"
         }
       },
@@ -1420,7 +1423,7 @@
         "layer": "content",
         "path": "^main( > alert| > complementary)?$",
         "kind": null,
-        "detail": "^text \"(Server unreachable|Other clients arrive|How it measures)"
+        "detail": "^text \"(Server unreachable|Other clients arrive)"
       },
       "type": "conflict",
       "aspect": "content",
@@ -1436,7 +1439,8 @@
         "vue": {
           "ref": "web/src/pages/AboutPage.vue:79-88; i18n/locales/en/about.json:6,21",
           "says": "the Test screen's OfflineNotice (\"No test can start…\"); the v0.3 sentence in the header paragraph; its own How it measures text"
-        }
+        },
+        "notes": "The alert body says the version and name are unknown until the server answers, rather than out of date, since the page shows dashes then (maintainer, 2026-10-15)."
       },
       "decision": {
         "kind": "verdict",
@@ -1449,15 +1453,15 @@
         {
           "target": "vue",
           "what": "AboutPage.vue and about.json: the kit's v0.3 info Notice and How it measures text; an About-specific body for the unreachable alert.",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: About's unreachable alert drops \"The commands below…\" (v0.1 has no commands) and says the server facts may be out of date.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "about": {
           "72dbb3a55028": "*"
