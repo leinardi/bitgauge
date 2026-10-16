@@ -166,8 +166,10 @@ class Prototype extends React.Component {
     }
   }
   theme() { return this.state.theme || 'dark'; }
-  // Version scope (features/ui/screens.md "Before v0.2" / About "Before v0.3"): one source for every screen and the nav.
-  caps() { const s = this.props.scope || 'v0.3'; const v02 = s !== 'v0.1'; return { scope: s, history: v02, settings: v02, share: v02, loaded: v02, clients: s === 'v0.3' }; }
+  // Version scope (features/roadmap.md §1.2 / §1.3): one source for every screen and the nav.
+  // v0.2: history, Result detail, Settings + link, share, loaded latency + grade. v0.3 adds RPM, quality scores,
+  // Continuous (quality) and the other-client snippets (clients).
+  caps() { const s = this.props.scope || 'v0.2'; const v02 = s !== 'v0.1', v03 = s === 'v0.3'; return { scope: s, history: v02, settings: v02, share: v02, loaded: v02, clients: v03, quality: v03 }; }
   // The server's display name is known once GET /info has answered; it is unknown while /info fails.
   serverName() {
     const S = this.state.screen;
@@ -210,13 +212,13 @@ class Prototype extends React.Component {
             <NotAvailable mobile={v.mobile} active={v.notAvailableActive} srvStatus={v.srv} scope={v.caps.scope} />
           ) : null}
           {v.isHistory && !v.notAvailable ? (
-            <History variant={v.hv} mobile={v.mobile} srvStatus={v.srv} {...(v.historyExtra || {})} />
+            <History variant={v.hv} mobile={v.mobile} srvStatus={v.srv} caps={v.caps} {...(v.historyExtra || {})} />
           ) : null}
           {v.isResult && !v.notAvailable ? (
-            <ResultDetail mobile={v.mobile} srvStatus={v.srv} {...(v.resultExtra || {})} />
+            <ResultDetail mobile={v.mobile} srvStatus={v.srv} caps={v.caps} {...(v.resultExtra || {})} />
           ) : null}
           {v.isSettings && !v.notAvailable ? (
-            <Settings mobile={v.mobile} preset="standard" theme={v.theme} saved={v.saved} onSettings={v.onSettings} srvStatus={v.srv} {...(v.settingsExtra || {})} />
+            <Settings mobile={v.mobile} preset="standard" theme={v.theme} saved={v.saved} onSettings={v.onSettings} srvStatus={v.srv} caps={v.caps} {...(v.settingsExtra || {})} />
           ) : null}
           {v.isAbout ? (
             <About mobile={v.mobile} srvStatus={v.srv} caps={v.caps} server={v.server} {...(v.aboutExtra || {})} />

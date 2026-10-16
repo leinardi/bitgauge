@@ -9,6 +9,12 @@
  *   overhead: "0" | "6" | "5.13" | "3.69" | "8.1"  (default "0") — overhead compensation preset (§9.3)
  *   browser: "Firefox" | "Chrome" | "Safari" | "Edge"  (default "Firefox") — browser family of the run
  *   uploadPauses: boolean  (default false) — the engine saw the browser pause between upload requests (idle share > 20 %)
+ *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM, no quality scores, no Continuous)
+ *   llGap: "none" | "no-steady-window" | "insufficient-samples" | "reservation-broken" | "no-probe-path"  (default "none") —
+ *     the upload direction's loaded latency has no value for this reason (Standard only)
+ *   probe: "auto" | "WebSocket" | "HTTP/2 probe" | "HTTP/3 probe" | "HTTP/1.1 reserved"  (default "auto") — one path for idle and loaded latency
+ *   wsClose: boolean  (default false) — the WebSocket closed after idle latency: idle stays WebSocket, loaded over the HTTP
+ *     source from `probe`; on HTTP/1.1 download (running at the close) is unavailable, reason reservation-broken (Standard only)
  */
 class ResultDetail extends React.Component {
   state = { views: null, inc: null, clipDenied: null, toast: null, del: null, delN: 8, paramsOpen: false, note: null };
@@ -28,7 +34,26 @@ class ResultDetail extends React.Component {
   renderVals() {
     const BG = window.BG, on = v => this.on(v);
     const m = on(this.props.mobile), tv = on(this.props.tableView);
-    const st = this.props.state || 'result', hu = st === 'history-unavailable', cont = this.props.kind === 'continuous';
+    const caps = this.props.caps || { loaded: true, quality: true }, Q = !!caps.quality;
+    const st = this.props.state || 'result', hu = st === 'history-unavailable', cont = Q && this.props.kind === 'continuous';
+    // Loaded latency without a value (measurement §11): reason → [JSON source, label source, samples].
+    const LLR = { 'no-steady-window': 'no steady window', 'insufficient-samples': 'fewer than 10 samples', 'reservation-broken': 'HTTP/1.1 reservation not held', 'no-probe-path': 'no latency probe' };
+    const UPSRC = { 'no-steady-window': ['websocket', 'WebSocket', 0], 'insufficient-samples': ['http-h2', 'HTTP/2 probe', 7], 'reservation-broken': ['http-h1-reserved', 'HTTP/1.1 reserved', 24], 'no-probe-path': ['none', null, 0] };
+    // Latency path (measurement §10, §11): one probe path for idle and loaded latency; wsClose = the WebSocket closed
+    // after idle latency, so idle stays WebSocket and loaded samples come over HTTP.
+    const SJ = { 'WebSocket': 'websocket', 'HTTP/2 probe': 'http-h2', 'HTTP/3 probe': 'http-h3', 'HTTP/1.1 reserved': 'http-h1-reserved' };
+    const PRB = this.props.probe, httpSrc = PRB && PRB !== 'auto' && PRB !== 'WebSocket' ? PRB : 'HTTP/2 probe';
+    const wsClose = !!caps.loaded && !!this.props.wsClose;
+    const src = wsClose ? httpSrc : (SJ[PRB] ? PRB : 'WebSocket'), idleSrc = wsClose ? 'WebSocket' : src;
+    const dnGap = wsClose && !cont && src === 'HTTP/1.1 reserved' ? 'reservation-broken' : null;
+    const gapK = !cont && !dnGap && caps.loaded && LLR[this.props.llGap] ? this.props.llGap : null;
+    const gapSrc = k => k === 'no-probe-path' ? null : k === 'reservation-broken' ? 'HTTP/1.1 reserved' : src;
+    // HTTP/1.1 probe reservation (measurement §4, §11.2): stream cap 5 while it is held. Closed-after-idle: it starts with
+    // the next direction (upload), so download keeps 6.
+    const resv = !!caps.loaded && src === 'HTTP/1.1 reserved';
+    const STR = { down: resv && !wsClose ? 5 : 6, up: resv ? 5 : 6 }, rsvOn = cont ? STR.down === 5 : STR.down === 5 || STR.up === 5;
+    const pl = n => 'plateau: ' + (n === 5 ? 'HTTP/1.1 probe reservation' : 'cap');
+    const vsIdle = ' ms vs idle' + (idleSrc !== src ? ' over ' + idleSrc : '');
     const delSt = this.state.del ?? (this.props.demo === 'deleted' ? 'pending' : 'none');
     const notFound = st === 'not-found' || delSt === 'done';
     const inc = this.state.inc ?? on(this.props.includeLabel);
@@ -87,10 +112,13 @@ class ResultDetail extends React.Component {
     const IDLE = 3.1, JIT = 0.8, r1 = v => Math.round(v * 10) / 10;
     // Loaded latency (median, p90) per direction. Increase = median − idle; the grade uses the worse one, and
     // loadedLatency.increaseMs and bufferbloat.increaseMs in the JSON hold the same value.
-    const LL = { down: [18, 24], up: cont ? null : [42, 55] }, INC = { down: r1(LL.down[0] - IDLE), up: LL.up ? r1(LL.up[0] - IDLE) : null };
-    D.worst = INC.up != null && INC.up > INC.down ? ['upload', INC.up] : ['download', INC.down];
-    const grade = gradeOf(D.worst[1]), gT = GT[grade], gradeWords = gT[1] + ' bufferbloat' + (cont ? ' · download only' : '');
-    const gradeBasis = cont ? 'Grade basis: download +15 ms vs idle. Upload not measured.' : 'Grade basis: the worse increase vs idle — upload +39 ms (download +15 ms).';
+    const LL = { down: dnGap ? null : [18, 24], up: cont || gapK ? null : [42, 55] }, INC = { down: LL.down ? r1(LL.down[0] - IDLE) : null, up: LL.up ? r1(LL.up[0] - IDLE) : null };
+    D.worst = INC.down == null || (INC.up != null && INC.up > INC.down) ? ['upload', INC.up] : ['download', INC.down];
+    const basisK = INC.up != null && INC.down != null ? 'download+upload' : INC.down == null ? 'upload' : 'download';
+    const grade = gradeOf(D.worst[1]), gT = GT[grade], gradeWords = gT[1] + ' bufferbloat';
+    const gradeBasis = basisK === 'download+upload' ? 'Basis: worse of download and upload — upload +' + jit(INC.up) + ' ms (download +' + jit(INC.down) + ' ms)'
+      : basisK === 'upload' ? 'Basis: upload only — +' + jit(INC.up) + ' ms vs idle; download: ' + LLR[dnGap]
+      : 'Basis: download only — +' + jit(INC.down) + ' ms vs idle' + (cont ? '; upload not measured' : '; upload: ' + LLR[gapK]);
     const worstStr = '+' + jit(D.worst[1]) + ' ms loaded (' + D.worst[0] + ')';
 
     const summary = [
@@ -106,55 +134,60 @@ class ResultDetail extends React.Component {
 
     // Quality scores: the same AIM function as the Test screen (fixtures.js). Standard: Good/Good/Good (55/25/35 points);
     // Continuous (download +15 ms): Great/Great/Great (60/30/40).
-    const SC = BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
+    const SC = Q && BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
     const tiles = [
-      { label: cont ? 'Download · average' : 'Download', icon: 'arrow-down', ic: 'var(--series-download)', num: rn(D.down), unit: ru(D.down), nc: 'var(--fg)', sub: ohs(cont ? 'peak ' + rn(cP90) + ' · p90, last hour, 1 s cells · max ' + rn(cMax) + ' · 6 streams · plateau: cap' : 'peak ' + rn(641e6 * OHF) + ' · 6 streams · plateau: cap') },
+      { label: cont ? 'Download · average' : 'Download', icon: 'arrow-down', ic: 'var(--series-download)', num: rn(D.down), unit: ru(D.down), nc: 'var(--fg)', sub: ohs(cont ? 'peak ' + rn(cP90) + ' · p90, last hour, 1 s cells · max ' + rn(cMax) + ' · ' + STR.down + ' streams · ' + pl(STR.down) : 'peak ' + rn(641e6 * OHF) + ' · ' + STR.down + ' streams · ' + pl(STR.down)) },
       cont ? { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: '—', unit: '', nc: 'var(--fg-subtle)', sub: 'not measured · Continuous runs one direction' }
-        : { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: rn(D.up), unit: ru(D.up), nc: 'var(--fg)', sub: ohs('peak ' + rn(455e6 * OHF) + ' · 6 streams · plateau: cap · 6.1 of 6.5 s known') },
-      { label: 'Idle latency', icon: 'activity', ic: 'var(--series-latency)', num: BGF.ms(IDLE), unit: 'ms', nc: 'var(--fg)', sub: 'min 2.4 · p90 4.1 ms · WebSocket · 0 % probe timeouts' },
+        : { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: rn(D.up), unit: ru(D.up), nc: 'var(--fg)', sub: ohs('peak ' + rn(455e6 * OHF) + ' · ' + STR.up + ' streams · ' + pl(STR.up) + ' · 6.1 of 6.5 s known') },
+      { label: 'Idle latency', icon: 'activity', ic: 'var(--series-latency)', num: BGF.ms(IDLE), unit: 'ms', nc: 'var(--fg)', sub: 'min 2.4 · p90 4.1 ms · ' + idleSrc + ' · 0 % probe timeouts' },
       { label: 'Jitter', icon: 'activity', ic: 'var(--series-latency)', num: jit(JIT), unit: 'ms', nc: 'var(--fg)', sub: 'mean of consecutive differences' }
     ];
-    const loadRows = [{ icon: 'arrow-down', ic: 'var(--primary-text)', label: 'During download · WebSocket', sub: 'p90 24 · +15 ms vs idle', num: '18', unit: 'ms' }];
-    if (!cont) loadRows.push({ icon: 'arrow-up', ic: 'var(--series-upload)', label: 'During upload · WebSocket', sub: 'p90 55 · +39 ms vs idle', num: '42', unit: 'ms' });
-    const rpm = [{ icon: 'arrow-down', ic: 'var(--series-download)', num: '1,420' }].concat(cont ? [] : [{ icon: 'arrow-up', ic: 'var(--series-upload)', num: '980' }]);
+    const loadRows = [dnGap ? { icon: 'arrow-down', ic: 'var(--primary-text)', label: 'During download · ' + gapSrc(dnGap), sub: LLR[dnGap], num: '—', unit: '' }
+      : { icon: 'arrow-down', ic: 'var(--primary-text)', label: 'During download · ' + src, sub: 'p90 24 · +15' + vsIdle, num: '18', unit: 'ms' }];
+    if (!cont) loadRows.push(gapK ? { icon: 'arrow-up', ic: 'var(--series-upload)', label: 'During upload' + (gapSrc(gapK) ? ' · ' + gapSrc(gapK) : ''), sub: LLR[gapK], num: '—', unit: '' }
+      : { icon: 'arrow-up', ic: 'var(--series-upload)', label: 'During upload · ' + src, sub: 'p90 55 · +39' + vsIdle, num: '42', unit: 'ms' });
+    const rpm = !Q ? [] : [{ icon: 'arrow-down', ic: 'var(--series-download)', num: '1,420' }].concat(cont ? [] : [{ icon: 'arrow-up', ic: 'var(--series-upload)', num: '980' }]);
 
     // Confidence levels (§16): normal | low (ramp-unsettled, unstable, insufficient-samples) | cpu-bound.
     const conf = { label: 'Confidence: normal', tone: 'ok' };
-    const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.');
-    const N_RESP = it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.');
+    const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', Q ? 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.' : 'Browsers can’t see packet loss over TCP, so BitGauge doesn’t report it.');
+    const N_RESP = Q ? [it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.')] : [];
     // Browser upload limit: any browser that paused between upload requests; always Firefox at ≥ 100 Mbit/s upload.
     const BUL = !cont && (PAUSES || (BRW.name === 'Firefox' && D.up >= 100e6));
     const N_BUL = BUL ? [it('info', 'globe', BRW.name + ' may limit the upload', 'On fast links ' + BRW.name + '’s own upload path, not the network, can bound the upload number; the measurement is the server’s and stands. Compare with another browser on this device to tell the two apart.', { label: 'Known browser limits', href: '#' })] : [];
     const N_OH = OH ? [it('neutral', 'sliders', OH, 'Throughput is multiplied by ' + OHF.toFixed(OHP % 1 ? 4 : 2).replace(/0+$/, '') + '. The uncompensated values are kept in the JSON.')] : [];
+    // Same notice and sentences as the Test screen.
+    const N_FB = caps.loaded && src !== 'WebSocket' ? [it('info', 'info', 'WebSocket unavailable — HTTP latency fallback', wsClose ? 'The WebSocket closed after idle latency, so latency under load is measured with HTTP requests; the change vs idle compares the two paths.' : 'The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.')] : [];
+    const N_RSV = rsvOn ? [it('info', 'layers', 'HTTP/1.1 probe reservation active — 5 streams', STR.down === 5 ? 'One HTTP/1.1 connection is kept free for the latency probe, so throughput uses at most 5 streams.' : 'From the upload on, one HTTP/1.1 connection is kept free for the latency probe, so the upload uses at most 5 streams.')] : [];
     const confGroups = cont ? [
       { h: 'Confidence', items: [
-        it('ok', 'circle-check', 'Download reached the 6-stream cap', 'Warm-up ended by the guarded rule at 6.5 s and the window condition held. Level: normal.')
+        it('ok', 'circle-check', 'Download reached the ' + STR.down + '-stream cap', 'Warm-up ended by the guarded rule at 6.5 s and the window condition held. Level: normal.')
       ] },
       { h: 'Notices', items: [
         it('neutral', 'database', 'Data used: ' + cUsed, 'Data-used notices appeared at 1 GB, 10 GB and 100 GB.'),
         it('neutral', 'circle-dashed', 'Upload not measured', 'Continuous runs one direction.'),
-        N_LOSS, N_RESP
-      ].concat(N_OH) }
+        N_LOSS
+      ].concat(N_FB, N_RSV, N_RESP, N_OH) }
     ] : [
       { h: 'Confidence', items: [
-        it('ok', 'circle-check', 'Both directions reached the 6-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 9.5 s (each upload ramp step waits for confirmation) — and the window condition held. Level: normal.'),
+        it('ok', 'circle-check', STR.down === STR.up ? 'Both directions reached the ' + STR.down + '-stream cap' : 'Download reached the ' + STR.down + '-stream cap, upload the ' + STR.up + '-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 9.5 s (each upload ramp step waits for confirmation) — and the window condition held. Level: normal.'),
         it('info', 'info', '94 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 10.4–10.8 s is left out; the average uses known time only.')
       ].concat(N_BUL) },
-      { h: 'Notices', items: [N_LOSS, N_RESP].concat(N_OH) }
+      { h: 'Notices', items: [N_LOSS].concat(N_FB, N_RSV, N_RESP, N_OH) }
     ];
 
     const OHV = OH ? '+' + OHP + ' %' : 'None · 0 %';
     const P = (h, rows) => ({ h, rows: rows.map(([k, v]) => ({ k, v })) });
     const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', BRW.name + ' ' + BRW.major + ' · ' + BRW.os], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
     const params = cont ? [
-      P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · 6 · plateau: cap']]),
+      P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · ' + STR.down + ' · ' + pl(STR.down)]]),
       P('Limits', [['Run length', '2 h'], ['Stored cells', '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]),
-      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]),
+      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]),
       env
     ] : [
-      P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', 'Auto · 6 · plateau: cap']]),
+      P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', STR.down === STR.up ? 'Auto · ' + STR.down + ' · ' + pl(STR.down) : 'Auto · download ' + STR.down + ' · ' + pl(STR.down) + '; upload ' + STR.up + ' · ' + pl(STR.up)]]),
       P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', '16.0 s · min 15 · max 25'], ['Data cap', 'Off · ' + sUsed.toFixed(2) + ' GB used']]),
-      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]),
+      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]),
       env
     ];
     // Share shows only where the browser can share files (the PNG goes to the system sheet).
@@ -169,7 +202,7 @@ class ResultDetail extends React.Component {
       mobile: m, desktop: !m, L, D, hu, canEdit: !hu, found: !notFound, notFound,
       nf: delSt === 'done' ? { icon: 'trash', title: 'Result deleted', body: 'It has been removed from history in this browser.' } : { icon: 'search', title: 'Result not found', body: 'This result isn’t in this browser’s history. It may have been deleted, or saved in a different browser.' },
       dimOp: delSt === 'pending' ? '0.45' : '1',
-      tiles, loadRows, rpm, rpmSub: cont ? 'round trips per minute, download only' : 'round trips per minute, one per direction',
+      tiles, loadRows, rpm, Q, midCols: Q ? L.midCols : 'minmax(0,1fr)', rpmSub: cont ? 'round trips per minute, download only' : 'round trips per minute, one per direction',
       fit: SC ? [['Streaming', 'tv'], ['Gaming', 'gamepad'], ['Video calls', 'video']].map(([label, icon], i) => { const rating = SC.bands[i], Q = BG.QUALITY[rating]; return { label, icon, rating, cls: 'sbadge ' + Q.tone, ricon: Q.icon }; }) : [],
       conf, confGroups, params, summary, inc, denied,
       grade, gradeWords, gradeBasis, gShort: gT[1], gradeAria: 'Bufferbloat grade ' + grade + ', ' + gradeWords, gBd: 'var(--' + gT[0] + '-border)', gBg: 'var(--' + gT[0] + '-bg)', gFg: 'var(--' + gT[0] + '-fg)',
@@ -212,11 +245,18 @@ class ResultDetail extends React.Component {
         const vals = a => (a || []).map(p => p[1] == null ? null : Math.round(p[1]));
         const latSer = a => (a || []).map(p => ({ atMs: Math.round(p[0] * 1000), rttMs: r1(p[1]) }));
         const scores = SC ? { streaming: { points: SC.points[0], band: SC.bands[0].toLowerCase() }, gaming: { points: SC.points[1], band: SC.bands[1].toLowerCase() }, rtc: { points: SC.points[2], band: SC.bands[2].toLowerCase() }, packetLoss: 'not-measured' } : null;
+        // Loaded latency (§17): a value with its source (idleSource only when idle used another path), or the
+        // unavailable form with its reason. Responsiveness and scores are v0.3 keys.
+        const llJ = o => {
+          const idS = wsClose ? { idleSource: 'websocket' } : {};
+          if (o.ll) return Object.assign({ source: SJ[src] }, idS, { samples: o.lat.length, skippedTicks: 0, lost: 0, medianMs: o.ll[0], p90Ms: o.ll[1], increaseMs: o.inc, series: o.lat });
+          const gs = gapSrc(o.gap); return Object.assign({ status: 'unavailable', reason: o.gap, source: gs ? SJ[gs] : 'none' }, idS, { samples: UPSRC[o.gap][2], skippedTicks: 0, lost: 0 });
+        };
         const dir = o => Object.assign({
           status: 'measured', bitsPerSecond: Math.round(o.bps), peakBitsPerSecond: Math.round(o.peak), uncompensatedBitsPerSecond: Math.round(o.bps / OHF),
-          windowMs: o.windowMs, streams: 6, plateau: 'cap', confidence: { level: 'normal', reasons: [] }, bytes: o.bytes,
-          loadedLatency: { source: 'websocket', samples: o.lat.length, skippedTicks: 0, medianMs: o.ll[0], p90Ms: o.ll[1], increaseMs: o.inc, series: o.lat },
-          responsiveness: { state: 'measured', protocol: 'h2', samples: 18, rpm: o.rpm },
+          windowMs: o.windowMs, streams: o.streams, plateau: 'cap', confidence: { level: 'normal', reasons: [] }, bytes: o.bytes,
+          loadedLatency: llJ(o)
+        }, Q ? { responsiveness: { state: 'measured', protocol: 'h2', samples: 18, rpm: o.rpm } } : {}, {
           series: { bucketMs: o.bucketMs, firstCellMs: o.wu, warmupEndMs: o.wu, endMs: o.end, values: o.values },
           events: o.events || []
         }, o.agg || {});
@@ -227,17 +267,18 @@ class ResultDetail extends React.Component {
           server: { name: D.server, version: '1.4.0', epoch: '2026-09-30T08:12:44.000Z' },
           client: { ip: '192.168.1.42', contextLabel: D.ctx, protocol: 'h2', browser: { name: BRW.name, major: BRW.major, os: BRW.os } },
           settings: { preset: D.preset.toLowerCase(), phases: cont ? ['idle', 'download'] : ['idle', 'download', 'upload'], streams: { mode: 'auto', max: 6 }, dataCapBytes: null, overheadCompensationPercent: OHP, warmup: 'auto', pingCount: 20 },
-          idle: { path: 'websocket', lossPercent: 0, minMs: 2.4, medianMs: IDLE, p90Ms: 4.1, jitterMs: JIT, samples: idleS },
+          idle: { path: SJ[idleSrc], lossPercent: 0, minMs: 2.4, medianMs: IDLE, p90Ms: 4.1, jitterMs: JIT, samples: idleS },
           download: cont
-            ? dir({ bps: cAvg, peak: cP90, windowMs: Math.round((CEND - CWU) * 1000), bytes: cUsedB, lat: cells.map(c => ({ atMs: Math.round((c.a + c.b) / 2 * 1000), rttMs: r1(c.l) })), ll: LL.down, inc: INC.down, agg: { minBitsPerSecond: Math.round(cMin), maxBitsPerSecond: Math.round(cMax) }, rpm: 1420, bucketMs: 60000, wu: CWU * 1000, end: CEND * 1000, values: cells.map(c => Math.round(c.v)) })
-            : dir({ bps: D.down, peak: 641e6 * OHF, windowMs: 3500, bytes: SUSED.down, lat: latSer(S.dLat), ll: LL.down, inc: INC.down, rpm: 1420, bucketMs: 100, wu: 6500, end: 10000, values: vals(S.down) }),
+            ? dir({ bps: cAvg, peak: cP90, windowMs: Math.round((CEND - CWU) * 1000), bytes: cUsedB, lat: cells.map(c => ({ atMs: Math.round((c.a + c.b) / 2 * 1000), rttMs: r1(c.l) })), ll: LL.down, streams: STR.down, inc: INC.down, agg: { minBitsPerSecond: Math.round(cMin), maxBitsPerSecond: Math.round(cMax) }, rpm: 1420, bucketMs: 60000, wu: CWU * 1000, end: CEND * 1000, values: cells.map(c => Math.round(c.v)) })
+            : dir({ bps: D.down, peak: 641e6 * OHF, windowMs: 3500, bytes: SUSED.down, lat: latSer(S.dLat), ll: LL.down, gap: dnGap, streams: STR.down, inc: INC.down, rpm: 1420, bucketMs: 100, wu: 6500, end: 10000, values: vals(S.down) }),
           upload: cont ? { status: 'skipped' }
-            : Object.assign(dir({ bps: D.up, peak: 455e6 * OHF, windowMs: 6100, bytes: SUSED.up, lat: latSer(S.uLat), ll: LL.up, inc: INC.up, rpm: 980, bucketMs: 100, wu: 9500, end: 16000, values: vals(S.up), events: [{ code: 'failure-gap', startMs: 10400, endMs: 10800 }] }), { confirmedRequests: 38 }),
-          bufferbloat: { grade, basis: cont ? 'download' : 'download+upload', increaseMs: D.worst[1] },
+            : Object.assign(dir({ bps: D.up, peak: 455e6 * OHF, windowMs: 6100, bytes: SUSED.up, lat: latSer(S.uLat), ll: LL.up, gap: gapK, streams: STR.up, inc: INC.up, rpm: 980, bucketMs: 100, wu: 9500, end: 16000, values: vals(S.up), events: [{ code: 'failure-gap', startMs: 10400, endMs: 10800 }] }), { confirmedRequests: 38 }),
+          bufferbloat: { grade, basis: basisK, increaseMs: D.worst[1] },
           scores,
           dataUsedBytes: cont ? cUsedB : SUSED.down + SUSED.up,
-          notices: (cont ? [1e9, 1e10, 1e11].map(v => ({ code: 'data-used', bytes: v })) : []).concat(BUL ? [{ code: 'browser-upload-limit', browser: BRW.name }] : []).concat(OHP ? [{ code: 'overhead-compensation', percent: OHP }] : [])
+          notices: (cont ? [1e9, 1e10, 1e11].map(v => ({ code: 'data-used', bytes: v })) : []).concat(BUL ? [{ code: 'browser-upload-limit', browser: BRW.name }] : []).concat(rsvOn ? [{ code: 'probe-reservation', streams: 5 }] : []).concat(OHP ? [{ code: 'overhead-compensation', percent: OHP }] : [])
         };
+        if (!Q) delete result.scores;
         // History export format with one entry (ui/screens.md §1), so it re-imports as is.
         const obj = { format: 'bitgauge.history', formatVersion: 1, exportedAt: new Date().toISOString(), results: [result] };
         try { const u = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' })); const a = document.createElement('a'); a.href = u; a.download = D.file + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); } catch (e) {}
@@ -326,7 +367,7 @@ class ResultDetail extends React.Component {
       const crow = cells.map(c => [cL(hms(c.a) + '–' + hms(c.b)), cK((c.known % 1 ? c.known.toFixed(1) : c.known) + ' s'), cV(rs(c.v)), cV(BG.ms(c.l) + ' ms')]);
       const hl = t => t === 0 ? '0' : t < 3600 ? (t / 60) + 'm' : Math.floor(t / 3600) + 'h' + (t % 3600 ? String(t % 3600 / 60).padStart(2, '0') : '');
       charts = [mk({ key: 'down', title: 'Download', icon: 'arrow-down', c: 'var(--series-download)', pts: cpts, lat: clat, xMax: CEND, xStep: 1200, xLabel: hl, wu: CWU, wuText: '0–0:07',
-        meta: ohs('2 h · 1 min cells · 6 streams'), w: wide, h: m ? 150 : 190, span: m ? 'auto' : 'span 2',
+        meta: ohs('2 h · 1 min cells · ' + STR.down + ' streams'), w: wide, h: m ? 150 : 190, span: m ? 'auto' : 'span 2',
         cols: ['1 min averages', 'Known', 'Throughput', 'Latency (median)'], rows: crow,
         foot: 'One row per stored 1 min cell, from warm-up end (0:07). A run is saved from the finest cells that cover it, downsampled to at most 2000 points: up to 10 min from 100 ms cells, up to 1 h from 1 s cells, up to 24 h from 1 min cells, longer from 10 min cells, so this 2 h run keeps 1 min cells' + (OH ? '; throughput includes ' + OH : '') + '. The last cell is 53.5 s because the 2 h run length ended the run.' }), idle];
     } else {
@@ -340,10 +381,10 @@ class ResultDetail extends React.Component {
       const uPts = tidy(BG.thr(7, 438e6 * OHF, uEnd), UWU, uEnd).map(p => inGap(p) ? [p[0], null] : p), uLat = tidy(BG.lat(9, 3.1, 42, uEnd, 0.25), UWU, uEnd);
       this._series = { down: dPts, up: uPts, dLat, uLat, ping };
       charts = [
-        mk({ key: 'down', title: 'Download', icon: 'arrow-down', c: 'var(--series-download)', pts: dPts, lat: dLat, xMax: 10, wu: DWU, wuText: '0–6.5 s', meta: ohs('10 s · 6 streams'), w: cw, h: ch, span: sp,
-          cols: TCOLS, rows: winRows(dPts, dLat, DWU, dEnd), foot: tfoot('6.5') }),
-        mk({ key: 'up', title: 'Upload', icon: 'arrow-up', c: 'var(--series-upload)', pts: uPts, lat: uLat, xMax: 16, wu: UWU, wuText: '0–9.5 s', meta: ohs('16 s · 6 streams'), w: cw, h: ch, span: sp, gapLabel: 'No known data · failed request (10.4–10.8 s)',
-          cols: TCOLS, rows: winRows(uPts, uLat, UWU, uEnd), foot: tfoot('9.5', ' The window ends at the confirmed watermark (16.0 s): 6.1 of 6.5 s known.') }),
+        mk({ key: 'down', title: 'Download', icon: 'arrow-down', c: 'var(--series-download)', pts: dPts, lat: dnGap ? null : dLat, xMax: 10, wu: DWU, wuText: '0–6.5 s', meta: ohs('10 s · ' + STR.down + ' streams'), w: cw, h: ch, span: sp,
+          cols: TCOLS, rows: winRows(dPts, dnGap ? [] : dLat, DWU, dEnd), foot: tfoot('6.5') }),
+        mk({ key: 'up', title: 'Upload', icon: 'arrow-up', c: 'var(--series-upload)', pts: uPts, lat: gapK ? null : uLat, xMax: 16, wu: UWU, wuText: '0–9.5 s', meta: ohs('16 s · ' + STR.up + ' streams'), w: cw, h: ch, span: sp, gapLabel: 'No known data · failed request (10.4–10.8 s)',
+          cols: TCOLS, rows: winRows(uPts, gapK ? [] : uLat, UWU, uEnd), foot: tfoot('9.5', ' The window ends at the confirmed watermark (16.0 s): 6.1 of 6.5 s known.') }),
         idle
       ];
     }
@@ -436,11 +477,11 @@ class ResultDetail extends React.Component {
                     </React.Fragment>
                   ))}
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: v.L?.midCols, gap: "var(--space-3)" }}>
-                  <DS.LoadCard grade={v.grade} gradeText={v.gradeWords + (v.gradeBasis ? ' · ' + v.gradeBasis : '')} compact={v.mobile}
+                <div style={{ display: "grid", gridTemplateColumns: v.midCols, gap: "var(--space-3)" }}>
+                  <DS.LoadCard grade={v.grade} gradeText={v.gradeWords} basis={v.gradeBasis} compact={v.mobile}
                     rows={(v.loadRows || []).map(r => ({ dir: r.icon === 'arrow-up' ? 'upload' : 'download', label: r.label, sub: r.sub, value: r.num }))}
-                    responsiveness={{ protocol: 'h2', note: v.rpmSub, dirs: (v.rpm || []).map(d => ({ dir: d.icon === 'arrow-up' ? 'upload' : 'download', value: d.num })) }} />
-                  <DS.QualityList packetLoss compact={v.mobile} bands={(v.fit || []).map(f => f.rating || null)} />
+                    responsiveness={v.Q ? { protocol: 'h2', note: v.rpmSub, dirs: (v.rpm || []).map(d => ({ dir: d.icon === 'arrow-up' ? 'upload' : 'download', value: d.num })) } : undefined} />
+                  {v.Q ? <DS.QualityList packetLoss compact={v.mobile} bands={(v.fit || []).map(f => f.rating || null)} /> : null}
                 </div>
                 <DS.Card as="section" labelledBy="conf-h" padded={false} icon="shield" title={<span id="conf-h">Confidence and notices</span>} actions={<><DS.StatusPill tone={v.conf?.tone}>{v.conf?.label}</DS.StatusPill></>}>
                   <div style={{ display: "grid", gridTemplateColumns: v.L?.confCols, gap: "0 var(--space-6)", padding: "var(--space-1) var(--space-4) var(--space-2)" }}>

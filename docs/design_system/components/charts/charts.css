@@ -19,6 +19,7 @@
 .chart-lb { position: absolute; inset: 0; pointer-events: none; font-family: var(--font-mono); font-size: var(--text-nano); color: var(--fg-subtle); }
 .chart-lb > span { position: absolute; white-space: nowrap; transform: translateY(var(--chart-label-anchor)); }
 .chart-lb .y, .chart-lb .mk { transform: translate(-100%, var(--chart-label-anchor)); }
+.chart-lb .mk.r { transform: translateY(var(--chart-label-anchor)); }
 .chart-lb .x { transform: translate(-50%, var(--chart-label-anchor)); }
 .chart-lb .sp { font-family: var(--font-cond); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
 .chart-lb .lt { color: var(--series-latency); }

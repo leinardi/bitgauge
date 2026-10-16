@@ -226,7 +226,7 @@ share-image meta); share image `--type-share-value` 26, `--type-share-label` 8 (
 Strokes `--chart-stroke` 1 (grid, edges, separators, now line) · `--chart-stroke-latency` 1.25 · `--chart-stroke-mark` 1.5;
 dashes `--chart-dash-sep` 2 3 · `--chart-dash-latency` 4 3 · `--chart-dash-mark` 3 3; steady window
 `--chart-window-fill` 0.08 / `--chart-window-stroke` 0.4; `--chart-latency-opacity` 0.9, `--chart-now-opacity` 0.5;
-warm-up hatch `--chart-hatch-angle` 135deg, `--chart-hatch-pitch` 6 px; label anchors `--chart-label-anchor` −75 %,
+warm-up hatch `--chart-hatch-angle` 135deg, `--chart-hatch-pitch` 6 px; phase / mark labels `--chart-label-gap` 6 px from their line, rows `--chart-label-row` 12 px apart; label anchors `--chart-label-anchor` −75 %,
 `--gauge-tick-anchor` −80 %; legend `--legend-swatch-w` 14 × `--legend-swatch-h` 10 px, `--legend-band-w` 12 px,
 `--legend-stroke` 2 px.
 

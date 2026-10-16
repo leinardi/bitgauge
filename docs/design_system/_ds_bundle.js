@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"782ff33154d8","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"2124fcb54dce","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"e30f7acc2605","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"31850600bf8e","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"b0d69f352333","ui_kits/app/App.jsx":"c6e8aa88e02e","ui_kits/app/History.jsx":"db776ce9c197","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"bedf92221497","ui_kits/app/ResultDetail.jsx":"27602012bed0","ui_kits/app/Settings.jsx":"bc1c7460a524","ui_kits/app/TestScreen.jsx":"f49532a65e89","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"b6d7fe7e8713","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"9df6af312bac","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"af57de6fd238","ui_kits/app/App.jsx":"76dbe976e578","ui_kits/app/History.jsx":"284ef3ea9ea8","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"569218fbff72","ui_kits/app/ResultDetail.jsx":"0ca4ffe7d3b5","ui_kits/app/Settings.jsx":"0be72ef0379c","ui_kits/app/TestScreen.jsx":"fc42e2034669","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"}]} */
 
 (() => {
 
@@ -560,6 +560,84 @@ Object.assign(__ds_scope, { Format });
 
 // components/charts/Chart.jsx
 try { (() => {
+// Top-row label placement, shared by Chart and PhaseChart. Each label prefers one side of its line on row 1. If it would
+// cross a label already placed there (or leave the plot): the other side when that fits and is free, else the next row
+// down on its preferred side. gap = --chart-label-gap, rows are counted from 1; the caller turns rows into offsets.
+function placeTopLabels(items, {
+  taken = [],
+  gap,
+  pl,
+  pr,
+  maxRows = 6
+}) {
+  const placed = taken.slice(),
+    hit = (x0, x1, r) => placed.some(b => b.r === r && x0 < b.x1 + gap && x1 > b.x0 - gap);
+  const box = (x, w, right, r) => right ? {
+    x0: x + gap,
+    x1: x + gap + w,
+    r,
+    right
+  } : {
+    x0: x - gap - w,
+    x1: x - gap,
+    r,
+    right
+  };
+  const fits = b => b.x0 >= pl && b.x1 <= pr;
+  return items.map(it => {
+    const pref = box(it.x, it.w, it.side === 'right', 1),
+      alt = box(it.x, it.w, it.side !== 'right', 1);
+    let p = fits(pref) && !hit(pref.x0, pref.x1, 1) ? pref : fits(alt) && !hit(alt.x0, alt.x1, 1) ? alt : null;
+    if (!p) {
+      const s = fits(pref) || !fits(alt) ? pref : alt;
+      let r = 2;
+      while (r < maxRows && hit(s.x0, s.x1, r)) r++;
+      p = {
+        ...s,
+        r
+      };
+    }
+    placed.push(p);
+    return p;
+  });
+}
+// Label metrics read from the rendered labels: the two tokens plus each label's box, keyed "<key>|<text>".
+function useLabelMetrics(ref, sel) {
+  const [m, setM] = React.useState({
+    gap: 6,
+    row: 12,
+    w: {},
+    h: {}
+  });
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const cs = getComputedStyle(el),
+      px = (n, d) => {
+        const v = parseFloat(cs.getPropertyValue(n));
+        return isFinite(v) ? v : d;
+      };
+    const next = {
+      gap: px('--chart-label-gap', 6),
+      row: px('--chart-label-row', 12),
+      w: {},
+      h: {}
+    };
+    Object.entries(sel).forEach(([k, q]) => el.querySelectorAll(q).forEach(s => {
+      next.w[k + '|' + s.textContent] = s.offsetWidth;
+      next.h[k + '|' + s.textContent] = s.offsetHeight;
+    }));
+    const eq = (a, b) => Object.keys(a).length === Object.keys(b).length && Object.keys(a).every(k => a[k] === b[k]);
+    if (next.gap !== m.gap || next.row !== m.row || !eq(next.w, m.w) || !eq(next.h, m.h)) setM(next);
+  });
+  return m;
+}
+// ms axis labels: the top value takes Format.ms precision (whole ms from 10, one decimal below); every tick takes its decimals.
+const msAxis = top => {
+  const t = __ds_scope.Format.ms(top),
+    d = (t.split('.')[1] || '').length;
+  return f => f === 0 ? '0' : f === 1 ? t + ' ms' : (top * f).toFixed(d);
+};
 function niceMax(v) {
   const e = Math.pow(10, Math.floor(Math.log10(v)));
   for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * e >= v) return m * e;
@@ -569,19 +647,23 @@ function niceMax(v) {
 function chartGeometry(o) {
   const all = o.series.map(s => s.pts).flat();
   const ym = o.yMax || niceMax(Math.max(1, ...all.map(p => p[1])) * 1.08);
-  const lab = f => {
-    const v = ym * f,
-      r = o.ms ? {
-        n: __ds_scope.Format.ms(v),
-        u: 'ms'
-      } : __ds_scope.Format.rate(v, o.units);
-    return f === 0 ? '0' : r.n + (f === 1 ? ' ' + r.u : '');
-  };
+  // Every tick reads in the top label's unit with the top label's decimals (rate: three significant digits; ms: msAxis).
+  const lab = o.ms ? msAxis(ym) : (() => {
+    const top = __ds_scope.Format.rate(ym, o.units),
+      div = {
+        k: 1e3,
+        M: 1e6,
+        G: 1e9
+      }[top.u[0]] * (o.units === 'bytes' ? 8 : 1),
+      d = (top.n.split('.')[1] || '').length;
+    return f => f === 0 ? '0' : f === 1 ? top.n + ' ' + top.u : (ym * f / div).toFixed(d);
+  })();
   const CH = 6.7,
     fit = (min, s) => Math.max(min, Math.ceil(s.length * CH) + 14);
   const pl = fit(44, lab(1));
   const lm = o.lat ? o.latMax || niceMax(Math.max(...o.lat.map(p => p[1])) * 1.9) : 0;
-  const pr = o.lat ? fit(40, Math.round(lm) + ' ms') : 12,
+  const latLab = o.lat ? msAxis(lm) : null;
+  const pr = o.lat ? fit(40, latLab(1)) : 12,
     pt = 10,
     pb = 22,
     W = o.w - pl - pr,
@@ -622,13 +704,18 @@ function chartGeometry(o) {
     ticks: [0, 0.5, 1].map(f => ({
       y: LY(lm * f) + 3.5,
       x: pl + W + 8,
-      t: Math.round(lm * f) + (f === 1 ? ' ms' : '')
+      t: latLab(f)
     }))
   } : null;
+  // Top-row labels: gap from the line = --chart-label-gap, row pitch = --chart-label-row. Widths are measured by Chart
+  // (o.labelW, keyed "sp|text" / "mk|text"); the estimate covers the first render.
+  const gap = o.labelGap ?? 6,
+    row = o.labelRow ?? 12,
+    lw = (k, s) => o.labelW && o.labelW[k + '|' + s] || s.length * (k === 'sp' ? 7 : 6.6);
   const seps = (o.seps || []).map(q => ({
     x: X(q.t),
-    lx: X(q.t) + 6,
-    ly: pt + 12,
+    lx: X(q.t) + gap,
+    ly: pt + row,
     t: q.label
   }));
   const wins = (o.wins || []).map(q => ({
@@ -638,13 +725,38 @@ function chartGeometry(o) {
     ly: pt + H - 8,
     t: q.label
   }));
-  const marks = (o.marks || []).map(q => ({
+  // Mark labels prefer the left of their line; phase labels (right of their separator) are placed first.
+  const mk = o.marks || [];
+  const pos = placeTopLabels(mk.map(q => ({
     x: X(q.t),
-    t: q.label,
-    c: q.c || null,
-    lx: X(q.t) - 6,
-    ly: pt + 12
-  }));
+    w: lw('mk', q.label),
+    side: 'left'
+  })), {
+    taken: seps.map(s => ({
+      x0: s.lx,
+      x1: s.lx + lw('sp', s.t),
+      r: 1
+    })),
+    gap,
+    pl,
+    pr: pl + W
+  });
+  // Row 1 sits --chart-label-row below the plot top; further rows are --chart-label-row apart, or a label's measured height
+  // when that is taller, so a second-row label never reaches into the first.
+  const lh = Math.max(0, ...Object.values(o.labelH || {})),
+    pitch = Math.max(row, lh);
+  const marks = mk.map((q, i) => {
+    const x = X(q.t),
+      p = pos[i];
+    return {
+      x,
+      t: q.label,
+      c: q.c || null,
+      lx: p.right ? x + gap : x - gap,
+      ly: pt + row + (p.r - 1) * pitch,
+      right: p.right
+    };
+  });
   const bands = (o.bands || []).filter(q => q.t1 > q.t0).map(q => ({
     x: X(q.t0),
     w: X(q.t1) - X(q.t0),
@@ -681,6 +793,11 @@ function Chart({
 }) {
   const ref = React.useRef(null);
   const [w, setW] = React.useState(compact ? 311 : 672);
+  const lbRef = React.useRef(null);
+  const lm = useLabelMetrics(lbRef, {
+    sp: '.sp',
+    mk: '.mk'
+  });
   React.useEffect(() => {
     const el = ref.current;
     if (!el || !window.ResizeObserver) return;
@@ -698,6 +815,10 @@ function Chart({
     series: data.series || [],
     w,
     h,
+    labelGap: lm.gap,
+    labelRow: lm.row,
+    labelW: lm.w,
+    labelH: lm.h,
     xStep: data.xStep || (compact && data.xMax > 20 ? data.xMax > 40 ? 18 : 8 : null)
   });
   const last = g.series[g.series.length - 1];
@@ -820,6 +941,7 @@ function Chart({
       strokeWidth: 2
     }
   }) : null), /*#__PURE__*/React.createElement("div", {
+    ref: lbRef,
     className: "chart-lb",
     "aria-hidden": "true"
   }, g.grid.map((l, i) => /*#__PURE__*/React.createElement("span", {
@@ -859,7 +981,7 @@ function Chart({
     }
   }, l.t)), g.marks.map((l, i) => /*#__PURE__*/React.createElement("span", {
     key: 'm' + i,
-    className: "mk",
+    className: l.right ? 'mk r' : 'mk',
     style: {
       left: l.lx,
       top: l.ly,
@@ -875,7 +997,7 @@ function Chart({
     }
   }, /*#__PURE__*/React.createElement("span", null, empty)) : null));
 }
-Object.assign(__ds_scope, { chartGeometry, Chart });
+Object.assign(__ds_scope, { placeTopLabels, useLabelMetrics, chartGeometry, Chart });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/charts/Chart.jsx", error: String((e && e.message) || e) }); }
 
 // components/charts/PhaseChart.jsx
@@ -906,6 +1028,10 @@ function PhaseChart({
   style,
   children
 }) {
+  const lbRef = React.useRef(null),
+    lm = __ds_scope.useLabelMetrics(lbRef, {
+      ev: '.chip-ev'
+    });
   const known = pts.filter(p => p[1] != null),
     latK = lat ? lat.filter(p => p[1] != null) : null;
   const top = (() => {
@@ -956,25 +1082,29 @@ function PhaseChart({
     }
   });
   if (cur.length) S.push(cur);
-  const placed = [];
-  const chips = marks.map(m => {
+  // Event chips follow Chart's top-row rules (placeTopLabels): right of their line by preference, the left when that
+  // crosses another chip or leaves the plot, else a further row. Rows are --chart-label-row apart, or a chip's height
+  // when that is taller, so stacked chips never touch.
+  const cw = m => lm.w['ev|' + m.label] || m.label.length * 6 + 22,
+    chH = Math.max(0, ...marks.map(m => lm.h['ev|' + m.label] || 16));
+  const pitch = Math.max(lm.row, chH + lm.gap / 2);
+  const pos = __ds_scope.placeTopLabels(marks.map(m => ({
+    x: X(m.t),
+    w: cw(m),
+    side: 'right'
+  })), {
+    gap: lm.gap,
+    pl: g.pl,
+    pr: g.pr
+  });
+  const chips = marks.map((m, i) => {
     const x = X(m.t),
-      cw = m.label.length * 6 + 22,
-      left = x + 4 + cw > g.pr,
-      x0 = left ? x - 4 - cw : x + 4,
-      x1 = x0 + cw;
-    let row = 0;
-    while (row < 6 && placed.some(p => p.row === row && x0 < p.x1 + 4 && x1 > p.x0 - 4)) row++;
-    placed.push({
-      x0,
-      x1,
-      row
-    });
+      q = pos[i];
     return Object.assign({
       x,
-      lx: left ? x - 4 : x + 4,
-      ly: g.pt + 2 + row * 18,
-      left
+      lx: q.right ? x + lm.gap : x - lm.gap,
+      ly: g.pt + 2 + (q.r - 1) * pitch,
+      left: !q.right
     }, m);
   });
   const H = g.pb - g.pt;
@@ -1061,6 +1191,7 @@ function PhaseChart({
       stroke: m.c
     }
   }))), /*#__PURE__*/React.createElement("div", {
+    ref: lbRef,
     className: "chart-lb",
     "aria-hidden": "true"
   }, warmup ? /*#__PURE__*/React.createElement("span", {
@@ -1462,24 +1593,31 @@ function Checkbox({
   })) : null, /*#__PURE__*/React.createElement("span", null, children));
 }
 // ChoiceCard — one option of a card radio group (preset picker). Put several in a role="radiogroup".
+// disabledReason: shown but not selectable (aria-disabled, stays focusable so the tooltip is reachable).
 function ChoiceCard({
   selected = false,
   icon,
   title,
   badge,
   children,
-  onSelect
+  onSelect,
+  disabledReason
 }) {
-  return /*#__PURE__*/React.createElement("div", {
+  const tipId = React.useId(),
+    dis = !!disabledReason;
+  const pick = dis ? undefined : onSelect;
+  const el = /*#__PURE__*/React.createElement("div", {
     role: "radio",
-    "aria-checked": selected,
+    "aria-checked": selected && !dis,
+    "aria-disabled": dis || undefined,
+    "aria-describedby": dis ? tipId : undefined,
     tabIndex: 0,
-    className: 'choice' + (selected ? ' on' : ''),
-    onClick: onSelect,
+    className: 'choice' + (selected && !dis ? ' on' : ''),
+    onClick: pick,
     onKeyDown: e => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        onSelect && onSelect();
+        pick && pick();
       }
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -1497,6 +1635,14 @@ function ChoiceCard({
   }, /*#__PURE__*/React.createElement("span", null))), children ? /*#__PURE__*/React.createElement("span", {
     className: "choice-d"
   }, children) : null);
+  if (!dis) return el;
+  return /*#__PURE__*/React.createElement("span", {
+    className: "has-tip block"
+  }, el, /*#__PURE__*/React.createElement("span", {
+    className: "tip",
+    role: "tooltip",
+    id: tipId
+  }, disabledReason));
 }
 Object.assign(__ds_scope, { Checkbox, ChoiceCard });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/forms/Checkbox.jsx", error: String((e && e.message) || e) }); }
@@ -2812,7 +2958,7 @@ Object.assign(__ds_scope, { StatusPill });
 
 // components/measurement/LoadCard.jsx
 try { (() => {
-// tiles.md LoadCard — grade letter + words (never colour alone), loaded latency per direction, RPM.
+// tiles.md LoadCard — grade letter + words (never colour alone) + basis, loaded latency per direction, RPM (v0.3, optional).
 const GRADES = {
   'A+': {
     tone: 'ok',
@@ -2883,13 +3029,14 @@ function NumU({
 function LoadCard({
   grade,
   gradeText,
+  basis,
   rows = [],
   responsiveness,
   compact = false,
   className,
   style
 }) {
-  const r = responsiveness || {};
+  const r = responsiveness;
   return /*#__PURE__*/React.createElement("div", {
     className: 'card tile load' + (compact ? ' compact' : '') + (className ? ' ' + className : ''),
     style: style
@@ -2900,7 +3047,9 @@ function LoadCard({
   }, "Bufferbloat"), /*#__PURE__*/React.createElement(GradeBadge, {
     grade: grade,
     text: gradeText
-  })), /*#__PURE__*/React.createElement("div", {
+  }), basis ? /*#__PURE__*/React.createElement("span", {
+    className: "grade-b"
+  }, basis) : null), /*#__PURE__*/React.createElement("div", {
     className: "load-r"
   }, rows.map((x, i) => /*#__PURE__*/React.createElement("div", {
     className: "lrow",
@@ -2922,7 +3071,7 @@ function LoadCard({
     value: x.value,
     unit: "ms",
     live: x.live
-  }))), /*#__PURE__*/React.createElement("div", {
+  }))), r ? /*#__PURE__*/React.createElement("div", {
     className: "rpm"
   }, /*#__PURE__*/React.createElement("div", {
     className: "rpm-h"
@@ -2966,7 +3115,7 @@ function LoadCard({
     uncertain: d.uncertain
   }) : /*#__PURE__*/React.createElement("span", {
     className: "txt"
-  }, d.text || '—')))))));
+  }, d.text || '—'))))) : null));
 }
 Object.assign(__ds_scope, { GRADES, GradeBadge, LoadCard });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/LoadCard.jsx", error: String((e && e.message) || e) }); }
@@ -3421,19 +3570,30 @@ class About extends React.Component {
       style: {
         padding: "var(--space-4-5) var(--space-4) var(--space-3-5)",
         display: "flex",
-        flexDirection: "column",
-        gap: "var(--space-0-5)",
+        alignItems: "center",
+        gap: "var(--space-3)",
         borderBottom: "1px solid var(--border-subtle)"
       }
     }, /*#__PURE__*/React.createElement(DS.Logo, {
       size: 40,
-      wordmark: true
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "ds-caption",
+      decorative: true
+    }), /*#__PURE__*/React.createElement("div", {
       style: {
-        paddingLeft: "calc(40px + var(--space-3))"
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-0-5)",
+        minWidth: 0
       }
-    }, "Self-hosted network speed test")), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "wm xl",
+      style: {
+        gap: 0
+      }
+    }, /*#__PURE__*/React.createElement("span", null, "Bit", /*#__PURE__*/React.createElement("span", {
+      className: "g"
+    }, "Gauge"))), /*#__PURE__*/React.createElement("span", {
+      className: "ds-caption"
+    }, "Self-hosted network speed test"))), /*#__PURE__*/React.createElement("div", {
       style: {
         padding: "var(--space-1) var(--space-4) var(--space-2)"
       }
@@ -3518,8 +3678,10 @@ const DEMO_DEFAULTS = {
   speed: '1',
   mobile: false,
   testState: '',
-  v01: false,
+  scope: 'v0.2',
   cpu: false,
+  llGap: 'none',
+  wsClose: false,
   browser: 'Firefox',
   uploadPauses: false,
   errKind: 'requests',
@@ -3537,6 +3699,10 @@ const DEMO_DEFAULTS = {
   aboutUnreachable: false
 };
 const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'upload-interrupted', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'cancelled-slow-up', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
+// v0.3-only Force-state entries (Continuous); hidden, not renamed, in v0.1 and v0.2.
+const V03_STATES = ['continuous', 'cont-warmup', 'cont-done'];
+const SCOPES = ['v0.1', 'v0.2', 'v0.3'];
+const LL_GAPS = [['none', 'measured'], ['no-steady-window', 'no steady window'], ['insufficient-samples', 'fewer than 10 samples'], ['reservation-broken', 'HTTP/1.1 reservation not held'], ['no-probe-path', 'no latency probe']];
 const HISTORY_VARIANTS = ['populated', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 function DemoSelect({
   label,
@@ -3594,6 +3760,8 @@ function DemoPanel({
   set,
   reset
 }) {
+  const v03 = d.scope === 'v0.3',
+    v01 = d.scope === 'v0.1';
   const [open, setOpenRaw] = React.useState(() => localStorage.getItem(DEMO_KEY + '-open') === '1');
   const setOpen = o => {
     setOpenRaw(o);
@@ -3640,8 +3808,8 @@ function DemoPanel({
     className: "st"
   }, "Run"), /*#__PURE__*/React.createElement(DemoSelect, {
     label: "Scenario",
-    value: d.scenario,
-    options: ['normal', 'error', 'slow', 'autostart', 'continuous'],
+    value: !v03 && d.scenario === 'continuous' ? 'normal' : d.scenario,
+    options: ['normal', 'error', 'slow', 'autostart'].concat(v03 ? ['continuous'] : []),
     onChange: v => set({
       scenario: v,
       testState: ''
@@ -3668,20 +3836,23 @@ function DemoPanel({
     })
   }), /*#__PURE__*/React.createElement("span", {
     className: "demo-note"
-  }, "Auto: desktop from 1140 px wide, mobile below."), /*#__PURE__*/React.createElement(DemoCheck, {
-    label: "v0.1 scope (no history, settings, share)",
-    value: d.v01,
+  }, "Auto: desktop from 1140 px wide, mobile below."), /*#__PURE__*/React.createElement(DemoSeg, {
+    label: "Scope",
+    value: d.scope,
+    options: SCOPES.map(s => [s, s]),
     onChange: v => set({
-      v01: v
+      scope: v
     })
-  })), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "demo-note"
+  }, v01 ? 'v0.1: test only — no history, settings, share or loaded latency.' : v03 ? 'v0.3: adds RPM, quality scores, Continuous and other-client snippets.' : 'v0.2: adds history, Result detail, Settings, share, loaded latency and grade.')), /*#__PURE__*/React.createElement("div", {
     className: "demo-sec"
   }, /*#__PURE__*/React.createElement("span", {
     className: "st"
   }, "Test screen"), /*#__PURE__*/React.createElement(DemoSelect, {
     label: "Force state",
     value: d.testState,
-    options: [['', 'follow run'], ...TEST_STATES],
+    options: [['', 'follow run'], ...TEST_STATES.filter(s => v03 || !V03_STATES.includes(s))],
     onChange: v => set({
       testState: v
     })
@@ -3703,18 +3874,31 @@ function DemoPanel({
   }), /*#__PURE__*/React.createElement(DemoSelect, {
     label: "Latency probe",
     value: d.probe,
-    options: ['auto', 'WebSocket', 'HTTP/2 probe', 'HTTP/1.1 reserved'],
+    options: ['auto', 'WebSocket', 'HTTP/2 probe', 'HTTP/3 probe', 'HTTP/1.1 reserved'],
     onChange: v => set({
       probe: v
     })
-  }), /*#__PURE__*/React.createElement(DemoSelect, {
+  }), !v01 ? /*#__PURE__*/React.createElement(DemoCheck, {
+    label: "WebSocket closes after idle latency",
+    value: d.wsClose,
+    onChange: v => set({
+      wsClose: v
+    })
+  }) : null, !v01 ? /*#__PURE__*/React.createElement(DemoSelect, {
+    label: "Upload loaded lat.",
+    value: d.llGap,
+    options: LL_GAPS,
+    onChange: v => set({
+      llGap: v
+    })
+  }) : null, v03 ? /*#__PURE__*/React.createElement(DemoSelect, {
     label: "Responsiveness",
     value: d.resp,
     options: ['ok', 'uncertain', 'needs-h2', 'not-reported', 'few-samples'],
     onChange: v => set({
       resp: v
     })
-  }), /*#__PURE__*/React.createElement(DemoSelect, {
+  }) : null, /*#__PURE__*/React.createElement(DemoSelect, {
     label: "Timer resolution",
     value: d.timerRes,
     options: [['0.1', '0.1 ms'], ['1', '1 ms']],
@@ -3760,14 +3944,14 @@ function DemoPanel({
     onChange: v => set({
       resultState: v
     })
-  }), /*#__PURE__*/React.createElement(DemoSeg, {
+  }), v03 ? /*#__PURE__*/React.createElement(DemoSeg, {
     label: "Kind",
     value: d.resultKind,
     options: [['standard', 'Standard'], ['continuous', 'Continuous']],
     onChange: v => set({
       resultKind: v
     })
-  }), /*#__PURE__*/React.createElement(DemoSelect, {
+  }) : null, /*#__PURE__*/React.createElement(DemoSelect, {
     label: "Demo",
     value: d.resultDemo,
     options: ['none', 'deleted', 'clipboard-denied'],
@@ -3825,22 +4009,32 @@ function App() {
     } catch (e) {}
   }, [d]);
   const set = patch => setD(prev => Object.assign({}, prev, patch));
+  // Demo values outside the chosen scope fall back to what that version can reach.
+  const scope = SCOPES.includes(d.scope) ? d.scope : 'v0.2',
+    v03 = scope === 'v0.3';
+  const scenario = !v03 && d.scenario === 'continuous' ? 'normal' : d.scenario;
+  const llGap = scope === 'v0.1' ? 'none' : d.llGap;
   const testExtra = {
     cpu: d.cpu,
     errKind: d.errKind,
     probe: d.probe,
-    resp: d.resp,
+    resp: v03 ? d.resp : 'ok',
+    llGap,
+    wsClose: scope !== 'v0.1' && d.wsClose,
     timerRes: d.timerRes,
     browser: d.browser,
     uploadPauses: d.uploadPauses
   };
-  if (d.testState) testExtra.state = d.testState;
+  if (d.testState && (v03 || !V03_STATES.includes(d.testState))) testExtra.state = d.testState;
   const historyExtra = d.historyVariant ? {
     variant: d.historyVariant
   } : {};
   const resultExtra = {
     state: d.resultState,
-    kind: d.resultKind,
+    kind: v03 ? d.resultKind : 'standard',
+    llGap,
+    probe: d.probe,
+    wsClose: scope !== 'v0.1' && d.wsClose,
     demo: d.resultDemo,
     overhead: d.resultOverhead,
     browser: d.browser,
@@ -3853,10 +4047,10 @@ function App() {
     unreachable: d.aboutUnreachable
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Prototype, {
-    scenario: d.scenario,
+    scenario: scenario,
     speed: d.speed,
     mobile: d.mobile,
-    scope: d.v01 ? 'v0.1' : 'v0.3',
+    scope: scope,
     testExtra: testExtra,
     historyExtra: historyExtra,
     resultExtra: resultExtra,
@@ -3880,6 +4074,7 @@ try { (() => {
  *   variant: "populated" | "select3" | "deleted" | "compare" | "confirm" | "export" | "daterange" | "loading" | "nomatch" | "empty" | "unavailable" | "importing" | "importresult" | "importerror" | "safari"  (default "populated")
  *   mobile: boolean  (default false)
  *   whyOpen: boolean  (default false)
+ *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM row in Compare)
  */
 class History extends React.Component {
   state = {
@@ -3891,6 +4086,7 @@ class History extends React.Component {
     const v = this.props.variant || 'populated';
     const is = k => v === k;
     const BG = window.BG;
+    const Q = !this.props.caps || !!this.props.caps.quality;
     const L = m ? {
       pad: 'var(--space-4) var(--space-4) var(--space-6)',
       gap: 'var(--space-3-5)',
@@ -4140,7 +4336,7 @@ class History extends React.Component {
         crit
       }, ch('', crit ? 'crit' : diff ? 'differs' : 'same', diff ? 'differs' : 'same'));
     });
-    const metrics = [['Download', '233 Mbit/s', '241 Mbit/s', '+3.4%', 'better'], ['Upload', '187 Mbit/s', '198 Mbit/s', '+5.9%', 'better'], ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'], ['Loaded latency · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Loaded latency · upload', '58 ms', '71 ms', '+13 ms', 'worse'], ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms'], ['HTTP loaded responsiveness — connection sharing not verifiable', '980 RPM · HTTP/2', 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', '', 'differs', 'not comparable']].map(([k, a, b, d, w, dw]) => Object.assign({
+    const metrics = [['Download', '233 Mbit/s', '241 Mbit/s', '+3.4%', 'better'], ['Upload', '187 Mbit/s', '198 Mbit/s', '+5.9%', 'better'], ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'], ['Loaded latency · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Loaded latency · upload', '58 ms', '71 ms', '+13 ms', 'worse'], ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms']].concat(Q ? [['HTTP loaded responsiveness — connection sharing not verifiable', '980 RPM · HTTP/2', 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', '', 'differs', 'not comparable']] : []).map(([k, a, b, d, w, dw]) => Object.assign({
       k,
       a,
       b
@@ -6497,17 +6693,21 @@ class Prototype extends React.Component {
   theme() {
     return this.state.theme || 'dark';
   }
-  // Version scope (features/ui/screens.md "Before v0.2" / About "Before v0.3"): one source for every screen and the nav.
+  // Version scope (features/roadmap.md §1.2 / §1.3): one source for every screen and the nav.
+  // v0.2: history, Result detail, Settings + link, share, loaded latency + grade. v0.3 adds RPM, quality scores,
+  // Continuous (quality) and the other-client snippets (clients).
   caps() {
-    const s = this.props.scope || 'v0.3';
-    const v02 = s !== 'v0.1';
+    const s = this.props.scope || 'v0.2';
+    const v02 = s !== 'v0.1',
+      v03 = s === 'v0.3';
     return {
       scope: s,
       history: v02,
       settings: v02,
       share: v02,
       loaded: v02,
-      clients: s === 'v0.3'
+      clients: v03,
+      quality: v03
     };
   }
   // The server's display name is known once GET /info has answered; it is unknown while /info fails.
@@ -6610,17 +6810,20 @@ class Prototype extends React.Component {
     }) : null, v.isHistory && !v.notAvailable ? /*#__PURE__*/React.createElement(History, _extends({
       variant: v.hv,
       mobile: v.mobile,
-      srvStatus: v.srv
+      srvStatus: v.srv,
+      caps: v.caps
     }, v.historyExtra || {})) : null, v.isResult && !v.notAvailable ? /*#__PURE__*/React.createElement(ResultDetail, _extends({
       mobile: v.mobile,
-      srvStatus: v.srv
+      srvStatus: v.srv,
+      caps: v.caps
     }, v.resultExtra || {})) : null, v.isSettings && !v.notAvailable ? /*#__PURE__*/React.createElement(Settings, _extends({
       mobile: v.mobile,
       preset: "standard",
       theme: v.theme,
       saved: v.saved,
       onSettings: v.onSettings,
-      srvStatus: v.srv
+      srvStatus: v.srv,
+      caps: v.caps
     }, v.settingsExtra || {})) : null, v.isAbout ? /*#__PURE__*/React.createElement(About, _extends({
       mobile: v.mobile,
       srvStatus: v.srv,
@@ -6680,6 +6883,12 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
  *   overhead: "0" | "6" | "5.13" | "3.69" | "8.1"  (default "0") — overhead compensation preset (§9.3)
  *   browser: "Firefox" | "Chrome" | "Safari" | "Edge"  (default "Firefox") — browser family of the run
  *   uploadPauses: boolean  (default false) — the engine saw the browser pause between upload requests (idle share > 20 %)
+ *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM, no quality scores, no Continuous)
+ *   llGap: "none" | "no-steady-window" | "insufficient-samples" | "reservation-broken" | "no-probe-path"  (default "none") —
+ *     the upload direction's loaded latency has no value for this reason (Standard only)
+ *   probe: "auto" | "WebSocket" | "HTTP/2 probe" | "HTTP/3 probe" | "HTTP/1.1 reserved"  (default "auto") — one path for idle and loaded latency
+ *   wsClose: boolean  (default false) — the WebSocket closed after idle latency: idle stays WebSocket, loaded over the HTTP
+ *     source from `probe`; on HTTP/1.1 download (running at the close) is unavailable, reason reservation-broken (Standard only)
  */
 class ResultDetail extends React.Component {
   state = {
@@ -6741,9 +6950,53 @@ class ResultDetail extends React.Component {
       on = v => this.on(v);
     const m = on(this.props.mobile),
       tv = on(this.props.tableView);
+    const caps = this.props.caps || {
+        loaded: true,
+        quality: true
+      },
+      Q = !!caps.quality;
     const st = this.props.state || 'result',
       hu = st === 'history-unavailable',
-      cont = this.props.kind === 'continuous';
+      cont = Q && this.props.kind === 'continuous';
+    // Loaded latency without a value (measurement §11): reason → [JSON source, label source, samples].
+    const LLR = {
+      'no-steady-window': 'no steady window',
+      'insufficient-samples': 'fewer than 10 samples',
+      'reservation-broken': 'HTTP/1.1 reservation not held',
+      'no-probe-path': 'no latency probe'
+    };
+    const UPSRC = {
+      'no-steady-window': ['websocket', 'WebSocket', 0],
+      'insufficient-samples': ['http-h2', 'HTTP/2 probe', 7],
+      'reservation-broken': ['http-h1-reserved', 'HTTP/1.1 reserved', 24],
+      'no-probe-path': ['none', null, 0]
+    };
+    // Latency path (measurement §10, §11): one probe path for idle and loaded latency; wsClose = the WebSocket closed
+    // after idle latency, so idle stays WebSocket and loaded samples come over HTTP.
+    const SJ = {
+      'WebSocket': 'websocket',
+      'HTTP/2 probe': 'http-h2',
+      'HTTP/3 probe': 'http-h3',
+      'HTTP/1.1 reserved': 'http-h1-reserved'
+    };
+    const PRB = this.props.probe,
+      httpSrc = PRB && PRB !== 'auto' && PRB !== 'WebSocket' ? PRB : 'HTTP/2 probe';
+    const wsClose = !!caps.loaded && !!this.props.wsClose;
+    const src = wsClose ? httpSrc : SJ[PRB] ? PRB : 'WebSocket',
+      idleSrc = wsClose ? 'WebSocket' : src;
+    const dnGap = wsClose && !cont && src === 'HTTP/1.1 reserved' ? 'reservation-broken' : null;
+    const gapK = !cont && !dnGap && caps.loaded && LLR[this.props.llGap] ? this.props.llGap : null;
+    const gapSrc = k => k === 'no-probe-path' ? null : k === 'reservation-broken' ? 'HTTP/1.1 reserved' : src;
+    // HTTP/1.1 probe reservation (measurement §4, §11.2): stream cap 5 while it is held. Closed-after-idle: it starts with
+    // the next direction (upload), so download keeps 6.
+    const resv = !!caps.loaded && src === 'HTTP/1.1 reserved';
+    const STR = {
+        down: resv && !wsClose ? 5 : 6,
+        up: resv ? 5 : 6
+      },
+      rsvOn = cont ? STR.down === 5 : STR.down === 5 || STR.up === 5;
+    const pl = n => 'plateau: ' + (n === 5 ? 'HTTP/1.1 probe reservation' : 'cap');
+    const vsIdle = ' ms vs idle' + (idleSrc !== src ? ' over ' + idleSrc : '');
     const delSt = this.state.del ?? (this.props.demo === 'deleted' ? 'pending' : 'none');
     const notFound = st === 'not-found' || delSt === 'done';
     const inc = this.state.inc ?? on(this.props.includeLabel);
@@ -6937,24 +7190,25 @@ class ResultDetail extends React.Component {
     // Loaded latency (median, p90) per direction. Increase = median − idle; the grade uses the worse one, and
     // loadedLatency.increaseMs and bufferbloat.increaseMs in the JSON hold the same value.
     const LL = {
-        down: [18, 24],
-        up: cont ? null : [42, 55]
+        down: dnGap ? null : [18, 24],
+        up: cont || gapK ? null : [42, 55]
       },
       INC = {
-        down: r1(LL.down[0] - IDLE),
+        down: LL.down ? r1(LL.down[0] - IDLE) : null,
         up: LL.up ? r1(LL.up[0] - IDLE) : null
       };
-    D.worst = INC.up != null && INC.up > INC.down ? ['upload', INC.up] : ['download', INC.down];
+    D.worst = INC.down == null || INC.up != null && INC.up > INC.down ? ['upload', INC.up] : ['download', INC.down];
+    const basisK = INC.up != null && INC.down != null ? 'download+upload' : INC.down == null ? 'upload' : 'download';
     const grade = gradeOf(D.worst[1]),
       gT = GT[grade],
-      gradeWords = gT[1] + ' bufferbloat' + (cont ? ' · download only' : '');
-    const gradeBasis = cont ? 'Grade basis: download +15 ms vs idle. Upload not measured.' : 'Grade basis: the worse increase vs idle — upload +39 ms (download +15 ms).';
+      gradeWords = gT[1] + ' bufferbloat';
+    const gradeBasis = basisK === 'download+upload' ? 'Basis: worse of download and upload — upload +' + jit(INC.up) + ' ms (download +' + jit(INC.down) + ' ms)' : basisK === 'upload' ? 'Basis: upload only — +' + jit(INC.up) + ' ms vs idle; download: ' + LLR[dnGap] : 'Basis: download only — +' + jit(INC.down) + ' ms vs idle' + (cont ? '; upload not measured' : '; upload: ' + LLR[gapK]);
     const worstStr = '+' + jit(D.worst[1]) + ' ms loaded (' + D.worst[0] + ')';
     const summary = ['BitGauge' + (inc ? ' · ' + D.label : ''), D.short, cont ? 'Download ' + rs(D.down) + ' (2 h average) · Upload not measured' : 'Download ' + rs(D.down) + ' · Upload ' + rs(D.up)].concat(OH ? [OH] : []).concat(['Idle latency ' + BGF.ms(IDLE) + ' ms · Jitter ' + jit(JIT) + ' ms', 'Loaded latency +' + jit(D.worst[1]) + ' ms (' + D.worst[0] + ')', 'Bufferbloat grade ' + grade + ' · ' + gradeWords, 'Server: ' + D.server]).join('\n');
 
     // Quality scores: the same AIM function as the Test screen (fixtures.js). Standard: Good/Good/Good (55/25/35 points);
     // Continuous (download +15 ms): Great/Great/Great (60/30/40).
-    const SC = BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
+    const SC = Q && BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
     const tiles = [{
       label: cont ? 'Download · average' : 'Download',
       icon: 'arrow-down',
@@ -6962,7 +7216,7 @@ class ResultDetail extends React.Component {
       num: rn(D.down),
       unit: ru(D.down),
       nc: 'var(--fg)',
-      sub: ohs(cont ? 'peak ' + rn(cP90) + ' · p90, last hour, 1 s cells · max ' + rn(cMax) + ' · 6 streams · plateau: cap' : 'peak ' + rn(641e6 * OHF) + ' · 6 streams · plateau: cap')
+      sub: ohs(cont ? 'peak ' + rn(cP90) + ' · p90, last hour, 1 s cells · max ' + rn(cMax) + ' · ' + STR.down + ' streams · ' + pl(STR.down) : 'peak ' + rn(641e6 * OHF) + ' · ' + STR.down + ' streams · ' + pl(STR.down))
     }, cont ? {
       label: 'Upload',
       icon: 'arrow-up',
@@ -6978,7 +7232,7 @@ class ResultDetail extends React.Component {
       num: rn(D.up),
       unit: ru(D.up),
       nc: 'var(--fg)',
-      sub: ohs('peak ' + rn(455e6 * OHF) + ' · 6 streams · plateau: cap · 6.1 of 6.5 s known')
+      sub: ohs('peak ' + rn(455e6 * OHF) + ' · ' + STR.up + ' streams · ' + pl(STR.up) + ' · 6.1 of 6.5 s known')
     }, {
       label: 'Idle latency',
       icon: 'activity',
@@ -6986,7 +7240,7 @@ class ResultDetail extends React.Component {
       num: BGF.ms(IDLE),
       unit: 'ms',
       nc: 'var(--fg)',
-      sub: 'min 2.4 · p90 4.1 ms · WebSocket · 0 % probe timeouts'
+      sub: 'min 2.4 · p90 4.1 ms · ' + idleSrc + ' · 0 % probe timeouts'
     }, {
       label: 'Jitter',
       icon: 'activity',
@@ -6996,23 +7250,37 @@ class ResultDetail extends React.Component {
       nc: 'var(--fg)',
       sub: 'mean of consecutive differences'
     }];
-    const loadRows = [{
+    const loadRows = [dnGap ? {
       icon: 'arrow-down',
       ic: 'var(--primary-text)',
-      label: 'During download · WebSocket',
-      sub: 'p90 24 · +15 ms vs idle',
+      label: 'During download · ' + gapSrc(dnGap),
+      sub: LLR[dnGap],
+      num: '—',
+      unit: ''
+    } : {
+      icon: 'arrow-down',
+      ic: 'var(--primary-text)',
+      label: 'During download · ' + src,
+      sub: 'p90 24 · +15' + vsIdle,
       num: '18',
       unit: 'ms'
     }];
-    if (!cont) loadRows.push({
+    if (!cont) loadRows.push(gapK ? {
       icon: 'arrow-up',
       ic: 'var(--series-upload)',
-      label: 'During upload · WebSocket',
-      sub: 'p90 55 · +39 ms vs idle',
+      label: 'During upload' + (gapSrc(gapK) ? ' · ' + gapSrc(gapK) : ''),
+      sub: LLR[gapK],
+      num: '—',
+      unit: ''
+    } : {
+      icon: 'arrow-up',
+      ic: 'var(--series-upload)',
+      label: 'During upload · ' + src,
+      sub: 'p90 55 · +39' + vsIdle,
       num: '42',
       unit: 'ms'
     });
-    const rpm = [{
+    const rpm = !Q ? [] : [{
       icon: 'arrow-down',
       ic: 'var(--series-download)',
       num: '1,420'
@@ -7027,8 +7295,8 @@ class ResultDetail extends React.Component {
       label: 'Confidence: normal',
       tone: 'ok'
     };
-    const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.');
-    const N_RESP = it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.');
+    const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', Q ? 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.' : 'Browsers can’t see packet loss over TCP, so BitGauge doesn’t report it.');
+    const N_RESP = Q ? [it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.')] : [];
     // Browser upload limit: any browser that paused between upload requests; always Firefox at ≥ 100 Mbit/s upload.
     const BUL = !cont && (PAUSES || BRW.name === 'Firefox' && D.up >= 100e6);
     const N_BUL = BUL ? [it('info', 'globe', BRW.name + ' may limit the upload', 'On fast links ' + BRW.name + '’s own upload path, not the network, can bound the upload number; the measurement is the server’s and stands. Compare with another browser on this device to tell the two apart.', {
@@ -7036,18 +7304,21 @@ class ResultDetail extends React.Component {
       href: '#'
     })] : [];
     const N_OH = OH ? [it('neutral', 'sliders', OH, 'Throughput is multiplied by ' + OHF.toFixed(OHP % 1 ? 4 : 2).replace(/0+$/, '') + '. The uncompensated values are kept in the JSON.')] : [];
+    // Same notice and sentences as the Test screen.
+    const N_FB = caps.loaded && src !== 'WebSocket' ? [it('info', 'info', 'WebSocket unavailable — HTTP latency fallback', wsClose ? 'The WebSocket closed after idle latency, so latency under load is measured with HTTP requests; the change vs idle compares the two paths.' : 'The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.')] : [];
+    const N_RSV = rsvOn ? [it('info', 'layers', 'HTTP/1.1 probe reservation active — 5 streams', STR.down === 5 ? 'One HTTP/1.1 connection is kept free for the latency probe, so throughput uses at most 5 streams.' : 'From the upload on, one HTTP/1.1 connection is kept free for the latency probe, so the upload uses at most 5 streams.')] : [];
     const confGroups = cont ? [{
       h: 'Confidence',
-      items: [it('ok', 'circle-check', 'Download reached the 6-stream cap', 'Warm-up ended by the guarded rule at 6.5 s and the window condition held. Level: normal.')]
+      items: [it('ok', 'circle-check', 'Download reached the ' + STR.down + '-stream cap', 'Warm-up ended by the guarded rule at 6.5 s and the window condition held. Level: normal.')]
     }, {
       h: 'Notices',
-      items: [it('neutral', 'database', 'Data used: ' + cUsed, 'Data-used notices appeared at 1 GB, 10 GB and 100 GB.'), it('neutral', 'circle-dashed', 'Upload not measured', 'Continuous runs one direction.'), N_LOSS, N_RESP].concat(N_OH)
+      items: [it('neutral', 'database', 'Data used: ' + cUsed, 'Data-used notices appeared at 1 GB, 10 GB and 100 GB.'), it('neutral', 'circle-dashed', 'Upload not measured', 'Continuous runs one direction.'), N_LOSS].concat(N_FB, N_RSV, N_RESP, N_OH)
     }] : [{
       h: 'Confidence',
-      items: [it('ok', 'circle-check', 'Both directions reached the 6-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 9.5 s (each upload ramp step waits for confirmation) — and the window condition held. Level: normal.'), it('info', 'info', '94 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 10.4–10.8 s is left out; the average uses known time only.')].concat(N_BUL)
+      items: [it('ok', 'circle-check', STR.down === STR.up ? 'Both directions reached the ' + STR.down + '-stream cap' : 'Download reached the ' + STR.down + '-stream cap, upload the ' + STR.up + '-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 9.5 s (each upload ramp step waits for confirmation) — and the window condition held. Level: normal.'), it('info', 'info', '94 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 10.4–10.8 s is left out; the average uses known time only.')].concat(N_BUL)
     }, {
       h: 'Notices',
-      items: [N_LOSS, N_RESP].concat(N_OH)
+      items: [N_LOSS].concat(N_FB, N_RSV, N_RESP, N_OH)
     }];
     const OHV = OH ? '+' + OHP + ' %' : 'None · 0 %';
     const P = (h, rows) => ({
@@ -7058,7 +7329,7 @@ class ResultDetail extends React.Component {
       }))
     });
     const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', BRW.name + ' ' + BRW.major + ' · ' + BRW.os], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
-    const params = cont ? [P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · 6 · plateau: cap']]), P('Limits', [['Run length', '2 h'], ['Stored cells', '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]), env] : [P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', 'Auto · 6 · plateau: cap']]), P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', '16.0 s · min 15 · max 25'], ['Data cap', 'Off · ' + sUsed.toFixed(2) + ' GB used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', 'HTTP/2']]), env];
+    const params = cont ? [P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · ' + STR.down + ' · ' + pl(STR.down)]]), P('Limits', [['Run length', '2 h'], ['Stored cells', '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]), env] : [P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', STR.down === STR.up ? 'Auto · ' + STR.down + ' · ' + pl(STR.down) : 'Auto · download ' + STR.down + ' · ' + pl(STR.down) + '; upload ' + STR.up + ' · ' + pl(STR.up)]]), P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', '16.0 s · min 15 · max 25'], ['Data cap', 'Off · ' + sUsed.toFixed(2) + ' GB used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]), env];
     // Share shows only where the browser can share files (the PNG goes to the system sheet).
     let canShare = false;
     try {
@@ -7107,6 +7378,8 @@ class ResultDetail extends React.Component {
       tiles,
       loadRows,
       rpm,
+      Q,
+      midCols: Q ? L.midCols : 'minmax(0,1fr)',
       rpmSub: cont ? 'round trips per minute, download only' : 'round trips per minute, one per direction',
       fit: SC ? [['Streaming', 'tv'], ['Gaming', 'gamepad'], ['Video calls', 'video']].map(([label, icon], i) => {
         const rating = SC.bands[i],
@@ -7274,34 +7547,56 @@ class ResultDetail extends React.Component {
           },
           packetLoss: 'not-measured'
         } : null;
+        // Loaded latency (§17): a value with its source (idleSource only when idle used another path), or the
+        // unavailable form with its reason. Responsiveness and scores are v0.3 keys.
+        const llJ = o => {
+          const idS = wsClose ? {
+            idleSource: 'websocket'
+          } : {};
+          if (o.ll) return Object.assign({
+            source: SJ[src]
+          }, idS, {
+            samples: o.lat.length,
+            skippedTicks: 0,
+            lost: 0,
+            medianMs: o.ll[0],
+            p90Ms: o.ll[1],
+            increaseMs: o.inc,
+            series: o.lat
+          });
+          const gs = gapSrc(o.gap);
+          return Object.assign({
+            status: 'unavailable',
+            reason: o.gap,
+            source: gs ? SJ[gs] : 'none'
+          }, idS, {
+            samples: UPSRC[o.gap][2],
+            skippedTicks: 0,
+            lost: 0
+          });
+        };
         const dir = o => Object.assign({
           status: 'measured',
           bitsPerSecond: Math.round(o.bps),
           peakBitsPerSecond: Math.round(o.peak),
           uncompensatedBitsPerSecond: Math.round(o.bps / OHF),
           windowMs: o.windowMs,
-          streams: 6,
+          streams: o.streams,
           plateau: 'cap',
           confidence: {
             level: 'normal',
             reasons: []
           },
           bytes: o.bytes,
-          loadedLatency: {
-            source: 'websocket',
-            samples: o.lat.length,
-            skippedTicks: 0,
-            medianMs: o.ll[0],
-            p90Ms: o.ll[1],
-            increaseMs: o.inc,
-            series: o.lat
-          },
+          loadedLatency: llJ(o)
+        }, Q ? {
           responsiveness: {
             state: 'measured',
             protocol: 'h2',
             samples: 18,
             rpm: o.rpm
-          },
+          }
+        } : {}, {
           series: {
             bucketMs: o.bucketMs,
             firstCellMs: o.wu,
@@ -7349,7 +7644,7 @@ class ResultDetail extends React.Component {
             pingCount: 20
           },
           idle: {
-            path: 'websocket',
+            path: SJ[idleSrc],
             lossPercent: 0,
             minMs: 2.4,
             medianMs: IDLE,
@@ -7367,6 +7662,7 @@ class ResultDetail extends React.Component {
               rttMs: r1(c.l)
             })),
             ll: LL.down,
+            streams: STR.down,
             inc: INC.down,
             agg: {
               minBitsPerSecond: Math.round(cMin),
@@ -7384,6 +7680,8 @@ class ResultDetail extends React.Component {
             bytes: SUSED.down,
             lat: latSer(S.dLat),
             ll: LL.down,
+            gap: dnGap,
+            streams: STR.down,
             inc: INC.down,
             rpm: 1420,
             bucketMs: 100,
@@ -7400,6 +7698,8 @@ class ResultDetail extends React.Component {
             bytes: SUSED.up,
             lat: latSer(S.uLat),
             ll: LL.up,
+            gap: gapK,
+            streams: STR.up,
             inc: INC.up,
             rpm: 980,
             bucketMs: 100,
@@ -7416,7 +7716,7 @@ class ResultDetail extends React.Component {
           }),
           bufferbloat: {
             grade,
-            basis: cont ? 'download' : 'download+upload',
+            basis: basisK,
             increaseMs: D.worst[1]
           },
           scores,
@@ -7427,11 +7727,15 @@ class ResultDetail extends React.Component {
           })) : []).concat(BUL ? [{
             code: 'browser-upload-limit',
             browser: BRW.name
+          }] : []).concat(rsvOn ? [{
+            code: 'probe-reservation',
+            streams: 5
           }] : []).concat(OHP ? [{
             code: 'overhead-compensation',
             percent: OHP
           }] : [])
         };
+        if (!Q) delete result.scores;
         // History export format with one entry (ui/screens.md §1), so it re-imports as is.
         const obj = {
           format: 'bitgauge.history',
@@ -7740,7 +8044,7 @@ class ResultDetail extends React.Component {
         xLabel: hl,
         wu: CWU,
         wuText: '0–0:07',
-        meta: ohs('2 h · 1 min cells · 6 streams'),
+        meta: ohs('2 h · 1 min cells · ' + STR.down + ' streams'),
         w: wide,
         h: m ? 150 : 190,
         span: m ? 'auto' : 'span 2',
@@ -7776,16 +8080,16 @@ class ResultDetail extends React.Component {
         icon: 'arrow-down',
         c: 'var(--series-download)',
         pts: dPts,
-        lat: dLat,
+        lat: dnGap ? null : dLat,
         xMax: 10,
         wu: DWU,
         wuText: '0–6.5 s',
-        meta: ohs('10 s · 6 streams'),
+        meta: ohs('10 s · ' + STR.down + ' streams'),
         w: cw,
         h: ch,
         span: sp,
         cols: TCOLS,
-        rows: winRows(dPts, dLat, DWU, dEnd),
+        rows: winRows(dPts, dnGap ? [] : dLat, DWU, dEnd),
         foot: tfoot('6.5')
       }), mk({
         key: 'up',
@@ -7793,17 +8097,17 @@ class ResultDetail extends React.Component {
         icon: 'arrow-up',
         c: 'var(--series-upload)',
         pts: uPts,
-        lat: uLat,
+        lat: gapK ? null : uLat,
         xMax: 16,
         wu: UWU,
         wuText: '0–9.5 s',
-        meta: ohs('16 s · 6 streams'),
+        meta: ohs('16 s · ' + STR.up + ' streams'),
         w: cw,
         h: ch,
         span: sp,
         gapLabel: 'No known data · failed request (10.4–10.8 s)',
         cols: TCOLS,
-        rows: winRows(uPts, uLat, UWU, uEnd),
+        rows: winRows(uPts, gapK ? [] : uLat, UWU, uEnd),
         foot: tfoot('9.5', ' The window ends at the confirmed watermark (16.0 s): 6.1 of 6.5 s known.')
       }), idle];
     }
@@ -8107,12 +8411,13 @@ class ResultDetail extends React.Component {
     })))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
-        gridTemplateColumns: v.L?.midCols,
+        gridTemplateColumns: v.midCols,
         gap: "var(--space-3)"
       }
     }, /*#__PURE__*/React.createElement(DS.LoadCard, {
       grade: v.grade,
-      gradeText: v.gradeWords + (v.gradeBasis ? ' · ' + v.gradeBasis : ''),
+      gradeText: v.gradeWords,
+      basis: v.gradeBasis,
       compact: v.mobile,
       rows: (v.loadRows || []).map(r => ({
         dir: r.icon === 'arrow-up' ? 'upload' : 'download',
@@ -8120,19 +8425,19 @@ class ResultDetail extends React.Component {
         sub: r.sub,
         value: r.num
       })),
-      responsiveness: {
+      responsiveness: v.Q ? {
         protocol: 'h2',
         note: v.rpmSub,
         dirs: (v.rpm || []).map(d => ({
           dir: d.icon === 'arrow-up' ? 'upload' : 'download',
           value: d.num
         }))
-      }
-    }), /*#__PURE__*/React.createElement(DS.QualityList, {
+      } : undefined
+    }), v.Q ? /*#__PURE__*/React.createElement(DS.QualityList, {
       packetLoss: true,
       compact: v.mobile,
       bands: (v.fit || []).map(f => f.rating || null)
-    })), /*#__PURE__*/React.createElement(DS.Card, {
+    }) : null), /*#__PURE__*/React.createElement(DS.Card, {
       as: "section",
       labelledBy: "conf-h",
       padded: false,
@@ -8933,11 +9238,16 @@ class Settings extends React.Component {
     });
   }
   renderVals() {
-    const s = this.state,
+    const s0 = this.state,
       m = this.on(this.props.mobile),
       PR = this.P(),
-      P = PR[s.preset],
       D = this.defaults();
+    // Before v0.3 Continuous is shown but not selectable; a saved Continuous preset reads as Standard.
+    const Q = !this.props.caps || !!this.props.caps.quality;
+    const s = !Q && s0.preset === 'continuous' ? Object.assign({}, s0, {
+        preset: 'standard'
+      }) : s0,
+      P = PR[s.preset];
     const isCont = s.preset === 'continuous',
       timed = !isCont;
     const set = o => this.setState(o);
@@ -9044,8 +9354,9 @@ class Settings extends React.Component {
     const presets = Object.keys(PR).map(k => {
       const p = PR[k],
         sel = k === s.preset,
+        off = !Q && k === 'continuous',
         pick = () => {
-          if (sel) return;
+          if (sel || off) return;
           if (k !== 'continuous' && (C.dl || C.ul)) set({
             keepAsk: k
           });else set({
@@ -9059,6 +9370,7 @@ class Settings extends React.Component {
         icon: p.icon,
         d: p.d,
         def: !!p.def,
+        off,
         pick,
         key: ev => {
           if (ev.key === 'Enter' || ev.key === ' ') {
@@ -9423,7 +9735,11 @@ class Settings extends React.Component {
       badge: p?.def ? /*#__PURE__*/React.createElement(DS.StatusPill, {
         size: "sm",
         dot: false
-      }, "Default") : null,
+      }, "Default") : p?.off ? /*#__PURE__*/React.createElement(DS.StatusPill, {
+        size: "sm",
+        dot: false
+      }, "v0.3") : null,
+      disabledReason: p?.off ? 'Arrives in v0.3' : undefined,
       onSelect: p?.pick
     }, p?.d)))), v.isCont ? /*#__PURE__*/React.createElement("div", {
       style: {
@@ -10533,14 +10849,20 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
  *   custom: boolean  (default false)
  *   units: "bits" | "bytes"  (default "bits")
  *   theme: "light" | "dark" | "system"  (default "system")
- *   caps: { history, settings, share, loaded, clients } — version scope from the Prototype (one source)
+ *   caps: { history, settings, share, loaded, clients, quality } — version scope from the Prototype (one source)
+ *   llGap: "none" | "no-steady-window" | "insufficient-samples" | "reservation-broken" | "no-probe-path"  (default "none")
+ *     — v0.2+: the upload direction's loaded latency has no value for this reason; the grade falls back to download
  *   server: string | null — server.display_name, null while GET /info fails (the host is shown instead)
  *   kept: boolean  (default false)
  *   share: boolean  (default false)
  *   label: string  (default "")
  *   tips: boolean  (default false)
  *   resp: "ok" | "uncertain" | "needs-h2" | "not-reported" | "few-samples"  (default "ok")
- *   probe: "auto" | "WebSocket" | "HTTP/2 probe" | "HTTP/1.1 reserved"  (default "auto")
+ *   probe: "auto" | "WebSocket" | "HTTP/2 probe" | "HTTP/3 probe" | "HTTP/1.1 reserved"  (default "auto") — the one
+ *     probe path for idle and loaded latency (measurement §10, §11); ws-fallback forces an HTTP source
+ *   wsClose: boolean  (default false) — v0.2+: the WebSocket closes after idle latency and cannot be reopened;
+ *     idle stays WebSocket, loaded samples come over the HTTP source from `probe`. On HTTP/1.1 the direction
+ *     already running (download) has no value ("HTTP/1.1 reservation not held"); upload runs with the reservation.
  *   errKind: "requests" | "unreachable" | "restarted" | "network"  (default "requests") — the Error state's cause
  *   (state "upload-interrupted" is separate: not an Error state, the run completes)
  *   overhead: boolean  (default false)
@@ -10630,11 +10952,13 @@ class TestScreen extends React.Component {
       settings: true,
       share: true,
       loaded: true,
-      clients: true
+      clients: true,
+      quality: true
     };
     const st = this.props.state || 'idle',
       bp = st === 'basepath',
-      v01 = !caps.history;
+      v01 = !caps.history,
+      Q = !!caps.quality;
     // Server name from GET /info; while it is unknown the page's host stands in. Never a hard-coded name.
     const SRV = this.props.server || BG.KIT.host;
     const eeDown = st === 'error-early' && !!this.state.eeDown,
@@ -10720,7 +11044,16 @@ class TestScreen extends React.Component {
     // No request has run yet: the protocol is read from a request. The auto stream count is known once the ramp starts.
     const preReq = ['idle', 'countdown', 'param-ignored', 'connecting'].includes(st);
     const preRamp = preReq || ['latency', 'cancelled-latency'].includes(st);
-    const src = this.props.probe && this.props.probe !== 'auto' ? this.props.probe : st === 'ws-fallback' ? 'HTTP/2 probe' : 'WebSocket';
+    // Latency source label: "WebSocket", "HTTP/1.1 reserved", "HTTP/2 probe" or "HTTP/3 probe". One probe path for idle
+    // and loaded latency (measurement §10, §11). ws-fallback: the WebSocket never opens, both run over HTTP.
+    // wsClose: the WebSocket closes after idle latency; idle stays WebSocket, loaded samples come over HTTP.
+    const PRB = this.props.probe,
+      httpSrc = PRB && PRB !== 'auto' && PRB !== 'WebSocket' ? PRB : 'HTTP/2 probe';
+    const wsClose = !!caps.loaded && !!this.props.wsClose && st !== 'ws-fallback';
+    const src = st === 'ws-fallback' || wsClose ? httpSrc : PRB && PRB !== 'auto' ? PRB : 'WebSocket';
+    const idleSrc = wsClose ? 'WebSocket' : src;
+    // HTTP/1.1 probe reservation (measurement §4, §11): one connection kept free, so the stream cap drops to 5.
+    const reserved = caps.loaded && src === 'HTTP/1.1 reserved';
     const lowLink = slow || st === 'insufficient';
 
     // ---- connection strip (context pill is editable)
@@ -10742,10 +11075,15 @@ class TestScreen extends React.Component {
         ctxOpen: label === 'Custom…'
       })
     }));
-    const streams = slow ? '2' : st === 'insufficient' && !custom ? '1' : custom ? '4' : '6',
+    const streams = slow ? '2' : st === 'insufficient' && !custom ? '1' : custom ? '4' : reserved ? '5' : '6',
       auto = slow || !custom;
     // Fast LAN (§19.4): 1 → 2 → 4 → 6 streams keep gaining, so the ramp stops at the cap. The slow link stops gaining at 2.
-    const plateau = auto ? ' · plateau: ' + (slow ? 'no-gain' : 'cap') : '';
+    const plateau = auto ? ' · plateau: ' + (slow ? 'no-gain' : streams === '5' ? 'HTTP/1.1 probe reservation' : 'cap') : '';
+    // Closed-after-idle on HTTP/1.1: the WebSocket closes during download, which keeps 6 streams; the probe reservation
+    // (5 streams) starts with upload. WebSocket never opened (no wsClose): 5 for both directions from the start.
+    const wsH1 = wsClose && reserved && streams === '5';
+    const streamsD = wsH1 ? '6' : streams,
+      plateauD = wsH1 ? auto ? ' · plateau: cap' : '' : plateau;
     const conn = [
     // Slow states read as a VPN link: a CGNAT address (100.64.0.0/10) is suggested as VPN; RFC 1918 would be LAN.
     {
@@ -10762,8 +11100,8 @@ class TestScreen extends React.Component {
       s: ''
     } : {
       k: 'Protocol',
-      v: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? '—' : 'HTTP/2',
-      s: RS === 'not-reported' ? 'not reported' : ''
+      v: reserved || RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? '—' : 'HTTP/2',
+      s: RS === 'not-reported' && !reserved ? 'not reported' : ''
     }, preRamp && auto ? {
       k: 'Streams',
       v: '—',
@@ -10881,7 +11219,7 @@ class TestScreen extends React.Component {
       p9: 4.1,
       jit: 0.8
     };
-    IDLE.sub = 'min ' + fms(IDLE.mn) + ' · p90 ' + fms(IDLE.p9) + ' ms · ' + src + ' · 0.0 % probe timeouts';
+    IDLE.sub = 'min ' + fms(IDLE.mn) + ' · p90 ' + fms(IDLE.p9) + ' ms · ' + idleSrc + ' · 0.0 % probe timeouts';
     const LATD = fms(IDLE.v) + ' ms';
     const latT = o => msT('Idle latency', 'activity', IDLE.v, IDLE.sub, o);
     const jitT = o => T(Object.assign({
@@ -10972,9 +11310,11 @@ class TestScreen extends React.Component {
         sub: o.sub || 'Pending',
         num: '—',
         unit: '',
-        nc: 'var(--fg-subtle)'
+        nc: 'var(--fg-subtle)',
+        v: null
       };
-      const sub = (o.p90 != null ? 'p90 ' + fms(o.p90) + ' · ' : '') + '+' + fms(v - IDLE.v) + ' ms vs idle' + (o.partial ? ' · partial' : '');
+      // Idle over the WebSocket, loaded over the HTTP fallback: the change names the idle path.
+      const sub = (o.p90 != null ? 'p90 ' + fms(o.p90) + ' · ' : '') + '+' + fms(v - IDLE.v) + ' ms vs idle' + (idleSrc !== src ? ' over ' + idleSrc : '') + (o.partial ? ' · partial' : '');
       return {
         icon: PI[k][1],
         ic: C[k],
@@ -10982,7 +11322,9 @@ class TestScreen extends React.Component {
         sub: o.sub || sub,
         num: fms(v),
         unit: 'ms',
-        nc: o.live ? 'var(--primary-text)' : 'var(--fg)'
+        nc: o.live ? 'var(--primary-text)' : 'var(--fg)',
+        v,
+        live: !!o.live
       };
     };
     // HTTP loaded responsiveness: one RPM per direction; no High/Low levels.
@@ -11209,7 +11551,7 @@ class TestScreen extends React.Component {
     const SD = BG.thr(11, 640e3, 10, 0.1, 0.22, 2.5),
       SDL = BG.lat(13, 48, 162, 10, 0.25, 0.25, 2);
     const DONE_D = rt('Download', 'arrow-down', C.down, 612e6, {
-      sub: 'peak ' + rn(641e6) + ' · ' + streams + ' streams' + plateau
+      sub: 'peak ' + rn(641e6) + ' · ' + streamsD + ' streams' + plateauD
     });
     const DONE_U = rt('Upload', 'arrow-up', C.up, 438e6, {
       sub: 'peak ' + rn(455e6) + ' · ' + streams + ' streams' + plateau
@@ -11534,6 +11876,7 @@ class TestScreen extends React.Component {
               label: '',
               chips: ['LAN', 'Home Wi-Fi', 'Office']
             },
+            dl: 612e6,
             share: {
               blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 438e6, C.up]],
               foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+39 ms under load', 'B · Mild bufferbloat'],
@@ -11616,6 +11959,7 @@ class TestScreen extends React.Component {
               label: '',
               chips: ['LAN', 'Home Wi-Fi', 'Office']
             },
+            dl: 612e6,
             share: {
               blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 402e6, C.up]],
               foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+37 ms under load', 'B · Mild bufferbloat'],
@@ -11672,7 +12016,7 @@ class TestScreen extends React.Component {
               sub: 'error · ' + EK[1]
             }), eUp('not run'), latT(), jitT()],
             load: load(null, [lrow('down', null, {
-              sub: 'not measured · download failed'
+              sub: 'no steady window · download failed'
             }), lrow('up', null, {
               sub: 'Not run'
             })], respB(null, null), 'Not graded — test incomplete'),
@@ -11835,7 +12179,7 @@ class TestScreen extends React.Component {
               p90: uLLc[1],
               partial: true
             })], respB(K.rpm[0], K.rpm[1])) : load(gD, [K.rowD, lrow('up', null, {
-              sub: 'no loaded latency · ' + (inWarm ? 'stopped in warm-up' : 'no steady window')
+              sub: 'no steady window' + (inWarm ? ' · stopped in warm-up' : '')
             })], respB(K.rpm[0], K.rpm[2]), BG.GRADES[gD].text + ' · download only'),
             fit: fit(aim(IDLE.v, IDLE.jit, K.dV, (part ? Math.max(K.dLL, uLLc[0]) : K.dLL) - IDLE.v)),
             fitBasis: part ? '' : 'download only',
@@ -11900,7 +12244,7 @@ class TestScreen extends React.Component {
               noEnd: true
             },
             prim: [eDown('not run'), eUp('not run'), latT(Object.assign({
-              sub: 'median of ' + k + ' pings · first of ' + n + ' discarded · ' + src
+              sub: 'median of ' + k + ' pings · first of ' + n + ' discarded · ' + idleSrc
             }, PT)), jitT(PT)],
             load: load(null, [lrow('down', null, {
               sub: 'Not run'
@@ -12234,6 +12578,7 @@ class TestScreen extends React.Component {
               label: 'VPN via 5G',
               chips: ['VPN', 'Mobile']
             },
+            dl: 640e3,
             share: {
               blocks: [['↓ DOWNLOAD', 640e3, C.down], ['↑ UPLOAD', 210e3, C.up]],
               foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+262 ms under load', 'D · High bufferbloat'],
@@ -12679,6 +13024,95 @@ class TestScreen extends React.Component {
         }
         break;
     }
+
+    // ---- v0.2 loaded latency (screens.md §1, measurement §11): reasons, basis, fallback notices.
+    const LLR = {
+      'no-steady-window': 'no steady window',
+      'insufficient-samples': 'fewer than 10 samples',
+      'reservation-broken': 'HTTP/1.1 reservation not held',
+      'no-probe-path': 'no latency probe'
+    };
+    const GAP = LLR[this.props.llGap];
+    if (caps.loaded && GAP && S.load && S.load.grade !== '—' && S.load.rows[1] && S.load.rows[1].v != null) {
+      // Demo: the upload direction ends without a loaded-latency value; the grade rests on download alone.
+      const r0 = S.load.rows[0],
+        di = r0.v - IDLE.v,
+        g = gradeOf(di),
+        gt = BG.GRADES[g].text,
+        inc = '+' + fms(di);
+      S.load = Object.assign(load(g, [r0, lrow('up', null, {
+        sub: GAP
+      })], S.load.resp, gt), {
+        basisK: 'download'
+      });
+      if (S.fit && S.dl) {
+        S.fit = fit(aim(IDLE.v, IDLE.jit, S.dl, di));
+        S.fitBasis = 'download only';
+      }
+      if (S.share) S.share = Object.assign({}, S.share, {
+        foot: [S.share.foot[0], S.share.foot[1], inc + ' ms under load', g + ' · ' + gt],
+        lines: [S.share.lines[0], S.share.lines[1], 'Loaded latency ' + inc + ' ms (download)', 'Bufferbloat ' + g + ' · ' + gt, S.share.lines[4]]
+      });
+    }
+    // wsClose on HTTP/1.1: download was running when the WebSocket closed, so its reservation was not held;
+    // upload is measured with the reservation and the grade rests on upload alone.
+    // wsH1: before upload starts the strip shows download's 6 streams and no reservation notice.
+    const upOn = (S.phases || []).some(x => x.phase === PK.up && (x.state === 'active' || x.state === 'done'));
+    const upDone = (S.phases || []).some(x => x.phase === PK.up && x.state === 'done');
+    if (wsH1) conn.forEach(c => {
+      if (c.k !== 'Streams' || c.v !== '5') return;
+      if (!upOn) {
+        c.v = '6';
+        c.s = c.s.replace(plateau, plateauD);
+      } else if (upDone) {
+        c.v = '6 · 5';
+        c.s = auto ? 'auto · download 6 · plateau: cap; upload 5 · plateau: HTTP/1.1 probe reservation' : 'fixed · download 6; upload 5';
+      }
+    });
+    if (wsClose && reserved && S.load && S.load.rows[0] && S.load.rows[0].v != null) {
+      const ru = S.load.rows[1],
+        rows = [lrow('down', null, {
+          sub: LLR['reservation-broken']
+        }), ru];
+      if (ru && ru.v != null && !ru.live) {
+        const di = ru.v - IDLE.v,
+          g = gradeOf(di),
+          gt = BG.GRADES[g].text,
+          inc = '+' + fms(di);
+        S.load = Object.assign(load(g, rows, S.load.resp, gt), {
+          basisK: 'upload'
+        });
+        if (S.fit && S.dl) S.fit = fit(aim(IDLE.v, IDLE.jit, S.dl, di));
+        if (S.share) S.share = Object.assign({}, S.share, {
+          foot: [S.share.foot[0], S.share.foot[1], inc + ' ms under load', g + ' · ' + gt],
+          lines: [S.share.lines[0], S.share.lines[1], 'Loaded latency ' + inc + ' ms (upload)', 'Bufferbloat ' + g + ' · ' + gt, S.share.lines[4]]
+        });
+      } else if (S.load.grade !== '—') S.load = load(null, rows, S.load.resp, 'Not graded — no loaded latency');else S.load = Object.assign({}, S.load, {
+        rows
+      });
+    }
+    if (S.load && S.load.grade !== '—') {
+      const DO = ' · download only',
+        has = S.load.rows.map(r => r.v != null && !r.live);
+      const bk = S.load.basisK || ((S.load.gText || '').endsWith(DO) ? 'download' : has[0] && has[1] ? 'download+upload' : has[1] ? 'upload' : 'download');
+      if ((S.load.gText || '').endsWith(DO)) S.load.gText = S.load.gText.slice(0, -DO.length);
+      S.load.basis = {
+        'download+upload': 'Basis: worse of download and upload',
+        download: 'Basis: download only',
+        upload: 'Basis: upload only'
+      }[bk];
+      S.load.inc = Math.max(...S.load.rows.filter(r => r.v != null).map(r => r.v - IDLE.v));
+    }
+    if (caps.loaded && !preRamp && !unreach && st !== 'error-early') {
+      const FB = 'WebSocket unavailable — HTTP latency fallback',
+        add = [];
+      if (src !== 'WebSocket' && !S.notices.some(n => n.title === FB)) add.push(N('info', 'info', FB, idleSrc === 'WebSocket' ? 'The WebSocket closed after idle latency, so latency under load is measured with HTTP requests; the change vs idle compares the two paths.' : 'The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.'));
+      if (reserved && (!wsH1 || upOn)) add.push(N('info', 'layers', 'HTTP/1.1 probe reservation active — 5 streams', wsH1 ? 'From the upload on, one HTTP/1.1 connection is kept free for the latency probe, so the upload uses at most 5 streams.' : 'One HTTP/1.1 connection is kept free for the latency probe, so throughput uses at most 5 streams.'));
+      S.notices = S.notices.concat(add);
+    }
+    // Before v0.3: no RPM and no quality scores.
+    if (!Q) S.fit = null;
+    if (!Q && S.load && !S.metaTitle) S.metaSpan = 'span 2';
     const tipO = on(this.props.tips) ? '1' : '';
     const kept = this.state.kept ?? on(this.props.kept);
     const label = this.state.label ?? (this.props.label || (S.saved ? S.saved.label : ''));
@@ -12888,6 +13322,7 @@ class TestScreen extends React.Component {
     const loadP = S.load ? {
       grade: S.load.grade === '—' ? null : S.load.grade,
       gradeText: S.load.gText,
+      basis: S.load.basis,
       compact: m,
       style: {
         gridColumn: L.loadSpan
@@ -12899,7 +13334,7 @@ class TestScreen extends React.Component {
         value: r.num === '—' ? null : r.num,
         live: r.nc === 'var(--primary-text)'
       })),
-      responsiveness: {
+      responsiveness: !Q ? undefined : {
         protocol: S.load.resp.proto,
         note: S.load.resp.note,
         tag: S.load.resp.tag || undefined,
@@ -12964,7 +13399,9 @@ class TestScreen extends React.Component {
     let sumMsg = '';
     if (S.sum) {
       const nt = S.sum.n || S.notices.map(n => n.title);
-      sumMsg = [SUMST[S.sum.st], S.sum.down + '.', S.sum.up + '.', 'Idle latency ' + sayMs(fms(IDLE.v)) + ', jitter ' + sayMs(fjit(IDLE.jit)) + '.', 'Data used ' + sayB(S.meta[0].value) + '.'].concat(nt.length ? [(nt.length > 1 ? 'Notices: ' : 'Notice: ') + nt.join(', ') + '.'] : []).join(' ');
+      // From v0.2 the loaded-latency increase and the grade follow idle latency (i18n-a11y §2.7).
+      const LD = caps.loaded && S.load && S.load.grade !== '—' ? ['Bufferbloat grade ' + S.load.grade + ', ' + (S.load.gText || '').toLowerCase() + ', plus ' + sayMs(fms(S.load.inc)) + ' under load.'] : [];
+      sumMsg = [SUMST[S.sum.st], S.sum.down + '.', S.sum.up + '.', 'Idle latency ' + sayMs(fms(IDLE.v)) + ', jitter ' + sayMs(fjit(IDLE.jit)) + '.'].concat(LD, ['Data used ' + sayB(S.meta[0].value) + '.']).concat(nt.length ? [(nt.length > 1 ? 'Notices: ' : 'Notice: ') + nt.join(', ') + '.'] : []).join(' ');
     }
     const bytesOnly = unit === 'bytes' && !on(this.props.custom);
     return {

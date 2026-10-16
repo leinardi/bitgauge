@@ -21,7 +21,17 @@ Component `Chart` (`components/charts/`; production uPlot with the same series a
 - Unknown upload cells and failure gaps are null gaps, never interpolated. A gap spans exactly its
   null cells (`[first null cell start, next known cell start)`); the series before it holds its last
   value to the gap start.
-- Gridlines `--chart-grid` (hairline), axis labels `--fg-subtle` mono tabular.
+- Gridlines `--chart-grid` (hairline), axis labels `--fg-subtle` mono tabular. Every value-axis label reads in the
+  unit the top label names, with the decimals that give the top value three significant digits ("0.25 … 1.00 Gbit/s").
+  ms axes (main and latency-under-load) do the same: the top label takes the value precision (whole ms from 10 ms, one
+  decimal below) and every tick takes its decimals: "3", "6", "9", "12 ms"; "1.0", "2.0", "3.0", "4.0 ms".
+- Phase labels sit right of their separator, mark labels left of their line, on the top row. A mark label that would
+  cross a phase label goes right of its line when it fits there, otherwise to a second row (`--chart-label-gap`,
+  `--chart-label-row`). One implementation, `placeTopLabels` in Chart.jsx, used by Chart and PhaseChart. Rows below the first are
+  `--chart-label-row` apart, or the measured label height when that is taller.
+- PhaseChart event chips use the same rules with the right of the line as their preferred side: the left when the right
+  crosses another chip or leaves the plot, else a further row. Rows are `--chart-label-row` apart, or the chip height
+  plus half the gap when that is taller.
 
 ## Throughput chart (Test, Result detail)
 

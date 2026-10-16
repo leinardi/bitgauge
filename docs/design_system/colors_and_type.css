@@ -477,6 +477,8 @@
     --chart-hatch-angle: 135deg; /* @kind other */
     --chart-hatch-pitch: 6px;
     --chart-label-anchor: -75%; /* @kind other */  /* axis / mark label vertical anchor */
+    --chart-label-gap: 6px;                         /* phase / mark label offset from its line */
+    --chart-label-row: 12px;                        /* top-row label pitch: row 1 at plot top + 12, row 2 + 24 */
     --gauge-tick-anchor: -80%; /* @kind other */   /* Gauge tick label vertical anchor */
     --legend-swatch-w: 14px;
     --legend-swatch-h: 10px;

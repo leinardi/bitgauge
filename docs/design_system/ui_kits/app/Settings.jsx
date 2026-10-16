@@ -88,7 +88,10 @@ class Settings extends React.Component {
   resetOv(keys, extra) { this.setState(s => { const ov = Object.assign({}, s.ov), drafts = Object.assign({}, s.drafts), err = Object.assign({}, s.err); keys.forEach(k => { delete ov[k]; delete drafts[k]; delete err[k]; }); return Object.assign({ ov, drafts, err }, extra || {}); }); }
 
   renderVals() {
-    const s = this.state, m = this.on(this.props.mobile), PR = this.P(), P = PR[s.preset], D = this.defaults();
+    const s0 = this.state, m = this.on(this.props.mobile), PR = this.P(), D = this.defaults();
+    // Before v0.3 Continuous is shown but not selectable; a saved Continuous preset reads as Standard.
+    const Q = !this.props.caps || !!this.props.caps.quality;
+    const s = !Q && s0.preset === 'continuous' ? Object.assign({}, s0, { preset: 'standard' }) : s0, P = PR[s.preset];
     const isCont = s.preset === 'continuous', timed = !isCont;
     const set = o => this.setState(o);
     const sm = s.ov.streams || P.streams, pn = P.n || 3, n = s.ov.n != null ? s.ov.n : pn;
@@ -138,8 +141,8 @@ class Settings extends React.Component {
     const url = 'https://speed.home.lan/' + (q.length ? '?' + q.join('&') : '');
 
     const presets = Object.keys(PR).map(k => {
-      const p = PR[k], sel = k === s.preset, pick = () => { if (sel) return; if (k !== 'continuous' && (C.dl || C.ul)) set({ keepAsk: k }); else set({ preset: k, drafts: {}, err: {} }); };
-      return { t: p.t, icon: p.icon, d: p.d, def: !!p.def, pick, key: ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } }, aria: sel ? 'true' : 'false', bd: sel ? 'var(--primary-border)' : 'var(--border-default)', bg: sel ? 'var(--primary-bg)' : 'var(--surface-1)', ic: sel ? 'var(--primary-text)' : 'var(--fg-subtle)', ring: sel ? '5px solid var(--primary)' : '1.5px solid var(--border-strong)', dot: sel ? 'var(--surface-2)' : 'transparent' };
+      const p = PR[k], sel = k === s.preset, off = !Q && k === 'continuous', pick = () => { if (sel || off) return; if (k !== 'continuous' && (C.dl || C.ul)) set({ keepAsk: k }); else set({ preset: k, drafts: {}, err: {} }); };
+      return { t: p.t, icon: p.icon, d: p.d, def: !!p.def, off, pick, key: ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } }, aria: sel ? 'true' : 'false', bd: sel ? 'var(--primary-border)' : 'var(--border-default)', bg: sel ? 'var(--primary-bg)' : 'var(--surface-1)', ic: sel ? 'var(--primary-text)' : 'var(--fg-subtle)', ring: sel ? '5px solid var(--primary)' : '1.5px solid var(--border-strong)', dot: sel ? 'var(--surface-2)' : 'transparent' };
     });
     const onCount = Object.values(phOn).filter(Boolean).length;
     const phases = [['latency', 'Latency', 'activity', 'var(--series-latency)'], ['download', 'Download', 'arrow-down', 'var(--series-download)'], ['upload', 'Upload', 'arrow-up', 'var(--series-upload)']].map(([k, t, icon, c]) => {
@@ -232,7 +235,7 @@ class Settings extends React.Component {
                 <div role="radiogroup" aria-labelledby="s-preset" style={{ display: "grid", gridTemplateColumns: v.L?.presetCols, gap: "var(--space-2-5)" }}>
                   {(v.presets || []).map((p, $index) => (
                     <React.Fragment key={$index}>
-                      <DS.ChoiceCard selected={p?.aria === 'true' || p?.aria === true} icon={p?.icon} title={p?.t} badge={p?.def ? <DS.StatusPill size="sm" dot={false}>Default</DS.StatusPill> : null} onSelect={p?.pick}>{p?.d}</DS.ChoiceCard>
+                      <DS.ChoiceCard selected={p?.aria === 'true' || p?.aria === true} icon={p?.icon} title={p?.t} badge={p?.def ? <DS.StatusPill size="sm" dot={false}>Default</DS.StatusPill> : p?.off ? <DS.StatusPill size="sm" dot={false}>v0.3</DS.StatusPill> : null} disabledReason={p?.off ? 'Arrives in v0.3' : undefined} onSelect={p?.pick}>{p?.d}</DS.ChoiceCard>
                     </React.Fragment>
                   ))}
                 </div>

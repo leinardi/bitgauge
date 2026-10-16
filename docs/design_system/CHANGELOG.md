@@ -1,3 +1,86 @@
+# Changelog
+
+## Chart follow-ups (2026-10-16)
+
+`components/charts/`; `features/` was not edited.
+
+- **ms axes in one precision:** every tick on a ms axis (Chart's main axis and the latency-under-load axis) takes the
+  top label's decimals, the top label following screens.md §6: "3", "6", "9", "12 ms"; "1.0", "2.0", "3.0", "4.0 ms".
+  Previously each tick was formatted on its own ("3.0 … 12 ms") and the latency axis always rounded to whole ms.
+- **PhaseChart on Chart's placement rules:** placement moved into `placeTopLabels` (Chart.jsx), used by both. Event
+  chips keep their preferred side (right of the line), take the left when the right is crossed or leaves the plot, else
+  a further row. Offsets are `--chart-label-gap` (was a literal 4px) and `--chart-label-row`; rows grow to the chip
+  height plus half the gap when chips are taller than the row token (was a literal 18px). Chip sizes are measured after
+  render. Chart mark labels now also check that their preferred side stays inside the plot, and a second-row mark label sits
+  one label height (or `--chart-label-row`, if taller) below row 1, so it no longer reaches into the phase label above.
+
+---
+
+## Chart corrections (2026-10-16)
+
+`components/charts/Chart.jsx`; `features/` was not edited.
+
+- **Value labels in one unit:** `chartGeometry` formatted each y tick with its own `Format.rate` unit while only the
+  top label named one, so an axis up to 1 Gbit/s read "250", "500", "750", "1.00 Gbit/s". Every tick now reads in the
+  top label's unit with the top value's decimals (three significant digits): "0.25", "0.50", "0.75", "1.00 Gbit/s";
+  "200" … "800 Mbit/s" is unchanged (principles.md, honest numbers). Latency (ms) axes unchanged.
+- **Mark label over a phase label:** a mark label that would cross a phase label on the top row now goes right of its
+  line when it fits there, else to a second row; the Cancelled state's "Upload" / "Cancelled" no longer overlap.
+  Label widths are measured after render (estimate on the first). New tokens `--chart-label-gap` 6px and
+  `--chart-label-row` 12px replace the literal 6 / 12 offsets (same values); `.chart-lb .mk.r` for right-placed labels.
+
+---
+
+## v0.2 version scope for the app kit (2026-10-16)
+
+Adds a v0.2 scope between v0.1 and v0.3. Source of truth: `features/ui/screens.md`, `features/measurement.md`
+and the scope brief (`features/roadmap.md` is not in this project, so §1.2 / §1.3 could not be read directly).
+`features/` was not edited.
+
+- **Prototype:** `caps()` defaults to v0.2 and adds `quality` (v0.3: RPM, quality scores, Continuous);
+  `clients` stays v0.3. `caps` now also goes to History, Result detail and Settings.
+- **Demo panel (App):** the "v0.1 scope" checkbox is now a **Scope** control (v0.1 / v0.2 / v0.3, default
+  v0.2). Outside v0.3 it hides the `continuous`, `cont-warmup`, `cont-done` Force-state entries, the Continuous
+  scenario, Responsiveness and the Result-detail Kind; no state or variant name changed. Latency probe gains
+  "HTTP/3 probe"; new "Upload loaded lat." select forces a no-value reason (v0.2+).
+- **Components:** `LoadCard` takes `basis` and renders the RPM part only when `responsiveness` is passed;
+  `ChoiceCard` takes `disabledReason` (aria-disabled, tooltip). CSS in tokens only (`.grade-b`,
+  `.choice[aria-disabled]`).
+- **Test screen:** grade with words and basis; per-direction loaded latency (median, p90, change vs idle, "over
+  WebSocket" when idle used the WebSocket and load the HTTP fallback) or its reason ("no steady window",
+  "fewer than 10 samples", "HTTP/1.1 reservation not held", "no latency probe"); source labels WebSocket /
+  HTTP/1.1 reserved / HTTP/2 probe / HTTP/3 probe. HTTP/1.1 reserved: 5 streams, HTTP/1.1, and the info notice
+  "HTTP/1.1 probe reservation active — 5 streams" next to the fallback notice. No RPM, no QualityList before
+  v0.3. The screen-reader summary adds grade and loaded-latency increase from v0.2.
+- **Result detail:** same LoadCard rules; no QualityList, no responsiveness notice and no Continuous kind before
+  v0.3. JSON: `loadedLatency` with `lost` and `idleSource` (only when it differs), or the `unavailable` form
+  with its reason; `bufferbloat.basis` follows the directions graded; no `responsiveness` or `scores` keys
+  before v0.3; `schemaVersion` 1.
+- **History:** Compare drops the HTTP loaded responsiveness row before v0.3.
+- **Settings:** before v0.3 the Continuous card is disabled with a "v0.3" badge and the tooltip "Arrives in
+  v0.3"; run length and direction stay hidden.
+- `ui_kits/app/README.md`: "Version scope" section.
+- **Latency paths (correction, measurement §10–§11):** Latency probe sets the one path for idle and loaded
+  latency; ws-fallback runs both over HTTP (idle tile labelled with the HTTP source, change line "vs idle"
+  without qualifier). New Demo checkbox **"WebSocket closes after idle latency"** (v0.2+): idle stays WebSocket,
+  loaded rows use the HTTP source from Latency probe (WebSocket/auto → HTTP/2 probe) and read "vs idle over
+  WebSocket", with the fallback notice. On HTTP/1.1 the download row is unavailable ("HTTP/1.1 reservation not
+  held"), upload is measured with the reservation and the grade's basis is upload only.
+- **Result detail follows the same two controls:** idle tile path, loaded row source labels and change lines,
+  the fallback notice under Notices, and JSON (`idle.path`, `loadedLatency.source` from the probe control incl.
+  `http-h3`; `idleSource` only when the WebSocket closed after idle). HTTP/1.1 + checkbox: download
+  `unavailable` / `reservation-broken`, upload measured, `bufferbloat.basis` "upload".
+- **Result detail on HTTP/1.1 (probe reservation):** stream counts as saved — 5 streams, plateau "HTTP/1.1 probe
+  reservation" in Test parameters, tile lines, chart meta and JSON `streams`; Protocol HTTP/1.1; info notice
+  "HTTP/1.1 probe reservation active — 5 streams" after the fallback notice; JSON notice
+  `{ code: "probe-reservation", streams: 5 }`. Closed-after-idle: download keeps 6, upload 5.
+- **Test screen, closed-after-idle on HTTP/1.1:** connection strip shows 6 streams during download and 5 from
+  upload; the probe-reservation notice appears when upload starts; done state reads "6 · 5" (download 6 · plateau:
+  cap; upload 5 · plateau: HTTP/1.1 probe reservation) and the download tile 6 streams. The 5-stream plateau reason
+  reads "HTTP/1.1 probe reservation" in both HTTP/1.1 cases.
+
+---
+
 # Changelog — atomic-design structure audit (2026-10-14)
 
 Layering after this change: **tokens** (`colors_and_type.css`) → **base** (`base.css`) → **components**

@@ -3,6 +3,7 @@
  *   variant: "populated" | "select3" | "deleted" | "compare" | "confirm" | "export" | "daterange" | "loading" | "nomatch" | "empty" | "unavailable" | "importing" | "importresult" | "importerror" | "safari"  (default "populated")
  *   mobile: boolean  (default false)
  *   whyOpen: boolean  (default false)
+ *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM row in Compare)
  */
 class History extends React.Component {
   state = { why: null };
@@ -12,6 +13,7 @@ class History extends React.Component {
     const v = this.props.variant || 'populated';
     const is = k => v === k;
     const BG = window.BG;
+    const Q = !this.props.caps || !!this.props.caps.quality;
     const L = m ? { pad: 'var(--space-4) var(--space-4) var(--space-6)', gap: 'var(--space-3-5)', h1: 'var(--text-3xl)', chipWrap: 'nowrap', filterML: '0', legendML: '0', cardPad: '14px', trendCols: 'minmax(0,1fr)', tw: 311, th: 120, thpx: '120px', tL: '12px', tR: '12px', tB: '76px', cfAlign: 'flex-end', cfTop: '0', cfW: '100%', cfRad: 'var(--radius-xl) var(--radius-xl) 0 0' }
       : { pad: 'var(--space-6) var(--space-10) var(--space-12)', gap: 'var(--space-4-5)', h1: 'var(--text-4xl)', chipWrap: 'wrap', filterML: 'auto', legendML: 'auto', cardPad: '16px 20px', trendCols: 'repeat(3, minmax(0,1fr))', tw: 340, th: 130, thpx: '130px', tL: 'auto', tR: '24px', tB: '24px', cfAlign: 'flex-start', cfTop: '140px', cfW: '460px', cfRad: 'var(--radius-xl)' };
     const empty = is('empty'), unavail = is('unavailable'), loading = is('loading'), nomatch = is('nomatch'), deleted = is('deleted');
@@ -85,9 +87,10 @@ class History extends React.Component {
       ['Download', '233 Mbit/s', '241 Mbit/s', '+3.4%', 'better'], ['Upload', '187 Mbit/s', '198 Mbit/s', '+5.9%', 'better'],
       ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'],
       ['Loaded latency · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Loaded latency · upload', '58 ms', '71 ms', '+13 ms', 'worse'],
-      ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms'],
+      ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms']
+    ].concat(Q ? [
       ['HTTP loaded responsiveness — connection sharing not verifiable', '980 RPM · HTTP/2', 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', '', 'differs', 'not comparable']
-    ].map(([k, a, b, d, w, dw]) => Object.assign({ k, a, b }, ch(d, w, dw)));
+    ] : []).map(([k, a, b, d, w, dw]) => Object.assign({ k, a, b }, ch(d, w, dw)));
     const cmpWarn = params.filter(p => p.crit).map(p => `different ${p.k.toLowerCase()} (${p.a} vs ${p.b})`).join('; ');
     const cmpRows = [{ head: true, row: false, k: 'Parameters' }, ...params.map(p => Object.assign({ head: false, row: true }, p)), { head: true, row: false, k: 'Results' }, ...metrics.map(p => Object.assign({ head: false, row: true }, p))];
     const cmpCards = [

@@ -42,6 +42,7 @@
 .grade-strip > span.on.warn { background: var(--warn-bg); color: var(--grade-fair); }
 .grade-strip > span.on.danger { background: var(--danger-bg); color: var(--grade-poor); }
 .grade-t { font-size: var(--text-caption); color: var(--fg-muted); line-height: var(--lh-snug); }
+.grade-b { font-size: var(--text-micro); color: var(--fg-muted); line-height: var(--lh-snug); text-wrap: pretty; }
 
 .load { display: flex; flex-direction: row; flex-wrap: wrap; gap: var(--space-4) var(--space-5); min-width: 0; }
 .load-g { flex: 1 0 var(--layout-grade-basis); max-width: var(--layout-grade-max); display: flex; flex-direction: column; gap: var(--space-2); }

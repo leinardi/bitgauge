@@ -35,9 +35,28 @@ Centred in the top bar (on mobile, a compact "Demo" pill left of the theme butto
 picks the run scenario (normal, error, slow, autostart, continuous) and speed, switches between the
 desktop and 390 px mobile frame, and forces the states the product only reaches through real
 conditions: every Test-screen state (offline, base-path mismatch, WebSocket fallback, insufficient
-data, URL parameter ignored, Continuous…), units, v0.1 scope, error kind, latency probe, HTTP
-responsiveness state, every History variant, Result-detail states, Settings states and About's
-compatibility layers. Its values persist in `localStorage`.
+data, URL parameter ignored, Continuous…), version scope, error kind, latency probe, the upload's
+loaded-latency outcome, HTTP responsiveness state (v0.3), every History variant, Result-detail states, Settings
+states and About's compatibility layers. Its values persist in `localStorage`.
+
+## Version scope
+
+**Scope** in the Demo panel's View section picks the version the prototype shows (default v0.2). It feeds
+`caps()` in `Prototype.jsx`; every screen and the navigation read the scope from `caps` only.
+
+- **v0.1** — Test screen only: download, upload, idle latency, jitter, data used, the packet-loss
+  "not measured" slot; the only result action is Download JSON. History, Result detail and Settings render
+  "Not available in this version"; About has no snippets.
+- **v0.2** — adds history (list, filters, trend, compare, export, import), Result detail, Settings with the
+  shareable link, share image and copy summary, loaded latency per direction with the bufferbloat grade and
+  its basis, and the HTTP/1.1 probe-reservation notice. The LoadCard has no RPM part; there is no QualityList;
+  the Continuous preset is shown disabled with a "v0.3" badge.
+- **v0.3** — adds HTTP loaded responsiveness (RPM), quality scores (streaming, gaming, video calls), the
+  Continuous preset and its states (`continuous`, `cont-warmup`, `cont-done`), and the other-client snippets
+  on About.
+
+The packet-loss "not measured" slot is in every version. Demo entries a version cannot reach (Continuous
+scenario and Force-state entries, Responsiveness, Result-detail Kind) are hidden, not renamed.
 
 ## Files
 
@@ -70,7 +89,7 @@ components: `renderVals()` computes the props, `render()` composes components ov
 | StartButton | Button size=lg | One button that changes role: Start, Stop, Run again, Retry, Start now. Shows a kbd hint on desktop; full width, 52 px, on mobile. |
 | ThroughputChart | uPlot | Throughput series, optional latency-under-load on a second y-axis, null gaps for unknown upload cells, a now line, and phase separators and event marks (lost, cancelled, cap, extended) drawn via hooks. |
 | MetricTile | Card | States: empty (—), live, done, partial, incomplete, low confidence. |
-| LoadCard | Card + GradeBadge | Bufferbloat grade (A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe) with an A+–F scale strip, loaded latency for down/up with change vs idle, and RPM. |
+| LoadCard | Card + GradeBadge | Bufferbloat grade (A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe) with an A+–F scale strip and its basis, loaded latency for down/up with change vs idle (or the reason there is none), and RPM (v0.3). |
 | QualityList | Badge | Streaming, Gaming, Video calls → Great, Good, Average, Poor or Bad (AIM point tables, measurement §13: Streaming = latency, packet loss, download, loaded-latency increase; Gaming = latency, packet loss, loaded-latency increase; Video calls = latency, jitter, packet loss, loaded-latency increase). Upload is not an input. Each rating has an icon and text. |
 | NotMeasured | Badge (outline, dashed) | Placeholder for packet loss; the tooltip explains it is not measured (fixed at 0 points in the quality scores). |
 | Notice | Alert | info, warn, danger or neutral, with up to two actions. Danger uses role="alert". |

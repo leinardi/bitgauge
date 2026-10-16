@@ -107,9 +107,12 @@ class About extends React.Component {
           </div>
           <aside style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", minWidth: 0 }}>
             <DS.Card padded={false}>
-              <div style={{ padding: "var(--space-4-5) var(--space-4) var(--space-3-5)", display: "flex", flexDirection: "column", gap: "var(--space-0-5)", borderBottom: "1px solid var(--border-subtle)" }}>
-                <DS.Logo size={40} wordmark />
-                <span className="ds-caption" style={{ paddingLeft: "calc(40px + var(--space-3))" }}>Self-hosted network speed test</span>
+              <div style={{ padding: "var(--space-4-5) var(--space-4) var(--space-3-5)", display: "flex", alignItems: "center", gap: "var(--space-3)", borderBottom: "1px solid var(--border-subtle)" }}>
+                <DS.Logo size={40} decorative />
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-0-5)", minWidth: 0 }}>
+                  <span className="wm xl" style={{ gap: 0 }}><span>Bit<span className="g">Gauge</span></span></span>
+                  <span className="ds-caption">Self-hosted network speed test</span>
+                </div>
               </div>
               <div style={{ padding: "var(--space-1) var(--space-4) var(--space-2)" }}><DS.MetaList facts rows={v.facts} /></div>
               <div style={{ padding: "var(--space-2) var(--space-4) var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
