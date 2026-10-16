@@ -193,3 +193,13 @@ the export shows, and what it should show, with the reason; behavior comes from
   warm-up's cap, so the upload carries `confidence: low` (`insufficient-samples`), as
   [measurement.md §19.1](../features/measurement.md#191-slow-link-budget-300-kbits-300-ms-rtt-standard)
   works out, and the demo's slow link reports it.
+
+### The Upload-Interrupted Alert's Deployment Guide Link
+
+- **Source:** triage cluster `content-upload-interrupted-alert`, decided for the kit's body with
+  Vue's link kept.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the notice of the `upload-interrupted` state.
+- **Export today:** the alert's body with no action.
+- **Wanted:** a "Deployment guide" link after the body, as the other deployment notices carry.
+- **Why:** the hint asks for HTTP/2 at the proxy, which the deployment guide explains how to set
+  up.
