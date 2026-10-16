@@ -94,7 +94,12 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    "Latency and download completed. Upload stopped at 14.0 s; in-flight requests were aborted,
    and the 21 requests confirmed by 13.1 s give the partial value.", "Latency completed. Download
    stopped before a 3 s steady window, so it has no value. Upload did not run." The upload's
-   times are on its phase timeline from P_start, as its chart and events are.
+   times are on its phase timeline from P_start, as its chart and events are. A stop during idle
+   latency that keeps its samples gets the stop notice too, though no direction stopped and the
+   result carries no `stopped-early` notice for it: titled "Test cancelled during latency", its
+   body counts the pings sent and the warm-up ping and names the phases that did not run:
+   "Stopped after 12 of 20 pings. The first is a warm-up sample, so idle latency and jitter come
+   from the other 11; download and upload did not run."
 5. The partial result is **not** saved automatically. The screen offers **Keep in history**, which
    saves it with status `partial` (with an undo toast), and Download JSON.
    - **Branch: the user leaves or runs again without keeping it.** The result is discarded.
