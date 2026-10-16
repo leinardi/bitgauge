@@ -237,3 +237,25 @@ the export shows, and what it should show, with the reason; behavior comes from
 - **Why:** the spec's term is starting automatically
   ([flows.md §2](../features/ui/flows.md#2-auto-run-from-url)); "autostart" is not a setting the
   product has.
+
+### No Result Status Bar When No Phase Finished
+
+- **Source:** triage cluster `behavior-error-early-result-bar`, decided for the spec.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the result status bar of the `error-early` state.
+- **Export today:** "Partial results are not saved / Download the JSON to keep them." after an
+  error in idle latency, with no phase finished.
+- **Wanted:** no result status bar: the alert and the failed tiles say what happened.
+- **Why:** with no phase completed there is nothing to keep or download
+  ([flows.md §5](../features/ui/flows.md#5-error-mid-test), step 4).
+
+### The Early Error Once the Server Is Gone
+
+- **Source:** triage cluster `behavior-error-early-offline`, decided for the spec on 2026-10-16.
+- **Kit:** `ui_kits/app/TestScreen.jsx` and `Prototype.jsx`, the `error-early` state.
+- **Export today:** the header reads unreachable, while the strip keeps the client and its
+  context and Retry stays enabled.
+- **Wanted:** once the re-check of `GET /info` fails, the offline state's treatment: the "Server
+  unreachable" notice with the next check, the strip and context without the client, Retry
+  disabled with "Server unreachable — use Retry first", and the header announcing the change.
+- **Why:** [screens.md §1](../features/ui/screens.md#1-test-home--)'s Offline/retry row applies
+  whenever `GET /info` fails: Start stays disabled until it succeeds.
