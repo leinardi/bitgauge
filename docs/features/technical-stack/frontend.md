@@ -244,8 +244,9 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   lose each request with a probability, fail every request from an instant, restart (a new epoch
   from an instant; the WebSocket closes with 1001 while requests in flight drain, as a graceful
   shutdown lets them) or become unreachable (requests in flight fail, the WebSocket closes with
-  1006, nothing answers). Every random draw comes from one seeded generator, seeded by the run's
-  number in its scenario, so a scenario plays the same way each time.
+  1006, nothing answers, and once the run has ended on it the page's `GET /info` fails too).
+  Every random draw comes from one seeded generator, seeded by the run's number in its scenario,
+  so a scenario plays the same way each time.
 - **Demo clock** (`demo/clock.ts`): the wiring's clock run `speed` times faster; optionally a
   coarser timer, to whose multiples every reading is floored and which is reported as the
   resolution, not cross-origin isolated; optionally a busy share of 95 %, above the CPU-bound

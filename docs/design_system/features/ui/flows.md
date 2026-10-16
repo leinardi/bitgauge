@@ -109,7 +109,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 2. The engine stops and emits an `error` event with the phase and whether partial results exist.
    - **Branch: server restarted** (new epoch): `server restarted`; the current phase reports
      nothing.
-   - **Branch: network changed:** `network changed`.
+   - **Branch: network changed:** `network changed`. The page checks `GET /info` again, as after
+     `server unreachable`, so the header shows whether the server still answers.
    - **Branch: server unreachable:** `server unreachable` with Retry. That is the server not
      answering as the run starts, or losing every idle-latency ping; a server that stops answering
      mid-run also closes the WebSocket, which ends the run as `network changed`
