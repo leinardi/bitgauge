@@ -615,11 +615,15 @@ trips the formula already allows for.
    is active (§11), and further lowered by the **floor rule**: a trial to *N* streams is skipped
    (plateau reason `floor-limited`) when the projected per-stream rate `L / N` would make the
    minimum 16 KiB request take longer than `2 × target` (2 s), i.e. when `L / N < 8 KiB/s`. `L`,
-   the link the step showed, is the larger of `T_base` and the highest `rate_s` (§3) among the
+   the link the step showed, is the larger of `T_base` and the sum of `rate_s` (§3) over the
    current streams' last completed requests. `T_base` alone understates the link when streams
    idle between requests: one stream over a 600 ms round trip moves bytes for under half of each
    request cycle, so on a 300 kbit/s link its aggregate read ≈ 104 kbit/s while its own transfers
-   ran at ≈ 237 kbit/s. `rate_s` alone understates it when streams overlap, each seeing a share.
+   ran at ≈ 237 kbit/s. One stream's `rate_s` alone understates it when streams overlap, each
+   seeing a share: two partly overlapping streams on that link read ≈ 177 kbit/s together and
+   ≈ 234 kbit/s each at most, which would skip a trial to 4 that gives each ≈ 9 KiB/s. The sum
+   overstates the link only when streams take turns, by at most their count; the trial then shows
+   no gain and the ramp plateaus `no-gain`, which costs time, never a number.
    Wait `I_s` (the new streams settle), then measure `T_trial` over `I_m`.
 3. **Compare.** If `T_trial ≥ 1.05 × T_base`, the trial is kept, `T_base := T_trial`, and the next
    trial starts. Otherwise the ramp **plateaus**: no further trials, the stream count stays where it
