@@ -83,6 +83,19 @@ describe('the throughput chart', () => {
     expect(document.querySelector('.uplot')).toBeNull()
   })
 
+  it('keeps the planned time axis for a run that stopped, and ends a finished run where it did', async () => {
+    const download = live({ values: [1_176_250, 1_176_250], warmupEnd: 1 })
+    const labels = (wrapper: ReturnType<typeof chart>) => wrapper.findAll('[aria-hidden="true"] > span').map((label) => label.text())
+    const stopped = chart({ order: ['download'], live: { download, upload: null }, state: 'stopped' })
+    await flushPromises()
+    expect(labels(stopped)).toContain('10s')
+    stopped.unmount()
+    const done = chart({ order: ['download'], live: { download, upload: null }, state: 'done' })
+    await flushPromises()
+    expect(labels(done)).not.toContain('10s')
+    done.unmount()
+  })
+
   it('cross-fades a new phase from a painted faded frame, which reduced motion turns off', async () => {
     const frames: FrameRequestCallback[] = []
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => frames.push(callback))

@@ -87,8 +87,9 @@ const shown = computed(() => props.order.filter((direction) => props.live[direct
 
 const display = (bitsPerSecond: number) => (props.units === 'bits' ? bitsPerSecond : bitsPerSecond / 8)
 
-// The time axis runs to the end of the phase under way at its minimum duration, as far as the run
-// has gone, or to where the run ended; the value axis to a round number over the largest value.
+// The time axis runs to the end of the phase under way at its minimum duration, or as far as the run
+// has gone: a run that stopped keeps the axis it had, so its mark sits where the phase stopped, and
+// a run that finished ends where it did. The value axis runs to a round number over the largest value.
 const ends = computed(() => {
   const minimum = (direction: Direction) => (props.durations?.[direction].minMs ?? 0) / 1000
   if (empty.value) {
@@ -96,7 +97,7 @@ const ends = computed(() => {
     return { xMax: planned, yMax: display(EMPTY_TOP_BPS) }
   }
   const current = shown.value.at(-1)
-  const phaseEnd = running.value && current !== undefined ? (model.value.separators.at(-1) ?? 0) + minimum(current) : 0
+  const phaseEnd = props.state !== 'done' && current !== undefined ? (model.value.separators.at(-1) ?? 0) + minimum(current) : 0
   const [, download, received, sending] = data.value
   const largest = Math.max(0, ...[...download, ...received, ...sending].filter((value): value is number => value !== null))
   return { xMax: Math.max(model.value.end, phaseEnd), yMax: valueMax(largest) }
