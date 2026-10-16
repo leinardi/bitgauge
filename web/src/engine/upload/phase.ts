@@ -30,7 +30,7 @@ import { type UploadRequest, UploadStreams } from '@/engine/upload/streams'
 import { type ClientEvent, validTelemetry } from '@/engine/upload/timeline'
 import { NO_HOLD, PreparationTurn, type TurnHold } from '@/engine/upload/turn'
 import { allowsUpperBound, UploadLedger } from '@/engine/upload/watermark'
-import { confirmedSeries, steadyWindow } from '@/engine/upload/window'
+import { confirmedSeries, endConditionHolds } from '@/engine/upload/window'
 
 // The server-timed upload phase (measurement.md sections 5 and 7): streams send sized requests
 // through the transport; each answer's telemetry is validated and confirmed into the ledger, and
@@ -153,7 +153,7 @@ export class UploadPhase {
       return
     }
     const warmupEnd = this.warmup.end
-    const holds = warmupEnd !== null && steadyWindow(this.ledger, warmupEnd.bucket * BUCKET_MS).sufficient
+    const holds = warmupEnd !== null && endConditionHolds(this.ledger, warmupEnd.bucket * BUCKET_MS)
     const extended = this.rule.extended
     const verdict = this.rule.evaluate(this.clock.now() - this.start, holds)
     if (!extended && this.rule.extended) {

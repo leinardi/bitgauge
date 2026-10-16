@@ -18,12 +18,14 @@
  */
 
 import type { Direction, DirectionStatus, DurationBounds, Notice, Preset } from '@/engine/messages'
+import { MAX_VARIATION } from '@/engine/phases/warmup'
 import { nextPreset } from '@/engine/presets'
+import { type Cell, coefficientOfVariation, groupSums } from '@/engine/stats/buckets'
 
-// The window condition, extension and shortfall (measurement.md sections 5, 8.4 and 8.6). A phase
-// runs at least its minimum, ends at the first instant from then on that the window condition
-// holds, is extended up to its maximum while it does not, and reports insufficient data when the
-// maximum passes without it.
+// The end condition, extension and shortfall (measurement.md sections 5, 8.4 and 8.6). A phase
+// runs at least its minimum, ends at the first instant from then on that the end condition holds
+// (the window condition and a stable window), is extended up to its maximum while it does not,
+// and reports insufficient data when the maximum passes without the window condition.
 
 /** The steady window's least length. */
 export const MIN_WINDOW_MS = 3000
@@ -46,12 +48,29 @@ export function windowConditionHolds(direction: Direction, windowMs: number, req
   return windowMs >= MIN_WINDOW_MS && requests >= least
 }
 
+/** The window's stability is read over sums of this many buckets, the gauge's 500 ms (section 8.3). */
+const STABILITY_GROUP = 5
+
+/** The window's variation at the gauge's resolution: over its known buckets summed per five. */
+export function windowVariation(cells: readonly Cell[]): number | null {
+  return coefficientOfVariation(groupSums(cells, STABILITY_GROUP))
+}
+
+/**
+ * The end condition's stability (section 5): the window's 500 ms sums vary by at most 10 %. A
+ * variation without a value, a mean of zero, does not hold (section 2).
+ */
+export function windowStable(cells: readonly Cell[]): boolean {
+  const variation = windowVariation(cells)
+  return variation !== null && variation <= MAX_VARIATION
+}
+
 /** What a phase does next: keep going, or end (on upload: stop issuing requests). */
 export type DurationVerdict = 'continue' | 'end'
 
 /** The duration rule of one direction. */
 export class DurationRule {
-  /** Whether the window condition failed at the minimum, so the phase runs past it. */
+  /** Whether the end condition failed at the minimum, so the phase runs past it. */
   extended = false
 
   private readonly direction: Direction
@@ -65,8 +84,9 @@ export class DurationRule {
   }
 
   /**
-   * The verdict at `elapsedMs` into the phase, with the window condition holding or not. A data
-   * cap that leaves less than the request floor ends the phase as if its maximum had passed.
+   * The verdict at `elapsedMs` into the phase, with the end condition (the window condition and a
+   * stable window) holding or not. A data cap that leaves less than the request floor ends the
+   * phase as if its maximum had passed.
    */
   evaluate(elapsedMs: number, conditionHolds: boolean, dataCapReached = false): DurationVerdict {
     if (dataCapReached) {

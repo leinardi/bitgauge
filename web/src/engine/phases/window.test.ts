@@ -17,11 +17,11 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// The window condition, extension and shortfall of measurement.md sections 5, 8.4 and 8.6.
+// The end condition, extension and shortfall of measurement.md sections 5, 8.4 and 8.6.
 
 import { describe, expect, it } from 'vitest'
 
-import { DurationRule, windowConditionHolds } from '@/engine/phases/window'
+import { DurationRule, windowConditionHolds, windowStable } from '@/engine/phases/window'
 import { nextPreset, PRESETS } from '@/engine/presets'
 
 describe('windowConditionHolds', () => {
@@ -35,6 +35,31 @@ describe('windowConditionHolds', () => {
     expect(windowConditionHolds('download', 3000, 2)).toBe(true)
     expect(windowConditionHolds('download', 2900, 2)).toBe(false)
     expect(windowConditionHolds('download', 3000, 1)).toBe(false)
+  })
+})
+
+describe('windowStable', () => {
+  const steady = Array.from({ length: 30 }, () => 3750)
+
+  it('holds when the 500 ms sums vary by at most 10 %', () => {
+    expect(windowStable(steady)).toBe(true)
+    // Sums of 18750 and 22500 alternate: a coefficient of variation of 9.1 %.
+    const swinging = steady.map((value, index) => (Math.floor(index / 5) % 2 === 0 ? value : value * 1.2))
+    expect(windowStable(swinging)).toBe(true)
+  })
+
+  it('does not hold when a burst lands in a 3 s window', () => {
+    // A loss recovery releases 30 KB in one cell after a second of nothing (section 5).
+    const burst = steady.map((value, index) => (index >= 10 && index < 20 ? 0 : value))
+    burst[20] = 30_000
+    expect(windowStable(burst)).toBe(false)
+  })
+
+  it('reads known cells only, and holds nothing without a mean', () => {
+    // A group with an unknown cell is left out: the steady groups around it still hold.
+    expect(windowStable([...steady.slice(0, 10), null, ...steady.slice(11)])).toBe(true)
+    expect(windowStable(Array.from({ length: 30 }, () => 0))).toBe(false)
+    expect(windowStable([])).toBe(false)
   })
 })
 

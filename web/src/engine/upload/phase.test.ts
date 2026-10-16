@@ -181,6 +181,18 @@ describe('a phase that runs to its maximum', () => {
   })
 })
 
+describe('an unstable window', () => {
+  it('keeps sending to max − 1 s and still reports the window', async () => {
+    // The rate steps between 8 and 1.6 Mbit/s every second: the window condition holds from the
+    // minimum, but its 500 ms sums never steady (measurement.md section 5).
+    const stepping: Scenario = { ...LINK, rate: (_, atMs) => (Math.floor(atMs / 1000) % 2 === 0 ? 1_000_000 : 200_000) }
+    const { phase, outcome } = await run(stepping)
+    expect(phase.haltedAt).toBe(24_000)
+    expect(outcome.status).toBe('measured')
+    expect(outcome.notices).toContainEqual({ code: 'slow-link-extended', direction: 'upload' })
+  })
+})
+
 describe('a stop during the grace', () => {
   it('keeps the data cap that started the grace', async () => {
     const { clock, phase, outcome } = start(failing(SLOW, () => ({ kind: 'stall' })), {

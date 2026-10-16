@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { MIN_UPLOAD_REQUESTS, MIN_WINDOW_MS } from '@/engine/phases/window'
+import { MIN_UPLOAD_REQUESTS, MIN_WINDOW_MS, windowStable } from '@/engine/phases/window'
 import { BucketSeries, percentile } from '@/engine/stats/buckets'
 import { BUCKET_MS, bitsPerSecond, bucketRate } from '@/engine/stats/units'
 import { cellOf, cellStart } from '@/engine/upload/grid'
@@ -109,4 +109,17 @@ export function steadyWindow(ledger: UploadLedger, warmupEndMs: number, endMs?: 
     return window
   }
   return { ...window, bitsPerSecond: bitsPerSecond(bytes, windowMs), peakBitsPerSecond: bucketRate(peak) }
+}
+
+/**
+ * The end condition on the confirmed window (measurement.md sections 5 and 8.4): the minimum
+ * window holds, and its known cells, a failure gap's unknown, are stable at 500 ms.
+ */
+export function endConditionHolds(ledger: UploadLedger, warmupEndMs: number): boolean {
+  const windowEnd = ledger.windowEnd()
+  if (windowEnd === null || !steadyWindow(ledger, warmupEndMs).sufficient) {
+    return false
+  }
+  const first = Math.ceil(warmupEndMs / BUCKET_MS)
+  return windowStable(confirmedSeries(ledger)?.range(first, Math.max(first, Math.floor(windowEnd / BUCKET_MS))) ?? [])
 }

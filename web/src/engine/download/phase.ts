@@ -24,7 +24,7 @@ import { deferred, issuesEarly } from '@/engine/phases/issue'
 import { dataBudget, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
-import { DurationRule } from '@/engine/phases/window'
+import { DurationRule, windowStable } from '@/engine/phases/window'
 import { BucketSeries } from '@/engine/stats/buckets'
 import { BUCKET_MS } from '@/engine/stats/units'
 import type { Clock, DownloadChunk, Info, ResourceTiming, TimerId, Transport } from '@/engine/types'
@@ -182,7 +182,9 @@ export class DownloadPhase {
     }
     const elapsedMs = at * BUCKET_MS
     const extended = this.rule.extended
-    const verdict = this.rule.evaluate(elapsedMs, this.windowAt(elapsedMs)?.holds ?? false)
+    const window = this.windowAt(elapsedMs)
+    const stable = window !== null && windowStable(this.bytes.slice(window.fromMs / BUCKET_MS, window.toMs / BUCKET_MS))
+    const verdict = this.rule.evaluate(elapsedMs, (window?.holds ?? false) && stable)
     if (!extended && this.rule.extended) {
       this.events.push({ code: 'extended', atMs: elapsedMs })
     }

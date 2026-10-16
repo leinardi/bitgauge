@@ -212,6 +212,18 @@ function variation(outcome: DownloadOutcome): number {
   return coefficientOfVariation(outcome.buckets.slice(window.fromMs / BUCKET_MS, window.toMs / BUCKET_MS)) ?? Number.NaN
 }
 
+describe('an unstable window', () => {
+  it('extends the phase to its maximum and still reports the window', async () => {
+    // The rate steps between 100 and 20 Mbit/s every second: the window condition holds from the
+    // minimum, but its 500 ms sums never steady (measurement.md section 5).
+    const stepping: Scenario = { ...FAST, rate: (_, atMs) => (Math.floor(atMs / 1000) % 2 === 0 ? 12_500_000 : 2_500_000) }
+    const { outcome } = await run(stepping)
+    expect(outcome).toMatchObject({ status: 'measured', endMs: 20_000 })
+    expect(outcome.notices).toContainEqual({ code: 'slow-link-extended', direction: 'download' })
+    expect(outcome.events).toContainEqual({ code: 'extended', atMs: 10_000 })
+  })
+})
+
 describe('a browser with an issue gap', () => {
   const fixed = (streams: number, maxStreamsPerClient = 8): Partial<DownloadOptions> => ({
     streams: { mode: 'fixed', fixed: streams, max: 6 },
@@ -267,7 +279,9 @@ describe('failures', () => {
   it('reset the count when a request completes', async () => {
     const { outcome } = await run(failing({ 3: { kind: 'status', status: 500 }, 4: { kind: 'status', status: 500 }, 6: { kind: 'error' } }), SINGLE)
     expect(outcome.status).toBe('measured')
-    expect(outcome.endMs).toBe(10_000)
+    // Each failure leaves a hole in a lone stream's delivery, so the window's 500 ms sums never
+    // steady and the phase runs to its maximum (measurement.md section 5).
+    expect(outcome.endMs).toBe(20_000)
   })
 
   it('count a body whose byte count differs from the size asked for', async () => {
@@ -316,7 +330,8 @@ describe('a 429', () => {
       streams: { mode: 'fixed', fixed: 3, max: 6 },
       limits: { maxDownloadBytes: 256 * MIB, maxStreamsPerClient: 3 },
     })
-    expect(outcome).toMatchObject({ status: 'measured', endMs: 10_000, streams: 2 })
+    // Dropping a stream steps the rate inside the window, which stays unstable to the maximum.
+    expect(outcome).toMatchObject({ status: 'measured', endMs: 20_000, streams: 2 })
     expect(outcome.notices).toContainEqual({ code: 'stream-limit', direction: 'download', streams: 2 })
     expect(transport.peakInFlight.download).toBe(3)
   })

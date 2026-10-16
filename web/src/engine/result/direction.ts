@@ -20,8 +20,8 @@
 import type { DownloadOutcome } from '@/engine/download/phase'
 import type { Confidence, ConfidenceReason, DirectionResult, Notice, ResultSeries, UploadResult } from '@/engine/messages'
 import { MAX_VARIATION, type WarmupEnd } from '@/engine/phases/warmup'
-import { windowConditionHolds } from '@/engine/phases/window'
-import { type Cell, coefficientOfVariation, groupSums, percentile } from '@/engine/stats/buckets'
+import { windowConditionHolds, windowVariation } from '@/engine/phases/window'
+import { type Cell, percentile } from '@/engine/stats/buckets'
 import { cpuBound } from '@/engine/stats/busy'
 import { BUCKET_MS, bitsPerSecond, bucketRate } from '@/engine/stats/units'
 import type { UploadOutcome } from '@/engine/upload/outcome'
@@ -32,13 +32,6 @@ import type { UploadOutcome } from '@/engine/upload/outcome'
 
 const MAX_POINTS = 2000
 const PEAK_PERCENTILE = 90
-/** The window's stability is read over sums of this many buckets, the gauge's 500 ms (section 8.3). */
-const STABILITY_GROUP = 5
-
-/** The window's variation at the gauge's resolution: over its known buckets summed per five. */
-function windowVariation(cells: readonly Cell[]): number | null {
-  return coefficientOfVariation(groupSums(cells, STABILITY_GROUP))
-}
 
 export interface DirectionContext {
   overheadCompensationPercent: number
