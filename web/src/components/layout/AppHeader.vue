@@ -149,7 +149,7 @@ function cycleTheme(): void {
   <header class="flex h-13 items-center gap-2.5 border-b border-border bg-background px-4 text-foreground desktop:hidden">
     <BrandLogo :size="26" />
     <div class="flex min-w-0 flex-col leading-(--lh-tight)">
-      <span class="text-(length:--text-md) font-semibold tracking-(--tracking-tight)">{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
+      <span class="inline-flex items-center gap-2 text-(length:--text-md) font-semibold tracking-(--tracking-tight)"><span>{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span></span>
       <span
         v-if="known"
         :title="dotTitle"
@@ -160,7 +160,7 @@ function cycleTheme(): void {
           class="size-1.5 flex-none rounded-full"
           :class="down ? 'border-(length:--border-width-strong) border-(--warn) bg-transparent' : 'bg-(--ok)'"
         />
-        {{ serverName }}
+        <span v-if="serverName">{{ serverName }}</span>
         <span class="sr-only">{{ stateText }}</span>
         <span class="min-w-0 truncate font-mono">{{ host }}</span>
         <span
