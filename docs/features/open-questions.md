@@ -23,20 +23,11 @@ carries a recommendation; where the specification already relies on an answer, i
    Recommendation: keep PNG, which every chat app and photo viewer accepts; SVG would be smaller
    but depends on fonts on the receiving side and is refused by several sharing targets. See
    [technical-stack/frontend.md §6](technical-stack/frontend.md#6-charts-gauge-and-share-image).
-4. Should the upload grace after the end decision depend on the in-flight request's expected
-   duration? Current answer: **yes**, `min(2 s, 2 × d)` with `d` the expected duration of the
-   longest in-flight request, which the slow-link budget needs. Recommendation: confirm with the
-   floor tier of the accuracy harness in v0.1. See
-   [measurement.md §5](measurement.md#5-adaptive-duration).
-5. How should upload failures be handled? Current answer: **failure gaps on HTTP/2 and HTTP/3; on
-   HTTP/1.1 the first failure ends the upload phase**, because a failed request there freezes the
-   window end. Recommendation: confirm with the h1 and h2 proxy profiles of the CI tier in v0.1. See
-   [measurement.md §7.5](measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark).
-6. Should Continuous mode run one direction or alternate between both? Current answer: **one
+4. Should Continuous mode run one direction or alternate between both? Current answer: **one
    direction per run**, chosen by the user, because alternating would mix two steady windows in one
    series and halve each direction's coverage. Recommendation: keep it; a user who wants both runs
    two sessions. See [measurement.md §15](measurement.md#15-continuous-mode).
-7. How does a release validate the configuration keys of features it does not ship yet, and an
+5. How does a release validate the configuration keys of features it does not ship yet, and an
    empty duration bound? Current answer: **a toggle for an unshipped feature is rejected, naming
    its milestone** (`metrics.enabled` before v0.2; the three `compat.*.enabled` toggles and
    `test_defaults.preset: continuous` before v0.3), while their other keys are parsed and
@@ -44,45 +35,45 @@ carries a recommendation; where the specification already relies on an answer, i
    an empty bound counting as the preset's value. Recommendation: keep it, since accepting a
    toggle that does nothing would be a silent default. See
    [configuration.md §4](configuration.md#4-fail-closed-validation).
-8. Which `429` code do the WebSocket and networkQuality flow limits answer with? Current answer:
+6. Which `429` code do the WebSocket and networkQuality flow limits answer with? Current answer:
    **`too_many_streams`**, since both are concurrency limits like the throughput-stream limit;
    `rate_limited` stays with the per-minute limit and `table_full` with a full table.
    Recommendation: keep it; a browser cannot read the body of a refused WebSocket handshake
    anyway. See [wire-protocol.md §9](wire-protocol.md#9-rate-limits).
-9. How does `GET /info` carry a fixed warm-up? Current answer: **`warmup` is `"auto"` or the
+7. How does `GET /info` carry a fixed warm-up? Current answer: **`warmup` is `"auto"` or the
    fixed duration in whole milliseconds** (`3000`), the unit every other duration of the info
    response uses. Recommendation: keep it; a duration string such as `"3s"` would need a parser in
    the SPA for one field. See [wire-protocol.md §5](wire-protocol.md#5-get-apiv1info).
-10. What may `GET /api/v1/download` allocate per request? Current answer: **nothing for the body,
-    and two small allocations for the `Content-Length` header**, its formatted value and the
-    one-element slice holding it, which `net/http`'s header map cannot avoid. Recommendation: keep
-    it; leaving out `Content-Length` would break the response contract. See
-    [wire-protocol.md §3.1](wire-protocol.md#31-get-apiv1downloadbytesn).
-11. Which `400` code does a zero or negative `bytes` get? Current answer: **`bytes_out_of_range`
-    with the limit in `details`**, like a value above the limit, since §2 defines the parameter as
-    an integer of at least 1 and §7 assigns that code to a parameter outside its range;
-    `bad_request` stays for a missing or non-integer value. Recommendation: keep it. See
-    [wire-protocol.md §3.1](wire-protocol.md#31-get-apiv1downloadbytesn).
-12. What does `POST /api/v1/upload` answer for an empty body? Current answer: **`200` with empty
+8. What may `GET /api/v1/download` allocate per request? Current answer: **nothing for the body,
+   and two small allocations for the `Content-Length` header**, its formatted value and the
+   one-element slice holding it, which `net/http`'s header map cannot avoid. Recommendation: keep
+   it; leaving out `Content-Length` would break the response contract. See
+   [wire-protocol.md §3.1](wire-protocol.md#31-get-apiv1downloadbytesn).
+9. Which `400` code does a zero or negative `bytes` get? Current answer: **`bytes_out_of_range`
+   with the limit in `details`**, like a value above the limit, since §2 defines the parameter as
+   an integer of at least 1 and §7 assigns that code to a parameter outside its range;
+   `bad_request` stays for a missing or non-integer value. Recommendation: keep it. See
+   [wire-protocol.md §3.1](wire-protocol.md#31-get-apiv1downloadbytesn).
+10. What does `POST /api/v1/upload` answer for an empty body? Current answer: **`200` with empty
     telemetry**: `buckets: []`, `bytes: 0`, `durationMs: 0`, and `startMs` (with `firstBucket`)
     at handler entry, since there is no first byte. Recommendation: keep it; the engine never
     sends one, and a `400` would add a code for a request that harms nothing. See
     [wire-protocol.md §4](wire-protocol.md#4-upload-telemetry).
-13. How are the percentiles and the coefficient of variation of a bucket series computed? Current
+11. How are the percentiles and the coefficient of variation of a bucket series computed? Current
     answer: **percentiles interpolate linearly between the closest ranks, and the coefficient of
     variation is the population standard deviation over the mean**, both over known buckets only;
     a mean of zero leaves the coefficient without a value, so a stability condition on it does not
     hold. Recommendation: keep it; the warm-up's last 10 buckets are the whole population the
     condition judges, not a sample of a larger one. See
     [measurement.md §2](measurement.md#2-sampling-model).
-14. Which codes do the engine's notices and errors carry? Current answer: **one kebab-case code
+12. Which codes do the engine's notices and errors carry? Current answer: **one kebab-case code
     per notice of measurement.md §16, and five error codes** (`invalid-settings`,
     `requests-failed`, `network-changed`, `server-restarted`, `server-unreachable`) with the
     message key `errors.<code>`; the engine emits codes and raw values, never text.
     Recommendation: keep it. See
     [measurement.md §16](measurement.md#16-confidence-and-notices) and
     [architecture.md §4](architecture.md#4-engine--ui-message-contract).
-15. When does a confirmed upload request "lie inside" the steady window for the three-request
+13. When does a confirmed upload request "lie inside" the steady window for the three-request
     minimum? Current answer: **when every cell of its telemetry, from its first byte's cell to its
     last's, belongs to the window W**; a request straddling the warm-up end, the window end or a
     failure gap still contributes its bytes but is not counted, and one that read no bytes never
@@ -90,7 +81,7 @@ carries a recommendation; where the specification already relies on an answer, i
     says "lie inside", and the §19.1 worst case sizes its window for whole requests.
     Recommendation: keep it. See
     [measurement.md §7.6](measurement.md#76-headline-peak-and-minimum-window).
-16. Where do the ramp's intervals sit on the evaluation series? Current answer: **in whole
+14. Where do the ramp's intervals sit on the evaluation series? Current answer: **in whole
     buckets, rounded up**; the baseline starts at the first bucket holding bytes, a trial at the
     add on download and at the latest first byte of the added streams' first requests on upload
     (the only server instant known to follow the add); an interval with no known bucket is
@@ -100,11 +91,11 @@ carries a recommendation; where the specification already relies on an answer, i
     its plateau, which is where the warm-up cap moves to. Recommendation: keep it. See
     [measurement.md §8.2](measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare) and
     [§4](measurement.md#4-adaptive-stream-count).
-17. Do the slow-link budgets of measurement.md §19.1 and §19.2 hold? Current answer: **they are
+15. Do the slow-link budgets of measurement.md §19.1 and §19.2 hold? Current answer: **they are
     recomputed from the rules on a link shared equally among the requests crossing it, with half
     the RTT each way**. A sequential stream idles one RTT between requests, so a second stream
     gains and the ramp settles at 4 streams with `no-gain`; on upload the added streams' first
-    64 KiB requests hold the watermark back. At 300 kbit/s and 300 ms, with the `I_m` of item 42,
+    64 KiB requests hold the watermark back. At 300 kbit/s and 300 ms, with the `I_m` of item 40,
     the upload trial to 2 is decided at ≈ 8.2 s, the trial to 4 at ≈ 14.8 s, the window condition
     holds at ≈ 17.6 s, and the upload ends by ≈ 18.3 s with `confidence: low`
     (`insufficient-samples`); the download settles at ≈ 9.1 s and is extended to ≈ 12.1 s for its
@@ -112,7 +103,7 @@ carries a recommendation; where the specification already relies on an answer, i
     Recommendation: confirm on the harness floor profiles; if they show low confidence there,
     consider sizing an added stream's first request from `T_base / N` rather than 64 KiB. See
     [measurement.md §19.1](measurement.md#191-slow-link-budget-300-kbits-300-ms-rtt-standard).
-18. How do the warm-up conditions read the evaluation series? Current answer: **bucket by bucket
+16. How do the warm-up conditions read the evaluation series? Current answer: **bucket by bucket
     on the series up to each newly known bucket**, with the request counts known at that moment;
     "the last 10 confirmed buckets" are the last 10 known ones and conditions 2 and 3 need all 10,
     which makes condition 4 hold whenever they can; download's "1 s of continuous chunk arrivals"
@@ -126,7 +117,7 @@ carries a recommendation; where the specification already relies on an answer, i
     that ended before the bucket evaluated.
     See [measurement.md §8.3](measurement.md#83-warm-up-end) and
     [§5](measurement.md#5-adaptive-duration).
-19. How does a run resolve its settings, and how does idle latency count its edge cases? Current
+17. How does a run resolve its settings, and how does idle latency count its edge cases? Current
     answer: **a `start` override replaces the fields it sets; selecting another preset brings that
     preset's durations, ping count and stream mode unless the override sets them; `durationMs`
     caps both directions and lowers their minimum to it; any out-of-range value fails with
@@ -137,7 +128,7 @@ carries a recommendation; where the specification already relies on an answer, i
     percentage's denominator. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [measurement.md §10](measurement.md#10-idle-latency).
-20. How does a throughput phase handle a `429`, failures and the data cap? Current answer: **a
+18. How does a throughput phase handle a `429`, failures and the data cap? Current answer: **a
     `429` records the `stream-limit` notice with the lowered cap**, a code §16 lacked although §4
     called for a notice; the streams above a lowered cap finish their request in flight and issue
     no further one; three consecutive failures count across the direction's streams in the order
@@ -145,17 +136,17 @@ carries a recommendation; where the specification already relies on an answer, i
     instant a stream would issue a request with less than 16 KiB of budget left, the budget
     counting the bytes still to move of the requests in flight; a direction reports the protocol
     of its latest throughput request with a Resource Timing entry. §19.2 is worked at the
-    ≈ 0.478 Mbit/s of goodput its 500 kbit/s shaper carries. With the `I_m` of item 42, which spans
+    ≈ 0.478 Mbit/s of goodput its 500 kbit/s shaper carries. With the `I_m` of item 40, which spans
     a request cycle, the 100 Mbit/s download of §19.3 plateaus at 2 streams at ≈ 5.3 s and ends at
     10 s with a ≈ 4.7 s window, and the §19.2 download ramps to 6 streams at the 16 KiB floor,
     whose headline is the goodput within 0.1 %; before it, four streams there ended their requests
     together and left the link idle for one RTT gap. A delayed chunk never changes a bucket a
     decision has read. Recommendation: keep it; the harness CI profiles confirmed both headlines
-    (item 43). See [measurement.md §4](measurement.md#4-adaptive-stream-count),
+    (item 41). See [measurement.md §4](measurement.md#4-adaptive-stream-count),
     [§5](measurement.md#5-adaptive-duration), [§6](measurement.md#6-download-mechanics),
     [§19.2](measurement.md#192-500-kbits--300-ms-rtt-mobile-over-vpn-standard) and
     [§19.3](measurement.md#193-100-mbits--50-ms-rtt-standard).
-21. How does the upload runner apply the rules of §5 and §7? Current answer: **its minimum and
+19. How does the upload runner apply the rules of §5 and §7? Current answer: **its minimum and
     maximum run on the client clock from the phase's first request**; a request whose stream has
     no confirmed request yet has no expected duration and gets the full 2 s grace; an error
     result, a user stop and a server restart abort the requests in flight at once, without the
@@ -172,12 +163,12 @@ carries a recommendation; where the specification already relies on an answer, i
     [§8.2](measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare),
     [§17](measurement.md#17-result-object) and
     [§19.4](measurement.md#194-25-gbits-lan-standard).
-22. How does the UI tell the engine about the network and the browser, and how does a run order
+20. How does the UI tell the engine about the network and the browser, and how does a run order
     its phases? Current answer: **a `network` command carries the `offline` event and
     `navigator.connection.type` changes**, which edge-cases.md §6 needs and the contract lacked;
     the transport's `info()` returns the browser's family, major version and operating system
     with the `GET /info` answer, so the engine never reads `navigator`; the `start` override
-    already carries `label` and `contextLabel` (question 19). A measuring phase the settings
+    already carries `label` and `contextLabel` (question 17). A measuring phase the settings
     leave out is announced `skipped` after Info; a run with nothing to keep emits no result; the
     housekeeping tick sends the live samples; a paused hidden page ends the download window at
     the last on-time tick while the upload, timed by the server, stops at once, and a late tick
@@ -187,7 +178,7 @@ carries a recommendation; where the specification already relies on an answer, i
     either path, leaves the current direction with nothing measured. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [edge-cases.md §5, §6](edge-cases.md#5-tab-hidden-mid-test).
-23. What does a v0.1 result object hold, and how does the application check one? Current answer:
+21. What does a v0.1 result object hold, and how does the application check one? Current answer:
     **the v0.1 field set of measurement.md §17, with the fields of later versions absent rather
     than `null`**; `client.timerResolutionMs` and `client.crossOriginIsolated` join `client`, as
     edge-cases.md §9 shows them in the result detail; a direction that did not run is a `skipped`
@@ -204,7 +195,7 @@ carries a recommendation; where the specification already relies on an answer, i
     each bucket on its own tick and ends at the bucket end exactly. Recommendation: keep it. See
     [measurement.md §16, §17](measurement.md#17-result-object) and
     [technical-stack/frontend.md §2](technical-stack/frontend.md#2-engine-package-rules).
-24. How does the Worker wire the browser in, and what does its message loop do with commands out
+22. How does the Worker wire the browser in, and what does its message loop do with commands out
     of order? Current answer: **one run at a time; a `start` meanwhile is ignored, a `start`
     before a valid `configure` and an invalid `configure` answer `invalid-settings`, and the last
     valid configuration stays**. The busy time sums the Worker's timed tasks (timers, messages,
@@ -218,7 +209,7 @@ carries a recommendation; where the specification already relies on an answer, i
     it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [technical-stack/frontend.md §2](technical-stack/frontend.md#2-engine-package-rules).
-25. Which URLs may the built SPA contain? Current answer: **exactly the SVG, XLink and MathML
+23. Which URLs may the built SPA contain? Current answer: **exactly the SVG, XLink and MathML
     namespaces, the GNU licenses URL of the license header, Tailwind's license comment URL, Vue's
     console error-reference link with its paths, and `https://github.com/leinardi/bitgauge` with
     its paths** (the About screen's source and documentation links, the base-path error's link to
@@ -228,11 +219,11 @@ carries a recommendation; where the specification already relies on an answer, i
     for `http`, `https`, `ws` and `wss` URLs. Recommendation: keep it. See
     [technical-stack/build-packaging.md §4](technical-stack/build-packaging.md#4-ci-workflows)
     and [security.md §3](security.md#3-no-outbound-calls).
-26. How large may the engine's Worker chunk be? Current answer: **128 KiB minified**, held in
+24. How large may the engine's Worker chunk be? Current answer: **128 KiB minified**, held in
     `.chunk-budget` and enforced by the `chunk-size` step, which also fails when the dist has no
     Worker chunk; the number is lowered once the real size is known. Recommendation: keep it. See
     [technical-stack/frontend.md §3](technical-stack/frontend.md#3-worker-bundling-with-vite).
-27. What replaces the Settings screen in v0.1? Current answer: **nothing: navigation shows Test
+25. What replaces the Settings screen in v0.1? Current answer: **nothing: navigation shows Test
     and About, `/history`, `/settings` and `/result/{id}` render a "not available in this
     version" page from the fixed route list, the test settings are the server defaults with the
     URL parameters on top, the header's theme is the only persisted setting, the settings summary
@@ -241,14 +232,14 @@ carries a recommendation; where the specification already relies on an answer, i
     the v0.1 metrics only. Recommendation: keep it. See
     [ui/screens.md §1](ui/screens.md#1-test-home--), [§5](ui/screens.md#5-other-clients--about--about)
     and [ui/i18n-a11y.md §1.2](ui/i18n-a11y.md#12-locale-detection).
-28. Where are the favicons, app icons and web manifest served? Current answer: **from the base
+26. Where are the favicons, app icons and web manifest served? Current answer: **from the base
     path itself, as an explicit list of eight files in the SPA group's routes** (`favicon.svg`,
     `favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`,
     `icon-512-maskable.png`, `site.webmanifest`), never a catch-all, with
     `Cache-Control: public, max-age=86400` because their names are not content-hashed.
     Recommendation: keep it. See [architecture.md §3](architecture.md#3-spa-embedding-and-base-path)
     and [compatibility.md §5](compatibility.md#5-route-table).
-29. How is the v0.1 SPA shell put together? Current answer: **the locale catalog is one directory
+27. How is the v0.1 SPA shell put together? Current answer: **the locale catalog is one directory
     per language with one JSON file per screen namespace; the header shows the server's name and
     reachability only once `GET /info` has answered, announces later changes only, and on narrow
     screens cycles the theme through light, dark and system with one button; the Test screen
@@ -258,7 +249,7 @@ carries a recommendation; where the specification already relies on an answer, i
     components**. Recommendation: keep it. See
     [technical-stack/frontend.md §1, §2, §4, §7](technical-stack/frontend.md#1-spa-layout) and
     [ui/i18n-a11y.md §1.1](ui/i18n-a11y.md#11-structure).
-30. What does the SPA show before a test runs? Current answer: **`GET /api/v1/info` on load and
+28. What does the SPA show before a test runs? Current answer: **`GET /api/v1/info` on load and
     on Retry, with no automatic retry; while it fails, a "Server unreachable" notice with Retry on
     the Test and About screens. The connection info shows the protocol as "not reported" and the
     stream count as the configured mode (the fixed count, one stream, or "auto, up to" the
@@ -274,7 +265,7 @@ carries a recommendation; where the specification already relies on an answer, i
     methodology, and `docs/features/deployment-example.md` §6 from the base-path error**.
     Recommendation: keep it. See [ui/screens.md §1, §5](ui/screens.md#1-test-home--) and
     [edge-cases.md §16, §20](edge-cases.md#20-base-path-mismatches).
-31. How does the server render `index.html`? Current answer: **once at startup: the web build
+29. How does the server render `index.html`? Current answer: **once at startup: the web build
     leaves the asset URLs relative (`./assets/…`) and the root assets' links as bare names, and
     the server makes both absolute under the base path and writes the base path into the single
     `bitgauge-base-path` meta element; an embedded SPA without `index.html`, a root asset or
@@ -286,7 +277,7 @@ carries a recommendation; where the specification already relies on an answer, i
     Recommendation: keep it. See [architecture.md §3](architecture.md#3-spa-embedding-and-base-path),
     [edge-cases.md §20](edge-cases.md#20-base-path-mismatches) and
     [technical-stack/backend.md §5](technical-stack/backend.md#5-server-settings-and-graceful-shutdown).
-32. How does a release recovery select the recorded toolchains, and what does a dry run rehearse?
+30. How does a release recovery select the recorded toolchains, and what does a dry run rehearse?
     Current answer: **`.github/scripts/recover-toolchains.sh` runs after the pinned setup actions,
     reads `Go:` and `Node:` from the tag's annotation, selects both in its own process (Go through
     `GOTOOLCHAIN`, Node from the `nodejs.org` tarball checked against `SHASUMS256.txt`), checks
@@ -296,7 +287,7 @@ carries a recommendation; where the specification already relies on an answer, i
     release only, and fails at the tag gate on a version whose image exists.** Recommendation:
     keep it. See [release.md](../release.md#why-the-build-happens-before-the-tag) and
     [release.md, Dry Runs](../release.md#dry-runs).
-33. How does the UI know a run has ended, and what does it do with an engine defect? Current
+31. How does the UI know a run has ended, and what does it do with an engine defect? Current
     answer: **from the order of the events, with no event of its own: a `result` ends the run, and
     so do the measuring phases' `finished`, `failed` or `skipped` events when none is `finished`,
     idle latency excepted after a stop, since a stop during it emits nothing for it. A late phase
@@ -308,7 +299,7 @@ carries a recommendation; where the specification already relies on an answer, i
     Recommendation: keep it. See [architecture.md §4](architecture.md#4-engine--ui-message-contract),
     [ui/flows.md §5](ui/flows.md#5-error-mid-test) and
     [edge-cases.md §2](edge-cases.md#2-mobile-browsers-throttling-background-tabs-and-workers).
-34. Does a rate keep its trailing zeros? The export disagreed with itself: `tokens.md` shows
+32. Does a rate keep its trailing zeros? The export disagreed with itself: `tokens.md` shows
     "9.4 kbit/s", the kit's formatter in `bg-lib.js` writes "9.40 kbit/s", and ui/i18n-a11y.md
     §1.3 asked for `maximumSignificantDigits: 3`, which drops them. Current answer: **three
     significant digits with the trailing zeros kept (1.00 Mbit/s, 9.40 kbit/s), as measurement.md
@@ -316,26 +307,26 @@ carries a recommendation; where the specification already relies on an answer, i
     `tokens.md` example is export content, left for the Claude Design project to correct.
     Recommendation: keep it. See [ui/i18n-a11y.md §1.3](ui/i18n-a11y.md#13-number-unit-and-date-formatting)
     and [measurement.md §14](measurement.md#14-units-and-gauge).
-35. How does the live chart place the upload's `sending` line and the warm-up band, when the UI
+33. How does the live chart place the upload's `sending` line and the warm-up band, when the UI
     does not share the Worker's clock? Current answer: **the engine sends them on the direction's
     own bucket axis: every `sample` after warm-up carries `warmupEndBucket`, and an upload `sample`
     carries `startBucket` (P_start on the server grid) and `sendingBucket`, its own instant moved
     onto the grid by the display-only offset, both once a request has confirmed**. The chart
     places the sending value in the cell that instant falls in. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract).
-36. Which unit does a rate below 1 Mbit/s take, and which tone does each notice have? Current
+34. Which unit does a rate below 1 Mbit/s take, and which tone does each notice have? Current
     answer: **the largest unit, from kbit/s (kB/s) up to Gbit/s (GB/s), whose number is at least
     1, as the kit's formatter scales, so 472,000 bit/s reads 472 kbit/s; measurement.md §14's
     precision example said 0.472 Mbit/s and now says 472 kbit/s. The notices take the tones of
     ui/screens.md §7, which extends `notices.md`'s examples to every v0.1 code.**
     Recommendation: keep it. See [measurement.md §14](measurement.md#14-units-and-gauge) and
     [ui/screens.md §7](ui/screens.md#7-notices).
-37. What is the Download JSON file called, and what is its `exportedAt`? Current answer:
+35. What is the Download JSON file called, and what is its `exportedAt`? Current answer:
     **`bitgauge-<YYYY-MM-DD>-<HHMM>.json` after the result's start in the browser's local time, as
     the design export's kit names it, with `exportedAt` the moment of the download in ISO 8601**.
     A result that fails `validateResult` is never exported: the button shows an error instead.
     Recommendation: keep it. See [ui/screens.md §1](ui/screens.md#1-test-home--).
-38. Where does the Test screen's "Running: idle latency" state get its ping counter and live
+36. Where does the Test screen's "Running: idle latency" state get its ping counter and live
     median, and how does it word a stopped direction and an engine error? Current answer: **an
     `idle` event after each answered or lost ping carries the counter, the last RTT for the
     gauge and the running median; a stopped direction with a number reads "partial — stopped
@@ -345,7 +336,7 @@ carries a recommendation; where the specification already relies on an answer, i
     worded by its message key `errors.<code>` in an `errors` namespace**. Recommendation: keep
     it. See [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [ui/i18n-a11y.md §1.1](ui/i18n-a11y.md#11-structure).
-39. How do the URL parameters reach a run, when the UI cannot resolve a preset's durations
+37. How do the URL parameters reach a run, when the UI cannot resolve a preset's durations
     without importing the engine, and which values are invalid? Current answer: **the page sends
     the settings parameters as the `configure` override, the engine resolves and stores them and
     answers with a `settings` event, which the screen shows (scope `configured`, and `run` as each
@@ -361,7 +352,7 @@ carries a recommendation; where the specification already relies on an answer, i
     [architecture.md §4](architecture.md#4-engine--ui-message-contract),
     [ui/url-params.md §1](ui/url-params.md#1-rules) and
     [ui/i18n-a11y.md §2.4](ui/i18n-a11y.md#24-keyboard).
-40. How does the harness evaluator treat what testing.md §5 leaves open? Current answer: **a pass
+38. How does the harness evaluator treat what testing.md §5 leaves open? Current answer: **a pass
     needs a `complete` result with a headline in both directions; a rate between the tolerance
     table's rows has no tolerance and fails; at 2.5 Gbit and above, a headline outside its
     tolerance without `confidence: cpu-bound` adds a finding of its own, since the result carries
@@ -371,7 +362,7 @@ carries a recommendation; where the specification already relies on an answer, i
     pass it fails the tier; and the loaded-latency rule is not applicable in v0.1, which measures
     none.** Recommendation: keep it. See
     [technical-stack/testing.md §5.1](technical-stack/testing.md#51-implementation).
-41. How does the v0.1 screen reader output get its numbers and words, when the engine sends a
+39. How does the v0.1 screen reader output get its numbers and words, when the engine sends a
     direction's headline only in the result? Current answer: **a `finished` download or upload
     `phase` event carries its headline, computed by the same code as the result's, so the live
     region announces it once as the direction finishes; spoken numbers keep the visual scale and
@@ -381,7 +372,7 @@ carries a recommendation; where the specification already relies on an answer, i
     skip link opens every screen.** Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [ui/i18n-a11y.md §2](ui/i18n-a11y.md#2-accessibility).
-42. How long is the ramp's measurement interval `I_m`? Current answer: **`max(500 ms, 2 × RTT,
+40. How long is the ramp's measurement interval `I_m`? Current answer: **`max(500 ms, 2 × RTT,
     min(100 × RTT, 1 s + RTT))`**, where it was `max(500 ms, 2 × RTT)`. A stream loses a few round
     trips each request cycle, the round trip between its requests and, in WebKit, the slow start of
     a connection gone idle or opened anew. On the harness CI tier a 500 ms interval read the full
@@ -394,7 +385,7 @@ carries a recommendation; where the specification already relies on an answer, i
     minimum. Recommendation: keep it. See [measurement.md
     §8.2](measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare) and
     [§19](measurement.md#19-worked-timelines).
-43. How does the harness measure its iperf3 reference and shape its link? Current answer:
+41. How does the harness measure its iperf3 reference and shape its link? Current answer:
     **each iperf3 run settles for `max(2 s, 10 × RTT)`, then takes the median of the receiver's
     one-second intervals, with a block length of 10 ms of data; each direction's queue is 80 ms
     of data and at least 64 KiB, an fq_codel whose target is its own length; and a run whose
@@ -406,7 +397,7 @@ carries a recommendation; where the specification already relies on an answer, i
     profile passes on Chromium, Firefox and WebKit. Recommendation: keep it. See
     [technical-stack/testing.md §5.1](technical-stack/testing.md#51-implementation) and the
     [harness runbook](../engineering/accuracy-harness.md).
-44. How does the v0.1 end-to-end suite run, and what does it check? Current answer: **in parallel
+42. How does the v0.1 end-to-end suite run, and what does it check? Current answer: **in parallel
     against one host-built binary whose per-client stream limit is raised to 64, because every spec
     reaches it from one address; a spec that needs a base path, a server it stops or the WebSocket
     path, which that server's four WebSockets per client cannot promise, starts a binary of its own;
@@ -419,7 +410,7 @@ carries a recommendation; where the specification already relies on an answer, i
     opacity, failed 4.5:1 on the light theme. Recommendation: keep it. See
     [technical-stack/testing.md §4.1](technical-stack/testing.md#41-implementation), [ui/flows.md
     §5](ui/flows.md#5-error-mid-test) and [ui/i18n-a11y.md §2.6](ui/i18n-a11y.md#26-contrast).
-45. How does the demo build stand in for a server? Current answer: **a demo Worker entry runs the
+43. How does the demo build stand in for a server? Current answer: **a demo Worker entry runs the
     real engine through its message loop against a simulated link on a sped-up clock, one scenario
     per v0.1 state of the UI kit, each a link and a scripted stop, failure or hold.** Writing it
     settled three points. The kit's VPN, 640 kbit/s with 48 ms, finds its steady window before the 10
@@ -432,7 +423,7 @@ carries a recommendation; where the specification already relies on an answer, i
     stops answering during idle latency, ends as `network changed`, as [ui/flows.md
     §5](ui/flows.md#5-error-mid-test) says of a server that goes away mid-run. Recommendation: keep
     it. See [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build).
-46. How does a demo build reach the page, and how is the production bundle proven free of it?
+44. How does a demo build reach the page, and how is the production bundle proven free of it?
     Current answer: **a panel over every screen applies its choice by loading the page again; the
     page reaches the demo only through dynamic imports behind `import.meta.env.VITE_DEMO`, and the
     build step's sentinel scan fails a dist that holds any of it.** Dead-code elimination is not
@@ -445,7 +436,7 @@ carries a recommendation; where the specification already relies on an answer, i
     taken over by the next scenario's session. Recommendation: keep it. See
     [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build) and
     [technical-stack/build-packaging.md §4](technical-stack/build-packaging.md#4-ci-workflows).
-47. How do the deployment examples show a setting the running release does not have yet? The
+45. How do the deployment examples show a setting the running release does not have yet? The
     Traefik shape enabled the networkQuality layer, which v0.1 rejects at startup
     ([configuration.md §4](configuration.md#4-fail-closed-validation)), so a copy of it exited
     with status 2. Current answer: **the toggle is shown commented out, with the release that
@@ -457,6 +448,22 @@ carries a recommendation; where the specification already relies on an answer, i
 
 Resolved and removed:
 
+- _Should the upload grace after the end decision depend on the in-flight request's expected
+  duration?_ **Yes**: `min(2 s, 2 × d)`, with `d` the expected duration of the longest in-flight
+  request, which the slow-link budget needs. Confirmed by the maintainer on 2026-10-16 by the
+  accuracy harness floor tier: all six floor runs (300 kbit/s with 300 ms and 1 % loss, and
+  300 kbit/s with 600 ms, in Chromium, Firefox and WebKit) passed on their first attempt, once
+  that day's method changes were in. See [measurement.md §5](measurement.md#5-adaptive-duration).
+- _How should upload failures be handled?_ **Failure gaps on HTTP/2 and HTTP/3; on HTTP/1.1 the
+  first failure ends the upload phase**, because a failed request there freezes the window end.
+  Confirmed by the maintainer on 2026-10-16 with upload failures injected through the CI tier's
+  proxy profiles: through Traefik (HTTP/1.1) one failure ended the phase with
+  `upload-interrupted` and a 3.7 s window; through Caddy (HTTP/2) one failure left a 1.5 s failure
+  gap, its cells unknown and outside the headline, while the phase went on, and repeated failures
+  ended it with `requests-failed`. See
+  [measurement.md §7.5](measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark)
+  and the runbook step in
+  [accuracy-harness.md §6](../engineering/accuracy-harness.md#6-inject-upload-failures).
 - _Can the info phase be skipped like the measuring phases?_ **No**: every later phase needs the
   epoch and the limits, and it costs one round trip. Resolved by the maintainer's approval of the
   specification on 2026-10-12. See [measurement.md §1](measurement.md#1-phases-and-order) and

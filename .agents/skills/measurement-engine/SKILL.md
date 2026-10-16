@@ -46,10 +46,12 @@ means:
    decisions.md wins on technical choices.
 2. Run the docs validation from AGENTS.md: numbers, probe-path names and the upload JSON shape
    still agree across measurement.md, wire-protocol.md, configuration.md, `ui/` and glossary.md.
-3. Several rules are "the current answer to an item tracked in open-questions.md" (the upload grace
-   §5, failure gaps and the HTTP/1.1 rule §7.5, Continuous running one direction §8.5 and §15); Info
-   not being skippable (§1) is locked as decisions.md §34. Changing one of them means revisiting
-   that item in [open-questions.md](../../../docs/features/open-questions.md).
+3. Some rules are "the current answer to an item tracked in open-questions.md" (Continuous running
+   one direction, §8.5 and §15); changing one means revisiting that item in
+   [open-questions.md](../../../docs/features/open-questions.md). Info not being skippable (§1) is
+   locked as decisions.md §34. The upload grace (§5), the failure gaps and the HTTP/1.1 rule (§7.5)
+   were confirmed with harness evidence on 2026-10-16 and sit under its "Resolved and removed";
+   changing one reopens it as a new question with new evidence.
 4. [testing.md §2](../../../docs/features/technical-stack/testing.md#2-engine-tests-with-synthetic-timelines)
    quotes the worked examples' numbers and the §19.1 budget tables; a change that moves them updates
    those scenarios.

@@ -236,8 +236,7 @@ Each direction has a minimum and a maximum duration taken from the preset (§8):
   over its stream's rate, normally the 1 s target; a stream with no confirmed request yet has no
   expected duration and gets the full 2 s); then they are aborted. Basing the grace on the
   in-flight request's expected duration rather than on the fixed 1 s target is what the slow-link
-  budget in §19.1 needs (2 × 1.75 s); it is the current answer to an item tracked in
-  [open-questions.md](open-questions.md). A phase that runs to its maximum therefore ends at most
+  budget in §19.1 needs (2 × 1.75 s). A phase that runs to its maximum therefore ends at most
   about 1 s after it. The window ends where the first stream falls quiet, before the drain of the
   others (`M_end`, §7.5). Aborted requests only lower the confirmed watermark; because no request
   is issued after the decision, and every request in flight at it ends after the confirmed window
@@ -461,8 +460,7 @@ error under load is unbounded, and it never feeds a number.
   window up to `W_end_final` if it meets the minimum window (§7.6), otherwise
   `insufficient data`, with the notice `upload interrupted by a failed request`. Continuous upload
   runs end the same way, with a hint that HTTP/2 at the proxy lets long upload runs survive
-  transient failures. The failure-gap refinement and this HTTP/1.1 rule are the current answer to
-  an item tracked in [open-questions.md](open-questions.md).
+  transient failures.
 - **Confirmed watermark `C`.** `C = min over open u of lb(u)` when there is an open request; when
   there is none (every request of the phase was confirmed or is closed) the watermark is not a limit
   and `C = M_end`.
