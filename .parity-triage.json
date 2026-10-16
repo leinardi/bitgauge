@@ -1944,6 +1944,11 @@
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's strip reports no protocol and an automatic stream count of — before a run, HTTP/1.1 in the upload-interrupted state, and the plateau reason after the cancelled slow run, as its own notice and the spec say.",
           "done": true
+        },
+        {
+          "target": "fixture",
+          "what": "fixtures.ts and frontend.md §9: the LAN links carry a ceiling per request of 110 Mbit/s down and 80 Mbit/s up, so the upload ramp gains at each trial and reaches six streams at plateau cap, as measurement.md §19.4 and the kit give; before, four streams filled the 438 Mbit/s upload and it plateaued no-gain. Chosen 2026-10-16 on the user's delegation.",
+          "done": true
         }
       ],
       "status": "in-progress",
@@ -2025,7 +2030,8 @@
         },
         "test/upload-interrupted": {
           "21216e737e9c": "*",
-          "5cfaa651762a": "*"
+          "5cfaa651762a": "*",
+          "cbe4eda351f8": "*"
         },
         "test/ws-fallback": {
           "04cf7ebb4c09": "*"
@@ -2758,6 +2764,11 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's slowdone upload tile shows the Low confidence pill and few samples, as the demo's slow link and measurement.md §19.1 give.",
+          "done": true
+        },
+        {
+          "target": "fixture",
+          "what": "fixtures.ts and frontend.md §9: the LAN links carry a ceiling per request of 110 Mbit/s down and 80 Mbit/s up, so the upload ramp gains at each trial and reaches six streams at plateau cap, as measurement.md §19.4 and the kit give; before, four streams filled the 438 Mbit/s upload and it plateaued no-gain. Chosen 2026-10-16 on the user's delegation.",
           "done": true
         }
       ],

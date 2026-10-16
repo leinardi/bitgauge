@@ -61,7 +61,7 @@ function noticesOf(result: Result): string[] {
 }
 
 describe('the demo session', () => {
-  it('measures the LAN within 5 % of the link rate, over HTTP/2 on six streams', async () => {
+  it('measures the LAN within 5 % of the link rate, over HTTP/2 on six streams at the cap', async () => {
     const { events, failures } = await play('complete')
     const result = resultOf(events)
     expect(failures).toEqual([])
@@ -75,7 +75,9 @@ describe('the demo session', () => {
     expect(result.idle?.medianMs).toBeLessThan(4.5)
     expect(result.client).toMatchObject({ ip: '192.168.1.42', protocol: 'h2' })
     expect(result.server.name).toBe('Basement NAS')
-    expect(result.download?.streams).toBe(6)
+    for (const direction of [result.download, result.upload]) {
+      expect(direction).toMatchObject({ streams: 6, plateau: 'cap' })
+    }
   })
 
   it('measures the VPN at its minimum, as the kit does, and extends a slower link', async () => {

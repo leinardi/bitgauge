@@ -80,7 +80,7 @@ export class Pacer {
       if (moving.length === 0) {
         continue
       }
-      const share = Math.min(this.link.bytesPerMs(direction) / moving.length, this.link.perRequestBytesPerMs())
+      const share = Math.min(this.link.bytesPerMs(direction) / moving.length, this.link.perRequestBytesPerMs(direction))
       for (const transfer of moving) {
         this.move(transfer, share, now)
       }

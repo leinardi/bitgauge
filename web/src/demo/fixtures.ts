@@ -52,11 +52,12 @@ function info(client: Info['client'], basePath: string): Info {
 }
 
 export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
-  // Six streams fill the link: one connection carries at most about a sixth of it.
+  // Six streams fill the link: one connection carries at most about a sixth of it, so that each
+  // trial of the ramp gains and it reaches its cap in both directions.
   lan: {
     downloadBitsPerSecond: 612e6,
     uploadBitsPerSecond: 438e6,
-    perRequestBitsPerSecond: 110e6,
+    perRequestBitsPerSecond: { download: 110e6, upload: 80e6 },
     rttMs: 3.1,
     jitterMs: 0.8,
     protocol: 'h2',
@@ -66,7 +67,7 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
   'lan-http1': {
     downloadBitsPerSecond: 612e6,
     uploadBitsPerSecond: 438e6,
-    perRequestBitsPerSecond: 110e6,
+    perRequestBitsPerSecond: { download: 110e6, upload: 80e6 },
     rttMs: 3.1,
     jitterMs: 0.8,
     protocol: 'http/1.1',

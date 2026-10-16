@@ -28,8 +28,8 @@ export interface LinkProfile {
   /** The bottleneck's goodput per direction, in bits per second. */
   downloadBitsPerSecond: number
   uploadBitsPerSecond: number
-  /** The most one request carries, in bits per second, such as one connection's CPU limit. */
-  perRequestBitsPerSecond?: number
+  /** The most one request carries per direction, in bits per second, such as one connection's CPU limit. */
+  perRequestBitsPerSecond?: Readonly<Record<Direction, number>>
   rttMs: number
   /** The mean difference between consecutive round trips. */
   jitterMs: number
@@ -79,9 +79,9 @@ export class Link {
     return bits / 8 / 1000
   }
 
-  /** The bytes per millisecond one request carries at most. */
-  perRequestBytesPerMs(): number {
-    const bits = this.profile.perRequestBitsPerSecond
+  /** The bytes per millisecond one request carries at most in `direction`. */
+  perRequestBytesPerMs(direction: Direction): number {
+    const bits = this.profile.perRequestBitsPerSecond?.[direction]
     return bits === undefined ? Number.POSITIVE_INFINITY : bits / 8 / 1000
   }
 
