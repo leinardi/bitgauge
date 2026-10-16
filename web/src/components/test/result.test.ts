@@ -29,6 +29,8 @@ import type { Component } from 'vue'
 import DownloadJson from '@/components/test/DownloadJson.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
+import type { PhaseView, RunError } from '@/composables/useRunState'
+import type { PhaseName } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 import { resultFixture } from '@/test/fixtures'
 
@@ -128,23 +130,41 @@ describe('the result bar', () => {
 })
 
 describe('the failure notice', () => {
-  it('names the phase and words the cause by the error\'s message key', () => {
-    const wrapper = mountWith(RunFailure, { error: { code: 'requests-failed', phase: 'download', partial: true }, kept: true })
-    expect(wrapper.get('[role="alert"]').text()).toContain('Test failed during download')
-    expect(wrapper.text()).toContain('Three requests in a row failed.')
-    expect(wrapper.text()).toContain('The phases that finished before the error are kept.')
+  const ORDER = ['idle', 'download', 'upload'] as const
+  const phases = (overrides: Partial<Record<PhaseName, PhaseView>>): Record<PhaseName, PhaseView> => ({
+    info: { state: 'finished' },
+    idle: { state: 'pending' },
+    download: { state: 'pending' },
+    upload: { state: 'pending' },
+    ...overrides,
+  })
+  const failure = (error: RunError, shown: Record<PhaseName, PhaseView>) => {
+    const wrapper = mountWith(RunFailure, { error, phases: shown, order: ORDER, server: 'Basement NAS' })
+    return wrapper.get('[role="alert"]').findAll('span').map((span) => span.text().replace(/\u00a0/gu, ' '))
+  }
+
+  it('names the server, the cause by the error\'s message key, where the phase stopped and what finished before it', () => {
+    expect(failure({ code: 'requests-failed', phase: 'download', partial: true }, phases({ idle: { state: 'finished' }, download: { state: 'failed', ranMs: 6400 } }))).toEqual([
+      'Connection to Basement NAS lost — 3 requests in a row failed during download',
+      'Download stopped at 6.4 s. Latency finished before the error.',
+    ])
+    expect(failure({ code: 'network-changed', phase: 'idle', partial: false }, phases({ idle: { state: 'failed', ranMs: 1200 } }))).toEqual([
+      'Connection to Basement NAS lost — the network changed',
+      'The test stopped at 1.2 s, during latency. No phase finished.',
+    ])
+    expect(failure({ code: 'server-restarted', phase: 'upload', partial: true }, phases({ idle: { state: 'finished' }, download: { state: 'finished' }, upload: { state: 'failed', ranMs: 3000 } }))[1]).toBe(
+      'Upload stopped at 3.0 s. Latency and download finished before the error.',
+    )
   })
 
   it('names no phase for an engine defect', () => {
-    const wrapper = mountWith(RunFailure, { error: { code: 'internal', phase: null, partial: false }, kept: false })
-    expect(wrapper.text()).toContain('Test failed')
-    expect(wrapper.text()).toContain('The test stopped because of an internal error.')
-    expect(wrapper.text()).not.toContain('kept')
+    expect(failure({ code: 'internal', phase: null, partial: false }, phases({}))).toEqual(['Test failed', 'The test stopped because of an internal error.'])
   })
 
-  it('says the test failed while connecting when the info phase failed', () => {
-    const wrapper = mountWith(RunFailure, { error: { code: 'server-unreachable', phase: 'info', partial: false }, kept: false })
-    expect(wrapper.text()).toContain('Test failed while connecting')
-    expect(wrapper.text()).toContain('The server stopped answering.')
+  it('says the test stopped while connecting when the info phase failed', () => {
+    expect(failure({ code: 'server-unreachable', phase: 'info', partial: false }, phases({ info: { state: 'failed' } }))).toEqual([
+      'Connection to Basement NAS lost — server stopped responding',
+      'The test stopped while connecting.',
+    ])
   })
 })

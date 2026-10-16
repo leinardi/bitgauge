@@ -82,7 +82,7 @@ function present<T>(value: T | undefined): T {
   return value
 }
 
-function phase(name: PhaseName, state: PhaseState, extra: { protocol?: string; streams?: number; notices?: Notice[] } = {}): EngineEvent {
+function phase(name: PhaseName, state: PhaseState, extra: { protocol?: string; streams?: number; notices?: Notice[]; ranMs?: number } = {}): EngineEvent {
   return { type: 'phase', phase: name, state, notices: [], ...extra }
 }
 
@@ -329,13 +329,13 @@ describe('the Test screen', () => {
   it('shows an error with the phase, the kept phases, Download JSON and Retry, which runs again', async () => {
     const { page, worker, emit } = await started()
     await emit(phase('info', 'finished'), phase('idle', 'finished'), phase('download', 'started'))
-    await emit({ type: 'error', code: 'requests-failed', messageKey: 'errors.requests-failed', phase: 'download', partial: true }, phase('download', 'finished'), phase('upload', 'skipped'))
+    await emit({ type: 'error', code: 'requests-failed', messageKey: 'errors.requests-failed', phase: 'download', partial: true }, phase('download', 'failed', { ranMs: 6400 }), phase('upload', 'skipped'))
     const result = resultFixture({ status: 'error', download: { status: 'error', streams: 4, bytes: 1, events: [{ code: 'error', atMs: 6400, notice: 'requests-failed' }] }, upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0 } })
     await emit({ type: 'result', result })
     const failure = page.get('[data-testid="run-failure"]')
     expect(failure.attributes('role')).toBe('alert')
-    expect(failure.text()).toContain('Test failed during download')
-    expect(failure.text()).toContain('Three requests in a row failed.')
+    expect(failure.text()).toContain('Connection to Basement NAS lost — 3 requests in a row failed during download')
+    expect(failure.text()).toContain('Download stopped at 6.4\u00a0s. Latency finished before the error.')
     expect(tiles(page)[0]).toContain('error · 3 requests in a row failed')
     expect(tiles(page)[2]).toContain('3.1')
     expect(page.get('[data-testid="result-bar"]').text()).toContain('Partial results are not saved')
@@ -363,9 +363,9 @@ describe('the Test screen', () => {
     vi.mocked(getInfo).mockClear()
     vi.mocked(getInfo).mockRejectedValueOnce(new TypeError('network'))
     await emit(phase('info', 'finished'), phase('idle', 'started'))
-    await emit({ type: 'error', code: 'server-unreachable', messageKey: 'errors.server-unreachable', phase: 'idle', partial: false }, phase('idle', 'failed'), phase('download', 'skipped'), phase('upload', 'skipped'))
+    await emit({ type: 'error', code: 'server-unreachable', messageKey: 'errors.server-unreachable', phase: 'idle', partial: false }, phase('idle', 'failed', { ranMs: 2000 }), phase('download', 'skipped'), phase('upload', 'skipped'))
     expect(getInfo).toHaveBeenCalledOnce()
-    expect(page.get('[data-testid="run-failure"]').text()).toContain('The server stopped answering.')
+    expect(page.get('[data-testid="run-failure"]').text()).toContain('server stopped responding')
     expect(page.text()).toContain('Server unreachable')
     expect(page.get('[data-testid="start-button"]').attributes('aria-disabled')).toBe('true')
     vi.mocked(getInfo).mockResolvedValueOnce(INFO)

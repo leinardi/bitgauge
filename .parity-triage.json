@@ -2122,22 +2122,23 @@
       "actions": [
         {
           "target": "vue",
-          "what": "RunFailure.vue and the locale: the kit's alert (Connection to <server> lost — <cause> during <phase>; stopped at <s>; what finished before the error), with error-early's cause worded as flows.md §5's network changed.",
-          "done": false
+          "what": "flows.md §5 and RunFailure.vue, errors.json and test.json: the kit's alert (Connection to <server> lost — <cause>[ during <phase>]; where the phase stopped; what finished before the error), with error-early's cause worded as flows.md §5's network changed.",
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's error-early alert names the network-changed ending of flows.md §5, not \"server stopped responding\".",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/error": {
           "7772483af61d": "*"
         },
         "test/error-early": {
-          "11c89d849aa0": "*"
+          "11c89d849aa0": "*",
+          "1a3334675f73": "*"
         }
       },
       "resolution": null

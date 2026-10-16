@@ -265,7 +265,9 @@ watch(run.error, (error) => {
     <RunFailure
       v-if="state === 'error' && run.error.value !== null"
       :error="run.error.value"
-      :kept="run.result.value !== null"
+      :phases="run.phases.value"
+      :order="shownSettings?.phases ?? []"
+      :server="gaugeContext.server"
     />
     <AutoStartNotice
       v-if="countdown.remainingMs.value !== null"

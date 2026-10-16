@@ -21,33 +21,20 @@ import { CircleX } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { RunError } from '@/composables/useRunState'
+import type { PhaseView, RunError } from '@/composables/useRunState'
+import type { MeasuringPhase, PhaseName } from '@/engine/messages'
+import { formatDuration } from '@/lib/format'
 
 // What failed and in which phase (ui/screens.md section 1, Error; ui/flows.md section 5), as a
-// danger notice at the head of the notices: the error's message key words the cause, and an
-// engine defect says the test stopped because of an internal error, naming no phase.
+// danger notice at the head of the notices: the server and the cause, worded by the error's
+// message key, then where the phase stopped and what finished before it. An engine defect says
+// the test stopped because of an internal error, naming no phase.
 
-const props = defineProps<{ error: RunError; kept: boolean }>()
+const props = defineProps<{ error: RunError; phases: Readonly<Record<PhaseName, PhaseView>>; order: readonly MeasuringPhase[]; server: string }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
-const title = computed(() => {
-  switch (props.error.code === 'internal' ? null : props.error.phase) {
-    case 'info':
-      return t('test.failure.info')
-    case 'idle':
-      return t('test.failure.idle')
-    case 'download':
-      return t('test.failure.download')
-    case 'upload':
-      return t('test.failure.upload')
-    default:
-      return t('test.failure.title')
-  }
-})
-
-const CAUSES: Record<RunError['code'], () => string> = {
-  internal: () => t('test.failure.internal'),
+const CAUSES: Record<Exclude<RunError['code'], 'internal'>, () => string> = {
   'invalid-settings': () => t('errors.invalid-settings'),
   'requests-failed': () => t('errors.requests-failed'),
   'network-changed': () => t('errors.network-changed'),
@@ -55,7 +42,47 @@ const CAUSES: Record<RunError['code'], () => string> = {
   'server-unreachable': () => t('errors.server-unreachable'),
 }
 
-const cause = computed(() => CAUSES[props.error.code]())
+function phaseName(phase: MeasuringPhase): string {
+  return phase === 'idle' ? t('test.failure.phases.idle') : phase === 'download' ? t('test.failure.phases.download') : t('test.failure.phases.upload')
+}
+
+const capitalized = (text: string) => text.charAt(0).toLocaleUpperCase(locale.value) + text.slice(1)
+
+const finished = computed(() => props.order.filter((phase) => props.phases[phase].state === 'finished'))
+
+const title = computed(() => {
+  const { code, phase } = props.error
+  if (code === 'internal') {
+    return t('test.failure.title')
+  }
+  const cause = CAUSES[code]()
+  if (code === 'invalid-settings') {
+    return t('test.failure.failed', { cause })
+  }
+  // A phase stopped after another finished names it in the title; otherwise the body does.
+  return phase !== null && phase !== 'info' && finished.value.length > 0
+    ? t('test.failure.lostDuring', { server: props.server, cause, phase: phaseName(phase) })
+    : t('test.failure.lost', { server: props.server, cause })
+})
+
+const body = computed(() => {
+  const { code, phase } = props.error
+  if (code === 'internal') {
+    return t('test.failure.internal')
+  }
+  if (phase === null) {
+    return ''
+  }
+  if (phase === 'info') {
+    return t('test.failure.connecting')
+  }
+  const s = formatDuration(props.phases[phase].ranMs ?? 0, locale.value)
+  if (finished.value.length === 0) {
+    return `${t('test.failure.stoppedDuring', { s, phase: phaseName(phase) })} ${t('test.failure.noneFinished')}`
+  }
+  const phases = capitalized(new Intl.ListFormat(locale.value, { type: 'conjunction' }).format(finished.value.map(phaseName)))
+  return `${t('test.failure.stopped', { phase: capitalized(phaseName(phase)), s })} ${t('test.failure.finished', { phases })}`
+})
 </script>
 
 <template>
@@ -72,11 +99,10 @@ const cause = computed(() => CAUSES[props.error.code]())
     />
     <div class="flex min-w-0 flex-1 flex-col gap-0.5">
       <span class="text-(length:--text-sm) font-semibold text-foreground">{{ title }}</span>
-      <span class="text-(length:--text-sm) text-muted-foreground">{{ cause }}</span>
       <span
-        v-if="kept"
+        v-if="body"
         class="text-(length:--text-sm) text-muted-foreground"
-      >{{ $t('test.failure.kept') }}</span>
+      >{{ body }}</span>
     </div>
   </div>
 </template>

@@ -46,9 +46,8 @@ test('a server killed mid-download gives the error state, and Retry runs again',
   await server.kill()
 
   const failure = page.getByTestId('run-failure')
-  await expect(failure).toContainText('Test failed during download', { timeout: 60_000 })
-  await expect(failure).toContainText(/The network changed during the test\.|Three requests in a row failed\./)
-  await expect(failure).toContainText('The phases that finished before the error are kept.')
+  await expect(failure).toContainText(/lost — (the network changed|3 requests in a row failed) during download/, { timeout: 60_000 })
+  await expect(failure).toContainText('Latency finished before the error.')
   const retry = page.getByRole('button', { name: 'Retry test' })
   await expect(retry).toBeVisible()
   await expectAccessible(page)

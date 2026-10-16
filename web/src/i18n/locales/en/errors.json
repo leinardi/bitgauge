@@ -1,9 +1,9 @@
 {
   "errors": {
-    "invalid-settings": "The test settings are not valid.",
-    "requests-failed": "Three requests in a row failed.",
-    "network-changed": "The network changed during the test.",
-    "server-restarted": "The server restarted during the test.",
-    "server-unreachable": "The server stopped answering."
+    "invalid-settings": "the test settings are not valid",
+    "requests-failed": "3 requests in a row failed",
+    "network-changed": "the network changed",
+    "server-restarted": "the server restarted",
+    "server-unreachable": "server stopped responding"
   }
 }

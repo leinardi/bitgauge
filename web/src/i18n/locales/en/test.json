@@ -219,12 +219,20 @@
     },
     "failure": {
       "title": "Test failed",
-      "info": "Test failed while connecting",
-      "idle": "Test failed during idle latency",
-      "download": "Test failed during download",
-      "upload": "Test failed during upload",
+      "failed": "Test failed — {cause}",
       "internal": "The test stopped because of an internal error.",
-      "kept": "The phases that finished before the error are kept."
+      "lost": "Connection to {server} lost — {cause}",
+      "lostDuring": "Connection to {server} lost — {cause} during {phase}",
+      "stopped": "{phase} stopped at {s}.",
+      "stoppedDuring": "The test stopped at {s}, during {phase}.",
+      "connecting": "The test stopped while connecting.",
+      "finished": "{phases} finished before the error.",
+      "noneFinished": "No phase finished.",
+      "phases": {
+        "idle": "latency",
+        "download": "download",
+        "upload": "upload"
+      }
     },
     "countdown": {
       "label": "Auto-start in",
