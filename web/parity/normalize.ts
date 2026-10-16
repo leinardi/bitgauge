@@ -79,10 +79,12 @@ const GAUGE_NOTE = new RegExp(String.raw`\b(avg so far) ${NUMBER} · (peak) ${NU
 // The result tiles word a peak and a minimum without the unit their headline or their p90 carries
 // ("peak 641 · 6 streams", "min 2.4 · p90 4.1 ms"); a live tile's peak follows the run like any
 // other measured value. A stopped upload's steady window counts the requests it confirmed ("based
-// on a 3.6 s steady window · 21 requests"), which move with the instant of the stop. The words
-// around them, and the stream count, are still compared.
+// on a 3.6 s steady window · 21 requests", and in the stop notice "the 21 requests confirmed by
+// 13.1 s"), which move with the instant of the stop. The words around them, and the stream count,
+// are still compared.
 const TILE_VALUE = new RegExp(String.raw`\b(peak|min) ${NUMBER}(?![\w.,/%])`, 'g')
 const WINDOW_REQUESTS = new RegExp(String.raw`\b(steady window · )${NUMBER}( requests?)\b`, 'g')
+const CONFIRMED_REQUESTS = new RegExp(String.raw`\b(the )${NUMBER}( requests? confirmed by)\b`, 'g')
 
 export function normalizeValue(text: string): string {
   return normalizeText(text)
@@ -93,6 +95,7 @@ export function normalizeValue(text: string): string {
     .replace(GAUGE_NOTE, (_note, avg: string | undefined, peak: string | undefined, median: string | undefined) => (median === undefined ? `${avg} # · ${peak} #` : `${median} #`))
     .replace(TILE_VALUE, '$1 #')
     .replace(WINDOW_REQUESTS, '$1#$2')
+    .replace(CONFIRMED_REQUESTS, '$1#$2')
 }
 
 // Nodes whose children the comparison reads in their place. A paragraph is a <p> on one side and a
