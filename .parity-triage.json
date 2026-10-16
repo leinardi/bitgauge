@@ -2866,15 +2866,15 @@
         {
           "target": "vue",
           "what": "notices.json uploadInterrupted body: the kit's wording; the Deployment guide link stays.",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's upload-interrupted alert links the deployment guide.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
