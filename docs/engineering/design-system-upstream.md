@@ -14,12 +14,4 @@ the export shows, and what it should show, with the reason; behavior comes from
 
 ## Notes
 
-### About: no Credits card
-
-From the maintainer's decision of 2026-10-16, with
-[ui/screens.md §5](../features/ui/screens.md#5-other-clients--about--about). In
-`ui_kits/app/About.jsx`, the aside ends with a Credits card: the five projects, each with the
-milestone that uses it, and the trademark and affiliation note. The screen should have no credits:
-the README and the docs credit those projects and note the trademarks. Remove the card, the
-`credits` list in `renderVals()` and the `from()` helper if nothing else uses it; the aside ends
-with the Privacy card.
+None open: the export of 2026-10-16 carries every note.

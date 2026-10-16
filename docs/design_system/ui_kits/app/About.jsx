@@ -22,7 +22,6 @@ class About extends React.Component {
     const caps = this.props.caps || { clients: true, history: true };
     const v03 = !!caps.clients;
     const built = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(S0.buildDate + 'T00:00:00Z'));
-    const from = (d, ver) => v03 ? d + '.' : d + ', from ' + ver + '.';
     const on = un ? { ost: true, ls: true, nq: true } : { ost: flag('openspeedtest'), ls: flag('librespeed'), nq: flag('networkquality') };
     const clients = [
       { k: 'ost', name: 'OpenSpeedTest™ web UI', icon: 'globe', tag: 'Web UI',
@@ -59,14 +58,7 @@ class About extends React.Component {
       privacy: caps.history ? 'No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.' : 'No accounts, no tracking, no ads. The server keeps no results: a result exists only in this browser.',
       // Before v0.3 the methodology summary covers the v0.1 metrics only (screens.md §5).
       method: caps.clients ? 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load — the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers.'
-        : 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Idle latency and jitter are measured over WebSocket (HTTP if unavailable). Each result also reports the data used and the test duration.',
-      credits: [
-        { n: 'OpenSpeedTest™', d: from('Protocol compatibility for its web UI', 'v0.3') },
-        { n: 'LibreSpeed', d: from('Protocol compatibility for librespeed-cli', 'v0.3') },
-        { n: 'Cloudflare', d: from('AIM quality scores for streaming, gaming and video calls', 'v0.3') },
-        { n: 'Apple networkQuality and the IETF responsiveness draft', d: from('The RPM responsiveness metric and config format', 'v0.3') },
-        { n: 'Waveform', d: from('Bufferbloat grade thresholds', 'v0.2') }
-      ]
+        : 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Idle latency and jitter are measured over WebSocket (HTTP if unavailable). Each result also reports the data used and the test duration.'
     };
   }
   render() {
@@ -136,17 +128,6 @@ class About extends React.Component {
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
                 <h2 className="ds-eyebrow" style={{ margin: 0 }}>Privacy</h2>
                 <span className="ds-body-sm" style={{ lineHeight: "var(--lh-prose)" }}>{v.privacy}</span>
-              </div>
-            </DS.Card>
-            <DS.Card>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-                <h2 className="ds-eyebrow" style={{ margin: 0 }}>Credits</h2>
-                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
-                  {v.credits.map(cr => <li key={cr.n} style={{ display: "flex", flexDirection: "column", gap: "var(--space-0-5)" }}><span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)" }}>{cr.n}</span><span className="ds-caption" style={{ color: "var(--fg-muted)", lineHeight: "var(--lh-normal)" }}>{cr.d}</span></li>)}
-                </ul>
-                <span className="ds-caption" style={{ paddingTop: "var(--space-2-5)", borderTop: "1px solid var(--border-subtle)", lineHeight: "var(--lh-normal)" }}>
-                  OpenSpeedTest™ is a trademark of its owner. BitGauge is an independent project, not affiliated with or endorsed by OpenSpeedTest, LibreSpeed, Cloudflare, Apple or Waveform.
-                </span>
               </div>
             </DS.Card>
           </aside>
