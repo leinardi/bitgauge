@@ -339,10 +339,10 @@ carries a recommendation; where the specification already relies on an answer, i
     `idle` event after each answered or lost ping carries the counter, the last RTT for the
     gauge and the running median; a stopped direction with a number reads "partial — stopped
     early" and "upload based on the first 7.0 s" (its window end from the phase start, as
-    measurement.md §7.8 words it), while the `stopped-early` notice names its steady window ("a
-    3.6 s steady window", as ui/flows.md §4 words it); an engine error is worded by its message
-    key `errors.<code>` in an `errors` namespace**. Recommendation: keep it. See
-    [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
+    measurement.md §7.8 words it), while the stop notice names the phase, the stop instant and
+    the steady window ("a 3.6 s steady window", as ui/flows.md §4 words it); an engine error is
+    worded by its message key `errors.<code>` in an `errors` namespace**. Recommendation: keep
+    it. See [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [ui/i18n-a11y.md §1.1](ui/i18n-a11y.md#11-structure).
 39. How do the URL parameters reach a run, when the UI cannot resolve a preset's durations
     without importing the engine, and which values are invalid? Current answer: **the page sends

@@ -87,7 +87,14 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    with what was covered ("based on a 3.6 s steady window · 21 requests" on upload). Whether an
    interrupted direction has a number depends on its confirmed steady window, never on the
    elapsed phase time: a stop before warm-up ends gives "insufficient data — confirmed steady
-   window shorter than 3 s".
+   window shorter than 3 s". The stop notice says what happened, from the result: it is titled
+   "Test cancelled during <phase>", or "Partial — stopped early · upload based on a 3.6 s steady
+   window" for an upload with a number; its body names the phases that completed, where the
+   stopped direction stopped and why it has or has no value, and the phases that did not run:
+   "Latency and download completed. Upload stopped at 14.0 s; in-flight requests were aborted,
+   and the 21 requests confirmed by 13.1 s give the partial value.", "Latency completed. Download
+   stopped before a 3 s steady window, so it has no value. Upload did not run." The upload's
+   times are on its phase timeline from P_start, as its chart and events are.
 5. The partial result is **not** saved automatically. The screen offers **Keep in history**, which
    saves it with status `partial` (with an undo toast), and Download JSON.
    - **Branch: the user leaves or runs again without keeping it.** The result is discarded.

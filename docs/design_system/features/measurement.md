@@ -1138,7 +1138,9 @@ engine emits the code with the raw values the notice names, and the UI words it.
   (`data-used`; §15);
 - `URL parameter ignored` naming each parameter whose value was invalid
   (`url-parameter-ignored`; [ui/url-params.md](ui/url-params.md));
-- `partial — stopped early` with the covered duration (`stopped-early`; §7.8);
+- `partial — stopped early` with the covered duration (`stopped-early`; §7.8), which the UI words
+  with the stop instant and, on upload, the confirmed requests and the window end the result
+  carries ([ui/flows.md §4](ui/flows.md#4-cancel-mid-test));
 - `server restarted` (`server-restarted`; epoch change, test aborted; §7.3);
 - `server unreachable` with retry (`server-unreachable`; §10);
 - `proxy buffering suspected` (`proxy-buffering-suspected`; §7.3);
