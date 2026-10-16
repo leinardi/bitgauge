@@ -33,7 +33,7 @@ test('Stop early in download gives a partial result with insufficient data', asy
 
   await expect(page.getByTestId('result-bar')).toContainText('Partial results are not saved')
   const tiles = page.getByTestId('metric-tile')
-  await expect(tiles.filter({ hasText: 'Download' }).first()).toContainText('insufficient data')
+  await expect(tiles.filter({ hasText: 'Download' }).first()).toContainText('Insufficient data')
   await expect(tiles.filter({ hasText: 'Upload' }).first()).toContainText('skipped')
   await expect(page.getByRole('button', { name: 'Run again' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Download JSON' })).toBeVisible()
@@ -52,8 +52,8 @@ test('Escape past the steady window gives a partial number with what it covered'
 
   await expect(page.getByTestId('result-bar')).toContainText('Partial results are not saved')
   const download = page.getByTestId('metric-tile').filter({ hasText: 'Download' }).first()
-  await expect(download).toContainText('partial — stopped early')
-  await expect(download).toContainText(/download based on the first \d+(\.\d)?\ss/)
+  await expect(download).toContainText('Partial — stopped early')
+  await expect(download).toContainText(/based on a \d+(\.\d)?\ss steady window/)
   await expect(download.getByTestId('tile-number')).toHaveText(/\d/)
-  await expect(page.getByTestId('notice').filter({ hasText: 'Partial — stopped early' })).toContainText(/Download is based on a \d+(\.\d)?\ss steady window/)
+  await expect(page.getByTestId('notice').filter({ hasText: 'Test cancelled during download' })).toContainText(/Download has a \d+(\.\d)?\ss steady window, enough for a partial value\./)
 })
