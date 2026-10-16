@@ -353,12 +353,6 @@ watch(run.error, (error) => {
       v-if="shown && !running && run.result.value !== null"
       :result="run.result.value"
     />
-    <p
-      v-if="state === 'idle' && reachability === 'connected'"
-      class="text-(length:--text-base) text-muted-foreground"
-    >
-      {{ $t('test.empty') }}
-    </p>
     <section
       :aria-label="$t('test.results')"
       class="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4"

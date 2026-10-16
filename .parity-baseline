@@ -40,17 +40,14 @@
 *	test/basepath	content	main > region "Deployment hint"	missing	text "."	present when the harness was adopted
 *	test/basepath	content	main > region "Deployment hint"	missing	text "prefix at the proxy so BitGauge is served from"	present when the harness was adopted
 *	test/complete	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.
-*	test/countdown	content	main	extra	text "No test has run yet."	present when the harness was adopted
 *	test/countdown	content	main > status	changed	text "… was opened from a link with autostart enabled." → "… was opened from a link that starts a test automatically."	present when the harness was adopted
 *	test/error	content	main	extra	status	present when the harness was adopted
 *	test/error	content	main > alert	changed	text "Connection to Basement NAS lost — 3 requests in a row failed during download Download stopped at # s. Latency finished before the error." → "Test failed …	present when the harness was adopted
 *	test/error-early	content	main	missing	region "Result status"	present when the harness was adopted
 *	test/error-early	content	main > alert	changed	text "Connection to Basement NAS lost — server stopped responding The test stopped at # s, during latency. No phase finished." → "Test failed during idle laten…	present when the harness was adopted
-*	test/idle	content	main	extra	text "No test has run yet."	present when the harness was adopted
 *	test/insufficient	content	main	missing	status	present when the harness was adopted
 *	test/offline	content	main	changed	text "…P — Protocol — Streams — Standard preset · Auto streams · No data cap" → "…P — Protocol — Streams —"	present when the harness was adopted
 *	test/offline	content	main	extra	alert	present when the harness was adopted
-*	test/param-ignored	content	main	extra	text "No test has run yet."	present when the harness was adopted
 *	test/param-ignored	content	main	missing	status	present when the harness was adopted
 *	test/slowdone	content	main	extra	status	present when the harness was adopted
 *	test/slowdone	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.

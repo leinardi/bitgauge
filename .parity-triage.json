@@ -2021,10 +2021,10 @@
         {
           "target": "vue",
           "what": "TestPage.vue: drop \"No test has run yet.\"; the Results section shows its empty tiles.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "done",
       "owned": {
         "test/cancelled-latency": {
           "328ec6b70007": "*"
@@ -2039,7 +2039,49 @@
           "328ec6b70007": "*"
         }
       },
-      "resolution": null
+      "resolution": {
+        "note": null,
+        "on": "2026-10-16",
+        "run": {
+          "runId": "2a53e4fc-c73f-4f02-8b9a-5dbe9c0ceae4",
+          "finishedAt": "2026-10-16T07:49:27.820Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "content-error-alert",

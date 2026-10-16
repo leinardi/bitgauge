@@ -1,7 +1,6 @@
 {
   "test": {
     "title": "Speed test",
-    "empty": "No test has run yet.",
     "results": "Results",
     "connection": {
       "context": "Context",

@@ -192,7 +192,8 @@ describe('the Test screen', () => {
     expect(page.get('[data-testid="gauge-text"]').text()).toContain('Ready')
     expect(page.find('[data-testid="result-bar"]').exists()).toBe(false)
     expect(page.find('[data-testid="download-json"]').exists()).toBe(false)
-    expect(page.text()).toContain('No test has run yet.')
+    // Before a run the Results show their empty tiles, with no sentence of their own.
+    expect(page.text()).not.toContain('No test has run yet.')
     expect(tiles(page)).toHaveLength(4)
     expect(facts(page)).toEqual(['Data used—', 'Duration—', "Packet lossBrowsers can't see packet loss over TCPWhy? Not measured"])
     page.unmount()
