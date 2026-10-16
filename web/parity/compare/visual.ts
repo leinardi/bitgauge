@@ -72,8 +72,8 @@ function heatmap({ a, b, tolerance }: { a: string; b: string; tolerance: number 
         differing++
         diff.data.set([255, 0, 64, 255], i)
       } else {
-        const grey = 255 - ((255 - ((pa[i] ?? 0) + (pa[i + 1] ?? 0) + (pa[i + 2] ?? 0)) / 3) * 0.25)
-        diff.data.set([grey, grey, grey, 255], i)
+        const gray = 255 - ((255 - ((pa[i] ?? 0) + (pa[i + 1] ?? 0) + (pa[i + 2] ?? 0)) / 3) * 0.25)
+        diff.data.set([gray, gray, gray, 255], i)
       }
     }
     ctx.putImageData(diff, 0, 0)

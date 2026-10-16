@@ -44,7 +44,7 @@ const TONES: Record<TilePill['tone'], { pill: string; dot: string }> = {
         :is="tile.icon"
         :size="13"
         aria-hidden="true"
-        :style="{ color: tile.colour }"
+        :style="{ color: tile.color }"
       />
       <span class="font-(family-name:--font-cond) text-(length:--text-caption) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ tile.label }}</span>
       <span

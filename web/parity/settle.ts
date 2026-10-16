@@ -48,7 +48,7 @@ export async function openSide(browser: Browser, driver: SideDriver, project: Pa
   await routeThroughCdnCache(context)
   // Fixed, not installed: Date reads the fixed instant, while timers still run, so the prototype's
   // timers and the demo's run go on by themselves. Theme is left on System, and both sides follow
-  // the emulated colour scheme.
+  // the emulated color scheme.
   await context.clock.setFixedTime(new Date(FIXED_NOW))
   await driver.prepare(context)
   const page = await context.newPage()

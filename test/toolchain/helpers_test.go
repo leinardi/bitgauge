@@ -81,7 +81,7 @@ func preCommitHooks(t *testing.T) map[string][]preCommitHook {
 	return hooks
 }
 
-// readWebSources reads every file of the web workspace that a frontend tool analyses: the
+// readWebSources reads every file of the web workspace that a frontend tool analyzes: the
 // manifest, the configuration files and the src, e2e and harness trees. A tool run through exec is
 // invisible to the test cache, and reading its inputs here is what makes an edit to them
 // invalidate a cached pass.

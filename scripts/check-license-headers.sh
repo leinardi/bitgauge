@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Licence header checker.
+# License header checker.
 #
 # BitGauge is GPL-3.0-or-later (decisions.md section 32), and every source file says so in its own
 # header. This fails on any tracked source file whose first lines do not carry the BitGauge notice

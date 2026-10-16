@@ -33,7 +33,7 @@ export type ChartState = 'empty' | 'running' | 'done' | 'stopped'
 export interface LegendEntry {
   key: 'download' | 'upload' | 'received' | 'sending' | 'warmup' | 'rtt'
   label: string
-  colour: string
+  color: string
   faint: boolean
   band: boolean
 }
@@ -55,7 +55,7 @@ const hasValue = (live: DirectionLive | null) => live !== null && live.values.so
 
 /** The series drawn and the warm-up band; an empty chart names the two directions it will draw. */
 export function chartLegend({ state, order, live, model }: ChartTextInput, { t }: Wording): LegendEntry[] {
-  const entry = (key: LegendEntry['key'], label: string, colour: string, faint = false, band = false): LegendEntry => ({ key, label, colour, faint, band })
+  const entry = (key: LegendEntry['key'], label: string, color: string, faint = false, band = false): LegendEntry => ({ key, label, color, faint, band })
   const download = entry('download', t('test.chart.legend.download'), 'var(--series-download)')
   const upload = entry('upload', t('test.chart.legend.upload'), 'var(--series-upload)')
   if (state === 'empty') {

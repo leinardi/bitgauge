@@ -30,7 +30,7 @@ import (
 	"time"
 )
 
-// Run statuses before judgement: a run that completed is recorded until Judge turns it into pass,
+// Run statuses before judgment: a run that completed is recorded until Judge turns it into pass,
 // fail or inconclusive (evaluate.go); a run that could not complete is failed. Recorded stays only
 // on a debugging run that is not judged.
 const (
@@ -47,13 +47,13 @@ var EnvironmentalLimits = []string{
 	"tc shaping jitter (tbf burst sizes, netem timer granularity).",
 	"Docker bridge overhead at high rates.",
 	"Playwright WebKit ≠ Safari: Worker XHR and nextHopProtocol " +
-		"behaviour must be re-checked on real Safari.", //nolint:misspell // testing.md's spelling, verbatim
+		"behavior must be re-checked on real Safari.",
 	"Mobile power management: device runs happen with the screen on.",
 }
 
 // CannotProve is the closing statement of testing.md section 5.
 const CannotProve = "What the harness cannot prove: " +
-	"real Wi-Fi behaviour, real VPN MTU effects, carrier-grade NAT, " + //nolint:misspell // testing.md's spelling, verbatim
+	"real Wi-Fi behavior, real VPN MTU effects, carrier-grade NAT, " +
 	"and anything about networks the project does not target."
 
 // A report is the operator's own: private to them, like the dist tree it sits in.
@@ -172,7 +172,7 @@ type Run struct {
 	// the re-run superseded, which stays in the report with its raw values.
 	Attempt int  `json:"attempt"`
 	Rerun   bool `json:"rerun,omitempty"`
-	// Verdict is the run's judgement in one line, and Findings what made it fail or inconclusive.
+	// Verdict is the run's judgment in one line, and Findings what made it fail or inconclusive.
 	Verdict  string   `json:"verdict,omitempty"`
 	Findings []string `json:"findings,omitempty"`
 	// Ping is the summary of the ICMP ping that ran concurrently with the browser, as ping

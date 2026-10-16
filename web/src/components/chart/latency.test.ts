@@ -57,13 +57,13 @@ describe('the latency samples chart', () => {
   })
 
   it('says where the phase stands, where it stopped and how, from the readout', () => {
-    expect(latencyLegend(wording).map((entry) => [entry.label, entry.colour])).toEqual([['Round-trip time', 'var(--series-latency)']])
+    expect(latencyLegend(wording).map((entry) => [entry.label, entry.color])).toEqual([['Round-trip time', 'var(--series-latency)']])
     expect(words()).toEqual({ meta: '1.5 s / ~2 s', summary: 'Latency samples: Latency 2.9 ms, 1.5 s / ~2 s' })
     expect(words({ state: 'stopped', mark: 'cancelled', readout: 'Cancelled' })).toEqual({ meta: 'stopped at 1.5 s', summary: 'Latency samples: Cancelled, stopped at 1.5 s; marked: Cancelled' })
     expect(words({ state: 'stopped', mark: 'error', ranMs: 1900, readout: 'Connection lost' }).summary).toBe('Latency samples: Connection lost, stopped at 1.9 s; marked: Connection lost')
   })
 
-  it('mounts uPlot with its title, legend and meta, labelled by its summary', async () => {
+  it('mounts uPlot with its title, legend and meta, labeled by its summary', async () => {
     const wrapper = mount(LatencyChart, { props: input(), global: { plugins: [createAppI18n('', ['en'])] }, attachTo: document.body })
     const host = wrapper.get('[data-testid="latency-chart"]')
     expect(host.attributes('role')).toBe('img')

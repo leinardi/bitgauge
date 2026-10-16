@@ -19,7 +19,7 @@
 <script setup lang="ts">
 // The repository mark (design_system components/brand/Icon.jsx `github`, Lucide's former github
 // icon), which @lucide/vue no longer ships. Drawn as the export's other icons are: a 24 px stroke
-// glyph in the current colour. Decorative: the link around it names it.
+// glyph in the current color. Decorative: the link around it names it.
 withDefaults(defineProps<{ size?: number }>(), { size: 16 })
 </script>
 

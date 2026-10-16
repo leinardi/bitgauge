@@ -24,7 +24,7 @@ import { chartHeight } from '@/components/chart/palette'
 
 /**
  * A uPlot chart in `host`: built once mounted, sized to the host's width, fed `data` as it
- * changes, and destroyed with the component. The caller redraws it when its colours change.
+ * changes, and destroyed with the component. The caller redraws it when its colors change.
  */
 export function useUplot(host: Readonly<Ref<HTMLDivElement | null>>, options: (width: number) => uPlot.Options, data: () => uPlot.AlignedData) {
   const plot = shallowRef<uPlot | null>(null)

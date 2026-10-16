@@ -69,7 +69,7 @@ export interface UploadWindow {
   sufficient: boolean
   /** The headline; absent when the window is insufficient. */
   bitsPerSecond?: number
-  /** The p90 of the cells' rates, labelled "peak"; absent when the window is insufficient. */
+  /** The p90 of the cells' rates, labeled "peak"; absent when the window is insufficient. */
   peakBitsPerSecond?: number
 }
 

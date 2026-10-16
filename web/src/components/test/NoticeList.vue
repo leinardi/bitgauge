@@ -28,7 +28,7 @@ import { latencyStopView, noticeViews } from '@/components/test/notices'
 import { useTheme } from '@/composables/useTheme'
 import type { Direction, DirectionResult, Notice, PhaseName, Preset, Result, TestSettings } from '@/engine/messages'
 
-// The notices area (ui/screens.md section 7): each notice an icon and text, never colour alone,
+// The notices area (ui/screens.md section 7): each notice an icon and text, never color alone,
 // in its tone, with up to two actions. Danger notices are alerts; the others are status messages.
 // The notices sit in the page's column as siblings, as the export's TestScreen places them.
 

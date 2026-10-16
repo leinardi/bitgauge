@@ -11,7 +11,7 @@ A sleep in a unit test is a sign that a clock was not injected.
 
 ## The production side: take the clock as an input
 
-- **Go.** Code whose behaviour depends on time takes a clock or monotonic time source from its
+- **Go.** Code whose behavior depends on time takes a clock or monotonic time source from its
   caller instead of calling `time.Now` or `time.Since` itself. The upload grid is the defining
   case: each read lands in `cell = floor((monotonic now − process start) / 100 ms) + K`
   ([backend.md §2](../../../../docs/features/technical-stack/backend.md#2-handler-rules)), and

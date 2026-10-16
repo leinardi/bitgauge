@@ -278,7 +278,7 @@ export interface components {
         ErrorBody: {
             /** @enum {string} */
             code: "bad_request" | "bytes_out_of_range" | "not_found" | "method_not_allowed" | "request_timeout" | "length_required" | "payload_too_large" | "rate_limited" | "too_many_streams" | "table_full" | "internal";
-            /** @description English, for logs and debugging; the SPA maps code to localised text. */
+            /** @description English, for logs and debugging; the SPA maps code to localized text. */
             message: string;
             /** @description Machine-readable context, such as the limit of bytes_out_of_range. */
             details?: {

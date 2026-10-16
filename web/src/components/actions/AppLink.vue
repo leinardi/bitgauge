@@ -20,7 +20,7 @@
 import { ExternalLink } from '@lucide/vue'
 
 // The kit's Link (design_system/components/actions Link.jsx, actions.css `.link`): a standalone
-// text action in one weight and one colour, at the size of the text around it. `external` marks a
+// text action in one weight and one color, at the size of the text around it. `external` marks a
 // link that leaves the app: it opens in a new tab and carries the external-link icon.
 
 defineProps<{ href: string; external?: boolean }>()

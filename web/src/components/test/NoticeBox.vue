@@ -22,7 +22,7 @@ import type { Component } from 'vue'
 import type { Tone } from '@/components/test/notices'
 
 // One notice (design_system/components/feedback Notice, notices.md): the tone's surface and icon
-// colour, the title and its body, and the actions pushed to the end, wrapping under the text when
+// color, the title and its body, and the actions pushed to the end, wrapping under the text when
 // the box is narrow. Danger is an alert; the other tones are status messages, unless the notice is
 // part of the page rather than news (`live` false). Screens pass the tone, the icon and the text,
 // never a style of their own.

@@ -85,7 +85,7 @@ repos:
       # whole tree, so it always runs; pinned to one stage because always_run makes a hook eligible
       # at every installed stage, and commit-msg is one of them.
       - id: check-license-headers
-        name: licence headers
+        name: license headers
         entry: scripts/check-license-headers.sh
         language: system
         pass_filenames: false

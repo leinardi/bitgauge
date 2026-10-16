@@ -264,7 +264,7 @@ code, especially long function signatures and struct tags. Test files are exempt
 These rules are the lint half of "the server never stores a result and never calls out" (AGENTS.md,
 "Core constraint"). [`test/boundary`](../../../test/boundary/boundary_test.go) reads them out of
 `.golangci.yaml` and pins them: their scope, the packages and identifiers they must stop, and the
-neighbours the server needs (the "allowed" column draws on that list). Changing a rule means
+neighbors the server needs (the "allowed" column draws on that list). Changing a rule means
 changing that test too.
 
 **`depguard`.** `logger` and `forbidden-forks` apply to every file; `no-storage` and `no-outbound`
@@ -410,7 +410,7 @@ restating it.
 
 Every error response under `/api/v1` is the JSON envelope of
 [wire-protocol.md §7](../../../docs/features/wire-protocol.md#7-error-envelope), with a stable
-`code` the SPA maps to localised text; a `429` also carries `Retry-After`. Compatibility layers
+`code` the SPA maps to localized text; a `429` also carries `Retry-After`. Compatibility layers
 keep their upstream wire formats instead. Read
 [references/error-envelope.md](references/error-envelope.md) before writing an error response, a
 `429`, a panic-recovery path or a compat route's failure.

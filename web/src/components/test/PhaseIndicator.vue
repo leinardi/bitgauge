@@ -27,7 +27,7 @@ import { formatDuration } from '@/lib/format'
 
 // The phase indicator (ui/screens.md section 1, design_system/components/phase-indicator.md): the
 // measuring phases in the configured order, each with its state carried by an icon and text, never
-// colour alone; the info phase is no step of its own and shows as "Connecting…" on the first one.
+// color alone; the info phase is no step of its own and shows as "Connecting…" on the first one.
 
 const props = withDefaults(defineProps<{ steps: PhaseStep[]; connecting?: boolean }>(), { connecting: false })
 
@@ -40,13 +40,13 @@ const SERIES: Record<MeasuringPhase, string> = {
 }
 const DIRECTION_ICON: Record<MeasuringPhase, Component> = { idle: Activity, download: ArrowDown, upload: ArrowUp }
 
-const STATE_ICON: Record<Exclude<StepState, 'active'>, { icon: Component; colour: string }> = {
-  pending: { icon: CircleDashed, colour: 'var(--fg-subtle)' },
-  done: { icon: CircleCheck, colour: 'var(--ok)' },
-  failed: { icon: CircleX, colour: 'var(--danger)' },
-  cancelled: { icon: CircleMinus, colour: 'var(--fg-subtle)' },
-  skipped: { icon: CircleMinus, colour: 'var(--fg-subtle)' },
-  capped: { icon: TriangleAlert, colour: 'var(--fg-subtle)' },
+const STATE_ICON: Record<Exclude<StepState, 'active'>, { icon: Component; color: string }> = {
+  pending: { icon: CircleDashed, color: 'var(--fg-subtle)' },
+  done: { icon: CircleCheck, color: 'var(--ok)' },
+  failed: { icon: CircleX, color: 'var(--danger)' },
+  cancelled: { icon: CircleMinus, color: 'var(--fg-subtle)' },
+  skipped: { icon: CircleMinus, color: 'var(--fg-subtle)' },
+  capped: { icon: TriangleAlert, color: 'var(--fg-subtle)' },
 }
 
 function name(phase: MeasuringPhase): string {
@@ -91,22 +91,22 @@ function meta(step: PhaseStep): string {
   }
 }
 
-/** How full a step's bar is, and its colour. */
-function bar(step: PhaseStep): { width: number; colour: string } {
+/** How full a step's bar is, and its color. */
+function bar(step: PhaseStep): { width: number; color: string } {
   const progress = Math.min(Math.max(step.progress ?? 0, 0), 1)
   switch (step.state) {
     case 'pending':
     case 'skipped':
-      return { width: 0, colour: 'transparent' }
+      return { width: 0, color: 'transparent' }
     case 'done':
-      return { width: 1, colour: SERIES[step.phase] }
+      return { width: 1, color: SERIES[step.phase] }
     case 'active':
-      return { width: progress, colour: SERIES[step.phase] }
+      return { width: progress, color: SERIES[step.phase] }
     case 'failed':
-      return { width: progress, colour: 'var(--danger)' }
+      return { width: progress, color: 'var(--danger)' }
     case 'cancelled':
     case 'capped':
-      return { width: progress, colour: 'var(--fg-subtle)' }
+      return { width: progress, color: 'var(--fg-subtle)' }
   }
 }
 
@@ -115,7 +115,7 @@ const rows = computed(() =>
   props.steps.map((step, index) => {
     const connecting = index === 0 && props.connecting
     const active = step.state === 'active' || connecting
-    const marker = step.state === 'active' || connecting ? { icon: DIRECTION_ICON[step.phase], colour: SERIES[step.phase] } : STATE_ICON[step.state]
+    const marker = step.state === 'active' || connecting ? { icon: DIRECTION_ICON[step.phase], color: SERIES[step.phase] } : STATE_ICON[step.state]
     const label = connecting ? t('test.phases.connecting') : name(step.phase)
     return { key: step.phase, step, name: label, meta: connecting ? t('test.phases.connectingMeta') : meta(step), marker, bar: bar(step), active }
   }),
@@ -140,7 +140,7 @@ const rows = computed(() =>
           :is="row.marker.icon"
           :size="14"
           aria-hidden="true"
-          :style="{ color: row.marker.colour }"
+          :style="{ color: row.marker.color }"
         />
         <span
           class="text-(length:--text-sm) font-semibold"
@@ -153,7 +153,7 @@ const rows = computed(() =>
       >
         <div
           class="h-full rounded-full transition-[width] duration-(--dur-slow) ease-(--ease-out) motion-reduce:transition-none"
-          :style="{ width: `${row.bar.width * 100}%`, background: row.bar.colour }"
+          :style="{ width: `${row.bar.width * 100}%`, background: row.bar.color }"
           data-testid="phase-bar"
         />
       </div>

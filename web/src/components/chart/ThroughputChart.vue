@@ -37,7 +37,7 @@ import { formatRate } from '@/lib/format'
 // hooks draw the warm-up bands under the series and the phase separators, the "now" line and the
 // result's event marks over them. Over the plot sit the title, the legend and where the run
 // stands. The canvas is decoration for assistive technology: the plot is an image whose label
-// summarises what it shows, from the gauge's readout. A finished run draws what the server
+// summarizes what it shows, from the gauge's readout. A finished run draws what the server
 // received, without the sending line.
 
 const props = withDefaults(
@@ -72,9 +72,9 @@ const legend = computed(() => chartLegend(textInput.value, wording.value))
 const meta = computed(() => chartMeta(textInput.value, wording.value))
 const summary = computed(() => chartSummary(textInput.value, wording.value))
 
-let colours = chartPalette(host.value)
+let colors = chartPalette(host.value)
 
-/** The bands under the series: each direction's warm-up, with hatch-coloured edges. */
+/** The bands under the series: each direction's warm-up, with hatch-colored edges. */
 function drawBands(u: uPlot): void {
   const { ctx, bbox } = u
   ctx.save()
@@ -82,9 +82,9 @@ function drawBands(u: uPlot): void {
     const from = u.valToPos(span.from, 'x', true)
     const to = u.valToPos(span.to, 'x', true)
     if (to > from) {
-      ctx.fillStyle = colours.band
+      ctx.fillStyle = colors.band
       ctx.fillRect(from, bbox.top, to - from, bbox.height)
-      ctx.strokeStyle = colours.hatch
+      ctx.strokeStyle = colors.hatch
       ctx.lineWidth = 1
       ctx.strokeRect(from, bbox.top, to - from, bbox.height)
     }
@@ -93,16 +93,16 @@ function drawBands(u: uPlot): void {
 }
 
 /** A vertical line across the plot, with an optional label at its top. */
-function rule(u: uPlot, at: number, colour: string, label?: string): void {
+function rule(u: uPlot, at: number, color: string, label?: string): void {
   const { ctx, bbox } = u
   const x = Math.round(u.valToPos(at, 'x', true)) + 0.5
-  ctx.strokeStyle = colour
+  ctx.strokeStyle = color
   ctx.beginPath()
   ctx.moveTo(x, bbox.top)
   ctx.lineTo(x, bbox.top + bbox.height)
   ctx.stroke()
   if (label !== undefined) {
-    ctx.fillStyle = colours.text
+    ctx.fillStyle = colors.text
     ctx.fillText(label, x + 4, bbox.top + 12)
   }
 }
@@ -112,11 +112,11 @@ function drawMarks(u: uPlot): void {
   const { ctx } = u
   ctx.save()
   ctx.lineWidth = 1
-  ctx.font = colours.font
-  model.value.separators.forEach((at) => rule(u, at, colours.hatch))
-  model.value.marks.forEach((mark) => rule(u, mark.at, colours.mark, markLabel(mark, wording.value)))
+  ctx.font = colors.font
+  model.value.separators.forEach((at) => rule(u, at, colors.hatch))
+  model.value.marks.forEach((mark) => rule(u, mark.at, colors.mark, markLabel(mark, wording.value)))
   if (running.value) {
-    rule(u, model.value.end, colours.mark, t('test.chart.now'))
+    rule(u, model.value.end, colors.mark, t('test.chart.now'))
   }
   ctx.restore()
 }
@@ -125,8 +125,8 @@ const rateLabel = (value: number) => formatRate(props.units === 'bits' ? value :
 
 function options(width: number): uPlot.Options {
   const stepped = uPlot.paths.stepped?.(STEPPED)
-  const line = (colour: () => string, width: number, extra: Partial<uPlot.Series> = {}): uPlot.Series => ({
-    stroke: () => colour(),
+  const line = (color: () => string, width: number, extra: Partial<uPlot.Series> = {}): uPlot.Series => ({
+    stroke: () => color(),
     width,
     spanGaps: false,
     points: { show: false },
@@ -140,15 +140,15 @@ function options(width: number): uPlot.Options {
     legend: { show: false },
     scales: { x: { time: false } },
     axes: [
-      { stroke: () => colours.text, grid: { stroke: () => colours.grid, width: 1 }, font: colours.font, values: (_u, values) => values.map((value) => t('test.chart.seconds', { n: value })) },
-      { stroke: () => colours.text, grid: { stroke: () => colours.grid, width: 1 }, font: colours.font, size: 72, values: (_u, values) => values.map((value) => (value === 0 ? '0' : rateLabel(value))) },
+      { stroke: () => colors.text, grid: { stroke: () => colors.grid, width: 1 }, font: colors.font, values: (_u, values) => values.map((value) => t('test.chart.seconds', { n: value })) },
+      { stroke: () => colors.text, grid: { stroke: () => colors.grid, width: 1 }, font: colors.font, size: 72, values: (_u, values) => values.map((value) => (value === 0 ? '0' : rateLabel(value))) },
     ],
     series: [
       {},
-      line(() => colours.download, 2),
-      line(() => colours.upload, 2),
+      line(() => colors.download, 2),
+      line(() => colors.upload, 2),
       // The sending line is faint and joins its points: it is progress, never a measured bucket.
-      line(() => colours.sending, 1.5, { spanGaps: true, paths: uPlot.paths.linear?.() }),
+      line(() => colors.sending, 1.5, { spanGaps: true, paths: uPlot.paths.linear?.() }),
     ],
     hooks: { drawClear: [drawBands], draw: [drawMarks] },
   }
@@ -156,7 +156,7 @@ function options(width: number): uPlot.Options {
 
 const plot = useUplot(host, options, () => data.value)
 watch([applied, running], () => {
-  colours = chartPalette(host.value)
+  colors = chartPalette(host.value)
   plot.value?.redraw()
 })
 

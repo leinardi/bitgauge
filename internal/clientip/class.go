@@ -65,7 +65,7 @@ var (
 	tailscale = netip.MustParsePrefix("fd7a:115c:a1e0::/48")
 )
 
-// AddressClass returns the class of a normalised client address. Anything that is not
+// AddressClass returns the class of a normalized client address. Anything that is not
 // loopback, link-local, CGNAT, RFC 1918 or ULA is public.
 func AddressClass(addr netip.Addr) Class {
 	addr = normalize(addr)

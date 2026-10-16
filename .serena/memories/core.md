@@ -34,7 +34,7 @@ test/internal/            testenv (docker CLI envs, labels, sweep), netguard (nf
 
 ## Key invariants
 
-- Spec first: behaviour changes start in `docs/features/`; docs win over code;
+- Spec first: behavior changes start in `docs/features/`; docs win over code;
   `decisions.md` wins on technical choices.
 - Stateless server: no DB, file writes, volume or stored results; only bounded in-memory
   counters (architecture.md §6 inventory).

@@ -24,12 +24,12 @@ Product code (`cmd/`, the `internal/` packages of
 [architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`,
 `api/openapi.yaml`) implements what the docs specify and nothing else. Tooling (build files,
 linters and their configuration, CI and release workflows, test harnesses and meta-tests, agent
-skills, editor configuration) must not encode product behaviour that the docs do not specify
+skills, editor configuration) must not encode product behavior that the docs do not specify
 either.
 
 ## Spec Pull Requests First
 
-With the code in place, the rule stays: **a change in behaviour starts as a change to the
+With the code in place, the rule stays: **a change in behavior starts as a change to the
 specification.** Open a pull request against `docs/` first; code follows once it is merged. Code
 that disagrees with the docs is a bug in one of them, and the docs win until they are changed
 deliberately. Technical choices are locked in
@@ -84,14 +84,14 @@ Release versions are derived by `svu` from these types: `feat` is a minor, `fix`
 `BREAKING CHANGE:` footer a major; every other type bumps nothing. See
 [AGENTS.md](AGENTS.md#commit-messages) and [`docs/release.md`](docs/release.md).
 
-## Licence
+## License
 
 By contributing, you agree that your contribution is licensed under **GPL-3.0-or-later**, the
-licence of the project ([LICENSE](LICENSE)).
+license of the project ([LICENSE](LICENSE)).
 
 ## No Third-Party Speed-Test Code
 
 Do not vendor, copy or adapt code, assets or configuration from OpenSpeedTest, LibreSpeed or any
-other speed test, whatever its licence. BitGauge implements their documented behaviour and wire
+other speed test, whatever its license. BitGauge implements their documented behavior and wire
 protocols for compatibility, and records what it learned from them as ideas in
 [`docs/research/`](docs/research/README.md). A contribution that contains such code is declined.

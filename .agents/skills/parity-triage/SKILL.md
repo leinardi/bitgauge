@@ -87,7 +87,7 @@ excerpt:
   decision (winner `new` with its `text`) or a deferral.
 - The default follows the precedence of
   [docs/README.md](../../../docs/README.md#precedence): **the export wins on visuals, the spec wins
-  on behaviour**. Put Kit wins first, marked recommended, for a `style` conflict, and Spec wins
+  on behavior**. Put Kit wins first, marked recommended, for a `style` conflict, and Spec wins
   first for `content`, `behavior` and `feature`; for `a11y`,
   [`ui/i18n-a11y.md`](../../../docs/features/ui/i18n-a11y.md) wins over the export, so Spec wins
   first there too. Say why when the evidence argues against the default.

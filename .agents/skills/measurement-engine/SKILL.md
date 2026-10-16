@@ -34,7 +34,7 @@ decision is
 
 ## 1. Spec first: a rule change starts in measurement.md
 
-The approved specification is the contract the engine implements, and a change in behaviour starts
+The approved specification is the contract the engine implements, and a change in behavior starts
 as a docs change; code follows the docs, and when they disagree the docs win
 ([AGENTS.md](../../../AGENTS.md), "Project rules";
 [ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md)). For the engine that
@@ -225,7 +225,7 @@ No fudge factors, no hidden smoothing, no number without the qualifiers the meth
 [decisions.md](../../../docs/features/technical-stack/decisions.md#stack-decisions-to-avoid)):
 
 - **Only documented computations.** The headline is the steady-window average and the peak is the
-  p90 of bucket rates over the same window, labelled "peak", never the headline
+  p90 of bucket rates over the same window, labeled "peak", never the headline
   ([§9.2](../../../docs/features/measurement.md#9-final-value)). A window that measurement.md
   defines (the gauge's last 5 buckets, §14) is the spec; any averaging, clamping or correction it
   does not define is hidden smoothing.
@@ -260,7 +260,7 @@ No fudge factors, no hidden smoothing, no number without the qualifiers the meth
 
 - The engine never touches storage; the UI's history module saves after a `result` event
   ([architecture.md §7](../../../docs/features/architecture.md#7-history-storage-in-the-browser)).
-- No copied code from OpenSpeedTest, LibreSpeed or any other speed test; their documented behaviour
+- No copied code from OpenSpeedTest, LibreSpeed or any other speed test; their documented behavior
   is for ideas and wire compatibility only.
 - Engine `.ts` files count against the `.file-budgets` 400-line ceiling like the rest of `web/src`
   (vue-page-patterns §2); a growing phase module splits into plain modules.

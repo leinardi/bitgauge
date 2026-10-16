@@ -31,7 +31,7 @@ codes, carries `Content-Type: application/json` and:
 | 429 | `rate_limited`, `too_many_streams`, `table_full` | a limit of §9 was hit, or the rate-limit table is full of active clients (with `Retry-After`) |
 | 500 | `internal` | unexpected server error |
 
-- `code` is the stable contract: the SPA maps it to localised text. `message` is English, for logs
+- `code` is the stable contract: the SPA maps it to localized text. `message` is English, for logs
   and debugging. `details` carries machine-readable context, such as the limit for
   `bytes_out_of_range`.
 - Error responses never echo request bodies or headers, and neither do the log lines written for

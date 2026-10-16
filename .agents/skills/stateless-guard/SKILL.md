@@ -97,7 +97,7 @@ matching fails nothing on its own:
 - `linters.default: all`, depguard and forbidigo not disabled, `exclusions.generated: strict`.
 - Both depguard rules scoped exactly `$all`, `!$test`, `!${base-path}/test/**`, carrying only
   `deny` and `files` (an `allow` or `list-mode` could exempt part of a denied tree).
-- A list of packages each rule must deny, and neighbours it must spare (`net/http`, `net`,
+- A list of packages each rule must deny, and neighbors it must spare (`net/http`, `net`,
   `net/netip`, `os`, `embed`, `promhttp`, `coder/websocket`, koanf, chi …), checked with a copy of
   depguard's single-candidate prefix matcher.
 - forbidigo against identifiers it must forbid and identifiers the server needs (`http.Server`,
@@ -187,7 +187,7 @@ page's own origin ([security.md §3](../../../docs/features/security.md#3-no-out
   the build: every `http(s)://` and `ws(s)://` URL in any file of `web/dist`, binary files
   included, must be on the allowlist of
   [build-packaging.md §4](../../../docs/features/technical-stack/build-packaging.md#4-ci-workflows)
-  (the SVG namespaces, the GNU licences URL and the project repository with its paths), which
+  (the SVG namespaces, the GNU licenses URL and the project repository with its paths), which
   `.dist-url-allowlist` mirrors. A new entry is a docs change first. The gate activates once both
   `web/index.html` and `web/src/main.ts` exist; before that the step must not exist, after it the
   step must.

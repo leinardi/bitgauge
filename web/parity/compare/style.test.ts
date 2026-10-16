@@ -66,7 +66,7 @@ describe('compareStyles', () => {
     expect(compareStyles([el({})], [el({ width: '82.0px' })], ['main'])).toHaveLength(1)
   })
 
-  it('ignores a border colour with no border and a gap outside flex and grid', () => {
+  it('ignores a border color with no border and a gap outside flex and grid', () => {
     const vue = el({ 'border-top-color': 'rgba(200, 0, 0, 255)', 'column-gap': '8px' })
     expect(compareStyles([el({})], [vue], ['main'])).toEqual([])
     expect(compareStyles([el({ display: 'inline-flex' })], [{ ...vue, props: { ...vue.props, display: 'inline-flex' } }], ['main'])).toEqual([
@@ -74,7 +74,7 @@ describe('compareStyles', () => {
     ])
   })
 
-  it('ignores a border colour where neither side draws a border', () => {
+  it('ignores a border color where neither side draws a border', () => {
     const transparent = el({ 'border-top-width': '1px', 'border-top-color': 'rgba(0, 0, 0, 0)' })
     const none = el({ 'border-top-width': '0px', 'border-top-color': 'rgba(26, 30, 37, 255)' })
     expect(compareStyles([transparent], [none], ['main'])).toEqual([])
@@ -90,7 +90,7 @@ describe('compareStyles', () => {
     ])
   })
 
-  describe('an icon-only button in the same centred box', () => {
+  describe('an icon-only button in the same centered box', () => {
     const iconBox = {
       display: 'inline-flex',
       'has-text': 'false',
@@ -111,8 +111,8 @@ describe('compareStyles', () => {
       ['has text', { 'has-text': 'true' }],
       ['has two children', { 'child-count': '2' }],
       ['is not flex or grid', { display: 'inline-block' }],
-      ['is not centred along the main axis', { 'justify-content': 'flex-start' }],
-      ['is not centred across', { 'align-items': 'stretch' }],
+      ['is not centered along the main axis', { 'justify-content': 'flex-start' }],
+      ['is not centered across', { 'align-items': 'stretch' }],
       ['has uneven side padding', { 'padding-right': '2px' }],
       ['has uneven top and bottom padding', { 'padding-top': '2px' }],
       ['is wider', { width: '40.0px' }],
@@ -122,7 +122,7 @@ describe('compareStyles', () => {
       expect(kinds).toEqual(expect.arrayContaining(['padding-left', 'font-weight']))
     })
 
-    it('still compares size and colour', () => {
+    it('still compares size and color', () => {
       const kinds = compareStyles([proto], [{ ...vue, props: { ...vue.props, color: 'rgba(200, 0, 0, 255)' } }], ['main']).map((f) => f.kind)
       expect(kinds).toEqual(['color'])
     })

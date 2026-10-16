@@ -125,7 +125,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     rolldownOptions: {
-      // Licence notices of bundled dependencies stay (comments marked @license, @preserve or /*!);
+      // License notices of bundled dependencies stay (comments marked @license, @preserve or /*!);
       // every other comment goes.
       output: { comments: { legal: true, annotation: false, jsdoc: false } },
     },

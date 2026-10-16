@@ -43,7 +43,7 @@ const props = withDefaults(
   defineProps<{
     mode: 'rate' | 'ms'
     units: 'bits' | 'bytes'
-    /** The direction a rate belongs to; it picks the colour, and only download shows the tick. */
+    /** The direction a rate belongs to; it picks the color, and only download shows the tick. */
     direction?: Direction | null
     /** The gauge value: bit/s, or ms in ms mode; null before the first one. */
     value: number | null
@@ -68,7 +68,7 @@ const props = withDefaults(
   { direction: null, peak: null, inner: null, at: null, note: null, innerLabel: null, text: null },
 )
 
-// A textual state's icon: cancelled in the subtle colour, a lost run and an unreachable server in danger.
+// A textual state's icon: cancelled in the subtle color, a lost run and an unreachable server in danger.
 const STATE_ICONS = { cancelled: CircleMinus, error: WifiOff, offline: ServerOff } as const
 
 /** The window's lowest decade, in the display unit; the parent starts it and carries it between directions. */
@@ -124,7 +124,7 @@ watch(
   { immediate: true },
 )
 
-const colour = computed(() => (props.mode === 'ms' ? 'var(--series-latency)' : props.direction === 'upload' ? 'var(--series-upload)' : 'var(--series-download)'))
+const color = computed(() => (props.mode === 'ms' ? 'var(--series-latency)' : props.direction === 'upload' ? 'var(--series-upload)' : 'var(--series-download)'))
 const place = (value: number) => fraction(value, scale.value)
 
 const track = arcPath(CENTER, CENTER, RADIUS, 0, 1)
@@ -231,7 +231,7 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
           v-if="band"
           :d="band"
           fill="none"
-          :stroke="colour"
+          :stroke="color"
           stroke-opacity="0.2"
           stroke-width="22"
           data-testid="gauge-band"
@@ -240,7 +240,7 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
           v-if="value !== null"
           :d="track"
           fill="none"
-          :stroke="colour"
+          :stroke="color"
           stroke-width="10"
           stroke-linecap="round"
           pathLength="1"
@@ -279,7 +279,7 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
             :cy="dot.y"
             r="7"
             fill="var(--surface-2)"
-            :stroke="colour"
+            :stroke="color"
             stroke-width="3"
           />
         </g>

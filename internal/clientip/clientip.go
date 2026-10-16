@@ -51,7 +51,7 @@ func NewDeriver(trusted []netip.Prefix) *Deriver {
 	return &Deriver{trusted: append([]netip.Prefix(nil), trusted...)}
 }
 
-// FromRequest returns the request's client IP, normalised: no port, no IPv6 zone, and an
+// FromRequest returns the request's client IP, normalized: no port, no IPv6 zone, and an
 // IPv4-mapped IPv6 address as plain IPv4. It returns the zero Addr only when the peer address
 // itself cannot be parsed, which a TCP listener never produces.
 func (d *Deriver) FromRequest(request *http.Request) netip.Addr {

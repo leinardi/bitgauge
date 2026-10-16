@@ -8,7 +8,7 @@ description: >
   feature's status, minding the gates that read it; run go test ./test/docs/ and know
   what it does not catch; respect the design-export symlink contract; wrap prose at
   about 100 columns. Use when editing docs/features/** or docs/STATUS.md, when a
-  behaviour change is about to start (it starts here, and code follows), or when a
+  behavior change is about to start (it starts here, and code follows), or when a
   decision or open question is settled.
 ---
 
@@ -17,7 +17,7 @@ description: >
 `docs/features/` is the product and technical contract: when code and docs disagree, the docs win
 until changed deliberately, and
 [decisions.md](../../../docs/features/technical-stack/decisions.md) wins on technical choices. So
-a change in behaviour starts as a docs change and code follows it, never the other way round
+a change in behavior starts as a docs change and code follows it, never the other way round
 ([ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md#rules)). The
 specification was approved on 2026-10-12; it is the contract the code implements.
 
@@ -138,7 +138,7 @@ go test -count=1 ./test/docs/
 - **Facts** (`test/docs/facts.go`): `"bucketMs": 100`, `100 ms buckets`, at most 1201 buckets per
   upload request, `120 s (1200 cells)`, `"uploadLifetimeMs": 120000` and `listen: ":8080"`, each
   wherever it appears in `docs/features/`, and each found at least once. A reworded sentence the
-  pattern no longer recognises fails: reword the pattern, never delete the fact.
+  pattern no longer recognizes fails: reword the pattern, never delete the fact.
 
 It does **not** catch any other number, a probe-path name, glossary drift, a decision stated twice,
 an open question out of step, a stale STATUS row or a wrong statement that is consistent
@@ -162,7 +162,7 @@ editing STATUS.md or ui/screens.md, and the markdownlint hook for formatting.
   into the Claude Design project by hand, so the next export carries them byte-identical. A Claude
   Design prompt never asks it to write under `features/`. A new export is
   synced with the steps in [docs/README.md](../../../docs/README.md#syncing-a-new-export).
-- `docs/features/ui/` is canonical for behaviour, the export for visuals; a behavioural
+- `docs/features/ui/` is canonical for behavior, the export for visuals; a behavioral
   disagreement is resolved in the spec first.
 - Windows checkouts need `git config core.symlinks true`.
 
@@ -177,7 +177,7 @@ editing STATUS.md or ui/screens.md, and the markdownlint hook for formatting.
   than restating it where a link will do.
 - Honest numbers apply to the spec too: no number without its qualifiers, no fudge factor, and no
   claim the accuracy harness cannot support.
-- A docs-only change is `docs(<scope>): ...` and ships no release; the behaviour change is released
+- A docs-only change is `docs(<scope>): ...` and ships no release; the behavior change is released
   by the code that follows it ([release.md](../../../docs/release.md#versioning)).
 
 ---
@@ -192,4 +192,4 @@ editing STATUS.md or ui/screens.md, and the markdownlint hook for formatting.
 - [ ] `go test -count=1 ./test/docs/` green; harness and toolchain tests green when their text moved
 - [ ] No hand-edit of the design export; no early symlinks
 - [ ] Prose wrapped at about 100 columns
-- [ ] Behaviour change written here first; code follows the docs
+- [ ] Behavior change written here first; code follows the docs

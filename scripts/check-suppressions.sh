@@ -61,7 +61,7 @@ set -euo pipefail
 BASELINE_FILE="${SUPPRESSIONS_BASELINE:-.suppressions-baseline}"
 
 # Paths whose suppressions are generated or vendored rather than written here: an entry ending in
-# "/" excludes the tree under it, any other entry that one file only, so a hand-written neighbour
+# "/" excludes the tree under it, any other entry that one file only, so a hand-written neighbor
 # such as types.gen.tsx is still counted.
 EXCLUDED_PREFIXES=(
 	"web/src/api/types.gen.ts"
@@ -191,7 +191,7 @@ FNR == 1 {
 				}
 			} else if (body ~ /^nolint([^A-Za-z0-9_:-]|$)/) {
 				# Bare //nolint silences every linter. golangci-lint rejects it through
-				# nolintlint.require-specific, so this is a second line of defence rather than
+				# nolintlint.require-specific, so this is a second line of defense rather than
 				# the only one.
 				emit("nolint/*")
 			}

@@ -43,7 +43,7 @@ defineProps<{ title: string; legend: readonly LegendEntry[]; meta: string }>()
           aria-hidden="true"
           class="h-0 w-(--legend-swatch-w) border-t-2"
           :class="{ 'opacity-40': entry.faint }"
-          :style="{ borderTopColor: entry.colour }"
+          :style="{ borderTopColor: entry.color }"
         />
         {{ entry.label }}
       </span>

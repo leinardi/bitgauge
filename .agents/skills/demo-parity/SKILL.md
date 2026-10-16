@@ -62,9 +62,9 @@ snapshots and `findings.json`.
       within [frontend.md §9](../../../docs/features/technical-stack/frontend.md#9-demo-build).
    2. **Vue**: the app renders the same state differently: a missing label, a different weight, a
       wrong token. Fix the app with `design-system-guard`, and `vue-page-patterns` for pages.
-   3. **Spec**: a difference in behaviour (what a state says, shows or offers) is settled by
+   3. **Spec**: a difference in behavior (what a state says, shows or offers) is settled by
       [`docs/features/ui/`](../../../docs/features/ui/README.md), which wins over the export on
-      behaviour. A gap there is a docs change first (`spec-change`), and the code follows.
+      behavior. A gap there is a docs change first (`spec-change`), and the code follows.
    4. **Export**: the kit is wrong or out of date. It wins on visuals, so a visual fault of its own
       is never fixed here: write a note in
       [`design-system-upstream.md`](../../../docs/engineering/design-system-upstream.md) for the
@@ -93,7 +93,7 @@ decided, per cluster, from a complete full-matrix run. Pending differences keep 
   `web/parity/scenarios.ts`, and a driver method if the step is new. When the two sides need
   different locators or waits, that goes in the driver, never in the scenario. Locators are role
   and name only.
-- **A new normalisation rule** (`web/parity/normalize.ts`) hides a class of difference for
+- **A new normalization rule** (`web/parity/normalize.ts`) hides a class of difference for
   good, so say why a person could not see it. A measured number may be masked; its unit, label and
   qualifiers never are.
 - **A new page or state**: `web/parity/coverage.test.ts` fails until it has a scenario and a row.

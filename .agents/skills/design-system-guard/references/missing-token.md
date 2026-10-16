@@ -1,7 +1,7 @@
 # A value the export does not give: BitGauge
 
 Detail for the token rules in [design-system-guard](../SKILL.md). Read it only when no existing
-token, token composition, mapped theme colour or Tailwind scale step can express the value.
+token, token composition, mapped theme color or Tailwind scale step can express the value.
 
 In BitGauge, tokens come only from the design export: `docs/design_system/colors_and_type.css` is
 never edited here, and nothing visual is hand-authored in `web/`

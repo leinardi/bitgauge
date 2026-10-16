@@ -129,9 +129,9 @@ describe('assign', () => {
   it('keeps each cluster on its own rule when two share an id', () => {
     const a = cluster({ match: match({ kind: '^font-weight$' }) })
     const b = cluster({ match: match({ kind: '^color$' }) })
-    const colour = entry({ kind: 'color' })
-    const result = assign([a, b], [entry(), colour])
-    expect(result.clusters.map((c) => c.unowned)).toEqual([[entry()], [colour]])
+    const color = entry({ kind: 'color' })
+    const result = assign([a, b], [entry(), color])
+    expect(result.clusters.map((c) => c.unowned)).toEqual([[entry()], [color]])
   })
 
   it('matches nothing with a rule that does not compile', () => {

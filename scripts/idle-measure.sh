@@ -98,7 +98,7 @@ trap 'exit 143' TERM
 
 hz=$(getconf CLK_TCK)
 
-# require_count refuses a leading zero rather than normalising it: every count is used as given
+# require_count refuses a leading zero rather than normalizing it: every count is used as given
 # afterwards, and bash arithmetic would read 010 as octal 8 and reject 08 outright.
 require_count() {
   local name=$1 value=$2 minimum=$3

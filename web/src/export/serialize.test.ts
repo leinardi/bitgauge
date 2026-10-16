@@ -40,7 +40,7 @@ describe('serializeResult', () => {
     expect(json).toContain('"startedAt": "2026-10-08T12:02:11.000Z"')
   })
 
-  it('never serialises a result that fails validation', () => {
+  it('never serializes a result that fails validation', () => {
     const broken = { ...resultFixture(), dataUsedBytes: -1 }
     expect(serializeResult(broken, new Date())).toBeNull()
     const { schema: _schema, ...unschemed } = resultFixture()

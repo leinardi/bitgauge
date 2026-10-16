@@ -66,7 +66,7 @@ Every `/api/v1` error is `Content-Type: application/json` with exactly this shap
   (405), `request_timeout` (408), `length_required` (411), `payload_too_large` (413),
   `rate_limited`, `too_many_streams`, `table_full` (429, with `Retry-After`), `internal` (500). A
   new code is a docs change first.
-- `message` is English, for logs; the SPA maps `code` to localised text. Never echo the request
+- `message` is English, for logs; the SPA maps `code` to localized text. Never echo the request
   body or headers. Spec schemas `Error` and `ErrorBody`, and the shared responses listed in
   wire-protocol.md §11.
 

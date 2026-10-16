@@ -64,7 +64,7 @@ is_excluded() {
 	local package="$1" excluded
 
 	# node_modules is npm's, not ours: go.mod ignores web/node_modules, and this is the second line
-	# of defence for an npm package that ships Go source (flatted does) anywhere else.
+	# of defense for an npm package that ships Go source (flatted does) anywhere else.
 	case "$package" in
 	test | test/* | node_modules/* | */node_modules/*) return 0 ;;
 	esac

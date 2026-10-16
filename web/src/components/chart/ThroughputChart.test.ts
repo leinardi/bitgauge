@@ -51,7 +51,7 @@ function chart(props: Partial<InstanceType<typeof ThroughputChart>['$props']> = 
 }
 
 describe('the throughput chart', () => {
-  it('mounts uPlot, follows the run state it is given and summarises it from the readout', async () => {
+  it('mounts uPlot, follows the run state it is given and summarizes it from the readout', async () => {
     // The chart as the Test screen binds it: the run state's live record, replaced per sample.
     const state = createRunState()
     state.begin()

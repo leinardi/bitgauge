@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 // The BitGauge mark, full geometry (design_system components/brand/Logo.jsx): the track, the
-// download and upload arcs and the dashed latency arc, coloured by the series tokens through
+// download and upload arcs and the dashed latency arc, colored by the series tokens through
 // classes. Decorative: the wordmark or the link around it names it.
 defineProps<{ size: number }>()
 </script>

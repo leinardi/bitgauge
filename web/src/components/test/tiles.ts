@@ -44,8 +44,8 @@ export interface TilePill {
 export interface TileView {
   label: string
   icon: Component
-  /** The icon's colour token. */
-  colour: string
+  /** The icon's color token. */
+  color: string
   /** The number, or null for "—". */
   number: string | null
   unit: string
@@ -57,8 +57,8 @@ export interface TileView {
 
 const SERIES = { download: 'var(--series-download)', upload: 'var(--series-upload)', latency: 'var(--series-latency)', neutral: 'var(--fg-subtle)' }
 
-function blank(label: string, icon: Component, colour: string): TileView {
-  return { label, icon, colour, number: null, unit: '', word: null, lines: [], pill: null }
+function blank(label: string, icon: Component, color: string): TileView {
+  return { label, icon, color, number: null, unit: '', word: null, lines: [], pill: null }
 }
 
 export function confidenceReasons(list: readonly ConfidenceReason[], { t, locale }: Wording): string {

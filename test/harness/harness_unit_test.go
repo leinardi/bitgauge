@@ -462,7 +462,7 @@ func TestReport(t *testing.T) {
 
 	if decoded.Tolerances != Tolerances || decoded.Runs[0].Verdict != report.Runs[0].Verdict ||
 		decoded.Runs[0].Reference.DownloadBitsPerSecond != 297_000 || !decoded.Runs[2].Rerun {
-		t.Errorf("the judgement did not survive: %+v", decoded)
+		t.Errorf("the judgment did not survive: %+v", decoded)
 	}
 
 	markdown := readFile(t, filepath.Join(dir, "report.md"))

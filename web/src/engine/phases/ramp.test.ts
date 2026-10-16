@@ -18,7 +18,7 @@
  */
 
 // The stream ramp of measurement.md sections 4 and 8.2, driven on synthetic evaluation series with
-// a 300 ms RTT (I_s 12 buckets, I_m 13). The section 19 budgets, on a modelled link, are in
+// a 300 ms RTT (I_s 12 buckets, I_m 13). The section 19 budgets, on a modeled link, are in
 // slow-link.test.ts.
 
 import { describe, expect, it } from 'vitest'

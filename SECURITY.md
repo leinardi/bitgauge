@@ -33,7 +33,7 @@ not in a public issue, a pull request or a discussion. Include the version or im
 is deployed (proxy, base path, enabled compatibility layers), and the steps or input that trigger
 the problem.
 
-Expected response time: acknowledgement within 7 days, and a fix or mitigation plan within 30 days
+Expected response time: acknowledgment within 7 days, and a fix or mitigation plan within 30 days
 for confirmed issues. The fix is credited in the advisory unless you prefer otherwise.
 
 ## Scope

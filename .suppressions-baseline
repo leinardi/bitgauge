@@ -6,9 +6,8 @@
 # changing this file, so raising a count is a visible act rather than a side effect.
 #
 # Regenerate with: scripts/check-suppressions.sh --update
-# reviewed 8, 2026-10-13
+# reviewed 9, 2026-10-16
 nolint/gocritic	1
 nolint/gosec	2
 nolint/ireturn	1
-nolint/misspell	2
 nolint/tagliatelle	2

@@ -3,7 +3,7 @@ name: wire-compat
 description: >
   Wire-contract checklist for BitGauge's native handlers and its OpenSpeedTest, LibreSpeed
   and Apple networkQuality compatibility layers. Covers the no-copy rule (documented
-  behaviour only), the shared building blocks with dependencies pointing inwards, the
+  behavior only), the shared building blocks with dependencies pointing inwards, the
   per-route sizes, caps and clamps with their config keys, CORS per layer, the route table
   and its collision check, the exact upload telemetry JSON, and the tests each layer needs.
   Use when editing internal/handlers/**, internal/compat/**, docs/features/wire-protocol.md
@@ -16,7 +16,7 @@ BitGauge speaks four wire contracts: its own native API
 ([wire-protocol.md](../../../docs/features/wire-protocol.md)) and three foreign ones, the
 OpenSpeedTest web UI, LibreSpeed clients and Apple `networkQuality`
 ([compatibility.md](../../../docs/features/compatibility.md)). A foreign contract is matched
-exactly, from its documented behaviour, and never bends the native API or the engine
+exactly, from its documented behavior, and never bends the native API or the engine
 ([principles.md §2.7](../../../docs/features/principles.md#27-compatibility-is-a-layer-not-the-core)).
 Every layer is off by default, has exactly one toggle, and answers `404` when disabled.
 
@@ -43,10 +43,10 @@ How to use it, before writing the change:
 
 ---
 
-## 1. Documented behaviour only, never copied code
+## 1. Documented behavior only, never copied code
 
 - No code, assets, configuration files or text from OpenSpeedTest, LibreSpeed (`speedtest`,
-  `speedtest-go`, `librespeed-cli`) or Apple's reference configurations, whatever their licence
+  `speedtest-go`, `librespeed-cli`) or Apple's reference configurations, whatever their license
   ([decisions.md](../../../docs/features/technical-stack/decisions.md), "Stack Decisions to
   Avoid" and §33; [research/README.md](../../../docs/research/README.md#ideas-only-no-code)).
   Short identifiers (route names, parameters, JSON keys) are quoted only to describe the wire.
@@ -54,7 +54,7 @@ How to use it, before writing the change:
   ([openspeedtest.md](../../../docs/research/openspeedtest.md),
   [librespeed.md](../../../docs/research/librespeed.md),
   [networkquality.md](../../../docs/research/networkquality.md)); compatibility.md turns it into
-  the contract; code implements compatibility.md. Behaviour missing from compatibility.md is not
+  the contract; code implements compatibility.md. Behavior missing from compatibility.md is not
   implemented until it is added there.
 - BitGauge never ships or serves the OpenSpeedTest or LibreSpeed UI; the user hosts them. The
   names only describe compatibility; OpenSpeedTest™ is a trademark of its owner.

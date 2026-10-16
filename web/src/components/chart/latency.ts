@@ -58,7 +58,7 @@ export function buildLatency({ points, aboutMs, ranMs }: Pick<LatencyChartInput,
 }
 
 export function latencyLegend({ t }: Wording): LegendEntry[] {
-  return [{ key: 'rtt', label: t('test.chart.legend.rtt'), colour: 'var(--series-latency)', faint: false, band: false }]
+  return [{ key: 'rtt', label: t('test.chart.legend.rtt'), color: 'var(--series-latency)', faint: false, band: false }]
 }
 
 /** Where the phase stands: its time against the estimate, or where it stopped. */

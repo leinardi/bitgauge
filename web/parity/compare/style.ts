@@ -69,7 +69,7 @@ function collect({ props, regionRoots }: { props: readonly string[]; regionRoots
   canvas.width = 1
   canvas.height = 1
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
-  // Computed colours come back in whatever space the stylesheet used (oklch, color-mix, rgb), so
+  // Computed colors come back in whatever space the stylesheet used (oklch, color-mix, rgb), so
   // both sides are painted through a canvas and read back as sRGB bytes.
   const toRgba = (color: string): string => {
     if (ctx === null) return color
@@ -166,12 +166,12 @@ function drawnRadius(side: Record<string, string>): string {
   return `${Math.min(radius, Math.min(width, height) / 2)}px`
 }
 
-// A border draws only with a width and a colour that is not fully transparent.
+// A border draws only with a width and a color that is not fully transparent.
 function drawsBorder(side: Record<string, string>): boolean {
   return (px(side['border-top-width'] ?? '') ?? 0) > 0 && !/, 0\)$/.test(side['border-top-color'] ?? '')
 }
 
-// An icon-only button: no text, at most one child, centred in a symmetric flex or grid box.
+// An icon-only button: no text, at most one child, centered in a symmetric flex or grid box.
 function isCentredIconBox(side: Record<string, string>): boolean {
   return (
     side['has-text'] === 'false' &&
@@ -186,11 +186,11 @@ function isCentredIconBox(side: Record<string, string>): boolean {
 
 const ICON_BOX_UNRENDERED = new Set(['padding-top', 'padding-right', 'padding-bottom', 'padding-left', 'column-gap', 'font-weight'])
 
-// Properties that only show under a condition: a border colour on a border that draws on neither
+// Properties that only show under a condition: a border color on a border that draws on neither
 // side (no width, or fully transparent, as the kit's buttons carry), or a gap on an element that is
 // neither flex nor grid, draws nothing however it differs. Neither does the
 // padding, gap or weight of an icon-only button whose box is the same size on both sides: the icon
-// sits centred whatever the padding, there is no second child to space and no text to weigh.
+// sits centered whatever the padding, there is no second child to space and no text to weigh.
 function applies(prop: string, a: Record<string, string>, b: Record<string, string>): boolean {
   if (
     ICON_BOX_UNRENDERED.has(prop) &&

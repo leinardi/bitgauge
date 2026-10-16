@@ -22,7 +22,7 @@ import { type Result, validateResult } from '@/engine/messages'
 // The Download JSON export of the Test screen (ui/screens.md section 1): the one result in the JSON
 // export format of frontend.md section 5, with `results` holding one entry so it imports like a
 // History export. It is locale-independent: ISO 8601 times and plain numbers (ui/i18n-a11y.md
-// section 1.3). A result that fails validation is never serialised.
+// section 1.3). A result that fails validation is never serialized.
 
 /** The export file: its name and its content. */
 export interface ExportFile {

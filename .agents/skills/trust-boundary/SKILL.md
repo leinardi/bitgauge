@@ -58,7 +58,7 @@ context; the limiter, `/info`, `/getIP` and debug logs all use that value
   Only then is `X-Forwarded-For` walked from the right, skipping trusted entries; the first
   untrusted address is the client. A malformed entry falls back to the peer.
 - `X-Real-IP`, `Client-IP`, `CF-Connecting-IP`, `CF-Connecting-IPv6` and `Forwarded` are **never**
-  read. `::ffff:`-mapped addresses are normalised to IPv4.
+  read. `::ffff:`-mapped addresses are normalized to IPv4.
 - `X-Forwarded-Proto`, `Host` and `X-Forwarded-Host` build networkQuality and LibreSpeed URLs only
   under the same trusted-peer condition.
 - [ ] A new header-derived fact goes through the trusted-peer check, never the raw header.

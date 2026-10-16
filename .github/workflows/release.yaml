@@ -89,7 +89,7 @@ jobs:
   # and every other job waits on it.
   #
   # The tag ruleset cannot express this: it stops a tag moving, not a tag being created from the
-  # wrong commit. The second line of defence is the release environment's deployment branch rule,
+  # wrong commit. The second line of defense is the release environment's deployment branch rule,
   # configured by hand (docs/release.md, One-Time Setup).
   guard:
     runs-on: ubuntu-latest

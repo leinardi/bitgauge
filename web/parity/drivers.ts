@@ -74,7 +74,7 @@ export const proto: Driver = {
   // Before the first load only, so a later choice survives a reload: the v0.1 scope (no History),
   // Chrome as the browser, since the harness drives Chromium and the panel defaults to Firefox,
   // and the theme on System, which is the product's default and the Vue demo's, where the prototype
-  // starts on Dark. With System both sides follow the project's emulated colour scheme.
+  // starts on Dark. With System both sides follow the project's emulated color scheme.
   prepare: async (context: BrowserContext) => {
     await context.addInitScript(
       ({ demoKey, prefsKey }) => {

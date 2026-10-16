@@ -23,7 +23,7 @@ value is that it cannot be talked into a pass: every rule below closes a way a r
 while measuring nothing.
 
 [testing.md §5](../../../docs/features/technical-stack/testing.md#5-accuracy-harness) owns the
-behaviour; the code under `test/harness/` follows it. When they disagree, the docs win, and a change
+behavior; the code under `test/harness/` follows it. When they disagree, the docs win, and a change
 to the method starts as a docs change (use the `spec-change` skill).
 
 How to use it:
@@ -273,11 +273,11 @@ Every report carries them, pinned to testing.md by `TestEnvironmentalLimitsFollo
 
 - `tc` shaping jitter (tbf burst sizes, netem timer granularity).
 - Docker bridge overhead at high rates.
-- Playwright WebKit ≠ Safari: Worker XHR and `nextHopProtocol` behaviour must be re-checked on real
+- Playwright WebKit ≠ Safari: Worker XHR and `nextHopProtocol` behavior must be re-checked on real
   Safari.
 - Mobile power management: device runs happen with the screen on.
 
-And the closing statement: the harness cannot prove real Wi-Fi behaviour, real VPN MTU effects,
+And the closing statement: the harness cannot prove real Wi-Fi behavior, real VPN MTU effects,
 carrier-grade NAT, or anything about networks the project does not target. Never write a claim a
 report cannot support.
 
@@ -295,8 +295,8 @@ passed for it ([release.md](../../../docs/release.md#how-to-release),
   run is recorded yet, and the first file is `0.1.0.md`. The lab runbook is
   [`accuracy-harness.md`](../../../docs/engineering/accuracy-harness.md).
 - The evaluator judges the floor and ceiling runs too; the device runs (real Android Chrome, real
-  iOS Safari, real Safari on macOS) have no runner, so their "passed" is a human judgement against
-  testing.md's tolerances: record the numbers and the judgement, never only the verdict.
+  iOS Safari, real Safari on macOS) have no runner, so their "passed" is a human judgment against
+  testing.md's tolerances: record the numbers and the judgment, never only the verdict.
 
 ## 9. Changing the harness
 

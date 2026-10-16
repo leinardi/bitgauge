@@ -603,7 +603,7 @@ components:
             - internal
         message:
           type: string
-          description: English, for logs and debugging; the SPA maps code to localised text.
+          description: English, for logs and debugging; the SPA maps code to localized text.
         details:
           type: object
           description: Machine-readable context, such as the limit of bytes_out_of_range.

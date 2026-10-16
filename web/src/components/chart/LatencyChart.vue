@@ -33,7 +33,7 @@ import { formatLatency } from '@/lib/format'
 // The live chart during idle latency (ui/screens.md section 1): uPlot draws each ping's round-trip
 // time over the phase's time, with gaps where a ping gave none; its hook draws the "now" line while
 // live and the mark where a stopped run ended. The canvas is decoration for assistive technology:
-// the plot is an image whose label summarises it from the gauge's readout.
+// the plot is an image whose label summarizes it from the gauge's readout.
 
 const props = defineProps<LatencyChartInput>()
 
@@ -46,7 +46,7 @@ const wording = computed(() => ({ t, locale: locale.value }))
 const legend = computed(() => latencyLegend(wording.value))
 const meta = computed(() => latencyMeta(props, model.value, wording.value))
 const summary = computed(() => latencySummary(props, model.value, wording.value))
-let colours = chartPalette(host.value)
+let colors = chartPalette(host.value)
 
 /** A vertical line across the plot at the chart's end, with an optional label at its top. */
 function drawEnd(u: uPlot): void {
@@ -58,19 +58,19 @@ function drawEnd(u: uPlot): void {
   const x = Math.round(u.valToPos(model.value.end, 'x', true)) + 0.5
   ctx.save()
   ctx.lineWidth = 1
-  ctx.font = colours.font
-  ctx.strokeStyle = colours.mark
+  ctx.font = colors.font
+  ctx.strokeStyle = colors.mark
   ctx.beginPath()
   ctx.moveTo(x, bbox.top)
   ctx.lineTo(x, bbox.top + bbox.height)
   ctx.stroke()
-  ctx.fillStyle = colours.text
+  ctx.fillStyle = colors.text
   ctx.fillText(label ?? t('test.chart.now'), x + 4, bbox.top + 12)
   ctx.restore()
 }
 
 function options(width: number): uPlot.Options {
-  const axis = { stroke: () => colours.text, grid: { stroke: () => colours.grid, width: 1 }, font: colours.font }
+  const axis = { stroke: () => colors.text, grid: { stroke: () => colors.grid, width: 1 }, font: colors.font }
   return {
     width,
     height: chartHeight(width),
@@ -81,14 +81,14 @@ function options(width: number): uPlot.Options {
       { ...axis, values: (_u, values) => values.map((value) => t('test.chart.seconds', { n: value })) },
       { ...axis, size: 72, values: (_u, values) => values.map((value) => (value === 0 ? '0' : formatLatency(value, locale.value))) },
     ],
-    series: [{}, { stroke: () => colours.latency, width: 2, spanGaps: false, points: { show: false } }],
+    series: [{}, { stroke: () => colors.latency, width: 2, spanGaps: false, points: { show: false } }],
     hooks: { draw: [drawEnd] },
   }
 }
 
 const plot = useUplot(host, options, () => model.value.data)
 watch([applied, () => props.state, () => props.mark], () => {
-  colours = chartPalette(host.value)
+  colors = chartPalette(host.value)
   plot.value?.redraw()
 })
 </script>

@@ -184,7 +184,7 @@ export interface GaugeInput {
   at: number | null
   /** The line under the reading: the ping counter and median, or the steady average and peak so far. */
   note: string | null
-  /** The inner arc's value in words, so it is not told by colour alone. */
+  /** The inner arc's value in words, so it is not told by color alone. */
   innerLabel: string | null
   /** A textual state in place of the reading; the dial then shows no needle. */
   text: GaugeText | null

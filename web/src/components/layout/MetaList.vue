@@ -20,7 +20,7 @@
 import type { Component } from 'vue'
 
 // A titled card of label and value rows (design_system/components/layout MetaList with a title):
-// the eyebrow, then a definition list whose values are mono and "—" in the subtle colour when
+// the eyebrow, then a definition list whose values are mono and "—" in the subtle color when
 // there is none. A row's value can be any content through the `value-<key>` slot, and its sub line
 // can end in any content through the `sub-<key>` slot, such as a link. The rows stack in one
 // column, and take `columns` from the desktop breakpoint.
