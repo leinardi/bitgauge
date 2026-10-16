@@ -626,7 +626,7 @@
         "layer": "content",
         "path": "^main( > status)?$",
         "kind": null,
-        "detail": "^(status( \\(#\\d+\\))?$|text \"(Connecting to|Measuring|Latency|Download|Upload|Test |Connection |WebSocket unavailable, using))"
+        "detail": "^(status( \\(#\\d+\\))?$|text \"(Connecting to|Measuring|Latency|Download|Upload|Test (?!cancelled during \\w+ [A-Z])|Connection |WebSocket unavailable, using))"
       },
       "type": "conflict",
       "aspect": "a11y",
@@ -1551,6 +1551,74 @@
       "resolution": null
     },
     {
+      "id": "content-cancel-notice",
+      "title": "Cancel notice: the kit's what-happened title and body vs Vue's short partial notice (and its 0.0 s window for a direction with no number)",
+      "match": {
+        "scenarios": [
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-download",
+          "test/cancelled-slow"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": "^changed$",
+        "detail": "^text \"(Partial — stopped early · |Test cancelled during \\w+ [A-Z])"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/measurement.md#16-confidence-and-notices",
+          "says": "`partial — stopped early` with the covered duration (stopped-early; §7.8)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:334",
+          "says": "Test cancelled during upload — Latency and download completed. Upload stopped at 3.1 s, before a 3 s confirmed steady window (still in warm-up), so it has no value…; or Partial — stopped early · upload based on a 3.6 s steady window — …Upload stopped at 14.0 s; in-flight requests were aborted, and the 21 requests confirmed by 13.1 s give the partial value."
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/notices.json stoppedEarly",
+          "says": "Partial — stopped early — Upload is based on a 4.6 s steady window. (0.0 s for a direction with no number)"
+        },
+        "notes": "Surfaced when the notices lost their list wrapper (markup-notices-list)."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The kit says what finished, where the run stopped and why a direction has or has no value; Vue's notice says less and claims a 0.0 s window for a direction with no number.",
+        "on": "2026-10-15"
+      },
+      "owned": {
+        "test/cancelled": {
+          "2f717770dcb1": "*"
+        },
+        "test/cancelled-download": {
+          "1e295ab09568": "*"
+        },
+        "test/cancelled-late": {
+          "49fad26e61ea": "*"
+        },
+        "test/cancelled-slow": {
+          "a996bd9928aa": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "measurement.md §7.8 and §16, flows.md §4: stopped-early carries the phase stopped in and the stop time, and on upload the confirmed requests and the watermark time; the notice is titled \"Test cancelled during <phase>\" when the direction has no number, \"Partial — stopped early · <direction> based on a <s> s steady window\" when it has one, with the kit's body.",
+          "done": false
+        },
+        {
+          "target": "vue",
+          "what": "engine run/report.ts carries the new stopped-early fields; notices.ts and notices.json word the kit's titles and bodies.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
       "id": "content-cancel-slow-window",
       "title": "Cancelled slow download: the kit captions its start window under a 634 kbit/s value, Vue the floor window it shifted to",
       "match": {
@@ -2136,6 +2204,114 @@
       }
     },
     {
+      "id": "content-low-confidence-notice",
+      "title": "Slow run: Vue's low-confidence notice for the upload, which the kit's slowdone does not show",
+      "match": {
+        "scenarios": [
+          "test/slowdone"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^extra$",
+        "detail": "^status \\(#2\\)$"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/measurement.md#16-confidence-and-notices",
+          "says": "`low confidence` with its reason (low-confidence, per direction with its reasons)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:393",
+          "says": "no notice in slowdone"
+        },
+        "vue": {
+          "ref": "web/src/components/test/notices.ts",
+          "says": "Low confidence — Upload: few samples."
+        },
+        "notes": "Same cause as content-results-tiles' upstream note on the slowdone upload's confidence."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "measurement.md §16 lists the low-confidence notice, which the demo's slow link earns (§19.1).",
+        "on": "2026-10-15"
+      },
+      "owned": {
+        "test/slowdone": {
+          "f7307e6e7e34": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's slowdone shows the Low confidence notice (Upload: few samples) with the tile's pill.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "content-param-ignored-notice",
+      "title": "URL parameter ignored notice: the kit names the value and the allowed range and offers Dismiss; Vue's body is generic",
+      "match": {
+        "scenarios": [
+          "test/param-ignored"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": "^(changed|missing)$",
+        "detail": "^(text \"URL parameter ignored |button \"Dismiss\"$)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/url-params.md",
+          "says": "the notice `URL parameter ignored` names the ignored parameter; silent on value, range and dismiss"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:231",
+          "says": "URL parameter ignored — streams=12 ignored, allowed 1–6. Streams stay on Auto; the other parameters from the link were applied. [Dismiss]"
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/notices.json urlParameterIgnored",
+          "says": "URL parameter ignored — The value of streams was not valid, so the default applies."
+        },
+        "notes": "components/notices.md lists an icon-only Dismiss among notice actions."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The spec is silent on the wording; the kit's body names the value, the allowed range and what still applied, and its Dismiss is a documented notice action.",
+        "on": "2026-10-15"
+      },
+      "owned": {
+        "test/param-ignored": {
+          "1ef2dacdf339": "*",
+          "ad915f72bbac": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "url-params.md and measurement.md §16: url-parameter-ignored carries the value and the allowed range; the notice reads \"<param>=<value> ignored, allowed <range>. <Param> stays on <default>; the other parameters from the link were applied.\" and can be dismissed (screens.md §7).",
+          "done": false
+        },
+        {
+          "target": "vue",
+          "what": "engine notice fields, notices.ts and notices.json wording, and an icon-only Dismiss on the notice.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
       "id": "content-phase-details",
       "title": "Phase steps: the kit's `<state> · <detail>` meta (estimate, pings, result, time left, interrupted at) and Connecting… label vs Vue's bare state",
       "match": {
@@ -2517,17 +2693,75 @@
       "resolution": null
     },
     {
+      "id": "content-upload-interrupted-alert",
+      "title": "Upload-interrupted alert: the kit's body vs Vue's, and Vue's Deployment guide link",
+      "match": {
+        "scenarios": [
+          "test/upload-interrupted"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > alert$",
+        "kind": "^(changed|extra)$",
+        "detail": "^(text \"…d request Over HTTP|link \"Deployment guide\"$)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/measurement.md#16-confidence-and-notices",
+          "says": "upload interrupted by a failed request, with the hint that HTTP/2 at the proxy lets uploads survive transient failures (upload-interrupted; §7.5)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:285",
+          "says": "Over HTTP/1.1 one failed request ends the upload, so its number covers the window up to the failure. HTTP/2 at the proxy lets uploads survive transient failures."
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/notices.json uploadInterrupted",
+          "says": "Over HTTP/1.1 a failed upload request ends the phase; HTTP/2 at the reverse proxy lets uploads survive transient failures. [Deployment guide]"
+        },
+        "notes": ""
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "new",
+        "text": "The kit's body, with Vue's Deployment guide link kept.",
+        "rationale": "The kit's body says what the number covers; the hint is about proxy configuration, which the deployment guide explains.",
+        "on": "2026-10-15"
+      },
+      "owned": {
+        "test/upload-interrupted": {
+          "98731aa2c5a9": "*",
+          "bb77d9f7d68a": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "notices.json uploadInterrupted body: the kit's wording; the Deployment guide link stays.",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's upload-interrupted alert links the deployment guide.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
       "id": "content-ws-notice-body",
-      "title": "WebSocket-fallback notice: the kit's fixed HTTP/2 body with a higher-values sentence vs Vue's protocol-neutral body (the height follows)",
+      "title": "WebSocket-fallback notice: the kit's fixed HTTP/2 body with a higher-values sentence vs Vue's protocol-neutral body, and the height it gives",
       "match": {
         "scenarios": [
           "test/ws-fallback"
         ],
         "projects": null,
-        "layer": "style",
-        "path": "^main > status \"WebSocket unavailable",
-        "kind": "^height$",
-        "detail": "^97\\.1px → 79\\.7px$"
+        "layer": null,
+        "path": "^main > status( \"WebSocket unavailable.*)?$",
+        "kind": "^(height|changed)$",
+        "detail": "^(97\\.1px → 79\\.7px|text \"…d not accept a WebSocket upgrade, )"
       },
       "type": "conflict",
       "aspect": "content",
@@ -2549,7 +2783,7 @@
       "decision": {
         "kind": "verdict",
         "winner": "vue",
-        "rationale": "The fallback runs over whatever protocol the page negotiated, so a fixed HTTP/2 is wrong on the others, and no spec page says the values read higher.",
+        "rationale": "The fallback runs over whatever protocol the page negotiated, so a fixed HTTP/2 is wrong on the others, and no spec page says the values read higher. Decided 2026-10-16: the body text difference, which causes the height, is the same decision.",
         "on": "2026-10-15"
       },
       "owned": {
@@ -2557,7 +2791,8 @@
           "a51d421ede40": [
             "dark-narrow",
             "light-narrow"
-          ]
+          ],
+          "cb5f80ca35a8": "*"
         }
       },
       "actions": [
