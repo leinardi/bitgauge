@@ -43,7 +43,6 @@
 *	test/countdown	content	main > status	changed	text "… was opened from a link with autostart enabled." → "… was opened from a link that starts a test automatically."	present when the harness was adopted
 *	test/error	content	main	extra	status	present when the harness was adopted
 *	test/error-early	content	main	missing	region "Result status"	present when the harness was adopted
-*	test/insufficient	content	main	missing	status	present when the harness was adopted
 *	test/offline	content	main	changed	text "…P — Protocol — Streams — Standard preset · Auto streams · No data cap" → "…P — Protocol — Streams —"	present when the harness was adopted
 *	test/offline	content	main	extra	alert	present when the harness was adopted
 *	test/param-ignored	content	main	missing	status	present when the harness was adopted

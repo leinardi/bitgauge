@@ -160,6 +160,21 @@ describe('the phase order', () => {
     expect(finished?.type === 'phase' ? finished.result : null).not.toHaveProperty('bitsPerSecond')
   })
 
+  it("carries a finished direction's notices on every later phase event, as the result lists them", async () => {
+    // Upload first, at 2 kB/s: it has no steady window by its maximum, so it ends without a number.
+    const harness = start({ phases: ['idle', 'upload', 'download'] }, { ...LINK, rate: (direction) => (direction === 'upload' ? 2000 : 1_000_000) })
+    const report = await finish(harness)
+    const started = harness.events.find(({ event }) => event.type === 'phase' && event.phase === 'download' && event.state === 'started')?.event
+    const live = started?.type === 'phase' ? started.notices : []
+    expect(live).toEqual([
+      { code: 'slow-link-extended', direction: 'upload' },
+      { code: 'insufficient-data', direction: 'upload', offer: 'standard' },
+    ])
+    const result = harness.events.find(({ event }) => event.type === 'result')?.event
+    expect(result?.type === 'result' ? result.result.notices.slice(0, live.length) : []).toEqual(live)
+    expect(report?.upload?.status).toBe('insufficient-data')
+  })
+
   it('carries a notice for each ignored URL parameter from the first phase event to the result', async () => {
     const harness = start({ ignoredParameters: [{ parameter: 'streams', value: '12' }, { parameter: 'cap', value: '1kB' }] })
     const report = await finish(harness)

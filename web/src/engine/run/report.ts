@@ -58,6 +58,11 @@ export interface RunConditions {
   throttled: boolean
 }
 
+/** One `url-parameter-ignored` notice per URL parameter the page ignored, from the start of the run. */
+export function urlNotices(settings: Pick<RunSettings, 'ignoredParameters'>): Notice[] {
+  return (settings.ignoredParameters ?? []).map(({ parameter, value }) => ({ code: 'url-parameter-ignored', parameter, value }))
+}
+
 /** The run-level notices of measurement.md section 16, in the order the result lists them. */
 export function runNotices(report: Pick<RunReport, 'download' | 'upload'>, conditions: RunConditions): Notice[] {
   const notices: Notice[] = [...conditions.url, ...conditions.connection]

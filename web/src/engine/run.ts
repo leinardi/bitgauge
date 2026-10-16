@@ -21,10 +21,10 @@ import { type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
 import { IdleLatency, type IdleOutcome } from '@/engine/latency/idle'
 import type { Direction, DirectionResult, EngineEvent, IdleResult, MeasuringPhase, Notice, PhaseName, PhaseState } from '@/engine/messages'
 import { buildResult } from '@/engine/result'
-import { downloadResult, uploadResult } from '@/engine/result/direction'
+import { directionNotices, downloadResult, resultNotices, uploadResult } from '@/engine/result/direction'
 import { Connection } from '@/engine/run/connection'
 import { PageState } from '@/engine/run/page'
-import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices } from '@/engine/run/report'
+import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices, urlNotices } from '@/engine/run/report'
 import { SampleFeed } from '@/engine/run/samples'
 import type { RunSettings } from '@/engine/settings'
 import { BusyTrack } from '@/engine/stats/busy'
@@ -84,6 +84,8 @@ export class Run {
   private downloadStartAt: number | null = null
   /** Whether any phase has a result to keep. */
   private kept = false
+  /** The notices the directions that ended have earned, which every later phase event carries. */
+  private measured: Notice[] = []
   /** Commands after the run has ended are ignored. */
   private finished = false
 
@@ -184,7 +186,7 @@ export class Run {
       protocol: this.protocol,
       dataUsedBytes: this.dataUsed,
       error: interrupt?.kind === 'error' ? interrupt.code : null,
-      notices: runNotices(report, { url: this.urlNotices(), connection: this.connection?.notices ?? [], hidden: this.page.hidden, throttled: this.page.throttled }),
+      notices: runNotices(report, { url: urlNotices(this.options.settings), connection: this.connection?.notices ?? [], hidden: this.page.hidden, throttled: this.page.throttled }),
     }
   }
 
@@ -300,7 +302,9 @@ export class Run {
       this.fail(settled.notices.some((notice) => notice.code === 'server-restarted') ? 'server-restarted' : 'requests-failed')
     }
     this.kept ||= settled.status !== 'error'
-    this.event(direction, settled.status === 'error' ? 'failed' : 'finished', { streams: settled.streams, result: tile(settled) })
+    const block = tile(settled)
+    this.measured.push(...directionNotices(settled.notices, block))
+    this.event(direction, settled.status === 'error' ? 'failed' : 'finished', { streams: settled.streams, result: block })
     return settled
   }
 
@@ -373,13 +377,9 @@ export class Run {
     this.event(phase, 'started')
   }
 
-  /** One `url-parameter-ignored` notice per URL parameter the page ignored, from the start of the run. */
-  private urlNotices(): Notice[] {
-    return (this.options.settings.ignoredParameters ?? []).map(({ parameter, value }) => ({ code: 'url-parameter-ignored', parameter, value }))
-  }
-
   private event(phase: PhaseName, state: PhaseState, { streams, result, idle }: { streams?: number; result?: DirectionResult; idle?: IdleResult } = {}): void {
-    const notices: Notice[] = [...this.urlNotices(), ...(this.connection?.notices ?? [])]
+    // The notices so far (architecture.md section 4), in the order the result will list them.
+    const notices = resultNotices([this.measured, urlNotices(this.options.settings), this.connection?.notices ?? []], 0)
     this.options.emit({
       type: 'phase',
       phase,

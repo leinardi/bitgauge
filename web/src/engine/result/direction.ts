@@ -143,6 +143,21 @@ export function uploadResult(outcome: UploadOutcome, context: DirectionContext):
   }
 }
 
+/**
+ * The low-confidence notice follows the direction's final confidence: dropped when the level is
+ * normal (the steady window dropped `unstable`, section 8.3) or cpu-bound (that level takes
+ * precedence, section 16), and carrying the remaining reasons otherwise.
+ */
+export function directionNotices(notices: readonly Notice[] | undefined, block: DirectionResult): readonly Notice[] {
+  const confidence = block.confidence
+  return (notices ?? []).flatMap((notice): Notice[] => {
+    if (notice.code !== 'low-confidence') {
+      return [notice]
+    }
+    return confidence?.level === 'low' ? [{ ...notice, reasons: confidence.reasons }] : []
+  })
+}
+
 /** Every direction's notices, then the run's, without repeats, and the compensation notice last. */
 export function resultNotices(lists: readonly (readonly Notice[])[], overheadCompensationPercent: number): Notice[] {
   const seen = new Set<string>()
