@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { deferred, issuesEarly } from '@/engine/phases/issue'
+import { deferred, inFlightLimit, issuesEarly } from '@/engine/phases/issue'
 import { dataBudget, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
@@ -192,7 +192,7 @@ export class UploadPhase {
       const first = deferred<number>()
       const done = this.request(stream, size, hold, early, first.resolve)
       const watched = { firstByte: first.promise, done, expectedMs: this.streams.expectedMs(stream, size), tailMs: this.streams.tailMs }
-      early = (await issuesEarly(this.clock, this.streams.leadMs, watched)) && this.inFlight.size < this.options.limits.maxStreamsPerClient
+      early = (await issuesEarly(this.clock, this.streams.leadMs, watched)) && this.inFlight.size < inFlightLimit(this.ledger.protocol, this.options.limits.maxStreamsPerClient)
       if (!early) {
         await done
       }

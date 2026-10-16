@@ -321,6 +321,14 @@ describe('a browser with an issue gap', () => {
     expect(transport.peakInFlight.upload).toBeLessThanOrEqual(8)
   })
 
+  it('keeps six requests in flight on HTTP/1.1, the browsers\' connection limit', async () => {
+    // Two more would wait in the browser for a connection while their client time runs (section 3).
+    const h1 = await run(GAPPED, fixed(6))
+    expect(h1.transport.peakInFlight.upload).toBe(6)
+    const h2 = await run({ ...GAPPED, protocol: 'h2' }, fixed(6))
+    expect(h2.transport.peakInFlight.upload).toBeGreaterThan(6)
+  })
+
   it('leaves the holes when the in-flight bound allows no early request', async () => {
     const { transport, outcome } = await run(GAPPED, fixed(2, 2))
     expect(transport.peakInFlight.upload).toBe(2)

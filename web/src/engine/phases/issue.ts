@@ -30,6 +30,19 @@ export const ISSUE_GAP_MS = 50
 /** The RTT the gap subtracts when idle latency was skipped. */
 export const DEFAULT_RTT_MS = 100
 
+/** Browsers open at most this many HTTP/1.1 connections to one host (measurement.md section 3). */
+const HTTP1_CONNECTIONS = 6
+
+/**
+ * The most requests a phase keeps in flight, early ones included (section 3): the server's
+ * per-client limit, and 6 unless the latest request reported HTTP/2 or HTTP/3, which multiplex one
+ * connection. A request past the browser's connection limit would wait in the browser while its
+ * client duration runs.
+ */
+export function inFlightLimit(protocol: string | null, serverMax: number): number {
+  return protocol === 'h2' || protocol === 'h3' ? serverMax : Math.min(serverMax, HTTP1_CONNECTIONS)
+}
+
 /**
  * A request's issue gap: its client duration, counted from the later of its issue and the end of
  * the stream's previous request, minus its transfer time and the RTT; never below zero.

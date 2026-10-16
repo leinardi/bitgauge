@@ -20,7 +20,7 @@
 import { type DownloadRequest, Streams } from '@/engine/download/streams'
 import { type DownloadWindow, downloadWindow } from '@/engine/download/window'
 import type { DirectionEvent, DirectionStatus, Notice, Plateau } from '@/engine/messages'
-import { deferred, issuesEarly } from '@/engine/phases/issue'
+import { deferred, inFlightLimit, issuesEarly } from '@/engine/phases/issue'
 import { dataBudget, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
@@ -224,7 +224,7 @@ export class DownloadPhase {
       const first = deferred<number>()
       const done = this.request(stream, size, issuedAt, first.resolve)
       const watched = { firstByte: first.promise, done, expectedMs: this.streams.expectedMs(stream, size), tailMs: 0 }
-      if (!(await issuesEarly(this.clock, this.streams.leadMs, watched)) || this.inFlight.size >= this.options.limits.maxStreamsPerClient) {
+      if (!(await issuesEarly(this.clock, this.streams.leadMs, watched)) || this.inFlight.size >= inFlightLimit(this.protocol, this.options.limits.maxStreamsPerClient)) {
         await done
       }
     }

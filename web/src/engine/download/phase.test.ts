@@ -246,13 +246,21 @@ describe('a browser with an issue gap', () => {
   })
 
   it('closes most of the holes of six streams with the two spare slots of the default bound', async () => {
-    const bound = await run(GAPPED, fixed(6, 6))
-    const spare = await run(GAPPED, fixed(6))
+    // HTTP/2 multiplexes one connection, so the server's bound of 8 is the only one.
+    const multiplexed: Scenario = { ...GAPPED, protocol: 'h2' }
+    const bound = await run(multiplexed, fixed(6, 6))
+    const spare = await run(multiplexed, fixed(6))
     expect(bound.transport.peakInFlight.download).toBe(6)
     expect(spare.transport.peakInFlight.download).toBeLessThanOrEqual(8)
     // Boundaries come every ≈ 170 ms and each needs a 150 ms overlap: two slots cover most of them.
     expect(variation(spare.outcome)).toBeLessThan(variation(bound.outcome) / 2)
     expect(variation(spare.outcome)).toBeLessThan(0.15)
+  })
+
+  it('keeps six requests in flight on HTTP/1.1, the browsers\' connection limit', async () => {
+    // Two more would wait in the browser for a connection while their client time runs (section 3).
+    const { transport } = await run(GAPPED, fixed(6))
+    expect(transport.peakInFlight.download).toBe(6)
   })
 
   it('never issues early in a browser without a gap', async () => {
