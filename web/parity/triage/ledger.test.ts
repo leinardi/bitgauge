@@ -25,6 +25,7 @@ import { fileURLToPath } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { SCENARIOS } from '../scenarios.ts'
 import { assign } from './assign.ts'
 import { cluster, confirmation, DAY, decided, deferral, entry, everywhere, EVIDENCE, fullRun, match, ownedOf, verdict } from './fixtures.ts'
 import { loadInputs } from './inputs.ts'
@@ -277,7 +278,7 @@ describe('validateLedger: across clusters', () => {
 
 describe('ruleScenarios', () => {
   it('is every scenario for a rule that names none, and the union of its items otherwise', () => {
-    expect(ruleScenarios(match()).size).toBe(25)
+    expect(ruleScenarios(match()).size).toBe(SCENARIOS.length)
     expect([...ruleScenarios(match({ scenarios: ['about/*', 'test/idle', 'about'] }))].sort()).toEqual(['about', 'about/unreachable', 'test/idle'])
   })
 })

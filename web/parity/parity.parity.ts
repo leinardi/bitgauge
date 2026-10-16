@@ -25,7 +25,8 @@ import { test as base, type Browser, type Page } from '@playwright/test'
 
 import { judgePair, loadBaseline, type BaselineEntry } from './baseline.ts'
 import { capture } from './capture.ts'
-import { compareContent } from './compare/content.ts'
+import { compareContent, isContentRegion } from './compare/content.ts'
+import { compareLayout } from './compare/layout.ts'
 import { compareStyles } from './compare/style.ts'
 import { attachVisual } from './compare/visual.ts'
 import * as drivers from './drivers.ts'
@@ -56,6 +57,7 @@ class HarnessError extends Error {
 async function runStep(driver: drivers.Driver, page: Page, step: Step): Promise<void> {
   if ('forceState' in step) await driver.forceState(page, step.forceState)
   else if ('serverUnreachable' in step) await driver.serverUnreachable(page)
+  else if ('openDemo' in step) await driver.openDemo(page)
   else await drivers.goto(page, step.goto)
 }
 
@@ -131,9 +133,12 @@ for (const scenario of selection.scenarios) {
           await testInfo.attach(`${side}-${region}.yaml`, { body: yaml, contentType: 'text/yaml' })
         }
       }
+      const contentFindings = compareContent(protoCapture.trees, vueCapture.trees, scenario.regions.filter(isContentRegion))
       const styleFindings =
         scenario.style === false ? [] : compareStyles(protoCapture.styles, vueCapture.styles, scenario.regions)
-      findings = numberDuplicates([...compareContent(protoCapture.trees, vueCapture.trees, scenario.regions), ...styleFindings])
+      const layoutFindings =
+        scenario.layout === false ? [] : compareLayout(protoCapture.layout, vueCapture.layout, scenario.regions)
+      findings = numberDuplicates([...contentFindings, ...styleFindings, ...layoutFindings])
       status = 'compared'
     } catch (cause) {
       error = cause instanceof Error ? cause.message : String(cause)

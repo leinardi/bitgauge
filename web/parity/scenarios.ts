@@ -21,7 +21,7 @@
 // rendered pages are compared. Steps name states and screens, never selectors: how each side reaches
 // them lives in drivers.ts, so a markup change on one side is one driver edit.
 
-import type { Region } from './compare/content.ts'
+import type { LookRegion, Region } from './compare/content.ts'
 
 // The Test screen states v0.1 has: the kit's TEST_STATES (ui_kits/app/App.jsx) without the
 // continuous ones, which are v0.2. coverage.test.ts holds this list to the kit's.
@@ -55,17 +55,20 @@ export type TestState = (typeof V01_TEST_STATES)[number]
 /** The screens both sides have in v0.1, by the label of their navigation item. */
 export type Screen = 'Test' | 'About'
 
-export type Step = { forceState: TestState } | { serverUnreachable: true } | { goto: Screen }
+export type Step = { forceState: TestState } | { serverUnreachable: true } | { goto: Screen } | { openDemo: true }
 
 export interface Scenario {
   id: string
   steps: Step[]
   // The regions compared: the whole page, header and tab bar included, since v0.1 has two screens
-  // and every state can change the header's server status.
-  regions: Region[]
+  // and every state can change the header's server status. The demo panel is compared only by the
+  // demo scenarios, so a difference of the panel's is one finding and not one per page.
+  regions: LookRegion[]
   // Leaves the style layer out. For a scenario whose computed styles are not stable from run to run,
   // so it is excluded rather than left to flap; say why where it is set.
   style?: false
+  // Leaves the layout layer out, on the same terms.
+  layout?: false
 }
 
 const ALL: Region[] = ['header', 'main', 'notices', 'dialogs']
@@ -81,4 +84,11 @@ const about: Scenario[] = [
   { id: 'about/unreachable', steps: [{ serverUnreachable: true }, { goto: 'About' }], regions: ALL },
 ]
 
-export const SCENARIOS: readonly Scenario[] = [...testStates, ...about]
+// The demo panel, collapsed on the idle page and open: only how it looks, since the content layer
+// does not read it (content.ts LookRegion).
+const demo: Scenario[] = [
+  { id: 'demo/closed', steps: [], regions: ['demo'] },
+  { id: 'demo/open', steps: [{ openDemo: true }], regions: ['demo'] },
+]
+
+export const SCENARIOS: readonly Scenario[] = [...testStates, ...about, ...demo]

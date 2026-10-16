@@ -26,10 +26,10 @@ import type { Page } from '@playwright/test'
 
 import { finding, type Finding } from '../findings.ts'
 import { normalizeValue, roleClass } from '../normalize.ts'
-import type { Region } from './content.ts'
+import type { LookRegion } from './content.ts'
 
 export interface StyledElement {
-  region: Region
+  region: LookRegion
   role: string
   name: string
   occurrence: number
@@ -38,7 +38,7 @@ export interface StyledElement {
 
 // Lengths within this many CSS pixels are the same length: subpixel layout and font rasterizing
 // differ between two documents without anyone being able to see it.
-const LENGTH_TOLERANCE_PX = 1
+export const LENGTH_TOLERANCE_PX = 1
 
 const NAME_MAX = 48
 
@@ -120,8 +120,8 @@ function collect({ props, regionRoots }: { props: readonly string[]; regionRoots
 
 // An element's name as the content layer reads it (normalize.ts), cut short, and numbered by its
 // occurrence: two elements whose names differ only in a measured value pair as the first and the
-// second.
-export function nameElements(raw: readonly Omit<StyledElement, 'occurrence'>[]): StyledElement[] {
+// second. The layout layer names its elements the same way.
+export function nameElements<T extends { region: string; role: string; name: string }>(raw: readonly T[]): (T & { occurrence: number })[] {
   const counts = new Map<string, number>()
   return raw.map((el) => {
     const full = normalizeValue(el.name)
@@ -133,13 +133,18 @@ export function nameElements(raw: readonly Omit<StyledElement, 'occurrence'>[]):
   })
 }
 
-export async function collectStyles(page: Page, regionRoots: readonly [Region, string][]): Promise<StyledElement[]> {
+export async function collectStyles(page: Page, regionRoots: readonly [LookRegion, string][]): Promise<StyledElement[]> {
   const raw = await page.evaluate(collect, { props: [...STYLE_PROPS], regionRoots: [...regionRoots] })
   return nameElements(raw as Omit<StyledElement, 'occurrence'>[])
 }
 
-function pairingKey(el: StyledElement): string {
+export function pairingKey(el: { region: string; role: string; name: string; occurrence: number }): string {
   return `${el.region}\u0000${roleClass(el.role)}\u0000${el.name}\u0000${el.occurrence}`
+}
+
+// Where a paired element is, as a finding names it: its region, role class, name and occurrence.
+export function elementPath(el: { region: string; role: string; name: string; occurrence: number }): string {
+  return `${el.region} > ${roleClass(el.role)} "${el.name}"${el.occurrence > 1 ? ` #${el.occurrence}` : ''}`
 }
 
 function px(value: string): number | null {
@@ -205,14 +210,14 @@ function applies(prop: string, a: Record<string, string>, b: Record<string, stri
   return true
 }
 
-export function compareStyles(proto: readonly StyledElement[], vue: readonly StyledElement[], regions: readonly Region[]): Finding[] {
+export function compareStyles(proto: readonly StyledElement[], vue: readonly StyledElement[], regions: readonly LookRegion[]): Finding[] {
   const vueByKey = new Map(vue.map((el) => [pairingKey(el), el]))
   const out: Finding[] = []
   for (const p of proto) {
     if (!regions.includes(p.region)) continue
     const v = vueByKey.get(pairingKey(p))
     if (v === undefined) continue
-    const where = `${p.region} > ${roleClass(p.role)} "${p.name}"${p.occurrence > 1 ? ` #${p.occurrence}` : ''}`
+    const where = elementPath(p)
     for (const prop of STYLE_PROPS) {
       const radius = prop === 'border-top-left-radius'
       const a = radius ? drawnRadius(p.props) : (p.props[prop] ?? '')

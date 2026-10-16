@@ -32,13 +32,17 @@ export interface Driver extends SideDriver {
   forceState: (page: Page, state: TestState) => Promise<void>
   // Makes the server unreachable through the side's demo panel.
   serverUnreachable: (page: Page) => Promise<void>
+  // Opens the side's demo panel, left open for the demo scenarios to compare.
+  openDemo: (page: Page) => Promise<void>
 }
 
 const OVERLAYS = '[role=dialog], [role=alertdialog]'
 
-// Dialogs first and main before the header, so an element inside an overlay or the main content
-// (the About page has a header of its own) is filed there.
+// The demo panel first, so nothing in it is filed as a notice; then dialogs, and main before the
+// header, so an element inside an overlay or the main content (the About page has a header of its
+// own) is filed there. Both sides label the panel's aside the same (App.jsx, DemoPanel.vue).
 const STYLE_REGIONS: SideDriver['styleRegions'] = [
+  ['demo', 'aside[aria-label="Demo state"]'],
   ['dialogs', OVERLAYS],
   ['main', 'main'],
   ['header', 'header, nav'],
@@ -87,6 +91,16 @@ export const proto: Driver = {
   // A forced state wins over the run timeline (Prototype.jsx cur()), so it shows without a run.
   forceState: (page, state) => storeAndReload(page, KIT_DEMO_KEY, { testState: state }),
   serverUnreachable: (page) => storeAndReload(page, KIT_DEMO_KEY, { aboutUnreachable: true }),
+  openDemo: async (page) => {
+    await page.getByRole('button', { name: 'Expand demo panel', exact: true }).click()
+    await parkPointer(page)
+  },
+}
+
+// A click leaves the pointer over whatever the panel puts beneath it once open (Reset, on one side),
+// so each side would capture a different hover; park it in the corner, as a person moving on would.
+async function parkPointer(page: Page): Promise<void> {
+  await page.mouse.move(0, 0)
 }
 
 // Applies a demo panel control that loads the page again (DemoPanel.vue apply()), and waits for the
@@ -198,6 +212,10 @@ export const vue: Driver = {
     await openPanel(page)
     await applyAndWait(page, () => page.getByTestId('demo-scenario').selectOption('offline'))
     await closePanel(page)
+  },
+  openDemo: async (page) => {
+    await openPanel(page)
+    await parkPointer(page)
   },
 }
 

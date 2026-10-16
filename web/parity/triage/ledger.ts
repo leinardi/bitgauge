@@ -23,6 +23,7 @@
 
 import { readFileSync } from 'node:fs'
 
+import { isLayer, LAYERS, type Layer } from '../findings.ts'
 import { writeFileAtomically } from '../records.ts'
 import { SCENARIOS, type Scenario } from '../scenarios.ts'
 import { filterScenarios } from '../selection.ts'
@@ -50,7 +51,7 @@ export type ActionTarget = (typeof ACTION_TARGETS)[number]
 export interface Match {
   scenarios: string[] | null
   projects: string[] | null
-  layer: 'content' | 'style' | null
+  layer: Layer | null
   path: string | null
   kind: string | null
   detail: string | null
@@ -263,8 +264,8 @@ function checkMatch(match: unknown, scenarios: readonly Scenario[], problem: (te
     }
   }
   const layer = match['layer']
-  if (layer !== null && layer !== 'content' && layer !== 'style') {
-    problem('match.layer must be "content", "style" or null')
+  if (layer !== null && !isLayer(layer)) {
+    problem(`match.layer must be ${LAYERS.map((l) => `"${l}"`).join(', ')} or null`)
   }
   for (const field of ['path', 'kind', 'detail'] as const) {
     const pattern = match[field]

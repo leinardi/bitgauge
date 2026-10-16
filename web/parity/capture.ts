@@ -24,6 +24,7 @@ import type { Locator, Page } from '@playwright/test'
 
 import { parseAriaSnapshot, type AriaNode } from './compare/ariaTree.ts'
 import type { Region, RegionTrees } from './compare/content.ts'
+import { collectLayout, type LaidOutElement } from './compare/layout.ts'
 import { collectStyles, type StyledElement } from './compare/style.ts'
 import { normalizeTree } from './normalize.ts'
 import type { SideDriver } from './side.ts'
@@ -44,6 +45,7 @@ export interface Capture {
   trees: RegionTrees
   raw: Record<Region, string>
   styles: StyledElement[]
+  layout: LaidOutElement[]
 }
 
 // By element, not by role: a page whose main element carries role=alert is still the main content.
@@ -95,5 +97,5 @@ export async function capture(driver: SideDriver, page: Page): Promise<Capture> 
     notices: normalizeTree(parseAriaSnapshot(raw.notices), driver.pageHost),
     dialogs: normalizeTree(parseAriaSnapshot(raw.dialogs), driver.pageHost),
   }
-  return { trees, raw, styles: await collectStyles(page, driver.styleRegions) }
+  return { trees, raw, styles: await collectStyles(page, driver.styleRegions), layout: await collectLayout(page, driver.styleRegions) }
 }

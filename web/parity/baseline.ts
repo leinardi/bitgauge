@@ -24,7 +24,7 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-import type { Finding } from './findings.ts'
+import { isLayer, type Finding } from './findings.ts'
 import { writeFileAtomically } from './records.ts'
 import { ALL_PROJECTS, pairKey, type Pair } from './selection.ts'
 
@@ -73,7 +73,7 @@ export function parseBaseline(text: string): BaselineEntry[] {
     if (parts.length !== FIELDS || projects === undefined || scenario === undefined || findingPath === undefined || kind === undefined || detail === undefined || reason === undefined) {
       throw new Error(`.parity-baseline:${index + 1}: expected ${FIELDS} tab-separated fields, found ${parts.length}`)
     }
-    if (layer !== 'content' && layer !== 'style') {
+    if (!isLayer(layer)) {
       throw new Error(`.parity-baseline:${index + 1}: unknown layer "${layer ?? ''}"`)
     }
     for (const project of expandProjects(projects)) {

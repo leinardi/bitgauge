@@ -5,7 +5,11 @@
       "id": "a11y-brand-logo",
       "title": "Header brand: the kit's logo is an img named BitGauge, Vue's is not exposed",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^header > banner$",
@@ -621,7 +625,11 @@
       "id": "a11y-live-status",
       "title": "Live status: the kit's one region with per-state sentences vs Vue's phase and summary regions in the spec's wording",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main( > status)?$",
@@ -2757,7 +2765,11 @@
       "id": "content-empty-results",
       "title": "Empty Results: Vue's \"No test has run yet.\" vs the kit's empty tiles",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main$",
@@ -2958,7 +2970,11 @@
       "id": "content-gauge-readout",
       "title": "Gauge readout per state: gauge.md's title, message, note, detail, inner label and scale caption vs Vue's Ready fallback",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main > region \"Speed test\"$",
@@ -3558,7 +3574,11 @@
       "id": "content-result-time",
       "title": "Result status time of day: kit's literal 24-hour sample vs Intl in the active locale",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main > region \"Result status\"",
@@ -3607,7 +3627,11 @@
       "id": "content-results-tiles",
       "title": "Results tiles per state: finished tiles mid-run, the tile states and pills, their explanations and number format",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main > region \"Results\"$",
@@ -3776,7 +3800,11 @@
       "id": "content-test-card",
       "title": "Test card: the kit's so far / elapsed / not saved qualifiers, live elapsed duration and — before the first byte vs Vue's plain labels",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^main > region \"Results\" > (term|definition)$",
@@ -4564,7 +4592,11 @@
       "id": "harness-page-host",
       "title": "Page host in the header: the kit's speed.home.lan vs the demo's own origin",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "content",
         "path": "^header > banner$",
@@ -4734,7 +4766,11 @@
       "id": "harness-pill-radius",
       "title": "Fully rounded radius: 9999px vs 3.35544e+07px, and the chip width it sits with",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^main > button \"Context: —\"$",
@@ -4980,7 +5016,11 @@
       "id": "harness-transparent-border",
       "title": "Border colour of a 1px transparent border compared with a 0-width border",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": null,
@@ -5464,7 +5504,11 @@
       "id": "layout-packet-loss-why",
       "title": "Packet-loss row: the kit's Why? link ends the reason line in the term, Vue's sits beside the badge in the value",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": null,
         "path": "^main( > region \"Results\" > (term|definition)| > button \"Why packet loss is not measured: Browsers can.t…\")$",
@@ -6278,7 +6322,11 @@
       "id": "style-about-links",
       "title": "About: Source repository and LICENSE stacked full width (kit) vs in a row (Vue)",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^main > button \"(LICENSE file in the repository|Source repository)\"$",
@@ -6401,7 +6449,11 @@
       "id": "style-basepath-heading",
       "title": "Base path heading: kit 22px / 26px vs Vue --text-3xl",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^main > heading \"The base path",
@@ -6514,7 +6566,11 @@
       "id": "style-brand",
       "title": "Header brand link: kit weight 600",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^header > button \"BitGauge home\"$",
@@ -6746,7 +6802,11 @@
       "id": "style-button-kit-bug",
       "title": "Kit bug: the Callout .block class leaks onto Button block (amber border on LICENSE, extra padding on Source repository)",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^main > button \"(LICENSE file in the repository|Source repository)\"$",
@@ -6886,7 +6946,11 @@
       "id": "style-buttons",
       "title": "Button anatomy and variants: kit .btn sizes, weight 600, secondary fill vs shadcn sizes and unmapped tokens",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^main > button \"(Download JSON|Retry|LICENSE file in the repository|Cancel|Source repository|Deployment docs|Reload)\"$",
@@ -7240,7 +7304,11 @@
       "id": "style-context-chip",
       "title": "Context chip anatomy: kit tokens (padding 8/6, gap 4) vs Vue literals (9/7, gap 5)",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^main > button \"Context: —\"$",
@@ -7330,7 +7398,11 @@
       "id": "style-hidden-heading",
       "title": "Test screen's visually hidden h1: the kit's browser-default heading type vs Vue's inherited body type",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^main > heading \"Speed test\"$",
@@ -7528,7 +7600,11 @@
       "id": "style-line-height",
       "title": "Line heights: the kit's line-height tokens (1.15 controls, 1.5 body, headings) vs Tailwind's 1.5 and text-* leading",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^(?!main > heading \"The base path)(?!main > heading \"Speed test\"$)(?!main > button \"Why packet loss)(?!main > status \"Test cancelled during upload)",
@@ -8207,7 +8283,11 @@
       "id": "style-methodology-link",
       "title": "Methodology link weight: kit 600",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^main > button \"Methodology",
@@ -8300,7 +8380,11 @@
       "id": "style-notice-box",
       "title": "Notice box: kit 14px text, 14px side padding, and the heights that follow",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^main > status \"(Auto-start|WebSocket unavailable)",
@@ -8413,7 +8497,11 @@
       "id": "style-theme-control",
       "title": "Theme radio: selected colour --primary-text (kit) vs --primary (Vue)",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^header > (radio \"(Light|Dark|Follow system)\"|button \"Theme: )",
@@ -8621,7 +8709,11 @@
       "id": "style-theme-typography",
       "title": "Theme radios' and narrow theme button's text styles on icon-only boxes",
       "match": {
-        "scenarios": null,
+        "scenarios": [
+          "test/*",
+          "about",
+          "about/unreachable"
+        ],
         "projects": null,
         "layer": "style",
         "path": "^header > (radio \"(Light|Dark|Follow system)\"|button \"Theme: )",

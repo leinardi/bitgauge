@@ -22,7 +22,7 @@
 
 import type { BrowserContext } from '@playwright/test'
 
-import type { Region } from './compare/content.ts'
+import type { LookRegion } from './compare/content.ts'
 import { portFromEnv } from './selection.ts'
 
 export type Side = 'proto' | 'vue'
@@ -43,9 +43,10 @@ export interface SideDriver {
   // Transient toasts, which neither the notices nor the dialogs read: they come and go on a timer.
   // Null for a side that has none.
   toastSelector: string | null
-  // Each region's root element on this side, for the style layer, first match wins: an element
-  // inside an overlay belongs to the overlay, and one inside main to main.
-  styleRegions: [Region, string][]
+  // Each region's root element on this side, for the style and layout layers, first match wins: an
+  // element inside the demo panel belongs to the panel, one inside an overlay to the overlay, and one
+  // inside main to main.
+  styleRegions: [LookRegion, string][]
   // The host the side shows for its own page: the Vue demo reads the origin it is served from, the
   // prototype mocks one. Both show what the spec asks (ui/screens.md section 1), so the content layer
   // reads either as the same token.

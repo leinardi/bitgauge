@@ -39,8 +39,8 @@ time, the longest a complete Standard test of about 28 s.
 
 Each scenario (`web/parity/scenarios.ts`) runs its steps on both sides: one per v0.1 Test screen
 state (`test/<state>`, the kit's `TEST_STATES` without the continuous ones, which are v0.2), plus
-`about` and `about/unreachable`. Steps name states and screens; how each side reaches them lives in
-`web/parity/drivers.ts`:
+`about`, `about/unreachable`, and `demo/closed` and `demo/open` for the demo panel itself. Steps name
+states and screens; how each side reaches them lives in `web/parity/drivers.ts`:
 
 - **A Test screen state** is forced through each side's demo panel. The prototype reads its panel
   from `localStorage` (`bitgauge-kit-demo`) when the page loads, and a forced state wins over its
@@ -63,6 +63,7 @@ changing.
 | --- | --- | --- |
 | Content | The accessibility tree of each region: the header (the top bar, and on a narrow window the tab bar), the page itself, notices (alerts and statuses outside every landmark), open dialogs | `missing` (only in the prototype), `extra` (only in Vue), `changed` (same element, different name or text), `attrs` (different state such as `disabled` or `level`) |
 | Style | A bounded set of elements (headings, buttons, links, tabs, radios, column headers and statuses), paired by region, role, name and occurrence | One finding per computed property that differs: font, color, padding, gap, radius, border, size. Lengths within 1px are equal |
+| Layout | Every drawn element with text of its own, every landmark, list, group, figure, image and canvas, and each region's root, paired as the style layer pairs | One finding per box edge that differs: `x`, `y`, `width`, `height`. Lengths within 1px are equal |
 | Visual | Full-page screenshots of both sides and a heatmap | Report attachments only, never a finding |
 
 `web/parity/normalize.ts` lists what is deliberately treated as equal, each with its reason:
@@ -86,6 +87,23 @@ and the padding, gap and weight of an icon-only button centered in a box of the 
 sides. A corner radius is compared as drawn, at most half the box's shorter side, so `9999px` and
 `calc(infinity * 1px)` are the same pill. It skips an element shown to screen readers only, clipped
 with an ancestor or by itself to a box of at most 1 px, since none of its style renders.
+
+The layout layer (`web/parity/compare/layout.ts`) sees what the other two cannot: a line that wraps,
+a row that grows, a box that moves. What it measures follows what is drawn, not the accessibility
+tree: an element `checkVisibility` rejects with its visibility and opacity checks, an empty box or
+one clipped to screen readers is left out, while decorative text hidden from screen readers (a
+chart's axis labels) is measured. Each box is compared relative to the nearest ancestor both sides
+have, so a wrapper only one side's markup has is never the reference, and a row that grows is
+reported at the row rather than again on everything inside it; a region's root is compared against
+the viewport, so a region that moves as a whole is reported once. Things below a box that grew still
+move against their shared ancestor, so a fix upstream clears findings further down. An element that
+shows a measured value has its `x` and `width` skipped, since they follow the number; its top and
+height are compared.
+
+The demo panel is a region of the style and layout layers only, read by the `demo/*` scenarios
+alone. Its controls differ on purpose ([frontend.md §9](../features/technical-stack/frontend.md#9-demo-build):
+Vue has the v0.1 part of the kit's), so the content layer does not read it, and a control only the
+kit has is left unpaired.
 
 ### Why the Runs Repeat
 
@@ -297,6 +315,8 @@ Dialogs, menus and error states cannot be enumerated, so for every new or change
 
 - **A new scenario**: an entry in `scenarios.ts`, and a driver method when the step is new. When the
   two sides need different locators, that difference goes in the driver, never in the scenario.
+  A ledger rule with `scenarios: null` names every scenario, so a new one outgrows the run a `done`
+  cluster was closed under; give such rules the scenarios they were decided about.
 - **A new step that cannot reach its target on one side** is a harness error, by design. Keep only
   targets both sides have; the content layer still reports what one side lacks.
 - **The unit tests** (`web/parity/**/*.test.ts`, run by `make verify-web`) cover the parser, the

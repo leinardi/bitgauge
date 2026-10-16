@@ -62,6 +62,11 @@ interface Grouping {
 }
 
 function groupingOf(e: AvailableEntry): Grouping {
+  // A layout difference is one element sitting or sizing differently, the same element across
+  // scenarios and projects, whatever the number of pixels each one says.
+  if (e.layer === 'layout') {
+    return { key: ['layout', e.path].join('\t'), rule: { path: exactly(e.path), kind: null, detail: null } }
+  }
   if (e.layer === 'style') {
     return { key: ['style', e.kind, e.detail].join('\t'), rule: { path: null, kind: exactly(e.kind), detail: exactly(e.detail) } }
   }

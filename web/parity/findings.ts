@@ -21,7 +21,12 @@
 // and the scenario, are its identity in the baseline, so every field must be stable across runs and
 // free of tabs and newlines.
 
-export type Layer = 'content' | 'style'
+export const LAYERS = ['content', 'style', 'layout'] as const
+export type Layer = (typeof LAYERS)[number]
+
+export function isLayer(value: unknown): value is Layer {
+  return (LAYERS as readonly unknown[]).includes(value)
+}
 
 export interface Finding {
   layer: Layer

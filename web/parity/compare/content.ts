@@ -31,6 +31,15 @@ export type Region = 'header' | 'main' | 'notices' | 'dialogs'
 
 export type RegionTrees = Record<Region, AriaNode[]>
 
+// The regions the style and layout layers read: the content layer's, and the demo panel. The panel's
+// controls differ on purpose (frontend.md section 9: Vue has the v0.1 part of the kit's), so what it
+// says is never compared, only how what both sides have looks and sits.
+export type LookRegion = Region | 'demo'
+
+export function isContentRegion(region: LookRegion): region is Region {
+  return region !== 'demo'
+}
+
 // Longest name a path segment keeps: enough to tell siblings apart, short enough that a row's whole
 // text does not become part of every finding under it.
 const SEGMENT_NAME = 48

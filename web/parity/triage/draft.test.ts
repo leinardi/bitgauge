@@ -83,6 +83,15 @@ describe('draftGroups', () => {
     expect(draftGroups([...unclustered].reverse())).toEqual(groups)
   })
 
+  it('groups a layout difference by its element, across edges and pixels', () => {
+    const at = (kind: string, detail: string, scenario = 'test/idle') => entry({ layer: 'layout', path: 'main > text "pending"', kind, detail, scenario })
+    const groups = draftGroups([at('y', '1px → 36px'), at('x', '215px → 0px', 'test/latency'), entry({ layer: 'layout', path: 'main > text "Ready"', kind: 'y', detail: '214px → 248px' })])
+    expect(groups.map((g) => [g.match.path, g.match.kind, g.match.detail, g.entries])).toEqual([
+      ['^main > text "pending"$', '^(?:x|y)$', null, 2],
+      ['^main > text "Ready"$', '^(?:y)$', null, 1],
+    ])
+  })
+
   it('escapes regular expression syntax', () => {
     expect(escapeRegExp('row "a" (1) [x] *.$')).toBe('row "a" \\(1\\) \\[x\\] \\*\\.\\$')
     expect(new RegExp(`^${escapeRegExp('a.b')}$`).test('axb')).toBe(false)
