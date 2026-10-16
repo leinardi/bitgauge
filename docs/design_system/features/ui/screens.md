@@ -275,7 +275,11 @@ detail, each with a short explanation and, where useful, a link to the docs. The
 - **Duration:** `test extended`, one notice naming the extended direction, or both
   directions when both extended (the engine carries one per direction, [../measurement.md §16](../measurement.md#16-confidence-and-notices);
   the notice shown for the download grows to name the upload when that extends too);
-  `insufficient data` with an "Try Standard/Extended" action.
+  `insufficient data` with an "Try Standard/Extended" action, titled by its direction
+  ("Download: insufficient data"), its body naming the maximum the direction reached, the data it
+  used, the direction still running while the run goes on, and what the offered preset allows:
+  "Download reached its 20 s maximum without a confirmed steady window long enough for a number.
+  50 kB used. Upload continues; Extended allows up to 40 s per direction."
 - **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU");
   `browser upload limit` with a "Known browser limits" link to the docs.
 - **Limits:** `data cap reached`; `server stream limit — N streams`; `data used: N GB`
