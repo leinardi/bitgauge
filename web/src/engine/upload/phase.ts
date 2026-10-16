@@ -315,7 +315,7 @@ export class UploadPhase {
         }
       }
       const before = this.ramp.streams
-      this.ramp.update(series, this.streams.idleShare, this.streams.fastestRate(this.ramp.streams))
+      this.ramp.update(series, this.streams.idleShare, this.streams.summedRate(this.ramp.streams))
       if (this.ramp.streams > before) {
         this.addedFrom = before
       }

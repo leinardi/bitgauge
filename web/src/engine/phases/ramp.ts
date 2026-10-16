@@ -125,7 +125,7 @@ export class Ramp {
   private reference = 0
   /** The end of the longest series read so far. */
   private seen = 0
-  /** The highest rate_s among the current streams, in bytes per second; null before any completes. */
+  /** The sum of rate_s over the current streams, in bytes per second; null before any completes. */
   private streamRate: number | null = null
 
   constructor(options: RampOptions) {
@@ -190,7 +190,7 @@ export class Ramp {
    * trip (measurement.md section 8.2): a stream's request cycle is then about the request target
    * and the round trip over (1 − share), the aggregate of N staggered streams repeats about every
    * cycle / N, and an interval reads at least that, the cycle capped at 3 s. `streamRate` is the
-   * highest rate_s among the current streams, which the floor rule reads.
+   * sum of rate_s over the current streams, which the floor rule reads.
    */
   update(series: BucketSeries, idleShare: number | null = null, streamRate: number | null = null): void {
     this.streamRate = streamRate
@@ -270,8 +270,9 @@ export class Ramp {
 
   /**
    * Moves to the next step of the sequence, clamped to the cap, unless the floor rule skips it:
-   * L / N under 8 KiB/s, L the larger of T_base and the highest rate_s (measurement.md section
-   * 8.2), since T_base understates a link whose streams idle between requests.
+   * L / N under 8 KiB/s, L the larger of T_base and the sum of rate_s (measurement.md section
+   * 8.2), since T_base understates a link whose streams idle between requests and one rate_s a
+   * link that overlapping streams share.
    */
   private nextTrial(): void {
     const next = SEQUENCE.map((count) => Math.min(count, this.cap)).find((count) => count > this.streams)

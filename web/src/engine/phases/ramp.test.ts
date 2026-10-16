@@ -197,7 +197,7 @@ describe('the ramp on a confirmed series', () => {
     expect(ramp.streams).toBe(4)
   })
 
-  it('projects the floor rule from the fastest stream when one stream idles between requests', () => {
+  it('projects the floor rule from the streams\' rates when one stream idles between requests', () => {
     // The 600 ms floor profile in WebKit: one stream reads 1297 bytes a bucket (103.7 kbit/s) as
     // an aggregate, while its own transfers run at 29.6 kB/s (237 kbit/s, section 8.2).
     const settle = (streamRate: number | null): Ramp => {

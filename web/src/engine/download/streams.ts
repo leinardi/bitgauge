@@ -145,10 +145,10 @@ export class Streams {
     return this.streams.slice(0, active).map((state) => state.completed)
   }
 
-  /** The highest rate_s among the first `active` streams, null before one completes (section 8.2). */
-  fastestRate(active: number): number | null {
+  /** The sum of rate_s over the first `active` streams, null before one completes (section 8.2). */
+  summedRate(active: number): number | null {
     const rates = this.streams.slice(0, active).flatMap((state) => (state.completed > 0 ? [state.rate] : []))
-    return rates.length === 0 ? null : Math.max(...rates)
+    return rates.length === 0 ? null : rates.reduce((sum, rate) => sum + rate, 0)
   }
 
   /** The different requests that added bytes to the buckets from `from` to `to` (exclusive). */

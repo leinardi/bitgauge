@@ -242,6 +242,26 @@ describe('section 19.4, 2.5 Gbit/s LAN', () => {
   })
 })
 
+describe('the floor rule\'s rate', () => {
+  it('sums rate_s over the active streams that have confirmed (measurement.md section 8.2)', () => {
+    const telemetry = (startMs: number, durationMs: number, bytes: number): UploadTelemetry => {
+      const steady = steadyTelemetry(startMs, startMs + durationMs, bytes)
+      return { epoch: EPOCH, bucketMs: 100, firstBucket: steady.firstBucket, buckets: [...steady.buckets], bytes, startMs, durationMs }
+    }
+    const streams = new UploadStreams(600)
+    const first = streams.add()
+    const second = streams.add()
+    streams.add()
+    expect(streams.summedRate(3)).toBeNull()
+    // Two partly overlapping streams on the 600 ms floor profile, each read at about 29 kB/s.
+    streams.confirm(streams.issue(1, first, 26_837, 0), telemetry(1000, 920, 26_837), 2200)
+    streams.confirm(streams.issue(2, second, 28_667, 100), telemetry(1100, 975, 28_667), 2300)
+    // The third stream has not confirmed, and the count leaves out a stream past it.
+    expect(streams.summedRate(3)).toBeCloseTo(26_837 / 0.92 + 28_667 / 0.975, 3)
+    expect(streams.summedRate(1)).toBeCloseTo(26_837 / 0.92, 3)
+  })
+})
+
 describe('a browser that prepares each body', () => {
   it('reads an idle share from a confirmed request of at least one bucket, beyond the round trip', () => {
     const telemetry = (startMs: number, durationMs: number, bytes: number): UploadTelemetry => {
