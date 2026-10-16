@@ -169,9 +169,11 @@ final attempt counts. The runner fails the tier on any final run that is not a `
 shaped link holds about 4.4 % below the configured rate (`rate × 1448 / 1514`, `ExpectedGoodput`).
 testing.md §5 therefore measures the reference rule's deviation check against the **configured
 goodput**, not the configured rate; against the rate, the 5 % bound would leave about 0.6 % of
-headroom and nearly every profile would go inconclusive. The self-test is the exception: it reads
-the tbf, which meters whole frames, so it is held to the configured rate itself. Never move that
-baseline back, and never resolve a borderline profile by widening the bound.
+headroom and nearly every profile would go inconclusive. On a lossy profile the configured goodput
+also takes off the loss (`ConfiguredGoodput`, `× (1 − loss)`): retransmitted segments use the link
+but iperf3 counts each payload once. The self-test is the exception: it reads the tbf, which meters
+whole frames, so it is held to the configured rate itself. Never move that baseline back, and never
+resolve a borderline profile by widening the bound.
 
 Each reference run lasts the preset's download minimum (Standard 10 s, Extended 20 s)
 (`ReferenceDuration`): testing.md asks for the steady-window duration, which is adaptive and known

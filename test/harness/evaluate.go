@@ -189,7 +189,7 @@ func (r *Run) Judge(profile *Profile) {
 		return
 	}
 
-	goodput := ExpectedGoodput(profile.RateBitsPerSecond)
+	goodput := ConfiguredGoodput(profile)
 	before, after := r.ReferenceBefore, r.ReferenceAfter
 
 	unstable := referenceProblems(

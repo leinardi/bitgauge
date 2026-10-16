@@ -20,6 +20,7 @@
 package harness
 
 import (
+	"math"
 	"slices"
 	"strings"
 	"testing"
@@ -298,5 +299,42 @@ func TestJudgeRefusesWhatIsNotEvidence(t *testing.T) {
 	if pass.Status != StatusPass || !strings.Contains(pass.Verdict, LatencyRule) ||
 		len(pass.Findings) != 0 {
 		t.Errorf("a run inside its tolerances: %s", pass.Verdict)
+	}
+}
+
+// TestLossyReference holds a lossy profile's reference to the goodput its loss leaves: at 1 %
+// loss, 300 kbit/s carries 284.0 kbit/s of payload sent once, so the 272.3 kbit/s the floor
+// profile's iperf3 read is 4.1 % off it, and 269.6 kbit/s, 5.1 % off, is not.
+func TestLossyReference(t *testing.T) {
+	t.Parallel()
+
+	profile := &Profile{
+		Name:              "lossy",
+		RateBitsPerSecond: 300 * kbit,
+		LossPercent:       1,
+		Shaped:            true,
+		Preset:            PresetStandard,
+	}
+	if got := ConfiguredGoodput(profile); math.Abs(got-284052.8) > 0.1 {
+		t.Fatalf("ConfiguredGoodput = %.1f, want 284052.8", got)
+	}
+
+	for _, tc := range []struct {
+		reference float64
+		want      string
+	}{
+		{272_300, StatusPass},
+		{269_600, StatusInconclusive},
+	} {
+		run := stableRun(300*kbit, 1, 1)
+		run.ReferenceBefore.UploadBitsPerSecond = tc.reference
+		run.ReferenceAfter.UploadBitsPerSecond = tc.reference
+		run.Result.Upload.BitsPerSecond = tc.reference
+
+		run.Judge(profile)
+
+		if run.Status != tc.want {
+			t.Errorf("reference %.0f bit/s: %s", tc.reference, run.Verdict)
+		}
 	}
 }

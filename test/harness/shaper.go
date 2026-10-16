@@ -101,6 +101,12 @@ func ExpectedGoodput(rateBitsPerSecond int64) float64 {
 	return float64(rateBitsPerSecond) * tcpPayload / ethernetFrame
 }
 
+// ConfiguredGoodput is the reference runs' baseline (testing.md section 5): ExpectedGoodput less
+// the share a lossy profile's loss spends on retransmissions, which iperf3 does not count.
+func ConfiguredGoodput(profile *Profile) float64 {
+	return ExpectedGoodput(profile.RateBitsPerSecond) * (1 - profile.LossPercent/percent)
+}
+
 // OffloadCommand caps segmentation offload on eth0 at one segment per packet (testing.md section
 // 5.1). The qdiscs see a sender's packets before segmentation, and a two-segment packet takes one
 // of fq_codel's slots sized for one frame: at 300 kbit/s, 600 ms the 64 KiB queue held 133 KB, and
