@@ -145,6 +145,12 @@ export class Streams {
     return this.streams.slice(0, active).map((state) => state.completed)
   }
 
+  /** The highest rate_s among the first `active` streams, null before one completes (section 8.2). */
+  fastestRate(active: number): number | null {
+    const rates = this.streams.slice(0, active).flatMap((state) => (state.completed > 0 ? [state.rate] : []))
+    return rates.length === 0 ? null : Math.max(...rates)
+  }
+
   /** The different requests that added bytes to the buckets from `from` to `to` (exclusive). */
   contributors(from: number, to: number): number {
     return this.requests.filter(

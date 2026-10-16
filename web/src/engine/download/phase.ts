@@ -170,7 +170,7 @@ export class DownloadPhase {
   private decide(): void {
     const at = this.series.end
     if (!this.ramp.settled) {
-      this.ramp.update(this.series)
+      this.ramp.update(this.series, null, this.streams.fastestRate(this.ramp.streams))
       if (this.ramp.placing) {
         // On download the added streams take effect in the bucket of the add.
         this.ramp.stepStarted(at)

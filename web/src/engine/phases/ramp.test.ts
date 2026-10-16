@@ -196,6 +196,25 @@ describe('the ramp on a confirmed series', () => {
     expect(ramp.plateau).toBe('floor-limited')
     expect(ramp.streams).toBe(4)
   })
+
+  it('projects the floor rule from the fastest stream when one stream idles between requests', () => {
+    // The 600 ms floor profile in WebKit: one stream reads 1297 bytes a bucket (103.7 kbit/s) as
+    // an aggregate, while its own transfers run at 29.6 kB/s (237 kbit/s, section 8.2).
+    const settle = (streamRate: number | null): Ramp => {
+      const ramp = new Ramp({ ...AUTO, rttMs: 600 })
+      const series = new BucketSeries(1)
+      while (ramp.streams === 1 && !ramp.settled && series.end < 300) {
+        series.append(...Array<Cell>(10).fill(1297))
+        ramp.update(series, null, streamRate)
+      }
+      return ramp
+    }
+    // T_base / 2 is 6.3 KiB/s, under the floor; 29.6 kB/s / 2 is 14.5 KiB/s, over it.
+    expect(settle(null).plateau).toBe('floor-limited')
+    const projected = settle(29_600)
+    expect(projected.plateau).toBeUndefined()
+    expect(projected.streams).toBe(2)
+  })
 })
 
 describe('plateaus', () => {

@@ -125,6 +125,8 @@ export class Ramp {
   private reference = 0
   /** The end of the longest series read so far. */
   private seen = 0
+  /** The highest rate_s among the current streams, in bytes per second; null before any completes. */
+  private streamRate: number | null = null
 
   constructor(options: RampOptions) {
     this.cap = Math.max(1, Math.min(options.max, options.serverMax))
@@ -187,9 +189,11 @@ export class Ramp {
    * is the largest share of a request's client duration its stream sat idle beyond the round
    * trip (measurement.md section 8.2): a stream's request cycle is then about the request target
    * and the round trip over (1 − share), the aggregate of N staggered streams repeats about every
-   * cycle / N, and an interval reads at least that, the cycle capped at 3 s.
+   * cycle / N, and an interval reads at least that, the cycle capped at 3 s. `streamRate` is the
+   * highest rate_s among the current streams, which the floor rule reads.
    */
-  update(series: BucketSeries, idleShare: number | null = null): void {
+  update(series: BucketSeries, idleShare: number | null = null, streamRate: number | null = null): void {
+    this.streamRate = streamRate
     this.seen = Math.max(this.seen, series.end)
     const cycleMs = idleShare === null ? 0 : Math.min((REQUEST_CYCLE_MS + this.rttMs) / (1 - idleShare), IDLE_CYCLE_CAP_MS)
     this.im = Math.max(this.baseIm, wholeBuckets(cycleMs / this.streams))
@@ -264,15 +268,19 @@ export class Ramp {
     }
   }
 
-  /** Moves to the next step of the sequence, clamped to the cap, unless the floor rule skips it. */
+  /**
+   * Moves to the next step of the sequence, clamped to the cap, unless the floor rule skips it:
+   * L / N under 8 KiB/s, L the larger of T_base and the highest rate_s (measurement.md section
+   * 8.2), since T_base understates a link whose streams idle between requests.
+   */
   private nextTrial(): void {
     const next = SEQUENCE.map((count) => Math.min(count, this.cap)).find((count) => count > this.streams)
     if (next === undefined) {
       this.finish('cap', this.intervalEnd())
       return
     }
-    const bytesPerSecond = (this.reference * 1000) / BUCKET_MS
-    if (bytesPerSecond / next < FLOOR_RATE) {
+    const link = Math.max((this.reference * 1000) / BUCKET_MS, this.streamRate ?? 0)
+    if (link / next < FLOOR_RATE) {
       this.finish('floor-limited', this.intervalEnd())
       return
     }

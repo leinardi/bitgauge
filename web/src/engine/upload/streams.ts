@@ -172,6 +172,12 @@ export class UploadStreams {
     return this.streams.slice(0, active).map((state) => state.confirmed)
   }
 
+  /** The highest rate_s among the first `active` streams, null before one confirms (section 8.2). */
+  fastestRate(active: number): number | null {
+    const rates = this.streams.slice(0, active).flatMap((state) => (state.confirmed > 0 ? [state.rate] : []))
+    return rates.length === 0 ? null : Math.max(...rates)
+  }
+
   /**
    * The latest first byte among streams `from` to `to` (exclusive), each at its first confirmed
    * request; null while one of them has none.
