@@ -26,7 +26,7 @@ import { links } from '@/lib/links'
 
 import { type IgnoredContext, ignoredBody } from '@/components/test/ignored'
 import { type InsufficientContext, insufficientWording } from '@/components/test/insufficient'
-import { stopWording } from '@/components/test/stop'
+import { latencyStopWording, stopWording } from '@/components/test/stop'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 
@@ -77,6 +77,19 @@ export function noticeViews(notices: readonly Notice[], context: NoticeContext):
 
 function slowLinkExtended(body: string, { t }: Wording): NoticeView {
   return { tone: 'info', icon: Hourglass, title: t('notices.slowLinkExtended.title'), body, actions: [] }
+}
+
+/**
+ * The stop notice of a stop during idle latency that kept its samples (ui/flows.md section 4), which
+ * the result carries no notice for; null for any other run. `pings` and `count` are the run's last
+ * idle progress, the warm-up ping included.
+ */
+export function latencyStopView(result: Result | null, idle: { pings: number; count: number } | null, wording: Wording): NoticeView | null {
+  if (result?.status !== 'partial' || result.idle === undefined || idle === null || result.notices.some((notice) => notice.code === 'stopped-early')) {
+    return null
+  }
+  const order = result.settings.phases
+  return { tone: 'neutral', icon: CircleMinus, ...latencyStopWording(idle.pings, idle.count, order.slice(order.indexOf('idle') + 1), wording), actions: [] }
 }
 
 /** One notice, worded. */

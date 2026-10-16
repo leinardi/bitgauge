@@ -24,6 +24,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { latencyStopView } from '@/components/test/notices'
 import { stopWording } from '@/components/test/stop'
 import type { Wording } from '@/components/test/wording'
 import type { Direction, Result } from '@/engine/messages'
@@ -78,5 +79,19 @@ describe('the stop notice', () => {
       wording,
     )
     expect(shown.body.replace(/\u00a0/gu, ' ')).toBe('Upload stopped at 4.2 s, before a 3 s confirmed steady window, so it has no value. Download did not run.')
+  })
+
+  it('words a stop during idle latency from the pings sent, with no stopped-early notice in the result', () => {
+    const result = { ...base, status: 'partial' as const, download: SKIPPED, upload: { ...SKIPPED, confirmedRequests: 0 }, notices: [] }
+    expect(latencyStopView(result, { pings: 12, count: 20 }, wording)).toMatchObject({
+      tone: 'neutral',
+      title: 'Test cancelled during latency',
+      body: 'Stopped after 12 of 20 pings. The first is a warm-up sample, so idle latency and jitter come from the other 11; download and upload did not run.',
+    })
+  })
+
+  it('shows no latency stop notice for a direction stopped early, nor for a complete run', () => {
+    expect(latencyStopView({ ...base, status: 'partial', notices: [{ code: 'stopped-early', direction: 'upload', coveredMs: 0 }] }, { pings: 20, count: 20 }, wording)).toBeNull()
+    expect(latencyStopView(base, { pings: 20, count: 20 }, wording)).toBeNull()
   })
 })

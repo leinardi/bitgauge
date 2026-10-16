@@ -281,6 +281,7 @@ watch(run.error, (error) => {
       :settings="shownSettings"
       :directions="{ download: run.phases.value.download.result, upload: run.phases.value.upload.result }"
       :current="running ? run.phase.value : null"
+      :idle="run.idle.value"
       @dismiss="dismiss"
       @retry="begin()"
       @preset="begin"

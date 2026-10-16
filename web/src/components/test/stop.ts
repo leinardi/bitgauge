@@ -72,3 +72,19 @@ export function stopWording(notice: StoppedEarly, result: Result | null, wording
   ]
   return { title, body: sentences.join(' ') }
 }
+
+/**
+ * The stop notice after a stop during idle latency that kept its samples (ui/flows.md section 4):
+ * no direction stopped, so the result has no stopped-early notice, and the notice is worded from
+ * the pings the run sent, the warm-up one included, and the phases that did not run.
+ */
+export function latencyStopWording(pings: number, count: number, notRun: readonly MeasuringPhase[], wording: Wording): { title: string; body: string } {
+  const { t, locale } = wording
+  const title = t('notices.stoppedEarly.title', { phase: phaseName('idle', wording) })
+  const values = { pings, count, other: pings - 1 }
+  if (notRun.length === 0) {
+    return { title, body: t('notices.stoppedEarly.latency', values) }
+  }
+  const phases = new Intl.ListFormat(locale, { type: 'conjunction' }).format(notRun.map((phase) => phaseName(phase, wording)))
+  return { title, body: t('notices.stoppedEarly.latencyNotRun', { ...values, phases }) }
+}

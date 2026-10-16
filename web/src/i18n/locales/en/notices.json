@@ -95,7 +95,9 @@
       "downloadPartial": "Download has a {covered} steady window, enough for a partial value.",
       "uploadNone": "Upload stopped at {at}, before a 3 s confirmed steady window, so it has no value.",
       "uploadNoneWarmup": "Upload stopped at {at}, before a 3 s confirmed steady window (still in warm-up), so it has no value.",
-      "uploadPartial": "Upload stopped at {at}; in-flight requests were aborted, and the {n} requests confirmed by {end} give the partial value."
+      "uploadPartial": "Upload stopped at {at}; in-flight requests were aborted, and the {n} requests confirmed by {end} give the partial value.",
+      "latency": "Stopped after {pings} of {count} pings. The first is a warm-up sample, so idle latency and jitter come from the other {other}.",
+      "latencyNotRun": "Stopped after {pings} of {count} pings. The first is a warm-up sample, so idle latency and jitter come from the other {other}; {phases} did not run."
     },
     "serverRestarted": {
       "title": "Server restarted",

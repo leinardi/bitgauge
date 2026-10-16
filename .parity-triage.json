@@ -1385,22 +1385,64 @@
       "actions": [
         {
           "target": "spec",
-          "what": "flows.md §4 and measurement.md §16: a stop during idle latency with a result carries a stop notice, titled Test cancelled during latency, naming the pings sent and kept and the phases that did not run.",
-          "done": false
+          "what": "flows.md §4: a stop during idle latency that keeps its samples gets the stop notice, titled Test cancelled during latency, counting the pings sent and the warm-up and naming the phases that did not run; the result carries no stopped-early notice for it.",
+          "done": true
         },
         {
           "target": "vue",
-          "what": "engine and notices: the latency stop's notice in the result and on the Test screen, worded as the kit's.",
-          "done": false
+          "what": "stop.ts, notices.ts, NoticeList.vue, TestPage.vue and notices.json: the Test screen words the latency stop's notice from the run's last idle progress and the result, as the kit's.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "done",
       "owned": {
         "test/cancelled-latency": {
           "c87674b69dca": "*"
         }
       },
-      "resolution": null
+      "resolution": {
+        "note": null,
+        "on": "2026-10-16",
+        "run": {
+          "runId": "f0a940ab-af56-4362-a9e7-bb97a08d12d3",
+          "finishedAt": "2026-10-16T11:46:09.035Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "behavior-live-notices",

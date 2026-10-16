@@ -24,7 +24,7 @@ import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/actions/AppButton.vue'
 import AppLink from '@/components/actions/AppLink.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
-import { noticeViews } from '@/components/test/notices'
+import { latencyStopView, noticeViews } from '@/components/test/notices'
 import { useTheme } from '@/composables/useTheme'
 import type { Direction, DirectionResult, Notice, PhaseName, Preset, Result, TestSettings } from '@/engine/messages'
 
@@ -40,17 +40,21 @@ const props = withDefaults(
     /** Each direction that has ended, and the phase running now (null once the run has ended). */
     directions?: Partial<Record<Direction, DirectionResult | undefined>>
     current?: PhaseName | null
+    /** The run's last idle progress, for the stop notice of a stop during idle latency. */
+    idle?: { pings: number; count: number } | null
   }>(),
-  { result: null, settings: null, directions: () => ({}), current: null },
+  { result: null, settings: null, directions: () => ({}), current: null, idle: null },
 )
 defineEmits<{ retry: []; preset: [preset: Preset]; dismiss: [parameter: string] }>()
 
 const { t, locale } = useI18n()
 const { choice } = useTheme()
 
-const views = computed(() =>
-  noticeViews(props.notices, { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions, current: props.current }).map((view, index) => ({ key: `${index}`, view })),
-)
+const views = computed(() => {
+  const context = { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions, current: props.current }
+  const stop = latencyStopView(props.result, props.idle, context)
+  return [...(stop === null ? [] : [stop]), ...noticeViews(props.notices, context)].map((view, index) => ({ key: `${index}`, view }))
+})
 </script>
 
 <template>
