@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"782ff33154d8","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"2124fcb54dce","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"e30f7acc2605","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"31850600bf8e","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"3f2fcc6fb0b6","ui_kits/app/App.jsx":"c6e8aa88e02e","ui_kits/app/History.jsx":"db776ce9c197","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"bedf92221497","ui_kits/app/ResultDetail.jsx":"27602012bed0","ui_kits/app/Settings.jsx":"bc1c7460a524","ui_kits/app/TestScreen.jsx":"00fde448f079","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"34bbc80f3c59"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"782ff33154d8","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"2124fcb54dce","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"e30f7acc2605","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"31850600bf8e","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"defcf4bfde91","ui_kits/app/App.jsx":"c6e8aa88e02e","ui_kits/app/History.jsx":"db776ce9c197","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"bedf92221497","ui_kits/app/ResultDetail.jsx":"27602012bed0","ui_kits/app/Settings.jsx":"bc1c7460a524","ui_kits/app/TestScreen.jsx":"ae3a08243055","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"}]} */
 
 (() => {
 
@@ -3156,12 +3156,22 @@ class About extends React.Component {
     const m = !!this.props.mobile && this.props.mobile !== 'false';
     const un = !!this.props.unreachable && this.props.unreachable !== 'false';
     // Snippets are always built from the page's own origin (location.origin + base path); the kit mocks it.
+    const S0 = BG.KIT.server;
     const host = BG.KIT.origin,
       hostName = BG.KIT.host;
     const srvName = this.props.server || hostName;
     const caps = this.props.caps || {
-      clients: true
+      clients: true,
+      history: true
     };
+    const v03 = !!caps.clients;
+    const built = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC'
+    }).format(new Date(S0.buildDate + 'T00:00:00Z'));
+    const from = (d, ver) => v03 ? d + '.' : d + ', from ' + ver + '.';
     const on = un ? {
       ost: true,
       ls: true,
@@ -3249,27 +3259,30 @@ class About extends React.Component {
       } : {
         cols: 'minmax(0,1fr) var(--layout-rail)'
       },
-      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], ['Clients', 'Unknown']] : [['Version', S.version + ' · ' + S.commit + ' · ' + S.buildDate], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], ['Clients', !caps.clients ? 'Arrive in v0.3' : enabled.length ? enabled.join(' · ') : 'None enabled']]).map(([k, v]) => ({
+      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], v03 ? ['Clients', 'Unknown'] : null] : [['Version', S.version + ' · ' + S.commit + ' · ' + built], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], v03 ? ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled'] : null]).filter(Boolean).map(([k, v]) => ({
         label: k,
         value: v
       })),
+      intro: v03 ? 'This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.' : 'How to test against this server from other speed test clients, and what BitGauge is.',
+      unBody: v03 ? "The commands below are built from this page's address, " + host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers." : 'BitGauge could not reach the server at ' + hostName + ', so its version and name are unknown until it answers.',
+      privacy: caps.history ? 'No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.' : 'No accounts, no tracking, no ads. The server keeps no results: a result exists only in this browser.',
       // Before v0.3 the methodology summary covers the v0.1 metrics only (screens.md §5).
       method: caps.clients ? 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load — the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers.' : 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Idle latency and jitter are measured over WebSocket (HTTP if unavailable). Each result also reports the data used and the test duration.',
       credits: [{
         n: 'OpenSpeedTest™',
-        d: 'Protocol compatibility for its web UI.'
+        d: from('Protocol compatibility for its web UI', 'v0.3')
       }, {
         n: 'LibreSpeed',
-        d: 'Protocol compatibility for librespeed-cli.'
+        d: from('Protocol compatibility for librespeed-cli', 'v0.3')
       }, {
         n: 'Cloudflare',
-        d: 'AIM quality scores for streaming, gaming and video calls.'
+        d: from('AIM quality scores for streaming, gaming and video calls', 'v0.3')
       }, {
         n: 'Apple networkQuality and the IETF responsiveness draft',
-        d: 'The RPM responsiveness metric and config format.'
+        d: from('The RPM responsiveness metric and config format', 'v0.3')
       }, {
         n: 'Waveform',
-        d: 'Bufferbloat grade thresholds.'
+        d: from('Bufferbloat grade thresholds', 'v0.2')
       }]
     };
   }
@@ -3325,7 +3338,7 @@ class About extends React.Component {
         maxWidth: "640px",
         lineHeight: "var(--lh-prose)"
       }
-    }, "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.")), v.un ? /*#__PURE__*/React.createElement(DS.Notice, {
+    }, v.intro)), v.un ? /*#__PURE__*/React.createElement(DS.Notice, {
       tone: "danger",
       icon: "server-off",
       title: "Server unreachable",
@@ -3333,7 +3346,7 @@ class About extends React.Component {
         size: "sm",
         icon: "refresh-cw"
       }, "Retry")
-    }, "The commands below are built from this page's address, " + v.host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers.") : null, !v.layers ? /*#__PURE__*/React.createElement(DS.Notice, {
+    }, v.unBody) : null, !v.layers ? /*#__PURE__*/React.createElement(DS.Notice, {
       tone: "info",
       icon: "layers",
       live: false,
@@ -3467,8 +3480,11 @@ class About extends React.Component {
         flexDirection: "column",
         gap: "var(--space-2-5)"
       }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "ds-eyebrow"
+    }, /*#__PURE__*/React.createElement("h2", {
+      className: "ds-eyebrow",
+      style: {
+        margin: 0
+      }
     }, "How it measures"), /*#__PURE__*/React.createElement("span", {
       className: "ds-body-sm",
       style: {
@@ -3483,21 +3499,27 @@ class About extends React.Component {
         flexDirection: "column",
         gap: "var(--space-2-5)"
       }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "ds-eyebrow"
+    }, /*#__PURE__*/React.createElement("h2", {
+      className: "ds-eyebrow",
+      style: {
+        margin: 0
+      }
     }, "Privacy"), /*#__PURE__*/React.createElement("span", {
       className: "ds-body-sm",
       style: {
         lineHeight: "var(--lh-prose)"
       }
-    }, "No accounts, no tracking, no ads. The server keeps no results \u2014 history lives only in your browser."))), /*#__PURE__*/React.createElement(DS.Card, null, /*#__PURE__*/React.createElement("div", {
+    }, v.privacy))), /*#__PURE__*/React.createElement(DS.Card, null, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexDirection: "column",
         gap: "var(--space-3)"
       }
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "ds-eyebrow"
+    }, /*#__PURE__*/React.createElement("h2", {
+      className: "ds-eyebrow",
+      style: {
+        margin: 0
+      }
     }, "Credits"), /*#__PURE__*/React.createElement("ul", {
       style: {
         margin: 0,
@@ -10615,25 +10637,49 @@ class TestScreen extends React.Component {
   }
   componentWillUnmount() {
     clearTimeout(this._tt);
+    clearTimeout(this._rc);
   }
   componentDidUpdate() {
     this._tick();
   }
-  // The screen's one LiveRegion: phase changes immediately, live rate at most every 5 s. The 10 Hz readout is not live.
+  // error-early: the run starts with the server reachable; after the error the page re-checks GET /info, which fails,
+  // so the header switches to unreachable (its status region announces it) and the screen shows the unreachable notice.
+  _recheck(st) {
+    if (st !== 'error-early') {
+      clearTimeout(this._rc);
+      this._rcFor = null;
+      if (this.state.eeDown) this.setState({
+        eeDown: false
+      });
+      return;
+    }
+    if (this._rcFor === st) return;
+    this._rcFor = st;
+    clearTimeout(this._rc);
+    this._rc = setTimeout(() => this.setState({
+      eeDown: true
+    }), 600);
+  }
+  // Phase region: phase changes immediately, the live rate at most every 5 s, a finished direction's headline once.
+  // The 10 Hz readout is not live. The summary region is rendered directly from the result.
   _tick() {
     const c = this._live;
     if (!c) return;
+    this._recheck(c.st);
     const now = Date.now();
     let msg = null;
-    if (c.st !== this._st) {
-      this._st = c.st;
+    if (c.key !== this._key) {
+      this._key = c.key;
       this._at = now;
-      msg = c.msg;
-    } else if (c.rate && now - this._at >= 5000) {
-      this._at = now;
-      msg = c.rate;
-    }
-    if (msg && msg !== this.state.ann) this.setState({
+      msg = c.ph;
+    } else if (c.rate) {
+      if (now - this._at >= 5000) {
+        this._at = now;
+        msg = c.rate;
+      }
+    } else if (c.ph !== this._ph) msg = c.ph;
+    this._ph = c.ph;
+    if (msg != null && msg !== this.state.ann) this.setState({
       ann: msg
     });
   }
@@ -10653,10 +10699,12 @@ class TestScreen extends React.Component {
       v01 = !caps.history;
     // Server name from GET /info; while it is unknown the page's host stands in. Never a hard-coded name.
     const SRV = this.props.server || BG.KIT.host;
+    const eeDown = st === 'error-early' && !!this.state.eeDown,
+      unreach = st === 'offline' || eeDown;
     const base = {
       mobile: m,
       desktop: !m,
-      srvStatus: st === 'offline' || st === 'error-early' || st === 'error' && this.props.errKind === 'unreachable' ? 'offline' : 'online',
+      srvStatus: unreach || st === 'error' && this.props.errKind === 'unreachable' ? 'offline' : 'online',
       navMobile: m && !bp,
       navDesktop: !m && !bp,
       basePath: bp,
@@ -10675,6 +10723,25 @@ class TestScreen extends React.Component {
     const RES = parseFloat(this.props.timerRes) || 0.1,
       fms = v => BG.ms(v, RES),
       fjit = v => BG.jit(v, RES);
+    // Spoken numbers: the visual digits with long unit names.
+    const SPU = {
+      'kbit/s': 'kilobits per second',
+      'Mbit/s': 'megabits per second',
+      'Gbit/s': 'gigabits per second',
+      'kB/s': 'kilobytes per second',
+      'MB/s': 'megabytes per second',
+      'GB/s': 'gigabytes per second',
+      kB: 'kilobytes',
+      MB: 'megabytes',
+      GB: 'gigabytes',
+      TB: 'terabytes'
+    };
+    const sayR = v => {
+      const r = BG.rate(v, unit);
+      return r.n + ' ' + SPU[r.u];
+    };
+    const sayMs = s => s.replace('< ', 'less than ') + ' milliseconds';
+    const sayB = s => !s || s === '—' || /^0(\.0+)? /.test(s) ? '0 bytes' : s.replace(/ (\w+)$/, (_, u) => ' ' + (SPU[u] || u));
     const custom = on(this.props.custom) || unit === 'bytes';
     const OH = on(this.props.overhead) ? ['+' + (parseFloat(this.props.overhead) || 6) + ' % overhead compensation'] : [];
     const RS = this.props.resp || 'ok';
@@ -10710,7 +10777,11 @@ class TestScreen extends React.Component {
       metaSpan: 'span 1'
     };
     const slow = ['slow', 'slowdone', 'cancelled-slow', 'cancelled-slow-up'].includes(st);
-    const after = ['complete', 'cancelled', 'cancelled-late', 'slowdone'].includes(st);
+    // Plateau reason: shown for the reported direction once its ramp has ended ('cancelled' stops during upload warm-up).
+    const after = ['complete', 'cancelled-late', 'slowdone', 'upload-interrupted', 'cancelled-slow'].includes(st);
+    // No request has run yet: the protocol is read from a request. The auto stream count is known once the ramp starts.
+    const preReq = ['idle', 'countdown', 'param-ignored', 'connecting'].includes(st);
+    const preRamp = preReq || ['latency', 'cancelled-latency'].includes(st);
     const src = this.props.probe && this.props.probe !== 'auto' ? this.props.probe : st === 'ws-fallback' ? 'HTTP/2 probe' : 'WebSocket';
     const lowLink = slow || st === 'insufficient';
 
@@ -10743,19 +10814,34 @@ class TestScreen extends React.Component {
       k: 'Client IP',
       v: slow ? '100.101.4.17' : '192.168.1.42',
       s: 'IPv4'
-    }, {
+    }, preReq ? {
+      k: 'Protocol',
+      v: '—',
+      s: 'not reported'
+    } : st === 'upload-interrupted' ? {
+      k: 'Protocol',
+      v: 'HTTP/1.1',
+      s: ''
+    } : {
       k: 'Protocol',
       v: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? '—' : 'HTTP/2',
       s: RS === 'not-reported' ? 'not reported' : ''
-    }, {
+    }, preRamp && auto ? {
+      k: 'Streams',
+      v: '—',
+      s: 'auto'
+    } : {
       k: 'Streams',
       v: streams,
       s: (auto ? 'auto' : 'fixed') + (after ? plateau : '')
     }];
-    if (st === 'offline') {
+    // Offline: nothing from the server. Early error after the failed re-check: Protocol keeps what the run read.
+    if (unreach) {
       conn.forEach(c => {
-        c.v = '—';
-        c.s = '';
+        if (!(eeDown && c.k === 'Protocol')) {
+          c.v = '—';
+          c.s = '';
+        }
       });
       if (!this.state.ctxSel) ctx = {
         label: '—',
@@ -10857,7 +10943,7 @@ class TestScreen extends React.Component {
       p9: 4.1,
       jit: 0.8
     };
-    IDLE.sub = 'min ' + fms(IDLE.mn) + ' · p90 ' + fms(IDLE.p9) + ' ms · ' + src + ' · 0 % probe timeouts';
+    IDLE.sub = 'min ' + fms(IDLE.mn) + ' · p90 ' + fms(IDLE.p9) + ' ms · ' + src + ' · 0.0 % probe timeouts';
     const LATD = fms(IDLE.v) + ' ms';
     const latT = o => msT('Idle latency', 'activity', IDLE.v, IDLE.sub, o);
     const jitT = o => T(Object.assign({
@@ -11249,7 +11335,7 @@ class TestScreen extends React.Component {
           load: preLoad(),
           fit: fit(null),
           meta: meta('—', '', '—', ''),
-          notices: st === 'countdown' ? [N('info', 'timer', 'Auto-start in ' + cdN + ' s', 'This page was opened from a link with autostart enabled.', [{
+          notices: st === 'countdown' ? [N('info', 'timer', 'Auto-start in ' + cdN + ' s', 'This page was opened from a link that starts a test automatically.', [{
             label: 'Cancel',
             icon: 'x',
             cls: 'btn sm secondary'
@@ -11282,7 +11368,8 @@ class TestScreen extends React.Component {
             fit: fit(null),
             meta: meta('—', '', (0.6 * p).toFixed(1) + ' s', 'elapsed'),
             notices: [],
-            btn: BTN.stop
+            btn: BTN.stop,
+            ph: 'Connecting to the server'
           };
         }
         break;
@@ -11326,9 +11413,10 @@ class TestScreen extends React.Component {
             prim: [eDown(), eUp(), latT(LIVE), jitT(LIVE)],
             load: preLoad(),
             fit: fit(null),
-            meta: meta(BG.bytes(Math.max(1e3, 17e3 * p)), 'so far', (t + 0.6).toFixed(1) + ' s', 'elapsed'),
+            meta: meta('—', '', (t + 0.6).toFixed(1) + ' s', 'elapsed'),
             notices: [],
-            btn: BTN.stop
+            btn: BTN.stop,
+            ph: 'Measuring idle latency'
           };
         }
         break;
@@ -11383,8 +11471,10 @@ class TestScreen extends React.Component {
             }), lrow('up')], respB(null, null), 'Graded after upload'),
             fit: fit(null),
             meta: meta(BG.bytes(used(dp)), 'so far', (t + PRE).toFixed(1) + ' s', 'elapsed'),
-            notices: st === 'ws-fallback' ? [N('info', 'info', 'WebSocket unavailable — HTTP latency fallback', 'The reverse proxy did not accept a WebSocket upgrade, so latency is measured with HTTP/2 requests. Values can read slightly higher.')] : [],
-            btn: BTN.stop
+            notices: st === 'ws-fallback' ? [N('info', 'info', 'WebSocket unavailable — HTTP latency fallback', 'The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.')] : [],
+            btn: BTN.stop,
+            ph: 'Download, ' + sayR(d.cur),
+            live: true
           };
         }
         break;
@@ -11447,7 +11537,9 @@ class TestScreen extends React.Component {
             fit: fit(null),
             meta: meta(BG.bytes(USED_D + used(snd)), 'so far', (t + PRE + 10).toFixed(1) + ' s', 'elapsed'),
             notices: [],
-            btn: BTN.stop
+            btn: BTN.stop,
+            ph: 'Upload sending, ' + sayR(u.cur),
+            live: true
           };
         }
         break;
@@ -11508,6 +11600,12 @@ class TestScreen extends React.Component {
               blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 438e6, C.up]],
               foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+39 ms under load', 'B · Mild bufferbloat'],
               lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +39 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV]
+            },
+            ph: 'Upload result: ' + sayR(438e6),
+            sum: {
+              st: 'done',
+              down: 'Download ' + sayR(612e6),
+              up: 'Upload ' + sayR(438e6)
             }
           };
         }
@@ -11516,7 +11614,7 @@ class TestScreen extends React.Component {
       // only the upload phase. It is NOT the Error state: the run is complete, upload reports the window up to the failure.
       case 'upload-interrupted':
         {
-          const UF = 8.2,
+          const UF = 12,
             UPF = UPC.filter(p => p[0] <= UF),
             UL = BG.lat(9, 3.1, 40, UF);
           S = {
@@ -11570,7 +11668,10 @@ class TestScreen extends React.Component {
             })], respB(1420, 960)),
             fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 40 - IDLE.v)),
             meta: meta(BG.bytes(USED_D + used(UPF)), '', (PRE + 10 + UF).toFixed(1) + ' s', ''),
-            notices: [N('danger', 'circle-x', 'Upload interrupted by a failed request', 'Over HTTP/1.1 one failed request ends the upload, so its number covers the window up to the failure. HTTP/2 at the proxy lets uploads survive transient failures.')],
+            notices: [N('danger', 'circle-x', 'Upload interrupted by a failed request', 'Over HTTP/1.1 one failed request ends the upload, so its number covers the window up to the failure. HTTP/2 at the proxy lets uploads survive transient failures.', [{
+              label: 'Deployment guide',
+              href: '#'
+            }])],
             btn: BTN.again,
             saved: {
               time: '14:02:11',
@@ -11582,7 +11683,12 @@ class TestScreen extends React.Component {
               foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+37 ms under load', 'B · Mild bufferbloat'],
               lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(402e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +37 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV]
             },
-            ann: 'Test complete. Upload interrupted by a failed request; upload ' + rs(402e6) + ' from the window before it.'
+            ph: 'Upload result: ' + sayR(402e6),
+            sum: {
+              st: 'done',
+              down: 'Download ' + sayR(612e6),
+              up: 'Upload ' + sayR(402e6)
+            }
           };
         }
         break;
@@ -11639,6 +11745,13 @@ class TestScreen extends React.Component {
             partial: {
               kind: 'error',
               keep: true
+            },
+            ph: 'Download, ' + sayR(575e6),
+            sum: {
+              st: 'fail',
+              down: 'Download failed',
+              up: 'Upload skipped',
+              n: CAUSE ? [CAUSE[1]] : []
             }
           };
         }
@@ -11795,7 +11908,12 @@ class TestScreen extends React.Component {
               kind: 'partial',
               keep: true
             },
-            ann: part ? 'Test cancelled during upload. Partial upload ' + rs(uv) + ' from a ' + win.toFixed(1) + ' second steady window. Not saved.' : 'Test cancelled during upload. Upload has insufficient data. Grade and quality scores use download only. Not saved.'
+            ph: part ? 'Upload result: ' + sayR(uv) : 'Upload finished without a number',
+            sum: {
+              st: 'partial',
+              down: 'Download ' + sayR(K.dV),
+              up: part ? 'Upload ' + sayR(uv) + ', partial, stopped early' : 'Upload: insufficient data'
+            }
           };
         }
         break;
@@ -11852,12 +11970,19 @@ class TestScreen extends React.Component {
               sub: 'Not run'
             })], respB(null, null), 'Not graded — no loaded latency'),
             fit: fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']),
-            meta: meta(BG.bytes(17e3 * p), '', (t + 0.6).toFixed(1) + ' s', ''),
+            meta: meta('—', '', (t + 0.6).toFixed(1) + ' s', ''),
             notices: [N('neutral', 'circle-minus', 'Test cancelled during latency', 'Stopped after ' + n + ' of 20 pings. The first is a warm-up sample, so idle latency and jitter come from the other ' + k + '; download and upload did not run.')],
             btn: BTN.again,
             partial: {
               kind: 'partial',
               keep: true
+            },
+            ph: 'Measuring idle latency',
+            sum: {
+              st: 'partial',
+              down: 'Download skipped',
+              up: 'Upload skipped',
+              n: []
             }
           };
         }
@@ -11888,14 +12013,16 @@ class TestScreen extends React.Component {
             g = part ? gradeOf(inc) : null;
           S = {
             phases: [ph('lat', 'done', LATD), ph('down', 'cancelled', t.toFixed(1) + ' s', p * 100), ph('up', 'skipped')],
-            gauge: {
+            gauge: Object.assign({
               opts: {
                 value: part ? sw.avg : dp[dp.length - 1][1]
               },
               src: dp,
               c: C.down,
               noDot: true
-            },
+            }, slow ? {
+              prev: dp
+            } : {}),
             R: {
               textual: true,
               title: 'Cancelled',
@@ -11955,6 +12082,12 @@ class TestScreen extends React.Component {
             partial: {
               kind: 'partial',
               keep: true
+            },
+            ph: part ? 'Download result: ' + sayR(sw.avg) : 'Download finished without a number',
+            sum: {
+              st: 'partial',
+              down: part ? 'Download ' + sayR(sw.avg) + ', partial, stopped early' : 'Download: insufficient data',
+              up: 'Upload skipped'
             }
           };
         }
@@ -12015,7 +12148,9 @@ class TestScreen extends React.Component {
               meta: meta(BG.bytes(used(dp)), 'so far', (t + PRE).toFixed(1) + ' s', 'elapsed'),
               notices: [],
               btn: BTN.stop,
-              ann: 'Measuring download.'
+              ph: 'Download, ' + sayR(d.cur),
+              live: true,
+              phKey: 'down'
             };
           } else {
             const t = tt - 10,
@@ -12069,7 +12204,7 @@ class TestScreen extends React.Component {
                 now: 10 + t,
                 title: 'Throughput',
                 legend: [LG.d, LG.ur, LG.us, LG.l],
-                meta: (10 + t).toFixed(1) + ' s'
+                meta: (10 + t).toFixed(1) + ' s / ' + (10 + SUEND) + ' s'
               },
               prim: [rt('Download', 'arrow-down', C.down, 640e3, {
                 sub: 'peak ' + rn(702e3) + ' · 2 streams · plateau: no-gain'
@@ -12084,7 +12219,9 @@ class TestScreen extends React.Component {
               meta: meta(BG.bytes(used(SD) + used(snd)), 'so far', (t + PRE + 10).toFixed(1) + ' s', 'elapsed'),
               notices: [],
               btn: BTN.stop,
-              ann: 'Download finished: ' + rs(640e3) + '. Measuring upload.'
+              ph: 'Upload sending, ' + sayR(u.cur),
+              live: true,
+              phKey: 'up'
             };
           }
         }
@@ -12141,7 +12278,9 @@ class TestScreen extends React.Component {
             prim: [rt('Download', 'arrow-down', C.down, 640e3, {
               sub: 'peak ' + rn(702e3) + ' · 2 streams · plateau: no-gain'
             }), rt('Upload', 'arrow-up', C.up, 210e3, {
-              sub: 'peak ' + rn(224e3) + ' · 2 streams · plateau: no-gain'
+              state: 'low-confidence',
+              sub: 'peak ' + rn(224e3) + ' · 2 streams · plateau: no-gain',
+              notes: OH.concat(['low confidence · few samples'])
             }), latT(), jitT()],
             load: load('D', [lrow('down', 162, {
               p90: 205
@@ -12150,7 +12289,7 @@ class TestScreen extends React.Component {
             })], respB(240, 'few')),
             fit: fit(aim(IDLE.v, IDLE.jit, 640e3, 310 - IDLE.v)),
             meta: meta(BG.bytes(used(SD) + used(SU)), '', tot + ' s', ''),
-            notices: [],
+            notices: [N('warn', 'triangle-alert', 'Low confidence', 'Upload: few samples.')],
             btn: BTN.again,
             saved: {
               time: '08:41:57',
@@ -12161,13 +12300,19 @@ class TestScreen extends React.Component {
               blocks: [['↓ DOWNLOAD', 640e3, C.down], ['↑ UPLOAD', 210e3, C.up]],
               foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+262 ms under load', 'D · High bufferbloat'],
               lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +262 ms (worse direction)', 'Bufferbloat D · High bufferbloat', SRV]
+            },
+            ph: 'Upload result: ' + sayR(210e3),
+            sum: {
+              st: 'done',
+              down: 'Download ' + sayR(640e3),
+              up: 'Upload ' + sayR(210e3) + ', low confidence: few samples'
             }
           };
         }
         break;
       case 'offline':
         S = {
-          phases: [pend('lat'), pend('down'), pend('up')],
+          phases: [ph('lat', 'pending'), ph('down', 'pending'), ph('up', 'pending')],
           gauge: {
             opts: {}
           },
@@ -12273,7 +12418,7 @@ class TestScreen extends React.Component {
               icon: 'arrow-down',
               ic: C.down,
               state: 'insufficient-data',
-              sub: 'only 1 request contributed within the 20 s max',
+              sub: 'Insufficient data — no steady window within the 20 s max',
               notes: [BG.bytes(50e3) + ' used']
             }), T({
               label: 'Upload',
@@ -12295,7 +12440,9 @@ class TestScreen extends React.Component {
               icon: 'timer',
               cls: 'btn sm secondary'
             }])],
-            btn: BTN.stop
+            btn: BTN.stop,
+            ph: 'Upload sending, ' + sayR(u.cur),
+            live: true
           };
         }
         break;
@@ -12342,13 +12489,17 @@ class TestScreen extends React.Component {
               sub: 'Not run'
             })], respB(null, null), 'Not graded — test incomplete'),
             fit: fit(null, 'needs a full test'),
-            meta: meta(BG.bytes(9e3), '', '1.8 s', ''),
-            notices: [N('danger', 'wifi-off', 'Connection to ' + SRV + ' lost — server stopped responding', 'The test stopped at 1.2 s, during latency. No phase finished.')],
-            btn: BTN.retry,
-            partial: {
+            meta: meta('—', '', '1.8 s', ''),
+            notices: [N('danger', 'wifi-off', 'Connection to ' + SRV + ' lost — the network changed', 'The test stopped at 1.2 s, during latency. No phase finished.')],
+            btn: eeDown ? Object.assign({}, BTN.retry, {
+              dis: true,
+              tip: 'Server unreachable — use Retry first'
+            }) : BTN.retry,
+            partial: eeDown ? null : {
               kind: 'error',
               keep: false
-            }
+            },
+            ph: 'Measuring idle latency'
           };
         }
         break;
@@ -12851,36 +13002,32 @@ class TestScreen extends React.Component {
         value: r.value
       })
     };
+    // v0.3 Continuous keeps its own sentences and rate.
     const PH = {
-      countdown: 'Test starts automatically in ' + cdN + ' seconds. Press Escape to cancel.',
-      connecting: 'Connecting to ' + SRV + '.',
-      latency: 'Measuring latency.',
-      download: 'Latency 3.1 milliseconds. Measuring download.',
-      upload: 'Download finished: ' + rs(612e6) + '. Measuring upload.',
-      complete: 'Upload finished: ' + rs(438e6) + '. Test complete and saved to history.',
-      error: 'Connection to ' + SRV + ' lost: ' + EK[0] + '. Partial results were not saved.',
-      slowdone: 'Upload finished: ' + rs(210e3) + '. Test complete and saved to history.',
       continuous: 'Continuous download running.',
-      offline: 'Server unreachable. Start is unavailable until ' + SRV + ' responds.',
-      'ws-fallback': 'WebSocket unavailable, using HTTP latency fallback. Measuring download.',
-      insufficient: 'Download has insufficient data. Measuring upload.',
-      'param-ignored': 'URL parameter streams=12 ignored, allowed 1 to 6.',
-      'error-early': 'Connection lost during latency. Nothing was saved.',
       'cont-warmup': 'Continuous run stopped during warm-up. Partial results were not saved.',
-      'cont-done': 'Continuous run stopped. Saved to history.',
-      'cancelled-latency': 'Test cancelled during latency. Partial results were not saved.',
-      'cancelled-download': 'Test cancelled during download. Partial results were not saved.',
-      'cancelled-slow': 'Test cancelled during download. Partial results were not saved.',
-      'cancelled-slow-up': 'Test cancelled during upload. Partial results were not saved.'
+      'cont-done': 'Continuous run stopped. Saved to history.'
     };
     if (v01) Object.keys(PH).forEach(k => {
       PH[k] = PH[k].replace(' and saved to history', '').replace(' Saved to history.', '');
     });
+    const phMsg = PH[st] || S.ph || '';
     this._live = {
       st,
-      msg: S.ann || PH[st] || '',
-      rate: ['latency', 'download', 'ws-fallback', 'insufficient', 'upload', 'slow', 'continuous'].includes(st) && R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : null
+      key: st + '|' + (S.phKey || ''),
+      ph: phMsg,
+      rate: st === 'continuous' && R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : S.live ? phMsg : null
     };
+    const SUMST = {
+      done: 'Test complete.',
+      partial: 'Partial result: the test was stopped early.',
+      fail: 'Test failed. The phases that finished before the error are kept.'
+    };
+    let sumMsg = '';
+    if (S.sum) {
+      const nt = S.sum.n || S.notices.map(n => n.title);
+      sumMsg = [SUMST[S.sum.st], S.sum.down + '.', S.sum.up + '.', 'Idle latency ' + sayMs(fms(IDLE.v)) + ', jitter ' + sayMs(fjit(IDLE.jit)) + '.', 'Data used ' + sayB(S.meta[0].value) + '.'].concat(nt.length ? [(nt.length > 1 ? 'Notices: ' : 'Notice: ') + nt.join(', ') + '.'] : []).join(' ');
+    }
     const bytesOnly = unit === 'bytes' && !on(this.props.custom);
     return {
       ...base,
@@ -12889,6 +13036,9 @@ class TestScreen extends React.Component {
       SRV,
       ctx,
       sel,
+      unreach,
+      pageHost: BG.KIT.host,
+      preset: !unreach,
       ctxOptions: CO.map(([label, icon]) => ({
         value: label,
         label,
@@ -12966,7 +13116,8 @@ class TestScreen extends React.Component {
         });
       },
       lastLine: !!S.lastLine,
-      tipO: !!tipO
+      tipO: !!tipO,
+      sumMsg
     };
   }
   render() {
@@ -13025,6 +13176,7 @@ class TestScreen extends React.Component {
       status: v.srvStatus
     }) : null, v.basePath ? /*#__PURE__*/React.createElement(DS.FullScreenError, {
       compact: v.mobile,
+      eyebrow: "Base path mismatch",
       title: "The base path doesn't match this URL",
       facts: /*#__PURE__*/React.createElement(DS.MetaList, {
         facts: true,
@@ -13033,11 +13185,7 @@ class TestScreen extends React.Component {
           value: '/speed/'
         }, {
           label: 'Server base path',
-          value: '/ · BITGAUGE_SERVER__BASE_PATH not set'
-        }, {
-          label: 'Check',
-          value: 'GET /api/v1/info → 404',
-          tone: 'danger'
+          value: '/'
         }]
       }),
       hint: /*#__PURE__*/React.createElement(DS.Card, {
@@ -13045,26 +13193,9 @@ class TestScreen extends React.Component {
         label: "Deployment hint",
         title: "How to fix it",
         icon: "terminal"
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-2-5)"
-        }
       }, /*#__PURE__*/React.createElement("span", {
         className: "ds-body-sm"
-      }, "Set the base path to the reverse-proxy prefix and restart the container:"), /*#__PURE__*/React.createElement(DS.Snippet, {
-        lines: ['environment:', {
-          t: '  BITGAUGE_SERVER__BASE_PATH: /speed/',
-          kind: 'command'
-        }]
-      }), /*#__PURE__*/React.createElement("span", {
-        className: "ds-body-sm"
-      }, "Or strip the ", /*#__PURE__*/React.createElement("code", {
-        className: "ds-code"
-      }, "/speed"), " prefix at the proxy so BitGauge is served from ", /*#__PURE__*/React.createElement("code", {
-        className: "ds-code"
-      }, "/"), "."))),
+      }, "Set server.base_path (BITGAUGE_SERVER__BASE_PATH) to the path prefix the reverse proxy forwards, keep the prefix on forwarded requests instead of stripping it, and restart BitGauge.")),
       actions: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
         variant: "primary",
         icon: "refresh-cw"
@@ -13072,17 +13203,24 @@ class TestScreen extends React.Component {
         href: "#",
         icon: "external-link"
       }, "Deployment docs"))
-    }, "This page was opened at ", /*#__PURE__*/React.createElement("code", {
-      className: "ds-code"
-    }, "/speed/"), ", but the server is configured for ", /*#__PURE__*/React.createElement("code", {
-      className: "ds-code"
-    }, "/"), ". Its API answers at a different path, so no test can run from here.") : null, v.ready ? /*#__PURE__*/React.createElement("main", {
+    }, "BitGauge is configured for / but this page was served at /speed/. Its API answers at a different path, so no test can run from here.") : null, v.ready ? /*#__PURE__*/React.createElement("main", {
       className: "page" + (v.mobile ? " compact" : "")
     }, /*#__PURE__*/React.createElement("h1", {
       className: "sr-only"
     }, "Speed test"), /*#__PURE__*/React.createElement(DS.LiveRegion, {
       message: v.liveMsg
-    }), /*#__PURE__*/React.createElement("div", {
+    }), /*#__PURE__*/React.createElement(DS.LiveRegion, {
+      message: v.sumMsg
+    }), v.unreach ? /*#__PURE__*/React.createElement(DS.Notice, {
+      tone: "danger",
+      icon: "server-off",
+      title: "Server unreachable",
+      actions: /*#__PURE__*/React.createElement(DS.Button, {
+        size: "sm",
+        variant: "secondary",
+        icon: "refresh-cw"
+      }, "Retry")
+    }, 'BitGauge could not reach the server at ' + v.pageHost + '. No test can start until it answers.') : null, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
@@ -13136,9 +13274,9 @@ class TestScreen extends React.Component {
       size: "sm",
       changed: true,
       icon: ch.icon
-    }, ch.t))) : /*#__PURE__*/React.createElement("span", {
+    }, ch.t))) : v.preset ? /*#__PURE__*/React.createElement("span", {
       className: "ds-caption"
-    }, "Standard preset \xB7 Auto streams \xB7 No data cap"), v.caps.settings ? /*#__PURE__*/React.createElement(DS.Link, {
+    }, "Standard preset \xB7 Auto streams \xB7 No data cap") : null, v.caps.settings ? /*#__PURE__*/React.createElement(DS.Link, {
       icon: "sliders",
       href: "#"
     }, "Edit") : null)), v.notices.map((n, i) => /*#__PURE__*/React.createElement(DS.Notice, {
@@ -13355,7 +13493,7 @@ try { (() => {
     host: 'speed.home.lan',
     server: {
       displayName: 'Basement NAS',
-      version: 'v1.4.0',
+      version: '1.4.0',
       commit: 'a1b2c3d',
       buildDate: '2026-09-30'
     }

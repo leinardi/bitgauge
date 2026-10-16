@@ -4,48 +4,6 @@
 # where projects is * for all four projects, or the comma-separated projects it occurs in.
 # Maintained by the harness, never by hand: make demo-parity-update removes what has been fixed,
 # make demo-parity-accept REASON=... adds what is accepted. See docs/engineering/demo-parity.md.
-*	about	content	main	changed	text "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or…	present when the harness was adopted
-*	about	content	main > complementary	changed	text "Privacy No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser. Credits" → "No accounts, no tracking, no ads.…	present when the harness was adopted
-*	about	content	main > complementary	extra	heading "Credits"	present when the harness was adopted
-*	about	content	main > complementary	extra	heading "How it measures"	present when the harness was adopted
-*	about	content	main > complementary	extra	heading "Privacy"	present when the harness was adopted
-*	about	content	main > complementary	missing	definition	present when the harness was adopted
-*	about	content	main > complementary	missing	term	present when the harness was adopted
-*	about	content	main > complementary > definition	changed	text "v1.4.0 · a1b2c3d · 2026-09-30" → "1.4.0 · a1b2c3d · Sep 30, 2026"	present when the harness was adopted
-*	about	content	main > complementary > list > listitem	changed	text "…, gaming and video calls." → "…, gaming and video calls, from v0.3."	present when the harness was adopted
-*	about	content	main > complementary > list > listitem	changed	text "…atibility for its web UI." → "…atibility for its web UI, from v0.3."	present when the harness was adopted
-*	about	content	main > complementary > list > listitem	changed	text "…erbloat grade thresholds." → "…erbloat grade thresholds, from v0.2."	present when the harness was adopted
-*	about	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
-*	about	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
-*	about/unreachable	content	main	changed	text "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or…	present when the harness was adopted
-*	about/unreachable	content	main > complementary	changed	text "Privacy No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser. Credits" → "No accounts, no tracking, no ads.…	present when the harness was adopted
-*	about/unreachable	content	main > complementary	extra	heading "Credits"	present when the harness was adopted
-*	about/unreachable	content	main > complementary	extra	heading "How it measures"	present when the harness was adopted
-*	about/unreachable	content	main > complementary	extra	heading "Privacy"	present when the harness was adopted
-*	about/unreachable	content	main > complementary	missing	definition	present when the harness was adopted
-*	about/unreachable	content	main > complementary	missing	term	present when the harness was adopted
-*	about/unreachable	content	main > complementary > list > listitem	changed	text "…, gaming and video calls." → "…, gaming and video calls, from v0.3."	present when the harness was adopted
-*	about/unreachable	content	main > complementary > list > listitem	changed	text "…atibility for its web UI." → "…atibility for its web UI, from v0.3."	present when the harness was adopted
-*	about/unreachable	content	main > complementary > list > listitem	changed	text "…erbloat grade thresholds." → "…erbloat grade thresholds, from v0.2."	present when the harness was adopted
-*	about/unreachable	content	main > complementary > list > listitem	changed	text "…ility for librespeed-cli." → "…ility for librespeed-cli, from v0.3."	present when the harness was adopted
-*	about/unreachable	content	main > complementary > list > listitem	changed	text "…metric and config format." → "…metric and config format, from v0.3."	present when the harness was adopted
-*	test/basepath	content	main	changed	text "BitGauge Deployment error" → "BitGauge Base path mismatch"	present when the harness was adopted
-*	test/basepath	content	main	missing	code	present when the harness was adopted
-*	test/basepath	content	main	missing	code (#2)	present when the harness was adopted
-*	test/basepath	content	main	missing	text ", but the server is configured for"	present when the harness was adopted
-*	test/basepath	content	main	missing	text ". Its API answers at a different path, so no test can run from here."	present when the harness was adopted
-*	test/basepath	content	main > region "Deployment hint"	changed	text "How to fix it Set the base path to the reverse-proxy prefix and restart the container: environment: BITGAUGE_SERVER__BASE_PATH: /speed/ Or strip the" → "…	present when the harness was adopted
-*	test/basepath	content	main > region "Deployment hint"	missing	code	present when the harness was adopted
-*	test/basepath	content	main > region "Deployment hint"	missing	code (#2)	present when the harness was adopted
-*	test/basepath	content	main > region "Deployment hint"	missing	text "."	present when the harness was adopted
-*	test/basepath	content	main > region "Deployment hint"	missing	text "prefix at the proxy so BitGauge is served from"	present when the harness was adopted
 *	test/complete	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.
-*	test/countdown	content	main > status	changed	text "… was opened from a link with autostart enabled." → "… was opened from a link that starts a test automatically."	present when the harness was adopted
-*	test/error	content	main	extra	status	present when the harness was adopted
-*	test/error-early	content	main	missing	region "Result status"	present when the harness was adopted
-*	test/offline	content	main	changed	text "…P — Protocol — Streams — Standard preset · Auto streams · No data cap" → "…P — Protocol — Streams —"	present when the harness was adopted
-*	test/offline	content	main	extra	alert	present when the harness was adopted
-*	test/param-ignored	content	main	missing	status	present when the harness was adopted
-*	test/slowdone	content	main	extra	status	present when the harness was adopted
 *	test/slowdone	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.
 *	test/upload-interrupted	content	main > region "Result status" > status	changed	text "Test complete #:#:#" → "Test complete #:#:# #M"	triage content-result-time: Vue follows i18n-a11y §1.3 (Intl with the active locale, 12-hour for en); the kit's 15:26:40 is a literal sample with no locale.

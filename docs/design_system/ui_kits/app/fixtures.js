@@ -8,7 +8,7 @@
   // Sample data. Components never default to these; screens pass them as props.
   const KIT = {
     origin: 'https://speed.home.lan', host: 'speed.home.lan',
-    server: { displayName: 'Basement NAS', version: 'v1.4.0', commit: 'a1b2c3d', buildDate: '2026-09-30' }
+    server: { displayName: 'Basement NAS', version: '1.4.0', commit: 'a1b2c3d', buildDate: '2026-09-30' }
   };
   const F = () => window.DS.Format;
   // Formatting delegates to DS.Format (tokens.md "Number formatting") — one implementation.

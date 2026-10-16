@@ -16,9 +16,13 @@ class About extends React.Component {
     const m = !!this.props.mobile && this.props.mobile !== 'false';
     const un = !!this.props.unreachable && this.props.unreachable !== 'false';
     // Snippets are always built from the page's own origin (location.origin + base path); the kit mocks it.
+    const S0 = BG.KIT.server;
     const host = BG.KIT.origin, hostName = BG.KIT.host;
     const srvName = this.props.server || hostName;
-    const caps = this.props.caps || { clients: true };
+    const caps = this.props.caps || { clients: true, history: true };
+    const v03 = !!caps.clients;
+    const built = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(S0.buildDate + 'T00:00:00Z'));
+    const from = (d, ver) => v03 ? d + '.' : d + ', from ' + ver + '.';
     const on = un ? { ost: true, ls: true, nq: true } : { ost: flag('openspeedtest'), ls: flag('librespeed'), nq: flag('networkquality') };
     const clients = [
       { k: 'ost', name: 'OpenSpeedTest™ web UI', icon: 'globe', tag: 'Web UI',
@@ -48,17 +52,20 @@ class About extends React.Component {
     return {
       mobile: m, un, host, clients, layers: !!caps.clients,
       L: m ? { cols: 'minmax(0,1fr)' } : { cols: 'minmax(0,1fr) var(--layout-rail)' },
-      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], ['Clients', 'Unknown']]
-        : [['Version', S.version + ' · ' + S.commit + ' · ' + S.buildDate], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], ['Clients', !caps.clients ? 'Arrive in v0.3' : enabled.length ? enabled.join(' · ') : 'None enabled']]).map(([k, v]) => ({ label: k, value: v })),
+      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], v03 ? ['Clients', 'Unknown'] : null]
+        : [['Version', S.version + ' · ' + S.commit + ' · ' + built], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], v03 ? ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled'] : null]).filter(Boolean).map(([k, v]) => ({ label: k, value: v })),
+      intro: v03 ? 'This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.' : 'How to test against this server from other speed test clients, and what BitGauge is.',
+      unBody: v03 ? "The commands below are built from this page's address, " + host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers." : 'BitGauge could not reach the server at ' + hostName + ', so its version and name are unknown until it answers.',
+      privacy: caps.history ? 'No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.' : 'No accounts, no tracking, no ads. The server keeps no results: a result exists only in this browser.',
       // Before v0.3 the methodology summary covers the v0.1 metrics only (screens.md §5).
       method: caps.clients ? 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load — the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers.'
         : 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Idle latency and jitter are measured over WebSocket (HTTP if unavailable). Each result also reports the data used and the test duration.',
       credits: [
-        { n: 'OpenSpeedTest™', d: 'Protocol compatibility for its web UI.' },
-        { n: 'LibreSpeed', d: 'Protocol compatibility for librespeed-cli.' },
-        { n: 'Cloudflare', d: 'AIM quality scores for streaming, gaming and video calls.' },
-        { n: 'Apple networkQuality and the IETF responsiveness draft', d: 'The RPM responsiveness metric and config format.' },
-        { n: 'Waveform', d: 'Bufferbloat grade thresholds.' }
+        { n: 'OpenSpeedTest™', d: from('Protocol compatibility for its web UI', 'v0.3') },
+        { n: 'LibreSpeed', d: from('Protocol compatibility for librespeed-cli', 'v0.3') },
+        { n: 'Cloudflare', d: from('AIM quality scores for streaming, gaming and video calls', 'v0.3') },
+        { n: 'Apple networkQuality and the IETF responsiveness draft', d: from('The RPM responsiveness metric and config format', 'v0.3') },
+        { n: 'Waveform', d: from('Bufferbloat grade thresholds', 'v0.2') }
       ]
     };
   }
@@ -73,13 +80,11 @@ class About extends React.Component {
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", minWidth: 0 }}>
             <header style={{ display: "flex", flexDirection: "column", gap: "var(--space-1-5)" }}>
               <h1 className={v.mobile ? "ds-h2" : "ds-h1"} style={{ margin: 0 }}>Use with other clients</h1>
-              <p className="ds-body-sm" style={{ margin: 0, fontSize: "var(--text-base)", maxWidth: "640px", lineHeight: "var(--lh-prose)" }}>
-                This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.
-              </p>
+              <p className="ds-body-sm" style={{ margin: 0, fontSize: "var(--text-base)", maxWidth: "640px", lineHeight: "var(--lh-prose)" }}>{v.intro}</p>
             </header>
             {v.un ? (
               <DS.Notice tone="danger" icon="server-off" title="Server unreachable" actions={<DS.Button size="sm" icon="refresh-cw">Retry</DS.Button>}>
-                {"The commands below are built from this page's address, " + v.host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers."}
+                {v.unBody}
               </DS.Notice>
             ) : null}
             {!v.layers ? (
@@ -122,20 +127,20 @@ class About extends React.Component {
             </DS.Card>
             <DS.Card>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
-                <span className="ds-eyebrow">How it measures</span>
+                <h2 className="ds-eyebrow" style={{ margin: 0 }}>How it measures</h2>
                 <span className="ds-body-sm" style={{ lineHeight: "var(--lh-prose)" }}>{v.method}</span>
                 <DS.Link external href="#">Methodology in the BitGauge docs</DS.Link>
               </div>
             </DS.Card>
             <DS.Card>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
-                <span className="ds-eyebrow">Privacy</span>
-                <span className="ds-body-sm" style={{ lineHeight: "var(--lh-prose)" }}>No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.</span>
+                <h2 className="ds-eyebrow" style={{ margin: 0 }}>Privacy</h2>
+                <span className="ds-body-sm" style={{ lineHeight: "var(--lh-prose)" }}>{v.privacy}</span>
               </div>
             </DS.Card>
             <DS.Card>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-                <span className="ds-eyebrow">Credits</span>
+                <h2 className="ds-eyebrow" style={{ margin: 0 }}>Credits</h2>
                 <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
                   {v.credits.map(cr => <li key={cr.n} style={{ display: "flex", flexDirection: "column", gap: "var(--space-0-5)" }}><span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-medium)" }}>{cr.n}</span><span className="ds-caption" style={{ color: "var(--fg-muted)", lineHeight: "var(--lh-normal)" }}>{cr.d}</span></li>)}
                 </ul>
