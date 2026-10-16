@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -48,7 +49,38 @@ const (
 	millisecondsPerSecond = 1000
 )
 
-var errIperf3Output = errors.New("unreadable iperf3 output")
+var (
+	errIperf3Output = errors.New("unreadable iperf3 output")
+	errTbfOutput    = errors.New("unreadable tc output")
+)
+
+// tbfQdisc starts the tc -s line of the tbf ShaperCommands adds on each device, handle 2:.
+const tbfQdisc = "qdisc tbf 2:"
+
+// TbfSentBytes reads the bytes the tbf has sent from tc -s qdisc show output: the "Sent N bytes"
+// line under the tbf, which counts whole frames, the unit tbf meters the rate in.
+func TbfSentBytes(out string) (int64, error) {
+	lines := strings.Split(out, "\n")
+	for i, line := range lines {
+		if !strings.HasPrefix(line, tbfQdisc) || i+1 == len(lines) {
+			continue
+		}
+
+		fields := strings.Fields(lines[i+1])
+		if len(fields) < 3 || fields[0] != "Sent" || fields[2] != "bytes" {
+			return 0, fmt.Errorf("%w: no Sent line under %q", errTbfOutput, tbfQdisc)
+		}
+
+		sent, err := strconv.ParseInt(fields[1], 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("%w: %w", errTbfOutput, err)
+		}
+
+		return sent, nil
+	}
+
+	return 0, fmt.Errorf("%w: no %q", errTbfOutput, tbfQdisc)
+}
 
 const (
 	// defaultIperf3Length is iperf3's own TCP block length, 128 KiB.
@@ -63,7 +95,8 @@ const (
 
 // ExpectedGoodput is the TCP payload rate a correct shaper lets through at a profile's rate: tbf
 // counts whole frames, iperf3 counts payload, and full frames carry tcpPayload of ethernetFrame
-// bytes. The self-test holds iperf3 to this, not to the configured rate.
+// bytes. The reference runs are held to this; the self-test reads the tbf itself, against the
+// configured rate.
 func ExpectedGoodput(rateBitsPerSecond int64) float64 {
 	return float64(rateBitsPerSecond) * tcpPayload / ethernetFrame
 }

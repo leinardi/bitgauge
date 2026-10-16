@@ -165,11 +165,12 @@ first attempt stays in the report, marked `rerun` (superseded) with its raw valu
 final attempt counts. The runner fails the tier on any final run that is not a `pass`, a
 `recorded` debugging run included (`Failing`).
 
-**The baseline is the configured goodput.** iperf3 reports TCP goodput, which a perfectly shaped
-link holds about 4.4 % below the configured rate (`rate × 1448 / 1514`, see the self-test below).
-testing.md §5 therefore measures both the shaper self-test and the reference rule's deviation check
-against the **configured goodput**, not the configured rate; against the rate, the 5 % bound would
-leave about 0.6 % of headroom and nearly every profile would go inconclusive. Never move that
+**The reference baseline is the configured goodput.** iperf3 reports TCP goodput, which a perfectly
+shaped link holds about 4.4 % below the configured rate (`rate × 1448 / 1514`, `ExpectedGoodput`).
+testing.md §5 therefore measures the reference rule's deviation check against the **configured
+goodput**, not the configured rate; against the rate, the 5 % bound would leave about 0.6 % of
+headroom and nearly every profile would go inconclusive. The self-test is the exception: it reads
+the tbf, which meters whole frames, so it is held to the configured rate itself. Never move that
 baseline back, and never resolve a borderline profile by widening the bound.
 
 Each reference run lasts the preset's download minimum (Standard 10 s, Extended 20 s)
@@ -183,12 +184,16 @@ moves a second's bytes into the next, so a 5 s total read 629 kbit/s on a 500 kb
 
 ### The shaper self-test gates every shaped profile
 
-Before a shaped profile counts, `checkShaper` runs iperf3 for 5 s each way on the shaped link,
-**before** the loss is added, and refuses the profile when either direction is more than 5 %
-(`SelfTestBound`) off the expected goodput: `ExpectedGoodput` is `rate × 1448 / 1514`, because tbf
-counts whole 1514-byte Ethernet frames and iperf3 counts the 1448 bytes of TCP payload each carries
-(about 95.6 % of the configured rate). TCP over a lossy link cannot show whether the rate holds, so
-`LossCommand` adds the netem loss only after the self-test. Every `tc` and `ip` command must
+Before a shaped profile counts, `checkShaper` saturates each direction with iperf3, **before** the
+loss is added, and reads the bytes that direction's tbf sent (`TbfSentBytes`, the eth0 tbf for
+upload, the ifb0 tbf for download) at the end of the settle and 5 s later. It refuses the profile
+when either rate is more than 5 % (`SelfTestBound`) off the configured rate: tbf meters whole
+frames, so no overhead is taken off. It never judges iperf3's received rate: on a 64 KiB queue,
+TCP's first overflow can land in those 5 s, and the loss recovery after it holds the receiver's
+bytes back for seconds, so a correct shaper read 266 kbit/s against 287 at 300 kbit/s, 300 ms.
+A tbf left idle by an empty queue reads low and fails, as it should. TCP over a lossy link cannot
+show whether the rate holds either, so `LossCommand` adds the netem loss only after the
+self-test. Every `tc` and `ip` command must
 succeed; a failed one fails the run. There is never a silently unshaped run. Do not loosen the
 bound, swallow a `tc` error, or move the loss before the self-test.
 
@@ -257,7 +262,8 @@ Read each run in this order; stop at the first that fails:
    superseded by the next one.
 2. **Egress.** Every counter zero (`0` in the Markdown). A dash means netguard never started, so
    nothing was observed.
-3. **Self-test** (down / up): within 5 % of `rate × 1448 / 1514`, or `unshaped` on the ceiling.
+3. **Self-test** (down / up): each tbf's sent rate, within 5 % of the configured rate, or
+   `unshaped` on the ceiling.
 4. **iperf3 before and after** (down / up), and the **reference** the evaluator took from them:
    none when the pair broke the 5 % stability rule of section 4.
 5. **The browser result:** per direction the headline, its status and its steady window in

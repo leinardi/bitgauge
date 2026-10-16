@@ -21,6 +21,7 @@ package harness
 
 import (
 	"encoding/json"
+	"errors"
 	"math"
 	"os"
 	"path/filepath"
@@ -550,6 +551,38 @@ func TestCapsOffloadOnlyOnTheMinimumQueue(t *testing.T) {
 	} {
 		if got := CapsOffload(&Profile{RateBitsPerSecond: tc.rate}); got != tc.want {
 			t.Errorf("CapsOffload(%d bit/s) = %v, want %v", tc.rate, got, tc.want)
+		}
+	}
+}
+
+// TestTbfSentBytes reads the self-test's counter from real tc -s output: the tbf's own line, not
+// the netem above it or the fq_codel below.
+func TestTbfSentBytes(t *testing.T) {
+	t.Parallel()
+
+	out := "qdisc netem 1: root refcnt 33 limit 1000 delay 600ms seed 1\n" +
+		" Sent 527356 bytes 599 pkt (dropped 22, overlimits 0 requeues 0) \n" +
+		" backlog 0b 0p requeues 0\n" +
+		"qdisc tbf 2: parent 1: rate 300Kbit burst 3027b lat 1.67s \n" +
+		" Sent 527300 bytes 598 pkt (dropped 22, overlimits 1696 requeues 0) \n" +
+		" backlog 0b 0p requeues 0\n" +
+		"qdisc fq_codel 3: parent 2:1 limit 44p flows 1024 quantum 1514 target 1.75s interval 3.5s\n" +
+		" Sent 527356 bytes 599 pkt (dropped 22, overlimits 0 requeues 0) \n"
+
+	got, err := TbfSentBytes(out)
+	if err != nil || got != 527300 {
+		t.Errorf("TbfSentBytes = %d, %v; want 527300", got, err)
+	}
+
+	for _, bad := range []string{
+		"qdisc fq_codel 3: parent 2:1\n Sent 1 bytes 1 pkt\n",
+		"qdisc tbf 2: root refcnt 2 rate 300Kbit\n backlog 0b 0p\n",
+		"qdisc tbf 2: root refcnt 2 rate 300Kbit\n Sent many bytes 1 pkt\n",
+		"qdisc tbf 2: root refcnt 2 rate 300Kbit",
+	} {
+		_, err = TbfSentBytes(bad)
+		if !errors.Is(err, errTbfOutput) {
+			t.Errorf("TbfSentBytes(%q) = %v, want errTbfOutput", bad, err)
 		}
 	}
 }

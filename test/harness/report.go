@@ -159,8 +159,8 @@ type Run struct {
 	Error   string `json:"error,omitempty"`
 	// Shaped is false for an unshaped (ceiling) run, which has no shaper and no self-test.
 	Shaped bool `json:"shaped"`
-	// SelfTest is the measurement the shaper self-test judged: each direction within 5 % of the
-	// goodput the configured rate lets through (ExpectedGoodput).
+	// SelfTest is what the shaper self-test judged: the rate each direction's tbf sent while iperf3
+	// saturated it, within 5 % of the configured rate.
 	SelfTest *Throughput `json:"selfTest,omitempty"`
 	// ReferenceBefore and ReferenceAfter are the raw iperf3 runs either side of the browser run.
 	ReferenceBefore *Throughput `json:"referenceBefore,omitempty"`

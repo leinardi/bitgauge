@@ -40,6 +40,8 @@ const (
 	listenPort  = 8080
 	iperf3Port  = "5201"
 	selfTestFor = 5 * time.Second
+	// selfTestTail keeps iperf3 running past the self-test's last tbf read.
+	selfTestTail = time.Second
 	// SelfTestBound is how far the measured rate may stray from the configured one before a
 	// profile does not count (testing.md section 5.1).
 	SelfTestBound = 0.05
@@ -134,7 +136,7 @@ func (t *Topology) Shaped() bool {
 	return t.profile.Shaped && !t.cfg.Unshaped
 }
 
-// SelfTest is the measurement the shaper self-test held to SelfTestBound, nil on an unshaped run
+// SelfTest holds the tbf rates the shaper self-test held to SelfTestBound, nil on an unshaped run
 // or when the self-test never measured.
 func (t *Topology) SelfTest() *Throughput {
 	return t.selfTest
@@ -497,25 +499,32 @@ func (t *Topology) capSenderOffload(ctx context.Context) error {
 	return nil
 }
 
-// checkShaper is the shaper self-test: it measures both directions of the shaped link, before any
-// loss is added, and refuses a profile whose goodput is off the expected one by more than
-// SelfTestBound.
+// checkShaper is the shaper self-test (testing.md section 5.1): before any loss is added, it reads
+// the rate each direction's tbf sends while iperf3 saturates that direction, and refuses a profile
+// whose rate is off the configured one by more than SelfTestBound. The eth0 tbf meters upload, the
+// ifb0 tbf download.
 func (t *Topology) checkShaper(ctx context.Context) error {
-	measured, err := t.Iperf3(ctx, selfTestFor)
+	upload, err := t.tbfRate(ctx, "eth0", false)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrShaperSelfTest, err)
 	}
 
-	t.selfTest = measured
-	want := ExpectedGoodput(t.profile.RateBitsPerSecond)
+	download, err := t.tbfRate(ctx, "ifb0", true)
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrShaperSelfTest, err)
+	}
 
-	for direction, got := range map[string]float64{
-		"download": measured.DownloadBitsPerSecond,
-		"upload":   measured.UploadBitsPerSecond,
-	} {
+	t.selfTest = &Throughput{
+		DownloadBitsPerSecond: download,
+		UploadBitsPerSecond:   upload,
+		Seconds:               selfTestFor.Seconds(),
+	}
+	want := float64(t.profile.RateBitsPerSecond)
+
+	for direction, got := range map[string]float64{"download": download, "upload": upload} {
 		if math.Abs(got-want)/want > SelfTestBound {
 			return fmt.Errorf(
-				"%w: %s measured %.0f bit/s against an expected goodput of %.0f",
+				"%w: the %s tbf sent %.0f bit/s against a configured rate of %.0f",
 				ErrShaperSelfTest,
 				direction,
 				got,
@@ -525,6 +534,78 @@ func (t *Topology) checkShaper(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// tbfRate runs iperf3 in one direction and reads the bytes the device's tbf sends over
+// selfTestFor, from the settle on, while iperf3 keeps the link saturated. Each read is timed at
+// the middle of its tc call.
+func (t *Topology) tbfRate(ctx context.Context, device string, reverse bool) (float64, error) {
+	settle := Iperf3Settle(t.profile.RTT)
+	seconds := strconv.Itoa(int(math.Ceil((settle + selfTestFor + selfTestTail).Seconds())))
+	args := []string{
+		"iperf3", "--client", t.guard.Name, "--port", iperf3Port, "--time", seconds,
+		"--length", strconv.FormatInt(Iperf3Length(t.profile.RateBitsPerSecond), 10),
+	}
+
+	if reverse {
+		args = append(args, "--reverse")
+	}
+
+	iperfCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	done := make(chan error, 1)
+
+	go func() {
+		_, err := t.exec(iperfCtx, t.shaper, args...)
+		done <- err
+	}()
+
+	first, firstAt, err := t.tbfSentAfter(ctx, device, settle)
+	if err != nil {
+		return 0, err
+	}
+
+	last, lastAt, err := t.tbfSentAfter(ctx, device, selfTestFor-time.Since(firstAt))
+	if err != nil {
+		return 0, err
+	}
+
+	err = <-done
+	if err != nil {
+		return 0, fmt.Errorf("iperf3: %w", err)
+	}
+
+	return float64(last-first) * bitsPerByte / lastAt.Sub(firstAt).Seconds(), nil
+}
+
+// tbfSentAfter waits, then reads the bytes the device's tbf has sent and when.
+func (t *Topology) tbfSentAfter(
+	ctx context.Context,
+	device string,
+	wait time.Duration,
+) (int64, time.Time, error) {
+	select {
+	case <-ctx.Done():
+		return 0, time.Time{}, fmt.Errorf("wait for the tbf read: %w", ctx.Err())
+	case <-time.After(wait):
+	}
+
+	before := time.Now()
+
+	out, err := t.exec(ctx, t.shaper, "tc", "-s", "qdisc", "show", "dev", device)
+	if err != nil {
+		return 0, time.Time{}, err
+	}
+
+	readAt := before.Add(time.Since(before) / 2)
+
+	sent, err := TbfSentBytes(out)
+	if err != nil {
+		return 0, time.Time{}, err
+	}
+
+	return sent, readAt, nil
 }
 
 // exec runs a command in one of the topology's containers.
