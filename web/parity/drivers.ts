@@ -154,6 +154,9 @@ async function closePanel(page: Page): Promise<void> {
   const toggle = page.getByTestId('demo-toggle')
   if ((await toggle.getAttribute('aria-expanded')) === 'true') await toggle.click()
   await page.getByTestId('demo-scenario').waitFor({ state: 'detached' })
+  // The open panel's toggle sits over the header's theme button in the compact layout, so the
+  // pointer is left hovering it once the panel closes.
+  await parkPointer(page)
 }
 
 export const vue: Driver = {
