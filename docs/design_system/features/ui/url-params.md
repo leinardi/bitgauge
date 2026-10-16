@@ -15,7 +15,11 @@ apply to the page load they appear on; they are not stored unless the user saves
   Values are case-insensitive for enums and for the units of `cap`. When a name appears more than
   once, its first occurrence counts.
 - An invalid value is ignored, the rest of the URL still applies, and the notice
-  `URL parameter ignored` names the ignored parameter. Unknown parameters are ignored silently.
+  `URL parameter ignored` names the ignored parameter with the value the link gave (cut to 64
+  characters), the values it allows and what the setting stays on: "streams=12 ignored, allowed
+  1–6. Streams stay on Auto; the other parameters from the link were applied." It offers
+  **Dismiss**, which hides it for the page load; the result still carries it. Unknown parameters
+  are ignored silently.
   A value is invalid when it is outside the table below or outside the ranges of
   [../configuration.md §2.3](../configuration.md#23-test-defaults): a `cap` below 1 MiB, or a
   fixed `streams` count above the server's `streams.max`. `run` accepts only the values its row
@@ -42,6 +46,22 @@ apply to the page load they appear on; they are not stored unless the user saves
 | `lang` | a supported locale tag (`en`, …) | browser language | UI language ([i18n-a11y.md §1](i18n-a11y.md#1-internationalization)). |
 | `theme` | `system`, `light`, `dark` | `system` | Color theme. |
 | `label` | text, at most 64 characters | suggested label | Pre-fills the result's label (for example `VPN`, `LAN`, `Kitchen Wi-Fi`). |
+
+The `URL parameter ignored` notice words each parameter so, with the run's own value in the second
+sentence:
+
+| Parameter | Allowed | Stays on |
+| --- | --- | --- |
+| `run` | 1, true, 0 or false | The test waits for Start |
+| `test` | all, download, upload or latency | Phases stay on the run's phases ("idle latency, download and upload") |
+| `preset` | quick, standard or extended | The preset stays on the run's ("Standard") |
+| `duration` | 5–600 s | Durations stay on the preset's |
+| `streams` | 1–`streams.max` for a number, otherwise auto, single or 1–`streams.max` | Streams stay on the run's mode ("Auto", "Single" or the count) |
+| `cap` | 1 MiB or more, 0 or none | The data cap stays on the run's ("none" or the size) |
+| `units` | bits or bytes | Units stay on the run's ("bits") |
+| `lang` | the supported locale tags (`en`) | The language stays on the page's ("English") |
+| `theme` | system, light or dark | The theme stays on the page's ("System") |
+| `label` | at most 64 characters | The label stays on the suggested one |
 
 Advanced settings (warm-up, ping count, overhead compensation) are not URL parameters: they change
 what a number means, so they are set deliberately in Settings and shown with the result.

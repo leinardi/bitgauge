@@ -349,10 +349,11 @@ carries a recommendation; where the specification already relies on an answer, i
     the settings parameters as the `configure` override, the engine resolves and stores them and
     answers with a `settings` event, which the screen shows (scope `configured`, and `run` as each
     run starts); the parameters whose values were ignored travel in each `start` override as
-    `ignoredParameters`, so the run carries a `url-parameter-ignored` notice for each up to the
-    result. A value outside the table or the configuration ranges is invalid: a `cap` below 1 MiB,
-    a fixed `streams` above the server's maximum, `preset=continuous` before v0.3. The first
-    occurrence of a repeated name counts. The countdown waits for the engine's `settings` answer.
+    `ignoredParameters`, each with its value, so the run carries a `url-parameter-ignored` notice
+    for each up to the result. A value outside the table or the configuration ranges is invalid:
+    a `cap` below 1 MiB, a fixed `streams` above the server's maximum, `preset=continuous` before
+    v0.3. The first occurrence of a repeated name counts. The countdown waits for the engine's
+    `settings` answer.
     Enter's "interactive control" is a link, a form control, editable text, an element with an
     ARIA widget role or a tab index of 0 or more, and Escape is left to a control that already
     handled it.** Recommendation: keep it. See

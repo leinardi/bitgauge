@@ -1136,8 +1136,8 @@ engine emits the code with the raw values the notice names, and the UI words it.
 - `insufficient data` per direction, with the next-larger-preset offer (`insufficient-data`; §8.6);
 - `data used: N GB` at 1 GB, 10 GB, 100 GB and every further tenfold step during Continuous runs
   (`data-used`; §15);
-- `URL parameter ignored` naming each parameter whose value was invalid
-  (`url-parameter-ignored`; [ui/url-params.md](ui/url-params.md));
+- `URL parameter ignored` naming each parameter whose value was invalid, with the value the link
+  gave, cut to 64 characters (`url-parameter-ignored`; [ui/url-params.md](ui/url-params.md));
 - `partial — stopped early` with the covered duration (`stopped-early`; §7.8), which the UI words
   with the stop instant and, on upload, the confirmed requests and the window end the result
   carries ([ui/flows.md §4](ui/flows.md#4-cancel-mid-test));

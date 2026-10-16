@@ -171,8 +171,9 @@ may also carry `durationMs` (the `duration` URL parameter,
 parameters' settings and is resolved over the settings it comes with, which are then stored as
 the configured settings; a `start` override is resolved over the configured settings for that run
 only, and may also carry the result's `label`, the `contextLabel` and `ignoredParameters`, the
-URL parameters whose values the page ignored: the run carries a `url-parameter-ignored` notice
-for each, from its first `phase` event to the result. An override that selects another preset
+URL parameters whose values the page ignored, each with the value the link gave, cut to 64
+characters: the run carries a `url-parameter-ignored` notice for each, from its first `phase`
+event to the result. An override that selects another preset
 takes that preset's durations, ping count and stream mode from
 [measurement.md §8.5](measurement.md#85-presets) unless it sets them too (a fixed count no larger
 than the configured maximum): the durations and ping count in the configured settings belong to
