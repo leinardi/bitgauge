@@ -164,7 +164,14 @@ func TestShaperCommands(t *testing.T) {
 		LossPercent:       1,
 		Shaped:            true,
 	}
-	commands := strings.Join(ShaperCommands(&profile), "\n")
+	shaper := ShaperCommands(&profile)
+	commands := strings.Join(shaper, "\n")
+
+	// fq_codel's limit is sized in full frames, so a 64 KiB queue caps offload before anything is
+	// shaped.
+	if shaper[0] != OffloadCommand || OffloadCommand != "ip link set dev eth0 gso_max_segs 1" {
+		t.Errorf("the shaper does not cap segmentation offload first:\n%s", commands)
+	}
 
 	for _, want := range []string{
 		"tc qdisc add dev eth0 root handle 1: netem delay 300ms\n",
@@ -194,6 +201,9 @@ func TestShaperCommands(t *testing.T) {
 	fast := Profile{RateBitsPerSecond: 1_000_000_000}
 
 	shaped := strings.Join(ShaperCommands(&fast), "\n")
+	if strings.Contains(shaped, OffloadCommand) {
+		t.Errorf("the shaper caps offload on a queue above 64 KiB:\n%s", shaped)
+	}
 	// 80 ms of data at 1 Gbit: 10 MB, 6606 full frames.
 	if !strings.Contains(shaped, "netem delay 0ms\n") ||
 		!strings.Contains(shaped, "burst 1250000 limit 10000000\n") ||
@@ -521,4 +531,25 @@ func readFile(t *testing.T, path string) string {
 	}
 
 	return string(data)
+}
+
+func TestCapsOffloadOnlyOnTheMinimumQueue(t *testing.T) {
+	t.Parallel()
+
+	// 64 KiB is 80 ms of data at 6.5536 Mbit/s: below it the queue is the minimum.
+	for _, tc := range []struct {
+		rate int64
+		want bool
+	}{
+		{300_000, true},
+		{500_000, true},
+		{6_553_599, true},
+		{6_553_600, false},
+		{10_000_000, false},
+		{1_000_000_000, false},
+	} {
+		if got := CapsOffload(&Profile{RateBitsPerSecond: tc.rate}); got != tc.want {
+			t.Errorf("CapsOffload(%d bit/s) = %v, want %v", tc.rate, got, tc.want)
+		}
+	}
 }

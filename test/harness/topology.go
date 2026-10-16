@@ -80,6 +80,8 @@ type Topology struct {
 	network string
 	client  string
 	shaper  string
+	// proxy is the proxy's container, empty without one.
+	proxy string
 	// selfTest is the measurement the shaper self-test judged.
 	selfTest *Throughput
 	// URL is where the browser opens BitGauge, through the proxy when there is one.
@@ -312,11 +314,13 @@ func (t *Topology) startIperf3Server(ctx context.Context) error {
 
 func (t *Topology) startProxy(ctx context.Context) error {
 	upstream := "http://" + t.guard.Name + ":" + strconv.Itoa(listenPort)
-	proxy := t.env.Name("proxy")
+	t.proxy = t.env.Name("proxy")
+	proxy := t.proxy
 	configs := filepath.Join(t.cfg.RepoRoot, "test", "harness", "proxies")
 
 	switch t.profile.Proxy {
 	case ProxyNone:
+		t.proxy = ""
 		t.URL = upstream
 
 		return nil
@@ -436,6 +440,11 @@ func (t *Topology) startShaper(ctx context.Context) error {
 		}
 	}
 
+	err = t.capSenderOffload(ctx)
+	if err != nil {
+		return err
+	}
+
 	err = t.checkShaper(ctx)
 	if err != nil {
 		return err
@@ -449,6 +458,40 @@ func (t *Topology) startShaper(ctx context.Context) error {
 	_, err = t.exec(ctx, t.shaper, strings.Fields(loss)...)
 	if err != nil {
 		return fmt.Errorf("add the loss (%s): %w", loss, err)
+	}
+
+	return nil
+}
+
+// capSenderOffload runs OffloadCommand, where CapsOffload holds, in the namespace that sends to the
+// client: BitGauge's,
+// through the netguard holder, or the proxy's, through a one-shot tools container joining it, since
+// the proxies run without NET_ADMIN. A connection takes the cap when it opens, and every connection
+// of the run opens after this.
+func (t *Topology) capSenderOffload(ctx context.Context) error {
+	if !CapsOffload(&t.profile) {
+		return nil
+	}
+
+	command := strings.Fields(OffloadCommand)
+	if t.proxy == "" {
+		_, err := t.exec(ctx, t.guard.Name, command...)
+		if err != nil {
+			return fmt.Errorf("cap BitGauge's segmentation offload (%s): %w", OffloadCommand, err)
+		}
+
+		return nil
+	}
+
+	args := append([]string{
+		"run", "--rm", "--network", "container:" + t.proxy,
+		"--cap-drop", "ALL", "--cap-add", "NET_ADMIN",
+		t.cfg.ToolsImage,
+	}, command...)
+
+	_, err := t.env.Docker(ctx, args...)
+	if err != nil {
+		return fmt.Errorf("cap the proxy's segmentation offload (%s): %w", OffloadCommand, err)
 	}
 
 	return nil

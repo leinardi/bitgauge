@@ -68,6 +68,21 @@ func ExpectedGoodput(rateBitsPerSecond int64) float64 {
 	return float64(rateBitsPerSecond) * tcpPayload / ethernetFrame
 }
 
+// OffloadCommand caps segmentation offload on eth0 at one segment per packet (testing.md section
+// 5.1). The qdiscs see a sender's packets before segmentation, and a two-segment packet takes one
+// of fq_codel's slots sized for one frame: at 300 kbit/s, 600 ms the 64 KiB queue held 133 KB, and
+// the round trip grew to 3.3 s instead of the 2.35 s the queue allows.
+const OffloadCommand = "ip link set dev eth0 gso_max_segs 1"
+
+// CapsOffload reports whether a profile's link runs OffloadCommand: only where the queue is its
+// 64 KiB minimum, more than 80 ms of data. There CoDel's interval is seconds long and the packet
+// limit is what holds the queue; above it, CoDel holds the queue near its 80 ms target within
+// 160 ms whatever the packets carry, and one segment per packet costs more CPU than the Docker
+// bridge has: the 1 Gbit self-test fell to 780-858 Mbit/s against 956.
+func CapsOffload(profile *Profile) bool {
+	return profile.RateBitsPerSecond/queueDivisor < minimumQueue
+}
+
 // ShaperCommands are the tc and ip commands that shape a profile's link on the client's eth0:
 // delay and rate, without loss. The self-test runs on this link; LossCommand adds the loss after,
 // since TCP over a lossy link cannot show whether the rate holds.
@@ -78,6 +93,10 @@ func ExpectedGoodput(rateBitsPerSecond int64) float64 {
 // and lock a newly opened one out for seconds, which measures TCP's fairness and not BitGauge.
 // CoDel's target is the queue's own length, so it drops nothing early and a single flow still
 // fills the link; a full queue drops from the flow holding most of it.
+//
+// fq_codel's limit counts packets, sized as full frames, so where CapsOffload holds, the first
+// command is OffloadCommand; the namespace that sends to the client runs it too
+// (Topology.capSenderOffload).
 func ShaperCommands(profile *Profile) []string {
 	rate := strconv.FormatInt(profile.RateBitsPerSecond, 10) + "bit"
 	burst := strconv.FormatInt(max(profile.RateBitsPerSecond/burstDivisor, minimumBurst), 10)
@@ -88,7 +107,7 @@ func ShaperCommands(profile *Profile) []string {
 	fqCodel := "fq_codel limit " + strconv.FormatInt((queue+ethernetFrame-1)/ethernetFrame, 10) +
 		" target " + strconv.FormatInt(queueMs, 10) + "ms interval " + strconv.FormatInt(2*queueMs, 10) + "ms"
 
-	return []string{
+	commands := []string{
 		"tc qdisc add dev eth0 root handle 1: " + netemDelay(profile),
 		"tc qdisc add dev eth0 parent 1: handle 2: " + tbf,
 		"tc qdisc add dev eth0 parent 2:1 handle 3: " + fqCodel,
@@ -99,6 +118,11 @@ func ShaperCommands(profile *Profile) []string {
 		"tc qdisc add dev ifb0 root handle 2: " + tbf,
 		"tc qdisc add dev ifb0 parent 2:1 handle 3: " + fqCodel,
 	}
+	if CapsOffload(profile) {
+		commands = append([]string{OffloadCommand}, commands...)
+	}
+
+	return commands
 }
 
 // LossCommand changes the root netem qdisc to add the profile's loss, or is empty when it has none.

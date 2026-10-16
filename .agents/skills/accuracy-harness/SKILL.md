@@ -119,8 +119,13 @@ namespace, which the built image (read-only, `--cap-drop ALL`, `no-new-privilege
 join; an optional Traefik or Caddy; the Playwright client; and a shaper sidecar in the **client's**
 namespace (tbf and netem on egress, an `ifb` mirror for ingress, each tbf queueing into an fq_codel
 of 80 ms of data, at least 64 KiB, whose CoDel target is that length: testing.md §5.1) that also
-runs the iperf3 client and the ICMP ping, so they take the browser's path. Third-party images are
-pinned by digest in `images.go`, refreshed by hand in each health audit.
+runs the iperf3 client and the ICMP ping, so they take the browser's path. fq_codel's limit counts
+packets sized as full frames, so on a profile whose queue is the 64 KiB minimum (`CapsOffload`)
+`OffloadCommand` caps segmentation offload at one segment per packet in the client's namespace and
+in the one sending to it (BitGauge's, or the proxy's through a one-shot tools container): never
+drop it, or two-segment packets double every slow profile's queue, and never widen it to fast
+profiles, where it costs the 1 Gbit self-test about 10-20 %. Third-party images are pinned by
+digest in `images.go`, refreshed by hand in each health audit.
 
 ## 4. Rules that outrank a green run
 
