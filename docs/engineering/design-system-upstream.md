@@ -203,3 +203,14 @@ the export shows, and what it should show, with the reason; behavior comes from
 - **Wanted:** a "Deployment guide" link after the body, as the other deployment notices carry.
 - **Why:** the hint asks for HTTP/2 at the proxy, which the deployment guide explains how to set
   up.
+
+### The Early Error's Cause
+
+- **Source:** triage cluster `content-error-alert`, decided for the kit's alert with the
+  error-early cause from the spec.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the alert of the `error-early` state.
+- **Export today:** "Connection to Basement NAS lost — server stopped responding".
+- **Wanted:** "Connection to Basement NAS lost — the network changed".
+- **Why:** a server that stops answering mid-run closes the WebSocket, which ends the run as a
+  network change ([flows.md §5](../features/ui/flows.md#5-error-mid-test)); "server stopped
+  responding" is the cause of a server unreachable as the run starts.
