@@ -18,11 +18,12 @@
 -->
 <script setup lang="ts">
 import { Activity, ArrowDown, ArrowUp, CircleMinus, ServerOff, WifiOff } from '@lucide/vue'
-import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { angle, arcPath, fraction, MS_SCALE, point, rateScale, type Scale, START_ANGLE, SWEEP, ticks } from '@/components/gauge/scale'
+import { useDial } from '@/components/gauge/dial'
+import GaugeDial from '@/components/gauge/GaugeDial.vue'
+import { angle, arcPath, fraction, MS_SCALE, point, rateScale, type Scale, START_ANGLE, SWEEP } from '@/components/gauge/scale'
 import { useWindowTween } from '@/components/gauge/useWindowTween'
 import { windowCaption } from '@/components/gauge/caption'
 import { stepWindow, windowAt, type WindowState } from '@/components/gauge/window'
@@ -77,11 +78,7 @@ const windowK = defineModel<number>('window', { required: true })
 
 const { locale, t } = useI18n()
 
-// 300 px, 272 in the compact layout (gauge.md), drawn at its size so strokes and ticks keep theirs.
-const compactLayout = useMediaQuery('(max-width: 1139.98px)')
-const size = computed(() => (compactLayout.value ? 272 : 300))
-const center = computed(() => size.value / 2)
-const radius = computed(() => size.value / 2 - 10)
+const { center, radius, track } = useDial()
 const BAND_VALUES = 10
 
 const rateUnit = computed(() => (props.mode === 'ms' ? 'ms' : props.units))
@@ -131,7 +128,6 @@ const color = computed(() => (props.mode === 'ms' ? 'var(--series-latency)' : pr
 const labelIcon = computed(() => (props.mode === 'ms' ? Activity : props.direction === 'upload' ? ArrowUp : ArrowDown))
 const place = (value: number) => fraction(value, scale.value)
 
-const track = computed(() => arcPath(center.value, center.value, radius.value, 0, 1))
 const needle = computed(() => (props.value === null ? 0 : place(display(props.value))))
 const reading = computed(() => props.text === null)
 const band = computed(() => {
@@ -150,36 +146,6 @@ const peakTick = computed(() => {
 const innerArc = computed(() => (props.mode === 'rate' && props.inner !== null ? arcPath(center.value, center.value, radius.value - 10, 0, place(display(props.inner))) : ''))
 const dot = computed(() => point(center.value, center.value, radius.value, START_ANGLE))
 
-function compact(value: number): string {
-  if (props.mode === 'ms') {
-    return String(value)
-  }
-  for (const [size, prefix] of [
-    [1e9, 'G'],
-    [1e6, 'M'],
-    [1e3, 'k'],
-  ] as const) {
-    if (value >= size) {
-      return `${value / size}${prefix}`
-    }
-  }
-  return String(value)
-}
-
-const tickMarks = computed(() =>
-  ticks(scale.value).map((tick) => {
-    const degrees = angle(tick.at)
-    const label = point(center.value, center.value, radius.value - 36, degrees)
-    return {
-      key: tick.value,
-      from: point(center.value, center.value, radius.value - 14, degrees),
-      to: point(center.value, center.value, radius.value - (tick.major ? 22 : 18), degrees),
-      major: tick.major,
-      label: tick.major ? { x: label.x, y: label.y + 4, text: compact(tick.value) } : null,
-    }
-  }),
-)
-
 const readout = computed(() => {
   if (props.value === null) {
     return { number: t('test.gauge.noValue'), unit: '' }
@@ -195,40 +161,13 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
 
 <template>
   <div class="flex flex-col items-center gap-1">
-    <div
-      class="relative"
-      :style="{ width: `${size}px`, height: `${size}px` }"
+    <GaugeDial
+      :scale="scale"
+      :mode="mode"
+      :data-window="shownK"
+      data-testid="gauge-arc"
     >
-      <svg
-        :viewBox="`0 0 ${size} ${size}`"
-        :width="size"
-        :height="size"
-        class="block overflow-visible"
-        aria-hidden="true"
-        :data-window="shownK"
-        data-testid="gauge-arc"
-      >
-        <path
-          :d="track"
-          fill="none"
-          stroke="var(--surface-3)"
-          stroke-width="10"
-          stroke-linecap="round"
-        />
-        <g
-          v-for="tick in tickMarks"
-          :key="tick.key"
-        >
-          <line
-            :x1="tick.from.x"
-            :y1="tick.from.y"
-            :x2="tick.to.x"
-            :y2="tick.to.y"
-            stroke="var(--fg-faint)"
-            :stroke-width="tick.major ? 1.5 : 1"
-            :opacity="tick.major ? 1 : 0.6"
-          />
-        </g>
+      <template #arcs>
         <path
           v-if="band"
           :d="band"
@@ -285,18 +224,6 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
             stroke-width="3"
           />
         </g>
-      </svg>
-      <template
-        v-for="tick in tickMarks"
-        :key="tick.key"
-      >
-        <span
-          v-if="tick.label"
-          aria-hidden="true"
-          data-testid="gauge-tick"
-          class="absolute -translate-x-1/2 translate-y-(--gauge-tick-anchor) font-mono text-(length:--text-micro) whitespace-nowrap text-subtle-foreground"
-          :style="{ left: `${tick.label.x}px`, top: `${tick.label.y}px` }"
-        >{{ tick.label.text }}</span>
       </template>
       <div
         v-if="text"
@@ -378,7 +305,7 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
           {{ innerLabel }}
         </span>
       </div>
-    </div>
+    </GaugeDial>
     <span
       class="font-mono text-(length:--text-caption) whitespace-nowrap text-subtle-foreground"
       data-testid="gauge-caption"

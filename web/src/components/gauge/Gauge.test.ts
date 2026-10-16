@@ -142,7 +142,7 @@ describe('the gauge', () => {
     const exposed = [...wrapper.element.querySelectorAll('[data-testid]')].filter((element) => !hidden(element)).map((element) => element.getAttribute('data-testid'))
     expect(exposed).toEqual(['gauge-label', 'gauge-number', 'gauge-unit', 'gauge-caption'])
     wrapper.unmount()
-    const ring = mount(CountdownRing, { props: { remainingMs: 2500, totalMs: 3000, caption: 'log scale · 1 Mbit/s – 10 Gbit/s · auto' }, global: { plugins: [createAppI18n('', ['en'])] } })
+    const ring = mount(CountdownRing, { props: { remainingMs: 2500, totalMs: 3000, window: 6, units: 'bits' }, global: { plugins: [createAppI18n('', ['en'])] } })
     expect(ring.get('svg').attributes('aria-hidden')).toBe('true')
     ring.unmount()
   })

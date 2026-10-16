@@ -29,7 +29,6 @@ import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
 import CountdownRing from '@/components/gauge/CountdownRing.vue'
 import LiveGauge from '@/components/gauge/Gauge.vue'
-import { windowCaption } from '@/components/gauge/caption'
 import { startK } from '@/components/gauge/window'
 import OfflineNotice from '@/components/OfflineNotice.vue'
 import MetaList, { type MetaRow } from '@/components/layout/MetaList.vue'
@@ -303,7 +302,8 @@ watch(run.error, (error) => {
             v-if="countdown.remainingMs.value !== null"
             :remaining-ms="countdown.remainingMs.value"
             :total-ms="countdown.totalMs"
-            :caption="windowCaption(gaugeWindow, units, wording)"
+            :window="gaugeWindow"
+            :units="units"
           />
           <LiveGauge
             v-else

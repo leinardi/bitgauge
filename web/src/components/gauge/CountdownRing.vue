@@ -17,26 +17,28 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
+import { Timer } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { arcPath } from '@/components/gauge/scale'
+import { windowCaption } from '@/components/gauge/caption'
+import { useDial } from '@/components/gauge/dial'
+import GaugeDial from '@/components/gauge/GaugeDial.vue'
+import { rateScale } from '@/components/gauge/scale'
 
 // The gauge during the auto-start countdown (design_system/components/gauge.md, Countdown): the
-// ring drains linearly, a third per second for the 3 s countdown, and the readout shows the whole
-// seconds left. Under prefers-reduced-motion the ring steps once per second with the number, so
-// the number carries the count without any motion. Under the dial, the caption names the window
-// the run will start in.
+// dial of the window the run will start in, its ring draining linearly, a third per second for the
+// 3 s countdown, and the readout showing the whole seconds left. Under prefers-reduced-motion the
+// ring steps once per second with the number, so the number carries the count without any motion.
+// Under the dial, the caption names the window.
 
-const props = defineProps<{ remainingMs: number; totalMs: number; caption: string }>()
+const props = defineProps<{ remainingMs: number; totalMs: number; window: number; units: 'bits' | 'bytes' }>()
 
 const { t, locale } = useI18n()
 
-const SIZE = 316
-const CENTER = SIZE / 2
-const RADIUS = SIZE / 2 - 10
-
-const track = arcPath(CENTER, CENTER, RADIUS, 0, 1)
+const { track } = useDial()
+const scale = computed(() => rateScale(props.window))
+const caption = computed(() => windowCaption(props.window, props.units, { t, locale: locale.value }))
 const seconds = computed(() => Math.max(1, Math.ceil(props.remainingMs / 1000)))
 const number = computed(() => new Intl.NumberFormat(locale.value).format(seconds.value))
 const smooth = computed(() => Math.min(Math.max(props.remainingMs / props.totalMs, 0), 1))
@@ -45,22 +47,14 @@ const stepped = computed(() => Math.min((seconds.value * 1000) / props.totalMs, 
 
 <template>
   <div
-    class="flex flex-col items-center gap-3.5"
+    class="flex flex-col items-center gap-1"
     data-testid="countdown"
   >
-    <div class="relative aspect-square w-68 sm:w-79">
-      <svg
-        :viewBox="`0 0 ${SIZE} ${SIZE}`"
-        class="block size-full overflow-visible"
-        aria-hidden="true"
-      >
-        <path
-          :d="track"
-          fill="none"
-          stroke="var(--surface-3)"
-          stroke-width="10"
-          stroke-linecap="round"
-        />
+    <GaugeDial
+      :scale="scale"
+      mode="rate"
+    >
+      <template #arcs>
         <path
           :d="track"
           fill="none"
@@ -83,19 +77,24 @@ const stepped = computed(() => Math.min((seconds.value * 1000) / props.totalMs, 
           class="hidden motion-reduce:inline"
           data-testid="countdown-ring-stepped"
         />
-      </svg>
-      <div class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pt-2 text-center">
-        <span class="font-(family-name:--font-cond) text-xs font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ t('test.countdown.label') }}</span>
+      </template>
+      <div class="absolute inset-0 flex flex-col items-center justify-center gap-0.75 pt-2 text-center">
+        <span class="flex items-center gap-1.25 font-(family-name:--font-cond) text-(length:--text-caption) font-semibold tracking-(--tracking-caps) text-primary-text uppercase">
+          <Timer
+            :size="13"
+            :stroke-width="2.25"
+            aria-hidden="true"
+          />
+          {{ t('test.countdown.label') }}
+        </span>
         <span
-          class="font-mono text-(length:--type-gauge-readout-compact) leading-display font-medium tracking-(--tracking-readout) tabular-nums sm:text-(length:--type-gauge-readout)"
+          class="font-mono text-(length:--type-gauge-readout-compact) leading-display font-medium tracking-(--tracking-readout) tabular-nums desktop:text-(length:--type-gauge-readout)"
           data-testid="countdown-number"
         >{{ number }}</span>
         <span class="text-(length:--text-md) font-medium text-muted-foreground">{{ t('test.countdown.unit', seconds) }}</span>
         <span class="font-mono text-(length:--text-micro) text-subtle-foreground">{{ t('test.countdown.caption') }}</span>
       </div>
-    </div>
-    <p class="font-mono text-(length:--text-caption) text-subtle-foreground">
-      {{ caption }}
-    </p>
+    </GaugeDial>
+    <span class="font-mono text-(length:--text-caption) whitespace-nowrap text-subtle-foreground">{{ caption }}</span>
   </div>
 </template>

@@ -23,10 +23,11 @@ import { useI18n } from 'vue-i18n'
 
 import type { PhaseView, RunError } from '@/composables/useRunState'
 import type { MeasuringPhase, PhaseName } from '@/engine/messages'
+import NoticeBox from '@/components/test/NoticeBox.vue'
 import { formatDuration } from '@/lib/format'
 
 // What failed and in which phase (ui/screens.md section 1, Error; ui/flows.md section 5), as a
-// danger notice at the head of the notices: the server and the cause, worded by the error's
+// danger Notice at the head of the notices: the server and the cause, worded by the error's
 // message key, then where the phase stopped and what finished before it. An engine defect says
 // the test stopped because of an internal error, naming no phase.
 
@@ -86,23 +87,11 @@ const body = computed(() => {
 </script>
 
 <template>
-  <div
-    role="alert"
-    data-tone="danger"
-    class="flex items-start gap-3 rounded-(--radius-md) border border-(--danger-border) bg-(--danger-bg) px-4 py-3"
+  <NoticeBox
+    tone="danger"
+    :icon="CircleX"
+    :title="title"
+    :body="body"
     data-testid="run-failure"
-  >
-    <CircleX
-      :size="16"
-      aria-hidden="true"
-      class="mt-0.5 flex-none text-(--danger-fg)"
-    />
-    <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-      <span class="text-(length:--text-sm) font-semibold text-foreground">{{ title }}</span>
-      <span
-        v-if="body"
-        class="text-(length:--text-sm) text-muted-foreground"
-      >{{ body }}</span>
-    </div>
-  </div>
+  />
 </template>
