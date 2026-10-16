@@ -684,9 +684,7 @@
           "c87674b69dca": "*"
         },
         "test/cancelled-latency": {
-          "8d508c2162c0": "*",
           "8dce668032fb": "*",
-          "c87674b69dca": "*",
           "d5b39e6fcde8": "*"
         },
         "test/cancelled-slow": {
@@ -727,9 +725,7 @@
           "81d319d6d840": "*"
         },
         "test/insufficient": {
-          "55f925aa5abc": "*",
-          "b286899b82a8": "*",
-          "c87674b69dca": "*"
+          "55f925aa5abc": "*"
         },
         "test/latency": {
           "842403ff7863": "*"
@@ -1347,6 +1343,112 @@
       "owned": {
         "test/error-early": {
           "9850eccf6f7a": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "behavior-latency-stop-notice",
+      "title": "Stop during idle latency: the kit's Test cancelled during latency notice vs no notice in Vue",
+      "match": {
+        "scenarios": [
+          "test/cancelled-latency"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^missing$",
+        "detail": "^status$"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md#4-cancel-mid-test",
+          "says": "the stop notice is titled Test cancelled during <phase>; measurement.md §16's stopped-early is per direction only, so a latency stop has none"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:349",
+          "says": "Test cancelled during latency — Stopped after 12 of 20 pings. The first is a warm-up sample, so idle latency and jitter come from the other 11; download and upload did not run."
+        },
+        "vue": {
+          "ref": "web/src/components/test/notices.ts",
+          "says": "no notice"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "A stop in idle latency with enough samples gets the stop notice like the other stops: it says how many pings were kept and that download and upload did not run.",
+        "on": "2026-10-16"
+      },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "flows.md §4 and measurement.md §16: a stop during idle latency with a result carries a stop notice, titled Test cancelled during latency, naming the pings sent and kept and the phases that did not run.",
+          "done": false
+        },
+        {
+          "target": "vue",
+          "what": "engine and notices: the latency stop's notice in the result and on the Test screen, worded as the kit's.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/cancelled-latency": {
+          "c87674b69dca": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
+      "id": "behavior-live-notices",
+      "title": "Insufficient run: the kit shows a finished direction's notices (Test extended, insufficient data) during the run, Vue only with the result",
+      "match": {
+        "scenarios": [
+          "test/insufficient"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^missing$",
+        "detail": "^status( \\(#2\\))?$"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/architecture.md#4-engine--ui-message-contract",
+          "says": "the phase event carries the notices so far; screens.md §7: notices appear live where relevant and are announced when they appear during a run"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:423",
+          "says": "insufficient: Test extended and Download: insufficient data while the upload runs"
+        },
+        "vue": {
+          "ref": "web/src/engine/run.ts:380",
+          "says": "phase events carry only the URL-parameter and connection notices; the measured ones arrive with the result"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "architecture.md §4 has each phase event carry the notices so far, and screens.md §7 shows them live and announces them during the run; the kit already does.",
+        "on": "2026-10-16"
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "engine: each phase event carries the notices so far, a finished direction's measured notices (slow-link-extended, insufficient-data, low-confidence, data-cap-reached, stream-limit) included, so the Test screen shows and announces them as the direction finishes.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/insufficient": {
+          "b286899b82a8": "*",
+          "c87674b69dca": "*"
         }
       },
       "resolution": null
