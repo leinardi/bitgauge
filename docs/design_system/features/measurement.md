@@ -136,16 +136,21 @@ end is the first byte's instant plus `size / rate_s`, the transfer the size rule
 RTT on upload for the response's way back; the first byte is the first chunk on download and the
 first byte upload progress reports sent on upload (`t_send` when the browser reports no progress,
 §7.2), so an upload body is never asked for before the previous one has been handed over. The
-in-flight count, early requests included, never exceeds the server's `limits.maxStreamsPerClient`:
-a stream whose early issue would exceed it waits for its current request's end as before. A
-stream's first request, whose rate is unknown, is never followed early. Early issue begins once
-the ramp has settled (§8.2), so that the ramp compares its steps on streams that re-request alike
-and a step that only hides the gap behind more streams still reads as a gain; a fixed stream
-count is settled from the start. A browser that queues the early request behind its connection
-limit starts it when a connection frees. The bytes of an early request count as they arrive, like any other's; the stream count the
-ramp compares (§4, §8.2) is unchanged; on upload the confirmation delay of §7.5 grows by about one
-request. Measured from its predecessor's end, an early request's gap is what the early issue did
-not hide: the holes that remain.
+in-flight count, early requests included, never exceeds the server's `limits.maxStreamsPerClient`,
+nor 6, the browsers' per-host connection limit, while the latest request reported HTTP/1.1 or no
+protocol (HTTP/2 and HTTP/3 multiplex one connection): a stream whose early issue would exceed it
+waits for its current request's end as before. A request queued behind that limit waits in the
+browser while its client duration runs, which reads as an issue gap and holds the confirmed
+watermark back; on a 300 kbit/s link with 1 % loss, four streams issuing early put up to 8
+downloads in flight on HTTP/1.1, and the queued ones waited up to 1.6 s for their first byte
+against a 360 ms round trip. A stream's first request, whose rate is unknown, is never followed
+early. Early issue begins once the ramp has settled (§8.2), so that the ramp compares its steps
+on streams that re-request alike and a step that only hides the gap behind more streams still
+reads as a gain; a fixed stream count is settled from the start. The bytes of an early request
+count as they arrive, like any other's; the stream count the ramp compares (§4, §8.2) is
+unchanged; on upload the confirmation delay of §7.5 grows by about one request. Measured from its
+predecessor's end, an early request's gap is what the early issue did not hide: the holes that
+remain.
 
 The size rule is cross-checked against ndt7's message scaling rule, which grows WebSocket messages
 when they are small relative to the bytes already transferred
