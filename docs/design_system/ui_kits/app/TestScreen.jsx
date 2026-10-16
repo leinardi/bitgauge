@@ -32,7 +32,7 @@ class TestScreen extends React.Component {
   _recheck(st) {
     if (st !== 'error-early') { clearTimeout(this._rc); this._rcFor = null; if (this.state.eeDown) this.setState({ eeDown: false }); return; }
     if (this._rcFor === st) return;
-    this._rcFor = st; clearTimeout(this._rc); this._rc = setTimeout(() => this.setState({ eeDown: true }), 600);
+    this._rcFor = st; clearTimeout(this._rc); this._rc = setTimeout(() => this.setState({ eeDown: true }), 100);
   }
   // Phase region: phase changes immediately, the live rate at most every 5 s, a finished direction's headline once.
   // The 10 Hz readout is not live. The summary region is rendered directly from the result.
@@ -455,7 +455,7 @@ class TestScreen extends React.Component {
         prim: [T({ label: 'Download', icon: 'arrow-down', ic: C.down, state: 'insufficient-data', sub: 'Insufficient data — no steady window within the 20 s max', notes: [BG.bytes(50e3) + ' used'] }), T({ label: 'Upload', icon: 'arrow-up', ic: C.up, state: 'warming-up', sub: 'no confirmed request yet' }), latT(), jitT()],
         load: load(null, [lrow('down', 140, { p90: 176 }), lrow('up', lastLat(lp, 49), { p90: latP90(lp), live: true })], respB(null, null), 'Graded after upload'), fit: fit(null),
         meta: meta(BG.bytes(50e3 + used(snd)), 'so far · download ' + BG.bytes(50e3), (t + PRE + 20).toFixed(1) + ' s', 'elapsed'),
-        notices: [EXT(true, uext), N('warn', 'database', 'Download: insufficient data', 'Download reached its 20 s maximum with the first 64 KiB request still in flight, so only one request contributed bytes and there is no value. ' + BG.bytes(50e3) + ' used. Upload continues; Extended allows up to 40 s per direction.', [{ label: 'Try Extended', icon: 'timer', cls: 'btn sm secondary' }])],
+        notices: [EXT(true, uext), N('warn', 'database', 'Download: insufficient data', 'Download reached its 20 s maximum without a confirmed steady window long enough for a number. ' + BG.bytes(50e3) + ' used. Upload continues; Extended allows up to 40 s per direction.', [{ label: 'Try Extended', icon: 'timer', cls: 'btn sm secondary' }])],
         btn: BTN.stop, ph: 'Upload sending, ' + sayR(u.cur), live: true
       }; } break;
       case 'error-early': { const lp = BG.lat(5, 3.1, 3.1, 1.2, 0.1, 0.35); S = {

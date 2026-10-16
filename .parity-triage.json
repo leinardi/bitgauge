@@ -1341,8 +1341,50 @@
           "done": true
         }
       ],
-      "status": "in-progress",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-16",
+        "run": {
+          "runId": "6246f41d-7442-4c56-819f-52aab0c268f3",
+          "finishedAt": "2026-10-16T12:21:47.827Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "behavior-error-early-result-bar",
@@ -3112,7 +3154,7 @@
           "done": true
         }
       ],
-      "status": "in-progress",
+      "status": "done",
       "owned": {
         "test/insufficient": {
           "2a27b8a29e2b": [
@@ -3122,7 +3164,49 @@
           "f32fcb2f8637": "*"
         }
       },
-      "resolution": null
+      "resolution": {
+        "note": null,
+        "on": "2026-10-16",
+        "run": {
+          "runId": "6246f41d-7442-4c56-819f-52aab0c268f3",
+          "finishedAt": "2026-10-16T12:21:47.827Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "content-low-confidence-notice",
