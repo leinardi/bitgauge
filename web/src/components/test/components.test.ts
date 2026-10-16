@@ -114,7 +114,7 @@ describe('the notices', () => {
   it('uses the exact notice strings with the raw values', () => {
     expect(noticeView(EVERY['stream-limit'], context).title).toBe('Server stream limit — 3 streams')
     expect(noticeView(EVERY['overhead-compensation'], context).title).toBe(`Overhead compensation +2.5${NB}%`)
-    expect(noticeView(EVERY['stopped-early'], context).body).toBe(`Upload is based on a 3.6${NB}s steady window.`)
+    expect(noticeView(EVERY['stopped-early'], context).title).toBe('Test cancelled during upload')
     expect(noticeView(EVERY['url-parameter-ignored'], context).body).toContain('streams')
     expect(noticeView(EVERY['low-confidence'], context).body).toBe('Upload: few samples.')
   })

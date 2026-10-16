@@ -265,6 +265,7 @@ watch(run.error, (error) => {
     />
     <NoticeList
       :notices="notices"
+      :result="run.result.value"
       @retry="begin()"
       @preset="begin"
     />

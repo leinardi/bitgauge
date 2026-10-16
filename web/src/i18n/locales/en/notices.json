@@ -31,9 +31,20 @@
       "body": "The value of {parameter} was not valid, so the default applies."
     },
     "stoppedEarly": {
-      "title": "Partial — stopped early",
-      "download": "Download is based on a {covered} steady window.",
-      "upload": "Upload is based on a {covered} steady window."
+      "title": "Test cancelled during {phase}",
+      "partialUpload": "Partial — stopped early · upload based on a {covered} steady window",
+      "phases": {
+        "idle": "latency",
+        "download": "download",
+        "upload": "upload"
+      },
+      "completed": "{phases} completed.",
+      "notRun": "{phases} did not run.",
+      "downloadNone": "Download stopped before a 3 s steady window, so it has no value.",
+      "downloadPartial": "Download has a {covered} steady window, enough for a partial value.",
+      "uploadNone": "Upload stopped at {at}, before a 3 s confirmed steady window, so it has no value.",
+      "uploadNoneWarmup": "Upload stopped at {at}, before a 3 s confirmed steady window (still in warm-up), so it has no value.",
+      "uploadPartial": "Upload stopped at {at}; in-flight requests were aborted, and the {n} requests confirmed by {end} give the partial value."
     },
     "serverRestarted": {
       "title": "Server restarted",

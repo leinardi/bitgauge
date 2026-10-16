@@ -25,18 +25,18 @@ import AppButton from '@/components/actions/AppButton.vue'
 import AppLink from '@/components/actions/AppLink.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import { noticeViews } from '@/components/test/notices'
-import type { Notice, Preset } from '@/engine/messages'
+import type { Notice, Preset, Result } from '@/engine/messages'
 
 // The notices area (ui/screens.md section 7): each notice an icon and text, never colour alone,
 // in its tone, with up to two actions. Danger notices are alerts; the others are status messages.
 // The notices sit in the page's column as siblings, as the export's TestScreen places them.
 
-const props = defineProps<{ notices: Notice[] }>()
+const props = withDefaults(defineProps<{ notices: Notice[]; result?: Result | null }>(), { result: null })
 defineEmits<{ retry: []; preset: [preset: Preset] }>()
 
 const { t, locale } = useI18n()
 
-const views = computed(() => noticeViews(props.notices, { t, locale: locale.value }).map((view, index) => ({ key: `${index}`, view })))
+const views = computed(() => noticeViews(props.notices, { t, locale: locale.value, result: props.result }).map((view, index) => ({ key: `${index}`, view })))
 </script>
 
 <template>

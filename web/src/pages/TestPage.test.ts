@@ -296,7 +296,7 @@ describe('the Test screen', () => {
       ...base,
       status: 'partial',
       download: { status: 'insufficient-data', streams: 6, bytes: 1, events: [] },
-      upload: { ...present(base.upload), status: 'partial', series: { bucketMs: 100, firstCellMs: 4000, warmupEndMs: 4000, endMs: 7000, values: [1] } },
+      upload: { ...present(base.upload), status: 'partial', events: [{ code: 'cancelled', atMs: 7400 }], series: { bucketMs: 100, firstCellMs: 4000, warmupEndMs: 4000, endMs: 7000, values: [1] } },
       notices: [{ code: 'stopped-early', direction: 'upload', coveredMs: 3000 }],
     }
     await emit(phase('upload', 'finished'), { type: 'result', result })
@@ -306,7 +306,9 @@ describe('the Test screen', () => {
     expect(tiles(page)[0]).toContain('Insufficient data')
     expect(page.get('[data-testid="result-bar"]').text()).toContain('Partial results are not saved')
     expect(page.get('[data-testid="result-bar"]').text()).toContain('Download the JSON to keep them.')
-    expect(text(page.get('[data-testid="notice"]'))).toContain('Upload is based on a 3.0 s steady window.')
+    const notice = text(page.get('[data-testid="notice"]'))
+    expect(notice).toContain('Partial — stopped early · upload based on a 3.0 s steady window')
+    expect(notice).toContain(`Latency and download completed. Upload stopped at 7.4 s; in-flight requests were aborted, and the ${present(base.upload).confirmedRequests} requests confirmed by 7.0 s give the partial value.`)
     expect(page.findAll('[data-testid="phase-indicator"] li').map((step) => step.attributes('data-state'))).toEqual(['done', 'done', 'cancelled'])
     expect(page.get('[data-testid="start-button"]').text()).toContain('Run again')
     page.unmount()

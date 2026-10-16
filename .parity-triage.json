@@ -1606,17 +1606,59 @@
       "actions": [
         {
           "target": "spec",
-          "what": "measurement.md §7.8 and §16, flows.md §4: stopped-early carries the phase stopped in and the stop time, and on upload the confirmed requests and the watermark time; the notice is titled \"Test cancelled during <phase>\" when the direction has no number, \"Partial — stopped early · <direction> based on a <s> s steady window\" when it has one, with the kit's body.",
-          "done": false
+          "what": "ui/flows.md §4, measurement.md §16 and open-questions.md 38: the stop notice's title and body, worded from the result (the cancelled event's instant, the window, and on upload the confirmed requests and the window end); the stopped-early notice itself is unchanged.",
+          "done": true
         },
         {
           "target": "vue",
-          "what": "engine run/report.ts carries the new stopped-early fields; notices.ts and notices.json word the kit's titles and bodies.",
-          "done": false
+          "what": "components/test/stop.ts and notices.json: the kit's titles and bodies from the result, through NoticeList's result and the result summary; the v0.2 clause on loaded latency and the grade is deferred to feature-stop-notice-v02.",
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-16",
+        "run": {
+          "runId": "fd920233-772f-466d-bfdb-8d2bdd17dc2b",
+          "finishedAt": "2026-10-16T07:46:01.020Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "content-cancel-slow-window",
@@ -2968,6 +3010,70 @@
       "resolution": null
     },
     {
+      "id": "feature-stop-notice-v02",
+      "title": "Stop notice for an upload with no number: the kit's v0.2 clause on loaded latency and the grade, and the notice height it adds",
+      "match": {
+        "scenarios": [
+          "test/cancelled",
+          "test/cancelled-slow-up"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > status( \"Test cancelled during upload.*)?$",
+        "kind": "^(changed|height)$",
+        "detail": "^(text \"…-up\\), so it has no value and no loaded latency\\.|(79\\.7|114\\.5)px → (62\\.3|97\\.1)px$)"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/STATUS.md (Loaded latency and bufferbloat grade: Spec'd, v0.2); ui/flows.md §4",
+          "says": "v0.1 has no loaded latency and no grade, so the stop notice cannot name them"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:335",
+          "says": "…so it has no value and no loaded latency. The grade and quality scores use download only."
+        },
+        "vue": {
+          "ref": "web/src/components/test/stop.ts",
+          "says": "…so it has no value."
+        },
+        "notes": "Surfaced when content-cancel-notice took the kit's wording; the height differences are the one line the clause adds."
+      },
+      "decision": {
+        "kind": "deferral",
+        "rationale": "Loaded latency and the grade ship in v0.2; the stop notice adds the kit's clause then.",
+        "on": "2026-10-16"
+      },
+      "owned": {
+        "test/cancelled": {
+          "24f08ff48de7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "bdce09a45853": "*",
+          "e3968867ab39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/cancelled-slow-up": {
+          "24f08ff48de7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "bdce09a45853": "*",
+          "e3968867ab39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [],
+      "status": "deferred",
+      "resolution": null
+    },
+    {
       "id": "fixture-insufficient-ip",
       "title": "Insufficient-data link: the demo's client is 10.8.0.6, the kit's 192.168.1.42",
       "match": {
@@ -3458,20 +3564,21 @@
       "title": "Result tiles: the peak, minimum and window request count the tiles word without a unit differ from run to run",
       "match": {
         "scenarios": [
-          "test/download",
-          "test/upload",
-          "test/slow",
-          "test/latency",
-          "test/error",
           "test/cancelled-download",
+          "test/cancelled-late",
           "test/cancelled-slow",
+          "test/download",
+          "test/error",
+          "test/latency",
+          "test/slow",
+          "test/upload",
           "test/ws-fallback"
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main > region \"Results\"$",
+        "path": "^main > (region \"Results\"|status)$",
         "kind": "^changed$",
-        "detail": "^text "
+        "detail": "^text \"(?!…-up\\), so)(?!Test )(?!Partial result)(?!(Upload|Download) result)"
       },
       "type": "harness",
       "aspect": null,
@@ -3498,6 +3605,9 @@
       "owned": {
         "test/cancelled-download": {
           "2c889d236f60": "*"
+        },
+        "test/cancelled-late": {
+          "9ae019ff1dd2": "*"
         },
         "test/cancelled-slow": {
           "15743734cc8a": "*"
@@ -3553,15 +3663,20 @@
           "target": "harness",
           "what": "web/parity/normalize.ts: mask the number after peak and min in a tile line, like the gauge note, and the request count of a stopped upload's steady window; unit test; note it in demo-parity.md.",
           "done": true
+        },
+        {
+          "target": "harness",
+          "what": "web/parity/normalize.ts: also mask the confirmed-request count of the stop notice (\"the N requests confirmed by\"); unit test.",
+          "done": true
         }
       ],
       "status": "done",
       "resolution": {
         "note": null,
-        "on": "2026-10-15",
+        "on": "2026-10-16",
         "run": {
-          "runId": "947bef39-0ab9-4495-938e-8f3bb5fe06ce",
-          "finishedAt": "2026-10-15T21:13:25.897Z",
+          "runId": "fd920233-772f-466d-bfdb-8d2bdd17dc2b",
+          "finishedAt": "2026-10-16T07:46:01.020Z",
           "matrix": "full",
           "projects": [
             "light-desktop",
@@ -6113,7 +6228,7 @@
         "scenarios": null,
         "projects": null,
         "layer": "style",
-        "path": "^(?!main > heading \"The base path)(?!main > heading \"Speed test\"$)(?!main > button \"Why packet loss)",
+        "path": "^(?!main > heading \"The base path)(?!main > heading \"Speed test\"$)(?!main > button \"Why packet loss)(?!main > status \"Test cancelled during upload)",
         "kind": "^(line-height|height)$",
         "detail": "^(?!(28|34|306|324|17)\\.0px)(?!(117\\.7|97\\.1|62\\.3|50\\.6|29\\.9)px)"
       },

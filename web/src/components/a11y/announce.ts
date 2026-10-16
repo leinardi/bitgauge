@@ -161,7 +161,7 @@ function idleSentence(result: Result, context: Wording): string | null {
 export function resultSummary(result: Result, units: Units, context: Wording): string {
   const { t, locale } = context
   const phases = result.settings.phases
-  const titles = result.notices.map((notice) => noticeView(notice, context).title)
+  const titles = result.notices.map((notice) => noticeView(notice, { ...context, result }).title)
   const sentences = [
     statusSentence(result, context),
     phases.includes('download') && result.download !== undefined ? downloadSentence(result.download, units, context) : null,

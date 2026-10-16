@@ -20,10 +20,11 @@
 import { CircleAlert, CircleMinus, EyeOff, Gauge, Hourglass, Info, Layers, Percent, RefreshCw, ServerOff, Timer, TriangleAlert, Wifi } from '@lucide/vue'
 import type { Component } from 'vue'
 
-import type { Notice, Preset } from '@/engine/messages'
-import { formatDuration, formatPercent } from '@/lib/format'
+import type { Notice, Preset, Result } from '@/engine/messages'
+import { formatPercent } from '@/lib/format'
 import { links } from '@/lib/links'
 
+import { stopWording } from '@/components/test/stop'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 
@@ -44,6 +45,9 @@ export interface NoticeView {
   actions: NoticeAction[]
 }
 
+/** The wording, and the result the notices belong to, which the stop notice is worded from. */
+export type NoticeContext = Wording & { result?: Result | null }
+
 function preset(value: Preset, t: Wording['t']): string {
   return value === 'quick' ? t('test.summary.quick') : value === 'standard' ? t('test.summary.standard') : t('test.summary.extended')
 }
@@ -52,7 +56,7 @@ function preset(value: Preset, t: Wording['t']): string {
  * The notices as shown (ui/screens.md section 7): one each, except `slow-link-extended`, which the
  * engine carries per direction and the UI shows once, naming both directions when both extended.
  */
-export function noticeViews(notices: readonly Notice[], context: Wording): NoticeView[] {
+export function noticeViews(notices: readonly Notice[], context: NoticeContext): NoticeView[] {
   const extended = notices.filter((notice) => notice.code === 'slow-link-extended')
   if (extended.length < 2) {
     return notices.map((notice) => noticeView(notice, context))
@@ -66,7 +70,7 @@ function slowLinkExtended(body: string, { t }: Wording): NoticeView {
 }
 
 /** One notice, worded. */
-export function noticeView(notice: Notice, context: Wording): NoticeView {
+export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
   const { t, locale } = context
   const docs: NoticeAction = { kind: 'link', href: links.deployment, label: t('notices.actions.docs') }
   switch (notice.code) {
@@ -88,10 +92,8 @@ export function noticeView(notice: Notice, context: Wording): NoticeView {
     }
     case 'url-parameter-ignored':
       return { tone: 'warn', icon: Info, title: t('notices.urlParameterIgnored.title'), body: t('notices.urlParameterIgnored.body', { parameter: notice.parameter }), actions: [] }
-    case 'stopped-early': {
-      const covered = formatDuration(notice.coveredMs, locale)
-      return { tone: 'neutral', icon: CircleMinus, title: t('notices.stoppedEarly.title'), body: notice.direction === 'download' ? t('notices.stoppedEarly.download', { covered }) : t('notices.stoppedEarly.upload', { covered }), actions: [] }
-    }
+    case 'stopped-early':
+      return { tone: 'neutral', icon: CircleMinus, ...stopWording(notice, context.result ?? null, context), actions: [] }
     case 'server-restarted':
       return { tone: 'neutral', icon: RefreshCw, title: t('notices.serverRestarted.title'), body: t('notices.serverRestarted.body'), actions: [] }
     case 'server-unreachable':
