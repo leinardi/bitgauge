@@ -242,8 +242,15 @@ and anything about networks the project does not target.
   fq_codel shared among the flows crossing it, as §19.1 models the link: one drop-tail FIFO lets
   an established TCP stream hold the whole queue and lock a newly opened one out for seconds,
   which measures TCP's fairness rather than BitGauge. Its CoDel target is the queue's own length,
-  so it drops nothing early and a single flow still fills the link. The iperf3 client and the
-  concurrent ICMP ping run from the same namespace, so they take the same path as the browser.
+  so it drops nothing early and a single flow still fills the link. fq_codel's limit counts
+  packets, sized as full frames, so where the queue is its 64 KiB minimum (below about 6.5 Mbit/s)
+  segmentation offload is capped at one segment per packet on both ends of the shaped link, the
+  client's namespace and the one that sends to it (BitGauge's, or the proxy's): there CoDel's
+  interval is seconds long, the packet limit is what holds the queue, and two-segment packets
+  would double it. Faster profiles keep offload, since CoDel holds their queue near its 80 ms
+  target within 160 ms, and one segment per packet costs more CPU than a 1 Gbit link leaves. The
+  iperf3 client and the concurrent ICMP ping run from the same namespace, so they take the same
+  path as the browser.
 - **iperf3 runs.** Each iperf3 run, the self-test's and the reference's, settles for
   `max(2 s, 10 × RTT)` before its measured duration, and reads the receiver's one-second intervals
   (the client's on download, the server's on upload): its rate is their median from the settle on.
