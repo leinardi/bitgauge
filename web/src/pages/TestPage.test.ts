@@ -372,4 +372,18 @@ describe('the Test screen', () => {
     await useInfo().refresh()
     page.unmount()
   })
+
+  it('checks the server again after a network change ended the run', async () => {
+    const { page, emit } = await started()
+    vi.mocked(getInfo).mockClear()
+    vi.mocked(getInfo).mockRejectedValueOnce(new TypeError('network'))
+    await emit(phase('info', 'finished'), phase('idle', 'started'))
+    await emit({ type: 'error', code: 'network-changed', messageKey: 'errors.network-changed', phase: 'idle', partial: false }, phase('idle', 'failed', { ranMs: 1200 }), phase('download', 'skipped'), phase('upload', 'skipped'))
+    expect(getInfo).toHaveBeenCalledOnce()
+    expect(page.get('[data-testid="run-failure"]').text()).toContain('the network changed')
+    expect(page.get('[data-testid="start-button"]').attributes('aria-disabled')).toBe('true')
+    vi.mocked(getInfo).mockResolvedValueOnce(INFO)
+    await useInfo().refresh()
+    page.unmount()
+  })
 })

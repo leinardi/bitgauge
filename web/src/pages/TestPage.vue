@@ -223,9 +223,10 @@ useTestKeys({
   escape: () => (counting.value ? countdown.cancel() : run.stop()),
 })
 
-// An unreachable server is checked again, so the offline state and Start follow GET /info.
+// An unreachable server, or a run the network change ended, is checked again, so the header, the
+// offline state and Start follow GET /info (ui/flows.md section 5).
 watch(run.error, (error) => {
-  if (error?.code === 'server-unreachable') {
+  if (error?.code === 'server-unreachable' || error?.code === 'network-changed') {
     void refresh()
   }
 })
