@@ -22,7 +22,7 @@ import type { Component } from 'vue'
 
 import type { ConfidenceReason, Direction, DirectionResult, IdleResult, SteadySoFar } from '@/engine/messages'
 import type { Wording } from '@/components/test/wording'
-import { bytesParts, formatBytes, formatDuration, formatPercent, latencyNumber, rateParts, secondsNumber } from '@/lib/format'
+import { bytesParts, formatBytes, formatDuration, formatLimit, formatPercent, latencyNumber, rateParts, secondsNumber } from '@/lib/format'
 import { protocolLabel } from '@/lib/protocol'
 
 // The metric tiles' contents (ui/screens.md section 6, design_system/components/tiles.md), worded
@@ -124,7 +124,7 @@ function insufficientReason(result: DirectionResult, input: DirectionInput, { t,
     }
     return warm ? t('test.tiles.insufficientConfirmed') : t('test.tiles.insufficientConfirmedWarmup')
   }
-  return input.maxMs === undefined ? t('test.tiles.insufficient') : t('test.tiles.insufficientMax', { max: formatDuration(input.maxMs, locale) })
+  return input.maxMs === undefined ? t('test.tiles.insufficient') : t('test.tiles.insufficientMax', { max: formatLimit(input.maxMs, locale) })
 }
 
 export function directionTile(input: DirectionInput, context: Wording): TileView {

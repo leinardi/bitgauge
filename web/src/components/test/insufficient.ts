@@ -18,7 +18,7 @@
  */
 
 import type { Direction, DirectionResult, Notice, PhaseName, Result, TestSettings } from '@/engine/messages'
-import { formatBytes } from '@/lib/format'
+import { formatBytes, formatLimit } from '@/lib/format'
 
 import type { Wording } from '@/components/test/wording'
 
@@ -39,10 +39,6 @@ export interface InsufficientContext {
 }
 
 /** A configured maximum, in whole seconds as the presets state them: 20 s. */
-function seconds(ms: number, locale: string): string {
-  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(ms / 1000)}\u00a0s`
-}
-
 function name(direction: Direction, { t }: Wording): string {
   return direction === 'download' ? t('notices.insufficientData.directions.download') : t('notices.insufficientData.directions.upload')
 }
@@ -58,7 +54,7 @@ export function insufficientWording(notice: InsufficientData, context: Wording &
   const sentences = [
     maxMs === undefined
       ? download ? t('notices.insufficientData.download') : t('notices.insufficientData.upload')
-      : download ? t('notices.insufficientData.downloadMax', { max: seconds(maxMs, locale) }) : t('notices.insufficientData.uploadMax', { max: seconds(maxMs, locale) }),
+      : download ? t('notices.insufficientData.downloadMax', { max: formatLimit(maxMs, locale) }) : t('notices.insufficientData.uploadMax', { max: formatLimit(maxMs, locale) }),
     ...(bytes === undefined ? [] : [t('notices.insufficientData.used', { data: formatBytes(bytes, locale) })]),
   ]
   const offer = notice.offer === null ? null : notice.offer === 'extended' ? t('notices.insufficientData.offer.extended') : t('notices.insufficientData.offer.standard')

@@ -87,7 +87,7 @@ describe('a direction tile', () => {
     expect(text(reason('upload', none({ status: 'partial', windowMs: 2000 })))[0]).toBe('Insufficient data — confirmed steady window shorter than 3 s')
     expect(text(reason('download', none({ status: 'partial' })))[0]).toBe('Insufficient data — stopped during warm-up')
     expect(text(reason('download', none({ status: 'partial', windowMs: 2000 })))[0]).toBe('Insufficient data — steady window shorter than 3 s')
-    expect(text(reason('download', none({ status: 'insufficient-data' }), 20_000))[0]).toBe('Insufficient data — no steady window within the 20.0 s max')
+    expect(text(reason('download', none({ status: 'insufficient-data' }), 20_000))[0]).toBe('Insufficient data — no steady window within the 20 s max')
     expect(text(reason('download', none({ status: 'insufficient-data' })))[0]).toBe('Insufficient data — no steady window')
   })
 
