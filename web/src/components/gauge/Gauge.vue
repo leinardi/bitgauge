@@ -17,7 +17,8 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { ArrowUp, CircleMinus, ServerOff, WifiOff } from '@lucide/vue'
+import { Activity, ArrowDown, ArrowUp, CircleMinus, ServerOff, WifiOff } from '@lucide/vue'
+import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -76,9 +77,11 @@ const windowK = defineModel<number>('window', { required: true })
 
 const { locale, t } = useI18n()
 
-const SIZE = 316
-const CENTER = SIZE / 2
-const RADIUS = SIZE / 2 - 10
+// 300 px, 272 in the compact layout (gauge.md), drawn at its size so strokes and ticks keep theirs.
+const compactLayout = useMediaQuery('(max-width: 1139.98px)')
+const size = computed(() => (compactLayout.value ? 272 : 300))
+const center = computed(() => size.value / 2)
+const radius = computed(() => size.value / 2 - 10)
 const BAND_VALUES = 10
 
 const rateUnit = computed(() => (props.mode === 'ms' ? 'ms' : props.units))
@@ -125,26 +128,27 @@ watch(
 )
 
 const color = computed(() => (props.mode === 'ms' ? 'var(--series-latency)' : props.direction === 'upload' ? 'var(--series-upload)' : 'var(--series-download)'))
+const labelIcon = computed(() => (props.mode === 'ms' ? Activity : props.direction === 'upload' ? ArrowUp : ArrowDown))
 const place = (value: number) => fraction(value, scale.value)
 
-const track = arcPath(CENTER, CENTER, RADIUS, 0, 1)
+const track = computed(() => arcPath(center.value, center.value, radius.value, 0, 1))
 const needle = computed(() => (props.value === null ? 0 : place(display(props.value))))
 const reading = computed(() => props.text === null)
 const band = computed(() => {
   if (!reading.value || props.value === null || recent.value.length < 2) {
     return ''
   }
-  return arcPath(CENTER, CENTER, RADIUS, place(Math.min(...recent.value)), place(Math.max(...recent.value)))
+  return arcPath(center.value, center.value, radius.value, place(Math.min(...recent.value)), place(Math.max(...recent.value)))
 })
 const peakTick = computed(() => {
   if (!reading.value || props.mode !== 'rate' || props.direction !== 'download' || props.peak === null) {
     return null
   }
   const degrees = angle(place(display(props.peak)))
-  return { from: point(CENTER, CENTER, RADIUS + 8, degrees), to: point(CENTER, CENTER, RADIUS - 8, degrees) }
+  return { from: point(center.value, center.value, radius.value + 8, degrees), to: point(center.value, center.value, radius.value - 8, degrees) }
 })
-const innerArc = computed(() => (props.mode === 'rate' && props.inner !== null ? arcPath(CENTER, CENTER, RADIUS - 10, 0, place(display(props.inner))) : ''))
-const dot = point(CENTER, CENTER, RADIUS, START_ANGLE)
+const innerArc = computed(() => (props.mode === 'rate' && props.inner !== null ? arcPath(center.value, center.value, radius.value - 10, 0, place(display(props.inner))) : ''))
+const dot = computed(() => point(center.value, center.value, radius.value, START_ANGLE))
 
 function compact(value: number): string {
   if (props.mode === 'ms') {
@@ -165,11 +169,11 @@ function compact(value: number): string {
 const tickMarks = computed(() =>
   ticks(scale.value).map((tick) => {
     const degrees = angle(tick.at)
-    const label = point(CENTER, CENTER, RADIUS - 36, degrees)
+    const label = point(center.value, center.value, radius.value - 36, degrees)
     return {
       key: tick.value,
-      from: point(CENTER, CENTER, RADIUS - 14, degrees),
-      to: point(CENTER, CENTER, RADIUS - (tick.major ? 22 : 18), degrees),
+      from: point(center.value, center.value, radius.value - 14, degrees),
+      to: point(center.value, center.value, radius.value - (tick.major ? 22 : 18), degrees),
       major: tick.major,
       label: tick.major ? { x: label.x, y: label.y + 4, text: compact(tick.value) } : null,
     }
@@ -190,11 +194,16 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-3.5">
-    <div class="relative aspect-square w-68 sm:w-79">
+  <div class="flex flex-col items-center gap-1">
+    <div
+      class="relative"
+      :style="{ width: `${size}px`, height: `${size}px` }"
+    >
       <svg
-        :viewBox="`0 0 ${SIZE} ${SIZE}`"
-        class="block size-full overflow-visible"
+        :viewBox="`0 0 ${size} ${size}`"
+        :width="size"
+        :height="size"
+        class="block overflow-visible"
         aria-hidden="true"
         :data-window="shownK"
         data-testid="gauge-arc"
@@ -219,13 +228,6 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
             :stroke-width="tick.major ? 1.5 : 1"
             :opacity="tick.major ? 1 : 0.6"
           />
-          <text
-            v-if="tick.label"
-            :x="tick.label.x"
-            :y="tick.label.y"
-            text-anchor="middle"
-            class="fill-subtle-foreground font-mono text-(length:--text-micro)"
-          >{{ tick.label.text }}</text>
         </g>
         <path
           v-if="band"
@@ -270,7 +272,7 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
         />
         <g
           v-if="reading && value !== null"
-          :style="{ transform: `rotate(${SWEEP * needle}deg)`, transformOrigin: `${CENTER}px ${CENTER}px` }"
+          :style="{ transform: `rotate(${SWEEP * needle}deg)`, transformOrigin: `${center}px ${center}px` }"
           :class="shifting ? 'transition-none' : 'transition-transform duration-(--dur-base) ease-(--ease-out) motion-reduce:transition-none'"
           data-testid="gauge-needle"
         >
@@ -284,9 +286,21 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
           />
         </g>
       </svg>
+      <template
+        v-for="tick in tickMarks"
+        :key="tick.key"
+      >
+        <span
+          v-if="tick.label"
+          aria-hidden="true"
+          data-testid="gauge-tick"
+          class="absolute -translate-x-1/2 translate-y-(--gauge-tick-anchor) font-mono text-(length:--text-micro) whitespace-nowrap text-subtle-foreground"
+          :style="{ left: `${tick.label.x}px`, top: `${tick.label.y}px` }"
+        >{{ tick.label.text }}</span>
+      </template>
       <div
         v-if="text"
-        class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pt-2 text-center"
+        class="absolute inset-0 flex flex-col items-center justify-center gap-0.75 pt-2 text-center"
         data-testid="gauge-text"
       >
         <span
@@ -300,7 +314,7 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
             :size="22"
           />
         </span>
-        <span class="text-(length:--type-state-title-compact) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) text-foreground sm:text-(length:--type-state-title)">{{ text.title }}</span>
+        <span class="text-(length:--type-state-title-compact) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) text-foreground desktop:text-(length:--type-state-title)">{{ text.title }}</span>
         <span
           v-if="text.message"
           class="max-w-measure-xs text-(length:--text-sm) leading-(--lh-compact) text-subtle-foreground"
@@ -321,14 +335,23 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
       </div>
       <div
         v-else
-        class="absolute inset-0 flex flex-col items-center justify-center gap-0.5 pt-2 text-center"
+        class="absolute inset-0 flex flex-col items-center justify-center gap-0.75 pt-2 text-center"
       >
         <span
-          class="font-(family-name:--font-cond) text-xs font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase"
+          class="flex items-center gap-1.25 font-(family-name:--font-cond) text-(length:--text-caption) font-semibold tracking-(--tracking-caps) uppercase"
+          :style="{ color }"
           data-testid="gauge-label"
-        >{{ label }}</span>
+        >
+          <component
+            :is="labelIcon"
+            :size="13"
+            :stroke-width="2.25"
+            aria-hidden="true"
+          />
+          {{ label }}
+        </span>
         <span
-          class="font-mono text-(length:--type-gauge-readout-compact) leading-display font-medium tracking-(--tracking-readout) tabular-nums sm:text-(length:--type-gauge-readout)"
+          class="font-mono text-(length:--type-gauge-readout-compact) leading-display font-medium tracking-(--tracking-readout) tabular-nums desktop:text-(length:--type-gauge-readout)"
           data-testid="gauge-number"
         >{{ readout.number }}</span>
         <span
@@ -356,11 +379,9 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
         </span>
       </div>
     </div>
-    <p
-      class="font-mono text-(length:--text-caption) text-subtle-foreground"
+    <span
+      class="font-mono text-(length:--text-caption) whitespace-nowrap text-subtle-foreground"
       data-testid="gauge-caption"
-    >
-      {{ caption }}
-    </p>
+    >{{ caption }}</span>
   </div>
 </template>

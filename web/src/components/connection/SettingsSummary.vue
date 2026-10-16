@@ -60,7 +60,7 @@ const line = computed(() => baseParts(props.settings).map((part) => text(part, t
     data-testid="settings-summary"
   >
     <template v-if="changed.length > 0">
-      <span class="mr-0.5 text-(length:--text-caption) text-subtle-foreground">{{ t('test.summary.changed', { n: changed.length }) }}</span>
+      <span class="mr-0.5 text-(length:--text-caption) leading-(--lh-snug) text-subtle-foreground">{{ t('test.summary.changed', { n: changed.length }) }}</span>
       <span
         v-for="chip in changed"
         :key="chip.kind"
@@ -76,7 +76,7 @@ const line = computed(() => baseParts(props.settings).map((part) => text(part, t
     </template>
     <span
       v-else
-      class="text-(length:--text-caption) text-subtle-foreground"
+      class="text-(length:--text-caption) leading-(--lh-snug) text-subtle-foreground"
     >{{ line }}</span>
   </div>
 </template>

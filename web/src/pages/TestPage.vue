@@ -236,7 +236,7 @@ watch(run.error, (error) => {
   <main
     id="main"
     tabindex="-1"
-    class="focus:outline-none mx-auto flex w-full max-w-(--layout-max) flex-1 flex-col gap-4 px-4 py-6 sm:gap-5 sm:px-10"
+    class="focus:outline-none mx-auto flex w-full max-w-(--layout-max) flex-1 flex-col gap-(--layout-section-gap-compact) px-(--layout-gutter-compact) pt-4 pb-6 desktop:gap-(--layout-section-gap) desktop:px-(--layout-gutter) desktop:pt-6 desktop:pb-10"
   >
     <h1 class="sr-only text-[length:calc(2*var(--text-base))] leading-(--lh-normal) font-bold">
       {{ $t('test.title') }}
@@ -250,7 +250,7 @@ watch(run.error, (error) => {
       :host="host"
       @retry="refresh"
     />
-    <div class="flex flex-wrap items-end justify-between gap-x-7 gap-y-3">
+    <div class="flex flex-wrap items-end gap-x-6 gap-y-3">
       <ConnectionStrip
         :info="reachability === 'unreachable' ? null : info"
         :protocol="shown ? run.protocol.value : null"
@@ -261,6 +261,7 @@ watch(run.error, (error) => {
         v-if="reachability === 'connected' && defaults !== null && shownSettings !== null"
         :settings="shownSettings"
         :defaults="defaults"
+        class="ml-auto"
       />
     </div>
     <RunFailure
@@ -290,14 +291,14 @@ watch(run.error, (error) => {
       class="overflow-hidden rounded-(--radius-lg) border border-border bg-card shadow-card"
       :aria-label="$t('test.title')"
     >
-      <div class="border-b border-(--border-subtle) px-4 py-3.5 sm:px-6">
+      <div class="border-b border-(--border-subtle) px-3.5 py-3 desktop:px-6 desktop:py-4">
         <PhaseIndicator
           :steps="steps"
           :connecting="running && (run.phase.value === null || run.phase.value === 'info')"
         />
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-[var(--layout-instrument)_minmax(0,1fr)]">
-        <div class="flex flex-col items-center gap-3.5 px-4 py-5 sm:px-6 sm:py-7">
+      <div class="grid grid-cols-1 desktop:grid-cols-[var(--layout-instrument)_minmax(0,1fr)]">
+        <div class="flex flex-col items-center gap-3.5 px-4 py-5 desktop:p-6">
           <CountdownRing
             v-if="countdown.remainingMs.value !== null"
             :remaining-ms="countdown.remainingMs.value"
@@ -341,7 +342,7 @@ watch(run.error, (error) => {
             @press="press"
           />
         </div>
-        <div class="border-t border-(--border-subtle) px-4 py-3.5 lg:border-t-0 lg:border-l lg:px-6 lg:py-5">
+        <div class="min-w-0 border-t border-(--border-subtle) px-4 pt-3.5 pb-4 desktop:border-t-0 desktop:border-l desktop:px-6 desktop:py-5">
           <LatencyChart
             v-if="latencyChart"
             :state="chartState"
@@ -372,7 +373,7 @@ watch(run.error, (error) => {
     />
     <section
       :aria-label="$t('test.results')"
-      class="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4"
+      class="grid grid-cols-2 gap-(--layout-tile-gap-compact) desktop:grid-cols-4 desktop:gap-(--layout-tile-gap)"
     >
       <MetricTile
         v-for="tile in tiles.main"

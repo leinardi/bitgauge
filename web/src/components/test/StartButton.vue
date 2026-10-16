@@ -21,10 +21,12 @@ import { Play, RefreshCw, RotateCcw, Square } from '@lucide/vue'
 import { type Component, computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/actions/AppButton.vue'
 
-// The Test screen's one control (ui/screens.md section 1, kit TestScreen): Start, Stop, Run again,
-// Retry or Start now, with the key that also triggers it. A native button, so Enter and Space
+// The Test screen's one control (ui/screens.md section 1, kit StartButton): Start, Stop, Run again,
+// Retry or Start now, with the key that also triggers it, the kit's xl button, centered, full width
+// in the compact layout. The key hint is drawn at the button's full text color, without the
+// export's reduced opacity (ui/i18n-a11y.md section 2.6). A native button, so Enter and Space
 // press it. When it cannot be used it stays focusable, ignores presses, and says why in a tooltip
 // on hover and focus that also describes it (kit Button's disabledReason).
 
@@ -64,27 +66,27 @@ function press(): void {
 </script>
 
 <template>
-  <div class="group relative flex flex-col">
-    <Button
-      size="lg"
-      :variant="look.primary ? 'default' : 'outline'"
+  <div class="group relative flex flex-col max-desktop:self-stretch">
+    <AppButton
+      size="xl"
+      :variant="look.primary ? 'primary' : 'secondary'"
       :aria-disabled="disabled ? 'true' : undefined"
       :aria-describedby="disabled ? reasonId : undefined"
-      class="h-(--control-h-touch-xl) w-full sm:h-(--control-h-xl) sm:w-(--start-w)"
-      :class="{ 'cursor-not-allowed opacity-50': disabled }"
+      class="w-full justify-center max-desktop:h-(--control-h-touch-xl) desktop:min-w-(--start-w)"
       data-testid="start-button"
       @click="press"
     >
       <component
         :is="look.icon"
+        :size="16"
         aria-hidden="true"
       />
       {{ label }}
       <kbd
         aria-hidden="true"
-        class="ml-auto hidden rounded-(--radius-xs) border border-current/30 px-1.5 font-mono text-(length:--text-micro) sm:inline"
+        class="hidden font-mono text-(length:--text-micro) font-normal desktop:inline"
       >{{ look.escape ? t('test.start.keyEscape') : t('test.start.keyEnter') }}</kbd>
-    </Button>
+    </AppButton>
     <span
       v-if="disabled"
       :id="reasonId"

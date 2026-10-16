@@ -18,40 +18,39 @@
 -->
 <script setup lang="ts">
 import { RefreshCw, ServerOff } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import NoticeBox from '@/components/test/NoticeBox.vue'
 
 // The offline state (ui/screens.md section 1, ui/flows.md section 1): GET /api/v1/info failed, so
 // the server is unreachable until a check, automatic or Retry, succeeds. A screen can say what that
-// means for it in its own body.
+// means for it in its own body. Drawn as the export's danger Notice with Retry as its action.
 
 defineProps<{ host: string; body?: string }>()
 defineEmits<{ retry: [] }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
-  <div
-    role="alert"
-    class="flex flex-wrap items-center gap-3 rounded-(--radius-md) border border-(--danger-border) bg-(--danger-bg) px-4 py-3"
+  <NoticeBox
+    tone="danger"
+    :icon="ServerOff"
+    :title="t('app.offline.title')"
+    :body="body ?? t('app.offline.body', { host })"
   >
-    <ServerOff
-      :size="17"
-      aria-hidden="true"
-      class="flex-none text-(--danger-fg)"
-    />
-    <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-      <span class="text-(length:--text-sm) font-semibold text-foreground">{{ $t('app.offline.title') }}</span>
-      <span class="text-(length:--text-sm) text-muted-foreground">{{ body ?? $t('app.offline.body', { host }) }}</span>
-    </div>
-    <AppButton
-      size="sm"
-      @click="$emit('retry')"
-    >
-      <RefreshCw
-        :size="14"
-        aria-hidden="true"
-      />
-      {{ $t('app.offline.retry') }}
-    </AppButton>
-  </div>
+    <template #actions>
+      <AppButton
+        size="sm"
+        @click="$emit('retry')"
+      >
+        <RefreshCw
+          :size="14"
+          aria-hidden="true"
+        />
+        {{ t('app.offline.retry') }}
+      </AppButton>
+    </template>
+  </NoticeBox>
 </template>

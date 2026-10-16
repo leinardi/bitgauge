@@ -115,8 +115,8 @@ function pick(value: unknown): void {
 
 <template>
   <div class="flex flex-wrap items-end gap-x-6 gap-y-2.5">
-    <div class="flex flex-col gap-1.25">
-      <span class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+    <div class="flex min-w-0 flex-col gap-1.5">
+      <span class="font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
         {{ t('test.connection.context') }}
       </span>
       <span class="flex items-center gap-1.5">
@@ -185,15 +185,18 @@ function pick(value: unknown): void {
     <div
       v-for="fact in facts"
       :key="fact.key"
-      class="flex flex-col gap-1.25"
+      class="flex min-w-0 flex-col gap-1.5"
       :data-testid="`connection-${fact.key}`"
     >
-      <span class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+      <span class="font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
         {{ fact.label }}
       </span>
-      <span class="font-mono text-(length:--text-base) leading-5.5 text-foreground">
+      <span class="flex flex-wrap items-baseline gap-1 font-mono text-(length:--text-base) leading-(--lh-stat) text-foreground">
         {{ fact.value }}
-        <span class="text-(length:--text-caption) text-subtle-foreground">{{ fact.note }}</span>
+        <span
+          v-if="fact.note"
+          class="text-(length:--text-caption) text-subtle-foreground"
+        >{{ fact.note }}</span>
       </span>
     </div>
   </div>

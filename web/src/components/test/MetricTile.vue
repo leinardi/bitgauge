@@ -26,6 +26,10 @@ import type { TilePill, TileView } from '@/components/test/tiles'
 
 defineProps<{ tile: TileView }>()
 
+// The qualifier line keeps its height with nothing to say, as the kit's tile-q does, so tiles in a
+// row line up whatever their state.
+const EMPTY_LINE: TileView['lines'][number] = { text: '' }
+
 // The pill's tone (design_system/components/status StatusPill): surface, border, text and dot.
 const TONES: Record<TilePill['tone'], { pill: string; dot: string }> = {
   info: { pill: 'border-(--info-border) bg-(--info-bg) text-(--info-fg)', dot: 'bg-(--info)' },
@@ -36,17 +40,19 @@ const TONES: Record<TilePill['tone'], { pill: string; dot: string }> = {
 
 <template>
   <div
-    class="flex min-w-0 flex-col gap-1 rounded-(--radius-lg) border border-border bg-card px-4 py-3"
+    class="flex min-w-0 flex-col gap-1.5 rounded-(--radius-lg) border border-border bg-card px-3.5 py-3 shadow-card desktop:px-4.5 desktop:py-4"
     data-testid="metric-tile"
   >
-    <div class="flex items-center gap-1.5">
+    <div class="flex min-h-(--pill-h-sm) flex-wrap items-center gap-1.5">
       <component
         :is="tile.icon"
-        :size="13"
+        :size="14"
+        :stroke-width="2"
         aria-hidden="true"
+        class="flex-none"
         :style="{ color: tile.color }"
       />
-      <span class="font-(family-name:--font-cond) text-(length:--text-caption) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ tile.label }}</span>
+      <span class="truncate font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ tile.label }}</span>
       <span
         v-if="tile.pill"
         class="ml-auto inline-flex h-(--pill-h-sm) items-center gap-1 rounded-full border pr-2 pl-1.5 font-(family-name:--font-cond) text-(length:--text-nano) leading-none font-semibold tracking-(--tracking-caps-tight) whitespace-nowrap uppercase"
@@ -58,7 +64,7 @@ const TONES: Record<TilePill['tone'], { pill: string; dot: string }> = {
         :class="TONES[tile.pill.tone].dot"
       />{{ tile.pill.text }}</span>
     </div>
-    <div class="flex items-baseline gap-1">
+    <div class="flex flex-wrap items-baseline gap-1.5">
       <Transition
         mode="out-in"
         enter-active-class="transition-opacity duration-(--dur-base) motion-reduce:transition-none"
@@ -67,27 +73,27 @@ const TONES: Record<TilePill['tone'], { pill: string; dot: string }> = {
         <span
           v-if="tile.word"
           key="word"
-          class="font-mono text-(length:--text-sm) font-medium text-subtle-foreground"
+          class="font-mono text-(length:--text-sm) leading-(--tile-value-h) font-medium text-subtle-foreground"
           data-testid="tile-word"
         >{{ tile.word }}</span>
         <span
           v-else
           :key="tile.number === null ? 'empty' : 'value'"
-          class="font-mono text-(length:--type-metric-value-compact) font-medium tabular-nums sm:text-(length:--type-metric-value)"
+          class="font-mono text-(length:--type-metric-value-compact) leading-(--lh-tight) font-medium tracking-(--tracking-metric) tabular-nums desktop:text-(length:--type-metric-value)"
           :class="tile.number === null ? 'text-subtle-foreground' : 'text-foreground'"
           data-testid="tile-number"
         >{{ tile.number ?? $t('test.tiles.empty') }}</span>
       </Transition>
       <span
         v-if="tile.number !== null && tile.unit"
-        class="text-(length:--text-sm) text-muted-foreground"
+        class="font-mono text-(length:--text-caption) text-muted-foreground"
         data-testid="tile-unit"
       >{{ tile.unit }}</span>
     </div>
     <span
-      v-for="(line, index) in tile.lines"
+      v-for="(line, index) in tile.lines.length > 0 ? tile.lines : [EMPTY_LINE]"
       :key="index"
-      class="font-mono text-(length:--text-caption)"
+      class="min-h-(--tile-qualifier-h) font-mono text-(length:--text-micro) leading-(--lh-compact) text-pretty"
       :class="line.tone === 'danger' ? 'text-(--danger-fg)' : line.tone === 'warn' ? 'text-(--warn-fg)' : 'text-subtle-foreground'"
       data-testid="tile-line"
     >{{ line.text }}</span>

@@ -63,14 +63,14 @@ const facts = computed(() => {
   <main
     id="main"
     tabindex="-1"
-    class="focus:outline-none mx-auto grid w-full max-w-(--layout-max) flex-1 grid-cols-1 content-start gap-6 px-4 pt-4 pb-6 sm:px-10 sm:pt-6 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_var(--layout-rail)]"
+    class="focus:outline-none mx-auto grid w-full max-w-(--layout-max) flex-1 grid-cols-1 content-start gap-6 px-(--layout-gutter-compact) pt-4 pb-6 desktop:grid-cols-[minmax(0,1fr)_var(--layout-rail)] desktop:px-(--layout-gutter) desktop:pt-6 desktop:pb-10"
   >
     <div class="flex flex-col gap-4">
-      <header class="flex flex-col gap-2">
-        <h1 class="text-(length:--text-3xl) leading-(--lh-snug) font-semibold tracking-(--tracking-tight) sm:text-(length:--text-4xl) sm:leading-(--lh-tight)">
+      <header class="flex flex-col gap-1.5">
+        <h1 class="text-(length:--text-3xl) leading-(--lh-snug) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl) desktop:leading-(--lh-tight)">
           {{ t('about.clients.title') }}
         </h1>
-        <p class="text-(length:--text-base) leading-(--lh-prose) text-muted-foreground">
+        <p class="max-w-160 text-(length:--text-base) leading-(--lh-prose) text-muted-foreground">
           {{ t('about.clients.intro') }}
         </p>
       </header>
@@ -88,31 +88,36 @@ const facts = computed(() => {
         :live="false"
       />
     </div>
-    <aside class="flex flex-col gap-4">
-      <section class="flex flex-col gap-4 rounded-(--radius-md) border border-border bg-card p-4">
-        <div class="flex items-center gap-3">
-          <BrandLogo :size="40" />
-          <div class="flex flex-col">
-            <span class="text-(length:--text-xl) font-semibold tracking-(--tracking-tight)">{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
-            <span class="text-(length:--text-sm) text-muted-foreground">{{ t('about.tagline') }}</span>
-          </div>
+    <aside class="flex min-w-0 flex-col gap-4">
+      <section class="overflow-hidden rounded-(--radius-lg) border border-border bg-card shadow-card">
+        <div class="flex flex-col gap-0.5 border-b border-border px-4 pt-4.5 pb-3.5">
+          <span class="inline-flex items-center gap-3 text-(length:--text-xl) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) text-foreground">
+            <BrandLogo :size="40" />
+            <span>{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
+          </span>
+          <span class="pl-13 text-(length:--text-caption) leading-(--lh-snug) text-subtle-foreground">{{ t('about.tagline') }}</span>
         </div>
-        <dl class="flex flex-col border-t border-border">
-          <div
-            v-for="fact in facts"
-            :key="fact.key"
-            class="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-border py-2"
-            :data-testid="`about-${fact.key}`"
-          >
-            <dt class="text-(length:--text-sm) text-muted-foreground">
-              {{ fact.label }}
-            </dt>
-            <dd class="font-mono text-(length:--text-caption) text-foreground">
-              {{ fact.value }}
-            </dd>
-          </div>
-        </dl>
-        <div class="flex flex-col gap-2">
+        <div class="px-4 pt-1 pb-2">
+          <dl class="m-0 grid grid-cols-1">
+            <div
+              v-for="fact in facts"
+              :key="fact.key"
+              class="flex items-center justify-between gap-2.5 border-b border-border py-2"
+              :data-testid="`about-${fact.key}`"
+            >
+              <dt class="flex min-w-0 flex-1 flex-col text-(length:--text-sm) text-foreground">
+                <span>{{ fact.label }}</span>
+              </dt>
+              <dd
+                class="m-0 font-mono text-(length:--text-sm) whitespace-nowrap"
+                :class="fact.value === t('about.facts.unknown') ? 'text-subtle-foreground' : 'text-foreground'"
+              >
+                {{ fact.value }}
+              </dd>
+            </div>
+          </dl>
+        </div>
+        <div class="flex flex-col gap-2 px-4 pt-2 pb-4">
           <AppButton
             as-child
             block
@@ -144,11 +149,11 @@ const facts = computed(() => {
           </AppButton>
         </div>
       </section>
-      <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
+      <section class="flex flex-col gap-2.5 rounded-(--radius-lg) border border-border bg-card p-4 shadow-card">
         <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
           {{ t('about.methodology.title') }}
         </h2>
-        <p class="text-(length:--text-sm) leading-normal text-muted-foreground">
+        <p class="text-(length:--text-sm) leading-(--lh-prose) text-muted-foreground">
           {{ t('about.methodology.summary') }}
         </p>
         <AppLink
@@ -158,11 +163,11 @@ const facts = computed(() => {
           {{ t('about.methodology.link') }}
         </AppLink>
       </section>
-      <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
+      <section class="flex flex-col gap-2.5 rounded-(--radius-lg) border border-border bg-card p-4 shadow-card">
         <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
           {{ t('about.privacy.title') }}
         </h2>
-        <p class="text-(length:--text-sm) leading-normal text-muted-foreground">
+        <p class="text-(length:--text-sm) leading-(--lh-prose) text-muted-foreground">
           {{ t('about.privacy.body') }}
         </p>
       </section>

@@ -26595,32 +26595,37 @@
         {
           "target": "vue",
           "what": "Phase steps: meta on the name row, the kit's gaps, bar and padding (measurement.css, phase-indicator.md).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "Gauge: 300 px (272 compact), the kit's gaps and column padding, a colored eyebrow with its direction icon (gauge.md).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "Start button: the kit's xl anatomy, centered, the key hint plain at regular weight and full text color (i18n-a11y.md).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "Result tiles: the kit's leading, label and qualifier type, padding and gap (tiles.md).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "Test list: the kit's .mrow.node grid for a row with a value slot, subtle borders (layout.css).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "Context strip: the kit's stat gaps, snug eyebrows and baseline value row.",
-          "done": false
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "Page frame and About: the kit page padding (.page), the About rail card anatomy, the facts list and the unreachable Notice with Retry beside its text.",
+          "done": true
         },
         {
           "target": "vue",

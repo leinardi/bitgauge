@@ -23,12 +23,12 @@ import type { HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
 
 // The kit's Button (design_system/components/actions: Button.jsx, actions.css): one anatomy in
-// sizes sm, md and lg, and the variants the app uses. Every button and button-styled link of the
+// sizes sm, md, lg and xl (the Start button's), and the variants the app uses. Every button and button-styled link of the
 // app is one of these; the focus ring is base.css's. `as="a"` with an href renders the link form.
 // Each size states its leading after its font size: tailwind-merge drops a leading set before one.
 
 type AppButtonVariant = 'primary' | 'secondary' | 'ghost'
-type AppButtonSize = 'sm' | 'md' | 'lg'
+type AppButtonSize = 'sm' | 'md' | 'lg' | 'xl'
 
 const props = withDefaults(defineProps<PrimitiveProps & { variant?: AppButtonVariant; size?: AppButtonSize; block?: boolean; class?: HTMLAttributes['class'] }>(), {
   as: 'button',
@@ -42,6 +42,7 @@ const SIZES: Record<AppButtonSize, string> = {
   sm: 'h-(--control-h-sm) px-2.5 text-(length:--text-caption) leading-(--lh-tight)',
   md: 'h-(--control-h-md) px-3.5 text-(length:--text-sm) leading-(--lh-tight)',
   lg: 'h-(--control-h-lg) px-4 text-(length:--text-sm) leading-(--lh-tight)',
+  xl: 'h-(--control-h-xl) gap-2.5 px-5 text-(length:--text-md) leading-(--lh-tight)',
 }
 
 const VARIANTS: Record<AppButtonVariant, string> = {

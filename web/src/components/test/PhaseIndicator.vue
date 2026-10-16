@@ -110,6 +110,9 @@ function bar(step: PhaseStep): { width: number; color: string } {
   }
 }
 
+// One column per step, as many as the run has, in both layouts (phase-indicator.md).
+const COLUMNS: Record<number, string> = { 1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3' }
+
 // While connecting, the first step stands for the info phase: active, named Connecting….
 const rows = computed(() =>
   props.steps.map((step, index) => {
@@ -125,7 +128,8 @@ const rows = computed(() =>
 <template>
   <ol
     :aria-label="$t('test.phases.label')"
-    class="grid grid-cols-1 gap-3 sm:grid-cols-3"
+    class="grid gap-2.5 desktop:gap-6"
+    :class="COLUMNS[rows.length]"
     data-testid="phase-indicator"
   >
     <li
@@ -133,35 +137,32 @@ const rows = computed(() =>
       :key="row.key"
       :aria-current="row.active ? 'step' : undefined"
       :data-state="row.step.state"
-      class="flex flex-col gap-1.5"
+      class="flex min-w-0 flex-col gap-1"
     >
-      <div class="flex items-center gap-1.5">
+      <div class="flex min-w-0 items-center gap-2 max-desktop:flex-wrap max-desktop:gap-y-0.5">
         <component
           :is="row.marker.icon"
-          :size="14"
+          :size="15"
           aria-hidden="true"
+          class="flex-none"
           :style="{ color: row.marker.color }"
         />
+        <span class="truncate text-(length:--text-sm) font-semibold">{{ row.name }}</span>
         <span
-          class="text-(length:--text-sm) font-semibold"
-          :class="row.step.state === 'skipped' || row.step.state === 'pending' ? 'text-muted-foreground' : 'text-foreground'"
-        >{{ row.name }}</span>
+          class="ml-auto truncate font-mono text-(length:--text-caption) text-subtle-foreground max-desktop:ml-0 max-desktop:basis-full max-desktop:leading-(--lh-snug) max-desktop:whitespace-normal"
+          data-testid="phase-meta"
+        >{{ row.meta }}</span>
       </div>
       <div
-        class="h-1 overflow-hidden rounded-full bg-muted"
+        class="h-(--progress-h) overflow-hidden rounded-(--radius-2xs) bg-(--surface-3)"
         aria-hidden="true"
       >
         <div
-          class="h-full rounded-full transition-[width] duration-(--dur-slow) ease-(--ease-out) motion-reduce:transition-none"
+          class="h-full transition-[width] duration-(--dur-slow) ease-(--ease-out) motion-reduce:transition-none"
           :style="{ width: `${row.bar.width * 100}%`, background: row.bar.color }"
           data-testid="phase-bar"
         />
       </div>
-      <span
-        class="font-mono text-(length:--text-caption)"
-        :class="row.step.state === 'failed' ? 'text-(--danger-fg)' : 'text-subtle-foreground'"
-        data-testid="phase-meta"
-      >{{ row.meta }}</span>
     </li>
   </ol>
 </template>

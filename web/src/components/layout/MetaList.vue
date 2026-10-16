@@ -17,13 +17,15 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import type { Component } from 'vue'
+import { type Component, useSlots } from 'vue'
 
 // A titled card of label and value rows (design_system/components/layout MetaList with a title):
 // the eyebrow, then a definition list whose values are mono and "—" in the subtle color when
 // there is none. A row's value can be any content through the `value-<key>` slot, and its sub line
-// can end in any content through the `sub-<key>` slot, such as a link. The rows stack in one
-// column, and take `columns` from the desktop breakpoint.
+// can end in any content through the `sub-<key>` slot, such as a link. A row with a component
+// value is the kit's node row: label and value share the first line and the sub line runs under
+// both, so a long reason never squeezes into a narrow column. The rows stack in one column, and
+// take `columns` from the desktop breakpoint.
 
 export interface MetaRow {
   key: string
@@ -37,6 +39,9 @@ export interface MetaRow {
 const props = defineProps<{ title: string; rows: MetaRow[]; columns?: 1 | 3 }>()
 
 const COLUMNS = { 1: '', 3: 'desktop:grid-cols-3' } as const
+
+const slots = useSlots()
+const node = (row: MetaRow) => slots[`value-${row.key}`] !== undefined
 </script>
 
 <template>
@@ -49,10 +54,11 @@ const COLUMNS = { 1: '', 3: 'desktop:grid-cols-3' } as const
       <div
         v-for="row in rows"
         :key="row.key"
-        class="flex min-h-9 items-center gap-2.5 border-b border-border"
+        class="border-b border-border"
+        :class="node(row) ? 'grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-2.5 gap-y-0.5 py-2' : 'flex min-h-(--list-row-h) items-center gap-2.5'"
       >
         <span
-          class="inline-flex text-subtle-foreground"
+          class="col-start-1 row-start-1 inline-flex text-subtle-foreground"
           aria-hidden="true"
         >
           <component
@@ -60,18 +66,21 @@ const COLUMNS = { 1: '', 3: 'desktop:grid-cols-3' } as const
             :size="15"
           />
         </span>
-        <dt class="flex min-w-0 flex-1 flex-col">
-          <span class="text-(length:--text-sm) text-foreground">{{ row.label }}</span>
+        <dt :class="node(row) ? 'contents' : 'flex min-w-0 flex-1 flex-col'">
+          <span
+            class="col-start-2 row-start-1 text-(length:--text-sm) text-foreground"
+            :class="{ 'self-center': node(row) }"
+          >{{ row.label }}</span>
           <span
             v-if="row.sub"
-            class="text-(length:--text-micro) leading-(--lh-compact) text-subtle-foreground"
+            class="col-start-2 -col-end-1 row-start-2 text-(length:--text-micro) leading-(--lh-compact) text-pretty text-subtle-foreground"
           >{{ row.sub }}<span
             v-if="$slots[`sub-${row.key}`]"
             class="ml-1"
           ><slot :name="`sub-${row.key}`" /></span></span>
         </dt>
         <dd
-          class="m-0 font-mono text-(length:--text-sm) whitespace-nowrap"
+          class="col-start-3 row-start-1 m-0 font-mono text-(length:--text-sm) whitespace-nowrap"
           :class="row.value == null ? 'text-subtle-foreground' : 'text-foreground'"
         >
           <slot :name="`value-${row.key}`">

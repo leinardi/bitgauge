@@ -46,8 +46,9 @@ function frames() {
   return (now: number) => queue.splice(0).forEach((callback) => callback(now))
 }
 
+// Every media query answers alike: reduced motion, and the compact layout with it.
 function reducedMotion(matches: boolean): void {
-  vi.stubGlobal('matchMedia', () => ({ matches }))
+  vi.stubGlobal('matchMedia', () => ({ matches, addEventListener: () => undefined, removeEventListener: () => undefined }))
 }
 
 afterEach(() => {
@@ -205,7 +206,7 @@ describe('the gauge', () => {
 
   it('labels the milliseconds scale with whole numbers', () => {
     const wrapper = gauge({ mode: 'ms', value: 20, label: 'Idle latency' })
-    const labels = wrapper.findAll('text').map((label) => label.text())
+    const labels = wrapper.findAll('[data-testid="gauge-tick"]').map((label) => label.text())
     expect(labels).toEqual(['1', '10', '100', '1000'])
   })
 })
