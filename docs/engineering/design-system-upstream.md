@@ -28,3 +28,18 @@ accessibility tree and differ in text, so the harness pairs nothing to compare).
   top three significant digits: "0.25", "0.50", "0.75", "1.00 Gbit/s"; "200" … "800 Mbit/s" is
   unchanged. A label that reads in another unit than the one the axis names misstates the scale
   ([principles.md](../features/principles.md), honest numbers).
+
+### Chart mark label over a phase label
+
+From the production check of the chart on 2026-10-16. There is no triage cluster: the kit's fixed
+cancel instant and the demo's differ, so the harness sees an offset, not the overlap.
+
+- **Kit:** `components/charts/Chart.jsx`, the `.sp` phase labels and the `.mk` mark labels over the
+  plot, placed by `chartGeometry()`.
+- **The export shows:** a mark label sits to the left of its line, and a phase label to the right
+  of its separator, both on the plot's top row. A run that stops soon after a phase begins puts the
+  two on top of each other. The kit's own `cancelled` state shows it: "Upload" at x 895 and
+  "Cancelled" at x 901 overlap, and the Vue app does the same on a real run.
+- **It should show:** both labels readable. One way is to drop the mark label to a second row when
+  it would cross a phase label. Another is to put the mark label to the right of its line when the
+  phase label already takes the space to its left.
