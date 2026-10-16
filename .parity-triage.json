@@ -1973,10 +1973,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the auto-start countdown notice says the link starts a test automatically, the spec's term, not autostart enabled.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/countdown": {
           "440a4c836d49": "*"
@@ -2334,10 +2334,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's slowdone shows the Low confidence notice (Upload: few samples) with the tile's pill.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -2927,10 +2927,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's WebSocket-fallback body does not name HTTP/2 (the fallback follows the page's protocol) and drops \"Values can read slightly higher.\"",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {

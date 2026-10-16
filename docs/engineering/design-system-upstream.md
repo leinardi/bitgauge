@@ -184,11 +184,13 @@ the export shows, and what it should show, with the reason; behavior comes from
 
 ### The Slow Run's Upload Confidence
 
-- **Source:** triage cluster `content-results-tiles`, an upstream note decided on 2026-10-15.
-- **Kit:** `ui_kits/app/TestScreen.jsx`, the upload tile of the `slowdone` state.
-- **Export today:** a 210 kbit/s upload on two streams with no confidence qualifier.
+- **Source:** triage clusters `content-results-tiles` and `content-low-confidence-notice`, upstream
+  notes decided on 2026-10-15.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the upload tile and the notices of the `slowdone` state.
+- **Export today:** a 210 kbit/s upload on two streams with no confidence qualifier and no notice.
 - **Wanted:** the Low confidence pill and "low confidence · few samples" on that upload tile, as on
-  the live status.
+  the live status, and the Low confidence notice ("Upload: few samples.") that
+  [measurement.md §16](../features/measurement.md#16-confidence-and-notices) lists.
 - **Why:** at a few hundred kbit/s the streams added last confirm too few requests before the
   warm-up's cap, so the upload carries `confidence: low` (`insufficient-samples`), as
   [measurement.md §19.1](../features/measurement.md#191-slow-link-budget-300-kbits-300-ms-rtt-standard)
@@ -214,3 +216,24 @@ the export shows, and what it should show, with the reason; behavior comes from
 - **Why:** a server that stops answering mid-run closes the WebSocket, which ends the run as a
   network change ([flows.md §5](../features/ui/flows.md#5-error-mid-test)); "server stopped
   responding" is the cause of a server unreachable as the run starts.
+
+### The WebSocket-Fallback Notice's Body
+
+- **Source:** triage cluster `content-ws-notice-body`, decided for Vue's body.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the notice of the `ws-fallback` state.
+- **Export today:** "The reverse proxy did not accept a WebSocket upgrade, so latency is measured
+  with HTTP/2 requests. Values can read slightly higher."
+- **Wanted:** "The reverse proxy did not accept a WebSocket, so latency is measured with HTTP
+  requests."
+- **Why:** the fallback runs over whatever protocol the page negotiated, so a fixed HTTP/2 is wrong
+  on the others, and no spec page says the values read higher.
+
+### The Auto-Start Countdown Notice
+
+- **Source:** triage cluster `content-countdown-notice`, decided for Vue's wording.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the notice of the `countdown` state.
+- **Export today:** "This page was opened from a link with autostart enabled."
+- **Wanted:** "This page was opened from a link that starts a test automatically."
+- **Why:** the spec's term is starting automatically
+  ([flows.md §2](../features/ui/flows.md#2-auto-run-from-url)); "autostart" is not a setting the
+  product has.
