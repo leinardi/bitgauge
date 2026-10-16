@@ -268,8 +268,8 @@ carries a recommendation; where the specification already relies on an answer, i
     from the server defaults, and otherwise one chip per changed setting after "N changed:". The
     base-path check runs before anything renders, and an API that reports another base path gets
     its own wording.
-    The v0.1 About screen credits each project with the milestone that uses it, and its links
-    point into the repository: the source, `LICENSE`, `docs/features/measurement.md` for the
+    The About screen has no credits, which the README holds, and its links point into the
+    repository: the source, `LICENSE`, `docs/features/measurement.md` for the
     methodology, and `docs/features/deployment-example.md` §6 from the base-path error**.
     Recommendation: keep it. See [ui/screens.md §1, §5](ui/screens.md#1-test-home--) and
     [edge-cases.md §16, §20](edge-cases.md#20-base-path-mismatches).

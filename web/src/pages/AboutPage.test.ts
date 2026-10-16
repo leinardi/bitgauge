@@ -65,7 +65,7 @@ describe('the About screen', () => {
     expect(page.get('[data-testid="about-server"]').text()).toContain('Basement NAS')
   })
 
-  it('links the source, the license and the methodology, credits, and has no snippets before v0.3', async () => {
+  it('links the source, the license and the methodology, and has no snippets before v0.3', async () => {
     const page = await mountApp(AboutPage, '/about')
     const hrefs = page.findAll('a').map((link) => link.attributes('href'))
     expect(hrefs).toEqual(expect.arrayContaining([links.source, links.license, links.methodology]))
@@ -74,10 +74,8 @@ describe('the About screen', () => {
     expect(page.text()).toContain('so there are no snippets yet.')
     // The v0.3 notice is part of the page, not news: it is no live region.
     expect(page.find('[role="status"]').exists()).toBe(false)
-    expect(page.text()).toContain('OpenSpeedTest™ is a trademark of its owner.')
-    for (const credit of ['LibreSpeed', 'Cloudflare', 'Apple networkQuality and the IETF responsiveness draft', 'Waveform']) {
-      expect(page.text()).toContain(credit)
-    }
+    // Credits live in the README, not on the screen.
+    expect(page.text()).not.toContain('Credits')
     expect(page.find('pre').exists()).toBe(false)
   })
 })

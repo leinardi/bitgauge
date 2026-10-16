@@ -234,9 +234,11 @@ field, value not saved; focus is not moved, and Tab leaves the field as usual); 
   (`server.commit`, `server.buildDate`), **license** (GPL-3.0-or-later), **source link**.
 - **Privacy:** no accounts, no tracking; the server keeps no results, which exist only in this
   browser (from v0.2, so does the history).
-- **Credits:** OpenSpeedTest™ trademark note, LibreSpeed, Cloudflare (AIM quality scores), Apple
-  `networkQuality` and the IETF responsiveness draft, Waveform (bufferbloat thresholds).
 - Short methodology summary linking to the published docs.
+
+The screen has no credits: the projects BitGauge learns from, and the trademark notes, are
+credited in the README and the docs ([../technical-stack/decisions.md
+§33](../technical-stack/decisions.md#33-third-party-code--ideas-and-protocol-compatibility-only)).
 
 **States:** layers enabled or not; server unreachable (snippets built from the page's own origin).
 

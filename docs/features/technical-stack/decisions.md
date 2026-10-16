@@ -344,7 +344,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 27 | v0.1 without a Settings screen: Test and About navigation, placeholder pages, server defaults plus URL parameters, the About screen before v0.3 | v0.1 |
 | 28 | The design export's root assets served from the base path as an explicit file list | v0.1 |
 | 29 | The v0.1 SPA shell: per-screen locale files, the header's reachability and theme button, the Worker configured from the server defaults, the engine type-checked on its own | v0.1 |
-| 30 | Before a run: info on load and on Retry, the connection info's placeholders and label choices, the settings summary's line and chips, the base-path check before rendering, the v0.1 About credits and repository links | v0.1 |
+| 30 | Before a run: info on load and on Retry, the connection info's placeholders and label choices, the settings summary's line and chips, the base-path check before rendering, the About screen's repository links and no credits | v0.1 |
 | 31 | `index.html` rendered once with absolute asset URLs under the base path; an incomplete embedded SPA exits 1 after configuration and route checks | v0.1 |
 | 32 | A release recovery selects the recorded toolchains in a script after the setup actions; a tag without recorded versions warns; a dry run rehearses a fresh release only | v0.1 |
 | 33 | The UI reads a run's end from the event order; an engine defect ends the run as `test failed`; the wake lock is requested again when the page becomes visible | v0.1 |

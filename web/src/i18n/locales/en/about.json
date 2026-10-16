@@ -27,30 +27,6 @@
     "privacy": {
       "title": "Privacy",
       "body": "No accounts, no tracking, no ads. The server keeps no results: a result exists only in this browser."
-    },
-    "credits": {
-      "title": "Credits",
-      "openspeedtest": {
-        "name": "OpenSpeedTest™",
-        "what": "Protocol compatibility for its web UI, from v0.3."
-      },
-      "librespeed": {
-        "name": "LibreSpeed",
-        "what": "Protocol compatibility for librespeed-cli, from v0.3."
-      },
-      "cloudflare": {
-        "name": "Cloudflare",
-        "what": "AIM quality scores for streaming, gaming and video calls, from v0.3."
-      },
-      "apple": {
-        "name": "Apple networkQuality and the IETF responsiveness draft",
-        "what": "The RPM responsiveness metric and config format, from v0.3."
-      },
-      "waveform": {
-        "name": "Waveform",
-        "what": "Bufferbloat grade thresholds, from v0.2."
-      },
-      "trademark": "OpenSpeedTest™ is a trademark of its owner. BitGauge is an independent project, not affiliated with or endorsed by OpenSpeedTest, LibreSpeed, Cloudflare, Apple or Waveform."
     }
   }
 }

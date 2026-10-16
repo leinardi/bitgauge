@@ -32,7 +32,7 @@ import { links } from '@/lib/links'
 
 // The About screen (ui/screens.md section 5, design_system kit About.jsx), as v0.1 has it: the
 // layers for other clients arrive in v0.3, so there are no snippets; what BitGauge is, its build,
-// license, source, privacy, credits and a methodology summary of the v0.1 metrics.
+// license, source, privacy and a methodology summary of the v0.1 metrics.
 
 const { t, locale } = useI18n()
 const { info, reachability, refresh } = useInfo()
@@ -57,14 +57,6 @@ const facts = computed(() => {
     { key: 'server', label: t('about.facts.serverName'), value: server?.name ?? t('about.facts.unknown') },
   ]
 })
-
-const credits = computed(() => [
-  { name: t('about.credits.openspeedtest.name'), what: t('about.credits.openspeedtest.what') },
-  { name: t('about.credits.librespeed.name'), what: t('about.credits.librespeed.what') },
-  { name: t('about.credits.cloudflare.name'), what: t('about.credits.cloudflare.what') },
-  { name: t('about.credits.apple.name'), what: t('about.credits.apple.what') },
-  { name: t('about.credits.waveform.name'), what: t('about.credits.waveform.what') },
-])
 </script>
 
 <template>
@@ -172,24 +164,6 @@ const credits = computed(() => [
         </h2>
         <p class="text-(length:--text-sm) leading-normal text-muted-foreground">
           {{ t('about.privacy.body') }}
-        </p>
-      </section>
-      <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
-        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
-          {{ t('about.credits.title') }}
-        </h2>
-        <ul class="flex flex-col gap-2">
-          <li
-            v-for="credit in credits"
-            :key="credit.name"
-            class="flex flex-col"
-          >
-            <span class="text-(length:--text-sm) font-medium text-foreground">{{ credit.name }}</span>
-            <span class="text-(length:--text-caption) text-muted-foreground">{{ credit.what }}</span>
-          </li>
-        </ul>
-        <p class="text-(length:--text-caption) leading-normal text-subtle-foreground">
-          {{ t('about.credits.trademark') }}
         </p>
       </section>
     </aside>
