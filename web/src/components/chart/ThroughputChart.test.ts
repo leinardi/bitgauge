@@ -65,7 +65,9 @@ describe('the throughput chart', () => {
     expect(host.attributes('role')).toBe('img')
     expect(host.attributes('aria-label')).toBe('Throughput: no data yet')
     expect(host.find('.uplot').exists()).toBe(true)
-    expect(wrapper.text()).toBe('Throughput Download UploadThroughput over time appears here while the test runs.')
+    // The empty chart still draws its frame: up to 1 Gbit/s over the minimum durations, in one unit.
+    expect(wrapper.findAll('[aria-hidden="true"] > span').map((label) => label.text())).toEqual(['0', '0.25', '0.50', '0.75', '1.00\u00a0Gbit/s', '0s', '5s', '10s', '15s', '20s', '25s'])
+    expect(wrapper.get('[data-testid="throughput-chart"] + div + div').text()).toBe('Throughput over time appears here while the test runs.')
     expect(wrapper.find('figure').exists()).toBe(false)
 
     state.apply({ type: 'sample', direction: 'download', fromBucket: 0, values: [1_176_250, 1_176_250], gauge: 9.41e7, streams: 1, phaseMs: 0, warmupEndBucket: 1, dataUsedBytes: 2_352_500 })

@@ -70,6 +70,34 @@ export function rateParts(bitsPerSecond: number, units: 'bits' | 'bytes', locale
   return { number, unit: names[scale] ?? names[0] }
 }
 
+const AXIS_FRACTIONS = [0.25, 0.5, 0.75, 1] as const
+
+/**
+ * A rate axis's five labels, at 0, a quarter, a half, three quarters and the whole of its maximum
+ * (in bit/s). Every tick is in the unit the maximum reads in, so a lower one never reads in another
+ * (250, 500, 750 under 1 Gbit/s would say 0.25 Gbit/s three times over), with the decimals that give
+ * the top one three significant digits (0.25 … 1.00 Gbit/s, 3.8 … 15.0 Mbit/s); only the top one
+ * names the unit, and 0 is bare.
+ */
+export function rateAxisLabels(maxBitsPerSecond: number, units: 'bits' | 'bytes', locale: string): string[] {
+  const { scale } = rateScaled(maxBitsPerSecond, units)
+  const names = RATE_UNITS[units]
+  const max = maxBitsPerSecond / ((units === 'bytes' ? 8 : 1) * 1000 ** (scale + 1))
+  const whole = Math.max(1, Math.floor(Math.log10(Math.max(max, 1))) + 1)
+  const digits = Math.max(0, 3 - whole)
+  const format = new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })
+  return axisTicks((fraction) => format.format(max * fraction), names[scale] ?? names[0])
+}
+
+/** A latency axis's five labels, each as a latency reads (latencyNumber), the top one with its unit. */
+export function latencyAxisLabels(maxMs: number, locale: string): string[] {
+  return axisTicks((fraction) => latencyNumber(maxMs * fraction, locale), 'ms')
+}
+
+function axisTicks(label: (fraction: number) => string, unit: string): string[] {
+  return ['0', ...AXIS_FRACTIONS.map((fraction) => (fraction === 1 ? `${label(fraction)}${NBSP}${unit}` : label(fraction)))]
+}
+
 /** A rate with its unit: 94.1 Mbit/s. */
 export function formatRate(bitsPerSecond: number, units: 'bits' | 'bytes', locale: string, trim = false): string {
   const { number, unit } = rateParts(bitsPerSecond, units, locale, trim)

@@ -95,8 +95,9 @@ export function chartMeta({ state, order, live, model, durations, totalMs }: Cha
       if (current === undefined || durations === null) {
         return ''
       }
-      const start = model.separators.at(-1) ?? 0
-      return t('test.chart.elapsed', { s: seconds(model.end), of: seconds(start + durations[current].minMs / 1000) })
+      // The phase's planned end reads as briefly as it is: 10 s, 15.2 s (charts.md: "7.5 s / 10 s").
+      const planned = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format((model.separators.at(-1) ?? 0) + durations[current].minMs / 1000)
+      return t('test.chart.elapsed', { s: seconds(model.end), of: planned })
     }
   }
 }

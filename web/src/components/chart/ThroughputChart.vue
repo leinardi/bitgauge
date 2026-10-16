@@ -19,26 +19,32 @@
 <script setup lang="ts">
 import 'uplot/dist/uPlot.min.css'
 
+import { useMediaQuery } from '@vueuse/core'
 import uPlot from 'uplot'
 import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ChartHeader from '@/components/chart/ChartHeader.vue'
-import { chartHeight, chartPalette } from '@/components/chart/palette'
-import { buildChart, type ChartData, type ChartInput, STEPPED } from '@/components/chart/series'
+import ChartLabels from '@/components/chart/ChartLabels.vue'
+import { drawBand, drawEndDot, drawGrid, drawRule, holdLinear, lastPoint } from '@/components/chart/draw'
+import { frameOptions } from '@/components/chart/frame'
+import { chartGeometry, type Label, valueMax } from '@/components/chart/geometry'
+import { chartHeight, chartPalette, faded } from '@/components/chart/palette'
+import { buildChart, type ChartData, type ChartInput } from '@/components/chart/series'
 import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, markLabel } from '@/components/chart/text'
 import { useUplot } from '@/components/chart/useUplot'
 import { useTheme } from '@/composables/useTheme'
-import type { TestSettings } from '@/engine/messages'
-import { formatRate } from '@/lib/format'
+import type { Direction, TestSettings } from '@/engine/messages'
+import { rateAxisLabels } from '@/lib/format'
 
-// The live throughput chart (ui/screens.md section 1, design_system/components/charts.md): uPlot
-// draws download, upload received and the faint sending line, with unknown buckets as gaps; its
-// hooks draw the warm-up bands under the series and the phase separators, the "now" line and the
-// result's event marks over them. Over the plot sit the title, the legend and where the run
-// stands. The canvas is decoration for assistive technology: the plot is an image whose label
-// summarizes what it shows, from the gauge's readout. A finished run draws what the server
-// received, without the sending line.
+// The live throughput chart (ui/screens.md section 1, design_system/components/charts.md and
+// charts/Chart.jsx): uPlot draws download, upload received and the faint sending line, straight
+// between buckets, with unknown buckets as gaps; its hooks draw the warm-up bands, the gridlines and
+// the phase separators under the series, and the result's event marks, the "now" line and the end
+// dot over them. The labels sit over the canvas as text. Over the plot sit the title, the legend and
+// where the run stands. The canvas is decoration for assistive technology: the plot is an image
+// whose label summarizes what it shows, from the gauge's readout. A finished run draws what the
+// server received, without the sending line.
 
 const props = withDefaults(
   defineProps<
@@ -54,13 +60,19 @@ const props = withDefaults(
   { events: () => ({}), durations: null, totalMs: null, readout: null, emptyText: null },
 )
 
+/** The empty chart's frame: up to 1 Gbit/s, over the minimum durations of a Standard run. */
+const EMPTY_TOP_BPS = 1e9
+const EMPTY_SECONDS = 25
+
 const { t, locale } = useI18n()
 const { applied } = useTheme()
 const host = useTemplateRef<HTMLDivElement>('host')
+const compact = useMediaQuery('(max-width: 1139.98px)')
 
 const model = computed(() => buildChart(props))
 // A chart with nothing drawn yet is empty, whatever the run's state: while connecting, say.
 const shownState = computed<ChartState>(() => (model.value.data[0].length === 0 ? 'empty' : props.state))
+const empty = computed(() => shownState.value === 'empty')
 const running = computed(() => props.state === 'running')
 const data = computed<ChartData>(() => {
   const [x, download, received, sending] = model.value.data
@@ -71,99 +83,112 @@ const textInput = computed<ChartTextInput>(() => ({ ...props, state: shownState.
 const legend = computed(() => chartLegend(textInput.value, wording.value))
 const meta = computed(() => chartMeta(textInput.value, wording.value))
 const summary = computed(() => chartSummary(textInput.value, wording.value))
+const shown = computed(() => props.order.filter((direction) => props.live[direction] !== null))
 
+const display = (bitsPerSecond: number) => (props.units === 'bits' ? bitsPerSecond : bitsPerSecond / 8)
+
+// The time axis runs to the end of the phase under way at its minimum duration, as far as the run
+// has gone, or to where the run ended; the value axis to a round number over the largest value.
+const ends = computed(() => {
+  const minimum = (direction: Direction) => (props.durations?.[direction].minMs ?? 0) / 1000
+  if (empty.value) {
+    const planned = props.durations === null ? EMPTY_SECONDS : props.order.reduce((sum, direction) => sum + minimum(direction), 0)
+    return { xMax: planned, yMax: display(EMPTY_TOP_BPS) }
+  }
+  const current = shown.value.at(-1)
+  const phaseEnd = running.value && current !== undefined ? (model.value.separators.at(-1) ?? 0) + minimum(current) : 0
+  const [, download, received, sending] = data.value
+  const largest = Math.max(0, ...[...download, ...received, ...sending].filter((value): value is number => value !== null))
+  return { xMax: Math.max(model.value.end, phaseEnd), yMax: valueMax(largest) }
+})
+
+const height = computed(() => chartHeight(compact.value))
+const seconds = (value: number) => t('test.chart.seconds', { n: new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(value) })
 let colors = chartPalette(host.value)
 
-/** The bands under the series: each direction's warm-up, with hatch-colored edges. */
-function drawBands(u: uPlot): void {
-  const { ctx, bbox } = u
-  ctx.save()
-  for (const span of model.value.warmup) {
-    const from = u.valToPos(span.from, 'x', true)
-    const to = u.valToPos(span.to, 'x', true)
-    if (to > from) {
-      ctx.fillStyle = colors.band
-      ctx.fillRect(from, bbox.top, to - from, bbox.height)
-      ctx.strokeStyle = colors.hatch
-      ctx.lineWidth = 1
-      ctx.strokeRect(from, bbox.top, to - from, bbox.height)
-    }
-  }
-  ctx.restore()
-}
-
-/** A vertical line across the plot, with an optional label at its top. */
-function rule(u: uPlot, at: number, color: string, label?: string): void {
-  const { ctx, bbox } = u
-  const x = Math.round(u.valToPos(at, 'x', true)) + 0.5
-  ctx.strokeStyle = color
-  ctx.beginPath()
-  ctx.moveTo(x, bbox.top)
-  ctx.lineTo(x, bbox.top + bbox.height)
-  ctx.stroke()
-  if (label !== undefined) {
-    ctx.fillStyle = colors.text
-    ctx.fillText(label, x + 4, bbox.top + 12)
-  }
-}
-
-/** The separators, the result's event marks and, while live, the "now" line. */
-function drawMarks(u: uPlot): void {
-  const { ctx } = u
-  ctx.save()
-  ctx.lineWidth = 1
-  ctx.font = colors.font
-  model.value.separators.forEach((at) => rule(u, at, colors.hatch))
-  model.value.marks.forEach((mark) => rule(u, mark.at, colors.mark, markLabel(mark, wording.value)))
-  if (running.value) {
-    rule(u, model.value.end, colors.mark, t('test.chart.now'))
-  }
-  ctx.restore()
-}
-
-const rateLabel = (value: number) => formatRate(props.units === 'bits' ? value : value * 8, props.units, locale.value, true)
-
-function options(width: number): uPlot.Options {
-  const stepped = uPlot.paths.stepped?.(STEPPED)
-  const line = (color: () => string, width: number, extra: Partial<uPlot.Series> = {}): uPlot.Series => ({
-    stroke: () => color(),
-    width,
-    spanGaps: false,
-    points: { show: false },
-    ...(stepped === undefined ? {} : { paths: stepped }),
-    ...extra,
-  })
+function options(size: { width: number; height: number }): uPlot.Options {
+  const area = (color: () => string): uPlot.Series => ({ stroke: () => color(), fill: () => faded(color(), 10), width: 1.75, spanGaps: false, points: { show: false }, paths: holdLinear })
   return {
-    width,
-    height: chartHeight(width),
-    cursor: { show: false },
-    legend: { show: false },
-    scales: { x: { time: false } },
-    axes: [
-      { stroke: () => colors.text, grid: { stroke: () => colors.grid, width: 1 }, font: colors.font, values: (_u, values) => values.map((value) => t('test.chart.seconds', { n: value })) },
-      { stroke: () => colors.text, grid: { stroke: () => colors.grid, width: 1 }, font: colors.font, size: 72, values: (_u, values) => values.map((value) => (value === 0 ? '0' : rateLabel(value))) },
-    ],
+    ...frameOptions(size, () => geometry.value, () => ends.value),
     series: [
       {},
-      line(() => colors.download, 2),
-      line(() => colors.upload, 2),
+      area(() => colors.download),
+      area(() => colors.upload),
       // The sending line is faint and joins its points: it is progress, never a measured bucket.
-      line(() => colors.sending, 1.5, { spanGaps: true, paths: uPlot.paths.linear?.() }),
+      { stroke: () => faded(colors.sending, 40), width: 1.75, spanGaps: true, points: { show: false }, paths: uPlot.paths.linear?.() },
     ],
-    hooks: { drawClear: [drawBands], draw: [drawMarks] },
+    hooks: { drawClear: [drawUnder], draw: [drawOver] },
   }
 }
 
-const plot = useUplot(host, options, () => data.value)
-watch([applied, running], () => {
-  colors = chartPalette(host.value)
-  plot.value?.redraw()
+const { plot, width } = useUplot(host, options, () => data.value, () => height.value)
+const geometry = computed(() =>
+  chartGeometry({
+    width: width.value,
+    height: height.value,
+    ...ends.value,
+    yLabels: rateAxisLabels(props.units === 'bits' ? ends.value.yMax : ends.value.yMax * 8, props.units, locale.value),
+    xLabel: seconds,
+    compact: compact.value,
+  }),
+)
+
+// Each phase's name from where it starts, once a second phase has begun (charts.md, separators).
+const phaseStarts = computed(() => (model.value.separators.length === 0 ? [] : [0, ...model.value.separators]))
+const phaseName = (direction: Direction | undefined) => (direction === 'upload' ? t('test.chart.legend.upload') : t('test.chart.legend.download'))
+const phaseLabels = computed<Label[]>(() =>
+  phaseStarts.value.map((at, index) => ({ x: geometry.value.x(at) + 6, y: geometry.value.top + 12, text: phaseName(shown.value[index]) })),
+)
+const markLabels = computed(() =>
+  model.value.marks.map((mark) => ({ x: geometry.value.x(mark.at) - 6, y: geometry.value.top + 12, text: markLabel(mark, wording.value), color: 'var(--fg-muted)' })),
+)
+const plotBox = computed(() => {
+  const { top, left, right, bottom } = geometry.value
+  return { top: `${top}px`, left: `${left}px`, width: `${right - left}px`, height: `${bottom - top}px` }
 })
+
+/** Under the series: the warm-up bands, the gridlines and the phase separators. */
+function drawUnder(u: uPlot): void {
+  u.ctx.save()
+  model.value.warmup.forEach((span) => drawBand(u, span.from, span.to, colors))
+  drawGrid(u, [0, 0.25, 0.5, 0.75, 1].map((fraction) => ends.value.yMax * fraction), colors)
+  phaseStarts.value.forEach((at) => drawRule(u, at, colors.separator, colors.stroke, colors.dashSeparator))
+  u.ctx.restore()
+}
+
+/** Over the series: the result's event marks, while live the "now" line, and the end dot. */
+function drawOver(u: uPlot): void {
+  u.ctx.save()
+  model.value.marks.forEach((mark) => drawRule(u, mark.at, colors.mark, colors.strokeMark, colors.dashMark))
+  if (running.value) {
+    u.ctx.globalAlpha = colors.nowOpacity
+    drawRule(u, model.value.end, colors.now, colors.stroke)
+    u.ctx.globalAlpha = 1
+  }
+  const [x, download, received] = data.value
+  const upload = lastPoint(x, received)
+  const end = upload ?? lastPoint(x, download)
+  if (end !== null) {
+    drawEndDot(u, end[0], end[1], upload === null ? colors.download : colors.upload, colors)
+  }
+  u.ctx.restore()
+}
+
+watch([applied, running, geometry], () => {
+  colors = chartPalette(host.value)
+  plot.value?.redraw(true, true)
+})
+watch(ends, (next) =>
+  plot.value?.batch(() => {
+    plot.value?.setScale('x', { min: 0, max: next.xMax })
+    plot.value?.setScale('y', { min: 0, max: next.yMax })
+  }),
+)
 
 // A new phase cross-fades in, unless motion is reduced.
 const fading = shallowRef(false)
 watch(
-  () => props.order.filter((direction) => props.live[direction] !== null).length,
+  () => shown.value.length,
   () => {
     fading.value = true
     // Two frames: the faded state must be painted once for the transition to run from it.
@@ -192,9 +217,15 @@ watch(
         :class="fading ? 'opacity-40' : 'opacity-100'"
         data-testid="throughput-chart"
       />
+      <ChartLabels
+        :geometry="geometry"
+        :phases="phaseLabels"
+        :marks="markLabels"
+      />
       <div
-        v-if="shownState === 'empty'"
-        class="absolute inset-0 flex items-center justify-center px-4 text-center"
+        v-if="empty"
+        class="absolute flex items-center justify-center px-4 text-center"
+        :style="plotBox"
       >
         <span class="max-w-measure-sm rounded-(--radius-md) border border-(--border-subtle) bg-(--surface-2) px-3.5 py-2 text-(length:--text-sm) leading-(--lh-compact) text-pretty text-subtle-foreground">{{ emptyText ?? t('test.chart.emptyText') }}</span>
       </div>

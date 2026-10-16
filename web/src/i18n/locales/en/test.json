@@ -83,8 +83,7 @@
       "latencyElapsed": "{s} s / ~{of} s",
       "total": "{s} s total",
       "stopped": "stopped at {s} s",
-      "seconds": "{n} s",
-      "now": "now",
+      "seconds": "{n}s",
       "marks": {
         "extended": "Extended",
         "dataCap": "Data cap",

@@ -70,8 +70,8 @@ describe('the chart text', () => {
   it('reads a live direction against its minimum, with the warm-up shaded', () => {
     const running = input('running', { download }, { readout: 'Download 597 Mbit/s' })
     expect(labels(running)).toEqual(['Download', 'Warm-up'])
-    expect(chartMeta(running, wording)).toBe('5.0 s / 10.0 s')
-    expect(chartSummary(running, wording)).toBe('Throughput: Download 597 Mbit/s, 5.0 s / 10.0 s; warm-up shaded')
+    expect(chartMeta(running, wording)).toBe('5.0 s / 10 s')
+    expect(chartSummary(running, wording)).toBe('Throughput: Download 597 Mbit/s, 5.0 s / 10 s; warm-up shaded')
   })
 
   it('names received only once the server has confirmed something, and sending while the run goes on', () => {

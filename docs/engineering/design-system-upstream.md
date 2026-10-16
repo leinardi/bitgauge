@@ -14,4 +14,17 @@ the export shows, and what it should show, with the reason; behavior comes from
 
 ## Notes
 
-None open: the export of 2026-10-16 carries every note.
+### Chart value labels in one unit
+
+From the Vue chart's axis fix of 2026-10-16 (no triage cluster: the labels are hidden from the
+accessibility tree and differ in text, so the harness pairs nothing to compare).
+
+- **Kit:** `components/charts/Chart.jsx`, `chartGeometry()`, the `lab` helper behind the five
+  `.chart-lb .y` labels.
+- **The export shows:** every tick is formatted on its own with `Format.rate`, which picks a unit
+  per value, and only the top label carries the unit. On the empty chart, up to 1 Gbit/s, the ticks
+  read "250", "500", "750" and "1.00 Gbit/s": the lower three are megabits under a gigabit unit.
+- **It should show:** every tick in the unit the top one reads in, with the decimals that give the
+  top three significant digits: "0.25", "0.50", "0.75", "1.00 Gbit/s"; "200" … "800 Mbit/s" is
+  unchanged. A label that reads in another unit than the one the axis names misstates the scale
+  ([principles.md](../features/principles.md), honest numbers).

@@ -108,7 +108,7 @@ describe('the theme', () => {
 
 describe('the shared theme', () => {
   it('keeps applying after the first component that asked for it unmounts', async () => {
-    vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: () => undefined }))
+    vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: () => undefined, removeEventListener: () => undefined }))
     const first = mount(defineComponent({ setup: () => void useTheme(), render: () => null }))
     first.unmount()
     useTheme().setTheme('light')

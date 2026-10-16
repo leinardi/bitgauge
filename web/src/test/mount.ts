@@ -30,7 +30,7 @@ import { createAppRouter } from '@/router'
 // reads: a query that never matches stands in.
 
 export async function mountApp(component: Component, path = '/', options: { props?: Record<string, unknown>; attachTo?: HTMLElement } = {}) {
-  vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: () => undefined }))
+  vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: () => undefined, removeEventListener: () => undefined }))
   const router = createAppRouter(createMemoryHistory())
   await router.push(path)
   return mount(component as DefineComponent, { ...options, global: { plugins: [router, createAppI18n('', ['en'])] } })

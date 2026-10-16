@@ -22,7 +22,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, latencyNumber, rateParts, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
+import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, latencyAxisLabels, latencyNumber, rateAxisLabels, rateParts, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
 
 describe('formatBytes', () => {
   it.each([
@@ -39,6 +39,34 @@ describe('formatBytes', () => {
 
   it('follows the locale', () => {
     expect(formatBytes(1_500_000_000, 'de')).toBe('1,5\u00a0GB')
+  })
+})
+
+describe('rateAxisLabels', () => {
+  const nbsp = (labels: string[]) => labels.map((label) => label.replace(' ', '\u00a0'))
+
+  it.each([
+    // Every tick in the unit of the top one, never 250, 500, 750 under 1 Gbit/s.
+    [1e9, 'bits', ['0', '0.25', '0.50', '0.75', '1.00 Gbit/s']],
+    [8e8, 'bits', ['0', '200', '400', '600', '800 Mbit/s']],
+    [1.5e7, 'bits', ['0', '3.8', '7.5', '11.3', '15.0 Mbit/s']],
+    [8e5, 'bits', ['0', '200', '400', '600', '800 kbit/s']],
+    [1.2e9, 'bits', ['0', '0.30', '0.60', '0.90', '1.20 Gbit/s']],
+    [8e8, 'bytes', ['0', '25', '50', '75', '100 MB/s']],
+    [8e3, 'bytes', ['0', '0.25', '0.50', '0.75', '1.00 kB/s']],
+  ] as const)('labels a %d bit/s %s axis in one unit', (max, units, labels) => {
+    expect(rateAxisLabels(max, units, 'en')).toEqual(nbsp([...labels]))
+  })
+
+  it('formats in the active locale', () => {
+    expect(rateAxisLabels(1e9, 'bits', 'de')).toEqual(nbsp(['0', '0,25', '0,50', '0,75', '1,00 Gbit/s']))
+  })
+})
+
+describe('latencyAxisLabels', () => {
+  it('labels each tick as a latency reads, whole from 10 ms and with one decimal below', () => {
+    expect(latencyAxisLabels(200, 'en')).toEqual(['0', '50', '100', '150', '200\u00a0ms'])
+    expect(latencyAxisLabels(6, 'en')).toEqual(['0', '1.5', '3.0', '4.5', '6.0\u00a0ms'])
   })
 })
 

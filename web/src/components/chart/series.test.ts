@@ -23,7 +23,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { buildChart, STEPPED } from '@/components/chart/series'
+import { buildChart } from '@/components/chart/series'
 import type { DirectionLive } from '@/composables/useRunState'
 
 function live(overrides: Partial<DirectionLive>): DirectionLive {
@@ -44,10 +44,6 @@ describe('buildChart', () => {
     expect(sending).toEqual([null, null, null, null])
     expect(model.end).toBeCloseTo(0.3)
     expect(model.separators).toEqual([])
-  })
-
-  it('steps each bucket from its start and clips a gap to exactly its null buckets', () => {
-    expect(STEPPED).toEqual({ align: 1, alignGaps: 1 })
   })
 
   it('draws bytes per second in bytes mode', () => {

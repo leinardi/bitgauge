@@ -20,31 +20,37 @@
 import uPlot from 'uplot'
 import { onBeforeUnmount, onMounted, type Ref, shallowRef, watch } from 'vue'
 
-import { chartHeight } from '@/components/chart/palette'
-
 /**
- * A uPlot chart in `host`: built once mounted, sized to the host's width, fed `data` as it
- * changes, and destroyed with the component. The caller redraws it when its colors change.
+ * A uPlot chart in `host`: built once mounted, sized to the host's width and to `height`, fed
+ * `data` as it changes, and destroyed with the component. `width` follows the host, for what is laid
+ * out around the plot. The caller redraws it when its colors or its frame change.
  */
-export function useUplot(host: Readonly<Ref<HTMLDivElement | null>>, options: (width: number) => uPlot.Options, data: () => uPlot.AlignedData) {
+export function useUplot(
+  host: Readonly<Ref<HTMLDivElement | null>>,
+  options: (size: { width: number; height: number }) => uPlot.Options,
+  data: () => uPlot.AlignedData,
+  height: () => number,
+) {
   const plot = shallowRef<uPlot | null>(null)
+  const width = shallowRef(600)
   let observer: ResizeObserver | null = null
-  const width = () => host.value?.clientWidth || 600
+  const measure = () => host.value?.clientWidth || 600
 
   onMounted(() => {
     if (host.value === null) {
       return
     }
-    plot.value = new uPlot(options(width()), data(), host.value)
+    width.value = measure()
+    plot.value = new uPlot(options({ width: width.value, height: height() }), data(), host.value)
     if (typeof ResizeObserver !== 'undefined') {
       observer = new ResizeObserver(() => {
-        const next = width()
-        plot.value?.setSize({ width: next, height: chartHeight(next) })
+        width.value = measure()
       })
       observer.observe(host.value)
     }
   })
 
+  watch([width, height], ([next, tall]) => plot.value?.setSize({ width: next, height: tall }))
   watch(data, (next) => plot.value?.setData(next))
 
   onBeforeUnmount(() => {
@@ -53,5 +59,5 @@ export function useUplot(host: Readonly<Ref<HTMLDivElement | null>>, options: (w
     plot.value = null
   })
 
-  return plot
+  return { plot, width }
 }

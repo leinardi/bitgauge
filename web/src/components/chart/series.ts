@@ -21,20 +21,14 @@ import type { DirectionLive } from '@/composables/useRunState'
 import type { Direction, DirectionEvent, NoticeCode } from '@/engine/messages'
 
 // The live chart's data (ui/screens.md section 1, design_system/components/charts.md), built
-// from the run's live state: each direction is a segment of the time axis, in run order, its
-// buckets drawn stepwise from their start with unknown ones as gaps. Download sits on its own
+// from the run's live state: each direction is a segment of the time axis, in run order, each
+// bucket placed at its start with unknown ones as gaps, and the last one held to the segment's
+// end, so it keeps its width (draw.ts holdLinear holds one before a gap). Download sits on its own
 // buckets from the phase start; upload on server grid cells from P_start, with the sending line
 // in the cell the engine placed it in by the display-only offset (measurement.md section 7.4).
 // Nothing here is a number of the result: it only places what the engine sent.
 
 const BUCKET_S = 0.1
-
-/**
- * How uPlot draws a bucket series: each value holds from its bucket's start to the next one's
- * (align 1), and a gap clips exactly its null buckets, from the first one's start to the next known
- * one's (alignGaps 1), so the bucket before a gap keeps its width (charts.md).
- */
-export const STEPPED = { align: 1, alignGaps: 1 } as const
 
 /** x in seconds from the chart's start; then download, upload received and sending, per x. */
 export type ChartData = [number[], (number | null)[], (number | null)[], (number | null)[]]
