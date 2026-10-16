@@ -1249,7 +1249,7 @@
         "layer": "content",
         "path": "^(header > banner|main|main > button \"Context: LAN, suggested\"|main > region \"Speed test\"( > button \"Retry test\")?)$",
         "kind": "^(changed|extra|attrs)$",
-        "detail": "^(text \"… unreachable <page host>\" → |alert$|button \"Context: |text \"LAN\" → \"—\"$|text \"Client IP |\\[\\] → \\[disabled\\]$|tooltip \"Server unreachable)"
+        "detail": "^(text \"… unreachable <page host>\" → |alert$|button \"Context: |text \"LAN\" → \"—\"$|text \"Client IP |\\[\\] → \\[disabled\\]$|tooltip \"Server unreachable|status$)"
       },
       "type": "conflict",
       "aspect": "behavior",
@@ -1279,6 +1279,7 @@
           "0444906086e5": "*",
           "10eba69145d7": "*",
           "1ee9c54b522c": "*",
+          "7be2e0a60033": "*",
           "9347b40aed64": "*",
           "a35d1ff07a2b": "*",
           "d5fda2619a62": "*",
@@ -1289,6 +1290,11 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's error-early shows the offline state once GET /info fails: the offline notice, the strip without the client, Retry disabled, the header's announcement.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "AppHeader.vue: the header's announcement is a status region (role=\"status\"), as the export's AppHeader has it; the re-identified header entry, an extra status where the kit announces nothing, is extended into this cluster.",
           "done": true
         }
       ],
@@ -1479,6 +1485,11 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: About uses h2 section headings, no Clients row, the spec's version with an Intl date, the credits' version notes, an intro true for v0.1 and a privacy text without history.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "AboutPage.vue: the section headings take the eyebrow's line-height (--lh-snug), as the export's .ds-eyebrow sets it; a kit copy with h2 headings showed 16.5 px against 14.3 px.",
           "done": true
         }
       ],

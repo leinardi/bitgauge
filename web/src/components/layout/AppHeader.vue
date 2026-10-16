@@ -98,6 +98,7 @@ function cycleTheme(): void {
       </div>
       <span
         class="sr-only"
+        role="status"
         aria-live="polite"
       >{{ announcement }}</span>
       <nav
@@ -170,6 +171,7 @@ function cycleTheme(): void {
       </span>
       <span
         class="sr-only"
+        role="status"
         aria-live="polite"
       >{{ announcement }}</span>
     </div>

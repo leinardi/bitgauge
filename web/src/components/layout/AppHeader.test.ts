@@ -55,14 +55,14 @@ describe('the header', () => {
     expect(server.text()).toContain(window.location.host)
     expect(server.get('.sr-only').text()).toBe(', connected')
     expect(server.attributes('title')).toBe('Server connected')
-    expect(wrapper.find('[aria-live="polite"]').text()).toBe('')
+    expect(wrapper.find('[role="status"]').text()).toBe('')
 
     vi.mocked(getInfo).mockRejectedValueOnce(new TypeError('network'))
     await useInfo().refresh()
     await flushPromises()
     expect(server.get('.sr-only').text()).toBe(', unreachable')
     expect(server.text()).toContain('Unreachable')
-    expect(wrapper.find('[aria-live="polite"]').text()).toBe('Server unreachable')
+    expect(wrapper.find('[role="status"]').text()).toBe('Server unreachable')
   })
 
   it('switches and persists the theme', async () => {

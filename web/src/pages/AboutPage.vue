@@ -153,7 +153,7 @@ const credits = computed(() => [
         </div>
       </section>
       <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
-        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
           {{ t('about.methodology.title') }}
         </h2>
         <p class="text-(length:--text-sm) leading-normal text-muted-foreground">
@@ -167,7 +167,7 @@ const credits = computed(() => [
         </AppLink>
       </section>
       <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
-        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
           {{ t('about.privacy.title') }}
         </h2>
         <p class="text-(length:--text-sm) leading-normal text-muted-foreground">
@@ -175,7 +175,7 @@ const credits = computed(() => [
         </p>
       </section>
       <section class="flex flex-col gap-2 rounded-(--radius-md) border border-border bg-card p-4">
-        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
+        <h2 class="font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">
           {{ t('about.credits.title') }}
         </h2>
         <ul class="flex flex-col gap-2">
