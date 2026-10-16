@@ -12,9 +12,10 @@ docs
 test
 tests
 *.md
-# Except the design export's tokens, fonts, icons and manifest, which the web stage builds in
-# (frontend.md section 8).
+# Except the design export's tokens, element defaults, fonts, icons and manifest, which the web
+# stage builds in (frontend.md section 8).
 !docs/design_system/colors_and_type.css
+!docs/design_system/base.css
 !docs/design_system/assets/**
 
 # Local artifacts
