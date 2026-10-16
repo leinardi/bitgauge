@@ -50,7 +50,7 @@ export function normalizeText(text: string): string {
 // whether a value is right is the engine's and the demo's tests' to say (the demo session tests hold
 // the LAN within 5 % of its rate), not parity's. The number becomes "#", so what is compared is
 // everything around it: its unit, its label and its qualifiers.
-const UNIT = String.raw`(?:[GMk]?bit\/s|(?:giga|mega|kilo)?bits per second|[GMk]?B|ms|milliseconds|s|seconds|%)(?![\w/])`
+const UNIT = String.raw`(?:[GMk]?bit\/s|(?:giga|mega|kilo)?bits per second|[GMk]?B|(?:tera|giga|mega|kilo)?bytes|ms|milliseconds|s|seconds|%)(?![\w/])`
 const NUMBER = String.raw`\d+(?:[.,]\d+)*`
 // A range is never measured: it is a phase's estimated duration (~10–20 s) or a scale's bounds, so
 // it is matched first and kept whole.
@@ -63,8 +63,10 @@ const TIME_OF_DAY = /(?<![\w.])\d{1,2}:\d{2}(?::\d{2})?(?: [AP]M)?(?![\w.])/g
 
 // The data a run has used crosses a unit boundary (997 MB, then 1.0 GB) at a slightly different
 // instant each run, so its prefix is part of the measured value. A rate's prefix is kept: no demo
-// link sits near a boundary, and how a rate is scaled is worth comparing.
+// link sits near a boundary, and how a rate is scaled is worth comparing. The live region speaks a
+// size with its long unit name ("1.15 gigabytes"), whose prefix is masked the same way.
 const DATA_SIZE = /# [GMk]?B(?![\w/])/g
+const SPOKEN_DATA_SIZE = /# (?:tera|giga|mega|kilo)?bytes(?![\w/])/g
 
 // The streams a run has open move with the ramp, which a held or stopped run reaches at a slightly
 // different instant each run.
@@ -91,6 +93,7 @@ export function normalizeValue(text: string): string {
     .replace(TIME_OF_DAY, (time) => time.replace(/\d+/g, '#').replace(/[AP]M$/, '#M'))
     .replace(MEASURED, (_value, range: string | undefined) => range ?? '#')
     .replace(DATA_SIZE, '# B')
+    .replace(SPOKEN_DATA_SIZE, '# bytes')
     .replace(STREAMS_IN_USE, 'Streams #')
     .replace(GAUGE_NOTE, (_note, avg: string | undefined, peak: string | undefined, median: string | undefined) => (median === undefined ? `${avg} # · ${peak} #` : `${median} #`))
     .replace(TILE_VALUE, '$1 #')

@@ -109,6 +109,7 @@ describe('normalizeValue', () => {
     ['Upload result: 424 megabits per second', 'Upload result: # megabits per second'],
     ['Data used 1.21 GB Duration 27.7 s', 'Data used # B Duration # s'],
     ['Data used 997 MB, then 76.5 kB', 'Data used # B, then # B'],
+    ['Data used 1.15 gigabytes. Data used 956 kilobytes. Data used 0 bytes.', 'Data used # bytes. Data used # bytes. Data used # bytes.'],
     ['Protocol h2 Streams 2 auto, up to 6', 'Protocol h2 Streams # auto, up to 6'],
     ['Idle latency done · 2.9 ms, 0 % probe timeouts', 'Idle latency done · # ms, # % probe timeouts'],
     ['Auto-start in 3 seconds, 2.5 s left', 'Auto-start in # seconds, # s left'],

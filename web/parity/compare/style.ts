@@ -81,11 +81,20 @@ function collect({ props, regionRoots }: { props: readonly string[]; regionRoots
     return `rgba(${r ?? 0}, ${g ?? 0}, ${b ?? 0}, ${a ?? 0})`
   }
   const nameOf = (el: Element): string => el.getAttribute('aria-label') ?? el.textContent ?? ''
+  // Shown to screen readers only: it, or an ancestor, is clipped to a box of at most 1 px, so none of
+  // its style renders (a visually hidden live region).
+  const screenReaderOnly = (el: Element): boolean => {
+    for (let node: Element | null = el; node !== null; node = node.parentElement) {
+      const box = node.getBoundingClientRect()
+      if (box.width <= 1 && box.height <= 1 && getComputedStyle(node).overflow !== 'visible') return true
+    }
+    return false
+  }
   const out: { region: string; role: string; name: string; props: Record<string, string> }[] = []
   for (const el of document.querySelectorAll(SELECTOR)) {
     if (el.closest('[aria-hidden="true"], [inert]') !== null) continue
     const rect = el.getBoundingClientRect()
-    if (rect.width === 0 || rect.height === 0) continue
+    if (rect.width === 0 || rect.height === 0 || screenReaderOnly(el)) continue
     const region = regionRoots.find(([, selector]) => el.closest(selector) !== null)?.[0]
     if (region === undefined) continue
     const role = el.getAttribute('role') ?? IMPLICIT[el.tagName] ?? el.tagName.toLowerCase()

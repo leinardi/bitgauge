@@ -75,16 +75,17 @@ changing.
   mocked host, as the spec asks of both, so either reads as one token (never any other host);
 - a measured value: the number of a rate, latency, size, duration or share, also where the gauge's
   note, a result tile or the stop notice words it without its unit (avg so far, peak, median, min,
-  a stopped upload's confirmed requests), the prefix of a data size, the number of streams in use,
-  and the digits of a time of day. A range (a phase's estimated duration, a scale's bounds) is
-  never measured, so it is compared as written.
+  a stopped upload's confirmed requests), the prefix of a data size, short or spoken (1.15 GB,
+  1.15 gigabytes), the number of streams in use, and the digits of a time of day. A range (a
+  phase's estimated duration, a scale's bounds) is never measured, so it is compared as written.
 
 Anything added there hides a class of difference for good, so it needs the same justification.
 `web/parity/compare/style.ts` skips a property only where it cannot render: a border color where
 neither side draws a border (no width, or a fully transparent color), a gap outside flex and grid,
 and the padding, gap and weight of an icon-only button centered in a box of the same size on both
 sides. A corner radius is compared as drawn, at most half the box's shorter side, so `9999px` and
-`calc(infinity * 1px)` are the same pill.
+`calc(infinity * 1px)` are the same pill. It skips an element shown to screen readers only, clipped
+with an ancestor or by itself to a box of at most 1 px, since none of its style renders.
 
 ### Why the Runs Repeat
 
