@@ -85,7 +85,7 @@ function options(select: Element): string[] {
 describe('the demo panel', () => {
   it.each([
     ['complete', 'lan', '192.168.1.42'],
-    ['slowdone', 'vpn', '10.8.0.6'],
+    ['slowdone', 'vpn', '100.101.4.17'],
   ] as const)('boots the page into the stored %s: its Worker gets the scenario, the matching configure and start', async (scenario, link, ip) => {
     const wrapper = await boot({ scenario, speed: 2 })
     const worker = await vi.waitFor(

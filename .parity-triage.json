@@ -1822,6 +1822,7 @@
           "c47dc29fbff8": "*"
         },
         "test/cancelled-slow": {
+          "ab002da911e0": "*",
           "cfb3147a79f1": "*",
           "d97736972857": "*",
           "e5f4e07bce3a": "*",
@@ -3139,16 +3140,58 @@
         {
           "target": "spec",
           "what": "frontend.md §9: the VPN link's client is the CGNAT address 100.101.4.17, suggested as VPN; the LAN link's stays private and suggested as LAN.",
-          "done": false
+          "done": true
         },
         {
           "target": "fixture",
           "what": "web/src/demo/fixtures.ts and session.test.ts: the vpn link's /info client is 100.101.4.17 with addressClass cgnat and suggestedLabel VPN.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-16",
+        "run": {
+          "runId": "37bd7e27-86b5-4885-b51e-fd6bc8720310",
+          "finishedAt": "2026-10-16T07:20:37.131Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "harness-page-host",

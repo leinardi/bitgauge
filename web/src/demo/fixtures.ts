@@ -30,11 +30,10 @@ export type DemoLinkName = 'lan' | 'lan-http1' | 'vpn' | 'insufficient'
 
 const MIB = 1024 * 1024
 
-function info(ip: string, basePath: string): Info {
+function info(client: Info['client'], basePath: string): Info {
   return {
     server: { name: 'Basement NAS', version: '1.4.0', commit: 'a1b2c3d', buildDate: '2026-09-30', epoch: '2026-09-30T08:12:44.000Z', basePath },
-    // A private address: the server suggests LAN for it, a VPN's tunnel address included.
-    client: { ip, ipVersion: 4, addressClass: 'private', suggestedLabel: 'LAN' },
+    client,
     limits: { maxDownloadBytes: 256 * MIB, maxUploadBytes: 256 * MIB, maxStreamsPerClient: 8, uploadLifetimeMs: 120_000, bucketMs: 100 },
     defaults: {
       preset: 'standard',
@@ -88,7 +87,12 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
   },
 }
 
-/** The GET /info answer the link's client sees: the kit's 10.8.0.6 behind the VPN, 192.168.1.42 otherwise. */
+// The client the server sees: a private address, which it suggests as LAN, or behind the VPN a
+// CGNAT one, which it suggests as VPN (wire-protocol.md section 5).
+const LAN_CLIENT: Info['client'] = { ip: '192.168.1.42', ipVersion: 4, addressClass: 'private', suggestedLabel: 'LAN' }
+const VPN_CLIENT: Info['client'] = { ip: '100.101.4.17', ipVersion: 4, addressClass: 'cgnat', suggestedLabel: 'VPN' }
+
+/** The GET /info answer the link's client sees: the kit's 100.101.4.17 behind the VPN, 192.168.1.42 otherwise. */
 export function infoFor(link: DemoLinkName, basePath = '/'): Info {
-  return info(link === 'vpn' ? '10.8.0.6' : '192.168.1.42', basePath)
+  return info(link === 'vpn' ? VPN_CLIENT : LAN_CLIENT, basePath)
 }

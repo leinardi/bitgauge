@@ -89,7 +89,8 @@ describe('the demo session', () => {
     expect(vpn.upload?.bitsPerSecond).toBeLessThan(DEMO_LINKS.vpn.uploadBitsPerSecond * 1.05)
     expect(vpn.idle?.medianMs).toBeGreaterThan(40)
     expect(vpn.idle?.medianMs).toBeLessThan(56)
-    expect(vpn.client.ip).toBe('10.8.0.6')
+    // The VPN's CGNAT address is suggested as VPN, which the run takes as its context label.
+    expect(vpn.client).toMatchObject({ ip: '100.101.4.17', contextLabel: 'VPN' })
 
     const slower = resultOf((await play('insufficient', {}, { link: 'insufficient', start: true })).events)
     expect(slower.notices.map((notice) => notice.code)).toContain('slow-link-extended')
