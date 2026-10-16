@@ -80,10 +80,10 @@ exports.
   profile (`HARNESS_SHAPE=none`), a debugging run that is never judged and fails the tier like
   every final run that is not a `pass`. An inconclusive first attempt is re-run once; the first
   stays in the report marked as a re-run, and only the second counts.
-- **Self-test** (floor only): the shaped path's measured throughput before the profile counts. The
-  harness holds it within 5 % of the configured goodput, the goodput the configured link rate can
-  carry once Ethernet, IP and TCP overhead are taken off (`rate × 1448 / 1514`), as testing.md §5
-  requires; not of the configured rate itself.
+- **Self-test** (floor only): the rate each direction's tbf sent, in whole frames, while iperf3
+  saturated it before the profile counts. The harness holds it within 5 % of the configured rate,
+  as testing.md §5.1 requires. The reference runs are held to the configured goodput instead
+  (`rate × 1448 / 1514`), because iperf3 counts TCP payload.
 - **iperf3 before and after**: both raw values, always, and the reference the evaluator took from
   them. A profile that breaks either condition of the instability rule of testing.md §5 (before
   and after more than 5 % apart, or either more than 5 % off the configured goodput) has no

@@ -259,10 +259,15 @@ and anything about networks the project does not target.
   into the next, which a mean over a few seconds reads as a rate the link never had. Its block
   length is 10 ms of data at the profile's rate, between one segment's payload and 128 KiB, so a
   block never quantizes a slow link's per-second counts.
-- **Shaper self-test.** Before a profile counts, an iperf3 check confirms the shaped path holds
-  within ±5 % of the configured goodput, the goodput the configured rate carries once Ethernet, IP
-  and TCP overhead are taken off (`rate × 1448 / 1514`, see the reference measurement above). A
-  failed `tc` command fails the run; there is never a silently unshaped run.
+- **Shaper self-test.** Before a profile counts, the harness confirms that each direction's tbf
+  holds the configured rate. While an iperf3 run saturates that direction, settled as above, it
+  reads the bytes the tbf sent at the start and at the end of 5 s, in whole frames as tbf meters
+  them, and their rate must be within ±5 % of the configured rate. It reads the shaper, not
+  iperf3's received rate: on a 64 KiB queue, TCP's first queue overflow can fall inside those
+  5 s, and the loss recovery after it holds the receiver's bytes back for seconds, so a correct
+  shaper would read as a slow one. A tbf that idles because TCP left its queue empty reads low
+  too, and fails: the self-test confirms only a rate it saw. A failed `tc` command fails the run;
+  there is never a silently unshaped run.
 - **Reports.** Each run writes `dist/harness/<tier>-<UTC>-<envid>/report.json` and `report.md`,
   with the raw exports, both iperf3 values and the environmental limits above. CI uploads them as
   an artifact and writes the Markdown to the step summary. For the floor and ceiling tiers, the
