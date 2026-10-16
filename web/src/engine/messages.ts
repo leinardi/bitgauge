@@ -290,8 +290,8 @@ export type EngineEvent =
    * starts, that run's, its override applied.
    */
   | { type: 'settings'; scope: 'configured' | 'run'; settings: TestSettings }
-  /** Idle latency so far, after each ping: its path, the ping counter, the last RTT, the running statistics and the probe-timeout share. */
-  | { type: 'idle'; path: IdleResult['path']; pings: number; count: number; rttMs?: number; medianMs?: number; minMs?: number; p90Ms?: number; jitterMs?: number; lossPercent?: number }
+  /** Idle latency so far, after each ping: its path, the ping counter, the last RTT, the running statistics, the probe-timeout share and how long the phase has run (display only). */
+  | { type: 'idle'; path: IdleResult['path']; pings: number; count: number; rttMs?: number; medianMs?: number; minMs?: number; p90Ms?: number; jitterMs?: number; lossPercent?: number; phaseMs: number }
   | { type: 'result'; result: Result }
   | {
       type: 'error'

@@ -73,6 +73,7 @@
     },
     "chart": {
       "title": "Throughput",
+      "latencyTitle": "Latency samples",
       "summary": "{title}: {parts}",
       "empty": "{title}: no data yet",
       "emptyText": "Throughput over time appears here while the test runs.",
@@ -80,6 +81,7 @@
       "warmupShaded": "; warm-up shaded",
       "marked": "; marked: {marks}",
       "elapsed": "{s} s / {of} s",
+      "latencyElapsed": "{s} s / ~{of} s",
       "total": "{s} s total",
       "stopped": "stopped at {s} s",
       "seconds": "{n} s",
@@ -96,7 +98,8 @@
         "upload": "Upload",
         "received": "Upload · received",
         "sending": "Upload · sending",
-        "warmup": "Warm-up"
+        "warmup": "Warm-up",
+        "rtt": "Round-trip time"
       }
     },
     "phases": {

@@ -45,7 +45,7 @@ export interface RunView {
 
 const BUCKET_MS = 100
 /** Idle latency sends a ping no sooner than this after the previous one (measurement.md section 10). */
-const PING_SPACING_MS = 100
+export const PING_SPACING_MS = 100
 
 export function screenState(run: Pick<RunView, 'status' | 'result' | 'error'>): ScreenState {
   if (run.status === 'running') {

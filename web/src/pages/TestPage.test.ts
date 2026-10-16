@@ -211,7 +211,7 @@ describe('the Test screen', () => {
   it('runs idle latency in milliseconds with the ping counter and the live median', async () => {
     const { page, emit } = await started()
     await emit(phase('info', 'started'), phase('info', 'finished', { protocol: 'HTTP/2' }), phase('idle', 'started'))
-    await emit({ type: 'idle', path: 'websocket', pings: 1, count: 20 }, { type: 'idle', path: 'websocket', pings: 3, count: 20, rttMs: 3.2, medianMs: 3.1, minMs: 2.4, p90Ms: 4.1, jitterMs: 0.8, lossPercent: 0 })
+    await emit({ type: 'idle', path: 'websocket', phaseMs: 120, pings: 1, count: 20 }, { type: 'idle', path: 'websocket', phaseMs: 340, pings: 3, count: 20, rttMs: 3.2, medianMs: 3.1, minMs: 2.4, p90Ms: 4.1, jitterMs: 0.8, lossPercent: 0 })
     expect(page.get('[data-testid="gauge-number"]').text()).toBe('3.2')
     expect(page.get('[data-testid="gauge-label"]').text()).toBe('Latency')
     expect(page.get('[data-testid="gauge-note"]').text()).toBe('median 3.1 · ping 3 of 20')
@@ -222,6 +222,9 @@ describe('the Test screen', () => {
     expect(idle).toContain('Live')
     expect(idle).toContain('min 2.4 · p90 4.1 ms · WebSocket')
     expect(page.get('[data-testid="phase-indicator"] li[aria-current="step"]').text()).toContain('Idle latency')
+    // The live chart is the latency samples chart until a direction draws.
+    expect(page.find('[data-testid="throughput-chart"]').exists()).toBe(false)
+    expect(page.get('[data-testid="latency-chart"]').attributes('aria-label')).toBe('Latency samples: Latency 3.2 ms, 0.3 s / ~2 s')
     page.unmount()
   })
 
@@ -311,7 +314,7 @@ describe('the Test screen', () => {
 
   it('returns to Idle when a stop leaves nothing measured', async () => {
     const { page, emit } = await started()
-    await emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', path: 'websocket', pings: 2, count: 20, rttMs: 3, medianMs: 3 })
+    await emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', path: 'websocket', phaseMs: 0, pings: 2, count: 20, rttMs: 3, medianMs: 3 })
     await page.get('[data-testid="start-button"]').trigger('click')
     await emit(phase('download', 'skipped'), phase('upload', 'skipped'))
     expect(page.get('[data-testid="start-button"]').text()).toContain('Start test')

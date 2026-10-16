@@ -84,6 +84,12 @@ export interface DirectionLive {
 /** Idle latency so far, as the last `idle` event carried it. */
 export type IdleLive = Omit<Extract<EngineEvent, { type: 'idle' }>, 'type'>
 
+/** One ping of idle latency on the phase's clock: its round-trip time, null when it gave none. */
+export interface LatencyPoint {
+  atMs: number
+  rttMs: number | null
+}
+
 /** An engine error code, or `internal` for the Worker's uncaught error (ui/flows.md section 5). */
 export interface RunError {
   code: EngineErrorCode | 'internal'
@@ -136,6 +142,7 @@ export function createRunState() {
   const phases = shallowRef(pendingPhases())
   const live = shallowRef(emptyLive())
   const idle = shallowRef<IdleLive | null>(null)
+  const latency = shallowRef<LatencyPoint[]>([])
   const configured = shallowRef<TestSettings | null>(null)
   const runSettings = shallowRef<TestSettings | null>(null)
   const direction = shallowRef<Direction | null>(null)
@@ -218,6 +225,8 @@ export function createRunState() {
     runSettings: runSettings as Readonly<ShallowRef<TestSettings | null>>,
     /** Idle latency so far: the ping counter, the last RTT and the running median; null before the first ping. */
     idle: idle as Readonly<ShallowRef<IdleLive | null>>,
+    /** Each ping after the warm-up one, for the latency samples chart; a restarted idle latency starts it afresh. */
+    latency: latency as Readonly<ShallowRef<LatencyPoint[]>>,
     /** The direction of the last sample: the one the gauge shows. */
     direction: direction as Readonly<ShallowRef<Direction | null>>,
     protocol: protocol as Readonly<ShallowRef<string | null>>,
@@ -236,6 +245,7 @@ export function createRunState() {
       phases.value = pendingPhases()
       live.value = emptyLive()
       idle.value = null
+      latency.value = []
       runSettings.value = null
       direction.value = null
       protocol.value = null
@@ -314,6 +324,8 @@ export function createRunState() {
       } else if (event.type === 'idle') {
         const { type: _type, ...progress } = event
         idle.value = progress
+        // The warm-up ping is no sample; each later one is its RTT, or a gap when it gave none.
+        latency.value = event.pings <= 1 ? [] : [...latency.value, { atMs: event.phaseMs, rttMs: event.rttMs ?? null }]
       } else {
         error.value = { code: event.code, phase: event.phase ?? null, partial: event.partial }
         if (!seenPhase) {

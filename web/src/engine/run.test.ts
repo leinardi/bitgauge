@@ -181,6 +181,9 @@ describe('the phase order', () => {
     const idle = harness.events.flatMap(({ event }) => (event.type === 'idle' ? [event] : []))
     expect(idle.map((event) => event.pings)).toEqual(Array.from({ length: idle.length }, (_, index) => index + 1))
     expect(idle.at(-1)).toMatchObject({ count: idle.length, medianMs: report?.idle?.result.medianMs })
+    // Each carries how long the phase has run, for the latency samples chart.
+    const times = idle.map((event) => event.phaseMs)
+    expect(times.every((ms, index) => ms > 0 && ms >= (times[index - 1] ?? 0))).toBe(true)
     expect(kinds.indexOf('idle')).toBeGreaterThan(kinds.indexOf('idle:started'))
     expect(kinds.lastIndexOf('idle')).toBeLessThan(kinds.indexOf('idle:finished'))
   })

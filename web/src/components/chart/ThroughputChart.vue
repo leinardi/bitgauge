@@ -20,11 +20,14 @@
 import 'uplot/dist/uPlot.min.css'
 
 import uPlot from 'uplot'
-import { computed, onBeforeUnmount, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import ChartHeader from '@/components/chart/ChartHeader.vue'
+import { chartHeight, chartPalette } from '@/components/chart/palette'
 import { buildChart, type ChartData, type ChartInput, STEPPED } from '@/components/chart/series'
 import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, markLabel } from '@/components/chart/text'
+import { useUplot } from '@/components/chart/useUplot'
 import { useTheme } from '@/composables/useTheme'
 import type { TestSettings } from '@/engine/messages'
 import { formatRate } from '@/lib/format'
@@ -54,8 +57,6 @@ const props = withDefaults(
 const { t, locale } = useI18n()
 const { applied } = useTheme()
 const host = useTemplateRef<HTMLDivElement>('host')
-const plot = shallowRef<uPlot | null>(null)
-let observer: ResizeObserver | null = null
 
 const model = computed(() => buildChart(props))
 // A chart with nothing drawn yet is empty, whatever the run's state: while connecting, say.
@@ -71,23 +72,7 @@ const legend = computed(() => chartLegend(textInput.value, wording.value))
 const meta = computed(() => chartMeta(textInput.value, wording.value))
 const summary = computed(() => chartSummary(textInput.value, wording.value))
 
-/** The design tokens the canvas paints with, read from the page since a canvas knows no CSS. */
-function palette() {
-  const style = getComputedStyle(host.value ?? document.documentElement)
-  const token = (name: string) => style.getPropertyValue(name).trim() || 'currentColor'
-  return {
-    download: token('--series-download'),
-    upload: token('--series-upload'),
-    sending: token('--sending'),
-    band: token('--chart-band'),
-    hatch: token('--chart-hatch'),
-    grid: token('--chart-grid'),
-    text: token('--fg-subtle'),
-    mark: token('--fg-muted'),
-    font: `${token('--text-micro')} ${token('--font-mono')}`,
-  }
-}
-let colours = palette()
+let colours = chartPalette(host.value)
 
 /** The bands under the series: each direction's warm-up, with hatch-coloured edges. */
 function drawBands(u: uPlot): void {
@@ -150,7 +135,7 @@ function options(width: number): uPlot.Options {
   })
   return {
     width,
-    height: width < 600 ? 150 : 300,
+    height: chartHeight(width),
     cursor: { show: false },
     legend: { show: false },
     scales: { x: { time: false } },
@@ -169,34 +154,10 @@ function options(width: number): uPlot.Options {
   }
 }
 
-function width(): number {
-  return host.value?.clientWidth || 600
-}
-
-onMounted(() => {
-  if (host.value === null) {
-    return
-  }
-  plot.value = new uPlot(options(width()), data.value, host.value)
-  if (typeof ResizeObserver !== 'undefined') {
-    observer = new ResizeObserver(() => {
-      const next = width()
-      plot.value?.setSize({ width: next, height: next < 600 ? 150 : 300 })
-    })
-    observer.observe(host.value)
-  }
-})
-
-watch(data, (next) => plot.value?.setData(next))
+const plot = useUplot(host, options, () => data.value)
 watch([applied, running], () => {
-  colours = palette()
+  colours = chartPalette(host.value)
   plot.value?.redraw()
-})
-
-onBeforeUnmount(() => {
-  observer?.disconnect()
-  plot.value?.destroy()
-  plot.value = null
 })
 
 // A new phase cross-fades in, unless motion is reduced.
@@ -217,35 +178,11 @@ watch(
 
 <template>
   <div class="flex min-w-0 flex-col gap-3">
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-      <span class="text-(length:--text-base) font-semibold">{{ t('test.chart.title') }}</span>
-      <div class="flex flex-wrap gap-x-3.5 gap-y-1.5">
-        <span
-          v-for="entry in legend"
-          :key="entry.key"
-          class="flex items-center gap-1.5 text-(length:--text-caption) text-muted-foreground"
-        >
-          <span
-            v-if="entry.band"
-            aria-hidden="true"
-            class="h-(--legend-swatch-h) w-(--legend-band-w) border-x border-chart-hatch bg-(--chart-band)"
-          />
-          <span
-            v-else
-            aria-hidden="true"
-            class="h-0 w-(--legend-swatch-w) border-t-2"
-            :class="{ 'opacity-40': entry.faint }"
-            :style="{ borderTopColor: entry.colour }"
-          />
-          {{ entry.label }}
-        </span>
-      </div>
-      <span
-        v-if="meta"
-        class="ml-auto font-mono text-(length:--text-caption) text-subtle-foreground"
-        data-testid="chart-meta"
-      >{{ meta }}</span>
-    </div>
+    <ChartHeader
+      :title="t('test.chart.title')"
+      :legend="legend"
+      :meta="meta"
+    />
     <div class="relative">
       <div
         ref="host"

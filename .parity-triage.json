@@ -2846,16 +2846,16 @@
       "actions": [
         {
           "target": "spec",
-          "what": "screens.md (Running: idle latency, the live chart) and STATUS.md: during idle latency the live chart shows the latency samples, as the kit draws it, with its role=img summary.",
-          "done": false
+          "what": "screens.md (Running: idle latency, the live chart) and architecture.md §4 (the idle event carries its phase time): during idle latency the live chart shows the latency samples, as the kit draws it, with its role=img summary; STATUS.md's UI row already covers web/src/components/chart/.",
+          "done": true
         },
         {
           "target": "vue",
           "what": "The live chart shows the latency samples during idle latency, and keeps them when the run stops or fails in that phase.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "done",
       "owned": {
         "test/cancelled-latency": {
           "274a2acf8f56": "*",
@@ -2878,7 +2878,49 @@
           "e98c75f73da6": "*"
         }
       },
-      "resolution": null
+      "resolution": {
+        "note": null,
+        "on": "2026-10-16",
+        "run": {
+          "runId": "5e964d8a-e295-4ba8-9a7f-1c1692d23f75",
+          "finishedAt": "2026-10-16T07:16:51.040Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "feature-live-extension-marks",

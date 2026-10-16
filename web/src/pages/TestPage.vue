@@ -23,6 +23,7 @@ import { useI18n } from 'vue-i18n'
 
 import LiveRegions from '@/components/a11y/LiveRegions.vue'
 import AppButton from '@/components/actions/AppButton.vue'
+import LatencyChart from '@/components/chart/LatencyChart.vue'
 import ThroughputChart from '@/components/chart/ThroughputChart.vue'
 import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
@@ -40,7 +41,7 @@ import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
-import { gaugeInput, gaugeReadout, offlineGauge, PENDING_STEPS, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen'
+import { gaugeInput, gaugeReadout, offlineGauge, PENDING_STEPS, phaseSteps, PING_SPACING_MS, type RunView, screenState, screenTiles } from '@/components/test/screen'
 import StartButton from '@/components/test/StartButton.vue'
 import { useContextLabel } from '@/composables/useContextLabel'
 import { useCountdown } from '@/composables/useCountdown'
@@ -122,6 +123,9 @@ const chartState = computed(() => {
       return 'stopped'
   }
 })
+// During idle latency, and after a run that ended there, the chart is the latency samples chart.
+const latencyChart = computed(() => shown.value && order.value.every((direction) => chartLive.value[direction] === null) && (run.phase.value === 'idle' || run.latency.value.length > 0))
+const latencyMark = computed(() => (state.value === 'cancelled' || state.value === 'error' ? state.value : null))
 
 /** The gauge's window, carried between directions and started afresh with each run. */
 const gaugeWindow = shallowRef(startK(units.value))
@@ -320,7 +324,17 @@ watch(run.error, (error) => {
           />
         </div>
         <div class="border-t border-(--border-subtle) px-4 py-3.5 lg:border-t-0 lg:border-l lg:px-6 lg:py-5">
+          <LatencyChart
+            v-if="latencyChart"
+            :state="chartState"
+            :points="run.latency.value"
+            :about-ms="(shownSettings?.pingCount ?? 0) * PING_SPACING_MS"
+            :ran-ms="run.phases.value.idle.ranMs ?? null"
+            :mark="latencyMark"
+            :readout="gaugeReadout(gauge, gaugeContext)"
+          />
           <ThroughputChart
+            v-else
             :order="order"
             :live="chartLive"
             :units="units"

@@ -217,11 +217,30 @@ describe('useRun', () => {
     const { run, worker, scope } = started()
     run.start()
     expect(run.idle.value).toBeNull()
-    worker.emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', path: 'websocket', pings: 1, count: 20 }, { type: 'idle', path: 'websocket', pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
-    expect(run.idle.value).toEqual({ path: 'websocket', pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
+    worker.emit(phase('info', 'finished'), phase('idle', 'started'), { type: 'idle', path: 'websocket', phaseMs: 0, pings: 1, count: 20 }, { type: 'idle', path: 'websocket', phaseMs: 0, pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
+    expect(run.idle.value).toEqual({ path: 'websocket', phaseMs: 0, pings: 2, count: 20, rttMs: 3.2, medianMs: 3.2 })
     worker.emit(phase('idle', 'finished'), phase('download', 'skipped'), phase('upload', 'skipped'), { type: 'result', result: result('complete') })
     run.start()
     expect(run.idle.value).toBeNull()
+    scope.stop()
+  })
+
+  it('keeps each ping after the warm-up for the latency chart, a ping without an RTT as a gap', () => {
+    const { run, worker, scope } = started()
+    run.start()
+    const ping = (pings: number, phaseMs: number, rttMs?: number) => ({ type: 'idle' as const, path: 'websocket' as const, phaseMs, pings, count: 20, ...(rttMs === undefined ? {} : { rttMs }) })
+    worker.emit(phase('info', 'finished'), phase('idle', 'started'), ping(1, 120), ping(2, 230, 3.2), ping(3, 2340), ping(4, 2450, 2.9))
+    expect(run.latency.value).toEqual([
+      { atMs: 230, rttMs: 3.2 },
+      { atMs: 2340, rttMs: null },
+      { atMs: 2450, rttMs: 2.9 },
+    ])
+    // A restarted idle latency begins with its warm-up ping again, and the chart afresh.
+    worker.emit(ping(1, 2600), ping(2, 2700, 3.1))
+    expect(run.latency.value).toEqual([{ atMs: 2700, rttMs: 3.1 }])
+    worker.emit(phase('idle', 'finished'), phase('download', 'skipped'), phase('upload', 'skipped'), { type: 'result', result: result('complete') })
+    run.start()
+    expect(run.latency.value).toEqual([])
     scope.stop()
   })
 

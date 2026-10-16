@@ -31,7 +31,7 @@ import { secondsNumber } from '@/lib/format'
 export type ChartState = 'empty' | 'running' | 'done' | 'stopped'
 
 export interface LegendEntry {
-  key: 'download' | 'upload' | 'received' | 'sending' | 'warmup'
+  key: 'download' | 'upload' | 'received' | 'sending' | 'warmup' | 'rtt'
   label: string
   colour: string
   faint: boolean
