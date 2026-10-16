@@ -259,3 +259,18 @@ the export shows, and what it should show, with the reason; behavior comes from
   disabled with "Server unreachable — use Retry first", and the header announcing the change.
 - **Why:** [screens.md §1](../features/ui/screens.md#1-test-home--)'s Offline/retry row applies
   whenever `GET /info` fails: Start stays disabled until it succeeds.
+
+### The Insufficient-Data Notice
+
+- **Source:** triage cluster `content-insufficient-notice`, decided for a new wording on
+  2026-10-16.
+- **Kit:** `ui_kits/app/TestScreen.jsx`, the warn notice of the `insufficient` state.
+- **Export today:** "Download: insufficient data", "Download reached its 20 s maximum with the
+  first 64 KiB request still in flight, so only one request contributed bytes and there is no
+  value. 50.0 kB used. Upload continues; Extended allows up to 40 s per direction."
+- **Wanted:** the same title, and the body "Download reached its 20 s maximum without a confirmed
+  steady window long enough for a number. 50.0 kB used. Upload continues; Extended allows up to
+  40 s per direction."
+- **Why:** the result records no count of the requests that contributed, nor which one was in
+  flight, so the notice names only the maximum, the data used, the direction still running and
+  the offer ([screens.md §7](../features/ui/screens.md#7-notices)).

@@ -2600,10 +2600,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's insufficient-data notice drops the request count and the in-flight request.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/insufficient": {
           "2a27b8a29e2b": [
