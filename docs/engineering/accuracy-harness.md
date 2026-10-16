@@ -115,3 +115,76 @@ before tagging. It holds, in this order:
 A failed or inconclusive profile is recorded as such, with its re-run beside it, never replaced by
 a later pass. The point of the file is that the next release can be
 compared with this one.
+
+## 6. Inject Upload Failures
+
+A manual diagnostic, never a CI profile: it shows the upload failure rules of
+[measurement.md §7.5](../features/measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark)
+at work, which no passing run can, since no upload fails in one. It kills the proxy's upstream
+connection to BitGauge while an upload request is in flight, so the proxy answers that one request
+with an error and the browser's own connection survives. An injected `429` would not do: it also
+lowers the stream cap (measurement.md §4).
+
+Start one proxy profile with its environment kept, for example
+`HARNESS_PROFILES=ci-100m-50ms-caddy-h2 HARNESS_BROWSERS=chromium HARNESS_KEEP_ON_FAILURE=1 make
+harness-ci`, and in a second terminal, while it starts, run the script below with the tools image
+the harness built (`docker images bitgauge-test-tools`). It waits for the proxy container, joins
+its network namespace with `NET_ADMIN` only, and after 10 s of upload traffic kills the `COUNT`
+upstream sockets still sending; with `ROUNDS` above 1 it goes on killing every socket that sends,
+every 300 ms, so the retries fail too. Nothing runs in BitGauge's namespace, so netguard's
+counters keep their meaning: they must still read zero.
+
+```sh
+#!/bin/sh
+# Usage: inject.sh TOOLS_IMAGE COUNT [ROUNDS]
+TOOLS=$1; COUNT=$2; ROUNDS=${3:-1}
+until P=$(docker ps --format '{{.Names}}' | grep -E '^bitgauge-test-.*-proxy$' | head -1) &&
+  [ -n "$P" ]; do sleep 1; done
+docker run --rm -i --network "container:$P" --cap-drop ALL --cap-add NET_ADMIN "$TOOLS" \
+  sh -s "$COUNT" "$ROUNDS" <<'IN'
+COUNT=$1; ROUNDS=$2
+sample() { ss -tniH state established '( dport = :8080 )' | awk '
+  /^[0-9]/ { n = split($3, a, ":"); port = a[n]; next }
+  { for (i = 1; i <= NF; i++) if ($i ~ /^bytes_sent:/) { split($i, b, ":"); print port, b[2] } }'; }
+sending() { sample > /tmp/a; sleep 0.2; sample > /tmp/b
+  awk 'NR == FNR { p[$1] = $2; next } ($1 in p) && $2 > p[$1] { print $1, $2 - p[$1] }' \
+    /tmp/a /tmp/b | sort -k2 -n -r; }
+up=0
+while [ "$up" -lt 20 ]; do
+  sample > /tmp/a; sleep 0.5; sample > /tmp/b
+  total=$(awk 'NR == FNR { p[$1] = $2; next } ($1 in p) { s += $2 - p[$1] } END { print s + 0 }' \
+    /tmp/a /tmp/b)
+  if [ "$total" -gt 2000000 ]; then up=$((up + 1)); else up=0; fi
+done
+for port in $(sending | head -n "$COUNT" | awk '{ print $1 }'); do
+  echo "$(date +%T) kill sport $port"; ss -K '( dport = :8080 )' "sport = :$port" > /dev/null
+done
+round=1
+while [ "$round" -lt "$ROUNDS" ]; do
+  sleep 0.3; round=$((round + 1))
+  for port in $(sending | awk '{ print $1 }'); do
+    echo "round $round kill sport $port"; ss -K '( dport = :8080 )' "sport = :$port" > /dev/null
+  done
+done
+IN
+```
+
+`ss -K` may print `RTNETLINK answers: Invalid argument` after a kill that worked; the exported
+result says whether it did. A run that injects a failure may still pass or fail its tolerance; the
+verdict is not the point. Read the exported result instead:
+
+- **HTTP/1.1 (`ci-100m-50ms-traefik-h1`), one kill:** the upload phase stops issuing at the
+  failure, carries the `upload-interrupted` notice, and reports the window up to the frozen end, or
+  `insufficient data` when that window is too short.
+- **HTTP/2 (`ci-100m-50ms-caddy-h2`), one or two kills:** the phase goes on; each failure leaves a
+  failure-gap event, its cells are `null` in the exported series, never zero, and the headline is
+  the known cells' bytes over their time.
+- **HTTP/2, `ROUNDS=10`:** three consecutive failures end the phase with an error result,
+  `requests-failed`.
+
+The runs of 2026-10-16 that closed this question did exactly that:
+`ci-20261016T211813Z-9c27074a` (Traefik, `upload-interrupted` at 10.5 s, a 3.7 s window),
+`ci-20261016T212221Z-dba00eba` and `ci-20261016T212419Z-24a078c9` (Caddy, one and two failure
+gaps, the phase continued), and `ci-20261016T212626Z-f09d157a` (Caddy, `requests-failed` at
+12.5 s), every netguard counter at zero. The script as shown was checked once more on
+`ci-20261016T213146Z-c97571bf` (Caddy, one kill: a 1.3 s failure gap, the phase continued).
