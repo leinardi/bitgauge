@@ -119,8 +119,9 @@ carries a recommendation; where the specification already relies on an answer, i
     is those 10 buckets all holding bytes; condition 1's `I_s`, the cap, its bound and a fixed
     warm-up count known buckets from the series' first bucket; a moved cap ends warm-up at the
     settle instant, which a trial ended by a `429` places at the end of the series read, also its
-    last add if its streams were never placed. A phase is extended when its window condition did
-    not hold at a minimum shorter than its maximum, and upload stops issuing at `max − 1 s` even
+    last add if its streams were never placed. A phase is extended when its end condition (the
+    window condition and a stable window, measurement.md §5) did not hold at a minimum shorter
+    than its maximum, and upload stops issuing at `max − 1 s` even
     before its minimum. Recommendation: keep it; a stricter condition 2 would count only requests
     that ended before the bucket evaluated.
     See [measurement.md §8.3](measurement.md#83-warm-up-end) and

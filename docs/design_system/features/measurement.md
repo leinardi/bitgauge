@@ -201,24 +201,31 @@ one, and a ramp trial in progress ends there with the plateau reason `cap`.
 
 Each direction has a minimum and a maximum duration taken from the preset (§8):
 
-- A phase runs at least its **minimum**. From the minimum on, it ends as soon as the **window
-  condition** holds: the steady window covers at least 3 s, and on upload at least 3 confirmed
-  requests lie inside it; on download at least two different requests contributed bytes to it.
-  Ending at the first instant the condition holds is the early stop on stability: a stable link
-  ends at the minimum.
-- If the condition does not hold, the phase is **extended** past the preset's nominal duration (its
-  minimum) up to its **maximum**, so slow links get enough completed requests. An extended phase,
-  one whose condition did not hold at a minimum shorter than its maximum, carries the
-  `test extended` notice. On upload the condition is tested on the confirmed window
-  (§8), so the phase keeps sending until the *confirmed* window is long enough.
-- At the maximum without the condition, the direction reports `insufficient data` (§8 Shortfall).
+- A phase runs at least its **minimum**. From the minimum on, it ends as soon as the **end
+  condition** holds: the **window condition**, the steady window covering at least 3 s with, on
+  upload, at least 3 confirmed requests inside it and, on download, at least two different
+  requests contributing bytes to it; and the window's **stability**, the coefficient of variation
+  of its 500 ms sums (the reading of `unstable`, §8.3) at most 10 %. Ending at the first instant
+  the end condition holds is the early stop on stability: a stable link ends at the minimum.
+- If the end condition does not hold, the phase is **extended** past the preset's nominal duration
+  (its minimum) up to its **maximum**, so slow links get enough completed requests and bursty ones
+  a window long enough to average their bursts. On a slow, lossy or long-RTT link a loss recovery
+  holds a second or more of bytes back and then releases them in one burst, which a 3 s window
+  reads as a rate the link never had: at 300 kbit/s a single 30 KB release is 0.8 s of the link.
+  An extended phase, one whose end condition did not hold at a minimum shorter than its maximum,
+  carries the `test extended` notice. On upload the end condition is tested on the confirmed
+  window (§8), so the phase keeps sending until the *confirmed* window is long enough and stable.
+- At the maximum without the window condition, the direction reports `insufficient data` (§8
+  Shortfall). With the window condition but still unstable, it reports its window's number with
+  `confidence: low` and the reason `unstable` (§8.3): the extension bought the window every second
+  it could.
 
 **Ending a phase.**
 
 - **Download** ends at the end instant: in-flight requests are aborted, bytes already read are kept,
   and the window ends at the abort instant.
 - **Upload** stops issuing new requests at `max − 1 s` (the request target), even when that comes
-  before its minimum, or when the window condition holds; its minimum and maximum run on the client
+  before its minimum, or when the end condition holds; its minimum and maximum run on the client
   clock from the phase's first request. In-flight requests may finish within a grace of
   `min(2 s, 2 × d)`, where `d` is the expected duration of the longest in-flight request (its size
   over its stream's rate, normally the 1 s target; a stream with no confirmed request yet has no
@@ -229,7 +236,7 @@ Each direction has a minimum and a maximum duration taken from the preset (§8):
   about 1 s after it. The window ends where the first stream falls quiet, before the drain of the
   others (`M_end`, §7.5). Aborted requests only lower the confirmed watermark; because no request
   is issued after the decision, and every request in flight at it ends after the confirmed window
-  that satisfied the condition, the final window is never shorter than that window.
+  that satisfied the end condition, the final window is never shorter than that window.
 
 **Timeouts and failures.** The engine aborts any request after **30 s** and counts it as failed.
 An upload that ends with an error result, a user stop or a server restart aborts its requests in
@@ -698,8 +705,9 @@ instant gives `confidence: low` with reason `ramp-unsettled`.
 The **steady window** runs from warm-up end to the phase end (download) or to
 `W_end_final = min(C_final, M_end)` (upload). The phase is extended past the preset's nominal
 duration, up to its max, until the window holds at least 3 s **and** (upload) at least 3 confirmed
-requests inside it (download: at least two contributing requests, §5); the upload extension test is
-made on the watermark, so the phase keeps sending until the *confirmed* window is long enough.
+requests inside it (download: at least two contributing requests) **and** is stable, its 500 ms
+sums varying by at most 10 % (§5, §8.3); the upload extension test is made on the watermark, so
+the phase keeps sending until the *confirmed* window is long enough and stable.
 
 ### 8.5 Presets
 
@@ -1129,7 +1137,8 @@ instead of reporting a link speed.
 engine emits the code with the raw values the notice names, and the UI words it.
 
 - `test extended` (`slow-link-extended`, per direction; §5): the phase ran past its minimum,
-  which a slow link needs and a fast one whose ramp settled late needs too;
+  which a slow link needs, and a fast one whose ramp settled late or whose window stayed unstable
+  needs too;
 - `low confidence` with its reason (`low-confidence`, per direction with its reasons);
 - `data cap reached` (`data-cap-reached`; §5);
 - `server stream limit — N streams` (`stream-limit`, per direction with the lowered cap; §4);
