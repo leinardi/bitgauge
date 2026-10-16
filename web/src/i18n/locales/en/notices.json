@@ -22,9 +22,21 @@
       "upload": "The server refused more parallel streams, so upload ran with at most {n}."
     },
     "insufficientData": {
-      "title": "Insufficient data",
+      "title": "{direction}: insufficient data",
+      "directions": {
+        "download": "Download",
+        "upload": "Upload"
+      },
       "download": "Download had no confirmed steady window long enough for a number.",
-      "upload": "Upload had no confirmed steady window long enough for a number."
+      "upload": "Upload had no confirmed steady window long enough for a number.",
+      "downloadMax": "Download reached its {max} maximum without a confirmed steady window long enough for a number.",
+      "uploadMax": "Upload reached its {max} maximum without a confirmed steady window long enough for a number.",
+      "used": "{data} used.",
+      "continues": "{direction} continues",
+      "offer": {
+        "standard": "Standard allows up to 20 s for download and 25 s for upload.",
+        "extended": "Extended allows up to 40 s per direction."
+      }
     },
     "urlParameterIgnored": {
       "title": "URL parameter ignored",

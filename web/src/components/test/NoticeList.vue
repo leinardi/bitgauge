@@ -26,20 +26,30 @@ import AppLink from '@/components/actions/AppLink.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import { noticeViews } from '@/components/test/notices'
 import { useTheme } from '@/composables/useTheme'
-import type { Notice, Preset, Result, TestSettings } from '@/engine/messages'
+import type { Direction, DirectionResult, Notice, PhaseName, Preset, Result, TestSettings } from '@/engine/messages'
 
 // The notices area (ui/screens.md section 7): each notice an icon and text, never colour alone,
 // in its tone, with up to two actions. Danger notices are alerts; the others are status messages.
 // The notices sit in the page's column as siblings, as the export's TestScreen places them.
 
-const props = withDefaults(defineProps<{ notices: Notice[]; result?: Result | null; settings?: TestSettings | null }>(), { result: null, settings: null })
+const props = withDefaults(
+  defineProps<{
+    notices: Notice[]
+    result?: Result | null
+    settings?: TestSettings | null
+    /** Each direction that has ended, and the phase running now (null once the run has ended). */
+    directions?: Partial<Record<Direction, DirectionResult | undefined>>
+    current?: PhaseName | null
+  }>(),
+  { result: null, settings: null, directions: () => ({}), current: null },
+)
 defineEmits<{ retry: []; preset: [preset: Preset]; dismiss: [parameter: string] }>()
 
 const { t, locale } = useI18n()
 const { choice } = useTheme()
 
 const views = computed(() =>
-  noticeViews(props.notices, { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value }).map((view, index) => ({ key: `${index}`, view })),
+  noticeViews(props.notices, { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value, directions: props.directions, current: props.current }).map((view, index) => ({ key: `${index}`, view })),
 )
 </script>
 

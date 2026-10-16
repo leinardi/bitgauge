@@ -2550,6 +2550,72 @@
       }
     },
     {
+      "id": "content-insufficient-notice",
+      "title": "Insufficient-data notice: the kit's direction-named title and detailed body vs Vue's generic one",
+      "match": {
+        "scenarios": [
+          "test/insufficient"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > status( \"(Download|Upload): insufficient data.*)?$",
+        "kind": "^(changed|height)$",
+        "detail": "^(text \"(…hed its # s maximum with the first 64 KiB|(Download|Upload): insufficient data )|169\\.8px → 152\\.5px$)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/measurement.md#86-shortfall",
+          "says": "no number, data used shown, a notice offering the next larger preset; no wording"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:423",
+          "says": "Download: insufficient data — Download reached its 20 s maximum with the first 64 KiB request still in flight, so only one request contributed bytes and there is no value. 50.0 kB used. Upload continues; Extended allows up to 40 s per direction."
+        },
+        "vue": {
+          "ref": "web/src/components/test/notices.ts",
+          "says": "Insufficient data — Download had no confirmed steady window long enough for a number."
+        },
+        "notes": "Paired for the first time once behavior-live-notices showed the notice during the run."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "new",
+        "text": "Title \"<Direction>: insufficient data\"; body \"Download reached its 20 s maximum without a confirmed steady window long enough for a number. 50 kB used. Upload continues; Extended allows up to 40 s per direction.\": the kit's shape with only what the result records (no request count).",
+        "rationale": "The kit's body names a request count and an in-flight request that the result does not record, as content-results-tiles found for the tile; the rest of it (maximum, data used, the direction still running, the offer) is what measurement.md §8.6 asks the notice for.",
+        "on": "2026-10-16"
+      },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "screens.md §7: the insufficient-data notice's title and body, with an example.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "insufficient.ts, notices.ts, NoticeList.vue, TestPage.vue and notices.json: the title names the direction; the body the maximum, the data used, the direction still running while the run goes on, and the offered preset's maximum.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's insufficient-data notice drops the request count and the in-flight request.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/insufficient": {
+          "2a27b8a29e2b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f32fcb2f8637": "*"
+        }
+      },
+      "resolution": null
+    },
+    {
       "id": "content-low-confidence-notice",
       "title": "Slow run: Vue's low-confidence notice for the upload, which the kit's slowdone does not show",
       "match": {

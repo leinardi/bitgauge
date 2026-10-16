@@ -25,6 +25,7 @@ import { formatPercent } from '@/lib/format'
 import { links } from '@/lib/links'
 
 import { type IgnoredContext, ignoredBody } from '@/components/test/ignored'
+import { type InsufficientContext, insufficientWording } from '@/components/test/insufficient'
 import { stopWording } from '@/components/test/stop'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
@@ -55,7 +56,7 @@ export interface NoticeView {
  * The wording, the result the notices belong to, which the stop notice is worded from, and the
  * settings and theme an ignored URL parameter stays on.
  */
-export type NoticeContext = Wording & IgnoredContext & { result?: Result | null }
+export type NoticeContext = Wording & IgnoredContext & InsufficientContext & { result?: Result | null }
 
 function preset(value: Preset, t: Wording['t']): string {
   return value === 'quick' ? t('test.summary.quick') : value === 'standard' ? t('test.summary.standard') : t('test.summary.extended')
@@ -97,7 +98,7 @@ export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
     }
     case 'insufficient-data': {
       const actions: NoticeAction[] = notice.offer === null ? [] : [{ kind: 'preset', preset: notice.offer, label: t('notices.actions.tryPreset', { preset: preset(notice.offer, t) }) }]
-      return { tone: 'warn', icon: TriangleAlert, title: t('notices.insufficientData.title'), body: notice.direction === 'download' ? t('notices.insufficientData.download') : t('notices.insufficientData.upload'), actions }
+      return { tone: 'warn', icon: TriangleAlert, ...insufficientWording(notice, context), actions }
     }
     case 'url-parameter-ignored':
       return { tone: 'warn', icon: Link, title: t('notices.urlParameterIgnored.title'), body: ignoredBody(notice, context), actions: [{ kind: 'dismiss', parameter: notice.parameter, label: t('notices.actions.dismiss') }] }
