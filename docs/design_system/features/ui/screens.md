@@ -37,7 +37,11 @@ from the design export; this page fixes content and behavior only. Terms follow 
 - **Live chart:** throughput over time (download; upload `received` solid and `sending` faint),
   phase separators, event marks (extended, data cap, cancelled, error), optional loaded-latency
   series toggle on its own axis. Warm-up samples are drawn over a shaded band until warm-up ends:
-  they exist only in memory and count toward no number.
+  they exist only in memory and count toward no number. During idle latency it is the **latency
+  samples** chart instead: each ping's round-trip time in milliseconds on a linear axis, over the
+  phase's time, a lost ping a gap and the warm-up ping not drawn, with the "now" line and the phase
+  time against its estimate ("1.4 s / ~2 s"). A run that stops or fails during idle latency keeps
+  it, marked "Cancelled" or "Connection lost", with the time it stopped at.
 - **Result metrics** (§6), each with its qualifiers. While a direction runs, its tile shows
   "warming up" until warm-up ends, then the steady-window average and peak so far.
 - **Packet loss slot** reading "packet loss — not measured" (§6).
@@ -71,7 +75,7 @@ from the design export; this page fixes content and behavior only. Terms follow 
 | --- | --- |
 | Idle | Server name, connection info (from `GET /info`), Start, the last result line if any, the settings summary. |
 | Running: info | "Connecting…" on the first phase step and in the gauge readout; Start becomes Stop. |
-| Running: idle latency | Gauge in milliseconds, ping counter, live median. |
+| Running: idle latency | Gauge in milliseconds, ping counter, live median, latency samples chart. |
 | Running: download / upload | Gauge, chart, stream count, protocol, data used; per-direction "measuring" or "warming up" hint; loaded latency live. |
 | Done | Result metrics, notices, save bar (v0.2), Details link, Download JSON, Run again. |
 | Cancelled | Partial result with `partial — stopped early` and what was covered ([../measurement.md §7.8](../measurement.md#78-worked-example-b--cancellation-mid-request)); an interrupted direction shows a number only when its confirmed steady window meets the minimum ([../measurement.md §7.6](../measurement.md#76-headline-peak-and-minimum-window)), otherwise "insufficient data". Not saved; Keep in history and Download JSON offered. |
