@@ -145,6 +145,22 @@ describe('the demo panel', () => {
     button.remove()
   })
 
+  it.each([
+    ['error-early', 'requests', true],
+    ['error', 'requests', false],
+    ['error', 'unreachable', true],
+  ] as const)('answers GET /info for %s with %s errors, and fails it after a run ended on an unreachable server: %s', async (scenario, errorKind, fails) => {
+    vi.resetModules()
+    const control = await import('@/demo/control')
+    control.chooseScenario({ type: 'demo', scenario, speed: 1, cpuBound: false, timerResolutionMs: null, errorKind, hold: true })
+    await expect(control.demoInfo()).resolves.toMatchObject({ server: { name: 'Basement NAS' } })
+    const worker = new StubWorker('demo')
+    control.attachWorker(worker as unknown as Worker)
+    await flushPromises()
+    worker.dispatchEvent(new MessageEvent('message', { data: { type: 'error', code: 'network-changed', messageKey: 'errors.network-changed', phase: 'idle', partial: false } }))
+    await (fails ? expect(control.demoInfo()).rejects.toThrow('unreachable') : expect(control.demoInfo()).resolves.toMatchObject({ server: { name: 'Basement NAS' } }))
+  })
+
   it('lists every scenario, offers every v0.1 state to force, and stays collapsed by default', async () => {
     const wrapper = mount(DemoPanel, { props: { navigate: vi.fn() } })
     expect(wrapper.find('[data-testid="demo-scenario"]').exists()).toBe(false)

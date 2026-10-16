@@ -18,7 +18,7 @@
  */
 
 import { infoFor } from '@/demo/fixtures'
-import { DEMO_SCENARIOS, type DemoCommand, type DemoPressStop, type DemoScenario } from '@/demo/scenarios'
+import { DEMO_SCENARIOS, type DemoCommand, type DemoScenario } from '@/demo/scenarios'
 import type { Info } from '@/engine/types'
 
 // The page's side of the demo (frontend.md section 9): the choice the demo panel restored when the
@@ -36,6 +36,13 @@ export function chooseScenario(command: DemoCommand): void {
 }
 
 let pressStop: () => void = () => undefined
+/** Whether a run has ended on the scenario's unreachable server: the page's GET /info fails from then on. */
+let gone = false
+/** The chosen scenario, once the panel has chosen it. */
+let current: DemoCommand | null = null
+void chosen.then((command) => {
+  current = command
+})
 
 /** What presses the page's Stop when the demo's script stops the run. */
 export function onScriptedStop(press: () => void): void {
@@ -48,18 +55,23 @@ export function onScriptedStop(press: () => void): void {
  */
 export function attachWorker(worker: Pick<Worker, 'postMessage' | 'addEventListener'>): void {
   worker.addEventListener('message', (event) => {
-    if ((event.data as Partial<DemoPressStop> | null)?.type === 'demo-press-stop') {
+    const type = (event.data as { type?: unknown } | null)?.type
+    if (type === 'demo-press-stop') {
       event.stopImmediatePropagation()
       pressStop()
+    } else if (type === 'error' && current !== null) {
+      const scenario: DemoScenario = DEMO_SCENARIOS[current.scenario]
+      // The scenario's fault, or the panel's error kind for one that leaves it open, as the session plays it.
+      gone ||= scenario.fault !== undefined && (scenario.fault.kind ?? current.errorKind) === 'unreachable'
     }
   })
   void chosen.then((command) => worker.postMessage(command))
 }
 
-/** GET /info as the chosen scenario's server answers it: unreachable for the offline one. */
+/** GET /info as the chosen scenario's server answers it: unreachable for the offline one, and once a run ended on its unreachable fault. */
 export async function demoInfo(): Promise<Info> {
   const scenario: DemoScenario = DEMO_SCENARIOS[(await chosen).scenario]
-  if (scenario.offline === true) {
+  if (scenario.offline === true || gone) {
     throw new TypeError('the demo server is unreachable')
   }
   return infoFor(scenario.link, scenario.basePath)

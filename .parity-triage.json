@@ -1172,16 +1172,16 @@
       "actions": [
         {
           "target": "vue",
-          "what": "TestPage.vue: re-check GET /info after a network-changed ending and update the header's indicator.",
-          "done": false
+          "what": "flows.md §5 and TestPage.vue: GET /info is checked again after a network-changed ending, so the header shows the server's state.",
+          "done": true
         },
         {
           "target": "fixture",
-          "what": "demo/control.ts and session.ts: the unreachable fault also makes the demo's /info fail.",
-          "done": false
+          "what": "frontend.md §9 and demo/control.ts: once a run has ended on the unreachable fault, the demo's GET /info fails.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "done",
       "owned": {
         "test/error-early": {
           "50f1a82cf0e6": [
@@ -1194,6 +1194,105 @@
           ]
         }
       },
+      "resolution": {
+        "note": null,
+        "on": "2026-10-16",
+        "run": {
+          "runId": "fca7d0be-b954-49c8-aeda-5cbfb9fdbdf6",
+          "finishedAt": "2026-10-16T08:33:50.848Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
+    },
+    {
+      "id": "behavior-error-early-offline",
+      "title": "error-early once GET /info fails: Vue's offline treatment (alert, strip and context without the client, Retry disabled, the header's announcement) vs the kit's header-only unreachable",
+      "match": {
+        "scenarios": [
+          "test/error-early"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(header > banner|main|main > button \"Context: LAN, suggested\"|main > region \"Speed test\"( > button \"Retry test\")?)$",
+        "kind": "^(changed|extra|attrs)$",
+        "detail": "^(text \"… unreachable <page host>\" → |alert$|button \"Context: |text \"LAN\" → \"—\"$|text \"Client IP |\\[\\] → \\[disabled\\]$|tooltip \"Server unreachable)"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md (Offline / retry row); ui/flows.md §5",
+          "says": "GET /info fails: \"Server unreachable\" with Retry and the next check; Start disabled until /info succeeds; a network-changed ending checks /info again"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (error-early); Prototype.jsx:81",
+          "says": "only the header reads unreachable; the client, the context and an enabled Retry stay"
+        },
+        "vue": {
+          "ref": "web/src/pages/TestPage.vue (OfflineNotice, ConnectionStrip, disabledReason); components/layout/AppHeader.vue",
+          "says": "the offline notice, the strip and context without the client, Retry disabled with its reason, and the header announcing the change"
+        },
+        "notes": "Surfaced when behavior-error-early-header made the demo's /info fail after the unreachable fault."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "screens.md's Offline/retry row applies whenever GET /info fails: Start stays disabled until it succeeds, with the offline notice.",
+        "on": "2026-10-16"
+      },
+      "owned": {
+        "test/error-early": {
+          "0444906086e5": "*",
+          "10eba69145d7": "*",
+          "1ee9c54b522c": "*",
+          "9347b40aed64": "*",
+          "a35d1ff07a2b": "*",
+          "d5fda2619a62": "*",
+          "fa878e9b5e93": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's error-early shows the offline state once GET /info fails: the offline notice, the strip without the client, Retry disabled, the header's announcement.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -1235,10 +1334,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: in v0.1 the kit shows no Result status bar when no phase finished (flows.md §5).",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/error-early": {
           "9850eccf6f7a": "*"
