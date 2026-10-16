@@ -83,7 +83,7 @@ exports.
 - **Self-test** (floor only): the rate each direction's tbf sent, in whole frames, while iperf3
   saturated it before the profile counts. The harness holds it within 5 % of the configured rate,
   as testing.md §5.1 requires. The reference runs are held to the configured goodput instead
-  (`rate × 1448 / 1514`), because iperf3 counts TCP payload.
+  (`rate × 1448 / 1514 × (1 − loss)`), because iperf3 counts TCP payload sent once.
 - **iperf3 before and after**: both raw values, always, and the reference the evaluator took from
   them. A profile that breaks either condition of the instability rule of testing.md §5 (before
   and after more than 5 % apart, or either more than 5 % off the configured goodput) has no

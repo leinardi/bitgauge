@@ -292,10 +292,12 @@ limits it never received).
 
 iperf3 runs immediately before and immediately after the browser run, each for the steady-window
 duration of the preset; a profile whose two runs differ by more than 5 %, or deviate by more than
-5 % from the configured goodput (the configured rate less Ethernet, IP and TCP overhead), is re-run
-once and is **inconclusive** if still unstable, which fails CI
+5 % from the configured goodput (the configured rate less Ethernet, IP and TCP overhead, and less
+the share a lossy profile's loss spends on retransmissions), is re-run once and is
+**inconclusive** if still unstable, which fails CI
 ([testing.md §5](testing.md#5-accuracy-harness)). Decided by the maintainer's approval of the
-specification on 2026-10-12.
+specification on 2026-10-12; the loss term added by the maintainer on 2026-10-16, after the
+1 % loss floor profile went inconclusive at 272 kbit/s against 286.9.
 
 **Not chosen:** iperf3 concurrently with the browser (the two would split the link).
 

@@ -165,8 +165,10 @@ Running iperf3 concurrently with the browser would split the link between them, 
 immediately **before** and immediately **after** the browser run, each for the steady-window
 duration of the preset. iperf3 reports TCP goodput, so the shaped profiles are judged against the
 **configured goodput**: the goodput the configured rate carries once Ethernet, IP and TCP overhead
-are taken off, `rate × 1448 / 1514` (a full-size frame carries 1448 payload bytes in 1514 bytes on
-the wire, about 4.4 % below the rate).
+are taken off, and on a lossy profile the retransmissions its loss costs, `rate × 1448 / 1514 ×
+(1 − loss)` (a full-size frame carries 1448 payload bytes in 1514 bytes on the wire, about 4.4 %
+below the rate; at 1 % loss about 1 % of the link carries segments sent again, which iperf3 does
+not count).
 
 - **Instability rejection:** if `|before − after| / mean(before, after)` exceeds 5 % (the shaper
   self-test bound), or either run deviates from the configured goodput by more than 5 %, the
