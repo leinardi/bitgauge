@@ -120,7 +120,13 @@ rules behind each step are in [../measurement.md](../measurement.md) and
      "The test stopped because of an internal error"; no phase is named and no result exists, so
      nothing can be kept.
 3. The Test screen shows the Error state: what failed, in which phase, the completed phases'
-   results, and Retry.
+   results, and Retry. Its alert names the server and the cause, where the phase stopped and what
+   finished before it: "Connection to Basement NAS lost — 3 requests in a row failed during
+   download", "Download stopped at 6.4 s. Latency finished before the error."; with no phase
+   finished, "Connection to Basement NAS lost — the network changed", "The test stopped at 1.2 s,
+   during latency. No phase finished." The causes read "3 requests in a row failed", "the network
+   changed", "the server restarted" and "server stopped responding"; a failure while connecting
+   says the test stopped while connecting.
 4. If any phase completed, the screen offers **Keep in history**, which saves the result with
    status `error`, and Download JSON; nothing is saved unless the user keeps it. If no phase
    completed, there is nothing to keep.
