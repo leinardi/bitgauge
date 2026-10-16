@@ -145,7 +145,7 @@ const notices: Record<string, Check> = {
   'data-cap-reached': directed('data-cap-reached'),
   'stream-limit': directed('stream-limit', { streams: count }),
   'insufficient-data': directed('insufficient-data', { offer: nullable(literal('quick', 'standard', 'extended')) }),
-  'url-parameter-ignored': object({ code: literal('url-parameter-ignored'), parameter: string }),
+  'url-parameter-ignored': object({ code: literal('url-parameter-ignored'), parameter: string, value: string }),
   'stopped-early': directed('stopped-early', { coveredMs: amount }),
   'overhead-compensation': object({ code: literal('overhead-compensation'), percent: amount }),
   'browser-upload-limit': object({ code: literal('browser-upload-limit'), browser: string }),

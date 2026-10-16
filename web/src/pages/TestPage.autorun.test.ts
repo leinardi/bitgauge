@@ -92,6 +92,18 @@ afterEach(() => {
 })
 
 describe('a link with run', () => {
+  it('words an ignored value as the export does, and hides it for the page load once dismissed', async () => {
+    const { page, worker } = await load('?streams=12')
+    worker.emit({ type: 'settings', scope: 'configured', settings: DEFAULTS })
+    await flushPromises()
+    const notice = page.get('[data-testid="notice"]')
+    expect(notice.text()).toContain('streams=12 ignored, allowed 1–6. Streams stay on Auto; the other parameters from the link were applied.')
+    expect(notice.get('button').text()).toBe('Dismiss')
+    await notice.get('button').trigger('click')
+    expect(page.find('[data-testid="notice"]').exists()).toBe(false)
+    page.unmount()
+  })
+
   it('configures the URL settings, names the ignored value, and starts after the countdown', async () => {
     const { page, worker } = await load('?Run=1&preset=QUICK&test=download&streams=9&label=VPN&unknown=1')
     expect(worker.posted).toEqual([{ type: 'configure', settings: DEFAULTS, override: { phases: ['idle', 'download'], preset: 'quick' }, basePath: '/' }])
@@ -114,7 +126,7 @@ describe('a link with run', () => {
     worker.posted.length = 0
     vi.advanceTimersByTime(2000)
     await flushPromises()
-    expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: 'LAN', ignoredParameters: ['streams'], label: 'VPN' }, visible: true }])
+    expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: 'LAN', ignoredParameters: [{ parameter: 'streams', value: '9' }], label: 'VPN' }, visible: true }])
     expect(page.find('[data-testid="countdown"]').exists()).toBe(false)
     expect(page.get('[data-testid="start-button"]').text()).toContain('Stop test')
     page.unmount()

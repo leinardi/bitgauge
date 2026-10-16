@@ -104,7 +104,16 @@ const facts = computed<MetaRow[]>(() => {
 
 // The URL parameters ignored; before the first run they show as the notices a run will carry.
 const ignored = computed(() => (defaults.value === null ? url.ignored : urlOverride(url, defaults.value).ignored))
-const notices = computed<Notice[]>(() => (state.value === 'idle' ? ignored.value.map((parameter) => ({ code: 'url-parameter-ignored', parameter })) : run.notices.value))
+// A dismissed ignored-parameter notice stays hidden for the page load; the result still carries it.
+const dismissed = shallowRef<ReadonlySet<string>>(new Set())
+function dismiss(parameter: string): void {
+  dismissed.value = new Set([...dismissed.value, parameter])
+}
+const notices = computed<Notice[]>(() =>
+  (state.value === 'idle' ? ignored.value.map(({ parameter, value }): Notice => ({ code: 'url-parameter-ignored', parameter, value })) : run.notices.value).filter(
+    (notice) => notice.code !== 'url-parameter-ignored' || !dismissed.value.has(notice.parameter),
+  ),
+)
 
 // The chart shows the current run, or the last one until the next starts; nothing between runs.
 const order = computed(() => (shownSettings.value?.phases ?? PENDING_STEPS.map((step) => step.phase)).filter((phase): phase is Direction => phase !== 'idle'))
@@ -266,6 +275,8 @@ watch(run.error, (error) => {
     <NoticeList
       :notices="notices"
       :result="run.result.value"
+      :settings="shownSettings"
+      @dismiss="dismiss"
       @retry="begin()"
       @preset="begin"
     />

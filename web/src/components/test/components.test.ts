@@ -57,7 +57,7 @@ const EVERY: Record<NoticeCode, Notice> = {
   'data-cap-reached': { code: 'data-cap-reached', direction: 'download' },
   'stream-limit': { code: 'stream-limit', direction: 'upload', streams: 3 },
   'insufficient-data': { code: 'insufficient-data', direction: 'download', offer: 'extended' },
-  'url-parameter-ignored': { code: 'url-parameter-ignored', parameter: 'streams' },
+  'url-parameter-ignored': { code: 'url-parameter-ignored', parameter: 'streams', value: '12' },
   'stopped-early': { code: 'stopped-early', direction: 'upload', coveredMs: 3600 },
   'server-restarted': { code: 'server-restarted' },
   'server-unreachable': { code: 'server-unreachable' },

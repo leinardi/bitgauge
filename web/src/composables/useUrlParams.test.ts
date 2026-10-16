@@ -58,7 +58,7 @@ describe('parseUrlParams', () => {
   })
 
   it('ignores an invalid run flag', () => {
-    expect(parseUrlParams('?run=yes')).toEqual({ run: false, ignored: ['run'] })
+    expect(parseUrlParams('?run=yes')).toEqual({ run: false, ignored: [{ parameter: 'run', value: 'yes' }] })
   })
 
   it.each([
@@ -92,8 +92,8 @@ describe('parseUrlParams', () => {
     ['lang', 'xx'],
     ['theme', 'sepia'],
     ['label', 'x'.repeat(65)],
-  ])('ignores %s=%s and names it', (name, value) => {
-    expect(parseUrlParams(`?${name}=${encodeURIComponent(value)}`)).toEqual({ run: false, ignored: [name] })
+  ])('ignores %s=%s and names it with its value, cut to 64 characters', (name, value) => {
+    expect(parseUrlParams(`?${name}=${encodeURIComponent(value)}`)).toEqual({ run: false, ignored: [{ parameter: name, value: [...value].slice(0, 64).join('') }] })
   })
 
   it.each([
@@ -119,11 +119,11 @@ describe('parseUrlParams', () => {
     [`?label=${'é'.repeat(64)}`, { label: 'é'.repeat(64) }],
   ])('reads %s', (search, fields) => {
     const params = parseUrlParams(search)
-    expect(params).toEqual(fields === null ? { run: false, ignored: ['cap'] } : { run: false, ignored: [], ...fields })
+    expect(params).toEqual(fields === null ? { run: false, ignored: [{ parameter: 'cap', value: '2KiB' }] } : { run: false, ignored: [], ...fields })
   })
 
   it('applies the rest when one value is invalid, takes the first of a repeated name, and ignores unknown names silently', () => {
-    expect(parseUrlParams('?run=1&streams=12&Preset=quick&preset=extended&server=other&R=1')).toEqual({ run: true, preset: 'quick', ignored: ['streams'] })
+    expect(parseUrlParams('?run=1&streams=12&Preset=quick&preset=extended&server=other&R=1')).toEqual({ run: true, preset: 'quick', ignored: [{ parameter: 'streams', value: '12' }] })
   })
 })
 
@@ -147,6 +147,6 @@ describe('urlOverride', () => {
   })
 
   it('ignores a fixed stream count above the server maximum', () => {
-    expect(urlOverride(parseUrlParams('?streams=5&units=bytes'), DEFAULTS)).toEqual({ override: { units: 'bytes' }, ignored: ['streams'] })
+    expect(urlOverride(parseUrlParams('?streams=5&units=bytes'), DEFAULTS)).toEqual({ override: { units: 'bytes' }, ignored: [{ parameter: 'streams', value: '5' }] })
   })
 })

@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { RefreshCw, Timer } from '@lucide/vue'
+import { RefreshCw, Timer, X } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -25,18 +25,22 @@ import AppButton from '@/components/actions/AppButton.vue'
 import AppLink from '@/components/actions/AppLink.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import { noticeViews } from '@/components/test/notices'
-import type { Notice, Preset, Result } from '@/engine/messages'
+import { useTheme } from '@/composables/useTheme'
+import type { Notice, Preset, Result, TestSettings } from '@/engine/messages'
 
 // The notices area (ui/screens.md section 7): each notice an icon and text, never colour alone,
 // in its tone, with up to two actions. Danger notices are alerts; the others are status messages.
 // The notices sit in the page's column as siblings, as the export's TestScreen places them.
 
-const props = withDefaults(defineProps<{ notices: Notice[]; result?: Result | null }>(), { result: null })
-defineEmits<{ retry: []; preset: [preset: Preset] }>()
+const props = withDefaults(defineProps<{ notices: Notice[]; result?: Result | null; settings?: TestSettings | null }>(), { result: null, settings: null })
+defineEmits<{ retry: []; preset: [preset: Preset]; dismiss: [parameter: string] }>()
 
 const { t, locale } = useI18n()
+const { choice } = useTheme()
 
-const views = computed(() => noticeViews(props.notices, { t, locale: locale.value, result: props.result }).map((view, index) => ({ key: `${index}`, view })))
+const views = computed(() =>
+  noticeViews(props.notices, { t, locale: locale.value, result: props.result, settings: props.settings, theme: choice.value }).map((view, index) => ({ key: `${index}`, view })),
+)
 </script>
 
 <template>
@@ -74,6 +78,18 @@ const views = computed(() => noticeViews(props.notices, { t, locale: locale.valu
           @click="$emit('preset', action.preset)"
         >
           <Timer
+            :size="14"
+            aria-hidden="true"
+          />
+          {{ action.label }}
+        </AppButton>
+        <AppButton
+          v-else-if="action.kind === 'dismiss'"
+          size="sm"
+          variant="ghost"
+          @click="$emit('dismiss', action.parameter)"
+        >
+          <X
             :size="14"
             aria-hidden="true"
           />

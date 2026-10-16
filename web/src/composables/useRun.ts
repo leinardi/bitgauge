@@ -22,7 +22,7 @@ import { computed, onScopeDispose, watch } from 'vue'
 import { useInfo } from '@/composables/useInfo'
 import { createRunState } from '@/composables/useRunState'
 import { useWorker } from '@/composables/useWorker'
-import type { ConfigureOverride, Preset, SettingsOverride, TestSettings } from '@/engine/messages'
+import type { ConfigureOverride, IgnoredParameter, Preset, SettingsOverride, TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
 import { readBasePath } from '@/router/base'
 
@@ -49,7 +49,7 @@ export interface StartOptions {
   label?: string
   contextLabel?: string
   preset?: Preset
-  ignoredParameters?: string[]
+  ignoredParameters?: IgnoredParameter[]
 }
 
 function ignore(): void {
@@ -179,7 +179,7 @@ export function useRun(options: RunOptions = {}) {
         startOverride.preset = start.preset
       }
       if (start.ignoredParameters !== undefined && start.ignoredParameters.length > 0) {
-        startOverride.ignoredParameters = [...start.ignoredParameters]
+        startOverride.ignoredParameters = start.ignoredParameters.map((ignored) => ({ ...ignored }))
       }
       const visible = document.visibilityState === 'visible'
       bridge.post(Object.keys(startOverride).length === 0 ? { type: 'start', visible } : { type: 'start', override: startOverride, visible })

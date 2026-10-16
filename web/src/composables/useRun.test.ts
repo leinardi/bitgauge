@@ -182,8 +182,8 @@ describe('useRun', () => {
     // A run's settings come as it starts, and only then.
     worker.emit({ type: 'settings', scope: 'run', settings: SETTINGS })
     expect(run.runSettings.value).toBeNull()
-    run.start({ ignoredParameters: ['cap'] })
-    expect(worker.posted.at(-1)).toEqual({ type: 'start', override: { ignoredParameters: ['cap'] }, visible: true })
+    run.start({ ignoredParameters: [{ parameter: 'cap', value: '1kB' }] })
+    expect(worker.posted.at(-1)).toEqual({ type: 'start', override: { ignoredParameters: [{ parameter: 'cap', value: '1kB' }] }, visible: true })
     const extended = { ...SETTINGS, preset: 'extended' as const }
     worker.emit({ type: 'settings', scope: 'run', settings: extended })
     expect(run.runSettings.value).toEqual(extended)

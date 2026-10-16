@@ -1,0 +1,122 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import type { ThemeChoice } from '@/composables/useTheme'
+import type { MeasuringPhase, Notice, Preset, TestSettings } from '@/engine/messages'
+import { formatBytes } from '@/lib/format'
+
+import type { Wording } from '@/components/test/wording'
+
+// The URL parameter ignored notice (ui/url-params.md section 2): the parameter with the value the
+// link gave, the values it allows, and what the setting stays on for the run, so the reader knows
+// what applied instead.
+
+type Ignored = Extract<Notice, { code: 'url-parameter-ignored' }>
+
+/** What the second sentence reads from: the run's settings and the page's own theme choice. */
+export interface IgnoredContext {
+  settings?: TestSettings | null
+  theme?: ThemeChoice
+}
+
+const or = (items: string[], { locale }: Wording) => new Intl.ListFormat(locale, { type: 'disjunction' }).format(items)
+
+function allowed({ parameter, value }: Ignored, settings: TestSettings | null, wording: Wording): string {
+  const { t } = wording
+  const count = t('notices.urlParameterIgnored.allowed.count', { max: settings?.streams.max ?? 6 })
+  switch (parameter) {
+    case 'run':
+      return or(['1', 'true', '0', 'false'], wording)
+    case 'test':
+      return or(['all', 'download', 'upload', 'latency'], wording)
+    case 'preset':
+      return or(['quick', 'standard', 'extended'], wording)
+    case 'duration':
+      return t('notices.urlParameterIgnored.allowed.duration')
+    case 'streams':
+      return /^\d+$/u.test(value.trim()) ? count : or(['auto', 'single', count], wording)
+    case 'cap':
+      return t('notices.urlParameterIgnored.allowed.cap')
+    case 'units':
+      return or(['bits', 'bytes'], wording)
+    case 'lang':
+      return or(['en'], wording)
+    case 'theme':
+      return or(['system', 'light', 'dark'], wording)
+    default:
+      return t('notices.urlParameterIgnored.allowed.label')
+  }
+}
+
+function phaseName(phase: MeasuringPhase, { t }: Wording): string {
+  return phase === 'idle' ? t('notices.urlParameterIgnored.phases.idle') : phase === 'download' ? t('notices.urlParameterIgnored.phases.download') : t('notices.urlParameterIgnored.phases.upload')
+}
+
+function presetName(preset: Preset, { t }: Wording): string {
+  return preset === 'quick' ? t('notices.urlParameterIgnored.presets.quick') : preset === 'standard' ? t('notices.urlParameterIgnored.presets.standard') : t('notices.urlParameterIgnored.presets.extended')
+}
+
+function streamsMode(settings: TestSettings, { t }: Wording): string {
+  const { mode, fixed } = settings.streams
+  return mode === 'auto' ? t('notices.urlParameterIgnored.streams.auto') : mode === 'single' ? t('notices.urlParameterIgnored.streams.single') : String(fixed)
+}
+
+function themeName(theme: ThemeChoice, { t }: Wording): string {
+  return theme === 'system' ? t('notices.urlParameterIgnored.themes.system') : theme === 'light' ? t('notices.urlParameterIgnored.themes.light') : t('notices.urlParameterIgnored.themes.dark')
+}
+
+/** What the setting stays on for the run; without the run's settings, its default. */
+function stays({ parameter }: Ignored, context: Wording & IgnoredContext): string {
+  const { t, locale } = context
+  const settings = context.settings ?? null
+  switch (parameter) {
+    case 'run':
+      return t('notices.urlParameterIgnored.stays.run')
+    case 'duration':
+      return t('notices.urlParameterIgnored.stays.duration')
+    case 'label':
+      return t('notices.urlParameterIgnored.stays.label')
+    case 'lang':
+      return t('notices.urlParameterIgnored.stays.lang', { value: new Intl.DisplayNames(locale, { type: 'language' }).of(locale) ?? locale })
+    case 'theme':
+      return context.theme === undefined ? t('notices.urlParameterIgnored.stays.default') : t('notices.urlParameterIgnored.stays.theme', { value: themeName(context.theme, context) })
+    default:
+      break
+  }
+  if (settings === null) {
+    return t('notices.urlParameterIgnored.stays.default')
+  }
+  switch (parameter) {
+    case 'test':
+      return t('notices.urlParameterIgnored.stays.test', { value: new Intl.ListFormat(locale, { type: 'conjunction' }).format(settings.phases.map((phase) => phaseName(phase, context))) })
+    case 'preset':
+      return t('notices.urlParameterIgnored.stays.preset', { value: presetName(settings.preset, context) })
+    case 'streams':
+      return t('notices.urlParameterIgnored.stays.streams', { value: streamsMode(settings, context) })
+    case 'cap':
+      return t('notices.urlParameterIgnored.stays.cap', { value: settings.dataCapBytes === null ? t('notices.urlParameterIgnored.none') : formatBytes(settings.dataCapBytes, locale) })
+    default:
+      return t('notices.urlParameterIgnored.stays.units', { value: settings.units })
+  }
+}
+
+/** The notice's body: "streams=12 ignored, allowed 1–6. Streams stay on Auto; the other parameters from the link were applied." */
+export function ignoredBody(notice: Ignored, context: Wording & IgnoredContext): string {
+  return context.t('notices.urlParameterIgnored.body', { parameter: notice.parameter, value: notice.value, allowed: allowed(notice, context.settings ?? null, context), stays: stays(notice, context) })
+}

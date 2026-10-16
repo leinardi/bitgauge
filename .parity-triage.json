@@ -2372,7 +2372,7 @@
       "decision": {
         "kind": "verdict",
         "winner": "kit",
-        "rationale": "The spec is silent on the wording; the kit's body names the value, the allowed range and what still applied, and its Dismiss is a documented notice action.",
+        "rationale": "The spec is silent on the wording; the kit's body names the value, the allowed range and what still applied, and its Dismiss is a documented notice action. Decided 2026-10-16: every parameter takes the same pattern, with the run's own value in the second sentence (url-params.md §2).",
         "on": "2026-10-15"
       },
       "owned": {
@@ -2384,17 +2384,59 @@
       "actions": [
         {
           "target": "spec",
-          "what": "url-params.md and measurement.md §16: url-parameter-ignored carries the value and the allowed range; the notice reads \"<param>=<value> ignored, allowed <range>. <Param> stays on <default>; the other parameters from the link were applied.\" and can be dismissed (screens.md §7).",
-          "done": false
+          "what": "url-params.md §1 and §2 (the notice's wording per parameter and Dismiss), measurement.md §16, architecture.md §4 and open-questions.md 39: url-parameter-ignored carries the value the link gave, cut to 64 characters.",
+          "done": true
         },
         {
           "target": "vue",
-          "what": "engine notice fields, notices.ts and notices.json wording, and an icon-only Dismiss on the notice.",
-          "done": false
+          "what": "The engine's ignoredParameters and notice carry the value; components/test/ignored.ts words the allowed values and what the setting stays on; NoticeList offers Dismiss, which TestPage keeps for the page load.",
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-16",
+        "run": {
+          "runId": "e4dbaf5a-ff83-486d-9256-3b3eacea61e2",
+          "finishedAt": "2026-10-16T08:05:53.370Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "about",
+            "about/unreachable"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "content-phase-details",

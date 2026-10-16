@@ -28,7 +28,46 @@
     },
     "urlParameterIgnored": {
       "title": "URL parameter ignored",
-      "body": "The value of {parameter} was not valid, so the default applies."
+      "body": "{parameter}={value} ignored, allowed {allowed}. {stays}; the other parameters from the link were applied.",
+      "allowed": {
+        "count": "1–{max}",
+        "duration": "5–600 s",
+        "cap": "1 MiB or more, 0 or none",
+        "label": "at most 64 characters"
+      },
+      "stays": {
+        "run": "The test waits for Start",
+        "test": "Phases stay on {value}",
+        "preset": "The preset stays on {value}",
+        "duration": "Durations stay on the preset's",
+        "streams": "Streams stay on {value}",
+        "cap": "The data cap stays on {value}",
+        "units": "Units stay on {value}",
+        "lang": "The language stays on {value}",
+        "theme": "The theme stays on {value}",
+        "label": "The label stays on the suggested one",
+        "default": "The setting stays on its default"
+      },
+      "phases": {
+        "idle": "idle latency",
+        "download": "download",
+        "upload": "upload"
+      },
+      "presets": {
+        "quick": "Quick",
+        "standard": "Standard",
+        "extended": "Extended"
+      },
+      "streams": {
+        "auto": "Auto",
+        "single": "Single"
+      },
+      "themes": {
+        "system": "System",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "none": "none"
     },
     "stoppedEarly": {
       "title": "Test cancelled during {phase}",
@@ -102,7 +141,8 @@
       "docs": "Deployment guide",
       "retry": "Retry",
       "tryPreset": "Try {preset}",
-      "browserLimits": "Known browser limits"
+      "browserLimits": "Known browser limits",
+      "dismiss": "Dismiss"
     }
   }
 }

@@ -74,7 +74,13 @@ export type ConfigureOverride = Partial<TestSettings> & {
 export type SettingsOverride = ConfigureOverride & {
   label?: string
   contextLabel?: string
-  ignoredParameters?: string[]
+  ignoredParameters?: IgnoredParameter[]
+}
+
+/** A URL parameter whose value was ignored, with the value the link gave, cut to 64 characters. */
+export interface IgnoredParameter {
+  parameter: string
+  value: string
 }
 
 /** The confidence reasons of measurement.md section 8.3. */
@@ -97,7 +103,7 @@ export type Notice =
   /** A `429` lowered the effective cap; `streams` is the lowered cap (measurement.md section 4). */
   | { code: 'stream-limit'; direction: Direction; streams: number }
   | { code: 'insufficient-data'; direction: Direction; offer: Preset | null }
-  | { code: 'url-parameter-ignored'; parameter: string }
+  | { code: 'url-parameter-ignored'; parameter: string; value: string }
   | { code: 'stopped-early'; direction: Direction; coveredMs: number }
   | { code: 'server-restarted' }
   | { code: 'server-unreachable' }

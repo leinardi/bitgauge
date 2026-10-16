@@ -161,11 +161,11 @@ describe('the phase order', () => {
   })
 
   it('carries a notice for each ignored URL parameter from the first phase event to the result', async () => {
-    const harness = start({ ignoredParameters: ['streams', 'cap'] })
+    const harness = start({ ignoredParameters: [{ parameter: 'streams', value: '12' }, { parameter: 'cap', value: '1kB' }] })
     const report = await finish(harness)
     const ignored = [
-      { code: 'url-parameter-ignored', parameter: 'streams' },
-      { code: 'url-parameter-ignored', parameter: 'cap' },
+      { code: 'url-parameter-ignored', parameter: 'streams', value: '12' },
+      { code: 'url-parameter-ignored', parameter: 'cap', value: '1kB' },
     ]
     const first = harness.events.find(({ event }) => event.type === 'phase')?.event
     expect(first?.type === 'phase' ? first.notices : []).toEqual(ignored)

@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { DurationBounds, MeasuringPhase, SettingsOverride, TestSettings } from '@/engine/messages'
+import type { DurationBounds, IgnoredParameter, MeasuringPhase, SettingsOverride, TestSettings } from '@/engine/messages'
 import { PRESETS } from '@/engine/presets'
 
 // Settings resolution (architecture.md section 4): the configured settings, a run's override on
@@ -35,6 +35,8 @@ const MIN_PINGS = 6
 const MAX_PINGS = 200
 const MAX_COMPENSATION = 20
 const MAX_LABEL = 64
+/** The longest value an ignored URL parameter carries (ui/url-params.md section 1). */
+const MAX_IGNORED_VALUE = 64
 const PHASES: readonly MeasuringPhase[] = ['idle', 'download', 'upload']
 /** The parameters of ui/url-params.md section 2: the ones whose value can be ignored as invalid. */
 const URL_PARAMETERS: readonly string[] = ['run', 'test', 'preset', 'duration', 'streams', 'cap', 'units', 'lang', 'theme', 'label']
@@ -43,7 +45,7 @@ const URL_PARAMETERS: readonly string[] = ['run', 'test', 'preset', 'duration', 
 export interface RunSettings extends TestSettings {
   label?: string
   contextLabel?: string
-  ignoredParameters?: string[]
+  ignoredParameters?: IgnoredParameter[]
 }
 
 /** The settings alone, without what only a run carries. */
@@ -116,7 +118,7 @@ export function resolveSettings(configured: TestSettings, override: SettingsOver
     settings.contextLabel = contextLabel
   }
   if (ignoredParameters !== undefined) {
-    settings.ignoredParameters = [...ignoredParameters]
+    settings.ignoredParameters = ignoredParameters.map((ignored) => ({ ...ignored }))
   }
 
   const field = invalidField(settings)
@@ -148,9 +150,13 @@ function invalidField(settings: RunSettings): string | null {
   return checks.find(([, valid]) => !valid)?.[0] ?? null
 }
 
-/** URL parameter names of section 2, each at most once. */
-function validParameters(names: readonly string[]): boolean {
-  return Array.isArray(names) && names.every((name) => URL_PARAMETERS.includes(name)) && new Set(names).size === names.length
+/** URL parameters of section 2, each at most once, each with its value of at most 64 characters. */
+function validParameters(ignored: readonly IgnoredParameter[]): boolean {
+  return (
+    Array.isArray(ignored) &&
+    ignored.every((entry) => typeof entry === 'object' && entry !== null && URL_PARAMETERS.includes(entry.parameter) && typeof entry.value === 'string' && [...entry.value].length <= MAX_IGNORED_VALUE) &&
+    new Set(ignored.map((entry) => entry.parameter)).size === ignored.length
+  )
 }
 
 /** A non-empty list of measuring phases without duplicates, idle first when present. */

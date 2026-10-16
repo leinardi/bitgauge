@@ -375,7 +375,7 @@ export class Run {
 
   /** One `url-parameter-ignored` notice per URL parameter the page ignored, from the start of the run. */
   private urlNotices(): Notice[] {
-    return (this.options.settings.ignoredParameters ?? []).map((parameter) => ({ code: 'url-parameter-ignored', parameter }))
+    return (this.options.settings.ignoredParameters ?? []).map(({ parameter, value }) => ({ code: 'url-parameter-ignored', parameter, value }))
   }
 
   private event(phase: PhaseName, state: PhaseState, { streams, result, idle }: { streams?: number; result?: DirectionResult; idle?: IdleResult } = {}): void {

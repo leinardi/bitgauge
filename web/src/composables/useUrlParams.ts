@@ -18,7 +18,7 @@
  */
 
 import type { ThemeChoice } from '@/composables/useTheme'
-import type { ConfigureOverride, MeasuringPhase, Preset, TestSettings } from '@/engine/messages'
+import type { ConfigureOverride, IgnoredParameter, MeasuringPhase, Preset, TestSettings } from '@/engine/messages'
 import { isSupportedLocale } from '@/i18n'
 
 // The URL parameters of ui/url-params.md: names match case-insensitively, the first occurrence of
@@ -41,8 +41,8 @@ export interface UrlParams {
   lang?: string
   theme?: ThemeChoice
   label?: string
-  /** The parameters whose values were invalid, in the order they appear. */
-  ignored: string[]
+  /** The parameters whose values were invalid, in the order they appear, with their values. */
+  ignored: IgnoredParameter[]
 }
 
 const SECOND = 1000
@@ -51,6 +51,13 @@ const MAX_DURATION_S = 600
 const MAX_STREAMS = 6
 const MIN_DATA_CAP = 1024 * 1024
 const MAX_LABEL = 64
+/** An ignored value is cut to this many characters (ui/url-params.md section 1). */
+const MAX_IGNORED_VALUE = 64
+
+/** An ignored parameter with its value as the link gave it, cut to 64 characters. */
+function ignoredParameter(parameter: string, value: string): IgnoredParameter {
+  return { parameter, value: [...value].slice(0, MAX_IGNORED_VALUE).join('') }
+}
 const SIZE_UNITS: Readonly<Record<string, number>> = { kb: 1e3, mb: 1e6, gb: 1e9, kib: 1024, mib: 1024 ** 2, gib: 1024 ** 3 }
 
 /** The value of an enum parameter, matched case-insensitively. */
@@ -155,7 +162,7 @@ export function parseUrlParams(search: string): UrlParams {
     }
     seen.add(name)
     if (!read(params, name, value)) {
-      params.ignored.push(name)
+      params.ignored.push(ignoredParameter(name, value))
     }
   }
   // An invalid value leaves its field unset, so nothing of it applies.
@@ -185,7 +192,7 @@ function phases(test: Test, configured: readonly MeasuringPhase[]): MeasuringPha
  * The parameters as the settings `configure` resolves over the server defaults, and every
  * parameter ignored: a fixed stream count above the server's maximum is invalid there too.
  */
-export function urlOverride(params: UrlParams, defaults: TestSettings): { override: ConfigureOverride; ignored: string[] } {
+export function urlOverride(params: UrlParams, defaults: TestSettings): { override: ConfigureOverride; ignored: IgnoredParameter[] } {
   const override: ConfigureOverride = {}
   const ignored = [...params.ignored]
   if (params.test !== undefined) {
@@ -199,7 +206,7 @@ export function urlOverride(params: UrlParams, defaults: TestSettings): { overri
   }
   if (params.streams !== undefined) {
     if (params.streams.mode === 'fixed' && params.streams.fixed > defaults.streams.max) {
-      ignored.push('streams')
+      ignored.push(ignoredParameter('streams', String(params.streams.fixed)))
     } else {
       override.streams = { ...defaults.streams, ...params.streams }
     }
