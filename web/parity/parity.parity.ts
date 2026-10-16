@@ -121,9 +121,11 @@ for (const scenario of selection.scenarios) {
       const [protoSide, vueSide] = sides
       if (protoSide.status === 'rejected') throw protoSide.reason
       if (vueSide.status === 'rejected') throw vueSide.reason
-      await attachVisual(protoSide.value.page, vueSide.value.page, testInfo)
+      // Read before the screenshots: a full-page screenshot resizes the viewport for a moment, and a
+      // resize can rebuild part of a page (the prototype's header loses its announcement).
       const protoCapture = await readSide(drivers.proto, protoSide.value.page, scenario)
       const vueCapture = await readSide(drivers.vue, vueSide.value.page, scenario)
+      await attachVisual(protoSide.value.page, vueSide.value.page, testInfo)
       for (const [side, cap] of [['proto', protoCapture], ['vue', vueCapture]] as const) {
         for (const [region, yaml] of Object.entries(cap.raw)) {
           await testInfo.attach(`${side}-${region}.yaml`, { body: yaml, contentType: 'text/yaml' })
