@@ -17,10 +17,10 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { ChevronDown, ChevronUp, SlidersVertical } from '@lucide/vue'
+import { ChevronDown, ChevronUp, SlidersHorizontal } from '@lucide/vue'
 import { shallowRef, useId } from 'vue'
 
-import { Button } from '@/components/ui/button'
+import AppButton from '@/components/actions/AppButton.vue'
 import { chooseScenario, onScriptedStop } from '@/demo/control'
 import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoErrorKind, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
 
@@ -47,7 +47,6 @@ const START_POLL_MS = 100
 const TEXT = {
   panel: 'Demo state',
   title: 'Demo',
-  titleLong: ' state',
   reset: 'Reset',
   collapse: 'Collapse demo panel',
   expand: 'Expand demo panel',
@@ -123,7 +122,6 @@ const command = commandOf(choice.value)
 const current = DEMO_SCENARIOS[command.scenario]
 chooseScenario(command)
 const ids = { scenario: useId(), forceState: useId(), errorKind: useId(), timer: useId() }
-const summary = `${TEXT.titleLong} · ${command.scenario}`
 
 /**
  * Presses Start once the Test screen offers it, for a scenario that runs as soon as it is chosen:
@@ -190,22 +188,31 @@ function onTimer(event: Event): void {
   apply({ timerResolutionMs: RESOLUTIONS.find((resolution) => resolution === value) ?? DEFAULTS.timerResolutionMs })
 }
 
+// The kit's panel (kit.css .demo): centered under the top edge; in the compact layout, open at the
+// right edge and closed as a pill just left of the theme button.
+const OPEN_CLASS =
+  'w-(--demo-w) rounded-(--radius-lg) border border-input shadow-(--shadow-pop) max-desktop:right-3 max-desktop:max-h-[calc(100vh_-_2*var(--space-2))] max-desktop:w-[min(var(--demo-w-compact),calc(100vw_-_2*var(--space-3)))]'
+const CLOSED_CLASS = 'w-auto rounded-full border border-(--primary-border) max-desktop:right-[calc(var(--layout-gutter-compact)_+_var(--control-h-touch)_+_var(--space-2))]'
 const rowClass = 'flex items-center justify-between gap-2 text-(length:--text-caption) text-muted-foreground'
-const selectClass = 'h-7 min-w-0 flex-[0_1_var(--demo-row-basis)] rounded-(--radius-md) border border-input bg-background px-2 text-(length:--text-caption) text-foreground'
+// A select as the kit's small input (forms.css .input.sm): the box is the span, the native select
+// sits in it without its own frame, and the box shows the focus.
+const inputClass =
+  'flex h-(--control-h-sm) min-w-0 flex-[0_1_var(--demo-row-basis)] items-center gap-2 rounded-(--radius-md) border border-input bg-(--surface-1) px-2.5 text-(length:--text-caption) text-foreground focus-within:border-primary focus-within:outline-(length:--focus-width) focus-within:outline-offset-(--focus-offset) focus-within:outline-(--focus-ring)'
+const selectClass = 'min-w-0 flex-1 border-none bg-transparent font-sans text-(length:--text-sm) text-foreground outline-none'
 </script>
 
 <template>
   <aside
     :aria-label="TEXT.panel"
     data-testid="demo-panel"
-    class="fixed top-2.5 left-1/2 z-(--z-skip-link) flex max-h-(--demo-max-h) -translate-x-1/2 flex-col bg-card font-sans text-foreground"
-    :class="choice.open ? 'w-75 rounded-(--radius-lg) border border-input shadow-(--shadow-pop)' : 'w-auto rounded-full border border-(--primary-border)'"
+    class="fixed top-2.5 left-1/2 z-(--z-skip-link) flex max-h-(--demo-max-h) -translate-x-1/2 flex-col bg-card font-sans text-foreground max-desktop:top-2 max-desktop:left-auto max-desktop:translate-x-0"
+    :class="choice.open ? OPEN_CLASS : CLOSED_CLASS"
   >
     <div
       class="flex items-center gap-2"
       :class="choice.open ? 'border-b border-border py-2 pr-2 pl-3' : 'py-0.5 pr-0.5 pl-3'"
     >
-      <SlidersVertical
+      <SlidersHorizontal
         :size="14"
         aria-hidden="true"
         class="text-primary-text"
@@ -213,8 +220,8 @@ const selectClass = 'h-7 min-w-0 flex-[0_1_var(--demo-row-basis)] rounded-(--rad
       <span
         class="mr-auto font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) whitespace-nowrap uppercase"
         :class="choice.open ? 'text-subtle-foreground' : 'text-muted-foreground'"
-      >{{ TEXT.title }}<span class="max-sm:hidden">{{ choice.open ? TEXT.titleLong : summary }}</span></span>
-      <Button
+      >{{ TEXT.title }}</span>
+      <AppButton
         v-if="choice.open"
         variant="ghost"
         size="sm"
@@ -222,11 +229,12 @@ const selectClass = 'h-7 min-w-0 flex-[0_1_var(--demo-row-basis)] rounded-(--rad
         @click="reset"
       >
         {{ TEXT.reset }}
-      </Button>
-      <Button
+      </AppButton>
+      <AppButton
         variant="ghost"
-        size="icon-sm"
-        :class="choice.open ? '' : 'rounded-full'"
+        size="sm"
+        class="justify-center px-0"
+        :class="choice.open ? 'w-(--control-h-sm)' : 'size-(--chip-h) rounded-full'"
         :aria-label="choice.open ? TEXT.collapse : TEXT.expand"
         :aria-expanded="choice.open"
         data-testid="demo-toggle"
@@ -237,7 +245,7 @@ const selectClass = 'h-7 min-w-0 flex-[0_1_var(--demo-row-basis)] rounded-(--rad
           :size="14"
           aria-hidden="true"
         />
-      </Button>
+      </AppButton>
     </div>
     <div
       v-if="choice.open"
@@ -247,36 +255,38 @@ const selectClass = 'h-7 min-w-0 flex-[0_1_var(--demo-row-basis)] rounded-(--rad
         <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.run }}</span>
         <div :class="rowClass">
           <label :for="ids.scenario">{{ TEXT.scenario }}</label>
-          <select
-            :id="ids.scenario"
-            :class="selectClass"
-            :value="choice.scenario"
-            data-testid="demo-scenario"
-            @change="onScenario"
-          >
-            <option
-              v-for="name in NAMES"
-              :key="name"
-              :value="name"
+          <span :class="inputClass">
+            <select
+              :id="ids.scenario"
+              :class="selectClass"
+              :value="choice.scenario"
+              data-testid="demo-scenario"
+              @change="onScenario"
             >
-              {{ name }}
-            </option>
-          </select>
+              <option
+                v-for="name in NAMES"
+                :key="name"
+                :value="name"
+              >
+                {{ name }}
+              </option>
+            </select>
+          </span>
         </div>
         <div :class="rowClass">
           <span>{{ TEXT.speed }}</span>
           <div
             role="group"
             :aria-label="TEXT.speed"
-            class="inline-flex overflow-hidden rounded-(--radius-md) border border-input bg-card"
+            class="inline-flex max-w-full flex-wrap overflow-hidden rounded-(--radius-md) border border-input bg-card"
           >
             <button
               v-for="speed in SPEEDS"
               :key="speed"
               type="button"
               :aria-pressed="choice.speed === speed"
-              class="h-7 border-r border-border px-2 text-(length:--text-caption) font-semibold last:border-r-0"
-              :class="choice.speed === speed ? 'bg-(--primary-bg) text-primary' : 'text-muted-foreground'"
+              class="inline-flex h-(--control-h-sm) flex-none items-center gap-1.5 border-r border-border px-2 text-(length:--text-caption) font-semibold whitespace-nowrap last:border-r-0"
+              :class="choice.speed === speed ? 'bg-(--primary-bg) text-primary-text' : 'text-muted-foreground'"
               :data-testid="`demo-speed-${speed}`"
               @click="apply({ speed })"
             >
@@ -290,24 +300,26 @@ const selectClass = 'h-7 min-w-0 flex-[0_1_var(--demo-row-basis)] rounded-(--rad
         <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.testScreen }}</span>
         <div :class="rowClass">
           <label :for="ids.forceState">{{ TEXT.forceState }}</label>
-          <select
-            :id="ids.forceState"
-            :class="selectClass"
-            :value="choice.forceState"
-            data-testid="demo-force-state"
-            @change="onForceState"
-          >
-            <option value="">
-              {{ TEXT.followRun }}
-            </option>
-            <option
-              v-for="name in NAMES"
-              :key="name"
-              :value="name"
+          <span :class="inputClass">
+            <select
+              :id="ids.forceState"
+              :class="selectClass"
+              :value="choice.forceState"
+              data-testid="demo-force-state"
+              @change="onForceState"
             >
-              {{ name }}
-            </option>
-          </select>
+              <option value="">
+                {{ TEXT.followRun }}
+              </option>
+              <option
+                v-for="name in NAMES"
+                :key="name"
+                :value="name"
+              >
+                {{ name }}
+              </option>
+            </select>
+          </span>
         </div>
         <label class="flex cursor-pointer items-center gap-2 text-(length:--text-caption) text-muted-foreground">
           <input
@@ -319,39 +331,43 @@ const selectClass = 'h-7 min-w-0 flex-[0_1_var(--demo-row-basis)] rounded-(--rad
           >{{ TEXT.cpuBound }}</label>
         <div :class="rowClass">
           <label :for="ids.errorKind">{{ TEXT.errorKind }}</label>
-          <select
-            :id="ids.errorKind"
-            :class="selectClass"
-            :value="choice.errorKind"
-            data-testid="demo-error-kind"
-            @change="onErrorKind"
-          >
-            <option
-              v-for="kind in ERROR_KINDS"
-              :key="kind"
-              :value="kind"
+          <span :class="inputClass">
+            <select
+              :id="ids.errorKind"
+              :class="selectClass"
+              :value="choice.errorKind"
+              data-testid="demo-error-kind"
+              @change="onErrorKind"
             >
-              {{ kind }}
-            </option>
-          </select>
+              <option
+                v-for="kind in ERROR_KINDS"
+                :key="kind"
+                :value="kind"
+              >
+                {{ kind }}
+              </option>
+            </select>
+          </span>
         </div>
         <div :class="rowClass">
           <label :for="ids.timer">{{ TEXT.timerResolution }}</label>
-          <select
-            :id="ids.timer"
-            :class="selectClass"
-            :value="String(choice.timerResolutionMs)"
-            data-testid="demo-timer"
-            @change="onTimer"
-          >
-            <option
-              v-for="resolution in RESOLUTIONS"
-              :key="resolution"
-              :value="String(resolution)"
+          <span :class="inputClass">
+            <select
+              :id="ids.timer"
+              :class="selectClass"
+              :value="String(choice.timerResolutionMs)"
+              data-testid="demo-timer"
+              @change="onTimer"
             >
-              {{ `${resolution} ms` }}
-            </option>
-          </select>
+              <option
+                v-for="resolution in RESOLUTIONS"
+                :key="resolution"
+                :value="String(resolution)"
+              >
+                {{ `${resolution} ms` }}
+              </option>
+            </select>
+          </span>
         </div>
       </section>
     </div>
