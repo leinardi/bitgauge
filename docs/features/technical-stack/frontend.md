@@ -237,7 +237,10 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   jittered round trip later, stamped with that simulated arrival, since a timer fires no earlier
   than the browser's floor of a few milliseconds, which would lengthen a LAN round trip; every
   simulated instant the transport reports is floored to the clock's resolution, as a reading of the
-  clock would be. `GET /info` answers with the scenario's fixture and the current epoch. A link can
+  clock would be. `GET /info` answers with the scenario's fixture and the current epoch; its client
+  is 192.168.1.42, a private address suggested as LAN, on the LAN links, and 100.101.4.17, a CGNAT
+  address suggested as VPN ([../wire-protocol.md §5](../wire-protocol.md#5-get-apiv1info)), on the VPN
+  link. A link can
   lose each request with a probability, fail every request from an instant, restart (a new epoch
   from an instant; the WebSocket closes with 1001 while requests in flight drain, as a graceful
   shutdown lets them) or become unreachable (requests in flight fail, the WebSocket closes with
