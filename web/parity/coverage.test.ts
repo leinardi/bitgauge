@@ -68,10 +68,10 @@ const VUE_ONLY_PAGES: Record<string, string> = {
 }
 
 // Test screen states the kit has and v0.1 does not, each with the reason.
-const KIT_V02_STATES: Record<string, string> = {
-  continuous: 'Continuous mode is v0.2',
-  'cont-warmup': 'Continuous mode is v0.2',
-  'cont-done': 'Continuous mode is v0.2',
+const KIT_V03_STATES: Record<string, string> = {
+  continuous: 'Continuous mode is v0.3',
+  'cont-warmup': 'Continuous mode is v0.3',
+  'cont-done': 'Continuous mode is v0.3',
 }
 
 // The page each Vue route renders: its own, or the not-available page.
@@ -124,15 +124,15 @@ describe('Test screen states', () => {
   const scenarioStates = SCENARIOS.filter((s) => s.id.startsWith('test/')).map((s) => s.id.slice('test/'.length))
 
   it('has a scenario for every v0.1 state of the kit', () => {
-    const v01 = kitStates.filter((state) => !(state in KIT_V02_STATES))
+    const v01 = kitStates.filter((state) => !(state in KIT_V03_STATES))
     expect(sorted(V01_TEST_STATES), 'V01_TEST_STATES in scenarios.ts is out of date').toEqual(sorted(v01))
     expect(sorted(scenarioStates)).toEqual(sorted(v01))
   })
 
-  it('names no state the kit dropped, and no v0.2 state', () => {
+  it('names no state the kit dropped, and no v0.3 state', () => {
     const kit = new Set(kitStates)
-    expect(scenarioStates.filter((state) => !kit.has(state) || state in KIT_V02_STATES)).toEqual([])
-    expect(Object.keys(KIT_V02_STATES).filter((state) => !kit.has(state))).toEqual([])
+    expect(scenarioStates.filter((state) => !kit.has(state) || state in KIT_V03_STATES)).toEqual([])
+    expect(Object.keys(KIT_V03_STATES).filter((state) => !kit.has(state))).toEqual([])
   })
 })
 

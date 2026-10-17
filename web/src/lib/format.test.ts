@@ -64,9 +64,12 @@ describe('rateAxisLabels', () => {
 })
 
 describe('latencyAxisLabels', () => {
-  it('labels each tick as a latency reads, whole from 10 ms and with one decimal below', () => {
+  it('labels every tick with the top label\'s decimals, whole from 10 ms and one below', () => {
     expect(latencyAxisLabels(200, 'en')).toEqual(['0', '50', '100', '150', '200\u00a0ms'])
     expect(latencyAxisLabels(6, 'en')).toEqual(['0', '1.5', '3.0', '4.5', '6.0\u00a0ms'])
+    // Every tick takes the top label's decimals: whole milliseconds from a 10 ms top.
+    expect(latencyAxisLabels(12, 'en')).toEqual(['0', '3', '6', '9', '12\u00a0ms'])
+    expect(latencyAxisLabels(10, 'en')).toEqual(['0', '3', '5', '8', '10\u00a0ms'])
   })
 })
 

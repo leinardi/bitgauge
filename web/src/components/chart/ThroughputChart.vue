@@ -28,8 +28,9 @@ import ChartHeader from '@/components/chart/ChartHeader.vue'
 import ChartLabels from '@/components/chart/ChartLabels.vue'
 import { drawBand, drawEndDot, drawGrid, drawRule, holdLinear, lastPoint } from '@/components/chart/draw'
 import { frameOptions } from '@/components/chart/frame'
-import { chartGeometry, type Label, valueMax } from '@/components/chart/geometry'
+import { chartGeometry, valueMax } from '@/components/chart/geometry'
 import { chartHeight, chartPalette, faded } from '@/components/chart/palette'
+import type { LineLabel } from '@/components/chart/placement'
 import { buildChart, type ChartData, type ChartInput } from '@/components/chart/series'
 import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, markLabel } from '@/components/chart/text'
 import { useUplot } from '@/components/chart/useUplot'
@@ -137,11 +138,9 @@ const geometry = computed(() =>
 // Each phase's name from where it starts, once a second phase has begun (charts.md, separators).
 const phaseStarts = computed(() => (model.value.separators.length === 0 ? [] : [0, ...model.value.separators]))
 const phaseName = (direction: Direction | undefined) => (direction === 'upload' ? t('test.chart.legend.upload') : t('test.chart.legend.download'))
-const phaseLabels = computed<Label[]>(() =>
-  phaseStarts.value.map((at, index) => ({ x: geometry.value.x(at) + 6, y: geometry.value.top + 12, text: phaseName(shown.value[index]) })),
-)
+const phaseLabels = computed<LineLabel[]>(() => phaseStarts.value.map((at, index) => ({ x: geometry.value.x(at), text: phaseName(shown.value[index]) })))
 const markLabels = computed(() =>
-  model.value.marks.map((mark) => ({ x: geometry.value.x(mark.at) - 6, y: geometry.value.top + 12, text: markLabel(mark, wording.value), color: 'var(--fg-muted)' })),
+  model.value.marks.map((mark) => ({ x: geometry.value.x(mark.at), text: markLabel(mark, wording.value), color: 'var(--fg-muted)' })),
 )
 const plotBox = computed(() => {
   const { top, left, right, bottom } = geometry.value

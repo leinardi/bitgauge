@@ -89,9 +89,14 @@ export function rateAxisLabels(maxBitsPerSecond: number, units: 'bits' | 'bytes'
   return axisTicks((fraction) => format.format(max * fraction), names[scale] ?? names[0])
 }
 
-/** A latency axis's five labels, each as a latency reads (latencyNumber), the top one with its unit. */
+/**
+ * A latency axis's five labels: the top one as a latency reads (latencyNumber), with its unit, and
+ * every tick with the top one's decimals, "3", "6", "9", "12 ms" or "1.0" … "4.0 ms"
+ * (design_system/components/charts.md).
+ */
 export function latencyAxisLabels(maxMs: number, locale: string): string[] {
-  return axisTicks((fraction) => latencyNumber(maxMs * fraction, locale), 'ms')
+  const format = fixedDigits(latencyDigits(maxMs), locale)
+  return axisTicks((fraction) => format.format(maxMs * fraction), 'ms')
 }
 
 function axisTicks(label: (fraction: number) => string, unit: string): string[] {
@@ -113,8 +118,15 @@ export function latencyNumber(ms: number, locale: string, resolutionMs = 0): str
   if (ms < resolutionMs) {
     return `<${NBSP}${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(resolutionMs)}`
   }
-  const digits = resolutionMs >= 1 || ms >= 9.95 ? 0 : 1
-  return new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(ms)
+  return fixedDigits(latencyDigits(ms, resolutionMs), locale).format(ms)
+}
+
+function latencyDigits(ms: number, resolutionMs = 0): number {
+  return resolutionMs >= 1 || ms >= 9.95 ? 0 : 1
+}
+
+function fixedDigits(digits: number, locale: string): Intl.NumberFormat {
+  return new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })
 }
 
 /** A latency with its unit: 9.4 ms, 51 ms, < 1 ms. */

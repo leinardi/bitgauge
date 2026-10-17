@@ -85,7 +85,7 @@ const geometry = computed(() =>
   }),
 )
 const markLabels = computed(() =>
-  markText.value === null ? [] : [{ x: geometry.value.x(model.value.end) - 6, y: geometry.value.top + 12, text: markText.value, color: 'var(--fg-muted)' }],
+  markText.value === null ? [] : [{ x: geometry.value.x(model.value.end), text: markText.value, color: 'var(--fg-muted)' }],
 )
 
 function drawUnder(u: uPlot): void {

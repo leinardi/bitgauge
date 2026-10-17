@@ -12905,9 +12905,14 @@
           "target": "vue",
           "what": "Whatever the layout layer still finds on these screens once the above are in.",
           "done": true
+        },
+        {
+          "target": "vue",
+          "what": "About aside header from the export at 49d7a81 (About.jsx): the logo decorative at the left, the wordmark and the caption \"Self-hosted network speed test\" in a column beside it, centered on the logo; the parity run of 2026-10-17 finds it on about and about/unreachable in all four projects.",
+          "done": false
         }
       ],
-      "status": "done",
+      "status": "in-progress",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
