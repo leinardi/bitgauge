@@ -26,6 +26,7 @@ import { toast } from 'vue-sonner'
 import AppButton from '@/components/actions/AppButton.vue'
 import EmptyState from '@/components/feedback/EmptyState.vue'
 import ClearAllDialog from '@/components/history/ClearAllDialog.vue'
+import ComparePanel from '@/components/history/ComparePanel.vue'
 import ExportMenu from '@/components/history/ExportMenu.vue'
 import { saveJson } from '@/components/history/exporting'
 import FilterBar from '@/components/history/FilterBar.vue'
@@ -49,7 +50,7 @@ import { isSafari } from '@/lib/safari'
 // stored in this browser, for this origin, with their count and the storage they use; the filters,
 // the trend and the list, as a table on wider screens and as cards on narrow ones; the selection;
 // Export, Import and Clear all. Its states: loading, empty, populated, filtered with no match,
-// history unavailable, and the import's. Compare joins the selection bar with the compare view.
+// history unavailable, and the import's. Two selected results open the compare view.
 
 const { t, locale } = useI18n()
 const router = useRouter()
@@ -108,6 +109,20 @@ async function clearAll(): Promise<void> {
 }
 
 const selectedIds = computed(() => [...list.selected.value])
+
+// The compare view, for exactly two selected results; closing it keeps the selection, so another
+// pair is one deselection away.
+const comparing = shallowRef(false)
+const comparedPair = computed(() => {
+  const chosen = all.value.filter((result) => list.selected.value.has(result.id))
+  const [first, second] = chosen
+  return chosen.length === 2 && first !== undefined && second !== undefined ? ([first, second] as const) : null
+})
+watch(comparedPair, (chosen) => {
+  if (chosen === null) {
+    comparing.value = false
+  }
+})
 </script>
 
 <template>
@@ -259,6 +274,7 @@ const selectedIds = computed(() => [...list.selected.value])
               :count="list.selected.value.size"
               @clear="list.clearSelection"
               @remove="list.remove(selectedIds)"
+              @compare="comparing = true"
             />
           </template>
         </ResultsTable>
@@ -275,6 +291,13 @@ const selectedIds = computed(() => [...list.selected.value])
           @remove="(id) => list.remove([id])"
           @clear="list.clearSelection"
           @remove-selected="list.remove(selectedIds)"
+          @compare="comparing = true"
+        />
+        <ComparePanel
+          v-if="comparedPair !== null"
+          v-model:open="comparing"
+          :results="comparedPair"
+          :units="units"
         />
       </template>
     </template>

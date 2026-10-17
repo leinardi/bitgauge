@@ -17,6 +17,8 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { useI18n } from 'vue-i18n'
+
 import type { Bufferbloat, Result, ResultStatus } from '@/engine/messages'
 import { latencyNumber, rateParts } from '@/lib/format'
 
@@ -74,5 +76,23 @@ export function rowView(result: Result, units: 'bits' | 'bytes', locale: string)
     jitter: idle?.jitterMs === undefined ? null : latencyNumber(idle.jitterMs, locale, resolution),
     grade: result.bufferbloat?.grade ?? null,
     lowConfidence: [result.download, result.upload].some((direction) => direction?.confidence?.level === 'low'),
+  }
+}
+
+/** A grade's word, the bufferbloat it stands for (measurement.md section 11.3). */
+export function gradeWord(grade: Bufferbloat['grade'], t: ReturnType<typeof useI18n>['t']): string {
+  switch (grade) {
+    case 'A+':
+      return t('history.table.grades.aPlus')
+    case 'A':
+      return t('history.table.grades.a')
+    case 'B':
+      return t('history.table.grades.b')
+    case 'C':
+      return t('history.table.grades.c')
+    case 'D':
+      return t('history.table.grades.d')
+    case 'F':
+      return t('history.table.grades.f')
   }
 }

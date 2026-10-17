@@ -31,10 +31,10 @@ import type { SortDirection, SortKey } from '@/history/filters'
 
 // The History list on narrow screens (ui/screens.md section 3, responsive notes; kit History.jsx):
 // the sort in force with a Sort control, the results as cards, and the selection bar floating over
-// them once some are selected.
+// them once some are selected, with Compare.
 
 const props = defineProps<{ results: readonly Result[]; units: 'bits' | 'bytes'; sortKey: SortKey; sortDirection: SortDirection; selected: ReadonlySet<string> }>()
-const emit = defineEmits<{ sort: [{ key: SortKey; direction: SortDirection }]; toggle: [string]; open: [string]; remove: [string]; clear: []; removeSelected: [] }>()
+const emit = defineEmits<{ sort: [{ key: SortKey; direction: SortDirection }]; toggle: [string]; open: [string]; remove: [string]; clear: []; removeSelected: []; compare: [] }>()
 
 const { t, locale } = useI18n()
 
@@ -113,6 +113,7 @@ const rows = computed(() => props.results.map((result) => rowView(result, props.
       floating
       @clear="emit('clear')"
       @remove="emit('removeSelected')"
+      @compare="emit('compare')"
     />
   </div>
 </template>

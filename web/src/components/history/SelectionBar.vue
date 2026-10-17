@@ -17,20 +17,30 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { Trash2, X } from '@lucide/vue'
+import { GitCompare, Info, Trash2, X } from '@lucide/vue'
+import { computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
 
 // The selection bar (ui/screens.md section 3; kit History.jsx) once rows are selected: the count,
-// Clear selection and Delete selected, which removes the rows at once with an undo toast. At the
-// foot of the table on wider screens; on narrow ones it floats over the cards, with touch-sized
-// icon buttons. Compare joins it with the compare view.
+// Clear selection, Delete selected, which removes the rows at once with an undo toast, and
+// Compare, which opens the compare view for exactly two. Compare stays in the tab order with any
+// other count, marked unavailable and described by the hint that says why. At the foot of the
+// table on wider screens; on narrow ones it floats over the cards, with touch-sized buttons.
 
-defineProps<{ count: number; floating?: boolean }>()
-const emit = defineEmits<{ clear: []; remove: [] }>()
+const props = defineProps<{ count: number; floating?: boolean }>()
+const emit = defineEmits<{ clear: []; remove: []; compare: [] }>()
 
 const { t } = useI18n()
+const hintId = useId()
+const comparable = computed(() => props.count === 2)
+
+function compare(): void {
+  if (comparable.value) {
+    emit('compare')
+  }
+}
 </script>
 
 <template>
@@ -64,6 +74,24 @@ const { t } = useI18n()
         aria-hidden="true"
       />
     </AppButton>
+    <span
+      :id="hintId"
+      class="sr-only"
+    >{{ t('history.selection.compareHint') }}</span>
+    <AppButton
+      variant="primary"
+      class="h-11"
+      :aria-disabled="!comparable"
+      :aria-describedby="comparable ? undefined : hintId"
+      data-testid="compare"
+      @click="compare"
+    >
+      <GitCompare
+        :size="16"
+        aria-hidden="true"
+      />
+      {{ t('history.selection.compare') }}
+    </AppButton>
   </div>
   <div
     v-else
@@ -74,6 +102,17 @@ const { t } = useI18n()
   >
     <span class="text-(length:--text-sm) font-semibold">{{ t('history.selection.count', { n: count }) }}</span>
     <div class="ml-auto flex flex-wrap items-center gap-2">
+      <span
+        :id="hintId"
+        class="flex items-center gap-1.5 text-(length:--text-caption) text-muted-foreground"
+        :class="{ hidden: comparable }"
+      >
+        <Info
+          :size="13"
+          aria-hidden="true"
+        />
+        {{ t('history.selection.compareHint') }}
+      </span>
       <AppButton
         variant="ghost"
         size="sm"
@@ -92,6 +131,20 @@ const { t } = useI18n()
           aria-hidden="true"
         />
         {{ t('history.selection.delete') }}
+      </AppButton>
+      <AppButton
+        variant="primary"
+        size="sm"
+        :aria-disabled="!comparable"
+        :aria-describedby="comparable ? undefined : hintId"
+        data-testid="compare"
+        @click="compare"
+      >
+        <GitCompare
+          :size="14"
+          aria-hidden="true"
+        />
+        {{ t('history.selection.compare') }}
       </AppButton>
     </div>
   </div>

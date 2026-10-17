@@ -20,6 +20,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { gradeWord } from '@/components/history/rows'
 import type { Bufferbloat } from '@/engine/messages'
 
 // The bufferbloat grade as the History list shows it (kit History.jsx): the letter in a box of the
@@ -53,24 +54,7 @@ const tone = computed(() => {
   }
 })
 
-function word(grade: Bufferbloat['grade']): string {
-  switch (grade) {
-    case 'A+':
-      return t('history.table.grades.aPlus')
-    case 'A':
-      return t('history.table.grades.a')
-    case 'B':
-      return t('history.table.grades.b')
-    case 'C':
-      return t('history.table.grades.c')
-    case 'D':
-      return t('history.table.grades.d')
-    case 'F':
-      return t('history.table.grades.f')
-  }
-}
-
-const name = computed(() => (props.grade === null ? t('history.table.noGrade') : t('history.table.grade', { grade: props.grade, word: word(props.grade) })))
+const name = computed(() => (props.grade === null ? t('history.table.noGrade') : t('history.table.grade', { grade: props.grade, word: gradeWord(props.grade, t) })))
 </script>
 
 <template>

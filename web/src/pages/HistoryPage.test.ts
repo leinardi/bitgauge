@@ -22,10 +22,10 @@
 // The History screen (ui/screens.md section 3, ui/flows.md section 6) on an in-memory IndexedDB:
 // its states, the per-origin notice, the filters kept in the query string, the sort with aria-sort,
 // selection by Space and opening by Enter, deletion with its undo toast, Clear all after its
-// confirmation, the import's summary and refusals, and the export menu.
+// confirmation, the import's summary and refusals, the export menu, and Compare.
 
 import { DOMWrapper, flushPromises, type VueWrapper } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { toast } from 'vue-sonner'
 
 import { demoHistoryResults } from '@/demo/history'
@@ -33,7 +33,7 @@ import type { Result } from '@/engine/messages'
 import { openHistoryDB } from '@/history/db'
 import { freshIndexedDB } from '@/test/idb'
 
-vi.mock('vue-sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn() }) }))
+vi.mock('vue-sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }) }))
 
 const RESULTS = demoHistoryResults('populated')
 const EXPORT = (results: Result[]) => JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, exportedAt: '2026-10-08T12:00:00.000Z', results })
@@ -74,6 +74,11 @@ function rows(page: VueWrapper): string[] {
 
 const body = () => new DOMWrapper(document.body)
 
+// The page's modules are transformed once here, so no test pays for it within its own timeout.
+beforeAll(async () => {
+  await import('@/pages/HistoryPage.vue')
+}, 60_000)
+
 beforeEach(() => {
   freshIndexedDB()
   localStorage.clear()
@@ -82,6 +87,8 @@ beforeEach(() => {
 
 afterEach(() => {
   document.body.innerHTML = ''
+  Reflect.deleteProperty(navigator, 'clipboard')
+  vi.unstubAllGlobals()
 })
 
 describe('the states', () => {
@@ -235,6 +242,73 @@ describe('the list', () => {
     ;(options as { action: { onClick: () => void } }).action.onClick()
     await settle()
     expect(rows(page)).toHaveLength(8)
+    page.unmount()
+  })
+})
+
+describe('Compare', () => {
+  it('stays reachable but unavailable until exactly two are selected, then opens the compare view', async () => {
+    const page = await open('/history?labels=VPN%20%C2%B7%20office')
+    const [newer, older] = page.findAll('[data-testid="row-select"]')
+    await newer?.trigger('click')
+    const compare = page.get('[data-testid="selection-bar"] [data-testid="compare"]')
+    expect(compare.attributes('aria-disabled')).toBe('true')
+    expect(document.getElementById(compare.attributes('aria-describedby') ?? '')?.textContent).toContain('Compare needs exactly 2')
+    await compare.trigger('click')
+    await settle()
+    expect(body().find('[data-testid="compare-panel"]').exists()).toBe(false)
+
+    await older?.trigger('click')
+    expect(compare.attributes('aria-disabled')).toBe('false')
+    await compare.trigger('click')
+    await settle()
+    const panel = body().get('[data-testid="compare-panel"]')
+    expect(panel.attributes('role')).toBe('dialog')
+    expect(panel.text()).toContain('Compare results')
+    // A is the older of the two, on HTTP/2; B the newer, on HTTP/1.1.
+    expect(panel.get('[data-testid="compare-warning"]').text()).toBe('Not directly comparable: different protocol (HTTP/2 vs HTTP/1.1)')
+    expect(panel.get('[data-testid="compare-row-download"]').text()).toContain('better')
+    expect(panel.get('[data-testid="compare-row-grade"]').text()).toContain('same')
+    page.unmount()
+  })
+
+  async function compared() {
+    const page = await open('/history?labels=VPN%20%C2%B7%20office')
+    for (const box of page.findAll('[data-testid="row-select"]')) {
+      await box.trigger('click')
+    }
+    await page.get('[data-testid="selection-bar"] [data-testid="compare"]').trigger('click')
+    await settle()
+    return page
+  }
+
+  it('copies the comparison as text', async () => {
+    const writeText = vi.fn(() => Promise.resolve())
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    const page = await compared()
+    await body().get('[data-testid="compare-copy"]').trigger('click')
+    await settle()
+    expect(writeText).toHaveBeenCalledOnce()
+    expect(String(writeText.mock.calls[0]?.[0 as never])).toContain('Protocol: HTTP/2 → HTTP/1.1')
+    expect(toast.success).toHaveBeenCalledWith('Comparison copied.')
+    page.unmount()
+  })
+
+  it('offers the text to copy by hand where there is no clipboard, as on an insecure origin', async () => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined })
+    const page = await compared()
+    await body().get('[data-testid="compare-copy"]').trigger('click')
+    await settle()
+    const field = body().get('[data-testid="compare-text"]')
+    expect((field.element as HTMLTextAreaElement).value).toContain('Protocol: HTTP/2 → HTTP/1.1')
+    expect(document.activeElement).toBe(field.element)
+    page.unmount()
+  })
+
+  it('links each side to its detail on narrow screens too', async () => {
+    const page = await compared()
+    const links = body().findAll('[data-testid="compare-card"] a').map((link) => link.attributes('href'))
+    expect(links).toEqual([`/result/${RESULTS[5]?.id}`, `/result/${RESULTS[3]?.id}`])
     page.unmount()
   })
 })
