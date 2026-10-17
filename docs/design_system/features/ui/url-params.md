@@ -8,9 +8,12 @@ apply to the page load they appear on; they are not stored unless the user saves
 ## 1. Rules
 
 - **Precedence:** URL parameters > settings stored in this browser > server defaults from
-  `GET /api/v1/info` ([../configuration.md §2.3](../configuration.md#23-test-defaults)). v0.1
-  stores no test settings, so there the URL parameters apply over the server defaults
-  ([screens.md §1](screens.md#1-test-home--)).
+  `GET /api/v1/info` ([../configuration.md §2.3](../configuration.md#23-test-defaults)). The
+  stored settings are the ones the user set on the Settings screen, kept under
+  `bitgauge.settings.v1` ([screens.md §4](screens.md#4-settings--settings)); v0.1 stores no test
+  settings, so there the URL parameters apply over the server defaults
+  ([screens.md §1](screens.md#1-test-home--)). A stored Auto-start that is on counts as `run=1` on
+  every load; `run=0` in the URL wins for that load.
 - Parameter names are matched case-insensitively (`Run=1` works); canonical names are lowercase.
   Values are case-insensitive for enums and for the units of `cap`. When a name appears more than
   once, its first occurrence counts.
@@ -71,13 +74,20 @@ what a number means, so they are set deliberately in Settings and shown with the
 The Settings screen builds a URL from the current settings:
 
 - Base: the page's origin and base path.
-- Only parameters whose value differs from the server default are included, in the table order,
-  so links stay short and keep following the server's defaults for everything else.
+- Only parameters whose value differs from the server default are included, in the table order of
+  §2 (`run`, `test`, `preset`, `duration`, `streams`, `cap`, `units`, `lang`, `theme`, `label`), so
+  links stay short and keep following the server's defaults for everything else.
 - `run=1` is added only if the user ticks "start automatically".
-- `label` is included only if set.
+- `lang` and `theme` are included only when the user stored them in Settings, never from the
+  browser's own language or the system theme.
+- `label` is included only if the Settings screen's result label is set.
 - Values are percent-encoded with `encodeURIComponent`.
+- A changed setting that no parameter carries is named in a "Not in the link" line under the
+  field: the advanced settings (warm-up, ping count, overhead compensation), the auto-start
+  countdown length, and any phase set or order, or per-direction duration, that `test` and
+  `duration` cannot express. Opening the link applies the server defaults for them.
 
-Example: `https://speed.example.lan/?preset=extended&streams=4&cap=500MB&run=1&label=VPN`.
+Example: `https://speed.example.lan/?run=1&preset=extended&streams=4&cap=500MB&label=VPN`.
 
 ## 4. Mapping From OpenSpeedTest Parameters
 

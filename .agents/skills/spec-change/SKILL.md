@@ -94,7 +94,7 @@ relies on one, the "Current answer".
 - **Resolved:** remove it from both; in open-questions.md, add it under "Resolved and removed" with
   the answer, who resolved it and the date, and a link. If it becomes a locked decision, it gets
   exactly one entry (section 2), and every page that said "current answer" now states it plainly.
-- **Renumbered:** text cites questions by number (`open question 4` in roadmap.md, `item 40`
+- **Renumbered:** text cites questions by number (`open question 3` in roadmap.md, `item 39`
   inside open-questions.md, and comments under `test/`); search for `open question`, `item` and
   `question` followed by a number across `docs/` and `test/` and fix every citation.
 

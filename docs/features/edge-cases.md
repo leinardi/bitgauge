@@ -317,7 +317,8 @@ Power Mode throttles timers.
 `unavailable_h1` ([measurement.md §12.3](measurement.md#123-path-b-procedure)). The engine requests
 a wake lock and handles suspension as §2 and §5. The history module asks for persistent storage
 (`navigator.storage.persist()`, available in a secure context only, see §9) and the History screen
-recommends export on Safari. Playwright's
+recommends export on Safari, which the page recognizes from `navigator.vendor` in `web/src/lib/`,
+never in the engine. Playwright's
 WebKit is not Safari, so Worker XHR and `nextHopProtocol` behavior are re-checked on real Safari
 and iOS before each release ([technical-stack/testing.md](technical-stack/testing.md)).
 

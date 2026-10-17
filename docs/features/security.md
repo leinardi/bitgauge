@@ -200,9 +200,9 @@ nothing leaves the browser unless the user exports or shares it.
   ([edge-cases.md](edge-cases.md)).
 - The server cannot help recover lost history, because it never had it.
 
-**Share image and copied summary.** The image is rendered client-side on a canvas; both contain
-the download, upload, idle latency, jitter, loaded latency increase, bufferbloat grade, the date
-and time, the server's display name and, if the user enabled it, the result's label. They
+**Share image and copied summary.** The image is rendered client-side on a canvas as a PNG; both
+contain the download, upload, idle latency, jitter, loaded latency increase, bufferbloat grade, the
+date and time, the server's display name and, if the user enabled it, the result's label. They
 **never** contain the client IP, the browser, the note or the URL of the server. The share preview
 (the share panel of the Result detail, or the same panel as a dialog on the Test screen) shows
 exactly what each includes before anything is downloaded, copied or shared.

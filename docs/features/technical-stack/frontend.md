@@ -115,7 +115,7 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
 | --- | --- | --- |
 | A running test (phases, buckets, streams, watermark, samples) | the engine | Worker memory, gone after `result` |
 | Live view of a run (gauge, chart series, notices) | `useRun` | component memory, fed by `sample` and `phase` events |
-| User settings | `useSettings` | `localStorage` key `bitgauge.settings.v1`; overridden by URL parameters ([../ui/url-params.md](../ui/url-params.md)); in v0.1, which has no Settings screen, `useTheme` writes its one field, `theme`, and keeps any other field as it is |
+| User settings | `useSettings` | `localStorage` key `bitgauge.settings.v1`: a sparse object holding only the fields the user set: `theme` and `lang`; `preset`, `phases`, `download` and `upload` (`{minMs, maxMs}`), `dataCapBytes`, `units`, `warmup` (`auto` or milliseconds), `pingCount` and `overheadCompensationPercent`, as the engine's settings hold them; `streams` as `{mode, fixed}` only, its maximum always the server's from `GET /info`; `autoStart` as `{enabled, countdownS}`; and `label`, the Settings screen's result label. A reset removes its field, and fields it does not know are kept as they are. The effective settings are the URL parameters over the stored fields over the server defaults ([../ui/url-params.md](../ui/url-params.md)). `useTheme` keeps writing `theme` there, as it did in v0.1, which had no Settings screen |
 | Server defaults and info for display | `useInfo` | memory; `GET /info` fetched by the UI once for display and again on Retry, and by the engine at each start |
 | Result history | `useHistory` and `history/` | IndexedDB (§5) |
 
@@ -132,12 +132,20 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   ([../measurement.md §17](../measurement.md#17-result-object)); older records are migrated forward
   when read, and written back in the current version when edited.
 - **Persistence.** On first save the module calls `navigator.storage.persist()` where available.
+- **Retention.** None: a result stays until the user deletes it or clears the history. The
+  History header shows the count and, where `navigator.storage.estimate()` exists, the usage.
+- **Delete and undo.** Deleting removes the records at once; the undo toast, shown for 8 s, puts
+  the same records back. Clear all has no undo.
 - **Export formats.**
   - JSON: `{ "format": "bitgauge.history", "formatVersion": 1, "exportedAt": "…", "results":
     [ …result objects… ] }`, including series, client IPs and notes. The v0.1 Test screen's
     single-result Download JSON uses the same format with one entry, so its serializer ships in
     v0.1 without IndexedDB ([../ui/screens.md §1](../ui/screens.md#1-test-home--)).
-  - CSV: one row per result, UTF-8 with a header row; columns `id`, `startedAt`, `label`,
+  - CSV: one row per result, UTF-8 without a byte order mark, a header row, lines ended by CRLF
+    and fields quoted as RFC 4180 does (a field holding a comma, a quote, CR or LF is quoted, its
+    quotes doubled); an absent value is an empty field. A text field that starts with `=`, `+`,
+    `-`, `@`, a tab or CR gets a leading `'`, so a spreadsheet does not read it as a formula.
+    Columns `id`, `startedAt`, `label`,
     `contextLabel`, `note`, `status`, `preset`, `protocol`, `clientIp`, `browser` (name, major
     version and OS as one text value), `serverName`, `serverVersion`,
     `downloadBitsPerSecond`, `downloadPeakBitsPerSecond`, `downloadStatus`, `downloadConfidence`,
@@ -148,19 +156,25 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
     events are omitted.
   - **Scope.** Each format exports either every result or the results matching the current History
     filter; the export menu states which, with the count.
-- **Import.** JSON only, at most 10 MB; validated against the schema; records with an unknown higher
-  `schemaVersion` are rejected with a message; duplicates by `id` are skipped; text is rendered as
-  text, never as HTML ([../security.md §7](../security.md#7-browser-only-history-and-privacy)).
+- **Import.** JSON only, at most 10 MB (10 000 000 bytes); text is rendered as text, never as
+  HTML ([../security.md §7](../security.md#7-browser-only-history-and-privacy)). The file is
+  refused as a whole when it is larger, is not JSON, or is not `format: "bitgauge.history"` with
+  `formatVersion: 1`. Each record is then checked on its own: a higher `schemaVersion` than the
+  current one, or a record the result validator rejects, is rejected by its position in `results`
+  with the reason; a record whose `id` is already stored is skipped. The import ends with a
+  summary `{added, skipped, rejected[]}`, each rejected entry its position and reason.
 - **Unavailable storage** disables history for the session
   ([../edge-cases.md §7](../edge-cases.md#7-indexeddb-unavailable-private-mode)).
 
 ## 6. Charts, Gauge and Share Image
 
 - **uPlot** draws the live throughput chart (download series; upload `received` and faint `sending`
-  lines), optional loaded-latency series, per-phase charts in the result detail and the history
-  trend. Unknown buckets are `null` and render as gaps. Phase separators and event marks are
-  drawn with uPlot hooks from the result's `events`. The live chart draws warm-up samples over a
-  shaded band, since they are still in memory; in the result detail, warm-up is a hatched,
+  lines), optional loaded-latency series, per-phase charts in the result detail, where each
+  direction's loaded-latency samples are a second axis in milliseconds of its throughput chart, and
+  the history trend. Unknown buckets are `null` and render as gaps. Phase separators and event
+  marks are drawn with uPlot hooks from the result's `events`. The live chart draws warm-up
+  samples over a shaded band, since they are still in memory; in the result detail, warm-up is a
+  hatched,
   empty interval ending at `warmupEndMs`, because warm-up samples are not stored, and the table
   view follows the row rules of [../ui/screens.md §2](../ui/screens.md#2-result-detail--resultid).
   For Continuous runs the chart picks the retention tier that keeps at most about 2000 points in
@@ -174,10 +188,13 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   pure function in the component's code, not in the engine). The numeric readout is not a live
   region; announcements go through the separate region of
   [../ui/i18n-a11y.md §2.1](../ui/i18n-a11y.md#21-live-region-for-the-gauge).
-- **Share image.** Rendered client-side on a `<canvas>` with the embedded fonts, exported with
-  `toBlob()` as PNG (the format is an open question tracked in
-  [../open-questions.md](../open-questions.md)), downloaded through a `blob:` URL. Content rules are
-  in [../security.md §7](../security.md#7-browser-only-history-and-privacy).
+- **Share image.** Rendered client-side on a 1200 × 630 `<canvas>`, always in the dark theme, with
+  the dark palette's tokens and the embedded fonts, loaded first through `document.fonts.load`;
+  exported with `toBlob()` as PNG and downloaded through a `blob:` URL. Each number keeps its
+  qualifier: a direction status other than `measured`, a confidence other than `normal`, a
+  non-zero overhead compensation and a loaded-latency source other than the WebSocket. The copied
+  summary holds the same lines as text, in the page's language. Content rules are in
+  [../security.md §7](../security.md#7-browser-only-history-and-privacy).
 
 ## 7. i18n
 

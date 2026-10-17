@@ -52,8 +52,9 @@ from the design export; this page fixes content and behavior only. Terms follow 
   saved".
 - **Notices** area (§7).
 - **Save bar** after a `complete` run (v0.2, with history): "Saved to history", an inline label
-  field with suggested labels (the context label and recent labels from history), Share and
-  Details. Share opens the share dialog of [flows.md §8](flows.md#8-sharing).
+  field with suggested labels (the context label and the 5 most recent distinct labels from
+  history), Share and Details. Share opens the share panel of §2 as a focus-trapped dialog
+  ([flows.md §8](flows.md#8-sharing)).
 - **Keep in history** for a `partial` or `error` result with at least one finished phase: such
   results are not saved unless the user keeps them ([flows.md §4](flows.md#4-cancel-mid-test)).
 - Link "Details" to the Result detail of the finished run.
@@ -81,7 +82,7 @@ from the design export; this page fixes content and behavior only. Terms follow 
 | Cancelled | Partial result with `partial — stopped early` and what was covered ([../measurement.md §7.8](../measurement.md#78-worked-example-b--cancellation-mid-request)); an interrupted direction shows a number only when its confirmed steady window meets the minimum ([../measurement.md §7.6](../measurement.md#76-headline-peak-and-minimum-window)), otherwise "insufficient data". Not saved; Keep in history and Download JSON offered. |
 | Error | What failed and in which phase, completed phases kept, the failed direction with status `error` and no number, Retry. Not saved; Keep in history and Download JSON offered. |
 | Offline / retry | `GET /info` fails, or every idle-latency ping is lost ([../measurement.md §10](../measurement.md#10-idle-latency)): "Server unreachable" with Retry and the time to the next automatic check ([flows.md §1](flows.md#1-first-run)); Start disabled until `/info` succeeds; the phases and the metrics stay, pending and empty. A WebSocket that cannot be opened is **not** offline: the test runs with the HTTP latency fallback and the notice `WebSocket unavailable — HTTP latency fallback`. |
-| Auto-start countdown | When `run` is set: a cancellable countdown (3 s) before the test starts ([flows.md §2](flows.md#2-auto-run-from-url)). |
+| Auto-start countdown | When `run` is set, or the stored Auto-start is on: a cancellable countdown (3 s, or the Auto-start setting's length) before the test starts ([flows.md §2](flows.md#2-auto-run-from-url)). |
 
 **Before v0.2.** The v0.1 Test screen has no history, Result detail, share, loaded latency, grade,
 quality scores or HTTP loaded responsiveness ([../roadmap.md](../roadmap.md)): its only result
@@ -113,16 +114,20 @@ scrolling.
   (absolute on hover), preset and server name.
 - All metrics of §6 with full qualifiers, and a **confidence and notices** card listing every
   confidence reason and notice, each with an icon and text.
-- **Per-phase charts:** download and upload steady-window series with their event marks, idle
-  latency samples, and loaded latency samples per direction. Warm-up is drawn as a marked,
-  excluded interval (its samples are not stored); unknown upload cells and failure gaps are gaps.
-  The stored data behind them is specified in
+- **Per-phase charts:** download and upload steady-window series with their event marks, each
+  with the direction's loaded-latency samples on a second axis in milliseconds, and the idle
+  latency samples. Each throughput chart and its loaded latency are drawn on the direction's own
+  `series` timeline, where `loadedLatency.series` already lies
+  ([../measurement.md §11.5](../measurement.md#115-time-base-and-series)). Warm-up is drawn as a
+  marked, excluded interval (its samples are not stored); unknown upload cells and failure gaps are
+  gaps. The stored data behind them is specified in
   [../measurement.md §17](../measurement.md#17-result-object).
 - **Chart or table** toggle per chart. The table is the charts' text alternative: rows of 2 s
-  windows from warm-up end, throughput as bytes over known time (a window with no known time shows
-  "—", a shorter edge row shows its real span) and the median latency of the samples in the
-  window. When the stored cells are coarser than 2 s (Continuous), one row per stored cell, with
-  the header naming the cell size.
+  windows from warm-up end on the same timeline, throughput as bytes over known time (a window with
+  no known time shows "—", a shorter edge row shows its real span) and, in a column of its own,
+  the median loaded latency of the samples in the window ("—" when it holds none). When the stored
+  cells are coarser than 2 s (Continuous), one row per stored cell, with the header naming the cell
+  size.
 - **Test parameters:** preset, phases and order, stream mode, count and plateau reason, durations,
   data cap, units, warm-up mode, ping count, overhead compensation, protocol, server name and
   version, browser, client IP, timer resolution and whether the page was cross-origin isolated.
@@ -134,9 +139,12 @@ scrolling.
   Share ([flows.md §8](flows.md#8-sharing)).
 - **Download JSON**, **Delete** (with an undo toast) and **Run again** (same settings).
 
-**States:** loaded; not found (unknown id, or history unavailable after a reload) with a link to
-History; history unavailable (the detail of the current in-memory result works, editing and
-deleting are disabled with the reason).
+**States:** loaded; not saved (the id is not in history but matches the result of the run just
+finished, which the Test screen still holds in memory: a `partial` or `error` result not kept, or
+any result while history is unavailable; it is shown with a "not saved" badge, Download JSON and
+Share work, and editing and deleting are disabled with the reason); not found (any other id, or
+history unavailable after a reload) with a link to History; history unavailable (as not saved for
+the current in-memory result).
 
 **Responsive notes.** One column; charts stack vertically; the share panel follows the charts;
 parameters collapse into a disclosure.
@@ -149,29 +157,52 @@ parameters collapse into a disclosure.
 
 - Notice: "Stored only in this browser, for <origin>" with a link explaining per-origin storage
   ([../edge-cases.md §8](../edge-cases.md#8-different-origins-give-separate-histories)).
+- **Header:** the number of stored results and, where `navigator.storage.estimate()` is
+  available, the storage this origin uses. There is no retention limit: a result stays until it is
+  deleted.
 - **List** of results: date and time, label, context label, download, upload, idle latency,
-  jitter, grade, protocol, status; every column sortable; a row action menu (open, delete).
+  jitter, grade, protocol, status; every column sortable, newest first (`startedAt` descending) by
+  default, the sorted column header carrying `aria-sort`; a row action menu (open, delete). On a
+  focused row, Space toggles its selection and Enter opens it.
 - **Filters:** chips by label and by context label, each with its count; a date range (last 7,
-  30 or 90 days, all time, or a custom range); a search over labels and notes.
-- **Trend chart** over the filtered results: small multiples of download and upload (log scale)
-  and idle latency (linear). Results whose status is not `complete` are drawn as hollow markers,
-  with a legend entry.
+  30 or 90 days, all time, or a custom range of two date fields); a search over labels and notes.
+  The filter lives in the query string, so Back and a reload keep it: `labels` and `contexts`
+  (one occurrence per selected chip), `range` (`7d`, `30d`, `90d`, `all` by default, or a custom
+  `<from>..<to>` of local dates as `YYYY-MM-DD`, both inclusive) and `q`. None of them is a name
+  of the URL parameters of [url-params.md §2](url-params.md#2-parameters), which apply on any
+  route; in particular the label filter is not `label`, which would pre-fill the next result's
+  label.
+- **Trend chart** (uPlot) over the filtered results: small multiples of download and upload (log
+  scale) and idle latency (linear). Results whose status is not `complete` are drawn as hollow
+  markers, with a legend entry.
 - **Selection bar** once rows are selected: the selection count, Compare (exactly two), Delete
   selected (with an undo toast), Clear selection.
-- **Compare two results:** side-by-side metrics with the change per metric, worded as better or
-  worse with an icon, and both parameter sets including the browser; a warning when they differ in
-  preset, protocol or label, naming the difference; Copy comparison.
+- **Compare two results**, in a focus-trapped dialog: side-by-side metrics with the change per
+  metric, worded as better or worse with an icon, and both parameter sets including the browser; a
+  warning when they differ in preset, protocol or label, naming the difference; Copy comparison.
+  The older result (by start time) is A and the newer B, and each change is B's against A. A rate
+  (download, upload, peak) within ±2 % of A's and a latency (idle median, jitter, loaded latency)
+  within 1 ms of A's read "same"; grades compare by their order, A+ best; any other difference in
+  those metrics is better or worse. A metric absent on either side (a direction without a number,
+  no grade) reads "not comparable". The other rows (probe timeouts, data used, duration) show both
+  values without a judgment.
+- **Delete** removes the rows at once and shows an undo toast for 8 s, whose Undo puts them back;
+  **Clear all** has no undo.
 - **Export** (JSON or CSV, each for all results or the current filter, with the "contains client
   IPs and notes" warning), **Import** (JSON; a CSV is refused with "CSV exports are summaries and
   can't be restored"), **Clear all** (with a confirmation naming the count and offering "Export
-  JSON first").
+  JSON first"). The import rules and its summary are in
+  [../technical-stack/frontend.md §5](../technical-stack/frontend.md#5-history-module-idb).
 - On Safari, a hint recommending export ([../edge-cases.md
   §17](../edge-cases.md#17-safari-and-ios-quirks)).
+- Recent labels, offered by the Test screen's label field, are the 5 most recent distinct labels
+  of the stored results.
 
 **States:** loading; empty ("No results yet" with Start a test and Import JSON); populated;
 filtered with no match (with Clear filters); history unavailable ([../edge-cases.md
 §7](../edge-cases.md#7-indexeddb-unavailable-private-mode)); import in progress, import result
-(added, skipped as duplicates, rejected with reason).
+(added, skipped as duplicates, rejected with each record's position and reason, or the whole file
+refused with its reason).
 
 **Responsive notes.** On narrow screens rows become cards with label, date, download, upload,
 latency and grade, with a sort control; the trend shows one metric at a time with a selector;
@@ -185,31 +216,43 @@ compare shows one result per column with horizontal paging.
 
 Settings are saved in this browser as each valid change is made; there is no Save or Discard
 step. A setting that differs from the server default is marked "changed" and has its own reset.
+Only the settings the user set are stored, under the `localStorage` key `bitgauge.settings.v1`
+([../technical-stack/frontend.md §4](../technical-stack/frontend.md#4-state-ownership)); the
+effective settings are the URL parameters over the stored settings over the server defaults
+([url-params.md §1](url-params.md#1-rules)).
 
 - **Preset:** Quick, Standard, Extended, Continuous, as cards with a one-line description each
   stating streams, durations and ping count
-  ([../measurement.md §8.5](../measurement.md#85-presets)).
+  ([../measurement.md §8.5](../measurement.md#85-presets)). Before v0.3 the Continuous card is
+  disabled, with a "v0.3" badge.
 - **Phases:** toggles for idle latency, download, upload (at least one stays on), and the order of
   download and upload; for Continuous, the one direction it runs (current answer to an item in
   [../open-questions.md](../open-questions.md)).
 - **Streams:** auto, fixed (1–6), single.
-- **Duration:** minimum and maximum per direction (defaults from the preset; "custom" when edited);
-  for Continuous, an optional **run length** (none by default, 1 minute to 7 days).
-- **Data cap:** none or a size.
+- **Duration:** minimum and maximum per direction in whole seconds, 5–600 s, the minimum at most
+  the maximum (defaults from the preset; "custom" when edited); for Continuous, an optional **run
+  length** (none by default, 1 minute to 7 days).
+- **Data cap:** none or a whole number of MB (decimal, 10^6 bytes) from 2 to 100000; 1 MB is
+  below the 1 MiB floor of a data cap
+  ([../configuration.md §2.3](../configuration.md#23-test-defaults)). A server default that is not
+  a whole number of MB shows with up to three decimals until the user changes it.
+- **Result label:** an optional label, at most 64 characters, that pre-fills the label of every
+  result in this browser, as the `label` URL parameter does for one page load; empty by default.
 - **Units:** bits or bytes.
-- **Auto-start:** off or on, with the countdown length (3 s by default); cancellable countdown
-  before each auto run.
+- **Auto-start:** off or on, with the countdown length, 1–30 s (3 s by default); cancellable
+  countdown before each auto run. Stored on, it acts as `run=1` on every load of the Test screen;
+  a `run=0` in the URL wins for that load.
 - **Theme:** system, light, dark (also switchable from the header). **Language:** the shipped
   locales only.
-- **Advanced** (collapsed by default): warm-up (`auto` or a fixed duration), ping count, overhead
-  compensation (0 by default, LibreSpeed presets offered, with the "shown next to every number"
-  note).
+- **Advanced** (collapsed by default): warm-up (`auto` or a fixed 1–60 s), ping count (6–200),
+  overhead compensation (0–20 %, 0 by default, LibreSpeed presets offered, with the "shown next to
+  every number" note).
 - **Changed from defaults:** a list of every changed setting with its default, its value and a
   reset each, plus **Reset all to defaults** (the server's defaults from `GET /info`, after
   confirmation).
 - **Shareable URL:** a read-only field with a Copy button that encodes the current settings as URL
-  parameters, with an "include `run=1`" option
-  ([url-params.md §3](url-params.md#3-shareable-settings-url)).
+  parameters, with an "include `run=1`" option, and a "Not in the link" line naming the changed
+  settings a link cannot carry ([url-params.md §3](url-params.md#3-shareable-settings-url)).
 
 **States:** defaults; changed (markers and the changed list); invalid input (inline error on the
 field, value not saved; focus is not moved, and Tab leaves the field as usual); saved (the change applies to the next test).

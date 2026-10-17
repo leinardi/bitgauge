@@ -155,7 +155,7 @@ tiers must additionally show for the features it adds. Progress per feature area
   [measurement.md §12](measurement.md#12-http-loaded-responsiveness).
 - Quality scores on Cloudflare's AIM tables, with packet loss "not measured". See
   [measurement.md §13](measurement.md#13-quality-scores).
-- Continuous mode: one direction (the current answer to open question 4), constant-memory rings,
+- Continuous mode: one direction (the current answer to open question 3), constant-memory rings,
   last-hour peak, optional run length. See
   [measurement.md §15](measurement.md#15-continuous-mode).
 

@@ -150,15 +150,17 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 4. The user opens a row: Result detail (flow ends there, or Back returns to the list with the
    filter kept).
 5. To compare, the user selects two rows and chooses Compare.
-6. The compare view shows both results side by side with differences per metric and both parameter
-   sets.
+6. The compare view, a focus-trapped dialog, shows both results side by side with differences per
+   metric and both parameter sets: rates within ±2 % and latencies within 1 ms read "same", grades
+   compare by order, and a value absent on either side is not comparable
+   ([screens.md §3](screens.md#3-history--history)).
    - **Branch: different preset, protocol or label.** A warning says the results are not directly
      comparable and why.
 7. From either side the user can open the detail, copy the comparison as text, or deselect to
    compare another pair.
 8. To delete, the user deletes a row from its action menu or the selected rows from the selection
-   bar. The rows disappear at once and an undo toast restores them; Clear all instead asks for
-   confirmation, names the count and offers Export JSON first.
+   bar. The rows disappear at once and an undo toast restores them for 8 s; Clear all instead asks
+   for confirmation, names the count and offers Export JSON first, and cannot be undone.
 
 ## 7. Continuous Mode
 
@@ -191,14 +193,18 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 ## 8. Sharing
 
 1. On the Result detail the share panel is always visible; on the Test screen the user chooses
-   Share, which opens the same panel as a dialog.
+   Share, which opens the same panel as a focus-trapped dialog, closed by Escape with the focus back
+   on Share.
 2. The panel previews the share image and the copied text and so shows exactly what they contain:
    download, upload, idle latency, jitter, loaded-latency increase, grade, date and time, server
-   display name; the label only if the user ticks "include label" (off by default). They never
-   contain the client IP, the note or the server URL.
+   display name, each number with its qualifier (a status other than measured, a confidence other
+   than normal, a non-zero overhead compensation, a loaded-latency source other than the
+   WebSocket); the label only if the user ticks "include label" (off by default). They never
+   contain the client IP, the note, the browser or the server URL. The image is 1200 × 630 in the
+   dark theme whatever the page's theme; the copied text is the same lines in the page's
+   language.
 3. The user chooses one of:
-   - **Download image:** the image (PNG, the current answer to an item in
-     [../open-questions.md](../open-questions.md)) is rendered client-side and downloaded.
+   - **Download image:** the PNG image is rendered client-side and downloaded.
    - **Copy summary:** the same content as plain text to the clipboard.
      - **Branch: clipboard permission denied.** The text is shown selected for manual copy.
    - **Share** (where the Web Share API is available): the image is passed to the system share
@@ -208,8 +214,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 ## 9. Changing Settings
 
 1. The user opens Settings. Fields show the effective values: stored settings over server
-   defaults. Settings that differ from the server defaults are marked and listed with their
-   defaults.
+   defaults ([url-params.md §1](url-params.md#1-rules)). Settings that differ from the server
+   defaults are marked and listed with their defaults.
 2. The user changes fields. Each field validates inline, and each valid change is stored in this
    browser at once; there is no Save or Discard step.
    - **Branch: invalid value.** Inline error on the field; the value is not stored and the
