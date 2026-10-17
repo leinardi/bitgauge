@@ -296,8 +296,8 @@ What no scenario visits is invisible to it. `web/parity/coverage.test.ts`, run b
 `make verify-web`, closes the part of that gap that can be enumerated. It fails when:
 
 - a Vue page or a prototype screen has no row in its page table, or a row names one that is gone;
-- the routes Vue answers with the not-available page are not exactly the prototype's v0.2 screens
-  (History, Settings, Result detail);
+- the routes Vue answers with the not-available page are not exactly the prototype screens the app
+  does not have yet (none since the Result detail landed in v0.2);
 - a v0.1 state of the kit's `TEST_STATES` has no scenario, or a scenario names a state the kit
   dropped or a v0.2 one;
 - the Vue driver's list of states that start a run disagrees with the start flags of

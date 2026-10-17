@@ -17,11 +17,11 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// axe on the Test, History, Settings and About screens in both themes, and on the not-available
-// screen (testing.md section 4, ui/i18n-a11y.md section 2.6). The theme comes from the documented URL
-// parameter (ui/url-params.md section 1), which overrides the stored choice for the page load. Each
-// test starts with an empty history; the populated one imports the demo's eight results, and one
-// record it rejects.
+// axe on the Test, History, Result detail, Settings and About screens in both themes (testing.md
+// section 4, ui/i18n-a11y.md section 2.6). The theme comes from the documented URL parameter
+// (ui/url-params.md section 1), which overrides the stored choice for the page load. Each test
+// starts with an empty history; the populated one imports the demo's eight results, and one record
+// it rejects, and the Result detail shows the newest of them, with a chart and a table.
 
 import { demoHistoryResults } from '@/demo/history'
 
@@ -72,9 +72,16 @@ for (const theme of ['light', 'dark'] as const) {
       await expectAccessible(page)
     })
 
-    test('the not-available screen', async ({ page }) => {
-      await page.goto(`/result/0b6f2c1e-8a4d-4f3b-9c2a-1d2e3f4a5b6c?theme=${theme}`)
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Not available in this version')
+    test('the Result detail, with a chart and a table', async ({ page }) => {
+      await page.goto(`/history?theme=${theme}`)
+      await expect(page.getByRole('heading', { name: 'No results yet' })).toBeVisible()
+      await page.getByTestId('import-input').setInputFiles({ name: 'bitgauge-history.json', mimeType: 'application/json', buffer: Buffer.from(EXPORT) })
+      await expect(page.getByTestId('history-count')).toContainText('8 of 8 shown')
+      await page.locator('main a[href*="/result/"]').first().click()
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G')
+      await expect(page.getByTestId('phase-chart-download')).toBeVisible()
+      await page.getByTestId('chart-card-upload').getByRole('button', { name: 'Table' }).click()
+      await expect(page.getByTestId('chart-card-upload').getByTestId('window-table')).toBeVisible()
       await expectAccessible(page)
     })
   })

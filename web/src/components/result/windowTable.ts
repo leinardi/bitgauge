@@ -1,0 +1,107 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import type { LoadedPing, ResultSeries } from '@/engine/messages'
+
+// The Result detail's table, the text alternative of a direction's chart (ui/screens.md section 2):
+// rows of 2 s windows from warm-up end on the direction's series timeline, each with its known time,
+// its throughput as bytes over that known time and the median loaded latency of the samples in it.
+// A row with no known time has no throughput, and a row without samples no latency; the last row
+// keeps its real, shorter span. When the stored cells are coarser than 2 s, one row per cell. A
+// cell counts in the window its start falls in. The idle latency's table groups its pings by five.
+
+const WINDOW_MS = 2000
+const IDLE_GROUP = 5
+
+export interface WindowRow {
+  fromMs: number
+  toMs: number
+  knownMs: number
+  /** Bytes over the known time, in bit/s; null with no known time. */
+  bitsPerSecond: number | null
+  /** The median loaded latency of the samples in the row; null without any. */
+  latencyMs: number | null
+}
+
+export interface WindowTable {
+  /** The size of a stored cell when rows are cells, coarser than the windows; null for 2 s windows. */
+  cellMs: number | null
+  rows: WindowRow[]
+}
+
+export function median(values: readonly number[]): number | null {
+  if (values.length === 0) {
+    return null
+  }
+  const sorted = [...values].sort((a, b) => a - b)
+  const middle = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 1 ? (sorted[middle] ?? null) : ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2
+}
+
+/** The series' cells: each one's span on the timeline and its bytes, null when unknown; the last ends at endMs. */
+export function seriesCells(series: ResultSeries): { fromMs: number; toMs: number; bytes: number | null }[] {
+  return series.values.flatMap((bytes, index) => {
+    const fromMs = series.firstCellMs + index * series.bucketMs
+    const toMs = Math.min(fromMs + series.bucketMs, series.endMs)
+    return toMs > fromMs ? [{ fromMs, toMs, bytes }] : []
+  })
+}
+
+function row(fromMs: number, toMs: number, cells: { fromMs: number; toMs: number; bytes: number | null }[], latency: readonly LoadedPing[], last: boolean): WindowRow {
+  const known = cells.filter((cell) => cell.bytes !== null)
+  const knownMs = known.reduce((sum, cell) => sum + cell.toMs - cell.fromMs, 0)
+  const bytes = known.reduce((sum, cell) => sum + (cell.bytes ?? 0), 0)
+  const inside = latency.filter((ping) => ping.atMs >= fromMs && (ping.atMs < toMs || (last && ping.atMs === toMs)))
+  return { fromMs, toMs, knownMs, bitsPerSecond: knownMs > 0 ? (bytes * 8 * 1000) / knownMs : null, latencyMs: median(inside.map((ping) => ping.rttMs)) }
+}
+
+/** The table of a direction's stored series and its loaded-latency samples. */
+export function windowTable(series: ResultSeries, latency: readonly LoadedPing[] = []): WindowTable {
+  const cells = seriesCells(series)
+  if (series.bucketMs > WINDOW_MS) {
+    return { cellMs: series.bucketMs, rows: cells.map((cell, index) => row(cell.fromMs, cell.toMs, [cell], latency, index === cells.length - 1)) }
+  }
+  const start = series.warmupEndMs
+  const count = Math.max(0, Math.ceil((series.endMs - start) / WINDOW_MS))
+  const windows = Array.from({ length: count }, (_, index) => ({ fromMs: start + index * WINDOW_MS, toMs: Math.min(start + (index + 1) * WINDOW_MS, series.endMs), cells: [] as typeof cells }))
+  for (const cell of cells) {
+    const index = Math.min(count - 1, Math.max(0, Math.floor((cell.fromMs - start) / WINDOW_MS)))
+    windows[index]?.cells.push(cell)
+  }
+  return { cellMs: null, rows: windows.map((window, index) => row(window.fromMs, window.toMs, window.cells, latency, index === count - 1)) }
+}
+
+export interface PingGroup {
+  /** The first and last ping of the group, counted from 1 in send order. */
+  first: number
+  last: number
+  medianMs: number
+  minMs: number
+  maxMs: number
+}
+
+/** The idle samples in groups of five, in send order. */
+export function pingGroups(samples: readonly number[]): PingGroup[] {
+  const groups: PingGroup[] = []
+  for (let index = 0; index < samples.length; index += IDLE_GROUP) {
+    const group = samples.slice(index, index + IDLE_GROUP)
+    groups.push({ first: index + 1, last: index + group.length, medianMs: median(group) ?? 0, minMs: Math.min(...group), maxMs: Math.max(...group) })
+  }
+  return groups
+}

@@ -20,10 +20,10 @@
 
 // The result's actions on the Test screen: Download JSON, named exactly so for the accuracy harness,
 // with its warning as the description and the file made in memory; the result bar's complete
-// variants (saved, being saved, not saved), its partial and error ones; and the failure notice of
-// the Error state.
+// variants (saved, being saved, not saved), its partial and error ones, and its Details link; and
+// the failure notice of the Error state.
 
-import { mount } from '@vue/test-utils'
+import { mount, RouterLinkStub } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Component } from 'vue'
 
@@ -36,7 +36,7 @@ import { createAppI18n } from '@/i18n'
 import { resultFixture } from '@/test/fixtures'
 
 function mountWith<T extends Component>(component: T, props: Record<string, unknown>) {
-  return mount(component, { props, global: { plugins: [createAppI18n('', ['en'])] }, attachTo: document.body } as never)
+  return mount(component, { props, global: { plugins: [createAppI18n('', ['en'])], stubs: { RouterLink: RouterLinkStub } }, attachTo: document.body } as never)
 }
 
 /** Captures the blob the button makes and the link it clicks. */
@@ -119,6 +119,8 @@ describe('the result bar', () => {
     expect(wrapper.get('[data-testid="result-bar-time"]').text()).toBe(new Intl.DateTimeFormat('en', { timeStyle: 'medium' }).format(new Date(startedAt.getTime() + 28_600)))
     expect(wrapper.find('[data-testid="result-bar-body"]').exists()).toBe(false)
     expect(wrapper.findAll('button').map((button) => button.text())).toEqual(['Download JSON'])
+    expect(wrapper.getComponent(RouterLinkStub).props('to')).toBe(`/result/${resultFixture().id}`)
+    expect(wrapper.get('[data-testid="result-details"]').text()).toBe('Details')
   })
 
   it('says a complete result is not saved where history is unavailable or the save failed', () => {

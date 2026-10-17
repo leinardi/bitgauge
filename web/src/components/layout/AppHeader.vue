@@ -19,7 +19,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
 
 import BrandLogo from '@/components/brand/BrandLogo.vue'
 import { useNavigation } from '@/components/layout/navigation'
@@ -31,10 +30,9 @@ import { useTheme } from '@/composables/useTheme'
 // wide screens, a theme button on narrow ones, where the tab bar navigates.
 
 const { t } = useI18n()
-const route = useRoute()
 const { info, reachability } = useInfo()
 const theme = useTheme()
-const { items, themes } = useNavigation()
+const { items, themes, current: currentItem } = useNavigation()
 
 const host = window.location.host
 const down = computed(() => reachability.value === 'unreachable')
@@ -109,9 +107,9 @@ function cycleTheme(): void {
           v-for="item in items"
           :key="item.name"
           :to="item.to"
-          :aria-current="route.name === item.name ? 'page' : undefined"
+          :aria-current="currentItem === item.name ? 'page' : undefined"
           class="flex h-8 items-center gap-1.75 rounded-(--radius-md) px-3 text-(length:--text-sm) no-underline"
-          :class="route.name === item.name ? 'bg-muted font-semibold text-foreground' : 'font-medium text-muted-foreground hover:bg-muted hover:text-foreground'"
+          :class="currentItem === item.name ? 'bg-muted font-semibold text-foreground' : 'font-medium text-muted-foreground hover:bg-muted hover:text-foreground'"
         >
           <component
             :is="item.icon"

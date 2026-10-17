@@ -20,11 +20,13 @@
 import { Gauge, History, Info, Monitor, Moon, SlidersHorizontal, Sun } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
 import type { ThemeChoice } from '@/composables/useTheme'
 
 // The navigation and theme choices shared by the header and the tab bar (design_system kit
-// Nav.jsx): Test, History, Settings and About (ui/screens.md section 1).
+// Nav.jsx): Test, History, Settings and About (ui/screens.md section 1). The current item is the
+// route's, and History on a Result detail, which the kit's Nav marks so.
 
 export function useNavigation() {
   const { t } = useI18n()
@@ -39,5 +41,7 @@ export function useNavigation() {
     { choice: 'dark' as ThemeChoice, label: t('app.theme.dark'), icon: Moon },
     { choice: 'system' as ThemeChoice, label: t('app.theme.system'), icon: Monitor },
   ])
-  return { items, themes }
+  const route = useRoute()
+  const current = computed(() => (route.name === 'result' ? 'history' : route.name))
+  return { items, themes, current }
 }

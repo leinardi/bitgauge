@@ -23,7 +23,8 @@ import type { ChartGeometry } from '@/components/chart/geometry'
 import { DEFAULT_METRICS, type LabelMetrics, type LineLabel, metricKey, placeTopLabels } from '@/components/chart/placement'
 
 // A chart's text over its plot (design_system/components/charts.css .chart-lb): the value labels
-// left of their gridlines, the time labels under their ticks, each phase's name right of where it
+// left of their gridlines, the time labels under their ticks, a second scale's labels (the Result
+// detail's loaded latency) right of the plot, each phase's name right of where it
 // starts and each mark's label beside its line, placed on the top rows by placeTopLabels. Text in
 // the page, not on the canvas, so it renders with the page's fonts; hidden from assistive
 // technology, which reads the chart's summary instead.
@@ -96,6 +97,12 @@ const at = (label: { x: number; y: number }) => ({ left: `${label.x}px`, top: `$
       class="absolute -translate-x-1/2 translate-y-(--chart-label-anchor) whitespace-nowrap"
       :style="at(tick)"
     >{{ tick.text }}</span>
+    <span
+      v-for="(label, index) in geometry.grid2"
+      :key="`r${index}`"
+      class="absolute translate-y-(--chart-label-anchor) whitespace-nowrap text-(--series-latency)"
+      :style="at(label)"
+    >{{ label.text }}</span>
     <span
       v-for="(phase, index) in placed.phases"
       :key="`p${index}`"

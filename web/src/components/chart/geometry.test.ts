@@ -64,4 +64,18 @@ describe('chartGeometry', () => {
     const narrow = chartGeometry({ width: 311, height: 150, xMax: 26, yMax: 8e8, yLabels: LABELS, xLabel: (s) => `${s}s`, compact: true })
     expect(narrow.ticks.map((tick) => tick.text)).toEqual(['0s', '8s', '16s', '24s'])
   })
+
+  it('has no second scale unless given one', () => {
+    expect(geometry.grid2).toEqual([])
+  })
+
+  it('sizes a gutter right of the plot for a second scale, labeled at 0, half and the top', () => {
+    const both = chartGeometry({ width: 672, height: 300, xMax: 26, yMax: 8e8, yLabels: LABELS, xLabel: (s) => `${s}s`, compact: false, y2Labels: ['0', '50', '100 ms'] })
+    expect(both.right).toBe(672 - 55)
+    expect(both.grid2.map((label) => [label.x, label.y, label.text])).toEqual([
+      [625, 281.5, '0'],
+      [625, 147.5, '50'],
+      [625, 13.5, '100 ms'],
+    ])
+  })
 })

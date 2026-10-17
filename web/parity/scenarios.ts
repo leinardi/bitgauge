@@ -58,7 +58,7 @@ export type Screen = 'Test' | 'History' | 'Settings' | 'About'
 /** The History variants the demo can seed (src/demo/history.ts), by the kit's names (App.jsx HISTORY_VARIANTS). */
 export type HistoryVariant = 'populated' | 'empty' | 'unavailable'
 
-export type Step = { forceState: TestState } | { serverUnreachable: true } | { goto: Screen } | { openDemo: true } | { historyVariant: HistoryVariant }
+export type Step = { forceState: TestState } | { serverUnreachable: true } | { goto: Screen } | { openDemo: true } | { historyVariant: HistoryVariant } | { openResult: true }
 
 export interface Scenario {
   id: string
@@ -99,6 +99,9 @@ const history: Scenario[] = HISTORY_VARIANTS.map((variant) => ({
   kitScope: 'v0.2',
 }))
 
+// The Result detail of the newest populated result, opened from the History list.
+const result: Scenario[] = [{ id: 'result', steps: [{ historyVariant: 'populated' }, { goto: 'History' }, { openResult: true }], regions: ALL, kitScope: 'v0.2' }]
+
 const about: Scenario[] = [
   { id: 'about', steps: [{ goto: 'About' }], regions: ALL },
   { id: 'about/unreachable', steps: [{ serverUnreachable: true }, { goto: 'About' }], regions: ALL },
@@ -116,7 +119,7 @@ const demo: Scenario[] = [
 export const KIT_SCOPE = 'v0.1' as 'v0.1' | 'v0.2'
 
 /** Every scenario, those of a later scope included: what coverage.test.ts holds each screen to. */
-export const ALL_SCENARIOS: readonly Scenario[] = [...testStates, ...history, ...settings, ...about, ...demo]
+export const ALL_SCENARIOS: readonly Scenario[] = [...testStates, ...history, ...result, ...settings, ...about, ...demo]
 
 /** The scenarios a run compares: those the driven scope reaches. */
 export const SCENARIOS: readonly Scenario[] = ALL_SCENARIOS.filter((scenario) => scenario.kitScope === undefined || KIT_SCOPE === 'v0.2')

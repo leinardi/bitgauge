@@ -17,14 +17,15 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Bufferbloat, DirectionResult, Notice, Result, ResultStatus, UploadResult } from '@/engine/messages'
+import type { Bufferbloat, DirectionResult, LoadedLatency, Notice, Result, ResultStatus, UploadResult } from '@/engine/messages'
 
 // The demo's history (frontend.md section 9): the design export's History variants (ui_kits/app/
 // History.jsx) the demo panel can put in the page's history, so the demo shows the populated, empty
 // and unavailable History screens. The populated one holds the kit's eight results over a VPN, newest
 // first: label, rates, idle latency and jitter, grade, protocol and status as the kit's rows give
-// them. The page writes them into its history (composables/useHistory.ts), which this module never
-// touches.
+// them, with a steady window of stored cells and loaded-latency samples per measured direction for
+// the Result detail, whose increases make the row's grade. The page writes them into its history
+// (composables/useHistory.ts), which this module never touches.
 
 /** The panel's History variant: '' leaves the browser's history as it is. */
 export type DemoHistory = '' | 'populated' | 'empty' | 'unavailable'
@@ -64,22 +65,45 @@ const ROWS: readonly KitRow[] = [
 
 /** Seconds a direction ran for; its bytes follow from its rate. */
 const DIRECTION_S = 15
+/** The steady window: warm-up ends at 9 s, the window runs to the direction's end in 100 ms cells. */
+const WARMUP_END_MS = 9000
+const CELL_MS = 100
+const CELLS = (DIRECTION_S * 1000 - WARMUP_END_MS) / CELL_MS
+/** A loaded-latency ping every 250 ms of the window. */
+const PING_MS = 250
 
-function direction(bitsPerSecond: number | null, lowConfidence: boolean): DirectionResult {
+/** The loaded latency of a direction with this increase over idle: samples around idle plus it. */
+function loaded(idleMs: number, jitterMs: number, increaseMs: number, seed: number): LoadedLatency {
+  const series = Array.from({ length: (DIRECTION_S * 1000 - WARMUP_END_MS) / PING_MS }, (_, index) => ({
+    atMs: WARMUP_END_MS + index * PING_MS,
+    rttMs: Math.round((idleMs + increaseMs + jitterMs * Math.sin(seed + index * 0.9)) * 10) / 10,
+  }))
+  const sorted = series.map((ping) => ping.rttMs).sort((a, b) => a - b)
+  const middle = sorted.length / 2
+  const medianMs = Math.round((((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2) * 10) / 10
+  const p90Ms = sorted[Math.ceil(sorted.length * 0.9) - 1] ?? medianMs
+  return { source: 'websocket', samples: series.length, skippedTicks: 0, lost: 0, medianMs, p90Ms, increaseMs: Math.round((medianMs - idleMs) * 10) / 10, series }
+}
+
+function direction(bitsPerSecond: number | null, lowConfidence: boolean, latency: LoadedLatency): DirectionResult {
   if (bitsPerSecond === null) {
-    return { status: 'error', streams: 1, bytes: 0, events: [{ code: 'error', atMs: 1200, notice: 'requests-failed' }] }
+    return { status: 'error', streams: 1, bytes: 0, events: [{ code: 'error', atMs: 1200, notice: 'requests-failed' }], loadedLatency: { status: 'unavailable', reason: 'no-steady-window', source: 'websocket', samples: 0, skippedTicks: 0, lost: 0 } }
   }
+  const perCell = bitsPerSecond / 8 / (1000 / CELL_MS)
+  const values = Array.from({ length: CELLS }, (_, index) => Math.round(perCell * (1 + 0.04 * Math.sin(index * 0.7) + 0.02 * Math.cos(index * 2.3))))
   return {
     status: 'measured',
     bitsPerSecond,
     peakBitsPerSecond: Math.round(bitsPerSecond * 1.04),
     uncompensatedBitsPerSecond: bitsPerSecond,
-    windowMs: 6000,
+    windowMs: DIRECTION_S * 1000 - WARMUP_END_MS,
     streams: 4,
     plateau: 'no-gain',
     confidence: lowConfidence ? { level: 'low', reasons: ['unstable'] } : { level: 'normal', reasons: [] },
     bytes: Math.round((bitsPerSecond / 8) * DIRECTION_S),
+    series: { bucketMs: CELL_MS, firstCellMs: WARMUP_END_MS, warmupEndMs: WARMUP_END_MS, endMs: DIRECTION_S * 1000, values },
     events: [],
+    loadedLatency: latency,
   }
 }
 
@@ -92,12 +116,15 @@ function notices(row: KitRow): Notice[] {
 
 function result(row: KitRow, index: number): Result {
   const [year, month, day, hour, minute] = row.at
-  const download = direction(row.down, row.lowConfidence)
+  // The worse direction's increase is the row's; the other has half of it.
+  const both = row.status === 'complete'
+  const download = direction(row.down, row.lowConfidence, loaded(row.latencyMs, row.jitterMs, both ? row.increaseMs / 2 : row.increaseMs, index))
   // The partial run was stopped 3.1 s into upload, before its warm-up ended.
   const upload: UploadResult =
     row.status === 'partial'
-      ? { status: 'partial', streams: 2, bytes: 2_400_000, events: [{ code: 'cancelled', atMs: 3100 }], confirmedRequests: 2 }
-      : { ...direction(row.up, row.lowConfidence), confirmedRequests: row.up === null ? 0 : 24 }
+      ? { status: 'partial', streams: 2, bytes: 2_400_000, events: [{ code: 'cancelled', atMs: 3100 }], confirmedRequests: 2, loadedLatency: { status: 'unavailable', reason: 'no-steady-window', source: 'websocket', samples: 0, skippedTicks: 0, lost: 0 } }
+      : { ...direction(row.up, row.lowConfidence, loaded(row.latencyMs, row.jitterMs, row.increaseMs, index + 3)), confirmedRequests: row.up === null ? 0 : 24 }
+  const increases = [download, upload].flatMap((part) => (part.loadedLatency !== undefined && 'increaseMs' in part.loadedLatency && part.loadedLatency.increaseMs !== undefined ? [part.loadedLatency.increaseMs] : []))
   return {
     schema: 'bitgauge.result',
     schemaVersion: 1,
@@ -112,7 +139,7 @@ function result(row: KitRow, index: number): Result {
     idle: { path: 'websocket', lossPercent: 0, minMs: row.latencyMs - 1, medianMs: row.latencyMs, p90Ms: row.latencyMs + row.jitterMs, jitterMs: row.jitterMs, samples: [row.latencyMs] },
     download,
     upload,
-    ...(row.grade === null ? {} : { bufferbloat: { grade: row.grade, basis: upload.bitsPerSecond === undefined ? 'download' : 'download+upload', increaseMs: row.increaseMs } }),
+    ...(row.grade === null ? {} : { bufferbloat: { grade: row.grade, basis: upload.bitsPerSecond === undefined ? 'download' : 'download+upload', increaseMs: Math.max(...increases) } }),
     dataUsedBytes: download.bytes + upload.bytes,
     notices: notices(row),
   }

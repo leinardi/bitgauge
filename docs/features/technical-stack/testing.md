@@ -147,8 +147,9 @@ behavior are re-checked manually on real Safari (macOS) and iOS Safari before ea
   and in each Worker it starts, where the engine's requests and WebSocket run, and fails on any; a
   negative control proves both listeners report a blocked request.
 - **axe.** WCAG 2.2 AA rules (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`), once the
-  page's transitions have settled, on every v0.1 screen: the Test screen idle, done, cancelled and
-  in error, About and the not-available screen in both themes, and the base-path error.
+  page's transitions have settled, on every screen: the Test screen idle, done, cancelled and in
+  error, History empty and populated, a Result detail with a chart and a table, Settings and About
+  in both themes, and the base-path error.
 
 ## 5. Accuracy Harness
 

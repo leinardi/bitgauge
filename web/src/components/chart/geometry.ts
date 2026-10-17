@@ -27,6 +27,8 @@ const TOP = 10
 const RIGHT = 12
 const BOTTOM = 22
 const LEFT_MIN = 44
+/** The narrowest gutter right of the plot for a second value scale's labels. */
+const RIGHT_MIN = 40
 /** The width of a character of the axis labels (mono, --text-nano), to size the label gutter to the longest label. */
 const LABEL_CHAR = 6.7
 const LABEL_PAD = 14
@@ -67,6 +69,8 @@ export interface ChartGeometry {
   grid: { y: number; label: Label }[]
   /** The time ticks, from 0. */
   ticks: Label[]
+  /** A second value scale's labels right of the plot, bottom first, at 0, half and the whole of it. */
+  grid2: Label[]
   /** A time (s) and a value as positions in the chart. */
   x: (seconds: number) => number
   y: (value: number) => number
@@ -85,6 +89,8 @@ export interface GeometryInput {
   xLabel: (seconds: number) => string
   /** The compact layout spaces the time ticks wider on a long axis. */
   compact: boolean
+  /** A second value scale's three labels, at 0, half and the whole of it, in a gutter right of the plot. */
+  y2Labels?: readonly string[]
 }
 
 function tickStep(xMax: number, compact: boolean): number {
@@ -95,10 +101,11 @@ function tickStep(xMax: number, compact: boolean): number {
   return step > 0 && Number.isFinite(step) ? step : Math.max(xMax, 1)
 }
 
-export function chartGeometry({ width, height, xMax, yMax, yLabels, xLabel, compact }: GeometryInput): ChartGeometry {
-  const longest = Math.max(...yLabels.map((label) => label.length))
-  const left = Math.max(LEFT_MIN, Math.ceil(longest * LABEL_CHAR) + LABEL_PAD)
-  const right = width - RIGHT
+const gutter = (labels: readonly string[], least: number) => Math.max(least, Math.ceil(Math.max(...labels.map((label) => label.length)) * LABEL_CHAR) + LABEL_PAD)
+
+export function chartGeometry({ width, height, xMax, yMax, yLabels, xLabel, compact, y2Labels = [] }: GeometryInput): ChartGeometry {
+  const left = gutter(yLabels, LEFT_MIN)
+  const right = width - (y2Labels.length === 0 ? RIGHT : gutter(y2Labels, RIGHT_MIN))
   const bottom = height - BOTTOM
   const x = (seconds: number) => left + ((right - left) * seconds) / xMax
   const y = (value: number) => TOP + (bottom - TOP) * (1 - value / yMax)
@@ -111,5 +118,6 @@ export function chartGeometry({ width, height, xMax, yMax, yLabels, xLabel, comp
   for (let seconds = 0; seconds <= xMax + 1e-9; seconds += step) {
     ticks.push({ x: x(seconds), y: height - TICK_RISE, text: xLabel(Math.round(seconds * 10) / 10) })
   }
-  return { width, height, left, right, top: TOP, bottom, grid, ticks, x, y }
+  const grid2 = y2Labels.map((text, index) => ({ x: right + LABEL_GAP, y: TOP + (bottom - TOP) * (1 - index / Math.max(1, y2Labels.length - 1)) + LABEL_DROP, text }))
+  return { width, height, left, right, top: TOP, bottom, grid, ticks, grid2, x, y }
 }

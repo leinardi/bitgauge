@@ -24,7 +24,8 @@
 // has answered with the settings a 3 s countdown starts the run with the URL's label and the
 // ignored parameters; Escape cancels it and Start then runs the same settings. The settings stored
 // on the Settings screen sit under the URL's, and a stored Auto-start counts down as `run=1` does.
-// Each test loads the page afresh, since the URL applies once per page load.
+// Run again on a Result detail starts its result's settings at once. Each test loads the page
+// afresh, since the URL applies once per page load.
 
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -32,7 +33,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getInfo, type Info } from '@/api/info'
 import type { EngineEvent, TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
-import { infoFixture } from '@/test/fixtures'
+import { infoFixture, resultFixture } from '@/test/fixtures'
 
 vi.mock('@/api/info', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/api/info')>()),
@@ -63,10 +64,11 @@ const INFO: Info = infoFixture()
 const DEFAULTS = settingsFromDefaults(INFO.defaults) as TestSettings
 const QUICK: TestSettings = { ...DEFAULTS, preset: 'quick', phases: ['idle', 'download'], pingCount: 10, download: { minMs: 5000, maxMs: 10_000 }, upload: { minMs: 5000, maxMs: 10_000 } }
 
-/** The page loaded afresh at `search`, with its Worker. */
-async function load(search: string) {
+/** The page loaded afresh at `search`, with its Worker; `before` runs on the fresh modules before it mounts. */
+async function load(search: string, before?: () => Promise<void>) {
   window.history.replaceState(null, '', `/${search}`)
   vi.resetModules()
+  await before?.()
   vi.stubGlobal('Worker', StubWorker)
   vi.mocked(getInfo).mockResolvedValue(INFO)
   const { useInfo } = await import('@/composables/useInfo')
@@ -209,6 +211,26 @@ describe('the stored settings', () => {
     worker.posted.length = 0
     await page.get('[data-testid="start-button"]').trigger('click')
     expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: 'LAN', label: 'VPN' }, visible: true }])
+    page.unmount()
+  })
+})
+
+describe('Run again from a Result detail', () => {
+  it("starts the result's settings and label once the engine is configured, with no countdown", async () => {
+    const result = resultFixture({ label: 'Desk', settings: { ...resultFixture().settings, preset: 'quick', phases: ['idle', 'download'], pingCount: 10, streams: { mode: 'fixed', max: 6 } } })
+    const { page, worker } = await load('', async () => {
+      const { requestRunAgain } = await import('@/composables/useRunAgain')
+      requestRunAgain(result)
+    })
+    expect(worker.posted.some((message) => (message as { type: string }).type === 'start')).toBe(false)
+    worker.emit({ type: 'settings', scope: 'configured', settings: DEFAULTS })
+    await flushPromises()
+    const start = worker.posted.find((message) => (message as { type: string }).type === 'start')
+    expect(start).toMatchObject({
+      type: 'start',
+      override: { label: 'Desk', preset: 'quick', phases: ['idle', 'download'], pingCount: 10, streams: { mode: 'fixed', max: 6, fixed: 6 }, dataCapBytes: null, warmup: 'auto', overheadCompensationPercent: 0 },
+    })
+    expect(page.find('[data-testid="countdown"]').exists()).toBe(false)
     page.unmount()
   })
 })

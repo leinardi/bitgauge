@@ -20,8 +20,8 @@
 import type { Component } from 'vue'
 
 // The kit's Card (design_system/components/layout Card.jsx, layout.css `.card`) as the Settings
-// screen uses it: a section labeled by its header's title, with the header's icon and actions, and
-// a padded body or rows that bring their own padding.
+// screen and the Result detail use it: a section labeled by its header's title, with the header's
+// icon and actions, and a padded body or rows that bring their own padding.
 
 defineProps<{ id: string; title: string; icon: Component; padded?: boolean }>()
 </script>

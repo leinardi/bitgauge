@@ -19,10 +19,10 @@
 
 // Flow 1, first run (ui/flows.md section 1): the Test screen with the server's defaults, Start, the
 // live phases, and the complete result, saved to history, whose Download JSON holds one result that
-// validates. The spec runs a BitGauge of its own: on the shared server the parallel runs from one
-// address can exceed its four WebSockets per client (wire-protocol.md section 9) and fall back to
-// HTTP, and here the idle latency must come over the WebSocket, which the CSP's connect-src has to
-// allow.
+// validates, and whose Result detail draws it and keeps its note. The spec runs a BitGauge of its
+// own: on the shared server the parallel runs from one address can exceed its four WebSockets per
+// client (wire-protocol.md section 9) and fall back to HTTP, and here the idle latency must come
+// over the WebSocket, which the CSP's connect-src has to allow.
 
 import { readFile } from 'node:fs/promises'
 
@@ -74,10 +74,27 @@ test('runs the server defaults to a complete result and downloads it', async ({ 
   // The done state, with its tiles and result bar, passes axe too.
   await expectAccessible(page)
 
+  // Details opens its Result detail: both directions' charts with their loaded latency, and the parameters.
+  await page.getByTestId('result-details').click()
+  await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toBeVisible()
+  await expect(page.getByTestId('phase-chart-download')).toBeVisible()
+  await expect(page.getByTestId('phase-chart-upload')).toBeVisible()
+  await expect(page.getByTestId('load-row')).toHaveCount(2)
+  await expect(page.getByTestId('parameter-ip')).toContainText('127.0.0.1')
+
   // The saved result is in History, and the Test screen's idle state links to it.
   const nav = page.getByRole('navigation', { name: 'Primary' })
   await nav.getByRole('link', { name: 'History' }).click()
   await expect(page.getByTestId('history-count')).toContainText('1 of 1 shown')
   await nav.getByRole('link', { name: 'Test' }).click()
   await expect(page.getByTestId('last-result')).toContainText('Last test')
+
+  // The note is saved with the result as it is typed, and is there after a reload.
+  await page.getByTestId('last-result').click()
+  await page.getByTestId('note-field').fill('Desk, 5 GHz')
+  await page.waitForTimeout(500)
+  await expect(async () => {
+    await page.reload()
+    await expect(page.getByTestId('note-field')).toHaveValue('Desk, 5 GHz', { timeout: 1000 })
+  }).toPass({ timeout: 10_000 })
 })

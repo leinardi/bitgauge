@@ -17,15 +17,12 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-
 import { useNavigation } from '@/components/layout/navigation'
 
 // The narrow-screen tab bar (ui/screens.md section 1, design_system kit Nav.jsx mobile-bottom):
 // Test, History, Settings and About, the active one marked by a bar along its top edge.
 
-const route = useRoute()
-const { items } = useNavigation()
+const { items, current } = useNavigation()
 </script>
 
 <template>
@@ -37,12 +34,12 @@ const { items } = useNavigation()
       v-for="item in items"
       :key="item.name"
       :to="item.to"
-      :aria-current="route.name === item.name ? 'page' : undefined"
+      :aria-current="current === item.name ? 'page' : undefined"
       class="relative flex flex-col items-center justify-center gap-1 text-(length:--text-micro) no-underline"
-      :class="route.name === item.name ? 'font-semibold text-primary-text' : 'font-medium text-subtle-foreground'"
+      :class="current === item.name ? 'font-semibold text-primary-text' : 'font-medium text-subtle-foreground'"
     >
       <span
-        v-if="route.name === item.name"
+        v-if="current === item.name"
         aria-hidden="true"
         class="absolute -top-px inset-x-(--tab-indicator-inset) h-0.5 rounded-xs bg-primary"
       />

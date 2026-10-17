@@ -40,6 +40,10 @@ export interface ChartPalette {
   dashSeparator: number[]
   dashMark: number[]
   nowOpacity: number
+  /** The loaded-latency line on a Result detail chart's second scale. */
+  strokeLatency: number
+  dashLatency: number[]
+  latencyOpacity: number
 }
 
 export function chartPalette(element: Element | null): ChartPalette {
@@ -68,6 +72,9 @@ export function chartPalette(element: Element | null): ChartPalette {
     dashSeparator: numbers('--chart-dash-sep', [2, 3]),
     dashMark: numbers('--chart-dash-mark', [3, 3]),
     nowOpacity: number('--chart-now-opacity', 0.5),
+    strokeLatency: number('--chart-stroke-latency', 1.25),
+    dashLatency: numbers('--chart-dash-latency', [4, 3]),
+    latencyOpacity: number('--chart-latency-opacity', 0.9),
   }
 }
 

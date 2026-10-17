@@ -39,7 +39,8 @@ import { useElapsed } from '@/composables/useElapsed'
 import { useHistory } from '@/composables/useHistory'
 import { useInfo } from '@/composables/useInfo'
 import { useResultSave } from '@/composables/useResultSave'
-import { useRun } from '@/composables/useRun'
+import { type StartOptions, useRun } from '@/composables/useRun'
+import { takeRunAgain } from '@/composables/useRunAgain'
 import { effectiveSettings, useSettings } from '@/composables/useSettings'
 import { useTestKeys } from '@/composables/useTestKeys'
 import { consumeAutoRun, urlOverride, useUrlParams } from '@/composables/useUrlParams'
@@ -144,7 +145,7 @@ const disabledReason = computed(() => {
   return defaults.value === null ? t('test.start.unsupported') : null
 })
 
-function begin(preset?: Preset): void {
+function begin(preset?: Preset, again: StartOptions = {}): void {
   countdown.cancel()
   gaugeWindow.value = startK(units.value)
   // An empty context label is the user's choice of none; the engine would fall back to the suggestion.
@@ -153,6 +154,7 @@ function begin(preset?: Preset): void {
     ignoredParameters: ignored.value,
     ...(label.value === undefined ? {} : { label: label.value }),
     ...(preset === undefined ? {} : { preset }),
+    ...again,
   })
 }
 
@@ -167,11 +169,18 @@ function press(): void {
 }
 
 // A link with `run`, or a stored Auto-start, counts down once the engine has the settings and Start
-// is usable.
+// is usable; Run again on a Result detail starts its result's settings at once.
 watch(
   () => disabledReason.value === null && run.configured.value !== null && state.value === 'idle',
   (ready) => {
-    if (ready && consumeAutoRun(stored.value.autoStart?.enabled === true)) {
+    if (!ready) {
+      return
+    }
+    const auto = consumeAutoRun(stored.value.autoStart?.enabled === true)
+    const again = takeRunAgain()
+    if (again !== null) {
+      begin(undefined, again)
+    } else if (auto) {
       countdown.start(() => begin())
     }
   },

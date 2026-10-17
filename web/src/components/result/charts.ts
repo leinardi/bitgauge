@@ -1,0 +1,142 @@
+/*
+ * This file is part of BitGauge.
+ *
+ * Copyright (c) 2026 Roberto Leinardi
+ *
+ * BitGauge is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BitGauge is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import { Activity, ArrowDown, ArrowUp } from '@lucide/vue'
+import type { Component } from 'vue'
+
+import { markLabel } from '@/components/chart/text'
+import { directionModel, idleModel, type PhaseModel } from '@/components/result/phase'
+import { pingGroups, windowTable } from '@/components/result/windowTable'
+import type { Wording } from '@/components/test/wording'
+import type { Direction, DirectionResult, IdleResult, Result } from '@/engine/messages'
+import { formatDuration, formatLatency, formatLimit, formatPercent, formatRate, secondsNumber } from '@/lib/format'
+
+// The Result detail's per-phase charts (ui/screens.md section 2): one card per direction that
+// stored a series, in the run's order, and one for the idle latency samples, each with its meta
+// line, its summary for assistive technology, its key and the table that is its text alternative.
+
+const DASH = '—'
+
+export interface ChartCard {
+  key: Direction | 'idle'
+  title: string
+  icon: Component
+  /** The icon's color token. */
+  color: string
+  meta: string
+  summary: string
+  warmup: string | null
+  gap: string | null
+  model: PhaseModel
+  table: { label: string; columns: string[]; rows: string[][]; foot: string }
+}
+
+function summary(title: string, meta: string, model: PhaseModel, wording: Wording): string {
+  const { t } = wording
+  let text = t('result.charts.summary', { title, meta })
+  if (model.warmupEnd !== null) {
+    text += t('result.charts.warmupExcluded')
+  }
+  if (model.latency !== null) {
+    text += t('result.charts.latencyAxis')
+  }
+  if (model.marks.length > 0) {
+    text += t('result.charts.events', { marks: model.marks.map((mark) => markLabel(mark, wording)).join(', ') })
+  }
+  return text
+}
+
+function directionCard(direction: Direction, part: DirectionResult, result: Result, units: 'bits' | 'bytes', wording: Wording): ChartCard | null {
+  const { t, locale } = wording
+  const model = directionModel(part, units)
+  if (model === null || part.series === undefined) {
+    return null
+  }
+  const series = part.series
+  const title = direction === 'download' ? t('result.charts.download') : t('result.charts.upload')
+  const meta = t('result.charts.meta', { duration: formatDuration(series.endMs, locale), n: part.streams }, part.streams)
+  const loaded = part.loadedLatency
+  const table = windowTable(series, loaded !== undefined && 'series' in loaded ? loaded.series : [])
+  const resolution = result.client.timerResolutionMs
+  const rows = table.rows.map((row) => [
+    t('result.charts.span', { from: secondsNumber(row.fromMs, locale), to: secondsNumber(row.toMs, locale) }),
+    formatDuration(row.knownMs, locale),
+    row.bitsPerSecond === null ? DASH : formatRate(row.bitsPerSecond, units, locale),
+    row.latencyMs === null ? DASH : formatLatency(row.latencyMs, locale, resolution),
+  ])
+  const at = secondsNumber(series.warmupEndMs, locale)
+  const overhead = result.settings.overheadCompensationPercent
+  const notes = overhead > 0 ? ` ${t('result.charts.overhead', { percent: formatPercent(overhead, locale) })}` : ''
+  const size = table.cellMs === null ? null : formatLimit(table.cellMs, locale)
+  return {
+    key: direction,
+    title,
+    icon: direction === 'download' ? ArrowDown : ArrowUp,
+    color: direction === 'download' ? 'var(--series-download)' : 'var(--series-upload)',
+    meta,
+    summary: summary(title, meta, model, wording),
+    warmup: model.warmupEnd === null ? null : t('result.charts.warmup', { end: at }),
+    gap: model.gaps.length === 0 ? null : t('result.charts.gap'),
+    model,
+    table: {
+      label: title,
+      columns: [size === null ? t('result.charts.columns.windows') : t('result.charts.columns.cells', { size }), t('result.charts.columns.known'), t('result.charts.columns.throughput'), t('result.charts.columns.latency')],
+      rows,
+      foot: (size === null ? t('result.charts.foot', { at }) : t('result.charts.cellsFoot', { size, at })) + notes,
+    },
+  }
+}
+
+function idleCard(idle: IdleResult, resolution: number, wording: Wording): ChartCard {
+  const { t, locale } = wording
+  const n = idle.samples.length
+  const ms = (value: number) => formatLatency(value, locale, resolution)
+  const title = t('result.charts.idle')
+  const meta = idle.medianMs === undefined ? t('result.charts.idleCount', { n }, n) : t('result.charts.idleMeta', { n, median: ms(idle.medianMs) }, n)
+  const model = idleModel(idle.samples)
+  return {
+    key: 'idle',
+    title,
+    icon: Activity,
+    color: 'var(--series-latency)',
+    meta,
+    summary: summary(title, meta, model, wording),
+    warmup: null,
+    gap: null,
+    model,
+    table: {
+      label: title,
+      columns: [t('result.charts.columns.pings'), t('result.charts.columns.median'), t('result.charts.columns.min'), t('result.charts.columns.max')],
+      rows: pingGroups(idle.samples).map((group) => [t('result.charts.pingSpan', { first: group.first, last: group.last }), ms(group.medianMs), ms(group.minMs), ms(group.maxMs)]),
+      foot: t('result.charts.idleFoot'),
+    },
+  }
+}
+
+/** The charts of a result: each direction with a stored series, then the idle latency samples. */
+export function chartCards(result: Result, units: 'bits' | 'bytes', wording: Wording): ChartCard[] {
+  const directions = result.settings.phases.filter((phase): phase is Direction => phase !== 'idle')
+  const cards = directions.flatMap((direction) => {
+    const part = result[direction]
+    const card = part === undefined ? null : directionCard(direction, part, result, units, wording)
+    return card === null ? [] : [card]
+  })
+  const idle = result.idle
+  return idle === undefined || idle.samples.length === 0 ? cards : [...cards, idleCard(idle, result.client.timerResolutionMs, wording)]
+}

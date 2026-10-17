@@ -222,7 +222,8 @@
       "notSaved": "Not saved to history. Download the JSON to keep it.",
       "unavailable": "History is unavailable in this browser mode — results are not saved.",
       "unsaved": "Partial results are not saved",
-      "unsavedBody": "Download the JSON to keep them."
+      "unsavedBody": "Download the JSON to keep them.",
+      "details": "Details"
     },
     "failure": {
       "title": "Test failed",

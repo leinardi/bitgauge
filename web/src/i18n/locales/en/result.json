@@ -1,0 +1,194 @@
+{
+  "result": {
+    "breadcrumb": "Breadcrumb",
+    "history": "History",
+    "loading": "Loading the result",
+    "header": {
+      "editLabel": "Edit label",
+      "label": "Label",
+      "noLabel": "No label",
+      "preset": "{preset} preset",
+      "notSaved": "Not saved"
+    },
+    "notSaved": {
+      "unavailable": "History unavailable · nothing is saved in this window",
+      "partial": "Partial results are not saved",
+      "failed": "This result isn't in this browser's history"
+    },
+    "unavailable": {
+      "title": "History unavailable",
+      "body": "This browser is blocking storage, so results can't be saved. You're seeing this session's result from memory; it's gone when you close the tab. Download JSON to keep it."
+    },
+    "actions": {
+      "runAgain": "Run again",
+      "delete": "Delete result",
+      "jsonWarning": "JSON contains client IP and notes"
+    },
+    "notFound": {
+      "title": "Result not found",
+      "body": "This result isn't in this browser's history. It may have been deleted, or saved in a different browser.",
+      "deletedTitle": "Result deleted",
+      "deletedBody": "It has been removed from history in this browser.",
+      "history": "Go to History"
+    },
+    "load": {
+      "title": "Bufferbloat",
+      "words": "{word} bufferbloat",
+      "notGraded": "Not graded",
+      "grade": "Bufferbloat grade {grade}, {words}",
+      "noGrade": "Bufferbloat not graded",
+      "basisBoth": "Basis: worse of download and upload — {worse} +{increase} ms",
+      "basisBothOther": "Basis: worse of download and upload — {worse} +{increase} ms ({other} +{otherIncrease} ms)",
+      "basisDownload": "Basis: download only — +{increase} ms vs idle",
+      "basisUpload": "Basis: upload only — +{increase} ms vs idle",
+      "noBasis": "Needs idle latency and the latency under load of a direction",
+      "download": "download",
+      "upload": "upload",
+      "during": {
+        "download": "During download",
+        "upload": "During upload"
+      },
+      "row": "{direction} · {source}",
+      "increase": "p90 {p90} · +{increase} ms vs idle",
+      "increaseOver": "p90 {p90} · +{increase} ms vs idle over {path}",
+      "noIdle": "p90 {p90} · no idle latency",
+      "ms": "ms",
+      "sources": {
+        "websocket": "WebSocket",
+        "httpH1Reserved": "HTTP/1.1 reserved",
+        "httpH2": "HTTP/2 probe",
+        "httpH3": "HTTP/3 probe"
+      },
+      "paths": {
+        "websocket": "WebSocket",
+        "http": "HTTP"
+      },
+      "reasons": {
+        "noSteadyWindow": "no steady window",
+        "insufficientSamples": "fewer than 10 samples",
+        "reservationBroken": "HTTP/1.1 reservation not held",
+        "noProbePath": "no latency probe"
+      }
+    },
+    "confidence": {
+      "title": "Confidence and notices",
+      "group": "Confidence",
+      "notices": "Notices",
+      "level": {
+        "normal": "Confidence: normal",
+        "low": "Confidence: low",
+        "cpuBound": "Confidence: CPU-bound"
+      },
+      "normal": {
+        "download": "Download confidence: normal",
+        "upload": "Upload confidence: normal",
+        "body": "Warm-up ended at {at} and the steady window covered {window}.",
+        "window": "The steady window covered {window}."
+      },
+      "low": {
+        "download": "Download confidence: low",
+        "upload": "Upload confidence: low",
+        "body": "Low because of {reasons}."
+      },
+      "cpuBound": {
+        "download": "Download confidence: CPU-bound",
+        "upload": "Upload confidence: CPU-bound",
+        "body": "The number may be limited by this device's CPU, not the network."
+      },
+      "none": "No direction has a number to rate.",
+      "packetLoss": {
+        "title": "Packet loss not measured",
+        "body": "Browsers can't see packet loss over TCP, so BitGauge doesn't report it."
+      }
+    },
+    "charts": {
+      "download": "Download",
+      "upload": "Upload",
+      "idle": "Idle latency",
+      "view": "{title} view",
+      "chart": "Chart",
+      "table": "Table",
+      "latency": "Latency under load",
+      "warmup": "Warm-up · not stored (0–{end} s)",
+      "gap": "No known data",
+      "meta": "{duration} · {n} stream | {duration} · {n} streams",
+      "idleMeta": "{n} ping · median {median} | {n} pings · median {median}",
+      "idleCount": "{n} ping | {n} pings",
+      "summary": "{title} chart: {meta}",
+      "warmupExcluded": "; warm-up excluded",
+      "latencyAxis": "; latency under load on a second scale",
+      "events": "; events: {marks}",
+      "columns": {
+        "windows": "2 s windows",
+        "cells": "{size} cells",
+        "known": "Known",
+        "throughput": "Throughput",
+        "latency": "Latency (median)",
+        "pings": "Pings",
+        "median": "Median",
+        "min": "Min",
+        "max": "Max"
+      },
+      "span": "{from}–{to}\u00a0s",
+      "pingSpan": "{first}–{last}",
+      "foot": "From warm-up end ({at} s). Throughput = bytes ÷ known time; “—” = no known time in that window. Full samples are in the JSON export.",
+      "cellsFoot": "One row per stored {size} cell, from warm-up end ({at} s). Throughput = bytes ÷ known time; “—” = no known time in that cell. Full samples are in the JSON export.",
+      "overhead": "Throughput as measured, without the {percent} overhead compensation of the headline.",
+      "idleFoot": "Groups of 5 pings in send order. No warm-up for latency."
+    },
+    "note": {
+      "label": "Note",
+      "placeholder": "Add a note",
+      "hint": "Saved automatically in this browser. Never included when you share."
+    },
+    "parameters": {
+      "title": "Test parameters",
+      "test": "Test",
+      "limits": "Limits",
+      "measurement": "Measurement",
+      "environment": "Environment",
+      "preset": "Preset",
+      "phases": "Phases and order",
+      "then": " → ",
+      "idle": "Idle latency",
+      "download": "Download",
+      "upload": "Upload",
+      "streams": "Streams",
+      "streamsAuto": "Auto, up to {max}",
+      "streamsFixed": "Fixed",
+      "streamsSingle": "Single",
+      "streamsDirection": "{direction} streams",
+      "streamCount": "{n} · plateau: {plateau} | {n} · plateau: {plateau}",
+      "streamCountOnly": "{n}",
+      "duration": "{duration} · window {window}",
+      "durationOnly": "{duration}",
+      "total": "Duration",
+      "dataCap": "Data cap",
+      "capOff": "Off",
+      "dataUsed": "Data used",
+      "units": "Units",
+      "bits": "Bits · {unit}",
+      "bytes": "Bytes · {unit}",
+      "warmup": "Warm-up",
+      "warmupAuto": "Auto",
+      "warmupFixed": "Fixed · {s}",
+      "warmupEnded": "{mode} · ended at {ends}",
+      "warmupEnd": "{at} ({direction})",
+      "pingCount": "Ping count",
+      "overhead": "Overhead compensation",
+      "overheadNone": "None · 0 %",
+      "protocol": "Protocol",
+      "server": "Server",
+      "serverValue": "{name} · v{version}",
+      "browser": "Browser",
+      "browserValue": "{name} {major} · {os}",
+      "clientIp": "Client IP",
+      "timer": "Timer resolution",
+      "timerValue": "{ms} ms",
+      "isolated": "Cross-origin isolated",
+      "yes": "Yes",
+      "no": "No",
+      "unknown": "Unknown"
+    }
+  }
+}

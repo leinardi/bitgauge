@@ -17,12 +17,12 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { computed, onScopeDispose, watch } from 'vue'
+import { computed, onScopeDispose, type ShallowRef, shallowReadonly, shallowRef, watch } from 'vue'
 
 import { useInfo } from '@/composables/useInfo'
 import { createRunState } from '@/composables/useRunState'
 import { useWorker } from '@/composables/useWorker'
-import type { ConfigureOverride, IgnoredParameter, Preset, SettingsOverride, TestSettings } from '@/engine/messages'
+import type { ConfigureOverride, IgnoredParameter, Preset, Result, SettingsOverride, TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
 import { readBasePath } from '@/router/base'
 
@@ -45,15 +45,24 @@ export interface RunOptions {
 }
 
 /**
- * The result's label and the context label of a run, a preset a notice offers instead, and the
- * URL parameters ignored, which the run carries as notices.
+ * The result's label and the context label of a run, a preset a notice offers instead, the URL
+ * parameters ignored, which the run carries as notices, and a result's settings to run again.
  */
 export interface StartOptions {
   label?: string
   contextLabel?: string
   preset?: Preset
   ignoredParameters?: IgnoredParameter[]
+  settings?: ConfigureOverride
 }
+
+const last = shallowRef<Result | null>(null)
+
+/**
+ * The result of the run that ended last, kept in memory for the page's life, saved or not: the
+ * Result detail shows it when its id is not in history (ui/screens.md section 2, not saved).
+ */
+export const lastRunResult: Readonly<ShallowRef<Result | null>> = shallowReadonly(last)
 
 function ignore(): void {
   // A wake lock release that fails leaves nothing to undo.
@@ -79,6 +88,11 @@ export function useRun(options: RunOptions = {}) {
 
   bridge.onEvent(state.apply)
   bridge.onError(state.crash)
+  watch(state.result, (result) => {
+    if (result !== null) {
+      last.value = result
+    }
+  })
 
   watch(
     [base, override],
@@ -173,7 +187,7 @@ export function useRun(options: RunOptions = {}) {
       if (state.status.value === 'running' || defaults.value === null || !state.begin()) {
         return
       }
-      const startOverride: SettingsOverride = {}
+      const startOverride: SettingsOverride = { ...start.settings }
       if (start.label !== undefined) {
         startOverride.label = start.label
       }

@@ -216,10 +216,9 @@ describe('the demo history', () => {
     db.close()
     const page = await boot({ history })
     const { useHistory } = await import('@/composables/useHistory')
-    for (let i = 0; i < 5; i += 1) {
-      await flushPromises()
-      await new Promise((resolve) => setTimeout(resolve, 0))
-    }
+    // The seed writes eight full results, series and samples included, before the list is read.
+    await vi.waitFor(() => expect(useHistory().status.value).not.toBe('loading'), { timeout: 4000 })
+    await flushPromises()
     return { page, history: useHistory() }
   }
 

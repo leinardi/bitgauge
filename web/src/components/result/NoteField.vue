@@ -1,0 +1,107 @@
+<!--
+  This file is part of BitGauge.
+
+  Copyright (c) 2026 Roberto Leinardi
+
+  BitGauge is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  BitGauge is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<script setup lang="ts">
+import { FileText } from '@lucide/vue'
+import { useEventListener } from '@vueuse/core'
+import { onBeforeUnmount, shallowRef, useId, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import { Textarea } from '@/components/ui/textarea'
+
+// The note (ui/screens.md section 2, kit ResultDetail.jsx): a text area saved with the result in
+// history as it changes, a moment after the last keystroke, and at once when the field loses focus
+// or the page leaves. Its text is the field's own while it is open, so a save landing late never
+// rewrites what is being typed. A result that is not in history shows the field read-only, with
+// the reason.
+
+const props = defineProps<{
+  /** The result the note belongs to; a new one starts the field afresh. */
+  id: string
+  note: string
+  /** Why the note cannot be saved; null when it can. */
+  disabledReason: string | null
+}>()
+const emit = defineEmits<{ save: [note: string] }>()
+
+const SAVE_DELAY_MS = 300
+
+const { t } = useI18n()
+const fieldId = useId()
+const reasonId = useId()
+const text = shallowRef(props.note)
+let timer: ReturnType<typeof setTimeout> | null = null
+
+function flush(): void {
+  if (timer !== null) {
+    clearTimeout(timer)
+    timer = null
+    emit('save', text.value)
+  }
+}
+
+function input(value: string | number): void {
+  text.value = String(value)
+  if (timer !== null) {
+    clearTimeout(timer)
+  }
+  timer = setTimeout(flush, SAVE_DELAY_MS)
+}
+
+watch(
+  () => props.id,
+  () => {
+    flush()
+    text.value = props.note
+  },
+)
+onBeforeUnmount(flush)
+useEventListener(window, 'pagehide', flush)
+</script>
+
+<template>
+  <section class="flex flex-col gap-2.5 rounded-(--radius-lg) border border-(--border-subtle) bg-(--surface-2) px-4 py-3.5 shadow-card">
+    <label
+      :for="fieldId"
+      class="flex items-center gap-1.5 font-condensed text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase"
+    >
+      <FileText
+        :size="13"
+        aria-hidden="true"
+      />
+      {{ t('result.note.label') }}
+    </label>
+    <Textarea
+      :id="fieldId"
+      :model-value="text"
+      :rows="3"
+      :placeholder="t('result.note.placeholder')"
+      :readonly="disabledReason !== null"
+      :aria-disabled="disabledReason === null ? undefined : 'true'"
+      :aria-describedby="reasonId"
+      class="min-h-0 resize-y rounded-(--radius-md) border-(--border-default) bg-(--surface-1) px-2.5 py-2 text-(length:--text-sm) leading-(--lh-normal) text-foreground shadow-none aria-disabled:cursor-not-allowed aria-disabled:resize-none aria-disabled:opacity-45 md:text-(length:--text-sm)"
+      data-testid="note-field"
+      @update:model-value="input"
+      @blur="flush"
+    />
+    <span
+      :id="reasonId"
+      class="text-(length:--text-micro) text-subtle-foreground"
+    >{{ disabledReason ?? t('result.note.hint') }}</span>
+  </section>
+</template>

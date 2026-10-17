@@ -17,10 +17,12 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { CircleCheck, CircleMinus } from '@lucide/vue'
+import { ChevronRight, CircleCheck, CircleMinus } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { RouterLink } from 'vue-router'
 
+import AppButton from '@/components/actions/AppButton.vue'
 import DownloadJson from '@/components/test/DownloadJson.vue'
 import type { SaveState } from '@/composables/useResultSave'
 import type { Result } from '@/engine/messages'
@@ -28,9 +30,9 @@ import type { Result } from '@/engine/messages'
 // The result's status bar (ui/screens.md section 1, kit TestScreen.jsx): a complete result is saved
 // to history as the run ends, and the bar says so with the time the run ended; a partial or error
 // result says partial results are not saved. Where history is unavailable, or the save failed, the
-// bar says the result was not saved. Download JSON is the bar's action; the save bar's label field,
-// Share and Details, and Keep in history come with the share (v0.2). The kit words the partial and
-// the error variant alike.
+// bar says the result was not saved. Download JSON and Details, the result's Result detail, are the
+// bar's actions; the save bar's label field and Share, and Keep in history come with the share
+// (v0.2). The kit words the partial and the error variant alike.
 
 const props = defineProps<{ result: Result; save: SaveState | null }>()
 
@@ -87,11 +89,26 @@ const body = computed(() => {
       class="min-w-0 flex-[1_1_var(--layout-text-basis)] text-(length:--text-caption) text-pretty text-subtle-foreground"
       data-testid="result-bar-body"
     >{{ body }}</span>
-    <span class="ml-auto flex">
+    <span class="ml-auto flex gap-2">
       <DownloadJson
         :result="result"
         :variant="complete ? 'secondary' : 'ghost'"
       />
+      <AppButton
+        as-child
+        size="sm"
+      >
+        <RouterLink
+          :to="`/result/${result.id}`"
+          data-testid="result-details"
+        >
+          {{ t('test.bar.details') }}
+          <ChevronRight
+            :size="14"
+            aria-hidden="true"
+          />
+        </RouterLink>
+      </AppButton>
     </span>
   </section>
 </template>

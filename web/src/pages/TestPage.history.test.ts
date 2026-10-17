@@ -20,8 +20,8 @@
 // @vitest-environment jsdom
 
 // The Test screen's side of history (ui/flows.md section 1 step 5, ui/screens.md section 1) on an
-// in-memory IndexedDB: the idle state's line to the latest saved result, and a complete result
-// saved as the run ends, which the bar says.
+// in-memory IndexedDB: the idle state's line to the latest saved result, a complete result saved
+// as the run ends, which the bar says, and a partial one kept in memory for its Result detail.
 
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
@@ -29,6 +29,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { getInfo } from '@/api/info'
 import { useHistory } from '@/composables/useHistory'
 import { useInfo } from '@/composables/useInfo'
+import { lastRunResult } from '@/composables/useRun'
 import type { EngineEvent } from '@/engine/messages'
 import { openHistoryDB } from '@/history/db'
 import TestPage from '@/pages/TestPage.vue'
@@ -125,6 +126,9 @@ describe('history on the Test screen', () => {
     await settle()
     expect(page.get('[data-testid="result-bar"]').text()).toContain('Partial results are not saved')
     expect(useHistory().results.value.map((saved) => saved.id)).not.toContain(result.id)
+    // Kept in memory for its Result detail, which Details opens.
+    expect(lastRunResult.value?.id).toBe(result.id)
+    expect(page.get('[data-testid="result-details"]').attributes('href')).toBe(`/result/${result.id}`)
     page.unmount()
   })
 })

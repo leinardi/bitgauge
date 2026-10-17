@@ -209,8 +209,8 @@ describe('the list', () => {
     expect(row.attributes('data-selected')).toBe('true')
     expect(page.get('[data-testid="selection-bar"]').text()).toContain('1 selected')
     await row.trigger('keydown', { key: 'Enter' })
-    await settle()
-    expect(page.vm.$router.currentRoute.value.path).toBe(`/result/${RESULTS[0]?.id}`)
+    // The Result detail's page loads as its own chunk before the navigation lands.
+    await vi.waitFor(() => expect(page.vm.$router.currentRoute.value.path).toBe(`/result/${RESULTS[0]?.id}`), { timeout: 4000 })
     page.unmount()
   })
 

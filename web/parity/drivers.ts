@@ -36,6 +36,8 @@ export interface Driver extends SideDriver {
   openDemo: (page: Page) => Promise<void>
   // Puts a History variant in place through the side's demo panel.
   historyVariant: (page: Page, variant: HistoryVariant) => Promise<void>
+  // Opens the first result of the History list on its Result detail.
+  openResult: (page: Page) => Promise<void>
 }
 
 const OVERLAYS = '[role=dialog], [role=alertdialog]'
@@ -99,6 +101,11 @@ export const proto: Driver = {
   openDemo: async (page) => {
     await page.getByRole('button', { name: 'Expand demo panel', exact: true }).click()
     await parkPointer(page)
+  },
+  // Any link in the History list's main area opens the Result detail (Prototype.jsx onClick).
+  openResult: async (page) => {
+    await page.locator('main a').first().click()
+    await page.getByRole('navigation', { name: 'Breadcrumb' }).waitFor()
   },
 }
 
@@ -231,6 +238,10 @@ export const vue: Driver = {
     await openPanel(page)
     await applyAndWait(page, () => page.getByTestId('demo-history').selectOption(variant))
     await closePanel(page)
+  },
+  openResult: async (page) => {
+    await page.locator('main a[href*="/result/"]').first().click()
+    await page.getByRole('navigation', { name: 'Breadcrumb' }).waitFor()
   },
 }
 

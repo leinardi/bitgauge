@@ -204,8 +204,8 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
 
 - vue-i18n in Composition API mode; one directory per language in `i18n/locales/`, holding one
   JSON file per screen whose single top-level key is that screen's namespace (`app.json` for the
-  header and navigation, `test.json`, `about.json`, `notAvailable.json`); English as the source
-  and fallback; non-default locales lazy-loaded.
+  header and navigation, `test.json`, `history.json`, `result.json`, `settings.json`,
+  `about.json`); English as the source and fallback; non-default locales lazy-loaded.
 - Numbers, units and dates go through `Intl` with the active locale; the engine returns raw numbers
   and enum codes only, never text.
 - The ESLint vue-i18n plugin flags raw strings in templates and missing keys, as in Runhold.
@@ -319,7 +319,9 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   when its script stops the run, as a user would.
 - **History variants** (`demo/history.ts`). The kit's History variants the History screen's states
   need: `populated` replaces the browser's history with the kit's eight results over a VPN (the
-  rows of `History.jsx`, each a valid result), `empty` with none, and `unavailable` opens no
+  rows of `History.jsx`, each a valid result, with a stored steady window and loaded-latency
+  samples per measured direction for the Result detail, graded as the engine grades them),
+  `empty` with none, and `unavailable` opens no
   database, so history is unavailable for the page load; "stored" leaves the browser's history as
   it is. The page writes the results itself (`composables/useHistory.ts`); the demo module only
   holds them.

@@ -24,8 +24,8 @@ import about from '@/i18n/locales/en/about.json'
 import app from '@/i18n/locales/en/app.json'
 import errors from '@/i18n/locales/en/errors.json'
 import history from '@/i18n/locales/en/history.json'
-import notAvailable from '@/i18n/locales/en/notAvailable.json'
 import notices from '@/i18n/locales/en/notices.json'
+import result from '@/i18n/locales/en/result.json'
 import settings from '@/i18n/locales/en/settings.json'
 import test from '@/i18n/locales/en/test.json'
 
@@ -33,7 +33,7 @@ import test from '@/i18n/locales/en/test.json'
 // per screen or shared component group, each holding its own namespace. English is the source and
 // the fallback.
 
-const en = { ...app, ...test, ...notices, ...errors, ...history, ...settings, ...about, ...notAvailable, ...a11y }
+const en = { ...app, ...test, ...notices, ...errors, ...history, ...settings, ...about, ...result, ...a11y }
 
 /** The shipped locales, which the Settings screen offers. */
 export const SUPPORTED_LOCALES = ['en'] as const

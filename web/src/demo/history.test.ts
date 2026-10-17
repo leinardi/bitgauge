@@ -18,12 +18,14 @@
  */
 
 // The demo's History variants (frontend.md section 9): the kit's eight results, each a valid
-// result the History import would accept, newest first, with the kit's statuses and grades.
+// result the History import would accept, newest first, with the kit's statuses and grades, which
+// the engine's grading of their loaded latency gives.
 
 import { describe, expect, it } from 'vitest'
 
 import { restore } from '@/demo/choice'
 import { DEMO_HISTORY_VARIANTS, demoHistoryResults, isDemoHistory } from '@/demo/history'
+import { bufferbloat } from '@/engine/latency/grade'
 import { validateResult } from '@/engine/messages'
 
 describe('the demo history', () => {
@@ -37,6 +39,16 @@ describe('the demo history', () => {
     expect(results.map((result) => result.status)).toEqual(['complete', 'complete', 'complete', 'complete', 'partial', 'complete', 'error', 'complete'])
     expect(results.map((result) => result.bufferbloat?.grade ?? null)).toEqual(['D', 'C', 'C', 'B', 'D', 'B', null, 'F'])
     expect(demoHistoryResults('empty')).toEqual([])
+  })
+
+  it('grades each result as the engine grades its stored loaded latency, on a stored steady window', () => {
+    for (const result of demoHistoryResults('populated')) {
+      expect(result.bufferbloat).toEqual(bufferbloat(result.download?.loadedLatency, result.upload?.loadedLatency, true))
+      const series = result.download?.series
+      if (series !== undefined) {
+        expect(series.values).toHaveLength((series.endMs - series.firstCellMs) / series.bucketMs)
+      }
+    }
   })
 
   it('knows its variants, and the panel reads an unknown one back as the browser history', () => {
