@@ -53,18 +53,18 @@ const sorted = (items: Iterable<string>): string[] => [...new Set(items)].sort()
 const PAGES = [
   { route: 'test', kit: 'test', scenarios: 'test/*' },
   { route: 'about', kit: 'about', scenarios: 'about,about/*' },
+  { route: 'history', kit: 'history', scenarios: 'history/*' },
   { route: 'settings', kit: 'settings', scenarios: 'settings' },
 ]
 
 // Prototype screens the app does not have yet, each with the reason.
 const KIT_V02_SCREENS: Record<string, string> = {
-  history: 'History lands later in v0.2; until then its route answers with the not-available page (ui/screens.md section 1)',
   result: 'Result detail lands later in v0.2; until then its route answers with the not-available page',
 }
 
 // Vue pages the prototype has no screen for, each with the reason.
 const VUE_ONLY_PAGES: Record<string, string> = {
-  'not-available': 'the page for the History and Result detail routes until their screens land, which the prototype shows instead',
+  'not-available': 'the page for the Result detail route until its screen lands, which the prototype shows instead',
 }
 
 // Test screen states the kit has and v0.1 does not, each with the reason.
@@ -124,6 +124,7 @@ describe('the driven scope', () => {
   it('runs every scenario of the scope the prototype is driven in, and none of a later one', () => {
     expect(SCENARIOS.map((s) => s.id)).toEqual(ALL_SCENARIOS.filter((s) => s.kitScope === undefined || s.kitScope === KIT_SCOPE).map((s) => s.id))
     expect(SCENARIOS.some((s) => s.id === 'settings')).toBe(KIT_SCOPE === 'v0.2')
+    expect(SCENARIOS.some((s) => s.id.startsWith('history/'))).toBe(KIT_SCOPE === 'v0.2')
   })
 })
 

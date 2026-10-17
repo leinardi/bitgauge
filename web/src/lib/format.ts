@@ -191,3 +191,17 @@ export function spokenLatency(ms: number, locale: string, resolutionMs = 0): { t
   const digits = resolutionMs >= 1 || ms >= 9.95 ? 0 : 1
   return { text: spoken(ms, 'millisecond', locale, { minimumFractionDigits: digits, maximumFractionDigits: digits }), below: false }
 }
+
+const AGO_UNITS: readonly [Intl.RelativeTimeFormatUnit, number][] = [
+  ['day', 86_400_000],
+  ['hour', 3_600_000],
+  ['minute', 60_000],
+]
+
+/** How long before `nowMs` the instant `thenMs` was, in its largest whole unit: "2h ago", "yesterday", "now". */
+export function formatAgo(thenMs: number, nowMs: number, locale: string): string {
+  const format = new Intl.RelativeTimeFormat(locale, { numeric: 'auto', style: 'narrow' })
+  const elapsed = Math.max(0, nowMs - thenMs)
+  const [unit, size] = AGO_UNITS.find(([, length]) => elapsed >= length) ?? ['second', Number.POSITIVE_INFINITY]
+  return format.format(Number.isFinite(size) ? -Math.floor(elapsed / size) : 0, unit)
+}

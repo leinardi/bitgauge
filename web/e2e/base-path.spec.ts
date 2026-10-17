@@ -45,7 +45,7 @@ test('runs a test under /speed, every request under the base path', async ({ pag
   page.on('websocket', (socket) => sockets.push(new URL(socket.url()).pathname))
 
   await page.goto(`${server.url}/?run=1&preset=quick`)
-  await expect(page.getByTestId('result-bar')).toContainText('Test complete', { timeout: 90_000 })
+  await expect(page.getByTestId('result-bar')).toContainText('Saved to history', { timeout: 90_000 })
   expect(paths.length).toBeGreaterThan(0)
   expect(paths.filter((path) => !path.startsWith('/speed/'))).toEqual([])
   expect(sockets).toContain('/speed/api/v1/ws')

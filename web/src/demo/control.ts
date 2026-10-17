@@ -18,12 +18,15 @@
  */
 
 import { infoFor } from '@/demo/fixtures'
+import { type DemoHistory, demoHistoryResults } from '@/demo/history'
 import { DEMO_SCENARIOS, type DemoCommand, type DemoScenario } from '@/demo/scenarios'
+import type { Result } from '@/engine/messages'
 import type { Info } from '@/engine/types'
 
 // The page's side of the demo (frontend.md section 9): the choice the demo panel restored when the
 // page loaded, handed to every demo Worker the page starts and answered as the page's own
-// GET /info. Both wait for the panel, so neither runs on a default the panel then replaces.
+// GET /info, and the History variant the page's history starts from. Each waits for the panel, so
+// none runs on a default the panel then replaces.
 
 let choose: (command: DemoCommand) => void = () => undefined
 const chosen = new Promise<DemoCommand>((resolve) => {
@@ -75,4 +78,23 @@ export async function demoInfo(): Promise<Info> {
     throw new TypeError('the demo server is unreachable')
   }
   return infoFor(scenario.link, scenario.basePath)
+}
+
+let chooseVariant: (variant: DemoHistory) => void = () => undefined
+const variantChosen = new Promise<DemoHistory>((resolve) => {
+  chooseVariant = resolve
+})
+
+/** The panel's History variant for this page load; a later call changes nothing. */
+export function chooseHistory(variant: DemoHistory): void {
+  chooseVariant(variant)
+}
+
+/**
+ * What the page's history starts from: unavailable, the results to replace it with, or, for '',
+ * the browser's own history as it is (null).
+ */
+export async function demoHistory(): Promise<'unavailable' | Result[] | null> {
+  const variant = await variantChosen
+  return variant === 'unavailable' ? 'unavailable' : variant === '' ? null : demoHistoryResults(variant)
 }

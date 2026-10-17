@@ -21,25 +21,22 @@ import { ChevronDown, ChevronUp, SlidersHorizontal } from '@lucide/vue'
 import { shallowRef, useId } from 'vue'
 
 import AppButton from '@/components/actions/AppButton.vue'
-import { chooseScenario, onScriptedStop } from '@/demo/control'
-import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoErrorKind, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
+import { type Choice, commandOf, DEFAULTS, ERROR_KINDS, NAMES, RESOLUTIONS, restore, save, SPEEDS } from '@/demo/choice'
+import { chooseHistory, chooseScenario, onScriptedStop } from '@/demo/control'
+import { DEMO_HISTORY_VARIANTS, isDemoHistory } from '@/demo/history'
+import { DEMO_SCENARIOS, isScenarioName } from '@/demo/scenarios'
 
-// The demo panel (frontend.md section 9), the v0.1 part of the UI kit's Demo state panel: the
-// scenario, the speed, a forced state, a CPU-bound Worker, the error kind and the timer resolution.
-// It exists in demo builds only, so its words are the kit's, not translated. The choice is kept in
-// localStorage and applied by loading the page again with the scenario's URL parameters, so every
-// scenario starts from a fresh page; one that starts does so through the Start button, as a user
-// would.
+// The demo panel (frontend.md section 9), the UI kit's Demo state panel as far as the app goes: the
+// scenario, the speed, a forced state, a CPU-bound Worker, the error kind, the timer resolution and
+// the History variant. It exists in demo builds only, so its words are the kit's, not translated.
+// The choice is kept in localStorage (demo/choice.ts) and applied by loading the page again with the
+// scenario's URL parameters, so every scenario starts from a fresh page; one that starts does so
+// through the Start button, as a user would.
 
 const props = withDefaults(defineProps<{ navigate?: (url: string) => void }>(), {
   navigate: (url: string) => window.location.assign(url),
 })
 
-const STORAGE_KEY = 'bitgauge-demo'
-const SPEEDS = [1, 2, 4] as const
-const ERROR_KINDS: readonly DemoErrorKind[] = ['requests', 'unreachable', 'restarted', 'network']
-const RESOLUTIONS = [0.1, 1] as const
-const NAMES = Object.keys(DEMO_SCENARIOS) as DemoScenarioName[]
 /** How long the panel waits for the Start button of a scenario that starts. */
 const START_TRIES = 100
 const START_POLL_MS = 100
@@ -60,68 +57,17 @@ const TEXT = {
   cpuBound: 'CPU-bound',
   errorKind: 'Error kind',
   timerResolution: 'Timer resolution',
+  history: 'History',
+  historyVariant: 'Force variant',
+  historyStored: 'stored',
 }
 
-interface Choice {
-  open: boolean
-  scenario: DemoScenarioName
-  speed: (typeof SPEEDS)[number]
-  /** A state to hold, or '' to follow the run. */
-  forceState: DemoScenarioName | ''
-  cpuBound: boolean
-  errorKind: DemoErrorKind
-  timerResolutionMs: (typeof RESOLUTIONS)[number]
-}
-
-const DEFAULTS: Choice = { open: false, scenario: DEFAULT_SCENARIO, speed: 1, forceState: '', cpuBound: false, errorKind: 'requests', timerResolutionMs: 0.1 }
-
-/** The stored choice, each field checked; anything unknown falls back to its default. */
-function restore(): Choice {
-  let stored: Record<string, unknown> = {}
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')
-    stored = typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : {}
-  } catch {
-    // Unreadable storage: the defaults.
-  }
-  const pick = <T,>(value: unknown, allowed: readonly T[], fallback: T): T => (allowed.includes(value as T) ? (value as T) : fallback)
-  return {
-    open: stored.open === true,
-    scenario: typeof stored.scenario === 'string' && isScenarioName(stored.scenario) ? stored.scenario : DEFAULTS.scenario,
-    speed: pick(stored.speed, SPEEDS, DEFAULTS.speed),
-    forceState: typeof stored.forceState === 'string' && isScenarioName(stored.forceState) ? stored.forceState : '',
-    cpuBound: stored.cpuBound === true,
-    errorKind: pick(stored.errorKind, ERROR_KINDS, DEFAULTS.errorKind),
-    timerResolutionMs: pick(stored.timerResolutionMs, RESOLUTIONS, DEFAULTS.timerResolutionMs),
-  }
-}
-
-function save(choice: Choice): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(choice))
-  } catch {
-    // Storage refused: the choice lasts until the page loads again.
-  }
-}
-
-/** The demo Worker's command for a choice: a forced state is that state's scenario, held. */
-function commandOf(choice: Choice): DemoCommand {
-  return {
-    type: 'demo',
-    scenario: choice.forceState === '' ? choice.scenario : choice.forceState,
-    speed: choice.speed,
-    cpuBound: choice.cpuBound,
-    timerResolutionMs: choice.timerResolutionMs,
-    errorKind: choice.errorKind,
-    hold: choice.forceState !== '',
-  }
-}
-
-const choice = shallowRef(restore())
+const choice = shallowRef(restore(localStorage))
 const command = commandOf(choice.value)
 const current = DEMO_SCENARIOS[command.scenario]
 chooseScenario(command)
-const ids = { scenario: useId(), forceState: useId(), errorKind: useId(), timer: useId() }
+chooseHistory(choice.value.history)
+const ids = { scenario: useId(), forceState: useId(), errorKind: useId(), timer: useId(), history: useId() }
 
 /**
  * Presses Start once the Test screen offers it, for a scenario that runs as soon as it is chosen:
@@ -147,7 +93,7 @@ onScriptedStop(() => document.querySelector<HTMLButtonElement>('[data-testid="st
 function apply(patch: Partial<Choice>): void {
   const next = { ...choice.value, ...patch }
   choice.value = next
-  save(next)
+  save(localStorage, next)
   const scenario = DEMO_SCENARIOS[commandOf(next).scenario]
   const query = 'query' in scenario ? `?${scenario.query}` : ''
   props.navigate(`${window.location.pathname}${query}`)
@@ -155,7 +101,7 @@ function apply(patch: Partial<Choice>): void {
 
 function toggle(): void {
   choice.value = { ...choice.value, open: !choice.value.open }
-  save(choice.value)
+  save(localStorage, choice.value)
 }
 
 function reset(): void {
@@ -181,6 +127,11 @@ function onForceState(event: Event): void {
 function onErrorKind(event: Event): void {
   const value = selected(event)
   apply({ errorKind: ERROR_KINDS.find((kind) => kind === value) ?? DEFAULTS.errorKind })
+}
+
+function onHistory(event: Event): void {
+  const value = selected(event)
+  apply({ history: isDemoHistory(value) ? value : DEFAULTS.history })
 }
 
 function onTimer(event: Event): void {
@@ -365,6 +316,29 @@ const selectClass = 'min-w-0 flex-1 border-none bg-transparent font-sans text-(l
                 :value="String(resolution)"
               >
                 {{ `${resolution} ms` }}
+              </option>
+            </select>
+          </span>
+        </div>
+      </section>
+      <section class="flex flex-col gap-2 border-t border-border pt-3">
+        <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.history }}</span>
+        <div :class="rowClass">
+          <label :for="ids.history">{{ TEXT.historyVariant }}</label>
+          <span :class="inputClass">
+            <select
+              :id="ids.history"
+              :class="selectClass"
+              :value="choice.history"
+              data-testid="demo-history"
+              @change="onHistory"
+            >
+              <option
+                v-for="variant in DEMO_HISTORY_VARIANTS"
+                :key="variant"
+                :value="variant"
+              >
+                {{ variant === '' ? TEXT.historyStored : variant }}
               </option>
             </select>
           </span>

@@ -241,7 +241,8 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   meanwhile wait for it. The demo's constructor cannot sit beside the engine's: Vite bundles a
   Worker for every `new Worker(new URL(..., import.meta.url))` in a module it loads, dead branch or
   not, while a dynamic import in a branch the flag removes is never loaded. `api/info.ts` answers
-  `GET /info` from the chosen scenario behind the same flag, and `App.vue` loads the panel behind
+  `GET /info` from the chosen scenario behind the same flag, `composables/useHistory.ts` opens
+  the history from the panel's History variant behind it, and `App.vue` loads the panel behind
   it. `scripts/check-dist-demo-free.sh`, run by `web.yaml`'s build step, fails when a built dist
   holds any of the demo's sentinels: its storage key `bitgauge-demo`, `DEMO_SCENARIOS`,
   `Basement NAS` and `demo/worker`; a demo build fails it, which is its negative control.
@@ -306,20 +307,28 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   `http-h1-reserved` ([../measurement.md §11.2](../measurement.md#112-path-a-fallback--http-probe));
   over a VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s and 19 kbit/s link of the
   insufficient-data state.
-- **Panel** (`demo/DemoPanel.vue`, with `demo/control.ts`). The v0.1 part of the kit's Demo state
-  panel, collapsed by default: the scenario, the speed (1×, 2×, 4×), a forced state, a CPU-bound
-  Worker, the error kind and the timer resolution (0.1 ms or 1 ms), in the kit's own words, not
-  translated, since it never ships. A forced state plays that state's scenario and holds it; "follow
-  run" plays the chosen scenario without its hold. The choice is kept in `localStorage` under
-  `bitgauge-demo` and applied by loading the page again with the scenario's URL parameters, so every
-  scenario starts from a fresh page: the panel hands the choice to each demo Worker and to the
-  page's `GET /info` (unreachable for `offline`), and presses Start for a scenario that starts, and
-  Stop when its script stops the run, as a user would.
+- **Panel** (`demo/DemoPanel.vue`, with `demo/choice.ts` and `demo/control.ts`). The kit's Demo
+  state panel as far as the app goes, collapsed by default: the scenario, the speed (1×, 2×, 4×),
+  a forced state, a CPU-bound Worker, the error kind, the timer resolution (0.1 ms or 1 ms) and
+  the History variant, in the kit's own words, not translated, since it never ships. A forced
+  state plays that state's scenario and holds it; "follow run" plays the chosen scenario without
+  its hold. The choice is kept in `localStorage` under `bitgauge-demo` and applied by loading the
+  page again with the scenario's URL parameters, so every scenario starts from a fresh page: the
+  panel hands the choice to each demo Worker, to the page's `GET /info` (unreachable for
+  `offline`) and to the page's history, and presses Start for a scenario that starts, and Stop
+  when its script stops the run, as a user would.
+- **History variants** (`demo/history.ts`). The kit's History variants the History screen's states
+  need: `populated` replaces the browser's history with the kit's eight results over a VPN (the
+  rows of `History.jsx`, each a valid result), `empty` with none, and `unavailable` opens no
+  database, so history is unavailable for the page load; "stored" leaves the browser's history as
+  it is. The page writes the results itself (`composables/useHistory.ts`); the demo module only
+  holds them.
 - **Boundaries.** The demo's Worker-side files, `src/demo/**/*.ts`, follow the engine's import
   policy extended by `@/demo/`: framework-free, no DOM library, no application code; like
   `engine/worker.ts`, `demo/worker.ts` alone reaches the Worker's globals, which the engine's
-  banned-globals rule keeps out of every other demo file; `control.ts` and `start.ts` run in the
-  page under the same policy. `DemoPanel.vue` follows the application's policy. Every demo file
+  banned-globals rule keeps out of every other demo file; `control.ts`, `choice.ts` and `start.ts`
+  run in the page under the same policy, `choice.ts` reading and writing the storage the panel
+  hands it. `DemoPanel.vue` follows the application's policy. Every demo file
   obeys the production file ceiling of `.file-budgets`.
 
 ## Related

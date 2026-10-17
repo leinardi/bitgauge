@@ -64,22 +64,24 @@ function readable(record: unknown): Result | undefined {
 export function createHistoryStore(db: HistoryDB, persist: (() => Promise<boolean>) | null = defaultPersist()): HistoryStore {
   let asked = false
 
-  async function keep(): Promise<void> {
+  // The request is not waited for: Firefox asks the user, and the answer may never come. A refused
+  // request leaves the storage best-effort; the result is saved all the same.
+  function keep(): void {
     if (asked || persist === null) {
       return
     }
     asked = true
     try {
-      await persist()
+      persist().catch(() => undefined)
     } catch {
-      // A refused request leaves the storage best-effort; the result is saved all the same.
+      // Refused at once: as above.
     }
   }
 
   return {
     async save(result) {
       await db.put('results', result)
-      await keep()
+      keep()
     },
     async get(id) {
       return readable(await db.get('results', id))

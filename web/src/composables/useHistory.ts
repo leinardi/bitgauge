@@ -128,10 +128,31 @@ export function createHistory(open: () => Promise<HistoryDB | null> = openIfAvai
   }
 }
 
+/**
+ * The demo build's history (frontend.md section 9): unavailable, or the browser's database with
+ * its contents replaced by the demo panel's History variant, or left as they are.
+ */
+async function openDemo(): Promise<HistoryDB | null> {
+  const { demoHistory } = await import('@/demo/control')
+  const seed = await demoHistory()
+  if (seed === 'unavailable') {
+    return null
+  }
+  const db = await openIfAvailable()
+  if (db !== null && seed !== null) {
+    const transaction = db.transaction('results', 'readwrite')
+    await transaction.store.clear()
+    await Promise.all(seed.map((result) => transaction.store.put(result)))
+    await transaction.done
+  }
+  return db
+}
+
 let shared: History | null = null
 
 /** The application's history, opened on first use. */
 export function useHistory(): History {
-  shared ??= createHistory()
+  // A demo build answers from the demo panel's choice; a production build drops the branch as dead code.
+  shared ??= createHistory(import.meta.env.VITE_DEMO ? openDemo : openIfAvailable)
   return shared
 }

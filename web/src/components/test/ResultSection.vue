@@ -26,6 +26,7 @@ import NotMeasured from '@/components/test/NotMeasured.vue'
 import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import type { TileView } from '@/components/test/tiles'
+import type { SaveState } from '@/composables/useResultSave'
 import type { Result } from '@/engine/messages'
 import { links } from '@/lib/links'
 
@@ -36,6 +37,8 @@ import { links } from '@/lib/links'
 const props = defineProps<{
   /** The ended run's result for the result bar; null while a run goes on or without one. */
   result: Result | null
+  /** What became of the result's save to history. */
+  save: SaveState | null
   tiles: { main: TileView[]; more: TileView[]; packetLoss: TileView }
 }>()
 
@@ -55,6 +58,7 @@ const facts = computed<MetaRow[]>(() => {
   <ResultBar
     v-if="result !== null"
     :result="result"
+    :save="save"
   />
   <section
     :aria-label="$t('test.results')"

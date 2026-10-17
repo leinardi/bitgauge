@@ -34,7 +34,7 @@ import type { Wording } from '@/components/test/wording'
 // with the tones of ui/screens.md section 7 and up to two actions (design_system/components/
 // notices.md). Each code has its entry in the notices namespace, named by the code in camelCase.
 
-export type Tone = 'info' | 'warn' | 'danger' | 'neutral'
+export type Tone = 'info' | 'warn' | 'danger' | 'neutral' | 'ok'
 
 /** A notice's action: an event for the page, or a link into the docs. */
 export type NoticeAction =

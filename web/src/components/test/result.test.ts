@@ -18,9 +18,10 @@
  */
 // @vitest-environment jsdom
 
-// The result's actions on the v0.1 Test screen: Download JSON, named exactly so for the accuracy
-// harness, with its warning as the description and the file made in memory; the result bar's
-// complete, partial and error variants; and the failure notice of the Error state.
+// The result's actions on the Test screen: Download JSON, named exactly so for the accuracy harness,
+// with its warning as the description and the file made in memory; the result bar's complete
+// variants (saved, being saved, not saved), its partial and error ones; and the failure notice of
+// the Error state.
 
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -111,21 +112,34 @@ describe('Download JSON', () => {
 })
 
 describe('the result bar', () => {
-  it('says a complete result is not stored, with the time the run ended', () => {
+  it('says a complete result is saved to history, with the time the run ended', () => {
     const startedAt = new Date(2026, 9, 8, 14, 2, 11)
-    const wrapper = mountWith(ResultBar, { result: resultFixture({ startedAt: startedAt.toISOString(), durationMs: 28_600 }) })
-    expect(wrapper.get('[role="status"]').text()).toContain('Test complete')
+    const wrapper = mountWith(ResultBar, { result: resultFixture({ startedAt: startedAt.toISOString(), durationMs: 28_600 }), save: 'saved' })
+    expect(wrapper.get('[role="status"]').text()).toContain('Saved to history')
     expect(wrapper.get('[data-testid="result-bar-time"]').text()).toBe(new Intl.DateTimeFormat('en', { timeStyle: 'medium' }).format(new Date(startedAt.getTime() + 28_600)))
-    expect(wrapper.text()).toContain('Not stored in this browser. Download the JSON to keep it.')
+    expect(wrapper.find('[data-testid="result-bar-body"]').exists()).toBe(false)
     expect(wrapper.findAll('button').map((button) => button.text())).toEqual(['Download JSON'])
   })
 
+  it('says a complete result is not saved where history is unavailable or the save failed', () => {
+    const saving = mountWith(ResultBar, { result: resultFixture(), save: 'saving' })
+    expect(saving.get('[role="status"]').text()).toContain('Test complete')
+    expect(saving.find('[data-testid="result-bar-body"]').exists()).toBe(false)
+    const unavailable = mountWith(ResultBar, { result: resultFixture(), save: 'unavailable' })
+    expect(unavailable.get('[role="status"]').text()).toContain('Test complete')
+    expect(unavailable.get('[data-testid="result-bar-body"]').text()).toBe('History is unavailable in this browser mode — results are not saved.')
+    const failed = mountWith(ResultBar, { result: resultFixture(), save: 'failed' })
+    expect(failed.get('[data-testid="result-bar-body"]').text()).toBe('Not saved to history. Download the JSON to keep it.')
+  })
+
   it.each(['partial', 'error'] as const)('says a %s result is not saved, and offers its JSON', (status) => {
-    const wrapper = mountWith(ResultBar, { result: resultFixture({ status }) })
+    const wrapper = mountWith(ResultBar, { result: resultFixture({ status }), save: null })
     expect(wrapper.get('[role="status"]').text()).toBe('Partial results are not saved')
     expect(wrapper.find('[data-testid="result-bar-time"]').exists()).toBe(false)
     expect(wrapper.text()).toContain('Download the JSON to keep them.')
     expect(wrapper.get('button').text()).toBe('Download JSON')
+    // Where history is unavailable, the bar says so instead.
+    expect(mountWith(ResultBar, { result: resultFixture({ status }), save: 'unavailable' }).get('[data-testid="result-bar-body"]').text()).toContain('History is unavailable')
   })
 })
 

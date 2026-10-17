@@ -36,7 +36,7 @@ test('counts down from a run link and runs its settings with its label', async (
   // Step 4: the run starts on its own and finishes; the label goes into the result.
   await expect(page.getByRole('button', { name: 'Stop test' })).toBeVisible({ timeout: 10_000 })
   await expect(page.getByTestId('auto-start')).toBeHidden()
-  await expect(page.getByTestId('result-bar')).toContainText('Test complete', { timeout: 90_000 })
+  await expect(page.getByTestId('result-bar')).toContainText('Saved to history', { timeout: 90_000 })
   const [file] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download JSON' }).click()])
   const exported = JSON.parse(await readFile(await file.path(), 'utf8')) as { results: unknown[] }
   expect(exported.results[0]).toMatchObject({ label: 'VPN', settings: { preset: 'quick' } })

@@ -31,7 +31,10 @@ import { attachWorker } from '@/demo/control'
 import DemoPanel from '@/demo/DemoPanel.vue'
 import { infoFor } from '@/demo/fixtures'
 import { DEMO_SCENARIOS } from '@/demo/scenarios'
+import { openHistoryDB } from '@/history/db'
 import { settingsFromDefaults } from '@/lib/defaults'
+import { resultFixture } from '@/test/fixtures'
+import { freshIndexedDB } from '@/test/idb'
 
 const STORAGE_KEY = 'bitgauge-demo'
 const NAMES = Object.keys(DEMO_SCENARIOS)
@@ -170,6 +173,7 @@ describe('the demo panel', () => {
     expect(options(wrapper.get('[data-testid="demo-force-state"]').element)).toEqual(['', ...NAMES])
     expect(options(wrapper.get('[data-testid="demo-error-kind"]').element)).toEqual(['requests', 'unreachable', 'restarted', 'network'])
     expect(options(wrapper.get('[data-testid="demo-timer"]').element)).toEqual(['0.1', '1'])
+    expect(options(wrapper.get('[data-testid="demo-history"]').element)).toEqual(['', 'populated', 'empty', 'unavailable'])
   })
 
   it('keeps a choice and loads the page again with its scenario parameters', async () => {
@@ -188,7 +192,9 @@ describe('the demo panel', () => {
     await wrapper.get('[data-testid="demo-timer"]').setValue('1')
     await wrapper.get('[data-testid="demo-cpu"]').setValue(true)
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ errorKind: 'restarted', timerResolutionMs: 1, cpuBound: true })
-    expect(navigate).toHaveBeenCalledTimes(6)
+    await wrapper.get('[data-testid="demo-history"]').setValue('empty')
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ history: 'empty' })
+    expect(navigate).toHaveBeenCalledTimes(7)
   })
 
   it('restores only what it knows: an unknown stored value falls back to its default', async () => {
@@ -199,5 +205,38 @@ describe('the demo panel', () => {
     expect(wrapper.get('[data-testid="demo-speed-1"]').attributes('aria-pressed')).toBe('true')
     expect((wrapper.get('[data-testid="demo-error-kind"]').element as HTMLSelectElement).value).toBe('requests')
     expect((wrapper.get('[data-testid="demo-timer"]').element as HTMLSelectElement).value).toBe('0.1')
+  })
+})
+
+describe('the demo history', () => {
+  async function bootWith(history: string) {
+    freshIndexedDB()
+    const db = await openHistoryDB()
+    await db.put('results', resultFixture())
+    db.close()
+    const page = await boot({ history })
+    const { useHistory } = await import('@/composables/useHistory')
+    for (let i = 0; i < 5; i += 1) {
+      await flushPromises()
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
+    return { page, history: useHistory() }
+  }
+
+  it.each([
+    ['populated', 8],
+    ['empty', 0],
+    ['', 1],
+  ])('puts the %s variant in the page history in place of what was stored', async (variant, count) => {
+    const { page, history } = await bootWith(variant)
+    expect(history.status.value).toBe('available')
+    expect(history.results.value).toHaveLength(count)
+    page.unmount()
+  })
+
+  it('makes history unavailable for the unavailable variant', async () => {
+    const { page, history } = await bootWith('unavailable')
+    expect(history.status.value).toBe('unavailable')
+    page.unmount()
   })
 })

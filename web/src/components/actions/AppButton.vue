@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils'
 // app is one of these; the focus ring is base.css's. `as="a"` with an href renders the link form.
 // Each size states its leading after its font size: tailwind-merge drops a leading set before one.
 
-type AppButtonVariant = 'primary' | 'secondary' | 'ghost'
+type AppButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'danger-solid'
 type AppButtonSize = 'sm' | 'md' | 'lg' | 'xl'
 
 const props = withDefaults(defineProps<PrimitiveProps & { variant?: AppButtonVariant; size?: AppButtonSize; block?: boolean; class?: HTMLAttributes['class'] }>(), {
@@ -49,6 +49,8 @@ const VARIANTS: Record<AppButtonVariant, string> = {
   primary: 'bg-primary text-primary-foreground hover:bg-(--primary-hover) hover:text-primary-foreground active:bg-(--primary-active)',
   secondary: 'border-input bg-secondary text-secondary-foreground hover:bg-(--surface-4) hover:text-foreground',
   ghost: 'bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+  danger: 'border-(--danger-border) bg-transparent text-(--danger-fg) hover:bg-(--danger-bg) hover:text-(--danger-fg)',
+  'danger-solid': 'bg-(--danger-solid) text-(--fg-on-solid) hover:bg-(--danger-solid-hover) hover:text-(--fg-on-solid)',
 }
 </script>
 

@@ -22,7 +22,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, latencyAxisLabels, latencyNumber, rateAxisLabels, rateParts, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
+import { formatAgo, formatBytes, formatDuration, formatLatency, formatPercent, formatRate, latencyAxisLabels, latencyNumber, rateAxisLabels, rateParts, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
 
 describe('formatBytes', () => {
   it.each([
@@ -144,5 +144,18 @@ describe('the spoken forms', () => {
     expect(spokenLatency(51.4, 'en')).toEqual({ text: '51 milliseconds', below: false })
     expect(spokenLatency(1.94, 'en')).toEqual({ text: '1.9 milliseconds', below: false })
     expect(spokenLatency(0.5, 'en', 1)).toEqual({ text: '1 millisecond', below: true })
+  })
+})
+
+describe('time ago', () => {
+  const now = Date.parse('2026-10-08T12:00:00Z')
+  it('reads the largest whole unit, and now under a minute', () => {
+    expect(formatAgo(now - 30_000, now, 'en')).toBe('now')
+    expect(formatAgo(now - 5 * 60_000, now, 'en')).toBe('5m ago')
+    expect(formatAgo(now - 2.5 * 3_600_000, now, 'en')).toBe('2h ago')
+    expect(formatAgo(now - 86_400_000, now, 'en')).toBe('yesterday')
+    expect(formatAgo(now - 23 * 86_400_000, now, 'en')).toBe('23d ago')
+    // A start after now, from a clock that moved back, reads now.
+    expect(formatAgo(now + 60_000, now, 'en')).toBe('now')
   })
 })

@@ -23,15 +23,14 @@ import { shallowRef, useId, watch } from 'vue'
 import AppButton from '@/components/actions/AppButton.vue'
 import type { Result } from '@/engine/messages'
 import { serializeResult } from '@/export/serialize'
+import { saveFile } from '@/lib/saveFile'
 
 // Download JSON (ui/screens.md section 1): the finished result as a file the browser saves, made
-// in memory as a blob: URL, never sent anywhere. Its tooltip warns that the file holds the client
+// in memory, never sent anywhere. Its tooltip warns that the file holds the client
 // IP and notes (security.md section 7) and also describes the button. A result that fails
 // validation is not exported: the button turns to its error state and says why.
 
 const props = defineProps<{ result: Result; variant?: 'secondary' | 'ghost' }>()
-
-const REVOKE_AFTER_MS = 10_000
 
 const tipId = useId()
 const errorId = useId()
@@ -51,15 +50,7 @@ function download(): void {
   if (file === null) {
     return
   }
-  const url = URL.createObjectURL(new Blob([file.json], { type: 'application/json' }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = file.filename
-  document.body.append(link)
-  link.click()
-  link.remove()
-  // Some browsers read the blob after the click returns; the URL is released once they have.
-  setTimeout(() => URL.revokeObjectURL(url), REVOKE_AFTER_MS)
+  saveFile(file.filename, file.json, 'application/json')
 }
 </script>
 

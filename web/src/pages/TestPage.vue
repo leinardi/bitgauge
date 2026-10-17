@@ -26,6 +26,7 @@ import SettingsSummary from '@/components/connection/SettingsSummary.vue'
 import { startK } from '@/components/gauge/window'
 import OfflineNotice from '@/components/OfflineNotice.vue'
 import AutoStartNotice from '@/components/test/AutoStartNotice.vue'
+import LastResult from '@/components/test/LastResult.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
 import ResultSection from '@/components/test/ResultSection.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
@@ -35,7 +36,9 @@ import { gaugeInput, offlineGauge } from '@/components/test/screen/view'
 import { useContextLabel } from '@/composables/useContextLabel'
 import { useCountdown } from '@/composables/useCountdown'
 import { useElapsed } from '@/composables/useElapsed'
+import { useHistory } from '@/composables/useHistory'
 import { useInfo } from '@/composables/useInfo'
+import { useResultSave } from '@/composables/useResultSave'
 import { useRun } from '@/composables/useRun'
 import { effectiveSettings, useSettings } from '@/composables/useSettings'
 import { useTestKeys } from '@/composables/useTestKeys'
@@ -44,12 +47,12 @@ import type { Notice, Preset } from '@/engine/messages'
 import { DEFAULT_AUTO_START } from '@/lib/settingsStorage'
 import { SECOND } from '@/lib/urlValues'
 
-// The Test screen (ui/screens.md section 1, kit TestScreen.jsx v0.1 branch): idle, the auto-start
-// countdown, running per phase, done, cancelled, error and offline, from the run's live view. v0.1
-// keeps no history, so Download JSON is the only result action. The engine's Worker starts with the
-// page, is configured with the settings stored in this browser over the server's defaults, and the
-// URL parameters on top, as soon as they are known (ui/url-params.md), and ends when the page
-// unmounts.
+// The Test screen (ui/screens.md section 1, kit TestScreen.jsx): idle, the auto-start countdown,
+// running per phase, done, cancelled, error and offline, from the run's live view. A complete result
+// is saved to history as the run ends (ui/flows.md section 1 step 5), and the idle state links to the
+// latest saved result. The engine's Worker starts with the page, is configured with the settings
+// stored in this browser over the server's defaults, and the URL parameters on top, as soon as they
+// are known (ui/url-params.md), and ends when the page unmounts.
 
 const { info, reachability, refresh, nextCheckS } = useInfo()
 const url = useUrlParams()
@@ -104,6 +107,11 @@ const notices = computed<Notice[]>(() =>
 )
 
 const shown = computed(() => state.value !== 'idle')
+const endedResult = computed(() => (shown.value && !running.value ? run.result.value : null))
+const { state: saveState } = useResultSave(run.result)
+const history = useHistory()
+// The latest saved result, in the idle state while no countdown runs (kit TestScreen.jsx).
+const lastResult = computed(() => (state.value === 'idle' && !counting.value ? (history.results.value[0] ?? null) : null))
 
 /** The gauge's window, carried between directions and started afresh with each run. */
 const gaugeWindow = shallowRef(startK(units.value))
@@ -258,8 +266,14 @@ watch(run.error, (error) => {
       @refresh="refresh"
     />
     <ResultSection
-      :result="shown && !running ? run.result.value : null"
+      :result="endedResult"
+      :save="saveState"
       :tiles="tiles"
+    />
+    <LastResult
+      v-if="lastResult !== null"
+      :result="lastResult"
+      :units="units"
     />
   </main>
 </template>

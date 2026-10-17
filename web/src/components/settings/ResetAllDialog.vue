@@ -31,9 +31,6 @@ import { AlertDialog, AlertDialogDescription, AlertDialogTitle } from '@/compone
 defineProps<{ names: string[] }>()
 const emit = defineEmits<{ confirm: [] }>()
 const { t } = useI18n()
-
-// The kit's danger button (actions.css `.btn.danger`), composed over the secondary one.
-const DANGER = 'border-(--danger-border) bg-transparent text-(--danger-fg) hover:bg-(--danger-bg) hover:text-(--danger-fg)'
 </script>
 
 <template>
@@ -42,7 +39,7 @@ const DANGER = 'border-(--danger-border) bg-transparent text-(--danger-fg) hover
       <AppButton
         size="sm"
         block
-        :class="DANGER"
+        variant="danger"
         :disabled="names.length === 0"
       >
         <RotateCcw
@@ -79,7 +76,7 @@ const DANGER = 'border-(--danger-border) bg-transparent text-(--danger-fg) hover
           </AlertDialogCancel>
           <AlertDialogAction as-child>
             <AppButton
-              :class="DANGER"
+              variant="danger"
               @click="emit('confirm')"
             >
               <RotateCcw

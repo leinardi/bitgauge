@@ -58,6 +58,7 @@ async function runStep(driver: drivers.Driver, page: Page, step: Step): Promise<
   if ('forceState' in step) await driver.forceState(page, step.forceState)
   else if ('serverUnreachable' in step) await driver.serverUnreachable(page)
   else if ('openDemo' in step) await driver.openDemo(page)
+  else if ('historyVariant' in step) await driver.historyVariant(page, step.historyVariant)
   else await drivers.goto(page, step.goto)
 }
 

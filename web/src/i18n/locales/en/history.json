@@ -1,0 +1,180 @@
+{
+  "history": {
+    "title": "History",
+    "count": {
+      "shown": "{shown} of {total} shown",
+      "none": "0 results",
+      "unavailable": "Not saved in this window",
+      "loading": "Loading…",
+      "usage": "{size} used"
+    },
+    "import": {
+      "action": "Import JSON",
+      "busy": "Importing…",
+      "file": "Choose a BitGauge JSON export",
+      "progressTitle": "Importing {file}",
+      "progressBody": "Checking the results…",
+      "doneTitle": "Imported {file}",
+      "summary": "{added} added, {skipped} skipped as duplicates, {rejected} rejected",
+      "added": "{n} added",
+      "skipped": "{n} skipped",
+      "rejected": "{n} rejected",
+      "newerSchema": "result {position}: schema version {version} is newer than this app",
+      "invalid": "result {position}: {detail}",
+      "failedTitle": "Couldn't import {file}",
+      "unchanged": "Nothing in your history was changed.",
+      "another": "Choose another file",
+      "dismiss": "Dismiss",
+      "refused": {
+        "csv": "Import accepts BitGauge JSON exports only. CSV exports are summaries and can't be restored.",
+        "notJson": "The file isn't JSON. Import accepts BitGauge JSON exports only.",
+        "notHistory": "The file isn't a BitGauge history export (format bitgauge.history, version 1).",
+        "tooLarge": "The file is larger than 10 MB, the most an import reads.",
+        "unreadable": "The browser couldn't read the file.",
+        "unavailable": "History is unavailable in this browser mode — results are not saved.",
+        "writeFailed": "The browser refused to store the results."
+      }
+    },
+    "export": {
+      "action": "Export",
+      "json": "Export JSON",
+      "jsonSub": "Full samples · re-importable",
+      "csv": "Export CSV",
+      "csvSub": "One row per test · summary only",
+      "all": "All results ({n})",
+      "filtered": "Current filter ({n})",
+      "warning": "Contains client IP addresses, labels and notes. Files are created in your browser.",
+      "invalid": "A stored result failed validation, so the JSON export was not created."
+    },
+    "clear": {
+      "action": "Clear all",
+      "title": "Clear all history?",
+      "body": "This removes {n} result with its label and note from this browser. This cannot be undone. Export first if you want a copy. | This removes {n} results with their labels and notes from this browser. This cannot be undone. Export first if you want a copy.",
+      "exportFirst": "Export JSON first",
+      "cancel": "Cancel",
+      "confirm": "Clear {n} result | Clear {n} results"
+    },
+    "origin": {
+      "title": "Stored only in this browser, for {origin}",
+      "why": "Why?",
+      "body": "Browsers keep site data per address — scheme, host and port. Opening BitGauge at another address, such as its IP address instead of its name, or another port, shows a separate, empty history. The server keeps no results. Export JSON to move them."
+    },
+    "safari": {
+      "title": "Safari may delete this history",
+      "body": "Safari removes site data for sites you haven't opened in 7 days of browsing. Export a JSON copy to keep your results.",
+      "export": "Export JSON",
+      "dismiss": "Dismiss"
+    },
+    "empty": {
+      "title": "No results yet",
+      "body": "Each finished test is saved here automatically, with its label and note. Run a test on this device, or import a JSON export from another browser.",
+      "start": "Start a test"
+    },
+    "unavailable": {
+      "title": "History isn't available in this window",
+      "body": "History is unavailable in this browser mode — results are not saved. The browser isn't letting this site store data, usually because this is a private window. Tests still run, and you can download each result as JSON. Open BitGauge in a normal window to keep history."
+    },
+    "loading": "Loading history",
+    "noMatch": {
+      "title": "No results match these filters",
+      "body": "None of the {total} results matches the current filters. All of them are still in history.",
+      "clear": "Clear filters"
+    },
+    "filters": {
+      "context": "Context",
+      "contextGroup": "Filter by context label",
+      "label": "Label",
+      "labelGroup": "Filter by label",
+      "allContexts": "All",
+      "anyLabel": "Any label",
+      "search": "Search",
+      "searchPlaceholder": "Search labels and notes",
+      "range": {
+        "label": "Date range",
+        "presets": "Preset range",
+        "all": "All time",
+        "days7": "Last 7 days",
+        "days30": "Last 30 days",
+        "days90": "Last 90 days",
+        "custom": "Custom range",
+        "customValue": "{from} – {to}",
+        "from": "From date",
+        "to": "To date",
+        "cancel": "Cancel",
+        "apply": "Apply"
+      }
+    },
+    "trend": {
+      "title": "Trend",
+      "meta": "{n} results · {from} – {to}",
+      "legend": "Legend",
+      "complete": "Complete",
+      "incomplete": "Partial or error",
+      "metric": "Metric",
+      "download": "Download",
+      "upload": "Upload",
+      "latency": "Idle latency",
+      "latencyShort": "Latency",
+      "log": "log",
+      "linear": "linear",
+      "aria": "{title} trend, {n} results, {hollow} partial or error"
+    },
+    "table": {
+      "results": "Results",
+      "select": "Select",
+      "selectRow": "Select {label}, {date}",
+      "actions": "Actions for {label}",
+      "open": "Open",
+      "delete": "Delete",
+      "noLabel": "No label",
+      "ms": "ms",
+      "lowConfidence": "Low confidence",
+      "noGrade": "No grade",
+      "grade": "Grade {grade} · {word} bufferbloat",
+      "columns": {
+        "startedAt": "Date",
+        "label": "Label",
+        "contextLabel": "Context",
+        "protocol": "Protocol",
+        "status": "Status",
+        "download": "Download",
+        "upload": "Upload",
+        "idle": "Latency",
+        "jitter": "Jitter",
+        "grade": "Grade"
+      },
+      "status": {
+        "complete": "Complete",
+        "partial": "Partial",
+        "error": "Error"
+      },
+      "grades": {
+        "aPlus": "Minimal",
+        "a": "Low",
+        "b": "Mild",
+        "c": "Moderate",
+        "d": "High",
+        "f": "Severe"
+      }
+    },
+    "sort": {
+      "label": "Sort",
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "download": "Fastest download first",
+      "upload": "Fastest upload first",
+      "latency": "Lowest latency first",
+      "grade": "Best grade first"
+    },
+    "selection": {
+      "label": "Selection",
+      "count": "{n} selected",
+      "clear": "Clear selection",
+      "delete": "Delete selected"
+    },
+    "deleted": {
+      "title": "{n} result deleted. | {n} results deleted.",
+      "undo": "Undo"
+    }
+  }
+}

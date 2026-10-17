@@ -23,7 +23,7 @@
 
 import type { BrowserContext, Page } from '@playwright/test'
 
-import { KIT_SCOPE, type Screen, type TestState } from './scenarios.ts'
+import { type HistoryVariant, KIT_SCOPE, type Screen, type TestState } from './scenarios.ts'
 import { waitForSettled } from './settle.ts'
 import { PROTO_ORIGIN, VUE_ORIGIN, type SideDriver } from './side.ts'
 
@@ -34,6 +34,8 @@ export interface Driver extends SideDriver {
   serverUnreachable: (page: Page) => Promise<void>
   // Opens the side's demo panel, left open for the demo scenarios to compare.
   openDemo: (page: Page) => Promise<void>
+  // Puts a History variant in place through the side's demo panel.
+  historyVariant: (page: Page, variant: HistoryVariant) => Promise<void>
 }
 
 const OVERLAYS = '[role=dialog], [role=alertdialog]'
@@ -93,6 +95,7 @@ export const proto: Driver = {
   // A forced state wins over the run timeline (Prototype.jsx cur()), so it shows without a run.
   forceState: (page, state) => storeAndReload(page, KIT_DEMO_KEY, { testState: state }),
   serverUnreachable: (page) => storeAndReload(page, KIT_DEMO_KEY, { aboutUnreachable: true }),
+  historyVariant: (page, variant) => storeAndReload(page, KIT_DEMO_KEY, { historyVariant: variant }),
   openDemo: async (page) => {
     await page.getByRole('button', { name: 'Expand demo panel', exact: true }).click()
     await parkPointer(page)
@@ -221,6 +224,13 @@ export const vue: Driver = {
   openDemo: async (page) => {
     await openPanel(page)
     await parkPointer(page)
+  },
+  // The variant replaces the page's history with the demo's results, or makes it unavailable, from
+  // the next load on.
+  historyVariant: async (page, variant) => {
+    await openPanel(page)
+    await applyAndWait(page, () => page.getByTestId('demo-history').selectOption(variant))
+    await closePanel(page)
   },
 }
 

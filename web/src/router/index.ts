@@ -23,8 +23,8 @@ import TestPage from '@/pages/TestPage.vue'
 import { readBasePath } from '@/router/base'
 
 // The SPA's fixed routes (ui/README.md, compatibility.md section 1.5), in HTML5 history mode under
-// the base path. The server answers index.html for these paths only. History and Result detail
-// render the not-available page until their screens land (ui/screens.md section 1).
+// the base path. The server answers index.html for these paths only. Result detail renders the
+// not-available page until its screen lands (ui/screens.md section 1).
 
 const NotAvailablePage = () => import('@/pages/NotAvailablePage.vue')
 
@@ -35,7 +35,7 @@ export function createAppRouter(history: RouterHistory): Router {
     routes: [
       { path: '/', name: 'test', component: TestPage },
       { path: '/about', name: 'about', component: () => import('@/pages/AboutPage.vue') },
-      { path: '/history', name: 'history', component: NotAvailablePage },
+      { path: '/history', name: 'history', component: () => import('@/pages/HistoryPage.vue') },
       { path: '/settings', name: 'settings', component: () => import('@/pages/SettingsPage.vue') },
       { path: '/result/:id', name: 'result', component: NotAvailablePage },
     ],

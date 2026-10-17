@@ -211,10 +211,16 @@
       "tip": "Contains your IP address and notes",
       "invalid": "This result failed validation, so it can't be exported."
     },
+    "lastResult": {
+      "when": "Last test {when}",
+      "view": "View"
+    },
     "bar": {
       "label": "Result status",
       "complete": "Test complete",
-      "completeBody": "Not stored in this browser. Download the JSON to keep it.",
+      "saved": "Saved to history",
+      "notSaved": "Not saved to history. Download the JSON to keep it.",
+      "unavailable": "History is unavailable in this browser mode — results are not saved.",
       "unsaved": "Partial results are not saved",
       "unsavedBody": "Download the JSON to keep them."
     },

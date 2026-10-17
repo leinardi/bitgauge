@@ -34,6 +34,7 @@ const TONES: Record<Tone, { box: string; icon: string }> = {
   warn: { box: 'border-(--warn-border) bg-(--warn-bg)', icon: 'text-(--warn)' },
   danger: { box: 'border-(--danger-border) bg-(--danger-bg)', icon: 'text-(--danger)' },
   neutral: { box: 'border-input bg-muted', icon: 'text-subtle-foreground' },
+  ok: { box: 'border-(--ok-border) bg-(--ok-bg)', icon: 'text-(--ok)' },
 }
 </script>
 
@@ -57,6 +58,7 @@ const TONES: Record<Tone, { box: string; icon: string }> = {
         v-if="body"
         class="text-(length:--text-caption) leading-(--lh-compact) text-pretty text-muted-foreground"
       >{{ body }}</span>
+      <slot />
     </div>
     <div
       v-if="$slots.actions"
