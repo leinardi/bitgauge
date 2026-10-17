@@ -60,7 +60,9 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
     `crossOriginIsolated` ([../edge-cases.md §9](../edge-cases.md#9-clock-and-timer-resolution));
   - `Transport`: `download(size, signal)` yielding timestamped chunks and the Resource Timing
     entry; `upload(size, onProgress, signal)` resolving to the telemetry JSON; `ws()` for the echo;
-    `probe(path)` for HTTP probes with their timing entry; `info()`.
+    `probe(path, signal)` for HTTP probes with their timing entry, aborted by the signal (the
+    loaded-latency fallback aborts a probe after 30 s,
+    [../measurement.md §11.6](../measurement.md#116-probe-bookkeeping)); `info()`.
 
   Production wires the browser implementations; tests wire fakes that replay a synthetic timeline
   ([testing.md §2](testing.md#2-engine-tests-with-synthetic-timelines)).
@@ -237,7 +239,15 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   jittered round trip later, stamped with that simulated arrival, since a timer fires no earlier
   than the browser's floor of a few milliseconds, which would lengthen a LAN round trip; every
   simulated instant the transport reports is floored to the clock's resolution, as a reading of the
-  clock would be. `GET /info` answers with the scenario's fixture and the current epoch; its client
+  clock would be. **Under load** a link's queue fills: each link has, per direction, a loaded
+  delay `loaded: {downloadMs, uploadMs, tauMs}`, and while a direction has requests in flight,
+  every round trip the link simulates (the echo, the probes and the requests' own) gains
+  `loaded × (1 − e^(−t/τ))`, with `loaded` that direction's delay and `t` the time since its
+  requests began to be in flight; with none in flight the delay is gone. The LAN links' delays are
+  15 ms on download and 39 ms on upload with τ = 1000 ms, the VPN link's 114 ms and 262 ms with
+  τ = 2000 ms, the kit's fixture numbers. The HTTP/1.1 link holds the browser's six connections
+  per origin: a request or probe beyond six in flight waits, first come first served, until one
+  is free. `GET /info` answers with the scenario's fixture and the current epoch; its client
   is 192.168.1.42, a private address suggested as LAN, on the LAN links, and 100.101.4.17, a CGNAT
   address suggested as VPN ([../wire-protocol.md §5](../wire-protocol.md#5-get-apiv1info)), on the VPN
   link. A link can
@@ -270,7 +280,9 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   a ceiling per request of 110 Mbit/s down and 80 Mbit/s up, so that each trial gains and the ramp
   reaches six streams, plateau `cap`, in both directions; the same LAN over HTTP/1.1 for the
   upload-interrupted state, where the first failed upload request ends the upload
-  ([../measurement.md §7.5](../measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark));
+  ([../measurement.md §7.5](../measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark)),
+  and for the ws-fallback state, whose HTTP latency fallback therefore runs reserved and reports
+  `http-h1-reserved` ([../measurement.md §11.2](../measurement.md#112-path-a-fallback--http-probe));
   over a VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s and 19 kbit/s link of the
   insufficient-data state.
 - **Panel** (`demo/DemoPanel.vue`, with `demo/control.ts`). The v0.1 part of the kit's Demo state

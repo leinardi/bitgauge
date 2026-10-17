@@ -364,6 +364,8 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 45 | The deployment examples show a setting of a later release commented out with that release, and every shipped compose file's BitGauge environment loads and validates with no problem | v0.1 |
 | 46 | Prometheus endpoint details: an aborts counter, the route owner as `group`, `GET` only with plain `405` and `404`, promhttp negotiation without compression, a registry of its own, buckets up to 120 s, instrumentation always on | v0.2 |
 | 47 | `server.labels` as `{cidr, label}` entries, `cidr=label` items in the environment, masked unique CIDRs, the `display_name` label rule, longest prefix first, `suggestedLabel` up to 64 characters or `null` | v0.2 |
+| 48 | Loaded-latency shapes, reasons and sample minimum; the increase and grade only with an idle median; the series on the direction's timeline; no statistic over two sources; the reservation from the Info phase's protocol; the `probe-reservation` notice once | v0.2 |
+| 49 | The demo link's loaded delay per direction, rising with τ while requests are in flight, and its six-connection HTTP/1.1 link | v0.2 |
 
 ## Related
 

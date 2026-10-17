@@ -35,7 +35,8 @@ A test runs these phases, in this order by default:
 
 1. **Info.** `GET /api/v1/info` returns the server epoch, limits, default settings, the client IP
    and the context label inputs. The engine opens the WebSocket at `/api/v1/ws` and sends one idle
-   `GET /api/v1/small` as the path B capability check (§12). Info always runs and cannot be skipped:
+   `GET /api/v1/small` as the path B capability check (§12), whose protocol also decides the HTTP
+   latency fallback's probe reservation (§11.2). Info always runs and cannot be skipped:
    every later phase needs the epoch and the limits, and it costs one round trip. (This narrows
    "every phase can be skipped" to the three measuring phases;
    [technical-stack/decisions.md §34](technical-stack/decisions.md#34-info-phase--always-runs).)
@@ -847,8 +848,8 @@ Path A is specified here; path B in §12.
 
 JSON ping frames with a client sequence number and `performance.now()` every **300 ms** over
 `/api/v1/ws`; RTT = echo arrival − send. Up to 4 pings may be outstanding, matched by sequence
-number; a tick that would exceed 4 is skipped. A ping not answered within 30 s, or within the
-phase's grace after the phase ended, is counted as lost.
+number and send time; a tick that would exceed 4 is skipped. A ping not answered within 30 s, or
+within the direction's grace after the direction ended (§11.4), is counted as lost.
 
 Path A reports, per direction:
 
@@ -857,10 +858,12 @@ Path A reports, per direction:
 - the **increase over idle**: median of loaded minus median of idle (0 if negative);
 - the **bufferbloat grade** (§11.3).
 
-A direction has a loaded latency, from path A or its fallback, only when it has a steady window:
-status `measured`, or `partial` with a number (§8.4). A direction that ended `insufficient-data`,
-`error` or `skipped` reports none, even if pings were answered while it ran, because its load never
-settled; its increase is then unavailable to the grade (§11.3) and the quality scores (§13).
+A direction has a loaded-latency number, from path A or its fallback, only when it has a steady
+window: status `measured`, or `partial` with a number (§8.4). A direction that ended
+`insufficient-data` or `error` reports no number, even if pings were answered while it ran, because
+its load never settled: its `loadedLatency` is `unavailable` with reason `no-steady-window`, and its
+increase is unavailable to the grade (§11.3) and the quality scores (§13). A `skipped` direction
+carries no `loadedLatency` at all (§17).
 
 WebSocket connections do not count against the HTTP/1.1 six-connection limit, so path A never queues
 behind throughput requests. If the WebSocket cannot be opened (a proxy without upgrade support),
@@ -872,7 +875,8 @@ path A is `unavailable` and the HTTP fallback rules below apply.
 outstanding**: a tick that fires while a probe is pending is skipped, never queued, and there is no
 catch-up burst afterwards. The engine records the actual inter-sample gaps and the number of skipped
 ticks alongside the samples. At 600 ms RTT this yields one sample per ~600–900 ms instead of
-overlapping probes queuing behind each other on the one reserved connection.
+overlapping probes queuing behind each other on the one reserved connection. A probe still
+unanswered after 30 s is aborted and counted as lost.
 
 - **HTTP/1.1.** These probes would otherwise queue behind six in-flight throughput requests and
   measure browser scheduling, not the network. Policy: when the fallback is active on HTTP/1.1 the
@@ -883,6 +887,16 @@ overlapping probes queuing behind each other on the one reserved connection.
 - **HTTP/2.** The fallback multiplexes on the load connection and is labeled `http-h2` (`http-h3`
   on HTTP/3); it may grade under the same sample-count rule. No reservation is needed.
 - Fallback samples are never mixed with WebSocket samples in one statistic.
+
+**The reservation decision.** It applies only while the HTTP fallback is active: a direction that
+starts with a working WebSocket never reserves, whatever the protocol, and the first direction to
+start after the fallback took over is the first that may. The protocol is the `nextHopProtocol` of
+the Info phase's idle `GET /api/v1/small` (§1): `h2` gives the source `http-h2` and `h3` the source
+`http-h3`, with no reservation; `http/1.1`, an empty value or anything else reserves, with the
+source `http-h1-reserved`. While the reservation holds, the stream ramp's cap (§4) **and** the requests a
+phase issues before its ramp (its early issue) are bounded by 5, a fixed stream count above 5 is
+lowered to 5, and the run carries the notice `probe-reservation` with `streams: 5` once, the first
+time a direction runs reserved (§16).
 
 ### 11.3 Bufferbloat Grade
 
@@ -902,6 +916,74 @@ If only one direction has a gradable increase, the grade is computed from it and
 direction ("download only"). Without any gradable direction, or without idle latency, no grade is
 shown. The grade is displayed as letter and text, never by color alone
 ([ui/i18n-a11y.md](ui/i18n-a11y.md)).
+
+The result carries it as `bufferbloat: {grade, basis, increaseMs}`: `basis` is `download+upload`
+when both directions have an increase, else the one direction that has it (`download` or
+`upload`), and `increaseMs` is the increase the grade was read from. Without idle latency or a
+gradable direction `bufferbloat` is absent, never `null`.
+
+### 11.4 Loaded-Latency Statistics and Availability
+
+- **Samples.** A sample counts toward a direction when its ping was sent while at least one of the
+  direction's throughput requests was in flight and after the first `I_s` of the phase. Every
+  source, WebSocket included, needs at least **10** such samples; with fewer the direction's
+  loaded latency is `unavailable` with reason `insufficient-samples`. RTTs are quantized to the
+  timer resolution like the idle samples (§17).
+- **Loss.** `lost` counts the direction's pings unanswered within 30 s or within its grace. The
+  pinger stops sending at the direction's end instant; pings still outstanding are waited for up to
+  the grace, while whatever follows starts as it would. On upload the grace is the one of §5,
+  `min(2 s, 2 × d)`; download, which aborts its requests at once, uses the same `min(2 s, 2 × d)`
+  for its pings, with `d` the expected duration of its longest in-flight request at the end
+  instant, and the full 2 s when that request's stream has no completed request yet.
+- **The increase needs an idle median.** `increaseMs` is present only when idle latency has a
+  median: `idle` present and not `unavailable` (§10). When idle latency was left out by the
+  settings (§1) or is `unavailable` (fewer than 5 samples), a measured loaded latency still carries
+  `medianMs`, `p90Ms` and its series, but `increaseMs` is absent, no grade is computed, and the UI
+  shows "no idle latency" in place of the change ([ui/screens.md §6](ui/screens.md#6-result-metrics-units-and-precision)).
+  The CSV export's columns are unchanged.
+- **Mixed paths.** Idle latency and a direction's loaded latency may come from different paths:
+  the increase may compare an idle WebSocket median with a loaded HTTP median, as when the
+  WebSocket closed after idle latency. The direction then records the idle path as `idleSource`
+  (`websocket` or `http`), present only when it is not the path of `source` (WebSocket for
+  `websocket`, HTTP for the three `http-*` sources) and only with an idle median.
+- **Two sources in one direction.** When a direction's own samples came from two sources, on
+  HTTP/1.1 its loaded latency is `unavailable` with reason `reservation-broken`; on HTTP/2 or
+  HTTP/3 only the samples of the later source count, so no statistic ever spans two sources. When
+  the WebSocket closes after idle latency on HTTP/1.1 and cannot be reopened
+  ([edge-cases.md §6](edge-cases.md#6-network-change-mid-test)), the direction already running
+  keeps its stream count and its loaded latency is `reservation-broken`; the next direction runs
+  reserved, and the grade's basis names that direction alone.
+- **Reasons.** An `unavailable` loaded latency names one reason: `no-steady-window` (the direction
+  has no steady window, §11.1), `insufficient-samples` (fewer than 10 samples), `reservation-broken`
+  (two sources on HTTP/1.1, or more than 5 requests observed in flight at any sample under the
+  reservation) or `no-probe-path` (no probe could be sent during the direction: the WebSocket's
+  close sequence covered it).
+
+### 11.5 Time Base and Series
+
+The loaded-latency decisions, whether a request was in flight when a ping was sent and whether it
+was sent after the first `I_s`, are taken on the client clock from the direction's phase start.
+The stored `series` of `{atMs, rttMs}` follows the direction's own `series` timeline (§17): on
+download, milliseconds from the phase start on the client clock; on upload, the server timeline,
+each sample's send instant placed with the display offset of §7.4, exactly as upload `events` are
+placed, and computed when the direction settles. The live `sample` event carries each answered
+ping as `{atMs, rttMs}` on the client clock, and the UI places upload samples with the same offset
+it already uses for the `sending` line ([architecture.md
+§4](architecture.md#4-engine--ui-message-contract)). The offset is display-only here too: no
+statistic reads `series` times.
+
+### 11.6 Probe Bookkeeping
+
+- **One echo, many listeners.** Idle latency and each direction's loaded latency share the one
+  WebSocket; every pong reaches every listener, each keeps its own sequence space and matches its
+  pings on sequence number and send time together.
+- **Close sequence.** While the close sequence of [edge-cases.md
+  §6](edge-cases.md#6-network-change-mid-test) runs, the loaded pinger records the ticks it cannot
+  send as skipped ticks, a gap in its series, and does not switch to HTTP; it resumes on the
+  reopened WebSocket, or on the HTTP fallback when the reopen fails. Idle latency keeps its own
+  behavior (§10).
+- **Bounds.** At most 4 pings outstanding on the WebSocket and 1 probe on HTTP; an HTTP probe is
+  aborted after 30 s.
 
 ## 12. HTTP Loaded Responsiveness
 
@@ -1178,7 +1260,8 @@ engine emits the code with the raw values the notice names, and the UI words it.
 - `upload interrupted by a failed request` (HTTP/1.1 or unreported protocol), with the hint that
   HTTP/2 at the proxy lets uploads survive transient failures (`upload-interrupted`; §7.5);
 - `response compression detected` (`response-compression-detected`; §6);
-- `HTTP/1.1 probe reservation active — 5 streams` (`probe-reservation`; §11.2);
+- `HTTP/1.1 probe reservation active — 5 streams` (`probe-reservation`, with `streams`, the
+  reserved cap of 5; once per run, from the first direction that runs reserved; §11.2);
 - `overhead compensation +p %` whenever it is non-zero (`overhead-compensation`; §9.3);
 - `timer throttling detected` (`timer-throttling-detected`), `page was hidden during the test`
   (`page-hidden`), `network changed` (`network-changed`), `WebSocket reopened`
@@ -1223,7 +1306,7 @@ CSV export flattens the same fields, one row per result.
     "plateau": "no-gain", "confidence": { "level": "normal", "reasons": [] },
     "bytes": 118000000,
     "loadedLatency": {
-      "source": "websocket", "samples": 31, "skippedTicks": 0,
+      "source": "websocket", "samples": 31, "skippedTicks": 0, "lost": 0,
       "medianMs": 132.0, "p90Ms": 151.0, "increaseMs": 81.0,
       "series": [{ "atMs": 1310, "rttMs": 128.4 }]
     },
@@ -1253,9 +1336,10 @@ CSV export flattens the same fields, one row per result.
   `download`, `upload`, `dataUsedBytes` and `notices`. Each direction has `status`, `streams`,
   `bytes`, `events`, `plateau` once the ramp stopped, `windowMs`, `confidence` and `series` once
   warm-up ended, and `bitsPerSecond`, `peakBitsPerSecond` and `uncompensatedBitsPerSecond` when it
-  reports a number; upload adds `confirmedRequests`. Absent in v0.1: `note` (history, v0.2),
-  `loadedLatency`, `responsiveness`, `bufferbloat`, `scores`, `minBitsPerSecond`,
-  `maxBitsPerSecond` and `series.knownMs`.
+  reports a number; upload adds `confirmedRequests`. v0.2 adds `note` (history), each direction's
+  `loadedLatency` and the result's `bufferbloat`, all optional, so a v0.1 result stays valid.
+  Absent through v0.2: `responsiveness`, `scores`, `minBitsPerSecond`, `maxBitsPerSecond` and
+  `series.knownMs`. `schemaVersion` stays 1: these are additions.
 - `idle` is absent when idle latency did not run. A direction that did not run, left out by the
   settings or not reached, is `{status: "skipped", streams: 0, bytes: 0, events: []}` (upload with
   `confirmedRequests: 0`). `client.contextLabel` is the `start` override's, else the label `GET
@@ -1296,8 +1380,23 @@ CSV export flattens the same fields, one row per result.
 - A Continuous direction also carries `minBitsPerSecond` and `maxBitsPerSecond`, the run-wide
   running aggregates over 1 s cells (§15), and its `peakBitsPerSecond` is the final "p90, last
   hour". Bounded directions omit the two fields.
-  `loadedLatency.series` holds each direction's path A (or qualified fallback) samples as
-  `{atMs, rttMs}`, at most 2000 points; Continuous stores per-second medians, downsampled.
+- `loadedLatency` is present on a direction that ran while a loaded-latency path existed and is
+  absent when the run measured no loaded latency (a `latency`-only run, a skipped direction). It
+  has two shapes (§11.4). Measured: `{source, idleSource?, samples, skippedTicks, lost, medianMs,
+  p90Ms, increaseMs?, series}`, with no `status`; `source` is `websocket`, `http-h1-reserved`,
+  `http-h2` or `http-h3`; `idleSource` (`websocket` or `http`) only when idle latency ran on the
+  other path than `source`; `increaseMs` and `idleSource` only when idle latency has a median.
+  Unavailable: `{status: "unavailable", reason, source, samples, skippedTicks, lost}` with
+  `reason` `no-steady-window`, `insufficient-samples`, `reservation-broken` or `no-probe-path`,
+  and `source` absent with `no-probe-path`. `samples` counts the samples that fed the statistics,
+  `skippedTicks` the ticks skipped for the outstanding bound or the close sequence, `lost` the
+  pings lost. `medianMs`, `p90Ms`, `increaseMs` and `series[].rttMs` are quantized to
+  `client.timerResolutionMs`, as the idle statistics are.
+  `loadedLatency.series` holds the direction's counted samples as `{atMs, rttMs}` on the
+  direction's `series` timeline (§11.5), at most 2000 points; Continuous stores per-second
+  medians, downsampled.
+- `bufferbloat` is `{grade, basis, increaseMs}` (§11.3), absent without idle latency or a gradable
+  direction.
 - `client.browser` is the browser's family, major version and operating system, parsed in the
   browser; the raw user-agent string is never stored.
 - **Saving.** A `complete` result is saved to history automatically. A `partial` or `error`

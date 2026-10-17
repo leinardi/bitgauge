@@ -117,7 +117,10 @@ own throughput and RTT estimates, and the test itself moves them.
 - **On an unexpected WebSocket close**, one sequence decides what happened:
   1. The engine tries once to reopen `/api/v1/ws` and calls `GET /api/v1/info`, with the
      idle-latency timeout policy ([measurement.md §10](measurement.md#10-idle-latency)).
-     Throughput requests keep running meanwhile; loaded latency records a gap.
+     Throughput requests keep running meanwhile. Loaded latency records the ticks it cannot send
+     as skipped ticks, a gap in its series, and does not switch to the HTTP fallback while the
+     sequence runs; idle latency keeps its own behavior
+     ([measurement.md §11.6](measurement.md#116-probe-bookkeeping)).
   2. `GET /info` succeeds with a **different epoch**: the server restarted, and §11 applies.
   3. `GET /info` **fails**, or a network event arrives meanwhile: the network changed, handled as
      above.
@@ -128,8 +131,11 @@ own throughput and RTT estimates, and the test itself moves them.
      `429` while the old slot is released): path A switches to the HTTP fallback for the rest of
      the test with the notice `WebSocket unavailable — HTTP latency fallback`
      ([measurement.md §11.2](measurement.md#112-path-a-fallback--http-probe)). On HTTP/1.1 the
-     5-stream reservation starts with the next direction; the current direction's loaded latency
-     is `unavailable`, because its reservation did not hold for the whole phase.
+     5-stream reservation starts with the next direction: the current direction keeps its stream
+     count and its loaded latency is `unavailable` with reason `reservation-broken`, because its
+     reservation did not hold for the whole phase, and the grade's basis names the next direction
+     alone. On HTTP/2 or HTTP/3 the current direction goes on with the fallback, and only its
+     fallback samples count ([measurement.md §11.4](measurement.md#114-loaded-latency-statistics-and-availability)).
 
 Request failures are handled by the phase rules (three consecutive failures end a phase, and on
 HTTP/1.1 upload the first one does; [measurement.md §5](measurement.md#5-adaptive-duration)).

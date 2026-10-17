@@ -478,6 +478,38 @@ carries a recommendation; where the specification already relies on an answer, i
     choice. See [configuration.md §2.1](configuration.md#21-server) and
     [§4](configuration.md#4-fail-closed-validation).
 
+48. What does a loaded latency hold, and how does a run measure it? Current answer: **a measured
+    `loadedLatency` is `{source, idleSource?, samples, skippedTicks, lost, medianMs, p90Ms,
+    increaseMs?, series}` with no `status`, an unavailable one `{status: "unavailable", reason,
+    source, samples, skippedTicks, lost}` with the reason `no-steady-window`,
+    `insufficient-samples`, `reservation-broken` or `no-probe-path` (no `source` with the last);
+    `increaseMs` and `idleSource` exist only with an idle median, so a run without idle latency
+    keeps its loaded median, p90 and series but has no increase and no grade; every source needs
+    10 samples; `lost` counts pings unanswered in 30 s or the direction's grace, `min(2 s, 2 × d)` on
+    both directions; decisions are taken on the client clock from the phase start, and the stored
+    series follows the direction's `series` timeline, the server's on upload through the §7.4
+    offset; the idle and loaded medians may come from different paths, named by `idleSource`, but a
+    direction's own samples never span two sources: on HTTP/1.1 that is `reservation-broken`, on
+    HTTP/2 or HTTP/3 the later source alone counts; the reservation follows the Info phase's
+    protocol, bounds the ramp cap and the early issue at 5, and is announced once as
+    `probe-reservation` with `streams: 5`, tone info; the `sample` event carries the pings answered
+    since the last one; `bufferbloat` is `{grade, basis, increaseMs}`, absent rather than `null`;
+    loaded RTTs are quantized like idle ones; `schemaVersion` stays 1; during the close sequence the
+    loaded pinger records skipped ticks and does not switch to HTTP; idle and loaded share one echo
+    with separate sequence spaces; and an HTTP probe is aborted at 30 s.** Recommendation: keep it;
+    a grade computed against a missing baseline, or a median over two probe paths, would be a
+    number the run did not measure. See
+    [measurement.md §11](measurement.md#11-latency-under-load) and
+    [§17](measurement.md#17-result-object).
+49. How does the demo's simulated link show latency under load? Current answer: **each link has a
+    loaded delay per direction that a round trip gains while that direction has requests in flight,
+    growing as `1 − e^(−t/τ)`: 15 ms down and 39 ms up with τ = 1 s on the LAN, 114 ms and 262 ms
+    with τ = 2 s on the VPN, the kit's fixture numbers; the HTTP/1.1 link holds six connections, and
+    the ws-fallback state moves to it so that it shows `http-h1-reserved`.** Recommendation: keep
+    it; a queue that fills over a second or two is what a real bottleneck shows, and the demo's
+    grades then match the kit's. See
+    [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build).
+
 Resolved and removed:
 
 - _Should the upload grace after the end decision depend on the in-flight request's expected

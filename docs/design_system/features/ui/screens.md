@@ -257,7 +257,7 @@ metrics only: download, upload, idle latency and jitter, with data used and dura
 | Idle latency | ms; min, median, p90; whole ms ≥ 10 ms, one decimal below, "< 1 ms" below the timer resolution | path (`websocket` or HTTP), loss percentage |
 | Jitter | ms, same precision | described as the mean of consecutive differences |
 | Idle probe loss | %, one decimal | labeled "probe timeouts", never "packet loss" |
-| Loaded latency (per direction) | ms; median and p90; increase over idle | label "Loaded latency (WebSocket)" or the fallback source `http-h1-reserved` / `http-h2` / `http-h3`; `unavailable` with reason |
+| Loaded latency (per direction) | ms; median and p90; increase over idle | label "Loaded latency (WebSocket)" or the fallback source `http-h1-reserved` / `http-h2` / `http-h3`; "vs idle over WebSocket" (or HTTP) when idle latency ran on the other path; "no idle latency" in place of the increase when idle latency has no median; `unavailable` with reason (no steady window, fewer than 10 samples, HTTP/1.1 reservation not held, no latency probe) |
 | Bufferbloat grade | letter plus words: A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe bufferbloat | basis (`download+upload` or one direction) |
 | HTTP loaded responsiveness | RPM, integer | always labeled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples") |
 | Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great), each band with an icon and its name | missing input named; basis when only one direction has a loaded-latency increase ("download only"); note "upper bound: packet loss is not measured" |
@@ -298,8 +298,8 @@ detail, each with a short explanation and, where useful, a link to the docs. The
 
 Notices are text with an icon, never color alone, and are announced to screen readers when they
 appear during a run ([i18n-a11y.md](i18n-a11y.md)). Their tones: **info** for test extended,
-server stream limit, overhead compensation, browser upload limit, WebSocket reopened and
-WebSocket unavailable;
+server stream limit, overhead compensation, browser upload limit, WebSocket reopened,
+WebSocket unavailable and HTTP/1.1 probe reservation;
 **warn** for low confidence, cpu-bound, data cap reached, insufficient data, URL parameter
 ignored, proxy buffering suspected, response compression detected and timer throttling detected;
 **danger**, with `role="alert"`, for server unreachable, upload interrupted and base path mismatch;
