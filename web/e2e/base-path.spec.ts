@@ -18,7 +18,8 @@
  */
 
 // A sub-path deployment and the base-path mismatch (edge-cases.md section 20, ui/flows.md
-// section 1): a BitGauge configured for /speed runs a test with every request under /speed, answers
+// section 1): a BitGauge configured for /speed runs a test with every request under /speed, loads
+// its History page directly under /speed and downloads the result's share image there, answers
 // 404 at the bare origin, and its page served at another path shows the mismatch screen and sends
 // no request.
 
@@ -50,6 +51,15 @@ test('runs a test under /speed, every request under the base path', async ({ pag
   expect(paths.filter((path) => !path.startsWith('/speed/'))).toEqual([])
   expect(sockets).toContain('/speed/api/v1/ws')
   expect(sockets.filter((path) => !path.startsWith('/speed/'))).toEqual([])
+
+  // History loaded directly under the base path, its result's Result detail, and the share image,
+  // made in the browser: still nothing outside /speed.
+  await page.goto(`${server.url}/history`)
+  await expect(page.getByTestId('history-count')).toContainText('1 of 1 shown')
+  await page.getByTestId('history-row').first().locator('a[href^="/speed/result/"]').click()
+  const [file] = await Promise.all([page.waitForEvent('download'), page.getByTestId('download-image').click()])
+  expect(file.suggestedFilename()).toMatch(/\.png$/)
+  expect(paths.filter((path) => !path.startsWith('/speed/'))).toEqual([])
 })
 
 test('answers 404 at the bare origin', async ({ request }) => {

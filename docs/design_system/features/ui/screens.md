@@ -230,8 +230,10 @@ effective settings are the URL parameters over the stored settings over the serv
   [../open-questions.md](../open-questions.md)).
 - **Streams:** auto, fixed (1–6), single.
 - **Duration:** minimum and maximum per direction in whole seconds, 5–600 s, the minimum at most
-  the maximum (defaults from the preset; "custom" when edited, and kept when another preset is
-  chosen); for Continuous, an optional **run length** (none by default, 1 minute to 7 days).
+  the maximum (defaults from the preset; "custom" when edited, and kept with no question when
+  another preset is chosen, current answer to an item in
+  [../open-questions.md](../open-questions.md)); for Continuous, an optional **run length** (none
+  by default, 1 minute to 7 days).
 - **Data cap:** none or a whole number of MB (decimal, 10^6 bytes) from 2 to 100000; 1 MB is
   below the 1 MiB floor of a data cap
   ([../configuration.md §2.3](../configuration.md#23-test-defaults)). A server default that is not

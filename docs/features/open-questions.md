@@ -587,6 +587,16 @@ carries a recommendation; where the specification already relies on an answer, i
     resolution. See
     [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
 
+54. When another preset is chosen after the durations were edited, are the edits kept, or is the
+    user asked? flows.md §9 asked; screens.md §4 kept them. Current answer: **the edited
+    durations are kept as they are, marked "custom", with no question; the preset brings the
+    durations the user has not edited, and the edited ones go back to the preset's with their own
+    reset in the changed list.** Recommendation: keep it; every change already stores at once with
+    no Save step, and a question in the middle of a preset choice would be the screen's only one,
+    while the changed list names the custom durations next to their reset. See
+    [ui/screens.md §4](ui/screens.md#4-settings--settings) and
+    [ui/flows.md §9](ui/flows.md#9-changing-settings).
+
 Resolved and removed:
 
 - _Which format should the share image use?_ **PNG** from a `<canvas>`, which every chat app and

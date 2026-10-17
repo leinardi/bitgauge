@@ -135,21 +135,37 @@ behavior are re-checked manually on real Safari (macOS) and iOS Safari before ea
   WebSockets per client ([../wire-protocol.md §9](../wire-protocol.md#9-rate-limits)) can be
   exceeded, so a run there may fall back to HTTP for idle latency. A spec that needs a server of its
   own starts `dist/bitgauge` on a free loopback port (`web/e2e/fixtures/server.ts`): the first run,
-  which checks that idle latency came over the WebSocket, a server configured for a base path, and
-  one stopped mid-run.
+  which checks that idle latency came over the WebSocket, a server configured for a base path, one
+  stopped mid-run, and the Test screen's share dialog after a run.
 - **v0.1 coverage.** Flows 1, 2, 4 and 5, with the base path deployment and the mismatch screen.
   The slow mobile VPN run is the accuracy harness's 500 kbit/s profile (§5); history, continuous
   mode, sharing and settings arrive with the versions that ship them. A server killed mid-run
   closes the WebSocket, and the run ends with `network changed`
   ([../edge-cases.md §6](../edge-cases.md#6-network-change-mid-test), step 3) or, when three
   download requests fail first, with `requests-failed`; the spec accepts either.
+- **v0.2 coverage.** Flows 6, 8 and 9 (`history`, `share` and `settings` specs) and the Result
+  detail (`result-detail`). Their history comes from the demo's eight results, imported through
+  History's own Import JSON (`web/e2e/fixtures/history.ts`); runs are left to what needs one: the
+  Test screen's share dialog, Run again with a result's settings, and flow 9's next run with the
+  stored settings and with a URL override. Copy summary and Copy comparison are checked against
+  the clipboard on Chromium, which grants the permission; elsewhere either outcome passes, the copy
+  or the manual-copy fallback, and a stubbed clipboard that refuses forces Copy summary's fallback
+  on every browser.
+  The base-path spec also loads History under the base path and downloads a share image there,
+  and the CSP spec loads History and downloads a share image under the policy.
 - **CSP.** Every test listens for `securitypolicyviolation` in the page, before its own scripts run,
   and in each Worker it starts, where the engine's requests and WebSocket run, and fails on any; a
   negative control proves both listeners report a blocked request.
 - **axe.** WCAG 2.2 AA rules (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`), once the
-  page's transitions have settled, on every screen: the Test screen idle, done, cancelled and in
-  error, History empty and populated, a Result detail with a chart and a table, Settings and About
-  in both themes, and the base-path error.
+  page's transitions have settled, on every screen. In both themes (`a11y.spec.ts`): the Test
+  screen idle, History empty, populated and with no match, the Compare dialog, a Result detail with
+  a chart and a table and one not found, Settings with Advanced open and with a change and its
+  Reset all confirmation, and About. In the default theme, the states the flow specs reach: the
+  Test screen done, cancelled and in error, the base-path error, the share dialog, History
+  unavailable, filtered and with Clear all's confirmation, and Settings with an invalid value. The
+  Compare dialog in `a11y.spec.ts` and Clear all's confirmation are scanned on their own; the other
+  dialogs are scanned with the whole page, where axe skips the content the open dialog hides from
+  assistive technology.
 
 ## 5. Accuracy Harness
 

@@ -21,17 +21,18 @@
 // section 4, ui/i18n-a11y.md section 2.6). The theme comes from the documented URL parameter
 // (ui/url-params.md section 1), which overrides the stored choice for the page load. Each test
 // starts with an empty history; the populated one imports the demo's eight results, and one record
-// it rejects, and the Result detail shows the newest of them, with a chart and a table.
-
-import { demoHistoryResults } from '@/demo/history'
+// it rejects, and the Result detail shows the newest of them, with a chart and a table. The v0.2
+// screens' other states are here too: History with no match, the Compare dialog, the Result detail
+// not found, and Settings with a change and its Reset all confirmation.
 
 import { expectAccessible } from './fixtures/axe'
+import { DEMO_RESULTS, historyExport, importHistory } from './fixtures/history'
 import { expect, test } from './fixtures/test'
 
 // One record of a later result version, so the import's summary shows every pill.
-const RESULTS = demoHistoryResults('populated')
+const RESULTS = DEMO_RESULTS
 const NEWER = { ...RESULTS[0], id: 'd0000000-0000-4000-8000-000000000099', schemaVersion: 3 }
-const EXPORT = JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, exportedAt: '2026-10-08T12:00:00.000Z', results: [...RESULTS, NEWER] })
+const EXPORT = historyExport([...RESULTS, NEWER])
 
 for (const theme of ['light', 'dark'] as const) {
   test.describe(`the ${theme} theme`, () => {
@@ -82,6 +83,43 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByTestId('phase-chart-download')).toBeVisible()
       await page.getByTestId('chart-card-upload').getByRole('button', { name: 'Table' }).click()
       await expect(page.getByTestId('chart-card-upload').getByTestId('window-table')).toBeVisible()
+      await expectAccessible(page)
+    })
+
+    test('the History screen, no match', async ({ page }) => {
+      await importHistory(page, RESULTS, `/history?theme=${theme}`)
+      await page.getByTestId('history-search').fill('airport')
+      await expect(page.getByTestId('history-no-match')).toBeVisible()
+      await expectAccessible(page)
+    })
+
+    test('the Compare dialog', async ({ page }) => {
+      await importHistory(page, RESULTS, `/history?theme=${theme}`)
+      const table = page.getByTestId('history-table')
+      const boxes = table.getByTestId('row-select')
+      await boxes.nth(0).click()
+      await boxes.nth(1).click()
+      await table.getByTestId('selection-bar').getByTestId('compare').click()
+      await expect(page.getByRole('dialog', { name: 'Compare results' })).toBeVisible()
+      // The dialog alone: the rows behind it are hidden while it is open, and the dark theme's
+      // selected row is an open export note (design-system-upstream.md).
+      await expect(page.getByRole('toolbar', { name: 'Selection' })).toHaveCount(0)
+      await expectAccessible(page, '[role="dialog"]')
+    })
+
+    test('the Result detail, not found', async ({ page }) => {
+      await page.goto(`/result/d0000000-0000-4000-8000-0000000000ff?theme=${theme}`)
+      await expect(page.getByTestId('result-missing')).toContainText('Result not found')
+      await expectAccessible(page)
+    })
+
+    test('the Settings screen, changed, with the Reset all confirmation', async ({ page }) => {
+      await page.goto(`/settings?theme=${theme}`)
+      await page.getByTestId('preset-quick').click()
+      await expect(page.getByTestId('changed-preset')).toBeVisible()
+      await expectAccessible(page)
+      await page.getByRole('button', { name: 'Reset all to defaults' }).click()
+      await expect(page.getByRole('alertdialog')).toBeVisible()
       await expectAccessible(page)
     })
   })

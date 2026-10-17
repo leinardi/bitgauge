@@ -370,6 +370,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 51 | The unsaved in-memory result on the Result detail; loaded latency on each throughput chart's second axis and the table; Compare's ±2 %, 1 ms and grade-order wording; the Test screen's share dialog | v0.2 |
 | 52 | The 1200 × 630 dark-theme PNG share image with its qualifiers, fonts loaded first, and the copied summary as the same translated lines | v0.2 |
 | 53 | The harness judges each `websocket` or `http-h1-reserved` direction's increase against the ICMP ping increase within ±20 % or 5 ms and the grade against the larger ping increase of its basis, within one adjacent letter at a threshold; a missing loaded latency or grade fails; `http-h2` and `http-h3` are recorded unjudged; the ws-blocked profile is held to `http-h1-reserved` | v0.2 |
+| 54 | Edited durations are kept as "custom", with no question, when another preset is chosen | v0.2 |
 
 ## Related
 

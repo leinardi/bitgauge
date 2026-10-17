@@ -23,8 +23,7 @@
 
 import { readFile } from 'node:fs/promises'
 
-import { demoHistoryResults } from '@/demo/history'
-
+import { DEMO_RESULTS, importHistory } from './fixtures/history'
 import { expect, test, WORKER_GUARD } from './fixtures/test'
 
 const BLOCKED = 'http://127.0.0.1:9/'
@@ -75,15 +74,11 @@ test('mounts the toaster with its stylesheet and style bindings under the policy
   }
 })
 
-// The share image under the policy: the canvas reads the dark palette, loads the embedded fonts and
-// exports a PNG through a blob: URL, and the toast that confirms it shows; the guard sees no
-// violation. The result comes from an imported export, so no run is needed.
-test('renders and downloads the share image, confirmed by a toast, under the policy', async ({ page }) => {
-  const exported = JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, exportedAt: '2026-10-08T12:00:00.000Z', results: demoHistoryResults('populated').slice(0, 1) })
-  await page.goto('/history')
-  await expect(page.getByRole('heading', { name: 'No results yet' })).toBeVisible()
-  await page.getByTestId('import-input').setInputFiles({ name: 'bitgauge-history.json', mimeType: 'application/json', buffer: Buffer.from(exported) })
-  await expect(page.getByTestId('history-count')).toContainText('1 of 1 shown')
+// History and the share image under the policy: the History page loads and imports an export; the
+// canvas reads the dark palette, loads the embedded fonts and exports a PNG through a blob: URL, and
+// the toast that confirms it shows; the guard sees no violation. No run is needed.
+test('loads History and downloads the share image, confirmed by a toast, under the policy', async ({ page }) => {
+  await importHistory(page, DEMO_RESULTS.slice(0, 1))
   await page.locator('main a[href*="/result/"]').first().click()
   await expect(page.getByTestId('share-preview')).toBeVisible()
   const [file] = await Promise.all([page.waitForEvent('download'), page.getByTestId('download-image').click()])

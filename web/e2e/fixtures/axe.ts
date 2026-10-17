@@ -28,7 +28,11 @@ import { expect } from './test'
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
-export async function expectAccessible(page: Page): Promise<void> {
+/**
+ * Checks the page, or only the part `scope` selects: a modal dialog, while the page behind it is
+ * hidden from assistive technology and inert, and has its own checks.
+ */
+export async function expectAccessible(page: Page, scope?: string): Promise<void> {
   // A transition still running, such as a button changing variant or a tile's number fading in,
   // would be measured halfway. Two frames let one that Vue has just scheduled start; an endless
   // animation, a pulse or a spinner, never settles and is not waited for.
@@ -36,7 +40,8 @@ export async function expectAccessible(page: Page): Promise<void> {
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => animation.playState !== 'running' || animation.effect?.getComputedTiming().iterations === Infinity),
   )
-  const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze()
+  const builder = new AxeBuilder({ page }).withTags(TAGS)
+  const { violations } = await (scope === undefined ? builder : builder.include(scope)).analyze()
   const found = violations.flatMap((violation) =>
     violation.nodes.map((node) => `${violation.id} at ${node.target.join(' ')}: ${node.failureSummary ?? violation.help}`),
   )

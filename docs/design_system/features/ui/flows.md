@@ -220,8 +220,10 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    browser at once; there is no Save or Discard step.
    - **Branch: invalid value.** Inline error on the field; the value is not stored and the
      previous valid value stays in effect.
-   - **Branch: preset changed.** Duration fields reset to the preset's values unless they were
-     customized, in which case the user is asked whether to keep them.
+   - **Branch: preset changed.** Duration fields take the preset's values unless they were
+     edited: edited durations are kept as they are, marked "custom", with no question, and their
+     reset in the changed list returns them to the preset's
+     ([../open-questions.md](../open-questions.md), current answer).
 3. The settings summary on the Test screen and the Shareable URL update as fields change.
 4. The user may reset any single setting to its default.
    - **Branch: Reset all to defaults.** After confirmation, stored settings are removed and the
