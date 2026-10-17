@@ -72,7 +72,10 @@ behavior have to be seen on the real thing.
 ## 4. Read a Run
 
 Each run writes `dist/harness/<tier>-<UTC>-<envid>/report.json` and `report.md`, with the raw
-exports.
+exports. Beside each export in `exports/<profile>/`, `<browser>.phases.json` holds the Test
+screen's phase transitions the browser driver recorded on the page's wall clock, and
+`<browser>.ping.txt` the full output of the ICMP ping that ran alongside, each reply with its
+wall-clock time (`ping -D`).
 
 - **Status**: the evaluator judges each completed run against testing.md §5: `pass`, `fail` or
   `inconclusive`, with a one-line verdict and its findings; `failed` carries the reason a run could
@@ -88,6 +91,19 @@ exports.
   them. A profile that breaks either condition of the instability rule of testing.md §5 (before
   and after more than 5 % apart, or either more than 5 % off the configured goodput) has no
   reference; it is re-run once, and if it is still unstable it is **inconclusive**, never a pass.
+- **Loaded latency** (v0.2): per direction the engine's increase over idle and its source, the
+  ping's idle median and each direction's increase, and the grade with its basis. The evaluator
+  places each ping by its send time (arrival less round trip) in the phase windows of
+  `phases.json`: idle latency's whole window, and each direction's after its first `I_s`,
+  `max(1 s, 4 ×` the idle ping median`)`. A `websocket` or `http-h1-reserved` direction passes
+  within ±20 % or 5 ms, whichever is larger, of the ping's increase; the grade must be the letter of
+  the larger ping increase its basis names, or the adjacent letter when that increase lies within
+  the same tolerance of a threshold. An `http-h2` or `http-h3` direction, and a grade whose basis
+  includes one, is recorded with the ping figures and not judged. On a judged direction a missing
+  or unavailable loaded latency, a missing increase, a missing grade or a ping with no samples in
+  the window fails the run. `ci-100m-50ms-traefik-h1-ws-blocked` must report `http-h1-reserved`
+  with at least 10 samples in each direction, at most 5 streams and the `probe-reservation` notice
+  (testing.md §5).
 - **Egress counters**: every one is zero, or the run is not evidence of anything. The report names
   the no-egress layer it comes from (netguard's packet layer, not the image test's syscall layer).
 - **Client usage** (ceiling): the client container's CPU and memory over the browser run. At

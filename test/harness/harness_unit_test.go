@@ -103,13 +103,16 @@ func TestProfileValues(t *testing.T) {
 	}
 
 	for name, want := range map[string]Profile{
-		"ci-500k-300ms":                      {RateBitsPerSecond: 500_000, RTT: 300 * time.Millisecond, Preset: PresetStandard},
-		"ci-1g":                              {RateBitsPerSecond: 1_000_000_000, Preset: PresetStandard},
-		"ci-100m-50ms-caddy-h2":              {RateBitsPerSecond: 100_000_000, RTT: 50 * time.Millisecond, Proxy: ProxyCaddy, Preset: PresetStandard},
-		"ci-100m-50ms-traefik-h1-ws-blocked": {RateBitsPerSecond: 100_000_000, RTT: 50 * time.Millisecond, Proxy: ProxyTraefik, WebSocketBlocked: true, Preset: PresetStandard},
-		"floor-300k-300ms-1pct-loss":         {RateBitsPerSecond: 300_000, RTT: 300 * time.Millisecond, LossPercent: 1, Preset: PresetStandard},
-		"floor-300k-600ms-vpn":               {RateBitsPerSecond: 300_000, RTT: 600 * time.Millisecond, Preset: PresetExtended},
-		"ceiling-10g":                        {RateBitsPerSecond: 10_000_000_000, Preset: PresetStandard},
+		"ci-500k-300ms":         {RateBitsPerSecond: 500_000, RTT: 300 * time.Millisecond, Preset: PresetStandard},
+		"ci-1g":                 {RateBitsPerSecond: 1_000_000_000, Preset: PresetStandard},
+		"ci-100m-50ms-caddy-h2": {RateBitsPerSecond: 100_000_000, RTT: 50 * time.Millisecond, Proxy: ProxyCaddy, Preset: PresetStandard},
+		"ci-100m-50ms-traefik-h1-ws-blocked": {
+			RateBitsPerSecond: 100_000_000, RTT: 50 * time.Millisecond, Proxy: ProxyTraefik, WebSocketBlocked: true,
+			ExpectFallback: SourceReserved, Preset: PresetStandard,
+		},
+		"floor-300k-300ms-1pct-loss": {RateBitsPerSecond: 300_000, RTT: 300 * time.Millisecond, LossPercent: 1, Preset: PresetStandard},
+		"floor-300k-600ms-vpn":       {RateBitsPerSecond: 300_000, RTT: 600 * time.Millisecond, Preset: PresetExtended},
+		"ceiling-10g":                {RateBitsPerSecond: 10_000_000_000, Preset: PresetStandard},
 	} {
 		got := byName[name]
 		got.Name, got.DocPhrase, got.Shaped = "", "", false
@@ -401,10 +404,38 @@ func TestReport(t *testing.T) {
 			Attempt: 1,
 			Shaped:  true,
 			Result: &ResultSummary{
-				Status:   "complete",
-				Preset:   PresetExtended,
-				Download: &Direction{Status: "measured", BitsPerSecond: 281_000, WindowMs: 12_400},
-				Upload:   &Direction{Status: "measured", BitsPerSecond: 290_000, WindowMs: 11_000},
+				Status: "complete",
+				Preset: PresetExtended,
+				Download: &Direction{
+					Status:        "measured",
+					BitsPerSecond: 281_000,
+					WindowMs:      12_400,
+					LoadedLatency: &LoadedLatency{
+						Source:     SourceWebSocket,
+						Samples:    40,
+						MedianMs:   760,
+						IncreaseMs: new(float64(160)),
+					},
+				},
+				Upload: &Direction{
+					Status:        "measured",
+					BitsPerSecond: 290_000,
+					WindowMs:      11_000,
+					LoadedLatency: &LoadedLatency{
+						Source:     SourceWebSocket,
+						Samples:    40,
+						MedianMs:   790,
+						IncreaseMs: new(float64(190)),
+					},
+				},
+				Bufferbloat: &Bufferbloat{Grade: "C", Basis: basisBoth, IncreaseMs: 190},
+			},
+			Ping: &Ping{
+				Summary:  "120 packets transmitted, 120 received, 0% packet loss",
+				Log:      "exports/floor-300k-600ms-vpn/firefox.ping.txt",
+				Idle:     &PingPhase{Samples: 30, MedianMs: 600},
+				Download: &PingPhase{Samples: 60, MedianMs: 750, IncreaseMs: new(float64(150))},
+				Upload:   &PingPhase{Samples: 60, MedianMs: 770, IncreaseMs: new(float64(170))},
 			},
 			SelfTest: &Throughput{
 				DownloadBitsPerSecond: 299_000,
@@ -471,6 +502,12 @@ func TestReport(t *testing.T) {
 		t.Errorf("the raw iperf3 values did not survive: %+v", decoded.Runs[0])
 	}
 
+	if *decoded.Runs[0].Ping.Upload.IncreaseMs != 170 ||
+		*decoded.Runs[0].Result.Upload.LoadedLatency.IncreaseMs != 190 ||
+		decoded.Runs[0].Result.Bufferbloat.Grade != "C" || decoded.LatencyRule != LatencyRule {
+		t.Errorf("the loaded latency did not survive: %+v", decoded.Runs[0])
+	}
+
 	if decoded.Tolerances != Tolerances || decoded.Runs[0].Verdict != report.Runs[0].Verdict ||
 		decoded.Runs[0].Reference.DownloadBitsPerSecond != 297_000 || !decoded.Runs[2].Rerun {
 		t.Errorf("the judgment did not survive: %+v", decoded)
@@ -481,7 +518,10 @@ func TestReport(t *testing.T) {
 	for _, want := range append([]string{
 		Tolerances, NoEgressLayer, CannotProve, "298.0 kbit/s / 297.0 kbit/s", "296.0 kbit/s / 299.5 kbit/s",
 		"| 297.0 kbit/s / 298.2 kbit/s |", "| pass |", report.Runs[0].Verdict, "| 1 (re-run) | inconclusive |",
-		"download 281.0 kbit/s vs 297.0 kbit/s (-5.4 %, ±15 %)", LatencyRule,
+		"download 281.0 kbit/s vs 297.0 kbit/s (-5.4 %, ±15 %)", "- Loaded latency: " + LatencyRule,
+		"download loaded +160.0 ms (websocket) vs ping +150.0 ms (±30.0 ms)",
+		"grade C (download+upload) vs ping +170.0 ms (C or D)",
+		"| +160.0 ms (websocket, 40 samples) / +190.0 ms (websocket, 40 samples) | 600.0 ms / +150.0 ms / +170.0 ms | C (download+upload, +190.0 ms) |",
 		`failed: shaper \| self-test`, "one real iOS Safari run over an actual VPN",
 		"40.5 s CPU in 27.0 s (1.50 cores), 812.4 MB peak",
 	}, EnvironmentalLimits...) {

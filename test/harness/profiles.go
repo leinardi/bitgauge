@@ -102,7 +102,10 @@ type Profile struct {
 	// WebSocketBlocked routes through the proxy entry point that refuses WebSocket upgrades,
 	// forcing the HTTP latency fallback.
 	WebSocketBlocked bool
-	Preset           string
+	// ExpectFallback is the loaded-latency source the profile must report in each direction, with
+	// the samples, streams and notice testing.md section 5 asks of it; empty for none.
+	ExpectFallback string
+	Preset         string
 	// Shaped is false on the ceiling tier, which runs on bare metal or a veth without shaping:
 	// shaping at 10 Gbit is CPU-bound and not representative.
 	Shaped bool
@@ -181,6 +184,7 @@ func Tiers() []TierSpec {
 					RTT:               50 * time.Millisecond,
 					Proxy:             ProxyTraefik,
 					WebSocketBlocked:  true,
+					ExpectFallback:    SourceReserved,
 					Preset:            PresetStandard,
 					Shaped:            true,
 				},

@@ -19,10 +19,12 @@
 
 // The accuracy harness's browser driver (testing.md section 5.1). It uses only what a user has:
 // the documented URL parameters start a run of the requested preset (ui/url-params.md), and the
-// Test screen's Download JSON action saves the finished result (ui/screens.md section 1). The Go
-// runner reads the file from HARNESS_EXPORT_DIR; nothing here judges the numbers.
+// Test screen's Download JSON action saves the finished result (ui/screens.md section 1). Beside
+// it, the driver records when each phase step of the Test screen changes state, on the page's wall
+// clock, which the Go runner places the concurrent ICMP ping in (testing.md section 5). The Go
+// runner reads both files from HARNESS_EXPORT_DIR; nothing here judges the numbers.
 
-import { mkdir } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { expect, test } from '@playwright/test'
@@ -30,7 +32,39 @@ import { expect, test } from '@playwright/test'
 const preset = process.env.HARNESS_PRESET ?? 'standard'
 const exportDir = process.env.HARNESS_EXPORT_DIR ?? 'test-results/harness-export'
 
+// The phase steps by the names the Test screen gives them (en); the first step reads
+// "Connecting…" while it waits for the server and is pending then.
+const PHASES: Record<string, string> = { 'Idle latency': 'idle', Download: 'download', Upload: 'upload' }
+
+interface Transition {
+  phase: string
+  state: string
+  atMs: number
+}
+
 test('run the preset and download its result', async ({ page }, testInfo) => {
+  const transitions: Transition[] = []
+  await page.exposeFunction('harnessPhase', (name: string, state: string, atMs: number) => {
+    const phase = PHASES[name]
+    if (phase !== undefined) transitions.push({ phase, state, atMs })
+  })
+  // Each phase step's state (its data-state) as it changes, with the time the page saw it.
+  await page.addInitScript(() => {
+    const page = window as unknown as { harnessPhase: (name: string, state: string, atMs: number) => Promise<void> }
+    const last = new Map<string, string>()
+    const record = () => {
+      for (const step of document.querySelectorAll('[data-testid="phase-indicator"] > li')) {
+        const name = (step.querySelector('span')?.textContent ?? '').trim()
+        const state = step.getAttribute('data-state') ?? ''
+        if (last.get(name) !== state) {
+          last.set(name, state)
+          void page.harnessPhase(name, state, Date.now())
+        }
+      }
+    }
+    new MutationObserver(record).observe(document, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['data-state'] })
+  })
+
   const params = new URLSearchParams({ run: '1', test: 'all', preset, label: `harness-${testInfo.project.name}` })
   await page.goto(`/?${params.toString()}`)
 
@@ -44,4 +78,5 @@ test('run the preset and download its result', async ({ page }, testInfo) => {
 
   await mkdir(exportDir, { recursive: true })
   await file.saveAs(path.join(exportDir, `${testInfo.project.name}.json`))
+  await writeFile(path.join(exportDir, `${testInfo.project.name}.phases.json`), `${JSON.stringify(transitions, null, 2)}\n`)
 })

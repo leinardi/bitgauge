@@ -28,6 +28,9 @@ import type { Clock, TimerId, Transport, WsEcho } from '@/engine/types'
 
 const PING_PATH = '/api/v1/ping'
 const SPACING_MS = 100
+// The gap after an answer: some browsers hold a ping sent in the moment the previous echo arrives
+// by a few milliseconds, which the loaded pings never meet (measurement.md section 10).
+const ANSWER_GAP_MS = 50
 const MAX_TIMEOUT_MS = 10_000
 const MIN_TIMEOUT_MS = 2000
 const TIMEOUT_MEDIANS = 4
@@ -140,6 +143,7 @@ export class IdleLatency {
   private lost = 0
   private sent = 0
   private lastSend: number | null = null
+  private lastAnswer: number | null = null
   private current: number | null = null
   private timer: TimerId | null = null
   private limit: TimerId | null = null
@@ -183,7 +187,10 @@ export class IdleLatency {
       this.finish()
       return
     }
-    const wait = this.lastSend === null ? 0 : this.lastSend + SPACING_MS - this.clock.now()
+    const now = this.clock.now()
+    const afterSend = this.lastSend === null ? 0 : this.lastSend + SPACING_MS - now
+    const afterAnswer = this.lastAnswer === null ? 0 : this.lastAnswer + ANSWER_GAP_MS - now
+    const wait = Math.max(afterSend, afterAnswer)
     if (wait > 0) {
       this.timer = this.clock.setTimer(wait, () => this.send())
     } else {
@@ -213,6 +220,9 @@ export class IdleLatency {
     }
     this.current = null
     this.clearTimer()
+    if (result !== 'lost') {
+      this.lastAnswer = this.clock.now()
+    }
     // The first ping is the warm-up: neither a sample nor a loss.
     let rttMs: number | undefined
     if (seq > 0) {

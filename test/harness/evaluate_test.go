@@ -31,8 +31,29 @@ func zero() map[string]uint64 {
 	return map[string]uint64{"egress": 0, "dns": 0, "loopback": 0}
 }
 
+// loadedAt is a measured loaded latency over the WebSocket, increaseMs above an idle median of
+// 50 ms.
+func loadedAt(increaseMs float64) *LoadedLatency {
+	return &LoadedLatency{
+		Source:     SourceWebSocket,
+		Samples:    40,
+		MedianMs:   50 + increaseMs,
+		IncreaseMs: new(increaseMs),
+	}
+}
+
+// pingAt is the ping beside it: 50 ms idle, and each direction's increase over that.
+func pingAt(downMs, upMs float64) *Ping {
+	return &Ping{
+		Idle:     &PingPhase{Samples: 50, MedianMs: 50},
+		Download: &PingPhase{Samples: 40, MedianMs: 50 + downMs, IncreaseMs: new(downMs)},
+		Upload:   &PingPhase{Samples: 40, MedianMs: 50 + upMs, IncreaseMs: new(upMs)},
+	}
+}
+
 // stableRun is a completed, shaped run whose iperf3 pair sits on the configured goodput of rate,
-// with both headlines at the given fractions of it.
+// with both headlines at the given fractions of it, and both loaded latencies and the grade on the
+// ping's 20 ms increase.
 func stableRun(rate int64, downFraction, upFraction float64) Run {
 	goodput := ExpectedGoodput(rate)
 
@@ -50,10 +71,22 @@ func stableRun(rate int64, downFraction, upFraction float64) Run {
 			Seconds:               10,
 		},
 		Result: &ResultSummary{
-			Status:   "complete",
-			Download: &Direction{Status: "measured", BitsPerSecond: goodput * downFraction},
-			Upload:   &Direction{Status: "measured", BitsPerSecond: goodput * upFraction},
+			Status: "complete",
+			Download: &Direction{
+				Status:        "measured",
+				BitsPerSecond: goodput * downFraction,
+				Streams:       6,
+				LoadedLatency: loadedAt(20),
+			},
+			Upload: &Direction{
+				Status:        "measured",
+				BitsPerSecond: goodput * upFraction,
+				Streams:       6,
+				LoadedLatency: loadedAt(20),
+			},
+			Bufferbloat: &Bufferbloat{Grade: "A", Basis: basisBoth, IncreaseMs: 20},
 		},
+		Ping:   pingAt(20, 20),
 		Egress: zero(),
 	}
 }
@@ -296,7 +329,12 @@ func TestJudgeRefusesWhatIsNotEvidence(t *testing.T) {
 	pass := stableRun(100*mbit, 1.02, 0.97)
 	pass.Judge(profile)
 
-	if pass.Status != StatusPass || !strings.Contains(pass.Verdict, LatencyRule) ||
+	if pass.Status != StatusPass ||
+		!strings.Contains(
+			pass.Verdict,
+			"download loaded +20.0 ms (websocket) vs ping +20.0 ms (±5.0 ms)",
+		) ||
+		!strings.Contains(pass.Verdict, "grade A (download+upload) vs ping +20.0 ms (A)") ||
 		len(pass.Findings) != 0 {
 		t.Errorf("a run inside its tolerances: %s", pass.Verdict)
 	}

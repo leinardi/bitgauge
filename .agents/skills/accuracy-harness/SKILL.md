@@ -153,9 +153,13 @@ own. From v0.2 the loaded-latency rule of testing.md §5 is judged per direction
 driver records; an `http-h2` or `http-h3` direction is recorded with the ping figures, never
 judged, the grade is judged against the larger ping increase of its basis, a missing loaded
 latency or grade on a judged profile fails, and the ws-blocked profile must show
-`http-h1-reserved` with at least 10 samples, at most 5 streams and the `probe-reservation` notice.
-Until the evaluator implements it (`LatencyRule`), the rule still reads "not applicable", which is
-no pass for it. An unshaped run of a shaped profile (`HARNESS_SHAPE=none`) is a debugging run and
+`http-h1-reserved` with at least 10 samples, at most 5 streams and the `probe-reservation` notice
+(`ExpectFallback` in `profiles.go`). `latency.go` implements it (`judgeLoaded`, `judgeGrade`,
+`gradeFor`, `allowedGrades`, the 5 ms floor), and every report states it (`LatencyRule`). The
+ping's figures come from `ping.go`: `ping -D` replies placed by their send time in the windows of
+the driver's `<browser>.phases.json`, each direction's after its first `I_s` (`max(1 s, 4 ×` the
+idle ping median`)`). Never take a phase window from product code, and never judge an `http-h2` or
+`http-h3` direction. An unshaped run of a shaped profile (`HARNESS_SHAPE=none`) is a debugging run and
 stays `recorded`: never call it, or an inconclusive run, a pass. A run's `netguard` counters must
 all be present (egress, DNS, loopback) and zero. The evaluator implements testing.md §5 exactly as
 written, and nothing looser; its boundaries are inclusive, and its only slack is float rounding
@@ -256,11 +260,12 @@ Never add cleanup by name pattern, by image or by age alone.
 
 ## 6. Reading a report
 
-Each invocation writes `dist/harness/<tier>-<UTC>-<envid>/` (UTC as `20060102T150405Z`; this
-envid is the invocation's own, distinct from each run's) holding `report.json`, `report.md` (also
-the CI step summary), `exports/<profile>/<browser>.json` (the downloaded result) and
-`playwright/<profile>-<browser>/`. Once the images are built, the report is written even when runs
-fail; a dormant gate or a failed image build stops the test before any report exists.
+Each invocation writes `dist/harness/<tier>-<UTC>-<envid>/` (UTC as `20060102T150405Z`; this envid
+is the invocation's own, distinct from each run's) holding `report.json`, `report.md` (also the CI
+step summary), `exports/<profile>/<browser>.json` (the downloaded result) with
+`<browser>.phases.json` (the phase transitions) and `<browser>.ping.txt` (the ping's output) beside
+it, and `playwright/<profile>-<browser>/`. Once the images are built, the report is written even
+when runs fail; a dormant gate or a failed image build stops the test before any report exists.
 
 Read each run in this order; stop at the first that fails:
 
@@ -278,15 +283,20 @@ Read each run in this order; stop at the first that fails:
    none when the pair broke the 5 % stability rule of section 4.
 5. **The browser result:** per direction the headline, its status and its steady window in
    seconds; in `report.json`, `result` also holds the preset, the negotiated protocol (HTTP/1.1
-   through Traefik, HTTP/2 through Caddy) and the notices. A headline without its status and
-   notices is not a result.
-6. **Data used**, in MB.
-7. **Client CPU and memory:** CPU seconds over wall seconds (mean cores busy) and the peak memory
+   through Traefik, HTTP/2 through Caddy), the streams, the loaded latency, the grade and the
+   notices. A headline without its status and notices is not a result.
+6. **Loaded latency:** per direction the engine's increase and source, the ping's idle median and
+   each direction's increase, and the grade with its basis; the verdict says which were judged
+   and which recorded. `exports/<profile>/<browser>.phases.json` and `<browser>.ping.txt` are the
+   raw windows and replies behind them.
+7. **Data used**, in MB.
+8. **Client CPU and memory:** CPU seconds over wall seconds (mean cores busy) and the peak memory
    of the whole client container (browser and Playwright, from its cgroup v2). On the ceiling tier
    these are the documented counters; a run near the machine's core count is CPU-bound.
 
-`report.json` also keeps `ping`, the summary of the ICMP ping that ran alongside the browser, for
-the loaded-latency comparison.
+`report.json` keeps `ping` per run: ping's own closing summary, the path of its full output, and
+its median per phase window with each direction's increase over idle, the loaded-latency
+reference.
 
 ## 7. Environmental limits
 
@@ -323,11 +333,12 @@ passed for it ([release.md](../../../docs/release.md#how-to-release),
 
 - Profiles, tiers, the environmental limits and the closing statement are pinned to testing.md
   by `harness_unit_test.go`: change testing.md first, then `profiles.go` or `report.go`.
-- The pure logic (profiles, report, shaper commands, iperf3 parsing, cgroup counters, testenv rules)
-  is untagged and runs in every `go test ./...`; the runners and netguard carry the `harness` build
-  tag (netguard also `image`). Check both with `make go-vet-harness`.
-- The browser driver uses only what a user has: the URL parameters and the Download JSON button.
-  No test-only hook in the SPA.
+- The pure logic (profiles, report, shaper commands, iperf3 and ping parsing, phase windows, the
+  loaded-latency rule, cgroup counters, testenv rules) is untagged and runs in every `go test
+  ./...`; the runners and netguard carry the `harness` build tag (netguard also `image`). Check both
+  with `make go-vet-harness`.
+- The browser driver uses only what a user has: the URL parameters and the Download JSON button,
+  and it reads the Test screen's phase steps as they change. No test-only hook in the SPA.
 - No outbound call from any container: the client gets no route out, and nothing installs at run
   time.
 
@@ -338,6 +349,8 @@ passed for it ([release.md](../../../docs/release.md#how-to-release),
 - [ ] No tolerance widened, no self-test bound loosened, no evaluator looser than testing.md §5
 - [ ] No report or summary calls a `recorded` run, or an inconclusive one, a pass
 - [ ] The evaluator's table tests cover every tolerance boundary and the 5.0 % / 5.1 % stability edge
+- [ ] The loaded-latency tests cover the ±20 % and 5 ms edges, grade adjacency at each threshold,
+      `http-h2`/`http-h3` recorded, and the ws-blocked fallback's source, samples, streams and notice
 - [ ] Every `tc` failure fails the run; loss added only after the self-test
 - [ ] Netguard's four negative controls run before BitGauge starts; counters zero to the end
 - [ ] The report names its no-egress layer; no syscall-layer claim from netguard

@@ -71,19 +71,36 @@ describe('ping scheduling', () => {
     expect(outcome?.result.samples).toEqual([30, 30, 30, 30, 30])
   })
 
-  it('sends the next ping as soon as a slow answer arrives', async () => {
+  it('sends the next ping 50 ms after a slow answer, never in the moment it arrives', async () => {
     const clock = new FakeClock()
     const { ws, sends } = echo(clock, () => 250)
     await run(clock, new IdleLatency(clock, webSocketPinger(ws), 6))
-    expect(sends).toEqual([0, 250, 500, 750, 1000, 1250])
+    expect(sends).toEqual([0, 300, 600, 900, 1200, 1500])
+  })
+
+  it('keeps 100 ms after the send while an answer comes within 50 ms, and waits 50 ms beyond it', async () => {
+    const clock = new FakeClock()
+    // Round trips of 30, 40 and 80 ms: the 100 ms spacing holds until an answer 80 ms after its
+    // send puts the next one 130 ms after it.
+    const { ws, sends } = echo(clock, (seq) => [30, 40, 80, 30][seq] ?? 30)
+    await run(clock, new IdleLatency(clock, webSocketPinger(ws), 5))
+    expect(sends).toEqual([0, 100, 200, 330, 430])
+  })
+
+  it('sends the next ping at once after a lost one, whose answer never came', async () => {
+    const clock = new FakeClock()
+    const { ws, sends } = echo(clock, (seq) => (seq === 1 ? null : 250))
+    await run(clock, new IdleLatency(clock, webSocketPinger(ws), 4))
+    // Ping 1 times out after 10 s, before any sample: ping 2 goes out at that instant.
+    expect(sends).toEqual([0, 300, 10_300, 10_600])
   })
 
   it('stops after 30 s even if the count is not reached', async () => {
     const clock = new FakeClock()
     const { ws, sends } = echo(clock, () => 4000)
     const outcome = await run(clock, new IdleLatency(clock, webSocketPinger(ws), 20))
-    // Ping 7, sent at 28 s, is still outstanding at 30 s: neither a sample nor a loss.
-    expect(sends).toEqual([0, 4000, 8000, 12_000, 16_000, 20_000, 24_000, 28_000])
+    // Ping 7, sent at 28.35 s, is still outstanding at 30 s: neither a sample nor a loss.
+    expect(sends).toEqual([0, 4050, 8100, 12_150, 16_200, 20_250, 24_300, 28_350])
     expect(outcome?.result.samples).toHaveLength(6)
     expect(outcome?.result.lossPercent).toBe(0)
     expect(clock.pending).toBe(0)

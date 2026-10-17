@@ -597,6 +597,18 @@ carries a recommendation; where the specification already relies on an answer, i
     [ui/screens.md §4](ui/screens.md#4-settings--settings) and
     [ui/flows.md §9](ui/flows.md#9-changing-settings).
 
+55. How soon after an answer is the next idle ping sent? §10 sent it at once when the answer came
+    later than 100 ms after the previous send. Current answer: **no sooner than 100 ms after the
+    previous send and no sooner than 50 ms after the previous answer.** The harness CI tier found
+    Firefox and WebKit holding a WebSocket ping sent in the moment the previous echo arrives: at
+    500 kbit/s and 300 ms their idle medians read 305 and 304 ms against the ICMP ping's 300 ms,
+    while their loaded pings, sent on their own tick, read the ping's loaded median, so Firefox's
+    increase came out 6 ms below the ping's; with the 50 ms gap both read 301 ms and both
+    increases fell within 2 ms of the ping's. A LAN's pings, answered within 50 ms, keep their
+    100 ms spacing. Recommendation: keep it. See
+    [measurement.md §10](measurement.md#10-idle-latency) and
+    [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
+
 Resolved and removed:
 
 - _Which format should the share image use?_ **PNG** from a `<canvas>`, which every chat app and

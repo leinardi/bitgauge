@@ -272,9 +272,13 @@ func observe(ctx context.Context, cfg Config, topology *Topology, browser string
 		return err
 	}
 
+	artifacts := ArtifactsFor(topology.profile.Name, browser)
+
 	browseStarted := time.Now()
-	export, ping, browseErr := topology.Browse(ctx, browser)
+	pingOutput, browseErr := topology.Browse(ctx, browser)
 	browseSeconds := time.Since(browseStarted).Seconds()
+
+	ping, pingErr := RecordPing(cfg.OutDir, artifacts, pingOutput)
 	run.Ping = ping
 
 	cpuAfter, peak, usageErr := topology.ClientCounters(ctx)
@@ -290,14 +294,14 @@ func observe(ctx context.Context, cfg Config, topology *Topology, browser string
 
 	run.ReferenceAfter, afterErr = topology.Iperf3(ctx, reference)
 
-	err = errors.Join(browseErr, usageErr, afterErr)
+	err = errors.Join(browseErr, pingErr, usageErr, afterErr)
 	if err != nil {
 		return err
 	}
 
-	run.Export = export
+	run.Export = artifacts.Export
 
-	data, err := os.ReadFile(filepath.Join(cfg.OutDir, export))
+	data, err := os.ReadFile(filepath.Join(cfg.OutDir, artifacts.Export))
 	if err != nil {
 		return fmt.Errorf("read the export: %w", err)
 	}

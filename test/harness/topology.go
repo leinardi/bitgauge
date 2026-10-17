@@ -217,10 +217,11 @@ func (t *Topology) Iperf3(ctx context.Context, duration time.Duration) (*Through
 }
 
 // Browse runs one browser through the preset with the harness driver, with an ICMP ping to the
-// server running alongside from the client's namespace. It returns the export's path inside
-// OutDir and the ping summary.
-func (t *Topology) Browse(ctx context.Context, browser string) (export, ping string, err error) {
-	exportDir := filepath.Join("exports", t.profile.Name)
+// server running alongside from the client's namespace. The driver writes the export and its phase
+// transitions into ArtifactsFor's paths; Browse returns the ping's full output, each reply with
+// its wall-clock time (-D), which the loaded-latency rule places in those phases.
+func (t *Topology) Browse(ctx context.Context, browser string) (ping string, err error) {
+	exportDir := filepath.Dir(ArtifactsFor(t.profile.Name, browser).Export)
 	ignoreHTTPS := "0"
 
 	if t.profile.Proxy == ProxyCaddy {
@@ -230,7 +231,7 @@ func (t *Topology) Browse(ctx context.Context, browser string) (export, ping str
 	pingDone := make(chan string, 1)
 
 	go func() {
-		out, _ := t.exec(ctx, t.shaper, "ping", "-i", pingInterval,
+		out, _ := t.exec(ctx, t.shaper, "ping", "-D", "-i", pingInterval,
 			"-w", strconv.Itoa(int(browserLimit.Seconds())), t.guard.Name)
 		pingDone <- out
 	}()
@@ -262,16 +263,16 @@ func (t *Topology) Browse(ctx context.Context, browser string) (export, ping str
 		browser,
 	)
 
-	// SIGINT makes ping print its summary and exit; the goroutine then returns it.
+	// SIGINT makes ping print its summary and exit; the goroutine then returns its whole output.
 	_, _ = t.exec(ctx, t.shaper, "pkill", "-INT", "ping")
 
-	ping = lastLines(<-pingDone, 2)
+	ping = <-pingDone
 
 	if err != nil {
-		return "", ping, fmt.Errorf("the %s run: %w", browser, err)
+		return ping, fmt.Errorf("the %s run: %w", browser, err)
 	}
 
-	return filepath.Join(exportDir, browser+".json"), ping, nil
+	return ping, nil
 }
 
 func (t *Topology) startBitGauge(ctx context.Context) error {
@@ -627,15 +628,6 @@ func bindMount(source, target string, readOnly bool) string {
 	}
 
 	return mount
-}
-
-func lastLines(text string, count int) string {
-	lines := strings.Split(strings.TrimSpace(text), "\n")
-	if len(lines) > count {
-		lines = lines[len(lines)-count:]
-	}
-
-	return strings.Join(lines, " ")
 }
 
 // poll retries check every pollInterval for up to a minute.

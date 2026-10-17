@@ -81,25 +81,67 @@ type Confidence struct {
 	Level string `json:"level"`
 }
 
+// LoadedLatency is a direction's loaded latency without its series (measurement.md sections 11.4
+// and 17): measured from its source, with the increase over idle beside an idle median, or
+// unavailable with its reason.
+type LoadedLatency struct {
+	Source     string   `json:"source,omitempty"`
+	Status     string   `json:"status,omitempty"`
+	Reason     string   `json:"reason,omitempty"`
+	Samples    int      `json:"samples"`
+	MedianMs   float64  `json:"medianMs,omitempty"`
+	P90Ms      float64  `json:"p90Ms,omitempty"`
+	IncreaseMs *float64 `json:"increaseMs,omitempty"`
+}
+
 // Direction is one direction of a result, as the harness records it.
 type Direction struct {
-	Status        string      `json:"status"`
-	BitsPerSecond float64     `json:"bitsPerSecond"`
-	WindowMs      float64     `json:"windowMs"`
-	Bytes         float64     `json:"bytes"`
-	Confidence    *Confidence `json:"confidence,omitempty"`
+	Status        string         `json:"status"`
+	BitsPerSecond float64        `json:"bitsPerSecond"`
+	WindowMs      float64        `json:"windowMs"`
+	Bytes         float64        `json:"bytes"`
+	Streams       int            `json:"streams"`
+	Confidence    *Confidence    `json:"confidence,omitempty"`
+	LoadedLatency *LoadedLatency `json:"loadedLatency,omitempty"`
+}
+
+// Bufferbloat is the result's grade (measurement.md section 11.3): its letter, the directions it
+// was read from and the increase it was read from.
+type Bufferbloat struct {
+	Grade      string  `json:"grade"`
+	Basis      string  `json:"basis"`
+	IncreaseMs float64 `json:"increaseMs"`
 }
 
 // ResultSummary is what the harness keeps of an exported result (measurement.md section 17): the
-// headline per direction, its steady window, the data used and the notices.
+// headline per direction, its steady window and loaded latency, the grade, the data used and the
+// notices.
 type ResultSummary struct {
 	Status        string            `json:"status"`
 	Preset        string            `json:"preset"`
 	Protocol      string            `json:"protocol"`
 	Download      *Direction        `json:"download,omitempty"`
 	Upload        *Direction        `json:"upload,omitempty"`
+	Bufferbloat   *Bufferbloat      `json:"bufferbloat,omitempty"`
 	DataUsedBytes float64           `json:"dataUsedBytes"`
 	Notices       []json.RawMessage `json:"notices"`
+}
+
+// NoticeCodes are the codes of the result's notices.
+func (r *ResultSummary) NoticeCodes() []string {
+	codes := make([]string, 0, len(r.Notices))
+
+	for _, raw := range r.Notices {
+		var notice struct {
+			Code string `json:"code"`
+		}
+
+		if json.Unmarshal(raw, &notice) == nil {
+			codes = append(codes, notice.Code)
+		}
+	}
+
+	return codes
 }
 
 // SummarizeExport reads the Download JSON export of one result: the history export format with a
@@ -117,6 +159,7 @@ func SummarizeExport(data []byte) (ResultSummary, error) {
 			} `json:"client"`
 			Download      *Direction        `json:"download"`
 			Upload        *Direction        `json:"upload"`
+			Bufferbloat   *Bufferbloat      `json:"bufferbloat"`
 			DataUsedBytes float64           `json:"dataUsedBytes"`
 			Notices       []json.RawMessage `json:"notices"`
 		} `json:"results"`
@@ -144,6 +187,7 @@ func SummarizeExport(data []byte) (ResultSummary, error) {
 		Protocol:      result.Client.Protocol,
 		Download:      result.Download,
 		Upload:        result.Upload,
+		Bufferbloat:   result.Bufferbloat,
 		DataUsedBytes: result.DataUsedBytes,
 		Notices:       result.Notices,
 	}, nil
@@ -175,9 +219,8 @@ type Run struct {
 	// Verdict is the run's judgment in one line, and Findings what made it fail or inconclusive.
 	Verdict  string   `json:"verdict,omitempty"`
 	Findings []string `json:"findings,omitempty"`
-	// Ping is the summary of the ICMP ping that ran concurrently with the browser, as ping
-	// printed it.
-	Ping string `json:"ping,omitempty"`
+	// Ping is the ICMP ping that ran concurrently with the browser, the loaded-latency reference.
+	Ping *Ping `json:"ping,omitempty"`
 	// ClientUsage is the client's CPU and memory over the browser run.
 	ClientUsage *Usage `json:"clientUsage,omitempty"`
 	// Egress is the netguard counters at the end of the run; all must be zero.
@@ -193,6 +236,7 @@ type Report struct {
 	Started             time.Time `json:"started"`
 	Finished            time.Time `json:"finished"`
 	Tolerances          string    `json:"tolerances"`
+	LatencyRule         string    `json:"latencyRule"`
 	NoEgressLayer       string    `json:"noEgressLayer"`
 	Runs                []Run     `json:"runs"`
 	Manual              []string  `json:"manual,omitempty"`
@@ -207,6 +251,7 @@ func NewReport(spec *TierSpec, envID string, started time.Time) *Report {
 		EnvID:               envID,
 		Started:             started.UTC(),
 		Tolerances:          Tolerances,
+		LatencyRule:         LatencyRule,
 		NoEgressLayer:       NoEgressLayer,
 		Manual:              spec.Manual,
 		EnvironmentalLimits: EnvironmentalLimits,
@@ -253,16 +298,18 @@ func (r *Report) Markdown() string {
 	fmt.Fprintf(&out, "- Started: %s\n", r.Started.Format(time.RFC3339))
 	fmt.Fprintf(&out, "- Finished: %s\n", r.Finished.UTC().Format(time.RFC3339))
 	fmt.Fprintf(&out, "- Tolerances: %s\n", r.Tolerances)
+	fmt.Fprintf(&out, "- Loaded latency: %s\n", r.LatencyRule)
 	fmt.Fprintf(&out, "- No-egress layer: %s\n\n", r.NoEgressLayer)
 
 	out.WriteString("## Runs\n\n")
 	out.WriteString(
 		"| Profile | Browser | Attempt | Status | Self-test down / up | iperf3 before down / up | " +
-			"iperf3 after down / up | Reference down / up | Download | Upload | Data used | " +
+			"iperf3 after down / up | Reference down / up | Download | Upload | " +
+			"Loaded latency down / up | Ping idle / down / up | Grade | Data used | " +
 			"Client CPU and memory | Egress | Verdict |\n",
 	)
 	out.WriteString(
-		"| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n",
+		"| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n",
 	)
 
 	for index := range r.Runs {
@@ -270,7 +317,7 @@ func (r *Report) Markdown() string {
 
 		fmt.Fprintf(
 			&out,
-			"| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+			"| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
 			run.Profile,
 			run.Browser,
 			attempt(run),
@@ -281,6 +328,9 @@ func (r *Report) Markdown() string {
 			throughput(run.Reference, true),
 			direction(run.Result, true),
 			direction(run.Result, false),
+			loaded(run.Result),
+			pingFigures(run.Ping),
+			grade(run.Result),
 			dataUsed(run.Result),
 			usage(run.ClientUsage),
 			egress(run.Egress),
@@ -364,6 +414,77 @@ func direction(result *ResultSummary, download bool) string {
 		rate(dir.BitsPerSecond),
 		dir.Status,
 		dir.WindowMs/msPerSecond,
+	)
+}
+
+// loaded is each direction's loaded latency: its increase over idle and its source, or why it has
+// none.
+func loaded(result *ResultSummary) string {
+	if result == nil {
+		return "—"
+	}
+
+	parts := make([]string, 0, 2)
+
+	for _, dir := range []*Direction{result.Download, result.Upload} {
+		switch {
+		case dir == nil || dir.LoadedLatency == nil:
+			parts = append(parts, "—")
+		case dir.LoadedLatency.Status != "":
+			parts = append(parts, dir.LoadedLatency.Status+" ("+dir.LoadedLatency.Reason+")")
+		case dir.LoadedLatency.IncreaseMs == nil:
+			parts = append(
+				parts,
+				fmt.Sprintf(
+					"%.1f ms, no increase (%s)",
+					dir.LoadedLatency.MedianMs,
+					dir.LoadedLatency.Source,
+				),
+			)
+		default:
+			parts = append(parts, fmt.Sprintf(
+				"%+.1f ms (%s, %d samples)",
+				*dir.LoadedLatency.IncreaseMs,
+				dir.LoadedLatency.Source,
+				dir.LoadedLatency.Samples,
+			))
+		}
+	}
+
+	return strings.Join(parts, " / ")
+}
+
+// pingFigures is the ping's idle median and each direction's increase over it.
+func pingFigures(ping *Ping) string {
+	if ping == nil || ping.Idle == nil {
+		return "—"
+	}
+
+	parts := []string{fmt.Sprintf("%.1f ms", ping.Idle.MedianMs)}
+
+	for _, phase := range []*PingPhase{ping.Download, ping.Upload} {
+		if phase == nil || phase.IncreaseMs == nil {
+			parts = append(parts, "—")
+
+			continue
+		}
+
+		parts = append(parts, fmt.Sprintf("%+.1f ms", *phase.IncreaseMs))
+	}
+
+	return strings.Join(parts, " / ")
+}
+
+func grade(result *ResultSummary) string {
+	if result == nil || result.Bufferbloat == nil {
+		return "—"
+	}
+
+	return fmt.Sprintf(
+		"%s (%s, %+.1f ms)",
+		result.Bufferbloat.Grade,
+		result.Bufferbloat.Basis,
+		result.Bufferbloat.IncreaseMs,
 	)
 }
 

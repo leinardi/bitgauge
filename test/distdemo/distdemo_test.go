@@ -194,14 +194,20 @@ func TestDistDemoFreeWithoutADist(t *testing.T) {
 	}
 }
 
-// TestDistDemoFreeCatchesTheDemoSources runs the check on the demo's own panel and fixtures: the
-// sentinels must still name what the demo is made of, or a demo build could pass.
+// TestDistDemoFreeCatchesTheDemoSources runs the check on the demo's own panel, its stored choice
+// and its fixtures: the sentinels must still name what the demo is made of, or a demo build could
+// pass.
 func TestDistDemoFreeCatchesTheDemoSources(t *testing.T) {
 	t.Parallel()
 
 	files := map[string]string{}
 
-	for _, rel := range []string{"web/src/demo/DemoPanel.vue", "web/src/demo/fixtures.ts", "web/src/demo/scenarios.ts"} {
+	for _, rel := range []string{
+		"web/src/demo/DemoPanel.vue",
+		"web/src/demo/choice.ts",
+		"web/src/demo/fixtures.ts",
+		"web/src/demo/scenarios.ts",
+	} {
 		content, err := os.ReadFile(repoFile(t, rel))
 		if err != nil {
 			t.Fatalf("read %s: %v", rel, err)
@@ -216,7 +222,8 @@ func TestDistDemoFreeCatchesTheDemoSources(t *testing.T) {
 	}
 
 	for _, want := range []string{
-		"DemoPanel.vue: contains the demo sentinel bitgauge-demo",
+		"DemoPanel.vue: contains the demo sentinel DEMO_SCENARIOS",
+		"choice.ts: contains the demo sentinel bitgauge-demo",
 		"fixtures.ts: contains the demo sentinel Basement NAS",
 		"scenarios.ts: contains the demo sentinel DEMO_SCENARIOS",
 	} {

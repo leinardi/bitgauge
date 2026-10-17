@@ -36,10 +36,14 @@ const (
 
 // Tolerances is what every report says about how its runs are judged.
 const Tolerances = "testing.md section 5: each direction's headline against mean(iperf3 before, after), " +
-	"judged per run as pass, fail or inconclusive"
+	"and its loaded latency against the concurrent ICMP ping, judged per run as pass, fail or inconclusive"
 
-// LatencyRule is the verdict of the loaded-latency rule: v0.1 has no loaded latency to judge.
-const LatencyRule = "loaded latency not applicable (v0.1 measures none)"
+// LatencyRule is the loaded-latency rule of testing.md section 5 as every report states it
+// (latency.go).
+const LatencyRule = "each direction measured with websocket or http-h1-reserved: its increase over idle " +
+	"within ±20 % or 5 ms, whichever is larger, of the ICMP ping's increase from idle latency's window to the " +
+	"direction's after I_s; the grade on the letter of the larger ping increase its basis names, or the " +
+	"adjacent letter within that tolerance of a threshold; http-h2 and http-h3 recorded, not judged"
 
 const (
 	// stabilityBound is testing.md's 5 %: iperf3 before against after, and each against the
@@ -264,11 +268,15 @@ func (r *Run) judgeHeadlines(profile *Profile, reference *Throughput) {
 
 	var parts []string
 
-	for _, part := range []string{download, upload, LatencyRule} {
+	for _, part := range []string{download, upload} {
 		if part != "" {
 			parts = append(parts, part)
 		}
 	}
+
+	latency, latencyFindings := r.judgeLatency(profile)
+	parts = append(parts, latency...)
+	findings = append(findings, latencyFindings...)
 
 	r.Findings = findings
 	r.Status = StatusPass

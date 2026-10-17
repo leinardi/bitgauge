@@ -814,8 +814,12 @@ the Resource Timing `transferSize`, falling back to a +0.5 % header estimate
   `cache: 'no-store'`), timed from the Resource Timing entry as `responseStart − requestStart`,
   which excludes connection setup.
 - **Count.** The preset's ping count (§8.5), the warm-up ping included. Pings are sequential with
-  one outstanding: the next ping is sent when the previous one is answered or lost, and no sooner
-  than 100 ms after the previous send. The first ping on each path is the warm-up: its sample is
+  one outstanding: the next ping is sent when the previous one is answered or lost, no sooner than
+  100 ms after the previous send and no sooner than 50 ms after the previous answer. A ping sent in
+  the moment the previous echo arrives is held a few milliseconds by some browsers (about 4–5 ms
+  in Firefox and WebKit at a 300 ms RTT in the accuracy harness), which the loaded pings on their
+  own 300 ms tick (§11.1) never meet, so it would raise the idle median and understate the
+  increase over idle. The first ping on each path is the warm-up: its sample is
   discarded and it is counted neither in the statistics nor as loss, answered or not. On the HTTP
   path a ping answered with a status other than `204` is lost, and one whose Resource Timing entry
   is missing uses up its place in the count but gives no sample and is not counted as loss.
