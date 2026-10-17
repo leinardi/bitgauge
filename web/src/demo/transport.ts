@@ -17,6 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { Connections } from '@/demo/connections'
 import type { Link } from '@/demo/link'
 import { Body, Pacer, TICK_MS, type Transfer, wholeBytes } from '@/demo/pacer'
 import type { Direction } from '@/engine/messages'
@@ -27,7 +28,10 @@ import type { BrowserIdentity, Clock, DownloadResponse, Info, InfoResult, ProbeT
 // trip after it is sent; an upload's first byte reaches the server half a round trip after it is
 // sent, and its answer carries the telemetry of wire-protocol.md section 4, counted on the server's
 // own 100 ms grid from the paced arrivals. The WebSocket echo and the probes answer one jittered
-// round trip later, and GET /info answers with the fixture and the link's current epoch.
+// round trip later, and GET /info answers with the fixture and the link's current epoch. While a
+// direction has requests in flight, every round trip gains the link's queue delay; on a link with a
+// connection limit, as on HTTP/1.1, a request or probe beyond it waits, first come first served,
+// until a connection is free.
 
 const BUCKET_MS = 100
 /** The server grid's instant minus the client's: the two clocks share no origin. */
@@ -59,6 +63,7 @@ export class DemoTransport implements Transport {
   private readonly browser: BrowserIdentity
   private readonly pacer: Pacer
   private readonly closers = new Set<(code: number) => void>()
+  private readonly connections: Connections
 
   constructor(clock: Clock, link: Link, fixture: Info, browser: BrowserIdentity) {
     this.clock = clock
@@ -66,6 +71,7 @@ export class DemoTransport implements Transport {
     this.fixture = fixture
     this.browser = browser
     this.pacer = new Pacer(clock, link)
+    this.connections = new Connections(link.profile.connections)
     // A server that stops answering drops every connection at that instant. A restart closes the
     // WebSocket as the old process goes away, while its requests in flight drain, as a graceful
     // shutdown lets them.
@@ -88,9 +94,14 @@ export class DemoTransport implements Transport {
   }
 
   download(size: number, signal: AbortSignal): Promise<DownloadResponse> {
+    return this.connected(signal, (release) => this.sendDownload(size, signal, this.loading('download', signal, release)))
+  }
+
+  /** A download on its connection; `end` runs once it is over, at its last byte, failure or abort. */
+  private sendDownload(size: number, signal: AbortSignal, end: () => void): Promise<DownloadResponse> {
     const sentAt = this.clock.now()
-    const rtt = this.link.profile.rttMs
-    return this.answer(rtt, signal, this.failed(sentAt), () => {
+    const rtt = this.link.profile.rttMs + this.link.loadedMs(sentAt)
+    const answered = this.answer(rtt, signal, this.failed(sentAt), () => {
       const body = new Body()
       let endAt = sentAt + rtt
       const whole = wholeBytes()
@@ -109,9 +120,13 @@ export class DemoTransport implements Transport {
         },
         onDone: (at) => {
           endAt = at
+          end()
           body.end()
         },
-        onFail: (reason) => body.fail(reason),
+        onFail: (reason) => {
+          end()
+          body.fail(reason)
+        },
       })
       signal.addEventListener('abort', () => {
         this.pacer.remove(transfer)
@@ -124,14 +139,27 @@ export class DemoTransport implements Transport {
         timing: () => this.entry(sentAt, sentAt + rtt, endAt),
       }
     })
+    answered.catch(end)
+    return answered
   }
 
   upload(size: number, onProgress: (sentBytes: number, at: number) => void, signal: AbortSignal): Promise<UploadResponse> {
+    return this.connected(signal, (release) => {
+      const end = this.loading('upload', signal, release)
+      const answered = this.sendUpload(size, onProgress, signal)
+      void answered.then(end, end)
+      return answered
+    })
+  }
+
+  /** An upload on its connection: its first byte half a round trip after it is sent, its answer half a round trip after its last. */
+  private sendUpload(size: number, onProgress: (sentBytes: number, at: number) => void, signal: AbortSignal): Promise<UploadResponse> {
     const sentAt = this.clock.now()
-    const half = this.link.profile.rttMs / 2
+    const rtt = this.link.profile.rttMs + this.link.loadedMs(sentAt)
+    const half = rtt / 2
     if (signal.aborted || this.failed(sentAt)) {
       // A lost upload fails like an XMLHttpRequest's error, once the round trip has passed.
-      return this.answer(this.link.profile.rttMs, signal, true, () => {
+      return this.answer(rtt, signal, true, () => {
         throw networkError()
       })
     }
@@ -147,7 +175,8 @@ export class DemoTransport implements Transport {
           onProgress(Math.round(transfer.moved), this.stamp(to))
         },
         onDone: (at) => {
-          const timer = this.clock.setTimer(at + half - this.clock.now(), () => {
+          const back = (this.link.profile.rttMs + this.link.loadedMs(at)) / 2
+          const timer = this.clock.setTimer(at + back - this.clock.now(), () => {
             const responseAt = this.clock.now()
             if (!this.link.reachable(responseAt)) {
               reject(networkError())
@@ -181,7 +210,7 @@ export class DemoTransport implements Transport {
 
   ws(): Promise<WsEcho> {
     const { clock, link } = this
-    return this.later(link.roundTrip(), (resolve, reject) => {
+    return this.later(link.roundTrip(clock.now()), (resolve, reject) => {
       if (link.profile.webSocket === false || !link.reachable(clock.now())) {
         reject(new Error('the WebSocket did not open'))
         return
@@ -200,7 +229,7 @@ export class DemoTransport implements Transport {
             // The echo is stamped with its simulated arrival: a timer fires no earlier than the
             // browser's floor, a few milliseconds, which would otherwise lengthen a LAN round trip.
             const at = clock.now()
-            const rtt = link.roundTrip()
+            const rtt = link.roundTrip(at)
             clock.setTimer(rtt, () => (open ? onPong?.(seq, sentAt, this.stamp(at + rtt)) : undefined))
           }
         },
@@ -220,30 +249,66 @@ export class DemoTransport implements Transport {
 
   probe(path: string, signal?: AbortSignal): Promise<ProbeTiming> {
     const sentAt = this.clock.now()
-    const lost = this.failed(sentAt)
-    const rtt = this.link.roundTrip()
-    return this.later(rtt, (resolve, reject) => {
-      if (lost || signal?.aborted === true) {
-        reject(networkError())
-        return
-      }
-      // Stamped with the simulated answer, as the echo is.
-      const doneAt = this.stamp(sentAt + rtt)
-      const status = path.endsWith('/ping') ? 204 : path.endsWith('/small') ? 200 : 404
-      resolve({ status, sentAt, doneAt, timing: this.entry(sentAt, doneAt, doneAt) })
+    return this.connected(signal, (release) => {
+      // A probe that waited for a connection starts when it has one, as Resource Timing's
+      // requestStart does.
+      const requestStart = this.clock.now()
+      const lost = this.failed(requestStart)
+      const rtt = this.link.roundTrip(requestStart)
+      return new Promise<ProbeTiming>((resolve, reject) => {
+        const timer = this.clock.setTimer(rtt, () => {
+          release()
+          if (lost) {
+            reject(networkError())
+            return
+          }
+          // Stamped with the simulated answer, as the echo is.
+          const doneAt = this.stamp(requestStart + rtt)
+          const status = path.endsWith('/ping') ? 204 : path.endsWith('/small') ? 200 : 404
+          resolve({ status, sentAt, doneAt, timing: this.entry(requestStart, doneAt, doneAt) })
+        })
+        signal?.addEventListener('abort', () => {
+          this.clock.clearTimer(timer)
+          release()
+          reject(abortError())
+        })
+      })
     })
   }
 
   info(): Promise<InfoResult> {
-    return this.later(this.link.roundTrip(), (resolve, reject) => {
-      const now = this.clock.now()
-      if (!this.link.reachable(now)) {
-        reject(networkError())
-        return
+    return this.connected(undefined, (release) =>
+      this.later(this.link.roundTrip(this.clock.now()), (resolve, reject) => {
+        release()
+        const now = this.clock.now()
+        if (!this.link.reachable(now)) {
+          reject(networkError())
+          return
+        }
+        const server = { ...this.fixture.server, epoch: this.link.epochAt(now) }
+        resolve({ info: { ...this.fixture, server }, browser: this.browser })
+      }),
+    )
+  }
+
+  /** Sends a request on a connection, once one is free (demo/connections.ts). */
+  private connected<T>(signal: AbortSignal | undefined, send: (release: () => void) => Promise<T>): Promise<T> {
+    return this.connections.connected(signal, abortError, send)
+  }
+
+  /** A throughput request in flight on its connection from now; the end it returns runs once, on abort too. */
+  private loading(direction: Direction, signal: AbortSignal, release: () => void): () => void {
+    this.link.load(direction, this.clock.now())
+    let loaded = true
+    const end = (): void => {
+      if (loaded) {
+        loaded = false
+        this.link.unload(direction)
+        release()
       }
-      const server = { ...this.fixture.server, epoch: this.link.epochAt(now) }
-      resolve({ info: { ...this.fixture, server }, browser: this.browser })
-    })
+    }
+    signal.addEventListener('abort', end)
+    return end
   }
 
   /**

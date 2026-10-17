@@ -99,6 +99,27 @@ describe('the demo session', () => {
     expect(noticesOf(slower)).toContain('extended')
   })
 
+  it('grades the LAN B and the VPN D under load, the kit’s grades', async () => {
+    const lan = resultOf((await play('complete')).events)
+    expect(lan.download?.loadedLatency).toMatchObject({ source: 'websocket' })
+    expect(lan.bufferbloat).toMatchObject({ grade: 'B', basis: 'download+upload' })
+    const vpn = resultOf((await play('slowdone')).events)
+    expect(vpn.bufferbloat).toMatchObject({ grade: 'D', basis: 'download+upload' })
+  })
+
+  it('runs the ws-fallback state on HTTP/1.1, reserved: five streams and http-h1-reserved samples', async () => {
+    const { events, failures } = await play('ws-fallback', { hold: false })
+    const result = resultOf(events)
+    expect(failures).toEqual([])
+    expect(result.client.protocol).toBe('http/1.1')
+    expect(result.idle?.path).toBe('http')
+    for (const direction of [result.download, result.upload]) {
+      expect(direction).toMatchObject({ streams: 5, loadedLatency: { source: 'http-h1-reserved' } })
+    }
+    expect(result.notices).toEqual(expect.arrayContaining([{ code: 'websocket-unavailable' }, { code: 'probe-reservation', streams: 5 }]))
+    expect(result.bufferbloat?.grade).toBe('B')
+  })
+
   it('ends with server-restarted when the server restarts mid-run', async () => {
     const { events } = await play('error', { errorKind: 'restarted' })
     expect(errorOf(events)).toBe('server-restarted')

@@ -70,7 +70,9 @@ export const DEMO_SCENARIOS = {
   // kit's ping 14 of 20 at 1.4 s, and 12 of 20 at its early error at 1.2 s.
   latency: { link: 'lan', start: true, hold: at('idle', 1350) },
   download: { link: 'lan', start: true, hold: at('download', 7500) },
-  'ws-fallback': { link: 'lan', start: true, webSocket: false, hold: at('download', 7500) },
+  // The proxy that refuses the WebSocket speaks HTTP/1.1, so the HTTP latency fallback runs
+  // reserved, on five streams (measurement.md section 11.2).
+  'ws-fallback': { link: 'lan-http1', start: true, webSocket: false, hold: at('download', 7500) },
   upload: { link: 'lan', start: true, hold: at('upload', 12_000) },
   complete: { link: 'lan', start: true },
   error: { link: 'lan', start: true, fault: at('download', 6400) },
@@ -106,7 +108,6 @@ export function isScenarioName(name: string): name is DemoScenarioName {
   return Object.hasOwn(DEMO_SCENARIOS, name)
 }
 
-/** What the demo panel sends the demo Worker besides the engine's own commands: the next scenario. */
 /**
  * What the demo Worker sends the page when its script stops the run: press Stop, as the user would,
  * so the page's own stop path sends the engine's `stop`.
@@ -115,6 +116,7 @@ export interface DemoPressStop {
   type: 'demo-press-stop'
 }
 
+/** What the demo panel sends the demo Worker besides the engine's own commands: the next scenario. */
 export interface DemoCommand {
   type: 'demo'
   scenario: DemoScenarioName

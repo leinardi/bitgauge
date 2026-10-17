@@ -76,7 +76,7 @@ describe('the demo link', () => {
   it('draws the same round trips from the same seed', () => {
     const draws = (seed: number) => {
       const link = new Link(DEMO_LINKS.vpn, 'epoch-1', seed)
-      return Array.from({ length: 5 }, () => link.roundTrip())
+      return Array.from({ length: 5 }, () => link.roundTrip(0))
     }
     expect(draws(7)).toEqual(draws(7))
     expect(draws(7)).not.toEqual(draws(8))
@@ -100,6 +100,104 @@ describe('the demo link', () => {
     expect(link.epochAt(500)).not.toBe('epoch-1')
     expect(link.reachable(899)).toBe(true)
     expect(link.reachable(900)).toBe(false)
+  })
+})
+
+describe('the demo link under load', () => {
+  // The LAN without jitter, so a round trip is its RTT and the queue's delay.
+  const steady = { ...DEMO_LINKS.lan, jitterMs: 0 }
+
+  it('adds each direction’s queue delay as 1 − e^(−t/τ) while it has requests in flight, and none after', () => {
+    const link = new Link(steady, 'epoch-1')
+    expect(link.roundTrip(0)).toBeCloseTo(3.1)
+    link.load('upload', 1000)
+    link.load('upload', 1500)
+    expect(link.roundTrip(1000)).toBeCloseTo(3.1)
+    expect(link.roundTrip(2000)).toBeCloseTo(3.1 + 39 * (1 - Math.exp(-1)))
+    expect(link.roundTrip(11_000)).toBeCloseTo(3.1 + 39, 2)
+    link.unload('upload')
+    expect(link.loadedMs(11_000)).toBeCloseTo(39, 2)
+    link.unload('upload')
+    expect(link.roundTrip(11_000)).toBeCloseTo(3.1)
+    // The queue starts over with the next load.
+    link.load('download', 12_000)
+    expect(link.loadedMs(13_000)).toBeCloseTo(15 * (1 - Math.exp(-1)))
+  })
+
+  it('adds no delay on a link without a loaded profile', () => {
+    const link = new Link({ ...DEMO_LINKS.insufficient, jitterMs: 0 }, 'epoch-1')
+    link.load('download', 0)
+    expect(link.roundTrip(5000)).toBe(48)
+  })
+
+  it('delays the echo, the probes and the requests’ own round trips while a direction is loaded', async () => {
+    const clock = new FakeClock()
+    const demo = new DemoTransport(clock, new Link({ ...steady, loaded: { downloadMs: 100, uploadMs: 300, tauMs: 1 } }, 'epoch-1'), infoFor('lan'), BROWSER)
+    const opening = demo.ws()
+    await clock.advance(10)
+    const echo = await opening
+    const pongs: number[] = []
+    echo.onPong((_seq, sentAt, receivedAt) => pongs.push(Math.round(receivedAt - sentAt)))
+    const download = new AbortController()
+    const firstByte: number[] = []
+    void demo.download(10_000_000, download.signal).then(() => firstByte.push(clock.now()))
+    await clock.advance(50)
+    echo.ping(0, clock.now())
+    let probeRtt = 0
+    void demo.probe('/api/v1/ping').then((probe) => (probeRtt = Math.round((probe.timing?.responseStart ?? 0) - (probe.timing?.requestStart ?? 0))))
+    await clock.advance(200)
+    expect(pongs).toEqual([103])
+    expect(probeRtt).toBe(103)
+    // The download's own round trip began with the load, at t = 0: no delay yet.
+    expect(firstByte).toEqual([13.1])
+    download.abort()
+    echo.ping(1, clock.now())
+    await clock.advance(50)
+    expect(pongs).toEqual([103, 3])
+  })
+})
+
+describe('the HTTP/1.1 link', () => {
+  it('holds six connections: a request or probe beyond them waits, first come first served', async () => {
+    const clock = new FakeClock()
+    const demo = new DemoTransport(clock, new Link({ ...DEMO_LINKS['lan-http1'], jitterMs: 0 }, 'epoch-1'), infoFor('lan-http1'), BROWSER)
+    const downloads = Array.from({ length: 6 }, () => new AbortController())
+    downloads.forEach((controller) => void demo.download(100_000_000, controller.signal))
+    const answered: string[] = []
+    const starts: number[] = []
+    for (const name of ['first', 'second']) {
+      void demo.probe('/api/v1/ping').then((probe) => {
+        answered.push(name)
+        starts.push(probe.timing?.requestStart ?? 0)
+      })
+    }
+    await clock.advance(100)
+    expect(answered).toEqual([])
+    downloads[0]?.abort()
+    await clock.advance(50)
+    // The first probe takes the freed connection at 100; the second waits for the first's answer.
+    expect(answered).toEqual(['first', 'second'])
+    expect(starts[0]).toBe(100)
+    expect(starts[1]).toBeGreaterThan(103.1)
+  })
+
+  it('rejects a request aborted while it waits, and gives its place to the next', async () => {
+    const clock = new FakeClock()
+    const demo = new DemoTransport(clock, new Link({ ...DEMO_LINKS['lan-http1'], jitterMs: 0, connections: 1 }, 'epoch-1'), infoFor('lan-http1'), BROWSER)
+    const download = new AbortController()
+    void demo.download(100_000_000, download.signal)
+    const waiting = new AbortController()
+    const outcomes: string[] = []
+    demo.probe('/api/v1/ping', waiting.signal).then(
+      () => outcomes.push('answered'),
+      (error: unknown) => outcomes.push((error as DOMException).name),
+    )
+    void demo.probe('/api/v1/ping').then(() => outcomes.push('next'))
+    await clock.advance(10)
+    waiting.abort()
+    download.abort()
+    await clock.advance(50)
+    expect(outcomes).toEqual(['AbortError', 'next'])
   })
 })
 

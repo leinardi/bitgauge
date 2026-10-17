@@ -20,9 +20,17 @@
 import type { Direction } from '@/engine/messages'
 
 // The demo's simulated link (frontend.md section 9): a bottleneck per direction whose rate the
-// requests in flight share, a round-trip time with jitter, requests that are lost, and a server
-// that restarts or stops answering from a given instant. Every random draw comes from one seeded
-// generator, so a scenario plays the same way each time.
+// requests in flight share, a round-trip time with jitter, a queue that fills while a direction
+// has requests in flight, requests that are lost, and a server that restarts or stops answering
+// from a given instant. Every random draw comes from one seeded generator, so a scenario plays the
+// same way each time.
+
+/** A direction's queue under load: the delay each round trip gains, reached as 1 − e^(−t/τ). */
+export interface LoadedDelay {
+  downloadMs: number
+  uploadMs: number
+  tauMs: number
+}
 
 export interface LinkProfile {
   /** The bottleneck's goodput per direction, in bits per second. */
@@ -39,6 +47,10 @@ export interface LinkProfile {
   protocol: string | null
   /** Whether the WebSocket echo opens; false plays a proxy that refuses the upgrade. */
   webSocket?: boolean
+  /** The queue's delay while a direction has requests in flight; absent, a load adds none. */
+  loaded?: LoadedDelay
+  /** The browser's connections per origin, as on HTTP/1.1; absent, a request never waits for one. */
+  connections?: number
 }
 
 /** The change a link announces at its instant, so the transport can end what was in flight. */
@@ -66,6 +78,10 @@ export class Link {
   private failingFrom = Number.POSITIVE_INFINITY
   private unreachableFrom = Number.POSITIVE_INFINITY
   private readonly listeners = new Set<(event: LinkEvent, at: number) => void>()
+  /** The requests in flight per direction, which the transport reports. */
+  private readonly inFlight: Record<Direction, number> = { download: 0, upload: 0 }
+  /** When each direction's requests began to be in flight; null with none in flight. */
+  private readonly loadedSince: Record<Direction, number | null> = { download: null, upload: null }
 
   constructor(profile: LinkProfile, epoch: string, seed = 1) {
     this.profile = profile
@@ -85,10 +101,45 @@ export class Link {
     return bits === undefined ? Number.POSITIVE_INFINITY : bits / 8 / 1000
   }
 
-  /** One round trip, drawn around the profile's RTT. */
-  roundTrip(): number {
+  /** One round trip at `at`, drawn around the profile's RTT, with the delay the queue adds then. */
+  roundTrip(at: number): number {
     const spread = SPREAD_PER_JITTER * this.profile.jitterMs
-    return Math.max(MIN_RTT_MS, this.profile.rttMs + (this.random() * 2 - 1) * spread)
+    return Math.max(MIN_RTT_MS, this.profile.rttMs + (this.random() * 2 - 1) * spread) + this.loadedMs(at)
+  }
+
+  /**
+   * The delay the queue adds to a round trip at `at`: while a direction has requests in flight,
+   * its delay × (1 − e^(−t/τ)), t the time since they began to be; none without requests in flight.
+   */
+  loadedMs(at: number): number {
+    const loaded = this.profile.loaded
+    if (loaded === undefined) {
+      return 0
+    }
+    let delay = 0
+    for (const direction of ['download', 'upload'] as const) {
+      const since = this.loadedSince[direction]
+      if (since !== null) {
+        const full = direction === 'download' ? loaded.downloadMs : loaded.uploadMs
+        delay += full * (1 - Math.exp(-Math.max(0, at - since) / loaded.tauMs))
+      }
+    }
+    return delay
+  }
+
+  /** A request of `direction` is in flight from `at`. */
+  load(direction: Direction, at: number): void {
+    if (this.inFlight[direction]++ === 0) {
+      this.loadedSince[direction] = at
+    }
+  }
+
+  /** A request of `direction` ended; the queue empties with the last one. */
+  unload(direction: Direction): void {
+    this.inFlight[direction] = Math.max(0, this.inFlight[direction] - 1)
+    if (this.inFlight[direction] === 0) {
+      this.loadedSince[direction] = null
+    }
   }
 
   /** Whether a request sent at `at` is lost. */

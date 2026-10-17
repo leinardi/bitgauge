@@ -17,18 +17,25 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { LinkProfile } from '@/demo/link'
+import type { LinkProfile, LoadedDelay } from '@/demo/link'
 import type { Info } from '@/engine/types'
 
 // The demo's servers and links, named as in the design export's UI kit (ui_kits/app/TestScreen.jsx):
 // "Basement NAS" reached over the LAN at 612 Mbit/s down and 438 Mbit/s up with 3.1 ms of idle
-// latency over HTTP/2, or the same LAN over HTTP/1.1 for its upload-interrupted state; over a VPN
-// at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s link of its insufficient-data state. The GET /info answers are what the server would send to
-// that client with its default configuration (configuration.md section 1).
+// latency over HTTP/2, or the same LAN over HTTP/1.1 and its six connections for the
+// upload-interrupted and ws-fallback states; over a VPN at 640 kbit/s and 210 kbit/s with 48 ms;
+// and the 20 kbit/s link of its insufficient-data state. Under load the LAN's queue adds 15 ms on
+// download and 39 ms on upload within about a second, the VPN's 114 ms and 262 ms within about two:
+// the kit's loaded-latency numbers. The GET /info answers are what the server would send to that
+// client with its default configuration (configuration.md section 1).
 
 export type DemoLinkName = 'lan' | 'lan-http1' | 'vpn' | 'insufficient'
 
 const MIB = 1024 * 1024
+
+/** The kit's loaded latency over its idle latency: grade B on the LAN, D on the VPN. */
+const LAN_LOADED: LoadedDelay = { downloadMs: 15, uploadMs: 39, tauMs: 1000 }
+const VPN_LOADED: LoadedDelay = { downloadMs: 114, uploadMs: 262, tauMs: 2000 }
 
 function info(client: Info['client'], basePath: string): Info {
   return {
@@ -61,9 +68,11 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
     rttMs: 3.1,
     jitterMs: 0.8,
     protocol: 'h2',
+    loaded: LAN_LOADED,
   },
-  // The same LAN behind a proxy that speaks HTTP/1.1, where the first failed upload request ends
-  // the upload (measurement.md section 7.5).
+  // The same LAN behind a proxy that speaks HTTP/1.1, with the browser's six connections: the first
+  // failed upload request ends the upload (measurement.md section 7.5), and the HTTP latency
+  // fallback runs reserved (section 11.2).
   'lan-http1': {
     downloadBitsPerSecond: 612e6,
     uploadBitsPerSecond: 438e6,
@@ -71,6 +80,8 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
     rttMs: 3.1,
     jitterMs: 0.8,
     protocol: 'http/1.1',
+    loaded: LAN_LOADED,
+    connections: 6,
   },
   vpn: {
     downloadBitsPerSecond: 640e3,
@@ -78,6 +89,7 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
     rttMs: 48,
     jitterMs: 9.4,
     protocol: 'h2',
+    loaded: VPN_LOADED,
   },
   insufficient: {
     downloadBitsPerSecond: 20e3,

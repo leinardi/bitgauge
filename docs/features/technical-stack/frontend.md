@@ -243,14 +243,14 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   `Basement NAS` and `demo/worker`; a demo build fails it, which is its negative control.
 - **Builds.** `npm run dev:demo` (`make web-demo`) and `npm run build:demo` (`make web-build-demo`,
   into `web/dist-demo/`, which never ships) set the flag.
-- **Simulated link** (`demo/link.ts`, `demo/pacer.ts`, `demo/transport.ts`). Per direction, the
-  requests in flight share a bottleneck's goodput equally, each up to an optional per-request
-  ceiling, moved every 10 ms of demo time as counts, not bytes. When the Worker is busy and the
-  pacer fires late, a download's bytes for the longer stretch arrive as one chunk per 10 ms of it,
-  each stamped with its own simulated arrival, so they count in the 100 ms buckets they crossed and
-  not all in the latest. A download's first byte arrives one round trip after it is sent; an
-  upload's first byte reaches the server half a round trip after it is sent, and its answer, half a
-  round trip after its last byte, carries the telemetry of
+- **Simulated link** (`demo/link.ts`, `demo/pacer.ts`, `demo/connections.ts`, `demo/transport.ts`).
+  Per direction, the requests in flight share a bottleneck's goodput equally, each up to an
+  optional per-request ceiling, moved every 10 ms of demo time as counts, not bytes. When the
+  Worker is busy and the pacer fires late, a download's bytes for the longer stretch arrive as one
+  chunk per 10 ms of it, each stamped with its own simulated arrival, so they count in the 100 ms
+  buckets they crossed and not all in the latest. A download's first byte arrives one round trip
+  after it is sent; an upload's first byte reaches the server half a round trip after it is sent,
+  and its answer, half a round trip after its last byte, carries the telemetry of
   [../wire-protocol.md §4](../wire-protocol.md#4-upload-telemetry) counted on a 100 ms server grid
   whose origin differs from the client clock's. The WebSocket echo and the probes answer one
   jittered round trip later, stamped with that simulated arrival, since a timer fires no earlier
