@@ -43,3 +43,30 @@ test('reports a violation in the page and in the engine Worker', async ({ page, 
   // The control's own violations are the expected ones; the guard checks for any other.
   cspViolations.clear()
 })
+
+// vue-sonner v2 ships its CSS as a file and positions its toaster with CSSOM style bindings, both of
+// which style-src 'self' allows: the toaster's list is in place, styled by the stylesheet and
+// carrying its bound custom properties, and the guard sees no violation. No v0.1 action raises a
+// toast; the first one that does is shown by its own flow's spec.
+test('mounts the toaster with its stylesheet and style bindings under the policy', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('button', { name: 'Start test' })).toBeEnabled()
+  const toaster = page.locator('[data-sonner-toaster]')
+  await expect(toaster).toBeAttached()
+  await expect(page.getByRole('region', { name: /^Notifications/ })).toBeAttached()
+  const styled = await toaster.evaluate((element) => {
+    const style = getComputedStyle(element)
+    return { position: style.position, width: style.getPropertyValue('--width'), background: style.getPropertyValue('--normal-bg'), radius: style.getPropertyValue('--border-radius') }
+  })
+  // position: fixed comes from the stylesheet, --width from vue-sonner's binding, --normal-bg and
+  // --border-radius from the primitive's, resolved through the theme's variables.
+  expect(styled).toMatchObject({ position: 'fixed', width: '356px' })
+  expect(styled.background).not.toBe('')
+  expect(styled.radius).not.toBe('')
+  // vue-sonner's own theme rules follow the page's applied theme.
+  for (const colorScheme of ['dark', 'light'] as const) {
+    await page.emulateMedia({ colorScheme })
+    await expect(page.locator('html')).toHaveAttribute('data-theme', colorScheme)
+    await expect(toaster).toHaveAttribute('data-sonner-theme', colorScheme)
+  }
+})

@@ -17,17 +17,21 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
+import 'vue-sonner/style.css'
+
 import { defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 
 import BasePathError from '@/components/BasePathError.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import TabBar from '@/components/layout/TabBar.vue'
+import { Toaster } from '@/components/ui/sonner'
 import { useInfo } from '@/composables/useInfo'
 import { useTheme } from '@/composables/useTheme'
 
 // The application frame: the skip link to the page's main content (ui/i18n-a11y.md section 2.3), the
-// header on every screen, the route's page, and the tab bar on narrow screens (ui/README.md). A
+// header on every screen, the route's page, the tab bar on narrow screens (ui/README.md) and the
+// toaster for the toasts an action confirms with (vue-sonner through the vendored primitive). A
 // base-path mismatch replaces all of it with its error screen (edge-cases.md section 20). The
 // page's own path, as it was before the router started, is checked before anything renders, so a
 // page that fails it starts nothing. A demo build adds its panel over every screen (frontend.md
@@ -35,7 +39,8 @@ import { useTheme } from '@/composables/useTheme'
 
 const props = defineProps<{ pagePath: string }>()
 
-useTheme()
+// The toaster follows the applied theme, so vue-sonner's own theme rules match the page's.
+const { applied } = useTheme()
 const router = useRouter()
 const { load, mismatch } = useInfo()
 void load(props.pagePath, (path) => router.resolve(path).matched.length > 0)
@@ -59,6 +64,10 @@ const DemoPanel = import.meta.env.VITE_DEMO ? defineAsyncComponent(() => import(
     <AppHeader />
     <RouterView />
     <TabBar />
+    <Toaster
+      :theme="applied"
+      :container-aria-label="$t('a11y.notifications')"
+    />
   </div>
   <component
     :is="DemoPanel"

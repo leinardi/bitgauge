@@ -1,6 +1,7 @@
 {
   "a11y": {
     "skip": "Skip to main content",
+    "notifications": "Notifications",
     "lessThan": "less than {value}",
     "live": {
       "phase": {

@@ -119,4 +119,11 @@
   --container-measure-sm: var(--layout-measure-sm);
   --container-measure-md: var(--layout-measure-md);
 }
+/* The vendored sonner primitive hands vue-sonner shadcn's unprefixed variables, which the inline
+   theme above does not emit: mapped as it maps popover and border. */
+:root {
+  --popover: var(--surface-2);
+  --popover-foreground: var(--fg);
+  --border: var(--border-subtle);
+}
 /* --fg-faint is non-text only: no text-faint utility. */
