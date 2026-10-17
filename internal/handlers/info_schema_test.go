@@ -44,6 +44,9 @@ type schema struct {
 	AdditionalProperties any                `yaml:"additionalProperties"`
 	Ref                  string             `yaml:"$ref"`
 	Required             []string           `yaml:"required"`
+	Enum                 []any              `yaml:"enum"`
+	MinLength            int                `yaml:"minLength"`
+	MaxLength            int                `yaml:"maxLength"`
 }
 
 // contractSchemas reads components.schemas from api/openapi.yaml.
@@ -160,6 +163,12 @@ func TestInfoMatchesTheContract(t *testing.T) {
 	}
 
 	deps := testDeps()
+	deps.Labeler = clientip.NewLabeler([]clientip.Rule{
+		{
+			Prefix: netip.MustParsePrefix("203.0.113.0/24"),
+			Label:  clientip.Label(strings.Repeat("é", 64)),
+		},
+	})
 	defaults := &deps.Config.TestDefaults
 	variants := []func(){
 		func() {},
@@ -183,10 +192,21 @@ func TestInfoMatchesTheContract(t *testing.T) {
 				clientip.WithAddr(request.Context(), netip.MustParseAddr(client)))
 
 			recorder := httptest.NewRecorder()
-			Info(deps.Config, deps.Build, deps.Epoch)(recorder, request)
+			Info(deps.Config, deps.Build, deps.Epoch, deps.Labeler)(recorder, request)
 
 			conforms(t, schemas, schemas["Info"], decode(t, recorder.Body.Bytes()), "Info")
 		}
+	}
+}
+
+// TestSuggestedLabelContract: the label is any server.labels label, 1 to 64 characters, or
+// null, so the contract lists no fixed set (wire-protocol.md section 5).
+func TestSuggestedLabelContract(t *testing.T) {
+	t.Parallel()
+
+	label := contractSchemas(t)["InfoClient"].Properties["suggestedLabel"]
+	if label == nil || label.Enum != nil || label.MinLength != 1 || label.MaxLength != 64 {
+		t.Fatalf("suggestedLabel = %+v, want a 1 to 64 character string without an enum", label)
 	}
 }
 

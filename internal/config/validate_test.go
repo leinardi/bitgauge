@@ -383,6 +383,66 @@ func TestRulesOfSection4(t *testing.T) {
 			file:     "log:\n  level: verbose\n",
 			wantKeys: []string{"log.level"},
 		},
+		// server.labels entries.
+		{
+			name:     "label CIDR with host bits",
+			file:     "server:\n  labels:\n    - {cidr: 10.0.0.1/8, label: LAN}\n",
+			wantKeys: []string{"server.labels[0].cidr"},
+		},
+		{
+			name:     "IPv4-mapped label CIDR",
+			file:     "server:\n  labels:\n    - {cidr: \"::ffff:10.8.0.0/120\", label: VPN}\n",
+			wantKeys: []string{"server.labels[0].cidr"},
+		},
+		{
+			name: "duplicate label CIDR",
+			file: "server:\n  labels:\n    - {cidr: 10.8.0.0/24, label: VPN}\n" +
+				"    - {cidr: 10.8.0.0/24, label: WireGuard}\n",
+			wantKeys: []string{"server.labels[1].cidr"},
+		},
+		{
+			name: "label of 65 characters",
+			file: "server:\n  labels:\n    - {cidr: 10.8.0.0/24, label: " + strings.Repeat(
+				"v",
+				65,
+			) + "}\n",
+			wantKeys: []string{"server.labels[0].label"},
+		},
+		{
+			name:     "empty label",
+			file:     "server:\n  labels:\n    - {cidr: 10.8.0.0/24, label: \"\"}\n",
+			wantKeys: []string{"server.labels[0].label"},
+		},
+		{
+			name:     "label entry without its CIDR",
+			file:     "server:\n  labels:\n    - {label: VPN}\n",
+			wantKeys: []string{"server.labels[0].cidr"},
+		},
+		{
+			name:     "label CIDR that does not parse",
+			file:     "server:\n  labels:\n    - {cidr: 10.8.0.0, label: VPN}\n",
+			wantKeys: []string{"server.labels[0].cidr"},
+		},
+		{
+			name:     "label entry with an unknown key",
+			file:     "server:\n  labels:\n    - {cidr: 10.8.0.0/24, lable: VPN}\n",
+			wantKeys: []string{"server.labels[0].lable", "server.labels[0].label"},
+		},
+		{
+			name:     "label entry written as text in the file",
+			file:     "server:\n  labels: [\"10.8.0.0/24=VPN\"]\n",
+			wantKeys: []string{"server.labels[0]"},
+		},
+		{
+			name:     "environment label item without =",
+			environ:  []string{"BITGAUGE_SERVER__LABELS=10.8.0.0/24=VPN,10.9.0.0/24"},
+			wantKeys: []string{"server.labels[1]"},
+		},
+		{
+			name:     "environment label item with host bits",
+			environ:  []string{"BITGAUGE_SERVER__LABELS=10.8.0.1/24=VPN"},
+			wantKeys: []string{"server.labels[0].cidr"},
+		},
 		{
 			name:     "relative metrics path",
 			file:     "metrics:\n  path: metrics\n",
@@ -472,7 +532,8 @@ func TestRulesOfSection4(t *testing.T) {
 			for _, problem := range problems {
 				if problem.Rule == "" ||
 					problem.Value == "" && problem.Key != "server.base_path" && problem.Key != "server.display_name" &&
-						!strings.HasPrefix(problem.Key, "server.cors") {
+						!strings.HasPrefix(problem.Key, "server.cors") &&
+						!strings.HasPrefix(problem.Key, "server.labels") {
 					t.Fatalf("problem without a value or a rule: %+v", problem)
 				}
 			}
@@ -515,6 +576,10 @@ server:
   display_name: ` + strings.Repeat("é", 64) + `
   public_url: http://speed.example.lan:8443
   trusted_proxies: [172.20.0.2/32, "fd00::2/128"]
+  labels:
+    - {cidr: 10.0.0.0/8, label: LAN}
+    - {cidr: 10.8.0.0/24, label: ` + strings.Repeat("é", 64) + `}
+    - {cidr: "fd7a:115c:a1e0::/48", label: Tailscale}
   cors: {allowed_origins: ["https://a.lan", "http://[::1]:5173"]}
 limits:
   max_download_bytes: 4GiB

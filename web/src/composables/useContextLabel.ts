@@ -22,8 +22,8 @@ import { computed, type ComputedRef, shallowRef } from 'vue'
 import type { Info } from '@/api/info'
 
 // The context label of the connection info (ui/screens.md section 1, edge-cases.md section 16): the
-// server's suggestion from the address class until the user picks LAN, VPN, none or a custom
-// label. The run takes it as its context label; nothing of it is stored in the browser.
+// server's suggestion, from server.labels or the address class, until the user picks LAN, VPN,
+// none or a custom label. The run takes it as its context label; nothing of it is stored in the browser.
 
 export type LabelChoice = 'suggested' | 'LAN' | 'VPN' | 'none' | 'custom'
 

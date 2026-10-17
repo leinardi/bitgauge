@@ -457,9 +457,12 @@ components:
           type: string
           enum: [loopback, private, link-local, ula, cgnat, public]
         suggestedLabel:
-          description: VPN, LAN, or null for a public address.
+          description: >-
+            The label of the longest server.labels prefix that contains the client IP; without
+            one, VPN or LAN by the address class, or null for a public address.
           type: [string, "null"]
-          enum: [VPN, LAN, null]
+          minLength: 1
+          maxLength: 64
     InfoLimits:
       type: object
       additionalProperties: false

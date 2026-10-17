@@ -26,7 +26,10 @@ import (
 	"github.com/knadh/koanf/v2"
 )
 
-const trustedProxiesKey = "server.trusted_proxies"
+const (
+	trustedProxiesKey = "server.trusted_proxies"
+	labelsKey         = "server.labels"
+)
 
 // Effective returns the configuration as one log attribute per key, sorted by key, for the
 // startup line at info (configuration-security.md section 6). Nothing in it is secret.
@@ -43,15 +46,29 @@ func Effective(cfg *Config) []slog.Attr {
 
 	for _, key := range keys {
 		value := flat.Get(key)
-		// The structs provider cannot see inside netip.Prefix, so the list is taken as is.
-		if key == trustedProxiesKey {
+		// The structs provider cannot see inside netip.Prefix, so these lists are taken from
+		// the struct: the proxies as they are, the labels as cidr=label, as the environment
+		// writes them.
+		switch key {
+		case trustedProxiesKey:
 			value = cfg.Server.TrustedProxies
+		case labelsKey:
+			value = labelStrings(cfg.Server.Labels)
 		}
 
 		attrs = append(attrs, slog.Any(key, value))
 	}
 
 	return attrs
+}
+
+func labelStrings(rules []LabelRule) []string {
+	texts := make([]string, 0, len(rules))
+	for _, rule := range rules {
+		texts = append(texts, rule.CIDR.String()+labelSeparator+rule.Label)
+	}
+
+	return texts
 }
 
 // MarshalText writes the address as host:port, so that a log line shows it as configured.

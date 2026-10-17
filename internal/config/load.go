@@ -50,6 +50,8 @@ const (
 	keyDelimiter = "."
 	// listSeparator splits a list value given in one environment variable.
 	listSeparator = ","
+	// labelSeparator splits a server.labels item of the environment into its cidr and label.
+	labelSeparator = "="
 	// structTag names the tag that maps Config fields to key paths.
 	structTag = "koanf"
 )
@@ -69,6 +71,10 @@ var (
 	// ErrText is wrapped by a structured value given for a key that takes text, such as a map
 	// for server.listen.
 	ErrText = errors.New("expected text")
+	// ErrLabelEntry is a server.labels entry given as text: in the file an entry is a {cidr,
+	// label} map, and in the environment an item without "=" has no label.
+	ErrLabelEntry = errors.New(
+		"must be a {cidr, label} entry; in the environment each item is cidr=label")
 )
 
 // Loaded is the decoded configuration and what loading it noticed.
@@ -302,7 +308,9 @@ func nullKeys(value any, path string) []Problem {
 }
 
 // envTransform maps BITGAUGE_SERVER__TRUSTED_PROXIES to server.trusted_proxies, splits the
-// value of a list key on commas, and records variables without "__" as ignored.
+// value of a list key on commas, and records variables without "__" as ignored. A server.labels
+// item is split at its first "=" into a {cidr, label} entry; an item without "=" stays text,
+// which decoding refuses (ErrLabelEntry), so it is a problem and never dropped.
 func envTransform(ignored *[]string) func(name, value string) (string, any) {
 	lists := listKeys(reflect.TypeFor[Config](), "")
 
@@ -315,7 +323,9 @@ func envTransform(ignored *[]string) func(name, value string) (string, any) {
 		}
 
 		key := strings.ToLower(strings.ReplaceAll(rest, envNesting, keyDelimiter))
-		if !lists[key] {
+
+		element, isList := lists[key]
+		if !isList {
 			return key, value
 		}
 
@@ -328,14 +338,39 @@ func envTransform(ignored *[]string) func(name, value string) (string, any) {
 			items[index] = strings.TrimSpace(items[index])
 		}
 
+		if element == labelRuleType {
+			return key, labelEntries(items)
+		}
+
 		return key, items
 	}
 }
 
-// listKeys returns the key paths of every slice-typed field, so that the comma rule follows the
-// struct instead of a hand-kept list.
-func listKeys(structType reflect.Type, parent string) map[string]bool {
-	keys := map[string]bool{}
+// labelEntries turns the environment's cidr=label items into the entries a file would hold.
+func labelEntries(items []string) []any {
+	entries := make([]any, 0, len(items))
+
+	for _, item := range items {
+		cidr, label, found := strings.Cut(item, labelSeparator)
+		if !found {
+			entries = append(entries, item)
+
+			continue
+		}
+
+		entries = append(entries, map[string]any{
+			"cidr":  strings.TrimSpace(cidr),
+			"label": strings.TrimSpace(label),
+		})
+	}
+
+	return entries
+}
+
+// listKeys returns the key paths of every slice-typed field with its element type, so that the
+// comma rule follows the struct instead of a hand-kept list.
+func listKeys(structType reflect.Type, parent string) map[string]reflect.Type {
+	keys := map[string]reflect.Type{}
 
 	for field := range structType.Fields() {
 		name, _, _ := strings.Cut(field.Tag.Get(structTag), ",")
@@ -349,13 +384,11 @@ func listKeys(structType reflect.Type, parent string) map[string]bool {
 		}
 
 		if field.Type.Kind() == reflect.Slice {
-			keys[path] = true
+			keys[path] = field.Type.Elem()
 		}
 
 		if field.Type.Kind() == reflect.Struct {
-			for nested := range listKeys(field.Type, path) {
-				keys[nested] = true
-			}
+			maps.Copy(keys, listKeys(field.Type, path))
 		}
 	}
 
@@ -363,6 +396,7 @@ func listKeys(structType reflect.Type, parent string) map[string]bool {
 }
 
 var (
+	labelRuleType       = reflect.TypeFor[LabelRule]()
 	prefixType          = reflect.TypeFor[netip.Prefix]()
 	sizeType            = reflect.TypeFor[Size]()
 	textUnmarshalerType = reflect.TypeFor[encoding.TextUnmarshaler]()
@@ -384,6 +418,10 @@ func decodeHook(source, target reflect.Type, data any) (any, error) {
 	text, isText := data.(string)
 	if !isText {
 		return convertNonText(data, target)
+	}
+
+	if target == labelRuleType {
+		return nil, fmt.Errorf("%w: %q", ErrLabelEntry, text)
 	}
 
 	if target == prefixType {

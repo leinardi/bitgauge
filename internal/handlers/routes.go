@@ -26,6 +26,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/leinardi/bitgauge/internal/buildinfo"
+	"github.com/leinardi/bitgauge/internal/clientip"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/metrics"
 )
@@ -35,7 +36,8 @@ const Prefix = "/api/v1"
 
 // Deps are what the native handlers are built from, created once at startup (backend.md
 // section 5): the validated configuration, the build information, the shared random buffer,
-// the epoch, the server grid shifted by the epoch's offset, the WebSocket echo and the metrics.
+// the epoch, the server grid shifted by the epoch's offset, the WebSocket echo, the metrics and
+// the labeler.
 type Deps struct {
 	Config     *config.Config
 	Buffer     *Buffer
@@ -48,6 +50,9 @@ type Deps struct {
 	Epoch Epoch
 	// Metrics counts the transfers; nil counts nothing.
 	Metrics *metrics.Metrics
+	// Labeler suggests the client's context label from server.labels; nil leaves the
+	// address-class rule alone.
+	Labeler *clientip.Labeler
 }
 
 // routeTable registers routes and remembers each path's methods, so the 405 answer can name
@@ -91,7 +96,7 @@ func Routes(deps *Deps) *chi.Mux {
 	table.handle("/ping", Ping, http.MethodGet, http.MethodHead)
 	table.handle("/small", Small, http.MethodGet)
 	table.handle("/ws", deps.WebSockets.ServeHTTP, http.MethodGet)
-	table.handle("/info", Info(deps.Config, deps.Build, deps.Epoch), http.MethodGet)
+	table.handle("/info", Info(deps.Config, deps.Build, deps.Epoch, deps.Labeler), http.MethodGet)
 
 	table.router.NotFound(func(writer http.ResponseWriter, _ *http.Request) {
 		WriteError(writer, http.StatusNotFound, CodeNotFound, "not found", nil)

@@ -168,6 +168,16 @@ func usage(out io.Writer) {
 	)
 }
 
+// labelRules hands server.labels to clientip, which does not import the configuration.
+func labelRules(entries []config.LabelRule) []clientip.Rule {
+	rules := make([]clientip.Rule, 0, len(entries))
+	for _, entry := range entries {
+		rules = append(rules, clientip.Rule{Prefix: entry.CIDR, Label: clientip.Label(entry.Label)})
+	}
+
+	return rules
+}
+
 // serve starts the server in the order of backend.md section 5: the configuration is valid by
 // now, route collisions included; then the random buffer, the epoch and the grid, the limiter
 // and the metrics, index.html, the router, and the listener.
@@ -231,6 +241,7 @@ func serve(
 			Build:      buildinfo.Info(),
 			Epoch:      epoch,
 			Metrics:    meter,
+			Labeler:    clientip.NewLabeler(labelRules(cfg.Server.Labels)),
 		},
 		Limiter: limiter,
 		Metrics: meter.Handler(log),

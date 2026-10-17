@@ -25,6 +25,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -566,6 +567,20 @@ func TestValueSyntax(t *testing.T) {
 			"BITGAUGE_TEST_DEFAULTS__WARMUP=auto",
 			func(cfg Config) bool { return cfg.TestDefaults.Warmup == Warmup{Auto: true} },
 		},
+		{
+			"labels split at the first =",
+			"BITGAUGE_SERVER__LABELS=10.8.0.0/24=VPN, fd7a:115c:a1e0::/48 = Tailscale ,10.9.0.0/24=a=b",
+			func(cfg Config) bool {
+				return slices.Equal(cfg.Server.Labels, []LabelRule{
+					{CIDR: netip.MustParsePrefix("10.8.0.0/24"), Label: "VPN"},
+					{CIDR: netip.MustParsePrefix("fd7a:115c:a1e0::/48"), Label: "Tailscale"},
+					{CIDR: netip.MustParsePrefix("10.9.0.0/24"), Label: "a=b"},
+				})
+			},
+		},
+		{"no labels", "BITGAUGE_SERVER__LABELS=", func(cfg Config) bool {
+			return cfg.Server.Labels != nil && len(cfg.Server.Labels) == 0
+		}},
 		{"listen with host", "BITGAUGE_SERVER__LISTEN=127.0.0.1:18080", func(cfg Config) bool {
 			return cfg.Server.Listen == Listen{Host: "127.0.0.1", Port: 18080}
 		}},

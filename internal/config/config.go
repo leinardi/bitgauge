@@ -76,7 +76,15 @@ type Server struct {
 	DisplayName    string         `koanf:"display_name"`
 	PublicURL      Origin         `koanf:"public_url"`
 	TrustedProxies []netip.Prefix `koanf:"trusted_proxies"`
+	Labels         []LabelRule    `koanf:"labels"`
 	CORS           CORS           `koanf:"cors"`
+}
+
+// LabelRule is one server.labels entry: client addresses in CIDR get Label as their suggested
+// context label (wire-protocol.md section 5).
+type LabelRule struct {
+	CIDR  netip.Prefix `koanf:"cidr"`
+	Label string       `koanf:"label"`
 }
 
 // CORS holds the server.cors.* keys.
@@ -162,6 +170,7 @@ func Defaults() Config {
 			BasePath:       defaultBasePath,
 			DisplayName:    defaultDisplayName,
 			TrustedProxies: []netip.Prefix{},
+			Labels:         []LabelRule{},
 			CORS:           CORS{AllowedOrigins: []Origin{}},
 		},
 		Limits: Limits{

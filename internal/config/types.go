@@ -53,7 +53,8 @@ var (
 	ErrListen = errors.New("invalid listen address")
 	// ErrOrigin is wrapped by an origin that does not parse as a URL.
 	ErrOrigin = errors.New("invalid origin")
-	// ErrPrefix is wrapped by a trusted proxy that is not a CIDR with its prefix length.
+	// ErrPrefix is wrapped by a trusted proxy or a server.labels cidr that is not a CIDR with
+	// its prefix length.
 	ErrPrefix = errors.New("invalid CIDR")
 )
 

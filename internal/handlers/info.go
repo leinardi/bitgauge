@@ -108,7 +108,12 @@ type infoCompat struct {
 // Info answers GET /api/v1/info with the response of wire-protocol.md section 5, built per
 // request from the configuration, the build information, the epoch and the client IP derived
 // by the clientip middleware; nothing is cached per client.
-func Info(cfg *config.Config, build buildinfo.Build, epoch Epoch) http.HandlerFunc {
+func Info(
+	cfg *config.Config,
+	build buildinfo.Build,
+	epoch Epoch,
+	labeler *clientip.Labeler,
+) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		addr, derived := clientip.FromContext(request.Context())
 		if !derived {
@@ -133,7 +138,7 @@ func Info(cfg *config.Config, build buildinfo.Build, epoch Epoch) http.HandlerFu
 				Epoch:     epoch.ID,
 				BasePath:  cfg.Server.BasePath,
 			},
-			Client:   newInfoClient(addr),
+			Client:   newInfoClient(addr, labeler),
 			Limits:   newInfoLimits(&cfg.Limits),
 			Defaults: newInfoDefaults(&cfg.TestDefaults),
 			// No compatibility layer ships in this release: configuration validation rejects
@@ -157,14 +162,16 @@ func Info(cfg *config.Config, build buildinfo.Build, epoch Epoch) http.HandlerFu
 	}
 }
 
-func newInfoClient(addr netip.Addr) infoClient {
+// newInfoClient describes the client: its suggested label is labeler's, from server.labels and
+// then the address class.
+func newInfoClient(addr netip.Addr, labeler *clientip.Labeler) infoClient {
 	client := infoClient{
 		IP:           addr.String(),
 		IPVersion:    clientip.Version(addr),
 		AddressClass: string(clientip.AddressClass(addr)),
 	}
 
-	if label := clientip.SuggestedLabel(addr); label != clientip.LabelNone {
+	if label := labeler.Suggest(addr); label != clientip.LabelNone {
 		value := string(label)
 		client.SuggestedLabel = &value
 	}

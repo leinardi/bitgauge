@@ -60,6 +60,23 @@ describe('the context label', () => {
     expect(wrapper.get('[data-testid="connection-ip"]').text()).toMatch(new RegExp(`${ip.replace(/\./g, '\\.')}\\s*IPv${ipVersion}`))
   })
 
+  it('shows an operator label from server.labels as the server wrote it', async () => {
+    const info = infoFixture({ client: { addressClass: 'private', ip: '10.8.0.7', ipVersion: 4, suggestedLabel: 'WireGuard' } })
+    const wrapper = await mountApp(ConnectionStrip, '/', { props: { info }, attachTo: document.body })
+    expect(wrapper.get('[data-testid="context-label"]').text()).toBe('WireGuard')
+    expect(wrapper.get('[data-testid="context-label"]').attributes('aria-label')).toBe('Context: WireGuard, suggested')
+    expect(useContextLabel({ value: 'WireGuard' } as never).label.value).toBe('WireGuard')
+    // The custom field opens only when the user picks Custom.
+    expect(wrapper.find('input').exists()).toBe(false)
+
+    const items = await openMenu(wrapper)
+    expect(items.map((item) => item.getAttribute('aria-checked'))).toEqual(['false', 'false', 'false', 'true'])
+    items[0]?.click()
+    await flushPromises()
+    expect(wrapper.get('[data-testid="context-label"]').text()).toBe('LAN')
+    wrapper.unmount()
+  })
+
   it('takes the user choice over the suggestion, including a custom label', async () => {
     const wrapper = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture() }, attachTo: document.body })
     const { label } = useContextLabel({ value: 'LAN' } as never)
@@ -83,6 +100,7 @@ describe('the context label', () => {
   it.each([
     ['suggested', '', 'VPN', 'VPN'],
     ['suggested', '', null, null],
+    ['suggested', '', 'WireGuard', 'WireGuard'],
     ['LAN', '', 'VPN', 'LAN'],
     ['none', '', 'LAN', null],
     ['custom', ' Office ', 'LAN', 'Office'],

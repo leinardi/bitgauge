@@ -51,12 +51,29 @@ const options = computed(() => [
   { value: 'custom' as LabelChoice, label: t('test.connection.custom'), icon: Pencil },
 ])
 
-// The suggestion is one of the fixed choices, or none for a public address.
-const shown = computed<LabelChoice>(() => (choice.value === 'suggested' ? (suggested.value ?? 'none') : choice.value))
+// The suggestion is LAN, VPN, an operator's label from server.labels, or none for a public
+// address. An operator's label is a label of the server's own: the chip shows it as written, on
+// the custom choice.
+const operatorLabel = computed(() => {
+  const label = suggested.value
+  return choice.value === 'suggested' && typeof label === 'string' && label !== 'LAN' && label !== 'VPN' ? label : null
+})
+const shown = computed<LabelChoice>(() => {
+  if (choice.value !== 'suggested') {
+    return choice.value
+  }
+  if (operatorLabel.value !== null) {
+    return 'custom'
+  }
+  return suggested.value === 'LAN' || suggested.value === 'VPN' ? suggested.value : 'none'
+})
 const current = computed(() => options.value.find((option) => option.value === shown.value) ?? options.value[2])
 const chipText = computed(() => {
   if (props.info === null && choice.value === 'suggested') {
     return t('test.connection.unknown')
+  }
+  if (operatorLabel.value !== null) {
+    return operatorLabel.value
   }
   if (shown.value === 'custom') {
     return custom.value.trim() === '' ? t('test.connection.customEmpty') : custom.value.trim()

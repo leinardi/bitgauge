@@ -204,11 +204,8 @@ export interface components {
             ipVersion: 4 | 6;
             /** @enum {string} */
             addressClass: "loopback" | "private" | "link-local" | "ula" | "cgnat" | "public";
-            /**
-             * @description VPN, LAN, or null for a public address.
-             * @enum {string|null}
-             */
-            suggestedLabel: "VPN" | "LAN" | null;
+            /** @description The label of the longest server.labels prefix that contains the client IP; without one, VPN or LAN by the address class, or null for a public address. */
+            suggestedLabel: string | null;
         };
         InfoLimits: {
             /** Format: int64 */

@@ -33,6 +33,10 @@ func TestEffective(t *testing.T) {
 
 	cfg := Defaults()
 	cfg.Server.TrustedProxies = []netip.Prefix{netip.MustParsePrefix("172.20.0.2/32")}
+	cfg.Server.Labels = []LabelRule{
+		{CIDR: netip.MustParsePrefix("10.8.0.0/24"), Label: "VPN"},
+		{CIDR: netip.MustParsePrefix("fd7a:115c:a1e0::/48"), Label: "Tailscale"},
+	}
 	cfg.TestDefaults.Download.MaxDuration = OptionalDuration{Duration: 30 * time.Second, Set: true}
 	cfg.TestDefaults.Warmup = Warmup{Duration: 3 * time.Second}
 
@@ -48,7 +52,8 @@ func TestEffective(t *testing.T) {
 
 		line := out.String()
 		for _, want := range []string{
-			"server.listen", ":8080", "172.20.0.2/32", "30s", "3s",
+			"server.listen", ":8080", "172.20.0.2/32", "30s", "3s", "server.labels",
+			"10.8.0.0/24=VPN", "fd7a:115c:a1e0::/48=Tailscale",
 			"limits.max_download_bytes", "test_defaults.download.min_duration", "metrics.path",
 		} {
 			if !strings.Contains(line, want) {
@@ -64,7 +69,8 @@ func TestEffective(t *testing.T) {
 	slog.New(slog.NewTextHandler(&out, nil)).
 		LogAttrs(t.Context(), slog.LevelInfo, "c", Effective(&auto)...)
 
-	if !strings.Contains(out.String(), "test_defaults.warmup=auto") {
-		t.Fatalf("line %q lacks the automatic warm-up", out.String())
+	if !strings.Contains(out.String(), "test_defaults.warmup=auto") ||
+		!strings.Contains(out.String(), "server.labels=[]") {
+		t.Fatalf("line %q lacks the automatic warm-up or the empty labels", out.String())
 	}
 }

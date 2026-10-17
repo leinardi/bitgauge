@@ -46,7 +46,7 @@ func fetchInfo(
 		clientip.WithAddr(request.Context(), netip.MustParseAddr(client)))
 
 	recorder := httptest.NewRecorder()
-	Info(deps.Config, deps.Build, deps.Epoch)(recorder, request)
+	Info(deps.Config, deps.Build, deps.Epoch, deps.Labeler)(recorder, request)
 
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", recorder.Code)
@@ -155,6 +155,32 @@ func TestInfoAddressClassAndLabel(t *testing.T) {
 	}
 }
 
+func TestInfoLabelsFromServerLabels(t *testing.T) {
+	t.Parallel()
+
+	deps := testDeps()
+	deps.Labeler = clientip.NewLabeler([]clientip.Rule{
+		{Prefix: netip.MustParsePrefix("10.0.0.0/8"), Label: "LAN"},
+		{Prefix: netip.MustParsePrefix("10.8.0.0/24"), Label: "VPN"},
+		{Prefix: netip.MustParsePrefix("203.0.113.0/24"), Label: "Branch office"},
+	})
+
+	for ip, want := range map[string]any{
+		"10.8.0.7":     "VPN",
+		"10.9.0.7":     "LAN",
+		"203.0.113.9":  "Branch office",
+		"198.51.100.1": nil,
+		"100.64.0.1":   "VPN",
+	} {
+		got, _ := fetchInfo(t, deps, ip)
+
+		client, _ := got["client"].(map[string]any)
+		if client["suggestedLabel"] != want {
+			t.Errorf("%s: suggestedLabel = %v, want %v", ip, client["suggestedLabel"], want)
+		}
+	}
+}
+
 func TestInfoDefaultsPerPreset(t *testing.T) {
 	t.Parallel()
 
@@ -227,7 +253,7 @@ func TestInfoWithoutClientAddressIs500(t *testing.T) {
 
 	deps := testDeps()
 	recorder := httptest.NewRecorder()
-	Info(deps.Config, deps.Build, deps.Epoch)(
+	Info(deps.Config, deps.Build, deps.Epoch, deps.Labeler)(
 		recorder,
 		httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/v1/info", nil),
 	)

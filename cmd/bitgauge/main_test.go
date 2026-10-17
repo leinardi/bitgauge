@@ -282,6 +282,7 @@ func TestServeExitsTwoOnInvalidConfig(t *testing.T) {
 		{"invalid file value", []string{"--config", invalidFile}, nil, 2},
 		{"invalid environment value", []string{"serve", "--config", empty}, []string{"BITGAUGE_LOG__LEVEL=loud"}, 2},
 		{"metrics.path collision", []string{"--config", empty}, []string{"BITGAUGE_METRICS__PATH=/upload"}, 2},
+		{"server.labels item without =", []string{"--config", empty}, []string{"BITGAUGE_SERVER__LABELS=10.8.0.0/24"}, 2},
 		{"unknown command", []string{"version"}, nil, 2},
 		{"healthcheck with an invalid file", []string{"healthcheck", "--config", invalidFile}, nil, 1},
 	} {

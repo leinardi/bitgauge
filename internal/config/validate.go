@@ -21,6 +21,7 @@ package config
 
 import (
 	"fmt"
+	"net/netip"
 	"net/url"
 	"slices"
 	"strings"
@@ -178,19 +179,8 @@ func (c *checker) server(server *Server) {
 
 	c.basePath("server.base_path", server.BasePath)
 
-	nameLength := utf8.RuneCountInString(server.DisplayName)
-	if nameLength < minDisplayNameRunes || nameLength > maxDisplayNameRunes ||
-		!isPrintable(server.DisplayName) {
-		c.add(
-			"server.display_name",
-			server.DisplayName,
-			fmt.Sprintf(
-				"must be %d to %d printable characters",
-				minDisplayNameRunes,
-				maxDisplayNameRunes,
-			),
-		)
-	}
+	c.printable("server.display_name", server.DisplayName)
+	c.labels(server.Labels)
 
 	if server.PublicURL != "" {
 		c.origin("server.public_url", server.PublicURL)
@@ -198,6 +188,46 @@ func (c *checker) server(server *Server) {
 
 	for index, origin := range server.CORS.AllowedOrigins {
 		c.origin(fmt.Sprintf("server.cors.allowed_origins[%d]", index), origin)
+	}
+}
+
+// printable applies the display_name rule, which a server.labels label shares: 1 to 64
+// printable characters.
+func (c *checker) printable(key, text string) {
+	length := utf8.RuneCountInString(text)
+	if length < minDisplayNameRunes || length > maxDisplayNameRunes || !isPrintable(text) {
+		c.add(key, text, fmt.Sprintf(
+			"must be %d to %d printable characters", minDisplayNameRunes, maxDisplayNameRunes))
+	}
+}
+
+// labels checks each server.labels entry: a CIDR with no host bits set, written as IPv4 when it
+// is IPv4, unique in the list, and a label under the display_name rule.
+func (c *checker) labels(rules []LabelRule) {
+	first := make(map[netip.Prefix]int, len(rules))
+
+	for index, rule := range rules {
+		key := fmt.Sprintf("server.labels[%d]", index)
+		cidr := rule.CIDR
+
+		switch {
+		case !cidr.IsValid():
+			c.add(key+".cidr", "", "is required: a CIDR such as 10.8.0.0/24")
+		case cidr.Addr().Is4In6():
+			c.add(key+".cidr", cidr, "is an IPv4-mapped IPv6 prefix; write it as IPv4")
+		case cidr != cidr.Masked():
+			c.add(key+".cidr", cidr, "has host bits set; write "+cidr.Masked().String())
+		default:
+			earlier, seen := first[cidr]
+			if seen {
+				c.add(key+".cidr", cidr,
+					fmt.Sprintf("repeats server.labels[%d].cidr; each CIDR appears once", earlier))
+			} else {
+				first[cidr] = index
+			}
+		}
+
+		c.printable(key+".label", rule.Label)
 	}
 }
 
