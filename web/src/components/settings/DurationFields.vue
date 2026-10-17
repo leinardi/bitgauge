@@ -18,10 +18,11 @@
 -->
 <script setup lang="ts">
 import { ArrowDown, ArrowUp } from '@lucide/vue'
-import { computed } from 'vue'
+import { computed, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ChangedMark from '@/components/settings/ChangedMark.vue'
+import FieldError from '@/components/settings/FieldError.vue'
 import { useSettingsForm } from '@/components/settings/form'
 import SettingInput from '@/components/settings/SettingInput.vue'
 import SettingRow from '@/components/settings/SettingRow.vue'
@@ -30,9 +31,12 @@ import { MAX_DURATION_S, MIN_DURATION_S, SECOND, wholeNumber } from '@/lib/urlVa
 
 // The duration of each direction (ui/screens.md section 4, kit Settings.jsx): a minimum and a
 // maximum in whole seconds, 5–600 s, the minimum at most the maximum; "custom" once they differ
-// from the preset's.
+// from the preset's. A field's error shows under its direction's row, as the kit's does.
 
 type Bound = 'minMs' | 'maxMs'
+
+const BOUNDS = ['min', 'max'] as const
+const errors = reactive<Record<string, string | null>>({})
 
 const { t } = useI18n()
 const form = useSettingsForm()
@@ -75,40 +79,58 @@ const rows = computed(() => [
       <div
         v-for="row in rows"
         :key="row.direction"
-        class="flex items-start gap-2"
+        class="flex flex-col gap-1.5"
       >
-        <span class="flex h-(--input-h) w-29.5 items-center gap-1.5 text-(length:--text-sm)">
-          <component
-            :is="row.icon"
-            :size="14"
-            :stroke-width="2"
-            :style="{ color: row.color }"
-            aria-hidden="true"
+        <div class="flex items-center gap-2">
+          <span class="flex w-29.5 items-center gap-1.5 text-(length:--text-sm)">
+            <component
+              :is="row.icon"
+              :size="14"
+              :stroke-width="2"
+              :style="{ color: row.color }"
+              aria-hidden="true"
+            />
+            {{ row.label }}
+            <ChangedMark v-if="form.changed.value.has(row.direction)">{{ t('settings.custom') }}</ChangedMark>
+          </span>
+          <SettingInput
+            :id="`settings-${row.direction}-min`"
+            :value="String(seconds(row.direction, 'minMs'))"
+            :label="row.min"
+            :suffix="t('settings.values.secondsUnit')"
+            :validate="(text) => validate(row.direction, 'minMs', text)"
+            mono
+            detached-error
+            class="w-19"
+            @error="errors[`settings-${row.direction}-min`] = $event"
+            @commit="commit(row.direction, 'minMs', $event)"
           />
-          {{ row.label }}
-          <ChangedMark v-if="form.changed.value.has(row.direction)">{{ t('settings.custom') }}</ChangedMark>
-        </span>
-        <SettingInput
-          :id="`settings-${row.direction}-min`"
-          :value="String(seconds(row.direction, 'minMs'))"
-          :label="row.min"
-          :suffix="t('settings.values.secondsUnit')"
-          :validate="(text) => validate(row.direction, 'minMs', text)"
-          mono
-          class="w-19"
-          @commit="commit(row.direction, 'minMs', $event)"
-        />
-        <span class="flex h-(--input-h) items-center text-subtle-foreground">{{ t('settings.duration.to') }}</span>
-        <SettingInput
-          :id="`settings-${row.direction}-max`"
-          :value="String(seconds(row.direction, 'maxMs'))"
-          :label="row.max"
-          :suffix="t('settings.values.secondsUnit')"
-          :validate="(text) => validate(row.direction, 'maxMs', text)"
-          mono
-          class="w-19"
-          @commit="commit(row.direction, 'maxMs', $event)"
-        />
+          <span class="text-subtle-foreground">{{ t('settings.duration.to') }}</span>
+          <SettingInput
+            :id="`settings-${row.direction}-max`"
+            :value="String(seconds(row.direction, 'maxMs'))"
+            :label="row.max"
+            :suffix="t('settings.values.secondsUnit')"
+            :validate="(text) => validate(row.direction, 'maxMs', text)"
+            mono
+            detached-error
+            class="w-19"
+            @error="errors[`settings-${row.direction}-max`] = $event"
+            @commit="commit(row.direction, 'maxMs', $event)"
+          />
+        </div>
+        <template
+          v-for="bound in BOUNDS"
+          :key="bound"
+        >
+          <FieldError
+            v-if="errors[`settings-${row.direction}-${bound}`]"
+            :id="`settings-${row.direction}-${bound}-error`"
+            class="max-w-80"
+          >
+            {{ errors[`settings-${row.direction}-${bound}`] }}
+          </FieldError>
+        </template>
       </div>
     </div>
   </SettingRow>

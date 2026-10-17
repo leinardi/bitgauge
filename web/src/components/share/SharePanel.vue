@@ -77,7 +77,7 @@ watch(denied, async (denied) => {
       :icon="Image"
     >
       <template #actions>
-        <span class="font-mono text-(length:--text-micro) text-subtle-foreground">{{ t('share.image.size') }}</span>
+        <span>{{ t('share.image.size') }}</span>
       </template>
       <div class="flex flex-col gap-3 p-3.5">
         <SharePreview :view="view" />
@@ -111,7 +111,7 @@ watch(denied, async (denied) => {
             @click="share"
           >
             <Share
-              :size="16"
+              :size="15"
               aria-hidden="true"
             />
             {{ t('share.image.share') }}
@@ -123,7 +123,7 @@ watch(denied, async (denied) => {
             @click="download"
           >
             <Download
-              :size="16"
+              :size="15"
               aria-hidden="true"
             />
             {{ t('share.image.save') }}
@@ -157,7 +157,7 @@ watch(denied, async (denied) => {
         :icon="Copy"
         :title="t('share.text.denied')"
         :body="t('share.text.deniedBody')"
-        class="m-3 mb-0"
+        attached
         data-testid="copy-denied"
       />
       <pre

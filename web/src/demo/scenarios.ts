@@ -21,9 +21,12 @@ import type { DemoLinkName } from '@/demo/fixtures'
 import type { PhaseName } from '@/engine/messages'
 
 // The demo's scenarios (frontend.md section 9): one per state of the UI kit's Test screen that v0.1
-// has (the kit's TEST_STATES without continuous, cont-warmup and cont-done), each a link and a
-// script that the real engine plays out. The instants follow the kit's own defaults: its `cancelled`
-// stops 3.1 s into upload, its `download` shows 7.5 s into download, and so on.
+// and v0.2 have (the kit's TEST_STATES without continuous, cont-warmup and cont-done), and one per
+// loaded-latency case of its v0.2 panel (the WebSocket closing after idle latency, and each reason
+// the upload's loaded latency can be unavailable for), and the run its Result detail shows, each a
+// link and a script that the real
+// engine plays out. The instants follow the kit's own defaults: its `cancelled` stops 3.1 s into
+// upload, its `download` shows 7.5 s into download, and so on.
 
 /** An instant of a run: `afterMs` of demo time after `phase` started. */
 export interface ScriptPoint {
@@ -37,6 +40,8 @@ export type DemoErrorKind = 'requests' | 'unreachable' | 'restarted' | 'network'
 /** A scripted failure: of the panel's kind, unless the scenario fixes its own. */
 export interface ScriptFault extends ScriptPoint {
   kind?: DemoErrorKind
+  /** For kind `requests`: only this many upload requests fail, rather than every request. */
+  uploads?: number
 }
 
 export interface DemoScenario {
@@ -55,6 +60,11 @@ export interface DemoScenario {
   offline?: boolean
   /** A reverse proxy that refuses the WebSocket upgrade. */
   webSocket?: false
+  /**
+   * A reverse proxy that drops the open WebSocket and from then on refuses a new one, or leaves it
+   * unanswered.
+   */
+  webSocketCloses?: ScriptPoint & { reopen?: 'refused' | 'unanswered' }
   /** The server's base path, which the page's own path does not match. */
   basePath?: string
 }
@@ -83,6 +93,9 @@ export const DEMO_SCENARIOS = {
   // at 8.2 s, before its own 9.5 s warm-up ends; the demo fails at 12 s, after a window of at least
   // 3 s, so that upload keeps a value as the kit's does.
   'upload-interrupted': { link: 'lan-http1', start: true, fault: { ...at('upload', 12_000), kind: 'requests' } },
+  // The kit's Result detail (ResultDetail.jsx): a complete LAN run whose upload lost one request
+  // 10.4 s in and, over HTTP/2, carried on, with that request's time left out as unknown.
+  'upload-gap': { link: 'lan', start: true, fault: { ...at('upload', 10_400), kind: 'requests', uploads: 1 } },
   cancelled: { link: 'lan', start: true, stop: at('upload', 3100) },
   'cancelled-late': { link: 'lan', start: true, stop: at('upload', 14_000) },
   // The kit's stop after 12 of 20 pings at 1.2 s, between two pings as for the latency state.
@@ -97,6 +110,19 @@ export const DEMO_SCENARIOS = {
   offline: { link: 'lan', start: false, offline: true },
   basepath: { link: 'lan', start: false, basePath: '/speed' },
   insufficient: { link: 'insufficient', start: true, hold: at('upload', 11_250) },
+  // The kit's loaded-latency cases. The WebSocket closes during download and cannot be reopened:
+  // idle latency stays on it, loaded latency carries on over the HTTP/2 probe.
+  'ws-close': { link: 'lan', start: true, webSocketCloses: at('download', 3000) },
+  // Over HTTP/1.1 a close during upload leaves it two sources (measurement.md section 11.4).
+  'll-reservation-broken': { link: 'lan-http1', start: true, webSocketCloses: at('upload', 3000) },
+  // A close a second before the upload's 15 s minimum leaves the later source a handful of samples.
+  'll-insufficient-samples': { link: 'lan', start: true, webSocketCloses: at('upload', 14_000) },
+  // A complete result has a steady window in each direction and no direction as short as the close
+  // sequence, so these two end stopped: the kit's 3.1 s stop, before the upload's window; and a stop
+  // while the close sequence, whose reopening is never answered, covers the whole upload (the LAN
+  // download ends at its 10 s minimum).
+  'll-no-steady-window': { link: 'lan', start: true, stop: at('upload', 3100) },
+  'll-no-probe-path': { link: 'lan', start: true, webSocketCloses: { ...at('download', 9700), reopen: 'unanswered' }, stop: at('upload', 800) },
 } as const satisfies Record<string, DemoScenario>
 
 export type DemoScenarioName = keyof typeof DEMO_SCENARIOS
@@ -129,4 +155,9 @@ export interface DemoCommand {
   errorKind: DemoErrorKind
   /** Whether the scenario's hold applies; without it the run plays on past its state. */
   hold: boolean
+  /**
+   * The page's wall clock when it sent the command, which the Worker's runs are dated from, so a
+   * page whose clock is fixed dates them from it; the Worker's own first command has none.
+   */
+  wallClockMs?: number
 }

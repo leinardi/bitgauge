@@ -22,6 +22,7 @@ import { shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import MonoTitle from '@/components/history/MonoTitle.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 
 // The per-origin notice (ui/screens.md section 3, edge-cases.md section 8; kit History.jsx): the
@@ -43,6 +44,13 @@ const why = shallowRef(false)
     :live="false"
     data-testid="origin-notice"
   >
+    <template #title>
+      <MonoTitle
+        keypath="history.origin.title"
+        name="origin"
+        :value="origin"
+      />
+    </template>
     <template #actions>
       <AppButton
         variant="ghost"

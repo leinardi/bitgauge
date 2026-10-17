@@ -22,6 +22,7 @@ import { computed, shallowRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import MonoTitle from '@/components/history/MonoTitle.vue'
 import StatusPill from '@/components/status/StatusPill.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import type { History } from '@/composables/useHistory'
@@ -150,22 +151,39 @@ function refusal(reason: Refusal): string {
     :title="t('history.import.progressTitle', { file: state.file })"
     :body="t('history.import.progressBody')"
     data-testid="import-busy"
-  />
+  >
+    <template #title>
+      <MonoTitle
+        keypath="history.import.progressTitle"
+        name="file"
+        :value="state.file"
+      />
+    </template>
+  </NoticeBox>
   <NoticeBox
     v-else-if="state?.kind === 'done'"
     tone="ok"
     :icon="CircleCheck"
     :title="t('history.import.doneTitle', { file: state.file })"
-    :body="summary"
     data-testid="import-done"
   >
-    <span class="mt-1.5 flex flex-wrap gap-1.5">
-      <StatusPill :dot="false">{{ t('history.import.added', { n: state.added }) }}</StatusPill>
-      <StatusPill :dot="false">{{ t('history.import.skipped', { n: state.skipped }) }}</StatusPill>
-      <StatusPill
-        v-if="state.rejected.length > 0"
-        :dot="false"
-      >{{ t('history.import.rejected', { n: state.rejected.length }) }}</StatusPill>
+    <template #title>
+      <MonoTitle
+        keypath="history.import.doneTitle"
+        name="file"
+        :value="state.file"
+      />
+    </template>
+    <span class="text-(length:--text-caption) leading-(--lh-compact) text-pretty text-muted-foreground">
+      {{ summary }}
+      <span class="mt-1.5 flex flex-wrap gap-1.5">
+        <StatusPill tone="ok">{{ t('history.import.added', { n: state.added }) }}</StatusPill>
+        <StatusPill :dot="false">{{ t('history.import.skipped', { n: state.skipped }) }}</StatusPill>
+        <StatusPill
+          v-if="state.rejected.length > 0"
+          tone="warn"
+        >{{ t('history.import.rejected', { n: state.rejected.length }) }}</StatusPill>
+      </span>
     </span>
     <template #actions>
       <AppButton
@@ -190,6 +208,13 @@ function refusal(reason: Refusal): string {
     :body="`${refusal(state.reason)} ${t('history.import.unchanged')}`"
     data-testid="import-failed"
   >
+    <template #title>
+      <MonoTitle
+        keypath="history.import.failedTitle"
+        name="file"
+        :value="state.file"
+      />
+    </template>
     <template #actions>
       <AppButton
         size="sm"

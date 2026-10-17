@@ -39,6 +39,9 @@ const enabled = computed({
   set: (next: boolean) => form.set({ autoStart: { ...auto.value, enabled: next } }),
 })
 
+// The link parameter the caption names, in the mono face, as the kit sets it.
+const RUN_PARAM = '?run=1'
+
 function validate(text: string): string | null {
   return wholeNumber(text, MIN_COUNTDOWN_S, MAX_COUNTDOWN_S) === undefined ? t('settings.errors.range', { min: MIN_COUNTDOWN_S, max: MAX_COUNTDOWN_S }) : null
 }
@@ -55,7 +58,7 @@ function validate(text: string): string | null {
         scope="global"
       >
         <template #param>
-          <code class="font-mono">run=1</code>
+          <span class="font-mono">{{ RUN_PARAM }}</span>
         </template>
       </i18n-t>
     </template>

@@ -58,7 +58,7 @@ const { t } = useI18n()
     >
       <RouterLink to="/history">
         <History
-          :size="16"
+          :size="15"
           aria-hidden="true"
         />
         {{ t('result.notFound.history') }}

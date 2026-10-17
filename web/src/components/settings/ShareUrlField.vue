@@ -24,8 +24,8 @@ import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/actions/AppButton.vue'
 import { settingName } from '@/components/settings/changes'
 import { useSettingsForm } from '@/components/settings/form'
+import LabeledCheckbox from '@/components/settings/LabeledCheckbox.vue'
 import SettingsCard from '@/components/settings/SettingsCard.vue'
-import { Checkbox } from '@/components/ui/checkbox'
 import { buildSettingsUrl } from '@/lib/shareUrl'
 import { readBasePath } from '@/router/base'
 
@@ -34,6 +34,8 @@ import { readBasePath } from '@/router/base'
 // settings no parameter carries.
 
 const COPIED_MS = 1500
+// The parameter the auto-start option adds, in the mono face, as the kit sets it.
+const RUN_PARAM = 'run=1'
 
 const { t } = useI18n()
 const form = useSettingsForm()
@@ -83,7 +85,7 @@ onScopeDispose(() => clearTimeout(timer))
           @focus="($event.target as HTMLInputElement).select()"
         >
         <AppButton
-          class="w-(--input-h) justify-center px-0"
+          class="w-(--control-h-md) justify-center px-0"
           :aria-label="copied ? t('settings.share.copied') : t('settings.share.copy')"
           :title="t('settings.share.copy')"
           @click="copy"
@@ -103,21 +105,19 @@ onScopeDispose(() => clearTimeout(timer))
         v-if="failed"
         class="text-(length:--text-caption) text-(--danger-fg)"
       >{{ t('settings.share.copyFailed') }}</span>
-      <label class="inline-flex min-h-(--control-h-item) cursor-pointer items-center gap-2 text-(length:--text-caption) text-muted-foreground">
-        <Checkbox
-          :model-value="includeRun"
-          class="size-(--check-size) rounded-(--radius-xs) border-(length:--border-width-strong) border-(--border-strong) shadow-none data-[state=checked]:border-primary"
-          @update:model-value="includeRun = $event === true"
-        />
+      <LabeledCheckbox
+        v-model="includeRun"
+        class="text-(length:--text-caption) text-muted-foreground"
+      >
         <i18n-t
           keypath="settings.share.includeRun"
           scope="global"
         >
           <template #param>
-            <code class="font-mono">run=1</code>
+            <code class="font-mono">{{ RUN_PARAM }}</code>
           </template>
         </i18n-t>
-      </label>
+      </LabeledCheckbox>
       <span
         v-if="notInLink !== ''"
         class="flex items-start gap-1.5 text-(length:--text-micro) leading-(--lh-compact) text-subtle-foreground"

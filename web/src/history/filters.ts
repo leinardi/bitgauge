@@ -129,14 +129,19 @@ export function filterResults(results: readonly Result[], filter: HistoryFilter,
 
 /** The chips of a filter: each distinct non-empty value with its count, the most frequent first. */
 export function chips(results: readonly Result[], of: 'label' | 'context'): { value: string; count: number }[] {
-  const counts = new Map<string, number>()
+  const counts = new Map<string, { count: number; latest: number }>()
   for (const result of results) {
     const value = of === 'label' ? result.label : result.client.contextLabel
     if (value !== '') {
-      counts.set(value, (counts.get(value) ?? 0) + 1)
+      const seen = counts.get(value)
+      const at = Date.parse(result.startedAt)
+      counts.set(value, { count: (seen?.count ?? 0) + 1, latest: Math.max(seen?.latest ?? at, at) })
     }
   }
-  return [...counts].map(([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count || a.value.localeCompare(b.value))
+  // The most frequent first and, among as frequent ones, the most recently used, as the kit orders them.
+  return [...counts]
+    .sort(([, a], [, b]) => b.count - a.count || b.latest - a.latest)
+    .map(([value, { count }]) => ({ value, count }))
 }
 
 /** The 5 most recent distinct labels, for the Test screen's label field. */

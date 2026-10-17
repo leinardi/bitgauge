@@ -106,7 +106,7 @@ describe('the demo panel', () => {
       { timeout: 5000 },
     )
     expect(worker?.url).toMatch(/\/demo\/worker\.ts\b/)
-    expect(worker?.worker.posted).toContainEqual({ type: 'demo', scenario, speed: 2, cpuBound: false, timerResolutionMs: 0.1, errorKind: 'requests', hold: false })
+    expect(worker?.worker.posted).toContainEqual({ type: 'demo', scenario, speed: 2, cpuBound: false, timerResolutionMs: 0.1, errorKind: 'requests', hold: false, wallClockMs: expect.any(Number) })
     // The configure carries the scenario's server defaults, from the page's own GET /info, which
     // the scenario's server answered.
     expect(worker?.worker.posted).toContainEqual({ type: 'configure', settings: settingsFromDefaults(infoFor(link).defaults), basePath: '/' })
@@ -169,7 +169,7 @@ describe('the demo panel', () => {
     await (fails ? expect(control.demoInfo()).rejects.toThrow('unreachable') : expect(control.demoInfo()).resolves.toMatchObject({ server: { name: 'Basement NAS' } }))
   })
 
-  it('lists every scenario, offers every v0.1 state to force, and stays collapsed by default', async () => {
+  it('lists every scenario, offers every state to force, and stays collapsed by default', async () => {
     const wrapper = mount(DemoPanel, { props: { navigate: vi.fn() } })
     expect(wrapper.find('[data-testid="demo-scenario"]').exists()).toBe(false)
     await wrapper.get('[data-testid="demo-toggle"]').trigger('click')
@@ -178,7 +178,7 @@ describe('the demo panel', () => {
     expect(options(wrapper.get('[data-testid="demo-force-state"]').element)).toEqual(['', ...NAMES])
     expect(options(wrapper.get('[data-testid="demo-error-kind"]').element)).toEqual(['requests', 'unreachable', 'restarted', 'network'])
     expect(options(wrapper.get('[data-testid="demo-timer"]').element)).toEqual(['0.1', '1'])
-    expect(options(wrapper.get('[data-testid="demo-history"]').element)).toEqual(['', 'populated', 'empty', 'unavailable'])
+    expect(options(wrapper.get('[data-testid="demo-history"]').element)).toEqual(['', 'populated', 'empty', 'unavailable', 'loading'])
   })
 
   it('keeps a choice and loads the page again with its scenario parameters', async () => {

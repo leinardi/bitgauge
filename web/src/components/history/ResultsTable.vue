@@ -135,7 +135,7 @@ const UNIT = 'text-(length:--text-micro) text-subtle-foreground'
           @keydown="keydown($event, row.id)"
         >
           <TableCell
-            :class="CELL"
+            :class="[CELL, '[&:has([role=checkbox])]:pr-3.5']"
             @click.stop
           >
             <Checkbox

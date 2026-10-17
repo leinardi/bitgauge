@@ -35,7 +35,8 @@ import { MAX_LABEL } from '@/lib/urlValues'
 // History, the label, edited in place, the context label, the date and time with the absolute
 // instant on hover, the preset and the server; the actions Download JSON, Run again and Delete,
 // with the note that the JSON holds the client IP and notes. A result not in history carries the
-// not-saved badge and the reason, and its label and Delete are disabled with it.
+// not-saved badge and the reason, and its label and Delete are disabled with it. Its slot sits
+// between the breadcrumb and the label, where the kit puts the history-unavailable notice.
 
 const props = defineProps<{
   result: Result
@@ -46,6 +47,7 @@ const emit = defineEmits<{ rename: [label: string]; runAgain: []; remove: [] }>(
 
 const { t, locale } = useI18n()
 const reasonId = useId()
+const warningId = useId()
 const SEPARATOR = '·'
 const SLASH = '/'
 
@@ -112,6 +114,7 @@ async function finish(save: boolean): Promise<void> {
       class="font-mono text-(length:--text-caption)"
     >{{ resultDate(result.startedAt, locale) }}</span>
   </nav>
+  <slot />
   <header class="flex flex-wrap items-start gap-x-6 gap-y-4">
     <div class="flex min-w-0 flex-[1_1_360px] flex-col gap-2">
       <div class="flex min-w-0 items-center gap-2">
@@ -198,23 +201,23 @@ async function finish(save: boolean): Promise<void> {
       <DownloadJson
         :result="result"
         variant="secondary"
+        size="md"
+        :described-by="warningId"
       />
       <AppButton
         variant="primary"
-        size="sm"
         data-testid="run-again"
         @click="emit('runAgain')"
       >
         <RotateCcw
-          :size="14"
+          :size="15"
           aria-hidden="true"
         />
         {{ t('result.actions.runAgain') }}
       </AppButton>
       <AppButton
         variant="danger"
-        size="sm"
-        class="w-(--control-h-sm) justify-center px-0"
+        class="w-(--control-h-md) justify-center px-0"
         :aria-label="t('result.actions.delete')"
         :title="t('result.actions.delete')"
         :aria-disabled="notSaved === null ? undefined : 'true'"
@@ -223,11 +226,12 @@ async function finish(save: boolean): Promise<void> {
         @click="notSaved === null && emit('remove')"
       >
         <Trash2
-          :size="14"
+          :size="15"
           aria-hidden="true"
         />
       </AppButton>
       <span
+        :id="warningId"
         class="flex basis-full items-center gap-1.25 text-(length:--text-micro) text-subtle-foreground"
       >
         <TriangleAlert

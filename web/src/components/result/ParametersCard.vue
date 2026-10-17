@@ -45,7 +45,7 @@ const shown = computed(() => !narrow.value || open.value)
     <h2
       v-if="narrow"
       :id="`${id}-title`"
-      class="text-(length:--text-base) font-semibold"
+      class="text-(length:--text-base) font-normal"
     >
       <button
         type="button"
@@ -61,7 +61,7 @@ const shown = computed(() => !narrow.value || open.value)
           aria-hidden="true"
           class="text-subtle-foreground"
         />
-        {{ t('result.parameters.title') }}
+        <span class="font-semibold">{{ t('result.parameters.title') }}</span>
         <component
           :is="open ? ChevronUp : ChevronDown"
           :size="16"

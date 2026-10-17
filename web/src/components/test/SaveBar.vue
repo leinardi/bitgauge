@@ -119,7 +119,7 @@ const body = computed(() => {
       data-testid="result-bar-body"
     >{{ body }}</span>
     <template v-if="saved">
-      <label class="flex h-(--control-h-sm) max-w-(--layout-input-max) min-w-0 flex-[1_1_var(--layout-input-basis)] items-center gap-2 rounded-(--radius-md) border border-input bg-(--surface-1) px-2.5 text-muted-foreground focus-within:border-ring">
+      <label class="flex h-(--input-h) max-w-(--layout-input-max) min-w-0 flex-[1_1_var(--layout-input-basis)] items-center gap-2 rounded-(--radius-md) border border-(--border-default) bg-(--surface-1) px-3 text-(--fg-faint) focus-within:border-ring">
         <Tag
           :size="14"
           aria-hidden="true"
@@ -145,7 +145,7 @@ const body = computed(() => {
           v-for="suggestion in suggestions"
           :key="suggestion"
           type="button"
-          class="inline-flex h-(--chip-h-sm) cursor-pointer items-center rounded-full border border-(--border-default) bg-(--surface-2) px-2.5 text-(length:--text-caption) font-semibold whitespace-nowrap text-muted-foreground hover:bg-(--surface-3) hover:text-foreground"
+          class="inline-flex h-(--chip-h-sm) cursor-pointer items-center gap-1 rounded-full border border-(--border-default) bg-(--surface-2) px-2.5 text-(length:--text-caption) font-semibold whitespace-nowrap text-muted-foreground hover:bg-(--surface-3) hover:text-foreground"
           :aria-pressed="label === suggestion"
           data-testid="label-suggestion"
           @click="pick(suggestion)"

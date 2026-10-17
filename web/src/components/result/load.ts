@@ -42,6 +42,8 @@ export interface GradeView {
   grade: Bufferbloat['grade'] | null
   words: string
   basis: string
+  /** No grade yet because the run has still to reach it. */
+  pending?: boolean
 }
 
 export function sourceName(source: LoadedSource, t: Wording['t']): string {
@@ -104,8 +106,11 @@ const increaseOf = (result: Result, direction: Direction) => {
   return loaded === undefined || 'status' in loaded ? undefined : loaded.increaseMs
 }
 
-/** The grade, its words and its basis; without a grade, what it needs. */
-export function gradeView(result: Result, { t, locale }: Wording): GradeView {
+/**
+ * The grade, its words and its basis; without a grade, what it needs. `brief`, as the Test screen
+ * shows it, names the basis without its increases, as the kit's Test screen does.
+ */
+export function gradeView(result: Result, { t, locale }: Wording, brief = false): GradeView {
   const bufferbloat = result.bufferbloat
   if (bufferbloat === undefined) {
     return { grade: null, words: t('result.load.notGraded'), basis: t('result.load.noBasis') }
@@ -113,11 +118,23 @@ export function gradeView(result: Result, { t, locale }: Wording): GradeView {
   const ms = (value: number) => latencyNumber(value, locale, result.client.timerResolutionMs)
   const increase = ms(bufferbloat.increaseMs)
   const words = t('result.load.words', { word: gradeWord(bufferbloat.grade, t) })
+  if (brief) {
+    const basis = { download: t('result.load.basisDownloadBrief'), upload: t('result.load.basisUploadBrief'), 'download+upload': t('result.load.basisBothBrief') }[bufferbloat.basis]
+    return { grade: bufferbloat.grade, words, basis }
+  }
+  // A one-direction basis says why the other direction is not in it, as the kit's Result detail does.
+  const without = (basis: string, other: Direction) => {
+    const loaded = result[other]?.loadedLatency
+    if (loaded === undefined || !('status' in loaded)) {
+      return basis
+    }
+    return t('result.load.basisWithout', { basis, direction: other === 'download' ? t('result.load.download') : t('result.load.upload'), reason: reasonText(loaded.reason, t) })
+  }
   switch (bufferbloat.basis) {
     case 'download':
-      return { grade: bufferbloat.grade, words, basis: t('result.load.basisDownload', { increase }) }
+      return { grade: bufferbloat.grade, words, basis: without(t('result.load.basisDownload', { increase }), 'upload') }
     case 'upload':
-      return { grade: bufferbloat.grade, words, basis: t('result.load.basisUpload', { increase }) }
+      return { grade: bufferbloat.grade, words, basis: without(t('result.load.basisUpload', { increase }), 'download') }
     case 'download+upload': {
       const download = increaseOf(result, 'download')
       const upload = increaseOf(result, 'upload')

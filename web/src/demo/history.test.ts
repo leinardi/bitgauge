@@ -24,6 +24,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { restore } from '@/demo/choice'
+import { chooseHistory, demoHistory } from '@/demo/control'
 import { DEMO_HISTORY_VARIANTS, demoHistoryResults, isDemoHistory } from '@/demo/history'
 import { bufferbloat } from '@/engine/latency/grade'
 import { validateResult } from '@/engine/messages'
@@ -57,5 +58,18 @@ describe('the demo history', () => {
     const storage = (value: object) => ({ getItem: () => JSON.stringify(value), setItem: () => undefined })
     expect(restore(storage({ history: 'empty' })).history).toBe('empty')
     expect(restore(storage({ history: 'deleted' })).history).toBe('')
+  })
+
+  it('never opens the history for the loading variant, so the screen stays loading', async () => {
+    chooseHistory('loading')
+    let settled = false
+    void demoHistory().then(() => {
+      settled = true
+    })
+    // Long past the turns an answer would take: the chosen variant is already there.
+    for (let turn = 0; turn < 20; turn++) {
+      await Promise.resolve()
+    }
+    expect(settled).toBe(false)
   })
 })

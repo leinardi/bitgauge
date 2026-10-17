@@ -29,7 +29,8 @@ import type { BrowserIdentity, Clock, Info } from '@/engine/types'
 // One demo scenario in the demo Worker (frontend.md section 9): the engine's own message loop and
 // Run, on the demo clock, against a fresh simulated link for each run. The scenario's script acts
 // at its instants, measured from the start of a phase as the run's own events report it: a user
-// stop, a failure of the selected kind, or a hold that keeps the screen in one state.
+// stop, a failure of the selected kind, a WebSocket a proxy drops, or a hold that keeps the screen
+// in one state.
 
 /** The busy share a CPU-bound demo reports, above measurement.md section 16's threshold. */
 const CPU_BOUND_BUSY = 0.95
@@ -80,11 +81,13 @@ export class DemoSession {
       }
       options.emit(event)
     }
+    // The page's wall clock, as far as it is from the Worker's when the command arrived.
+    const offsetMs = command.wallClockMs === undefined ? 0 : command.wallClockMs - Date.now()
     this.handle = messageLoop(
       emit,
       ({ settings, visible, emit: post }) => {
         const transport = new DemoTransport(this.clock, this.newLink(), options.info, options.browser)
-        return new Run({ clock: this.clock, transport, settings, visible, emit: post })
+        return new Run({ clock: this.clock, transport, settings, visible, emit: post, wallClock: () => Date.now() + offsetMs })
       },
       options.fail,
     )
@@ -114,25 +117,27 @@ export class DemoSession {
 
   /** Schedules what the script does once `phase` has started. */
   private script(phase: PhaseName): void {
-    const { stop, fault, hold } = this.scenario
+    const { stop, fault, hold, webSocketCloses } = this.scenario
     const after = (point: ScriptPoint | undefined, action: () => void) => {
       if (point?.phase === phase) {
         this.clock.setTimer(point.afterMs, action)
       }
     }
     after(stop, () => this.options.pressStop())
-    after(fault, () => this.fault(fault?.kind ?? this.command.errorKind))
+    after(fault, () => this.fault(fault?.kind ?? this.command.errorKind, fault?.uploads))
+    after(webSocketCloses, () => this.link?.closeWebSocket(this.clock.now(), webSocketCloses?.reopen))
     if (this.command.hold) {
       after(hold, () => this.clock.hold())
     }
   }
 
-  private fault(kind: DemoErrorKind): void {
+  private fault(kind: DemoErrorKind, uploads?: number): void {
     const link = this.link
     const now = this.clock.now()
     switch (kind) {
       case 'requests':
-        link?.failFrom(now)
+        if (uploads === undefined) link?.failFrom(now)
+        else link?.failUploads(now, uploads)
         return
       case 'unreachable':
         link?.unreachable(now)

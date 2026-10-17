@@ -96,7 +96,7 @@ test('reviews, sorts and filters results, opens one, and Back keeps the filter',
 
   // A search with no match, and Clear filters.
   await page.getByTestId('history-search').fill('airport')
-  await expect(page.getByTestId('history-no-match')).toContainText('All of them are still in history.')
+  await expect(page.getByTestId('history-no-match')).toContainText('matches “airport”. All 8 results are still in history.')
   await expectAccessible(page)
   await page.getByTestId('history-no-match').getByRole('button', { name: 'Clear filters' }).click()
   await expect(count).toContainText('8 of 8 shown')

@@ -88,7 +88,7 @@ function overhead(value: unknown): void {
     <CollapsibleTrigger class="flex min-h-(--control-h-touch) w-full cursor-pointer items-center gap-2.5 px-4 py-3 text-left focus-visible:-outline-offset-(--focus-offset)">
       <SlidersHorizontal
         :size="15"
-        class="text-subtle-foreground"
+        class="flex-none text-subtle-foreground"
         aria-hidden="true"
       />
       <span
@@ -99,12 +99,13 @@ function overhead(value: unknown): void {
       <component
         :is="open ? ChevronUp : ChevronDown"
         :size="16"
-        class="ml-auto text-subtle-foreground"
+        class="ml-auto flex-none text-subtle-foreground"
         aria-hidden="true"
       />
     </CollapsibleTrigger>
     <CollapsibleContent class="border-t border-(--border-subtle)">
       <SettingRow
+        dense
         :title="t('settings.warmup.title')"
         :caption="t('settings.warmup.caption')"
         :changed="form.changed.value.has('warmup')"
@@ -129,6 +130,7 @@ function overhead(value: unknown): void {
         </div>
       </SettingRow>
       <SettingRow
+        dense
         :title="t('settings.pings.title')"
         :caption="t('settings.pings.caption', { n: String(form.defaultOf('pingCount')) })"
         :changed="form.changed.value.has('pingCount')"
@@ -145,6 +147,7 @@ function overhead(value: unknown): void {
         />
       </SettingRow>
       <SettingRow
+        dense
         :title="t('settings.overhead.title')"
         :caption="t('settings.overhead.caption')"
         :changed="form.changed.value.has('overheadCompensationPercent')"

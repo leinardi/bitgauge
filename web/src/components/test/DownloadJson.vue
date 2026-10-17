@@ -27,10 +27,12 @@ import { saveFile } from '@/lib/saveFile'
 
 // Download JSON (ui/screens.md section 1): the finished result as a file the browser saves, made
 // in memory, never sent anywhere. Its tooltip warns that the file holds the client
-// IP and notes (security.md section 7) and also describes the button. A result that fails
-// validation is not exported: the button turns to its error state and says why.
+// IP and notes (security.md section 7) and also describes the button; where the page states the
+// warning beside it, `describedBy` names that text instead and there is no tooltip, as on the
+// kit's Result detail. A result that fails validation is not exported: the button turns to its
+// error state and says why.
 
-const props = defineProps<{ result: Result; variant?: 'secondary' | 'ghost' }>()
+const props = defineProps<{ result: Result; variant?: 'secondary' | 'ghost'; size?: 'sm' | 'md'; describedBy?: string }>()
 
 const tipId = useId()
 const errorId = useId()
@@ -57,21 +59,22 @@ function download(): void {
 <template>
   <span class="group relative inline-flex flex-col items-end gap-1">
     <AppButton
-      size="sm"
+      :size="size ?? 'sm'"
       :variant="failed ? 'secondary' : (variant ?? 'ghost')"
-      :aria-describedby="failed ? `${tipId} ${errorId}` : tipId"
+      :aria-describedby="failed ? `${describedBy ?? tipId} ${errorId}` : (describedBy ?? tipId)"
       :class="{ 'border-(--danger-border) text-(--danger-fg)': failed }"
       data-testid="download-json"
       @click="download"
     >
       <component
         :is="failed ? CircleAlert : FileJson"
-        :size="14"
+        :size="size === 'md' ? 15 : 14"
         aria-hidden="true"
       />
       {{ $t('test.export.download') }}
     </AppButton>
     <span
+      v-if="describedBy === undefined"
       :id="tipId"
       role="tooltip"
       class="pointer-events-none absolute right-0 bottom-[calc(100%+var(--tooltip-gap))] z-(--z-tooltip) flex items-center gap-1.5 rounded-(--radius-sm) border border-border bg-(--surface-4) px-2.5 py-1.5 text-(length:--text-caption) whitespace-nowrap text-foreground opacity-0 shadow-(--shadow-md) transition-opacity duration-(--dur-fast) group-focus-within:opacity-100 motion-reduce:transition-none group-hover:opacity-100"

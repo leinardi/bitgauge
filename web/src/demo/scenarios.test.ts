@@ -18,8 +18,8 @@
  */
 
 // The scenario table against the UI kit: one scenario per Test-screen state the kit's App.jsx
-// lists, except the Continuous preset's, which arrive in v0.3; and each scripted scenario plays out
-// in the real engine without an engine failure.
+// lists, except the Continuous preset's, which arrive in v0.3, one per loaded-latency case of its
+// panel, and the run its Result detail shows; and each scripted scenario plays out in the real engine without an engine failure.
 
 import kitApp from '@design/ui_kits/app/App.jsx?raw'
 import { describe, expect, it } from 'vitest'
@@ -39,13 +39,27 @@ function kitStates(): string[] {
   return [...list.matchAll(/'([^']+)'/g)].map((match) => match[1] ?? '')
 }
 
+/** The panel's loaded-latency cases: the WebSocket closing after idle latency, and each LL_GAPS reason. */
+function kitLoadedCases(): string[] {
+  const gaps = /const LL_GAPS = \[(.*)\];/.exec(kitApp)?.[1]
+  if (gaps === undefined || !kitApp.includes('value={d.wsClose}')) {
+    throw new Error('App.jsx no longer declares LL_GAPS and the wsClose control')
+  }
+  const reasons = [...gaps.matchAll(/\['([a-z-]+)', '[^']*'\]/g)].map((match) => match[1] ?? '').filter((reason) => reason !== 'none')
+  return ['ws-close', ...reasons.map((reason) => `ll-${reason}`)]
+}
+
+/** The run of the kit's Result detail (ResultDetail.jsx), a state of no panel control. */
+const RESULT_DETAIL = 'upload-gap'
+
 const NAMES = Object.keys(DEMO_SCENARIOS) as DemoScenarioName[]
 
 describe('the demo scenarios', () => {
-  it('cover exactly the kit states v0.1 has', () => {
+  it('cover exactly the kit states v0.1 and v0.2 have, its loaded-latency cases and its Result detail', () => {
     const states = kitStates()
     expect(states).toEqual(expect.arrayContaining(LATER))
-    expect([...NAMES].sort()).toEqual(states.filter((state) => !LATER.includes(state)).sort())
+    expect(kitLoadedCases()).toHaveLength(5)
+    expect([...NAMES].sort()).toEqual([...states.filter((state) => !LATER.includes(state)), ...kitLoadedCases(), RESULT_DETAIL].sort())
   })
 
   it('accept only their own names', () => {

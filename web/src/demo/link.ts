@@ -54,7 +54,7 @@ export interface LinkProfile {
 }
 
 /** The change a link announces at its instant, so the transport can end what was in flight. */
-export type LinkEvent = 'restart' | 'unreachable'
+export type LinkEvent = 'restart' | 'unreachable' | 'websocket-closed'
 
 /** Mulberry32: a small, fast 32-bit generator, plenty for a demo's draws. */
 function generator(seed: number): () => number {
@@ -76,7 +76,11 @@ export class Link {
   private readonly random: () => number
   private readonly epochs: { from: number; epoch: string }[]
   private failingFrom = Number.POSITIVE_INFINITY
+  private uploadFailuresFrom = Number.POSITIVE_INFINITY
+  private uploadFailures = 0
   private unreachableFrom = Number.POSITIVE_INFINITY
+  private webSocketUntil = Number.POSITIVE_INFINITY
+  private webSocketUnanswered = false
   private readonly listeners = new Set<(event: LinkEvent, at: number) => void>()
   /** The requests in flight per direction, which the transport reports. */
   private readonly inFlight: Record<Direction, number> = { download: 0, upload: 0 }
@@ -151,6 +155,16 @@ export class Link {
     return probability > 0 && this.random() < probability
   }
 
+  /** Whether a WebSocket opens at `at`: the profile allows one, and no proxy has dropped them yet. */
+  webSocketOpens(at: number): boolean {
+    return this.profile.webSocket !== false && at < this.webSocketUntil
+  }
+
+  /** Whether an upgrade the proxy no longer serves is left unanswered rather than refused. */
+  leavesWebSocketUnanswered(at: number): boolean {
+    return this.webSocketUnanswered && at >= this.webSocketUntil
+  }
+
   /** Whether the server answers at `at`. */
   reachable(at: number): boolean {
     return at < this.unreachableFrom
@@ -167,11 +181,36 @@ export class Link {
     this.failingFrom = Math.min(this.failingFrom, at)
   }
 
+  /** The next `count` upload requests sent from `at` on fail, and nothing else does. */
+  failUploads(at: number, count: number): void {
+    this.uploadFailuresFrom = at
+    this.uploadFailures = count
+  }
+
+  /** Whether an upload request sent at `at` is one of those `failUploads` fails; it counts it. */
+  uploadLost(at: number): boolean {
+    if (at < this.uploadFailuresFrom || this.uploadFailures === 0) {
+      return false
+    }
+    this.uploadFailures -= 1
+    return true
+  }
+
   /** The server restarts at `at`: a new epoch from then on, and its WebSocket closes. */
   restart(at: number): void {
     const last = this.epochs[this.epochs.length - 1]
     this.epochs.push({ from: at, epoch: `${last?.epoch ?? 'epoch'}+${this.epochs.length}` })
     this.listeners.forEach((listener) => listener('restart', at))
+  }
+
+  /**
+   * A proxy in front of the server drops the WebSocket at `at` and, from then on, refuses a new one
+   * or leaves it unanswered, while the server and its HTTP requests stay up.
+   */
+  closeWebSocket(at: number, reopen: 'refused' | 'unanswered' = 'refused'): void {
+    this.webSocketUntil = Math.min(this.webSocketUntil, at)
+    this.webSocketUnanswered = reopen === 'unanswered'
+    this.listeners.forEach((listener) => listener('websocket-closed', at))
   }
 
   /** The server stops answering at `at`, for good. */

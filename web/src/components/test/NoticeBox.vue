@@ -25,9 +25,14 @@ import type { Tone } from '@/components/test/notices'
 // color, the title and its body, and the actions pushed to the end, wrapping under the text when
 // the box is narrow. Danger is an alert; the other tones are status messages, unless the notice is
 // part of the page rather than news (`live` false). Screens pass the tone, the icon and the text,
-// never a style of their own.
+// never a style of their own; a title naming a file or an origin sets it in the title slot, in mono.
 
-withDefaults(defineProps<{ tone: Tone; icon: Component; title: string; body?: string; live?: boolean }>(), { body: undefined, live: true })
+// attached: flush with the card it heads, as the export's Notice attached (feedback.css .signal.attached).
+withDefaults(defineProps<{ tone: Tone; icon: Component; title: string; body?: string; live?: boolean; attached?: boolean }>(), {
+  body: undefined,
+  live: true,
+  attached: false,
+})
 
 const TONES: Record<Tone, { box: string; icon: string }> = {
   info: { box: 'border-(--info-border) bg-(--info-bg)', icon: 'text-(--info)' },
@@ -42,8 +47,8 @@ const TONES: Record<Tone, { box: string; icon: string }> = {
   <div
     :role="tone === 'danger' ? 'alert' : live ? 'status' : undefined"
     :data-tone="tone"
-    class="flex flex-wrap items-start gap-x-3 gap-y-2.5 rounded-(--radius-md) border px-3.5 py-3"
-    :class="TONES[tone].box"
+    class="flex flex-wrap items-start gap-x-3 gap-y-2.5 border"
+    :class="[TONES[tone].box, attached ? 'rounded-none border-x-0 border-t-0 px-4 py-2.5' : 'rounded-(--radius-md) px-3.5 py-3']"
   >
     <component
       :is="icon"
@@ -53,7 +58,7 @@ const TONES: Record<Tone, { box: string; icon: string }> = {
       :class="TONES[tone].icon"
     />
     <div class="flex min-w-0 flex-[1_1_var(--layout-text-basis)] flex-col gap-0.5">
-      <span class="text-(length:--text-sm) leading-(--lh-snug) font-semibold text-foreground">{{ title }}</span>
+      <span class="text-(length:--text-sm) leading-(--lh-snug) font-semibold text-foreground"><slot name="title">{{ title }}</slot></span>
       <span
         v-if="body"
         class="text-(length:--text-caption) leading-(--lh-compact) text-pretty text-muted-foreground"

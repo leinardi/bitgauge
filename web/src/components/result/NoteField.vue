@@ -28,7 +28,7 @@ import { useDebouncedSave } from '@/composables/useDebouncedSave'
 // history as it changes, a moment after the last keystroke, and at once when the field loses focus
 // or the page leaves. Its text is the field's own while it is open, so a save landing late never
 // rewrites what is being typed. A result that is not in history shows the field read-only, with
-// the reason.
+// the reason and the "Add a note" placeholder, as the kit's does; an editable one has none.
 
 const props = defineProps<{
   /** The result the note belongs to; a new one starts the field afresh. */
@@ -76,11 +76,11 @@ watch(
       :id="fieldId"
       :model-value="text"
       :rows="3"
-      :placeholder="t('result.note.placeholder')"
+      :placeholder="disabledReason === null ? undefined : t('result.note.placeholder')"
       :readonly="disabledReason !== null"
       :aria-disabled="disabledReason === null ? undefined : 'true'"
       :aria-describedby="reasonId"
-      class="min-h-0 resize-y rounded-(--radius-md) border-(--border-default) bg-(--surface-1) px-2.5 py-2 text-(length:--text-sm) leading-(--lh-normal) text-foreground shadow-none aria-disabled:cursor-not-allowed aria-disabled:resize-none aria-disabled:opacity-45 md:text-(length:--text-sm)"
+      class="min-h-0 field-sizing-fixed resize-y rounded-(--radius-md) border-(--border-default) bg-(--surface-1) px-2.5 py-2 text-(length:--text-sm) leading-(--lh-normal) text-foreground shadow-none aria-disabled:cursor-not-allowed aria-disabled:resize-none aria-disabled:opacity-45 md:text-(length:--text-sm)"
       data-testid="note-field"
       @update:model-value="input"
       @blur="flush"

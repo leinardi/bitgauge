@@ -95,7 +95,7 @@ describe('the states', () => {
   it('shows the stored results newest first, with their count and the origin they belong to', async () => {
     const page = await open()
     expect(page.get('[data-testid="history-count"]').text()).toContain('8 of 8 shown')
-    expect(page.get('[data-testid="origin-notice"]').text()).toContain(`Stored only in this browser, for ${window.location.host}`)
+    expect(page.get('[data-testid="origin-notice"]').text()).toContain(`Stored only in this browser, for ${window.location.origin}`)
     expect(rows(page)).toHaveLength(8)
     expect(rows(page)[0]).toContain('VPN via 5G')
     expect(rows(page)[0]).toContain('Low confidence')
@@ -164,7 +164,7 @@ describe('the filters', () => {
 
   it('show the no-match state with Clear filters', async () => {
     const page = await open('/history?q=airport')
-    expect(page.get('[data-testid="history-no-match"]').text()).toContain('All of them are still in history.')
+    expect(page.get('[data-testid="history-no-match"]').text()).toContain('Nothing matches “airport”. All')
     await page.get('[data-testid="history-no-match"] button').trigger('click')
     await settle()
     expect(query(page)).toEqual({})

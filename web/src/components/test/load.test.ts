@@ -58,7 +58,7 @@ const rows = (view: ReturnType<typeof loadView>) => view?.rows.map(({ label, sub
 describe('the load card of the Test screen', () => {
   it('waits for a run: pending rows, graded after upload', () => {
     const view = loadView(input(), context)
-    expect(view?.grade).toEqual({ grade: null, words: 'Graded after upload', basis: '' })
+    expect(view?.grade).toEqual({ grade: null, words: 'Graded after upload', basis: '', pending: true })
     expect(rows(view)).toEqual([
       ['During download', 'Pending', null, false],
       ['During upload', 'Pending', null, false],
@@ -97,6 +97,12 @@ describe('the load card of the Test screen', () => {
       ['During upload', 'Not run', null, false],
     ])
     expect(view?.grade?.words).toBe('Not graded — no loaded latency')
+    expect(view?.grade?.pending).toBeUndefined()
+  })
+
+  it('reads a run that ended without a result as not graded, not pending', () => {
+    const view = loadView(input({ status: 'ended', states: { download: 'failed', upload: 'pending' } }), context)
+    expect(view?.grade).toEqual({ grade: null, words: 'Not graded — test incomplete', basis: '' })
   })
 
   it('shows the result: the source, the increase, vs idle over the other path, and the grade with its basis', () => {
@@ -106,7 +112,7 @@ describe('the load card of the Test screen', () => {
       ['During download · WebSocket', 'p90 24 · +15 ms vs idle', '18', false],
       ['During upload · HTTP/2 probe', 'p90 55 · +39 ms vs idle over WebSocket', '42', false],
     ])
-    expect(view?.grade).toEqual({ grade: 'B', words: 'Mild bufferbloat', basis: 'Basis: worse of download and upload — upload +39 ms (download +15 ms)' })
+    expect(view?.grade).toEqual({ grade: 'B', words: 'Mild bufferbloat', basis: 'Basis: worse of download and upload' })
   })
 
   it('says why a direction has no loaded latency, and that the increase needs idle latency', () => {
@@ -117,6 +123,30 @@ describe('the load card of the Test screen', () => {
       ['During upload · HTTP/1.1 reserved', 'HTTP/1.1 reservation not held', null, false],
     ])
     expect(view?.grade).toEqual({ grade: null, words: 'Not graded', basis: 'Needs idle latency and the latency under load of a direction' })
+  })
+
+  it('words a result without a grade as the kit does: an error, no direction run, or none gradable', () => {
+    const states = { download: 'finished', upload: 'finished' } as const
+    const unavailable: LoadedLatency = { status: 'unavailable', reason: 'no-steady-window', source: 'websocket', samples: 0, skippedTicks: 0, lost: 0 }
+    const base = resultFixture()
+    const failed = { ...graded(unavailable, measured(), undefined), status: 'error' as const, download: { ...base.download!, status: 'error' as const, loadedLatency: unavailable }, upload: undefined }
+    const error = loadView(input({ status: 'ended', states, result: failed }), context)
+    expect(error?.grade).toEqual({ grade: null, words: 'Not graded — test incomplete', basis: '' })
+    expect(rows(error)?.[0]).toEqual(['During download · WebSocket', 'no steady window · download failed', null, false])
+    const none = loadView(input({ status: 'ended', states, result: { ...base, status: 'partial', download: undefined, upload: undefined } }), context)
+    expect(none?.grade?.words).toBe('Not graded — no loaded latency')
+    const stopped = { ...base, status: 'partial' as const, download: { ...base.download!, status: 'partial' as const, loadedLatency: unavailable }, upload: undefined }
+    expect(loadView(input({ status: 'ended', states, result: stopped }), context)?.grade?.words).toBe('Not graded — no gradable direction')
+  })
+
+  it('marks a partial direction, and an upload stopped in its warm-up', () => {
+    const states = { download: 'finished', upload: 'finished' } as const
+    const unavailable: LoadedLatency = { status: 'unavailable', reason: 'no-steady-window', source: 'websocket', samples: 0, skippedTicks: 0, lost: 0 }
+    const result = { ...graded(measured(), unavailable, { grade: 'A', basis: 'download', increaseMs: 15.3 }), status: 'partial' as const }
+    const warm = { ...result, upload: { ...result.upload!, status: 'partial' as const, bitsPerSecond: undefined, windowMs: undefined, loadedLatency: unavailable } }
+    expect(rows(loadView(input({ status: 'ended', states, result: warm }), context))?.[1]).toEqual(['During upload · WebSocket', 'no steady window · stopped in warm-up', null, false])
+    const late = { ...result, upload: { ...result.upload!, status: 'partial' as const, loadedLatency: measured({ medianMs: 42, p90Ms: 55, increaseMs: 38.9 }) } }
+    expect(rows(loadView(input({ status: 'ended', states, result: late }), context))?.[1]).toEqual(['During upload · WebSocket', 'p90 55 · +39 ms vs idle · partial', '42', false])
   })
 
   it('reads a run that ended without a result as incomplete, and a direction it never reached as not run', () => {

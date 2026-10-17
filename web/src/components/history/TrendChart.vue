@@ -17,12 +17,12 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { Activity, ArrowDown, ArrowUp } from '@lucide/vue'
+import { Activity, ArrowDown, ArrowUp, House, Shield, Tag } from '@lucide/vue'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { resultDate } from '@/components/history/rows'
+import { resultDay } from '@/components/history/rows'
 import TrendPlot, { type TrendPoint } from '@/components/history/TrendPlot.vue'
 import SegmentedControl from '@/components/settings/SegmentedControl.vue'
 import type { Result } from '@/engine/messages'
@@ -30,10 +30,13 @@ import { formatLatency, formatRate } from '@/lib/format'
 
 // The trend over the filtered results (ui/screens.md section 3; kit History.jsx): small multiples
 // of download and upload on a log scale and idle latency on a linear one, oldest to newest, a result
-// whose status is not complete drawn as a hollow marker, with the legend. On narrow screens one
+// whose status is not complete drawn as a hollow marker, with the legend; the context labels the
+// filter selects, as chips beside the title, and the days the results span. On narrow screens one
 // metric shows at a time, with a selector.
 
-const props = defineProps<{ results: readonly Result[]; units: 'bits' | 'bytes' }>()
+const props = defineProps<{ results: readonly Result[]; units: 'bits' | 'bytes'; contexts: readonly string[] }>()
+
+const contextIcon = (context: string) => (context === 'LAN' ? House : context === 'VPN' ? Shield : Tag)
 
 type Metric = 'download' | 'upload' | 'latency'
 
@@ -65,7 +68,7 @@ const plots = computed(() => {
 const meta = computed(() => {
   const first = oldestFirst.value[0]
   const last = oldestFirst.value.at(-1)
-  return first === undefined || last === undefined ? '' : t('history.trend.meta', { n: props.results.length, from: resultDate(first.startedAt, locale.value), to: resultDate(last.startedAt, locale.value) })
+  return first === undefined || last === undefined ? '' : t('history.trend.meta', { n: props.results.length, from: resultDay(first.startedAt, locale.value), to: resultDay(last.startedAt, locale.value) })
 })
 
 const metrics = computed(() => [
@@ -83,6 +86,19 @@ const metrics = computed(() => [
   >
     <div class="flex flex-wrap items-center gap-x-3.5 gap-y-2">
       <span class="text-(length:--text-base) font-semibold">{{ t('history.trend.title') }}</span>
+      <span
+        v-for="context in contexts"
+        :key="context"
+        class="inline-flex h-(--chip-h-sm) items-center gap-1 rounded-full border border-(--border-default) bg-(--surface-2) px-2.5 text-(length:--text-caption) font-semibold whitespace-nowrap text-muted-foreground"
+      >
+        <component
+          :is="contextIcon(context)"
+          :size="12"
+          :stroke-width="2"
+          aria-hidden="true"
+        />
+        {{ context }}
+      </span>
       <span class="text-(length:--text-caption) text-subtle-foreground">{{ meta }}</span>
       <div
         role="list"
@@ -107,6 +123,7 @@ const metrics = computed(() => [
       <SegmentedControl
         v-if="narrow"
         v-model="metric"
+        size="sm"
         :options="metrics"
         :label="t('history.trend.metric')"
       />

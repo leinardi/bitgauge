@@ -17,12 +17,12 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts" generic="T extends string">
+import { RadioGroupItem, RadioGroupRoot } from 'reka-ui'
 import type { Component } from 'vue'
 
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-
 // The kit's Segmented (design_system/components/forms Segmented.jsx, forms.css `.seg`): two to
-// four mutually exclusive choices on the shadcn-vue toggle group, one always pressed.
+// four mutually exclusive choices, a radio group as the kit's is, one always checked; `sm` is the
+// kit's `.seg-sm`, on the raised surface.
 
 interface SegmentOption<V extends string> {
   value: V
@@ -32,10 +32,9 @@ interface SegmentOption<V extends string> {
   color?: string
 }
 
-defineProps<{ options: SegmentOption<T>[]; label: string; disabled?: boolean }>()
+defineProps<{ options: SegmentOption<T>[]; label: string; disabled?: boolean; size?: 'sm' | 'md' }>()
 const value = defineModel<T>({ required: true })
 
-// Pressing the pressed choice again would leave none: the choice stays.
 function choose(next: unknown): void {
   if (typeof next === 'string' && next !== '') {
     value.value = next as T
@@ -44,19 +43,21 @@ function choose(next: unknown): void {
 </script>
 
 <template>
-  <ToggleGroup
-    type="single"
+  <RadioGroupRoot
     :model-value="value"
     :aria-label="label"
     :disabled="disabled"
-    class="inline-flex max-w-full flex-wrap gap-0 overflow-hidden rounded-(--radius-md) border border-(--border-default) bg-(--surface-1)"
+    orientation="horizontal"
+    class="inline-flex max-w-full flex-wrap gap-0 overflow-hidden rounded-(--radius-md) border border-(--border-default)"
+    :class="size === 'sm' ? 'bg-(--surface-2)' : 'bg-(--surface-1)'"
     @update:model-value="choose"
   >
-    <ToggleGroupItem
+    <RadioGroupItem
       v-for="option in options"
       :key="option.value"
       :value="option.value"
-      class="h-(--control-h-item) gap-1.5 rounded-none border-r border-(--border-subtle) px-3.5 text-(length:--text-sm) font-semibold text-muted-foreground last:border-r-0 hover:bg-transparent hover:text-foreground data-[state=on]:bg-(--primary-bg) data-[state=on]:text-primary-text data-[spacing=0]:first:rounded-none data-[spacing=0]:last:rounded-none"
+      class="inline-flex flex-none cursor-pointer items-center gap-1.5 border-r border-(--border-subtle) font-semibold whitespace-nowrap text-muted-foreground outline-none last:border-r-0 focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 data-[state=checked]:bg-(--primary-bg) data-[state=checked]:text-primary-text"
+      :class="size === 'sm' ? 'h-(--control-h-sm) px-2.5 text-(length:--text-caption)' : 'h-(--control-h-item) px-3.5 text-(length:--text-sm)'"
     >
       <component
         :is="option.icon"
@@ -67,6 +68,6 @@ function choose(next: unknown): void {
         aria-hidden="true"
       />
       {{ option.label }}
-    </ToggleGroupItem>
-  </ToggleGroup>
+    </RadioGroupItem>
+  </RadioGroupRoot>
 </template>

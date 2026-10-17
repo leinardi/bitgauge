@@ -54,7 +54,7 @@ const label = computed(() => t('share.image.preview', { summary: props.view.line
   >
     <div class="flex min-w-0 items-center gap-1.5">
       <BrandLogo :size="15" />
-      <span class="text-(length:--text-caption) font-semibold tracking-(--tracking-tight)">{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
+      <span class="text-(length:--text-micro) leading-(--lh-tight) font-semibold tracking-(--tracking-tight)">{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
       <span class="ml-auto truncate font-mono text-(length:--text-pico) text-subtle-foreground">{{ view.head }}</span>
     </div>
     <div class="flex items-end gap-4.5">

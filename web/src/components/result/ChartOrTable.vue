@@ -78,6 +78,7 @@ const keyed = computed(() => props.warmup !== null || props.gap !== null)
       />{{ t('result.charts.latency') }}</span>
       <SegmentedControl
         v-model="view"
+        size="sm"
         :options="options"
         :label="t('result.charts.view', { title })"
         :class="latency && view === 'chart' ? '' : 'ml-auto'"

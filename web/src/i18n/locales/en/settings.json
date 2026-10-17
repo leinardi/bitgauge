@@ -34,6 +34,7 @@
       "download": "Download",
       "upload": "Upload",
       "order": "Order",
+      "orderLabel": "Phase order",
       "downloadFirst": "Download first",
       "uploadFirst": "Upload first",
       "help": "Idle latency runs first. Turn off a phase to test the others; at least one stays on."
@@ -139,6 +140,7 @@
       "confirmTitle": "Reset all settings?",
       "confirmBody": "{n} setting returns to its default: {names}. Your test history is not affected. | {n} settings return to their defaults: {names}. Your test history is not affected.",
       "cancel": "Cancel",
+      "close": "Close",
       "confirm": "Reset all"
     },
     "names": {

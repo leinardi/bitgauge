@@ -3,7 +3,7 @@
 The design export's app kit (`docs/design_system/ui_kits/app/`) is a clickable prototype of every
 screen and state; the Vue app in demo mode (`VITE_DEMO=1`,
 [frontend.md §9](../features/technical-stack/frontend.md#9-demo-build)) runs the real engine against
-a simulated link. The harness drives both into the same v0.1 states, compares what they show, and
+a simulated link. The harness drives both into the same v0.2 states, compares what they show, and
 holds the known differences in a committed baseline (`.parity-baseline`) that may only shrink. It
 finds two kinds of drift: the Vue app moving away from the export, and gaps in the demo (its links,
 fixtures and scenarios in `web/src/demo/`) that keep it from reaching the state the kit shows.
@@ -37,10 +37,14 @@ time, the longest a complete Standard test of about 28 s.
 
 ## What It Compares
 
-Each scenario (`web/parity/scenarios.ts`) runs its steps on both sides: one per v0.1 Test screen
-state (`test/<state>`, the kit's `TEST_STATES` without the continuous ones, which are v0.2), plus
-`about`, `about/unreachable`, and `demo/closed` and `demo/open` for the demo panel itself. Steps name
-states and screens; how each side reaches them lives in `web/parity/drivers.ts`:
+Each scenario (`web/parity/scenarios.ts`) runs its steps on both sides: one per Test screen state
+(`test/<state>`, the kit's `TEST_STATES` without the continuous ones, which are v0.3), the share
+dialog of a complete result (`share/complete`), one per kit History variant (`history/<variant>`,
+the kit's `HISTORY_VARIANTS`), the Result detail in each of the kit's states (`result`,
+`result/<state>`), Settings at its defaults and in each state its controls reach (`settings`,
+`settings/<state>`), `about`, `about/unreachable`, and `demo/closed` and `demo/open` for the demo
+panel itself. Steps name states and screens; how each side reaches them lives in
+`web/parity/drivers.ts`:
 
 - **A Test screen state** is forced through each side's demo panel. The prototype reads its panel
   from `localStorage` (`bitgauge-kit-demo`) when the page loads, and a forced state wins over its
@@ -48,16 +52,33 @@ states and screens; how each side reaches them lives in `web/parity/drivers.ts`:
   state in `DemoPanel`'s Force state control, which plays that state's scenario and holds it at the
   kit's instant. The one exception is `basepath`: the kit's state is the page-path mismatch, so the
   Vue demo, built for `/`, is opened under `/speed/`, where the page detects it before any request.
+  The kit's idle states (`idle`, `param-ignored`) show the last result its history holds, so the
+  Vue demo's panel seeds the kit's eight results before them.
 - **A screen** is reached by its navigation item's name in the Primary navigation the window shows;
   the item marked current is the proof it landed.
+- **A History variant** is forced through the prototype's panel. The Vue demo's panel seeds the
+  history instead (the kit's eight results, none, unavailable, or never opened for `loading`), and
+  the driver then uses the screen as a person would: selecting the kit's rows, opening Compare,
+  Clear all, the export menu or the date range, searching, deleting the selection, or importing a
+  file. Two states need a hand from the driver: `importing` reads a file that never finishes, and
+  `safari` reports Apple's `navigator.vendor`.
+- **A Result detail state** is the prototype panel's State and Demo choices. The Vue demo sets the
+  kit's label in Settings (Result label), runs the kit's run, or the loaded-latency case the state
+  names, and opens its Details; a saved result gets the kit's note. It then deletes the result or
+  copies its summary with a clipboard that refuses; `not-found` sends the router to an id the
+  history does not hold, and `history-unavailable` runs the test with history unavailable.
+- **The page's scroll** goes back to the top after the History and Result detail steps, whose
+  clicks and fields scroll it, since the kit's screens show each page from its top.
+- **A Settings state** is reached the same way on both sides, through the screen's own controls:
+  Advanced opened, the Quick preset chosen, a download minimum above the maximum, and Reset all.
 - **An unreachable server** is the prototype panel's Server unreachable switch and the Vue demo's
   `offline` scenario.
 
 Before reading anything, both pages are put in the same state: the wall clock fixed, UTC, en-US,
-reduced motion, the project's color scheme, and the prototype's theme and v0.1 scope set to the
-product's defaults (System, no History), with its Demo panel's browser on Chrome, since the harness
-drives Chromium and the panel defaults to Firefox. Then the harness waits until the DOM has stopped
-changing.
+reduced motion, the project's color scheme, and the prototype's theme and v0.2 scope set to the
+product's defaults (System; History, Settings, share and loaded latency on), with its Demo panel's
+browser on Chrome, since the harness drives Chromium and the panel defaults to Firefox. Then the
+harness waits until the DOM has stopped changing.
 
 | Layer | Reads | Produces |
 | --- | --- | --- |
@@ -102,8 +123,8 @@ height are compared.
 
 The demo panel is a region of the style and layout layers only, read by the `demo/*` scenarios
 alone. Its controls differ on purpose ([frontend.md §9](../features/technical-stack/frontend.md#9-demo-build):
-Vue has the v0.1 part of the kit's), so the content layer does not read it, and a control only the
-kit has is left unpaired.
+Vue has the part of the kit's the app needs), so the content layer does not read it, and a control
+only the kit has is left unpaired.
 
 ### Why the Runs Repeat
 
@@ -298,8 +319,11 @@ What no scenario visits is invisible to it. `web/parity/coverage.test.ts`, run b
 - a Vue page or a prototype screen has no row in its page table, or a row names one that is gone;
 - the routes Vue answers with the not-available page are not exactly the prototype screens the app
   does not have yet (none since the Result detail landed in v0.2);
-- a v0.1 state of the kit's `TEST_STATES` has no scenario, or a scenario names a state the kit
-  dropped or a v0.2 one;
+- a state of the kit's `TEST_STATES` the app has has no scenario, or a scenario names a state the
+  kit dropped or a v0.3 one;
+- a kit History variant, Result detail state or Settings state has no scenario, or the scenario
+  lists disagree with the kit's;
+- the harness drives a scope other than v0.2;
 - the Vue driver's list of states that start a run disagrees with the start flags of
   `DEMO_SCENARIOS`, or its list of states that hold their run disagrees with their holds.
 

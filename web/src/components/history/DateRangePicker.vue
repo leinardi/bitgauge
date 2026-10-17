@@ -18,19 +18,20 @@
 -->
 <script setup lang="ts">
 import { Calendar, Check, ChevronDown } from '@lucide/vue'
-import { computed, shallowRef, useId, watch } from 'vue'
+import { computed, shallowRef, useId, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
 import { Input } from '@/components/ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import type { Result } from '@/engine/messages'
 import { type DateRange, filterResults, NO_FILTER } from '@/history/filters'
 
 // The date-range filter (ui/screens.md section 3; kit History.jsx, Popover and OptionRows in
 // design_system/components/actions): the last 7, 30 or 90 days or all time, applied at once with
 // each preset's count, or a custom range of two date fields applied with Apply. Both days are
-// inclusive local dates.
+// inclusive local dates. The button is the popover's anchor rather than its trigger, so the dialog
+// keeps its own name, Date range, as the kit's does, instead of taking the button's.
 
 const props = defineProps<{ range: DateRange; results: readonly Result[]; now: Date }>()
 const emit = defineEmits<{ 'update:range': [DateRange] }>()
@@ -40,6 +41,21 @@ const open = shallowRef(false)
 const from = shallowRef('')
 const to = shallowRef('')
 const ids = { custom: useId() }
+const button = useTemplateRef<InstanceType<typeof AppButton>>('button')
+
+// The button toggles the popover itself; a press on it is not an outside press that closes it first.
+function outside(event: Event): void {
+  const target = event.target
+  if (target instanceof Node && (button.value?.$el as HTMLElement | undefined)?.contains(target) === true) {
+    event.preventDefault()
+  }
+}
+
+// Closing gives the focus back to the button, as a trigger would get it.
+function refocus(event: Event): void {
+  event.preventDefault()
+  ;(button.value?.$el as HTMLElement | undefined)?.focus()
+}
 
 const DASH = '–'
 
@@ -72,11 +88,28 @@ const label = computed(() =>
   props.range.kind === 'custom' ? t('history.filters.range.customValue', { from: localDate(props.range.from), to: localDate(props.range.to) }) : presetName(selected.value ?? 'all'),
 )
 
-// Opening starts the custom fields from the custom range in force, or empty.
+/** A local date as the date fields hold it, `YYYY-MM-DD`. */
+function isoDay(date: Date): string {
+  return `${String(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+// Opening starts the custom fields from the range in force, as the kit's do: the custom range, or
+// the days a preset covers up to today; empty for all time.
 watch(open, (opened) => {
-  if (opened) {
-    from.value = props.range.kind === 'custom' ? props.range.from : ''
-    to.value = props.range.kind === 'custom' ? props.range.to : ''
+  if (!opened) {
+    return
+  }
+  if (props.range.kind === 'custom') {
+    from.value = props.range.from
+    to.value = props.range.to
+  } else if (props.range.kind === 'days') {
+    const start = new Date(props.now)
+    start.setDate(start.getDate() - props.range.days)
+    from.value = isoDay(start)
+    to.value = isoDay(props.now)
+  } else {
+    from.value = ''
+    to.value = ''
   }
 })
 
@@ -97,10 +130,14 @@ function apply(): void {
 
 <template>
   <Popover v-model:open="open">
-    <PopoverTrigger as-child>
+    <PopoverAnchor as-child>
       <AppButton
+        ref="button"
         size="sm"
+        aria-haspopup="dialog"
+        :aria-expanded="open"
         data-testid="date-range"
+        @click="open = !open"
       >
         <Calendar
           :size="14"
@@ -112,11 +149,14 @@ function apply(): void {
           aria-hidden="true"
         />
       </AppButton>
-    </PopoverTrigger>
+    </PopoverAnchor>
     <PopoverContent
       align="end"
+      :side-offset="6"
       :aria-label="t('history.filters.range.label')"
       class="flex w-75 flex-col gap-0.5 rounded-(--radius-lg) border-(--border-default) bg-(--surface-2) p-1.5 text-left shadow-(--shadow-pop)"
+      @interact-outside="outside"
+      @close-auto-focus="refocus"
     >
       <div
         role="radiogroup"
@@ -146,7 +186,7 @@ function apply(): void {
       <div class="mx-0.5 my-1 h-px bg-(--border-subtle)" />
       <span
         :id="ids.custom"
-        class="px-2.5 pt-1 pb-0.5 font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase"
+        class="px-2.5 pt-1 pb-0.5 font-(family-name:--font-cond) text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase"
       >{{ t('history.filters.range.custom') }}</span>
       <div
         role="group"

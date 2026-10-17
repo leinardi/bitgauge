@@ -63,7 +63,7 @@ function warmup(result: Result, wording: Wording): string {
     const series = result[direction]?.series
     return series === undefined ? [] : [t('result.parameters.warmupEnd', { at: formatDuration(series.warmupEndMs, locale), direction: directionName(direction, wording).toLocaleLowerCase(locale) })]
   })
-  return ends.length === 0 ? mode : t('result.parameters.warmupEnded', { mode, ends: new Intl.ListFormat(locale, { type: 'conjunction' }).format(ends) })
+  return ends.length === 0 ? mode : t('result.parameters.warmupEnded', { mode, ends: new Intl.ListFormat(locale, { type: 'unit', style: 'short' }).format(ends) })
 }
 
 export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording: Wording): ParameterGroup[] {

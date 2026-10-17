@@ -17,7 +17,8 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { Download, Trash2 } from '@lucide/vue'
+import { Download, Trash2, X } from '@lucide/vue'
+import { useMediaQuery } from '@vueuse/core'
 import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogOverlay, AlertDialogPortal, AlertDialogTrigger } from 'reka-ui'
 import { useI18n } from 'vue-i18n'
 
@@ -26,11 +27,13 @@ import { AlertDialog, AlertDialogDescription, AlertDialogTitle } from '@/compone
 
 // Clear all and its confirmation (ui/screens.md section 3, ui/flows.md section 6 step 8; kit
 // History.jsx, Dialog in design_system/components/dialog): the alert dialog names the count and
-// offers Export JSON first, which leaves it open; clearing cannot be undone.
+// offers Export JSON first, which leaves it open; clearing cannot be undone. Close cancels, as
+// Cancel does. On a narrow screen the footer reads Cancel, Export JSON first, Clear, as the kit's.
 
 defineProps<{ count: number }>()
 const emit = defineEmits<{ confirm: []; exportFirst: [] }>()
 const { t } = useI18n()
+const narrow = useMediaQuery('(max-width: 767.98px)')
 </script>
 
 <template>
@@ -51,7 +54,7 @@ const { t } = useI18n()
     <AlertDialogPortal>
       <AlertDialogOverlay class="fixed inset-0 z-(--z-overlay) bg-(--scrim) backdrop-blur-(--scrim-blur)" />
       <AlertDialogContent
-        class="fixed top-1/2 left-1/2 z-(--z-overlay) max-h-[calc(100vh-var(--space-8))] w-(--modal-w) max-w-(--modal-max-w) -translate-x-1/2 -translate-y-1/2 overflow-x-hidden overflow-y-auto rounded-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop)"
+        class="fixed top-1/2 left-1/2 z-(--z-overlay) max-h-[calc(100vh-var(--space-8))] w-(--modal-w) max-w-(--modal-max-w) -translate-x-1/2 -translate-y-1/2 overflow-x-hidden max-tablet:top-(--space-16) max-tablet:translate-y-0 overflow-y-auto rounded-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop)"
       >
         <div class="flex gap-3.5 px-5 pt-4.5 pb-3.5">
           <span class="flex size-(--modal-icon) shrink-0 items-center justify-center rounded-(--radius-md) border border-(--danger-border) bg-(--danger-bg) text-(--danger-fg)">
@@ -68,23 +71,46 @@ const { t } = useI18n()
               {{ t('history.clear.body', { n: count }, count) }}
             </AlertDialogDescription>
           </div>
+          <AlertDialogCancel as-child>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              class="-mt-1 -mr-1.5 size-(--control-h-sm) self-start justify-center px-0"
+              :aria-label="t('history.clear.close')"
+            >
+              <X
+                :size="16"
+                aria-hidden="true"
+              />
+            </AppButton>
+          </AlertDialogCancel>
         </div>
-        <div class="mt-3.5 flex flex-wrap items-center gap-2.5 px-5 py-4">
+        <div class="mt-3.5 flex flex-wrap items-center gap-2.5 px-5 py-4 max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:[&>*]:min-h-(--control-h-touch) max-tablet:[&>*]:justify-center">
+          <AlertDialogCancel
+            v-if="narrow"
+            as-child
+          >
+            <AppButton variant="ghost">
+              {{ t('history.clear.cancel') }}
+            </AppButton>
+          </AlertDialogCancel>
           <AppButton
-            variant="ghost"
+            :variant="narrow ? 'secondary' : 'ghost'"
             data-testid="clear-export-first"
             @click="emit('exportFirst')"
           >
             <Download
-              :size="14"
+              :size="15"
               aria-hidden="true"
             />
             {{ t('history.clear.exportFirst') }}
           </AppButton>
-          <span class="flex-1" />
-          <AlertDialogCancel as-child>
-            <AppButton>{{ t('history.clear.cancel') }}</AppButton>
-          </AlertDialogCancel>
+          <template v-if="!narrow">
+            <span class="flex-1" />
+            <AlertDialogCancel as-child>
+              <AppButton>{{ t('history.clear.cancel') }}</AppButton>
+            </AlertDialogCancel>
+          </template>
           <AlertDialogAction as-child>
             <AppButton
               variant="danger-solid"
@@ -92,7 +118,7 @@ const { t } = useI18n()
               @click="emit('confirm')"
             >
               <Trash2
-                :size="14"
+                :size="15"
                 aria-hidden="true"
               />
               {{ t('history.clear.confirm', { n: count }, count) }}

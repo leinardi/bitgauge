@@ -145,6 +145,14 @@ describe('the demo session', () => {
     expect(noticesOf(result)).toContain('failure-gap')
   })
 
+  it('carries the HTTP/2 upload on past requests that fail for a while, the gap left out', async () => {
+    const result = resultOf((await play('upload-gap')).events)
+    expect(result.status).toBe('complete')
+    const gaps = (result.upload?.events ?? []).filter((event) => event.code === 'failure-gap')
+    expect(gaps).toHaveLength(1)
+    expect(result.upload?.status).toBe('measured')
+  })
+
   it('ends with requests-failed when the server stops answering mid-download', async () => {
     // Every request in flight fails at once, three in a row before the WebSocket's close sequence
     // decides (ui/flows.md section 5).
@@ -202,10 +210,40 @@ describe('the demo session', () => {
     expect(events.length).toBe(count)
   })
 
+  it('dates a run by the page’s wall clock, which may be fixed at another day', async () => {
+    const page = Date.UTC(2026, 9, 8, 14, 2, 11)
+    const fixed = Date.parse(resultOf((await play('complete', { wallClockMs: page })).events).startedAt)
+    expect(Math.abs(fixed - page)).toBeLessThan(60_000)
+    const own = Date.parse(resultOf((await play('complete')).events).startedAt)
+    expect(Math.abs(own - Date.now())).toBeLessThan(60_000)
+  })
+
   it('runs at the panel speed: a twice-as-fast demo takes half the real time', async () => {
     const normal = await play('complete')
     const fast = await play('complete', { speed: 2 })
     expect(resultOf(fast.events).durationMs).toBeCloseTo(resultOf(normal.events).durationMs, -3)
     expect(fast.base.now()).toBeLessThan(normal.base.now() * 0.6)
+  })
+})
+
+describe('the loaded-latency cases', () => {
+  it('carries loaded latency over the HTTP/2 probe once the WebSocket closes and cannot be reopened', async () => {
+    const result = resultOf((await play('ws-close')).events)
+    expect(result.status).toBe('complete')
+    expect(noticesOf(result)).toContain('websocket-unavailable')
+    expect(result.download?.loadedLatency).toMatchObject({ source: 'http-h2', idleSource: 'websocket' })
+    expect(result.upload?.loadedLatency).toMatchObject({ source: 'http-h2', idleSource: 'websocket' })
+  })
+
+  it.each([
+    ['ll-reservation-broken', 'complete', 'reservation-broken'],
+    ['ll-insufficient-samples', 'complete', 'insufficient-samples'],
+    ['ll-no-steady-window', 'partial', 'no-steady-window'],
+    ['ll-no-probe-path', 'partial', 'no-probe-path'],
+  ] as const)('%s leaves the upload loaded latency unavailable for that reason', async (name, status, reason) => {
+    const result = resultOf((await play(name)).events)
+    expect(result.status).toBe(status)
+    expect(result.download?.loadedLatency).toMatchObject({ source: 'websocket' })
+    expect(result.upload?.loadedLatency).toMatchObject({ status: 'unavailable', reason })
   })
 })

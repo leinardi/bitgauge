@@ -40,8 +40,10 @@ const props = defineProps<{
   mono?: boolean
   placeholder?: string
   inputmode?: 'numeric' | 'decimal' | 'text'
+  /** The caller shows the error, under its own row of fields, with the id `<id>-error`. */
+  detachedError?: boolean
 }>()
-const emit = defineEmits<{ commit: [text: string] }>()
+const emit = defineEmits<{ commit: [text: string]; error: [message: string | null] }>()
 // The width and the rest of the caller's attributes go to the shell, not to the column around it.
 defineOptions({ inheritAttrs: false })
 
@@ -55,6 +57,7 @@ const restores = computed(() => (props.suffix === undefined ? props.value : `${p
 function show(message: string | null): void {
   error.value = message
   form.invalid(props.id, message !== null)
+  emit('error', message)
 }
 
 function message(text: string): string | null {
@@ -134,7 +137,7 @@ onScopeDispose(() => form.invalid(props.id, false))
       >{{ suffix }}</span>
     </div>
     <FieldError
-      v-if="error !== null"
+      v-if="error !== null && !detachedError"
       :id="errorId"
     >
       {{ error }}

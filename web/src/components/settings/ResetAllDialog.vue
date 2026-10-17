@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { RotateCcw } from '@lucide/vue'
+import { RotateCcw, X } from '@lucide/vue'
 import { AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogOverlay, AlertDialogPortal, AlertDialogTrigger } from 'reka-ui'
 import { useI18n } from 'vue-i18n'
 
@@ -26,7 +26,7 @@ import { AlertDialog, AlertDialogDescription, AlertDialogTitle } from '@/compone
 
 // Reset all to defaults and its confirmation (ui/screens.md section 4; kit Settings.jsx, Dialog in
 // design_system/components/dialog): the shadcn-vue alert dialog in the kit's modal, danger in tone,
-// naming the settings that return to their defaults.
+// naming the settings that return to their defaults. Close cancels, as Cancel does.
 
 defineProps<{ names: string[] }>()
 const emit = defineEmits<{ confirm: [] }>()
@@ -52,7 +52,7 @@ const { t } = useI18n()
     <AlertDialogPortal>
       <AlertDialogOverlay class="fixed inset-0 z-(--z-overlay) bg-(--scrim) backdrop-blur-(--scrim-blur)" />
       <AlertDialogContent
-        class="fixed top-1/2 left-1/2 z-(--z-overlay) max-h-[calc(100vh-var(--space-8))] w-(--modal-w) max-w-(--modal-max-w) -translate-x-1/2 -translate-y-1/2 overflow-x-hidden overflow-y-auto rounded-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop)"
+        class="fixed top-1/2 left-1/2 z-(--z-overlay) max-h-[calc(100vh-var(--space-8))] w-(--modal-w) max-w-(--modal-max-w) -translate-x-1/2 -translate-y-1/2 overflow-x-hidden max-tablet:top-(--space-16) max-tablet:translate-y-0 overflow-y-auto rounded-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop)"
       >
         <div class="flex gap-3.5 px-5 pt-4.5 pb-3.5">
           <span class="flex size-(--modal-icon) shrink-0 items-center justify-center rounded-(--radius-md) border border-(--danger-border) bg-(--danger-bg) text-(--danger-fg)">
@@ -69,8 +69,21 @@ const { t } = useI18n()
               {{ t('settings.changed.confirmBody', { n: names.length, names: names.join(', ') }, names.length) }}
             </AlertDialogDescription>
           </div>
+          <AlertDialogCancel as-child>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              class="-mt-1 -mr-1.5 size-(--control-h-sm) self-start justify-center px-0"
+              :aria-label="t('settings.changed.close')"
+            >
+              <X
+                :size="16"
+                aria-hidden="true"
+              />
+            </AppButton>
+          </AlertDialogCancel>
         </div>
-        <div class="mt-3.5 flex flex-wrap items-center justify-end gap-2.5 px-5 py-4">
+        <div class="mt-3.5 flex flex-wrap items-center justify-end gap-2.5 px-5 py-4 max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:[&>*]:justify-center">
           <AlertDialogCancel as-child>
             <AppButton>{{ t('settings.changed.cancel') }}</AppButton>
           </AlertDialogCancel>
@@ -80,7 +93,7 @@ const { t } = useI18n()
               @click="emit('confirm')"
             >
               <RotateCcw
-                :size="14"
+                :size="15"
                 aria-hidden="true"
               />
               {{ t('settings.changed.confirm') }}

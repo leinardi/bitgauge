@@ -285,7 +285,11 @@
       "afterUpload": "Graded after upload",
       "afterDownload": "Graded after download",
       "incomplete": "Not graded — test incomplete",
-      "noLoaded": "Not graded — no loaded latency"
+      "noLoaded": "Not graded — no loaded latency",
+      "noGradable": "Not graded — no gradable direction",
+      "partial": "{sub} · partial",
+      "failed": "{sub} · {direction} failed",
+      "stoppedWarmup": "{sub} · stopped in warm-up"
     }
   }
 }

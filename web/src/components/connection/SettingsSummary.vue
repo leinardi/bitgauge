@@ -83,7 +83,6 @@ const line = computed(() => baseParts(props.settings).map((part) => text(part, t
     <AppLink
       to="/settings"
       :aria-label="t('test.summary.editLabel')"
-      class="text-(length:--text-caption)"
     >
       <SlidersHorizontal
         :size="13"

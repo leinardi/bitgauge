@@ -52,6 +52,7 @@
       "body": "This removes {n} result with its label and note from this browser. This cannot be undone. Export first if you want a copy. | This removes {n} results with their labels and notes from this browser. This cannot be undone. Export first if you want a copy.",
       "exportFirst": "Export JSON first",
       "cancel": "Cancel",
+      "close": "Close",
       "confirm": "Clear {n} result | Clear {n} results"
     },
     "origin": {
@@ -77,7 +78,15 @@
     "loading": "Loading history",
     "noMatch": {
       "title": "No results match these filters",
-      "body": "None of the {total} results matches the current filters. All of them are still in history.",
+      "nothing": "Nothing",
+      "nothingWith": "Nothing {parts}",
+      "context": "with context {values}",
+      "label": "with label {values}",
+      "days": "in the last {n} days",
+      "between": "from {from} to {to}",
+      "matches": "{what} matches.",
+      "matchesQuery": "{what} matches “{q}”.",
+      "still": "The {n} result is still in history. | All {n} results are still in history.",
       "clear": "Clear filters"
     },
     "filters": {
@@ -161,6 +170,9 @@
     "selection": {
       "label": "Selection",
       "count": "{n} selected",
+      "pair": "{label} · {a} and {b}",
+      "pairDays": "{a} and {b}",
+      "span": "{a} – {b}",
       "clear": "Clear selection",
       "delete": "Delete selected",
       "compare": "Compare",
@@ -173,6 +185,7 @@
     "compare": {
       "title": "Compare results",
       "description": "Change is B relative to A",
+      "descriptionPaged": "Change is shown on B, relative to A",
       "close": "Close",
       "done": "Done",
       "copy": "Copy comparison",

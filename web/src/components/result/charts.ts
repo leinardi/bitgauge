@@ -62,6 +62,17 @@ function summary(title: string, meta: string, model: PhaseModel, wording: Wordin
   return text
 }
 
+// The gaps' legend entry: what a failure gap is and where, as the kit's PhaseChart names it; unknown
+// cells alone have no reason to give.
+function gapLegend(part: DirectionResult, model: PhaseModel, wording: Wording): string | null {
+  const { t, locale } = wording
+  const failures = part.events.flatMap((event) => (event.code === 'failure-gap' ? [t('result.charts.gapSpan', { from: secondsNumber(event.startMs, locale), to: secondsNumber(event.endMs, locale) })] : []))
+  if (failures.length > 0) {
+    return t('result.charts.failedGap', { spans: failures.join(', ') })
+  }
+  return model.gaps.length === 0 ? null : t('result.charts.gap')
+}
+
 function directionCard(direction: Direction, part: DirectionResult, result: Result, units: 'bits' | 'bytes', wording: Wording): ChartCard | null {
   const { t, locale } = wording
   const model = directionModel(part, units)
@@ -92,7 +103,7 @@ function directionCard(direction: Direction, part: DirectionResult, result: Resu
     meta,
     summary: summary(title, meta, model, wording),
     warmup: model.warmupEnd === null ? null : t('result.charts.warmup', { end: at }),
-    gap: model.gaps.length === 0 ? null : t('result.charts.gap'),
+    gap: gapLegend(part, model, wording),
     model,
     table: {
       label: title,

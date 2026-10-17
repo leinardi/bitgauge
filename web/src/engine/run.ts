@@ -52,6 +52,8 @@ export interface RunOptions {
   /** Whether the page is visible when the run starts. */
   visible: boolean
   emit: (event: EngineEvent) => void
+  /** The wall clock the result's start time reads, in epoch milliseconds; Date.now by default. */
+  wallClock?: () => number
 }
 
 type Interrupt = { kind: 'stop'; at?: number } | { kind: 'error'; code: RunErrorCode }
@@ -103,7 +105,7 @@ export class Run {
 
   /** Runs every phase and emits the result object; resolves with the report, or null when no phase has a result to keep, which emits no result. */
   async start(): Promise<RunReport | null> {
-    const startedAt = new Date()
+    const startedAt = new Date(this.options.wallClock?.() ?? Date.now())
     const startAt = this.clock.now()
     this.tick()
     try {

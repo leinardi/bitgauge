@@ -102,14 +102,15 @@ const CELL = 'border-b border-(--border-subtle) px-3.5 py-(--density-cell-paddin
               {{ t('history.compare.title') }}
             </DialogTitle>
             <DialogDescription class="mt-0.5 text-(length:--text-caption) leading-(--lh-prose) text-subtle-foreground tablet:mt-1 tablet:text-(length:--text-sm) tablet:text-muted-foreground">
-              {{ t('history.compare.description') }}
+              <span class="tablet:hidden">{{ t('history.compare.descriptionPaged') }}</span>
+              <span class="hidden tablet:inline">{{ t('history.compare.description') }}</span>
             </DialogDescription>
           </div>
           <DialogClose as-child>
             <AppButton
               variant="ghost"
               size="sm"
-              class="size-11 justify-center px-0 tablet:size-(--control-h-sm)"
+              class="size-11 justify-center px-0 text-(length:--text-sm) leading-(--lh-tight) tablet:size-(--control-h-sm) tablet:text-(length:--text-caption)"
               :aria-label="t('history.compare.close')"
             >
               <X
@@ -229,7 +230,7 @@ const CELL = 'border-b border-(--border-subtle) px-3.5 py-(--density-cell-paddin
             @click="copy"
           >
             <Copy
-              :size="14"
+              :size="15"
               aria-hidden="true"
             />
             <span class="tablet:hidden">{{ t('history.compare.copyShort') }}</span>

@@ -23,8 +23,8 @@ import { useI18n } from 'vue-i18n'
 
 import ChangedMark from '@/components/settings/ChangedMark.vue'
 import { useSettingsForm } from '@/components/settings/form'
+import LabeledCheckbox from '@/components/settings/LabeledCheckbox.vue'
 import SegmentedControl from '@/components/settings/SegmentedControl.vue'
-import { Checkbox } from '@/components/ui/checkbox'
 import type { MeasuringPhase } from '@/engine/messages'
 
 // The phases of a run (ui/screens.md section 4, kit Settings.jsx): idle latency, download and
@@ -53,7 +53,7 @@ function build(on: ReadonlySet<MeasuringPhase>, lead: Order): MeasuringPhase[] {
   return [...(on.has('idle') ? (['idle'] as const) : []), ...directions.filter((direction) => on.has(direction))]
 }
 
-function toggle(phase: MeasuringPhase, checked: boolean | 'indeterminate'): void {
+function toggle(phase: MeasuringPhase, checked: boolean): void {
   const on = new Set(phases.value)
   if (checked === true) {
     on.add(phase)
@@ -91,31 +91,24 @@ const orders = computed(() => [
       {{ t('settings.phases.title') }}
       <ChangedMark v-if="form.changed.value.has('phases')" />
     </span>
+    <!-- A group for assistive technology only: the checkboxes lay out in the row itself. -->
     <div
       role="group"
       aria-labelledby="settings-phases"
-      class="flex flex-wrap items-center gap-x-4 gap-y-2"
+      class="contents"
     >
-      <label
+      <LabeledCheckbox
         v-for="item in toggles"
         :key="item.phase"
-        class="inline-flex min-h-(--control-h-item) cursor-pointer items-center gap-2 text-(length:--text-sm) text-foreground has-disabled:cursor-not-allowed has-disabled:opacity-45"
+        :model-value="phases.includes(item.phase)"
+        :disabled="phases.length === 1 && phases.includes(item.phase)"
+        :icon="item.icon"
+        :icon-color="item.color"
+        class="text-(length:--text-sm) text-foreground"
+        @update:model-value="toggle(item.phase, $event)"
       >
-        <Checkbox
-          :model-value="phases.includes(item.phase)"
-          :disabled="phases.length === 1 && phases.includes(item.phase)"
-          class="size-(--check-size) rounded-(--radius-xs) border-(length:--border-width-strong) border-(--border-strong) shadow-none data-[state=checked]:border-primary"
-          @update:model-value="toggle(item.phase, $event)"
-        />
-        <component
-          :is="item.icon"
-          :size="14"
-          :stroke-width="2"
-          :style="{ color: item.color }"
-          aria-hidden="true"
-        />
         {{ item.label }}
-      </label>
+      </LabeledCheckbox>
     </div>
     <div
       class="flex items-center gap-2 desktop:ml-auto"
@@ -125,7 +118,7 @@ const orders = computed(() => [
       <SegmentedControl
         v-model="order"
         :options="orders"
-        :label="t('settings.phases.order')"
+        :label="t('settings.phases.orderLabel')"
         :disabled="!bothDirections"
       />
     </div>

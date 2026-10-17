@@ -71,13 +71,16 @@ const modes = computed(() => [
         :min="1"
         :max="streams.max"
         :step="1"
+        :aria-label="t('settings.streams.count')"
         class="gap-0"
         @update:model-value="count"
       >
-        <NumberFieldContent class="flex h-8.5 items-center overflow-hidden rounded-(--radius-md) border border-(--border-default) bg-(--surface-1)">
+        <NumberFieldContent
+          class="flex h-8.5 items-center overflow-hidden rounded-(--radius-md) border border-(--border-default) bg-(--surface-1)"
+        >
           <NumberFieldDecrement
             :aria-label="t('settings.streams.fewer')"
-            class="static size-8 translate-y-0 p-0 flex items-center justify-center text-muted-foreground hover:bg-(--surface-3) hover:text-foreground"
+            class="static flex size-8 translate-y-0 items-center justify-center p-0 text-(length:--text-caption) leading-(--lh-tight) text-muted-foreground hover:bg-(--surface-3) hover:text-foreground"
           />
           <NumberFieldInput
             :aria-label="t('settings.streams.count')"
@@ -85,7 +88,7 @@ const modes = computed(() => [
           />
           <NumberFieldIncrement
             :aria-label="t('settings.streams.more')"
-            class="static size-8 translate-y-0 p-0 flex items-center justify-center text-muted-foreground hover:bg-(--surface-3) hover:text-foreground"
+            class="static flex size-8 translate-y-0 items-center justify-center p-0 text-(length:--text-caption) leading-(--lh-tight) text-muted-foreground hover:bg-(--surface-3) hover:text-foreground"
           />
         </NumberFieldContent>
       </NumberField>

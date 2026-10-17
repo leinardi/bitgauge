@@ -31,6 +31,6 @@ const checked = defineModel<boolean>({ required: true })
   <Switch
     v-model="checked"
     :aria-label="label"
-    class="h-(--switch-h) w-(--switch-w) border-(--border-default) px-0.5 shadow-none data-[state=checked]:border-primary data-[state=checked]:bg-primary! data-[state=unchecked]:bg-(--surface-4)! [&>span]:size-(--switch-knob) [&>span]:bg-(--fg-subtle)! data-[state=checked]:[&>span]:translate-x-[calc(var(--switch-w)-var(--switch-knob)-2*var(--space-0-5)-2*var(--border-width))] data-[state=checked]:[&>span]:bg-(--fg-on-solid)!"
+    class="h-(--switch-h) w-(--switch-w) border-(--border-default) px-0 shadow-none [&>span]:ml-0.5 data-[state=checked]:border-primary data-[state=checked]:bg-primary! data-[state=unchecked]:bg-(--surface-4)! [&>span]:size-(--switch-knob) [&>span]:bg-(--fg-subtle)! data-[state=checked]:[&>span]:translate-x-[calc(var(--switch-w)-var(--switch-knob)-2*var(--space-0-5)-2*var(--border-width))] data-[state=checked]:[&>span]:bg-(--fg-on-solid)!"
   />
 </template>

@@ -22,6 +22,7 @@ import { shallowRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
+import AppButton from '@/components/actions/AppButton.vue'
 import type { Comparison, CompareRow } from '@/components/history/compare'
 import CompareChange from '@/components/history/CompareChange.vue'
 
@@ -61,18 +62,18 @@ const EYEBROW = 'pt-3 pb-1 font-(family-name:--font-cond) text-(length:--text-mi
 <template>
   <div class="flex flex-col gap-3">
     <div class="flex items-center gap-1 px-2">
-      <button
-        type="button"
-        class="flex size-11 items-center justify-center rounded-(--radius-md) text-muted-foreground hover:bg-accent disabled:opacity-45"
+      <AppButton
+        variant="ghost"
+        class="size-11 justify-center px-0"
         :aria-label="t('history.compare.previous')"
         :disabled="page === 0"
         @click="go(0)"
       >
         <ChevronLeft
-          :size="16"
+          :size="15"
           aria-hidden="true"
         />
-      </button>
+      </AppButton>
       <div class="flex flex-1 flex-col items-center gap-1.5">
         <span
           aria-live="polite"
@@ -90,18 +91,18 @@ const EYEBROW = 'pt-3 pb-1 font-(family-name:--font-cond) text-(length:--text-mi
           />
         </span>
       </div>
-      <button
-        type="button"
-        class="flex size-11 items-center justify-center rounded-(--radius-md) text-muted-foreground hover:bg-accent disabled:opacity-45"
+      <AppButton
+        variant="ghost"
+        class="size-11 justify-center px-0"
         :aria-label="t('history.compare.next')"
         :disabled="page === 1"
         @click="go(1)"
       >
         <ChevronRight
-          :size="16"
+          :size="15"
           aria-hidden="true"
         />
-      </button>
+      </AppButton>
     </div>
     <div
       ref="scroller"

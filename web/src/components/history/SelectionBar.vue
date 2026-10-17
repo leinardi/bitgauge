@@ -24,12 +24,13 @@ import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/actions/AppButton.vue'
 
 // The selection bar (ui/screens.md section 3; kit History.jsx) once rows are selected: the count,
-// Clear selection, Delete selected, which removes the rows at once with an undo toast, and
-// Compare, which opens the compare view for exactly two. Compare stays in the tab order with any
-// other count, marked unavailable and described by the hint that says why. At the foot of the
-// table on wider screens; on narrow ones it floats over the cards, with touch-sized buttons.
+// what it holds (its days, after the label two results share), Clear selection, Delete selected,
+// which removes the rows at once with an undo toast, and Compare, which opens the compare view for
+// exactly two. Compare stays in the tab order with any other count, marked unavailable and
+// described by the hint that says why. At the foot of the table on wider screens; on narrow ones
+// it floats over the cards, with touch-sized buttons and the hint kept out of sight, as the kit's.
 
-const props = defineProps<{ count: number; floating?: boolean }>()
+const props = defineProps<{ count: number; summary?: string; floating?: boolean }>()
 const emit = defineEmits<{ clear: []; remove: []; compare: [] }>()
 
 const { t } = useI18n()
@@ -59,7 +60,7 @@ function compare(): void {
       @click="emit('clear')"
     >
       <X
-        :size="16"
+        :size="15"
         aria-hidden="true"
       />
     </AppButton>
@@ -70,7 +71,7 @@ function compare(): void {
       @click="emit('remove')"
     >
       <Trash2
-        :size="16"
+        :size="15"
         aria-hidden="true"
       />
     </AppButton>
@@ -87,7 +88,7 @@ function compare(): void {
       @click="compare"
     >
       <GitCompare
-        :size="16"
+        :size="15"
         aria-hidden="true"
       />
       {{ t('history.selection.compare') }}
@@ -101,6 +102,10 @@ function compare(): void {
     data-testid="selection-bar"
   >
     <span class="text-(length:--text-sm) font-semibold">{{ t('history.selection.count', { n: count }) }}</span>
+    <span
+      v-if="summary"
+      class="text-(length:--text-caption) text-subtle-foreground"
+    >{{ summary }}</span>
     <div class="ml-auto flex flex-wrap items-center gap-2">
       <span
         :id="hintId"

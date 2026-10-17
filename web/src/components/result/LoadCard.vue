@@ -53,7 +53,12 @@ const DIRECTIONS = { download: { icon: ArrowDown, color: 'var(--series-download)
 
 const letter = computed(() => props.grade?.grade ?? null)
 const box = computed(() => (letter.value === null ? BOX.none : BOX[toneOf(letter.value)]))
-const name = computed(() => (letter.value === null || props.grade === null ? t('result.load.noGrade') : t('result.load.grade', { grade: letter.value, words: props.grade.words })))
+const name = computed(() => {
+  if (letter.value === null || props.grade === null) {
+    return props.grade?.pending === true ? t('result.load.pendingGrade') : t('result.load.noGrade')
+  }
+  return t('result.load.grade', { grade: letter.value, words: props.grade.words })
+})
 </script>
 
 <template>

@@ -145,7 +145,8 @@
     },
     "websocketUnavailable": {
       "title": "WebSocket unavailable — HTTP latency fallback",
-      "body": "The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests."
+      "body": "The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.",
+      "closed": "The WebSocket closed after idle latency, so latency under load is measured with HTTP requests; the change vs idle compares the two paths."
     },
     "probeReservation": {
       "title": "HTTP/1.1 probe reservation active — {n} streams",

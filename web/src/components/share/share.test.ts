@@ -81,7 +81,7 @@ describe('the share panel', () => {
     browser({})
     const panel = mountPanel(resultFixture())
     expect(panel.get('[data-testid="include-label"]').attributes('disabled')).toBeDefined()
-    expect(panel.text()).toContain('No label set')
+    expect(panel.text()).toContain('no label set')
   })
 
   it('downloads the image it renders from the previewed view, and confirms', async () => {

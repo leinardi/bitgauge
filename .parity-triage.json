@@ -17262,6 +17262,3461 @@
           "complete": true
         }
       }
+    },
+    {
+      "id": "v02-a11y-changed-list",
+      "title": "Settings changed from defaults: Vue lists the changed settings as a list; the kit's are rows of divs",
+      "match": {
+        "scenarios": [
+          "settings/changed"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > complementary > region \"Changed from defaults\"$",
+        "kind": "^(missing|extra)$",
+        "detail": "^(list|button \"Reset [^\"]*\")$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls (structure in markup, SC 1.3.1)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx (changed card)",
+          "says": "a div per changed setting"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/ChangedList.vue",
+          "says": "a ul with an li per changed setting"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-chart-second-scale",
+      "title": "Test screen chart summary: Vue says the loaded latency is drawn on a second scale; the kit's summary leaves it out",
+      "match": {
+        "scenarios": [
+          "test/*",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": "^changed$",
+        "detail": "^img \".*\" → \".*; latency under load on a second scale(;[^\"]*)?\"$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:118-119; docs/features/ui/i18n-a11y.md §2",
+          "says": "loaded latency on the chart's own second axis; charts have a text alternative (section 2.7)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (chart aria-label)",
+          "says": "the throughput summary without the second axis"
+        },
+        "vue": {
+          "ref": "web/src/components/chart/text.ts",
+          "says": "the summary ends \"; latency under load on a second scale\" while the series is shown"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-edit-name",
+      "title": "Test screen settings summary: Vue names the Edit link \"Edit settings\"; the kit's is named by its text, \"Edit\"",
+      "match": {
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^changed$",
+        "detail": "^link \"Edit\" → \"Edit settings\"$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls (a link's purpose from its name, SC 2.4.4)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (settings summary)",
+          "says": "a link named Edit"
+        },
+        "vue": {
+          "ref": "web/src/components/connection/SettingsSummary.vue",
+          "says": "aria-label \"Edit settings\", the text Edit shown"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-edit-name-text",
+      "title": "Test screen settings summary: the Edit link's text, which Vue's aria-label replaces as its name (follows v02-a11y-edit-name)",
+      "match": {
+        "scenarios": [
+          "test/*",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > link \"Edit\"$",
+        "kind": "^extra$",
+        "detail": "^text \"Edit\"$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (settings summary)",
+          "says": "a link named by its text"
+        },
+        "vue": {
+          "ref": "web/src/components/connection/SettingsSummary.vue",
+          "says": "the text Edit under a link named Edit settings"
+        },
+        "notes": "Follows v02-a11y-edit-name; on test/cancelled-latency the name itself is held by behavior-stop-in-latency."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-export-separator",
+      "title": "Export menu: Vue's rule before the note is a menu separator; the kit's is a plain line",
+      "match": {
+        "scenarios": [
+          "history/export"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^dialogs > menu \"Export\"$",
+        "kind": "^extra$",
+        "detail": "^separator$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx (export menu)",
+          "says": "a div drawn as a line"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ExportMenu.vue",
+          "says": "the shadcn-vue DropdownMenuSeparator, role separator"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-load-card-region",
+      "title": "Test screen load card: Vue makes the card a region named Bufferbloat, so its grade and rows sit inside it; the kit's card is a plain section",
+      "match": {
+        "scenarios": [
+          "test/*",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Results\"$",
+        "kind": "^(missing|extra)$",
+        "detail": "^(region \"Bufferbloat\"|img \"Bufferbloat grade[^\"]*\")$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (load card)",
+          "says": "a section without a name"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "a section named Bufferbloat, a region"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-load-card-region-text",
+      "title": "Loaded-latency cases: the results text without the load card, which Vue's Bufferbloat region holds apart (follows v02-a11y-load-card-region)",
+      "match": {
+        "scenarios": [
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Results\"$",
+        "kind": "^changed$",
+        "detail": "^text \"(.*Bufferbloat\" → |(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis)"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (load card)",
+          "says": "the card's words in the Results text"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "the card's words inside its own region"
+        },
+        "notes": "Follows v02-a11y-load-card-region; the Test screen states' same text stays with content-results-tiles."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-phases-group",
+      "title": "Settings phases: Vue groups the three phase checkboxes under the Phases label; the kit's sit in the row ungrouped",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Test preset\"$",
+        "kind": "^(missing|extra)$",
+        "detail": "^(checkbox \"(Latency|Download|Upload)\"|group \"Phases\")$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls (related controls grouped, SC 1.3.1)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx (phases)",
+          "says": "the label and the checkboxes as siblings"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/PhasesField.vue",
+          "says": "a group named by the Phases label, laid out with display: contents"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-range-group",
+      "title": "Date range popover: Vue groups the custom range's two date fields under its heading and hides the dash between them; the kit has neither",
+      "match": {
+        "scenarios": [
+          "history/daterange"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^dialogs > dialog \"Date range\"$",
+        "kind": "^(missing|extra)$",
+        "detail": "^(textbox \"(From|To) date\"|text \"–\"|group \"Custom range\")$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx (date range popover)",
+          "says": "the two date fields and the dash as siblings of the heading"
+        },
+        "vue": {
+          "ref": "web/src/components/history/DateRangePicker.vue",
+          "says": "a group named by the Custom range heading, the dash aria-hidden"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-result-regions",
+      "title": "Result detail: Vue names the tiles (Results), the load card (Bufferbloat) and each chart card as regions, so their content sits inside them; the kit's are plain sections",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^(missing|extra)$",
+        "detail": "^(region \"(Results|Bufferbloat|Download|Upload|Idle latency)\"$|img \"(Bufferbloat grade|Download: |Upload: |Idle latency: )|radiogroup \"(Download|Upload|Idle latency) view\"$|text \"(Warm-up · not stored (?![^\"]*No known data)|(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis))"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "tiles, load card and chart cards as unnamed sections"
+        },
+        "vue": {
+          "ref": "web/src/pages/ResultDetailPage.vue; components/result/LoadCard.vue, ChartOrTable.vue",
+          "says": "sections named Results, Bufferbloat and by each chart's title, regions; the chart images named \"<title> chart: …\" with the second scale"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-result-side-regions",
+      "title": "Result detail side column: Vue's Share image, Text summary and Test parameters cards are regions named by their titles, so their controls sit inside them; the kit's are plain sections",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > complementary$",
+        "kind": "^(missing|extra)$",
+        "detail": "^(region \"(Share image|Text summary|Test parameters)\"|img \"Share image: [^\"]*|checkbox \"Include label[^\"]*\"|text \"Include label[^\"]*\"|button \"(Download image|Copy)\"|status)$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx (side column)",
+          "says": "the cards as unnamed sections"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/SettingsCard.vue; components/result/ParametersCard.vue",
+          "says": "sections labeled by their header's title, regions"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-run-param-code",
+      "title": "Settings shareable link: Vue sets run=1 in a code element inside the checkbox's label; the kit sets it in a mono span",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > complementary > region \"Shareable link\" > checkbox \"Include run=1 \\(start automatically\\)\"$",
+        "kind": "^extra$",
+        "detail": "^(text \"Include\"|code|text \"\\(start automatically\\)\")$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx (share URL)",
+          "says": "run=1 in a span set in the mono face"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/ShareUrlField.vue",
+          "says": "run=1 in a code element"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-search-field",
+      "title": "History search: Vue's field is a search input (searchbox); the kit's is a plain text input (textbox)",
+      "match": {
+        "scenarios": [
+          "history/populated",
+          "history/daterange",
+          "history/deleted",
+          "history/importerror",
+          "history/importing",
+          "history/importresult",
+          "history/nomatch",
+          "history/safari",
+          "history/select3"
+        ],
+        "projects": [
+          "light-desktop",
+          "dark-desktop"
+        ],
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^(missing|extra)$",
+        "detail": "^(textbox|searchbox) \"Search\"$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls; the screen's search field (screens.md section 3)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx (filter bar)",
+          "says": "an input of type text"
+        },
+        "vue": {
+          "ref": "web/src/components/history/FilterBar.vue",
+          "says": "an input of type search, exposed as a searchbox"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-a11y-selection-hint",
+      "title": "History selection bar: Vue keeps Compare's hint in the accessibility tree as visually hidden text on narrow screens; the kit has none there",
+      "match": {
+        "scenarios": [
+          "history/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > toolbar \"Selection\"$",
+        "kind": "^extra$",
+        "detail": "^text \"Compare needs exactly 2"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "WCAG 2.2 AA for everything the specification controls; Compare is reachable once two are selected (section 2.4)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx (floating selection bar)",
+          "says": "no hint on the narrow bar"
+        },
+        "vue": {
+          "ref": "web/src/components/history/SelectionBar.vue",
+          "says": "the hint as visually hidden text that also describes Compare"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-compare-detail-links",
+      "title": "Compare: Vue links each result's column and card to its Result detail",
+      "match": {
+        "scenarios": [
+          "history/compare"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^dialogs > dialog \"Compare results\"",
+        "kind": "^extra$",
+        "detail": "^link \""
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md §6",
+          "says": "the detail opens from either side of the compare view"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx (compare)",
+          "says": "column heads and cards are plain text"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ComparePanel.vue, CompareCards.vue",
+          "says": "RouterLink to /result/{id} on each side"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-compare-geometry",
+      "title": "Compare dialog geometry (follows v02-compare-table-headers, v02-compare-rows and v02-compare-detail-links): Vue's table has a header row per section, its own rows and the detail links, so every row, cell and button inside the dialog sits elsewhere",
+      "match": {
+        "scenarios": [
+          "history/compare"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^dialogs( > |$)",
+        "kind": "^(?!(missing|extra|changed|attrs)$)",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:180-190",
+          "says": "Compare two results: the metrics side by side with the change on B"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx (compare dialog)",
+          "says": "plain cells in one table, change words in wide cells, no detail links"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ComparePanel.vue, CompareCards.vue",
+          "says": "row and column headers per section, the detail links, its own row set"
+        },
+        "notes": "Layout and computed style that follow v02-compare-rows: every row, cell, text and button inside the compare dialog, and the dialog's own height. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-compare-rows",
+      "title": "Compare: the rows each side lists and how it words the change (the kit's duration ranges vs Vue's context, data cap, browser, peaks, probe timeouts, data used and duration; \"+3%\" vs \"+3.4 %\")",
+      "match": {
+        "scenarios": [
+          "history/compare"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^dialogs > dialog \"Compare results\" > (?!table > rowgroup > row \"Metric)",
+        "kind": null,
+        "detail": "^(?!(rowheader|columnheader) \"(?![AB] · )|cell \"(Label|Preset|Protocol|Streams|Download|Upload|Idle latency|Jitter|Bufferbloat grade|Loaded latency · (download|upload)|Parameters|Results)\"$|cell$|link \")"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:180-188",
+          "says": "side-by-side metrics with the change worded better or worse; both parameter sets including the browser; the other rows (probe timeouts, data used, duration) show both values without a judgment; a latency within 1 ms reads \"same\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx (compare)",
+          "says": "rows Label, Preset, Protocol, Streams, Duration · download/upload as ranges, Browser; results without peaks, probe timeouts, data used or duration; \"+12%\""
+        },
+        "vue": {
+          "ref": "web/src/components/history/compare.ts",
+          "says": "parameters Label, Context, Preset, Protocol, Streams, Data cap, Browser; results with peaks, probe timeouts, data used and duration; percentages with one decimal and a space before %"
+        },
+        "notes": "Includes the narrow cards' text, which lists the same rows. The browser values, which follow the seed's browsers, are held here with their rows."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-compare-table-headers",
+      "title": "Compare table: Vue marks metric names as row headers and the section rows as column headers; the kit uses plain cells",
+      "match": {
+        "scenarios": [
+          "history/compare"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^dialogs > dialog \"Compare results\" > table",
+        "kind": "^(missing|extra)$",
+        "detail": "^((rowheader|columnheader) \"(?![AB] · )|cell \"(Label|Preset|Protocol|Streams|Download|Upload|Idle latency|Jitter|Bufferbloat grade|Loaded latency · (download|upload)|Parameters|Results)\"$|cell$)"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "tables carry header cells for their rows and columns"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx (compare table)",
+          "says": "td for the metric names and the Parameters/Results section rows"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ComparePanel.vue",
+          "says": "th scope=row for the metric names, th colspan for the sections"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-curly-apostrophes",
+      "title": "Apostrophes: the kit's typographic ’ in some strings vs Vue's straight '",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": null,
+        "detail": "’"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/ (all copy)",
+          "says": "the spec's strings use straight apostrophes (\"can't\", \"isn't\")"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "\"This result isn’t in this browser’s history…\", \"can’t\" in the packet-loss notice"
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/result.json",
+          "says": "straight apostrophes, as the spec writes them"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-date-format",
+      "title": "Dates and times: the kit's literal ISO, en-GB and 24-hour strings vs Intl.DateTimeFormat in the active locale, in <time> elements",
+      "match": {
+        "scenarios": [
+          "history/*",
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken",
+          "result/deleted",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken",
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!dialogs > dialog \"Compare results\")|^dialogs > dialog \"Compare results\" > table > rowgroup > row \"Metric",
+        "kind": "^(changed|extra)$",
+        "detail": "^(?!checkbox \"\" →)(?!link \"[AB] · )(?!row \")(?!(checkbox|link|button) \"[^→]*$)(?!text \"(Clear all history\\?|Compare results|Reset all settings\\?|Share result|Share image|Text summary|Confidence and notices|No results match these filters|No results yet|History isn't available in this window|Test preset|Connections and limits|Display and behaviour|Shareable link|Changed from defaults|Test parameters)( |\")|(text|button) \"(Environment|Limits|Measurement|Test|Notices|Test parameters|Text summary)\"$|text \"(Download|Upload) # s · |text \"…p · not stored \\(0–[0-9.]+ s\\) Upload # s|text \"1200 × 630 PNG\"$|text \"BitGauge [A-Z][a-z]{2} \\d|text \"(# s · \\d+ streams|\\d+ pings · median))(time$|text \"· HTTP/|.*(\\d{4}-\\d{2}-\\d{2}|\\b\\d{1,2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\b|(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \\d{1,2}\\b|#:#(:#)? #M))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md:42",
+          "says": "Dates and times use Intl.DateTimeFormat with the active locale and the browser's time zone"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:24,112-114; ResultDetail.jsx:109",
+          "says": "literal strings: \"2026-10-08 08:41\", \"17 Sep – 8 Oct\", \"Thu 8 Oct 2026 · 14:02:11\", \"Saved to history 14:02:11\""
+        },
+        "vue": {
+          "ref": "web/src/components/history/rows.ts (resultDate, resultDay); web/src/components/result/ResultHeader.vue",
+          "says": "Intl.DateTimeFormat in the active locale (en: \"Oct 8, 2026, 2:02 PM\"), each date in a <time datetime> element"
+        },
+        "notes": "Also splits each History row link's text around its <time> element."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-demo-panel-history-geometry",
+      "title": "Open demo panel, History section (follows demo-panel-kit-only-controls): the kit's View, latency and Browser controls above it push its History section down",
+      "match": {
+        "scenarios": [
+          "demo/open"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^demo > text \"(History|Force variant)\"$",
+        "kind": "^y$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md:328-331",
+          "says": "the panel holds the scenario, the speed, a forced state, CPU-bound, the error kind, the timer resolution and the History variant; the loaded-latency cases are scenarios"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/App.jsx:66-120",
+          "says": "Run, View, Test screen with the latency controls, Browser, then History"
+        },
+        "vue": {
+          "ref": "web/src/demo/DemoPanel.vue",
+          "says": "Run, Test screen, then History"
+        },
+        "notes": "Layout and computed style that follow demo-panel-kit-only-controls: the History heading and its Force variant row. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-cancelled-slow-grade",
+      "title": "Slow link stopped mid-run: the kit's mock VPN loaded latency grades C; the demo engine's pings up to the stop grade B or C",
+      "match": {
+        "scenarios": [
+          "test/cancelled-slow",
+          "test/cancelled-slow-up"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Results\"",
+        "kind": null,
+        "detail": "(grade C, Moderate bufferbloat\" → \"[^\"]*grade B, Mild bufferbloat\"|^text \"C\" → \"B\"$)"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:368-379,403-414",
+          "says": "the grade from the mock VPN curve's loaded latency over idle: C"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts:106-107; web/src/demo/link.ts",
+          "says": "the grade from the engine's pings on the simulated VPN up to the stop, near the B/C boundary: B in some runs"
+        },
+        "notes": "Seed only: the grade is computed by the same rule from different pings."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-cancelled-slow-grade-geometry",
+      "title": "Slow link stopped mid-run, load card (follows v02-fixture-cancelled-slow-grade): when the demo run grades B, \"Mild bufferbloat\" sets the grade column's rows and the row labels' width otherwise than the kit's \"Moderate bufferbloat\"",
+      "match": {
+        "scenarios": [
+          "test/cancelled-slow",
+          "test/cancelled-slow-up"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"(A\\+|A|B|C|D|F|Basis: download only|During download · WebSocket)\"$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:368-414",
+          "says": "grade C, Moderate bufferbloat"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts:106-107",
+          "says": "grade B or C from the run's pings"
+        },
+        "notes": "Follows v02-fixture-cancelled-slow-grade; present only in the runs that grade B."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-cancelled-slow-up-status",
+      "title": "Slow link stopped during upload: the status line reads the demo run's grade, B or C, where the kit's mock reads C (v02-fixture-cancelled-slow-grade)",
+      "match": {
+        "scenarios": [
+          "test/cancelled-slow-up"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": null,
+        "detail": "grade C, moderate bufferbloat, plus # mil…\" → \"…onds\\. Bufferbloat grade B, mild bufferbloat"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:368-384",
+          "says": "the live summary names the mock run's grade, C"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts:107",
+          "says": "the live summary names the grade of the engine's run, B in some runs"
+        },
+        "notes": "On test/cancelled-slow the same sentence is held by harness-tile-values."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-chart-phase-labels",
+      "title": "Chart phase labels on the v0.2 runs: the Upload label sits where the demo run's upload starts, as fixture-chart-run-timing (accepted) holds for the v0.1 test states",
+      "match": {
+        "scenarios": [
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"Upload\"( #\\d+)?$",
+        "kind": "^x$",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "the mock run's upload starts at its fixed instant"
+        },
+        "vue": {
+          "ref": "web/src/demo/link.ts",
+          "says": "the engine's run starts the upload when its download ends"
+        },
+        "notes": "Seed only; the same rule as fixture-chart-run-timing, for the scenarios that rule does not list."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-history-narrow-rows",
+      "title": "History on narrow screens: the kit's card list stops at six rows; the demo lists all eight",
+      "match": {
+        "scenarios": [
+          "history/*"
+        ],
+        "projects": [
+          "light-narrow",
+          "dark-narrow"
+        ],
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^extra$",
+        "detail": "^(button \"Actions for |checkbox \"Select |link \")"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:112",
+          "says": "rows: m ? rows.slice(0, 6) : rows"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ResultCardList.vue",
+          "says": "every filtered result as a card"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-history-totals",
+      "title": "History counts: the kit's literal totals (48, 46 after a delete, 60 after the import) and its LAN, Wi-Fi and Mobile chips vs the demo seed's eight VPN results",
+      "match": {
+        "scenarios": [
+          "history/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(main > group \"Filter by (context )?label\"|dialogs > alertdialog \"Clear all history\\?\"|dialogs > menu \"Export\" > group \"Export (CSV|JSON)\"|dialogs > dialog \"Date range\" > radiogroup \"Preset range\")$",
+        "kind": null,
+        "detail": "^(button|menuitem|radio) \""
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:20-60,112",
+          "says": "hard-coded counts: \"All 48\", \"LAN 21\", \"Wi-Fi 13\", \"Mobile 6\", \"Clear 48 results\", \"All results (48)\", \"Last 7 days 3\"; the label chips unchanged by the import"
+        },
+        "vue": {
+          "ref": "web/src/demo/history.ts; web/src/components/history/filters.ts",
+          "says": "counts computed from the eight seeded results (and the twelve the import adds): \"All 8\", \"VPN 8\", \"Last 7 days 4\""
+        },
+        "notes": "Seed only: each count is what the stored results give."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-label-suggestions",
+      "title": "Save bar suggestions: the kit's \"Home Wi-Fi\" and \"Office\" vs the demo's recent labels, of which a fresh page has none",
+      "match": {
+        "scenarios": [
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Result status\" > group \"Suggested labels\"$",
+        "kind": "^missing$",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:197",
+          "says": "Recent labels, offered by the Test screen's label field, are the 5 most recent distinct labels of the stored results"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "suggestions \"Home Wi-Fi\", \"Office\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/SaveBar.vue",
+          "says": "the stored results' recent labels and the context label; the loaded scenarios start with no history"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-last-test",
+      "title": "The idle Test screen's last result: the kit's mock (2 h ago, Home Wi-Fi) vs the newest of the demo's seeded results",
+      "match": {
+        "scenarios": [
+          "test/idle",
+          "test/param-ignored"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": null,
+        "detail": "^link \"Last test "
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:744",
+          "says": "LastResult when=\"2 h ago\" values=\"↓ 612 · ↑ 438 Mbit/s · 3.1 ms\" label=\"Home Wi-Fi\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/LastResult.vue; web/src/demo/history.ts",
+          "says": "the newest stored result: VPN via 5G, 08:41 that day"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-loaded-mechanisms",
+      "title": "Loaded-latency cases: how the demo reaches them (the WebSocket closing, HTTP/1.1 for the reservation) shows as a notice and a protocol the kit's panel switches do not have",
+      "match": {
+        "scenarios": [
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": null,
+        "kind": null,
+        "detail": "(Notice: WebSocket unavailable — HTTP latency fallback\\.|Protocol HTTP/1\\.1 Streams|^status$)"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "each kit loaded-latency case is a demo scenario of the same name, reached through the engine (src/demo/scenarios.ts)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/App.jsx (wsClose, LL_GAPS)",
+          "says": "the case is drawn on the LAN run as is: HTTP/2, no notice"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts:115-119",
+          "says": "ws-close and ll-insufficient-samples close the WebSocket; ll-reservation-broken runs over HTTP/1.1 and closes it in the upload: the WebSocket-unavailable notice, and HTTP/1.1 in the strip"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-result-run",
+      "title": "The Result detail's run: the demo engine's own values (19 pings, warm-up ends, p90s, the failed request's span) vs the kit's mock run",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": null,
+        "kind": null,
+        "detail": "^(text \"(Warm-up · not stored \\(0–[0-9.]+ s\\) No known data|…ownload · WebSocket p90 |…load · HTTP/2 probe p90 |…oad only — )|img \"Idle latency: 20 pings · median # ms\" → \"Idle latency: 19 pings )"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:109-140",
+          "says": "a mock run: 20 pings, warm-up to 6.5 s and 9.5 s, p90 24 and 55 ms, the failed request at 10.4–10.8 s"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts (upload-gap); web/src/demo/link.ts",
+          "says": "the engine's run on the simulated LAN: 19 pings, warm-up to 6.5 s and 8.1–8.2 s, p90 about 19 and 43 ms, the failed request a tenth of a second"
+        },
+        "notes": "Seed only: the run's numbers, not its presentation."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-result-value-names",
+      "title": "Result detail boxes named by the run's numbers: when the demo run's download reads 600, Vue's tile number pairs with the kit's \"600\" axis label by name, so the two boxes' place and size differ",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"600\"$",
+        "kind": "^(x|width|height)$",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "download 612 Mbit/s; \"600\" is an axis label"
+        },
+        "vue": {
+          "ref": "web/src/demo/link.ts",
+          "says": "the engine's download reads 600 Mbit/s in some runs"
+        },
+        "notes": "Seed only; the label's y moves with the column (v02-result-column-geometry)."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-run-value-names",
+      "title": "Boxes named by a run's numbers: the kit's chart axis \"400\" and \"600\" pair with Vue boxes of the same name elsewhere (the gauge readout, a tile's number), since the runs' numbers differ",
+      "match": {
+        "scenarios": [
+          "test/slow",
+          "test/slowdone",
+          "test/cancelled-slow-up",
+          "test/complete",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"(400|600)\"$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "the mock run: axis tops 600 Mbit/s and 400 kbit/s, the gauge at 612"
+        },
+        "vue": {
+          "ref": "web/src/demo/link.ts",
+          "says": "the engine's run: the gauge reads 600 on the LAN, the slow link's axis has other ticks"
+        },
+        "notes": "Seed only, as fixture-chart-run-timing (accepted) for the other chart labels."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-slowdone-geometry",
+      "title": "Slow link, done (follows v02-fixture-slowdone-unstable and the run's values): the demo's upload tile wraps \"few samples and unstable\" to a second line, so the load card and Test list sit lower; its plateau reason and values set widths",
+      "match": {
+        "scenarios": [
+          "test/slowdone"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (region \"(Results|Result status)\"|main \"\"|group \"Suggested labels\"|button \"(Share|Download JSON|Details)\"|list \"\"|img \"Bufferbloat grade [^\"]*\"|text \"(Bufferbloat|A\\+|A|B|C|D|F|High bufferbloat|Basis: [^\"]*|During (download|upload) · WebSocket|ms|Test|Idle latency|Jitter|mean of consecutive differences|min # · p90[^\"]*|Streams|2)\"( #\\d+)?)$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (slowdone)",
+          "says": "\"low confidence · few samples\" on one line; plateau no-gain"
+        },
+        "vue": {
+          "ref": "web/src/demo/link.ts (slow link)",
+          "says": "\"low confidence · few samples and unstable\" on two lines; plateau floor-limited"
+        },
+        "notes": "Follows v02-fixture-slowdone-unstable: the Results card's height and everything in it below the tiles, and the strip's Streams width; the save bar's, as v02-save-bar-geometry describes for the other saved runs (v02-fixture-label-suggestions)."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-slowdone-unstable",
+      "title": "Slow link, done: the demo run also reads unstable; the kit's mock says few samples only",
+      "match": {
+        "scenarios": [
+          "test/slowdone"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": null,
+        "detail": "few samples and unstable"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (slowdone)",
+          "says": "\"low confidence: few samples\""
+        },
+        "vue": {
+          "ref": "web/src/demo/link.ts (slow link)",
+          "says": "the engine reads the simulated slow link's window as unstable too"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-harness-dialog-frame",
+      "title": "Narrow screens with a dialog open: the kit's frame grows to the dialog's page height and its tab bar moves to that frame's bottom",
+      "match": {
+        "scenarios": [
+          "history/compare",
+          "history/confirm"
+        ],
+        "projects": [
+          "light-narrow",
+          "dark-narrow"
+        ],
+        "layer": null,
+        "path": "^header > navigation \"Primary\"$",
+        "kind": "^(?!(missing|extra|changed|attrs)$)",
+        "detail": null
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/engineering/demo-parity.md",
+          "says": "each side is measured in its own page; positions are the page's"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/navigation/navigation.css:32",
+          "says": "the tab bar is sticky to the bottom of the kit's frame, which the open dialog stretches: 1401 px down"
+        },
+        "vue": {
+          "ref": "web/src/components/layout/TabBar.vue",
+          "says": "the tab bar is fixed to the viewport's bottom, 780 px down"
+        },
+        "notes": "Measurement only: both tab bars sit at the bottom of the screen the user sees."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-harness-include-label-checkbox",
+      "title": "Include label: the kit's native checkbox shrinks to 13 px in its flex row, so its words start 3 px further left than beside Vue's 16 px box",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"Include label\"$",
+        "kind": "^(x|width)$",
+        "detail": null
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/engineering/demo-parity.md",
+          "says": "boxes are compared as each browser lays them out"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:582",
+          "says": "an input styled 16 × 16 px, which Chrome shrinks to 13 px beside the long caption"
+        },
+        "vue": {
+          "ref": "web/src/components/share/SharePanel.vue",
+          "says": "the 16 px checkbox the kit's style asks for"
+        },
+        "notes": "The kit's intent and Vue agree on 16 px; the measured difference is Chrome shrinking the kit's replaced element."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-harness-origin",
+      "title": "Origin: the kit mocks https://speed.home.lan; the demo is served over http on 127.0.0.1",
+      "match": {
+        "scenarios": [
+          "history/*",
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": null,
+        "kind": null,
+        "detail": "https://<page host>.*→ .*http://<page host>"
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/engineering/demo-parity.md",
+          "says": "both pages' hosts read as <page host>; the scheme is each server's"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/fixtures.js",
+          "says": "origin https://speed.home.lan"
+        },
+        "vue": {
+          "ref": "web/parity/drivers.ts (VUE_ORIGIN)",
+          "says": "the preview server at http://127.0.0.1:5182"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-harness-overlay-in-place",
+      "title": "Overlays: the kit draws its popover and menus in place inside main, so they also read as missing there; the demo portals them to the body",
+      "match": {
+        "scenarios": [
+          "history/daterange",
+          "history/export"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^missing$",
+        "detail": "^(dialog \"Date range\"|menu \"Export\")$"
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/engineering/demo-parity.md (regions)",
+          "says": "overlays are compared under dialogs wherever a side puts them"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "the date popover and the Export menu render inside the filter bar"
+        },
+        "vue": {
+          "ref": "web/parity/drivers.ts (OVERLAYS)",
+          "says": "the dialogs region takes both; main still holds the kit's"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-headings",
+      "title": "Card, dialog and empty-state titles: headings in Vue, plain text in the kit (one h1 per screen, h2 and down below it)",
+      "match": {
+        "scenarios": [
+          "history/*",
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken",
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": null,
+        "kind": null,
+        "detail": "^(?!.*→ \"History unavailable|text \"Shareable link Opens |text \"Text summary\" → \".*Loaded latency \\+# ms \\((upload|download), HTTP)(heading \"(?!(History|Settings|Speed test)\"$)|text \"(Clear all history\\?|Compare results|Reset all settings\\?|Share result|Share image|Text summary|Confidence and notices|No results match these filters|No results yet|History isn't available in this window|Test preset|Connections and limits|Display and behaviour|Shareable link|Changed from defaults|Test parameters)( |\")|(text|button) \"(Environment|Limits|Measurement|Test|Notices|Test parameters|Text summary)\"$|text \"(Download|Upload) # s · |text \"…p · not stored \\(0–[0-9.]+ s\\) Upload # s|text \"1200 × 630 PNG\"$|text \"BitGauge [A-Z][a-z]{2} \\d|text \"(# s · \\d+ streams|\\d+ pings · median))"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md:155-157",
+          "says": "every screen has exactly one h1, its title; sections below it use h2 and down, without skipping a level"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/layout/Card.jsx; ui_kits/app/History.jsx, Settings.jsx, ResultDetail.jsx",
+          "says": "card, dialog and empty-state titles are styled spans and divs, read as plain text before the card's content"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/SettingsCard.vue, web/src/components/result/*.vue, web/src/components/history/*.vue",
+          "says": "titles are h2 (cards, dialogs, empty states) and h3 (groups inside a card)"
+        },
+        "notes": "Splits the kit's text runs where a title starts them, so the text after it reads as changed."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-chips-geometry",
+      "title": "Filter chips geometry (follows v02-fixture-history-totals): the kit's LAN, Wi-Fi and Mobile chips and its two-digit counts set the VPN chip's place and width",
+      "match": {
+        "scenarios": [
+          "history/*"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > (group \"Filter by|button \"VPN \\d|text \"(8|48|6|2)\"( #\\d+)?$)",
+        "kind": "^(?!(missing|extra|changed|attrs)$)",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:20-60",
+          "says": "chips \"All 48\", \"LAN 21\", \"Wi-Fi 13\", \"Mobile 6\", \"VPN 8\""
+        },
+        "vue": {
+          "ref": "web/src/components/history/filters.ts",
+          "says": "chips \"All 8\", \"VPN 8\" from the eight seeded results"
+        },
+        "notes": "Follows v02-fixture-history-totals."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-clear-count-geometry",
+      "title": "Clear all dialog footer (follows v02-fixture-history-totals): the kit's \"Clear 48 results\" is a digit wider than the demo's \"Clear 8 results\", so Cancel sits further left",
+      "match": {
+        "scenarios": [
+          "history/confirm"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^dialogs > button \"Cancel\"$",
+        "kind": "^(?!(missing|extra|changed|attrs)$)",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:720-722",
+          "says": "\"Clear 48 results\", Cancel to its left"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ClearAllDialog.vue",
+          "says": "\"Clear 8 results\" from the eight seeded results"
+        },
+        "notes": "Follows v02-fixture-history-totals."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-import-progress",
+      "title": "Import in progress: the kit counts records with a progress bar and Cancel; Vue says \"Checking the results…\"",
+      "match": {
+        "scenarios": [
+          "history/importing"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:198-201; technical-stack/frontend.md §5",
+          "says": "States: import in progress (no count, progress bar or cancel specified)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "\"Checking 9 of 16 results…\" with a progressbar \"Import progress\" and Cancel"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ImportDialog.vue",
+          "says": "\"Checking the results…\", indeterminate, no Cancel"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-import-progress-geometry",
+      "title": "Import notice geometry (follows v02-history-import-progress): the kit's Cancel narrows its title and its progress bar makes the notice taller, so the range chips and the trend sit lower",
+      "match": {
+        "scenarios": [
+          "history/importing"
+        ],
+        "projects": [
+          "light-desktop",
+          "dark-desktop"
+        ],
+        "layer": null,
+        "path": "^main > (button \"Last 30 days\"|region \"Trend\"|text \"Importing\")$",
+        "kind": "^(?!(missing|extra|changed|attrs)$)",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:198-201",
+          "says": "States: import in progress"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:192-197",
+          "says": "the notice holds a count, a progress bar and Cancel"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ImportDialog.vue",
+          "says": "the notice says \"Checking the results…\""
+        },
+        "notes": "Layout and computed style that follow v02-history-import-progress: the notice's title, narrower beside the kit's Cancel, and the range button and the trend below the notice. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-import-result",
+      "title": "Import result: Vue names each rejected record's position (\"result 16: …\")",
+      "match": {
+        "scenarios": [
+          "history/importresult"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": null,
+        "detail": "rejected: "
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:200-201",
+          "says": "import result: added, skipped as duplicates, rejected with each record's position and reason"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "\"1 rejected: schema version 3 is newer…\" without the position"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ImportDialog.vue",
+          "says": "\"1 rejected: result 16: schema version 3 is newer…\""
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-loading",
+      "title": "History while loading: Vue disables Import and announces \"Loading history\"",
+      "match": {
+        "scenarios": [
+          "history/loading"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": null,
+        "kind": null,
+        "detail": "^(\\[\\] → \\[disabled\\]|status \"Loading history\")$"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:198",
+          "says": "States: loading (no more said)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "skeleton rows; Import JSON stays enabled; no status text"
+        },
+        "vue": {
+          "ref": "web/src/components/history/HistoryLoading.vue; web/src/pages/HistoryPage.vue",
+          "says": "a status region named \"Loading history\" over the skeleton; Import waits for the store"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-narrow-geometry",
+      "title": "History card list on narrow screens (follows v02-history-search-narrow): everything under the filters sits one search field lower in Vue",
+      "match": {
+        "scenarios": [
+          "history/*"
+        ],
+        "projects": [
+          "light-narrow",
+          "dark-narrow"
+        ],
+        "layer": null,
+        "path": "^main > (?!group \"Filter by|button \"VPN \\d|text \"(8|48|6|2)\"( #\\d+)?$)",
+        "kind": "^(?!(missing|extra|changed|attrs)$)",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:165-170,207-209",
+          "says": "the filter bar has search; the responsive notes do not drop it"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:310",
+          "says": "no search field on narrow screens"
+        },
+        "vue": {
+          "ref": "web/src/components/history/FilterBar.vue",
+          "says": "the search field on every width, 45 px with its gap"
+        },
+        "notes": "Layout and computed style that follow v02-history-search-narrow: the trend, the sort bar, the cards and the floating selection bar, all moved down by the field. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-popover-edge",
+      "title": "Narrow screens: the kit's Date range popover and Export menu hang past the screen's left edge; Vue's stay on screen",
+      "match": {
+        "scenarios": [
+          "history/daterange",
+          "history/export"
+        ],
+        "projects": [
+          "light-narrow",
+          "dark-narrow"
+        ],
+        "layer": "layout",
+        "path": "^dialogs > (dialog \"Date range\"|menu \"Export\")$",
+        "kind": "^x$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:165-170,207-209",
+          "says": "the filter bar's date range and Export on narrow screens; no placement is specified"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/actions/actions.css:95",
+          "says": ".pop is anchored to its trigger's right edge with no collision handling: x −150 px and −47 px on a 390 px screen"
+        },
+        "vue": {
+          "ref": "web/src/components/history/DateRangePicker.vue, ExportMenu.vue",
+          "says": "Reka places them against the trigger's end and shifts them to stay within the screen: x 0"
+        },
+        "notes": "Vue keeps the whole popover reachable; matching the kit means cutting it off."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-row-checkbox-names",
+      "title": "History rows: the kit's table checkboxes have no name; Vue names each \"Select <label>, <date>\"",
+      "match": {
+        "scenarios": [
+          "history/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Results\" > table > rowgroup",
+        "kind": null,
+        "detail": "^(checkbox \"\" → |row \")"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md §2",
+          "says": "every control has an accessible name"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:413-418",
+          "says": "span role=checkbox with no label in each desktop row (the narrow cards' are named \"Select <label>, <date>\")"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ResultsTable.vue:141-146",
+          "says": "Checkbox aria-label \"Select {label}, {date}\""
+        },
+        "notes": "The row's own text then starts with the checkbox name, so the rows read as changed."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-search-narrow",
+      "title": "History on narrow screens: Vue keeps the search field, the kit hides it",
+      "match": {
+        "scenarios": [
+          "history/*"
+        ],
+        "projects": [
+          "light-narrow",
+          "dark-narrow"
+        ],
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^extra$",
+        "detail": "^(textbox|searchbox) \"Search\"$"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:165-170,207-209",
+          "says": "the filter bar has search (q); the responsive notes change rows, trend and compare, not the filters"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:310",
+          "says": "the search Input is rendered on desktop only"
+        },
+        "vue": {
+          "ref": "web/src/components/history/FilterBar.vue",
+          "says": "the search field on every width"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-storage-used",
+      "title": "History header: Vue adds the storage this origin uses after the count",
+      "match": {
+        "scenarios": [
+          "history/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^changed$",
+        "detail": "^text \"[0-9]+ (of [0-9]+ shown|results?)\" → \".* · # [kMG]?B used\"$"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:160-161",
+          "says": "Header: the number of stored results and, where navigator.storage.estimate() is available, the storage this origin uses"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "\"8 of 48 shown\", no storage figure"
+        },
+        "vue": {
+          "ref": "web/src/pages/HistoryPage.vue",
+          "says": "\"8 of 8 shown · 12 kB used\""
+        },
+        "notes": "The counts themselves differ by the seed: see v02-fixture-history-totals."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-history-table-geometry",
+      "title": "History table geometry (follows v02-date-format): Vue's longer dates widen the Date column, so the kit's narrower value columns wrap their units and its rows stand taller",
+      "match": {
+        "scenarios": [
+          "history/*"
+        ],
+        "projects": [
+          "light-desktop",
+          "dark-desktop"
+        ],
+        "layer": null,
+        "path": "^main > (main \"\"|table|row|cell|columnheader|region \"Results\"|toolbar \"Selection\"|button \"(DATE|LABEL|CONTEXT|PROTOCOL|STATUS|DOWNLOAD|UPLOAD|LATENCY|JITTER|Date|Label|Context|Protocol|Status|Download|Upload|Latency|Jitter)\"|button \"(VPN(?! \\d)|Actions for )|text \"(Mbit/s|kbit/s|ms|Complete|Partial|Error|—|Low confidence)\"|img \"(Grade |No grade))",
+        "kind": "^(?!(missing|extra|changed|attrs)$)",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md:42",
+          "says": "dates through Intl.DateTimeFormat (see v02-date-format)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:384-420",
+          "says": "auto table layout over \"2026-10-08 08:41\" dates: the Date column 140 px, values and units wrap to two lines in 64 px rows"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ResultsTable.vue",
+          "says": "\"Oct 8, 2026, 8:41 AM\" dates: the Date column 182 px, values on one line in 53 px rows"
+        },
+        "notes": "Layout and computed style that follow v02-date-format: the table's columns, rows and cells, the values and units in them, the row actions, the selection bar under the table. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-http1-notice-geometry",
+      "title": "Notices over HTTP/1.1 (follows v02-fixture-loaded-mechanisms and content-connection-strip): the demo's reserved HTTP/1.1 runs add the WebSocket and reservation notices above the test card, and HTTP/1.1 widens the strip's protocol",
+      "match": {
+        "scenarios": [
+          "test/ws-fallback",
+          "loaded/ll-reservation-broken",
+          "loaded/ll-insufficient-samples"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (region \"Speed test\"|text \"(Protocol|Streams|6|auto)\")$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo reaches each state through the engine on a simulated link (src/demo/scenarios.ts)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (ws-fallback); App.jsx (LL_GAPS)",
+          "says": "HTTP/2 and only the WebSocket-unavailable notice, or none"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts",
+          "says": "ws-fallback and ll-reservation-broken run over HTTP/1.1, reserved: the reservation notice and the WebSocket notice above the test card"
+        },
+        "notes": "Follows v02-fixture-loaded-mechanisms (and, for test/ws-fallback, the accepted content-connection-strip): the test card and the strip's Protocol and Streams."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-loaded-stopped-cases",
+      "title": "Loaded latency \"no steady window\" and \"no latency probe\" for the upload: the kit draws them on a complete run; the engine reaches them only on a run stopped in the upload, so Vue's are partial and not saved",
+      "match": {
+        "scenarios": [
+          "loaded/ll-no-steady-window",
+          "loaded/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/ll-no-probe-path"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": null,
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/measurement.md §11.4, §8",
+          "says": "a direction's loaded latency is unavailable with no-steady-window when the direction has no steady window, which a complete result never lacks; no-probe-path when no probe path exists during the direction"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/App.jsx (LL_GAPS); TestScreen.jsx, ResultDetail.jsx",
+          "says": "the complete LAN run, saved, with the upload's loaded latency marked \"no steady window\" or \"no latency probe\""
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts:120-125",
+          "says": "ll-no-steady-window stops 3.1 s into the upload; ll-no-probe-path closes the WebSocket unanswered in the download and stops 0.8 s into the upload: partial results, held in memory"
+        },
+        "notes": "Holds these four scenarios whole, every layer: what follows from the stop (the upload insufficient, the not-saved bar, the disabled label and Delete, the shorter charts) dominates them. The screen-wide conflicts (dates, headings, parameters, confidence wording) show here too and are decided in their own clusters."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-modal-inert-page",
+      "title": "An open dialog or menu hides the page behind it from assistive technology in Vue; the kit's page stays in the tree",
+      "match": {
+        "scenarios": [
+          "history/compare",
+          "history/confirm",
+          "history/export",
+          "settings/confirm-reset",
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(header|main)( > |$)",
+        "kind": "^missing$",
+        "detail": "^(?!(dialog \"Date range\"|menu \"Export\")$)"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:180",
+          "says": "Compare two results, in a focus-trapped dialog; i18n-a11y.md §2 on modal dialogs"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/dialog/Dialog.jsx; ui_kits/app/History.jsx",
+          "says": "dialogs and the Export menu are drawn over the page without aria-modal, so the page under them stays readable"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ComparePanel.vue, ClearAllDialog.vue, ExportMenu.vue; settings/ResetAllDialog.vue; share/SharePanel.vue",
+          "says": "Reka modal dialogs and menus mark everything outside them aria-hidden while open"
+        },
+        "notes": "Everything under main (and the header on narrow screens) reads as missing while the overlay is open."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-partial-details-buttons",
+      "title": "Stopped and failed runs' bar (follows content-result-time's Details link): Vue offers Details beside Keep in history and Download JSON, so they sit further left",
+      "match": {
+        "scenarios": [
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/error"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > button \"(Keep in history|Download JSON)\"$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:58-60,82-83",
+          "says": "Keep in history for a partial or error result; a Details link to the Result detail of the finished run; the Cancelled and Error rows name Keep in history and Download JSON"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "Keep in history and Download JSON, no Details, on stopped and failed runs"
+        },
+        "vue": {
+          "ref": "web/src/components/test/SaveBar.vue",
+          "says": "Details on every finished run, its result held in memory until kept"
+        },
+        "notes": "Follows the extra Details link, whose content difference sits in content-result-time (accepted) as scope growth; the maintainer decides whether a partial or error run links to its Result detail."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-partial-details-height",
+      "title": "Stopped and failed runs' bar on narrow screens (follows v02-partial-details-buttons): three actions wrap the bar to another row, so the Results card sits lower",
+      "match": {
+        "scenarios": [
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-slow",
+          "test/error"
+        ],
+        "projects": [
+          "light-narrow",
+          "dark-narrow"
+        ],
+        "layer": "layout",
+        "path": "^main > (region \"Result status\"|region \"Results\"|main \"\")$",
+        "kind": "^(y|height)$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:58-60",
+          "says": "a Details link to the Result detail of the finished run"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "two actions fit the bar's row"
+        },
+        "vue": {
+          "ref": "web/src/components/test/SaveBar.vue",
+          "says": "three actions wrap"
+        },
+        "notes": "Follows v02-partial-details-buttons; test/cancelled and test/cancelled-slow-up are held by layout-stop-notice-v02-height (deferred)."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-chart-header",
+      "title": "Upload chart card header (follows v02-fixture-result-run): the demo run's \"15.5 s · 6 streams\" is wider than the kit's \"16 s\", so the key wraps under the title with the Chart and Table switch at its right, where the kit's key stays on the title's row",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (text \"Latency under load\" #2|radiogroup \"Upload view\")$",
+        "kind": "^(x|y)$",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:386",
+          "says": "meta \"16 s · 6 streams\""
+        },
+        "vue": {
+          "ref": "web/src/demo/link.ts",
+          "says": "the engine's upload ran 15.5 s"
+        },
+        "notes": "Follows v02-fixture-result-run."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-chart-key-swatch",
+      "title": "Chart key's warm-up swatch: the kit's is positioned absolutely over the first letters of \"Warm-up · not stored\", Vue's sits before the words",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"Warm-up · not stored [^\"]*\"$",
+        "kind": "^width$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "visuals from the export"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/charts/charts.css:41; PhaseChart.jsx:53",
+          "says": ".pchart-k .sw.hatch takes the plot overlay's position: absolute, so the key's swatch covers \"Wa\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/ChartOrTable.vue",
+          "says": "the swatch inline before the words, as the throughput chart's key draws it"
+        },
+        "notes": "The kit's rule for the overlay also matches the key's swatch; matching it means drawing over the text."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-column-geometry",
+      "title": "Result detail main column (follows v02-result-confidence-card, v02-result-probe-precision and, without history, v02-result-not-saved): the tiles, load card and chart cards sit where the cards above them end",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!main > text \"(Latency under load\" #2|Mbit/s\" #[3-9]|B\" #[2-9])$)main > (text \"(Download|Upload|Idle latency|Jitter|Mbit/s|ms|0\\.8|peak [^\"]*|min # · p90[^\"]*|mean of consecutive differences|Bufferbloat|A\\+|A|B|C|D|F|Low bufferbloat|Mild bufferbloat|Basis: [^\"]*|During (download|upload)[^\"]*|HTTP/1\\.1 reservation not held|fewer than 10 samples|—|#s|0|200|400|600|# Mbit/s|# ms|1\\.3|2\\.5|3\\.8|50|\\d{2}|# s · \\d+ streams|Latency under load|Warm-up · not stored [^\"]*)\"( #\\d+)?|radiogroup \"(Download|Idle latency) view\"|img \"(Download|Upload): [^\"]*\"|img \"Bufferbloat grade [^\"]*\"|button \"Test parameters\")$",
+        "kind": "^y$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:105-120",
+          "says": "the Result detail: tiles, load card, confidence and notices, then the per-phase charts"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "its cards at the heights its content gives them"
+        },
+        "vue": {
+          "ref": "web/src/pages/ResultDetailPage.vue",
+          "says": "the same cards at the heights Vue's content gives them"
+        },
+        "notes": "Layout only, no element of its own: each box moves with the card above it. The confidence card (v02-result-confidence-geometry) moves the charts; on narrow screens the idle tile's fourth line (v02-result-probe-precision) moves everything under the tiles; without history the not-saved line (v02-result-not-saved) moves the whole column. The \"Latency under load\" of the upload card is v02-result-chart-header's."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-confidence-card",
+      "title": "Confidence and notices: the kit's per-run reasons (6-stream cap, guarded warm-up, known upload time) vs Vue's per-direction confidence lines; curly vs straight apostrophes",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Confidence and notices\"",
+        "kind": null,
+        "detail": "^(?!heading )(?!text \"(Confidence and notices|Notices)( |\"))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:115-116,321-336; measurement.md §16",
+          "says": "every confidence reason and notice, each with an icon and text; confidence is normal, low with its reasons, or cpu-bound, per direction; no known-time reason"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "\"Both directions reached the 6-stream cap…\", \"94 % of upload time known — 0.4 s unknown after a failed request…\", \"can’t\" with a curly apostrophe"
+        },
+        "vue": {
+          "ref": "web/src/components/result/confidence.ts; web/src/i18n/locales/en/result.json",
+          "says": "\"Download confidence: normal — Warm-up ended at 6.5 s and the steady window covered 3.5 s.\", one line per direction; \"can't\""
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-confidence-geometry",
+      "title": "Confidence and notices card geometry (follows v02-result-confidence-card): Vue's per-direction lines are shorter than the kit's per-run reasons, so the card and its lists are lower and its items sit elsewhere",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (region \"Confidence and notices\"|list \"\"( #2)?|text \"Packet loss not measured\"|listitem \"[^\"]*\")$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:115-116; measurement.md §16",
+          "says": "confidence per direction with its reasons, and every notice"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:162-176",
+          "says": "two long per-run confidence items"
+        },
+        "vue": {
+          "ref": "web/src/components/result/confidence.ts",
+          "says": "one short line per direction"
+        },
+        "notes": "Layout and computed style that follow v02-result-confidence-card: the card's height and place, its two lists and their items. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-copy-name",
+      "title": "Share panel: the copy button is named \"Copy summary\" in Vue, \"Copy\" in the kit",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > complementary( > button \"Copy\")?$",
+        "kind": null,
+        "detail": "^(button \"Copy\" → \"Copy summary\"|text \"Copy\")$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:135-139",
+          "says": "Download image, Copy summary and, where available, Share"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "button \"Copy\" beside the Text summary title"
+        },
+        "vue": {
+          "ref": "web/src/components/share/SharePanel.vue",
+          "says": "visible \"Copy\" with aria-label \"Copy summary\""
+        },
+        "notes": "No entry while v02-a11y-result-side-regions holds the region it sits in; it shows again once that conflict is decided."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-delete",
+      "title": "Result detail, Delete: the kit keeps the page with an undo toast; Vue removes the result at once and shows \"Result deleted\"",
+      "match": {
+        "scenarios": [
+          "result/deleted"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main( > |$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:140; flows.md §6",
+          "says": "Delete (with an undo toast); History: delete removes the rows at once and shows an undo toast for 8 s"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx (resultDemo deleted)",
+          "says": "the page stays as it was, with a deleted toast over it"
+        },
+        "vue": {
+          "ref": "web/src/pages/ResultDetailPage.vue; web/src/components/result/ResultMissing.vue",
+          "says": "the result leaves history at once and the page shows \"Result deleted\" with a link to History; the undo toast offers it back"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-header-geometry",
+      "title": "Result header meta (follows v02-date-format): the date's width sets where the preset and the server name sit",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"(·\"( #2)?|(Standard preset|Basement NAS)\")$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md:42",
+          "says": "dates through Intl.DateTimeFormat (v02-date-format)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:440-450",
+          "says": "\"Thu 8 Oct 2026 · 14:02:11\" before the preset and the server"
+        },
+        "vue": {
+          "ref": "web/src/components/result/ResultHeader.vue",
+          "says": "\"Oct 8, 2026, 2:02:11 PM\""
+        },
+        "notes": "Layout and computed style that follow v02-date-format: the separators, the preset and the server name after the date, and their wrapping on narrow screens. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-known-time",
+      "title": "Upload tile: the kit adds \"· 6.1 of 6.5 s known\" after a failure gap; Vue shows no known-time qualifier",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": null,
+        "detail": " of # s know"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:300",
+          "says": "download and upload qualifiers: direction status, confidence and reasons, overhead compensation; no known time"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "\"Upload 438 Mbit/s peak 455 · 6 streams · plateau: cap · 6.1 of 6.5 s known\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/ResultTiles.vue",
+          "says": "the qualifiers the spec lists"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-not-saved",
+      "title": "A result not in history: Vue shows the \"Not saved\" badge with the reason under the header; the kit puts the reason in a tooltip on each disabled control",
+      "match": {
+        "scenarios": [
+          "result/history-unavailable"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": null,
+        "kind": null,
+        "detail": "^(tooltip \"History unavailable|text \"Not saved |text \"(Share image 1200 × 630 PNG|Saved automatically in this browser\\. Never included when you share\\. Share image 1200 × 630 PNG)\" → )"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:142-147",
+          "says": "not saved: shown with a \"not saved\" badge, Download JSON and Share work, and editing and deleting are disabled with the reason"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx (resultState history-unavailable)",
+          "says": "no badge; tooltips \"History unavailable · labels can't be saved\", \"… nothing saved to delete\", \"… notes can't be saved\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/ResultHeader.vue; web/src/components/result/NoteField.vue",
+          "says": "StatusPill \"Not saved\" and the reason as text, the note field read-only with it"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-not-saved-geometry",
+      "title": "Result detail without history, header (follows v02-result-not-saved): Vue's \"Not saved\" badge and reason line make the header taller, so its actions, the warning under them and the side column sit lower",
+      "match": {
+        "scenarios": [
+          "result/history-unavailable"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (banner \"\"|button \"(Delete result|Download JSON|Run again)\"|text \"(JSON contains client IP and notes|Include label)\")$",
+        "kind": "^(y|height)$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:142-147",
+          "says": "not saved: shown with a \"not saved\" badge; editing and deleting disabled with the reason"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:426-462",
+          "says": "the reason in a tooltip on each disabled control"
+        },
+        "vue": {
+          "ref": "web/src/components/result/ResultHeader.vue",
+          "says": "the badge beside the label and the reason on a line under the meta"
+        },
+        "notes": "Layout and computed style that follow v02-result-not-saved: the header's height, its actions and the JSON warning, and the side column's boxes. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-page-height",
+      "title": "Result detail page height (follows the Result detail clusters above, and v02-result-delete for the deleted state): the page ends where its longest column ends",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken",
+          "result/deleted"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > main \"\"$",
+        "kind": "^height$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:105-147",
+          "says": "the Result detail's cards; deleting goes back with an undo toast"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "its cards' heights; deleted, its page stays under the toast"
+        },
+        "vue": {
+          "ref": "web/src/pages/ResultDetailPage.vue",
+          "says": "its cards' heights; deleted, the not-found state"
+        },
+        "notes": "Layout only: the sum of v02-result-confidence-geometry, v02-result-side-geometry, v02-result-probe-precision and v02-result-not-saved-geometry; the deleted state's height follows v02-result-delete."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-parameters",
+      "title": "Test parameters: the rows each side lists (the kit's configured ranges, data cap with data used, client IP, cross-origin isolation vs Vue's streams per direction, durations with their window, duration, data used)",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > complementary( > (term|definition))?$",
+        "kind": null,
+        "detail": "^((term|definition)( \\(#\\d+\\))?$|text \"(?!BitGauge |Share image |Saved automatically|Include label|Text summary)[^\"]*\" → )"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:131-133",
+          "says": "preset, phases and order, stream mode, count and plateau reason, durations, data cap, units, warm-up mode, ping count, overhead compensation, protocol, server name and version, browser, client IP, timer resolution and whether the page was cross-origin isolated"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx (Test parameters)",
+          "says": "Streams \"Auto · 6 · plateau: cap\"; Limits \"10.0 s · min 10 · max 20\", \"Off · 1.59 GB used\"; Environment with Client IP and Cross-origin isolated"
+        },
+        "vue": {
+          "ref": "web/src/components/result/parameters.ts",
+          "says": "Streams \"Auto, up to 6\" with Download and Upload streams rows; durations \"10.0 s · window 3.5 s\"; Duration and Data used rows"
+        },
+        "notes": "The rows pair off one by one, so every row after the first that differs reads as changed."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-probe-precision",
+      "title": "Idle latency tile on the Result detail: the kit prints the probe timeouts as \"0 %\", Vue to one decimal, \"0.0 %\", so Vue's meta wraps to a fourth line",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"min # · p90 # ms · WebSocket · # % probe timeou…\"$",
+        "kind": "^height$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:303",
+          "says": "Idle probe loss: %, one decimal, labeled \"probe timeouts\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx (idle tile)",
+          "says": "\"min 2.4 · p90 4.1 ms · WebSocket · 0 % probe timeouts\", three lines"
+        },
+        "vue": {
+          "ref": "web/src/components/test/tiles.ts",
+          "says": "\"… · 0.0 % probe timeouts\", four lines"
+        },
+        "notes": "The content layer reads both numbers as #, so only the tile's height shows the difference."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-result-side-geometry",
+      "title": "Result detail side column (follows v02-result-parameters, v02-share-loaded-source and v02-headings): the share preview's longer loaded line, the Text summary heading and the parameters' own rows set the column's boxes",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (complementary \"\"|list \"\" #[3-9]|term \"[^\"]*\"|definition \"[^\"]*\"|text \"(Text summary|1200 × 630 PNG|Bit|Low|Mild|bufferbloat|# ms idle|# ms jitter|\\+# ms loaded \\((upload|download)\\))\"( #\\d+)?|text \"Mbit/s\" #[3-9]|text \"(B|Basement NAS)\" #[2-9]|button \"Download image\")$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:118-139; flows.md:198-202",
+          "says": "the parameters, the share preview with each number's qualifier, the text summary"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:578-640",
+          "says": "its parameter rows, \"+39 ms loaded (upload)\" on one line, a plain title over the summary"
+        },
+        "vue": {
+          "ref": "web/src/components/result/ParametersCard.vue; share/SharePreview.vue, SharePanel.vue",
+          "says": "its rows, \"+38 ms loaded (upload, HTTP/2 probe)\" on a line of its own, the summary under an h2"
+        },
+        "notes": "Layout only; the parameters (v02-result-parameters), the preview's loaded line (v02-share-loaded-source) and the heading (v02-headings) are decided in their own clusters."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-save-bar-geometry",
+      "title": "Save bar geometry (follows v02-fixture-label-suggestions and v02-date-format): the kit's three suggestions and 24-hour time; on narrow screens its suggestions wrap to a row of their own, so the bar is taller and what follows sits lower",
+      "match": {
+        "scenarios": [
+          "test/complete",
+          "test/upload-interrupted",
+          "share/complete",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(main > (group \"Suggested labels\"|region \"Result status\"|button \"(Share|Download JSON|Details)\"|region \"Results\"|main \"\")|header > banner \"\")$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:197",
+          "says": "the label field offers the 5 most recent distinct labels of the stored results"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/feedback/SaveBar.jsx; ui_kits/app/TestScreen.jsx",
+          "says": "suggestions LAN, Home Wi-Fi and Office after \"14:02:11\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/SaveBar.vue",
+          "says": "the context label alone, a fresh page holding no other labels, after \"2:02:38 PM\""
+        },
+        "notes": "Follows v02-fixture-label-suggestions (and v02-date-format for the time's width): the suggestions' place and width, the bar's height and its buttons on narrow screens, and the Results card, page height and scroll offset below it. In loaded/ll-reservation-broken the WebSocket notice above adds to the shift (v02-fixture-loaded-mechanisms)."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-settings-label-geometry",
+      "title": "Settings page height (follows v02-settings-label-setting): Vue's Result label row makes Display and behavior taller, so Advanced, the page and its scroll offset differ",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(main > main \"\"|main > region \"Advanced\"|main > complementary \"\"|header > banner \"\")$",
+        "kind": "^(y|height)$",
+        "detail": "^-?\\d+px → -?\\d+px$"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:242-244",
+          "says": "Result label: an optional label that pre-fills the label of every result in this browser"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "no Result label row"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/LabelField.vue",
+          "says": "the Result label row in Display and behavior"
+        },
+        "notes": "Layout and computed style that follow v02-settings-label-setting: the page's height, the Advanced card below the row, the side column on narrow screens, and the scroll offsets of the scenarios that open Advanced or a dialog. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-settings-label-setting",
+      "title": "Settings: Vue has the Result label setting the kit lacks",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Display and behaviour\"$",
+        "kind": null,
+        "detail": "^(textbox \"Result label\"|text \"s\" → \"s Result label )"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:242-244",
+          "says": "Result label: an optional label, at most 64 characters, that pre-fills the label of every result in this browser"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "no Result label row"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/LabelField.vue",
+          "says": "the Result label row in Display and behavior"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-settings-native-select",
+      "title": "Settings selects: the kit's native select lists its options in the tree; Vue's Reka select shows only the chosen value until opened",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "> combobox \"(Overhead compensation|Language)\"$",
+        "kind": null,
+        "detail": "^(option|text) \""
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md (shadcn-vue, Reka UI)",
+          "says": "controls come from shadcn-vue on Reka UI; silent on native selects"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/forms/Select.jsx",
+          "says": "a styled native <select> with its <option>s"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/AdvancedSection.vue, ThemeLanguageField.vue",
+          "says": "shadcn-vue Select (Reka): a combobox button whose listbox renders when opened"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-settings-phases",
+      "title": "Phases: the kit keeps idle latency always on (disabled) with \"Turn off a direction…\"; Vue lets any phase be turned off while one stays on",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Test preset\"",
+        "kind": null,
+        "detail": "^(\\[checked disabled\\] → \\[checked\\]|text \"Idle latency always runs first)"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:228",
+          "says": "Phases: toggles for idle latency, download, upload (at least one stays on)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "Latency checked and disabled; \"Idle latency always runs first. Turn off a direction to test the other one, or latency only.\""
+        },
+        "vue": {
+          "ref": "web/src/components/settings/PhasesField.vue; settings.json phases.help",
+          "says": "three toggles, the last one on disabled; \"Idle latency runs first. Turn off a phase to test the others; at least one stays on.\""
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-settings-share-sentence",
+      "title": "Shareable link: the kit's fixed sentence on what links leave out vs Vue's \"Not in the link\" line naming the changed settings",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > complementary > region \"Shareable link\"$",
+        "kind": null,
+        "detail": "^text \"(Shareable link )?Opens BitGauge"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/url-params.md §3",
+          "says": "the shareable URL carries the changed settings that have parameters; the screen names the changed settings it cannot carry"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "\"Opens BitGauge with the settings that differ from the defaults. Phase order, per-direction durations, ping count, warm-up and overhead compensation aren't link parameters.\""
+        },
+        "vue": {
+          "ref": "web/src/components/settings/ShareUrlField.vue",
+          "says": "\"Opens BitGauge with the settings that differ from the defaults.\" and, when some apply, \"Not in the link: …\""
+        },
+        "notes": "Owns the card's text run, title split included (see v02-headings); the field and the checkbox below it sit higher by the shorter caption."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-settings-share-sentence-geometry",
+      "title": "Shareable link card (follows v02-settings-share-sentence): the kit's two-sentence caption is twice as tall, so its field, checkbox and the Changed card sit lower",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (region \"Shareable link\"|text \"Opens BitGauge[^\"]*\"|button \"Copy link\"|checkbox \"Include run=1[^\"]*\"|region \"Changed from defaults\")$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/url-params.md §3",
+          "says": "the screen names the changed settings the link cannot carry"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "a fixed second sentence naming what links leave out"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/ShareUrlField.vue",
+          "says": "one sentence, and \"Not in the link: …\" only when it applies"
+        },
+        "notes": "Layout and computed style that follow v02-settings-share-sentence: the caption's height and everything under it in the side column. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-settings-stream-spinbutton",
+      "title": "Fixed stream count: Vue's field is a spinbutton; the kit shows the count as text between the steppers",
+      "match": {
+        "scenarios": [
+          "settings/changed"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "> group \"Stream count\"$",
+        "kind": null,
+        "detail": "^(spinbutton \"Stream count\"|text \"3\")$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §4",
+          "says": "Streams: fixed with its count from 1 to the server's maximum (no control specified)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "Fewer and More buttons around a plain number"
+        },
+        "vue": {
+          "ref": "web/src/components/settings/StreamsField.vue",
+          "says": "shadcn-vue NumberField: a spinbutton between the steppers, typed or stepped"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-settings-us-spelling",
+      "title": "Settings: the kit's \"Display and behaviour\" (UK) vs Vue's \"Display and behavior\" (US)",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^changed$",
+        "detail": "^region \"Display and behaviour\" → \"Display and behavior\"$"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/ai-guidelines.md (US English)",
+          "says": "US English throughout the product and docs"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "card title \"Display and behaviour\""
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/settings.json",
+          "says": "\"Display and behavior\""
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-share-dialog",
+      "title": "Share dialog on the Test screen: the kit's own dialog (preview, Share via…, primary Download image) vs Vue's dialog holding the Result detail's share panel",
+      "match": {
+        "scenarios": [
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^dialogs( > |$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:135-139; flows.md §8",
+          "says": "Share opens the §2 share panel: preview of the image and the copied text, include label, Download image, Copy summary and, where the Web Share API is available, Share"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (share dialog)",
+          "says": "its own layout: image preview without a name, Share via…, Download image as the primary action, a bordered Copy summary"
+        },
+        "vue": {
+          "ref": "web/src/components/share/ShareDialog.vue, SharePanel.vue",
+          "says": "the share panel in a dialog: titled cards, the text summary shown, Copy summary as a ghost button, Share only with the Web Share API"
+        },
+        "notes": "All layers: content, style and layout of the dialog's subtree."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-share-loaded-source",
+      "title": "Share image and summary: Vue qualifies the loaded latency with its source when it is not the WebSocket (\"upload, HTTP/2 probe\"); the kit names the direction only",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/clipboard-denied",
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > complementary$",
+        "kind": null,
+        "detail": "^text \"Text summary\" → \".*Loaded latency \\+# ms \\((upload|download), HTTP"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md:198-202",
+          "says": "each number with its qualifier: … a loaded-latency source other than the WebSocket"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx (share preview); components/share/SharePreview.jsx",
+          "says": "\"+39 ms loaded (upload)\" with the HTTP/2 probe as its source"
+        },
+        "vue": {
+          "ref": "web/src/share/summary.ts; web/src/components/share/SharePreview.vue",
+          "says": "\"+38 ms loaded (upload, HTTP/2 probe)\""
+        },
+        "notes": "Matched on the text summary, whose entry shows the source; the image's entries are cut before it and stay with v02-date-format. The entry also carries the title split of v02-headings and the date of v02-date-format. No entry while v02-a11y-result-side-regions holds the region it sits in; it shows again once that conflict is decided."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-strip-plateau-geometry",
+      "title": "Failed download's strip (follows content-connection-strip): Vue names the plateau the download reached before it failed, so the Streams entry is wider",
+      "match": {
+        "scenarios": [
+          "test/error"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"(Streams|6)\"$",
+        "kind": "^width$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:313",
+          "says": "Protocol, streams: the stream count and plateau reason"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (error)",
+          "says": "\"6 auto\", no plateau reason after the failure"
+        },
+        "vue": {
+          "ref": "web/src/components/connection/ConnectionStrip.vue",
+          "says": "\"6 auto · plateau: cap\", the plateau reached before the failure"
+        },
+        "notes": "Follows the strip text, which content-connection-strip (done) holds as a regression for the maintainer."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-test-edit-geometry",
+      "title": "Error before the server answered (follows v02-test-edit-without-settings): without Vue's Edit row the notice, the test card and the Results card sit higher",
+      "match": {
+        "scenarios": [
+          "test/error-early"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (alert \"Connection to Basement NAS lost[^\"]*\"|region \"(Speed test|Results)\"|main \"\")$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:20-24",
+          "says": "the settings summary with an Edit link to Settings"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:721",
+          "says": "the Edit link on its own row on narrow screens"
+        },
+        "vue": {
+          "ref": "web/src/components/connection/SettingsSummary.vue",
+          "says": "no summary, and no Edit, before the server's settings are in"
+        },
+        "notes": "Layout and computed style that follow v02-test-edit-without-settings: everything under the strip on narrow screens. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-test-edit-without-settings",
+      "title": "Error before the server answered: the kit still shows the Edit link; Vue hides the settings summary, Edit with it, until the server's settings are in",
+      "match": {
+        "scenarios": [
+          "test/error-early"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main$",
+        "kind": "^missing$",
+        "detail": "^link \"Edit\"$"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:20-24",
+          "says": "the settings summary with an Edit link to Settings"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:721",
+          "says": "Edit whenever the scope has Settings, the summary empty"
+        },
+        "vue": {
+          "ref": "web/src/components/connection/SettingsSummary.vue",
+          "says": "the summary and its Edit link render with the server's settings, as in the offline state"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-test-grade-ended",
+      "title": "Bufferbloat grade of a run that ended without one: the kit still names it \"pending\"; Vue \"not graded\"",
+      "match": {
+        "scenarios": [
+          "test/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Results\"$",
+        "kind": null,
+        "detail": "^img \"Bufferbloat grade pending\" → \"Bufferbloat not graded\"$"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "Bufferbloat grade: letter plus words; silent on its name before or without one"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/measurement/LoadCard.jsx:14",
+          "says": "aria-label \"Bufferbloat grade pending\" whenever there is no grade, the words beside it \"Not graded — test incomplete\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "\"Bufferbloat grade pending\" while the run can still reach a grade, \"Bufferbloat not graded\" once it ended without one"
+        },
+        "notes": "No entry while v02-a11y-load-card-region holds the region it sits in; it shows again once that conflict is decided."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-test-latency-toggle",
+      "title": "Throughput chart legend: Vue's \"Latency under load\" entry is the series toggle; the kit's is a static legend item",
+      "match": {
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Speed test\"$",
+        "kind": null,
+        "detail": "^(?!.* max\" → )(button \"Latency under load\"|text \"Warm-up [^\"]*\"|text \"[^\"]*Latency under load( Warm-up [^\"]*)?\" → )"
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:38-39",
+          "says": "optional loaded-latency series toggle on its own axis"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/charts/ThroughputChart.jsx; ui_kits/app/TestScreen.jsx",
+          "says": "a legend item \"Latency under load\", not interactive"
+        },
+        "vue": {
+          "ref": "web/src/components/chart/ChartHeader.vue",
+          "says": "the legend item is a button with aria-pressed that shows or hides the series"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-ws-fallback-geometry",
+      "title": "WebSocket fallback, live (follows v02-http1-notice-geometry): the reservation notice above the test card moves the Results card and lengthens the page",
+      "match": {
+        "scenarios": [
+          "test/ws-fallback"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (region \"Results\"|main \"\")$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo reaches each state through the engine on a simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (ws-fallback)",
+          "says": "HTTP/2, one notice"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts",
+          "says": "HTTP/1.1, reserved: two notices"
+        },
+        "notes": "Follows the notice of v02-http1-notice-geometry; not part of the save bar, which this live state has not reached."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
     }
   ]
 }

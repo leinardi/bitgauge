@@ -17,13 +17,18 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-// The kit's StatusPill at its small size (design_system/components/status: StatusPill.jsx,
-// status.css `.pill.sm`): a tone's surface, border and text, with the tone's dot unless `dot` is
-// false.
+// The kit's StatusPill (design_system/components/status: StatusPill.jsx, status.css `.pill`): a
+// tone's surface, border and text, with the tone's dot unless `dot` is false; small unless `size`
+// is md, as the Result detail's confidence pill is.
 
 type PillTone = 'ok' | 'warn' | 'danger' | 'info' | 'neutral'
 
-withDefaults(defineProps<{ tone?: PillTone; dot?: boolean }>(), { tone: 'neutral', dot: true })
+withDefaults(defineProps<{ tone?: PillTone; dot?: boolean; size?: 'sm' | 'md' }>(), { tone: 'neutral', dot: true, size: 'sm' })
+
+const SIZES = {
+  sm: { pill: 'h-(--pill-h-sm) gap-1 text-(length:--text-nano)', dot: 'pr-2 pl-1.5', plain: 'px-2' },
+  md: { pill: 'h-(--pill-h) gap-1.5 text-(length:--text-micro)', dot: 'pr-2.5 pl-2', plain: 'px-2' },
+}
 
 const TONES: Record<PillTone, { pill: string; dot: string }> = {
   ok: { pill: 'border-(--ok-border) bg-(--ok-bg) text-(--ok-fg)', dot: 'bg-(--ok)' },
@@ -36,8 +41,8 @@ const TONES: Record<PillTone, { pill: string; dot: string }> = {
 
 <template>
   <span
-    class="inline-flex h-(--pill-h-sm) items-center gap-1 rounded-full border font-(family-name:--font-cond) text-(length:--text-nano) leading-none font-semibold tracking-(--tracking-caps-tight) whitespace-nowrap uppercase"
-    :class="[TONES[tone].pill, dot ? 'pr-2 pl-1.5' : 'px-2']"
+    class="inline-flex items-center rounded-full border font-(family-name:--font-cond) leading-none font-semibold tracking-(--tracking-caps-tight) whitespace-nowrap uppercase"
+    :class="[SIZES[size].pill, TONES[tone].pill, dot ? SIZES[size].dot : SIZES[size].plain]"
   >
     <span
       v-if="dot"

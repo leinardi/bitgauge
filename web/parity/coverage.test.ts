@@ -28,8 +28,8 @@ import { readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
-import { VUE_HELD_STATES, VUE_STARTING_STATES } from './drivers.ts'
-import { ALL_SCENARIOS, KIT_SCOPE, SCENARIOS, V01_TEST_STATES } from './scenarios.ts'
+import { VUE_HELD_STATES, VUE_RESULT_RUN, VUE_STARTING_STATES } from './drivers.ts'
+import { HISTORY_VARIANTS, KIT_SCOPE, LOADED_CASES, RESULT_STATES, SCENARIOS, SETTINGS_STATES, V01_TEST_STATES } from './scenarios.ts'
 import { filterScenarios } from './selection.ts'
 
 function source(relative: string): string {
@@ -51,11 +51,11 @@ const sorted = (items: Iterable<string>): string[] => [...new Set(items)].sort()
 // One row per screen both sides have: its Vue route name, its prototype screen, and the scenarios
 // that compare it.
 const PAGES = [
-  { route: 'test', kit: 'test', scenarios: 'test/*' },
+  { route: 'test', kit: 'test', scenarios: 'test/*,loaded/*,share/*' },
   { route: 'about', kit: 'about', scenarios: 'about,about/*' },
   { route: 'history', kit: 'history', scenarios: 'history/*' },
-  { route: 'result', kit: 'result', scenarios: 'result' },
-  { route: 'settings', kit: 'settings', scenarios: 'settings' },
+  { route: 'result', kit: 'result', scenarios: 'result,result/*' },
+  { route: 'settings', kit: 'settings', scenarios: 'settings,settings/*' },
 ]
 
 // Prototype screens the app does not have yet, each with the reason.
@@ -64,7 +64,7 @@ const KIT_V02_SCREENS: Record<string, string> = {}
 // Vue pages the prototype has no screen for, each with the reason.
 const VUE_ONLY_PAGES: Record<string, string> = {}
 
-// Test screen states the kit has and v0.1 does not, each with the reason.
+// Test screen states the kit has and v0.1 and v0.2 do not, each with the reason.
 const KIT_V03_STATES: Record<string, string> = {
   continuous: 'Continuous mode is v0.3',
   'cont-warmup': 'Continuous mode is v0.3',
@@ -76,11 +76,31 @@ const vueRoutes = captures(source('../src/router/index.ts'), /\{ path: '[^']*', 
   ([name, component]) => ({ name: name ?? '', page: component === 'NotAvailablePage' ? 'not-available' : (name ?? '') }),
 )
 const kitScreens = captures(source(`${KIT}Prototype.jsx`), /is[A-Z]\w*: S === '([a-z]+)'/g, 'the prototype screens').map(([screen]) => screen ?? '')
-const kitStates = captures(
-  /const TEST_STATES = \[([^\]]*)\]/.exec(source(`${KIT}App.jsx`))?.[1] ?? '',
-  /'([a-z-]+)'/g,
-  'TEST_STATES in App.jsx',
-).map(([state]) => state ?? '')
+const kitApp = source(`${KIT}App.jsx`)
+const kitStates = captures(/const TEST_STATES = \[([^\]]*)\]/.exec(kitApp)?.[1] ?? '', /'([a-z-]+)'/g, 'TEST_STATES in App.jsx').map(([state]) => state ?? '')
+const kitHistoryVariants = captures(/const HISTORY_VARIANTS = \[([^\]]*)\]/.exec(kitApp)?.[1] ?? '', /'([a-z0-9-]+)'/g, 'HISTORY_VARIANTS in App.jsx').map(
+  ([variant]) => variant ?? '',
+)
+// The Result detail section's State and Demo selects, by their value bindings.
+const kitResultChoice = (binding: string) =>
+  captures(new RegExp(`value=\\{d\\.${binding}\\} options=\\{\\[([^\\]]*)\\]`).exec(kitApp)?.[1] ?? '', /'([a-z-]+)'/g, `the ${binding} choices in App.jsx`).map(
+    ([choice]) => choice ?? '',
+  )
+const kitResultStates = [...kitResultChoice('resultState'), ...kitResultChoice('resultDemo').filter((choice) => choice !== 'none')]
+// The Settings component's documented boolean states (Settings.jsx props), in the scenarios' words:
+// every boolean prop but mobile, the frame every screen takes.
+const kitSettingsStates = captures(source(`${KIT}Settings.jsx`), /^ \* {3}(\w+): boolean/gm, 'the Settings.jsx boolean props')
+  .map(([prop]) => prop ?? '')
+  .filter((prop) => prop !== 'mobile')
+  .map((prop) => prop.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`))
+// The panel's loaded-latency cases: the WebSocket-close switch, and each LL_GAPS reason but none.
+const kitLoadedCases = [
+  ...(kitApp.includes('value={d.wsClose}') ? ['ws-close'] : []),
+  ...captures(/const LL_GAPS = \[(.*)\];/.exec(kitApp)?.[1] ?? '', /\['([a-z-]+)', '[^']*'\]/g, 'LL_GAPS in App.jsx')
+    .map(([reason]) => reason ?? '')
+    .filter((reason) => reason !== 'none')
+    .map((reason) => `ll-${reason}`),
+]
 
 describe('screens', () => {
   it('gives every Vue page a row, or a reason the prototype has no screen for it', () => {
@@ -113,23 +133,44 @@ describe('screens', () => {
   })
 
   it.each(PAGES)('compares $route in at least one scenario', ({ scenarios }) => {
-    expect(() => filterScenarios(ALL_SCENARIOS, scenarios)).not.toThrow()
+    expect(() => filterScenarios(SCENARIOS, scenarios)).not.toThrow()
   })
 })
 
 describe('the driven scope', () => {
-  it('runs every scenario of the scope the prototype is driven in, and none of a later one', () => {
-    expect(SCENARIOS.map((s) => s.id)).toEqual(ALL_SCENARIOS.filter((s) => s.kitScope === undefined || s.kitScope === KIT_SCOPE).map((s) => s.id))
-    expect(SCENARIOS.some((s) => s.id === 'settings')).toBe(KIT_SCOPE === 'v0.2')
-    expect(SCENARIOS.some((s) => s.id.startsWith('history/'))).toBe(KIT_SCOPE === 'v0.2')
-    expect(SCENARIOS.some((s) => s.id === 'result')).toBe(KIT_SCOPE === 'v0.2')
+  it('drives the v0.2 scope, the screens and features the app has', () => {
+    expect(KIT_SCOPE).toBe('v0.2')
+  })
+})
+
+describe('the v0.2 screens', () => {
+  const ids = new Set(SCENARIOS.map((s) => s.id))
+
+  it('has a History scenario for every variant of the kit', () => {
+    expect(sorted(HISTORY_VARIANTS), 'HISTORY_VARIANTS in scenarios.ts is out of date').toEqual(sorted(kitHistoryVariants))
+    expect(kitHistoryVariants.filter((variant) => !ids.has(`history/${variant}`))).toEqual([])
+  })
+
+  it('has a Result detail scenario for every state and demo of the kit', () => {
+    expect(sorted(RESULT_STATES), 'RESULT_STATES in scenarios.ts is out of date').toEqual(sorted(kitResultStates))
+    expect(kitResultStates.filter((state) => !ids.has(state === 'result' ? 'result' : `result/${state}`))).toEqual([])
+  })
+
+  it('has a Test screen and a Result detail scenario for every loaded-latency case of the kit', () => {
+    expect(sorted(LOADED_CASES), 'LOADED_CASES in scenarios.ts is out of date').toEqual(sorted(kitLoadedCases))
+    expect(kitLoadedCases.filter((loadedCase) => !ids.has(`loaded/${loadedCase}`) || !ids.has(`result/${loadedCase}`))).toEqual([])
+  })
+
+  it('has a Settings scenario for the defaults and every state of the kit', () => {
+    expect(kitSettingsStates.filter((state) => !(SETTINGS_STATES as readonly string[]).includes(state))).toEqual([])
+    expect(SETTINGS_STATES.filter((state) => !ids.has(state === 'defaults' ? 'settings' : `settings/${state}`))).toEqual([])
   })
 })
 
 describe('Test screen states', () => {
   const scenarioStates = SCENARIOS.filter((s) => s.id.startsWith('test/')).map((s) => s.id.slice('test/'.length))
 
-  it('has a scenario for every v0.1 state of the kit', () => {
+  it('has a scenario for every state of the kit the app has', () => {
     const v01 = kitStates.filter((state) => !(state in KIT_V03_STATES))
     expect(sorted(V01_TEST_STATES), 'V01_TEST_STATES in scenarios.ts is out of date').toEqual(sorted(v01))
     expect(sorted(scenarioStates)).toEqual(sorted(v01))
@@ -145,7 +186,7 @@ describe('Test screen states', () => {
 describe('the Vue driver', () => {
   it('knows which demo states start a run', () => {
     const flags = captures(source('../src/demo/scenarios.ts'), /^ {2}'?([a-z-]+)'?: \{ link: '[a-z0-9-]+', start: (true|false)\b/gm, 'the start flags of DEMO_SCENARIOS')
-    expect(sorted(flags.map(([state]) => state ?? '')), 'a demo state has no start flag this test can read').toEqual(sorted(V01_TEST_STATES))
+    expect(sorted(flags.map(([state]) => state ?? '')), 'a demo state has no start flag this test can read').toEqual(sorted([...V01_TEST_STATES, ...LOADED_CASES, VUE_RESULT_RUN]))
     expect(sorted(VUE_STARTING_STATES)).toEqual(sorted(flags.filter(([, start]) => start === 'true').map(([state]) => state ?? '')))
   })
 

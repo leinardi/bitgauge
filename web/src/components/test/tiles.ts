@@ -20,7 +20,7 @@
 import { Activity, ArrowDown, ArrowUp, Database, Signal, Timer } from '@lucide/vue'
 import type { Component } from 'vue'
 
-import type { ConfidenceReason, Direction, DirectionResult, IdleResult, MeasuringPhase, PhaseState, Result, SteadySoFar } from '@/engine/messages'
+import type { ConfidenceReason, Direction, DirectionResult, IdleResult, LoadedLatency, MeasuringPhase, PhaseState, Result, SteadySoFar } from '@/engine/messages'
 import { type GradeView, loadRow, type LoadRow, gradeView } from '@/components/result/load'
 import type { Wording } from '@/components/test/wording'
 import type { LoadedSeries } from '@/composables/useLoadedSeries'
@@ -303,6 +303,38 @@ function pingsRow(direction: Direction, pings: readonly { ms: number }[], idleMe
 }
 
 /**
+ * A result's row with what the kit's Test screen adds to it: "partial" on a direction stopped early,
+ * and why a direction has no number when it failed, or when the upload stopped in its warm-up.
+ */
+function qualified(row: LoadRow, loaded: LoadedLatency, result: Result, { t }: Wording): LoadRow {
+  const outcome = result[row.direction]
+  if (!('status' in loaded)) {
+    return outcome?.status === 'partial' ? { ...row, sub: t('test.load.partial', { sub: row.sub }) } : row
+  }
+  if (outcome?.status === 'error') {
+    return { ...row, sub: t('test.load.failed', { sub: row.sub, direction: row.direction === 'download' ? t('result.load.download') : t('result.load.upload') }) }
+  }
+  if (row.direction === 'upload' && outcome?.status === 'partial' && outcome.windowMs === undefined) {
+    return { ...row, sub: t('test.load.stoppedWarmup', { sub: row.sub }) }
+  }
+  return row
+}
+
+/**
+ * A result without a grade, in the kit's Test screen words: an error ended the test, no direction
+ * ran, or none that ran is gradable; a direction measured without a grade lacks idle latency.
+ */
+function ungraded(result: Result, context: Wording): GradeView {
+  const { t } = context
+  const loaded = (['download', 'upload'] as const).map((direction) => result[direction]?.loadedLatency).filter((value) => value !== undefined)
+  if (loaded.some((value) => !('status' in value))) {
+    return gradeView(result, context, true)
+  }
+  const words = result.status === 'error' ? t('test.load.incomplete') : loaded.length === 0 ? t('test.load.noLoaded') : t('test.load.noGradable')
+  return { grade: null, words, basis: '' }
+}
+
+/**
  * The load card of the Test screen: the grade once the result has it, "graded after" the last
  * direction while there is none yet, and absent without idle latency; a row per direction of the
  * run, pending until it runs, live as its pings come, then the result's, with its source and
@@ -322,7 +354,7 @@ export function loadView(input: LoadInput, context: Wording): LoadView | null {
     const label = direction === 'download' ? t('result.load.during.download') : t('result.load.during.upload')
     const loaded = result?.[direction]?.loadedLatency
     if (loaded !== undefined && result !== null) {
-      return loadRow(direction, loaded, result.client.timerResolutionMs, context)
+      return qualified(loadRow(direction, loaded, result.client.timerResolutionMs, context), loaded, result, context)
     }
     const state = input.states[direction]
     const pings = status === 'idle' ? [] : (input.pings?.[direction] ?? [])
@@ -341,11 +373,14 @@ export function loadView(input: LoadInput, context: Wording): LoadView | null {
     return { grade: null, rows }
   }
   if (result !== null) {
-    return { grade: gradeView(result, context), rows }
+    return { grade: result.bufferbloat === undefined ? ungraded(result, context) : gradeView(result, context, true), rows }
   }
   if (input.stoppedEarly === true) {
     return { grade: { grade: null, words: t('test.load.noLoaded'), basis: '' }, rows }
   }
-  const words = ended ? t('test.load.incomplete') : last === 'upload' ? t('test.load.afterUpload') : t('test.load.afterDownload')
-  return { grade: { grade: null, words, basis: '' }, rows }
+  if (ended) {
+    return { grade: { grade: null, words: t('test.load.incomplete'), basis: '' }, rows }
+  }
+  const words = last === 'upload' ? t('test.load.afterUpload') : t('test.load.afterDownload')
+  return { grade: { grade: null, words, basis: '', pending: true }, rows }
 }

@@ -46,7 +46,7 @@
     "include": {
       "label": "Include label",
       "note": "Adds “{label}” to the image and the text. IP address and note are never shared.",
-      "none": "No label set"
+      "none": "no label set"
     },
     "qualifiers": {
       "partial": "partial",

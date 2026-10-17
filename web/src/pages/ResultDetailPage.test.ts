@@ -141,7 +141,7 @@ describe('a stored result', () => {
     expect(text(page, 'parameter-streams')).toContain('Auto, up to 6')
     expect(text(page, 'parameter-streams-download')).toContain('4 · plateau: no-gain')
     expect(text(page, 'parameter-ip')).toContain('100.101.4.17')
-    expect(text(page, 'parameter-warmup')).toMatch(/Auto · ended at 9\.0\ss \(download\) and 9\.0\ss \(upload\)$/)
+    expect(text(page, 'parameter-warmup')).toMatch(/Auto · ended at 9\.0\ss \(download\), 9\.0\ss \(upload\)$/)
     expect(text(page, 'parameter-isolated')).toContain('Yes')
     page.unmount()
   })

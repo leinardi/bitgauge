@@ -287,27 +287,45 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   time stops and no timer fires, so a screen stays in one state until the next scenario replaces
   the session.
 - **Scenarios** (`demo/scenarios.ts`, `demo/fixtures.ts`, played by `demo/session.ts`). The scenario
-  names are the UI kit's `TEST_STATES` that v0.1 has, all but `continuous`, `cont-warmup` and
-  `cont-done`; a test reads them from `App.jsx`. Each is a link, whether the run starts at once, the
-  URL parameters the page applies, and a script: a user stop, a failure or a hold, each at an
-  instant after a phase starts as the run's own `phase` events report it, at the kit's own defaults
-  (`cancelled` stops 3.1 s into upload, `download` holds 7.5 s into download). A user stop is the
-  page's: the session asks the page to press Stop, so the run ends through the page's own stop
-  path, as when the user presses it. A failure is of the kind the demo panel selects: every request
+  names are the UI kit's `TEST_STATES` that v0.1 and v0.2 have, all but `continuous`,
+  `cont-warmup` and `cont-done`, and its panel's loaded-latency cases: `ws-close` (the WebSocket
+  closing after idle latency) and `ll-<reason>` for each reason of its `LL_GAPS`, which a test reads
+  from `App.jsx`, and `upload-gap`, the run its Result detail shows (`ResultDetail.jsx`). Each is
+  a link, whether the run starts at once, the URL parameters the page applies, and a script: a
+  user stop, a failure, a WebSocket a proxy drops or a hold, each at an instant after a phase starts
+  as the run's own `phase` events report it, at the kit's own defaults (`cancelled` stops 3.1 s into
+  upload, `download` holds 7.5 s into download). A user stop is the page's: the session asks the
+  page to press Stop, so the run ends through the page's own stop path, as when the user presses it.
+  A failure is of the kind the demo panel selects: every request
   failing, the server unreachable, a restart, or a network change sent as the `network` command; a
-  scenario may fix its own kind, as `error-early` does with a server that stops answering during
-  idle latency, which [../ui/flows.md
-  §5](../ui/flows.md#5-error-mid-test) ends as `network changed` once the WebSocket closes, and
-  `upload-interrupted` does with every request failing from 8.2 s into upload. The fixtures are the
-  kit's: "Basement NAS" over the LAN at 612 Mbit/s down and 438 Mbit/s up, 3.1 ms and HTTP/2, with
-  a ceiling per request of 110 Mbit/s down and 80 Mbit/s up, so that each trial gains and the ramp
-  reaches six streams, plateau `cap`, in both directions; the same LAN over HTTP/1.1 for the
+  scenario may fix its own kind, and for failing requests how many upload requests fail, as
+  `error-early` does with a server that stops answering during idle latency, which [../ui/flows.md
+  §5](../ui/flows.md#5-error-mid-test) ends as `network changed` once the WebSocket closes,
+  `upload-interrupted` with every request failing from 12 s into upload, and `upload-gap` with one
+  upload request failing 10.4 s into the LAN upload, which over HTTP/2 carries on with that
+  request's time left out as unknown. The fixtures are the kit's: "Basement NAS" over the LAN at
+  612 Mbit/s down and 438 Mbit/s up, 3.1 ms and HTTP/2, with a ceiling per request of 110 Mbit/s
+  down and 80 Mbit/s up, so that each trial gains and the ramp reaches six streams, plateau `cap`,
+  in both directions; the same LAN over HTTP/1.1 for the
   upload-interrupted state, where the first failed upload request ends the upload
   ([../measurement.md §7.5](../measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark)),
   and for the ws-fallback state, whose HTTP latency fallback therefore runs reserved and reports
   `http-h1-reserved` ([../measurement.md §11.2](../measurement.md#112-path-a-fallback--http-probe));
   over a VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s and 19 kbit/s link of the
-  insufficient-data state.
+  insufficient-data state. A dropped WebSocket closes the open echo while the server and its
+  requests stay up; from then on a new one is refused or, for `ll-no-probe-path`, left
+  unanswered, so the close sequence of
+  [../measurement.md §11.4](../measurement.md#114-loaded-latency-statistics-and-availability) runs
+  to its timeout. `ws-close` drops it 3 s into download on the LAN, so loaded latency
+  carries on over the HTTP/2 probe; `ll-reservation-broken` 3 s into upload on the HTTP/1.1 LAN,
+  giving the upload two sources; `ll-insufficient-samples` 14 s into upload, a second before its
+  15 s minimum, leaving the later source a handful of samples. A complete result has a steady
+  window in each direction and none as short as the close sequence, so `ll-no-steady-window`
+  stops 3.1 s into upload, before its window, and `ll-no-probe-path` drops the WebSocket 9.7 s into
+  the LAN download, which ends at its 10 s minimum, and stops 0.8 s into upload, while the close
+  sequence still covers it. A run is dated by the page's wall clock: the page sends its time with
+  the scenario, and the Worker dates its runs from it, so a page whose clock is fixed, as the parity
+  harness fixes it at the kit's instant, dates them from that instant.
 - **Panel** (`demo/DemoPanel.vue`, with `demo/choice.ts` and `demo/control.ts`). The kit's Demo
   state panel as far as the app goes, collapsed by default: the scenario, the speed (1×, 2×, 4×),
   a forced state, a CPU-bound Worker, the error kind, the timer resolution (0.1 ms or 1 ms) and
@@ -322,10 +340,10 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   need: `populated` replaces the browser's history with the kit's eight results over a VPN (the
   rows of `History.jsx`, each a valid result, with a stored steady window and loaded-latency
   samples per measured direction for the Result detail, graded as the engine grades them),
-  `empty` with none, and `unavailable` opens no
-  database, so history is unavailable for the page load; "stored" leaves the browser's history as
-  it is. The page writes the results itself (`composables/useHistory.ts`); the demo module only
-  holds them.
+  `empty` with none, `unavailable` opens no database, so history is unavailable for the page
+  load, and `loading` never finishes opening it, so the screen stays loading; "stored" leaves the
+  browser's history as it is. The page writes the results itself (`composables/useHistory.ts`);
+  the demo module only holds them.
 - **Boundaries.** The demo's Worker-side files, `src/demo/**/*.ts`, follow the engine's import
   policy extended by `@/demo/`: framework-free, no DOM library, no application code; like
   `engine/worker.ts`, `demo/worker.ts` alone reaches the Worker's globals, which the engine's

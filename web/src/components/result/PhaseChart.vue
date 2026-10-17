@@ -41,7 +41,8 @@ import { latencyAxisLabels, rateAxisLabels } from '@/lib/format'
 // over the series the event marks and the loaded latency, dashed on a second scale in ms whose
 // labels sit right of the plot. The warm-up is a hatched, excluded interval and each gap is edged,
 // both over the canvas. The canvas is decoration for assistive technology: the plot is an image
-// labeled with its summary.
+// labeled with its summary. The plot is at most as wide as the kit's: 320 px, the idle one 690 px,
+// and 309 px on a narrow screen (ResultDetail.jsx cw and wide).
 
 const props = defineProps<{
   model: PhaseModel
@@ -131,7 +132,10 @@ watch(ends, (next) =>
 </script>
 
 <template>
-  <div class="relative">
+  <div
+    class="relative max-w-[309px]"
+    :class="short ? 'desktop:max-w-172.5' : 'desktop:max-w-80'"
+  >
     <div
       ref="host"
       role="img"

@@ -74,6 +74,7 @@ const groups = computed(() => [
     >
       <StatusPill
         :tone="pill.tone"
+        size="md"
         data-testid="confidence-level"
       >
         {{ pill.text }}

@@ -86,7 +86,7 @@ const wording = computed(() => ({ t, locale: locale.value }))
 const shownSettings = computed(() => (state.value === 'idle' ? null : run.runSettings.value) ?? settings.value)
 const units = computed(() => shownSettings.value?.units ?? 'bits')
 
-// Without the server's settings the phases and tiles still show, pending and empty.
+// Without the server's settings the phases, tiles and load card still show, pending and empty.
 const steps = computed(() => (shownSettings.value === null ? PENDING_STEPS : phaseSteps(view.value, shownSettings.value, locale.value)))
 // The ended result kept in history by the user (Keep in history), which then reads "saved as".
 const kept = shallowRef(false)
@@ -98,7 +98,7 @@ const load = computed(() =>
   loadView(
     {
       status: run.status.value,
-      phases: shownSettings.value?.phases ?? [],
+      phases: shownSettings.value?.phases ?? PENDING_STEPS.map((step) => step.phase),
       states: { download: run.phases.value.download.state, upload: run.phases.value.upload.state },
       stoppedEarly: run.status.value === 'idle' && run.phases.value.idle.state !== 'pending',
       pings: run.loaded.value,

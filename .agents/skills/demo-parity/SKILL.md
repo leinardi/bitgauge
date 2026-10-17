@@ -53,7 +53,7 @@ snapshots and `findings.json`.
    (`PARITY_PROTO_PORT` and `PARITY_DEMO_PORT` move them).
 2. Reproduce it on both sides, in a browser or with
    `npm --prefix web exec --no -- playwright open <url>`. Reach the state through each side's demo
-   panel: the kit's **Force state** (with its v0.1 scope on), the Vue demo's **Force state** or the
+   panel: the kit's **Force state** (with its v0.2 scope on), the Vue demo's **Force state** or the
    scenario that starts the run. The harness's own steps for each scenario are in
    `web/parity/drivers.ts`.
 3. Place it, in this order:

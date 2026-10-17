@@ -32,9 +32,11 @@ import { saveJson } from '@/components/history/exporting'
 import FilterBar from '@/components/history/FilterBar.vue'
 import HistoryLoading from '@/components/history/HistoryLoading.vue'
 import ImportDialog from '@/components/history/ImportDialog.vue'
+import { noMatchBody } from '@/components/history/noMatch'
 import OriginNotice from '@/components/history/OriginNotice.vue'
 import ResultCardList from '@/components/history/ResultCardList.vue'
 import ResultsTable from '@/components/history/ResultsTable.vue'
+import { resultDay } from '@/components/history/rows'
 import SafariNotice from '@/components/history/SafariNotice.vue'
 import SelectionBar from '@/components/history/SelectionBar.vue'
 import TrendChart from '@/components/history/TrendChart.vue'
@@ -59,7 +61,22 @@ const { info } = useInfo()
 const { stored } = useSettings()
 const list = useHistoryList(history)
 const importer = useTemplateRef<InstanceType<typeof ImportDialog>>('importer')
-const origin = window.location.host
+const origin = window.location.origin
+// What the selection holds (kit History.jsx): two results by their days, after their label when
+// they share one; more by the days they span.
+const selectionSummary = computed(() => {
+  const picked = list.sorted.value.filter((result) => list.selected.value.has(result.id)).sort((a, b) => Date.parse(a.startedAt) - Date.parse(b.startedAt))
+  const first = picked[0]
+  const last = picked.at(-1)
+  if (first === undefined || last === undefined || picked.length < 2) {
+    return ''
+  }
+  const days = { a: resultDay(first.startedAt, locale.value), b: resultDay(last.startedAt, locale.value) }
+  if (picked.length > 2) {
+    return t('history.selection.span', days)
+  }
+  return first.label !== '' && first.label === last.label ? t('history.selection.pair', { ...days, label: first.label }) : t('history.selection.pairDays', days)
+})
 const safari = isSafari()
 const safariDismissed = shallowRef(false)
 
@@ -133,7 +150,7 @@ watch(comparedPair, (chosen) => {
   >
     <header class="flex flex-wrap items-center gap-x-4 gap-y-3">
       <div class="flex items-baseline gap-2.5">
-        <h1 class="text-(length:--text-3xl) leading-(--lh-snug) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl) desktop:leading-(--lh-tight)">
+        <h1 class="text-(length:--text-3xl) leading-(--lh-normal) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl)">
           {{ t('history.title') }}
         </h1>
         <span
@@ -195,7 +212,7 @@ watch(comparedPair, (chosen) => {
       >
         <RouterLink to="/">
           <Play
-            :size="14"
+            :size="15"
             aria-hidden="true"
           />
           {{ t('history.empty.start') }}
@@ -215,7 +232,7 @@ watch(comparedPair, (chosen) => {
       >
         <RouterLink to="/">
           <Play
-            :size="14"
+            :size="15"
             aria-hidden="true"
           />
           {{ t('history.empty.start') }}
@@ -223,7 +240,7 @@ watch(comparedPair, (chosen) => {
       </AppButton>
       <AppButton @click="importer?.open()">
         <Upload
-          :size="14"
+          :size="15"
           aria-hidden="true"
         />
         {{ t('history.import.action') }}
@@ -240,12 +257,12 @@ watch(comparedPair, (chosen) => {
         v-if="list.filtered.value.length === 0"
         :icon="Search"
         :title="t('history.noMatch.title')"
-        :body="t('history.noMatch.body', { total: all.length })"
+        :body="noMatchBody(list.filter.value, all.length, { t, locale })"
         data-testid="history-no-match"
       >
         <AppButton @click="list.setFilter(NO_FILTER)">
           <X
-            :size="14"
+            :size="15"
             aria-hidden="true"
           />
           {{ t('history.noMatch.clear') }}
@@ -255,6 +272,7 @@ watch(comparedPair, (chosen) => {
         <TrendChart
           :results="list.filtered.value"
           :units="units"
+          :contexts="list.filter.value.contexts"
         />
         <ResultsTable
           class="hidden tablet:block"
@@ -272,6 +290,7 @@ watch(comparedPair, (chosen) => {
             <SelectionBar
               v-if="list.selected.value.size > 0"
               :count="list.selected.value.size"
+              :summary="selectionSummary"
               @clear="list.clearSelection"
               @remove="list.remove(selectedIds)"
               @compare="comparing = true"

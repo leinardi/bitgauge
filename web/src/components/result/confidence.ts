@@ -27,8 +27,8 @@ import type { Confidence, Direction, Result } from '@/engine/messages'
 import { formatDuration } from '@/lib/format'
 
 // The confidence and notices card (ui/screens.md section 2, kit ResultDetail.jsx): each measured
-// direction's confidence with its reasons, then every notice the result carries, worded as the Test
-// screen words it, and the packet-loss slot; each with an icon and text, and a notice's docs link.
+// direction's confidence with its reasons, then the packet-loss slot and every notice the result
+// carries, worded as the Test screen words it; each with an icon and text, and a notice's docs link.
 // The card's pill is the lowest confidence of the directions.
 
 export interface ConfidenceItem {
@@ -79,5 +79,5 @@ export function confidenceView(result: Result, wording: Wording): ConfidenceView
     return { tone: view.tone, icon: view.icon, title: view.title, body: view.body, link: link?.kind === 'link' ? { href: link.href, label: link.label } : null }
   })
   const packetLoss: ConfidenceItem = { tone: 'neutral', icon: CircleDashed, title: t('result.confidence.packetLoss.title'), body: t('result.confidence.packetLoss.body'), link: null }
-  return { level, confidence, notices: [...notices, packetLoss] }
+  return { level, confidence, notices: [packetLoss, ...notices] }
 }

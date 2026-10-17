@@ -93,7 +93,7 @@ provide(
   >
     <div class="flex min-w-0 flex-col gap-4">
       <header class="flex flex-col gap-1.5">
-        <h1 class="text-(length:--text-3xl) leading-(--lh-snug) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl) desktop:leading-(--lh-tight)">
+        <h1 class="text-(length:--text-3xl) leading-(--lh-normal) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl)">
           {{ t('settings.title') }}
         </h1>
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-(length:--text-sm) text-subtle-foreground">

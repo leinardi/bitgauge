@@ -56,10 +56,13 @@ class HarnessError extends Error {
 
 async function runStep(driver: drivers.Driver, page: Page, step: Step): Promise<void> {
   if ('forceState' in step) await driver.forceState(page, step.forceState)
+  else if ('loadedCase' in step) await driver.forceLoadedCase(page, step.loadedCase)
   else if ('serverUnreachable' in step) await driver.serverUnreachable(page)
   else if ('openDemo' in step) await driver.openDemo(page)
-  else if ('historyVariant' in step) await driver.historyVariant(page, step.historyVariant)
-  else if ('openResult' in step) await driver.openResult(page)
+  else if ('history' in step) await driver.showHistory(page, step.history)
+  else if ('result' in step) await driver.showResult(page, step.result)
+  else if ('settings' in step) await drivers.settingsState(page, step.settings)
+  else if ('openShare' in step) await drivers.openShare(page)
   else await drivers.goto(page, step.goto)
 }
 

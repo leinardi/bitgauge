@@ -152,16 +152,17 @@ function runAgain(): void {
         @rename="rename"
         @run-again="runAgain"
         @remove="remove"
-      />
-      <NoticeBox
-        v-if="unavailable"
-        tone="warn"
-        :icon="Database"
-        :title="t('result.unavailable.title')"
-        :body="t('result.unavailable.body')"
-        :live="false"
-        data-testid="result-unavailable"
-      />
+      >
+        <NoticeBox
+          v-if="unavailable"
+          tone="warn"
+          :icon="Database"
+          :title="t('result.unavailable.title')"
+          :body="t('result.unavailable.body')"
+          :live="false"
+          data-testid="result-unavailable"
+        />
+      </ResultHeader>
       <div class="grid grid-cols-1 items-start gap-6 desktop:grid-cols-[minmax(0,1fr)_352px]">
         <div class="flex min-w-0 flex-col gap-4">
           <section

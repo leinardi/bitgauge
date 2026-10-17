@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import 'uplot/dist/uPlot.min.css'
 
+import { useMediaQuery } from '@vueuse/core'
 import uPlot from 'uplot'
 import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -40,7 +41,10 @@ export interface TrendPoint {
 
 const props = defineProps<{ points: TrendPoint[]; color: string; log: boolean; label: string; format: (value: number) => string }>()
 
-const HEIGHT = 130
+// The kit's plot size: 130 px high, 120 px on a narrow screen (History.jsx th), and at most 340 px
+// wide (tw), the host's max-w-85.
+const narrow = useMediaQuery('(max-width: 767.98px)')
+const height = computed(() => (narrow.value ? 120 : 130))
 
 const { locale } = useI18n()
 const { applied } = useTheme()
@@ -92,7 +96,7 @@ function data(): uPlot.AlignedData {
   ]
 }
 
-const { plot } = useUplot(host, options, data, () => HEIGHT)
+const { plot } = useUplot(host, options, data, () => height.value)
 
 watch(applied, () => {
   readPalette()
@@ -105,6 +109,6 @@ watch(applied, () => {
     ref="host"
     role="img"
     :aria-label="label"
-    class="min-w-0"
+    class="max-w-85 min-w-0"
   />
 </template>

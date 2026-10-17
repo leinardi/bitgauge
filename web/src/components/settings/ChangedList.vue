@@ -31,7 +31,7 @@ import SettingsCard from '@/components/settings/SettingsCard.vue'
 // its default, with the default, the value and a reset, and Reset all to defaults after
 // confirmation.
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const form = useSettingsForm()
 
 const entries = computed(() =>
@@ -72,8 +72,8 @@ const entries = computed(() =>
           variant="ghost"
           size="sm"
           class="w-7 justify-center px-0"
-          :aria-label="t('settings.changed.reset', { name: entry.name })"
-          :title="t('settings.changed.reset', { name: entry.name })"
+          :aria-label="t('settings.changed.reset', { name: entry.name.toLocaleLowerCase(locale) })"
+          :title="t('settings.changed.reset', { name: entry.name.toLocaleLowerCase(locale) })"
           @click="form.reset([entry.key])"
         >
           <RotateCcw

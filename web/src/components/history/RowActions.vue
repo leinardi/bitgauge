@@ -37,14 +37,14 @@ const { t } = useI18n()
     <DropdownMenuTrigger as-child>
       <AppButton
         variant="ghost"
-        size="sm"
+        :size="touch ? 'md' : 'sm'"
         :class="touch ? 'mt-1 size-11 justify-center px-0' : 'w-(--control-h-sm) justify-center px-0'"
         :aria-label="t('history.table.actions', { label: name })"
         data-testid="row-actions"
         @click.stop
       >
         <Ellipsis
-          :size="16"
+          :size="touch ? 15 : 14"
           aria-hidden="true"
         />
       </AppButton>

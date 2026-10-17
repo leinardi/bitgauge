@@ -67,6 +67,7 @@ const FORMATS = [
     </DropdownMenuTrigger>
     <DropdownMenuContent
       align="end"
+      :side-offset="6"
       class="flex w-80 flex-col gap-0.5 rounded-(--radius-lg) border-(--border-default) bg-(--surface-2) p-1.5 shadow-(--shadow-pop)"
     >
       <DropdownMenuGroup
@@ -117,13 +118,14 @@ const FORMATS = [
         </div>
       </DropdownMenuGroup>
       <DropdownMenuSeparator class="mx-0.5 my-1 bg-(--border-subtle)" />
-      <p class="flex items-start gap-2 px-2.5 pt-1.5 pb-1 text-(length:--text-micro) leading-(--lh-compact) text-muted-foreground">
-        <TriangleAlert
-          :size="13"
-          aria-hidden="true"
-          class="mt-px flex-none text-(--warn)"
-        />
-        {{ t('history.export.warning') }}
+      <p class="flex items-start gap-2 px-2.5 pt-1.5 pb-1">
+        <span class="mt-px flex flex-none text-(--warn)">
+          <TriangleAlert
+            :size="13"
+            aria-hidden="true"
+          />
+        </span>
+        <span class="text-(length:--text-micro) leading-(--lh-compact) text-muted-foreground">{{ t('history.export.warning') }}</span>
       </p>
     </DropdownMenuContent>
   </DropdownMenu>

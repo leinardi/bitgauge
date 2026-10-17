@@ -68,7 +68,7 @@ export function attachWorker(worker: Pick<Worker, 'postMessage' | 'addEventListe
       gone ||= scenario.fault !== undefined && (scenario.fault.kind ?? current.errorKind) === 'unreachable'
     }
   })
-  void chosen.then((command) => worker.postMessage(command))
+  void chosen.then((command) => worker.postMessage({ ...command, wallClockMs: Date.now() }))
 }
 
 /** GET /info as the chosen scenario's server answers it: unreachable for the offline one, and once a run ended on its unreachable fault. */
@@ -92,9 +92,13 @@ export function chooseHistory(variant: DemoHistory): void {
 
 /**
  * What the page's history starts from: unavailable, the results to replace it with, or, for '',
- * the browser's own history as it is (null).
+ * the browser's own history as it is (null). For 'loading' it never settles, so the history stays
+ * loading for the page load.
  */
 export async function demoHistory(): Promise<'unavailable' | Result[] | null> {
   const variant = await variantChosen
+  if (variant === 'loading') {
+    return new Promise<never>(() => undefined)
+  }
   return variant === 'unavailable' ? 'unavailable' : variant === '' ? null : demoHistoryResults(variant)
 }

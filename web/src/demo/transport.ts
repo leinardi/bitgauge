@@ -74,7 +74,7 @@ export class DemoTransport implements Transport {
     this.connections = new Connections(link.profile.connections)
     // A server that stops answering drops every connection at that instant. A restart closes the
     // WebSocket as the old process goes away, while its requests in flight drain, as a graceful
-    // shutdown lets them.
+    // shutdown lets them; a proxy that drops the WebSocket closes it alone.
     link.onEvent((event, at) => {
       const drop = () => {
         if (event === 'unreachable') {
@@ -157,7 +157,7 @@ export class DemoTransport implements Transport {
     const sentAt = this.clock.now()
     const rtt = this.link.profile.rttMs + this.link.loadedMs(sentAt)
     const half = rtt / 2
-    if (signal.aborted || this.failed(sentAt)) {
+    if (signal.aborted || this.failed(sentAt) || this.link.uploadLost(sentAt)) {
       // A lost upload fails like an XMLHttpRequest's error, once the round trip has passed.
       return this.answer(rtt, signal, true, () => {
         throw networkError()
@@ -211,7 +211,10 @@ export class DemoTransport implements Transport {
   ws(): Promise<WsEcho> {
     const { clock, link } = this
     return this.later(link.roundTrip(clock.now()), (resolve, reject) => {
-      if (link.profile.webSocket === false || !link.reachable(clock.now())) {
+      if (this.link.leavesWebSocketUnanswered(clock.now())) {
+        return
+      }
+      if (!this.link.webSocketOpens(clock.now()) || !this.link.reachable(clock.now())) {
         reject(new Error('the WebSocket did not open'))
         return
       }
