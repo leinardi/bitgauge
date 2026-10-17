@@ -65,6 +65,14 @@ export interface Scenario extends LinkModel {
    * 3): a download's first byte, and an upload's first byte at the server, come this much later.
    */
   requestGapMs?: number
+  /**
+   * The delay the link's load adds to a pong or a probe sent while `inFlight` transfers of
+   * `direction` are on the link, `sinceLoadMs` after its first one was; summed over both
+   * directions. Absent, the load adds nothing.
+   */
+  loadedDelayMs?: (direction: Direction, inFlight: number, sinceLoadMs: number) => number
+  /** The connections the browser holds per server on HTTP/1.1; 6 when absent. */
+  h1Connections?: number
 }
 
 export class FakeTransport implements Transport {
@@ -81,8 +89,22 @@ export class FakeTransport implements Transport {
   constructor(clock: FakeClock, scenario: Scenario) {
     this.clock = clock
     this.scenario = scenario
-    this.server = new FakeServer(clock, scenario)
+    this.server = new FakeServer(clock, scenario, () => this.loadedDelay())
     this.link = new Link(clock, scenario)
+  }
+
+  /** What the scenario's load adds to a pong or a probe sent now. */
+  private loadedDelay(): number {
+    const delay = this.scenario.loadedDelayMs
+    let total = 0
+    for (const direction of ['download', 'upload'] as const) {
+      const since = this.link.loadedSince[direction]
+      const inFlight = this.link.inFlight(direction)
+      if (delay !== undefined && since !== null && inFlight > 0) {
+        total += delay(direction, inFlight, this.clock.now() - since)
+      }
+    }
+    return total
   }
 
   /** The whole bytes the bottleneck carried per 100 ms cell of the client clock, per direction. */
@@ -100,12 +122,15 @@ export class FakeTransport implements Transport {
     const sentAt = this.clock.now()
     const { rttMs } = this.scenario
     const firstByteAt = sentAt + rttMs + (this.scenario.requestGapMs ?? 0)
-    return this.respond(rttMs, signal, failure, (status) => {
+    const release = this.server.hold()
+    signal.addEventListener('abort', release)
+    const answered = this.respond(rttMs, signal, failure, (status) => {
       const body = new Body()
       let endAt = firstByteAt
       const timing = (): ResourceTiming | null =>
         this.entry({ requestStart: sentAt, responseStart: firstByteAt, responseEnd: endAt })
       if (status !== 200) {
+        release()
         body.end()
         return { status, contentEncoding: null, chunks: body, timing }
       }
@@ -117,6 +142,7 @@ export class FakeTransport implements Transport {
         },
         done: (at) => {
           endAt = at
+          release()
           body.end()
         },
       })
@@ -126,6 +152,8 @@ export class FakeTransport implements Transport {
       })
       return { status, contentEncoding: this.scenario.contentEncoding ?? null, chunks: body, timing }
     })
+    answered.catch(release)
+    return answered
   }
 
   upload(size: number, onProgress: (sentBytes: number, at: number) => void, signal: AbortSignal): Promise<UploadResponse> {
@@ -133,12 +161,16 @@ export class FakeTransport implements Transport {
     const sentAt = this.clock.now()
     const half = this.scenario.rttMs / 2
     const offset = this.scenario.gridOffsetMs ?? 0
+    const release = this.server.hold()
+    signal.addEventListener('abort', release)
     if (failure !== null && failure.kind !== 'short') {
-      return this.respond(this.scenario.rttMs, signal, failure, (status) => ({
+      const answered = this.respond(this.scenario.rttMs, signal, failure, (status) => ({
         status,
         telemetry: null,
         timing: this.entry({ requestStart: sentAt, responseStart: sentAt + this.scenario.rttMs, responseEnd: sentAt }),
       }))
+      void answered.then(release, release)
+      return answered
     }
     const prepare = this.scenario.prepareBytesPerSecond
     const gap = this.scenario.requestGapMs ?? 0
@@ -155,6 +187,7 @@ export class FakeTransport implements Transport {
           // `at` is the end of the last byte's millisecond, one after the tick that moved it.
           const timer = this.clock.setTimer(half + 1, () => {
             const responseStart = this.clock.now()
+            release()
             resolve({
               status: 200,
               telemetry: {
@@ -183,8 +216,8 @@ export class FakeTransport implements Transport {
     return this.server.ws()
   }
 
-  probe(path: string): Promise<ProbeTiming> {
-    return this.server.probe(path)
+  probe(path: string, signal?: AbortSignal): Promise<ProbeTiming> {
+    return this.server.probe(path, signal)
   }
 
   info(): Promise<InfoResult> {

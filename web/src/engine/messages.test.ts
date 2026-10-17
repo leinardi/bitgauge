@@ -78,7 +78,7 @@ describe('message contract', () => {
     expectTypeOf<Sample['values']>().toEqualTypeOf<(number | null)[]>()
   })
 
-  it('has the v0.1 notice codes of measurement.md section 16', () => {
+  it('has the v0.2 notice codes of measurement.md section 16', () => {
     expectTypeOf<NoticeCode>().toEqualTypeOf<
       | 'slow-link-extended'
       | 'low-confidence'
@@ -100,6 +100,7 @@ describe('message contract', () => {
       | 'websocket-reopened'
       | 'websocket-unavailable'
       | 'base-path-mismatch'
+      | 'probe-reservation'
     >()
   })
 

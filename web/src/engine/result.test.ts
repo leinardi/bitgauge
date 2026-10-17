@@ -53,7 +53,8 @@ const STANDARD: RunSettings = {
 }
 
 /** The fields of later versions (measurement.md section 17), absent from a v0.1 result. */
-const LATER = ['note', 'bufferbloat', 'scores', 'loadedLatency', 'responsiveness', 'minBitsPerSecond', 'maxBitsPerSecond', 'knownMs']
+// Fields the engine never writes: the history's note, and those of later versions.
+const LATER = ['note', 'scores', 'responsiveness', 'minBitsPerSecond', 'maxBitsPerSecond', 'knownMs']
 
 interface Options {
   settings?: Partial<RunSettings>
@@ -105,7 +106,7 @@ function keys(value: unknown): string[] {
 }
 
 describe('a fast LAN Standard run', () => {
-  it('is complete, with every v0.1 field present and typed and no field of a later version', async () => {
+  it('is complete, with every engine field present and typed and no field of a later version', async () => {
     const emitted = await result({ scenario: LAN })
     expect(emitted).toMatchObject({
       schema: 'bitgauge.result',
@@ -135,6 +136,8 @@ describe('a fast LAN Standard run', () => {
       expect(direction?.windowMs).toBeGreaterThanOrEqual(3000)
     }
     expect(emitted.upload?.confirmedRequests).toBeGreaterThanOrEqual(3)
+    expect(emitted.download?.loadedLatency).toMatchObject({ source: 'websocket', increaseMs: 0 })
+    expect(emitted.bufferbloat).toEqual({ grade: 'A+', basis: 'download+upload', increaseMs: 0 })
     expect(emitted.dataUsedBytes).toBe((emitted.download?.bytes ?? 0) + (emitted.upload?.bytes ?? 0))
     expect(keys(emitted).filter((key) => LATER.includes(key))).toEqual([])
   })

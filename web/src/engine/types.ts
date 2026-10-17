@@ -74,7 +74,7 @@ export interface UploadResponse {
   timing: ResourceTiming | null
 }
 
-/** An HTTP probe with its timing entry (measurement.md section 10, the HTTP fallback). */
+/** An HTTP probe with its timing entry (measurement.md sections 10 and 11.2, the HTTP fallback). */
 export interface ProbeTiming {
   status: number
   sentAt: number
@@ -120,6 +120,7 @@ export interface Transport {
   ): Promise<UploadResponse>
   /** Opens the echo; rejects when the WebSocket cannot open. */
   ws(): Promise<WsEcho>
-  probe(path: string): Promise<ProbeTiming>
+  /** An HTTP probe with its timing entry; rejects when the signal aborts it. */
+  probe(path: string, signal?: AbortSignal): Promise<ProbeTiming>
   info(): Promise<InfoResult>
 }

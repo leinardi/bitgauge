@@ -32,6 +32,27 @@ export interface ThroughputOptions {
   dataUsedBefore: number
   /** The idle-latency median, or null when idle latency was skipped. */
   rttMs: number | null
+  /** The HTTP/1.1 probe reservation's bound on the streams and the requests in flight (measurement.md section 11.2). */
+  streamCap?: number
+  /** Called once at the phase's end instant with the grace its loaded-latency pings get (section 11.4). */
+  ended?: (graceMs: number) => void
+}
+
+/** The grace is min(2 s, 2 × d), d the expected duration of the longest request in flight (measurement.md section 5). */
+const MAX_GRACE_MS = 2000
+
+/**
+ * The grace for requests in flight with these expected durations, null for one without a rate;
+ * with none in flight d is 0, so there is no grace and the pings still outstanding are lost.
+ */
+export function graceFor(expected: readonly (number | null)[]): number {
+  const longest = Math.max(0, ...expected.map((ms) => ms ?? MAX_GRACE_MS))
+  return Math.min(MAX_GRACE_MS, 2 * longest)
+}
+
+/** The bound on requests in flight: the server's, lowered by the probe reservation. */
+export function serverBound(serverMax: number, streamCap: number | undefined): number {
+  return Math.min(serverMax, streamCap ?? serverMax)
 }
 
 /**

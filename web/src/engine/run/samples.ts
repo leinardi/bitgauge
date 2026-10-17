@@ -18,7 +18,7 @@
  */
 
 import type { DownloadPhase } from '@/engine/download/phase'
-import type { EngineEvent, SteadySoFar } from '@/engine/messages'
+import type { EngineEvent, LoadedPing, SteadySoFar } from '@/engine/messages'
 import { type Cell, percentile } from '@/engine/stats/buckets'
 import { BUCKET_MS, bitsFromBytes, bitsPerSecond, bucketRate } from '@/engine/stats/units'
 import type { UploadPhase } from '@/engine/upload/phase'
@@ -26,7 +26,8 @@ import { confirmedSeries, steadyWindow } from '@/engine/upload/window'
 
 // The live `sample` messages of a throughput phase (architecture.md section 4, measurement.md
 // section 14): the buckets that became known since the last message, the gauge, and the steady
-// window's average and peak so far once warm-up has ended. Nothing here feeds a result.
+// window's average and peak so far once warm-up has ended, and the loaded-latency pings answered
+// since the previous sample. Nothing here feeds a result.
 
 /** A sample as the feed builds it; the run adds how long the phase has run. */
 type Sample = Omit<Extract<EngineEvent, { type: 'sample' }>, 'phaseMs'>
@@ -55,6 +56,18 @@ export class SampleFeed {
   private next: number | null = null
   /** Upload progress at the last ticks, for the sending rate. */
   private readonly progress: { at: number; bytes: number }[] = []
+  /** Takes the loaded-latency pings answered since it was last called. */
+  private readonly pings: () => LoadedPing[]
+
+  constructor(pings: () => LoadedPing[] = () => []) {
+    this.pings = pings
+  }
+
+  /** The sample with the pings answered since the previous one, when there are any. */
+  private withPings(sample: Sample): Sample {
+    const loadedLatency = this.pings()
+    return loadedLatency.length === 0 ? sample : { ...sample, loadedLatency }
+  }
 
   download(phase: DownloadPhase, dataUsedBefore: number): Sample | null {
     const series = phase.series
@@ -74,10 +87,10 @@ export class SampleFeed {
       dataUsedBytes: dataUsedBefore + phase.dataUsed,
     }
     if (warmupEnd === null) {
-      return sample
+      return this.withPings(sample)
     }
     const live = steady(series.known(warmupEnd.bucket, series.end))
-    return { ...sample, warmupEndBucket: warmupEnd.bucket, ...(live === undefined ? {} : { steady: live }) }
+    return this.withPings({ ...sample, warmupEndBucket: warmupEnd.bucket, ...(live === undefined ? {} : { steady: live }) })
   }
 
   /** The upload's gauge is the client's sending progress; its buckets are confirmed server cells. */
@@ -117,10 +130,10 @@ export class SampleFeed {
     }
     const warmupEnd = phase.warmupEnd
     if (warmupEnd === null) {
-      return sample
+      return this.withPings(sample)
     }
     const window = steadyWindow(phase.ledger, warmupEnd.bucket * BUCKET_MS)
     const live = steady(window.cells.map((cell) => phase.ledger.grid.bytes(cell)))
-    return { ...sample, warmupEndBucket: warmupEnd.bucket, ...(live === undefined ? {} : { steady: live }) }
+    return this.withPings({ ...sample, warmupEndBucket: warmupEnd.bucket, ...(live === undefined ? {} : { steady: live }) })
   }
 }

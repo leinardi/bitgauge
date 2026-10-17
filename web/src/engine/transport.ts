@@ -206,10 +206,10 @@ export class BrowserTransport implements Transport {
     })
   }
 
-  async probe(path: string): Promise<ProbeTiming> {
+  async probe(path: string, signal?: AbortSignal): Promise<ProbeTiming> {
     const url = this.url(path.replace(/^\/+/, ''))
     const sentAt = this.clock.now()
-    const response = await fetch(url, { cache: 'no-store' })
+    const response = await fetch(url, { cache: 'no-store', ...(signal === undefined ? {} : { signal }) })
     await response.arrayBuffer()
     const doneAt = this.clock.now()
     return { status: response.status, sentAt, doneAt, timing: await this.timing(url, sentAt) }

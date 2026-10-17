@@ -19,12 +19,13 @@
 
 import type { IdleResult, Notice, Result, UploadResult } from '@/engine/messages'
 import { directionNotices, downloadResult, resultNotices, skippedDirection, uploadResult } from '@/engine/result/direction'
+import { quantized, withLoaded } from '@/engine/result/loaded'
 import type { RunReport } from '@/engine/run/report'
 import type { BrowserIdentity, Clock } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
 import { IDLE_SHARE } from '@/engine/upload/streams'
 
-// The versioned result object of measurement.md section 17, v0.1 field set: what a run reports,
+// The versioned result object of measurement.md section 17, v0.2 field set: what a run reports,
 // with the client's timer resolution and cross-origin isolation (edge-cases.md section 9). The
 // fields of later versions are absent, never null-filled.
 
@@ -47,16 +48,6 @@ function resultId(): string {
   bytes[8] = ((bytes[8] ?? 0) & 0x3f) | 0x80
   const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('')
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
-}
-
-/** A latency no finer than the clock can tell (edge-cases.md section 9); unchanged without a resolution. */
-function quantized(ms: number, resolutionMs: number): number {
-  if (!(Number.isFinite(resolutionMs) && resolutionMs > 0)) {
-    return ms
-  }
-  const steps = Math.round(ms / resolutionMs) * resolutionMs
-  // Rounded again at the nanosecond, so that 0.1 steps do not print as 50.300000000000004.
-  return Math.round(steps * 1e6) / 1e6
 }
 
 function idleResult(idle: IdleResult, resolutionMs: number): IdleResult {
@@ -91,8 +82,9 @@ export function buildResult(context: ResultContext): Result {
   const { settings, info } = report
   const percent = settings.overheadCompensationPercent
   const directions = { overheadCompensationPercent: percent, busy: context.busy }
-  const download = report.download === null || context.downloadStartAt === null ? skippedDirection() : downloadResult(report.download, context.downloadStartAt, directions)
-  const upload = report.upload === null ? { ...skippedDirection(), confirmedRequests: 0 } : uploadResult(report.upload, directions)
+  const measured = report.download === null || context.downloadStartAt === null ? skippedDirection() : downloadResult(report.download, context.downloadStartAt, directions)
+  const sent = report.upload === null ? { ...skippedDirection(), confirmedRequests: 0 } : uploadResult(report.upload, directions)
+  const { download, upload, bufferbloat } = withLoaded(report, measured, sent, clock.resolutionMs)
   const idle = report.idle?.result
   return {
     schema: 'bitgauge.result',
@@ -124,6 +116,7 @@ export function buildResult(context: ResultContext): Result {
     ...(idle === undefined ? {} : { idle: idleResult(idle, clock.resolutionMs) }),
     download,
     upload,
+    ...(bufferbloat === undefined ? {} : { bufferbloat }),
     dataUsedBytes: report.dataUsedBytes,
     notices: resultNotices([directionNotices(report.download?.notices, download), directionNotices(report.upload?.notices, upload), report.notices, browserUploadLimit(report.browser, report.upload, upload)], percent),
   }

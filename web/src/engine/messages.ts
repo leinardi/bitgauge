@@ -93,8 +93,8 @@ export interface Confidence {
 }
 
 /**
- * The v0.1 notices of measurement.md section 16, each with the raw values it names. `data-used`
- * (Continuous) and `probe-reservation` (loaded responsiveness) belong to later versions.
+ * The notices of measurement.md section 16, each with the raw values it names. `data-used`
+ * (Continuous) belongs to a later version.
  */
 export type Notice =
   | { code: 'slow-link-extended'; direction: Direction }
@@ -112,6 +112,8 @@ export type Notice =
   | { code: 'browser-upload-limit'; browser: string }
   | { code: 'upload-interrupted' }
   | { code: 'response-compression-detected' }
+  /** The HTTP/1.1 probe reservation (measurement.md section 11.2); `streams` is the reserved cap. */
+  | { code: 'probe-reservation'; streams: number }
   | { code: 'overhead-compensation'; percent: number }
   | { code: 'timer-throttling-detected' }
   | { code: 'page-hidden' }
@@ -130,9 +132,9 @@ export type EngineErrorCode =
   | 'server-restarted'
   | 'server-unreachable'
 
-// Result object (measurement.md section 17), the v0.1 field set: the fields of later versions (the
-// note, loaded latency, responsiveness, bufferbloat grade, quality scores, Continuous fields) are
-// absent, never null-filled.
+// Result object (measurement.md section 17), the v0.2 field set: the fields of later versions
+// (responsiveness, quality scores, Continuous fields) are absent, never null-filled, and the v0.2
+// additions are optional, so a v0.1 result stays valid.
 
 export type DirectionStatus = 'measured' | 'insufficient-data' | 'partial' | 'skipped' | 'error'
 
@@ -159,6 +161,44 @@ export type DirectionEvent =
   | { code: 'error'; atMs: number; notice: NoticeCode | 'requests-failed' }
   | { code: 'failure-gap'; startMs: number; endMs: number }
 
+/** Where loaded-latency samples came from (measurement.md section 11.2). */
+export type LoadedSource = 'websocket' | 'http-h1-reserved' | 'http-h2' | 'http-h3'
+
+/** Why a direction has no loaded-latency number (measurement.md section 11.4). */
+export type LoadedLatencyReason = 'no-steady-window' | 'insufficient-samples' | 'reservation-broken' | 'no-probe-path'
+
+/** A loaded-latency ping as the series and the live samples hold it. */
+export interface LoadedPing {
+  atMs: number
+  rttMs: number
+}
+
+/**
+ * A direction's loaded latency (measurement.md sections 11.4 and 17): measured, with no status, or
+ * unavailable with its reason. `increaseMs` and `idleSource` exist only with an idle median.
+ */
+export type LoadedLatency =
+  | {
+      source: LoadedSource
+      idleSource?: IdleResult['path']
+      samples: number
+      skippedTicks: number
+      lost: number
+      medianMs: number
+      p90Ms: number
+      increaseMs?: number
+      /** The counted samples on the direction's series timeline, at most 2000 points. */
+      series: LoadedPing[]
+    }
+  | { status: 'unavailable'; reason: LoadedLatencyReason; source?: LoadedSource; samples: number; skippedTicks: number; lost: number }
+
+/** The bufferbloat grade of measurement.md section 11.3. */
+export interface Bufferbloat {
+  grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F'
+  basis: 'download+upload' | Direction
+  increaseMs: number
+}
+
 /**
  * One throughput direction. A direction without a number omits the number's fields; one whose
  * warm-up never ended also omits the window, its series and the confidence.
@@ -175,6 +215,8 @@ export interface DirectionResult {
   bytes: number
   series?: ResultSeries
   events: DirectionEvent[]
+  /** Present when the direction ran while a loaded-latency path existed (v0.2). */
+  loadedLatency?: LoadedLatency
 }
 
 export interface UploadResult extends DirectionResult {
@@ -224,6 +266,8 @@ export interface Result {
   idle?: IdleResult
   download?: DirectionResult
   upload?: UploadResult
+  /** Absent without idle latency or a gradable direction (v0.2). */
+  bufferbloat?: Bufferbloat
   dataUsedBytes: number
   notices: Notice[]
 }
@@ -287,6 +331,8 @@ export type EngineEvent =
       sendingBucket?: number
       /** The stream count the ramp has reached (measurement.md section 4). */
       streams: number
+      /** The loaded-latency pings answered since the previous sample, atMs from the phase start on the client clock. */
+      loadedLatency?: LoadedPing[]
       /** How long the phase has run, in ms on the client clock (display only). */
       phaseMs: number
       dataUsedBytes: number

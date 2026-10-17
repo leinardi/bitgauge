@@ -143,6 +143,8 @@ export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
       return { tone: 'info', icon: Info, title: t('notices.websocketReopened.title'), body: t('notices.websocketReopened.body'), actions: [] }
     case 'websocket-unavailable':
       return { tone: 'info', icon: Info, title: t('notices.websocketUnavailable.title'), body: t('notices.websocketUnavailable.body'), actions: [] }
+    case 'probe-reservation':
+      return { tone: 'info', icon: Layers, title: t('notices.probeReservation.title', { n: notice.streams }), body: t('notices.probeReservation.body', { n: notice.streams }), actions: [] }
     case 'base-path-mismatch':
       return { tone: 'danger', icon: CircleAlert, title: t('notices.basePathMismatch.title'), body: t('notices.basePathMismatch.body'), actions: [{ kind: 'link', href: links.subPathGuide, label: t('notices.actions.docs') }] }
   }

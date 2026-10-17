@@ -21,7 +21,7 @@ import { type DownloadIssueHost, downloadLoop } from '@/engine/download/issue'
 import { type DownloadRequest, Streams } from '@/engine/download/streams'
 import { type DownloadWindow, downloadWindow } from '@/engine/download/window'
 import type { DirectionEvent, DirectionStatus, Notice, Plateau } from '@/engine/messages'
-import type { ThroughputOptions } from '@/engine/phases/options'
+import { graceFor, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule, windowStable } from '@/engine/phases/window'
@@ -70,6 +70,7 @@ export class DownloadPhase {
   /** The live series: one value per closed bucket. */
   readonly series = new BucketSeries(0)
 
+  private readonly options: DownloadOptions
   private readonly clock: Clock
   private readonly streams: Streams
   private readonly ramp: Ramp
@@ -92,6 +93,7 @@ export class DownloadPhase {
   private done: ((outcome: DownloadOutcome) => void) | null = null
 
   constructor(options: DownloadOptions) {
+    this.options = options
     this.clock = options.clock
     this.streams = new Streams(options.rttMs)
     this.ramp = new Ramp({
@@ -99,6 +101,7 @@ export class DownloadPhase {
       fixed: options.streams.fixed,
       max: options.streams.max,
       serverMax: options.limits.maxStreamsPerClient,
+      ...(options.streamCap === undefined ? {} : { streamCap: options.streamCap }),
       rttMs: options.rttMs,
     })
     this.warmup = new Warmup({
@@ -138,6 +141,11 @@ export class DownloadPhase {
   /** The bytes read so far in this phase. */
   get dataUsed(): number {
     return this.read
+  }
+
+  /** The requests in flight now, which loaded latency records with each ping. */
+  get inFlightCount(): number {
+    return this.inFlight.size
   }
 
   /** Runs the phase to its end. */
@@ -275,6 +283,8 @@ export class DownloadPhase {
     if (this.tickTimer !== null) {
       this.clock.clearTimer(this.tickTimer)
     }
+    // The loaded-latency grace: d of the longest request in flight now, 2 s without a rate.
+    this.options.ended?.(graceFor([...this.inFlight.keys()].map((request) => this.streams.expectedMs(request.stream, request.size))))
     for (const controller of this.inFlight.values()) {
       controller.abort()
     }

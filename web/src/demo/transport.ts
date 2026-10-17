@@ -218,12 +218,12 @@ export class DemoTransport implements Transport {
     })
   }
 
-  probe(path: string): Promise<ProbeTiming> {
+  probe(path: string, signal?: AbortSignal): Promise<ProbeTiming> {
     const sentAt = this.clock.now()
     const lost = this.failed(sentAt)
     const rtt = this.link.roundTrip()
     return this.later(rtt, (resolve, reject) => {
-      if (lost) {
+      if (lost || signal?.aborted === true) {
         reject(networkError())
         return
       }

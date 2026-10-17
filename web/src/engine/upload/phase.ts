@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { ThroughputOptions } from '@/engine/phases/options'
+import { graceFor, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule } from '@/engine/phases/window'
@@ -39,8 +39,6 @@ import { confirmedSeries, endConditionHolds } from '@/engine/upload/window'
 
 const MAX_FAILURES = 3
 const TOO_MANY_REQUESTS = 429
-/** The grace is min(2 s, 2 × d), d the expected duration of the longest request in flight. */
-const MAX_GRACE_MS = 2000
 
 export interface UploadOptions extends ThroughputOptions {
   transport: Pick<Transport, 'upload'>
@@ -88,7 +86,7 @@ export class UploadPhase {
     this.turn = new PreparationTurn(options.clock)
     this.streams = new UploadStreams(options.rttMs)
     const { mode, fixed, max } = options.streams
-    this.ramp = new Ramp({ mode, fixed, max, serverMax: options.limits.maxStreamsPerClient, rttMs: options.rttMs })
+    this.ramp = new Ramp({ mode, fixed, max, serverMax: options.limits.maxStreamsPerClient, ...(options.streamCap === undefined ? {} : { streamCap: options.streamCap }), rttMs: options.rttMs })
     this.warmup = new Warmup({ direction: 'upload', maxMs: options.bounds.maxMs, fixedMs: options.warmup === 'auto' ? null : options.warmup })
     this.rule = new DurationRule('upload', options.bounds, options.preset)
     this.issue = {
@@ -118,6 +116,11 @@ export class UploadPhase {
   /** The display-only offset of section 7.4, client minus server; null before a confirmation. */
   get displayOffset(): number | null {
     return this.streams.displayOffset()
+  }
+
+  /** The requests in flight now, which loaded latency records with each ping. */
+  get inFlightCount(): number {
+    return this.inFlight.size
   }
 
   /** The bytes sent so far in this phase, from upload progress: the sending gauge's input. */
@@ -267,7 +270,12 @@ export class UploadPhase {
     }
     this.halted = reason
     this.halts.add(reason)
-    this.haltedAt ??= this.clock.now()
+    // The grace of the requests in flight, min(2 s, 2 × d), which the loaded-latency pings share.
+    const grace = graceFor([...this.inFlight].map((flight) => flight.request.expectedMs))
+    if (this.haltedAt === null) {
+      this.haltedAt = this.clock.now()
+      this.options.ended?.(grace)
+    }
     this.ledger.halt([...this.inFlight].map(({ request }) => ({ id: request.id, stream: request.stream })))
     if (this.tickTimer !== null) {
       this.clock.clearTimer(this.tickTimer)
@@ -284,9 +292,8 @@ export class UploadPhase {
       this.finish()
       return
     }
-    // No request is issued from here on; those in flight get min(2 s, 2 × d) to confirm.
-    const expected = [...this.inFlight].map((flight) => flight.request.expectedMs ?? MAX_GRACE_MS)
-    this.graceTimer = this.clock.setTimer(Math.min(MAX_GRACE_MS, 2 * Math.max(...expected)), () => this.finish())
+    // No request is issued from here on; those in flight get their grace to confirm.
+    this.graceTimer = this.clock.setTimer(grace, () => this.finish())
   }
 
   /** Aborts what is still in flight, which stays open, and resolves the outcome. */

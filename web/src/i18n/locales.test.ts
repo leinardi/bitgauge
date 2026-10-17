@@ -72,6 +72,7 @@ const NOTICES: Record<NoticeCode, true> = {
   'websocket-reopened': true,
   'websocket-unavailable': true,
   'base-path-mismatch': true,
+  'probe-reservation': true,
 }
 const ERRORS: Record<EngineErrorCode, true> = { 'invalid-settings': true, 'requests-failed': true, 'network-changed': true, 'server-restarted': true, 'server-unreachable': true }
 const PHASES: Record<PhaseName, true> = { info: true, idle: true, download: true, upload: true }

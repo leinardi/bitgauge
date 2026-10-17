@@ -88,9 +88,39 @@ describe('the result validator', () => {
   })
 
   it('rejects a field of a later version, wherever it is', () => {
-    expect(validateResult(changed((result) => (result['bufferbloat'] = { grade: 'C' })))).toEqual(['result.bufferbloat: not a field of this schema version'])
-    expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { loadedLatency: {} })))).toEqual([
-      'result.download.loadedLatency: not a field of this schema version',
+    expect(validateResult(changed((result) => (result['scores'] = {})))).toEqual(['result.scores: not a field of this schema version'])
+    expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { responsiveness: {} })))).toEqual([
+      'result.download.responsiveness: not a field of this schema version',
+    ])
+  })
+
+  it('accepts the v0.2 loaded latency and bufferbloat, and a result without them', () => {
+    const measured = {
+      source: 'websocket',
+      samples: 31,
+      skippedTicks: 0,
+      lost: 0,
+      medianMs: 132,
+      p90Ms: 151,
+      increaseMs: 81,
+      idleSource: 'websocket',
+      series: [{ atMs: 1310, rttMs: 128.4 }],
+    }
+    const withLoaded = changed((result) => {
+      Object.assign(result.download ?? {}, { loadedLatency: measured })
+      Object.assign(result.upload ?? {}, { loadedLatency: { status: 'unavailable', reason: 'insufficient-samples', source: 'http-h2', samples: 4, skippedTicks: 0, lost: 0 } })
+      result['bufferbloat'] = { grade: 'C', basis: 'download', increaseMs: 81 }
+    })
+    expect(validateResult(withLoaded)).toEqual([])
+    expect(validateResult(VALID)).toEqual([])
+  })
+
+  it('rejects a loaded latency or bufferbloat outside their shapes', () => {
+    expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { loadedLatency: { status: 'unavailable', reason: 'slow', samples: 0, skippedTicks: 0, lost: 0 } })))).toEqual([
+      'result.download.loadedLatency.reason: not one of no-steady-window, insufficient-samples, reservation-broken, no-probe-path',
+    ])
+    expect(validateResult(changed((result) => (result['bufferbloat'] = { grade: 'E' as 'A', basis: 'download', increaseMs: 1 })))).toEqual([
+      'result.bufferbloat.grade: not one of A+, A, B, C, D, F',
     ])
   })
 

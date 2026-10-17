@@ -58,6 +58,8 @@ export interface RampOptions {
   max: number
   /** limits.maxStreamsPerClient from GET /info. */
   serverMax: number
+  /** The HTTP/1.1 probe reservation's cap of 5 while it holds (measurement.md section 11.2). */
+  streamCap?: number
   /** The idle-latency median, or null when idle latency was skipped. */
   rttMs: number | null
 }
@@ -98,7 +100,7 @@ export class Ramp {
   streams: number
   /** Why the auto ramp stopped; undefined while it runs, and in fixed and single modes. */
   plateau: Plateau | undefined
-  /** The effective cap: the configured and the server's maximum, lowered by one per 429. */
+  /** The effective cap: the configured and the server's maximum and the probe reservation's, lowered by one per 429. */
   cap: number
   /** The bucket where the last streams were added, for the warm-up's settle condition. */
   lastAdd: number | null = null
@@ -129,7 +131,7 @@ export class Ramp {
   private streamRate: number | null = null
 
   constructor(options: RampOptions) {
-    this.cap = Math.max(1, Math.min(options.max, options.serverMax))
+    this.cap = Math.max(1, Math.min(options.max, options.serverMax, options.streamCap ?? options.serverMax))
     this.settle = settleBuckets(options.rttMs)
     this.rttMs = options.rttMs ?? DEFAULT_RTT_MS
     this.baseIm = measureBuckets(options.rttMs)

@@ -186,3 +186,87 @@ describe('latency paths', () => {
     expect(server).toMatchObject({ opened: 1, infoCalls: 1 })
   })
 })
+
+describe('the load on the latency paths', () => {
+  it('adds the scenario’s loaded delay to a pong and a probe, by direction, transfers and time under load', async () => {
+    const clock = new FakeClock()
+    const seen: [string, number, number][] = []
+    const transport = new FakeTransport(clock, {
+      ...LINK,
+      loadedDelayMs: (direction, inFlight, sinceLoadMs) => {
+        seen.push([direction, inFlight, sinceLoadMs])
+        return 40
+      },
+    })
+    const echo = await (async () => {
+      const opening = transport.ws()
+      await clock.advance(100)
+      return opening
+    })()
+    const pongs: number[] = []
+    echo.onPong((_seq, sentAt, receivedAt) => pongs.push(receivedAt - sentAt))
+    echo.ping(0, clock.now())
+    await clock.advance(200)
+    // Two downloads on the link, their first bytes one RTT after the send.
+    void transport.download(100_000, new AbortController().signal)
+    void transport.download(100_000, new AbortController().signal)
+    await clock.advance(150)
+    echo.ping(1, clock.now())
+    let probed = 0
+    void transport.probe('/api/v1/ping').then((probe) => (probed = probe.doneAt - probe.sentAt))
+    await clock.advance(200)
+    expect(pongs).toEqual([100, 140])
+    expect(probed).toBe(140)
+    expect(seen).toEqual([
+      ['download', 2, 50],
+      ['download', 2, 50],
+    ])
+  })
+
+  it('holds six connections on HTTP/1.1: a probe waits, first come first served, for a free one', async () => {
+    const clock = new FakeClock()
+    const transport = new FakeTransport(clock, { ...LINK, protocol: 'http/1.1' })
+    const controllers = Array.from({ length: 6 }, () => new AbortController())
+    controllers.forEach((controller) => void transport.download(1_000_000, controller.signal))
+    const answered: string[] = []
+    void transport.probe('/first').then(() => answered.push(`first ${clock.now()}`))
+    void transport.probe('/second').then(() => answered.push(`second ${clock.now()}`))
+    await clock.advance(500)
+    expect(answered).toEqual([])
+    controllers[0]?.abort()
+    await clock.advance(150)
+    // The first probe takes the freed connection at 500 and answers at 600; the second follows it.
+    expect(answered).toEqual(['first 600'])
+    await clock.advance(100)
+    expect(answered).toEqual(['first 600', 'second 700'])
+  })
+
+  it('rejects a probe aborted while it waits, and frees its place in the queue', async () => {
+    const clock = new FakeClock()
+    const transport = new FakeTransport(clock, { ...LINK, protocol: 'http/1.1', h1Connections: 1 })
+    const download = new AbortController()
+    void transport.download(1_000_000, download.signal)
+    const waiting = new AbortController()
+    const outcomes: string[] = []
+    transport.probe('/aborted', waiting.signal).then(
+      () => outcomes.push('answered'),
+      (error: unknown) => outcomes.push((error as DOMException).name),
+    )
+    void transport.probe('/next').then(() => outcomes.push(`next ${clock.now()}`))
+    await clock.advance(50)
+    waiting.abort()
+    download.abort()
+    await clock.advance(200)
+    expect(outcomes).toEqual(['AbortError', 'next 150'])
+  })
+
+  it('does not queue probes on HTTP/2', async () => {
+    const clock = new FakeClock()
+    const transport = new FakeTransport(clock, LINK)
+    Array.from({ length: 8 }, () => void transport.download(1_000_000, new AbortController().signal))
+    let answeredAt = 0
+    void transport.probe('/api/v1/ping').then(() => (answeredAt = clock.now()))
+    await clock.advance(150)
+    expect(answeredAt).toBe(100)
+  })
+})

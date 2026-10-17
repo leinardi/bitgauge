@@ -72,6 +72,7 @@ const EVERY: Record<NoticeCode, Notice> = {
   'websocket-reopened': { code: 'websocket-reopened' },
   'websocket-unavailable': { code: 'websocket-unavailable' },
   'base-path-mismatch': { code: 'base-path-mismatch' },
+  'probe-reservation': { code: 'probe-reservation', streams: 5 },
 }
 
 // ui/screens.md section 7.
@@ -82,6 +83,7 @@ const TONES: Record<NoticeCode, string> = {
   'browser-upload-limit': 'info',
   'websocket-reopened': 'info',
   'websocket-unavailable': 'info',
+  'probe-reservation': 'info',
   'low-confidence': 'warn',
   'data-cap-reached': 'warn',
   'insufficient-data': 'warn',

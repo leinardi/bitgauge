@@ -23,6 +23,7 @@ import type { Direction, DirectionResult, EngineEvent, IdleResult, MeasuringPhas
 import { buildResult } from '@/engine/result'
 import { directionNotices, downloadResult, resultNotices, uploadResult } from '@/engine/result/direction'
 import type { Connection } from '@/engine/run/connection'
+import { LoadedProbes } from '@/engine/run/latency'
 import { PageState } from '@/engine/run/page'
 import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices, urlNotices } from '@/engine/run/report'
 import { SampleFeed } from '@/engine/run/samples'
@@ -34,7 +35,8 @@ import type { UploadOutcome } from '@/engine/upload/outcome'
 import { UploadPhase } from '@/engine/upload/phase'
 
 // A run from `start` to its last phase (measurement.md section 1, architecture.md section 4): the
-// info phase, then the configured measuring phases in order, with every v0.1 interruption: a user
+// info phase, then the configured measuring phases in order, loaded latency alongside each
+// direction (run/latency.ts), with every interruption: a user
 // stop, a page the browser paused while hidden, a network change, a server restart, an
 // unreachable server and the WebSocket-close sequence (edge-cases.md sections 2, 5, 6, 11, 15).
 
@@ -70,6 +72,7 @@ export class Run {
   private enteredAt = 0
   private connection: Connection | null = null
   private readonly page: PageState
+  private readonly loaded: LoadedProbes
   private restartIdle = false
   private lastTick: number | null = null
   private tickTimer: TimerId | null = null
@@ -85,13 +88,14 @@ export class Run {
   private kept = false
   /** The notices the directions that ended have earned, which every later phase event carries. */
   private measured: Notice[] = []
-  /** Commands after the run has ended are ignored. */
+  /** Set once the phases are over: commands, and the verdict of a closed echo, are ignored from then on. */
   private finished = false
 
   constructor(options: RunOptions) {
     this.options = options
     this.clock = options.clock
     this.page = new PageState(options.visible)
+    this.loaded = new LoadedProbes({ clock: this.clock, path: () => this.connection?.loaded ?? null, fallbackAt: () => this.connection?.fallbackAt ?? null })
     this.interrupted = new Promise((resolve) => {
       this.wake = () => resolve(null)
     })
@@ -116,6 +120,7 @@ export class Run {
       if (this.tickTimer !== null) {
         this.clock.clearTimer(this.tickTimer)
       }
+      this.loaded.drain()
       this.connection?.dispose()
     }
   }
@@ -160,9 +165,10 @@ export class Run {
       return null
     }
     this.event('info', 'finished')
+    this.loaded.infoProtocol = this.protocol
     skipped.forEach((phase) => this.event(phase, 'skipped'))
     const directions = { overheadCompensationPercent: settings.overheadCompensationPercent, busy: this.fraction }
-    const report: RunReport = { ...start, status: 'complete', protocol: null, settings, idle: null, download: null, upload: null, skipped, notices: [], dataUsedBytes: 0, error: null }
+    const report: RunReport = { ...start, status: 'complete', protocol: null, settings, idle: null, download: null, upload: null, loaded: { download: null, upload: null }, skipped, notices: [], dataUsedBytes: 0, error: null }
     for (const phase of settings.phases) {
       if (this.interrupt !== null || report.download?.dataCapReached === true || report.upload?.dataCapReached === true) {
         report.skipped.push(phase)
@@ -170,23 +176,28 @@ export class Run {
       } else if (phase === 'idle') {
         report.idle = await this.idlePhase()
       } else if (phase === 'download') {
-        report.download = this.settle('download', await this.throughput(new DownloadPhase(this.phaseOptions('download', start))), discardedDownload, (outcome) => downloadResult(outcome, this.downloadStartAt ?? 0, directions))
+        const download = new DownloadPhase(this.phaseOptions('download', start))
+        report.download = this.settle('download', await this.throughput(download, () => download.inFlightCount), discardedDownload, (outcome) => downloadResult(outcome, this.downloadStartAt ?? 0, directions))
       } else {
-        const options = { ...this.phaseOptions('upload', start), epoch: start.info.server.epoch }
-        report.upload = this.settle('upload', await this.throughput(new UploadPhase(options)), discardedUpload, (outcome) => uploadResult(outcome, directions))
+        const upload = new UploadPhase({ ...this.phaseOptions('upload', start), epoch: start.info.server.epoch })
+        report.upload = this.settle('upload', await this.throughput(upload, () => upload.inFlightCount), discardedUpload, (outcome) => uploadResult(outcome, directions))
       }
     }
     if (!this.kept) {
       return null
     }
+    // The phases are over: a stop, a network change or a closed echo from here on changes nothing
+    // while the last direction's pings get their grace before the result.
+    this.finished = true
     const interrupt = this.interrupt
+    report.loaded = await this.loaded.results()
     return {
       ...report,
       status: interrupt === null ? 'complete' : interrupt.kind === 'stop' ? 'partial' : 'error',
       protocol: this.protocol,
       dataUsedBytes: this.dataUsed,
       error: interrupt?.kind === 'error' ? interrupt.code : null,
-      notices: runNotices(report, { url: urlNotices(this.options.settings), connection: this.connection?.notices ?? [], hidden: this.page.hidden, throttled: this.page.throttled }),
+      notices: runNotices(report, { url: urlNotices(this.options.settings), connection: this.connection?.notices ?? [], latency: this.loaded.notices, hidden: this.page.hidden, throttled: this.page.throttled }),
     }
   }
 
@@ -246,18 +257,23 @@ export class Run {
       dataUsedBefore: this.dataUsed,
       limits: start.info.limits,
       rttMs: this.idleMedian,
+      ...this.loaded.reserve(direction),
+      ended: (graceMs: number) => this.loaded.end(direction, graceMs),
     }
   }
 
-  private async throughput(phase: DownloadPhase): Promise<DownloadOutcome>
-  private async throughput(phase: UploadPhase): Promise<UploadOutcome>
-  private async throughput(phase: DownloadPhase | UploadPhase): Promise<DownloadOutcome | UploadOutcome> {
-    this.enter(phase instanceof DownloadPhase ? 'download' : 'upload')
+  /** Runs a direction with loaded latency alongside; `inFlight` counts its throughput requests. */
+  private async throughput(phase: DownloadPhase, inFlight: () => number): Promise<DownloadOutcome>
+  private async throughput(phase: UploadPhase, inFlight: () => number): Promise<UploadOutcome>
+  private async throughput(phase: DownloadPhase | UploadPhase, inFlight: () => number): Promise<DownloadOutcome | UploadOutcome> {
+    const direction = phase instanceof DownloadPhase ? 'download' : 'upload'
+    this.enter(direction)
     this.current = phase
-    this.sampling = { phase, feed: new SampleFeed(), before: this.dataUsed }
+    this.sampling = { phase, feed: new SampleFeed(() => this.loaded.answered()), before: this.dataUsed }
     if (phase instanceof DownloadPhase) {
       this.downloadStartAt = this.clock.now()
     }
+    this.loaded.start(direction, this.clock.now(), inFlight)
     const outcome = await phase.run()
     this.busy.record(this.clock.now(), this.clock.busyMs())
     this.sample(this.clock.now())
@@ -320,6 +336,9 @@ export class Run {
   }
 
   private fail(code: RunErrorCode): void {
+    if (this.finished) {
+      return
+    }
     if (this.interrupt === null) {
       this.options.emit({ type: 'error', code, messageKey: `errors.${code}`, phase: this.phase, partial: this.kept })
     }
@@ -327,7 +346,7 @@ export class Run {
   }
 
   private halt(interrupt: Interrupt): void {
-    if (this.interrupt !== null) {
+    if (this.interrupt !== null || this.finished) {
       return
     }
     this.interrupt = interrupt
@@ -354,7 +373,7 @@ export class Run {
 
   private event(phase: PhaseName, state: PhaseState, { streams, result, idle }: { streams?: number; result?: DirectionResult; idle?: IdleResult } = {}): void {
     // The notices so far (architecture.md section 4), in the order the result will list them.
-    const notices = resultNotices([this.measured, urlNotices(this.options.settings), this.connection?.notices ?? []], 0)
+    const notices = resultNotices([this.measured, urlNotices(this.options.settings), this.connection?.notices ?? [], this.loaded.notices], 0)
     this.options.emit({
       type: 'phase',
       phase,

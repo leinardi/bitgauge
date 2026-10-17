@@ -18,7 +18,7 @@
  */
 
 import { deferred, inFlightLimit, issuesEarly } from '@/engine/phases/issue'
-import { dataBudget } from '@/engine/phases/options'
+import { dataBudget, serverBound } from '@/engine/phases/options'
 import type { Clock, UploadResponse } from '@/engine/types'
 import type { UploadOptions } from '@/engine/upload/phase'
 import type { UploadRequest, UploadStreams } from '@/engine/upload/streams'
@@ -81,7 +81,7 @@ export async function uploadLoop(host: UploadIssueHost, stream: number): Promise
     const first = deferred<number>()
     const done = request(host, stream, size, hold, early, first.resolve)
     const watched = { firstByte: first.promise, done, expectedMs: host.streams.expectedMs(stream, size), tailMs: host.streams.tailMs }
-    early = (await issuesEarly(host.clock, host.streams.leadMs, watched)) && host.inFlight.size < inFlightLimit(host.ledger.protocol, host.options.limits.maxStreamsPerClient)
+    early = (await issuesEarly(host.clock, host.streams.leadMs, watched)) && host.inFlight.size < inFlightLimit(host.ledger.protocol, serverBound(host.options.limits.maxStreamsPerClient, host.options.streamCap))
     if (!early) {
       await done
     }

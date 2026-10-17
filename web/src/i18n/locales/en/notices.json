@@ -147,6 +147,10 @@
       "title": "WebSocket unavailable — HTTP latency fallback",
       "body": "The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests."
     },
+    "probeReservation": {
+      "title": "HTTP/1.1 probe reservation active — {n} streams",
+      "body": "One HTTP/1.1 connection is kept free for the latency probe, so throughput uses at most {n} streams."
+    },
     "basePathMismatch": {
       "title": "Base path mismatch",
       "body": "The server is configured for another base path than this page."

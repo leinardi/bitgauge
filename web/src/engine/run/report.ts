@@ -19,6 +19,7 @@
 
 import type { DownloadOutcome } from '@/engine/download/phase'
 import type { IdleOutcome } from '@/engine/latency/idle'
+import type { LoadedOutcome } from '@/engine/latency/loaded'
 import type { DirectionEvent, EngineErrorCode, MeasuringPhase, Notice, NoticeCode, ResultStatus } from '@/engine/messages'
 import type { RunSettings } from '@/engine/settings'
 import type { BrowserIdentity, Info } from '@/engine/types'
@@ -26,6 +27,15 @@ import type { UploadOutcome } from '@/engine/upload/outcome'
 
 // What a run hands to the result object (measurement.md section 17): every phase's outcome and the
 // notices that belong to the run rather than to one direction.
+
+/** A direction's loaded-latency pinger as it ended (measurement.md section 11). */
+export interface LoadedDirection {
+  outcome: LoadedOutcome
+  /** The direction ran under the HTTP/1.1 probe reservation. */
+  reserved: boolean
+  /** The phase start on the client clock, which the pings' instants count from. */
+  startAt: number
+}
 
 export interface RunReport {
   status: ResultStatus
@@ -39,6 +49,8 @@ export interface RunReport {
   idle: IdleOutcome | null
   download: DownloadOutcome | null
   upload: UploadOutcome | null
+  /** Each direction's loaded latency; null for a direction the pinger did not run for. */
+  loaded: Record<'download' | 'upload', LoadedDirection | null>
   /** The measuring phases that did not run: left out by the settings, or after a stop, an error or the data cap. */
   skipped: MeasuringPhase[]
   notices: Notice[]
@@ -52,6 +64,8 @@ export interface RunConditions {
   /** The URL parameters the page ignored, from the run's settings. */
   url: readonly Notice[]
   connection: readonly Notice[]
+  /** The probe reservation's notice, once, from the first direction that ran reserved. */
+  latency: readonly Notice[]
   /** The page was hidden at some point of the run. */
   hidden: boolean
   /** A housekeeping tick arrived more than 1 s late while the page was visible. */
@@ -65,7 +79,7 @@ export function urlNotices(settings: Pick<RunSettings, 'ignoredParameters'>): No
 
 /** The run-level notices of measurement.md section 16, in the order the result lists them. */
 export function runNotices(report: Pick<RunReport, 'download' | 'upload'>, conditions: RunConditions): Notice[] {
-  const notices: Notice[] = [...conditions.url, ...conditions.connection]
+  const notices: Notice[] = [...conditions.url, ...conditions.connection, ...conditions.latency]
   const { download, upload } = report
   if (download?.status === 'partial') {
     const window = download.window

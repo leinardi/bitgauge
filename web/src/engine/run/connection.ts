@@ -18,12 +18,15 @@
  */
 
 import { httpPinger, type Pinger, webSocketPinger } from '@/engine/latency/idle'
+import type { LoadedPath } from '@/engine/latency/loaded'
+import { SharedEcho } from '@/engine/latency/shared'
 import type { EngineErrorCode, Notice } from '@/engine/messages'
 import type { Clock, InfoResult, Transport, WsEcho } from '@/engine/types'
 
 // The run's WebSocket echo (edge-cases.md sections 6 and 15): opened in the info phase, or replaced
-// by the HTTP fallback; and the sequence that decides what an unexpected close meant. v0.1 has no
-// loaded latency, so the echo serves idle latency only and the fallback needs no reservation.
+// by the HTTP fallback; and the sequence that decides what an unexpected close meant. Idle latency
+// and loaded latency share the echo (measurement.md section 11.6); while the close sequence runs,
+// loaded latency has no path.
 
 const MAX_TIMEOUT_MS = 10_000
 const MIN_TIMEOUT_MS = 2000
@@ -64,7 +67,9 @@ export class Connection {
   /** The notices the connection raised: websocket-unavailable, websocket-reopened. */
   readonly notices: Notice[] = []
   private readonly options: ConnectionOptions
-  private echo: WsEcho | null = null
+  /** When the HTTP fallback took over, on the clock; null while the WebSocket serves. */
+  fallbackAt: number | null = null
+  private echo: SharedEcho | null = null
   private current: Pinger
   private closing = false
   private disposed = false
@@ -77,6 +82,14 @@ export class Connection {
   /** The ping path idle latency uses now. */
   get pinger(): Pinger {
     return this.current
+  }
+
+  /** The path loaded latency probes on now; null while the close sequence runs. */
+  get loaded(): LoadedPath | null {
+    if (this.closing) {
+      return null
+    }
+    return this.echo === null ? { kind: 'http', transport: this.options.transport } : { kind: 'websocket', echo: this.echo }
   }
 
   /**
@@ -100,11 +113,12 @@ export class Connection {
     this.echo = null
   }
 
-  private attach(echo: WsEcho): void {
+  private attach(opened: WsEcho): void {
     if (this.disposed) {
-      echo.close()
+      opened.close()
       return
     }
+    const echo = new SharedEcho(opened)
     this.echo = echo
     this.current = webSocketPinger(echo)
     echo.onClose(() => {
@@ -116,6 +130,7 @@ export class Connection {
 
   private fallBack(): void {
     this.echo = null
+    this.fallbackAt = this.options.clock.now()
     this.current = httpPinger(this.options.transport)
     this.notices.push({ code: 'websocket-unavailable' })
   }

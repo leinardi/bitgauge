@@ -17,8 +17,9 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// A structural check of the result object (measurement.md section 17, v0.1 field set): every
-// required field present with its type, nothing unknown, so a field of a later version fails.
+// A structural check of the result object (measurement.md section 17, v0.2 field set): every
+// required field present with its type, nothing unknown, so a field of a later version fails. The
+// v0.2 additions are optional, so a v0.1 result stays valid.
 // The tests run it on every emitted result; the application runs it before Download JSON.
 
 /** Appends a problem, `path: what is wrong`, for each way the value differs. */
@@ -149,6 +150,7 @@ const notices: Record<string, Check> = {
   'stopped-early': directed('stopped-early', { coveredMs: amount }),
   'overhead-compensation': object({ code: literal('overhead-compensation'), percent: amount }),
   'browser-upload-limit': object({ code: literal('browser-upload-limit'), browser: string }),
+  'probe-reservation': object({ code: literal('probe-reservation'), streams: count }),
   ...Object.fromEntries(
     [
       'server-restarted',
@@ -184,6 +186,18 @@ const series = object({
   values: list(nullable(amount), 2000),
 })
 
+const source = literal('websocket', 'http-h1-reserved', 'http-h2', 'http-h3')
+const probes = { samples: count, skippedTicks: count, lost: count }
+
+/** A direction's loaded latency: measured, with no status, or unavailable with its reason (section 11.4). */
+const loadedLatency = either(
+  object(
+    { source, ...probes, medianMs: amount, p90Ms: amount, series: list(object({ atMs: amount, rttMs: amount }), 2000) },
+    { idleSource: literal('websocket', 'http'), increaseMs: amount },
+  ),
+  object({ status: literal('unavailable'), reason: literal('no-steady-window', 'insufficient-samples', 'reservation-broken', 'no-probe-path'), ...probes }, { source }),
+)
+
 const directionFields = {
   required: {
     status: literal('measured', 'insufficient-data', 'partial', 'skipped', 'error'),
@@ -199,6 +213,7 @@ const directionFields = {
     plateau: literal('no-gain', 'cap', 'floor-limited'),
     confidence: object({ level: literal('normal', 'low', 'cpu-bound'), reasons }),
     series,
+    loadedLatency,
   },
 }
 
@@ -239,6 +254,7 @@ const result = object(
     ),
     download: object(directionFields.required, directionFields.optional),
     upload: object({ ...directionFields.required, confirmedRequests: count }, directionFields.optional),
+    bufferbloat: object({ grade: literal('A+', 'A', 'B', 'C', 'D', 'F'), basis: literal('download+upload', 'download', 'upload'), increaseMs: amount }),
   },
 )
 

@@ -144,8 +144,14 @@ describe('the phase order', () => {
     const result = harness.events.flatMap(({ event }) => (event.type === 'result' ? [event.result] : []))[0]
     const finished = (phase: string) => harness.events.flatMap(({ event }) => (event.type === 'phase' && event.phase === phase && event.state === 'finished' ? [event] : []))
     expect(result?.download?.bitsPerSecond).toBeGreaterThan(0)
-    expect(finished('download').map((event) => event.result)).toEqual([result?.download])
-    expect(finished('upload').map((event) => event.result)).toEqual([result?.upload])
+    // A direction's loaded latency waits for its pings' grace, which runs on into the next phase,
+    // so it arrives with the result alone.
+    const { loadedLatency: downloadLoaded, ...download } = result?.download ?? { status: 'skipped' }
+    const { loadedLatency: uploadLoaded, ...upload } = result?.upload ?? { status: 'skipped' }
+    expect(downloadLoaded).toBeDefined()
+    expect(uploadLoaded).toBeDefined()
+    expect(finished('download').map((event) => event.result)).toEqual([download])
+    expect(finished('upload').map((event) => event.result)).toEqual([upload])
     expect(finished('idle').map((event) => event.idle)).toEqual([result?.idle])
     expect(finished('idle')[0]).not.toHaveProperty('result')
   })

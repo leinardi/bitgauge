@@ -20,7 +20,7 @@
 import type { DownloadOptions } from '@/engine/download/phase'
 import type { DownloadRequest, Streams } from '@/engine/download/streams'
 import { deferred, inFlightLimit, issuesEarly } from '@/engine/phases/issue'
-import { dataBudget } from '@/engine/phases/options'
+import { dataBudget, serverBound } from '@/engine/phases/options'
 import type { Clock, DownloadChunk, ResourceTiming } from '@/engine/types'
 
 // The download streams' requests (measurement.md sections 3 and 6): each stream issues sized
@@ -72,7 +72,7 @@ export async function downloadLoop(host: DownloadIssueHost, stream: number): Pro
     const first = deferred<number>()
     const done = request(host, stream, size, issuedAt, first.resolve)
     const watched = { firstByte: first.promise, done, expectedMs: host.streams.expectedMs(stream, size), tailMs: 0 }
-    if (!(await issuesEarly(host.clock, host.streams.leadMs, watched)) || host.inFlight.size >= inFlightLimit(host.protocol(), host.options.limits.maxStreamsPerClient)) {
+    if (!(await issuesEarly(host.clock, host.streams.leadMs, watched)) || host.inFlight.size >= inFlightLimit(host.protocol(), serverBound(host.options.limits.maxStreamsPerClient, host.options.streamCap))) {
       await done
     }
   }

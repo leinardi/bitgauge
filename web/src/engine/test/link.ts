@@ -55,6 +55,8 @@ export class Link {
   readonly carried: Record<Direction, number[]> = { download: [], upload: [] }
   /** The largest number of transfers that were in flight together, per direction. */
   readonly peakInFlight: Record<Direction, number> = { download: 0, upload: 0 }
+  /** When each direction's first transfer was put on the link, or null before. */
+  readonly loadedSince: Record<Direction, number | null> = { download: null, upload: null }
   private readonly clock: FakeClock
   private readonly model: LinkModel
   private transfers: Transfer[] = []
@@ -70,13 +72,18 @@ export class Link {
   start(direction: Direction, target: number, firstByteAt: number, callbacks: Pick<Transfer, 'moved' | 'done'>): Transfer {
     const transfer: Transfer = { direction, target, firstByteAt, read: 0, cells: [], startMs: null, ...callbacks }
     this.transfers.push(transfer)
-    const inFlight = this.transfers.filter((other) => other.direction === direction).length
-    this.peakInFlight[direction] = Math.max(this.peakInFlight[direction], inFlight)
+    this.loadedSince[direction] ??= this.clock.now()
+    this.peakInFlight[direction] = Math.max(this.peakInFlight[direction], this.inFlight(direction))
     if (!this.ticking) {
       this.ticking = true
       this.clock.setTimer(this.lastTick === this.clock.now() ? 1 : 0, () => this.tick())
     }
     return transfer
+  }
+
+  /** The transfers of `direction` on the link now. */
+  inFlight(direction: Direction): number {
+    return this.transfers.filter((other) => other.direction === direction).length
   }
 
   drop(transfer: Transfer): void {
