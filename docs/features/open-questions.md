@@ -355,8 +355,8 @@ carries a recommendation; where the specification already relies on an answer, i
     the confidence but not the busy fraction; the re-run of an inconclusive profile is a second
     attempt in the report, the first kept and marked superseded; an unshaped run of a shaped
     profile is a debugging run, recorded and not judged, and like every final run that is not a
-    pass it fails the tier; and the loaded-latency rule is not applicable in v0.1, which measures
-    none.** Recommendation: keep it. See
+    pass it fails the tier; and the loaded-latency rule, not applicable in v0.1, which measures
+    none, is judged from v0.2 as question 53 settles.** Recommendation: keep it. See
     [technical-stack/testing.md §5.1](technical-stack/testing.md#51-implementation).
 38. How does the v0.1 screen reader output get its numbers and words, when the engine sends a
     direction's headline only in the result? Current answer: **a `finished` download or upload
@@ -559,6 +559,28 @@ carries a recommendation; where the specification already relies on an answer, i
     wherever it is viewed, and the size is the one link previews expect. See
     [technical-stack/frontend.md §6](technical-stack/frontend.md#6-charts-gauge-and-share-image)
     and [ui/flows.md §8](ui/flows.md#8-sharing).
+
+53. How does the harness judge loaded latency? testing.md §5 compared the increase with "the
+    netem-added queue delay", which a fixed netem delay is not. Current answer: **per direction
+    measured with `websocket` or `http-h1-reserved`, the engine's increase against the increase of
+    the concurrent ICMP ping, its median in that direction's phase after `I_s` minus its median in
+    the idle phase, passing within ±20 % or 5 ms, whichever is larger; the grade is judged against
+    the larger ping increase over the directions its basis names, on that increase's letter or the
+    adjacent one when it lies within the tolerance of a threshold; an `http-h2` or `http-h3`
+    fallback, and a grade whose basis includes one, is recorded with the ping figures and not
+    judged, because its probes wait behind the load connection's data; on a judged profile every
+    direction must report a measured loaded latency with its increase and the result a grade, or
+    the run fails; the ws-blocked profile must report
+    `http-h1-reserved` with at least 10 samples, never more than 5 streams, and the
+    `probe-reservation` notice; and the phase windows come from the transitions the harness's
+    browser driver records, not from product code.** fq_codel isolates sparse flows, so the ping
+    and the echo see the same standing delay, which is what path A claims to measure. A caveat
+    for the confirmation: that isolation also spares both sparse flows most of the bulk flows'
+    queue, so on the CI profiles both increases may stay within the 5 ms floor, and the rule then
+    catches an engine that invents a delay more surely than one that misses it. Recommendation:
+    keep it; the 5 ms floor keeps a LAN's increase of a few milliseconds from failing on timer
+    resolution. See
+    [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
 
 Resolved and removed:
 

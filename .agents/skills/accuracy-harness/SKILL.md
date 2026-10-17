@@ -133,8 +133,9 @@ digest in `images.go`, refreshed by hand in each health audit.
 
 The tolerances of testing.md §5 (headline against the iperf3 reference: ±15 % at or below
 1 Mbit/s, ±10 % from 10 Mbit/s to 1 Gbit, ±20 % at 2.5 Gbit and above with `confidence: cpu-bound`
-when the Worker's busy fraction exceeds 90 %; loaded latency within ±20 % of the netem-added queue
-delay) are the claim. A run outside them is a finding about the engine, the shaper or the method,
+when the Worker's busy fraction exceeds 90 %; a loaded-latency increase within ±20 % or 5 ms of the
+concurrent ICMP ping's increase, the grade on its letter or the adjacent one at a threshold) are
+the claim. A run outside them is a finding about the engine, the shaper or the method,
 never a reason to move a number. A tolerance changes only through testing.md, deliberately, with
 its reason.
 
@@ -147,11 +148,18 @@ reference (`mean(before, after)`, only when stable), its findings and a one-line
 any run. A pass needs a `complete` result with a headline in both directions, each within the
 tolerance of the profile's rate; a rate between the table's rows has no tolerance and fails. At
 2.5 Gbit and above, a headline outside ±20 % without `confidence: cpu-bound` is a finding of its
-own. v0.1 measures no loaded latency, so that rule reads "not applicable". An unshaped run of a
-shaped profile (`HARNESS_SHAPE=none`) is a debugging run and stays `recorded`: never call it, or
-an inconclusive run, a pass. A run's `netguard` counters must all be present (egress, DNS,
-loopback) and zero. The evaluator implements testing.md §5 exactly as written, and
-nothing looser; its boundaries are inclusive, and its only slack is float rounding (`1e-9`).
+own. From v0.2 the loaded-latency rule of testing.md §5 is judged per direction measured with
+`websocket` or `http-h1-reserved`, against the ping's increase over the phase windows the browser
+driver records; an `http-h2` or `http-h3` direction is recorded with the ping figures, never
+judged, the grade is judged against the larger ping increase of its basis, a missing loaded
+latency or grade on a judged profile fails, and the ws-blocked profile must show
+`http-h1-reserved` with at least 10 samples, at most 5 streams and the `probe-reservation` notice.
+Until the evaluator implements it (`LatencyRule`), the rule still reads "not applicable", which is
+no pass for it. An unshaped run of a shaped profile (`HARNESS_SHAPE=none`) is a debugging run and
+stays `recorded`: never call it, or an inconclusive run, a pass. A run's `netguard` counters must
+all be present (egress, DNS, loopback) and zero. The evaluator implements testing.md §5 exactly as
+written, and nothing looser; its boundaries are inclusive, and its only slack is float rounding
+(`1e-9`).
 
 ### "Inconclusive" is never a pass
 

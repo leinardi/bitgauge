@@ -129,16 +129,22 @@ tiers must additionally show for the features it adds. Progress per feature area
 **Acceptance (accuracy harness):**
 
 - Everything v0.1 requires, still passing.
-- Loaded-latency increase within ±20 % of the netem-added queue delay seen by a concurrent ICMP
-  ping over path A on the CI profiles 500 kbit/s + 300 ms, 100 Mbit + 50 ms, and 100 Mbit + 50 ms
-  through Traefik (h1) and through Caddy (h2). See
+- Loaded-latency increase within ±20 % or 5 ms, whichever is larger, of the increase a concurrent
+  ICMP ping shows (its median in the direction's phase after `I_s` minus its idle median), per
+  direction measured over path A or `http-h1-reserved`, on the CI profiles 500 kbit/s + 300 ms,
+  100 Mbit + 50 ms, and 100 Mbit + 50 ms through Traefik (h1) and through Caddy (h2); a direction
+  measured with `http-h2` or `http-h3` is recorded, not judged. See
   [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
 - HTTP fallback: on the CI profile 100 Mbit + 50 ms through Traefik (h1) with WebSocket upgrades
-  blocked, the engine holds the five-stream reservation, labels the samples `http-h1-reserved` and
-  grades only with at least 10 samples; the engine's synthetic-timeline scenarios cover the same
-  rules. See [measurement.md §11.2](measurement.md#112-path-a-fallback--http-probe) and
+  blocked, the engine holds the five-stream reservation (never more than 5 streams), labels the
+  samples `http-h1-reserved` with at least 10 per direction and carries the `probe-reservation`
+  notice; the engine's synthetic-timeline scenarios cover the same rules. See
+  [measurement.md §11.2](measurement.md#112-path-a-fallback--http-probe) and
   [testing.md §2](technical-stack/testing.md#2-engine-tests-with-synthetic-timelines).
-- The grade matches the letter implied by the netem queue delay on those profiles. See
+- On those profiles every direction reports a measured loaded latency with its increase, and the
+  grade is the letter of the larger ping increase over the directions its basis names, or the
+  adjacent letter when that increase lies within the tolerance of a threshold; a basis that
+  includes an `http-h2` or `http-h3` direction is recorded, not judged. See
   [measurement.md §11.3](measurement.md#113-bufferbloat-grade).
 
 ### 1.3 Version 0.3: Compatibility, Responsiveness and Long Runs

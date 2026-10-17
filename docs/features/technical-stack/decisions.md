@@ -369,6 +369,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 50 | RFC 4180 CSV with a formula guard; whole-file and per-record import rejection with a summary; immediate delete with an 8 s undo; no retention limit; filters in the query string; recent labels; list sort and keys; the Safari hint in the page | v0.2 |
 | 51 | The unsaved in-memory result on the Result detail; loaded latency on each throughput chart's second axis and the table; Compare's ±2 %, 1 ms and grade-order wording; the Test screen's share dialog | v0.2 |
 | 52 | The 1200 × 630 dark-theme PNG share image with its qualifiers, fonts loaded first, and the copied summary as the same translated lines | v0.2 |
+| 53 | The harness judges each `websocket` or `http-h1-reserved` direction's increase against the ICMP ping increase within ±20 % or 5 ms and the grade against the larger ping increase of its basis, within one adjacent letter at a threshold; a missing loaded latency or grade fails; `http-h2` and `http-h3` are recorded unjudged; the ws-blocked profile is held to `http-h1-reserved` | v0.2 |
 
 ## Related
 

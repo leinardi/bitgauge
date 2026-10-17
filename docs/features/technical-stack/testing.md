@@ -195,8 +195,29 @@ not count).
 | 1 Gbit | ±10 % |
 | ≥ 2.5 Gbit | ±20 %, with the explicit note that the browser's CPU is the limit; the result must report `confidence: cpu-bound` when the Worker's busy fraction exceeds 90 % |
 
-**Latency:** the loaded-latency increase must be within ±20 % of the netem-added queue delay
-observed by a concurrent ICMP ping.
+**Latency:** judged per direction whose loaded latency is measured with source `websocket` or
+`http-h1-reserved` ([../measurement.md §11](../measurement.md#11-latency-under-load)). The
+reference is the ICMP ping that runs alongside the browser: the median RTT of the pings sent in
+that direction's phase after its first `I_s` (`max(1 s, 4 × RTT)`, with the idle ping median as
+the RTT; the engine's own `I_s`, from its idle median, may start its window some tens of
+milliseconds apart), minus the median RTT of the pings sent in the idle-latency phase. The engine's
+`increaseMs` passes within ±20 % of that ping increase or 5 ms, whichever is larger. The
+bufferbloat grade is judged against the larger ping increase over the directions its `basis`
+names, as the grade itself takes the larger increase: it must be that increase's letter on the
+thresholds of [../measurement.md §11.3](../measurement.md#113-bufferbloat-grade), or the adjacent
+letter when that increase lies within the same tolerance of a threshold. A direction measured with
+`http-h2` or `http-h3` is recorded with the ping figures and not judged: its probes share the load
+connection and wait behind its data (head-of-line blocking), which the ping does not; a grade whose
+`basis` includes such a direction is recorded and not judged either. On the profiles the rule
+judges, every direction must report a measured loaded latency with `increaseMs`, and the result
+must carry `bufferbloat`; an `unavailable` loaded latency, a missing increase or a missing grade
+fails the run, as a missing headline does. The ws-blocked profile must
+report `http-h1-reserved` with at least 10 samples in each direction, never more than 5 streams,
+and the `probe-reservation` notice. The phase windows come from the phase transitions the harness's
+browser driver records from the Test screen, never from product code. ICMP is a fair reference
+because the shaper's fq_codel isolates sparse flows: the ping and the echo, or the reserved
+connection's probes, see the same standing delay, which is the quantity path A claims. netem's
+fixed delay is not a queue; it is in both medians and cancels out of the increase.
 
 **No-egress check.** Two layers, which make two different claims
 ([../security.md §3](../security.md#3-no-outbound-calls)):
