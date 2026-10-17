@@ -248,6 +248,7 @@ const result = object(
     notices: list(notice),
   },
   {
+    note: string,
     idle: object(
       { path: literal('websocket', 'http'), lossPercent: amount, samples: list(amount) },
       { minMs: amount, medianMs: amount, p90Ms: amount, jitterMs: amount },

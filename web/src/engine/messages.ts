@@ -244,6 +244,8 @@ export interface Result {
   durationMs: number
   status: ResultStatus
   label: string
+  /** The user's note, written by the history (v0.2); the engine never emits it. */
+  note?: string
   server: { name: string; version: string; epoch: string }
   client: {
     ip: string

@@ -539,8 +539,10 @@ carries a recommendation; where the specification already relies on an answer, i
     range being two date fields; recent labels are the
     5 most recent distinct; the list sorts newest first with `aria-sort`, Space selecting a row
     and Enter opening it; the Safari hint reads `navigator.vendor` in the page, never in the
-    engine; and the trend chart is uPlot.** Recommendation: keep it; the formula guard costs one
-    character on the rare label that starts with a sign. See
+    engine; the trend chart is uPlot; and the export files are named
+    `bitgauge-history-<YYYY-MM-DD>-<HHMM>.json` or `.csv` after the export moment in local
+    time.** Recommendation: keep it; the formula guard costs one character on the rare label that
+    starts with a sign. See
     [technical-stack/frontend.md §5](technical-stack/frontend.md#5-history-module-idb) and
     [ui/screens.md §3](ui/screens.md#3-history--history).
 51. What does the Result detail show for a result not in history, and how does Compare word a

@@ -158,6 +158,8 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
     events are omitted.
   - **Scope.** Each format exports either every result or the results matching the current History
     filter; the export menu states which, with the count.
+  - **File names.** `bitgauge-history-<YYYY-MM-DD>-<HHMM>.json` or `.csv`, after the export moment
+    in the browser's local time.
 - **Import.** JSON only, at most 10 MB (10 000 000 bytes); text is rendered as text, never as
   HTML ([../security.md §7](../security.md#7-browser-only-history-and-privacy)). The file is
   refused as a whole when it is larger, is not JSON, or is not `format: "bitgauge.history"` with

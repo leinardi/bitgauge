@@ -19,9 +19,9 @@
 
 import { type Result, validateResult } from '@/engine/messages'
 
-// The Download JSON export of the Test screen (ui/screens.md section 1): the one result in the JSON
-// export format of frontend.md section 5, with `results` holding one entry so it imports like a
-// History export. It is locale-independent: ISO 8601 times and plain numbers (ui/i18n-a11y.md
+// The JSON export format of frontend.md section 5: the Download JSON export of the Test screen
+// (ui/screens.md section 1) holds the one result, so it imports like a History export, which holds
+// many (history/export.ts). It is locale-independent: ISO 8601 times and plain numbers (ui/i18n-a11y.md
 // section 1.3). A result that fails validation is never serialized.
 
 /** The export file: its name and its content. */
@@ -38,12 +38,17 @@ export function exportFilename(startedAt: Date): string {
   return `bitgauge-${date}-${pad(startedAt.getHours())}${pad(startedAt.getMinutes())}.json`
 }
 
+/** The JSON export format holding `results`, exported at `now`; null when any result fails validation. */
+export function serializeResults(results: readonly Result[], now: Date): string | null {
+  if (results.some((result) => validateResult(result).length > 0)) {
+    return null
+  }
+  return JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, exportedAt: now.toISOString(), results }, null, 2)
+}
+
 /** The export of one result at `now`, or null when the result fails validation. */
 export function serializeResult(result: Result, now: Date): ExportFile | null {
   const startedAt = new Date(result.startedAt)
-  if (validateResult(result).length > 0 || Number.isNaN(startedAt.getTime())) {
-    return null
-  }
-  const file = { format: 'bitgauge.history', formatVersion: 1, exportedAt: now.toISOString(), results: [result] }
-  return { filename: exportFilename(startedAt), json: JSON.stringify(file, null, 2) }
+  const json = Number.isNaN(startedAt.getTime()) ? null : serializeResults([result], now)
+  return json === null ? null : { filename: exportFilename(startedAt), json }
 }

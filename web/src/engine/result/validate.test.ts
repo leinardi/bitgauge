@@ -115,6 +115,12 @@ describe('the result validator', () => {
     expect(validateResult(VALID)).toEqual([])
   })
 
+  it('accepts the note the history writes, and a result without it', () => {
+    expect(validateResult(changed((result) => (result.note = 'after the router swap')))).toEqual([])
+    expect(validateResult(changed((result) => (result.note = '')))).toEqual([])
+    expect(validateResult(changed((result) => (result['note'] = 3 as unknown as string)))).toEqual(['result.note: not a string'])
+  })
+
   it('rejects a loaded latency or bufferbloat outside their shapes', () => {
     expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { loadedLatency: { status: 'unavailable', reason: 'slow', samples: 0, skippedTicks: 0, lost: 0 } })))).toEqual([
       'result.download.loadedLatency.reason: not one of no-steady-window, insufficient-samples, reservation-broken, no-probe-path',
