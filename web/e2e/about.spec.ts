@@ -35,6 +35,8 @@ test('opens from the header with the version, license and server', async ({ page
 })
 
 test('marks the later screens as not available in this version', async ({ page }) => {
+  await page.goto('/result/0b6f2c1e-8a4d-4f3b-9c2a-1d2e3f4a5b6c')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Not available in this version')
   await page.goto('/history')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Not available in this version')
   await page.getByRole('link', { name: 'Back to the test' }).click()

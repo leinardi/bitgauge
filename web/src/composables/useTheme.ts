@@ -20,22 +20,21 @@
 import { computed, type ComputedRef, effectScope, readonly, type Ref, ref, shallowRef, watchEffect } from 'vue'
 
 import { useUrlParams } from '@/composables/useUrlParams'
+import { readStored, type SettingsStorage, type ThemeChoice, writeStored } from '@/lib/settingsStorage'
 
 // The theme (frontend.md section 8): `data-theme` on <html>, following the system until the header
-// chooses one. The choice is v0.1's only persisted setting (ui/screens.md section 1), kept under
-// the settings key with any other field of that object left as it is. A `theme` URL parameter
-// wins over the stored choice for the page load it appears on, and is not stored
+// or the Settings screen chooses one. The choice is the stored settings' `theme` field
+// (lib/settingsStorage.ts), written with every other field of that object left as it is. A `theme`
+// URL parameter wins over the stored choice for the page load it appears on, and is not stored
 // (ui/url-params.md section 1).
 
-export type ThemeChoice = 'light' | 'dark' | 'system'
+export type { ThemeChoice } from '@/lib/settingsStorage'
 
-const STORAGE_KEY = 'bitgauge.settings.v1'
 const LIGHT_QUERY = '(prefers-color-scheme: light)'
-const CHOICES: readonly ThemeChoice[] = ['light', 'dark', 'system']
 
 /** What the theme reads and writes; the browser's by default. */
 export interface ThemeEnvironment {
-  storage: Pick<Storage, 'getItem' | 'setItem'>
+  storage: SettingsStorage
   matchMedia(query: string): MediaQueryList
   root: HTMLElement
   /** The `theme` URL parameter of this page load. */
@@ -44,25 +43,19 @@ export interface ThemeEnvironment {
 
 export interface Theme {
   choice: Readonly<Ref<ThemeChoice>>
+  /** The choice stored in this browser, null when none is: what the Settings screen shows as changed. */
+  stored: Readonly<Ref<ThemeChoice | null>>
   /** The theme applied: the choice, or the system's for `system`. */
   applied: ComputedRef<'light' | 'dark'>
   setTheme(choice: ThemeChoice): void
-}
-
-function storedSettings(storage: ThemeEnvironment['storage']): Record<string, unknown> {
-  try {
-    const parsed: unknown = JSON.parse(storage.getItem(STORAGE_KEY) ?? '{}')
-    return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : {}
-  } catch {
-    // Unreadable storage or a malformed value: the defaults apply.
-    return {}
-  }
+  /** Removes the stored choice: the theme follows the system again. */
+  resetTheme(): void
 }
 
 /** A theme over an environment: tests pass their own, the application uses `useTheme`. */
 export function createTheme(env: ThemeEnvironment): Theme {
-  const stored = storedSettings(env.storage).theme
-  const choice = ref<ThemeChoice>(env.override ?? CHOICES.find((value) => value === stored) ?? 'system')
+  const stored = ref<ThemeChoice | null>(readStored(env.storage).theme ?? null)
+  const choice = ref<ThemeChoice>(env.override ?? stored.value ?? 'system')
   const query = env.matchMedia(LIGHT_QUERY)
   const systemLight = shallowRef(query.matches)
   query.addEventListener('change', (event) => {
@@ -73,17 +66,24 @@ export function createTheme(env: ThemeEnvironment): Theme {
   watchEffect(() => {
     env.root.dataset.theme = applied.value
   })
+  function setTheme(next: ThemeChoice): void {
+    choice.value = next
+    // System is the default, so choosing it removes the stored field, as the other settings do;
+    // a refused write still applies the theme for this page.
+    stored.value = next === 'system' ? null : next
+    if (next === 'system') {
+      writeStored(env.storage, {}, ['theme'])
+    } else {
+      writeStored(env.storage, { theme: next })
+    }
+  }
+
   return {
     choice: readonly(choice),
+    stored: readonly(stored),
     applied,
-    setTheme(next) {
-      choice.value = next
-      try {
-        env.storage.setItem(STORAGE_KEY, JSON.stringify({ ...storedSettings(env.storage), theme: next }))
-      } catch {
-        // Storage refused (private mode, quota): the theme still applies for this page.
-      }
-    },
+    setTheme,
+    resetTheme: () => setTheme('system'),
   }
 }
 

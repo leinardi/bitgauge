@@ -21,13 +21,14 @@ import { Database, Layers, SlidersHorizontal, Timer } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import AppLink from '@/components/actions/AppLink.vue'
 import type { TestSettings } from '@/engine/messages'
 import { formatBytes } from '@/lib/format'
 import { baseParts, changedParts, type SummaryPart } from '@/lib/settingsSummary'
 
 // The settings summary of the Test screen (ui/screens.md section 1, design_system kit
 // TestScreen.jsx): one chip per setting that differs from the server defaults, or the preset with
-// its stream mode and data cap. v0.1 has no Settings screen, so there is no Edit link.
+// its stream mode and data cap, and the Edit link to the Settings screen.
 
 const props = defineProps<{ settings: TestSettings; defaults: TestSettings }>()
 
@@ -77,6 +78,18 @@ const line = computed(() => baseParts(props.settings).map((part) => text(part, t
     <span
       v-else
       class="text-(length:--text-caption) leading-(--lh-snug) text-subtle-foreground"
+      data-testid="settings-line"
     >{{ line }}</span>
+    <AppLink
+      to="/settings"
+      :aria-label="t('test.summary.editLabel')"
+      class="text-(length:--text-caption)"
+    >
+      <SlidersHorizontal
+        :size="13"
+        aria-hidden="true"
+      />
+      {{ t('test.summary.edit') }}
+    </AppLink>
   </div>
 </template>

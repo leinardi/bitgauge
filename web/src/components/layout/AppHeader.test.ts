@@ -74,20 +74,21 @@ describe('the header', () => {
     expect(JSON.parse(localStorage.getItem('bitgauge.settings.v1') ?? '{}')).toEqual({ theme: 'light' })
   })
 
-  it('navigates to Test and About only, marking the current page', async () => {
-    const wrapper = await mountApp(AppHeader, '/about')
+  it('navigates to Test, History, Settings and About, marking the current page', async () => {
+    const wrapper = await mountApp(AppHeader, '/settings')
     const links = wrapper.get('nav').findAll('a')
-    expect(links.map((link) => link.text())).toEqual(['Test', 'About'])
-    expect(links[1]?.attributes('aria-current')).toBe('page')
+    expect(links.map((link) => link.text())).toEqual(['Test', 'History', 'Settings', 'About'])
+    expect(links.map((link) => link.attributes('href'))).toEqual(['/', '/history', '/settings', '/about'])
+    expect(links[2]?.attributes('aria-current')).toBe('page')
     expect(links[0]?.attributes('aria-current')).toBeUndefined()
   })
 })
 
 describe('the tab bar', () => {
-  it('shows Test and About', async () => {
+  it('shows Test, History, Settings and About', async () => {
     const wrapper = await mountApp(TabBar)
     const links = wrapper.findAll('a')
-    expect(links.map((link) => link.text())).toEqual(['Test', 'About'])
+    expect(links.map((link) => link.text())).toEqual(['Test', 'History', 'Settings', 'About'])
     expect(links[0]?.attributes('aria-current')).toBe('page')
   })
 })

@@ -69,6 +69,10 @@ describe('the theme', () => {
     setSystemLight(false)
     await nextTick()
     expect(env.root.dataset.theme).toBe('light')
+    // System is the default: choosing it removes the stored field.
+    theme.setTheme('system')
+    expect(theme.stored.value).toBeNull()
+    expect(JSON.parse(items.get(KEY) ?? '')).toEqual({ units: 'bytes' })
   })
 
   it('takes the URL parameter over the stored choice, over the default, and stores none of it', () => {

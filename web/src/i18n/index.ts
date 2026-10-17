@@ -25,15 +25,17 @@ import app from '@/i18n/locales/en/app.json'
 import errors from '@/i18n/locales/en/errors.json'
 import notAvailable from '@/i18n/locales/en/notAvailable.json'
 import notices from '@/i18n/locales/en/notices.json'
+import settings from '@/i18n/locales/en/settings.json'
 import test from '@/i18n/locales/en/test.json'
 
 // vue-i18n in Composition API mode (ui/i18n-a11y.md section 1): one catalog per language, a file
 // per screen or shared component group, each holding its own namespace. English is the source and
 // the fallback.
 
-const en = { ...app, ...test, ...notices, ...errors, ...about, ...notAvailable, ...a11y }
+const en = { ...app, ...test, ...notices, ...errors, ...settings, ...about, ...notAvailable, ...a11y }
 
-const SUPPORTED_LOCALES = ['en'] as const
+/** The shipped locales, which the Settings screen offers. */
+export const SUPPORTED_LOCALES = ['en'] as const
 type Locale = (typeof SUPPORTED_LOCALES)[number]
 
 function supported(tag: string): Locale | null {
@@ -57,15 +59,19 @@ function langParam(search: string): string | null {
 }
 
 /**
- * The locale of section 1.2: the `lang` URL parameter when supported; the stored language (none in
- * v0.1); the first supported browser language, by its language subtag when the full tag is not
- * supported; English.
+ * The locale of section 1.2: the `lang` URL parameter when supported; the language stored on the
+ * Settings screen when supported; the first supported browser language, by its language subtag
+ * when the full tag is not supported; English.
  */
-export function detectLocale(search: string, languages: readonly string[]): Locale {
+export function detectLocale(search: string, languages: readonly string[], stored: string | null = null): Locale {
   const param = langParam(search)
   const fromParam = param === null ? null : supported(param)
   if (fromParam !== null) {
     return fromParam
+  }
+  const fromStored = stored === null ? null : supported(stored)
+  if (fromStored !== null) {
+    return fromStored
   }
   for (const tag of languages) {
     const match = supported(tag) ?? supported(tag.split('-')[0] ?? '')
@@ -77,8 +83,8 @@ export function detectLocale(search: string, languages: readonly string[]): Loca
 }
 
 /** The application's i18n instance, with `<html lang>` set to the detected locale. */
-export function createAppI18n(search: string, languages: readonly string[]) {
-  const locale = detectLocale(search, languages)
+export function createAppI18n(search: string, languages: readonly string[], stored: string | null = null) {
+  const locale = detectLocale(search, languages, stored)
   document.documentElement.lang = locale
   return createI18n({
     legacy: false,

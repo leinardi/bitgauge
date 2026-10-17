@@ -17,19 +17,21 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Gauge, Info, Monitor, Moon, Sun } from '@lucide/vue'
+import { Gauge, History, Info, Monitor, Moon, SlidersHorizontal, Sun } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ThemeChoice } from '@/composables/useTheme'
 
 // The navigation and theme choices shared by the header and the tab bar (design_system kit
-// Nav.jsx). v0.1 navigates to Test and About only (ui/screens.md section 1).
+// Nav.jsx): Test, History, Settings and About (ui/screens.md section 1).
 
 export function useNavigation() {
   const { t } = useI18n()
   const items = computed(() => [
     { name: 'test', to: '/', label: t('app.nav.test'), icon: Gauge },
+    { name: 'history', to: '/history', label: t('app.nav.history'), icon: History },
+    { name: 'settings', to: '/settings', label: t('app.nav.settings'), icon: SlidersHorizontal },
     { name: 'about', to: '/about', label: t('app.nav.about'), icon: Info },
   ])
   const themes = computed(() => [

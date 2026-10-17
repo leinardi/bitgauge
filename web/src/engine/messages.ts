@@ -275,6 +275,9 @@ export interface Result {
 /** Checks a value against the result object; the application validates before exporting. */
 export { validateResult } from '@/engine/result/validate'
 
+/** The preset table the engine resolves a preset with; the Settings screen states and applies it. */
+export { type PresetDefinition, PRESETS } from '@/engine/presets'
+
 /** Commands, UI to engine. */
 export type EngineCommand =
   | { type: 'configure'; settings: TestSettings; override?: ConfigureOverride; basePath: string }

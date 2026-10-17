@@ -520,7 +520,10 @@ carries a recommendation; where the specification already relies on an answer, i
     parameters that differ from the server defaults in table order, `run=1` when ticked, `label`
     when set, `theme` and `lang` only when stored, and a "Not in the link" line names the
     changed settings it cannot carry; a stored Auto-start counts as `run=1` on each load, a URL
-    `run=0` winning for that load; and locale detection's second step reads the stored `lang`.**
+    `run=0` winning for that load; a stored preset brings its stream mode, durations and ping
+    count, from the preset table `engine/messages.ts` re-exports, under the other stored fields; a
+    field that comes to equal the value it would have without it is removed; and locale
+    detection's second step reads the stored `lang`.**
     Recommendation: keep it. See [ui/screens.md §4](ui/screens.md#4-settings--settings) and
     [ui/url-params.md §3](ui/url-params.md#3-shareable-settings-url).
 50. What do the history module's export, import, deletion and list do in detail? Current answer:

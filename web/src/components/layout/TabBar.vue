@@ -22,7 +22,7 @@ import { useRoute } from 'vue-router'
 import { useNavigation } from '@/components/layout/navigation'
 
 // The narrow-screen tab bar (ui/screens.md section 1, design_system kit Nav.jsx mobile-bottom):
-// Test and About in v0.1, the active one marked by a bar along its top edge.
+// Test, History, Settings and About, the active one marked by a bar along its top edge.
 
 const route = useRoute()
 const { items } = useNavigation()
@@ -31,7 +31,7 @@ const { items } = useNavigation()
 <template>
   <nav
     :aria-label="$t('app.nav.label')"
-    class="sticky bottom-0 z-(--z-nav) grid h-16 grid-cols-2 border-t border-border bg-(--surface-1) pb-1 desktop:hidden"
+    class="sticky bottom-0 z-(--z-nav) grid h-16 grid-cols-4 border-t border-border bg-(--surface-1) pb-1 desktop:hidden"
   >
     <RouterLink
       v-for="item in items"

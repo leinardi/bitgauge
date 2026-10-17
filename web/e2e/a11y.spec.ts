@@ -17,9 +17,9 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// axe on the Test and About screens in both themes, and on the not-available screen (testing.md
-// section 4, ui/i18n-a11y.md section 2.6). The theme comes from the documented URL parameter
-// (ui/url-params.md section 1), which overrides the stored choice for the page load.
+// axe on the Test, Settings and About screens in both themes, and on the not-available screen
+// (testing.md section 4, ui/i18n-a11y.md section 2.6). The theme comes from the documented URL
+// parameter (ui/url-params.md section 1), which overrides the stored choice for the page load.
 
 import { expectAccessible } from './fixtures/axe'
 import { expect, test } from './fixtures/test'
@@ -40,8 +40,16 @@ for (const theme of ['light', 'dark'] as const) {
       await expectAccessible(page)
     })
 
-    test('the not-available screen', async ({ page }) => {
+    test('the Settings screen, Advanced open', async ({ page }) => {
       await page.goto(`/settings?theme=${theme}`)
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Settings')
+      await page.getByRole('button', { name: /^Advanced/ }).click()
+      await expect(page.getByRole('textbox', { name: 'Ping count' })).toBeVisible()
+      await expectAccessible(page)
+    })
+
+    test('the not-available screen', async ({ page }) => {
+      await page.goto(`/history?theme=${theme}`)
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Not available in this version')
       await expectAccessible(page)
     })

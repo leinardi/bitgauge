@@ -230,12 +230,13 @@ effective settings are the URL parameters over the stored settings over the serv
   [../open-questions.md](../open-questions.md)).
 - **Streams:** auto, fixed (1–6), single.
 - **Duration:** minimum and maximum per direction in whole seconds, 5–600 s, the minimum at most
-  the maximum (defaults from the preset; "custom" when edited); for Continuous, an optional **run
-  length** (none by default, 1 minute to 7 days).
+  the maximum (defaults from the preset; "custom" when edited, and kept when another preset is
+  chosen); for Continuous, an optional **run length** (none by default, 1 minute to 7 days).
 - **Data cap:** none or a whole number of MB (decimal, 10^6 bytes) from 2 to 100000; 1 MB is
   below the 1 MiB floor of a data cap
   ([../configuration.md §2.3](../configuration.md#23-test-defaults)). A server default that is not
-  a whole number of MB shows with up to three decimals until the user changes it.
+  a whole number of MB shows with up to three decimals until the user changes it. Switched on, the
+  cap starts from the last size shown, 500 MB when there was none.
 - **Result label:** an optional label, at most 64 characters, that pre-fills the label of every
   result in this browser, as the `label` URL parameter does for one page load; empty by default.
 - **Units:** bits or bytes.
@@ -244,9 +245,9 @@ effective settings are the URL parameters over the stored settings over the serv
   a `run=0` in the URL wins for that load.
 - **Theme:** system, light, dark (also switchable from the header). **Language:** the shipped
   locales only.
-- **Advanced** (collapsed by default): warm-up (`auto` or a fixed 1–60 s), ping count (6–200),
-  overhead compensation (0–20 %, 0 by default, LibreSpeed presets offered, with the "shown next to
-  every number" note).
+- **Advanced** (collapsed by default): warm-up (`auto` or a fixed 1–60 s, from 2 s), ping count
+  (6–200), overhead compensation (0–20 %, 0 by default, LibreSpeed presets offered, with the "shown
+  next to every number" note).
 - **Changed from defaults:** a list of every changed setting with its default, its value and a
   reset each, plus **Reset all to defaults** (the server's defaults from `GET /info`, after
   confirmation).

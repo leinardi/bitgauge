@@ -54,7 +54,8 @@ describe('parseUrlParams', () => {
     ['?run=0', false],
     ['?RUN=False', false],
   ])('reads %s as run %s', (search, run) => {
-    expect(parseUrlParams(search)).toEqual({ run, ignored: [] })
+    // A link that says no also turns a stored Auto-start off for its load (url-params.md section 1).
+    expect(parseUrlParams(search)).toEqual(run ? { run, ignored: [] } : { run, noRun: true, ignored: [] })
   })
 
   it('ignores an invalid run flag', () => {

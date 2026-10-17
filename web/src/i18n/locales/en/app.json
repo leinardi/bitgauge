@@ -8,6 +8,8 @@
     "nav": {
       "label": "Primary",
       "test": "Test",
+      "history": "History",
+      "settings": "Settings",
       "about": "About"
     },
     "theme": {

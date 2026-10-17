@@ -25,9 +25,10 @@ import AppButton from '@/components/actions/AppButton.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 
 // The auto-start notice of the countdown (ui/flows.md section 2, kit TestScreen.jsx): the seconds
-// left and why the test is about to start, with Cancel. It is a status message, info in tone.
+// left and why the test is about to start, a link's `run` or the stored Auto-start, with Cancel. It
+// is a status message, info in tone.
 
-const props = defineProps<{ remainingMs: number }>()
+const props = defineProps<{ remainingMs: number; fromLink: boolean }>()
 defineEmits<{ cancel: [] }>()
 
 const { t, locale } = useI18n()
@@ -41,7 +42,7 @@ const title = computed(() => t('test.countdown.title', { n: new Intl.NumberForma
     tone="info"
     :icon="Timer"
     :title="title"
-    :body="$t('test.countdown.body')"
+    :body="fromLink ? $t('test.countdown.body') : $t('test.countdown.bodyStored')"
     data-testid="auto-start"
   >
     <template #actions>

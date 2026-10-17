@@ -27,9 +27,10 @@ import { settingsFromDefaults } from '@/lib/defaults'
 import { readBasePath } from '@/router/base'
 
 // The Test screen's bridge to the engine (architecture.md section 4, frontend.md section 4): it
-// configures the Worker from the server defaults, starts and stops runs, keeps their live view, and
-// forwards the page's signals: visibility (edge-cases.md section 5), the two network events
-// (section 6), and the screen wake lock held during a run (section 2).
+// configures the Worker from the server defaults, with the stored settings over them, starts and
+// stops runs, keeps their live view, and forwards the page's signals: visibility (edge-cases.md
+// section 5), the two network events (section 6), and the screen wake lock held during a run
+// (section 2).
 
 /** The browser's connection information, where it exposes one (navigator.connection). */
 interface Connection extends EventTarget {
@@ -37,8 +38,10 @@ interface Connection extends EventTarget {
 }
 
 export interface RunOptions {
-  /** The URL parameters' settings over the server defaults, which the engine resolves at configure. */
-  override?: (defaults: TestSettings) => ConfigureOverride
+  /** The settings the Worker is configured with, from the server defaults; the defaults themselves without it. */
+  base?: (defaults: TestSettings) => TestSettings
+  /** The URL parameters' settings over the configured ones, which the engine resolves at configure. */
+  override?: (base: TestSettings) => ConfigureOverride
 }
 
 /**
@@ -68,15 +71,17 @@ export function useRun(options: RunOptions = {}) {
 
   /** The server's defaults as engine settings; null until known, or when v0.1 cannot run them. */
   const defaults = computed(() => (info.value === null ? null : settingsFromDefaults(info.value.defaults)))
-  const override = computed(() => (defaults.value === null || options.override === undefined ? null : options.override(defaults.value)))
-  /** The settings the next run starts from: the engine's resolution of the last configure, or the defaults until it answers. */
-  const settings = computed(() => (defaults.value === null ? null : (state.configured.value ?? defaults.value)))
+  /** The settings the Worker is configured with: the stored settings over the defaults on the Test screen. */
+  const base = computed(() => (defaults.value === null ? null : (options.base?.(defaults.value) ?? defaults.value)))
+  const override = computed(() => (base.value === null || options.override === undefined ? null : options.override(base.value)))
+  /** The settings the next run starts from: the engine's resolution of the last configure, or the configured ones until it answers. */
+  const settings = computed(() => (base.value === null ? null : (state.configured.value ?? base.value)))
 
   bridge.onEvent(state.apply)
   bridge.onError(state.crash)
 
   watch(
-    [defaults, override],
+    [base, override],
     ([value, urlOverride]) => {
       if (value !== null) {
         state.configuring()

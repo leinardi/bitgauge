@@ -18,19 +18,21 @@
  */
 
 import type { ThemeChoice } from '@/composables/useTheme'
-import type { ConfigureOverride, IgnoredParameter, MeasuringPhase, Preset, TestSettings } from '@/engine/messages'
+import type { ConfigureOverride, IgnoredParameter, Preset, TestSettings } from '@/engine/messages'
 import { isSupportedLocale } from '@/i18n'
+import { choose, dataCap, labelValue, MAX_DURATION_S, MIN_DURATION_S, runFlag, SECOND, streamsValue, type Test, testPhases, unitsValue, wholeNumber } from '@/lib/urlValues'
 
 // The URL parameters of ui/url-params.md: names match case-insensitively, the first occurrence of
 // a name counts, enum values match case-insensitively, an invalid value is ignored and named so
 // the run can carry the `url-parameter-ignored` notice, and an unknown name is ignored silently.
-// They apply to the page load they appear on and are never stored.
-
-type Test = 'all' | 'download' | 'upload' | 'latency'
+// They apply to the page load they appear on and are never stored; the values' parsers are shared
+// with the Settings screen (lib/urlValues.ts).
 
 export interface UrlParams {
   /** Whether the link asks for a test after the countdown. */
   run: boolean
+  /** The link says `run=0` or `run=false`: a stored Auto-start does not apply to this load. */
+  noRun?: true
   test?: Test
   preset?: Preset
   durationMs?: number
@@ -45,64 +47,12 @@ export interface UrlParams {
   ignored: IgnoredParameter[]
 }
 
-const SECOND = 1000
-const MIN_DURATION_S = 5
-const MAX_DURATION_S = 600
-const MAX_STREAMS = 6
-const MIN_DATA_CAP = 1024 * 1024
-const MAX_LABEL = 64
 /** An ignored value is cut to this many characters (ui/url-params.md section 1). */
 const MAX_IGNORED_VALUE = 64
 
 /** An ignored parameter with its value as the link gave it, cut to 64 characters. */
 function ignoredParameter(parameter: string, value: string): IgnoredParameter {
   return { parameter, value: [...value].slice(0, MAX_IGNORED_VALUE).join('') }
-}
-const SIZE_UNITS: Readonly<Record<string, number>> = { kb: 1e3, mb: 1e6, gb: 1e9, kib: 1024, mib: 1024 ** 2, gib: 1024 ** 3 }
-
-/** The value of an enum parameter, matched case-insensitively. */
-function choose<T extends string>(value: string, choices: readonly T[]): T | undefined {
-  const lower = value.toLowerCase()
-  return choices.find((choice) => choice === lower)
-}
-
-function wholeNumber(value: string, least: number, most: number): number | undefined {
-  if (!/^\d+$/.test(value)) {
-    return undefined
-  }
-  const number = Number(value)
-  return number >= least && number <= most ? number : undefined
-}
-
-function runFlag(value: string): boolean | undefined {
-  const lower = value.toLowerCase()
-  if (lower === '' || lower === '1' || lower === 'true') {
-    return true
-  }
-  return lower === '0' || lower === 'false' ? false : undefined
-}
-
-/** A data cap: integer bytes, or a number with a decimal or binary unit; `0` or `none` for no cap. */
-function dataCap(value: string): number | null | undefined {
-  const lower = value.toLowerCase()
-  if (lower === '0' || lower === 'none') {
-    return null
-  }
-  const match = /^(\d+(?:\.\d+)?)(kb|mb|gb|kib|mib|gib)?$/.exec(lower)
-  if (match === null || (match[2] === undefined && match[1]?.includes('.') === true)) {
-    return undefined
-  }
-  const bytes = Math.round(Number(match[1]) * (match[2] === undefined ? 1 : (SIZE_UNITS[match[2]] ?? 1)))
-  return bytes >= MIN_DATA_CAP ? bytes : undefined
-}
-
-function streams(value: string): UrlParams['streams'] {
-  const mode = choose(value, ['auto', 'single'] as const)
-  if (mode !== undefined) {
-    return { mode }
-  }
-  const fixed = wholeNumber(value, 1, MAX_STREAMS)
-  return fixed === undefined ? undefined : { mode: 'fixed', fixed }
 }
 
 /** Reads one parameter into `params`; false when its value is invalid. */
@@ -111,6 +61,9 @@ function read(params: UrlParams, name: string, value: string): boolean {
     case 'run': {
       const flag = runFlag(value)
       params.run = flag ?? false
+      if (flag === false) {
+        params.noRun = true
+      }
       return flag !== undefined
     }
     case 'test': {
@@ -128,13 +81,13 @@ function read(params: UrlParams, name: string, value: string): boolean {
       return seconds !== undefined
     }
     case 'streams':
-      params.streams = streams(value)
+      params.streams = streamsValue(value)
       return params.streams !== undefined
     case 'cap':
       params.dataCapBytes = dataCap(value)
       return params.dataCapBytes !== undefined
     case 'units':
-      params.units = choose(value, ['bits', 'bytes'] as const)
+      params.units = unitsValue(value)
       return params.units !== undefined
     case 'lang':
       params.lang = isSupportedLocale(value) ? value.toLowerCase() : undefined
@@ -143,7 +96,7 @@ function read(params: UrlParams, name: string, value: string): boolean {
       params.theme = choose(value, ['system', 'light', 'dark'] as const)
       return params.theme !== undefined
     case 'label':
-      params.label = [...value].length <= MAX_LABEL ? value : undefined
+      params.label = labelValue(value)
       return params.label !== undefined
     default:
       // An unknown parameter is ignored silently.
@@ -175,28 +128,11 @@ export function parseUrlParams(search: string): UrlParams {
 }
 
 /** The phases a `test` value runs: idle latency first, the directions in the configured order. */
-function phases(test: Test, configured: readonly MeasuringPhase[]): MeasuringPhase[] {
-  const order = configured.filter((phase) => phase !== 'idle')
-  const directions = [...order, ...(['download', 'upload'] as const).filter((phase) => !order.includes(phase))]
-  switch (test) {
-    case 'all':
-      return ['idle', ...directions]
-    case 'latency':
-      return ['idle']
-    default:
-      return ['idle', test]
-  }
-}
-
-/**
- * The parameters as the settings `configure` resolves over the server defaults, and every
- * parameter ignored: a fixed stream count above the server's maximum is invalid there too.
- */
 export function urlOverride(params: UrlParams, defaults: TestSettings): { override: ConfigureOverride; ignored: IgnoredParameter[] } {
   const override: ConfigureOverride = {}
   const ignored = [...params.ignored]
   if (params.test !== undefined) {
-    override.phases = phases(params.test, defaults.phases)
+    override.phases = testPhases(params.test, defaults.phases)
   }
   if (params.preset !== undefined) {
     override.preset = params.preset
@@ -229,9 +165,13 @@ export function useUrlParams(): UrlParams {
   return pageLoad
 }
 
-/** Whether the page load asked for an auto-run that has not started yet; true only once. */
-export function consumeAutoRun(): boolean {
-  const run = useUrlParams().run && !runConsumed
+/**
+ * Whether the page load asks for an auto-run that has not started yet; true only once. A stored
+ * Auto-start asks on every load, as `run=1` does, unless the link says `run=0`.
+ */
+export function consumeAutoRun(autoStart = false): boolean {
+  const params = useUrlParams()
+  const run = (params.run || (autoStart && params.noRun !== true)) && !runConsumed
   runConsumed = true
   return run
 }

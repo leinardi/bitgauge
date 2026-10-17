@@ -20,7 +20,7 @@
 // @vitest-environment jsdom
 
 // The settings summary: the preset line when nothing differs from the server defaults, otherwise
-// one chip per changed setting; never an Edit link in v0.1 (ui/screens.md section 1).
+// one chip per changed setting; and the Edit link to the Settings screen (ui/screens.md section 1).
 
 import { describe, expect, it } from 'vitest'
 
@@ -40,8 +40,7 @@ async function summary(settings: TestSettings, defaults = DEFAULTS) {
 describe('the settings summary', () => {
   it('reads the preset, stream mode and cap when nothing differs', async () => {
     const wrapper = await summary(DEFAULTS)
-    expect(wrapper.text()).toBe('Standard preset · Auto streams · No data cap')
-    expect(wrapper.find('a').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="settings-line"]').text()).toBe('Standard preset · Auto streams · No data cap')
   })
 
   it.each([
@@ -49,7 +48,7 @@ describe('the settings summary', () => {
     [{ ...DEFAULTS, preset: 'extended', streams: { ...DEFAULTS.streams, mode: 'single' } }, 'Extended preset · Single stream · No data cap'],
   ] as const)('reads other defaults the same way', async (settings, line) => {
     const wrapper = await summary(settings as TestSettings, settings as TestSettings)
-    expect(wrapper.text()).toBe(line)
+    expect(wrapper.get('[data-testid="settings-line"]').text()).toBe(line)
   })
 
   it('shows one chip per changed setting', async () => {
@@ -58,6 +57,15 @@ describe('the settings summary', () => {
     const chips = wrapper.findAll('span.rounded-full').map((chip) => chip.text())
     expect(chips).toEqual(['Extended', '4 streams', 'Cap 500 MB', 'Units · MB/s'])
     expect(wrapper.text()).toContain('4 changed:')
+  })
+
+  it('links to the Settings screen, changed or not', async () => {
+    for (const settings of [DEFAULTS, { ...DEFAULTS, units: 'bytes' as const }]) {
+      const link = (await summary(settings)).get('a')
+      expect(link.text()).toBe('Edit')
+      expect(link.attributes('href')).toBe('/settings')
+      expect(link.attributes('aria-label')).toBe('Edit settings')
+    }
   })
 
   it('leaves out what did not change', async () => {

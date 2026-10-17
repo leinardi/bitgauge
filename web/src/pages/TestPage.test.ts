@@ -172,7 +172,7 @@ describe('the Test screen', () => {
     expect(page.get('[data-testid="connection-streams"]').text()).toMatch(/2\s*fixed/)
     expect(page.get('[data-testid="context-label"]').text()).toBe('LAN')
     expect(page.get('[data-testid="context-label"]').attributes('aria-label')).toBe('Context: LAN, suggested')
-    expect(page.get('[data-testid="settings-summary"]').text()).toBe('Quick preset · 2 streams · No data cap')
+    expect(page.get('[data-testid="settings-line"]').text()).toBe('Quick preset · 2 streams · No data cap')
     expect(page.text()).toContain('suggested')
     page.unmount()
   })

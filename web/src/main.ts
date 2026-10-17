@@ -23,13 +23,23 @@ import { createApp } from 'vue'
 
 import App from '@/App.vue'
 import { createAppI18n } from '@/i18n'
+import { readStored } from '@/lib/settingsStorage'
 import { appHistory, createAppRouter } from '@/router'
 
 // The page's own path, for the base-path check: read before the router's history, which rewrites
 // the address under the base path as it starts (edge-cases.md section 20).
 const pagePath = window.location.pathname
 
+/** The language stored on the Settings screen; none where storage cannot be read. */
+function storedLanguage(): string | null {
+  try {
+    return readStored(localStorage).lang ?? null
+  } catch {
+    return null
+  }
+}
+
 createApp(App, { pagePath })
   .use(createAppRouter(appHistory(document)))
-  .use(createAppI18n(window.location.search, navigator.languages))
+  .use(createAppI18n(window.location.search, navigator.languages, storedLanguage()))
   .mount('#app')

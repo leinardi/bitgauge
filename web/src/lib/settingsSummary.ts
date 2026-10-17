@@ -21,8 +21,8 @@ import type { TestSettings } from '@/engine/messages'
 
 // The settings summary of the Test screen (ui/screens.md section 1): the settings that differ from
 // the server defaults, one chip each, or the preset with its stream mode and data cap when nothing
-// differs. v0.1 has no Settings screen, so there is no Edit link; the URL parameters are what can
-// differ.
+// differs, beside the Edit link to the Settings screen; the stored settings and the URL parameters
+// are what can differ.
 
 export type SummaryPart =
   | { kind: 'preset'; preset: TestSettings['preset'] }

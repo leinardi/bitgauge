@@ -1,0 +1,193 @@
+{
+  "settings": {
+    "title": "Settings",
+    "saved": "Saved",
+    "notSaved": "{n} value not saved | {n} values not saved",
+    "storageRefused": "This browser did not store the change; it applies until the page is closed.",
+    "intro": "Changes save automatically in this browser and apply to the next test.",
+    "changedMark": "changed",
+    "custom": "custom",
+    "loading": "Loading the server's defaults…",
+    "unsupported": "The server's default preset can't run in this version, so its settings can't be changed here.",
+    "preset": {
+      "title": "Test preset",
+      "default": "Default",
+      "v03": "v0.3",
+      "arrives": "Arrives in v0.3",
+      "names": {
+        "quick": "Quick",
+        "standard": "Standard",
+        "extended": "Extended",
+        "continuous": "Continuous"
+      },
+      "streamsAuto": "Auto streams",
+      "streamsFixed": "Fixed {n} stream | Fixed {n} streams",
+      "same": "{range} per direction",
+      "split": "{download} down, {upload} up",
+      "pings": "{n} ping | {n} pings",
+      "line": "{streams} · {durations} · {pings}",
+      "continuous": "Auto streams, Standard ramp · one direction until stopped · 20 pings"
+    },
+    "phases": {
+      "title": "Phases",
+      "idle": "Latency",
+      "download": "Download",
+      "upload": "Upload",
+      "order": "Order",
+      "downloadFirst": "Download first",
+      "uploadFirst": "Upload first",
+      "help": "Idle latency runs first. Turn off a phase to test the others; at least one stays on."
+    },
+    "connections": {
+      "title": "Connections and limits"
+    },
+    "streams": {
+      "title": "Parallel streams",
+      "caption": "Auto ramps 1 → 2 → 4 → 6 streams and stops when adding streams no longer helps. Fixed runs 1–{max}. Single shows one connection.",
+      "auto": "Auto",
+      "fixed": "Fixed",
+      "single": "Single",
+      "count": "Stream count",
+      "fewer": "Fewer streams",
+      "more": "More streams"
+    },
+    "duration": {
+      "title": "Duration per direction",
+      "caption": "A direction ends after the minimum once results are stable, and runs up to the maximum on slow or noisy links.",
+      "downloadMin": "Download minimum seconds",
+      "downloadMax": "Download maximum seconds",
+      "uploadMin": "Upload minimum seconds",
+      "uploadMax": "Upload maximum seconds",
+      "to": "–"
+    },
+    "cap": {
+      "title": "Data cap per test",
+      "caption": "Useful on metered mobile links. A direction stops early when the cap is reached and the result is marked.",
+      "switch": "Data cap",
+      "input": "Data cap in MB"
+    },
+    "display": {
+      "title": "Display and behavior"
+    },
+    "units": {
+      "title": "Units",
+      "bits": "Bits · Mbit/s",
+      "bytes": "Bytes · MB/s"
+    },
+    "theme": {
+      "title": "Theme"
+    },
+    "language": {
+      "title": "Language",
+      "caption": "Only shipped languages are listed."
+    },
+    "autoStart": {
+      "title": "Auto-start on page load",
+      "caption": "Shows a countdown first, so you can cancel. Also available as {param}.",
+      "switch": "Auto-start",
+      "countdown": "Countdown seconds"
+    },
+    "label": {
+      "title": "Result label",
+      "caption": "Pre-fills the label of every result in this browser, as the label link parameter does for one page load.",
+      "input": "Result label",
+      "placeholder": "e.g. Kitchen Wi-Fi"
+    },
+    "advanced": {
+      "title": "Advanced",
+      "summary": "Warm-up, ping count, overhead compensation"
+    },
+    "warmup": {
+      "title": "Warm-up",
+      "caption": "Auto ends warm-up once throughput settles. Samples during warm-up are discarded.",
+      "auto": "Auto",
+      "fixed": "Fixed",
+      "input": "Warm-up seconds"
+    },
+    "pings": {
+      "title": "Ping count",
+      "caption": "Used for idle latency and jitter. Preset default: {n}.",
+      "input": "Ping count",
+      "suffix": "pings"
+    },
+    "overhead": {
+      "title": "Overhead compensation",
+      "caption": "Adds estimated protocol overhead to measured throughput. Shown next to every number when not 0 %.",
+      "none": "None · 0 %",
+      "libreSpeed": "LibreSpeed default · 6 %",
+      "ipv6": "IPv6 · 5.13 %",
+      "alternative": "Alternative · 3.69 %",
+      "alternative2": "Alternative 2 · 8.1 %",
+      "other": "{percent} %"
+    },
+    "share": {
+      "title": "Shareable link",
+      "caption": "Opens BitGauge with the settings that differ from the defaults.",
+      "url": "Shareable URL",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "copyFailed": "Could not copy the link; select it and copy it by hand.",
+      "includeRun": "Include {param} (start automatically)",
+      "notInLink": "Not in the link: {names}"
+    },
+    "changed": {
+      "title": "Changed from defaults",
+      "none": "Everything is at its default.",
+      "default": "default {value}",
+      "reset": "Reset {name}",
+      "resetAll": "Reset all to defaults",
+      "confirmTitle": "Reset all settings?",
+      "confirmBody": "{n} setting returns to its default: {names}. Your test history is not affected. | {n} settings return to their defaults: {names}. Your test history is not affected.",
+      "cancel": "Cancel",
+      "confirm": "Reset all"
+    },
+    "names": {
+      "preset": "Preset",
+      "phases": "Phases",
+      "streams": "Parallel streams",
+      "download": "Download duration",
+      "upload": "Upload duration",
+      "durations": "Per-direction durations",
+      "dataCapBytes": "Data cap",
+      "units": "Units",
+      "theme": "Theme",
+      "lang": "Language",
+      "label": "Result label",
+      "autoStart": "Auto-start",
+      "countdown": "Auto-start countdown",
+      "warmup": "Warm-up",
+      "pingCount": "Ping count",
+      "overheadCompensationPercent": "Overhead compensation"
+    },
+    "values": {
+      "none": "None",
+      "off": "Off",
+      "on": "On",
+      "browser": "Browser language",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "bits": "Bits",
+      "bytes": "Bytes",
+      "auto": "Auto",
+      "single": "Single",
+      "fixed": "Fixed · {n}",
+      "seconds": "{n} s",
+      "secondsUnit": "s",
+      "megabytesUnit": "MB",
+      "range": "{min}–{max} s",
+      "megabytes": "{n} MB",
+      "autoStart": "{state} · {n} s",
+      "fixedWarmup": "Fixed · {n} s",
+      "overhead": "+{n} %"
+    },
+    "errors": {
+      "duration": "Enter whole seconds from 5 s to 10 min (600 s).",
+      "minAboveMax": "Must be at most the maximum ({max} s).",
+      "maxBelowMin": "Must be at least the minimum ({min} s).",
+      "range": "Enter a whole number from {min} to {max}.",
+      "label": "Use at most {max} characters.",
+      "notSaved": "Not saved · Esc restores {value}."
+    }
+  }
+}

@@ -17,8 +17,8 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// The locale detection of ui/i18n-a11y.md section 1.2: the lang parameter, then the browser, then
-// English. The catalog's completeness is locales.test.ts.
+// The locale detection of ui/i18n-a11y.md section 1.2: the lang parameter, then the language
+// stored on the Settings screen, then the browser, then English. The catalog's completeness is locales.test.ts.
 
 import { describe, expect, it } from 'vitest'
 
@@ -34,5 +34,15 @@ describe('detectLocale', () => {
     ['', [], 'en'],
   ])('reads %j with the browser languages %j as %s', (search, languages, locale) => {
     expect(detectLocale(search, languages)).toBe(locale)
+  })
+
+  it.each([
+    ['', ['de-AT'], 'EN', 'en'],
+    ['?lang=xx', [], 'en', 'en'],
+    // A stored language that is not shipped is passed over for the browser's.
+    ['', ['en-US'], 'xx', 'en'],
+    ['', [], 'xx', 'en'],
+  ])('reads %j with the browser languages %j and the stored %s as %s', (search, languages, stored, locale) => {
+    expect(detectLocale(search, languages, stored)).toBe(locale)
   })
 })

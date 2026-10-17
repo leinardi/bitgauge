@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import AppButton from '@/components/actions/AppButton.vue'
 
-// History, Settings and Result detail keep their routes in v0.1 and render this page
+// History and Result detail keep their routes and render this page until their screens land
 // (ui/screens.md section 1).
 </script>
 

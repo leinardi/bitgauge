@@ -23,7 +23,7 @@
 
 import type { BrowserContext, Page } from '@playwright/test'
 
-import type { Screen, TestState } from './scenarios.ts'
+import { KIT_SCOPE, type Screen, type TestState } from './scenarios.ts'
 import { waitForSettled } from './settle.ts'
 import { PROTO_ORIGIN, VUE_ORIGIN, type SideDriver } from './side.ts'
 
@@ -75,18 +75,19 @@ export const proto: Driver = {
   overlaySelector: OVERLAYS,
   toastSelector: '.toast',
   styleRegions: STYLE_REGIONS,
-  // Before the first load only, so a later choice survives a reload: the v0.1 scope (no History,
-  // Settings, share or loaded latency; the panel's Scope select, which defaults to v0.2),
+  // Before the first load only, so a later choice survives a reload: the scope of KIT_SCOPE, v0.1
+  // for now (no History, Settings, share or loaded latency; the panel's Scope select, which defaults
+  // to v0.2),
   // Chrome as the browser, since the harness drives Chromium and the panel defaults to Firefox,
   // and the theme on System, which is the product's default and the Vue demo's, where the prototype
   // starts on Dark. With System both sides follow the project's emulated color scheme.
   prepare: async (context: BrowserContext) => {
     await context.addInitScript(
-      ({ demoKey, prefsKey }) => {
-        if (localStorage.getItem(demoKey) === null) localStorage.setItem(demoKey, JSON.stringify({ scope: 'v0.1', browser: 'Chrome' }))
+      ({ demoKey, prefsKey, scope }) => {
+        if (localStorage.getItem(demoKey) === null) localStorage.setItem(demoKey, JSON.stringify({ scope, browser: 'Chrome' }))
         if (localStorage.getItem(prefsKey) === null) localStorage.setItem(prefsKey, JSON.stringify({ theme: 'system' }))
       },
-      { demoKey: KIT_DEMO_KEY, prefsKey: KIT_PREFS_KEY },
+      { demoKey: KIT_DEMO_KEY, prefsKey: KIT_PREFS_KEY, scope: KIT_SCOPE },
     )
   },
   // A forced state wins over the run timeline (Prototype.jsx cur()), so it shows without a run.

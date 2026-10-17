@@ -53,20 +53,23 @@ export const V01_TEST_STATES = [
 export type TestState = (typeof V01_TEST_STATES)[number]
 
 /** The screens both sides have in v0.1, by the label of their navigation item. */
-export type Screen = 'Test' | 'About'
+export type Screen = 'Test' | 'Settings' | 'About'
 
 export type Step = { forceState: TestState } | { serverUnreachable: true } | { goto: Screen } | { openDemo: true }
 
 export interface Scenario {
   id: string
   steps: Step[]
-  // The regions compared: the whole page, header and tab bar included, since v0.1 has two screens
-  // and every state can change the header's server status. The demo panel is compared only by the
+  // The regions compared: the whole page, header and tab bar included, since the navigation is part
+  // of every screen and every state can change the header's server status. The demo panel is compared only by the
   // demo scenarios, so a difference of the panel's is one finding and not one per page.
   regions: LookRegion[]
   // Leaves the style layer out. For a scenario whose computed styles are not stable from run to run,
   // so it is excluded rather than left to flap; say why where it is set.
   style?: false
+  // The prototype scope the scenario needs; without it, any. A scenario of a later scope than the one
+  // the harness drives (KIT_SCOPE) is left out of runs until the harness drives that scope.
+  kitScope?: 'v0.2'
   // Leaves the layout layer out, on the same terms.
   layout?: false
 }
@@ -78,6 +81,10 @@ const testStates: Scenario[] = V01_TEST_STATES.map((state) => ({
   steps: [{ forceState: state }],
   regions: ALL,
 }))
+
+// The Settings screen with the server's defaults. The prototype's navigation has Settings only in
+// its v0.2 scope, so the scenario runs once the harness drives that scope.
+const settings: Scenario[] = [{ id: 'settings', steps: [{ goto: 'Settings' }], regions: ALL, kitScope: 'v0.2' }]
 
 const about: Scenario[] = [
   { id: 'about', steps: [{ goto: 'About' }], regions: ALL },
@@ -91,4 +98,12 @@ const demo: Scenario[] = [
   { id: 'demo/open', steps: [{ openDemo: true }], regions: ['demo'] },
 ]
 
-export const SCENARIOS: readonly Scenario[] = [...testStates, ...about, ...demo]
+// The prototype's scope the harness drives (drivers.ts prepare): v0.1 until the parity scope grows
+// to the v0.2 screens.
+export const KIT_SCOPE = 'v0.1' as 'v0.1' | 'v0.2'
+
+/** Every scenario, those of a later scope included: what coverage.test.ts holds each screen to. */
+export const ALL_SCENARIOS: readonly Scenario[] = [...testStates, ...settings, ...about, ...demo]
+
+/** The scenarios a run compares: those the driven scope reaches. */
+export const SCENARIOS: readonly Scenario[] = ALL_SCENARIOS.filter((scenario) => scenario.kitScope === undefined || KIT_SCOPE === 'v0.2')

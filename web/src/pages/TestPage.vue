@@ -37,21 +37,27 @@ import { useCountdown } from '@/composables/useCountdown'
 import { useElapsed } from '@/composables/useElapsed'
 import { useInfo } from '@/composables/useInfo'
 import { useRun } from '@/composables/useRun'
+import { effectiveSettings, useSettings } from '@/composables/useSettings'
 import { useTestKeys } from '@/composables/useTestKeys'
 import { consumeAutoRun, urlOverride, useUrlParams } from '@/composables/useUrlParams'
 import type { Notice, Preset } from '@/engine/messages'
+import { DEFAULT_AUTO_START } from '@/lib/settingsStorage'
+import { SECOND } from '@/lib/urlValues'
 
 // The Test screen (ui/screens.md section 1, kit TestScreen.jsx v0.1 branch): idle, the auto-start
 // countdown, running per phase, done, cancelled, error and offline, from the run's live view. v0.1
 // keeps no history, so Download JSON is the only result action. The engine's Worker starts with the
-// page, is configured with the server's defaults and the URL parameters on top as soon as they are
-// known (ui/url-params.md), and ends when the page unmounts.
+// page, is configured with the settings stored in this browser over the server's defaults, and the
+// URL parameters on top, as soon as they are known (ui/url-params.md), and ends when the page
+// unmounts.
 
 const { info, reachability, refresh, nextCheckS } = useInfo()
 const url = useUrlParams()
-const run = useRun({ override: (base) => urlOverride(url, base).override })
+const { stored } = useSettings()
+const run = useRun({ base: (serverDefaults) => effectiveSettings(url, serverDefaults, stored.value).settings, override: (base) => urlOverride(url, base).override })
 const { defaults, settings } = run
-const countdown = useCountdown()
+// The stored Auto-start's countdown length; a later change applies from the next page load.
+const countdown = useCountdown((stored.value.autoStart?.countdownS ?? DEFAULT_AUTO_START.countdownS) * SECOND)
 const { label: contextLabel } = useContextLabel(computed(() => info.value?.client.suggestedLabel))
 const { t, locale } = useI18n()
 const host = window.location.host
@@ -83,7 +89,9 @@ const elapsed = useElapsed(running, view)
 const tiles = computed(() => screenTiles(view.value, shownSettings.value ?? { units: 'bits', overheadCompensationPercent: 0 }, wording.value, elapsed.value))
 
 // The URL parameters ignored; before the first run they show as the notices a run will carry.
-const ignored = computed(() => (defaults.value === null ? url.ignored : urlOverride(url, defaults.value).ignored))
+const ignored = computed(() => (defaults.value === null ? url.ignored : effectiveSettings(url, defaults.value, stored.value).ignored))
+// The result's label: the link's for this page load, otherwise the one stored on the Settings screen.
+const label = computed(() => url.label ?? stored.value.label)
 // A dismissed ignored-parameter notice stays hidden for the page load; the result still carries it.
 const dismissed = shallowRef<ReadonlySet<string>>(new Set())
 function dismiss(parameter: string): void {
@@ -135,7 +143,7 @@ function begin(preset?: Preset): void {
   run.start({
     contextLabel: contextLabel.value ?? '',
     ignoredParameters: ignored.value,
-    ...(url.label === undefined ? {} : { label: url.label }),
+    ...(label.value === undefined ? {} : { label: label.value }),
     ...(preset === undefined ? {} : { preset }),
   })
 }
@@ -150,11 +158,12 @@ function press(): void {
   }
 }
 
-// A link with `run` counts down once the engine has the URL's settings and Start is usable.
+// A link with `run`, or a stored Auto-start, counts down once the engine has the settings and Start
+// is usable.
 watch(
   () => disabledReason.value === null && run.configured.value !== null && state.value === 'idle',
   (ready) => {
-    if (ready && consumeAutoRun()) {
+    if (ready && consumeAutoRun(stored.value.autoStart?.enabled === true)) {
       countdown.start(() => begin())
     }
   },
@@ -218,6 +227,7 @@ watch(run.error, (error) => {
     <AutoStartNotice
       v-if="countdown.remainingMs.value !== null"
       :remaining-ms="countdown.remainingMs.value"
+      :from-link="url.run"
       @cancel="countdown.cancel"
     />
     <NoticeList

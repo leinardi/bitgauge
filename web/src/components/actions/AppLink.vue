@@ -18,17 +18,20 @@
 -->
 <script setup lang="ts">
 import { ExternalLink } from '@lucide/vue'
+import { RouterLink } from 'vue-router'
 
 // The kit's Link (design_system/components/actions Link.jsx, actions.css `.link`): a standalone
 // text action in one weight and one color, at the size of the text around it. `external` marks a
-// link that leaves the app: it opens in a new tab and carries the external-link icon.
+// link that leaves the app: it opens in a new tab and carries the external-link icon. `to` makes it
+// a link to a screen of the app, through the router.
 
-defineProps<{ href: string; external?: boolean }>()
+defineProps<{ href?: string; to?: string; external?: boolean }>()
 </script>
 
 <template>
-  <a
-    :href="href"
+  <component
+    :is="to === undefined ? 'a' : RouterLink"
+    v-bind="to === undefined ? { href } : { to }"
     :target="external ? '_blank' : undefined"
     :rel="external ? 'noopener noreferrer' : undefined"
     class="inline-flex items-center gap-1 font-semibold whitespace-nowrap text-primary-text no-underline hover:text-(--primary-hover) hover:underline hover:underline-offset-2"
@@ -39,5 +42,5 @@ defineProps<{ href: string; external?: boolean }>()
       :size="12"
       aria-hidden="true"
     />
-  </a>
+  </component>
 </template>

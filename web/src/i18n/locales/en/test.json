@@ -37,7 +37,9 @@
       "capNone": "No data cap",
       "cap": "Cap {size}",
       "unitsBytes": "Units · MB/s",
-      "unitsBits": "Units · Mbit/s"
+      "unitsBits": "Units · Mbit/s",
+      "edit": "Edit",
+      "editLabel": "Edit settings"
     },
     "gauge": {
       "window": "log scale · {lo} – {hi} · auto",
@@ -239,6 +241,7 @@
       "caption": "Esc cancels",
       "title": "Auto-start in {n} s",
       "body": "This page was opened from a link that starts a test automatically.",
+      "bodyStored": "Auto-start is on in Settings, so a test starts automatically when this page opens.",
       "cancel": "Cancel"
     }
   }

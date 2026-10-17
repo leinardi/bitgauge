@@ -61,5 +61,5 @@ test('ignores an invalid parameter with a notice naming it, and applies the rest
   const notice = page.getByTestId('notice').filter({ hasText: 'URL parameter ignored' })
   await expect(notice).toContainText('preset')
   // Only the units differ from the server's defaults: the invalid preset left Standard in place.
-  await expect(page.getByTestId('settings-summary')).toHaveText('1 changed: Units · MB/s')
+  await expect(page.getByTestId('settings-summary')).toHaveText('1 changed: Units · MB/s Edit')
 })

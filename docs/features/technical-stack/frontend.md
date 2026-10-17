@@ -47,11 +47,13 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
 - **Message schema.** All traffic between the UI and the Worker uses the discriminated unions in
   `engine/messages.ts` ([../architecture.md §4](../architecture.md#4-engine--ui-message-contract)).
   `loop.ts` holds the message loop and `worker.ts` only wires it to the Worker's messages; every
-  rule lives in plain modules. Besides the
-  types, `engine/messages.ts` has one runtime export, `validateResult`, re-exported from
-  `engine/result/validate.ts`: the structural check of the result object
-  ([../measurement.md §17](../measurement.md#17-result-object)), so the application validates a
-  result before exporting it without importing engine internals.
+  rule lives in plain modules. Besides the types, `engine/messages.ts` has two runtime exports:
+  `validateResult`, re-exported from `engine/result/validate.ts`, the structural check of the
+  result object ([../measurement.md §17](../measurement.md#17-result-object)), so the application
+  validates a result before exporting it without importing engine internals; and from v0.2
+  `PRESETS`, re-exported from `engine/presets.ts`, the preset table of
+  [../measurement.md §8.5](../measurement.md#85-presets), so the Settings screen states a preset's
+  streams, durations and ping count and applies a stored preset as the engine resolves one.
 - **Synthetic clock injection.** The engine never calls `performance.now()`, `setTimeout`,
   `fetch`, `XMLHttpRequest` or `WebSocket` directly. It receives two interfaces:
   - `Clock`: `now()`, `setTimer(ms, fn)`, `clearTimer(id)`, `busyMs()` (the time spent in the

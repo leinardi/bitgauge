@@ -22,8 +22,9 @@
 // The Test screen opened from a link (ui/flows.md section 2): the URL's settings go to the engine
 // with configure, an invalid value shows as the URL parameter ignored notice, and once the engine
 // has answered with the settings a 3 s countdown starts the run with the URL's label and the
-// ignored parameters; Escape cancels it and Start then runs the same settings. Each test loads the
-// page afresh, since the URL applies once per page load.
+// ignored parameters; Escape cancels it and Start then runs the same settings. The settings stored
+// on the Settings screen sit under the URL's, and a stored Auto-start counts down as `run=1` does.
+// Each test loads the page afresh, since the URL applies once per page load.
 
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -85,6 +86,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  localStorage.clear()
   vi.useRealTimers()
   vi.unstubAllGlobals()
   StubWorker.started = []
@@ -175,5 +177,38 @@ describe('a link with run', () => {
       expect(page.find('[data-testid="countdown"]').exists()).toBe(false)
       page.unmount()
     }
+  })
+})
+
+describe('the stored settings', () => {
+  const STORED = { preset: 'extended', label: 'Home', autoStart: { enabled: true, countdownS: 5 } }
+  const EXTENDED: TestSettings = { ...DEFAULTS, preset: 'extended', download: { minMs: 20_000, maxMs: 40_000 }, upload: { minMs: 20_000, maxMs: 40_000 }, pingCount: 50 }
+
+  it('configure the Worker, label the run and count down from their own length', async () => {
+    localStorage.setItem('bitgauge.settings.v1', JSON.stringify(STORED))
+    const { page, worker } = await load('')
+    expect(worker.posted).toEqual([{ type: 'configure', settings: EXTENDED, basePath: '/' }])
+    worker.emit({ type: 'settings', scope: 'configured', settings: EXTENDED })
+    await flushPromises()
+    expect(page.get('[data-testid="countdown-number"]').text()).toBe('5')
+    expect(page.get('[data-testid="auto-start"]').text()).toContain('Auto-start is on in Settings')
+    worker.posted.length = 0
+    vi.advanceTimersByTime(5000)
+    await flushPromises()
+    expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: 'LAN', label: 'Home' }, visible: true }])
+    page.unmount()
+  })
+
+  it('lie under the URL parameters, and run=0 holds a stored Auto-start for the load', async () => {
+    localStorage.setItem('bitgauge.settings.v1', JSON.stringify(STORED))
+    const { page, worker } = await load('?run=0&preset=quick&label=VPN')
+    expect(worker.posted).toEqual([{ type: 'configure', settings: EXTENDED, override: { preset: 'quick' }, basePath: '/' }])
+    worker.emit({ type: 'settings', scope: 'configured', settings: QUICK })
+    await flushPromises()
+    expect(page.find('[data-testid="countdown"]').exists()).toBe(false)
+    worker.posted.length = 0
+    await page.get('[data-testid="start-button"]').trigger('click')
+    expect(worker.posted).toEqual([{ type: 'start', override: { contextLabel: 'LAN', label: 'VPN' }, visible: true }])
+    page.unmount()
   })
 })

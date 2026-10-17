@@ -336,7 +336,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 17 | The `stream-limit` notice for a `429`; failure counting, the data-cap budget and end instant, the reported protocol, late chunks; §19.2 at its goodput and §19.3 recomputed | v0.1 |
 | 18 | Upload bounds on the client clock, the grace without a known rate, immediate aborts, telemetry checks; §19.4 recomputed with a per-request ceiling | v0.1 |
 | 19 | The `network` command, the browser identity from the transport, and the run sequence's skips, samples, pauses and run-imposed errors | v0.1 |
-| 20 | The v0.1 result field set with later fields absent, the timer resolution and isolation in `client`, `validateResult` as the one runtime export of `engine/messages.ts` | v0.1 |
+| 20 | The v0.1 result field set with later fields absent, the timer resolution and isolation in `client`, `validateResult` as the one runtime function of `engine/messages.ts` | v0.1 |
 | 21 | The Worker's message loop with one run at a time; busy time, timer resolution, timing-entry lookup and user-agent table of the browser wiring | v0.1 |
 | 22 | The dist URL allowlist: the SVG, XLink and MathML namespaces, the GNU licenses URL, the Tailwind license comment, Vue's console error reference and the project repository; clicked links are not calls | v0.1 |
 | 23 | The engine Worker chunk budget, 128 KiB minified, in `.chunk-budget` | v0.1 |
@@ -365,7 +365,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 46 | `server.labels` as `{cidr, label}` entries, `cidr=label` items in the environment, masked unique CIDRs, the `display_name` label rule, longest prefix first, `suggestedLabel` up to 64 characters or `null` | v0.2 |
 | 47 | Loaded-latency shapes, reasons and sample minimum; the increase and grade only with an idle median; the series on the direction's timeline; no statistic over two sources; the reservation from the Info phase's protocol; the `probe-reservation` notice once | v0.2 |
 | 48 | The demo link's loaded delay per direction, rising with τ while requests are in flight, and its six-connection HTTP/1.1 link | v0.2 |
-| 49 | Sparse stored settings under `bitgauge.settings.v1` with the kit's ranges and a 2 MB cap floor; the shareable URL's order, `run`, `label`, `theme` and `lang`, and its "Not in the link" line; stored Auto-start as `run=1` | v0.2 |
+| 49 | Sparse stored settings under `bitgauge.settings.v1` with the kit's ranges and a 2 MB cap floor; the shareable URL's order, `run`, `label`, `theme` and `lang`, and its "Not in the link" line; stored Auto-start as `run=1`; the preset table re-exported from `engine/messages.ts` | v0.2 |
 | 50 | RFC 4180 CSV with a formula guard; whole-file and per-record import rejection with a summary; immediate delete with an 8 s undo; no retention limit; filters in the query string; recent labels; list sort and keys; the Safari hint in the page | v0.2 |
 | 51 | The unsaved in-memory result on the Result detail; loaded latency on each throughput chart's second axis and the table; Compare's ±2 %, 1 ms and grade-order wording; the Test screen's share dialog | v0.2 |
 | 52 | The 1200 × 630 dark-theme PNG share image with its qualifiers, fonts loaded first, and the copied summary as the same translated lines | v0.2 |
