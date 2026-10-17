@@ -21,7 +21,8 @@
 
 // The Test screen's side of history (ui/flows.md section 1 step 5, ui/screens.md section 1) on an
 // in-memory IndexedDB: the idle state's line to the latest saved result, a complete result saved
-// as the run ends, which the bar says, and a partial one kept in memory for its Result detail.
+// as the run ends, which the bar says, with its label saved as typed; a partial one kept in memory
+// for its Result detail, and in history once the user keeps it.
 
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
@@ -129,6 +130,40 @@ describe('history on the Test screen', () => {
     // Kept in memory for its Result detail, which Details opens.
     expect(lastRunResult.value?.id).toBe(result.id)
     expect(page.get('[data-testid="result-details"]').attributes('href')).toBe(`/result/${result.id}`)
+    page.unmount()
+  })
+
+  it('saves the label typed in the save bar, and suggests the labels of history', async () => {
+    vi.stubGlobal('Worker', StubWorker)
+    const page = await mountApp(TestPage)
+    await settle()
+    await page.get('[data-testid="start-button"]').trigger('click')
+    const result = resultFixture({ id: 'a1b2c3d4-0000-4000-8000-000000000004' })
+    StubWorker.started[0]?.emit({ type: 'result', result })
+    await settle()
+    expect(page.findAll('[data-testid="label-suggestion"]').map((chip) => chip.text())).toEqual(['LAN', 'Home Wi-Fi'])
+    const field = page.get('[data-testid="result-label-field"]')
+    await field.setValue('Attic')
+    await field.trigger('blur')
+    await settle()
+    expect(useHistory().results.value.find((saved) => saved.id === result.id)?.label).toBe('Attic')
+    page.unmount()
+  })
+
+  it('keeps a partial result in history when the user chooses Keep in history', async () => {
+    vi.stubGlobal('Worker', StubWorker)
+    const page = await mountApp(TestPage)
+    await settle()
+    await page.get('[data-testid="start-button"]').trigger('click')
+    const result = resultFixture({ id: 'a1b2c3d4-0000-4000-8000-000000000005', status: 'partial', notices: [{ code: 'stopped-early', direction: 'upload', coveredMs: 3000 }] })
+    StubWorker.started[0]?.emit({ type: 'result', result })
+    await settle()
+    await page.get('[data-testid="keep-in-history"]').trigger('click')
+    await settle()
+    expect(page.get('[data-testid="result-bar"] [role="status"]').text()).toBe('Saved as partial')
+    expect(page.text()).toContain('Partial results · saved as partial')
+    expect(page.text()).not.toContain('Partial results · not saved')
+    expect(useHistory().results.value.find((saved) => saved.id === result.id)?.status).toBe('partial')
     page.unmount()
   })
 })

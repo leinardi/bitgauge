@@ -21,6 +21,10 @@
 // from the page and once from the engine's Worker, is reported by both listeners. The target is
 // another port of the loopback interface, which connect-src 'self' blocks before anything is sent.
 
+import { readFile } from 'node:fs/promises'
+
+import { demoHistoryResults } from '@/demo/history'
+
 import { expect, test, WORKER_GUARD } from './fixtures/test'
 
 const BLOCKED = 'http://127.0.0.1:9/'
@@ -46,8 +50,8 @@ test('reports a violation in the page and in the engine Worker', async ({ page, 
 
 // vue-sonner v2 ships its CSS as a file and positions its toaster with CSSOM style bindings, both of
 // which style-src 'self' allows: the toaster's list is in place, styled by the stylesheet and
-// carrying its bound custom properties, and the guard sees no violation. No v0.1 action raises a
-// toast; the first one that does is shown by its own flow's spec.
+// carrying its bound custom properties, and the guard sees no violation. The share image's test
+// below raises a toast.
 test('mounts the toaster with its stylesheet and style bindings under the policy', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('button', { name: 'Start test' })).toBeEnabled()
@@ -69,4 +73,24 @@ test('mounts the toaster with its stylesheet and style bindings under the policy
     await expect(page.locator('html')).toHaveAttribute('data-theme', colorScheme)
     await expect(toaster).toHaveAttribute('data-sonner-theme', colorScheme)
   }
+})
+
+// The share image under the policy: the canvas reads the dark palette, loads the embedded fonts and
+// exports a PNG through a blob: URL, and the toast that confirms it shows; the guard sees no
+// violation. The result comes from an imported export, so no run is needed.
+test('renders and downloads the share image, confirmed by a toast, under the policy', async ({ page }) => {
+  const exported = JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, exportedAt: '2026-10-08T12:00:00.000Z', results: demoHistoryResults('populated').slice(0, 1) })
+  await page.goto('/history')
+  await expect(page.getByRole('heading', { name: 'No results yet' })).toBeVisible()
+  await page.getByTestId('import-input').setInputFiles({ name: 'bitgauge-history.json', mimeType: 'application/json', buffer: Buffer.from(exported) })
+  await expect(page.getByTestId('history-count')).toContainText('1 of 1 shown')
+  await page.locator('main a[href*="/result/"]').first().click()
+  await expect(page.getByTestId('share-preview')).toBeVisible()
+  const [file] = await Promise.all([page.waitForEvent('download'), page.getByTestId('download-image').click()])
+  expect(file.suggestedFilename()).toMatch(/^bitgauge-\d{4}-\d{2}-\d{2}-\d{4}\.png$/)
+  await expect(page.locator('[data-sonner-toast]').filter({ hasText: 'Image downloaded.' })).toBeVisible()
+  // The PNG's signature, then its IHDR chunk's width and height.
+  const png = await readFile(await file.path())
+  expect(png.subarray(1, 4).toString('ascii')).toBe('PNG')
+  expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630])
 })

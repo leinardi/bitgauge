@@ -72,6 +72,8 @@ export interface GaugeInput {
 export interface GaugeContext extends Wording {
   units: 'bits' | 'bytes'
   server: string
+  /** The ended result was kept in history (Keep in history), so it no longer reads "not saved". */
+  kept?: boolean
 }
 
 const PHASE_WORDS: Record<MeasuringPhase, (t: Wording['t']) => string> = {
@@ -174,7 +176,7 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
     // The final arc stays, without a needle: the download's value, or its last sample when it has
     // none, with the upload's partial value inside.
     const download = result.download?.bitsPerSecond ?? run.live.download?.gauge ?? null
-    const text: GaugeText = { title: t('test.gauge.cancelled'), message: t('test.gauge.notSaved'), touchMessage: null, detail: null, icon: 'cancelled' }
+    const text: GaugeText = { title: t('test.gauge.cancelled'), message: context.kept === true ? t('test.gauge.kept') : t('test.gauge.notSaved'), touchMessage: null, detail: null, icon: 'cancelled' }
     if (idleStopped(result)) {
       return { ...reading, mode: 'ms', value: result.idle?.medianMs ?? null, text }
     }

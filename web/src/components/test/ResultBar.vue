@@ -24,40 +24,37 @@ import { RouterLink } from 'vue-router'
 
 import AppButton from '@/components/actions/AppButton.vue'
 import DownloadJson from '@/components/test/DownloadJson.vue'
+import { hasFinishedPhase } from '@/components/test/keep'
+import KeepInHistory from '@/components/test/KeepInHistory.vue'
 import type { SaveState } from '@/composables/useResultSave'
 import type { Result } from '@/engine/messages'
 
-// The result's status bar (ui/screens.md section 1, kit TestScreen.jsx): a complete result is saved
-// to history as the run ends, and the bar says so with the time the run ended; a partial or error
-// result says partial results are not saved. Where history is unavailable, or the save failed, the
-// bar says the result was not saved. Download JSON and Details, the result's Result detail, are the
-// bar's actions; the save bar's label field and Share, and Keep in history come with the share
-// (v0.2). The kit words the partial and the error variant alike.
+// The status bar of a partial or error result (ui/screens.md section 1, design_system/components
+// save-bar.md; a complete result has the save bar): such a result is not saved unless the user
+// keeps it. With a finished phase the bar offers Keep in history, then says it was saved as partial
+// or error; without one it says there is nothing to keep, and where history is unavailable, that
+// nothing is saved. Download JSON and Details, the result's Result detail, are always there. The
+// kit words the partial and the error variant alike.
 
 const props = defineProps<{ result: Result; save: SaveState | null }>()
+/** Whether the user kept this result in history; the page resets it for each new result. */
+const kept = defineModel<boolean>('kept', { required: true })
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
-const complete = computed(() => props.result.status === 'complete')
-const endedAt = computed(() => {
-  const end = new Date(new Date(props.result.startedAt).getTime() + props.result.durationMs)
-  return Number.isNaN(end.getTime()) ? '' : new Intl.DateTimeFormat(locale.value, { timeStyle: 'medium' }).format(end)
-})
+const unavailable = computed(() => props.save === 'unavailable')
+const keepable = computed(() => !unavailable.value && hasFinishedPhase(props.result))
 const title = computed(() => {
-  if (!complete.value) {
+  if (!kept.value) {
     return t('test.bar.unsaved')
   }
-  return props.save === 'saved' ? t('test.bar.saved') : t('test.bar.complete')
+  return t('test.bar.kept', { kind: props.result.status === 'error' ? t('test.bar.kinds.error') : t('test.bar.kinds.partial') })
 })
 const body = computed(() => {
-  switch (props.save) {
-    case 'unavailable':
-      return t('test.bar.unavailable')
-    case 'failed':
-      return t('test.bar.notSaved')
-    default:
-      return complete.value ? '' : t('test.bar.unsavedBody')
+  if (unavailable.value) {
+    return t('test.bar.unavailable')
   }
+  return keepable.value ? '' : t('test.bar.nothing')
 })
 </script>
 
@@ -72,27 +69,27 @@ const body = computed(() => {
       class="flex items-center gap-2 text-(length:--text-sm) font-semibold"
     >
       <component
-        :is="complete ? CircleCheck : CircleMinus"
+        :is="kept ? CircleCheck : CircleMinus"
         :size="16"
         aria-hidden="true"
-        :class="complete ? 'text-(--ok)' : 'text-subtle-foreground'"
+        :class="kept ? 'text-(--ok)' : 'text-subtle-foreground'"
       />
       {{ title }}
-      <span
-        v-if="complete && endedAt"
-        class="font-mono text-(length:--text-caption) font-normal text-subtle-foreground"
-        data-testid="result-bar-time"
-      >{{ endedAt }}</span>
     </span>
     <span
       v-if="body"
       class="min-w-0 flex-[1_1_var(--layout-text-basis)] text-(length:--text-caption) text-pretty text-subtle-foreground"
       data-testid="result-bar-body"
     >{{ body }}</span>
-    <span class="ml-auto flex gap-2">
+    <span class="ml-auto flex flex-wrap gap-1">
+      <KeepInHistory
+        v-if="keepable"
+        v-model:kept="kept"
+        :result="result"
+      />
       <DownloadJson
         :result="result"
-        :variant="complete ? 'secondary' : 'ghost'"
+        variant="ghost"
       />
       <AppButton
         as-child

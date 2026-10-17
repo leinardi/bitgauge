@@ -42,7 +42,7 @@ export interface GradeView {
   basis: string
 }
 
-function sourceName(source: LoadedSource, t: Wording['t']): string {
+export function sourceName(source: LoadedSource, t: Wording['t']): string {
   switch (source) {
     case 'websocket':
       return t('result.load.sources.websocket')

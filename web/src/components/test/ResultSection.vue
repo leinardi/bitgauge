@@ -25,14 +25,16 @@ import MetricTile from '@/components/test/MetricTile.vue'
 import NotMeasured from '@/components/test/NotMeasured.vue'
 import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
+import SaveBar from '@/components/test/SaveBar.vue'
 import type { TileView } from '@/components/test/tiles'
 import type { SaveState } from '@/composables/useResultSave'
 import type { Result } from '@/engine/messages'
 import { links } from '@/lib/links'
 
-// The Test screen's results (ui/screens.md sections 1 and 6): the result bar once a run has ended
-// with a result, then the metric tiles and the facts beneath them. Two siblings in the page's
-// column, as the screen lays them out.
+// The Test screen's results (ui/screens.md sections 1 and 6): once a run has ended with a result,
+// the save bar for a complete one or the status bar with Keep in history for a partial or error
+// one, then the metric tiles and the facts beneath them. Siblings in the page's column, as the
+// screen lays them out.
 
 const props = defineProps<{
   /** The ended run's result for the result bar; null while a run goes on or without one. */
@@ -40,7 +42,10 @@ const props = defineProps<{
   /** What became of the result's save to history. */
   save: SaveState | null
   tiles: { main: TileView[]; more: TileView[]; packetLoss: TileView }
+  units: 'bits' | 'bytes'
 }>()
+/** The partial or error result was kept in history; the page's gauge and tiles read it too. */
+const kept = defineModel<boolean>('kept', { required: true })
 
 const { t } = useI18n()
 
@@ -55,8 +60,15 @@ const facts = computed<MetaRow[]>(() => {
 </script>
 
 <template>
+  <SaveBar
+    v-if="result?.status === 'complete'"
+    :result="result"
+    :save="save"
+    :units="units"
+  />
   <ResultBar
-    v-if="result !== null"
+    v-else-if="result !== null"
+    v-model:kept="kept"
     :result="result"
     :save="save"
   />

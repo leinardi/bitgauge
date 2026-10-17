@@ -86,11 +86,13 @@ const units = computed(() => shownSettings.value?.units ?? 'bits')
 
 // Without the server's settings the phases and tiles still show, pending and empty.
 const steps = computed(() => (shownSettings.value === null ? PENDING_STEPS : phaseSteps(view.value, shownSettings.value, locale.value)))
-const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host }))
+// The ended result kept in history by the user (Keep in history), which then reads "saved as".
+const kept = shallowRef(false)
+const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host, kept: kept.value }))
 const offline = computed(() => state.value === 'idle' && reachability.value === 'unreachable')
 const gauge = computed(() => (offline.value ? offlineGauge(gaugeContext.value, nextCheckS.value) : gaugeInput(view.value, gaugeContext.value)))
 const elapsed = useElapsed(running, view)
-const tiles = computed(() => screenTiles(view.value, shownSettings.value ?? { units: 'bits', overheadCompensationPercent: 0 }, wording.value, elapsed.value))
+const tiles = computed(() => screenTiles(view.value, shownSettings.value ?? { units: 'bits', overheadCompensationPercent: 0 }, wording.value, elapsed.value, kept.value))
 
 // The URL parameters ignored; before the first run they show as the notices a run will carry.
 const ignored = computed(() => (defaults.value === null ? url.ignored : effectiveSettings(url, defaults.value, stored.value).ignored))
@@ -109,6 +111,12 @@ const notices = computed<Notice[]>(() =>
 
 const shown = computed(() => state.value !== 'idle')
 const endedResult = computed(() => (shown.value && !running.value ? run.result.value : null))
+watch(
+  () => endedResult.value?.id,
+  () => {
+    kept.value = false
+  },
+)
 const { state: saveState } = useResultSave(run.result)
 const history = useHistory()
 // The latest saved result, in the idle state while no countdown runs (kit TestScreen.jsx).
@@ -275,9 +283,11 @@ watch(run.error, (error) => {
       @refresh="refresh"
     />
     <ResultSection
+      v-model:kept="kept"
       :result="endedResult"
       :save="saveState"
       :tiles="tiles"
+      :units="units"
     />
     <LastResult
       v-if="lastResult !== null"

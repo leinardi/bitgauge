@@ -153,9 +153,9 @@ export function phaseSteps(run: RunView, settings: TestSettings, locale: string)
 /**
  * Data used and its qualifier: "—" until the first byte, "so far" while running, with the
  * download's own bytes while upload runs after a download without a number; "not saved" after an
- * error.
+ * error, or "saved as" its status once the user kept it in history.
  */
-function dataUsed(run: RunView, context: Wording): TileView {
+function dataUsed(run: RunView, context: Wording, kept: boolean): TileView {
   const { t, locale } = context
   const tile = dataTile(run.status === 'idle' || run.dataUsedBytes === 0 ? null : run.dataUsedBytes, context)
   if (tile.number === null) {
@@ -167,7 +167,7 @@ function dataUsed(run: RunView, context: Wording): TileView {
     const share = run.phase === 'upload' && download.result?.bitsPerSecond === undefined ? download.result?.bytes : undefined
     sub = share === undefined ? t('test.tiles.dataSoFar') : t('test.tiles.dataSoFarDownload', { bytes: formatBytes(share, locale) })
   } else if (screenState(run) === 'error') {
-    sub = t('test.tiles.notSaved')
+    sub = kept ? t('test.tiles.kept', { kind: run.result?.status === 'partial' ? t('test.bar.kinds.partial') : t('test.bar.kinds.error') }) : t('test.tiles.notSaved')
   }
   return sub === null ? tile : { ...tile, lines: [{ text: sub }] }
 }
@@ -200,7 +200,7 @@ function idleInput(run: RunView, result: Result | null): IdleInput | null {
 }
 
 /** The metric tiles: the four main ones, then data used and duration, and the packet-loss slot. */
-export function screenTiles(run: RunView, settings: TileSettings, context: Wording, elapsedMs: number | null = null): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
+export function screenTiles(run: RunView, settings: TileSettings, context: Wording, elapsedMs: number | null = null, kept = false): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
   const shown = run.status !== 'idle'
   const result = shown ? run.result : null
   // Live numbers only while the run is going: a run that ended without a result has none to show.
@@ -220,7 +220,7 @@ export function screenTiles(run: RunView, settings: TileSettings, context: Wordi
   const idleFailed = shown && idle === null && run.error?.phase === 'idle' && run.idle !== null
   return {
     main: [direction('download'), direction('upload'), idleFailed && run.idle !== null ? idleErrorTile(run.idle, context) : idleTile(idle, context), jitterTile(idle, context)],
-    more: [dataUsed(run, context), duration(run, elapsedMs, context)],
+    more: [dataUsed(run, context, kept), duration(run, elapsedMs, context)],
     packetLoss: packetLossTile(context),
   }
 }

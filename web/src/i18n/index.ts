@@ -27,13 +27,14 @@ import history from '@/i18n/locales/en/history.json'
 import notices from '@/i18n/locales/en/notices.json'
 import result from '@/i18n/locales/en/result.json'
 import settings from '@/i18n/locales/en/settings.json'
+import share from '@/i18n/locales/en/share.json'
 import test from '@/i18n/locales/en/test.json'
 
 // vue-i18n in Composition API mode (ui/i18n-a11y.md section 1): one catalog per language, a file
 // per screen or shared component group, each holding its own namespace. English is the source and
 // the fallback.
 
-const en = { ...app, ...test, ...notices, ...errors, ...history, ...settings, ...about, ...result, ...a11y }
+const en = { ...app, ...test, ...notices, ...errors, ...history, ...settings, ...about, ...result, ...share, ...a11y }
 
 /** The shipped locales, which the Settings screen offers. */
 export const SUPPORTED_LOCALES = ['en'] as const

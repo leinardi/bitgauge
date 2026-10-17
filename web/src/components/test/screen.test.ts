@@ -210,6 +210,8 @@ describe('gaugeInput', () => {
     const stopped = gaugeInput(run({ status: 'ended', result: resultFixture({ status: 'partial' }) }), gaugeContext)
     expect(stopped).toMatchObject({ direction: 'download', value: 612e6, inner: 438e6, innerLabel: null })
     expect(stopped.text).toEqual({ title: 'Cancelled', message: 'Partial results · not saved', touchMessage: null, detail: null, icon: 'cancelled' })
+    // Kept in history by the user, it reads saved as partial.
+    expect(gaugeInput(run({ status: 'ended', result: resultFixture({ status: 'partial' }) }), { ...gaugeContext, kept: true }).text?.message).toBe('Partial results · saved as partial')
     const early = resultFixture({ status: 'partial', download: { status: 'insufficient-data', streams: 2, bytes: 1, events: [] }, upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0 } })
     expect(gaugeInput(run({ status: 'ended', result: early, live: { download: live({ gauge: 5e5 }), upload: null } }), gaugeContext)).toMatchObject({ value: 5e5, inner: null })
   })
@@ -259,7 +261,7 @@ describe('screenTiles', () => {
     expect([...idle.main, ...idle.more].every((tile) => tile.number === null && tile.pill === null)).toBe(true)
   })
 
-  it('qualifies data used and the duration on the Test card: so far, elapsed, not saved', () => {
+  it('qualifies data used and the duration on the Test card: so far, elapsed, not saved, saved as error once kept', () => {
     const before = screenTiles(run({ phase: 'idle' }), SETTINGS, context, 800)
     expect(before.more.map((tile) => [tile.number, tile.lines[0]?.text])).toEqual([
       [null, undefined],
@@ -279,6 +281,9 @@ describe('screenTiles', () => {
       ['1.2', 'not saved'],
       ['9.0', undefined],
     ])
+    // Kept in history by the user, it reads saved as error.
+    const kept = screenTiles(run({ status: 'ended', error: { code: 'server-unreachable', phase: 'upload', partial: true }, dataUsedBytes: 1_200_000, result: resultFixture({ status: 'error' }) }), SETTINGS, context, 9000, true)
+    expect(kept.more[0]?.lines[0]?.text).toBe('saved as error')
   })
 
   it('shows no live number once a run has ended without a result', () => {

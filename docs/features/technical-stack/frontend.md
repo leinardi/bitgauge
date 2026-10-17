@@ -33,6 +33,7 @@ web/
     router/                   Vue Router, HTML5 history under the base path
     i18n/                     vue-i18n setup and locale files, one directory per language
     history/                  idb database, schema migrations, export/import
+    share/                    share content, summary lines, the share image's canvas, actions
     styles/                   Tailwind entry, design tokens from the design export
 ```
 

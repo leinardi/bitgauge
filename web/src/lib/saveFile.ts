@@ -17,13 +17,13 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// A file the browser saves (ui/screens.md sections 1 and 3): made in memory as a blob: URL and
-// handed to a link's download, never sent anywhere.
+// A file the browser saves (ui/screens.md sections 1 and 3, the share image of ui/flows.md section
+// 8): made in memory as a blob: URL and handed to a link's download, never sent anywhere.
 
 const REVOKE_AFTER_MS = 10_000
 
-export function saveFile(filename: string, content: string, type: string): void {
-  const url = URL.createObjectURL(new Blob([content], { type }))
+export function saveFile(filename: string, content: string | Blob, type: string): void {
+  const url = URL.createObjectURL(content instanceof Blob ? content : new Blob([content], { type }))
   const link = document.createElement('a')
   link.href = url
   link.download = filename

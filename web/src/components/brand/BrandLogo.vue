@@ -17,48 +17,53 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-// The BitGauge mark, full geometry (design_system components/brand/Logo.jsx): the track, the
-// download and upload arcs and the dashed latency arc, colored by the series tokens through
-// classes. Decorative: the wordmark or the link around it names it.
+import { LOGO_BOX, LOGO_PATHS, LOGO_STROKE } from '@/components/brand/logo'
+
+// The BitGauge mark, full geometry (design_system components/brand/Logo.jsx, brand/logo.ts): the
+// track, the download and upload arcs and the dashed latency arc, colored by the series tokens
+// through classes. Decorative: the wordmark or the link around it names it.
 defineProps<{ size: number }>()
+
+const VIEW_BOX = `0 0 ${LOGO_BOX} ${LOGO_BOX}`
+const DASH = LOGO_STROKE.latencyDash.join(' ')
 </script>
 
 <template>
   <svg
     :width="size"
     :height="size"
-    viewBox="0 0 64 64"
+    :view-box.camel="VIEW_BOX"
     aria-hidden="true"
     class="block flex-none"
   >
     <path
-      d="M14.32 53.68 A25 25 0 1 1 49.68 53.68"
+      :d="LOGO_PATHS.track"
       fill="none"
       stroke="currentColor"
-      stroke-opacity=".14"
-      stroke-width="5"
+      :stroke-opacity="LOGO_STROKE.trackOpacity"
+      :stroke-width="LOGO_STROKE.width"
       stroke-linecap="round"
     />
     <path
-      d="M14.32 53.68 A25 25 0 1 1 53.65 23.5"
+      :d="LOGO_PATHS.download"
       fill="none"
       class="stroke-series-download"
-      stroke-width="5"
+      :stroke-width="LOGO_STROKE.width"
       stroke-linecap="round"
     />
     <path
-      d="M19.98 48.02 A17 17 0 0 1 32 19"
+      :d="LOGO_PATHS.upload"
       fill="none"
       class="stroke-series-upload"
-      stroke-width="5"
+      :stroke-width="LOGO_STROKE.width"
       stroke-linecap="round"
     />
     <path
-      d="M25.64 42.36 A9 9 0 0 1 27.5 28.21"
+      :d="LOGO_PATHS.latency"
       fill="none"
       class="stroke-series-latency"
-      stroke-width="4"
-      stroke-dasharray="2.6 3"
+      :stroke-width="LOGO_STROKE.latencyWidth"
+      :stroke-dasharray="DASH"
     />
   </svg>
 </template>

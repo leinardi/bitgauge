@@ -19,21 +19,41 @@
 // @vitest-environment jsdom
 
 // The result's actions on the Test screen: Download JSON, named exactly so for the accuracy harness,
-// with its warning as the description and the file made in memory; the result bar's complete
-// variants (saved, being saved, not saved), its partial and error ones, and its Details link; and
-// the failure notice of the Error state.
+// with its warning as the description and the file made in memory; the save bar of a complete
+// result (saved, being saved, not saved), with its label field, suggestions and Share; the status
+// bar of a partial or error one, with Keep in history and its undo toast; the Details link; and the
+// failure notice of the Error state.
 
-import { mount, RouterLinkStub } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Component } from 'vue'
+import { flushPromises, mount, RouterLinkStub } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { type Component, shallowRef } from 'vue'
+import { toast } from 'vue-sonner'
 
 import DownloadJson from '@/components/test/DownloadJson.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
+import SaveBar from '@/components/test/SaveBar.vue'
 import type { PhaseView, RunError } from '@/composables/useRunState'
-import type { PhaseName } from '@/engine/messages'
+import type { PhaseName, Result } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 import { resultFixture } from '@/test/fixtures'
+
+const history = vi.hoisted(() => ({
+  results: { value: [] as Result[] },
+  save: vi.fn<(result: Result) => Promise<boolean>>(),
+  edit: vi.fn(),
+  remove: vi.fn<(ids: readonly string[]) => Promise<Result[]>>(),
+}))
+
+vi.mock('@/composables/useHistory', () => ({ useHistory: () => history }))
+vi.mock('vue-sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }) }))
+
+beforeEach(() => {
+  history.results = shallowRef<Result[]>([])
+  history.save.mockResolvedValue(true)
+  history.edit.mockResolvedValue(undefined)
+  history.remove.mockResolvedValue([])
+})
 
 function mountWith<T extends Component>(component: T, props: Record<string, unknown>) {
   return mount(component, { props, global: { plugins: [createAppI18n('', ['en'])], stubs: { RouterLink: RouterLinkStub } }, attachTo: document.body } as never)
@@ -111,37 +131,111 @@ describe('Download JSON', () => {
   })
 })
 
-describe('the result bar', () => {
-  it('says a complete result is saved to history, with the time the run ended', () => {
+describe('the save bar', () => {
+  const stored = (id: string, label: string, contextLabel = '') => resultFixture({ id: `a1b2c3d4-0000-4000-8000-00000000000${id}`, label, client: { ...resultFixture().client, contextLabel } })
+
+  it('says a complete result is saved to history, with the time the run ended, Share, Download JSON and Details', () => {
     const startedAt = new Date(2026, 9, 8, 14, 2, 11)
-    const wrapper = mountWith(ResultBar, { result: resultFixture({ startedAt: startedAt.toISOString(), durationMs: 28_600 }), save: 'saved' })
+    const wrapper = mountWith(SaveBar, { result: resultFixture({ startedAt: startedAt.toISOString(), durationMs: 28_600 }), save: 'saved', units: 'bits' })
     expect(wrapper.get('[role="status"]').text()).toContain('Saved to history')
     expect(wrapper.get('[data-testid="result-bar-time"]').text()).toBe(new Intl.DateTimeFormat('en', { timeStyle: 'medium' }).format(new Date(startedAt.getTime() + 28_600)))
     expect(wrapper.find('[data-testid="result-bar-body"]').exists()).toBe(false)
-    expect(wrapper.findAll('button').map((button) => button.text())).toEqual(['Download JSON'])
+    // The fixture's context label is the one suggestion.
+    expect(wrapper.findAll('button').map((button) => button.text())).toEqual(['LAN', 'Share', 'Download JSON'])
     expect(wrapper.getComponent(RouterLinkStub).props('to')).toBe(`/result/${resultFixture().id}`)
     expect(wrapper.get('[data-testid="result-details"]').text()).toBe('Details')
+    expect(wrapper.get<HTMLInputElement>('[data-testid="result-label-field"]').element.value).toBe('')
   })
 
-  it('says a complete result is not saved where history is unavailable or the save failed', () => {
-    const saving = mountWith(ResultBar, { result: resultFixture(), save: 'saving' })
+  it('says a complete result is not saved where history is unavailable or the save failed, with no label field', () => {
+    const saving = mountWith(SaveBar, { result: resultFixture(), save: 'saving', units: 'bits' })
     expect(saving.get('[role="status"]').text()).toContain('Test complete')
     expect(saving.find('[data-testid="result-bar-body"]').exists()).toBe(false)
-    const unavailable = mountWith(ResultBar, { result: resultFixture(), save: 'unavailable' })
+    expect(saving.find('[data-testid="result-label-field"]').exists()).toBe(false)
+    const unavailable = mountWith(SaveBar, { result: resultFixture(), save: 'unavailable', units: 'bits' })
     expect(unavailable.get('[role="status"]').text()).toContain('Test complete')
     expect(unavailable.get('[data-testid="result-bar-body"]').text()).toBe('History is unavailable in this browser mode — results are not saved.')
-    const failed = mountWith(ResultBar, { result: resultFixture(), save: 'failed' })
+    expect(unavailable.find('[data-testid="share-open"]').exists()).toBe(true)
+    const failed = mountWith(SaveBar, { result: resultFixture(), save: 'failed', units: 'bits' })
     expect(failed.get('[data-testid="result-bar-body"]').text()).toBe('Not saved to history. Download the JSON to keep it.')
   })
 
-  it.each(['partial', 'error'] as const)('says a %s result is not saved, and offers its JSON', (status) => {
-    const wrapper = mountWith(ResultBar, { result: resultFixture({ status }), save: null })
+  it('suggests the context label and the 5 most recent distinct labels of history', () => {
+    history.results.value = [stored('1', 'Office'), stored('2', 'Home Wi-Fi'), stored('3', 'Office'), stored('4', ''), stored('5', 'Garage'), stored('6', 'VPN'), stored('7', 'Attic'), stored('8', 'Cellar')]
+    const result = stored('9', '', 'Basement')
+    const wrapper = mountWith(SaveBar, { result, save: 'saved', units: 'bits' })
+    expect(wrapper.findAll('[data-testid="label-suggestion"]').map((chip) => chip.text())).toEqual(['Basement', 'Office', 'Home Wi-Fi', 'Garage', 'VPN', 'Attic'])
+  })
+
+  it('saves the label as it is typed, once the typing pauses, and at once for a suggestion', async () => {
+    vi.useFakeTimers()
+    history.results.value = [stored('1', 'Office')]
+    const result = stored('9', '')
+    const wrapper = mountWith(SaveBar, { result, save: 'saved', units: 'bits' })
+    await wrapper.get('[data-testid="result-label-field"]').setValue('Home')
+    expect(history.edit).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(300)
+    expect(history.edit).toHaveBeenCalledWith(result.id, { label: 'Home' })
+    const chip = wrapper.get('[data-testid="label-suggestion"]')
+    await chip.trigger('click')
+    expect(history.edit).toHaveBeenLastCalledWith(result.id, { label: 'Office' })
+    expect(chip.attributes('aria-pressed')).toBe('true')
+    expect(wrapper.get<HTMLInputElement>('[data-testid="result-label-field"]').element.value).toBe('Office')
+  })
+})
+
+describe('the status bar of a partial or error result', () => {
+  const partial = () => resultFixture({ status: 'partial', notices: [{ code: 'stopped-early', direction: 'upload', coveredMs: 3000 }] })
+  /** The bar with its kept model held as the Test screen holds it. */
+  function mountBar(props: Record<string, unknown>) {
+    const wrapper: ReturnType<typeof mountWith> = mountWith(ResultBar, { kept: false, 'onUpdate:kept': (kept: boolean) => wrapper.setProps({ kept }), ...props })
+    return wrapper
+  }
+
+  it.each(['partial', 'error'] as const)('says a %s result is not saved, and offers Keep in history, its JSON and Details', (status) => {
+    const wrapper = mountBar({ result: { ...partial(), status }, save: null })
     expect(wrapper.get('[role="status"]').text()).toBe('Partial results are not saved')
     expect(wrapper.find('[data-testid="result-bar-time"]').exists()).toBe(false)
-    expect(wrapper.text()).toContain('Download the JSON to keep them.')
-    expect(wrapper.get('button').text()).toBe('Download JSON')
-    // Where history is unavailable, the bar says so instead.
-    expect(mountWith(ResultBar, { result: resultFixture({ status }), save: 'unavailable' }).get('[data-testid="result-bar-body"]').text()).toContain('History is unavailable')
+    expect(wrapper.find('[data-testid="result-bar-body"]').exists()).toBe(false)
+    expect(wrapper.findAll('button').map((button) => button.text())).toEqual(['Keep in history', 'Download JSON'])
+    expect(wrapper.get('[data-testid="result-details"]').text()).toBe('Details')
+  })
+
+  it('offers no Keep where history is unavailable or no phase finished, and says why', () => {
+    const unavailable = mountBar({ result: partial(), save: 'unavailable' })
+    expect(unavailable.get('[data-testid="result-bar-body"]').text()).toBe('History is unavailable in this browser mode — results are not saved.')
+    expect(unavailable.find('[data-testid="keep-in-history"]').exists()).toBe(false)
+    const { idle: _idle, ...withoutIdle } = resultFixture()
+    const nothing = mountBar({ result: { ...withoutIdle, status: 'error', download: { ...resultFixture().download!, status: 'error' }, upload: undefined }, save: null })
+    expect(nothing.get('[data-testid="result-bar-body"]').text()).toBe('No phase finished, so there is nothing to keep in history.')
+    expect(nothing.find('[data-testid="keep-in-history"]').exists()).toBe(false)
+  })
+
+  it.each(['partial', 'error'] as const)('keeps a %s result, says so with an undo toast, and Undo removes it again', async (status) => {
+    const result = { ...partial(), status }
+    const wrapper = mountBar({ result, save: null })
+    await wrapper.get('[data-testid="keep-in-history"]').trigger('click')
+    await flushPromises()
+    expect(history.save).toHaveBeenCalledWith(result)
+    expect(wrapper.get('[role="status"]').text()).toBe(`Saved as ${status}`)
+    expect(wrapper.find('[data-testid="keep-in-history"]').exists()).toBe(false)
+    expect(toast).toHaveBeenCalledWith(`Kept in history as ${status}.`, expect.objectContaining({ action: expect.objectContaining({ label: 'Undo' }) }))
+    const options = vi.mocked(toast).mock.lastCall?.[1] as { action: { onClick: () => void } }
+    options.action.onClick()
+    await flushPromises()
+    expect(history.remove).toHaveBeenCalledWith([result.id])
+    expect(toast).toHaveBeenLastCalledWith('Removed from history.')
+    expect(wrapper.get('[role="status"]').text()).toBe('Partial results are not saved')
+    expect(wrapper.find('[data-testid="keep-in-history"]').exists()).toBe(true)
+  })
+
+  it('says when the browser refused to keep the result, and offers Keep again', async () => {
+    history.save.mockResolvedValue(false)
+    const wrapper = mountBar({ result: partial(), save: null })
+    await wrapper.get('[data-testid="keep-in-history"]').trigger('click')
+    await flushPromises()
+    expect(toast.error).toHaveBeenCalledWith('The browser refused to store the result.')
+    expect(wrapper.find('[data-testid="keep-in-history"]').exists()).toBe(true)
   })
 })
 

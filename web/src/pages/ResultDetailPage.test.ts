@@ -20,7 +20,8 @@
 // @vitest-environment jsdom
 
 // The Result detail (ui/screens.md section 2) on an in-memory IndexedDB: a stored result with its
-// tiles, grade, loaded latency, confidence and notices, charts with their tables and parameters;
+// tiles, grade, loaded latency, confidence and notices, charts with their tables, the share panel and
+// parameters;
 // the label and the note saved as they change; Delete with its undo; Run again; not found; and the
 // result of the run just finished, not saved, with editing and Delete disabled and the reason.
 
@@ -73,6 +74,9 @@ async function open(id: string, results: readonly Result[] = RESULTS, memory: Re
   const { default: ResultDetailPage } = await import('@/pages/ResultDetailPage.vue')
   const { mountApp } = await import('@/test/mount')
   const page = await mountApp(ResultDetailPage, `/result/${id}`, { attachTo: document.body })
+  await settle()
+  // A cold module graph can take longer than the settling: wait until the page has left loading.
+  await vi.waitFor(() => expect(page.find('[data-testid="result-loading"]').exists()).toBe(false))
   await settle()
   return page
 }
@@ -139,6 +143,15 @@ describe('a stored result', () => {
     expect(text(page, 'parameter-ip')).toContain('100.101.4.17')
     expect(text(page, 'parameter-warmup')).toMatch(/Auto · ended at 9\.0\ss \(download\) and 9\.0\ss \(upload\)$/)
     expect(text(page, 'parameter-isolated')).toContain('Yes')
+    page.unmount()
+  })
+
+  it('shows the share panel in its rail, between the note and the parameters', async () => {
+    const page = await open(NEWEST.id)
+    const rail = page.get('aside')
+    expect(rail.findAll('[data-testid="note-field"], [data-testid="share-panel"], [data-testid^="parameter-"]').map((element) => element.attributes('data-testid')).slice(0, 2)).toEqual(['note-field', 'share-panel'])
+    expect(text(page, 'share-summary')).toContain('Server: ')
+    expect(text(page, 'share-summary')).not.toContain('100.101.4.17')
     page.unmount()
   })
 })
@@ -227,6 +240,7 @@ describe('the other states', () => {
     expect(page.find('[data-testid="label-input"]').exists()).toBe(false)
     expect(page.get('[data-testid="note-field"]').attributes('readonly')).toBeDefined()
     expect(page.find('[data-testid="download-json"]').exists()).toBe(true)
+    expect(page.find('[data-testid="share-panel"]').exists()).toBe(true)
     page.unmount()
   })
 

@@ -59,6 +59,7 @@
       "inner": "{rate} upload",
       "cancelled": "Cancelled",
       "notSaved": "Partial results · not saved",
+      "kept": "Partial results · saved as partial",
       "lost": "Connection lost",
       "errorDuring": "Error during {phase}",
       "phase": {
@@ -148,6 +149,7 @@
       "dataSoFarDownload": "so far · download {bytes}",
       "elapsed": "elapsed",
       "notSaved": "not saved",
+      "kept": "saved as {kind}",
       "peak": "peak {peak}",
       "insufficient": "Insufficient data — no steady window",
       "insufficientMax": "Insufficient data — no steady window within the {max} max",
@@ -222,8 +224,21 @@
       "notSaved": "Not saved to history. Download the JSON to keep it.",
       "unavailable": "History is unavailable in this browser mode — results are not saved.",
       "unsaved": "Partial results are not saved",
-      "unsavedBody": "Download the JSON to keep them.",
-      "details": "Details"
+      "details": "Details",
+      "labelField": "Result label",
+      "labelPlaceholder": "Add a label, e.g. Home Wi-Fi",
+      "suggestions": "Suggested labels",
+      "keep": "Keep in history",
+      "kept": "Saved as {kind}",
+      "keptToast": "Kept in history as {kind}.",
+      "keepFailed": "The browser refused to store the result.",
+      "removed": "Removed from history.",
+      "undo": "Undo",
+      "nothing": "No phase finished, so there is nothing to keep in history.",
+      "kinds": {
+        "partial": "partial",
+        "error": "error"
+      }
     },
     "failure": {
       "title": "Test failed",

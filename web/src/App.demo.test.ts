@@ -25,7 +25,7 @@
 // the Start button.
 
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { attachWorker } from '@/demo/control'
 import DemoPanel from '@/demo/DemoPanel.vue'
@@ -55,6 +55,11 @@ class StubWorker extends EventTarget {
 
   terminate(): void {}
 }
+
+// The app's module graph, transformed once, so no test pays for the cold import within its timeout.
+beforeAll(async () => {
+  await import('@/App.vue')
+}, 60_000)
 
 beforeEach(() => {
   vi.stubGlobal('Worker', StubWorker)

@@ -28,7 +28,7 @@
 // afresh, since the URL applies once per page load.
 
 import { flushPromises } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getInfo, type Info } from '@/api/info'
 import type { EngineEvent, TestSettings } from '@/engine/messages'
@@ -82,6 +82,11 @@ async function load(search: string, before?: () => Promise<void>) {
   }
   return { page, worker }
 }
+
+// The page's module graph, transformed once, so no test pays for the cold import within its timeout.
+beforeAll(async () => {
+  await import('@/pages/TestPage.vue')
+}, 60_000)
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })

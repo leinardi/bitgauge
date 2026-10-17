@@ -34,6 +34,7 @@ import ParametersCard from '@/components/result/ParametersCard.vue'
 import PhaseCharts from '@/components/result/PhaseCharts.vue'
 import ResultHeader from '@/components/result/ResultHeader.vue'
 import ResultMissing from '@/components/result/ResultMissing.vue'
+import SharePanel from '@/components/share/SharePanel.vue'
 import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeBox from '@/components/test/NoticeBox.vue'
 import { useHistory } from '@/composables/useHistory'
@@ -47,7 +48,7 @@ import { useSettings } from '@/composables/useSettings'
 // still holds in memory, shown as not saved, with editing and Delete disabled and the reason. Any
 // other id is not found, as is a result just deleted, until its undo. The label and the note are
 // saved with the result as they change; Delete removes it with an undo toast; Run again starts its
-// settings on the Test screen.
+// settings on the Test screen. The share panel sits in the rail between the note and the parameters.
 
 const UNDO_MS = 8000
 
@@ -92,9 +93,10 @@ function rename(label: string): void {
   void history.edit(id.value, { label })
 }
 
-function saveNote(note: string): void {
-  if (saved.value !== null && (saved.value.note ?? '') !== note) {
-    void history.edit(id.value, { note })
+function saveNote(target: string, note: string): void {
+  const stored = history.results.value.find((result) => result.id === target)
+  if (stored !== undefined && (stored.note ?? '') !== note) {
+    void history.edit(target, { note })
   }
 }
 
@@ -192,6 +194,10 @@ function runAgain(): void {
             :note="result.note ?? ''"
             :disabled-reason="notSaved"
             @save="saveNote"
+          />
+          <SharePanel
+            :result="result"
+            :units="units"
           />
           <ParametersCard :groups="parameters" />
         </aside>

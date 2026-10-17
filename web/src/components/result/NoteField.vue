@@ -18,11 +18,11 @@
 -->
 <script setup lang="ts">
 import { FileText } from '@lucide/vue'
-import { useEventListener } from '@vueuse/core'
-import { onBeforeUnmount, shallowRef, useId, watch } from 'vue'
+import { shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { Textarea } from '@/components/ui/textarea'
+import { useDebouncedSave } from '@/composables/useDebouncedSave'
 
 // The note (ui/screens.md section 2, kit ResultDetail.jsx): a text area saved with the result in
 // history as it changes, a moment after the last keystroke, and at once when the field loses focus
@@ -37,30 +37,18 @@ const props = defineProps<{
   /** Why the note cannot be saved; null when it can. */
   disabledReason: string | null
 }>()
-const emit = defineEmits<{ save: [note: string] }>()
-
-const SAVE_DELAY_MS = 300
+const emit = defineEmits<{ save: [id: string, note: string] }>()
 
 const { t } = useI18n()
 const fieldId = useId()
 const reasonId = useId()
 const text = shallowRef(props.note)
-let timer: ReturnType<typeof setTimeout> | null = null
-
-function flush(): void {
-  if (timer !== null) {
-    clearTimeout(timer)
-    timer = null
-    emit('save', text.value)
-  }
-}
+// Each save names the result it was typed for, which a new result's arrival does not change.
+const { schedule, flush } = useDebouncedSave<{ id: string; note: string }>(({ id, note }) => emit('save', id, note))
 
 function input(value: string | number): void {
   text.value = String(value)
-  if (timer !== null) {
-    clearTimeout(timer)
-  }
-  timer = setTimeout(flush, SAVE_DELAY_MS)
+  schedule({ id: props.id, note: text.value })
 }
 
 watch(
@@ -70,8 +58,6 @@ watch(
     text.value = props.note
   },
 )
-onBeforeUnmount(flush)
-useEventListener(window, 'pagehide', flush)
 </script>
 
 <template>

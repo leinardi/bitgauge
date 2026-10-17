@@ -1,0 +1,60 @@
+{
+  "share": {
+    "title": "Share result",
+    "open": "Share",
+    "description": "Speeds and latency only. Your IP address and notes are never included.",
+    "close": "Close",
+    "grade": "Bufferbloat grade {grade} · {word} bufferbloat",
+    "overhead": "+{percent} overhead compensation",
+    "image": {
+      "title": "Share image",
+      "size": "1200 × 630 PNG",
+      "preview": "Share image: {summary}",
+      "download": "↓ Download",
+      "upload": "↑ Upload",
+      "idle": "{ms} ms idle",
+      "jitter": "{ms} ms jitter",
+      "loaded": "+{ms} ms loaded ({qualifier})",
+      "bufferbloat": "bufferbloat",
+      "save": "Download image",
+      "saved": "Image downloaded.",
+      "failed": "The browser couldn't make the image.",
+      "share": "Share",
+      "shareHint": "Sends the image to the system share sheet",
+      "shareTitle": "BitGauge result"
+    },
+    "text": {
+      "heading": "Text summary",
+      "copy": "Copy summary",
+      "copyShort": "Copy",
+      "copied": "Summary copied.",
+      "denied": "Clipboard access was denied",
+      "deniedBody": "The text below is selected — press Ctrl+C (⌘C on Mac) to copy it.",
+      "title": "BitGauge",
+      "titleLabel": "BitGauge · {label}",
+      "downloadRate": "Download {rate}",
+      "uploadRate": "Upload {rate}",
+      "qualified": "{value} ({qualifier})",
+      "idle": "Idle latency {ms} ms",
+      "jitter": "Jitter {ms} ms",
+      "loaded": "Loaded latency +{ms} ms ({qualifier})",
+      "download": "download",
+      "upload": "upload",
+      "via": "{direction}, {source}",
+      "server": "Server: {server}"
+    },
+    "include": {
+      "label": "Include label",
+      "note": "Adds “{label}” to the image and the text. IP address and note are never shared.",
+      "none": "No label set"
+    },
+    "qualifiers": {
+      "partial": "partial",
+      "insufficient": "insufficient data",
+      "skipped": "skipped",
+      "error": "error",
+      "lowConfidence": "low confidence",
+      "cpuBound": "CPU-bound"
+    }
+  }
+}
