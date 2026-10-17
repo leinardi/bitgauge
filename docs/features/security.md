@@ -114,6 +114,10 @@ The client IP drives rate limits, `GET /info` and LibreSpeed's `/getIP`.
   `X-Forwarded-For`.
 - With `trusted_proxies` empty (the default), forwarding headers are never trusted.
 - `::ffff:`-mapped IPv4 addresses are normalized to IPv4.
+- The derived client IP also picks the suggested context label of `GET /info`, through the
+  operator's `server.labels` subnets before the address class
+  ([configuration.md §2.1](configuration.md#21-server)). The label is a suggestion the user can
+  change: it grants nothing, changes no limit and is never logged per request.
 
 The LibreSpeed-compatible `/getIP` uses the same rule as every other consumer of the client IP.
 

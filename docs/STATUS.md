@@ -28,6 +28,7 @@ it, and a partly built row reads `Spec'd (vX.Y), in progress: …` with code poi
 | Container image, CI, release, Dependabot, deployment examples | Implemented (v0.1) | `deployments/docker/Dockerfile`; `.github/workflows/`: `ci.yaml` (jobs `credentials` and `image`), `release.yaml`, `scheduled-scan.yaml` (job `image`); `.github/scripts/recover-toolchains.sh`; `.github/dependabot.yml`; `deployments/examples/` (compose, Traefik, Caddy, nginx); tests in `test/image/`, `test/dockerfiles/`, `test/deployments/` |
 | Accuracy harness (CI, floor and ceiling tiers) | Implemented (v0.1): CI tier automated; floor and ceiling manual | `test/harness/` (profiles, topology, shaper, evaluation, report), `web/harness/` (the browser driver), `.mk/harness.mk`; `.github/workflows/harness.yaml`, called by `ci.yaml` (job `harness`); runbook `docs/engineering/accuracy-harness.md` |
 | Prometheus metrics | Spec'd (v0.2) |  |
+| Configurable subnet-to-label mapping | Spec'd (v0.2) |  |
 | Loaded latency (WebSocket echo and HTTP fallback) and bufferbloat grade | Spec'd (v0.2) |  |
 | UI: Result detail, history, compare, export and import | Spec'd (v0.2) |  |
 | UI: Settings and shareable settings URL | Spec'd (v0.2) |  |

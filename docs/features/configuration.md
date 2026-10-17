@@ -27,6 +27,8 @@ server:
                                   # X-Forwarded-Proto and Host.
   trusted_proxies: []             # CIDRs whose forwarding headers are believed, e.g.
                                   # ["172.20.0.2/32"] for the Traefik container
+  labels: []                      # client subnets mapped to the suggested context label, e.g.
+                                  # [{cidr: 10.8.0.0/24, label: VPN}]; longest prefix wins
   cors:
     allowed_origins: []           # extra origins allowed to call /api/v1 (exact origins, no "*")
 
@@ -97,6 +99,7 @@ Only variables containing `__` are read as configuration; other `BITGAUGE_*` var
 | `server.display_name` | `BITGAUGE_SERVER__DISPLAY_NAME` | `BitGauge` | 1–64 printable characters; shown in the UI, `GET /info` and the LibreSpeed server list. |
 | `server.public_url` | `BITGAUGE_SERVER__PUBLIC_URL` | empty | Origin clients use (`https://speed.example.lan`). Used for absolute URLs in the networkQuality config and the LibreSpeed server list ([compatibility.md](compatibility.md)). |
 | `server.trusted_proxies` | `BITGAUGE_SERVER__TRUSTED_PROXIES` | empty | List of CIDRs (single addresses as `/32` or `/128`). Only peers in these ranges may set the client IP through forwarding headers ([security.md §4](security.md#4-client-ip-and-trusted-proxies)). |
+| `server.labels` | `BITGAUGE_SERVER__LABELS` | empty | List of `{cidr, label}` entries mapping client subnets to the suggested context label of `GET /info` ([wire-protocol.md §5](wire-protocol.md#5-get-apiv1info)): the longest prefix containing the client IP wins, and without a match the address-class rule applies. `label` is 1–64 printable characters, as `display_name`. In the environment, comma-separated `cidr=label` items, split at the first `=`: `BITGAUGE_SERVER__LABELS=10.8.0.0/24=VPN,fd7a:115c:a1e0::/48=Tailscale`. A label containing a comma can only be set in the file. |
 | `server.cors.allowed_origins` | `BITGAUGE_SERVER__CORS__ALLOWED_ORIGINS` | empty | List of exact origins allowed to call `/api/v1` cross-origin ([wire-protocol.md §8](wire-protocol.md#8-caching-cors-and-compression)). |
 
 ### 2.2 Limits
@@ -192,6 +195,7 @@ text to stderr. Nothing is ever silently corrected or defaulted.
 | **Unknown keys** in the file, and unknown keys in `BITGAUGE_*` variables that contain `__`, are errors (typo protection). A `BITGAUGE_*` variable **without** `__` is not a config key and is ignored (logged at `debug`): every key is nested, and orchestrators inject such variables, e.g. Kubernetes service links `BITGAUGE_PORT` and `BITGAUGE_SERVICE_HOST` for a Service named `bitgauge`. | `server.lisen`, `BITGAUGE_SERVER__LISTN` |
 | Values must parse as their type (size, duration, integer, boolean, enum). | `limits.max_upload_bytes: 256 megs` |
 | **Invalid CIDR** in `server.trusted_proxies`. | `10.0.0.0/33`, `proxy.lan` |
+| **`server.labels` entries**: each `cidr` is a valid CIDR with no host bits set, not an IPv4-mapped IPv6 prefix (write it as IPv4), and unique in the list; each `label` is 1–64 printable characters; in the environment each item is `cidr=label`, and an item without `=` is a problem, never dropped. Problems name the entry: `server.labels[1].cidr`. | `10.0.0.1/8` (host bits set), `::ffff:10.8.0.0/120`, `10.8.0.0/24` twice, `BITGAUGE_SERVER__LABELS=10.8.0.0/24` (no `=`), a 65-character label |
 | **Port range**: `server.listen` must be `host:port` with port 1–65535. | `:0`, `:70000` |
 | **Base path shape**: starts with `/`, no trailing `/` (except `/` itself), no `.` or `..` segments, no query or fragment, only `A–Z a–z 0–9 - . _ ~ /`. | `speed`, `/speed/`, `/a/../b` |
 | `server.public_url` is an absolute `http` or `https` origin with no path, query or fragment. | `speed.example.lan`, `https://x/speed` |

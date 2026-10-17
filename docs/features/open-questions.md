@@ -14,9 +14,9 @@ carries a recommendation; where the specification already relies on an answer, i
    Recommendation: keep 1 GiB and confirm it against `networkQuality` and `goresponsiveness` on a
    10 Gbit LAN during v0.3. See [compatibility.md §3.1](compatibility.md#31-routes).
 2. Should operators be able to map subnets to context labels (for example a WireGuard range in RFC
-   1918 space labeled `VPN`)? Today the label is suggested from the address class only.
-   Recommendation: **yes, in v0.2**, as an optional list of `{cidr, label}` entries in the server
-   configuration, evaluated before the address-class rule and validated fail-closed. See
+   1918 space labeled `VPN`)? Current answer: **yes, in v0.2, as `server.labels`**, an optional
+   list of `{cidr, label}` entries evaluated before the address-class rule and validated
+   fail-closed; its form and rules are question 47. Recommendation: keep it. See
    [edge-cases.md §16](edge-cases.md#16-ipv6-vs-ipv4-and-the-lanvpn-label) and
    [wire-protocol.md §5](wire-protocol.md#5-get-apiv1info).
 3. Which format should the share image use? Current answer: **PNG** from a `<canvas>`.
@@ -463,6 +463,20 @@ carries a recommendation; where the specification already relies on an answer, i
     sees totals since start. See
     [technical-stack/backend.md §7](technical-stack/backend.md#7-prometheus-metric-set) and
     [wire-protocol.md §10](wire-protocol.md#10-get-metrics).
+
+47. What form and rules does `server.labels` take? Current answer: **a YAML sequence of
+    `{cidr, label}`; in the environment, comma-separated `cidr=label` items
+    (`BITGAUGE_SERVER__LABELS=10.8.0.0/24=VPN,fd7a:115c:a1e0::/48=Tailscale`) split at the first
+    `=`, where an item without `=` is a validation problem and a label holding a comma can only be
+    set in the file; a label is 1–64 printable characters, the `display_name` rule; a CIDR has no
+    host bits set, is not an IPv4-mapped IPv6 prefix and is unique in the list; the longest prefix
+    containing the client IP wins, the IP normalized from IPv4-mapped IPv6 first, and no match
+    falls back to the address-class rule; the startup line of the effective configuration shows
+    the entries as `cidr=label`, and no request's label is ever logged; `suggestedLabel` in the
+    OpenAPI document becomes a string of at most 64 characters or `null`, without its enum.**
+    Recommendation: keep it; a host-bits CIDR or a duplicate is far more often a typo than a
+    choice. See [configuration.md §2.1](configuration.md#21-server) and
+    [§4](configuration.md#4-fail-closed-validation).
 
 Resolved and removed:
 

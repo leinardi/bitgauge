@@ -14,7 +14,9 @@ packages implement [../configuration.md](../configuration.md) and [../security.m
    YAML parser. A missing default path is skipped; a missing explicit path is an error.
 3. **Environment**: the env provider with prefix `BITGAUGE_` and a transform that keeps only
    variables containing `__`, strips the prefix, lowercases the rest and replaces `__` with `.`.
-   Single underscores stay inside key names. Comma-separated values become lists for list keys.
+   Single underscores stay inside key names. Comma-separated values become lists for list keys,
+   and for `server.labels` each item is split at its first `=` into a `{cidr, label}` entry; an
+   item without `=` is a validation problem.
 
 The merged map is decoded into the configuration struct with every unknown key, null and value
 that does not parse collected as an error of its own (unknown keys from the decoder's metadata of
@@ -26,6 +28,7 @@ unused keys), then validated.
 | --- | --- | --- |
 | `BITGAUGE_SERVER__LISTEN=:9090` | `server.listen` | `:9090` |
 | `BITGAUGE_SERVER__TRUSTED_PROXIES=172.30.0.2/32,fd00::2/128` | `server.trusted_proxies` | two CIDRs |
+| `BITGAUGE_SERVER__LABELS=10.8.0.0/24=VPN,fd7a:115c:a1e0::/48=Tailscale` | `server.labels` | two `{cidr, label}` entries |
 | `BITGAUGE_LIMITS__MAX_UPLOAD_BYTES=512MiB` | `limits.max_upload_bytes` | 536 870 912 |
 | `BITGAUGE_TEST_DEFAULTS__STREAMS__MAX=4` | `test_defaults.streams.max` | `4` |
 | `BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED=true` | `compat.networkquality.enabled` | `true` |
@@ -109,7 +112,8 @@ return leftmost parsed entry, or peer if there were no entries
 **Logged** (stdout/stderr, `log.format`):
 
 - At `info`: startup (version, listen address, base path, enabled layers, metrics on/off), the
-  effective configuration (no value in BitGauge's configuration is secret), shutdown.
+  effective configuration (no value in BitGauge's configuration is secret; `server.labels` as
+  `cidr=label` strings), shutdown. The label a request is given is never logged.
 - At `warn`: suspicious configuration, rate-limit table full, panics recovered.
 - At `error`: listener failures, unexpected handler errors.
 - At `debug` only: one line per request with method, route pattern, status, bytes, duration and

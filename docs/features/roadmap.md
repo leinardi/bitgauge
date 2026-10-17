@@ -100,8 +100,9 @@ tiers must additionally show for the features it adds. Progress per feature area
 
 **Backend:**
 
-- Configurable subnet-to-label mapping for the context label, pending open question 2. See
-  [open-questions.md](open-questions.md).
+- Configurable subnet-to-label mapping for the context label (`server.labels`). See
+  [configuration.md §2.1](configuration.md#21-server) and
+  [wire-protocol.md §5](wire-protocol.md#5-get-apiv1info).
 - Prometheus metrics at the configurable root path, off by default. See
   [wire-protocol.md §10](wire-protocol.md#10-get-metrics) and
   [technical-stack/backend.md §7](technical-stack/backend.md#7-prometheus-metric-set).

@@ -318,7 +318,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | # | Decision | Milestone |
 | --- | --- | --- |
 | 1 | Default drain limit for `/nq/upload` (`compat.networkquality.max_upload_bytes`, currently 1 GiB) | v0.3 |
-| 2 | Configurable subnet-to-label mapping for the LAN/VPN context label | v0.2 |
+| 2 | Configurable subnet-to-label mapping for the LAN/VPN context label, as `server.labels` | v0.2 |
 | 3 | Share image format (PNG or SVG) | v0.2 |
 | 4 | Continuous mode runs a single direction | v0.3 |
 | 5 | Unshipped-feature toggles rejected with their milestone; empty duration bounds checked as the preset's value | v0.1 |
@@ -363,6 +363,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 44 | The demo panel reloads the page to apply a scenario; the page reaches the demo only through dynamic imports behind `VITE_DEMO`, the demo Worker's constructor in a demo module, and the build step fails a dist holding a demo sentinel | v0.1 |
 | 45 | The deployment examples show a setting of a later release commented out with that release, and every shipped compose file's BitGauge environment loads and validates with no problem | v0.1 |
 | 46 | Prometheus endpoint details: an aborts counter, the route owner as `group`, `GET` only with plain `405` and `404`, promhttp negotiation without compression, a registry of its own, buckets up to 120 s, instrumentation always on | v0.2 |
+| 47 | `server.labels` as `{cidr, label}` entries, `cidr=label` items in the environment, masked unique CIDRs, the `display_name` label rule, longest prefix first, `suggestedLabel` up to 64 characters or `null` | v0.2 |
 
 ## Related
 

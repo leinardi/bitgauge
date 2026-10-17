@@ -14,7 +14,7 @@ from the design export; this page fixes content and behavior only. Terms follow 
 
 - **Server name** (`server.display_name`), in the persistent header with the page's host and a
   reachability indicator (dot plus text for screen readers: connected or unreachable).
-- **Connection info:** client IP with IP version; suggested context label (`LAN`, `VPN` or none),
+- **Connection info:** client IP with IP version; suggested context label (`LAN`, `VPN`, an operator label or none),
   editable; negotiated HTTP protocol (`HTTP/1.1`, `HTTP/2`, `HTTP/3`, or "not reported", as it is
   before a run has made a request); stream count, live during a run ("—" before one when the
   count is automatic), with the plateau reason afterwards.

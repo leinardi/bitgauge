@@ -288,14 +288,16 @@ result detail;
 even on the LAN, or over IPv4 through the VPN. Proxies report the address they saw.
 
 **Behavior.** The client IP is derived through trusted proxies only; IPv4-mapped IPv6 addresses
-are normalized to IPv4. The suggested label comes from the address class
-([wire-protocol.md §5](wire-protocol.md#5-get-apiv1info)): private, link-local and ULA addresses
-suggest `LAN`, CGNAT and the Tailscale range suggest `VPN`, and a global IPv6 address suggests
-nothing. A configurable subnet-to-label mapping is an open question
-([open-questions.md](open-questions.md)).
+are normalized to IPv4. The suggested label is the label of the longest `server.labels` prefix
+that contains the normalized address, so an operator can name a WireGuard range in RFC 1918 space
+`VPN` or a dual-stack LAN's global IPv6 prefix `LAN`
+([configuration.md §2.1](configuration.md#21-server)). Without a match it comes from the address
+class ([wire-protocol.md §5](wire-protocol.md#5-get-apiv1info)): private, link-local and ULA
+addresses suggest `LAN`, CGNAT and the Tailscale range suggest `VPN`, and a global IPv6 address
+suggests nothing. An operator who wants both families labeled lists a prefix for each.
 
 **User sees.** The client IP with its version, and a label suggestion they can change; no
-suggestion for global addresses.
+suggestion for a global address that no `server.labels` entry covers.
 
 ## 17. Safari and iOS Quirks
 

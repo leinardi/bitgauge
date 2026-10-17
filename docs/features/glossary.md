@@ -183,8 +183,9 @@ per origin, so the same server reached by LAN IP and by VPN hostname keeps two s
 **Trusted proxy.** A reverse proxy whose address is in the configured `trusted_proxies` CIDRs.
 Only a trusted proxy's forwarding headers are used to derive the client IP.
 
-**Context label.** A suggested `LAN` or `VPN` label for a result, derived from the client IP subnet
-reported by `GET /info`. The user can change it; it only groups and filters history.
+**Context label.** A suggested label for a result, derived from the client IP reported by
+`GET /info`: the operator's label when the IP lies in a `server.labels` subnet, else `LAN` or `VPN`
+from the address class, or none. The user can change it; it only groups and filters history.
 
 **Compatibility layer.** An optional set of routes that lets a third-party client (OpenSpeedTest
 web UI, LibreSpeed clients, Apple `networkQuality`) test against BitGauge. Each layer is off by

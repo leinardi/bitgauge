@@ -171,11 +171,13 @@ test when `epoch` differs from the one `GET /info` reported at test start.
   `basePath` lets the SPA build URLs when it is served under a sub-path.
 - **Context label inputs.** `client.addressClass` is one of `loopback`, `private` (RFC 1918),
   `link-local`, `ula` (fc00::/7), `cgnat` (100.64.0.0/10) or `public`. `client.suggestedLabel` is
-  `VPN` for `cgnat` and for the Tailscale ULA range `fd7a:115c:a1e0::/48` (the ranges mesh VPNs such
-  as Tailscale assign), `LAN` for `private`, `link-local`, `ula` and `loopback`, and `null` for
-  `public`. The UI shows the suggestion and the user can change it. A configurable mapping from
-  subnets to labels (for WireGuard setups that use RFC 1918 addresses) is tracked in
-  [open-questions.md](open-questions.md).
+  a string of 1–64 characters or `null`. When the client IP, IPv4-mapped IPv6 normalized to IPv4
+  first, lies in a `server.labels` entry, it is that entry's label, the longest prefix winning
+  ([configuration.md §2.1](configuration.md#21-server)); this is how a WireGuard range in RFC 1918
+  space is labeled `VPN`. Otherwise it follows the address class: `VPN` for `cgnat` and for the
+  Tailscale ULA range `fd7a:115c:a1e0::/48` (the ranges mesh VPNs such as Tailscale assign), `LAN`
+  for `private`, `link-local`, `ula` and `loopback`, and `null` for `public`. The UI shows the
+  suggestion and the user can change it.
 - `defaults` are the test defaults exposed to the client from configuration; the SPA applies them
   unless the user's settings or URL parameters override them. They arrive resolved: an empty
   duration bound is sent as the preset's value and `ping_count: 0` as the preset's idle ping count
