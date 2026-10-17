@@ -290,7 +290,7 @@ Everything the server holds, all of it in memory and gone on restart:
 | Rendered `index.html` and embedded assets | the SPA build | process | Serving the SPA. |
 | Effective configuration | small | process | Read once at startup. |
 | Rate-limit table | ≤ `limits.tracked_clients` entries | sliding, evicted LRU | Per-IP stream, request, WebSocket and flow counters. |
-| Prometheus counters | fixed set, no per-client labels | process | `/metrics`. |
+| Prometheus counters | fixed set of label values, no per-client labels; children created at startup, a route's status counter at its first answer | process | Kept whether or not `metrics.enabled` serves them at `/metrics` ([backend.md §7](technical-stack/backend.md#7-prometheus-metric-set)). |
 | Per-request upload arrival counts | ≤ 1201 integers | one request | Returned in the response, then dropped. |
 | Open connections (HTTP, WebSocket) | bounded by limits | one connection | Echo has no per-connection state beyond the socket. |
 

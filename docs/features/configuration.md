@@ -165,8 +165,8 @@ What is and is never logged is specified in
 
 | Key | Env var | Default | Values / description |
 | --- | --- | --- | --- |
-| `metrics.enabled` | `BITGAUGE_METRICS__ENABLED` | `false` | Serve Prometheus metrics. Unauthenticated; restrict at the proxy. |
-| `metrics.path` | `BITGAUGE_METRICS__PATH` | `/metrics` | Absolute path relative to `base_path`; must not collide with any route ([compatibility.md §5](compatibility.md#5-route-table)). |
+| `metrics.enabled` | `BITGAUGE_METRICS__ENABLED` | `false` | Serve the Prometheus metrics at `metrics.path` (`GET` only). The counters are kept either way; only the endpoint is gated. Unauthenticated and not rate-limited; restrict at the proxy. |
+| `metrics.path` | `BITGAUGE_METRICS__PATH` | `/metrics` | Absolute path relative to `base_path`; must not collide with any route ([compatibility.md §5](compatibility.md#5-route-table)). The metric set is in [technical-stack/backend.md §7](technical-stack/backend.md#7-prometheus-metric-set). |
 
 ## 3. Precedence
 
@@ -201,7 +201,7 @@ text to stderr. Nothing is ever silently corrected or defaulted.
 | `test_defaults.phases` rules (non-empty, no duplicates, `idle` first). | `[download, idle]` |
 | Duration pairs: `min_duration ≤ max_duration`, an empty bound counting as the preset's value ([measurement.md §8.5](measurement.md#85-presets)). | `min 30s`, `max 20s`; `upload.min_duration: 30s` with Standard's 25 s maximum |
 | **Conflicting toggles**: the OpenSpeedTest layer needs `max_download_bytes ≥ 30 MiB` and `max_upload_bytes ≥ 35 MiB`; the LibreSpeed layer needs `max_download_bytes ≥ 1 MiB` (one `ckSize` chunk); the networkQuality layer needs either an `https` `server.public_url` or, with `public_url` empty, at least one `trusted_proxies` entry, since it cannot build its `https` URLs otherwise. These rules apply from v0.3, when the layers ship; until then the toggles themselves are rejected (next row). | `compat.openspeedtest.enabled: true` with `max_download_bytes: 16MiB`; `compat.networkquality.enabled: true` with `public_url: http://speed.lan` |
-| **Features not in this release**: a toggle for a feature this release does not include is rejected, naming the milestone that brings it, so that nothing is silently ignored: `metrics.enabled` before v0.2; `compat.openspeedtest.enabled`, `compat.librespeed.enabled`, `compat.networkquality.enabled` and `test_defaults.preset: continuous` before v0.3 ([roadmap.md](roadmap.md)). Their other keys are still parsed and validated. | `metrics.enabled: true` in v0.1 |
+| **Features not in this release**: a toggle for a feature this release does not include is rejected, naming the milestone that brings it, so that nothing is silently ignored: `compat.openspeedtest.enabled`, `compat.librespeed.enabled`, `compat.networkquality.enabled` and `test_defaults.preset: continuous` before v0.3 ([roadmap.md](roadmap.md)). Their other keys are still parsed and validated. | `compat.librespeed.enabled: true` in v0.2 |
 | `metrics.path` must not collide with any route of the route table. | `/api/v1/info`, `/upload` |
 
 Warnings (logged, not fatal) cover settings that are valid but probably unintended, for example

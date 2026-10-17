@@ -19,8 +19,8 @@ lowercase wording.
   under the configured `server.base_path` (default `/`). With `base_path: /speed`, the info
   endpoint is `/speed/api/v1/info` and the metrics endpoint is `/speed/metrics`. Paths below are
   written for the default base path.
-- **Prefix.** The native API lives under `/api/v1`. The metrics endpoint is at the root
-  (`/metrics`, path configurable), following Prometheus convention.
+- **Prefix.** The native API lives under `/api/v1`. The metrics endpoint sits outside it, at
+  `/metrics` under the base path (path configurable), following Prometheus convention.
 - **Statelessness.** No endpoint stores anything that outlives the request, except the in-memory
   counters listed in [architecture.md](architecture.md). No endpoint accepts a result.
 - **Client IP.** Wherever a client IP is used (rate limits, `GET /info`), it is the TCP peer
@@ -37,10 +37,10 @@ lowercase wording.
 | `GET` | `/api/v1/small` | — | — | 1 byte, `application/octet-stream` | `Content-Length: 1`, `Cache-Control: no-store` | 200 | — |
 | `GET` (upgrade) | `/api/v1/ws` | — | WebSocket handshake | WebSocket, JSON text frames (§6) | — | 101, 400, 403, 429 | 4 WebSocket connections per client IP |
 | `GET` | `/api/v1/info` | — | — | info JSON (§5) | `Cache-Control: no-store` | 200 | — |
-| `GET` | `/metrics` | — | — | Prometheus text exposition | `Cache-Control: no-store` | 200; 404 when disabled | path from `metrics.path`; off by default |
+| `GET` | `/metrics` | — | — | Prometheus text exposition, or OpenMetrics when `Accept` asks for it | `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`, no `Content-Encoding` | 200, 405, 500; 404 when disabled | path from `metrics.path`; off by default |
 
-Any other method on these paths answers `405` with an `Allow` header. Unknown paths under
-`/api/v1` answer `404` with the error envelope (§7).
+Any other method on these paths answers `405` with an `Allow` header (a plain `405` on
+`/metrics`). Unknown paths under `/api/v1` answer `404` with the error envelope (§7).
 
 ## 3. Throughput Endpoints
 
@@ -59,7 +59,7 @@ Any other method on these paths answers `405` with an `Allow` header. Unknown pa
   `bytes_out_of_range`, with the limit in `details`, for any integer outside 1 to the limit. The
   query is percent-decoded as usual, so `bytes=%35` asks for 5 bytes.
 - When the client aborts, the server stops writing; nothing is recorded beyond the Prometheus
-  counters.
+  counters (`bitgauge_http_aborts_total`, §10).
 
 ### 3.2 `POST /api/v1/upload`
 
@@ -77,7 +77,8 @@ Any other method on these paths answers `405` with an `Allow` header. Unknown pa
 - On success the server MUST answer `200` with the telemetry JSON of §4 and the header
   `Server-Timing: bg-recv;dur=<durationMs>`.
 - If fewer than `Content-Length` bytes arrive before the connection closes, no response is
-  possible; nothing is recorded beyond the Prometheus counters.
+  possible; nothing is recorded beyond the Prometheus counters (`bitgauge_http_aborts_total`,
+  §10).
 
 ### 3.3 Latency and Probe Endpoints
 
@@ -261,7 +262,8 @@ never echo request bodies or headers.
   requests, which the engine reads for the HTTP latency fallback, path B and the protocol
   ([measurement.md §12](measurement.md#12-http-loaded-responsiveness)). Compatibility layers send
   their own CORS headers ([compatibility.md](compatibility.md)).
-- **Compression.** The server MUST NOT compress any `/api/v1` response. Throughput bodies are random
+- **Compression.** The server MUST NOT compress any `/api/v1` response, nor `/metrics`, whatever
+  the request's `Accept-Encoding`. Throughput bodies are random
   and incompressible, and compression would add CPU cost and latency. SPA assets MAY be served
   precompressed (Brotli or gzip variants embedded at build time) when the request's
   `Accept-Encoding` allows. Proxies SHOULD exclude the API and compatibility routes from
@@ -293,11 +295,20 @@ Limits are per client IP (§1) and held in a bounded in-memory table
 
 ## 10. `GET /metrics`
 
-- Off by default (`metrics.enabled: false`); when off the path answers `404`.
-- Exposes server-side counters only: requests and bytes per route group, active streams, rate-limit
-  rejections, upload lifetime timeouts, WebSocket connections, Go runtime and process metrics. No
-  per-client label, no client IP, and no measured result ever appears, because results never reach
-  the server ([technical-stack/backend.md](technical-stack/backend.md)).
+- Off by default (`metrics.enabled: false`); when off the path is not mounted and answers a plain
+  `404`, without the error envelope. The counters are kept either way; only the endpoint is
+  gated.
+- `GET` only, mounted under `server.base_path`; any other method answers a plain `405` with
+  `Allow: GET`. The endpoint is not rate-limited (§9).
+- The format is negotiated from `Accept`: the Prometheus text exposition by default, OpenMetrics
+  when the scraper asks for it. The response is never compressed and carries
+  `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
+- Exposes server-side counters only: requests and bytes per route group, active streams, client
+  aborts, rate-limit rejections, upload lifetime timeouts, WebSocket connections, build
+  information, Go runtime and process metrics. No per-client label, no client IP, and no measured
+  result ever appears, because results never reach the server. The metric set, its labels and its
+  buckets are in [technical-stack/backend.md
+  §7](technical-stack/backend.md#7-prometheus-metric-set).
 - Anyone who can reach the port can read it; deployments that enable it should restrict it at the
   proxy ([security.md](security.md)).
 
@@ -309,7 +320,8 @@ The contract is maintained as OpenAPI 3.1 in `api/openapi.yaml` (planned) and dr
 - **Paths:** `/api/v1/download`, `/api/v1/upload`, `/api/v1/ping`, `/api/v1/small`,
   `/api/v1/info`, `/api/v1/ws` (documented as a `GET` with a `101` response and the message schemas
   referenced in its description, because OpenAPI does not model WebSocket messages), and
-  `/metrics` (tagged `operations`, `text/plain` response).
+  `/metrics` (tagged `operations`; a `text/plain` or `application/openmetrics-text` response,
+  `405` with `Allow: GET` and `500`).
 - **Components / schemas:** `UploadTelemetry` (§4), `Info`, `InfoServer`, `InfoClient`,
   `InfoLimits`, `TestDefaults`, `CompatFlags` (§5), `WsPing`, `WsPong` (§6), `Error`, `ErrorBody`
   (§7).

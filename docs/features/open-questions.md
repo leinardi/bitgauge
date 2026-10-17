@@ -29,11 +29,11 @@ carries a recommendation; where the specification already relies on an answer, i
    two sessions. See [measurement.md §15](measurement.md#15-continuous-mode).
 5. How does a release validate the configuration keys of features it does not ship yet, and an
    empty duration bound? Current answer: **a toggle for an unshipped feature is rejected, naming
-   its milestone** (`metrics.enabled` before v0.2; the three `compat.*.enabled` toggles and
-   `test_defaults.preset: continuous` before v0.3), while their other keys are parsed and
-   validated; the compatibility conflict rules apply from v0.3; and a duration pair is checked with
-   an empty bound counting as the preset's value. Recommendation: keep it, since accepting a
-   toggle that does nothing would be a silent default. See
+   its milestone** (the three `compat.*.enabled` toggles and `test_defaults.preset: continuous`
+   before v0.3), while their other keys are parsed and validated; the compatibility conflict rules
+   apply from v0.3; and a duration pair is checked with an empty bound counting as the preset's
+   value. Recommendation: keep it, since accepting a toggle that does nothing would be a silent
+   default. See
    [configuration.md §4](configuration.md#4-fail-closed-validation).
 6. Which `429` code do the WebSocket and networkQuality flow limits answer with? Current answer:
    **`too_many_streams`**, since both are concurrency limits like the throughput-stream limit;
@@ -445,6 +445,24 @@ carries a recommendation; where the specification already relies on an answer, i
     configuration package itself.** At v0.3 the line is uncommented in the page and the examples
     together. Recommendation: keep it. See
     [deployment-example.md §2](deployment-example.md#2-compose-with-traefik).
+46. How does the Prometheus endpoint behave, and what does it count? Current answer: **a counter
+    `bitgauge_http_aborts_total{group,direction}` records the transfers a client abandoned before
+    the body ended, the only record of them; `group` is the owner of the matched route
+    (`spa`, `api`, `openspeedtest`, `librespeed`, `nq`, `metrics`), an unmatched request taking the
+    security-header classifier's group and the route `unmatched`; `code` is one of the statuses
+    BitGauge answers or `other`, a route's counter for a status created at its first answer and
+    every other child at startup; the endpoint answers `GET` only,
+    a plain `405` with `Allow: GET` otherwise and a plain `404` when disabled; promhttp negotiates
+    the format, OpenMetrics included, with compression disabled, `Cache-Control: no-store` and
+    `X-Content-Type-Options: nosniff`; it is not rate-limited and is mounted under `base_path`;
+    durations use the buckets 0.005 to 120 s; the metrics live in a registry of their own with the
+    Go and process collectors; `bitgauge_build_info` carries the build's version and commit and
+    `runtime.Version()`; a gathering error answers `500` and is logged at `warn`; and the
+    instrumentation always runs, only the endpoint being gated by `metrics.enabled`.**
+    Recommendation: keep it; the counters cost the same served or not, and a scraper enabled later
+    sees totals since start. See
+    [technical-stack/backend.md §7](technical-stack/backend.md#7-prometheus-metric-set) and
+    [wire-protocol.md §10](wire-protocol.md#10-get-metrics).
 
 Resolved and removed:
 

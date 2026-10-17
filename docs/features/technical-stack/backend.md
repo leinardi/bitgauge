@@ -59,7 +59,8 @@ but never the reverse, and nothing imports `cmd/`.
   deadline of 30 s from now through `http.ResponseController`; a client that stops reading for 30 s
   is disconnected. Each write is at most 64 KiB, so the deadline catches a stall and never a slow
   link: 64 KiB take about 5 s at 100 kbit/s.
-- Client aborts end the handler on the next failed write; only Prometheus counters record it.
+- Client aborts end the handler on the next failed write; only the Prometheus counters record it
+  (`bitgauge_http_aborts_total`, §7).
 
 ### 2.2 Upload (and Every Route That Drains a Body)
 
@@ -90,6 +91,9 @@ but never the reverse, and nothing imports `cmd/`.
   dropped with the request.
 - **Rate-limited** requests are answered `429` before reading, with `Connection: close` on
   HTTP/1.1 so the body need not be drained.
+- **Client aborts.** A body that ends before its `Content-Length`, or a connection that fails
+  mid-read, ends the handler with no response possible; only the Prometheus counters record it
+  (`bitgauge_http_aborts_total`, §7). A body cut at the lifetime is a timeout, not an abort.
 
 ### 2.3 Other Handlers
 
@@ -171,23 +175,68 @@ image and is used by the image's `HEALTHCHECK` and by compose files ([deployment
 
 ## 7. Prometheus Metric Set
 
-Exposed only when `metrics.enabled` is true. No metric carries a client IP or any per-client label,
-and no measured result exists on the server to export.
+The metrics are collected whether or not they are served: the instrumentation always runs, and only
+the endpoint is gated by `metrics.enabled` (off by default). No metric carries a client IP or any
+per-client label, and no measured result exists on the server to export.
 
 | Metric | Type | Labels | Meaning |
 | --- | --- | --- | --- |
-| `bitgauge_http_requests_total` | counter | `group`, `route`, `code` | Requests by route group (`spa`, `api`, `openspeedtest`, `librespeed`, `nq`, `metrics`), route pattern and status. |
+| `bitgauge_http_requests_total` | counter | `group`, `route`, `code` | Requests by route group, route pattern and status. |
 | `bitgauge_http_request_duration_seconds` | histogram | `group`, `route` | Request durations (throughput routes included, so long buckets). |
 | `bitgauge_transfer_bytes_total` | counter | `group`, `direction` | Bytes sent (`download`) and drained (`upload`). |
 | `bitgauge_active_transfers` | gauge | `group`, `direction` | Transfers in progress. |
+| `bitgauge_http_aborts_total` | counter | `group`, `direction` | Transfers the client abandoned before the body ended: a download whose write failed, an upload whose body ended early or whose connection failed mid-read. |
 | `bitgauge_rate_limited_total` | counter | `limit` | Rejections by limit (`streams`, `rate`, `websocket`, `nq_flows`, `table_full`). |
 | `bitgauge_upload_timeouts_total` | counter | `group` | Upload bodies cut at the 120 s lifetime. |
 | `bitgauge_websocket_connections` | gauge | — | Open latency WebSockets. |
 | `bitgauge_websocket_messages_total` | counter | — | Echoed ping messages. |
 | `bitgauge_ratelimit_tracked_clients` | gauge | — | Entries in the rate-limit table. |
-| `bitgauge_build_info` | gauge (1) | `version`, `commit`, `goversion` | Build information. |
+| `bitgauge_build_info` | gauge (1) | `version`, `commit`, `goversion` | Build information: `version` and `commit` from the build info, `goversion` from `runtime.Version()`. |
 
 Plus the standard Go runtime (`go_*`) and process (`process_*`) collectors.
+
+**Labels.**
+
+- `group` is the owner of the route that matched, from the route table
+  ([compatibility.md §5](../compatibility.md#5-route-table)): `spa` for the SPA's routes, `api` for
+  the native API, `openspeedtest`, `librespeed` and `nq` for the compatibility layers, and
+  `metrics` for the endpoint itself. A request no route matched takes the group of the
+  security-header classifier ([configuration-security.md
+  §3](configuration-security.md#3-security-headers-middleware)): `api` under `/api/v1`, `spa`
+  elsewhere.
+- `route` is the matched route pattern as the route table writes it, without `base_path`
+  (`/api/v1/download`, `/assets/*`); a request no route matched counts as `unmatched`, so a
+  scanner's paths never become label values.
+- `code` is the response status as three digits when it is one BitGauge answers: `101`, `200`,
+  `204`, `206`, `304`, `400`, `403`, `404`, `405`, `408`, `411`, `413`, `416`, `429` or `500`. Any
+  other status counts as `other`.
+- Every label value therefore comes from a fixed set, and a request never formats or looks up a
+  label value. The children of every metric except `bitgauge_http_requests_total` are created at
+  startup, the duration histogram's one per route. A route's request counter for a status is
+  created the first time the route answers that status and kept in the route's table from then
+  on, so the series stay bounded by the routes times the statuses above, and a status a route
+  never answers adds no zero-valued series.
+
+**Request durations** use the buckets 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30,
+60 and 120 s, so the throughput requests of a slow link, which last up to the 120 s upload
+lifetime, still fall in a bucket.
+
+**Registry and endpoint.**
+
+- The metrics live in a registry of their own (`prometheus.NewRegistry()`, never the global
+  default), which also holds the Go runtime and process collectors.
+- The endpoint is mounted at `metrics.path` under `base_path` and answers `GET` only; any other
+  method answers a plain `405` with `Allow: GET`. With `metrics.enabled: false` the path is not
+  mounted and answers the plain `404` of any unknown path outside `/api/v1`, with no error
+  envelope.
+- The response format is negotiated by promhttp from the `Accept` header, OpenMetrics included;
+  without a preference it is the Prometheus text format. Compression is disabled
+  (`DisableCompression`), as on every `/api/v1` response
+  ([wire-protocol.md §8](../wire-protocol.md#8-caching-cors-and-compression)), and the response
+  carries `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
+- The endpoint is not rate-limited and not counted by any limit.
+- A failure to gather the metrics answers `500` (`HTTPErrorOnError`) and is logged at `warn`
+  through a `slog` adapter, naming the error and nothing about the scraper.
 
 ## Related
 

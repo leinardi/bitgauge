@@ -38,6 +38,14 @@ Table-driven `net/http/httptest` tests per package, run with `go test -race ./..
   `ckSize` clamping, the networkQuality config JSON and URL construction, route-collision checks.
 - **server:** middleware order, security headers per group, graceful shutdown closing WebSockets
   with 1001, `healthcheck` exit codes.
+- **metrics:** every metric name, type and label set of [backend.md
+  §7](backend.md#7-prometheus-metric-set) against a gathered registry; every rate-limit refusal
+  mapped to its `limit`; transfer bytes, aborts and upload timeouts counted by the handlers that
+  cause them, with the download and probe allocation tests unchanged; the endpoint `404` when
+  disabled and `200` when enabled, a plain `405` with `Allow: GET` for another method,
+  `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`, no `Content-Encoding` when the
+  scraper sends `Accept-Encoding: gzip`, never rate-limited, mounted under `base_path`, and the
+  `group` label of each route owner.
 
 ## 2. Engine Tests With Synthetic Timelines
 

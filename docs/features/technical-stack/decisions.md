@@ -362,6 +362,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 43 | The demo build runs the engine through its own Worker entry against a seeded simulated link, one scenario per v0.1 kit state; its Worker-side files follow the engine's import policy plus `@/demo/` | v0.1 |
 | 44 | The demo panel reloads the page to apply a scenario; the page reaches the demo only through dynamic imports behind `VITE_DEMO`, the demo Worker's constructor in a demo module, and the build step fails a dist holding a demo sentinel | v0.1 |
 | 45 | The deployment examples show a setting of a later release commented out with that release, and every shipped compose file's BitGauge environment loads and validates with no problem | v0.1 |
+| 46 | Prometheus endpoint details: an aborts counter, the route owner as `group`, `GET` only with plain `405` and `404`, promhttp negotiation without compression, a registry of its own, buckets up to 120 s, instrumentation always on | v0.2 |
 
 ## Related
 

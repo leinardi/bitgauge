@@ -131,7 +131,7 @@ export interface paths {
         };
         /**
          * Prometheus metrics
-         * @description Served at metrics.path under the base path when metrics.enabled is true; otherwise the path answers 404. Server-side counters only, with no per-client label.
+         * @description Served at metrics.path under the base path when metrics.enabled is true; otherwise the path is not mounted and answers a plain 404. Server-side counters only, with no per-client label. Not rate-limited, never compressed. Any method other than GET answers a plain 405 with Allow: GET.
          */
         get: operations["metrics"];
         put?: never;
@@ -571,7 +571,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The Prometheus text exposition. */
+            /** @description The Prometheus text exposition, or OpenMetrics when the Accept header asks for it. */
             200: {
                 headers: {
                     "Cache-Control": components["headers"]["CacheControlNoStore"];
@@ -579,14 +579,33 @@ export interface operations {
                 };
                 content: {
                     "text/plain": string;
+                    "application/openmetrics-text": string;
                 };
             };
-            /** @description Metrics are disabled. */
+            /** @description Metrics are disabled; a plain 404 without the error envelope. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description A method other than GET, answered as a plain 405 without the error envelope. */
+            405: {
+                headers: {
+                    /** @description GET, the one method the path serves. */
+                    Allow?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The metrics could not be gathered; a plain text error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
             };
         };
     };

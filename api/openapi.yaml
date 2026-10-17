@@ -249,10 +249,13 @@ paths:
       summary: Prometheus metrics
       description: >-
         Served at metrics.path under the base path when metrics.enabled is true; otherwise the
-        path answers 404. Server-side counters only, with no per-client label.
+        path is not mounted and answers a plain 404. Server-side counters only, with no
+        per-client label. Not rate-limited, never compressed. Any method other than GET
+        answers a plain 405 with Allow: GET.
       responses:
         "200":
-          description: The Prometheus text exposition.
+          description: >-
+            The Prometheus text exposition, or OpenMetrics when the Accept header asks for it.
           headers:
             Cache-Control:
               $ref: "#/components/headers/CacheControlNoStore"
@@ -260,8 +263,25 @@ paths:
             text/plain:
               schema:
                 type: string
+            application/openmetrics-text:
+              schema:
+                type: string
         "404":
-          description: Metrics are disabled.
+          description: Metrics are disabled; a plain 404 without the error envelope.
+        "405":
+          description: >-
+            A method other than GET, answered as a plain 405 without the error envelope.
+          headers:
+            Allow:
+              description: GET, the one method the path serves.
+              schema:
+                type: string
+        "500":
+          description: The metrics could not be gathered; a plain text error.
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
   headers:
     ServerTiming:
