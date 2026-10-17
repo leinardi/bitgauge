@@ -36,6 +36,7 @@ import (
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
 	"github.com/leinardi/bitgauge/internal/logger"
+	"github.com/leinardi/bitgauge/internal/metrics"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
 	"github.com/leinardi/bitgauge/internal/server"
 	"github.com/leinardi/bitgauge/web"
@@ -168,8 +169,8 @@ func usage(out io.Writer) {
 }
 
 // serve starts the server in the order of backend.md section 5: the configuration is valid by
-// now, route collisions included; then the random buffer, the epoch and the grid, index.html,
-// the router, and the listener.
+// now, route collisions included; then the random buffer, the epoch and the grid, the limiter
+// and the metrics, index.html, the router, and the listener.
 func serve(
 	ctx context.Context,
 	loaded *config.Loaded,
@@ -207,8 +208,11 @@ func serve(
 		TrackedClients:    cfg.Limits.TrackedClients,
 		MaxFlows:          cfg.Compat.NetworkQuality.MaxFlowsPerClient,
 	}, clock)
+	// The metrics are collected whether or not metrics.enabled serves them (backend.md
+	// section 7).
+	meter := metrics.New(buildinfo.Info(), limiter.Len, server.MountedRoutes(cfg))
 	sockets := handlers.NewWebSockets(limiter, clock, cfg.Server.CORS.AllowedOrigins,
-		handlers.WebSocketIdle, log)
+		handlers.WebSocketIdle, log, meter)
 
 	spa, err := render(cfg.Server.BasePath)
 	if err != nil {
@@ -226,8 +230,10 @@ func serve(
 			WebSockets: sockets,
 			Build:      buildinfo.Info(),
 			Epoch:      epoch,
+			Metrics:    meter,
 		},
 		Limiter: limiter,
+		Metrics: meter.Handler(log),
 		Log:     log,
 	})
 	if len(problems) > 0 {
@@ -240,6 +246,7 @@ func serve(
 		Handler: router,
 		Deriver: clientip.NewDeriver(cfg.Server.TrustedProxies),
 		Clock:   clock,
+		Metrics: meter,
 	})
 
 	listener, err := (&net.ListenConfig{}).Listen(ctx, "tcp", cfg.Server.Listen.String())

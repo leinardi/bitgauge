@@ -160,7 +160,7 @@ func TestRunCutsRequestsAfterTheGrace(t *testing.T) {
 			Server:   unstarted.Config,
 			Listener: unstarted.Listener,
 			WebSockets: handlers.NewWebSockets(limiter, ratelimit.RealClock{}, nil,
-				handlers.WebSocketIdle, slog.New(slog.DiscardHandler)),
+				handlers.WebSocketIdle, slog.New(slog.DiscardHandler), nil),
 			Timers: clock,
 			Log:    slog.New(slog.DiscardHandler),
 		})

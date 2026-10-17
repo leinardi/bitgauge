@@ -135,7 +135,7 @@ func testChain(
 		clock = &fakeClock{now: time.Date(2026, 10, 12, 8, 0, 0, 0, time.UTC)}
 	}
 
-	return Chain(router, clientip.NewDeriver(nil), NewClassifier(&cfg), clock, log), logs
+	return Chain(router, clientip.NewDeriver(nil), NewClassifier(&cfg), clock, log, nil), logs
 }
 
 func get(t *testing.T, handler http.Handler, target string) *httptest.ResponseRecorder {
@@ -162,7 +162,7 @@ func probedChain(
 	cfg := config.Defaults()
 	clock := &fakeClock{now: time.Date(2026, 10, 12, 8, 0, 0, 0, time.UTC)}
 	chain := stages(nil, clientip.NewDeriver(nil), NewClassifier(&cfg), clock,
-		slog.New(slog.DiscardHandler))
+		slog.New(slog.DiscardHandler), nil)
 	entered = &[]string{}
 
 	for index := range chain {
@@ -193,21 +193,21 @@ func TestChainOrder(t *testing.T) {
 	handler, entered := probedChain(t, router, "")
 	get(t, handler, "/api/v1/probe")
 
-	if got := strings.Join(*entered, ","); got != "recovery,client-ip,headers,log" {
-		t.Fatalf("stages entered in the order %s, want recovery, client-ip, headers, log", got)
+	if got := strings.Join(*entered, ","); got != "recovery,client-ip,headers,observe" {
+		t.Fatalf("stages entered in the order %s, want recovery, client-ip, headers, observe", got)
 	}
 
 	// Chain is exactly these stages in this order around the router.
 	cfg := config.Defaults()
 	chain := stages(nil, clientip.NewDeriver(nil), NewClassifier(&cfg),
-		&fakeClock{}, slog.New(slog.DiscardHandler))
+		&fakeClock{}, slog.New(slog.DiscardHandler), nil)
 	names := make([]string, 0, len(chain))
 
 	for _, stage := range chain {
 		names = append(names, stage.name)
 	}
 
-	if strings.Join(names, ",") != "recovery,client-ip,headers,log" {
+	if strings.Join(names, ",") != "recovery,client-ip,headers,observe" {
 		t.Fatalf("stages = %v", names)
 	}
 }
@@ -220,7 +220,7 @@ func TestPanicInsideEveryStageIsRecovered(t *testing.T) {
 
 	// Recovery is outermost: a panic in any later stage, before or after the client IP is
 	// derived and the headers are set, still answers the 500 envelope.
-	for _, stage := range []string{"client-ip", "headers", "log"} {
+	for _, stage := range []string{"client-ip", "headers", "observe"} {
 		handler, _ := probedChain(t, router, stage)
 		recorder := get(t, handler, "/api/v1/probe")
 

@@ -31,6 +31,7 @@ import (
 
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
+	"github.com/leinardi/bitgauge/internal/metrics"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
 	"github.com/leinardi/bitgauge/web"
 )
@@ -51,6 +52,16 @@ const (
 	ownerLibreSpeed    = "LibreSpeed"
 	ownerNQ            = "networkQuality"
 )
+
+// groupOf is the metrics' group label of each owner of the route table (backend.md section 7).
+var groupOf = map[string]metrics.Group{
+	ownerSPA:           metrics.GroupSPA,
+	ownerNative:        metrics.GroupAPI,
+	ownerOperations:    metrics.GroupMetrics,
+	ownerOpenSpeedTest: metrics.GroupOpenSpeedTest,
+	ownerLibreSpeed:    metrics.GroupLibreSpeed,
+	ownerNQ:            metrics.GroupNQ,
+}
 
 // spaRoutes are the SPA's fixed routes, its hashed assets and its root assets (architecture.md
 // section 3), all GET, as package web registers them.
@@ -189,6 +200,32 @@ func matches(pattern, path string) bool {
 	return true
 }
 
+// MountedRoutes are the routes NewRouter mounts for cfg, without base_path, each with the
+// metrics' group of its owner: the SPA's, the native API's, and metrics.path when
+// metrics.enabled is set. The compatibility layers join with the release that mounts them.
+func MountedRoutes(cfg *config.Config) []metrics.Route {
+	table := RouteTable()
+	routes := make([]metrics.Route, 0, len(table)+1)
+
+	for _, route := range table {
+		if route.Owner == ownerSPA || route.Owner == ownerNative {
+			routes = append(
+				routes,
+				metrics.Route{Pattern: route.Pattern, Group: groupOf[route.Owner]},
+			)
+		}
+	}
+
+	if cfg.Metrics.Enabled {
+		routes = append(routes, metrics.Route{
+			Pattern: cfg.Metrics.Path,
+			Group:   groupOf[ownerOperations],
+		})
+	}
+
+	return routes
+}
+
 // Groups are the route groups the router mounts (backend.md section 4).
 type Groups struct {
 	// SPA registers the SPA's routes (web.SPA.Routes); without it they answer 404.
@@ -197,13 +234,18 @@ type Groups struct {
 	Native *handlers.Deps
 	// Limiter limits the native throughput routes.
 	Limiter *ratelimit.Limiter
+	// Metrics serves the metrics endpoint (metrics.Metrics.Handler), mounted when
+	// metrics.enabled is set; without it the path answers 404. Native.Metrics, not this,
+	// counts the limiter's refusals.
+	Metrics http.Handler
 	Log     *slog.Logger
 }
 
-// NewRouter mounts the route groups under base_path: the SPA's fixed routes, then the native
-// API at /api/v1 behind its CORS step, with the limiter on download and upload only. The
-// compatibility layers and /metrics join with the releases that ship them. Unknown paths under
-// /api/v1 get the error envelope; any other unknown path a plain 404.
+// NewRouter mounts the route groups under base_path: the SPA's fixed routes, the native API at
+// /api/v1 behind its CORS step, with the limiter on download and upload only, and the metrics
+// endpoint at metrics.path when metrics.enabled is set, for GET only and outside any limit. The
+// compatibility layers join with the release that ships them. Unknown paths under /api/v1 get
+// the error envelope; any other unknown path a plain 404.
 //
 // The route collision check runs first, so no router exists for a configuration that fails
 // it: a non-empty problem list comes with a nil router, and the caller reports it and exits
@@ -215,11 +257,16 @@ func NewRouter(cfg *config.Config, groups *Groups) (*chi.Mux, []config.Problem) 
 	}
 
 	native := *groups.Native
-	native.Limit = ratelimit.Middleware(groups.Limiter, handlers.ErrorWriter{}, groups.Log)
+	native.Limit = ratelimit.Middleware(groups.Limiter, handlers.ErrorWriter{}, groups.Log,
+		native.Metrics)
 
 	mount := func(base chi.Router) {
 		if groups.SPA != nil {
 			groups.SPA(base)
+		}
+
+		if cfg.Metrics.Enabled && groups.Metrics != nil {
+			base.Handle(cfg.Metrics.Path, getOnly(groups.Metrics))
 		}
 
 		base.Group(func(api chi.Router) {
@@ -239,4 +286,19 @@ func NewRouter(cfg *config.Config, groups *Groups) (*chi.Mux, []config.Problem) 
 	}
 
 	return root, nil
+}
+
+// getOnly answers any method but GET with a plain 405 and Allow: GET (backend.md section 7).
+func getOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if request.Method != http.MethodGet {
+			writer.Header().Set("Allow", http.MethodGet)
+			http.Error(writer, http.StatusText(http.StatusMethodNotAllowed),
+				http.StatusMethodNotAllowed)
+
+			return
+		}
+
+		next.ServeHTTP(writer, request)
+	})
 }

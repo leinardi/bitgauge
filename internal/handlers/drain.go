@@ -25,6 +25,8 @@ import (
 	"io"
 	"net/http"
 	"sync"
+
+	"github.com/leinardi/bitgauge/internal/metrics"
 )
 
 // drainBufferSize is the size of each pooled read buffer (backend.md section 2.2).
@@ -45,15 +47,20 @@ var drainBuffers = sync.Pool{
 // cut at the cap. After every read that returned bytes, onRead is called with their count;
 // an error from it stops the drain and is returned. The result is the number of bytes read
 // and the first error other than the body's end; a body over limit gives an error matching
-// *http.MaxBytesError.
+// *http.MaxBytesError. transfer counts the drain as in progress and the bytes read; telling an
+// abort from the other errors is the caller's.
 func Drain(
 	writer http.ResponseWriter,
 	request *http.Request,
 	limit int64,
+	transfer metrics.Transfer,
 	onRead func(read int) error,
 ) (int64, error) {
 	pooled, _ := drainBuffers.Get().(*[]byte)
 	defer drainBuffers.Put(pooled)
+
+	transfer.Start()
+	defer transfer.Done()
 
 	buffer := *pooled
 	body := http.MaxBytesReader(writer, request.Body, limit)
@@ -64,6 +71,7 @@ func Drain(
 		read, err := body.Read(buffer)
 		if read > 0 {
 			total += int64(read)
+			transfer.Add(read)
 
 			callbackErr := onRead(read)
 			if callbackErr != nil {

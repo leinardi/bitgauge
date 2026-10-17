@@ -26,11 +26,15 @@ import (
 	"log/slog"
 	"net/http"
 	"slices"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/leinardi/bitgauge/internal/clientip"
+	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
+	"github.com/leinardi/bitgauge/internal/metrics"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
 )
 
@@ -87,14 +91,15 @@ type stage struct {
 }
 
 // stages are the global middleware of backend.md section 3, outermost first: panic recovery,
-// client IP, security headers, then the request log. routes is the router when it is a chi
-// router, so that the route context recovery creates is complete.
+// client IP, security headers, then the request log and metrics. routes is the router when it
+// is a chi router, so that the route context recovery creates is complete.
 func stages(
 	routes chi.Routes,
 	deriver *clientip.Deriver,
 	classify Classifier,
 	clock ratelimit.Clock,
 	log *slog.Logger,
+	observer *Observer,
 ) []stage {
 	return []stage{
 		{name: "recovery", wrap: func(next http.Handler) http.Handler {
@@ -104,8 +109,8 @@ func stages(
 		{name: "headers", wrap: func(next http.Handler) http.Handler {
 			return securityHeaders(next, classify)
 		}},
-		{name: "log", wrap: func(next http.Handler) http.Handler {
-			return requestLog(next, clock, log)
+		{name: "observe", wrap: func(next http.Handler) http.Handler {
+			return observe(next, observer, classify, clock, log)
 		}},
 	}
 }
@@ -120,19 +125,21 @@ func compose(next http.Handler, chain []stage) http.Handler {
 }
 
 // Chain wraps next, the router, in the global middleware of backend.md section 3. Recovery
-// gives the request a chi route context up front, so that it and the request log can read the
+// gives the request a chi route context up front, so that it and the observe stage can read the
 // route pattern the router fills in; when next is a chi router the context also carries it as
-// Routes, as chi would have set it.
+// Routes, as chi would have set it. observer records the requests in the metrics; nil records
+// nothing.
 func Chain(
 	next http.Handler,
 	deriver *clientip.Deriver,
 	classify Classifier,
 	clock ratelimit.Clock,
 	log *slog.Logger,
+	observer *Observer,
 ) http.Handler {
 	routes, _ := next.(chi.Routes)
 
-	return compose(next, stages(routes, deriver, classify, clock, log))
+	return compose(next, stages(routes, deriver, classify, clock, log, observer))
 }
 
 // recovery answers a panic with 500, as the error envelope on the API groups, and logs it at
@@ -197,17 +204,83 @@ func securityHeaders(next http.Handler, classify Classifier) http.Handler {
 	})
 }
 
-// requestLog writes one line per request at debug, and only at debug: method, route pattern,
-// status, body bytes, duration and the derived client IP. Never a header, a query string or a
-// body (configuration-security.md section 6).
-func requestLog(next http.Handler, clock ratelimit.Clock, log *slog.Logger) http.Handler {
-	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		if !log.Enabled(request.Context(), slog.LevelDebug) {
-			next.ServeHTTP(writer, request)
+// Observer records each finished request in the metrics, labeled with the owner and the
+// pattern of the route it matched (backend.md section 7). A nil *Observer records nothing.
+type Observer struct {
+	meter  *metrics.Metrics
+	groups map[string]metrics.Group
+	base   string
+}
 
-			return
+// NewObserver resolves the labels of the routes the router mounts for cfg (MountedRoutes) once,
+// so a request only looks its route up.
+func NewObserver(cfg *config.Config, meter *metrics.Metrics) *Observer {
+	routes := MountedRoutes(cfg)
+	groups := make(map[string]metrics.Group, len(routes))
+
+	for _, route := range routes {
+		groups[route.Pattern] = route.Group
+	}
+
+	return &Observer{
+		meter:  meter,
+		groups: groups,
+		base:   strings.TrimSuffix(cfg.Server.BasePath, "/"),
+	}
+}
+
+// labels are the group and route labels of a finished request: its route's owner and pattern
+// without base_path, or, when no route matched, the security-header classifier's group and
+// Unmatched.
+func (o *Observer) labels(
+	request *http.Request,
+	classify Classifier,
+) (group metrics.Group, route string) {
+	pattern := routePattern(chi.RouteContext(request.Context()))
+	if trimmed, below := strings.CutPrefix(pattern, o.base); below {
+		if trimmed == "" {
+			trimmed = "/"
 		}
 
+		if owner, mounted := o.groups[trimmed]; mounted {
+			return owner, trimmed
+		}
+	}
+
+	if classify(request) == GroupAPI {
+		return metrics.GroupAPI, metrics.Unmatched
+	}
+
+	return metrics.GroupSPA, metrics.Unmatched
+}
+
+func (o *Observer) record(
+	request *http.Request,
+	classify Classifier,
+	status int,
+	elapsed time.Duration,
+) {
+	if o == nil {
+		return
+	}
+
+	group, route := o.labels(request, classify)
+	o.meter.Observe(group, route, status, elapsed.Seconds())
+}
+
+// observe is the logging and metrics stage. Every request is recorded in the metrics, a
+// panicking one included: with the status it had started, else 500, which recovery answers,
+// else, for http.ErrAbortHandler, no status at all. One line per request is logged at debug,
+// and only at debug: method, route pattern, status, body bytes, duration and the derived
+// client IP. Never a header, a query string or a body (configuration-security.md section 6).
+func observe(
+	next http.Handler,
+	observer *Observer,
+	classify Classifier,
+	clock ratelimit.Clock,
+	log *slog.Logger,
+) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		start := clock.Now()
 		wrapped, isRecorder := writer.(*recorder)
 
@@ -215,23 +288,52 @@ func requestLog(next http.Handler, clock ratelimit.Clock, log *slog.Logger) http
 			wrapped = &recorder{ResponseWriter: writer}
 		}
 
+		defer func(ctx context.Context) {
+			recovered := recover()
+			status := finalStatus(wrapped, recovered)
+			elapsed := clock.Now().Sub(start)
+
+			observer.record(request, classify, status, elapsed)
+
+			if recovered != nil {
+				panic(recovered)
+			}
+
+			if !log.Enabled(ctx, slog.LevelDebug) {
+				return
+			}
+
+			addr, _ := clientip.FromContext(ctx)
+			log.LogAttrs(ctx, slog.LevelDebug, "request",
+				slog.String("method", request.Method),
+				slog.String("route", routePattern(chi.RouteContext(ctx))),
+				slog.Int("status", status),
+				slog.Int64("bytes", wrapped.bytes),
+				slog.Duration("duration", elapsed),
+				slog.String("client", addr.String()))
+		}(request.Context())
+
 		next.ServeHTTP(wrapped, request)
-
-		// A handler that writes nothing gets net/http's implicit 200.
-		status := http.StatusOK
-		if wrapped.started {
-			status = wrapped.status
-		}
-
-		addr, _ := clientip.FromContext(request.Context())
-		log.LogAttrs(request.Context(), slog.LevelDebug, "request",
-			slog.String("method", request.Method),
-			slog.String("route", routePattern(chi.RouteContext(request.Context()))),
-			slog.Int("status", status),
-			slog.Int64("bytes", wrapped.bytes),
-			slog.Duration("duration", clock.Now().Sub(start)),
-			slog.String("client", addr.String()))
 	})
+}
+
+// finalStatus is the status a request ended with: the one its response started with; net/http's
+// implicit 200 for a handler that wrote nothing; for a panic, the 500 recovery answers, or 0,
+// no response, for http.ErrAbortHandler, on which the connection is dropped.
+func finalStatus(wrapped *recorder, recovered any) int {
+	switch {
+	case wrapped.started:
+		return wrapped.status
+	case recovered == nil:
+		return http.StatusOK
+	}
+
+	err, isError := recovered.(error)
+	if isError && errors.Is(err, http.ErrAbortHandler) {
+		return 0
+	}
+
+	return http.StatusInternalServerError
 }
 
 func routePattern(routeContext *chi.Context) string {

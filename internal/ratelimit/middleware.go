@@ -35,6 +35,12 @@ type ErrorWriter interface {
 	WriteError(writer http.ResponseWriter, status int, code, message string, details map[string]any)
 }
 
+// Refusals counts refused acquisitions by their limit; internal/metrics provides it. A nil
+// Refusals counts nothing.
+type Refusals interface {
+	Refused(err error)
+}
+
 // Middleware limits the throughput group (native download and upload): each request takes a
 // stream slot and a token for the derived client IP and gives the slot back when it ends. A
 // refused request is answered 429 with Retry-After before its body is read, and on HTTP/1.1 the
@@ -44,6 +50,7 @@ func Middleware(
 	limiter *Limiter,
 	errorWriter ErrorWriter,
 	log *slog.Logger,
+	refusals Refusals,
 ) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
@@ -53,7 +60,7 @@ func Middleware(
 
 			release, err := limiter.AcquireStream(addr)
 			if err != nil {
-				Refuse(writer, request, err, errorWriter, log)
+				Refuse(writer, request, err, errorWriter, log, refusals)
 
 				return
 			}
@@ -65,15 +72,16 @@ func Middleware(
 	}
 }
 
-// Refuse answers a refused acquisition with 429, its Retry-After and its envelope code. Other
-// errors are not limits and are answered 500. It is shared with the routes that acquire a
-// WebSocket or a flow themselves.
+// Refuse answers a refused acquisition with 429, its Retry-After and its envelope code, and
+// counts it in refusals. Other errors are not limits and are answered 500. It is shared with
+// the routes that acquire a WebSocket or a flow themselves.
 func Refuse(
 	writer http.ResponseWriter,
 	request *http.Request,
 	err error,
 	errorWriter ErrorWriter,
 	log *slog.Logger,
+	refusals Refusals,
 ) {
 	limitErr, isLimit := errors.AsType[*LimitError](err)
 	if !isLimit {
@@ -86,6 +94,10 @@ func Refuse(
 		)
 
 		return
+	}
+
+	if refusals != nil {
+		refusals.Refused(limitErr)
 	}
 
 	if errors.Is(limitErr, ErrTableFull) {

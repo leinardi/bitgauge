@@ -25,6 +25,8 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/leinardi/bitgauge/internal/metrics"
 )
 
 const (
@@ -37,8 +39,8 @@ const (
 // Content-Length, no-store and no Content-Encoding (wire-protocol.md section 3.1). A missing
 // or non-integer N is bad_request; an integer outside 1 to maxBytes is bytes_out_of_range with
 // the limit in details. With an unescaped query, a request allocates only the Content-Length
-// value and the slice that holds it.
-func Download(buffer *Buffer, maxBytes int64) http.HandlerFunc {
+// value and the slice that holds it. transfer counts the body (Buffer.WriteRandom).
+func Download(buffer *Buffer, maxBytes int64, transfer metrics.Transfer) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		size, valid, inRange := parseBytes(request.URL.RawQuery, maxBytes)
 		if !valid {
@@ -73,7 +75,7 @@ func Download(buffer *Buffer, maxBytes int64) http.HandlerFunc {
 		writer.WriteHeader(http.StatusOK)
 
 		// An error is the client going away or stalling; the transfer simply ends there.
-		_ = buffer.WriteRandom(writer, size)
+		_ = buffer.WriteRandom(writer, size, transfer)
 	}
 }
 

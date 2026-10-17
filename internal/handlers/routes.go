@@ -27,6 +27,7 @@ import (
 
 	"github.com/leinardi/bitgauge/internal/buildinfo"
 	"github.com/leinardi/bitgauge/internal/config"
+	"github.com/leinardi/bitgauge/internal/metrics"
 )
 
 // Prefix is the path the native API is mounted at, under server.base_path.
@@ -34,7 +35,7 @@ const Prefix = "/api/v1"
 
 // Deps are what the native handlers are built from, created once at startup (backend.md
 // section 5): the validated configuration, the build information, the shared random buffer,
-// the epoch, the server grid shifted by the epoch's offset, and the WebSocket echo.
+// the epoch, the server grid shifted by the epoch's offset, the WebSocket echo and the metrics.
 type Deps struct {
 	Config     *config.Config
 	Buffer     *Buffer
@@ -45,6 +46,8 @@ type Deps struct {
 	Limit func(http.Handler) http.Handler
 	Build buildinfo.Build
 	Epoch Epoch
+	// Metrics counts the transfers; nil counts nothing.
+	Metrics *metrics.Metrics
 }
 
 // routeTable registers routes and remembers each path's methods, so the 405 answer can name
@@ -75,13 +78,14 @@ func Routes(deps *Deps) *chi.Mux {
 
 	table.handle(
 		"/download",
-		limit(Download(deps.Buffer, int64(deps.Config.Limits.MaxDownloadBytes))).ServeHTTP,
+		limit(Download(deps.Buffer, int64(deps.Config.Limits.MaxDownloadBytes),
+			deps.Metrics.Transfer(metrics.GroupAPI, metrics.Download))).ServeHTTP,
 		http.MethodGet,
 	)
 	table.handle(
 		"/upload",
 		limit(Upload(deps.Grid, deps.Epoch, int64(deps.Config.Limits.MaxUploadBytes),
-			UploadLifetime)).ServeHTTP,
+			UploadLifetime, deps.Metrics.Transfer(metrics.GroupAPI, metrics.Upload))).ServeHTTP,
 		http.MethodPost,
 	)
 	table.handle("/ping", Ping, http.MethodGet, http.MethodHead)

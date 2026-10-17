@@ -27,6 +27,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/leinardi/bitgauge/internal/metrics"
 )
 
 // maxBuckets is the most cells one upload can span: the 1200 cells of its lifetime, plus one
@@ -93,8 +95,15 @@ func (a *arrivals) record(read int) error {
 // with the telemetry and Server-Timing. A missing Content-Length is 411 and one above maxBytes
 // is 413, both without reading. The body must arrive within lifetime of handler entry, enforced
 // by a read deadline and by the grid's clock; otherwise the answer is 408 with no telemetry.
-// lifetime is UploadLifetime outside tests.
-func Upload(grid *Grid, epoch Epoch, maxBytes int64, lifetime time.Duration) http.HandlerFunc {
+// lifetime is UploadLifetime outside tests. transfer counts the drain, a body cut at its
+// lifetime as a timeout, and a client gone mid-body as an abort.
+func Upload(
+	grid *Grid,
+	epoch Epoch,
+	maxBytes int64,
+	lifetime time.Duration,
+	transfer metrics.Transfer,
+) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		entry := grid.Now()
 
@@ -123,9 +132,9 @@ func Upload(grid *Grid, epoch Epoch, maxBytes int64, lifetime time.Duration) htt
 			return
 		}
 
-		total, err := Drain(writer, request, maxBytes, counter.record)
+		total, err := Drain(writer, request, maxBytes, transfer, counter.record)
 		if err != nil {
-			answerDrainError(writer, request, err, maxBytes)
+			answerDrainError(writer, request, err, maxBytes, transfer)
 
 			return
 		}
@@ -156,17 +165,20 @@ func answerDrainError(
 	request *http.Request,
 	err error,
 	maxBytes int64,
+	transfer metrics.Transfer,
 ) {
 	_, overCap := errors.AsType[*http.MaxBytesError](err)
 
 	switch {
 	case errors.Is(err, errLifetime) || errors.Is(err, os.ErrDeadlineExceeded):
+		transfer.Timeout()
 		refuseBody(writer, request, http.StatusRequestTimeout, CodeRequestTimeout,
 			"the body did not arrive within the upload lifetime")
 	case overCap:
 		refuseBody(writer, request, http.StatusRequestEntityTooLarge, CodePayloadTooLarge,
 			fmt.Sprintf("the body must be at most %d bytes", maxBytes))
 	default:
+		transfer.Abort()
 		panic(http.ErrAbortHandler)
 	}
 }

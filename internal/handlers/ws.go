@@ -36,6 +36,7 @@ import (
 
 	"github.com/leinardi/bitgauge/internal/clientip"
 	"github.com/leinardi/bitgauge/internal/config"
+	"github.com/leinardi/bitgauge/internal/metrics"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
 )
 
@@ -67,6 +68,7 @@ type WebSockets struct {
 	timers  ratelimit.Timers
 	limiter *ratelimit.Limiter
 	log     *slog.Logger
+	meter   *metrics.Metrics
 	closing chan struct{}
 	allowed map[string]bool
 	active  sync.WaitGroup
@@ -76,13 +78,15 @@ type WebSockets struct {
 }
 
 // NewWebSockets builds the echo endpoint. allowedOrigins is server.cors.allowed_origins; idle
-// is WebSocketIdle outside tests.
+// is WebSocketIdle outside tests. meter counts the open connections, the echoed pings and the
+// refused handshakes; nil counts nothing.
 func NewWebSockets(
 	limiter *ratelimit.Limiter,
 	timers ratelimit.Timers,
 	allowedOrigins []config.Origin,
 	idle time.Duration,
 	log *slog.Logger,
+	meter *metrics.Metrics,
 ) *WebSockets {
 	allowed := make(map[string]bool, len(allowedOrigins))
 	for _, origin := range allowedOrigins {
@@ -95,6 +99,7 @@ func NewWebSockets(
 		timers:  timers,
 		limiter: limiter,
 		log:     log,
+		meter:   meter,
 		closing: make(chan struct{}),
 		allowed: allowed,
 		idle:    idle,
@@ -150,7 +155,7 @@ func (s *WebSockets) ServeHTTP(writer http.ResponseWriter, request *http.Request
 
 	release, err := s.limiter.AcquireWebSocket(addr)
 	if err != nil {
-		ratelimit.Refuse(writer, request, err, ErrorWriter{}, s.log)
+		ratelimit.Refuse(writer, request, err, ErrorWriter{}, s.log, s.meter)
 
 		return
 	}
@@ -165,6 +170,9 @@ func (s *WebSockets) ServeHTTP(writer http.ResponseWriter, request *http.Request
 	if err != nil {
 		return
 	}
+
+	s.meter.WebSocketOpened()
+	defer s.meter.WebSocketClosed()
 
 	if s.join() {
 		defer s.active.Done()
@@ -221,7 +229,7 @@ func (s *WebSockets) echo(parent context.Context, conn *websocket.Conn) {
 		// The idle window restarts when a message arrives, before it is answered.
 		stopIdle = s.timers.AfterFunc(s.idle, closeIdle)
 
-		if !answer(ctx, conn, kind, data) {
+		if !s.answer(ctx, conn, kind, data) {
 			stopIdle()
 
 			return
@@ -230,7 +238,7 @@ func (s *WebSockets) echo(parent context.Context, conn *websocket.Conn) {
 }
 
 // answer handles one message and reports whether the connection stays open.
-func answer(
+func (s *WebSockets) answer(
 	ctx context.Context,
 	conn *websocket.Conn,
 	kind websocket.MessageType,
@@ -263,7 +271,13 @@ func answer(
 		return false
 	}
 
-	return conn.Write(ctx, websocket.MessageText, pong) == nil
+	if conn.Write(ctx, websocket.MessageText, pong) != nil {
+		return false
+	}
+
+	s.meter.WebSocketEchoed()
+
+	return true
 }
 
 // originAllowed applies the Origin rule of wire-protocol.md section 6: no Origin (a

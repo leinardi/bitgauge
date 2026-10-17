@@ -30,6 +30,7 @@ import (
 	"github.com/leinardi/bitgauge/internal/clientip"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
+	"github.com/leinardi/bitgauge/internal/metrics"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
 )
 
@@ -43,11 +44,12 @@ const (
 )
 
 // Deps are what the server is built from at startup: the routed handler (the router of the
-// route groups), the client IP deriver and the clock.
+// route groups), the client IP deriver, the clock and the metrics, which nil leaves out.
 type Deps struct {
 	Handler http.Handler
 	Deriver *clientip.Deriver
 	Clock   ratelimit.Clock
+	Metrics *metrics.Metrics
 }
 
 // New returns the server for cfg. There is no global read or write timeout: throughput
@@ -55,8 +57,9 @@ type Deps struct {
 // http.ResponseController (backend.md section 2).
 func New(cfg *config.Config, log *slog.Logger, deps *Deps) *http.Server {
 	return &http.Server{
-		Addr:              cfg.Server.Listen.String(),
-		Handler:           Chain(deps.Handler, deps.Deriver, NewClassifier(cfg), deps.Clock, log),
+		Addr: cfg.Server.Listen.String(),
+		Handler: Chain(deps.Handler, deps.Deriver, NewClassifier(cfg), deps.Clock, log,
+			NewObserver(cfg, deps.Metrics)),
 		ReadHeaderTimeout: ReadHeaderTimeout,
 		IdleTimeout:       IdleTimeout,
 		MaxHeaderBytes:    MaxHeaderBytes,

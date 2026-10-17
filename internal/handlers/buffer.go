@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/leinardi/bitgauge/internal/metrics"
 )
 
 const (
@@ -61,10 +63,19 @@ func newBuffer(size int, stallTimeout time.Duration) *Buffer {
 // around at its end, without allocating or copying. Before each write it sets a write deadline
 // of WriteStallTimeout through http.ResponseController, so a client that stops reading is cut
 // after that long while a slow one is not. The caller sets the headers first. The error is the
-// first failed write, which in practice means the client went away or stalled.
-func (b *Buffer) WriteRandom(writer http.ResponseWriter, size int64) error {
+// first failed write, which in practice means the client went away or stalled. transfer counts
+// the response as in progress while it is written, the bytes written, and a failed write as an
+// abort.
+func (b *Buffer) WriteRandom(
+	writer http.ResponseWriter,
+	size int64,
+	transfer metrics.Transfer,
+) error {
 	controller := http.NewResponseController(writer)
 	offset := 0
+
+	transfer.Start()
+	defer transfer.Done()
 
 	for size > 0 {
 		chunk := int(min(size, int64(min(MaxWrite, len(b.data)-offset))))
@@ -75,7 +86,11 @@ func (b *Buffer) WriteRandom(writer http.ResponseWriter, size int64) error {
 		}
 
 		written, err := writer.Write(b.data[offset : offset+chunk])
+		transfer.Add(written)
+
 		if err != nil {
+			transfer.Abort()
+
 			return fmt.Errorf("write random bytes: %w", err)
 		}
 

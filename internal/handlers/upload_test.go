@@ -126,8 +126,16 @@ func (r *uploadRun) serve(t *testing.T, contentLength int64) {
 		request.Header.Set("Content-Length", strconv.FormatInt(contentLength, 10))
 	}
 
-	Upload(r.grid, Epoch{ID: "k3V9qW2rT0aY", GridOffset: testOffset}, testMaxBody, UploadLifetime)(
-		r.writer, request)
+	Upload(
+		r.grid,
+		Epoch{ID: "k3V9qW2rT0aY", GridOffset: testOffset},
+		testMaxBody,
+		UploadLifetime,
+		noTransfer,
+	)(
+		r.writer,
+		request,
+	)
 }
 
 // telemetryOf checks a successful upload's status, headers and keys and decodes its body.
@@ -430,7 +438,16 @@ func TestUploadWithoutReadDeadlinesIs500(t *testing.T) {
 	request := httptest.NewRequestWithContext(
 		t.Context(), http.MethodPost, "/api/v1/upload", strings.NewReader("abc"))
 
-	Upload(NewGrid(clock, 0), NewEpoch(), testMaxBody, UploadLifetime)(recorder, request)
+	Upload(
+		NewGrid(clock, 0),
+		NewEpoch(),
+		testMaxBody,
+		UploadLifetime,
+		noTransfer,
+	)(
+		recorder,
+		request,
+	)
 
 	assertEnvelope(t, recorder, http.StatusInternalServerError, CodeInternal)
 }
@@ -444,7 +461,7 @@ func TestUploadEpochStablePerProcess(t *testing.T) {
 
 	// Two instances, two uploads each.
 	for _, epoch := range []Epoch{NewEpoch(), NewEpoch()} {
-		handler := Upload(grid, epoch, testMaxBody, UploadLifetime)
+		handler := Upload(grid, epoch, testMaxBody, UploadLifetime, noTransfer)
 
 		for range 2 {
 			writer := newRecordingWriter()
@@ -472,7 +489,7 @@ func TestUploadOverHTTP(t *testing.T) {
 	const size = 3<<20 + 5
 
 	server := httptest.NewServer(
-		Upload(NewGrid(ratelimit.RealClock{}, 77), NewEpoch(), 1<<30, UploadLifetime),
+		Upload(NewGrid(ratelimit.RealClock{}, 77), NewEpoch(), 1<<30, UploadLifetime, noTransfer),
 	)
 	t.Cleanup(server.Close)
 
@@ -515,7 +532,7 @@ func TestUploadStalledBodyIsCutByTheReadDeadline(t *testing.T) {
 	const lifetime = 300 * time.Millisecond
 
 	server := httptest.NewServer(
-		Upload(NewGrid(ratelimit.RealClock{}, 0), NewEpoch(), 1<<30, lifetime),
+		Upload(NewGrid(ratelimit.RealClock{}, 0), NewEpoch(), 1<<30, lifetime, noTransfer),
 	)
 	t.Cleanup(server.Close)
 
@@ -572,7 +589,7 @@ func TestUploadWithoutLengthOverHTTPIs411(t *testing.T) {
 	t.Parallel()
 
 	server := httptest.NewServer(
-		Upload(NewGrid(ratelimit.RealClock{}, 0), NewEpoch(), 1<<30, UploadLifetime),
+		Upload(NewGrid(ratelimit.RealClock{}, 0), NewEpoch(), 1<<30, UploadLifetime, noTransfer),
 	)
 	t.Cleanup(server.Close)
 

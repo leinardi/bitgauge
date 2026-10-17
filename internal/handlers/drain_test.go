@@ -43,11 +43,17 @@ func TestDrainCountsEveryRead(t *testing.T) {
 
 	var reads []int
 
-	total, err := Drain(httptest.NewRecorder(), drainRequest(t, body), 1<<30, func(read int) error {
-		reads = append(reads, read)
+	total, err := Drain(
+		httptest.NewRecorder(),
+		drainRequest(t, body),
+		1<<30,
+		noTransfer,
+		func(read int) error {
+			reads = append(reads, read)
 
-		return nil
-	})
+			return nil
+		},
+	)
 	if err != nil || total != int64(len(body)) {
 		t.Fatalf("total %d, %v; want %d", total, err, len(body))
 	}
@@ -73,7 +79,7 @@ func TestDrainStopsOnCallbackError(t *testing.T) {
 	calls := 0
 
 	_, err := Drain(httptest.NewRecorder(), drainRequest(t, strings.Repeat("x", 3*drainBufferSize)),
-		1<<30, func(int) error {
+		1<<30, noTransfer, func(int) error {
 			calls++
 
 			return errStop
@@ -87,7 +93,7 @@ func TestDrainCutsAtTheCap(t *testing.T) {
 	t.Parallel()
 
 	total, err := Drain(httptest.NewRecorder(), drainRequest(t, strings.Repeat("x", 1000)), 600,
-		func(int) error { return nil })
+		noTransfer, func(int) error { return nil })
 
 	if _, overCap := errors.AsType[*http.MaxBytesError](err); !overCap || total > 600 {
 		t.Fatalf("total %d, err %v; want at most 600 bytes and a MaxBytesError", total, err)

@@ -31,8 +31,10 @@ import (
 
 	"github.com/coder/websocket"
 
+	"github.com/leinardi/bitgauge/internal/buildinfo"
 	"github.com/leinardi/bitgauge/internal/clientip"
 	"github.com/leinardi/bitgauge/internal/config"
+	"github.com/leinardi/bitgauge/internal/metrics"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
 )
 
@@ -41,6 +43,7 @@ import (
 type wsServer struct {
 	clock    *fakeClock
 	sockets  *WebSockets
+	meter    *metrics.Metrics
 	server   *httptest.Server
 	returned chan struct{}
 	url      string
@@ -53,7 +56,9 @@ func newWSServer(t *testing.T, allowed ...config.Origin) *wsServer {
 	limiter := ratelimit.New(ratelimit.Options{
 		MaxStreams: 8, RequestsPerMinute: 1200, TrackedClients: 64, MaxFlows: 32,
 	}, clock)
-	sockets := NewWebSockets(limiter, clock, allowed, WebSocketIdle, slog.New(slog.DiscardHandler))
+	meter := metrics.New(buildinfo.Build{}, limiter.Len, nil)
+	sockets := NewWebSockets(limiter, clock, allowed, WebSocketIdle, slog.New(slog.DiscardHandler),
+		meter)
 	returned := make(chan struct{}, 16)
 
 	handler := clientip.Middleware(clientip.NewDeriver(nil))(
@@ -69,6 +74,7 @@ func newWSServer(t *testing.T, allowed ...config.Origin) *wsServer {
 	return &wsServer{
 		clock:    clock,
 		sockets:  sockets,
+		meter:    meter,
 		server:   server,
 		returned: returned,
 		url:      "ws" + strings.TrimPrefix(server.URL, "http"),

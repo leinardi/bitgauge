@@ -26,6 +26,9 @@ import (
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/leinardi/bitgauge/internal/buildinfo"
+	"github.com/leinardi/bitgauge/internal/metrics"
 )
 
 const testMaxBytes = 5000
@@ -34,7 +37,7 @@ func download(t *testing.T, query string) *httptest.ResponseRecorder {
 	t.Helper()
 
 	recorder := httptest.NewRecorder()
-	Download(newBuffer(1000, time.Second), testMaxBytes)(
+	Download(newBuffer(1000, time.Second), testMaxBytes, noTransfer)(
 		recorder,
 		httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/v1/download?"+query, nil),
 	)
@@ -46,7 +49,7 @@ func TestDownloadWritesExactlyN(t *testing.T) {
 	t.Parallel()
 
 	buffer := newBuffer(1000, time.Second)
-	handler := Download(buffer, testMaxBytes)
+	handler := Download(buffer, testMaxBytes, noTransfer)
 
 	for _, test := range []struct {
 		query string
@@ -129,10 +132,12 @@ func TestDownloadOutOfRange(t *testing.T) {
 
 func TestDownloadAllocatesOnlyTheContentLength(t *testing.T) {
 	// The formatted Content-Length is a string and its one-element slice (backend.md section
-	// 2.1); the body is cut from the shared buffer without allocating.
+	// 2.1); the body is cut from the shared buffer without allocating, and counting it in the
+	// metrics' pre-resolved series allocates nothing either.
 	const contentLengthAllocs = 2
 
-	handler := Download(NewBuffer(), 1<<30)
+	meter := metrics.New(buildinfo.Build{}, nil, nil)
+	handler := Download(NewBuffer(), 1<<30, meter.Transfer(metrics.GroupAPI, metrics.Download))
 	request := httptest.NewRequestWithContext(
 		t.Context(), http.MethodGet, "/api/v1/download?bytes=10000000", nil)
 	writer := newRecordingWriter()
@@ -153,7 +158,7 @@ func TestDownloadOverHTTP(t *testing.T) {
 
 	const size = 3*BufferSize + 17
 
-	server := httptest.NewServer(Download(NewBuffer(), 1<<30))
+	server := httptest.NewServer(Download(NewBuffer(), 1<<30, noTransfer))
 	t.Cleanup(server.Close)
 
 	request, err := http.NewRequestWithContext(

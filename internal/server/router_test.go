@@ -35,6 +35,7 @@ import (
 	"github.com/leinardi/bitgauge/internal/clientip"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
+	"github.com/leinardi/bitgauge/internal/metrics"
 	"github.com/leinardi/bitgauge/internal/ratelimit"
 	"github.com/leinardi/bitgauge/web"
 )
@@ -46,6 +47,7 @@ const testRequestsPerMinute = 60
 type stack struct {
 	server *httptest.Server
 	native *handlers.Deps
+	meter  *metrics.Metrics
 }
 
 func newStack(t *testing.T, cfg *config.Config, spa func(chi.Router)) *stack {
@@ -60,29 +62,34 @@ func newStack(t *testing.T, cfg *config.Config, spa func(chi.Router)) *stack {
 		MaxFlows:          cfg.Compat.NetworkQuality.MaxFlowsPerClient,
 	}, clock)
 	epoch := handlers.NewEpoch()
+	meter := metrics.New(buildinfo.Info(), limiter.Len, MountedRoutes(cfg))
 	native := &handlers.Deps{
 		Config: cfg,
 		Buffer: handlers.NewBuffer(),
 		Grid:   handlers.NewGrid(clock, epoch.GridOffset),
 		WebSockets: handlers.NewWebSockets(limiter, ratelimit.RealClock{},
-			cfg.Server.CORS.AllowedOrigins, handlers.WebSocketIdle, log),
-		Build: buildinfo.Info(),
-		Epoch: epoch,
+			cfg.Server.CORS.AllowedOrigins, handlers.WebSocketIdle, log, meter),
+		Build:   buildinfo.Info(),
+		Epoch:   epoch,
+		Metrics: meter,
 	}
 
-	router, problems := NewRouter(
-		cfg,
-		&Groups{SPA: spa, Native: native, Limiter: limiter, Log: log},
-	)
+	router, problems := NewRouter(cfg, &Groups{
+		SPA:     spa,
+		Native:  native,
+		Limiter: limiter,
+		Metrics: meter.Handler(log),
+		Log:     log,
+	})
 	if problems != nil {
 		t.Fatalf("route problems %v", problems)
 	}
 
-	server := httptest.NewServer(
-		Chain(router, clientip.NewDeriver(nil), NewClassifier(cfg), clock, log))
+	server := httptest.NewServer(Chain(router, clientip.NewDeriver(nil), NewClassifier(cfg),
+		clock, log, NewObserver(cfg, meter)))
 	t.Cleanup(server.Close)
 
-	return &stack{server: server, native: native}
+	return &stack{server: server, native: native, meter: meter}
 }
 
 // reply is a response whose body has been read and closed.

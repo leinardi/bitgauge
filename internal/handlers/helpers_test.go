@@ -22,12 +22,23 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/leinardi/bitgauge/internal/metrics"
 )
+
+// errClientGone is the failure of a write or read whose peer went away.
+var errClientGone = errors.New("connection reset by peer")
+
+// noTransfer is the transfer of a handler test that does not look at the metrics.
+var noTransfer = metrics.Transfer{}
 
 // fakeClock is the injected clock and timer source of the handler tests: the test sets or
 // advances it, and timers that come due fire then, each in its own goroutine as with
@@ -121,6 +132,8 @@ type recordingWriter struct {
 	deadlineSet   bool
 	writesWithout int
 	discard       bool
+	// failWrites makes every Write fail, as a client gone away does.
+	failWrites bool
 	// written is set by the first WriteHeader or Write.
 	written bool
 }
@@ -150,6 +163,10 @@ func (w *recordingWriter) Write(data []byte) (int, error) {
 	}
 
 	w.deadlineSet = false
+
+	if w.failWrites {
+		return 0, errClientGone
+	}
 
 	if !w.discard {
 		w.writes = append(w.writes, len(data))
@@ -208,4 +225,26 @@ func assertEnvelope(
 	}
 
 	return decoded
+}
+
+// scrape is the metrics' text exposition.
+func scrape(t *testing.T, meter *metrics.Metrics) string {
+	t.Helper()
+
+	recorder := httptest.NewRecorder()
+	meter.Handler(slog.New(slog.DiscardHandler)).ServeHTTP(recorder,
+		httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil))
+
+	return recorder.Body.String()
+}
+
+// sample is the value of the series a line of the exposition starts with, or "" without one.
+func sample(exposition, series string) string {
+	for line := range strings.SplitSeq(exposition, "\n") {
+		if value, found := strings.CutPrefix(line, series+" "); found {
+			return value
+		}
+	}
+
+	return ""
 }

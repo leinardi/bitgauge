@@ -51,7 +51,7 @@ func testDeps() *Deps {
 		Buffer: NewBuffer(),
 		Grid:   NewGrid(ratelimit.RealClock{}, epoch.GridOffset),
 		WebSockets: NewWebSockets(limiter, ratelimit.RealClock{}, nil, WebSocketIdle,
-			slog.New(slog.DiscardHandler)),
+			slog.New(slog.DiscardHandler), nil),
 		Build: buildinfo.Build{Version: "0.1.0", Commit: "a1b2c3d", Date: "2026-09-30T12:00:00Z"},
 		Epoch: epoch,
 	}

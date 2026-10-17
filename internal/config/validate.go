@@ -76,7 +76,6 @@ const (
 	presetStandard         = "standard"
 	presetExtended         = "extended"
 	presetContinuous       = "continuous"
-	milestoneMetrics       = "v0.2"
 	milestoneCompatibility = "v0.3"
 )
 
@@ -511,14 +510,6 @@ func (c *checker) log(log Log) {
 }
 
 func (c *checker) metrics(metrics Metrics) {
-	if metrics.Enabled {
-		c.add(
-			"metrics.enabled",
-			metrics.Enabled,
-			notInRelease("Prometheus metrics", milestoneMetrics),
-		)
-	}
-
 	c.basePath("metrics.path", metrics.Path)
 }
 

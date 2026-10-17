@@ -57,7 +57,7 @@ func TestWriteRandomExactCountAndWrapAround(t *testing.T) {
 	for _, n := range []int64{1, size - 1, size, size + 1, 3*size + 500} {
 		writer := newRecordingWriter()
 
-		err := buffer.WriteRandom(writer, n)
+		err := buffer.WriteRandom(writer, n, noTransfer)
 		if err != nil {
 			t.Fatalf("n=%d: %v", n, err)
 		}
@@ -88,7 +88,7 @@ func TestWriteRandomBoundsEachWrite(t *testing.T) {
 	// One and a half buffers: the wrap-around falls in the middle of the 64 KiB grid.
 	const n = BufferSize + BufferSize/2 + 123
 
-	err := buffer.WriteRandom(writer, n)
+	err := buffer.WriteRandom(writer, n, noTransfer)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +114,7 @@ func TestWriteRandomNeedsWriteDeadlines(t *testing.T) {
 
 	// httptest.ResponseRecorder cannot set deadlines: writing without the stall guard would
 	// let a stalled client hold the handler forever, so WriteRandom refuses.
-	err := newBuffer(10, time.Second).WriteRandom(httptest.NewRecorder(), 5)
+	err := newBuffer(10, time.Second).WriteRandom(httptest.NewRecorder(), 5, noTransfer)
 	if !errors.Is(err, http.ErrNotSupported) {
 		t.Fatalf("err = %v, want http.ErrNotSupported", err)
 	}
@@ -131,7 +131,7 @@ func TestWriteRandomCutsAStalledReader(t *testing.T) {
 	server := httptest.NewServer(
 		http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 			// Far more than the socket buffers on both ends can hold.
-			result <- buffer.WriteRandom(writer, 1<<34)
+			result <- buffer.WriteRandom(writer, 1<<34, noTransfer)
 		}),
 	)
 	t.Cleanup(server.Close)

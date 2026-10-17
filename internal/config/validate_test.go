@@ -432,11 +432,6 @@ func TestRulesOfSection4(t *testing.T) {
 		},
 		// Features not in this release.
 		{
-			name:     "metrics enabled",
-			file:     "metrics:\n  enabled: true\n",
-			wantKeys: []string{"metrics.enabled"},
-		},
-		{
 			name:     "OpenSpeedTest enabled",
 			file:     "compat:\n  openspeedtest:\n    enabled: true\n",
 			wantKeys: []string{"compat.openspeedtest.enabled"},
@@ -540,7 +535,7 @@ test_defaults:
 compat:
   networkquality: {max_upload_bytes: 64GiB, max_flows_per_client: 256}
 log: {format: json, level: debug}
-metrics: {path: /internal/metrics}
+metrics: {enabled: true, path: /internal/metrics}
 `,
 	}
 
@@ -586,6 +581,7 @@ test_defaults:
   phases: [download, idle]
 metrics:
   enabled: true
+  path: metrics
 `, "BITGAUGE_LOG__LEVEL=loud")
 
 	want := []string{
@@ -596,7 +592,7 @@ metrics:
 		"limits.max_download_bytes",
 		"test_defaults.phases",
 		"log.level",
-		"metrics.enabled",
+		"metrics.path",
 	}
 
 	if got := problemKeys(problems); !slices.Equal(got, want) {

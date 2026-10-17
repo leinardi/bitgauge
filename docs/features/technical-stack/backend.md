@@ -209,7 +209,8 @@ Plus the standard Go runtime (`go_*`) and process (`process_*`) collectors.
   scanner's paths never become label values.
 - `code` is the response status as three digits when it is one BitGauge answers: `101`, `200`,
   `204`, `206`, `304`, `400`, `403`, `404`, `405`, `408`, `411`, `413`, `416`, `429` or `500`. Any
-  other status counts as `other`.
+  other status counts as `other`, and so does a request that ends with no response at all, such
+  as an upload whose client went away mid-body.
 - Every label value therefore comes from a fixed set, and a request never formats or looks up a
   label value. The children of every metric except `bitgauge_http_requests_total` are created at
   startup, the duration histogram's one per route. A route's request counter for a status is

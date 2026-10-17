@@ -36,6 +36,15 @@ import (
 
 var errUnexpected = errors.New("unexpected failure")
 
+// recordingRefusals stands in for the metrics' refusal counter.
+type recordingRefusals struct {
+	errs []error
+}
+
+func (r *recordingRefusals) Refused(err error) {
+	r.errs = append(r.errs, err)
+}
+
 // recordingWriter stands in for the handlers' envelope writer.
 type recordingWriter struct {
 	status int
@@ -87,6 +96,7 @@ func TestMiddlewareRefusesWith429BeforeReadingTheBody(t *testing.T) {
 			newFakeClock(),
 		)
 		envelope := &recordingWriter{}
+		refusals := &recordingRefusals{}
 
 		blocked := make(chan struct{})
 		inHandler := make(chan struct{})
@@ -95,6 +105,7 @@ func TestMiddlewareRefusesWith429BeforeReadingTheBody(t *testing.T) {
 			limiter,
 			envelope,
 			slog.New(slog.DiscardHandler),
+			refusals,
 		)(
 			http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 				close(inHandler)
@@ -128,6 +139,14 @@ func TestMiddlewareRefusesWith429BeforeReadingTheBody(t *testing.T) {
 			)
 		}
 
+		if len(refusals.errs) != 1 || !errors.Is(refusals.errs[0], ErrStreams) {
+			t.Fatalf(
+				"HTTP/%d: refusals = %v, want the one streams refusal",
+				protoMajor,
+				refusals.errs,
+			)
+		}
+
 		if recorder.Header().Get("Retry-After") != "1" {
 			t.Fatalf(
 				"HTTP/%d: Retry-After = %q, want 1",
@@ -154,6 +173,7 @@ func TestMiddlewareRefusesWith429BeforeReadingTheBody(t *testing.T) {
 			limiter,
 			envelope,
 			slog.New(slog.DiscardHandler),
+			nil,
 		)(
 			http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 				writer.WriteHeader(http.StatusNoContent)
@@ -187,6 +207,7 @@ func TestMiddlewareReleasesOnPanic(t *testing.T) {
 		limiter,
 		envelope,
 		slog.New(slog.DiscardHandler),
+		nil,
 	)(
 		http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
 			panic(http.ErrAbortHandler)
@@ -226,6 +247,7 @@ func TestRefuseLogsEveryTableFull(t *testing.T) {
 			&LimitError{err: ErrTableFull, RetryAfter: 1, Code: CodeTableFull},
 			envelope,
 			log,
+			nil,
 		)
 
 		if recorder.Code != http.StatusTooManyRequests || envelope.code != CodeTableFull {
@@ -240,6 +262,7 @@ func TestRefuseLogsEveryTableFull(t *testing.T) {
 		&LimitError{err: ErrStreams, RetryAfter: 1, Code: CodeTooManyStreams},
 		envelope,
 		log,
+		nil,
 	)
 
 	if strings.Count(logs.String(), "level=WARN") != 2 {
@@ -255,6 +278,7 @@ func TestRefuseOtherErrorsAre500(t *testing.T) {
 	t.Parallel()
 
 	envelope := &recordingWriter{}
+	refusals := &recordingRefusals{}
 	recorder := httptest.NewRecorder()
 	Refuse(
 		recorder,
@@ -262,7 +286,12 @@ func TestRefuseOtherErrorsAre500(t *testing.T) {
 		errUnexpected,
 		envelope,
 		slog.New(slog.DiscardHandler),
+		refusals,
 	)
+
+	if len(refusals.errs) != 0 {
+		t.Fatalf("refusals = %v, want none for an error that is not a limit", refusals.errs)
+	}
 
 	if recorder.Code != http.StatusInternalServerError ||
 		recorder.Header().Get("Retry-After") != "" {
