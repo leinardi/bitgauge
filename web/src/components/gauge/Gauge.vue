@@ -27,7 +27,7 @@ import { angle, arcPath, fraction, MS_SCALE, point, rateScale, type Scale, START
 import { useWindowTween } from '@/components/gauge/useWindowTween'
 import { windowCaption } from '@/components/gauge/caption'
 import { stepWindow, windowAt, type WindowState } from '@/components/gauge/window'
-import type { GaugeText } from '@/components/test/screen'
+import type { GaugeText } from '@/components/test/screen/view'
 import type { Direction } from '@/engine/messages'
 import { latencyNumber, rateParts } from '@/lib/format'
 

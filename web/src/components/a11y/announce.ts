@@ -18,7 +18,7 @@
  */
 
 import { noticeView } from '@/components/test/notices'
-import type { RunView } from '@/components/test/screen'
+import type { RunView } from '@/components/test/screen/states'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { PhaseView } from '@/composables/useRunState'

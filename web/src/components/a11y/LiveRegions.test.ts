@@ -28,7 +28,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, defineComponent, h } from 'vue'
 
 import LiveRegions from '@/components/a11y/LiveRegions.vue'
-import type { RunView } from '@/components/test/screen'
+import type { RunView } from '@/components/test/screen/states'
 import { createRunState } from '@/composables/useRunState'
 import type { EngineEvent, PhaseName, PhaseState } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'

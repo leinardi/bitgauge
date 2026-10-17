@@ -21,7 +21,7 @@ import { computed, nextTick, onBeforeUnmount, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { phaseAnnouncements, rateAnnouncement, resultSummary } from '@/components/a11y/announce'
-import type { RunView } from '@/components/test/screen'
+import type { RunView } from '@/components/test/screen/states'
 
 // The Test screen's two visually hidden live regions (ui/i18n-a11y.md sections 2.1 and 2.7). The
 // polite one announces the phase as it starts, a direction's headline once as it finishes, and the

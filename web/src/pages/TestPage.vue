@@ -17,31 +17,21 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { RefreshCw } from '@lucide/vue'
 import { computed, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import LiveRegions from '@/components/a11y/LiveRegions.vue'
-import AppButton from '@/components/actions/AppButton.vue'
-import LatencyChart from '@/components/chart/LatencyChart.vue'
-import ThroughputChart from '@/components/chart/ThroughputChart.vue'
 import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
-import CountdownRing from '@/components/gauge/CountdownRing.vue'
-import LiveGauge from '@/components/gauge/Gauge.vue'
 import { startK } from '@/components/gauge/window'
 import OfflineNotice from '@/components/OfflineNotice.vue'
-import MetaList, { type MetaRow } from '@/components/layout/MetaList.vue'
 import AutoStartNotice from '@/components/test/AutoStartNotice.vue'
-import MetricTile from '@/components/test/MetricTile.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
-import NotMeasured from '@/components/test/NotMeasured.vue'
-import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
-import PhaseIndicator from '@/components/test/PhaseIndicator.vue'
-import ResultBar from '@/components/test/ResultBar.vue'
+import ResultSection from '@/components/test/ResultSection.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
-import { gaugeInput, gaugeReadout, offlineGauge, PENDING_STEPS, phaseSteps, PING_SPACING_MS, type RunView, screenState, screenTiles } from '@/components/test/screen'
-import StartButton from '@/components/test/StartButton.vue'
+import RunSection from '@/components/test/RunSection.vue'
+import { PENDING_STEPS, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen/states'
+import { gaugeInput, offlineGauge } from '@/components/test/screen/view'
 import { useContextLabel } from '@/composables/useContextLabel'
 import { useCountdown } from '@/composables/useCountdown'
 import { useElapsed } from '@/composables/useElapsed'
@@ -49,8 +39,7 @@ import { useInfo } from '@/composables/useInfo'
 import { useRun } from '@/composables/useRun'
 import { useTestKeys } from '@/composables/useTestKeys'
 import { consumeAutoRun, urlOverride, useUrlParams } from '@/composables/useUrlParams'
-import type { Direction, Notice, Preset } from '@/engine/messages'
-import { links } from '@/lib/links'
+import type { Notice, Preset } from '@/engine/messages'
 
 // The Test screen (ui/screens.md section 1, kit TestScreen.jsx v0.1 branch): idle, the auto-start
 // countdown, running per phase, done, cancelled, error and offline, from the run's live view. v0.1
@@ -92,14 +81,6 @@ const offline = computed(() => state.value === 'idle' && reachability.value === 
 const gauge = computed(() => (offline.value ? offlineGauge(gaugeContext.value, nextCheckS.value) : gaugeInput(view.value, gaugeContext.value)))
 const elapsed = useElapsed(running, view)
 const tiles = computed(() => screenTiles(view.value, shownSettings.value ?? { units: 'bits', overheadCompensationPercent: 0 }, wording.value, elapsed.value))
-// Data used, duration and the packet-loss slot, whose reason stays in view (ui/screens.md section 6).
-const facts = computed<MetaRow[]>(() => {
-  const { more, packetLoss } = tiles.value
-  return [
-    ...more.map((tile) => ({ key: tile.label, icon: tile.icon, label: tile.label, sub: tile.lines[0]?.text, value: tile.number === null ? null : `${tile.number} ${tile.unit}` })),
-    { key: 'packet-loss', icon: packetLoss.icon, label: packetLoss.label, sub: t('test.tiles.whyNot') },
-  ]
-})
 
 // The URL parameters ignored; before the first run they show as the notices a run will carry.
 const ignored = computed(() => (defaults.value === null ? url.ignored : urlOverride(url, defaults.value).ignored))
@@ -114,26 +95,7 @@ const notices = computed<Notice[]>(() =>
   ),
 )
 
-// The chart shows the current run, or the last one until the next starts; nothing between runs.
-const order = computed(() => (shownSettings.value?.phases ?? PENDING_STEPS.map((step) => step.phase)).filter((phase): phase is Direction => phase !== 'idle'))
-const chartLive = computed(() => (state.value === 'idle' ? { download: null, upload: null } : run.live.value))
-const chartEvents = computed(() => ({ download: run.result.value?.download?.events ?? [], upload: run.result.value?.upload?.events ?? [] }))
 const shown = computed(() => state.value !== 'idle')
-const chartState = computed(() => {
-  switch (state.value) {
-    case 'idle':
-      return 'empty'
-    case 'running':
-      return 'running'
-    case 'done':
-      return 'done'
-    default:
-      return 'stopped'
-  }
-})
-// During idle latency, and after a run that ended there, the chart is the latency samples chart.
-const latencyChart = computed(() => shown.value && order.value.every((direction) => chartLive.value[direction] === null) && (run.phase.value === 'idle' || run.latency.value.length > 0))
-const latencyMark = computed(() => (state.value === 'cancelled' || state.value === 'error' ? state.value : null))
 
 /** The gauge's window, carried between directions and started afresh with each run. */
 const gaugeWindow = shallowRef(startK(units.value))
@@ -150,23 +112,6 @@ const streams = computed(() => {
 const plateau = computed(() => {
   const direction = run.direction.value
   return direction === null || !shown.value ? null : (run.result.value?.[direction]?.plateau ?? null)
-})
-
-const mode = computed(() => {
-  if (counting.value) {
-    return 'now'
-  }
-  switch (state.value) {
-    case 'running':
-      return 'stop'
-    case 'error':
-      return 'retry'
-    case 'done':
-    case 'cancelled':
-      return 'again'
-    default:
-      return 'start'
-  }
 })
 
 // Start is disabled until GET /info answers with defaults this version can run (flows.md section 1).
@@ -286,113 +231,25 @@ watch(run.error, (error) => {
       @retry="begin()"
       @preset="begin"
     />
-    <section
-      class="overflow-hidden rounded-(--radius-lg) border border-border bg-card shadow-card"
-      :aria-label="$t('test.title')"
-    >
-      <div class="border-b border-(--border-subtle) px-3.5 py-3 desktop:px-6 desktop:py-4">
-        <PhaseIndicator
-          :steps="steps"
-          :connecting="running && (run.phase.value === null || run.phase.value === 'info')"
-        />
-      </div>
-      <div class="grid grid-cols-1 desktop:grid-cols-[var(--layout-instrument)_minmax(0,1fr)]">
-        <div class="flex flex-col items-center gap-3.5 px-4 py-5 desktop:p-6">
-          <CountdownRing
-            v-if="countdown.remainingMs.value !== null"
-            :remaining-ms="countdown.remainingMs.value"
-            :total-ms="countdown.totalMs"
-            :window="gaugeWindow"
-            :units="units"
-          />
-          <LiveGauge
-            v-else
-            v-model:window="gaugeWindow"
-            :mode="gauge.mode"
-            :units="units"
-            :direction="gauge.direction"
-            :value="gauge.value"
-            :peak="gauge.peak"
-            :inner="gauge.inner"
-            :label="gauge.label"
-            :at="gauge.at"
-            :note="gauge.note"
-            :inner-label="gauge.innerLabel"
-            :text="gauge.text"
-          >
-            <template
-              v-if="offline"
-              #action
-            >
-              <AppButton
-                size="sm"
-                @click="refresh"
-              >
-                <RefreshCw
-                  :size="14"
-                  aria-hidden="true"
-                />
-                {{ $t('app.offline.retry') }}
-              </AppButton>
-            </template>
-          </LiveGauge>
-          <StartButton
-            :mode="mode"
-            :disabled-reason="disabledReason"
-            @press="press"
-          />
-        </div>
-        <div class="min-w-0 border-t border-(--border-subtle) px-4 pt-3.5 pb-4 desktop:border-t-0 desktop:border-l desktop:px-6 desktop:py-5">
-          <LatencyChart
-            v-if="latencyChart"
-            :state="chartState"
-            :points="run.latency.value"
-            :about-ms="(shownSettings?.pingCount ?? 0) * PING_SPACING_MS"
-            :ran-ms="run.phases.value.idle.ranMs ?? null"
-            :mark="latencyMark"
-            :readout="gaugeReadout(gauge, gaugeContext)"
-          />
-          <ThroughputChart
-            v-else
-            :order="order"
-            :live="chartLive"
-            :units="units"
-            :events="chartEvents"
-            :state="chartState"
-            :durations="shownSettings"
-            :total-ms="run.result.value?.durationMs ?? null"
-            :readout="gaugeReadout(gauge, gaugeContext)"
-            :empty-text="offline ? $t('test.chart.emptyOffline', { server: gaugeContext.server }) : null"
-          />
-        </div>
-      </div>
-    </section>
-    <ResultBar
-      v-if="shown && !running && run.result.value !== null"
-      :result="run.result.value"
+    <RunSection
+      v-model:window="gaugeWindow"
+      :view="view"
+      :state="state"
+      :latency="run.latency.value"
+      :settings="shownSettings"
+      :steps="steps"
+      :gauge="gauge"
+      :gauge-context="gaugeContext"
+      :units="units"
+      :offline="offline"
+      :countdown="countdown.remainingMs.value === null ? null : { remainingMs: countdown.remainingMs.value, totalMs: countdown.totalMs }"
+      :disabled-reason="disabledReason"
+      @press="press"
+      @refresh="refresh"
     />
-    <section
-      :aria-label="$t('test.results')"
-      class="grid grid-cols-2 gap-(--layout-tile-gap-compact) desktop:grid-cols-4 desktop:gap-(--layout-tile-gap)"
-    >
-      <MetricTile
-        v-for="tile in tiles.main"
-        :key="tile.label"
-        :tile="tile"
-      />
-      <MetaList
-        :title="$t('test.tiles.meta')"
-        :rows="facts"
-        :columns="3"
-        class="col-span-full"
-      >
-        <template #sub-packet-loss>
-          <NotMeasuredWhy :href="links.packetLoss" />
-        </template>
-        <template #value-packet-loss>
-          <NotMeasured />
-        </template>
-      </MetaList>
-    </section>
+    <ResultSection
+      :result="shown && !running ? run.result.value : null"
+      :tiles="tiles"
+    />
   </main>
 </template>

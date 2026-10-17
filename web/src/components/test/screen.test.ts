@@ -24,7 +24,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { gaugeInput, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen'
+import { phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen/states'
+import { gaugeInput } from '@/components/test/screen/view'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive, PhaseView } from '@/composables/useRunState'
 import type { DirectionResult, PhaseName, Result, TestSettings } from '@/engine/messages'
