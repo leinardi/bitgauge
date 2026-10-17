@@ -17,6 +17,8 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { latencyAxisLabels } from '@/lib/format'
+
 // Where a chart's parts sit (design_system/components/charts/Chart.jsx chartGeometry): the plot
 // box inside the chart's size, a value scale that ends on a round number, five gridlines at the
 // quarters of it with their labels, and the time ticks. Pure, so uPlot draws the series into the
@@ -44,6 +46,20 @@ const NICE = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
 export function niceMax(value: number): number {
   const decade = 10 ** Math.floor(Math.log10(value))
   return (NICE.find((multiple) => multiple * decade >= value) ?? 10) * decade
+}
+
+/**
+ * The loaded latency's second scale (Chart.jsx, latMax): its top well above the largest sample, so
+ * the line runs under the series' peaks, and its labels at 0, the middle and the top; null without
+ * samples.
+ */
+export function latencyScale(samples: readonly { ms: number }[], locale: string): { top: number; labels: string[] } | null {
+  if (samples.length === 0) {
+    return null
+  }
+  const top = niceMax(Math.max(1, ...samples.map((sample) => sample.ms)) * 1.9)
+  const labels = latencyAxisLabels(top, locale)
+  return { top, labels: [labels[0] ?? '', labels[2] ?? '', labels[4] ?? ''] }
 }
 
 /** The value scale's top over a chart's largest value: 8 % of headroom, rounded up. */

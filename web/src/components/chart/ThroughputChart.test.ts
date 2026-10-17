@@ -96,6 +96,34 @@ describe('the throughput chart', () => {
     done.unmount()
   })
 
+  it('draws the loaded latency on its second scale, labeled right of the plot, until its toggle turns it off', async () => {
+    const download = live({ values: Array.from({ length: 30 }, () => 1_176_250), warmupEnd: 10 })
+    const loaded = { download: Array.from({ length: 10 }, (_, index) => ({ at: index * 3, ms: 18 + index })) }
+    const wrapper = chart({ order: ['download'], live: { download, upload: null }, loaded, readout: 'Download 94.1 Mbit/s' })
+    await flushPromises()
+    const host = wrapper.get('[data-testid="throughput-chart"]')
+    const toggle = wrapper.get('[data-testid="latency-toggle"]')
+    expect(toggle.element.tagName).toBe('BUTTON')
+    expect(toggle.text()).toBe('Latency under load')
+    expect(toggle.attributes('aria-pressed')).toBe('true')
+    expect(toggle.get('span').classes()).toContain('border-dashed')
+    expect(host.attributes('aria-label')).toContain('; latency under load on a second scale')
+    const right = () => wrapper.findAll('.text-\\(--series-latency\\)').map((label) => label.text())
+    expect(right()).toEqual(['0', '30', '60\u00a0ms'])
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-pressed')).toBe('false')
+    expect(host.attributes('aria-label')).not.toContain('latency under load')
+    expect(right()).toEqual([])
+    wrapper.unmount()
+  })
+
+  it('has no latency toggle without pings', async () => {
+    const wrapper = chart({ order: ['download'], live: { download: live({ values: [1] }), upload: null } })
+    await flushPromises()
+    expect(wrapper.find('[data-testid="latency-toggle"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('cross-fades a new phase from a painted faded frame, which reduced motion turns off', async () => {
     const frames: FrameRequestCallback[] = []
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => frames.push(callback))

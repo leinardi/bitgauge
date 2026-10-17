@@ -166,4 +166,49 @@ describe('history on the Test screen', () => {
     expect(useHistory().results.value.find((saved) => saved.id === result.id)?.status).toBe('partial')
     page.unmount()
   })
+
+  it('shows the load card: pending, the live loaded latency, then the grade of the result', async () => {
+    vi.stubGlobal('Worker', StubWorker)
+    const page = await mountApp(TestPage)
+    await settle()
+    const card = () => page.get('[data-testid="load-card"]')
+    expect(card().text()).toContain('Graded after upload')
+    expect(page.findAll('[data-testid="load-row"]').map((row) => row.text())).toEqual(['During downloadPending—', 'During uploadPending—'])
+    await page.get('[data-testid="start-button"]').trigger('click')
+    const worker = StubWorker.started[0]
+    worker?.emit(
+      { type: 'phase', phase: 'download', state: 'started', notices: [] },
+      { type: 'sample', direction: 'download', fromBucket: 0, values: [1000], gauge: 1e6, streams: 1, phaseMs: 400, dataUsedBytes: 1000, loadedLatency: [{ atMs: 100, rttMs: 18 }, { atMs: 300, rttMs: 22 }] },
+    )
+    await settle()
+    const live = page.findAll('[data-testid="load-row"]')[0]
+    expect(live?.text()).toContain('During download')
+    expect(live?.find('[data-live]').text()).toBe('20ms')
+    const base = resultFixture()
+    const loaded = { source: 'websocket' as const, samples: 40, skippedTicks: 0, lost: 0, medianMs: 18, p90Ms: 24, increaseMs: 14.9, series: [] }
+    worker?.emit({ type: 'result', result: resultFixture({ id: 'a1b2c3d4-0000-4000-8000-000000000006', download: { ...base.download!, loadedLatency: loaded }, upload: { ...base.upload!, loadedLatency: { ...loaded, medianMs: 42, p90Ms: 55, increaseMs: 38.9 } }, bufferbloat: { grade: 'B', basis: 'download+upload', increaseMs: 38.9 } }) })
+    await settle()
+    expect(page.get('[data-testid="load-grade"]').text()).toBe('B')
+    expect(card().text()).toContain('Mild bufferbloat')
+    expect(page.findAll('[data-testid="load-row"]').map((row) => row.find('[data-live]').exists())).toEqual([false, false])
+    page.unmount()
+  })
+
+  it('reads no idle latency on the live load card when idle latency ended without a median', async () => {
+    vi.stubGlobal('Worker', StubWorker)
+    const page = await mountApp(TestPage)
+    await settle()
+    await page.get('[data-testid="start-button"]').trigger('click')
+    StubWorker.started[0]?.emit(
+      { type: 'phase', phase: 'idle', state: 'started', notices: [] },
+      // Four samples: the progress has a median, the finished phase none (measurement.md section 10).
+      { type: 'idle', path: 'websocket', pings: 5, count: 20, rttMs: 3, medianMs: 3.1, phaseMs: 500 },
+      { type: 'phase', phase: 'idle', state: 'finished', idle: { path: 'websocket', lossPercent: 75, samples: [3, 3.1, 3.2, 3] }, notices: [] },
+      { type: 'phase', phase: 'download', state: 'started', notices: [] },
+      { type: 'sample', direction: 'download', fromBucket: 0, values: [1000], gauge: 1e6, streams: 1, phaseMs: 400, dataUsedBytes: 1000, loadedLatency: [{ atMs: 100, rttMs: 18 }] },
+    )
+    await settle()
+    expect(page.findAll('[data-testid="load-row"]')[0]?.text()).toContain('p90 18 · no idle latency')
+    page.unmount()
+  })
 })

@@ -174,6 +174,7 @@ const latencyMark = computed(() => (props.state === 'cancelled' || props.state =
           :live="chartLive"
           :units="units"
           :events="chartEvents"
+          :loaded="view.loaded"
           :state="chartState"
           :durations="settings"
           :total-ms="view.result?.durationMs ?? null"

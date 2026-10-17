@@ -66,6 +66,14 @@ describe('the result summary', () => {
     expect(resultSummary(result, 'bits', wording)).toBe('Test failed. The phases that finished before the error are kept. Download: insufficient data. Data used 1.3 gigabytes. Notice: Network changed.')
   })
 
+  it('says the grade in letter and words with the increase it rests on, after idle latency', () => {
+    const result = resultFixture({ bufferbloat: { grade: 'C', basis: 'download+upload', increaseMs: 81.2 } })
+    expect(resultSummary(result, 'bits', wording)).toBe(
+      'Test complete. Download 612 megabits per second. Upload 438 megabits per second. Idle latency 3.1 milliseconds, jitter 0.4 milliseconds. ' +
+        'Bufferbloat grade C, moderate bufferbloat, plus 81 milliseconds under load. Data used 1.3 gigabytes.',
+    )
+  })
+
   it('says less than the timer resolution for a latency below it', () => {
     const base = resultFixture()
     const result = resultFixture({ client: { ...base.client, timerResolutionMs: 1 }, idle: { ...base.idle!, medianMs: 0.5, jitterMs: 0 } })

@@ -163,8 +163,8 @@ describe('editing', () => {
     const input = page.get('[data-testid="label-input"]')
     await input.setValue('Desk, 5 GHz')
     await input.trigger('keydown', { key: 'Enter' })
-    await settle()
-    expect(text(page, 'result-label')).toBe('Desk, 5 GHz')
+    // The edit is a write to IndexedDB, which a loaded machine can take longer than the settling for.
+    await vi.waitFor(() => expect(text(page, 'result-label')).toBe('Desk, 5 GHz'))
     expect((await stored(NEWEST.id))?.label).toBe('Desk, 5 GHz')
     page.unmount()
   })
@@ -184,8 +184,7 @@ describe('editing', () => {
     const page = await open(NEWEST.id)
     await page.get('[data-testid="note-field"]').setValue('Hotel room')
     await new Promise((resolve) => setTimeout(resolve, 350))
-    await settle()
-    expect((await stored(NEWEST.id))?.note).toBe('Hotel room')
+    await vi.waitFor(async () => expect((await stored(NEWEST.id))?.note).toBe('Hotel room'))
     page.unmount()
   })
 })
@@ -194,14 +193,12 @@ describe('Delete and Run again', () => {
   it('deletes the result with an undo that brings it back', async () => {
     const page = await open(NEWEST.id)
     await page.get('[data-testid="delete-result"]').trigger('click')
-    await settle()
-    expect(text(page, 'result-missing')).toContain('Result deleted')
+    await vi.waitFor(() => expect(text(page, 'result-missing')).toContain('Result deleted'))
     expect(await stored(NEWEST.id)).toBeUndefined()
     const [title, options] = vi.mocked(toast).mock.calls[0] ?? []
     expect(title).toBe('1 result deleted.')
     ;(options as { action: { onClick: () => void } }).action.onClick()
-    await settle()
-    expect(text(page, 'result-label')).toBe('VPN via 5G')
+    await vi.waitFor(() => expect(text(page, 'result-label')).toBe('VPN via 5G'))
     page.unmount()
   })
 

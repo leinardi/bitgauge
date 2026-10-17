@@ -32,12 +32,15 @@ import { protocolLabel } from '@/lib/protocol'
 // the context label with the server's suggestion, the client IP with its version, the negotiated
 // protocol and the stream count. Protocol and live streams come from a run; before one, the
 // protocol reads "not reported" and the streams show the configured mode, with the plateau reason
-// code once a run has one, as the export's strip shows it.
+// code once a run has one, as the export's strip shows it. Under the HTTP/1.1 probe reservation
+// (measurement.md section 11.2) the count is held to the reserved cap, 5, and a ramp that stopped
+// at that cap names the reservation as its plateau.
 
-const props = withDefaults(defineProps<{ info: Info | null; protocol?: string | null; streams?: number | null; plateau?: Plateau | null }>(), {
+const props = withDefaults(defineProps<{ info: Info | null; protocol?: string | null; streams?: number | null; plateau?: Plateau | null; reserved?: number | null }>(), {
   protocol: null,
   streams: null,
   plateau: null,
+  reserved: null,
 })
 
 const { t } = useI18n()
@@ -98,12 +101,15 @@ const facts = computed(() => {
       streamsValue = props.streams === null ? unknown : String(props.streams)
       streamsNote = t('test.connection.streamsAuto')
     } else {
-      streamsValue = String(props.streams ?? (streams.mode === 'single' ? 1 : streams.fixed))
+      const configured = streams.mode === 'single' ? 1 : streams.fixed
+      streamsValue = String(props.streams ?? (props.reserved === null ? configured : Math.min(configured, props.reserved)))
       streamsNote = streams.mode === 'single' ? t('test.connection.streamsSingle') : t('test.connection.streamsFixed')
     }
   }
   if (props.plateau !== null) {
-    streamsNote = t('test.connection.streamsPlateau', { mode: streamsNote, reason: props.plateau })
+    // A cap that is the reservation's own: a server cap below it stays a plain cap.
+    const reason = props.plateau === 'cap' && props.reserved !== null && props.streams === props.reserved ? t('test.connection.reservation') : props.plateau
+    streamsNote = t('test.connection.streamsPlateau', { mode: streamsNote, reason })
   }
   const protocol = protocolLabel(props.protocol)
   return [

@@ -25,9 +25,9 @@ import { computed, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ChartLabels from '@/components/chart/ChartLabels.vue'
-import { drawGrid, drawRule, holdLinear } from '@/components/chart/draw'
+import { drawGrid, drawLatency, drawRule, holdLinear } from '@/components/chart/draw'
 import { frameOptions } from '@/components/chart/frame'
-import { chartGeometry, niceMax, valueMax } from '@/components/chart/geometry'
+import { chartGeometry, latencyScale, valueMax } from '@/components/chart/geometry'
 import { chartPalette, faded } from '@/components/chart/palette'
 import { markLabel } from '@/components/chart/text'
 import { useUplot } from '@/components/chart/useUplot'
@@ -64,17 +64,7 @@ const ends = computed(() => {
   return { xMax: props.model.xMax, yMax: valueMax(largest) }
 })
 // The loaded latency's scale tops out well above its largest sample, so it runs under the series' peaks.
-const latencyMax = computed(() => {
-  const samples = props.model.latency
-  return samples === null ? null : niceMax(Math.max(1, ...samples.map((sample) => sample.ms)) * 1.9)
-})
-const latencyLabels = computed(() => {
-  if (latencyMax.value === null) {
-    return []
-  }
-  const labels = latencyAxisLabels(latencyMax.value, locale.value)
-  return [labels[0] ?? '', labels[2] ?? '', labels[4] ?? '']
-})
+const latency = computed(() => (props.model.latency === null ? null : latencyScale(props.model.latency, locale.value)))
 const data = computed<uPlot.AlignedData>(() => [props.model.x, props.model.y])
 let colors = chartPalette(host.value)
 const seriesColor = () => colors[props.color]
@@ -99,7 +89,7 @@ const geometry = computed(() =>
     yLabels: props.kind === 'rate' ? rateAxisLabels(props.units === 'bits' ? ends.value.yMax : ends.value.yMax * 8, props.units, locale.value) : latencyAxisLabels(ends.value.yMax, locale.value),
     xLabel: (value) => (props.kind === 'rate' ? t('test.chart.seconds', { n: new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(value) }) : String(value)),
     compact: compact.value,
-    y2Labels: latencyLabels.value,
+    y2Labels: latency.value?.labels ?? [],
   }),
 )
 const wording = computed(() => ({ t, locale: locale.value }))
@@ -122,25 +112,8 @@ function drawOver(u: uPlot): void {
   ctx.save()
   props.model.marks.forEach((mark) => drawRule(u, mark.at, colors.mark, colors.strokeMark, colors.dashMark))
   const samples = props.model.latency
-  const top = latencyMax.value
-  if (samples !== null && top !== null) {
-    const scale = typeof devicePixelRatio === 'number' ? devicePixelRatio : 1
-    const { top: plotTop, height: plotHeight } = u.bbox
-    ctx.globalAlpha = colors.latencyOpacity
-    ctx.strokeStyle = colors.latency
-    ctx.lineWidth = colors.strokeLatency * scale
-    ctx.setLineDash(colors.dashLatency.map((length) => length * scale))
-    ctx.beginPath()
-    samples.forEach((sample, index) => {
-      const x = u.valToPos(sample.at, 'x', true)
-      const y = plotTop + plotHeight * (1 - Math.min(sample.ms, top) / top)
-      if (index === 0) {
-        ctx.moveTo(x, y)
-      } else {
-        ctx.lineTo(x, y)
-      }
-    })
-    ctx.stroke()
+  if (samples !== null && latency.value !== null) {
+    drawLatency(u, samples, latency.value.top, colors)
   }
   ctx.restore()
 }

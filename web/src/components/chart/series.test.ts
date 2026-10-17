@@ -93,6 +93,20 @@ describe('buildChart', () => {
     }
   })
 
+  it('places the loaded latency on each segment: download from its phase start, upload from its cell, none before the segment', () => {
+    const download = live({ values: [125_000, 125_000, 125_000] })
+    const upload = live({ firstBucket: 9000, values: [12_500, 12_500], start: 9000 })
+    const loaded = { download: [{ at: 0.5, ms: 12 }, { at: 2.5, ms: 14 }], upload: [{ at: 8999.5, ms: 30 }, { at: 9001.5, ms: 40 }] }
+    const model = buildChart({ order: ['download', 'upload'], live: { download, upload }, units: 'bits', loaded })
+    const boundary = model.separators[0] ?? 0
+    expect(model.latency.map((sample) => [Math.round(sample.at * 100) / 100, sample.ms])).toEqual([
+      [0.05, 12],
+      [0.25, 14],
+      [Math.round((boundary + 0.15) * 100) / 100, 40],
+    ])
+    expect(buildChart({ order: ['download'], live: { download, upload: null }, units: 'bits' }).latency).toEqual([])
+  })
+
   it('bands the warm-up up to its end, or up to the latest bucket while it lasts', () => {
     const download = live({ values: [1, 2, 3, 4], warmupEnd: 2 })
     const upload = live({ firstBucket: 100, values: [1, 2], start: 100 })

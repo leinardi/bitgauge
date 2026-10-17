@@ -31,11 +31,13 @@ import { secondsNumber } from '@/lib/format'
 export type ChartState = 'empty' | 'running' | 'done' | 'stopped'
 
 export interface LegendEntry {
-  key: 'download' | 'upload' | 'received' | 'sending' | 'warmup' | 'rtt'
+  key: 'download' | 'upload' | 'received' | 'sending' | 'warmup' | 'rtt' | 'latency'
   label: string
   color: string
   faint: boolean
   band: boolean
+  /** A dashed swatch: the loaded latency, told apart by line style as well as color. */
+  dashed?: boolean
 }
 
 export interface ChartTextInput {
@@ -49,6 +51,8 @@ export interface ChartTextInput {
   totalMs: number | null
   /** What the gauge reads: its label, number and unit, or its state's title. */
   readout: string | null
+  /** The loaded latency is drawn on its second scale: the toggle is on and there are pings. */
+  latencyShown?: boolean
 }
 
 const hasValue = (live: DirectionLive | null) => live !== null && live.values.some((value) => value !== null)
@@ -76,8 +80,10 @@ export function chartLegend({ state, order, live, model }: ChartTextInput, { t }
     const received = hasValue(shown) ? [entry('received', t('test.chart.legend.received'), 'var(--series-upload)')] : []
     return [...received, entry('sending', t('test.chart.legend.sending'), 'var(--sending)', true)]
   })
+  // The loaded latency's entry is its toggle, there whether it is shown or not.
+  const latency: LegendEntry[] = model.latency.length === 0 ? [] : [{ ...entry('latency', t('test.chart.legend.latency'), 'var(--series-latency)'), dashed: true }]
   const banded = model.warmup.some((span) => span.to > span.from)
-  return banded ? [...entries, entry('warmup', t('test.chart.legend.warmup'), 'var(--chart-band)', false, true)] : entries
+  return banded ? [...entries, ...latency, entry('warmup', t('test.chart.legend.warmup'), 'var(--chart-band)', false, true)] : [...entries, ...latency]
 }
 
 /** Where the run stands: elapsed over the current phase's minimum, the total, or where it stopped. */
@@ -125,6 +131,9 @@ export function chartSummary(input: ChartTextInput, wording: Wording): string {
   let summary = t('test.chart.summary', { title, parts: parts.join(', ') })
   if (input.model.warmup.some((span) => span.to > span.from)) {
     summary += t('test.chart.warmupShaded')
+  }
+  if (input.latencyShown === true && input.model.latency.length > 0) {
+    summary += t('test.chart.latencyAxis')
   }
   if (input.model.marks.length > 0) {
     summary += t('test.chart.marked', { marks: input.model.marks.map((mark) => markLabel(mark, wording)).join(', ') })

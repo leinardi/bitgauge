@@ -20,6 +20,7 @@
 import { computed, onScopeDispose, type ShallowRef, shallowReadonly, shallowRef, watch } from 'vue'
 
 import { useInfo } from '@/composables/useInfo'
+import { useLoadedSeries } from '@/composables/useLoadedSeries'
 import { createRunState } from '@/composables/useRunState'
 import { useWorker } from '@/composables/useWorker'
 import type { ConfigureOverride, IgnoredParameter, Preset, Result, SettingsOverride, TestSettings } from '@/engine/messages'
@@ -73,6 +74,7 @@ export function useRun(options: RunOptions = {}) {
   const { info } = useInfo()
   const bridge = useWorker()
   const state = createRunState()
+  const loaded = useLoadedSeries()
   const connection = (navigator as Navigator & { connection?: Connection }).connection
   let connectionType = connection?.type
   let wakeLock: WakeLockSentinel | null = null
@@ -87,6 +89,12 @@ export function useRun(options: RunOptions = {}) {
   const settings = computed(() => (base.value === null ? null : (state.configured.value ?? base.value)))
 
   bridge.onEvent(state.apply)
+  // The live loaded latency of the run under way, kept once it ends until the next one starts.
+  bridge.onEvent((event) => {
+    if (state.status.value === 'running') {
+      loaded.apply(event)
+    }
+  })
   bridge.onError(state.crash)
   watch(state.result, (result) => {
     if (result !== null) {
@@ -176,6 +184,8 @@ export function useRun(options: RunOptions = {}) {
 
   return {
     ...state,
+    /** Each direction's live loaded-latency pings on its chart axis. */
+    loaded: loaded.series,
     defaults,
     settings,
 
@@ -184,7 +194,11 @@ export function useRun(options: RunOptions = {}) {
      * ended at once when the Worker refused the configure or has failed.
      */
     start(start: StartOptions = {}): void {
-      if (state.status.value === 'running' || defaults.value === null || !state.begin()) {
+      if (state.status.value === 'running' || defaults.value === null) {
+        return
+      }
+      loaded.reset()
+      if (!state.begin()) {
         return
       }
       const startOverride: SettingsOverride = { ...start.settings }

@@ -20,6 +20,7 @@
 import type { PhaseStep } from '@/components/test/steps'
 import { dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, packetLossTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
+import type { LoadedSeries } from '@/composables/useLoadedSeries'
 import type { DirectionLive, IdleLive, PhaseView, RunError, RunStatus } from '@/composables/useRunState'
 import type { Direction, DirectionResult, MeasuringPhase, PhaseName, Result, TestSettings } from '@/engine/messages'
 import { formatBytes, formatLatency, formatRate } from '@/lib/format'
@@ -41,6 +42,8 @@ export interface RunView {
   dataUsedBytes: number
   result: Result | null
   error: RunError | null
+  /** Each direction's live loaded-latency pings; none before the first. */
+  loaded?: LoadedSeries
 }
 
 /** Idle latency sends a ping no sooner than this after the previous one (measurement.md section 10). */

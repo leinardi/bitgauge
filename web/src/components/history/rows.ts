@@ -83,16 +83,16 @@ export function rowView(result: Result, units: 'bits' | 'bytes', locale: string)
 export function gradeWord(grade: Bufferbloat['grade'], t: ReturnType<typeof useI18n>['t']): string {
   switch (grade) {
     case 'A+':
-      return t('history.table.grades.aPlus')
+      return t('test.grades.aPlus')
     case 'A':
-      return t('history.table.grades.a')
+      return t('test.grades.a')
     case 'B':
-      return t('history.table.grades.b')
+      return t('test.grades.b')
     case 'C':
-      return t('history.table.grades.c')
+      return t('test.grades.c')
     case 'D':
-      return t('history.table.grades.d')
+      return t('test.grades.d')
     case 'F':
-      return t('history.table.grades.f')
+      return t('test.grades.f')
   }
 }

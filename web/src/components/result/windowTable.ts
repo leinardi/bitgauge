@@ -18,6 +18,7 @@
  */
 
 import type { LoadedPing, ResultSeries } from '@/engine/messages'
+import { percentile } from '@/lib/percentile'
 
 // The Result detail's table, the text alternative of a direction's chart (ui/screens.md section 2):
 // rows of 2 s windows from warm-up end on the direction's series timeline, each with its known time,
@@ -46,12 +47,7 @@ export interface WindowTable {
 }
 
 export function median(values: readonly number[]): number | null {
-  if (values.length === 0) {
-    return null
-  }
-  const sorted = [...values].sort((a, b) => a - b)
-  const middle = Math.floor(sorted.length / 2)
-  return sorted.length % 2 === 1 ? (sorted[middle] ?? null) : ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2
+  return percentile(values, 50)
 }
 
 /** The series' cells: each one's span on the timeline and its bytes, null when unknown; the last ends at endMs. */

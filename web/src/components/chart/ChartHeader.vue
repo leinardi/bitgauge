@@ -20,18 +20,27 @@
 import type { LegendEntry } from '@/components/chart/text'
 
 // Over a live chart: its title, its legend and where the run stands (design_system/components/charts.md).
+// The loaded latency's legend entry is its toggle (ui/screens.md section 1): a button, pressed while
+// the series is drawn, whose swatch is dashed as the line is.
 
-defineProps<{ title: string; legend: readonly LegendEntry[]; meta: string }>()
+withDefaults(defineProps<{ title: string; legend: readonly LegendEntry[]; meta: string; latencyShown?: boolean }>(), { latencyShown: true })
+const emit = defineEmits<{ toggleLatency: [] }>()
 </script>
 
 <template>
   <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
     <span class="text-(length:--text-base) font-semibold">{{ title }}</span>
     <div class="flex flex-wrap gap-x-3.5 gap-y-1.5">
-      <span
+      <component
+        :is="entry.key === 'latency' ? 'button' : 'span'"
         v-for="entry in legend"
         :key="entry.key"
+        :type="entry.key === 'latency' ? 'button' : undefined"
+        :aria-pressed="entry.key === 'latency' ? latencyShown : undefined"
         class="flex items-center gap-1.5 text-(length:--text-caption) text-muted-foreground"
+        :class="entry.key === 'latency' ? 'cursor-pointer rounded-(--radius-xs) hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring' : ''"
+        :data-testid="entry.key === 'latency' ? 'latency-toggle' : undefined"
+        @click="entry.key === 'latency' ? emit('toggleLatency') : undefined"
       >
         <span
           v-if="entry.band"
@@ -42,11 +51,11 @@ defineProps<{ title: string; legend: readonly LegendEntry[]; meta: string }>()
           v-else
           aria-hidden="true"
           class="h-0 w-(--legend-swatch-w) border-t-2"
-          :class="{ 'opacity-40': entry.faint }"
+          :class="{ 'opacity-40': entry.faint || (entry.key === 'latency' && !latencyShown), 'border-dashed': entry.dashed }"
           :style="{ borderTopColor: entry.color }"
         />
         {{ entry.label }}
-      </span>
+      </component>
     </div>
     <span
       v-if="meta"

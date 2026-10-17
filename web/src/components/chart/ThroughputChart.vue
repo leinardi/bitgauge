@@ -26,9 +26,9 @@ import { useI18n } from 'vue-i18n'
 
 import ChartHeader from '@/components/chart/ChartHeader.vue'
 import ChartLabels from '@/components/chart/ChartLabels.vue'
-import { drawBand, drawEndDot, drawGrid, drawRule, holdLinear, lastPoint } from '@/components/chart/draw'
+import { drawBand, drawEndDot, drawGrid, drawLatency, drawRule, holdLinear, lastPoint } from '@/components/chart/draw'
 import { frameOptions } from '@/components/chart/frame'
-import { chartGeometry, valueMax } from '@/components/chart/geometry'
+import { chartGeometry, latencyScale, valueMax } from '@/components/chart/geometry'
 import { chartHeight, chartPalette, faded } from '@/components/chart/palette'
 import type { LineLabel } from '@/components/chart/placement'
 import { buildChart, type ChartData, type ChartInput } from '@/components/chart/series'
@@ -45,7 +45,8 @@ import { rateAxisLabels } from '@/lib/format'
 // dot over them. The labels sit over the canvas as text. Over the plot sit the title, the legend and
 // where the run stands. The canvas is decoration for assistive technology: the plot is an image
 // whose label summarizes what it shows, from the gauge's readout. A finished run draws what the
-// server received, without the sending line.
+// server received, without the sending line. The loaded latency is drawn dashed on its own scale,
+// labeled right of the plot, while its legend entry, the toggle, is pressed.
 
 const props = withDefaults(
   defineProps<
@@ -71,6 +72,9 @@ const host = useTemplateRef<HTMLDivElement>('host')
 const compact = useMediaQuery('(max-width: 1139.98px)')
 
 const model = computed(() => buildChart(props))
+const latencyOn = shallowRef(true)
+// The loaded latency's scale, while it is drawn.
+const latency = computed(() => (latencyOn.value ? latencyScale(model.value.latency, locale.value) : null))
 // A chart with nothing drawn yet is empty, whatever the run's state: while connecting, say.
 const shownState = computed<ChartState>(() => (model.value.data[0].length === 0 ? 'empty' : props.state))
 const empty = computed(() => shownState.value === 'empty')
@@ -80,7 +84,7 @@ const data = computed<ChartData>(() => {
   return props.state === 'done' ? [x, download, received, sending.map(() => null)] : [x, download, received, sending]
 })
 const wording = computed(() => ({ t, locale: locale.value }))
-const textInput = computed<ChartTextInput>(() => ({ ...props, state: shownState.value, model: model.value }))
+const textInput = computed<ChartTextInput>(() => ({ ...props, state: shownState.value, model: model.value, latencyShown: latency.value !== null }))
 const legend = computed(() => chartLegend(textInput.value, wording.value))
 const meta = computed(() => chartMeta(textInput.value, wording.value))
 const summary = computed(() => chartSummary(textInput.value, wording.value))
@@ -132,6 +136,7 @@ const geometry = computed(() =>
     yLabels: rateAxisLabels(props.units === 'bits' ? ends.value.yMax : ends.value.yMax * 8, props.units, locale.value),
     xLabel: seconds,
     compact: compact.value,
+    y2Labels: latency.value?.labels ?? [],
   }),
 )
 
@@ -156,10 +161,14 @@ function drawUnder(u: uPlot): void {
   u.ctx.restore()
 }
 
-/** Over the series: the result's event marks, while live the "now" line, and the end dot. */
+/** Over the series: the result's event marks, the loaded latency, while live the "now" line, and the end dot. */
 function drawOver(u: uPlot): void {
   u.ctx.save()
   model.value.marks.forEach((mark) => drawRule(u, mark.at, colors.mark, colors.strokeMark, colors.dashMark))
+  if (latency.value !== null) {
+    drawLatency(u, model.value.latency, latency.value.top, colors)
+    u.ctx.setLineDash([])
+  }
   if (running.value) {
     u.ctx.globalAlpha = colors.nowOpacity
     drawRule(u, model.value.end, colors.now, colors.stroke)
@@ -174,7 +183,7 @@ function drawOver(u: uPlot): void {
   u.ctx.restore()
 }
 
-watch([applied, running, geometry], () => {
+watch([applied, running, geometry, latency], () => {
   colors = chartPalette(host.value)
   plot.value?.redraw(true, true)
 })
@@ -207,6 +216,8 @@ watch(
       :title="t('test.chart.title')"
       :legend="legend"
       :meta="meta"
+      :latency-shown="latencyOn"
+      @toggle-latency="latencyOn = !latencyOn"
     />
     <div class="relative">
       <div

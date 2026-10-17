@@ -34,6 +34,8 @@ export interface LoadRow {
   sub: string
   /** The median in ms, or null for "—". */
   value: string | null
+  /** A live reading of the Test screen, not yet the result's. */
+  live?: boolean
 }
 
 export interface GradeView {
@@ -68,7 +70,8 @@ function reasonText(reason: LoadedLatencyReason, t: Wording['t']): string {
   }
 }
 
-function row(direction: Direction, loaded: LoadedLatency, resolutionMs: number, { t, locale }: Wording): LoadRow {
+/** A direction's row from its loaded latency in the result. */
+export function loadRow(direction: Direction, loaded: LoadedLatency, resolutionMs: number, { t, locale }: Wording): LoadRow {
   const during = direction === 'download' ? t('result.load.during.download') : t('result.load.during.upload')
   const label = loaded.source === undefined ? during : t('result.load.row', { direction: during, source: sourceName(loaded.source, t) })
   if ('status' in loaded) {
@@ -92,7 +95,7 @@ export function loadRows(result: Result, wording: Wording): LoadRow[] {
   const order = result.settings.phases.filter((phase): phase is Direction => phase !== 'idle')
   return order.flatMap((direction) => {
     const loaded = result[direction]?.loadedLatency
-    return loaded === undefined ? [] : [row(direction, loaded, result.client.timerResolutionMs, wording)]
+    return loaded === undefined ? [] : [loadRow(direction, loaded, result.client.timerResolutionMs, wording)]
   })
 }
 

@@ -26,9 +26,11 @@ import type { GradeView, LoadRow } from '@/components/result/load'
 // The load card (design_system/components/measurement LoadCard.jsx, measurement.css .load): the
 // bufferbloat grade as a letter in a box of its tone, the scale strip with it marked and its words,
 // never color alone, with the basis; beside it a row per direction with its loaded latency, its
-// source and qualifiers, and the median in ms or "—".
+// source and qualifiers, and the median in ms or "—". The Test screen shows it too, with a live
+// reading in the primary text color while the run goes on, and without the grade when the run has
+// no idle latency to grade against.
 
-const props = defineProps<{ grade: GradeView; rows: LoadRow[] }>()
+const props = defineProps<{ grade: GradeView | null; rows: LoadRow[] }>()
 
 const { t } = useI18n()
 const DASH = '—'
@@ -49,8 +51,9 @@ const CELL: Record<Tone, string> = {
 }
 const DIRECTIONS = { download: { icon: ArrowDown, color: 'var(--series-download)' }, upload: { icon: ArrowUp, color: 'var(--series-upload)' } }
 
-const box = computed(() => (props.grade.grade === null ? BOX.none : BOX[toneOf(props.grade.grade)]))
-const name = computed(() => (props.grade.grade === null ? t('result.load.noGrade') : t('result.load.grade', { grade: props.grade.grade, words: props.grade.words })))
+const letter = computed(() => props.grade?.grade ?? null)
+const box = computed(() => (letter.value === null ? BOX.none : BOX[toneOf(letter.value)]))
+const name = computed(() => (letter.value === null || props.grade === null ? t('result.load.noGrade') : t('result.load.grade', { grade: letter.value, words: props.grade.words })))
 </script>
 
 <template>
@@ -59,7 +62,10 @@ const name = computed(() => (props.grade.grade === null ? t('result.load.noGrade
     :aria-label="t('result.load.title')"
     data-testid="load-card"
   >
-    <div class="flex max-w-(--layout-grade-max) flex-[1_0_var(--layout-grade-basis)] flex-col gap-2">
+    <div
+      v-if="grade"
+      class="flex max-w-(--layout-grade-max) flex-[1_0_var(--layout-grade-basis)] flex-col gap-2"
+    >
       <span class="font-condensed text-(length:--text-micro) leading-(--lh-snug) font-semibold tracking-(--tracking-caps) text-subtle-foreground uppercase">{{ t('result.load.title') }}</span>
       <div class="flex items-center gap-2.5">
         <span
@@ -85,6 +91,7 @@ const name = computed(() => (props.grade.grade === null ? t('result.load.noGrade
         </div>
       </div>
       <span
+        v-if="grade.basis"
         class="text-(length:--text-micro) leading-(--lh-snug) text-pretty text-muted-foreground"
         data-testid="load-basis"
       >{{ grade.basis }}</span>
@@ -110,7 +117,8 @@ const name = computed(() => (props.grade.grade === null ? t('result.load.noGrade
         </span>
         <span
           class="font-mono text-(length:--text-lg) font-medium whitespace-nowrap"
-          :class="row.value === null ? 'text-subtle-foreground' : 'text-foreground'"
+          :class="row.value === null ? 'text-subtle-foreground' : row.live ? 'text-primary-text' : 'text-foreground'"
+          :data-live="row.live ? '' : undefined"
         >{{ row.value ?? DASH }}<span
           v-if="row.value !== null"
           class="ml-1 font-mono text-(length:--text-caption) font-normal text-muted-foreground"

@@ -147,14 +147,6 @@
         "complete": "Complete",
         "partial": "Partial",
         "error": "Error"
-      },
-      "grades": {
-        "aPlus": "Minimal",
-        "a": "Low",
-        "b": "Mild",
-        "c": "Moderate",
-        "d": "High",
-        "f": "Severe"
       }
     },
     "sort": {

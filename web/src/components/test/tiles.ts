@@ -20,8 +20,12 @@
 import { Activity, ArrowDown, ArrowUp, Database, Signal, Timer } from '@lucide/vue'
 import type { Component } from 'vue'
 
-import type { ConfidenceReason, Direction, DirectionResult, IdleResult, SteadySoFar } from '@/engine/messages'
+import type { ConfidenceReason, Direction, DirectionResult, IdleResult, MeasuringPhase, PhaseState, Result, SteadySoFar } from '@/engine/messages'
+import { type GradeView, loadRow, type LoadRow, gradeView } from '@/components/result/load'
 import type { Wording } from '@/components/test/wording'
+import type { LoadedSeries } from '@/composables/useLoadedSeries'
+import type { RunStatus } from '@/composables/useRunState'
+import { percentile } from '@/lib/percentile'
 import { bytesParts, formatBytes, formatDuration, formatLimit, formatPercent, latencyNumber, rateParts, secondsNumber } from '@/lib/format'
 import { protocolLabel } from '@/lib/protocol'
 
@@ -255,4 +259,93 @@ export function durationTile(ms: number | null, context: Wording): TileView {
 /** The packet-loss slot: never a number, since a browser cannot see packet loss over TCP. */
 export function packetLossTile(context: Wording): TileView {
   return { ...blank(context.t('test.tiles.packetLoss'), Signal, SERIES.neutral), lines: [{ text: context.t('test.tiles.notMeasured') }] }
+}
+
+/** What the Test screen's load card needs of the run (ui/screens.md sections 1 and 6). */
+export interface LoadInput {
+  status: RunStatus
+  /** The run's phases in order: the settings it runs with, or the next run's. */
+  phases: readonly MeasuringPhase[]
+  /** Each direction's phase state in the run shown. */
+  states: Record<Direction, PhaseState | 'pending'>
+  /** A run stopped during idle latency that returned to idle: its directions never ran. */
+  stoppedEarly?: boolean
+  /** Each direction's live loaded-latency pings. */
+  pings: LoadedSeries | undefined
+  /**
+   * Idle latency's median as its finished phase reports it, the baseline of the live increase;
+   * null while there is none, or when idle latency ended without one (fewer than 5 samples), as
+   * the result will have no increase either.
+   */
+  idleMedianMs: number | null
+  result: Result | null
+}
+
+export interface LoadView {
+  /** Null when the run has no idle latency, so no grade (measurement.md section 11.3). */
+  grade: GradeView | null
+  rows: LoadRow[]
+}
+
+/**
+ * A direction's loaded latency before the result: the median and p90 of its pings so far and the
+ * increase over the idle median; live while the direction runs, settled once it has finished.
+ * Formatted without the timer resolution, as the live idle tile is: the clock's resolution comes
+ * with the result, whose rows then replace these.
+ */
+function pingsRow(direction: Direction, pings: readonly { ms: number }[], idleMedianMs: number | null, live: boolean, { t, locale }: Wording): LoadRow {
+  const values = pings.map((ping) => ping.ms)
+  const medianMs = percentile(values, 50) ?? 0
+  const p90 = latencyNumber(percentile(values, 90) ?? 0, locale)
+  const label = direction === 'download' ? t('result.load.during.download') : t('result.load.during.upload')
+  const sub = idleMedianMs === null ? t('result.load.noIdle', { p90 }) : t('result.load.increase', { p90, increase: latencyNumber(Math.max(0, medianMs - idleMedianMs), locale) })
+  return { direction, label, sub, value: latencyNumber(medianMs, locale), live }
+}
+
+/**
+ * The load card of the Test screen: the grade once the result has it, "graded after" the last
+ * direction while there is none yet, and absent without idle latency; a row per direction of the
+ * run, pending until it runs, live as its pings come, then the result's, with its source and
+ * qualifiers. Null for a run with neither direction.
+ */
+export function loadView(input: LoadInput, context: Wording): LoadView | null {
+  const { t } = context
+  const order = input.phases.filter((phase): phase is Direction => phase !== 'idle')
+  const last = order.at(-1)
+  if (last === undefined) {
+    return null
+  }
+  const { result, status } = input
+  // A run that ended without a result: an error before it, or a stop during idle latency.
+  const ended = (status === 'ended' && result === null) || input.stoppedEarly === true
+  const rows = order.map((direction): LoadRow => {
+    const label = direction === 'download' ? t('result.load.during.download') : t('result.load.during.upload')
+    const loaded = result?.[direction]?.loadedLatency
+    if (loaded !== undefined && result !== null) {
+      return loadRow(direction, loaded, result.client.timerResolutionMs, context)
+    }
+    const state = input.states[direction]
+    const pings = status === 'idle' ? [] : (input.pings?.[direction] ?? [])
+    if (pings.length > 0 && result === null && !ended) {
+      return pingsRow(direction, pings, input.idleMedianMs, state === 'started', context)
+    }
+    if (!ended && (status === 'idle' || (status === 'running' && (state === 'pending' || state === 'started')))) {
+      return { direction, label, sub: t('test.load.pending'), value: null }
+    }
+    if (state === 'pending' || state === 'skipped') {
+      return { direction, label, sub: t('test.load.notRun'), value: null }
+    }
+    return { direction, label, sub: ended ? t('test.load.noResult') : t('test.load.none'), value: null }
+  })
+  if (!input.phases.includes('idle')) {
+    return { grade: null, rows }
+  }
+  if (result !== null) {
+    return { grade: gradeView(result, context), rows }
+  }
+  if (input.stoppedEarly === true) {
+    return { grade: { grade: null, words: t('test.load.noLoaded'), basis: '' }, rows }
+  }
+  const words = ended ? t('test.load.incomplete') : last === 'upload' ? t('test.load.afterUpload') : t('test.load.afterDownload')
+  return { grade: { grade: null, words, basis: '' }, rows }
 }

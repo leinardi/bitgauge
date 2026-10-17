@@ -19,6 +19,7 @@
       "streams": "Streams",
       "streamsAuto": "auto",
       "streamsPlateau": "{mode} · plateau: {reason}",
+      "reservation": "HTTP/1.1 probe reservation",
       "streamsFixed": "fixed",
       "streamsSingle": "single",
       "unknown": "—",
@@ -82,6 +83,7 @@
       "emptyOffline": "Nothing to measure yet. The chart fills in once {server} responds.",
       "warmupShaded": "; warm-up shaded",
       "marked": "; marked: {marks}",
+      "latencyAxis": "; latency under load on a second scale",
       "elapsed": "{s} s / {of} s",
       "latencyElapsed": "{s} s / ~{of} s",
       "total": "{s} s total",
@@ -100,7 +102,8 @@
         "received": "Upload · received",
         "sending": "Upload · sending",
         "warmup": "Warm-up",
-        "rtt": "Round-trip time"
+        "rtt": "Round-trip time",
+        "latency": "Latency under load"
       }
     },
     "phases": {
@@ -265,6 +268,24 @@
       "body": "This page was opened from a link that starts a test automatically.",
       "bodyStored": "Auto-start is on in Settings, so a test starts automatically when this page opens.",
       "cancel": "Cancel"
+    },
+    "grades": {
+      "aPlus": "Minimal",
+      "a": "Low",
+      "b": "Mild",
+      "c": "Moderate",
+      "d": "High",
+      "f": "Severe"
+    },
+    "load": {
+      "pending": "Pending",
+      "notRun": "Not run",
+      "none": "No loaded latency",
+      "noResult": "Not measured: the test ended before its result",
+      "afterUpload": "Graded after upload",
+      "afterDownload": "Graded after download",
+      "incomplete": "Not graded — test incomplete",
+      "noLoaded": "Not graded — no loaded latency"
     }
   }
 }

@@ -22,7 +22,7 @@ import type { RunView } from '@/components/test/screen/states'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { PhaseView } from '@/composables/useRunState'
-import type { Direction, DirectionResult, PhaseName, Result } from '@/engine/messages'
+import type { Bufferbloat, Direction, DirectionResult, PhaseName, Result } from '@/engine/messages'
 import { spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
 
 // What the screen reader hears (ui/i18n-a11y.md sections 2.1 and 2.7): the phase as it starts, a
@@ -153,10 +153,38 @@ function idleSentence(result: Result, context: Wording): string | null {
   return idle.jitterMs === undefined ? t('a11y.summary.idle', { median }) : t('a11y.summary.idleJitter', { median, jitter: latency(idle.jitterMs, resolution, context) })
 }
 
+/** The grade's words as the summary says them, mid-sentence (ui/i18n-a11y.md section 2.5). */
+function spokenGradeWords(grade: Bufferbloat['grade'], { t }: Wording): string {
+  switch (grade) {
+    case 'A+':
+      return t('a11y.summary.grades.aPlus')
+    case 'A':
+      return t('a11y.summary.grades.a')
+    case 'B':
+      return t('a11y.summary.grades.b')
+    case 'C':
+      return t('a11y.summary.grades.c')
+    case 'D':
+      return t('a11y.summary.grades.d')
+    case 'F':
+      return t('a11y.summary.grades.f')
+  }
+}
+
+/** The grade in letter and words with the increase it rests on; null without a grade. */
+function gradeSentence(result: Result, context: Wording): string | null {
+  const bufferbloat = result.bufferbloat
+  if (bufferbloat === undefined) {
+    return null
+  }
+  const increase = latency(bufferbloat.increaseMs, result.client.timerResolutionMs, context)
+  return context.t('a11y.summary.grade', { grade: bufferbloat.grade, words: spokenGradeWords(bufferbloat.grade, context), increase })
+}
+
 /**
- * The result summary of section 2.7, reduced to the v0.1 metrics: the status, download and upload
- * with their qualifiers, idle latency and jitter, data used, and the notices by title. A direction
- * the settings left out is not mentioned.
+ * The result summary of section 2.7, to the v0.2 metrics: the status, download and upload with
+ * their qualifiers, idle latency and jitter, the grade with the loaded-latency increase it rests
+ * on, data used, and the notices by title. A direction the settings left out is not mentioned.
  */
 export function resultSummary(result: Result, units: Units, context: Wording): string {
   const { t, locale } = context
@@ -167,6 +195,7 @@ export function resultSummary(result: Result, units: Units, context: Wording): s
     phases.includes('download') && result.download !== undefined ? downloadSentence(result.download, units, context) : null,
     phases.includes('upload') && result.upload !== undefined ? uploadSentence(result.upload, units, context) : null,
     idleSentence(result, context),
+    gradeSentence(result, context),
     t('a11y.summary.data', { data: spokenBytes(result.dataUsedBytes, locale) }),
     titles.length === 0 ? null : t('a11y.summary.notices', { titles: new Intl.ListFormat(locale, { type: 'conjunction' }).format(titles) }, titles.length),
   ]

@@ -17,6 +17,8 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { LatencySample } from '@/components/chart/draw'
+import type { LoadedPoint } from '@/composables/useLoadedSeries'
 import type { DirectionLive } from '@/composables/useRunState'
 import type { Direction, DirectionEvent, NoticeCode } from '@/engine/messages'
 
@@ -25,8 +27,9 @@ import type { Direction, DirectionEvent, NoticeCode } from '@/engine/messages'
 // bucket placed at its start with unknown ones as gaps, and the last one held to the segment's
 // end, so it keeps its width (draw.ts holdLinear holds one before a gap). Download sits on its own
 // buckets from the phase start; upload on server grid cells from P_start, with the sending line
-// in the cell the engine placed it in by the display-only offset (measurement.md section 7.4).
-// Nothing here is a number of the result: it only places what the engine sent.
+// in the cell the engine placed it in by the display-only offset (measurement.md section 7.4), as
+// the loaded-latency pings are. Nothing here is a number of the result: it only places what the
+// engine sent.
 
 const BUCKET_S = 0.1
 
@@ -51,6 +54,8 @@ export interface ChartModel {
   marks: { at: number; code: MarkCode; notice?: NoticeCode | 'requests-failed' }[]
   /** The end of the last bucket: the "now" of a live chart. */
   end: number
+  /** The loaded-latency pings of each direction drawn, in time order. */
+  latency: LatencySample[]
 }
 
 export interface ChartInput {
@@ -60,6 +65,8 @@ export interface ChartInput {
   units: 'bits' | 'bytes'
   /** Each direction's events, once the result has them; times are from its phase start. */
   events?: Partial<Record<Direction, readonly DirectionEvent[]>>
+  /** Each direction's loaded-latency pings, on its own axis in buckets. */
+  loaded?: Partial<Record<Direction, readonly LoadedPoint[]>>
 }
 
 /** A bucket's bytes as a rate in the display unit: bit/s, or B/s. */
@@ -99,6 +106,7 @@ export function buildChart(input: ChartInput): ChartModel {
   const warmup: Span[] = []
   const separators: number[] = []
   const marks: ChartModel['marks'] = []
+  const latency: LatencySample[] = []
   let offset = 0
 
   for (const direction of input.order) {
@@ -155,8 +163,14 @@ export function buildChart(input: ChartInput): ChartModel {
         marks.push({ at: phaseStart + event.atMs / 1000, code: event.code })
       }
     }
+    // A ping sent before the segment's first bucket would land in the previous direction's.
+    for (const point of input.loaded?.[direction] ?? []) {
+      if (point.at >= first) {
+        latency.push({ at: at(point.at), ms: point.ms })
+      }
+    }
     offset = end
   }
   const [download = [], received = [], sending = []] = columns
-  return { data: [x, download, received, sending], warmup, separators, marks, end: offset }
+  return { data: [x, download, received, sending], warmup, separators, marks, end: offset, latency }
 }

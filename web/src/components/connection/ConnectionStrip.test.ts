@@ -128,6 +128,17 @@ describe('the facts before a run', () => {
     expect(unreported.get('[data-testid="connection-protocol"]').text()).toMatch(/—\s*not reported/)
   })
 
+  it('hold the count to the HTTP/1.1 probe reservation and name it as the plateau', async () => {
+    const auto = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture(), protocol: 'http/1.1', streams: 5, plateau: 'cap', reserved: 5 } })
+    expect(auto.get('[data-testid="connection-streams"]').text()).toMatch(/5\s*auto · plateau: HTTP\/1\.1 probe reservation$/)
+    const info = infoFixture()
+    const fixed = await mountApp(ConnectionStrip, '/', { props: { info: { ...info, defaults: { ...info.defaults, streams: { mode: 'fixed', fixed: 6 } } }, reserved: 5 } })
+    expect(fixed.get('[data-testid="connection-streams"]').text()).toMatch(/5\s*fixed$/)
+    // A server cap below the reserved one is a plain cap.
+    const server = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture(), streams: 3, plateau: 'cap', reserved: 5 } })
+    expect(server.get('[data-testid="connection-streams"]').text()).toMatch(/3\s*auto · plateau: cap$/)
+  })
+
   it('show dashes without the server info', async () => {
     const wrapper = await mountApp(ConnectionStrip, '/', { props: { info: null } })
     expect(wrapper.get('[data-testid="context-label"]').text()).toBe('—')

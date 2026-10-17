@@ -21,20 +21,22 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MetaList, { type MetaRow } from '@/components/layout/MetaList.vue'
+import LoadCard from '@/components/result/LoadCard.vue'
 import MetricTile from '@/components/test/MetricTile.vue'
 import NotMeasured from '@/components/test/NotMeasured.vue'
 import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import SaveBar from '@/components/test/SaveBar.vue'
-import type { TileView } from '@/components/test/tiles'
+import type { LoadView, TileView } from '@/components/test/tiles'
 import type { SaveState } from '@/composables/useResultSave'
 import type { Result } from '@/engine/messages'
 import { links } from '@/lib/links'
 
 // The Test screen's results (ui/screens.md sections 1 and 6): once a run has ended with a result,
 // the save bar for a complete one or the status bar with Keep in history for a partial or error
-// one, then the metric tiles and the facts beneath them. Siblings in the page's column, as the
-// screen lays them out.
+// one, then the metric tiles, the load card with the grade and the loaded latency, and the facts
+// beside it in one column. Siblings in the page's column, as the screen lays them out; without a
+// load card the facts take the row in three columns.
 
 const props = defineProps<{
   /** The ended run's result for the result bar; null while a run goes on or without one. */
@@ -43,6 +45,8 @@ const props = defineProps<{
   save: SaveState | null
   tiles: { main: TileView[]; more: TileView[]; packetLoss: TileView }
   units: 'bits' | 'bytes'
+  /** The load card; null for a run with neither direction. */
+  load: LoadView | null
 }>()
 /** The partial or error result was kept in history; the page's gauge and tiles read it too. */
 const kept = defineModel<boolean>('kept', { required: true })
@@ -81,11 +85,17 @@ const facts = computed<MetaRow[]>(() => {
       :key="tile.label"
       :tile="tile"
     />
+    <LoadCard
+      v-if="load"
+      :grade="load.grade"
+      :rows="load.rows"
+      class="col-span-2"
+    />
     <MetaList
       :title="$t('test.tiles.meta')"
       :rows="facts"
-      :columns="3"
-      class="col-span-full"
+      :columns="load ? 1 : 3"
+      :class="load ? 'col-span-2' : 'col-span-full'"
     >
       <template #sub-packet-loss>
         <NotMeasuredWhy :href="links.packetLoss" />

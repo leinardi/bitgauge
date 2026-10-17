@@ -32,6 +32,7 @@ import ResultSection from '@/components/test/ResultSection.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
 import RunSection from '@/components/test/RunSection.vue'
 import { PENDING_STEPS, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen/states'
+import { loadView } from '@/components/test/tiles'
 import { gaugeInput, offlineGauge } from '@/components/test/screen/view'
 import { useContextLabel } from '@/composables/useContextLabel'
 import { useCountdown } from '@/composables/useCountdown'
@@ -75,6 +76,7 @@ const view = computed<RunView>(() => ({
   dataUsedBytes: run.dataUsedBytes.value,
   result: run.result.value,
   error: run.error.value,
+  loaded: run.loaded.value,
 }))
 const state = computed(() => screenState(view.value))
 const running = computed(() => state.value === 'running')
@@ -92,6 +94,21 @@ const gaugeContext = computed(() => ({ ...wording.value, units: units.value, ser
 const offline = computed(() => state.value === 'idle' && reachability.value === 'unreachable')
 const gauge = computed(() => (offline.value ? offlineGauge(gaugeContext.value, nextCheckS.value) : gaugeInput(view.value, gaugeContext.value)))
 const elapsed = useElapsed(running, view)
+const load = computed(() =>
+  loadView(
+    {
+      status: run.status.value,
+      phases: shownSettings.value?.phases ?? [],
+      states: { download: run.phases.value.download.state, upload: run.phases.value.upload.state },
+      stoppedEarly: run.status.value === 'idle' && run.phases.value.idle.state !== 'pending',
+      pings: run.loaded.value,
+      // The finished idle phase's median alone: the progress median exists from the first ping.
+      idleMedianMs: run.phases.value.idle.idle?.medianMs ?? null,
+      result: run.result.value,
+    },
+    wording.value,
+  ),
+)
 const tiles = computed(() => screenTiles(view.value, shownSettings.value ?? { units: 'bits', overheadCompensationPercent: 0 }, wording.value, elapsed.value, kept.value))
 
 // The URL parameters ignored; before the first run they show as the notices a run will carry.
@@ -137,6 +154,13 @@ const streams = computed(() => {
 const plateau = computed(() => {
   const direction = run.direction.value
   return direction === null || !shown.value ? null : (run.result.value?.[direction]?.plateau ?? null)
+})
+
+// The HTTP/1.1 probe reservation's stream cap, from the direction that first ran reserved on: the
+// strip shows the latest direction, and the reservation holds for the rest of the run.
+const reserved = computed(() => {
+  const notice = shown.value ? run.notices.value.find((item) => item.code === 'probe-reservation') : undefined
+  return notice?.code === 'probe-reservation' ? notice.streams : null
 })
 
 // Start is disabled until GET /info answers with defaults this version can run (flows.md section 1).
@@ -234,6 +258,7 @@ watch(run.error, (error) => {
         :protocol="shown ? run.protocol.value : null"
         :streams="streams"
         :plateau="plateau"
+        :reserved="reserved"
       />
       <SettingsSummary
         v-if="reachability === 'connected' && defaults !== null && shownSettings !== null"
@@ -288,6 +313,7 @@ watch(run.error, (error) => {
       :save="saveState"
       :tiles="tiles"
       :units="units"
+      :load="load"
     />
     <LastResult
       v-if="lastResult !== null"

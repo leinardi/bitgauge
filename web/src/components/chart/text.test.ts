@@ -82,6 +82,16 @@ describe('the chart text', () => {
     expect(labels(input('done', { download, upload: both }))).toEqual(['Download', 'Upload', 'Warm-up'])
   })
 
+  it('names the loaded latency, dashed, as its toggle, and says its second scale while it is shown', () => {
+    const text = input('running', { download }, { readout: 'Download 597 Mbit/s' })
+    const withLatency = { ...text, model: { ...text.model, latency: [{ at: 1, ms: 18 }] } }
+    const entry = chartLegend(withLatency, wording).find((item) => item.key === 'latency')
+    expect(entry).toMatchObject({ label: 'Latency under load', color: 'var(--series-latency)', dashed: true })
+    expect(labels(withLatency)).toEqual(['Download', 'Latency under load', 'Warm-up'])
+    expect(chartSummary({ ...withLatency, latencyShown: true }, wording)).toBe('Throughput: Download 597 Mbit/s, 5.0 s / 10 s; warm-up shaded; latency under load on a second scale')
+    expect(chartSummary({ ...withLatency, latencyShown: false }, wording)).not.toContain('latency')
+  })
+
   it('gives the total once done, and where a stop or an error ended it with its mark', () => {
     expect(chartMeta(input('done', { download }, { totalMs: 28_600 }), wording)).toBe('28.6 s total')
     const stopped = input('stopped', { download }, { readout: 'Cancelled', events: { download: [{ code: 'cancelled', atMs: 5000 }] } })

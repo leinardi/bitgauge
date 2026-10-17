@@ -22,8 +22,8 @@ import type uPlot from 'uplot'
 import type { ChartPalette } from '@/components/chart/palette'
 
 // What a chart's canvas draws besides its series (design_system/components/charts/Chart.jsx), in
-// uPlot's hooks: the gridlines, the warm-up bands, the phase separators, the marks, the "now" line
-// and the dot at the end of the last series. Positions come from uPlot's scales, in canvas pixels.
+// uPlot's hooks: the gridlines, the warm-up bands, the phase separators, the marks, the "now" line,
+// the dot at the end of the last series and the loaded latency on its second scale. Positions come from uPlot's scales, in canvas pixels.
 
 const dpr = () => (typeof devicePixelRatio === 'number' ? devicePixelRatio : 1)
 
@@ -148,4 +148,39 @@ export const holdLinear: uPlot.Series.PathBuilder = (u, seriesIdx, idx0, idx1) =
   }
   close()
   return { stroke, fill }
+}
+
+/** A point of loaded latency: when, in seconds on the x axis, and its round-trip time in ms. */
+export interface LatencySample {
+  at: number
+  ms: number
+}
+
+/**
+ * The loaded latency, dashed on its own scale from 0 to `top` ms over the plot's height, as one
+ * line through its samples in time order (charts.md, series).
+ */
+export function drawLatency(u: uPlot, samples: readonly LatencySample[], top: number, palette: ChartPalette): void {
+  if (samples.length === 0) {
+    return
+  }
+  const { ctx } = u
+  const scale = dpr()
+  const { top: plotTop, height: plotHeight } = u.bbox
+  ctx.globalAlpha = palette.latencyOpacity
+  ctx.strokeStyle = palette.latency
+  ctx.lineWidth = palette.strokeLatency * scale
+  ctx.setLineDash(palette.dashLatency.map((length) => length * scale))
+  ctx.beginPath()
+  samples.forEach((sample, index) => {
+    const x = u.valToPos(sample.at, 'x', true)
+    const y = plotTop + plotHeight * (1 - Math.min(sample.ms, top) / top)
+    if (index === 0) {
+      ctx.moveTo(x, y)
+    } else {
+      ctx.lineTo(x, y)
+    }
+  })
+  ctx.stroke()
+  ctx.globalAlpha = 1
 }

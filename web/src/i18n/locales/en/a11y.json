@@ -48,6 +48,15 @@
       "idle": "Idle latency {median}.",
       "idleJitter": "Idle latency {median}, jitter {jitter}.",
       "idleUnavailable": "Idle latency unavailable.",
+      "grade": "Bufferbloat grade {grade}, {words}, plus {increase} under load.",
+      "grades": {
+        "aPlus": "minimal bufferbloat",
+        "a": "low bufferbloat",
+        "b": "mild bufferbloat",
+        "c": "moderate bufferbloat",
+        "d": "high bufferbloat",
+        "f": "severe bufferbloat"
+      },
       "data": "Data used {data}.",
       "notices": "Notice: {titles}. | Notices: {titles}."
     }
