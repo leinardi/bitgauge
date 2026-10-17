@@ -17,11 +17,11 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { type DownloadIssueHost, downloadLoop } from '@/engine/download/issue'
 import { type DownloadRequest, Streams } from '@/engine/download/streams'
 import { type DownloadWindow, downloadWindow } from '@/engine/download/window'
 import type { DirectionEvent, DirectionStatus, Notice, Plateau } from '@/engine/messages'
-import { deferred, inFlightLimit, issuesEarly } from '@/engine/phases/issue'
-import { dataBudget, type ThroughputOptions } from '@/engine/phases/options'
+import type { ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule, windowStable } from '@/engine/phases/window'
@@ -30,13 +30,10 @@ import { BUCKET_MS } from '@/engine/stats/units'
 import type { Clock, DownloadChunk, Info, ResourceTiming, TimerId, Transport } from '@/engine/types'
 
 // The download phase (measurement.md sections 5 and 6): streams issue sized requests through the
-// transport, every chunk is counted into the client bucket of its arrival, and the phase reads its
-// live series one closed bucket at a time for the ramp, the warm-up and the duration rule. A
-// stream re-requests at each completion, or early once the browser's issue gap has shown (section
-// 3). It ends at an instant: requests in flight are aborted and the bytes they read are kept.
-
-/** A request still running after this long is aborted and counts as failed. */
-const TIMEOUT_MS = 30_000
+// transport (download/issue.ts), every chunk is counted into the client bucket of its arrival, and
+// the phase reads its live series one closed bucket at a time for the ramp, the warm-up and the
+// duration rule. It ends at an instant: requests in flight are aborted and the bytes they read are
+// kept.
 
 /** Consecutive failed requests that end the phase with an error. */
 const MAX_FAILURES = 3
@@ -73,12 +70,12 @@ export class DownloadPhase {
   /** The live series: one value per closed bucket. */
   readonly series = new BucketSeries(0)
 
-  private readonly options: DownloadOptions
   private readonly clock: Clock
   private readonly streams: Streams
   private readonly ramp: Ramp
   private readonly warmup: Warmup
   private readonly rule: DurationRule
+  private readonly issue: DownloadIssueHost
   /** Bytes per bucket, the open bucket included. */
   private readonly bytes: number[] = []
   private readonly inFlight = new Map<DownloadRequest, AbortController>()
@@ -95,7 +92,6 @@ export class DownloadPhase {
   private done: ((outcome: DownloadOutcome) => void) | null = null
 
   constructor(options: DownloadOptions) {
-    this.options = options
     this.clock = options.clock
     this.streams = new Streams(options.rttMs)
     this.ramp = new Ramp({
@@ -111,6 +107,22 @@ export class DownloadPhase {
       fixedMs: options.warmup === 'auto' ? null : options.warmup,
     })
     this.rule = new DurationRule('download', options.bounds, options.preset)
+    this.issue = {
+      clock: this.clock,
+      options,
+      streams: this.streams,
+      inFlight: this.inFlight,
+      issues: (stream) => this.ended === null && stream < this.ramp.streams,
+      protocol: () => this.protocol,
+      read: () => this.read,
+      capped: () => this.end('data-cap'),
+      encoding: (contentEncoding) => {
+        this.compressed ||= contentEncoding !== null
+      },
+      count: (request, chunk) => this.count(request, chunk),
+      record: (timing) => this.record(timing),
+      settled: (request, complete, status) => this.settled(request, complete, status),
+    }
   }
 
   /** The end of warm-up, once known. */
@@ -204,74 +216,12 @@ export class DownloadPhase {
   /** Starts the streams the ramp asks for. */
   private grow(): void {
     while (this.ended === null && this.streams.started < this.ramp.streams) {
-      void this.loop(this.streams.add())
+      void downloadLoop(this.issue, this.streams.add())
     }
   }
 
-  /**
-   * One stream: requests back to back while the phase runs and the stream is within the count,
-   * each issued at the previous one's end or early (measurement.md section 3), within the
-   * server's in-flight bound.
-   */
-  private async loop(stream: number): Promise<void> {
-    while (this.ended === null && stream < this.ramp.streams) {
-      const size = this.streams.nextSize(stream, this.options.limits.maxDownloadBytes, this.budget())
-      if (size === null) {
-        this.end('data-cap')
-        return
-      }
-      const issuedAt = this.clock.now()
-      const first = deferred<number>()
-      const done = this.request(stream, size, issuedAt, first.resolve)
-      const watched = { firstByte: first.promise, done, expectedMs: this.streams.expectedMs(stream, size), tailMs: 0 }
-      if (!(await issuesEarly(this.clock, this.streams.leadMs, watched)) || this.inFlight.size >= inFlightLimit(this.protocol, this.options.limits.maxStreamsPerClient)) {
-        await done
-      }
-    }
-  }
-
-  /** What the data cap still allows after data used and the bytes still to come in flight. */
-  private budget(): number | null {
-    let pending = 0
-    for (const request of this.inFlight.keys()) {
-      pending += request.size - request.read
-    }
-    return dataBudget(this.options, this.read, pending)
-  }
-
-  /** `firstChunk` is told the instant of the first chunk, which the early issue of the next watches. */
-  private async request(stream: number, size: number, issuedAt: number, firstChunk: (at: number) => void): Promise<void> {
-    const request = this.streams.issue(stream, size, issuedAt)
-    const controller = new AbortController()
-    this.inFlight.set(request, controller)
-    const timeout = this.clock.setTimer(TIMEOUT_MS, () => controller.abort())
-    let status = 0
-    let complete = false
-    try {
-      const response = await this.options.transport.download(size, controller.signal)
-      status = response.status
-      if (status === 200) {
-        this.compressed ||= response.contentEncoding !== null
-        for await (const chunk of response.chunks) {
-          if (request.firstChunkAt === null) {
-            firstChunk(chunk.at)
-          }
-          this.count(request, chunk)
-        }
-        this.record(response.timing())
-        // A body shorter or longer than asked for, without an abort, is a failed request.
-        complete = request.read === size
-      }
-    } catch {
-      // Aborted at the end of the phase, timed out, or a network error.
-    } finally {
-      this.clock.clearTimer(timeout)
-      this.inFlight.delete(request)
-      if (!complete) {
-        // Releases the connection of an answer whose body was not read, such as a 429's.
-        controller.abort()
-      }
-    }
+  /** A request's end, unless the phase ended first: a completion, or a failure. */
+  private settled(request: DownloadRequest, complete: boolean, status: number): void {
     if (this.ended !== null) {
       return
     }

@@ -18,17 +18,18 @@
  */
 
 import { type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
-import { IdleLatency, type IdleOutcome } from '@/engine/latency/idle'
+import type { IdleLatency, IdleOutcome } from '@/engine/latency/idle'
 import type { Direction, DirectionResult, EngineEvent, IdleResult, MeasuringPhase, Notice, PhaseName, PhaseState } from '@/engine/messages'
 import { buildResult } from '@/engine/result'
 import { directionNotices, downloadResult, resultNotices, uploadResult } from '@/engine/result/direction'
-import { Connection } from '@/engine/run/connection'
+import type { Connection } from '@/engine/run/connection'
 import { PageState } from '@/engine/run/page'
 import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices, urlNotices } from '@/engine/run/report'
 import { SampleFeed } from '@/engine/run/samples'
+import { idlePhase, infoPhase, type StartContext } from '@/engine/run/start'
 import type { RunSettings } from '@/engine/settings'
 import { BusyTrack } from '@/engine/stats/busy'
-import type { Clock, InfoResult, TimerId, Transport } from '@/engine/types'
+import type { Clock, TimerId, Transport } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
 import { UploadPhase } from '@/engine/upload/phase'
 
@@ -40,8 +41,6 @@ import { UploadPhase } from '@/engine/upload/phase'
 /** The housekeeping tick; one more than 1 s late means the Worker was throttled or paused. */
 const TICK_MS = 100
 const LATE_MS = 1000
-/** The info phase's one idle request, which records the protocol (path B is v0.3). */
-const SMALL_PATH = '/api/v1/small'
 const MEASURING: readonly MeasuringPhase[] = ['idle', 'download', 'upload']
 
 export interface RunOptions {
@@ -151,7 +150,7 @@ export class Run {
     const { settings } = this.options
     const skipped = MEASURING.filter((name) => !settings.phases.includes(name))
     this.enter('info')
-    const start = await this.infoPhase()
+    const start = await infoPhase(this.startContext())
     if (start === null) {
       if (this.interrupt?.kind === 'error') {
         this.event('info', 'failed')
@@ -160,6 +159,7 @@ export class Run {
       ;[...skipped, ...settings.phases].forEach((phase) => this.event(phase, 'skipped'))
       return null
     }
+    this.event('info', 'finished')
     skipped.forEach((phase) => this.event(phase, 'skipped'))
     const directions = { overheadCompensationPercent: settings.overheadCompensationPercent, busy: this.fraction }
     const report: RunReport = { ...start, status: 'complete', protocol: null, settings, idle: null, download: null, upload: null, skipped, notices: [], dataUsedBytes: 0, error: null }
@@ -190,72 +190,47 @@ export class Run {
     }
   }
 
-  /** GET /info for the epoch and limits, the WebSocket or its fallback, and one idle request. */
-  private async infoPhase(): Promise<Pick<RunReport, 'info' | 'browser'> | null> {
-    let start: InfoResult | null
-    try {
-      start = await this.guard(this.options.transport.info())
-    } catch {
-      this.fail('server-unreachable')
-      return null
-    }
-    if (start === null) {
-      return null
-    }
-    const { epoch } = start.info.server
-    this.connection = new Connection({
-      clock: this.clock,
-      transport: this.options.transport,
-      epoch,
+  /** The run as the info and idle phases see it. */
+  private startContext(): StartContext {
+    const { clock, transport, settings } = this.options
+    return {
+      clock,
+      transport,
+      settings,
+      emit: (event) => this.options.emit(event),
+      guard: (promise) => this.guard(promise),
+      interrupted: () => this.interrupt?.kind ?? null,
+      fail: (code) => this.fail(code),
+      record: (protocol) => this.record(protocol),
+      opened: (connection) => {
+        this.connection = connection
+      },
       medianMs: () => this.idleMedian ?? this.idle?.medianMs ?? null,
-      decided: (verdict) => (verdict.kind === 'error' ? this.fail(verdict.code) : this.reconnected()),
-    })
-    await this.guard(this.connection.open())
-    try {
-      const probe = await this.guard(this.options.transport.probe(SMALL_PATH))
-      this.record(probe?.timing?.nextHopProtocol)
-    } catch {
-      // The idle request only records the protocol; a failure here is the phases' to meet.
+      reconnected: () => this.reconnected(),
+      running: (idle) => {
+        this.current = idle
+        this.idle = idle
+        if (idle !== null) {
+          this.restartIdle = false
+        }
+      },
+      restarting: () => this.restartIdle,
+      enteredAt: () => this.enteredAt,
+      idleEvent: (state, idle) => this.event('idle', state, idle === undefined ? {} : { idle }),
     }
-    if (this.interrupt !== null) {
-      return null
-    }
-    this.event('info', 'finished')
-    return { info: start.info, browser: start.browser }
   }
 
   private async idlePhase(): Promise<IdleOutcome | null> {
     this.enter('idle')
     this.page.idleStarted()
-    for (;;) {
-      const idle = new IdleLatency(this.clock, this.connection?.pinger ?? unreachable(), this.options.settings.pingCount, (progress) => this.options.emit({ type: 'idle', ...progress, phaseMs: this.clock.now() - this.enteredAt }))
-      this.current = idle
-      this.idle = idle
-      this.restartIdle = false
-      // A user stop keeps the samples so far when there are enough; an error keeps nothing.
-      const outcome = (await idle.run()) ?? (this.interrupt?.kind === 'stop' ? idle.partial() : null)
-      this.current = null
-      this.idle = null
-      if (this.interrupt?.kind === 'error' || (this.interrupt !== null && outcome === null)) {
-        if (this.interrupt.kind === 'error') this.event('idle', 'failed')
-        return null
-      }
-      if (outcome === null) {
-        if (this.restartIdle) {
-          continue
-        }
-        return null
-      }
-      if (outcome.unreachable) {
-        this.event('idle', 'failed')
-        this.fail('server-unreachable')
-        return null
-      }
-      this.idleMedian = outcome.result.medianMs ?? null
-      this.kept = true
-      this.event('idle', 'finished', { idle: outcome.result })
-      return outcome
+    const outcome = await idlePhase(this.startContext(), this.connection)
+    if (outcome === null) {
+      return null
     }
+    this.idleMedian = outcome.result.medianMs ?? null
+    this.kept = true
+    this.event('idle', 'finished', { idle: outcome.result })
+    return outcome
   }
 
   private phaseOptions(direction: Direction, start: Pick<RunReport, 'info'>) {
@@ -392,8 +367,4 @@ export class Run {
       ...(state === 'failed' ? { ranMs: this.clock.now() - this.enteredAt } : {}),
     })
   }
-}
-
-function unreachable(): never {
-  throw new Error('idle latency runs after the info phase opened its connection')
 }

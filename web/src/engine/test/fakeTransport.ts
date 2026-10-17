@@ -19,13 +19,14 @@
 
 import type { Direction } from '@/engine/messages'
 import { BUCKET_MS } from '@/engine/stats/units'
+import { abortError, Body } from '@/engine/test/body'
 import type { FakeClock } from '@/engine/test/fakeClock'
 import { FakeServer } from '@/engine/test/fakeServer'
-import type { BrowserIdentity, DownloadChunk, DownloadResponse, Info, InfoResult, ProbeTiming, ResourceTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
+import { Link, type LinkModel, wholeBytes } from '@/engine/test/link'
+import type { BrowserIdentity, DownloadResponse, Info, InfoResult, ProbeTiming, ResourceTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
 
 // A Transport for the engine tests that replays a scenario on the FakeClock, on the shared-link
-// model of measurement.md section 19.1: per direction, the requests whose bytes are crossing the
-// bottleneck share its rate equally, stepped one millisecond at a time. A download's first byte
+// model of measurement.md section 19.1 (test/link.ts). A download's first byte
 // reaches the client one RTT after the request is sent; an upload's first byte reaches the server
 // half an RTT after it is sent and its response the client half an RTT after the last byte. The
 // server's grid runs `gridOffsetMs` ahead of the client clock.
@@ -41,11 +42,7 @@ export type Failure =
   /** The body ends cleanly after `bytes` bytes. */
   | { kind: 'short'; bytes: number }
 
-export interface Scenario {
-  /** The bottleneck's goodput in bytes per second at instant `atMs`. */
-  rate: (direction: Direction, atMs: number) => number
-  /** The most one request can carry in bytes per second, such as a connection's CPU limit. */
-  perRequest?: number
+export interface Scenario extends LinkModel {
   rttMs: number
   /** Every entry's nextHopProtocol; null for requests without a Resource Timing entry. */
   protocol: string | null
@@ -53,8 +50,6 @@ export interface Scenario {
   failure?: (direction: Direction, index: number) => Failure | null
   /** The Content-Encoding of every download response. */
   contentEncoding?: string | null
-  /** The server grid's instant minus the client's. */
-  gridOffsetMs?: number
   /** The server epoch at the start; FakeServer.restart changes it. */
   epoch?: string
   limits?: Partial<Info['limits']>
@@ -72,85 +67,14 @@ export interface Scenario {
   requestGapMs?: number
 }
 
-interface Transfer {
-  direction: Direction
-  /** The bytes this transfer moves: the request's size, or fewer for a short body. */
-  target: number
-  firstByteAt: number
-  read: number
-  /** On upload, the bytes per server cell from the cell of the first byte on. */
-  cells: number[]
-  startMs: number | null
-  /** Called each millisecond with the whole bytes moved and the bytes moved so far. */
-  moved: (bytes: number, total: number, at: number) => void
-  /** Called once the last byte has crossed, at the end of its millisecond. */
-  done: (at: number) => void
-}
-
-function abortError(): DOMException {
-  return new DOMException('The request was aborted.', 'AbortError')
-}
-
-/** A download body: chunks queued by the link and read by the engine. */
-class Body implements AsyncIterable<DownloadChunk> {
-  private readonly queue: DownloadChunk[] = []
-  private ended = false
-  private failure: unknown = null
-  private wake: (() => void) | null = null
-
-  push(chunk: DownloadChunk): void {
-    this.queue.push(chunk)
-    this.notify()
-  }
-
-  end(): void {
-    this.ended = true
-    this.notify()
-  }
-
-  fail(reason: unknown): void {
-    this.failure = reason
-    this.notify()
-  }
-
-  async *[Symbol.asyncIterator](): AsyncIterator<DownloadChunk> {
-    for (;;) {
-      const chunk = this.queue.shift()
-      if (chunk !== undefined) {
-        yield chunk
-      } else if (this.failure !== null) {
-        throw this.failure
-      } else if (this.ended) {
-        return
-      } else {
-        await new Promise<void>((resolve) => {
-          this.wake = resolve
-        })
-      }
-    }
-  }
-
-  private notify(): void {
-    const wake = this.wake
-    this.wake = null
-    wake?.()
-  }
-}
-
 export class FakeTransport implements Transport {
   /** The sizes requested, per direction, in issue order. */
   readonly requested: Record<Direction, number[]> = { download: [], upload: [] }
   private readonly clock: FakeClock
   private readonly scenario: Scenario
-  private transfers: Transfer[] = []
-  /** The whole bytes the bottleneck carried per 100 ms cell of the client clock, per direction. */
-  readonly carried: Record<Direction, number[]> = { download: [], upload: [] }
+  private readonly link: Link
   /** The server's latency endpoints and GET /info. */
   readonly server: FakeServer
-  /** The largest number of transfers that were in flight together, per direction. */
-  readonly peakInFlight: Record<Direction, number> = { download: 0, upload: 0 }
-  private ticking = false
-  private lastTick = -1
   /** When the browser's body preparation is free again, on the client clock. */
   private prepareFreeAt = 0
 
@@ -158,6 +82,17 @@ export class FakeTransport implements Transport {
     this.clock = clock
     this.scenario = scenario
     this.server = new FakeServer(clock, scenario)
+    this.link = new Link(clock, scenario)
+  }
+
+  /** The whole bytes the bottleneck carried per 100 ms cell of the client clock, per direction. */
+  get carried(): Record<Direction, number[]> {
+    return this.link.carried
+  }
+
+  /** The largest number of transfers that were in flight together, per direction. */
+  get peakInFlight(): Record<Direction, number> {
+    return this.link.peakInFlight
   }
 
   download(size: number, signal: AbortSignal): Promise<DownloadResponse> {
@@ -174,7 +109,7 @@ export class FakeTransport implements Transport {
         body.end()
         return { status, contentEncoding: null, chunks: body, timing }
       }
-      const transfer = this.start('download', failure?.kind === 'short' ? failure.bytes : size, firstByteAt, {
+      const transfer = this.link.start('download', failure?.kind === 'short' ? failure.bytes : size, firstByteAt, {
         moved: (bytes, _total, at) => {
           if (bytes > 0) {
             body.push({ bytes, at })
@@ -186,7 +121,7 @@ export class FakeTransport implements Transport {
         },
       })
       signal.addEventListener('abort', () => {
-        this.drop(transfer)
+        this.link.drop(transfer)
         body.fail(abortError())
       })
       return { status, contentEncoding: this.scenario.contentEncoding ?? null, chunks: body, timing }
@@ -213,7 +148,7 @@ export class FakeTransport implements Transport {
       firstByteAt = this.prepareFreeAt + half + gap
     }
     return new Promise((resolve, reject) => {
-      const transfer = this.start('upload', failure?.bytes ?? size, firstByteAt, {
+      const transfer = this.link.start('upload', failure?.bytes ?? size, firstByteAt, {
         moved: (_bytes, total, at) => onProgress(Math.round(total), at),
         done: (at) => {
           const startMs = (transfer.startMs ?? at) + offset
@@ -238,7 +173,7 @@ export class FakeTransport implements Transport {
         },
       })
       signal.addEventListener('abort', () => {
-        this.drop(transfer)
+        this.link.drop(transfer)
         reject(abortError())
       })
     })
@@ -293,78 +228,4 @@ export class FakeTransport implements Transport {
       })
     })
   }
-
-  private start(
-    direction: Direction,
-    target: number,
-    firstByteAt: number,
-    callbacks: Pick<Transfer, 'moved' | 'done'>,
-  ): Transfer {
-    const transfer: Transfer = {
-      direction,
-      target,
-      firstByteAt,
-      read: 0,
-      cells: [],
-      startMs: null,
-      ...callbacks,
-    }
-    this.transfers.push(transfer)
-    const inFlight = this.transfers.filter((other) => other.direction === direction).length
-    this.peakInFlight[direction] = Math.max(this.peakInFlight[direction], inFlight)
-    if (!this.ticking) {
-      this.ticking = true
-      this.clock.setTimer(this.lastTick === this.clock.now() ? 1 : 0, () => this.tick())
-    }
-    return transfer
-  }
-
-  private drop(transfer: Transfer): void {
-    this.transfers = this.transfers.filter((other) => other !== transfer)
-  }
-
-  /** Moves one millisecond of bytes in both directions. */
-  private tick(): void {
-    const now = this.clock.now()
-    this.lastTick = now
-    const offset = this.scenario.gridOffsetMs ?? 0
-    for (const direction of ['download', 'upload'] as const) {
-      const reading = this.transfers.filter((transfer) => transfer.direction === direction && transfer.firstByteAt <= now)
-      const fair = reading.length === 0 ? 0 : this.scenario.rate(direction, now) / reading.length
-      const share = Math.min(fair, this.scenario.perRequest ?? Number.POSITIVE_INFINITY) / 1000
-      for (const transfer of reading) {
-        transfer.startMs ??= now
-        const bytes = Math.min(share, transfer.target - transfer.read)
-        const before = transfer.read
-        transfer.read += bytes
-        if (direction === 'upload') {
-          const index = Math.floor((now + offset) / BUCKET_MS) - Math.floor((transfer.startMs + offset) / BUCKET_MS)
-          transfer.cells[index] = (transfer.cells[index] ?? 0) + bytes
-        }
-        const whole = Math.round(transfer.read) - Math.round(before)
-        const cell = Math.floor(now / BUCKET_MS)
-        this.carried[direction][cell] = (this.carried[direction][cell] ?? 0) + whole
-        transfer.moved(whole, transfer.read, now)
-        if (transfer.read >= transfer.target - 1e-9) {
-          this.drop(transfer)
-          transfer.done(now + 1)
-        }
-      }
-    }
-    if (this.transfers.length === 0) {
-      this.ticking = false
-    } else {
-      this.clock.setTimer(1, () => this.tick())
-    }
-  }
-}
-
-/** Whole bytes per cell, adding up to the rounded total. */
-function wholeBytes(cells: readonly (number | undefined)[]): number[] {
-  let carried = 0
-  return Array.from(cells, (bytes = 0) => {
-    const whole = Math.round(carried + bytes) - Math.round(carried)
-    carried += bytes
-    return whole
-  })
 }
