@@ -2,9 +2,9 @@
 
 > A self-hosted, browser-based network speed test for LAN, homelab and VPN links.
 >
-> **Status: v0.1 implemented, not yet released.** The specification was approved on 2026-10-12
-> and v0.1 is built against it; the first release waits for its manual accuracy runs and release
-> setup ([docs/release.md](docs/release.md)). Status per feature area:
+> **Status: v0.1 and v0.2 implemented, not yet released.** The specification was approved on
+> 2026-10-12 and both are built against it; the first release waits for its manual accuracy runs
+> and release setup ([docs/release.md](docs/release.md)). Status per feature area:
 > [docs/STATUS.md](docs/STATUS.md).
 
 BitGauge measures the link between a browser and a server you run yourself: a NAS on the LAN, a
@@ -32,11 +32,17 @@ v0.1, the honest throughput core:
 - **Small and hardened:** non-root static image, read-only root filesystem, no shell, signed
   releases with SBOM and provenance, linux/amd64 and linux/arm64.
 
+v0.2, latency under load and the browser's history:
+
+- **Loaded latency** during download and upload, with a **bufferbloat grade** (A+ to F).
+- **History in your browser only** (IndexedDB) with a Result detail, compare, and JSON and CSV
+  export and import.
+- **Settings** stored in the browser, with a shareable settings link; a **share image** and a
+  copied text summary.
+- **Prometheus metrics** (off by default) and operator **subnet-to-label** mapping.
+
 Planned ([roadmap](docs/features/roadmap.md)):
 
-- **v0.2:** loaded latency with a **bufferbloat grade** (A+ to F), **history in your browser
-  only** (IndexedDB) with compare, JSON and CSV export, Settings and a share image, and Prometheus
-  metrics.
 - **v0.3:** the compatibility layers below, **HTTP loaded responsiveness** (RPM), honestly labeled
   where the browser cannot verify it, **quality scores** for streaming, gaming and video calls, and
   **continuous mode** for long runs in constant memory.
@@ -68,6 +74,9 @@ services:
       - no-new-privileges:true
     environment:
       BITGAUGE_SERVER__DISPLAY_NAME: home
+      # From v0.2, which ships the Prometheus endpoint; v0.1 rejects the toggle and exits 2.
+      # With no proxy to restrict it, anyone who reaches port 8080 can read /metrics.
+      # BITGAUGE_METRICS__ENABLED: "true"
     # Optional: full configuration as a read-only file
     # volumes:
     #   - ./bitgauge.yaml:/etc/bitgauge/config.yaml:ro

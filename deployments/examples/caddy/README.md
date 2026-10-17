@@ -15,7 +15,9 @@ clients use. Caddy gets a certificate for a public name on its own; for a name o
 give it one in the `tls` block (a certificate and key, or `issuer internal` for Caddy's own CA,
 which the clients must then trust). The `networkQuality` toggle stays commented out until v0.3,
 which ships the layer: v0.1 rejects it at startup. Without that layer the `tls` block's `protocols`
-line is optional.
+line is optional. The metrics toggle stays commented out until v0.2 is released, for the same
+reason; the proxy already lets only the Prometheus server, `192.168.1.20` here, read `/metrics`, so
+change that address to yours.
 
 `Caddyfile` is the file of
 [deployment-example.md §3](../../../docs/features/deployment-example.md#3-caddy), which explains each

@@ -37,6 +37,9 @@ services:
       BITGAUGE_SERVER__TRUSTED_PROXIES: 172.30.0.2/32
       # From v0.3, which ships the networkQuality layer; v0.1 rejects the toggle and exits 2.
       # BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
+      # From v0.2, which ships the Prometheus endpoint; v0.1 rejects the toggle and exits 2.
+      # The proxy lets only the Prometheus server read /metrics.
+      # BITGAUGE_METRICS__ENABLED: "true"
     healthcheck:
       test: ["CMD", "/bitgauge", "healthcheck"]
       interval: 30s
@@ -49,7 +52,16 @@ services:
       traefik.http.routers.bitgauge.rule: Host(`speed.example.lan`)
       traefik.http.routers.bitgauge.entrypoints: websecure
       traefik.http.routers.bitgauge.tls: "true"
-      # TLS 1.3 is only needed for the networkQuality layer; drop this line otherwise.
+      # TLS 1.3 is only needed for the networkQuality layer; drop this line otherwise, and the
+      # metrics router's tls.options with it: both routers of a host take the same TLS options.
       traefik.http.routers.bitgauge.tls.options: tls13@file
       traefik.http.services.bitgauge.loadbalancer.server.port: "8080"
       # Do NOT attach the buffering or compress middlewares to this router.
+      # /metrics only for the Prometheus server (192.168.1.20 here); anyone else gets a 403.
+      traefik.http.routers.bitgauge-metrics.rule: Host(`speed.example.lan`) && Path(`/metrics`)
+      traefik.http.routers.bitgauge-metrics.entrypoints: websecure
+      traefik.http.routers.bitgauge-metrics.tls: "true"
+      traefik.http.routers.bitgauge-metrics.tls.options: tls13@file
+      traefik.http.routers.bitgauge-metrics.service: bitgauge
+      traefik.http.routers.bitgauge-metrics.middlewares: bitgauge-metrics-allow
+      traefik.http.middlewares.bitgauge-metrics-allow.ipallowlist.sourcerange: 192.168.1.20/32

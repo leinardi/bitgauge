@@ -112,7 +112,7 @@ their feature cell**, that must no longer read `Spec'd`.
   [build-packaging.md §4](../../../docs/features/technical-stack/build-packaging.md#4-ci-workflows)).
 - Renaming the start of a feature cell a gate names makes `go test ./test/toolchain/` fail with "no
   row for a gate prerequisite". Rename the gate's entry with it, or keep the start.
-- When a milestone's status changes (v0.1 is implemented and not yet released), the status
+- When a milestone's status changes (v0.1 and v0.2 are implemented and not yet released), the status
   statements change with it: STATUS.md's intro,
   [docs/features/README.md](../../../docs/features/README.md), the status lines of AGENTS.md,
   README.md and CONTRIBUTING.md, and the Serena core memory.

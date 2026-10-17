@@ -66,10 +66,10 @@ site agrees.
 
 ## 2. Route to the authority (path → what to load)
 
-For each changed path, load the matching pages **before** judging that file — they are the
-source of truth, and a violation there is a finding even when lint is green. Load only what the
-diff touches. v0.1 is implemented; paths marked **not built yet** belong to a later milestone,
-so a diff that creates one is also subject to the spec-first check in §3.
+For each changed path, load the matching pages **before** judging that file — they are the source of
+truth, and a violation there is a finding even when lint is green. Load only what the diff touches.
+v0.1 and v0.2 are implemented; paths marked **not built yet** belong to a later milestone, so a diff
+that creates one is also subject to the spec-first check in §3.
 
 | Changed path | Load | Check |
 | --- | --- | --- |

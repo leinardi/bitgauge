@@ -10,6 +10,13 @@ speed.example.lan {
 	# 	max_size 2GB
 	# }
 
+	# /metrics only for the Prometheus server (192.168.1.20 here); anyone else gets a 403.
+	@metrics_others {
+		path /metrics
+		not remote_ip 192.168.1.20/32
+	}
+	respond @metrics_others 403
+
 	reverse_proxy bitgauge:8080 {
 		flush_interval -1      # stream responses immediately (no response buffering)
 	}

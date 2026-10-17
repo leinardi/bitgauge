@@ -10,6 +10,9 @@ services:
       - no-new-privileges:true
     environment:
       BITGAUGE_SERVER__DISPLAY_NAME: home
+      # From v0.2, which ships the Prometheus endpoint; v0.1 rejects the toggle and exits 2.
+      # With no proxy to restrict it, anyone who reaches port 8080 can read /metrics.
+      # BITGAUGE_METRICS__ENABLED: "true"
     # Optional: full configuration as a read-only file
     # volumes:
     #   - ./bitgauge.yaml:/etc/bitgauge/config.yaml:ro

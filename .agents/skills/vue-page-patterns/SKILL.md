@@ -71,12 +71,12 @@ Pages orchestrate data and layout; components render; composables hold stateful 
 talks to the server; `engine/` measures, and nothing else does
 ([ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md#conventions)).
 
-| Concern | Where it goes | Examples (v0.2 ones not built yet) |
+| Concern | Where it goes | Examples |
 | --- | --- | --- |
-| A running test's live view, settings, history, sharing | `web/src/composables/` | `useRun`, `useUrlParams`, `useCountdown`; v0.2: `useSettings`, `useHistory`, `useShare` |
+| A running test's live view, settings, history, sharing | `web/src/composables/` | `useRun`, `useUrlParams`, `useCountdown`, `useSettings`, `useHistory`, `useShare` |
 | A block of the screen with its own markup | `web/src/components/` | gauge, chart, tiles, notices |
-| Route parameters, layout, which sections exist | the page | `TestPage`, `AboutPage`; v0.2: `ResultDetail`, `History`, `Settings` |
-| IndexedDB, export and import | `web/src/history/` (v0.2) | `idb` database, migrations |
+| Route parameters, layout, which sections exist | the page | `TestPage`, `AboutPage`, `ResultDetailPage`, `HistoryPage`, `SettingsPage` |
+| IndexedDB, export and import | `web/src/history/` | `idb` database (`db.ts`), migrations (`migrate.ts`) |
 
 - No store library: composables with module-level reactive state are enough for five screens
   ([frontend.md §4](../../../docs/features/technical-stack/frontend.md#4-state-ownership)).
