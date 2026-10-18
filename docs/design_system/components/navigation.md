@@ -26,7 +26,7 @@ screen is silent). Current page: `aria-current="page"`.
 
 ## TabBar
 
-Sticky 64 px bottom bar, `--surface-1`, one tab per scoped item, teal 2 px marker on the current tab.
+Fixed 64 px bottom bar (pinned to the viewport bottom, with a 64 px spacer in the page flow so the last content scrolls clear of it), `--surface-1`, one tab per scoped item, teal 2 px marker on the current tab.
 
 ## Version scope
 

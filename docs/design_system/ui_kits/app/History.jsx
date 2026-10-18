@@ -579,7 +579,7 @@ class History extends React.Component {
           ) : null}
         </main>
         {v.mobile ? (
-          <div style={{ marginTop: "auto", position: "sticky", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="history" status={this.props.srvStatus || "connected"} /></div>
+          <div style={{ marginTop: "auto", height: "64px", flex: "none" }}><div style={{ position: "fixed", left: "0", right: "0", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="history" status={this.props.srvStatus || "connected"} /></div></div>
         ) : null}
         {v.toast ? (
           <div style={{ position: "absolute", left: v.L?.tL, right: v.L?.tR, bottom: v.L?.tB, zIndex: "50", display: "flex", justifyContent: "flex-end" }}>

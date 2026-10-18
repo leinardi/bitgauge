@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"b6d7fe7e8713","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"9df6af312bac","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"af57de6fd238","ui_kits/app/App.jsx":"5f056fcdcdd5","ui_kits/app/History.jsx":"bbff2d5684e9","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"569218fbff72","ui_kits/app/ResultDetail.jsx":"0ca4ffe7d3b5","ui_kits/app/Settings.jsx":"0be72ef0379c","ui_kits/app/TestScreen.jsx":"fc42e2034669","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"b6d7fe7e8713","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"9df6af312bac","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"d912c6b088b6","ui_kits/app/App.jsx":"5f056fcdcdd5","ui_kits/app/History.jsx":"de1fc72f2708","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"fb2b196d6322","ui_kits/app/ResultDetail.jsx":"a6f755466998","ui_kits/app/Settings.jsx":"4705d391ca54","ui_kits/app/TestScreen.jsx":"b66b96b517c6","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"}]} */
 
 (() => {
 
@@ -3652,11 +3652,25 @@ class About extends React.Component {
       style: {
         lineHeight: "var(--lh-prose)"
       }
-    }, v.privacy))))), v.mobile ? /*#__PURE__*/React.createElement(Nav, {
+    }, v.privacy))))), v.mobile ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: "auto",
+        height: "64px",
+        flex: "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: "fixed",
+        left: "0",
+        right: "0",
+        bottom: "0",
+        zIndex: "var(--z-nav)"
+      }
+    }, /*#__PURE__*/React.createElement(Nav, {
       variant: "mobile-bottom",
       active: "about",
       status: status
-    }) : null);
+    }))) : null);
   }
 }
 window.About = About;
@@ -5772,7 +5786,14 @@ class History extends React.Component {
     }, "Compare")) : null) : null) : null), v.mobile ? /*#__PURE__*/React.createElement("div", {
       style: {
         marginTop: "auto",
-        position: "sticky",
+        height: "64px",
+        flex: "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: "fixed",
+        left: "0",
+        right: "0",
         bottom: "0",
         zIndex: "var(--z-nav)"
       }
@@ -5780,7 +5801,7 @@ class History extends React.Component {
       variant: "mobile-bottom",
       active: "history",
       status: this.props.srvStatus || "connected"
-    })) : null, v.toast ? /*#__PURE__*/React.createElement("div", {
+    }))) : null, v.toast ? /*#__PURE__*/React.createElement("div", {
       style: {
         position: "absolute",
         left: v.L?.tL,
@@ -6927,11 +6948,25 @@ function NotAvailable({
       size: "sm",
       href: "#"
     }, "Test")
-  }, "This page arrives in a later version of BitGauge. This server runs " + scope + ".")), mobile ? /*#__PURE__*/React.createElement(Nav, {
+  }, "This page arrives in a later version of BitGauge. This server runs " + scope + ".")), mobile ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: "auto",
+      height: "64px",
+      flex: "none"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "fixed",
+      left: "0",
+      right: "0",
+      bottom: "0",
+      zIndex: "var(--z-nav)"
+    }
+  }, /*#__PURE__*/React.createElement(Nav, {
     variant: "mobile-bottom",
     active: active,
     status: srvStatus
-  }) : null);
+  }))) : null);
 }
 window.Prototype = Prototype;
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/app/Prototype.jsx", error: String((e && e.message) || e) }); }
@@ -8986,11 +9021,25 @@ class ResultDetail extends React.Component {
       icon: "x",
       "aria-label": "Dismiss",
       onClick: v.dismiss
-    }))) : null, v.mobile ? /*#__PURE__*/React.createElement(Nav, {
+    }))) : null, v.mobile ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: "auto",
+        height: "64px",
+        flex: "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: "fixed",
+        left: "0",
+        right: "0",
+        bottom: "0",
+        zIndex: "var(--z-nav)"
+      }
+    }, /*#__PURE__*/React.createElement(Nav, {
       variant: "mobile-bottom",
       active: "history",
       status: this.props.srvStatus || "connected"
-    }) : null);
+    }))) : null);
   }
 }
 window.ResultDetail = ResultDetail;
@@ -10859,7 +10908,14 @@ class Settings extends React.Component {
     }, "Reset all to defaults"))))), v.mobile ? /*#__PURE__*/React.createElement("div", {
       style: {
         marginTop: "auto",
-        position: "sticky",
+        height: "64px",
+        flex: "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: "fixed",
+        left: "0",
+        right: "0",
         bottom: "0",
         zIndex: "var(--z-nav)"
       }
@@ -10867,7 +10923,7 @@ class Settings extends React.Component {
       variant: "mobile-bottom",
       active: "settings",
       status: this.props.srvStatus || "connected"
-    })) : null, v.confirm ? /*#__PURE__*/React.createElement(DS.Dialog, {
+    }))) : null, v.confirm ? /*#__PURE__*/React.createElement(DS.Dialog, {
       tone: "danger",
       icon: "rotate-ccw",
       title: "Reset all settings?",
@@ -13812,11 +13868,25 @@ class TestScreen extends React.Component {
         icon: "undo-2",
         onClick: v.undoKeep
       }, "Undo") : null
-    })) : null, v.navMobile ? /*#__PURE__*/React.createElement(Nav, {
+    })) : null, v.navMobile ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: "auto",
+        height: "64px",
+        flex: "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: "fixed",
+        left: "0",
+        right: "0",
+        bottom: "0",
+        zIndex: "var(--z-nav)"
+      }
+    }, /*#__PURE__*/React.createElement(Nav, {
       variant: "mobile-bottom",
       active: "test",
       status: v.srvStatus
-    }) : null, v.shareOpen ? /*#__PURE__*/React.createElement(DS.Dialog, {
+    }))) : null, v.shareOpen ? /*#__PURE__*/React.createElement(DS.Dialog, {
       wide: true,
       icon: "share-2",
       title: "Share result",

@@ -1,6 +1,6 @@
 /**
  * AppHeader — persistent header: wordmark (home link), server identity, primary navigation, theme switch.
- * TabBar — the narrow-layout bottom tab bar (64 px, sticky). Contract: components/navigation.md.
+ * TabBar — the narrow-layout bottom tab bar (64 px, position-neutral; the page pins it with a fixed wrapper plus a 64 px spacer). Contract: components/navigation.md.
  *
  * Data comes from props only — no defaults, no sample data:
  * - `server` is `server.display_name` from GET /info. Pass null when it is not known (/info failed): the

@@ -551,7 +551,7 @@ class Settings extends React.Component {
           </aside>
         </main>
         {v.mobile ? (
-          <div style={{ marginTop: "auto", position: "sticky", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="settings" status={this.props.srvStatus || "connected"} /></div>
+          <div style={{ marginTop: "auto", height: "64px", flex: "none" }}><div style={{ position: "fixed", left: "0", right: "0", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="settings" status={this.props.srvStatus || "connected"} /></div></div>
         ) : null}
         {v.confirm ? (
           <DS.Dialog tone="danger" icon="rotate-ccw" title="Reset all settings?" onClose={v.closeReset} align={v.mobile ? 'top' : 'center'} footerStack={v.mobile}

@@ -240,7 +240,7 @@ function NotAvailable({ mobile, active, srvStatus, scope }) {
           {"This page arrives in a later version of BitGauge. This server runs " + scope + "."}
         </DS.EmptyState>
       </main>
-      {mobile ? <Nav variant="mobile-bottom" active={active} status={srvStatus} /> : null}
+      {mobile ? <div style={{ marginTop: "auto", height: "64px", flex: "none" }}><div style={{ position: "fixed", left: "0", right: "0", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active={active} status={srvStatus} /></div></div> : null}
     </div>
   );
 }

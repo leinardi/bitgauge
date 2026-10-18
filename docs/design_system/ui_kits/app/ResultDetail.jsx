@@ -664,7 +664,7 @@ class ResultDetail extends React.Component {
           </div>
         ) : null}
         {v.mobile ? (
-          <Nav variant="mobile-bottom" active="history" status={this.props.srvStatus || "connected"} />
+          <div style={{ marginTop: "auto", height: "64px", flex: "none" }}><div style={{ position: "fixed", left: "0", right: "0", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="history" status={this.props.srvStatus || "connected"} /></div></div>
         ) : null}
       </div>
     );

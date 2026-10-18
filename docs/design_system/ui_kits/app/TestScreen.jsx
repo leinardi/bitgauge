@@ -746,7 +746,7 @@ class TestScreen extends React.Component {
         ) : null}
         {v.toast ? <DS.ToastRegion aboveTabBar={v.navMobile}><DS.Toast tone="info" icon={v.toast.icon} title={v.toast.t} onDismiss={v.dismissToast}
           action={v.toast.undo ? <DS.Button size="sm" icon="undo-2" onClick={v.undoKeep}>Undo</DS.Button> : null} /></DS.ToastRegion> : null}
-        {v.navMobile ? <Nav variant="mobile-bottom" active="test" status={v.srvStatus} /> : null}
+        {v.navMobile ? <div style={{ marginTop: "auto", height: "64px", flex: "none" }}><div style={{ position: "fixed", left: "0", right: "0", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active="test" status={v.srvStatus} /></div></div> : null}
         {v.shareOpen ? (
           <DS.Dialog wide icon="share-2" title="Share result" onClose={v.closeShare} align={v.mobile ? 'top' : 'center'} footerStack={v.mobile}
             body={<>
