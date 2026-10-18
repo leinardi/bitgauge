@@ -27465,10 +27465,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-history-search-narrow's upstream note: the narrow list sits under the search field.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -28209,10 +28209,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's History keeps its search field on narrow screens, as screens.md section 3 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {

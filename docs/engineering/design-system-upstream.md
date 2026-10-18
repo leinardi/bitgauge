@@ -42,3 +42,8 @@ the export shows, and what it should show, with the reason; behavior comes from
   should be drawn on a run stopped in the upload: partial, not saved, with Keep in history.
   `ll-no-steady-window` stops 3.1 s into the upload, before its window; `ll-no-probe-path` loses
   the WebSocket in the download, its reopening unanswered, and stops 0.8 s into the upload.
+- **`v02-history-search-narrow`** (also `v02-history-narrow-geometry`), `ui_kits/app/History.jsx`,
+  the filter bar: the search field is rendered on desktop only. It should stay on narrow screens
+  too: the filter bar has search, and the responsive notes of
+  [screens.md §3](../features/ui/screens.md#3-history--history) change the rows, the trend and
+  Compare, not the filters. The narrow card list then sits under the search field.
