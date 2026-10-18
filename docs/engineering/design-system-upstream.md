@@ -103,3 +103,9 @@ the export shows, and what it should show, with the reason; behavior comes from
   row's checkbox (`span role="checkbox"`) has no name. It should be named "Select <label>,
   <date>", as the narrow cards' already are, since every control has an accessible name
   ([i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility)).
+- **`v02-headings`**, `components/layout/Card.jsx` and `ui_kits/app/History.jsx`, `Settings.jsx`,
+  `ResultDetail.jsx`: card, dialog and empty-state titles are styled spans and divs, read as plain
+  text before the card's content. They should be headings: `h2` for cards, dialogs and empty
+  states, `h3` for groups inside a card, under the screen's one `h1`, without skipping a level
+  ([i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility)); `Card.jsx` takes a heading
+  level.

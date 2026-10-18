@@ -24301,10 +24301,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's card, dialog and empty-state titles are headings (h2, and h3 for groups inside a card), as i18n-a11y.md section 2 sets; Card.jsx takes a heading level.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
