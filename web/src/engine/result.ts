@@ -108,6 +108,8 @@ export function buildResult(context: ResultContext): Result {
       preset: settings.preset,
       phases: [...settings.phases],
       streams: { mode: settings.streams.mode, max: settings.streams.max },
+      download: { minMs: settings.download.minMs, maxMs: settings.download.maxMs },
+      upload: { minMs: settings.upload.minMs, maxMs: settings.upload.maxMs },
       dataCapBytes: settings.dataCapBytes,
       overheadCompensationPercent: percent,
       warmup: settings.warmup,

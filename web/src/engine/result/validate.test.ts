@@ -115,6 +115,12 @@ describe('the result validator', () => {
     expect(validateResult(VALID)).toEqual([])
   })
 
+  it('accepts the v0.2 duration bounds in the settings, and a result without them', () => {
+    const withBounds = changed((result) => Object.assign(result.settings, { download: { minMs: 10_000, maxMs: 20_000 }, upload: { minMs: 15_000, maxMs: 25_000 } }))
+    expect(validateResult(withBounds)).toEqual([])
+    expect(validateResult(changed((result) => Object.assign(result.settings, { download: { minMs: 10_000 } })))).toEqual(['result.settings.download.maxMs: missing'])
+  })
+
   it('accepts the note the history writes, and a result without it', () => {
     expect(validateResult(changed((result) => (result.note = 'after the router swap')))).toEqual([])
     expect(validateResult(changed((result) => (result.note = '')))).toEqual([])

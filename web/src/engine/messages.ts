@@ -260,6 +260,9 @@ export interface Result {
     preset: Preset
     phases: MeasuringPhase[]
     streams: { mode: StreamMode; max: number }
+    /** Each direction's resolved duration bounds (v0.2); absent on an older result. */
+    download?: DurationBounds
+    upload?: DurationBounds
     dataCapBytes: number | null
     overheadCompensationPercent: number
     warmup: 'auto' | number

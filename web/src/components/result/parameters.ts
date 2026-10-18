@@ -24,10 +24,11 @@ import { formatBytes, formatDuration, formatPercent, rateParts } from '@/lib/for
 import { protocolLabel } from '@/lib/protocol'
 
 // The Result detail's test parameters (ui/screens.md section 2, kit ResultDetail.jsx): the preset,
-// the phases in their order, the stream mode with each direction's count and plateau reason, the
-// durations, the data cap and the data used, the units the page shows, the warm-up mode with where
-// it ended, the ping count, overhead compensation and protocol, then the server, the browser, the
-// client IP, the timer resolution and whether the page was cross-origin isolated.
+// the phases in their order, the stream mode with each direction's count and plateau reason on one
+// row, each direction's duration with its configured bounds, the data cap with the data used, the
+// units the page shows, the warm-up mode with where it ended, the ping count, overhead compensation
+// and protocol, then the server, the browser, the client IP, the timer resolution and whether the
+// page was cross-origin isolated.
 
 export interface ParameterRow {
   key: string
@@ -47,13 +48,44 @@ function directions(result: Result): Direction[] {
   return result.settings.phases.filter((phase): phase is Direction => phase !== 'idle' && result[phase] !== undefined)
 }
 
-function streamsMode(result: Result, { t }: Wording): string {
-  const { mode, max } = result.settings.streams
-  return mode === 'auto' ? t('result.parameters.streamsAuto', { max }) : mode === 'fixed' ? t('result.parameters.streamsFixed') : t('result.parameters.streamsSingle')
-}
-
 function directionName(direction: Direction, { t }: Wording): string {
   return direction === 'download' ? t('result.parameters.download') : t('result.parameters.upload')
+}
+
+/** One row for the streams, as the kit has it: the mode, then the count and plateau reason, per direction where they differ. */
+function streams(result: Result, wording: Wording): string {
+  const { t, locale } = wording
+  const { mode } = result.settings.streams
+  const name = mode === 'auto' ? t('result.parameters.streamsAuto') : mode === 'fixed' ? t('result.parameters.streamsFixed') : t('result.parameters.streamsSingle')
+  const parts = directions(result).map((direction) => {
+    const n = result[direction]?.streams ?? 0
+    const plateau = result[direction]?.plateau
+    return { direction, count: plateau === undefined ? String(n) : t('result.parameters.streamCount', { n, plateau }) }
+  })
+  const [first] = parts
+  if (first === undefined) {
+    return name
+  }
+  if (parts.every((part) => part.count === first.count)) {
+    return t('result.parameters.streamsValue', { mode: name, streams: first.count })
+  }
+  const each = parts.map((part) => t('result.parameters.streamsDirection', { direction: directionName(part.direction, wording).toLocaleLowerCase(locale), streams: part.count }))
+  return t('result.parameters.streamsValue', { mode: name, streams: each.join(t('result.parameters.streamsJoin')) })
+}
+
+/** A direction's duration with its configured bounds in seconds, when the result records them (v0.2). */
+function duration(result: Result, direction: Direction, { t, locale }: Wording): string | null {
+  const series = result[direction]?.series
+  if (series === undefined) {
+    return null
+  }
+  const value = formatDuration(series.endMs, locale)
+  const bounds = result.settings[direction]
+  if (bounds === undefined) {
+    return t('result.parameters.durationOnly', { duration: value })
+  }
+  const seconds = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 })
+  return t('result.parameters.duration', { duration: value, min: seconds.format(bounds.minMs / 1000), max: seconds.format(bounds.maxMs / 1000) })
 }
 
 function warmup(result: Result, wording: Wording): string {
@@ -70,20 +102,9 @@ export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording
   const { t, locale } = wording
   const { settings, client, server } = result
   const phases = settings.phases.map((phase) => (phase === 'idle' ? t('result.parameters.idle') : directionName(phase, wording)))
-  const streams = directions(result).map((direction) => {
-    const part = result[direction]
-    const n = part?.streams ?? 0
-    const value = part?.plateau === undefined ? t('result.parameters.streamCountOnly', { n }) : t('result.parameters.streamCount', { n, plateau: part.plateau }, n)
-    return row(`streams-${direction}`, t('result.parameters.streamsDirection', { direction: directionName(direction, wording) }), value)
-  })
   const durations = directions(result).flatMap((direction) => {
-    const part = result[direction]
-    if (part?.series === undefined) {
-      return []
-    }
-    const duration = formatDuration(part.series.endMs, locale)
-    const value = part.windowMs === undefined ? t('result.parameters.durationOnly', { duration }) : t('result.parameters.duration', { duration, window: formatDuration(part.windowMs, locale) })
-    return [row(`duration-${direction}`, directionName(direction, wording), value)]
+    const value = duration(result, direction, wording)
+    return value === null ? [] : [row(`duration-${direction}`, directionName(direction, wording), value)]
   })
   const cap = settings.dataCapBytes === null ? t('result.parameters.capOff') : formatBytes(settings.dataCapBytes, locale)
   const unit = rateParts(1e6, units, locale).unit
@@ -93,16 +114,14 @@ export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording
     {
       key: 'test',
       title: t('result.parameters.test'),
-      rows: [row('preset', t('result.parameters.preset'), presetName(settings.preset, t)), row('phases', t('result.parameters.phases'), phases.join(t('result.parameters.then'))), row('streams', t('result.parameters.streams'), streamsMode(result, wording)), ...streams],
+      rows: [row('preset', t('result.parameters.preset'), presetName(settings.preset, t)), row('phases', t('result.parameters.phases'), phases.join(t('result.parameters.then'))), row('streams', t('result.parameters.streams'), streams(result, wording))],
     },
     {
       key: 'limits',
       title: t('result.parameters.limits'),
       rows: [
         ...durations,
-        row('total', t('result.parameters.total'), formatDuration(result.durationMs, locale)),
-        row('cap', t('result.parameters.dataCap'), cap),
-        row('used', t('result.parameters.dataUsed'), formatBytes(result.dataUsedBytes, locale)),
+        row('cap', t('result.parameters.dataCap'), t('result.parameters.dataCapValue', { cap, used: formatBytes(result.dataUsedBytes, locale) })),
       ],
     },
     {

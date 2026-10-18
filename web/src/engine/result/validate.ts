@@ -198,6 +198,9 @@ const loadedLatency = either(
   object({ status: literal('unavailable'), reason: literal('no-steady-window', 'insufficient-samples', 'reservation-broken', 'no-probe-path'), ...probes }, { source }),
 )
 
+/** A direction's resolved duration bounds (v0.2). */
+const bounds = object({ minMs: count, maxMs: count })
+
 const directionFields = {
   required: {
     status: literal('measured', 'insufficient-data', 'partial', 'skipped', 'error'),
@@ -235,15 +238,18 @@ const result = object(
       timerResolutionMs: amount,
       crossOriginIsolated: boolean,
     }),
-    settings: object({
-      preset: literal('quick', 'standard', 'extended'),
-      phases: list(literal('idle', 'download', 'upload')),
-      streams: object({ mode: literal('auto', 'fixed', 'single'), max: count }),
-      dataCapBytes: nullable(count),
-      overheadCompensationPercent: amount,
-      warmup: either(literal('auto'), count),
-      pingCount: count,
-    }),
+    settings: object(
+      {
+        preset: literal('quick', 'standard', 'extended'),
+        phases: list(literal('idle', 'download', 'upload')),
+        streams: object({ mode: literal('auto', 'fixed', 'single'), max: count }),
+        dataCapBytes: nullable(count),
+        overheadCompensationPercent: amount,
+        warmup: either(literal('auto'), count),
+        pingCount: count,
+      },
+      { download: bounds, upload: bounds },
+    ),
     dataUsedBytes: count,
     notices: list(notice),
   },
