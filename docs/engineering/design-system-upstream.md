@@ -22,3 +22,13 @@ the export shows, and what it should show, with the reason; behavior comes from
   ([measurement.md §8.2](../features/measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare));
   `no-gain` needs one stream to fill the link within 5 %, which a 48 ms round trip per request
   cycle leaves on the bound. The download keeps `no-gain`.
+- **`v02-date-format`** (also `v02-history-table-geometry`, `v02-result-header-geometry`),
+  `ui_kits/app/History.jsx` (the rows' dates, the trend's range), `ResultDetail.jsx` (the header's
+  date, the breadcrumb) and `TestScreen.jsx` (the save bar's time): dates and times are literal
+  ISO, en-GB and 24-hour strings ("2026-10-08 08:41", "17 Sep – 8 Oct", "Thu 8 Oct 2026 ·
+  14:02:11", "Saved to history 14:02:11").
+  They should be formatted with `Intl.DateTimeFormat` in the active locale and the browser's time
+  zone (en: "Oct 8, 2026, 2:02 PM", "Sep 17 – Oct 8"), each in a `<time datetime>` element
+  ([i18n-a11y.md §1.3](../features/ui/i18n-a11y.md#13-number-unit-and-date-formatting)). The
+  History table's Date column then takes the locale's width, and its value columns, rows and the
+  Result header's meta line follow it.

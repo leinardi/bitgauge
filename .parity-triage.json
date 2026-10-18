@@ -21956,10 +21956,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's History, Result detail and Settings dates and times are formatted with Intl.DateTimeFormat in the active locale (en: \"Oct 8, 2026, 2:02 PM\", \"Sep 17 – Oct 8\"), as i18n-a11y.md section 1.3 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -39729,10 +39729,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-date-format's upstream note: the kit's table takes the locale's dates, so its columns follow.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -46900,10 +46900,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-date-format's upstream note: the kit's Result header takes the locale's date.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
