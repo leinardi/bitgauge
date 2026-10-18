@@ -17854,10 +17854,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's throughput chart summary ends \"; latency under load on a second scale\" while that series is shown.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -18315,10 +18315,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's load card (LoadCard.jsx) is a section named by its title, Bufferbloat, on the Test screen and the Result detail, as i18n-a11y.md section 2 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -18464,10 +18464,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-a11y-load-card-region's upstream note: the card's words leave the Results text once it is a named region.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -18738,10 +18738,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Result detail tiles (Results), load card (Bufferbloat) and chart cards (Download, Upload, Idle latency) are sections named by their titles, and each chart image is named \"<title> chart: …\", as i18n-a11y.md section 2 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {

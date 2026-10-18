@@ -127,3 +127,15 @@ the export shows, and what it should show, with the reason; behavior comes from
     detail's (`v02-a11y-result-side-regions`), and its title a heading (`v02-headings`).
   - Vue follows the kit's dialog otherwise: the actions in the sticky footer, Download image the
     primary one, Copy summary bordered.
+- **`v02-a11y-result-regions`**, **`v02-a11y-load-card-region`** (also
+  `v02-a11y-load-card-region-text`), `ui_kits/app/ResultDetail.jsx`, `TestScreen.jsx` and
+  `components/measurement/LoadCard.jsx`: the result tiles, the load card and the chart cards are
+  unnamed sections. They should be regions named by what they hold
+  ([i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility)): the tiles "Results", the load
+  card "Bufferbloat" on the Test screen and the Result detail (by `aria-label`, its title staying
+  the small caps label it is), each chart card by its title, and each chart image
+  "<title> chart: …". The load card's words then leave the Results text.
+- **`v02-a11y-chart-second-scale`**, `ui_kits/app/TestScreen.jsx`, the throughput chart's summary:
+  it leaves out the loaded latency drawn against the right-hand axis. While that series is shown,
+  the summary should end "; latency under load on a second scale", so a screen reader knows the
+  second axis is there ([i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility)).
