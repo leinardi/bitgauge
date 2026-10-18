@@ -166,8 +166,11 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   refused as a whole when it is larger, is not JSON, or is not `format: "bitgauge.history"` with
   `formatVersion: 1`. Each record is then checked on its own: a higher `schemaVersion` than the
   current one, or a record the result validator rejects, is rejected by its position in `results`
-  with the reason; a record whose `id` is already stored is skipped. The import ends with a
-  summary `{added, skipped, rejected[]}`, each rejected entry its position and reason.
+  with the reason; a record whose `id` is already stored is skipped. The records are checked one
+  at a time, yielding to the page after each, so the History screen counts them with a progress
+  bar and Cancel stops the import; nothing is written until every record is checked, so a
+  cancelled import leaves history as it was. The import ends with a summary
+  `{added, skipped, rejected[]}`, each rejected entry its position and reason.
 - **Unavailable storage** disables history for the session
   ([../edge-cases.md §7](../edge-cases.md#7-indexeddb-unavailable-private-mode)).
 

@@ -213,9 +213,10 @@ parameters collapse into a disclosure.
 history"; Import JSON waits, disabled, until the store is open, since an import cannot write before
 it); empty ("No results yet" with Start a test and Import JSON); populated; filtered with no match
 (with Clear filters); history unavailable ([../edge-cases.md
-§7](../edge-cases.md#7-indexeddb-unavailable-private-mode)); import in progress, import result
-(added, skipped as duplicates, rejected with each record's position and reason, or the whole file
-refused with its reason).
+§7](../edge-cases.md#7-indexeddb-unavailable-private-mode)); import in progress ("Checking 9 of 16
+results…" with a progress bar named Import progress, and Cancel, which stops the import before
+anything is written), import result (added, skipped as duplicates, rejected with each record's
+position and reason, or the whole file refused with its reason).
 
 **Responsive notes.** On narrow screens rows become cards with label, date, download, upload,
 latency and grade, with a sort control; the trend shows one metric at a time with a selector;
