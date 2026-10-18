@@ -109,3 +109,9 @@ the export shows, and what it should show, with the reason; behavior comes from
   states, `h3` for groups inside a card, under the screen's one `h1`, without skipping a level
   ([i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility)); `Card.jsx` takes a heading
   level.
+- **`v02-share-loaded-source`** (also `v02-result-side-geometry`), `ui_kits/app/ResultDetail.jsx`
+  and `components/share/SharePreview.jsx`, the share image and the text summary: a loaded latency
+  measured over the HTTP/2 probe reads "+39 ms loaded (upload)". A source other than the
+  WebSocket should be named with the direction, "+38 ms loaded (upload, HTTP/2 probe)", since
+  each number carries its qualifiers ([flows.md §8](../features/ui/flows.md#8-sharing)). The
+  side column's boxes then follow that line, the card headings and the side regions.

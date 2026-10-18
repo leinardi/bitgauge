@@ -48921,15 +48921,15 @@
         {
           "target": "vue",
           "what": "Follows v02-result-parameters' Vue action; once it lands, re-run the Result detail scenarios and triage what is left of this cluster.",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
-          "what": "Covered by the upstream notes of v02-headings and, once decided, v02-share-loaded-source.",
-          "done": false
+          "what": "Covered by the upstream notes of v02-headings and v02-share-loaded-source (the spec won on 2026-10-18), with v02-a11y-result-side-regions: the column's boxes follow its headings, regions and loaded line.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -50346,7 +50346,7 @@
           "ref": "web/src/share/summary.ts; web/src/components/share/SharePreview.vue",
           "says": "\"+38 ms loaded (upload, HTTP/2 probe)\""
         },
-        "notes": "Matched on the text summary, whose entry shows the source; the image's entries are cut before it and stay with v02-date-format. The entry also carries the title split of v02-headings and the date of v02-date-format. No entry while v02-a11y-result-side-regions holds the region it sits in; it shows again once that conflict is decided."
+        "notes": "Matched on the text summary, whose entry shows the source; the image's entries are cut before it and stay with v02-date-format. The entry also carries the title split of v02-headings and the date of v02-date-format. No entry while v02-a11y-result-side-regions holds the region it sits in; it shows again once that conflict is decided. The maintainer decided on 2026-10-18 that the spec wins (flows.md section 8), and its upstream note is written; record the verdict here once its entry shows again, when an export makes the side cards regions."
       },
       "decision": null,
       "owned": {},
