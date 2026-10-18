@@ -23420,14 +23420,14 @@
     },
     {
       "id": "v02-fixture-slowdone-geometry",
-      "title": "Slow link, done (follows v02-fixture-slowdone-unstable and the run's values): the demo's upload tile wraps \"few samples and unstable\" to a second line, so the load card and Test list sit lower; its plateau reason and values set widths",
+      "title": "Slow link, done (follows v02-fixture-slowdone-unstable): the demo's upload plateau reads floor-limited, wider than the kit's no-gain, so on narrow screens the upload tile wraps it to a second line and the load card and Test list sit lower, and the strip's Streams entry is wider",
       "match": {
         "scenarios": [
           "test/slowdone"
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^main > (region \"(Results|Result status)\"|main \"\"|group \"Suggested labels\"|button \"(Share|Download JSON|Details)\"|list \"\"|img \"Bufferbloat grade [^\"]*\"|text \"(low confidence · few samples|Bufferbloat|A\\+|A|B|C|D|F|High bufferbloat|Basis: [^\"]*|During (download|upload) · WebSocket|ms|Test|Idle latency|Jitter|mean of consecutive differences|min # · p90[^\"]*|Streams|2)\"( #\\d+)?)$",
+        "path": "^main > (list \"\"|img \"Bufferbloat grade [^\"]*\"|text \"(low confidence · few samples|Bufferbloat|A\\+|A|B|C|D|F|High bufferbloat|Basis: [^\"]*|During (download|upload) · WebSocket|ms|Test|Idle latency|Jitter|mean of consecutive differences|min # · p90[^\"]*|Streams|2)\"( #\\d+)?)$",
         "kind": null,
         "detail": null
       },
@@ -23440,29 +23440,21 @@
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (slowdone)",
-          "says": "\"low confidence · few samples\" on one line; plateau no-gain"
+          "says": "\"2 streams · plateau: no-gain\" on the upload tile and the strip"
         },
         "vue": {
           "ref": "web/src/demo/link.ts (slow link)",
-          "says": "\"low confidence · few samples and unstable\" on two lines; plateau floor-limited"
+          "says": "\"2 streams · plateau: floor-limited\", wrapping on narrow screens"
         },
-        "notes": "Follows v02-fixture-slowdone-unstable: the Results card's height and everything in it below the tiles, and the strip's Streams width; the save bar's, as v02-save-bar-geometry describes for the other saved runs (v02-fixture-label-suggestions)."
+        "notes": "Follows v02-fixture-slowdone-unstable: the Results card's content below the tiles, and the strip's Streams width. The save bar's geometry, with the page's main and Results boxes, moved to v02-save-bar-geometry on 2026-10-18 (v02-fixture-label-suggestions)."
       },
       "decision": {
         "kind": "confirmation",
-        "rationale": "Confirmed on 2026-10-18 with v02-fixture-slowdone-unstable: the geometry follows the tile's words.",
+        "rationale": "Confirmed on 2026-10-18 with v02-fixture-slowdone-unstable: the geometry follows the tile's words. On 2026-10-18 the maintainer split the save bar's geometry out into v02-save-bar-geometry, and the spec won on the plateau (v02-fixture-slowdone-unstable), so this waits on an export that reads floor-limited.",
         "on": "2026-10-18"
       },
       "owned": {
         "test/slowdone": {
-          "074f0ddc5467": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0a0645e1b69b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "115266021058": [
             "dark-narrow",
             "light-narrow"
@@ -23475,28 +23467,9 @@
             "dark-narrow",
             "light-narrow"
           ],
-          "1c1533c29923": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "1dfaf615dcce": [
             "dark-narrow",
             "light-narrow"
-          ],
-          "229b508f097d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "33555a18339c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3c6af5cc4734": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3ea713f85c75": [
-            "light-desktop"
           ],
           "44253244b366": [
             "dark-narrow",
@@ -23506,31 +23479,11 @@
             "dark-narrow",
             "light-narrow"
           ],
-          "489e1d7d75b0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4a1c8981c09c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "4b7f9e4c0a34": [
             "dark-narrow",
             "light-narrow"
           ],
           "4fb2eeee3fa0": "*",
-          "54e7c253dc3b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5d883505ca5f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "63bfaf8723a0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "646fdf58f5fd": [
             "dark-narrow",
             "light-narrow"
@@ -23542,10 +23495,6 @@
           "6af969d2b56f": [
             "dark-narrow",
             "light-narrow"
-          ],
-          "6afc9c410d4b": [
-            "dark-desktop",
-            "light-desktop"
           ],
           "6d5ed4b549bf": "*",
           "76eef7950a76": [
@@ -23560,20 +23509,7 @@
             "dark-narrow",
             "light-narrow"
           ],
-          "91384328fc4b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "971a013e09a5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9f8985afc47e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a74fd32459ea": "*",
-          "ab2204b22161": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -23581,29 +23517,9 @@
             "dark-narrow",
             "light-narrow"
           ],
-          "af91ac093a69": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b38dd4beb7c2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b3e40ed7b0d0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b48e447f4360": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "b624cc0f0f4e": [
             "dark-narrow",
             "light-narrow"
-          ],
-          "b6428a047778": [
-            "dark-desktop",
-            "light-desktop"
           ],
           "b8d824855259": [
             "dark-narrow",
@@ -23625,47 +23541,11 @@
             "dark-narrow",
             "light-narrow"
           ],
-          "cc1419a967e5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "d02474603343": [
             "dark-narrow",
             "light-narrow"
           ],
-          "d8576edacc10": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e27480802a2c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e4d65869c313": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "edf112885a07": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "efcb63319581": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "f197983d2c60": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f633ef406051": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f79d22948a4c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fbb417ffeab0": [
             "dark-narrow",
             "light-narrow"
           ]
@@ -23674,11 +23554,16 @@
       "actions": [
         {
           "target": "fixture",
-          "what": "Follows v02-fixture-slowdone-unstable: gone once the slowdone upload tile reads \"few samples\" on one line and the strip says no-gain.",
-          "done": false
+          "what": "Follows v02-fixture-slowdone-unstable: the upload tile reads few samples only, on one line, since the queue held by moving requests.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "Covered by v02-fixture-slowdone-unstable's note in design-system-upstream.md: gone once an export reads 2 streams · plateau: floor-limited.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -48911,7 +48796,8 @@
           "share/complete",
           "loaded/ws-close",
           "loaded/ll-insufficient-samples",
-          "loaded/ll-reservation-broken"
+          "loaded/ll-reservation-broken",
+          "test/slowdone"
         ],
         "projects": null,
         "layer": "layout",
@@ -48934,7 +48820,7 @@
           "ref": "web/src/components/test/SaveBar.vue",
           "says": "the context label alone, a fresh page holding no other labels, after \"2:02:38 PM\""
         },
-        "notes": "Follows v02-fixture-label-suggestions (and v02-date-format for the time's width): the suggestions' place and width, the bar's height and its buttons on narrow screens, and the Results card, page height and scroll offset below it. In loaded/ll-reservation-broken the WebSocket notice above adds to the shift (v02-fixture-loaded-mechanisms)."
+        "notes": "Follows v02-fixture-label-suggestions (and v02-date-format for the time's width): the suggestions' place and width, the bar's height and its buttons on narrow screens, and the Results card, page height and scroll offset below it. In loaded/ll-reservation-broken the WebSocket notice above adds to the shift (v02-fixture-loaded-mechanisms). test/slowdone joined on 2026-10-18, split out of v02-fixture-slowdone-geometry; on narrow screens its upload tile's wrapped plateau line also adds to the Results card's and the page's height."
       },
       "decision": {
         "kind": "verdict",
@@ -49174,6 +49060,49 @@
           ],
           "eb66f1889e51": "*",
           "f843bed39851": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/slowdone": {
+          "074f0ddc5467": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0a0645e1b69b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "489e1d7d75b0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91384328fc4b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9f8985afc47e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a74fd32459ea": "*",
+          "ab2204b22161": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af91ac093a69": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b38dd4beb7c2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e27480802a2c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "fbb417ffeab0": [
             "dark-narrow",
             "light-narrow"
           ]
