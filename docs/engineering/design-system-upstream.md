@@ -71,3 +71,9 @@ the export shows, and what it should show, with the reason; behavior comes from
   Share work, editing and deleting are disabled with the reason. The header's height follows the
   badge and the reason, and the main column's cards sit where the header and the cards above them
   end.
+- **`v02-a11y-result-side-regions`** (also `v02-result-parameters`), `ui_kits/app/ResultDetail.jsx`,
+  the side column's Share image, Text summary and Test parameters cards: they are plain sections.
+  They should be sections named by their titles (`aria-labelledby` on the title), regions, so a
+  screen reader lands on each card by name, as
+  [i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility) holds the UI to WCAG 2.2 AA.
+  The Test parameters rows, which already match, then pair with Vue's.
