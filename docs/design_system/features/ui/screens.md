@@ -59,8 +59,9 @@ from the design export; this page fixes content and behavior only. Terms follow 
   field with suggested labels (the context label and the 5 most recent distinct labels from
   history), Share and Details. Share opens the share panel of §2 as a focus-trapped dialog
   ([flows.md §8](flows.md#8-sharing)).
-- **Keep in history** for a `partial` or `error` result with at least one finished phase: such
-  results are not saved unless the user keeps them ([flows.md §4](flows.md#4-cancel-mid-test)).
+- **Keep in history** for a `partial` or `error` result with at least one finished phase, or with
+  the partial idle latency a stop during it keeps: such results are not saved unless the user
+  keeps them ([flows.md §4](flows.md#4-cancel-mid-test)).
 - Link "Details" to the Result detail of the finished run.
 - **Download JSON** of the finished result: the single result object in the JSON export format
   of [../technical-stack/frontend.md §5](../technical-stack/frontend.md#5-history-module-idb)
