@@ -24,7 +24,8 @@ function NumU({ value, unit, live, uncertain }) {
 }
 export function LoadCard({ grade, gradeText, basis, rows = [], responsiveness, compact = false, className, style }) {
   const r = responsiveness;
-  return <div className={'card tile load' + (compact ? ' compact' : '') + (className ? ' ' + className : '')} style={style}>
+  // A region named "Bufferbloat" (i18n-a11y.md §2); the visible title stays the small caps label, not a heading.
+  return <section aria-label="Bufferbloat" className={'card tile load' + (compact ? ' compact' : '') + (className ? ' ' + className : '')} style={style}>
     <div className="load-g"><span className="ds-eyebrow">Bufferbloat</span><GradeBadge grade={grade} text={gradeText} />{basis ? <span className="grade-b">{basis}</span> : null}</div>
     <div className="load-r">
       {rows.map((x, i) => <div className="lrow" key={i}>
@@ -44,5 +45,5 @@ export function LoadCard({ grade, gradeText, basis, rows = [], responsiveness, c
         </div>)}</div>
       </div> : null}
     </div>
-  </div>;
+  </section>;
 }

@@ -2,7 +2,7 @@
 .card { background: var(--surface-2); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
 .card.clip { overflow: hidden; }
 .card-h { display: flex; align-items: center; gap: var(--space-2-5); padding: var(--space-3) var(--space-4); border-bottom: var(--border-width) solid var(--border-subtle); }
-.card-h .t { font-size: var(--text-base); font-weight: var(--weight-semibold); }
+.card-h .t { margin: 0; font-size: var(--text-base); font-weight: var(--weight-semibold); }
 .card-h .ico { color: var(--fg-subtle); display: inline-flex; }
 .card-h .right { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
 .card-b { padding: var(--space-4); }

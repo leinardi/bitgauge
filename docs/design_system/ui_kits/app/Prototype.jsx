@@ -155,6 +155,8 @@ class Prototype extends React.Component {
     if (S === 'history') {
       const hv = this.state.hv, set = v => this.setState({ hv: v });
       if (t === 'Compare') return set('compare');
+      if (t === 'Open') return this.go('result');
+      if (t === 'Delete') return set('deleted');
       if (has('Done', 'Close', 'Cancel', 'Apply', 'Dismiss', 'Choose another file', 'Export JSON first', 'Clear selection')) return set('populated');
       if (t === 'Clear all') return set('confirm');
       if (sw('Clear 48')) return set('empty');
@@ -188,6 +190,7 @@ class Prototype extends React.Component {
       themeAttr: th === 'system' ? (sysDark ? 'dark' : 'light') : th,
       frameW: m && !this.state.narrow ? '390px' : 'none', frameBd: m && !this.state.narrow ? '1px solid var(--border-subtle)' : 'none',
       testExtra: Object.assign(this.prefs(), this.props.testExtra), saved: this.state.settings, onSettings: (st, ch) => this.onSettings(st, ch), historyExtra: this.props.historyExtra, resultExtra: this.props.resultExtra, settingsExtra: this.props.settingsExtra, aboutExtra: this.props.aboutExtra,
+      dismissHistory: () => this.setState({ hv: 'populated' }),
       isTest: S === 'test', isHistory: S === 'history', isResult: S === 'result', isSettings: S === 'settings', isAbout: S === 'about',
       onClick: e => {
         const el = e.target.closest && e.target.closest('a,button');
@@ -212,7 +215,7 @@ class Prototype extends React.Component {
             <NotAvailable mobile={v.mobile} active={v.notAvailableActive} srvStatus={v.srv} scope={v.caps.scope} />
           ) : null}
           {v.isHistory && !v.notAvailable ? (
-            <History variant={v.hv} mobile={v.mobile} srvStatus={v.srv} caps={v.caps} {...(v.historyExtra || {})} />
+            <History variant={v.hv} onDismiss={v.dismissHistory} mobile={v.mobile} srvStatus={v.srv} caps={v.caps} {...(v.historyExtra || {})} />
           ) : null}
           {v.isResult && !v.notAvailable ? (
             <ResultDetail mobile={v.mobile} srvStatus={v.srv} caps={v.caps} {...(v.resultExtra || {})} />
@@ -236,7 +239,7 @@ function NotAvailable({ mobile, active, srvStatus, scope }) {
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
       <Nav variant={mobile ? "mobile-top" : "top"} active={active} status={srvStatus} />
       <main className={"page" + (mobile ? " compact" : "")}>
-        <DS.EmptyState icon="circle-minus" title="Not available in this version" actions={<DS.Button variant="primary" size="sm" href="#">Test</DS.Button>}>
+        <DS.EmptyState icon="circle-minus" headingLevel={1} title="Not available in this version" actions={<DS.Button variant="primary" size="sm" href="#">Test</DS.Button>}>
           {"This page arrives in a later version of BitGauge. This server runs " + scope + "."}
         </DS.EmptyState>
       </main>

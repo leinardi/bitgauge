@@ -18,7 +18,9 @@ const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', '
 // v0.3-only Force-state entries (Continuous); hidden, not renamed, in v0.1 and v0.2.
 const V03_STATES = ['continuous', 'cont-warmup', 'cont-done'];
 const SCOPES = ['v0.1', 'v0.2', 'v0.3'];
-const LL_GAPS = [['none', 'measured'], ['no-steady-window', 'no steady window'], ['insufficient-samples', 'fewer than 10 samples'], ['reservation-broken', 'HTTP/1.1 reservation not held'], ['no-probe-path', 'no latency probe']];
+// no-steady-window and no-probe-path never reach a complete run (measurement §11.1, §11.4): the Test screen and Result
+// detail draw them on a run stopped in the upload, partial and not saved.
+const LL_GAPS = [['none', 'measured'], ['no-steady-window', 'no steady window · stopped 3.1 s into upload'], ['insufficient-samples', 'fewer than 10 samples'], ['reservation-broken', 'HTTP/1.1 reservation not held'], ['no-probe-path', 'no latency probe · WebSocket lost, stopped 0.8 s into upload']];
 const HISTORY_VARIANTS = ['populated', 'single', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 
 function DemoSelect({ label, value, options, onChange }) {
@@ -58,7 +60,7 @@ function DemoPanel({ d, set, reset }) {
   const [open, setOpenRaw] = React.useState(() => localStorage.getItem(DEMO_KEY + '-open') === '1');
   const setOpen = o => { setOpenRaw(o); try { localStorage.setItem(DEMO_KEY + '-open', o ? '1' : '0'); } catch (e) {} };
   return (
-    <aside className={'demo' + (open ? '' : ' closed')} aria-label="Demo state">
+    <aside className={'demo' + (open ? '' : ' closed')} aria-label="Demo state" data-modal-exempt="">
       <div className="demo-h" onClick={open ? undefined : () => setOpen(true)} style={open ? undefined : { cursor: 'pointer' }}>
         <DS.Icon name="sliders" size={14} style={{ color: 'var(--primary-text)' }} />
         <span className="t">Demo<span className="t-long"> state{open ? '' : ' \u00b7 ' + (d.mobile ? 'Mobile' : 'Auto') + ' \u00b7 ' + d.scenario}</span></span>
@@ -105,7 +107,7 @@ function DemoPanel({ d, set, reset }) {
           </div>
           <div className="demo-sec">
             <span className="st">Result detail</span>
-            <DemoSelect label="State" value={d.resultState} options={['result', 'not-found', 'history-unavailable']} onChange={v => set({ resultState: v })} />
+            <DemoSelect label="State" value={d.resultState} options={['result', 'not-found', 'history-unavailable', 'not-saved-partial', 'not-saved-missing']} onChange={v => set({ resultState: v })} />
             {v03 ? <DemoSeg label="Kind" value={d.resultKind} options={[['standard', 'Standard'], ['continuous', 'Continuous']]} onChange={v => set({ resultKind: v })} /> : null}
             <DemoSelect label="Demo" value={d.resultDemo} options={['none', 'deleted', 'clipboard-denied']} onChange={v => set({ resultDemo: v })} />
             <DemoSelect label="Overhead comp." value={d.resultOverhead} options={[['0', '0 % (example)'], ['6', '+6 %'], ['5.13', '+5.13 %'], ['3.69', '+3.69 %'], ['8.1', '+8.1 %']]} onChange={v => set({ resultOverhead: v })} />

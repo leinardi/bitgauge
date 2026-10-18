@@ -13,8 +13,10 @@ export interface CardProps {
   padded?: boolean;
   /** Clip children to the radius. Turn off when a popup (menu, tooltip) must escape. @default true */
   clip?: boolean;
-  /** Element, e.g. "section" for a landmark-like region. @default "div" */
+  /** Element, e.g. "section" for a region. A titled section with no `label` / `labelledBy` is named by its title heading. @default "div" */
   as?: string;
+  /** Level of the title heading (rendered as h1–h6, no visual change). 3 inside a dialog or under an h2. @default 2 */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   /** aria-label (sections). */
   label?: string;
   labelledBy?: string;

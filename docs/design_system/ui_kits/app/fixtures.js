@@ -91,6 +91,38 @@
   // Data used (bytes) of a sampled rate series [[t s, bit/s]] at `step` s: the integral of the curve.
   const usedBytes = (pts, step = 0.1) => pts.reduce((a, q) => a + (q[1] || 0), 0) * step / 8;
 
+  // ---------- dates and times (features/ui/i18n-a11y.md §1.3) ----------
+  // Intl.DateTimeFormat in the active locale (<html lang>) and the browser's time zone. Values are ISO instants
+  // ("2026-10-08T12:02:11.000Z"), calendar dates ("YYYY-MM-DD", "YYYY-MM": read as local dates, so no zone shift)
+  // or Date objects. en: date "Oct 8, 2026" · dateTime "Oct 8, 2026, 2:02 PM" · dateTimeSec "Oct 8, 2026, 2:02:11 PM"
+  // · time "2:02:11 PM" · abs "Thursday, October 8, 2026 at 2:02:11 PM GMT+2" · day "Sep 26" · month "Oct 2026".
+  const DATE = {
+    date: { dateStyle: 'medium' }, dateTime: { dateStyle: 'medium', timeStyle: 'short' }, dateTimeSec: { dateStyle: 'medium', timeStyle: 'medium' },
+    time: { timeStyle: 'medium' }, abs: { dateStyle: 'full', timeStyle: 'long' }, day: { month: 'short', day: 'numeric' }, month: { month: 'short', year: 'numeric' }
+  };
+  const loc = () => document.documentElement.lang || undefined;
+  const CAL = /^\d{4}-\d{2}(-\d{2})?$/;
+  const toDate = v => v instanceof Date ? v : CAL.test(v) ? (([y, m, d]) => new Date(y, m - 1, d || 1))(v.split('-').map(Number)) : new Date(v);
+  const pad2 = n => String(n).padStart(2, '0');
+  // Local calendar date of a Date as "YYYY-MM-DD" (for datetime attributes and <input type="date">).
+  const isoDay = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  const dtf = k => new Intl.DateTimeFormat(loc(), DATE[k] || k);
+  const date = (v, k) => dtf(k).format(toDate(v));
+  // <time datetime="ISO">formatted</time>
+  const timeEl = (v, k, props) => React.createElement('time', Object.assign({ dateTime: v }, props), date(v, k));
+  // A range via formatRange; each end's own parts sit in a <time> carrying its value, shared parts stay plain.
+  const timeRange = (a, b, k) => {
+    const runs = [];
+    dtf(k).formatRangeToParts(toDate(a), toDate(b)).forEach(p => { const l = runs[runs.length - 1]; if (l && l.s === p.source) l.t += p.value; else runs.push({ s: p.source, t: p.value }); });
+    return React.createElement(React.Fragment, null, ...runs.map((r, i) => r.s === 'shared' ? r.t : React.createElement('time', { key: i, dateTime: r.s === 'startRange' ? a : b }, r.t)));
+  };
+  // A list of dates joined by the locale (Intl.ListFormat: "Sep 26 and Oct 2"), each in its own <time>.
+  const timeList = (vals, k) => {
+    let i = 0;
+    const parts = new Intl.ListFormat(loc(), { type: 'conjunction' }).formatToParts(vals.map(v => date(v, k)));
+    return React.createElement(React.Fragment, null, ...parts.map((p, j) => p.type === 'element' ? React.createElement('time', { key: j, dateTime: vals[i++] }, p.value) : p.value));
+  };
 
-  window.BG = { KIT, rate, rateStr, ms, jit, bytes, track, thr, lat, chart, niceMax, rng, get GRADES() { return window.DS.GRADES; }, get QUALITY() { return window.DS.QUALITY; }, gradeOf, aim, usedBytes };
+
+  window.BG = { KIT, date, timeEl, timeRange, timeList, toDate, isoDay, rate, rateStr, ms, jit, bytes, track, thr, lat, chart, niceMax, rng, get GRADES() { return window.DS.GRADES; }, get QUALITY() { return window.DS.QUALITY; }, gradeOf, aim, usedBytes };
 })();

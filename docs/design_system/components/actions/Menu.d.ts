@@ -6,7 +6,8 @@
  *   never by its visible value alone. It carries aria-haspopup="menu" and aria-expanded.
  * - The popup is role="menu" named by `label`. With `selected`, rows are menuitemradio with aria-checked;
  *   without it, menuitem (actions).
- * - Escape closes and returns focus to the trigger; choosing a row closes it too (unless keepOpen).
+ * - Modal while open: the page behind is inert and focus moves into the menu. Escape, a choice (unless keepOpen) or a
+ *   click outside closes it, and focus returns to the trigger.
  * - A custom `trigger` (e.g. an icon-only Button "Actions for <row>") must carry its own aria-label.
  */
 export interface MenuOption { value: string; label: React.ReactNode; icon?: string; danger?: boolean; keepOpen?: boolean; }
@@ -27,9 +28,13 @@ export interface MenuProps {
   onOpenChange?: (open: boolean) => void;
   /** @default "start" */
   align?: 'start' | 'end';
+  /** Open below or above the trigger (above for the last rows of a clipped table). @default "bottom" */
+  placement?: 'bottom' | 'top';
   /** Extra content under the rows, e.g. a custom-value Input. */
   footer?: React.ReactNode;
-  /** Replace the default chip trigger (receives ref, aria-haspopup, aria-expanded, onClick). */
+  /** Replace the default chip trigger (receives aria-haspopup, aria-expanded, onClick). */
   trigger?: React.ReactElement;
+  /** Placement of the wrapper in its parent (flex, align-self) only. */
+  style?: React.CSSProperties;
 }
 export declare function Menu(props: MenuProps): JSX.Element;

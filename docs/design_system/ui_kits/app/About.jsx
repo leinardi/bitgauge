@@ -21,7 +21,8 @@ class About extends React.Component {
     const srvName = this.props.server || hostName;
     const caps = this.props.caps || { clients: true, history: true };
     const v03 = !!caps.clients;
-    const built = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(S0.buildDate + 'T00:00:00Z'));
+    // Build date: a calendar date, date medium in the active locale (i18n-a11y.md §1.3).
+    const built = BG.timeEl(S0.buildDate, 'date');
     const on = un ? { ost: true, ls: true, nq: true } : { ost: flag('openspeedtest'), ls: flag('librespeed'), nq: flag('networkquality') };
     const clients = [
       { k: 'ost', name: 'OpenSpeedTest™ web UI', icon: 'globe', tag: 'Web UI',
@@ -52,7 +53,7 @@ class About extends React.Component {
       mobile: m, un, host, clients, layers: !!caps.clients,
       L: m ? { cols: 'minmax(0,1fr)' } : { cols: 'minmax(0,1fr) var(--layout-rail)' },
       facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], v03 ? ['Clients', 'Unknown'] : null]
-        : [['Version', S.version + ' · ' + S.commit + ' · ' + built], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], v03 ? ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled'] : null]).filter(Boolean).map(([k, v]) => ({ label: k, value: v })),
+        : [['Version', <>{S.version + ' · ' + S.commit + ' · '}{built}</>], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], v03 ? ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled'] : null]).filter(Boolean).map(([k, v]) => ({ label: k, value: v })),
       intro: v03 ? 'This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.' : 'How to test against this server from other speed test clients, and what BitGauge is.',
       unBody: v03 ? "The commands below are built from this page's address, " + host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers." : 'BitGauge could not reach the server at ' + hostName + ', so its version and name are unknown until it answers.',
       privacy: caps.history ? 'No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.' : 'No accounts, no tracking, no ads. The server keeps no results: a result exists only in this browser.',

@@ -55,7 +55,7 @@ the server.
 - **forms/** — `Input`, `FieldError`, `Select`, `Segmented`, `Switch`, `Toggle`, `Checkbox`, `ChoiceCard`
 - **layout/** — `Card`, `Tabs`, `Table`, `MetaList`, `Stat`, `Snippet`
 - **feedback/** — `Notice`, `Toast`, `ToastRegion`, `EmptyState`, `Skeleton`, `SkeletonRows`, `LiveRegion`, `SaveBar`, `FullScreenError`
-- **dialog/** — `Dialog`
+- **dialog/** — `Dialog`, `Modal` (modal behaviour for custom dialogs: inert page, focus trap)
 - **charts/** — `Chart`, `PhaseChart`, `Format` (number formatting)
 - **gauge/** — `Gauge`
 - **measurement/** — `MetricTile`, `PhaseStep`, `PhaseIndicator`, `LoadCard`, `GradeBadge`, `QualityList`, `NotMeasured`, `SharePreview`, `LastResult`

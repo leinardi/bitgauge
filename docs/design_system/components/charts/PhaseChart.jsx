@@ -2,9 +2,11 @@ import React from 'react';
 import { Icon } from '../brand/Icon.jsx';
 import { chartGeometry, placeTopLabels, useLabelMetrics } from './Chart.jsx';
 // charts.md — Result-detail per-phase chart: stored series with null gaps, warm-up as a hatched excluded interval,
-// event chips, latency under load dashed on its own axis, and the Chart / table toggle.
-export function PhaseChart({ title, icon, color, meta, summary, pts = [], lat, xMax, ms = false, xStep, xLabel, units = 'bits', width, height = 170,
+// event chips, latency under load dashed on its own axis, and the Chart / table toggle. A region named by its title heading.
+let pcN = 0;
+export function PhaseChart({ title, headingLevel = 2, icon, color, meta, summary, pts = [], lat, xMax, ms = false, xStep, xLabel, units = 'bits', width, height = 170,
   warmup, marks = [], gapLabel = 'No known data', view = 'chart', onViewChange, className, style, children }) {
+  const [hid] = React.useState(() => 'bg-pc-' + (++pcN)), HTag = 'h' + Math.min(6, Math.max(1, headingLevel));
   const lbRef = React.useRef(null), lm = useLabelMetrics(lbRef, { ev: '.chip-ev' });
   const known = pts.filter(p => p[1] != null), latK = lat ? lat.filter(p => p[1] != null) : null;
   const top = (() => { const n = known.length ? Math.max(...known.map(p => p[1])) * 1.08 : 1; const e = Math.pow(10, Math.floor(Math.log10(n))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * e >= n) return m * e; return 10 * e; })();
@@ -23,9 +25,9 @@ export function PhaseChart({ title, icon, color, meta, summary, pts = [], lat, x
   const pos = placeTopLabels(marks.map(m => ({ x: X(m.t), w: cw(m), side: 'right' })), { gap: lm.gap, pl: g.pl, pr: g.pr });
   const chips = marks.map((m, i) => { const x = X(m.t), q = pos[i]; return Object.assign({ x, lx: q.right ? x + lm.gap : x - lm.gap, ly: g.pt + 2 + (q.r - 1) * pitch, left: !q.right }, m); });
   const H = g.pb - g.pt;
-  return <section className={'card pchart' + (className ? ' ' + className : '')} style={style}>
+  return <section className={'card pchart' + (className ? ' ' + className : '')} style={style} aria-labelledby={hid}>
     <div className="pchart-h">
-      <span className="t"><span className="ic" style={{ color }}><Icon name={icon} size={14} stroke={2} /></span>{title}</span>
+      <HTag className="t" id={hid}><span className="ic" style={{ color }}><Icon name={icon} size={14} stroke={2} /></span>{title}</HTag>
       {meta ? <span className="meta">{meta}</span> : null}
       {lat && view === 'chart' ? <span className="lg"><span className="sw"></span>Latency under load</span> : null}
       <div className="seg seg-sm" role="radiogroup" aria-label={title + ' view'}>
@@ -34,7 +36,7 @@ export function PhaseChart({ title, icon, color, meta, summary, pts = [], lat, x
     </div>
     {view === 'chart' ? <>
       <div className="chart-plot" style={{ alignSelf: 'flex-start' }}>
-        <svg width={width} height={height} role="img" aria-label={summary}>
+        <svg width={width} height={height} role="img" aria-label={title + ' chart' + (summary ? ': ' + summary : '')}>
           {g.grid.map((l, i) => <line key={i} x1={l.x1} y1={l.y} x2={l.x2} y2={l.y} className="grid" />)}
           {S.map((s, i) => { const l = path(s); return <g key={i}><path d={l + 'L' + X(s[s.length - 1][0]).toFixed(1) + ' ' + g.pb + 'L' + X(s[0][0]).toFixed(1) + ' ' + g.pb + 'Z'} style={{ fill: color, fillOpacity: 0.1 }} /><path d={l} style={{ fill: 'none', stroke: color, strokeWidth: 1.5, strokeLinejoin: 'round' }} /></g>; })}
           {g.lat ? <path d={g.lat.line} className="lat" /> : null}

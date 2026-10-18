@@ -69,8 +69,8 @@
         "message": "<Button> tipAlign must be one of 'center' | 'end'."
       },
       {
-        "selector": "JSXOpeningElement[name.name='Card'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|icon|actions|padded|clip|as|label|labelledBy|className|style|children|key|ref|className|style|children)$/]",
-        "message": "<Card> doesn't accept that prop. Declared props: title, icon, actions, padded, clip, as, label, labelledBy, className, style, children."
+        "selector": "JSXOpeningElement[name.name='Card'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|icon|actions|padded|clip|as|headingLevel|label|labelledBy|className|style|children|key|ref|className|style|children)$/]",
+        "message": "<Card> doesn't accept that prop. Declared props: title, icon, actions, padded, clip, as, headingLevel, label, labelledBy, className, style, children."
       },
       {
         "selector": "JSXOpeningElement[name.name='ChartSeries'] > JSXAttribute > JSXIdentifier[name!=/^(?:pts|color|faint|key|ref|className|style|children)$/]",
@@ -109,8 +109,8 @@
         "message": "<Dialog> align must be one of 'center' | 'top'."
       },
       {
-        "selector": "JSXOpeningElement[name.name='EmptyState'] > JSXAttribute > JSXIdentifier[name!=/^(?:icon|title|children|actions|style|key|ref|className|style|children)$/]",
-        "message": "<EmptyState> doesn't accept that prop. Declared props: icon, title, children, actions, style."
+        "selector": "JSXOpeningElement[name.name='EmptyState'] > JSXAttribute > JSXIdentifier[name!=/^(?:icon|title|headingLevel|children|actions|style|key|ref|className|style|children)$/]",
+        "message": "<EmptyState> doesn't accept that prop. Declared props: icon, title, headingLevel, children, actions, style."
       },
       {
         "selector": "JSXOpeningElement[name.name='FormatApi'] > JSXAttribute > JSXIdentifier[name!=/^(?:sig|rate|rateStr|ms|jitter|bytes|key|ref|className|style|children)$/]",
@@ -201,6 +201,10 @@
         "message": "<MetricTile> state must be one of 'empty' | 'warming-up' | 'live' | 'done' | 'partial' | 'insufficient-data' | 'low-confidence' | 'skipped' | 'error'."
       },
       {
+        "selector": "JSXOpeningElement[name.name='Modal'] > JSXAttribute > JSXIdentifier[name!=/^(?:as|active|onOutside|children|key|ref|className|style|children)$/]",
+        "message": "<Modal> doesn't accept that prop. Declared props: as, active, onOutside, children."
+      },
+      {
         "selector": "JSXOpeningElement[name.name='Notice'] > JSXAttribute > JSXIdentifier[name!=/^(?:tone|icon|title|children|actions|attached|live|key|ref|className|style|children)$/]",
         "message": "<Notice> doesn't accept that prop. Declared props: tone, icon, title, children, actions, attached, live."
       },
@@ -229,8 +233,8 @@
         "message": "<PhaseStep> state must be one of 'pending' | 'active' | 'done' | 'failed' | 'cancelled' | 'skipped' | 'capped'."
       },
       {
-        "selector": "JSXOpeningElement[name.name='Popover'] > JSXAttribute > JSXIdentifier[name!=/^(?:trigger|open|role|label|width|align|children|key|ref|className|style|children)$/]",
-        "message": "<Popover> doesn't accept that prop. Declared props: trigger, open, role, label, width, align, children."
+        "selector": "JSXOpeningElement[name.name='Popover'] > JSXAttribute > JSXIdentifier[name!=/^(?:trigger|open|role|label|width|align|modal|onClose|children|key|ref|className|style|children)$/]",
+        "message": "<Popover> doesn't accept that prop. Declared props: trigger, open, role, label, width, align, modal, onClose, children."
       },
       {
         "selector": "JSXOpeningElement[name.name='Popover'] > JSXAttribute[name.name='role'] > Literal[value!=/^(?:menu|dialog)$/]",
@@ -412,6 +416,9 @@
         "replaces": []
       },
       "MetricTile": {
+        "replaces": []
+      },
+      "Modal": {
         "replaces": []
       },
       "Notice": {

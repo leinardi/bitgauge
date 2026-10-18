@@ -1,8 +1,9 @@
 /**
  * Modal dialog: --modal-w 452 px (wide 540), 14 px radius, icon tile, title, description, optional body,
  * scope note and sticky footer. Visual definition: dialog.css. Accessibility: role="dialog" (danger:
- * "alertdialog"), aria-modal, labelled by its title; Escape and the scrim call onClose; focus is trapped
- * and returned to the invoking control (production: Reka UI Dialog).
+ * "alertdialog"), aria-modal, labelled by its title (an h2; cards inside take headingLevel 3); Escape and the
+ * scrim call onClose. While open the page behind is inert, focus is trapped in the box and returned to the invoking
+ * control on close (useModal, Modal.jsx; production: Reka UI Dialog). `inline` previews are not modal.
  */
 export interface DialogProps {
   /** @default true */

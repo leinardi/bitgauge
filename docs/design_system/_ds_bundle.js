@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"b6d7fe7e8713","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"9df6af312bac","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"d912c6b088b6","ui_kits/app/App.jsx":"5f056fcdcdd5","ui_kits/app/History.jsx":"de1fc72f2708","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"fb2b196d6322","ui_kits/app/ResultDetail.jsx":"a6f755466998","ui_kits/app/Settings.jsx":"4705d391ca54","ui_kits/app/TestScreen.jsx":"b66b96b517c6","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"Modal","sourcePath":"components/dialog/Modal.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"b6d7512cba67","components/actions/Popover.jsx":"17fb94643252","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"8c64b796dbea","components/dialog/Dialog.jsx":"d768c4c46975","components/dialog/Modal.jsx":"6e5aa13fff4b","components/feedback/EmptyState.jsx":"e038cf24992f","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"142490c65469","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"688e79e64b71","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"752ee31dc794","ui_kits/app/App.jsx":"9f95c1c67ab2","ui_kits/app/History.jsx":"437d9ccafa40","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"bfe86a4a09cf","ui_kits/app/ResultDetail.jsx":"b8c9d7c18610","ui_kits/app/Settings.jsx":"40f28b1ef7d1","ui_kits/app/TestScreen.jsx":"de024b1fc105","ui_kits/app/ds.js":"6b9fcec54767","ui_kits/app/fixtures.js":"b1aef770195b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useDismiss","sourcePath":"components/dialog/Modal.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"},{"name":"useModal","sourcePath":"components/dialog/Modal.jsx"}]} */
 
 (() => {
 
@@ -235,166 +235,6 @@ function Link({
 }
 Object.assign(__ds_scope, { Link });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/Link.jsx", error: String((e && e.message) || e) }); }
-
-// components/actions/Menu.jsx
-try { (() => {
-// Menu button + menu of single-choice (menuitemradio) or action (menuitem) rows.
-function Menu({
-  label,
-  value,
-  icon,
-  hint,
-  options = [],
-  selected,
-  onSelect,
-  open: openProp,
-  onOpenChange,
-  align = 'start',
-  footer,
-  trigger
-}) {
-  const [openState, setOpenState] = React.useState(false);
-  const open = openProp ?? openState;
-  const setOpen = o => {
-    if (openProp == null) setOpenState(o);
-    onOpenChange && onOpenChange(o);
-  };
-  const btn = React.useRef(null);
-  const close = () => {
-    setOpen(false);
-    btn.current && btn.current.focus();
-  };
-  const radio = selected !== undefined;
-  const name = label + (value != null ? ': ' + value : '') + (hint ? ', ' + hint : '');
-  return /*#__PURE__*/React.createElement("span", {
-    className: "menu-wrap",
-    onKeyDown: e => {
-      if (e.key === 'Escape' && open) {
-        e.stopPropagation();
-        close();
-      }
-    }
-  }, trigger ? React.cloneElement(trigger, {
-    ref: btn,
-    'aria-haspopup': 'menu',
-    'aria-expanded': open,
-    onClick: () => setOpen(!open)
-  }) : /*#__PURE__*/React.createElement("button", {
-    ref: btn,
-    type: "button",
-    className: "menu-trigger",
-    "aria-haspopup": "menu",
-    "aria-expanded": open,
-    "aria-label": name,
-    onClick: () => setOpen(!open)
-  }, icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
-    name: icon,
-    size: 12,
-    stroke: 2
-  }) : null, value, /*#__PURE__*/React.createElement("span", {
-    className: "chev"
-  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
-    name: "chevron-down",
-    size: 12,
-    stroke: 2
-  }))), hint && !trigger ? /*#__PURE__*/React.createElement("span", {
-    className: "menu-hint",
-    "aria-hidden": "true"
-  }, hint) : null, open ? /*#__PURE__*/React.createElement("div", {
-    role: "menu",
-    "aria-label": label,
-    className: 'menu' + (align === 'end' ? ' end' : '')
-  }, options.map(o => {
-    const on = radio && o.value === selected;
-    return /*#__PURE__*/React.createElement("button", {
-      key: o.value,
-      type: "button",
-      role: radio ? 'menuitemradio' : 'menuitem',
-      "aria-checked": radio ? on : undefined,
-      className: 'menu-item' + (o.danger ? ' danger' : ''),
-      onClick: () => {
-        onSelect && onSelect(o.value);
-        if (!o.keepOpen) close();
-      }
-    }, o.icon ? /*#__PURE__*/React.createElement("span", {
-      className: "ic"
-    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
-      name: o.icon,
-      size: 14
-    })) : null, /*#__PURE__*/React.createElement("span", {
-      className: "lb"
-    }, o.label), on ? /*#__PURE__*/React.createElement("span", {
-      className: "ck"
-    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
-      name: "check",
-      size: 14,
-      stroke: 2
-    })) : null);
-  }), footer ? /*#__PURE__*/React.createElement("div", {
-    className: "menu-foot"
-  }, footer) : null) : null);
-}
-Object.assign(__ds_scope, { Menu });
-})(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/Menu.jsx", error: String((e && e.message) || e) }); }
-
-// components/actions/Popover.jsx
-try { (() => {
-// Floating panel anchored under its trigger (export menu, date range). role "menu" or "dialog"; named by label.
-function Popover({
-  trigger,
-  open = false,
-  role = 'dialog',
-  label,
-  width = 300,
-  align = 'end',
-  children
-}) {
-  return /*#__PURE__*/React.createElement("span", {
-    className: "pop-wrap"
-  }, trigger, open ? /*#__PURE__*/React.createElement("div", {
-    role: role,
-    "aria-label": label,
-    className: 'pop' + (align === 'start' ? ' start' : ''),
-    style: {
-      width
-    }
-  }, children) : null);
-}
-// Single-choice rows (role="radio") with an optional mono count and a check on the selected row.
-function OptionRows({
-  label,
-  options = [],
-  selected,
-  onSelect
-}) {
-  return /*#__PURE__*/React.createElement("div", {
-    role: "radiogroup",
-    "aria-label": label,
-    className: "optrows"
-  }, options.map(o => {
-    const on = o.value === selected;
-    return /*#__PURE__*/React.createElement("button", {
-      key: o.value,
-      type: "button",
-      role: "radio",
-      "aria-checked": on,
-      className: "menu-item",
-      onClick: () => onSelect && onSelect(o.value)
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "lb"
-    }, o.label), o.meta != null ? /*#__PURE__*/React.createElement("span", {
-      className: "mt"
-    }, o.meta) : null, /*#__PURE__*/React.createElement("span", {
-      className: "ck"
-    }, on ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
-      name: "check",
-      size: 14,
-      stroke: 2.25
-    }) : null));
-  }));
-}
-Object.assign(__ds_scope, { Popover, OptionRows });
-})(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/Popover.jsx", error: String((e && e.message) || e) }); }
 
 // components/actions/StartButton.jsx
 try { (() => {
@@ -1003,9 +843,11 @@ Object.assign(__ds_scope, { placeTopLabels, useLabelMetrics, chartGeometry, Char
 // components/charts/PhaseChart.jsx
 try { (() => {
 // charts.md — Result-detail per-phase chart: stored series with null gaps, warm-up as a hatched excluded interval,
-// event chips, latency under load dashed on its own axis, and the Chart / table toggle.
+// event chips, latency under load dashed on its own axis, and the Chart / table toggle. A region named by its title heading.
+let pcN = 0;
 function PhaseChart({
   title,
+  headingLevel = 2,
   icon,
   color,
   meta,
@@ -1028,6 +870,8 @@ function PhaseChart({
   style,
   children
 }) {
+  const [hid] = React.useState(() => 'bg-pc-' + ++pcN),
+    HTag = 'h' + Math.min(6, Math.max(1, headingLevel));
   const lbRef = React.useRef(null),
     lm = __ds_scope.useLabelMetrics(lbRef, {
       ev: '.chip-ev'
@@ -1110,11 +954,13 @@ function PhaseChart({
   const H = g.pb - g.pt;
   return /*#__PURE__*/React.createElement("section", {
     className: 'card pchart' + (className ? ' ' + className : ''),
-    style: style
+    style: style,
+    "aria-labelledby": hid
   }, /*#__PURE__*/React.createElement("div", {
     className: "pchart-h"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "t"
+  }, /*#__PURE__*/React.createElement(HTag, {
+    className: "t",
+    id: hid
   }, /*#__PURE__*/React.createElement("span", {
     className: "ic",
     style: {
@@ -1150,7 +996,7 @@ function PhaseChart({
     width: width,
     height: height,
     role: "img",
-    "aria-label": summary
+    "aria-label": title + ' chart' + (summary ? ': ' + summary : '')
   }, g.grid.map((l, i) => /*#__PURE__*/React.createElement("line", {
     key: i,
     x1: l.x1,
@@ -1256,6 +1102,310 @@ function PhaseChart({
 Object.assign(__ds_scope, { PhaseChart });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/charts/PhaseChart.jsx", error: String((e && e.message) || e) }); }
 
+// components/dialog/Modal.jsx
+try { (() => {
+// Modal behaviour shared by Dialog, Popover and custom full-screen dialogs (i18n-a11y.md §2, screens.md §3).
+const FOCUSABLE = 'a[href],area[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),iframe,summary,[contenteditable]:not([contenteditable="false"]),[tabindex]:not([tabindex="-1"])';
+const SKIP = /^(SCRIPT|STYLE|LINK|META|TEMPLATE|NOSCRIPT)$/;
+const HAS_INERT = typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
+const tabbables = el => [...el.querySelectorAll(FOCUSABLE)].filter(n => !n.closest('[inert]') && n.getClientRects().length && getComputedStyle(n).visibility !== 'hidden');
+const exempt = n => !!(n && n.closest && n.closest('[data-modal-exempt]'));
+// While `active`: everything outside the element is inert (every sibling of the element and of each ancestor up to
+// <body>; aria-hidden where `inert` is unsupported), focus moves inside and Tab / Shift+Tab wrap within it. On
+// deactivation both are restored and focus returns to the control that had it. Elements marked data-modal-exempt
+// (kit debug scaffolding) are left alone. `onOutside` fires on a click outside the element.
+function useModal(ref, active = true, {
+  onOutside
+} = {}) {
+  const cb = React.useRef(null);
+  cb.current = onOutside;
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!active || !el) return undefined;
+    const prev = document.activeElement,
+      hidden = [];
+    for (let n = el; n.parentElement && n !== document.body; n = n.parentElement) {
+      for (const s of n.parentElement.children) {
+        if (s === n || SKIP.test(s.tagName) || s.hasAttribute('data-modal-exempt') || s.inert || s.getAttribute('aria-hidden') === 'true') continue;
+        if (HAS_INERT) s.inert = true;else s.setAttribute('aria-hidden', 'true');
+        hidden.push(s);
+      }
+    }
+    const into = last => {
+      const t = tabbables(el);
+      const f = last ? t[t.length - 1] : t[0];
+      if (f) f.focus({
+        preventScroll: true
+      });else {
+        if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+        el.focus({
+          preventScroll: true
+        });
+      }
+    };
+    if (!el.contains(document.activeElement)) into(false);
+    const key = e => {
+      if (e.key !== 'Tab' || e.defaultPrevented) return;
+      const a = document.activeElement;
+      if (exempt(a)) return;
+      const t = tabbables(el);
+      if (!el.contains(a) || !t.length) {
+        e.preventDefault();
+        into(e.shiftKey);
+        return;
+      }
+      if (e.shiftKey && (a === t[0] || a === el)) {
+        e.preventDefault();
+        t[t.length - 1].focus();
+      } else if (!e.shiftKey && a === t[t.length - 1]) {
+        e.preventDefault();
+        t[0].focus();
+      }
+    };
+    const click = e => {
+      if (cb.current && !el.contains(e.target) && !exempt(e.target)) cb.current(e);
+    };
+    document.addEventListener('keydown', key, true);
+    document.addEventListener('click', click, true);
+    return () => {
+      document.removeEventListener('keydown', key, true);
+      document.removeEventListener('click', click, true);
+      hidden.forEach(s => {
+        if (HAS_INERT) s.inert = false;else s.removeAttribute('aria-hidden');
+      });
+      const a = document.activeElement;
+      if (prev && prev.isConnected && prev.focus && (!a || a === document.body || el.contains(a))) prev.focus({
+        preventScroll: true
+      });
+    };
+  }, [active]);
+}
+// Non-modal dismissal: `onOutside` fires on a click outside the element while `active` (non-modal Popover).
+function useDismiss(ref, active, onOutside) {
+  const cb = React.useRef(null);
+  cb.current = onOutside;
+  React.useEffect(() => {
+    if (!active) return undefined;
+    const click = e => {
+      const el = ref.current;
+      if (cb.current && el && !el.contains(e.target) && !exempt(e.target)) cb.current(e);
+    };
+    document.addEventListener('click', click, true);
+    return () => document.removeEventListener('click', click, true);
+  }, [active]);
+}
+// Element form of useModal for custom dialogs (e.g. a full-screen mobile sheet). Set role / aria-modal / a label on it.
+function Modal({
+  as = 'div',
+  active = true,
+  onOutside,
+  children,
+  ...rest
+}) {
+  const ref = React.useRef(null);
+  useModal(ref, active, {
+    onOutside
+  });
+  return React.createElement(as, Object.assign({
+    ref
+  }, rest), children);
+}
+Object.assign(__ds_scope, { useModal, useDismiss, Modal });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/dialog/Modal.jsx", error: String((e && e.message) || e) }); }
+
+// components/actions/Menu.jsx
+try { (() => {
+// Menu button + menu of single-choice (menuitemradio) or action (menuitem) rows. Modal while open
+// (i18n-a11y.md §2): page inert, focus in the menu; Escape, a choice or a click outside closes it.
+function Menu({
+  label,
+  value,
+  icon,
+  hint,
+  options = [],
+  selected,
+  onSelect,
+  open: openProp,
+  onOpenChange,
+  align = 'start',
+  placement = 'bottom',
+  footer,
+  trigger,
+  style
+}) {
+  const [openState, setOpenState] = React.useState(false);
+  const open = openProp ?? openState;
+  const setOpen = o => {
+    if (openProp == null) setOpenState(o);
+    onOpenChange && onOpenChange(o);
+  };
+  const btn = React.useRef(null),
+    wrap = React.useRef(null),
+    menu = React.useRef(null);
+  __ds_scope.useModal(menu, open, {
+    onOutside: () => setOpen(false)
+  });
+  // After the menu unmounts and the page is no longer inert.
+  const focusTrigger = () => setTimeout(() => {
+    const b = btn.current || wrap.current && wrap.current.querySelector('button, a[href]');
+    b && b.focus();
+  }, 0);
+  const close = () => {
+    setOpen(false);
+    focusTrigger();
+  };
+  const radio = selected !== undefined;
+  const name = label + (value != null ? ': ' + value : '') + (hint ? ', ' + hint : '');
+  return /*#__PURE__*/React.createElement("span", {
+    ref: wrap,
+    className: "menu-wrap",
+    style: style,
+    onKeyDown: e => {
+      if (e.key === 'Escape' && open) {
+        e.stopPropagation();
+        close();
+      }
+    }
+  }, trigger ? React.cloneElement(trigger, {
+    'aria-haspopup': 'menu',
+    'aria-expanded': open,
+    onClick: () => setOpen(!open)
+  }) : /*#__PURE__*/React.createElement("button", {
+    ref: btn,
+    type: "button",
+    className: "menu-trigger",
+    "aria-haspopup": "menu",
+    "aria-expanded": open,
+    "aria-label": name,
+    onClick: () => setOpen(!open)
+  }, icon ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: icon,
+    size: 12,
+    stroke: 2
+  }) : null, value, /*#__PURE__*/React.createElement("span", {
+    className: "chev"
+  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+    name: "chevron-down",
+    size: 12,
+    stroke: 2
+  }))), hint && !trigger ? /*#__PURE__*/React.createElement("span", {
+    className: "menu-hint",
+    "aria-hidden": "true"
+  }, hint) : null, open ? /*#__PURE__*/React.createElement("div", {
+    ref: menu,
+    role: "menu",
+    "aria-label": label,
+    className: 'menu' + (align === 'end' ? ' end' : '') + (placement === 'top' ? ' up' : '')
+  }, options.map(o => {
+    const on = radio && o.value === selected;
+    return /*#__PURE__*/React.createElement("button", {
+      key: o.value,
+      type: "button",
+      role: radio ? 'menuitemradio' : 'menuitem',
+      "aria-checked": radio ? on : undefined,
+      className: 'menu-item' + (o.danger ? ' danger' : ''),
+      onClick: () => {
+        onSelect && onSelect(o.value);
+        if (!o.keepOpen) close();
+      }
+    }, o.icon ? /*#__PURE__*/React.createElement("span", {
+      className: "ic"
+    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: o.icon,
+      size: 14
+    })) : null, /*#__PURE__*/React.createElement("span", {
+      className: "lb"
+    }, o.label), on ? /*#__PURE__*/React.createElement("span", {
+      className: "ck"
+    }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: "check",
+      size: 14,
+      stroke: 2
+    })) : null);
+  }), footer ? /*#__PURE__*/React.createElement("div", {
+    className: "menu-foot"
+  }, footer) : null) : null);
+}
+Object.assign(__ds_scope, { Menu });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/Menu.jsx", error: String((e && e.message) || e) }); }
+
+// components/actions/Popover.jsx
+try { (() => {
+// Floating panel anchored under its trigger (export menu, date range). role "menu" or "dialog"; named by label.
+// Escape and a click outside call onClose. Non-modal by default; `modal` (menus) makes the page inert and traps focus.
+function Popover({
+  trigger,
+  open = false,
+  role = 'dialog',
+  label,
+  width = 300,
+  align = 'end',
+  modal = false,
+  onClose,
+  children
+}) {
+  const ref = React.useRef(null),
+    wrap = React.useRef(null);
+  __ds_scope.useModal(ref, open && modal, {
+    onOutside: onClose
+  });
+  __ds_scope.useDismiss(wrap, open && !modal, onClose);
+  return /*#__PURE__*/React.createElement("span", {
+    ref: wrap,
+    className: "pop-wrap",
+    onKeyDown: e => {
+      if (e.key === 'Escape' && open && onClose) {
+        e.stopPropagation();
+        onClose();
+      }
+    }
+  }, trigger, open ? /*#__PURE__*/React.createElement("div", {
+    ref: ref,
+    role: role,
+    "aria-label": label,
+    "aria-modal": modal && role === 'dialog' ? 'true' : undefined,
+    className: 'pop' + (align === 'start' ? ' start' : ''),
+    style: {
+      width
+    }
+  }, children) : null);
+}
+// Single-choice rows (role="radio") with an optional mono count and a check on the selected row.
+function OptionRows({
+  label,
+  options = [],
+  selected,
+  onSelect
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    role: "radiogroup",
+    "aria-label": label,
+    className: "optrows"
+  }, options.map(o => {
+    const on = o.value === selected;
+    return /*#__PURE__*/React.createElement("button", {
+      key: o.value,
+      type: "button",
+      role: "radio",
+      "aria-checked": on,
+      className: "menu-item",
+      onClick: () => onSelect && onSelect(o.value)
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "lb"
+    }, o.label), o.meta != null ? /*#__PURE__*/React.createElement("span", {
+      className: "mt"
+    }, o.meta) : null, /*#__PURE__*/React.createElement("span", {
+      className: "ck"
+    }, on ? /*#__PURE__*/React.createElement(__ds_scope.Icon, {
+      name: "check",
+      size: 14,
+      stroke: 2.25
+    }) : null));
+  }));
+}
+Object.assign(__ds_scope, { Popover, OptionRows });
+})(); } catch (e) { __ds_ns.__errors.push({ path: "components/actions/Popover.jsx", error: String((e && e.message) || e) }); }
+
 // components/dialog/Dialog.jsx
 try { (() => {
 let n = 0;
@@ -1278,8 +1428,11 @@ function Dialog({
   align = 'center'
 }) {
   const [id] = React.useState(() => 'bg-dlg-' + ++n);
+  const ref = React.useRef(null);
+  __ds_scope.useModal(ref, open && !inline);
   if (!open) return null;
   const box = /*#__PURE__*/React.createElement("div", {
+    ref: ref,
     className: 'modal' + (wide || size === 'wide' ? ' wide' : '') + (size === 'xl' ? ' xl' : '') + (inline ? ' static' : ''),
     role: tone === 'danger' ? 'alertdialog' : 'dialog',
     "aria-modal": inline ? undefined : 'true',
@@ -1295,7 +1448,7 @@ function Dialog({
     size: 18
   })) : null, /*#__PURE__*/React.createElement("div", {
     className: "mtx"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h2", {
     className: "mt",
     id: id + '-t'
   }, title), children ? /*#__PURE__*/React.createElement("div", {
@@ -1343,10 +1496,12 @@ try { (() => {
 function EmptyState({
   icon = 'history',
   title,
+  headingLevel = 2,
   children,
   actions,
   style
 }) {
+  const H = 'h' + Math.min(6, Math.max(1, headingLevel));
   return /*#__PURE__*/React.createElement("div", {
     className: "empty-state",
     style: style
@@ -1355,7 +1510,7 @@ function EmptyState({
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon,
     size: 20
-  })), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement(H, {
     className: "et"
   }, title), children ? /*#__PURE__*/React.createElement("div", {
     className: "em"
@@ -2222,6 +2377,7 @@ Object.assign(__ds_scope, { Gauge });
 
 // components/layout/Card.jsx
 try { (() => {
+let n = 0;
 function Card({
   title,
   icon,
@@ -2230,16 +2386,21 @@ function Card({
   padded = true,
   clip = true,
   as = 'div',
+  headingLevel = 2,
   label,
   labelledBy,
   className,
   style
 }) {
-  const T = as;
+  const [hid] = React.useState(() => 'bg-card-' + ++n);
+  const T = as,
+    H = 'h' + Math.min(6, Math.max(1, headingLevel));
+  // A titled <section> is a region named by its heading unless a label is given.
+  const named = labelledBy || (!label && title && as === 'section' ? hid : undefined);
   return /*#__PURE__*/React.createElement(T, {
     className: 'card' + (clip ? ' clip' : '') + (className ? ' ' + className : ''),
     "aria-label": label,
-    "aria-labelledby": labelledBy,
+    "aria-labelledby": named,
     style: style
   }, title ? /*#__PURE__*/React.createElement("div", {
     className: "card-h"
@@ -2248,8 +2409,9 @@ function Card({
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon,
     size: 15
-  })) : null, /*#__PURE__*/React.createElement("span", {
-    className: "t"
+  })) : null, /*#__PURE__*/React.createElement(H, {
+    className: "t",
+    id: hid
   }, title), actions ? /*#__PURE__*/React.createElement("span", {
     className: "right"
   }, actions) : null) : null, padded ? /*#__PURE__*/React.createElement("div", {
@@ -3037,7 +3199,9 @@ function LoadCard({
   style
 }) {
   const r = responsiveness;
-  return /*#__PURE__*/React.createElement("div", {
+  // A region named "Bufferbloat" (i18n-a11y.md §2); the visible title stays the small caps label, not a heading.
+  return /*#__PURE__*/React.createElement("section", {
+    "aria-label": "Bufferbloat",
     className: 'card tile load' + (compact ? ' compact' : '') + (className ? ' ' + className : ''),
     style: style
   }, /*#__PURE__*/React.createElement("div", {
@@ -3314,12 +3478,8 @@ class About extends React.Component {
       history: true
     };
     const v03 = !!caps.clients;
-    const built = new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      timeZone: 'UTC'
-    }).format(new Date(S0.buildDate + 'T00:00:00Z'));
+    // Build date: a calendar date, date medium in the active locale (i18n-a11y.md §1.3).
+    const built = BG.timeEl(S0.buildDate, 'date');
     const on = un ? {
       ost: true,
       ls: true,
@@ -3407,7 +3567,7 @@ class About extends React.Component {
       } : {
         cols: 'minmax(0,1fr) var(--layout-rail)'
       },
-      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], v03 ? ['Clients', 'Unknown'] : null] : [['Version', S.version + ' · ' + S.commit + ' · ' + built], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], v03 ? ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled'] : null]).filter(Boolean).map(([k, v]) => ({
+      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], v03 ? ['Clients', 'Unknown'] : null] : [['Version', /*#__PURE__*/React.createElement(React.Fragment, null, S.version + ' · ' + S.commit + ' · ', built)], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], v03 ? ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled'] : null]).filter(Boolean).map(([k, v]) => ({
         label: k,
         value: v
       })),
@@ -3716,7 +3876,9 @@ const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', '
 // v0.3-only Force-state entries (Continuous); hidden, not renamed, in v0.1 and v0.2.
 const V03_STATES = ['continuous', 'cont-warmup', 'cont-done'];
 const SCOPES = ['v0.1', 'v0.2', 'v0.3'];
-const LL_GAPS = [['none', 'measured'], ['no-steady-window', 'no steady window'], ['insufficient-samples', 'fewer than 10 samples'], ['reservation-broken', 'HTTP/1.1 reservation not held'], ['no-probe-path', 'no latency probe']];
+// no-steady-window and no-probe-path never reach a complete run (measurement §11.1, §11.4): the Test screen and Result
+// detail draw them on a run stopped in the upload, partial and not saved.
+const LL_GAPS = [['none', 'measured'], ['no-steady-window', 'no steady window · stopped 3.1 s into upload'], ['insufficient-samples', 'fewer than 10 samples'], ['reservation-broken', 'HTTP/1.1 reservation not held'], ['no-probe-path', 'no latency probe · WebSocket lost, stopped 0.8 s into upload']];
 const HISTORY_VARIANTS = ['populated', 'single', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 function DemoSelect({
   label,
@@ -3785,7 +3947,8 @@ function DemoPanel({
   };
   return /*#__PURE__*/React.createElement("aside", {
     className: 'demo' + (open ? '' : ' closed'),
-    "aria-label": "Demo state"
+    "aria-label": "Demo state",
+    "data-modal-exempt": ""
   }, /*#__PURE__*/React.createElement("div", {
     className: "demo-h",
     onClick: open ? undefined : () => setOpen(true),
@@ -3954,7 +4117,7 @@ function DemoPanel({
   }, "Result detail"), /*#__PURE__*/React.createElement(DemoSelect, {
     label: "State",
     value: d.resultState,
-    options: ['result', 'not-found', 'history-unavailable'],
+    options: ['result', 'not-found', 'history-unavailable', 'not-saved-partial', 'not-saved-missing'],
     onChange: v => set({
       resultState: v
     })
@@ -4090,6 +4253,17 @@ try { (() => {
  *   whyOpen: boolean  (default false)
  *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM row in Compare)
  */
+// Row action menu (screens.md: open, delete).
+const HISTORY_ROW_ACTIONS = [{
+  value: 'open',
+  label: 'Open',
+  icon: 'chevron-right'
+}, {
+  value: 'delete',
+  label: 'Delete',
+  icon: 'trash',
+  danger: true
+}];
 class History extends React.Component {
   state = {
     why: null
@@ -4107,6 +4281,9 @@ class History extends React.Component {
       h1: 'var(--text-3xl)',
       chipWrap: 'nowrap',
       filterML: '0',
+      filterW: '100%',
+      searchFlex: '1 1 160px',
+      searchW: 'auto',
       legendML: '0',
       cardPad: '14px',
       trendCols: 'minmax(0,1fr)',
@@ -4126,6 +4303,9 @@ class History extends React.Component {
       h1: 'var(--text-4xl)',
       chipWrap: 'wrap',
       filterML: 'auto',
+      filterW: 'auto',
+      searchFlex: '0 0 auto',
+      searchW: '220px',
       legendML: 'auto',
       cardPad: '16px 20px',
       trendCols: 'repeat(3, minmax(0,1fr))',
@@ -4148,8 +4328,8 @@ class History extends React.Component {
     const hasData = !empty && !unavail && !loading;
     const single = is('single');
     const total = single ? 1 : deleted ? 46 : is('importresult') ? 60 : 48;
-    // [date, label, down, up, lat, jit, grade, flag, day, protocol, status]
-    const R = [['2026-10-08 08:41', 'VPN via 5G', 640e3, 210e3, 48, 9.4, 'D', 'Low confidence', 23, 'HTTP/2', 'complete'], ['2026-10-07 19:12', 'VPN · hotel Wi-Fi', 38.4e6, 12.1e6, 61, 4.2, 'C', null, 22, 'HTTP/1.1', 'complete'], ['2026-10-05 12:30', 'VPN via 5G', 84.2e6, 21.7e6, 39, 6.8, 'C', null, 20, 'HTTP/2', 'complete'], ['2026-10-02 09:05', 'VPN · office', 241e6, 198e6, 14, 1.9, 'B', null, 17, 'HTTP/1.1', 'complete'], ['2026-09-29 22:47', 'VPN via 5G', 52.9e6, null, 44, 7.1, 'D', null, 14, 'HTTP/2', 'partial'], ['2026-09-26 18:20', 'VPN · office', 233e6, 187e6, 15, 2.2, 'B', null, 11, 'HTTP/2', 'complete'], ['2026-09-21 07:58', 'VPN via 5G', null, null, 41, 5.9, null, null, 6, 'HTTP/2', 'error'], ['2026-09-17 13:14', 'VPN · café', 19.6e6, 4.1e6, 72, 11.3, 'F', null, 2, 'HTTP/2', 'complete']];
+    // [startedAt (ISO instant), label, down, up, lat, jit, grade, flag, protocol, status]
+    const R = [['2026-10-08T06:41:00.000Z', 'VPN via 5G', 640e3, 210e3, 48, 9.4, 'D', 'Low confidence', 'HTTP/2', 'complete'], ['2026-10-07T17:12:00.000Z', 'VPN · hotel Wi-Fi', 38.4e6, 12.1e6, 61, 4.2, 'C', null, 'HTTP/1.1', 'complete'], ['2026-10-05T10:30:00.000Z', 'VPN via 5G', 84.2e6, 21.7e6, 39, 6.8, 'C', null, 'HTTP/2', 'complete'], ['2026-10-02T07:05:00.000Z', 'VPN · office', 241e6, 198e6, 14, 1.9, 'B', null, 'HTTP/1.1', 'complete'], ['2026-09-29T20:47:00.000Z', 'VPN via 5G', 52.9e6, null, 44, 7.1, 'D', null, 'HTTP/2', 'partial'], ['2026-09-26T16:20:00.000Z', 'VPN · office', 233e6, 187e6, 15, 2.2, 'B', null, 'HTTP/2', 'complete'], ['2026-09-21T05:58:00.000Z', 'VPN via 5G', null, null, 41, 5.9, null, null, 'HTTP/2', 'error'], ['2026-09-17T11:14:00.000Z', 'VPN · café', 19.6e6, 4.1e6, 72, 11.3, 'F', null, 'HTTP/2', 'complete']];
     const selIdx = is('select3') ? [1, 3, 5] : deleted || single ? [] : [3, 5];
     let list = R.map((r, i) => ({
       r,
@@ -4157,9 +4337,9 @@ class History extends React.Component {
       sel: selIdx.includes(i)
     }));
     if (deleted) list = list.filter(x => x.i !== 3 && x.i !== 5);
-    // single: fresh install, first result taken today (8 Oct = day 23)
+    // single: fresh install, first result taken today
     if (single) list = [{
-      r: ['2026-10-08 09:14'].concat(R[3].slice(1, 8), [23], R[3].slice(9)),
+      r: ['2026-10-08T07:14:00.000Z'].concat(R[3].slice(1)),
       i: 3,
       sel: false
     }];
@@ -4196,13 +4376,14 @@ class History extends React.Component {
       r,
       sel
     }) => {
-      const [d, label, down, up, lat, jit, grade, flag,, proto, st] = r;
+      const [d, label, down, up, lat, jit, grade, flag, proto, st] = r;
       const dn = fr(down),
         un = fr(up),
         t = grade ? tone[grade] : null,
         S = ST[st];
       return {
-        d,
+        iso: d,
+        d: BG ? BG.date(d, 'dateTime') : d,
         label,
         down: dn.n,
         du: dn.u,
@@ -4257,30 +4438,71 @@ class History extends React.Component {
       aria: 'Filter by label',
       chips: [['Any label', list.length, true], ['VPN via 5G', byLabel('VPN via 5G')], ['VPN · office', byLabel('VPN · office')], ['VPN · hotel Wi-Fi', byLabel('VPN · hotel Wi-Fi')], ['VPN · café', byLabel('VPN · café')]].filter(c => c[1] > 0).map(chip)
     }];
+
+    // Each point sits at its result's instant (ms), so it always falls on its row's date.
     const pts = list.slice().reverse().map(({
       r,
       sel
     }) => ({
-      day: r[8],
+      t: Date.parse(r[0]),
       down: r[2],
       up: r[3],
       lat: r[4],
-      done: r[10] === 'complete',
+      done: r[9] === 'complete',
       sel
     }));
     // Axis rules (components/charts.md § Trend chart axes)
-    // X: [d0, d1] = date filter window ending today (8 Oct = day 23; day d = 15 Sep + d). "All time" = first result →
-    // today, min 7 days. Ticks step back from today (3 / 10 days), the last reads "Today"; results outside are not drawn.
-    const d1 = 23,
-      span = single || nomatch ? 7 : 30,
-      d0 = d1 - (span - 1),
-      step = span <= 7 ? 3 : 10;
-    const dayLabel = d => {
-      const t = new Date(2026, 8, 15 + d);
-      return t.getDate() + ' ' + ['Sep', 'Oct', 'Nov'][t.getMonth() - 8];
+    // X: [T0, T1) = the date filter's window in local calendar days, from the start of its first day to the end of today.
+    // "All time" = first result → today, min 7 days. Day ticks sit mid-day, step back from today (3 / 10 days) and the
+    // last reads "Today"; spans over a month tick on the 1st of each month. Results outside the window are not drawn.
+    const TODAY = '2026-10-08'; // the kit's "today", a local calendar date
+    const dayAt = (s, n) => {
+      const [y, mo, d] = s.split('-').map(Number);
+      return new Date(y, mo - 1, d + n);
     };
+    const isoDay = BG ? BG.isoDay : d => d.toISOString().slice(0, 10);
+    const custom = nomatch ? ['2026-10-02', TODAY] : null; // no-match: a custom range (screens.md: range=<from>..<to>)
+    const span = custom ? Math.round((dayAt(custom[1], 0) - dayAt(custom[0], 0)) / 864e5) + 1 : single ? 7 : 30;
+    const fromDay = custom ? custom[0] : isoDay(dayAt(TODAY, -(span - 1))),
+      toDay = custom ? custom[1] : TODAY;
+    const T0 = dayAt(fromDay, 0).getTime(),
+      T1 = dayAt(toDay, 1).getTime();
+    const fmtD = (v, k) => BG ? BG.date(v, k) : String(v);
     const xTicks = [];
-    for (let d = d1; d >= d0; d -= step) xTicks.unshift([d, d === d1 ? 'Today' : dayLabel(d)]);
+    if (span <= 31) {
+      const step = span <= 7 ? 3 : 10;
+      for (let n = 0; n < span; n += step) {
+        const a = dayAt(toDay, -n),
+          b = dayAt(toDay, -n + 1),
+          iso = isoDay(a);
+        xTicks.unshift({
+          ms: (a.getTime() + b.getTime()) / 2,
+          iso,
+          t: iso === TODAY ? 'Today' : fmtD(iso, 'day')
+        });
+      }
+    } else {
+      const s = new Date(T0),
+        months = [];
+      for (let d = new Date(s.getFullYear(), s.getMonth() + 1, 1); d.getTime() < T1; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) months.push(d);
+      const k = Math.ceil(months.length / 4);
+      months.filter((_, i) => i % k === 0).forEach(d => {
+        const iso = isoDay(d).slice(0, 7);
+        xTicks.push({
+          ms: d.getTime(),
+          iso,
+          t: fmtD(iso, 'month')
+        });
+      });
+      const a = dayAt(TODAY, 0),
+        mid = (a.getTime() + dayAt(TODAY, 1).getTime()) / 2;
+      while (xTicks.length && mid - xTicks[xTicks.length - 1].ms < (T1 - T0) / 8) xTicks.pop();
+      xTicks.push({
+        ms: mid,
+        iso: TODAY,
+        t: 'Today'
+      });
+    }
     const nice = v => {
       const p = Math.pow(10, Math.floor(Math.log10(v)));
       return [1, 2, 2.5, 5, 10].map(k => k * p).find(n => n >= v);
@@ -4294,7 +4516,7 @@ class History extends React.Component {
         pb = 20,
         W = w - pl - pr,
         H = h - pt - pb;
-      const X = d => pl + W * (d - d0) / (d1 - d0);
+      const X = t => pl + W * (t - T0) / (T1 - T0);
       const vals = pts.map(p => p[key]).filter(v => v != null);
       let Y, grid;
       if (log) {
@@ -4324,11 +4546,11 @@ class History extends React.Component {
         hollow = 0;
       pts.forEach(p => {
         const val = p[key];
-        if (val == null || p.day < d0 || p.day > d1) {
+        if (val == null || p.t < T0 || p.t >= T1) {
           pen = false;
           return;
         }
-        const x = X(p.day).toFixed(1),
+        const x = X(p.t).toFixed(1),
           y = Y(val).toFixed(1);
         line += (pen ? 'L' : 'M') + x + ' ' + y;
         pen = true;
@@ -4340,9 +4562,10 @@ class History extends React.Component {
           fill: p.done ? c : 'var(--surface-2)'
         });
       });
-      const xt = xTicks.map(([d, t]) => ({
-        x: X(d).toFixed(1),
-        t
+      const xt = xTicks.map(k => ({
+        x: X(k.ms).toFixed(1),
+        t: k.t,
+        iso: k.iso
       }));
       let lbl = null;
       if (P.length === 1) {
@@ -4385,7 +4608,7 @@ class History extends React.Component {
       dw: dw || w
     });
     const CRIT = ['Label', 'Preset', 'Protocol'];
-    const params = [['Label', 'VPN · office', 'VPN · office'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', 'HTTP/1.1'], ['Streams', 'Auto', 'Auto'], ['Duration · download', '10–20 s', '10–20 s'], ['Duration · upload', '15–25 s', '15–25 s'], ['Browser', 'Firefox 131', 'Safari 18']].map(([k, a, b]) => {
+    const params = [['Label', 'VPN · office', 'VPN · office'], ['Context', 'VPN', 'VPN'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', 'HTTP/1.1'], ['Streams', 'Auto', 'Auto'], ['Data cap', 'Off', 'Off'], ['Browser', 'Firefox 131', 'Safari 18']].map(([k, a, b]) => {
       const diff = a !== b,
         crit = diff && CRIT.includes(k);
       return Object.assign({
@@ -4396,32 +4619,42 @@ class History extends React.Component {
         crit
       }, ch('', crit ? 'crit' : diff ? 'differs' : 'same', diff ? 'differs' : 'same'));
     });
-    const metrics = [['Download', '233 Mbit/s', '241 Mbit/s', '+3.4%', 'better'], ['Upload', '187 Mbit/s', '198 Mbit/s', '+5.9%', 'better'], ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'], ['Loaded latency · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Loaded latency · upload', '58 ms', '71 ms', '+13 ms', 'worse'], ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms']].concat(Q ? [['HTTP loaded responsiveness — connection sharing not verifiable', '980 RPM · HTTP/2', 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', '', 'differs', 'not comparable']] : []).map(([k, a, b, d, w, dw]) => Object.assign({
+    // Rates (download, upload, peak): B against A in percent, one decimal, within ±2 % reads "same" (screens.md §3).
+    const rs = b => {
+      const f = fr(b);
+      return f.n + ' ' + f.u;
+    };
+    const rate = (k, a, b) => {
+      const p = (b - a) / a * 100;
+      return [k, rs(a), rs(b), (p < 0 ? '−' : '+') + Math.abs(p).toFixed(1) + '\u00a0%', Math.abs(p) <= 2 ? 'same' : p > 0 ? 'better' : 'worse'];
+    };
+    // Probe timeouts, data used and duration: both values, no judgment.
+    const plain = (k, a, b) => [k, a, b, '', 'none'];
+    const metrics = [rate('Download', 233e6, 241e6), rate('Peak · download', 262e6, 268e6), rate('Upload', 187e6, 198e6), rate('Peak · upload', 211e6, 214e6), ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'], plain('Idle probe timeouts', '0.0\u00a0%', '0.5\u00a0%'), ['Loaded latency · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Loaded latency · upload', '58 ms', '71 ms', '+13 ms', 'worse'], ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms']].concat(Q ? [['HTTP loaded responsiveness — connection sharing not verifiable', '980 RPM · HTTP/2', 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', '', 'differs', 'not comparable']] : []).concat([plain('Data used', '1.21 GB', '1.27 GB'), plain('Duration', '48 s', '47 s')]).map(([k, a, b, d, w, dw]) => Object.assign({
       k,
       a,
-      b
-    }, ch(d, w, dw)));
+      b,
+      nj: w === 'none'
+    }, w === 'none' ? {} : ch(d, w, dw)));
     const cmpWarn = params.filter(p => p.crit).map(p => `different ${p.k.toLowerCase()} (${p.a} vs ${p.b})`).join('; ');
-    const cmpRows = [{
-      head: true,
-      row: false,
-      k: 'Parameters'
-    }, ...params.map(p => Object.assign({
-      head: false,
-      row: true
-    }, p)), {
-      head: true,
-      row: false,
-      k: 'Results'
-    }, ...metrics.map(p => Object.assign({
-      head: false,
-      row: true
-    }, p))];
+    const cmpGroups = [{
+      k: 'Parameters',
+      rows: params
+    }, {
+      k: 'Results',
+      rows: metrics
+    }].map((g, gi, all) => ({
+      k: g.k,
+      rows: g.rows.map((p, i) => Object.assign({
+        last: gi === all.length - 1 && i === g.rows.length - 1
+      }, p))
+    }));
     const cmpCards = [{
       id: 'A',
       aria: 'Result A',
       label: 'VPN · office',
-      date: '2026-09-26 18:20',
+      iso: R[5][0],
+      date: fmtD(R[5][0], 'dateTime'),
       params: params.map(p => ({
         k: p.k,
         v: p.a,
@@ -4436,7 +4669,8 @@ class History extends React.Component {
       id: 'B',
       aria: 'Result B',
       label: 'VPN · office',
-      date: '2026-10-02 09:05',
+      iso: R[3][0],
+      date: fmtD(R[3][0], 'dateTime'),
       params: params.map(p => ({
         k: p.k,
         v: p.b,
@@ -4448,7 +4682,7 @@ class History extends React.Component {
       metrics: metrics.map(p => ({
         k: p.k,
         v: p.b,
-        ch: true,
+        ch: !p.nj,
         d: p.d,
         dc: p.dc,
         di: p.di,
@@ -4456,6 +4690,11 @@ class History extends React.Component {
       }))
     }];
     const shownN = list.length;
+    // Selection summary: two → "<label> · Sep 26 and Oct 2" (shared label only), more → their date range.
+    const selR = selIdx.map(i => R[i]),
+      selD = selR.map(r => r[0]).sort();
+    const selSummary = !BG || !selN ? '' : selN === 2 ? /*#__PURE__*/React.createElement(React.Fragment, null, selR[0][1] === selR[1][1] ? selR[0][1] + ' · ' : '', BG.timeList(selD, 'day')) : BG.timeRange(selD[0], selD[selD.length - 1], 'day');
+    const rangeEl = custom && BG ? BG.timeRange(custom[0], custom[1], 'date') : null;
     const countText = empty ? '0 results' : unavail ? 'Not saved in this window' : loading ? 'Loading…' : nomatch ? `0 of ${total} shown` : `${shownN} of ${total} shown`;
     const sk = (w, f) => ({
       w,
@@ -4502,14 +4741,14 @@ class History extends React.Component {
       cols,
       chipGroups,
       trends,
-      trendMeta: single ? '1 result · today' : `${shownN} results · 17 Sep – 8 Oct`,
+      trendMeta: single || !list.length ? single ? '1 result · today' : '' : /*#__PURE__*/React.createElement(React.Fragment, null, shownN + ' results · ', BG ? BG.timeRange(list[list.length - 1].r[0], list[0].r[0], 'day') : null),
       hasSel: selN > 0,
       selN,
       cmpDisabled: selN !== 2,
       cmpHint: selN > 0 && selN !== 2,
-      selSummary: selN === 2 ? 'VPN · office · 26 Sep and 2 Oct' : '26 Sep – 7 Oct',
+      selSummary,
       toast: deleted,
-      cmpRows,
+      cmpGroups,
       cmpCards,
       cmpWarn,
       showCompareD: is('compare') && !m,
@@ -4519,9 +4758,11 @@ class History extends React.Component {
       exportAria: is('export') ? 'true' : 'false',
       showDate: is('daterange'),
       dateAria: is('daterange') ? 'true' : 'false',
-      dateLabel: nomatch ? 'Last 7 days' : single ? 'All time' : 'Last 30 days',
+      dateLabel: custom ? rangeEl : single ? 'All time' : 'Last 30 days',
+      fromDate: fromDay,
+      toDate: toDay,
       searchVal: nomatch ? 'airport' : '',
-      noMatchText: nomatch ? `Nothing with context VPN in the last 7 days matches “airport”. All ${total} results are still in history.` : '',
+      noMatchText: nomatch ? /*#__PURE__*/React.createElement(React.Fragment, null, 'Nothing with context VPN dated ', rangeEl, ` matches “airport”. All ${total} results are still in history.`) : '',
       noop: () => {},
       skChips: [56, 64, 64, 72, 76].map(n => ({
         w: n + 'px'
@@ -4531,7 +4772,7 @@ class History extends React.Component {
         cols: [sk('16px', 'none'), sk('110px', 'none'), sk('auto', '1'), sk('52px', 'none'), sk('56px', 'none'), sk('64px', 'none'), sk('80px', 'none'), sk('80px', 'none'), sk('56px', 'none'), sk('52px', 'none'), sk('26px', 'none')]
       })),
       trendSingle: single,
-      ranges: (single ? [['Last 7 days', 1], ['Last 30 days', 1], ['Last 90 days', 1], ['All time', 1, true]] : [['Last 7 days', 4, nomatch], ['Last 30 days', 8, !nomatch], ['Last 90 days', 8], ['All time', 8]]).map(([t, n, on]) => ({
+      ranges: (single ? [['Last 7 days', 1], ['Last 30 days', 1], ['Last 90 days', 1], ['All time', 1, true]] : [['Last 7 days', 4], ['Last 30 days', 8, !nomatch], ['Last 90 days', 8], ['All time', 8]]).map(([t, n, on]) => ({
         t,
         n,
         on: !!on,
@@ -4614,6 +4855,8 @@ class History extends React.Component {
       disabled: v.importDisabled
     }, v.importLabel), v.hasData ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Popover, {
       open: !!v.showExport,
+      modal: true,
+      onClose: this.props.onDismiss,
       role: "menu",
       label: "Export",
       width: 320,
@@ -4981,10 +5224,12 @@ class History extends React.Component {
         display: "flex",
         gap: "var(--space-2)",
         flexWrap: "wrap",
-        marginLeft: v.L?.filterML
+        marginLeft: v.L?.filterML,
+        width: v.L?.filterW
       }
     }, /*#__PURE__*/React.createElement(DS.Popover, {
       open: !!v.showDate,
+      onClose: this.props.onDismiss,
       role: "dialog",
       label: "Date range",
       width: 300,
@@ -5018,13 +5263,15 @@ class History extends React.Component {
         padding: "var(--space-1) var(--space-2-5) var(--space-2)"
       }
     }, /*#__PURE__*/React.createElement(DS.Input, {
+      type: "date",
       size: "sm",
       mono: true,
       style: {
         flex: "1",
         minWidth: "0"
       },
-      value: "2026-09-08",
+      value: v.fromDate,
+      max: v.toDate,
       "aria-label": "From date",
       onChange: v.noop
     }), /*#__PURE__*/React.createElement("span", {
@@ -5032,13 +5279,16 @@ class History extends React.Component {
         color: "var(--fg-subtle)"
       }
     }, "\u2013"), /*#__PURE__*/React.createElement(DS.Input, {
+      type: "date",
       size: "sm",
       mono: true,
       style: {
         flex: "1",
         minWidth: "0"
       },
-      value: "2026-10-08",
+      value: v.toDate,
+      min: v.fromDate,
+      max: "2026-10-08",
       "aria-label": "To date",
       onChange: v.noop
     })), /*#__PURE__*/React.createElement("div", {
@@ -5049,17 +5299,19 @@ class History extends React.Component {
     }, "Cancel"), /*#__PURE__*/React.createElement(DS.Button, {
       variant: "primary",
       size: "sm"
-    }, "Apply"))), v.desktop ? /*#__PURE__*/React.createElement(DS.Input, {
+    }, "Apply"))), /*#__PURE__*/React.createElement(DS.Input, {
       size: "sm",
       icon: "search",
       style: {
-        width: "220px"
+        flex: v.L?.searchFlex,
+        width: v.L?.searchW,
+        minWidth: "0"
       },
       placeholder: "Search labels and notes",
       "aria-label": "Search",
       value: v.searchVal,
       onChange: v.noop
-    }) : null)) : null, v.noMatch ? /*#__PURE__*/React.createElement(DS.Card, {
+    }))) : null, v.noMatch ? /*#__PURE__*/React.createElement(DS.Card, {
       as: "section",
       padded: false
     }, /*#__PURE__*/React.createElement(DS.EmptyState, {
@@ -5071,7 +5323,7 @@ class History extends React.Component {
       }, "Clear filters"))
     }, v.noMatchText)) : null, v.showResults ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Card, {
       as: "section",
-      label: "Trend",
+      labelledBy: "trend-h",
       padded: false,
       style: {
         padding: v.L?.cardPad,
@@ -5086,8 +5338,10 @@ class History extends React.Component {
         alignItems: "center",
         gap: "var(--space-2) var(--space-3-5)"
       }
-    }, /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement("h2", {
+      id: "trend-h",
       style: {
+        margin: "0",
         fontSize: "var(--text-base)",
         fontWeight: "var(--weight-semibold)"
       }
@@ -5253,7 +5507,9 @@ class History extends React.Component {
         transform: "translateX(-50%)",
         whiteSpace: "nowrap"
       }
-    }, xt?.t))), tr?.lbl ? /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement("time", {
+      dateTime: xt?.iso
+    }, xt?.t)))), tr?.lbl ? /*#__PURE__*/React.createElement("span", {
       style: {
         position: "absolute",
         left: `${tr.lbl.x}px`,
@@ -5324,6 +5580,7 @@ class History extends React.Component {
     }, /*#__PURE__*/React.createElement("td", null, r?.sel ? /*#__PURE__*/React.createElement("span", {
       role: "checkbox",
       "aria-checked": "true",
+      "aria-label": `Select ${r?.label ?? ""}, ${r?.d ?? ""}`,
       tabIndex: "0",
       style: {
         width: "16px",
@@ -5342,6 +5599,7 @@ class History extends React.Component {
     })) : null, r?.unsel ? /*#__PURE__*/React.createElement("span", {
       role: "checkbox",
       "aria-checked": "false",
+      "aria-label": `Select ${r?.label ?? ""}, ${r?.d ?? ""}`,
       tabIndex: "0",
       style: {
         width: "16px",
@@ -5358,7 +5616,9 @@ class History extends React.Component {
         color: "var(--fg-muted)",
         whiteSpace: "nowrap"
       }
-    }, r?.d), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement("time", {
+      dateTime: r?.iso
+    }, r?.d)), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         alignItems: "center",
@@ -5403,28 +5663,40 @@ class History extends React.Component {
     }, r?.stDot ? /*#__PURE__*/React.createElement("span", {
       className: "d"
     }) : null, r?.st)), /*#__PURE__*/React.createElement("td", {
-      className: "num"
+      className: "num",
+      style: {
+        whiteSpace: "nowrap"
+      }
     }, r?.down, " ", /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg-subtle)",
         fontSize: "var(--text-micro)"
       }
     }, r?.du)), /*#__PURE__*/React.createElement("td", {
-      className: "num"
+      className: "num",
+      style: {
+        whiteSpace: "nowrap"
+      }
     }, r?.up, " ", /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg-subtle)",
         fontSize: "var(--text-micro)"
       }
     }, r?.uu)), /*#__PURE__*/React.createElement("td", {
-      className: "num"
+      className: "num",
+      style: {
+        whiteSpace: "nowrap"
+      }
     }, r?.lat, " ", /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg-subtle)",
         fontSize: "var(--text-micro)"
       }
     }, "ms")), /*#__PURE__*/React.createElement("td", {
-      className: "num"
+      className: "num",
+      style: {
+        whiteSpace: "nowrap"
+      }
     }, r?.jit, " ", /*#__PURE__*/React.createElement("span", {
       style: {
         color: "var(--fg-subtle)",
@@ -5453,13 +5725,18 @@ class History extends React.Component {
         fontWeight: "var(--weight-semibold)",
         fontSize: "var(--text-caption)"
       }
-    }, r?.grade)), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement(DS.Button, {
-      variant: "ghost",
-      size: "sm",
-      iconOnly: true,
-      icon: "ellipsis",
-      "aria-label": `Actions for ${r?.label ?? ""}`,
-      "aria-haspopup": "menu"
+    }, r?.grade)), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement(DS.Menu, {
+      label: `Actions for ${r?.label ?? ""}`,
+      align: "end",
+      placement: (v.rows || []).indexOf(r) >= (v.rows || []).length - 2 ? 'top' : 'bottom',
+      options: HISTORY_ROW_ACTIONS,
+      trigger: /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        size: "sm",
+        iconOnly: true,
+        icon: "ellipsis",
+        "aria-label": `Actions for ${r?.label ?? ""}`
+      })
     }))))))), v.hasSel ? /*#__PURE__*/React.createElement("div", {
       role: "toolbar",
       "aria-label": "Selection",
@@ -5625,7 +5902,9 @@ class History extends React.Component {
         fontSize: "var(--text-micro)",
         color: "var(--fg-subtle)"
       }
-    }, r?.d, " · ", r?.proto)), r?.flag ? /*#__PURE__*/React.createElement(DS.StatusPill, {
+    }, /*#__PURE__*/React.createElement("time", {
+      dateTime: r?.iso
+    }, r?.d), " · ", r?.proto)), r?.flag ? /*#__PURE__*/React.createElement(DS.StatusPill, {
       tone: "warn",
       size: "sm"
     }, r?.flag) : null, r?.stM ? /*#__PURE__*/React.createElement("span", {
@@ -5724,18 +6003,26 @@ class History extends React.Component {
         color: "var(--fg-subtle)",
         fontSize: "var(--text-nano)"
       }
-    }, "ms")))), /*#__PURE__*/React.createElement(DS.Button, {
-      variant: "ghost",
-      iconOnly: true,
-      icon: "ellipsis",
-      "aria-label": `Actions for ${r?.label ?? ""}`,
-      "aria-haspopup": "menu",
+    }, "ms")))), /*#__PURE__*/React.createElement(DS.Menu, {
+      label: `Actions for ${r?.label ?? ""}`,
+      align: "end",
+      options: HISTORY_ROW_ACTIONS,
       style: {
         flex: "none",
-        width: "44px",
-        height: "44px",
-        marginTop: "var(--space-1)"
-      }
+        alignSelf: "flex-start"
+      },
+      trigger: /*#__PURE__*/React.createElement(DS.Button, {
+        variant: "ghost",
+        iconOnly: true,
+        icon: "ellipsis",
+        "aria-label": `Actions for ${r?.label ?? ""}`,
+        style: {
+          flex: "none",
+          width: "44px",
+          height: "44px",
+          marginTop: "var(--space-1)"
+        }
+      })
     })))), v.hasSel ? /*#__PURE__*/React.createElement("div", {
       role: "toolbar",
       "aria-label": "Selection",
@@ -5826,7 +6113,7 @@ class History extends React.Component {
       flush: true,
       icon: "git-compare",
       title: "Compare results",
-      onClose: () => {},
+      onClose: this.props.onDismiss || (() => {}),
       align: "top",
       body: /*#__PURE__*/React.createElement(React.Fragment, null, v.cmpWarn ? /*#__PURE__*/React.createElement("div", {
         role: "note",
@@ -5865,86 +6152,90 @@ class History extends React.Component {
           tableLayout: "fixed"
         }
       }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+        scope: "col",
         style: {
           width: "30%",
           background: "var(--surface-2)"
         }
-      }, "Metric"), /*#__PURE__*/React.createElement("th", {
+      }, "Metric"), (v.cmpCards || []).map((cd, $index) => /*#__PURE__*/React.createElement("th", {
+        key: $index,
+        scope: "col",
         style: {
           background: "var(--surface-2)",
           textAlign: "right"
         }
-      }, /*#__PURE__*/React.createElement("span", {
+      }, /*#__PURE__*/React.createElement("a", {
+        href: "#",
         style: {
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
           gap: "var(--space-0-5)",
           textTransform: "none",
-          letterSpacing: "0"
+          letterSpacing: "0",
+          textDecoration: "none"
         }
       }, /*#__PURE__*/React.createElement("span", {
         style: {
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "var(--space-1)",
           fontFamily: "var(--font-sans)",
           fontSize: "var(--text-sm)",
           color: "var(--fg)",
           fontWeight: "var(--weight-semibold)"
         }
-      }, "A \xB7 VPN \xB7 office"), /*#__PURE__*/React.createElement("span", {
+      }, cd?.id, " · ", cd?.label, /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: "var(--fg-subtle)",
+          display: "flex"
+        }
+      }, /*#__PURE__*/React.createElement(DS.Icon, {
+        name: "chevron-right",
+        size: 13,
+        stroke: 2
+      }))), /*#__PURE__*/React.createElement("time", {
+        dateTime: cd?.iso,
         style: {
           fontFamily: "var(--font-mono)",
           fontWeight: "var(--weight-regular)",
           color: "var(--fg-subtle)"
         }
-      }, "2026-09-26 18:20"))), /*#__PURE__*/React.createElement("th", {
-        style: {
-          background: "var(--surface-2)",
-          textAlign: "right"
-        }
-      }, /*#__PURE__*/React.createElement("span", {
-        style: {
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-end",
-          gap: "var(--space-0-5)",
-          textTransform: "none",
-          letterSpacing: "0"
-        }
-      }, /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontFamily: "var(--font-sans)",
-          fontSize: "var(--text-sm)",
-          color: "var(--fg)",
-          fontWeight: "var(--weight-semibold)"
-        }
-      }, "B \xB7 VPN \xB7 office"), /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontFamily: "var(--font-mono)",
-          fontWeight: "var(--weight-regular)",
-          color: "var(--fg-subtle)"
-        }
-      }, "2026-10-02 09:05"))), /*#__PURE__*/React.createElement("th", {
+      }, cd?.date)))), /*#__PURE__*/React.createElement("th", {
+        scope: "col",
         style: {
           background: "var(--surface-2)",
           textAlign: "right",
           width: "24%"
         }
-      }, "Change"))), /*#__PURE__*/React.createElement("tbody", null, (v.cmpRows || []).map((c, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
+      }, "Change"))), (v.cmpGroups || []).map((g, $index) => /*#__PURE__*/React.createElement("tbody", {
         key: $index
-      }, c?.head ? /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+      }, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+        colSpan: "4",
+        scope: "rowgroup",
         style: {
+          position: "static",
+          background: "transparent",
           paddingTop: "var(--space-3-5)",
           paddingBottom: "var(--space-1-5)",
-          fontFamily: "var(--font-cond)",
-          fontWeight: "var(--weight-semibold)",
-          fontSize: "var(--text-micro)",
-          letterSpacing: "var(--tracking-caps)",
-          textTransform: "uppercase",
-          color: "var(--fg-subtle)"
+          borderBottom: "1px solid var(--border-subtle)",
+          letterSpacing: "var(--tracking-caps)"
         }
-      }, c?.k), /*#__PURE__*/React.createElement("td", null), /*#__PURE__*/React.createElement("td", null), /*#__PURE__*/React.createElement("td", null)) : null, c?.row ? /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+      }, g?.k)), (g?.rows || []).map((c, $index) => /*#__PURE__*/React.createElement("tr", {
+        key: $index
+      }, /*#__PURE__*/React.createElement("th", {
+        scope: "row",
         style: {
-          color: "var(--fg-muted)"
+          position: "static",
+          background: "transparent",
+          fontFamily: "var(--font-sans)",
+          fontSize: "var(--text-sm)",
+          fontWeight: "var(--weight-regular)",
+          textTransform: "none",
+          letterSpacing: "normal",
+          color: "var(--fg-muted)",
+          padding: "var(--density-cell-padding-y) var(--space-3-5)",
+          borderBottom: c?.last ? "0" : "1px solid var(--border-subtle)"
         }
       }, c?.k), /*#__PURE__*/React.createElement("td", {
         className: "num",
@@ -5961,7 +6252,7 @@ class History extends React.Component {
         style: {
           textAlign: "right"
         }
-      }, /*#__PURE__*/React.createElement("span", {
+      }, c?.nj ? null : /*#__PURE__*/React.createElement("span", {
         style: {
           display: "inline-flex",
           alignItems: "center",
@@ -5977,7 +6268,7 @@ class History extends React.Component {
         style: {
           fontFamily: "var(--font-mono)"
         }
-      }, c?.d) : null, /*#__PURE__*/React.createElement("span", null, c?.dw)))) : null)))), /*#__PURE__*/React.createElement("div", {
+      }, c?.d) : null, /*#__PURE__*/React.createElement("span", null, c?.dw)))))))), /*#__PURE__*/React.createElement("div", {
         style: {
           display: "flex",
           justifyContent: "flex-end",
@@ -5991,10 +6282,16 @@ class History extends React.Component {
       }, "Copy comparison"), /*#__PURE__*/React.createElement(DS.Button, {
         variant: "primary"
       }, "Done")))
-    }, "Change is B relative to A") : null, v.showCompareM ? /*#__PURE__*/React.createElement("div", {
+    }, "Change is B relative to A") : null, v.showCompareM ? /*#__PURE__*/React.createElement(DS.Modal, {
       role: "dialog",
       "aria-modal": "true",
       "aria-labelledby": "cmpm-t",
+      onKeyDown: e => {
+        if (e.key === 'Escape' && this.props.onDismiss) {
+          e.stopPropagation();
+          this.props.onDismiss();
+        }
+      },
       style: {
         position: "absolute",
         inset: "0",
@@ -6019,9 +6316,10 @@ class History extends React.Component {
         flex: "1",
         minWidth: "0"
       }
-    }, /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement("h2", {
       id: "cmpm-t",
       style: {
+        margin: "0",
         fontSize: "var(--text-lg)",
         fontWeight: "var(--weight-semibold)"
       }
@@ -6168,15 +6466,20 @@ class History extends React.Component {
         background: "var(--surface-2)",
         border: "1px solid var(--border-subtle)"
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("a", {
+      href: "#",
       style: {
         display: "flex",
         alignItems: "center",
         gap: "var(--space-2-5)",
-        paddingBottom: "var(--space-2-5)"
+        minHeight: "44px",
+        paddingBottom: "var(--space-2-5)",
+        color: "var(--fg)",
+        textDecoration: "none"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
+        flex: "none",
         width: "26px",
         height: "26px",
         borderRadius: "var(--radius-sm)",
@@ -6189,24 +6492,36 @@ class History extends React.Component {
         fontWeight: "var(--weight-semibold)",
         fontSize: "var(--text-caption)"
       }
-    }, cd?.id), /*#__PURE__*/React.createElement("div", {
+    }, cd?.id), /*#__PURE__*/React.createElement("span", {
       style: {
         display: "flex",
         flexDirection: "column",
-        minWidth: "0"
+        minWidth: "0",
+        flex: "1"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: "var(--text-sm)",
         fontWeight: "var(--weight-semibold)"
       }
-    }, cd?.label), /*#__PURE__*/React.createElement("span", {
+    }, cd?.label), /*#__PURE__*/React.createElement("time", {
+      dateTime: cd?.iso,
       style: {
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-micro)",
         color: "var(--fg-subtle)"
       }
-    }, cd?.date))), /*#__PURE__*/React.createElement("span", {
+    }, cd?.date)), /*#__PURE__*/React.createElement("span", {
+      style: {
+        flex: "none",
+        color: "var(--fg-subtle)",
+        display: "flex"
+      }
+    }, /*#__PURE__*/React.createElement(DS.Icon, {
+      name: "chevron-right",
+      size: 16,
+      stroke: 2
+    }))), /*#__PURE__*/React.createElement("span", {
       style: {
         padding: "var(--space-2) 0 var(--space-1)",
         fontFamily: "var(--font-cond)",
@@ -6339,7 +6654,7 @@ class History extends React.Component {
       title: "Clear all history?",
       align: v.mobile ? 'top' : 'center',
       footerStack: v.mobile,
-      onClose: () => {},
+      onClose: this.props.onDismiss || (() => {}),
       footer: v.desktop ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
         variant: "ghost",
         icon: "download"
@@ -6768,6 +7083,8 @@ class Prototype extends React.Component {
           hv: v
         });
       if (t === 'Compare') return set('compare');
+      if (t === 'Open') return this.go('result');
+      if (t === 'Delete') return set('deleted');
       if (has('Done', 'Close', 'Cancel', 'Apply', 'Dismiss', 'Choose another file', 'Export JSON first', 'Clear selection')) return set('populated');
       if (t === 'Clear all') return set('confirm');
       if (sw('Clear 48')) return set('empty');
@@ -6837,6 +7154,9 @@ class Prototype extends React.Component {
       resultExtra: this.props.resultExtra,
       settingsExtra: this.props.settingsExtra,
       aboutExtra: this.props.aboutExtra,
+      dismissHistory: () => this.setState({
+        hv: 'populated'
+      }),
       isTest: S === 'test',
       isHistory: S === 'history',
       isResult: S === 'result',
@@ -6897,6 +7217,7 @@ class Prototype extends React.Component {
       scope: v.caps.scope
     }) : null, v.isHistory && !v.notAvailable ? /*#__PURE__*/React.createElement(History, _extends({
       variant: v.hv,
+      onDismiss: v.dismissHistory,
       mobile: v.mobile,
       srvStatus: v.srv,
       caps: v.caps
@@ -6942,6 +7263,7 @@ function NotAvailable({
     className: "page" + (mobile ? " compact" : "")
   }, /*#__PURE__*/React.createElement(DS.EmptyState, {
     icon: "circle-minus",
+    headingLevel: 1,
     title: "Not available in this version",
     actions: /*#__PURE__*/React.createElement(DS.Button, {
       variant: "primary",
@@ -6977,7 +7299,9 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
 /* BitGauge web UI kit — ResultDetail
  * Props:
  *   mobile: boolean  (default false)
- *   state: "result" | "not-found" | "history-unavailable"  (default "result")
+ *   state: "result" | "not-found" | "history-unavailable" | "not-saved-partial" | "not-saved-missing"  (default "result") —
+ *     the last three are not saved (screens.md §2): history unavailable, a partial result not kept, or the in-memory result
+ *     missing from this browser's history
  *   kind: "standard" | "continuous"  (default "standard")
  *   tableView: boolean  (default false)
  *   includeLabel: boolean  (default false)
@@ -7057,8 +7381,11 @@ class ResultDetail extends React.Component {
         quality: true
       },
       Q = !!caps.quality;
-    const st = this.props.state || 'result',
-      hu = st === 'history-unavailable',
+    const UNS = {
+        'history-unavailable': 'History unavailable · nothing is saved in this window',
+        'not-saved-partial': 'Partial results are not saved',
+        'not-saved-missing': 'This result isn\u2019t in this browser\u2019s history'
+      },
       cont = Q && this.props.kind === 'continuous';
     // Loaded latency without a value (measurement §11): reason → [JSON source, label source, samples].
     const LLR = {
@@ -7088,6 +7415,20 @@ class ResultDetail extends React.Component {
       idleSrc = wsClose ? 'WebSocket' : src;
     const dnGap = wsClose && !cont && src === 'HTTP/1.1 reserved' ? 'reservation-broken' : null;
     const gapK = !cont && !dnGap && caps.loaded && LLR[this.props.llGap] ? this.props.llGap : null;
+    // A complete result always has a steady window in each direction and no direction as short as the WebSocket's close
+    // sequence (measurement §11.1, §11.4): these two reasons come from the run stopped in the upload, partial and not saved,
+    // the same run as the Test screen. no-probe-path: the WebSocket closed 9.7 s into the download, its reopening never answered.
+    const USTOP = {
+        'no-steady-window': 3.1,
+        'no-probe-path': 0.8
+      }[gapK] ?? null,
+      stop = USTOP != null,
+      npp = gapK === 'no-probe-path',
+      WSL = 9.7;
+    const st0 = this.props.state || 'result',
+      st = stop && st0 === 'result' ? 'not-saved-partial' : st0,
+      hu = !!UNS[st],
+      histOff = st === 'history-unavailable';
     const gapSrc = k => k === 'no-probe-path' ? null : k === 'reservation-broken' ? 'HTTP/1.1 reserved' : src;
     // HTTP/1.1 probe reservation (measurement §4, §11.2): stream cap 5 while it is held. Closed-after-idle: it starts with
     // the next direction (upload), so download keeps 6.
@@ -7123,7 +7464,7 @@ class ResultDetail extends React.Component {
       tileNum: '28px',
       midCols: 'minmax(0,1.4fr) minmax(0,1fr)',
       chartCols: 'repeat(2, minmax(0,1fr))',
-      confCols: 'repeat(2, minmax(0,1fr))',
+      confCols: 'minmax(0,1fr)',
       nfMargin: '96px auto'
     };
 
@@ -7252,18 +7593,14 @@ class ResultDetail extends React.Component {
     // (upload sends for ≈ 16 s: until its 15 s minimum, then the last in-flight requests).
     const SUSED = {
         down: 736700000,
-        up: 854549086
+        up: stop ? BG ? BG.usedBytes(BG.thr(7, 431e6, USTOP)) : 0 : 854549086
       },
       sUsed = (SUSED.down + SUSED.up) / 1e9;
     const D = cont ? {
       label: 'Overnight check',
       ctx: 'LAN',
       ctxIcon: 'house',
-      when: 'Thu 8 Oct 2026 · 01:00:04',
-      abs: '2026-10-08 01:00:04 CEST',
       iso: '2026-10-07T23:00:04.000Z',
-      crumb: '2026-10-08 01:00',
-      short: 'Thu 8 Oct 2026 · 01:00',
       file: 'bitgauge-2026-10-08-0100',
       preset: 'Continuous',
       server: 'Basement NAS',
@@ -7274,18 +7611,25 @@ class ResultDetail extends React.Component {
       label: 'Home Wi-Fi',
       ctx: 'LAN',
       ctxIcon: 'house',
-      when: 'Thu 8 Oct 2026 · 14:02:11',
-      abs: '2026-10-08 14:02:11 CEST',
       iso: '2026-10-08T12:02:11.000Z',
-      crumb: '2026-10-08 14:02',
-      short: 'Thu 8 Oct 2026 · 14:02',
       file: 'bitgauge-2026-10-08-1402',
       preset: 'Standard',
       server: 'Basement NAS',
       note: 'Office desk, 5 GHz. Router is in the hallway, one wall between.',
       down: 612e6 * OHF,
-      up: 438e6 * OHF
+      up: stop ? null : 438e6 * OHF
     };
+    // Dates from the instant (i18n-a11y.md §1.3): header date + time medium, its tooltip full + long (with zone),
+    // breadcrumb and share line / text summary date medium + time short.
+    {
+      const fd = k => window.BG ? window.BG.date(D.iso, k) : D.iso;
+      Object.assign(D, {
+        when: fd('dateTimeSec'),
+        abs: fd('abs'),
+        crumb: fd('dateTime'),
+        short: fd('dateTime')
+      });
+    }
     const IDLE = 3.1,
       JIT = 0.8,
       r1 = v => Math.round(v * 10) / 10;
@@ -7305,8 +7649,35 @@ class ResultDetail extends React.Component {
       gT = GT[grade],
       gradeWords = gT[1] + ' bufferbloat';
     const gradeBasis = basisK === 'download+upload' ? 'Basis: worse of download and upload — upload +' + jit(INC.up) + ' ms (download +' + jit(INC.down) + ' ms)' : basisK === 'upload' ? 'Basis: upload only — +' + jit(INC.up) + ' ms vs idle; download: ' + LLR[dnGap] : 'Basis: download only — +' + jit(INC.down) + ' ms vs idle' + (cont ? '; upload not measured' : '; upload: ' + LLR[gapK]);
-    const worstStr = '+' + jit(D.worst[1]) + ' ms loaded (' + D.worst[0] + ')';
-    const summary = ['BitGauge' + (inc ? ' · ' + D.label : ''), D.short, cont ? 'Download ' + rs(D.down) + ' (2 h average) · Upload not measured' : 'Download ' + rs(D.down) + ' · Upload ' + rs(D.up)].concat(OH ? [OH] : []).concat(['Idle latency ' + BGF.ms(IDLE) + ' ms · Jitter ' + jit(JIT) + ' ms', 'Loaded latency +' + jit(D.worst[1]) + ' ms (' + D.worst[0] + ')', 'Bufferbloat grade ' + grade + ' · ' + gradeWords, 'Server: ' + D.server]).join('\n');
+    // Each number carries its qualifiers (flows.md §8): a loaded-latency source other than the WebSocket is named.
+    const worstQ = D.worst[0] + (src !== 'WebSocket' ? ', ' + src : '');
+    const worstStr = '+' + jit(D.worst[1]) + ' ms loaded (' + worstQ + ')';
+    // Confidence per direction (measurement §16): normal | low with reasons | cpu-bound. Continuous has no upload.
+    const DC = {
+      down: {
+        level: 'normal',
+        reasons: [],
+        wu: 6.5,
+        win: cont ? hms(CEND - CWU) : '3.5 s'
+      },
+      up: cont || stop ? null : {
+        level: 'normal',
+        reasons: [],
+        wu: 9.5,
+        win: '6.5 s'
+      }
+    };
+    const RSN = {
+      'ramp-unsettled': ['ramp unsettled', 'the stream ramp was still adding streams when warm-up ended'],
+      'insufficient-samples': ['insufficient samples', 'too few requests had confirmed when warm-up ended'],
+      'unstable': ['unstable', 'the steady window stayed unstable']
+    };
+    const confQ = k => {
+      const c = DC[k];
+      return !c || c.level === 'normal' ? '' : c.level === 'cpu-bound' ? 'limited by this device’s CPU' : 'low confidence: ' + c.reasons.map(r => RSN[r][0]).join(', ');
+    };
+    const withQ = (k, s) => confQ(k) ? s + ' (' + confQ(k) + ')' : s;
+    const summary = ['BitGauge' + (inc ? ' · ' + D.label : ''), D.short, cont ? withQ('down', 'Download ' + rs(D.down) + ' (2 h average)') + ' · Upload not measured' : withQ('down', 'Download ' + rs(D.down)) + ' · ' + (stop ? 'Upload: insufficient data, stopped at ' + USTOP.toFixed(1) + ' s' : withQ('up', 'Upload ' + rs(D.up)))].concat(OH ? [OH] : []).concat(['Idle latency ' + BGF.ms(IDLE) + ' ms · Jitter ' + jit(JIT) + ' ms', 'Loaded latency +' + jit(D.worst[1]) + ' ms (' + worstQ + ')', 'Bufferbloat grade ' + grade + ' · ' + gradeWords, 'Server: ' + D.server]).join('\n');
 
     // Quality scores: the same AIM function as the Test screen (fixtures.js). Standard: Good/Good/Good (55/25/35 points);
     // Continuous (download +15 ms): Great/Great/Great (60/30/40).
@@ -7327,6 +7698,14 @@ class ResultDetail extends React.Component {
       unit: '',
       nc: 'var(--fg-subtle)',
       sub: 'not measured · Continuous runs one direction'
+    } : stop ? {
+      label: 'Upload',
+      icon: 'arrow-up',
+      ic: 'var(--series-upload)',
+      num: '—',
+      unit: '',
+      nc: 'var(--fg-subtle)',
+      sub: 'insufficient data · stopped at ' + USTOP.toFixed(1) + ' s, in warm-up' + (BG ? ' · ' + BG.bytes(SUSED.up) + ' used' : '')
     } : {
       label: 'Upload',
       icon: 'arrow-up',
@@ -7342,7 +7721,7 @@ class ResultDetail extends React.Component {
       num: BGF.ms(IDLE),
       unit: 'ms',
       nc: 'var(--fg)',
-      sub: 'min 2.4 · p90 4.1 ms · ' + idleSrc + ' · 0 % probe timeouts'
+      sub: 'min 2.4 · p90 4.1 ms · ' + idleSrc + ' · 0.0 % probe timeouts'
     }, {
       label: 'Jitter',
       icon: 'activity',
@@ -7393,9 +7772,24 @@ class ResultDetail extends React.Component {
     }]);
 
     // Confidence levels (§16): normal | low (ramp-unsettled, unstable, insufficient-samples) | cpu-bound.
-    const conf = {
+    const lvls = [DC.down, DC.up].filter(Boolean).map(c => c.level);
+    const conf = lvls.includes('cpu-bound') ? {
+      label: 'Confidence: CPU-bound',
+      tone: 'warn'
+    } : lvls.includes('low') ? {
+      label: 'Confidence: low',
+      tone: 'warn'
+    } : {
       label: 'Confidence: normal',
       tone: 'ok'
+    };
+    const confLine = k => {
+      const c = DC[k],
+        dn = k === 'down' ? 'Download' : 'Upload',
+        wu = 'Warm-up ended at ' + c.wu + ' s';
+      if (c.level === 'cpu-bound') return it('warn', 'cpu', dn + ' confidence: limited by this device’s CPU', 'The test worker was busy more than 90 % of the steady window, so the number is the browser’s limit, not the link’s.');
+      if (c.level === 'low') return it('warn', 'triangle-alert', dn + ' confidence: low — ' + c.reasons.map(r => RSN[r][0]).join(', '), wu + '; ' + c.reasons.map(r => RSN[r][1]).join('; ') + '.');
+      return it('ok', 'circle-check', dn + ' confidence: normal', wu + ' and the steady window covered ' + c.win + '.');
     };
     const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', Q ? 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.' : 'Browsers can’t see packet loss over TCP, so BitGauge doesn’t report it.');
     const N_RESP = Q ? [it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.')] : [];
@@ -7409,18 +7803,19 @@ class ResultDetail extends React.Component {
     // Same notice and sentences as the Test screen.
     const N_FB = caps.loaded && src !== 'WebSocket' ? [it('info', 'info', 'WebSocket unavailable — HTTP latency fallback', wsClose ? 'The WebSocket closed after idle latency, so latency under load is measured with HTTP requests; the change vs idle compares the two paths.' : 'The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.')] : [];
     const N_RSV = rsvOn ? [it('info', 'layers', 'HTTP/1.1 probe reservation active — 5 streams', STR.down === 5 ? 'One HTTP/1.1 connection is kept free for the latency probe, so throughput uses at most 5 streams.' : 'From the upload on, one HTTP/1.1 connection is kept free for the latency probe, so the upload uses at most 5 streams.')] : [];
+    // One confidence line per direction, then every notice (screens.md §7); one column, so the card's height follows its lines.
     const confGroups = cont ? [{
       h: 'Confidence',
-      items: [it('ok', 'circle-check', 'Download reached the ' + STR.down + '-stream cap', 'Warm-up ended by the guarded rule at 6.5 s and the window condition held. Level: normal.')]
+      items: [confLine('down')]
     }, {
       h: 'Notices',
       items: [it('neutral', 'database', 'Data used: ' + cUsed, 'Data-used notices appeared at 1 GB, 10 GB and 100 GB.'), it('neutral', 'circle-dashed', 'Upload not measured', 'Continuous runs one direction.'), N_LOSS].concat(N_FB, N_RSV, N_RESP, N_OH)
     }] : [{
       h: 'Confidence',
-      items: [it('ok', 'circle-check', STR.down === STR.up ? 'Both directions reached the ' + STR.down + '-stream cap' : 'Download reached the ' + STR.down + '-stream cap, upload the ' + STR.up + '-stream cap', 'Warm-up ended by the guarded rule — download at 6.5 s, upload at 9.5 s (each upload ramp step waits for confirmation) — and the window condition held. Level: normal.'), it('info', 'info', '94 % of upload time known — 0.4 s unknown after a failed request', 'One HTTP/2 upload request failed and the upload carried on. 10.4–10.8 s is left out; the average uses known time only.')].concat(N_BUL)
+      items: [confLine('down'), stop ? it('warn', 'triangle-alert', 'Upload: insufficient data', 'Stopped at ' + USTOP.toFixed(1) + ' s, still in warm-up, before a 3 s confirmed steady window: no value and no loaded latency.') : confLine('up')]
     }, {
       h: 'Notices',
-      items: [N_LOSS].concat(N_FB, N_RSV, N_RESP, N_OH)
+      items: (stop ? [it('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed.' + (npp ? ' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.' : '') + ' Upload stopped at ' + USTOP.toFixed(1) + ' s, so the grade and quality scores use download only.')] : []).concat(N_BUL, [N_LOSS], N_FB, N_RSV, N_RESP, N_OH)
     }];
     const OHV = OH ? '+' + OHP + ' %' : 'None · 0 %';
     const P = (h, rows) => ({
@@ -7431,7 +7826,7 @@ class ResultDetail extends React.Component {
       }))
     });
     const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', BRW.name + ' ' + BRW.major + ' · ' + BRW.os], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
-    const params = cont ? [P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · ' + STR.down + ' · ' + pl(STR.down)]]), P('Limits', [['Run length', '2 h'], ['Stored cells', '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]), env] : [P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', STR.down === STR.up ? 'Auto · ' + STR.down + ' · ' + pl(STR.down) : 'Auto · download ' + STR.down + ' · ' + pl(STR.down) + '; upload ' + STR.up + ' · ' + pl(STR.up)]]), P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', '16.0 s · min 15 · max 25'], ['Data cap', 'Off · ' + sUsed.toFixed(2) + ' GB used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]), env];
+    const params = cont ? [P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · ' + STR.down + ' · ' + pl(STR.down)]]), P('Limits', [['Run length', '2 h'], ['Stored cells', '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]), env] : [P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', STR.down === STR.up ? 'Auto · ' + STR.down + ' · ' + pl(STR.down) : 'Auto · download ' + STR.down + ' · ' + pl(STR.down) + '; upload ' + STR.up + ' · ' + pl(STR.up)]]), P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', stop ? USTOP.toFixed(1) + ' s · stopped by you · min 15 · max 25' : '16.0 s · min 15 · max 25'], ['Data cap', 'Off · ' + sUsed.toFixed(2) + ' GB used']]), P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', stop ? 'Auto · ended at 6.5 s (download); upload stopped in warm-up' : 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]), env];
     // Share shows only where the browser can share files (the PNG goes to the system sheet).
     let canShare = false;
     try {
@@ -7464,6 +7859,8 @@ class ResultDetail extends React.Component {
       L,
       D,
       hu,
+      histOff,
+      unsavedWhy: UNS[st] || '',
       canEdit: !hu,
       found: !notFound,
       notFound,
@@ -7526,7 +7923,7 @@ class ResultDetail extends React.Component {
         n: rn(D.up),
         u: ru(D.up)
       }],
-      shareFoot: [BGF.ms(IDLE) + ' ms idle', jit(JIT) + ' ms jitter', worstStr].concat(OH ? [OH] : []).concat([grade + ' · ' + gradeWords, D.short]),
+      shareFoot: [BGF.ms(IDLE) + ' ms idle', jit(JIT) + ' ms jitter', worstStr].concat(['down', 'up'].filter(confQ).map(k => (k === 'down' ? 'download: ' : 'upload: ') + confQ(k)), OH ? [OH] : []).concat([grade + ' · ' + gradeWords, D.short]),
       shareAria: 'Share image: ' + summary.replace(/\n/g, ', '),
       preRef: this.preRef,
       preOutline: denied ? '2px solid var(--ring)' : 'none',
@@ -7686,8 +8083,8 @@ class ResultDetail extends React.Component {
           streams: o.streams,
           plateau: 'cap',
           confidence: {
-            level: 'normal',
-            reasons: []
+            level: o.conf.level,
+            reasons: o.conf.reasons
           },
           bytes: o.bytes,
           loadedLatency: llJ(o)
@@ -7714,8 +8111,8 @@ class ResultDetail extends React.Component {
           schemaVersion: 1,
           id: cont ? 'c41e9a07-5d2b-4f7e-9a31-6b0d2e8f4c15' : '0b6f2d18-9c4a-4e1b-8f37-2a5c6d9e0f41',
           startedAt: D.iso,
-          durationMs: cont ? Math.round((0.6 + 2.0 + CEND) * 1000) : 28600,
-          status: 'complete',
+          durationMs: cont ? Math.round((0.6 + 2.0 + CEND) * 1000) : stop ? Math.round((12.6 + USTOP) * 1000) : 28600,
+          status: stop ? 'partial' : 'complete',
           label: D.label,
           note: this.state.note ?? D.note,
           server: {
@@ -7764,6 +8161,7 @@ class ResultDetail extends React.Component {
               rttMs: r1(c.l)
             })),
             ll: LL.down,
+            conf: DC.down,
             streams: STR.down,
             inc: INC.down,
             agg: {
@@ -7782,6 +8180,7 @@ class ResultDetail extends React.Component {
             bytes: SUSED.down,
             lat: latSer(S.dLat),
             ll: LL.down,
+            conf: DC.down,
             gap: dnGap,
             streams: STR.down,
             inc: INC.down,
@@ -7793,6 +8192,18 @@ class ResultDetail extends React.Component {
           }),
           upload: cont ? {
             status: 'skipped'
+          } : stop ? {
+            status: 'insufficient-data',
+            streams: STR.up,
+            plateau: null,
+            bytes: SUSED.up,
+            loadedLatency: llJ({
+              gap: gapK
+            }),
+            events: [{
+              code: 'cancelled',
+              atMs: Math.round(USTOP * 1000)
+            }]
           } : Object.assign(dir({
             bps: D.up,
             peak: 455e6 * OHF,
@@ -7800,6 +8211,7 @@ class ResultDetail extends React.Component {
             bytes: SUSED.up,
             lat: latSer(S.uLat),
             ll: LL.up,
+            conf: DC.up,
             gap: gapK,
             streams: STR.up,
             inc: INC.up,
@@ -7826,7 +8238,11 @@ class ResultDetail extends React.Component {
           notices: (cont ? [1e9, 1e10, 1e11].map(v => ({
             code: 'data-used',
             bytes: v
-          })) : []).concat(BUL ? [{
+          })) : []).concat(['down', 'up'].filter(k => DC[k] && DC[k].level === 'low').map(k => ({
+            code: 'low-confidence',
+            direction: k === 'down' ? 'download' : 'upload',
+            reasons: DC[k].reasons
+          }))).concat(BUL ? [{
             code: 'browser-upload-limit',
             browser: BRW.name
           }] : []).concat(rsvOn ? [{
@@ -8034,7 +8450,7 @@ class ResultDetail extends React.Component {
           label: EV[type].t
         })),
         gapLabel: o.gapLabel || 'No known data',
-        summary: o.title + (o.meta ? ': ' + o.meta : '') + (o.wu != null ? '; warm-up excluded' : '') + (o.marks && o.marks.length ? '; events: ' + o.marks.map(q => EV[q[1]].t + ' at ' + (o.xLabel ? mmss(q[0]) : q[0] + ' s')).join(', ') : ''),
+        summary: [o.meta, o.wu != null ? 'warm-up excluded' : '', o.marks && o.marks.length ? 'events: ' + o.marks.map(q => EV[q[1]].t + ' at ' + (o.xLabel ? mmss(q[0]) : q[0] + ' s')).join(', ') : ''].filter(Boolean).join('; '),
         view: v,
         onViewChange: nv => this.setState(s => ({
           views: Object.assign({}, s.views || {}, {
@@ -8166,14 +8582,14 @@ class ResultDetail extends React.Component {
         UWU = 9.5,
         inGap = p => p[0] > 10.4 - 1e-6 && p[0] < 10.8 - 1e-6;
       const dPts = tidy(BG.thr(3, 612e6 * OHF, dEnd), DWU, dEnd),
-        dLat = tidy(BG.lat(5, 3.1, 18, dEnd, 0.25), DWU, dEnd);
+        dLat = tidy(BG.lat(5, 3.1, 18, dEnd, 0.25), DWU, npp ? WSL : dEnd);
       const uPts = tidy(BG.thr(7, 438e6 * OHF, uEnd), UWU, uEnd).map(p => inGap(p) ? [p[0], null] : p),
         uLat = tidy(BG.lat(9, 3.1, 42, uEnd, 0.25), UWU, uEnd);
       this._series = {
         down: dPts,
-        up: uPts,
+        up: stop ? [] : uPts,
         dLat,
-        uLat,
+        uLat: stop ? [] : uLat,
         ping
       };
       charts = [mk({
@@ -8187,12 +8603,12 @@ class ResultDetail extends React.Component {
         wu: DWU,
         wuText: '0–6.5 s',
         meta: ohs('10 s · ' + STR.down + ' streams'),
-        w: cw,
+        w: stop ? wide : cw,
         h: ch,
-        span: sp,
+        span: stop ? m ? 'auto' : 'span 2' : sp,
         cols: TCOLS,
         rows: winRows(dPts, dnGap ? [] : dLat, DWU, dEnd),
-        foot: tfoot('6.5')
+        foot: tfoot('6.5', npp ? ' Latency ends at ' + WSL + ' s, when the WebSocket closed.' : '')
       }), mk({
         key: 'up',
         title: 'Upload',
@@ -8212,6 +8628,8 @@ class ResultDetail extends React.Component {
         rows: winRows(uPts, gapK ? [] : uLat, UWU, uEnd),
         foot: tfoot('9.5', ' The window ends at the confirmed watermark (16.0 s): 6.1 of 6.5 s known.')
       }), idle];
+      // Stopped in upload warm-up: nothing of the upload is stored (cells start at warm-up end), so it has no chart.
+      if (stop) charts.splice(1, 1);
     }
     return Object.assign(base, {
       charts
@@ -8329,12 +8747,13 @@ class ResultDetail extends React.Component {
     }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "chevron-left",
       size: 14
-    }), "History"), /*#__PURE__*/React.createElement("span", null, "/"), /*#__PURE__*/React.createElement("span", {
+    }), "History"), /*#__PURE__*/React.createElement("span", null, "/"), /*#__PURE__*/React.createElement("time", {
+      dateTime: v.D?.iso,
       style: {
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-caption)"
       }
-    }, v.D?.crumb)), v.hu ? /*#__PURE__*/React.createElement(DS.Notice, {
+    }, v.D?.crumb)), v.histOff ? /*#__PURE__*/React.createElement(DS.Notice, {
       tone: "warn",
       icon: "database",
       title: "History unavailable",
@@ -8377,25 +8796,20 @@ class ResultDetail extends React.Component {
       style: {
         width: "28px"
       }
-    }) : null, v.hu ? /*#__PURE__*/React.createElement("span", {
-      className: "has-tip"
-    }, /*#__PURE__*/React.createElement(DS.Button, {
+    }) : null, v.hu ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
       variant: "ghost",
       size: "sm",
       iconOnly: true,
       icon: "pencil",
       "aria-label": "Edit label",
-      "aria-disabled": "true",
-      "aria-describedby": "tip-label",
+      disabled: true,
       style: {
-        width: "28px",
-        opacity: "0.45"
+        width: "28px"
       }
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "tip",
-      role: "tooltip",
-      id: "tip-label"
-    }, "History unavailable \xB7 labels can't be saved")) : null), /*#__PURE__*/React.createElement("div", {
+    }), /*#__PURE__*/React.createElement(DS.StatusPill, {
+      tone: "warn",
+      size: "sm"
+    }, "Not saved")) : null), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
@@ -8407,7 +8821,8 @@ class ResultDetail extends React.Component {
     }, /*#__PURE__*/React.createElement(DS.Chip, {
       size: "sm",
       icon: v.D?.ctxIcon
-    }, v.D?.ctx), /*#__PURE__*/React.createElement("span", {
+    }, v.D?.ctx), /*#__PURE__*/React.createElement("time", {
+      dateTime: v.D?.iso,
       style: {
         fontFamily: "var(--font-mono)",
         fontSize: "var(--text-caption)"
@@ -8421,7 +8836,16 @@ class ResultDetail extends React.Component {
       style: {
         color: "var(--fg-subtle)"
       }
-    }, "\xB7"), /*#__PURE__*/React.createElement("span", null, v.D?.server))), /*#__PURE__*/React.createElement("div", {
+    }, "\xB7"), /*#__PURE__*/React.createElement("span", null, v.D?.server)), v.hu ? /*#__PURE__*/React.createElement("p", {
+      id: "unsaved-why",
+      style: {
+        margin: "0",
+        fontSize: "var(--text-sm)",
+        color: "var(--fg-muted)",
+        lineHeight: "var(--lh-compact)",
+        textWrap: "pretty"
+      }
+    }, v.unsavedWhy) : null), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         flexWrap: "wrap",
@@ -8443,23 +8867,13 @@ class ResultDetail extends React.Component {
       "aria-label": "Delete result",
       title: "Delete result",
       onClick: v.del
-    }) : null, v.hu ? /*#__PURE__*/React.createElement("span", {
-      className: "has-tip tip-end"
-    }, /*#__PURE__*/React.createElement(DS.Button, {
+    }) : null, v.hu ? /*#__PURE__*/React.createElement(DS.Button, {
       variant: "danger",
       iconOnly: true,
       icon: "trash",
       "aria-label": "Delete result",
-      "aria-disabled": "true",
-      "aria-describedby": "tip-del",
-      style: {
-        opacity: "0.45"
-      }
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "tip",
-      role: "tooltip",
-      id: "tip-del"
-    }, "History unavailable \xB7 nothing saved to delete")) : null, /*#__PURE__*/React.createElement("span", {
+      disabled: true
+    }) : null, /*#__PURE__*/React.createElement("span", {
       id: "json-warn",
       style: {
         flexBasis: "100%",
@@ -8492,7 +8906,8 @@ class ResultDetail extends React.Component {
         gap: "var(--space-4)",
         minWidth: "0"
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("section", {
+      "aria-label": "Results",
       style: {
         display: "grid",
         gridTemplateColumns: v.L?.tileCols,
@@ -8565,8 +8980,9 @@ class ResultDetail extends React.Component {
         flexDirection: "column",
         minWidth: "0"
       }
-    }, /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement("h3", {
       style: {
+        margin: "0",
         padding: "var(--space-2-5) 0 var(--space-1)",
         fontFamily: "var(--font-cond)",
         fontWeight: "var(--weight-semibold)",
@@ -8739,37 +9155,24 @@ class ResultDetail extends React.Component {
         fontSize: "var(--text-micro)",
         color: "var(--fg-subtle)"
       }
-    }, "Saved automatically in this browser. Never included when you share.")) : null, v.hu ? /*#__PURE__*/React.createElement("div", {
-      className: "has-tip",
-      style: {
-        display: "flex",
-        flexDirection: "column"
-      }
-    }, /*#__PURE__*/React.createElement("textarea", {
+    }, "Saved automatically in this browser. Never included when you share.")) : null, v.hu ? /*#__PURE__*/React.createElement("textarea", {
       id: "note",
       rows: "3",
       readOnly: true,
-      "aria-disabled": "true",
-      "aria-describedby": "tip-note",
-      placeholder: "Add a note",
+      "aria-describedby": "unsaved-why",
+      placeholder: "No note",
       style: {
         resize: "none",
-        cursor: "not-allowed",
-        opacity: "0.45",
-        background: "var(--surface-1)",
-        border: "1px solid var(--border-default)",
+        background: "var(--surface-2)",
+        border: "1px solid var(--border-subtle)",
         borderRadius: "var(--radius-md)",
-        color: "var(--fg)",
+        color: "var(--fg-muted)",
         fontFamily: "var(--font-sans)",
         fontSize: "var(--text-sm)",
         lineHeight: "var(--lh-normal)",
         padding: "var(--space-2) var(--space-2-5)"
       }
-    }), /*#__PURE__*/React.createElement("span", {
-      className: "tip",
-      role: "tooltip",
-      id: "tip-note"
-    }, "History unavailable \xB7 notes can't be saved")) : null), /*#__PURE__*/React.createElement(DS.Card, {
+    }) : null), /*#__PURE__*/React.createElement(DS.Card, {
       as: "section",
       padded: false,
       icon: "image",
@@ -8886,8 +9289,15 @@ class ResultDetail extends React.Component {
       }
     }, v.summary)), /*#__PURE__*/React.createElement(DS.Card, {
       as: "section",
+      labelledBy: "params-h",
       padded: false
-    }, v.mobile ? /*#__PURE__*/React.createElement("button", {
+    }, v.mobile ? /*#__PURE__*/React.createElement("h2", {
+      id: "params-h",
+      style: {
+        margin: "0",
+        font: "inherit"
+      }
+    }, /*#__PURE__*/React.createElement("button", {
       type: "button",
       className: "disclosure",
       onClick: v.toggleParams,
@@ -8910,15 +9320,16 @@ class ResultDetail extends React.Component {
     }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: v.paramsChevron,
       size: 16
-    }))) : null, v.desktop ? /*#__PURE__*/React.createElement("div", {
+    })))) : null, v.desktop ? /*#__PURE__*/React.createElement("div", {
       className: "card-h"
     }, /*#__PURE__*/React.createElement("span", {
       className: "ico"
     }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "sliders",
       size: 15
-    })), /*#__PURE__*/React.createElement("span", {
-      className: "t"
+    })), /*#__PURE__*/React.createElement("h2", {
+      className: "t",
+      id: "params-h"
     }, "Test parameters")) : null, v.paramsShown ? /*#__PURE__*/React.createElement("div", {
       id: "params",
       style: {
@@ -8931,8 +9342,9 @@ class ResultDetail extends React.Component {
         display: "flex",
         flexDirection: "column"
       }
-    }, /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement("h3", {
       style: {
+        margin: "0",
         padding: "var(--space-3) 0 var(--space-1)",
         fontFamily: "var(--font-cond)",
         fontWeight: "var(--weight-semibold)",
@@ -10563,6 +10975,11 @@ class Settings extends React.Component {
       as: "section",
       labelledBy: "s-adv",
       padded: false
+    }, /*#__PURE__*/React.createElement("h2", {
+      style: {
+        margin: "0",
+        font: "inherit"
+      }
     }, /*#__PURE__*/React.createElement("button", {
       type: "button",
       className: "disclosure",
@@ -10584,7 +11001,7 @@ class Settings extends React.Component {
     }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: v.advIcon,
       size: 16
-    }))), v.advOpen ? /*#__PURE__*/React.createElement("div", {
+    })))), v.advOpen ? /*#__PURE__*/React.createElement("div", {
       id: "adv-body"
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -11078,7 +11495,15 @@ class TestScreen extends React.Component {
       clients: true,
       quality: true
     };
-    const st = this.props.state || 'idle',
+    // A complete result always has a steady window in each direction and no direction as short as the WebSocket's close
+    // sequence (measurement §11.1, §11.4): these two gaps are drawn on a run stopped in the upload (partial, not saved).
+    const st0 = this.props.state || 'idle',
+      LLSTOP = caps.loaded ? {
+        'no-steady-window': 3.1,
+        'no-probe-path': 0.8
+      }[this.props.llGap] : undefined;
+    const gapStop = LLSTOP != null && ['complete', 'cancelled', 'cancelled-late', 'slowdone', 'cancelled-slow-up'].includes(st0) ? this.props.llGap : null;
+    const st = gapStop ? ['slowdone', 'cancelled-slow-up'].includes(st0) ? 'cancelled-slow-up' : 'cancelled' : st0,
       bp = st === 'basepath',
       v01 = !caps.history,
       Q = !!caps.quality;
@@ -11200,8 +11625,9 @@ class TestScreen extends React.Component {
     }));
     const streams = slow ? '2' : st === 'insufficient' && !custom ? '1' : custom ? '4' : reserved ? '5' : '6',
       auto = slow || !custom;
-    // Fast LAN (§19.4): 1 → 2 → 4 → 6 streams keep gaining, so the ramp stops at the cap. The slow link stops gaining at 2.
-    const plateau = auto ? ' · plateau: ' + (slow ? 'no-gain' : streams === '5' ? 'HTTP/1.1 probe reservation' : 'cap') : '';
+    // Fast LAN (§19.4): 1 → 2 → 4 → 6 streams keep gaining, so the ramp stops at the cap. The slow link's download stops gaining at 2;
+    // its 210 kbit/s upload skips the trial to 4 streams (≈ 6.4 KiB/s each, under the 8 KiB/s floor) as floor-limited (§8.2).
+    const plateau = auto ? ' · plateau: ' + (slow ? st === 'slowdone' ? 'floor-limited' : 'no-gain' : streams === '5' ? 'HTTP/1.1 probe reservation' : 'cap') : '';
     // Closed-after-idle on HTTP/1.1: the WebSocket closes during download, which keeps 6 streams; the probe reservation
     // (5 streams) starts with upload. WebSocket never opened (no wsClose): 5 for both directions from the start.
     const wsH1 = wsClose && reserved && streams === '5';
@@ -11425,7 +11851,7 @@ class TestScreen extends React.Component {
     };
     const lrow = (k, v, o) => {
       o = o || {};
-      const label = (k === 'down' ? 'During download' : 'During upload') + ' · ' + src;
+      const label = (k === 'down' ? 'During download' : 'During upload') + (o.noSrc ? '' : ' · ' + src);
       if (v == null) return {
         icon: PI[k][1],
         ic: C[k],
@@ -11995,7 +12421,7 @@ class TestScreen extends React.Component {
             notices: (on(this.props.cpu) ? [N('warn', 'cpu', "Limited by this device's CPU", 'The browser ran at full CPU during download, so the link may be faster than measured. Close other tabs or test from a faster device.')] : []).concat(BUL(438e6)),
             btn: BTN.again,
             saved: {
-              time: '14:02:11',
+              iso: '2026-10-12T12:02:11.000Z',
               label: '',
               chips: ['LAN', 'Home Wi-Fi', 'Office']
             },
@@ -12078,7 +12504,7 @@ class TestScreen extends React.Component {
             }])],
             btn: BTN.again,
             saved: {
-              time: '14:02:11',
+              iso: '2026-10-12T12:02:11.000Z',
               label: '',
               chips: ['LAN', 'Home Wi-Fi', 'Office']
             },
@@ -12217,7 +12643,10 @@ class TestScreen extends React.Component {
             tileD: DONE_D,
             def: st === 'cancelled' ? 3.1 / UEND : 14 / UEND
           };
-          const p = pv(K.def),
+          const npp = gapStop === 'no-probe-path',
+            WSL = 9.7,
+            dLatC = npp ? K.dLat.filter(q => q[0] < WSL) : K.dLat;
+          const p = gapStop ? LLSTOP / K.span : pv(K.def),
             Tt = Math.max(0.2, K.span * p),
             wEnd = Math.floor((Tt - K.lag) * 10 + 1e-6) / 10;
           const win = Math.max(0, Math.round((wEnd - K.wu) * 10) / 10),
@@ -12228,9 +12657,11 @@ class TestScreen extends React.Component {
             rcv = upto(snd, wEnd),
             uv = part ? avgOf(snd, K.wu, wEnd) : null,
             uUsed = used(snd),
-            lp = K.uLat(Tt),
+            lp = npp ? [] : K.uLat(Tt),
             stopAt = (10 + Tt).toFixed(1),
             Ts = Tt.toFixed(1);
+          // no-probe-path: the WebSocket closed 9.7 s into the download and its reopening was never answered, so the download's
+          // loaded latency comes from the samples before the close and no probe runs in the upload.
           const PT = {
               state: 'partial',
               tag: 'Partial — stopped early'
@@ -12261,7 +12692,7 @@ class TestScreen extends React.Component {
             chart: {
               xMax: 10 + K.span,
               series: [ser(K.dPts, C.down), ser(shift(snd, 10), C.up, true), ser(shift(rcv, 10), C.up)],
-              lat: K.dLat.concat(shift(lp, 10)),
+              lat: dLatC.concat(shift(lp, 10)),
               seps: [{
                 t: 0,
                 label: 'Download'
@@ -12301,13 +12732,16 @@ class TestScreen extends React.Component {
             load: part ? load(gradeOf(Math.max(K.dLL, uLLc[0]) - IDLE.v), [K.rowD, lrow('up', uLLc[0], {
               p90: uLLc[1],
               partial: true
-            })], respB(K.rpm[0], K.rpm[1])) : load(gD, [K.rowD, lrow('up', null, {
+            })], respB(K.rpm[0], K.rpm[1])) : load(gD, [K.rowD, lrow('up', null, npp ? {
+              sub: 'no latency probe',
+              noSrc: true
+            } : {
               sub: 'no steady window' + (inWarm ? ' · stopped in warm-up' : '')
             })], respB(K.rpm[0], K.rpm[2]), BG.GRADES[gD].text + ' · download only'),
             fit: fit(aim(IDLE.v, IDLE.jit, K.dV, (part ? Math.max(K.dLL, uLLc[0]) : K.dLL) - IDLE.v)),
             fitBasis: part ? '' : 'download only',
             meta: meta(BG.bytes(used(K.dPts) + uUsed), '', (PRE + 10 + Tt).toFixed(1) + ' s', ''),
-            notices: [].concat([part ? N('neutral', 'circle-minus', 'Partial — stopped early · upload based on a ' + win.toFixed(1) + ' s steady window', 'Latency and download completed. Upload stopped at ' + Ts + ' s; in-flight requests were aborted, and the ' + nReq + ' requests confirmed by ' + wEnd.toFixed(1) + ' s give the partial value.') : N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed. Upload stopped at ' + Ts + ' s, before a 3 s confirmed steady window' + (inWarm ? ' (still in warm-up)' : '') + ', so it has no value and no loaded latency. The grade and quality scores use download only.')]),
+            notices: [].concat([part ? N('neutral', 'circle-minus', 'Partial — stopped early · upload based on a ' + win.toFixed(1) + ' s steady window', 'Latency and download completed. Upload stopped at ' + Ts + ' s; in-flight requests were aborted, and the ' + nReq + ' requests confirmed by ' + wEnd.toFixed(1) + ' s give the partial value.') : N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed.' + (npp ? ' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.' : '') + ' Upload stopped at ' + Ts + ' s, before a 3 s confirmed steady window' + (inWarm ? ' (still in warm-up)' : '') + ', so it has no value and no loaded latency. The grade and quality scores use download only.')]),
             btn: BTN.again,
             partial: {
               kind: 'partial',
@@ -12684,7 +13118,7 @@ class TestScreen extends React.Component {
               sub: 'peak ' + rn(702e3) + ' · 2 streams · plateau: no-gain'
             }), rt('Upload', 'arrow-up', C.up, 210e3, {
               state: 'low-confidence',
-              sub: 'peak ' + rn(224e3) + ' · 2 streams · plateau: no-gain',
+              sub: 'peak ' + rn(224e3) + ' · 2 streams · plateau: floor-limited',
               notes: OH.concat(['low confidence · few samples'])
             }), latT(), jitT()],
             load: load('D', [lrow('down', 162, {
@@ -12697,7 +13131,7 @@ class TestScreen extends React.Component {
             notices: [N('warn', 'triangle-alert', 'Low confidence', 'Upload: few samples.')],
             btn: BTN.again,
             saved: {
-              time: '08:41:57',
+              iso: '2026-10-12T06:41:57.000Z',
               label: 'VPN via 5G',
               chips: ['VPN', 'Mobile']
             },
@@ -13085,7 +13519,7 @@ class TestScreen extends React.Component {
             notices: [],
             btn: BTN.again,
             saved: {
-              time: '15:26:40',
+              iso: '2026-10-12T13:26:40.000Z',
               label: '',
               chips: ['LAN', 'Home Wi-Fi', 'Office']
             },
@@ -13155,7 +13589,8 @@ class TestScreen extends React.Component {
       'reservation-broken': 'HTTP/1.1 reservation not held',
       'no-probe-path': 'no latency probe'
     };
-    const GAP = LLR[this.props.llGap];
+    // no-steady-window and no-probe-path never reach a complete run; they are drawn on the stopped run above.
+    const GAP = LLSTOP != null ? null : LLR[this.props.llGap];
     if (caps.loaded && GAP && S.load && S.load.grade !== '—' && S.load.rows[1] && S.load.rows[1].v != null) {
       // Demo: the upload direction ends without a loaded-latency value; the grade rests on download alone.
       const r0 = S.load.rows[0],
@@ -13270,11 +13705,13 @@ class TestScreen extends React.Component {
     });
     const DET = A('Details', null, 'btn secondary sm', null, 'chevron-right');
     let bar = null;
+    // Save-bar time from the result's instant, in the active locale (i18n-a11y.md §1.3).
+    const barT = iso => BG.timeEl(iso, 'time');
     if (S.saved) bar = v01 ? {
       icon: 'circle-check',
       ic: 'var(--ok)',
       title: 'Test complete',
-      time: S.saved.time,
+      time: barT(S.saved.iso),
       sub: 'Not stored in this browser. Download the JSON to keep it.',
       labelled: false,
       actions: [Object.assign({}, JSONA, {
@@ -13284,7 +13721,7 @@ class TestScreen extends React.Component {
       icon: 'circle-check',
       ic: 'var(--ok)',
       title: 'Saved to history',
-      time: S.saved.time,
+      time: barT(S.saved.iso),
       sub: null,
       labelled: true,
       chips: S.saved.chips,
@@ -13299,7 +13736,7 @@ class TestScreen extends React.Component {
           icon: 'circle-check',
           ic: 'var(--ok)',
           title: 'Saved as ' + S.partial.kind,
-          time: '14:06:52',
+          time: barT('2026-10-12T12:06:52.000Z'),
           sub: null,
           labelled: false,
           actions: [JSONA, DET]
@@ -13330,7 +13767,7 @@ class TestScreen extends React.Component {
     }
     const SH = S.share,
       inc = !!label && !!this.state.inc,
-      dateT = '2026-10-12 ' + (S.saved ? S.saved.time.slice(0, 5) : '');
+      dateT = S.saved ? BG.date(S.saved.iso, 'dateTime') : '';
     const share = SH ? {
       blocks: SH.blocks.map(([k, v, c]) => ({
         label: k,
@@ -13340,9 +13777,21 @@ class TestScreen extends React.Component {
       })),
       foot: SH.foot,
       head: inc ? label : '',
-      where: SRV + ' · 12 Oct 2026 ' + (S.saved ? S.saved.time.slice(0, 5) : ''),
+      where: SRV + (dateT ? ' · ' + dateT : ''),
       text: ['BitGauge · ' + (inc ? label + ' · ' : '') + dateT].concat(SH.lines).join('\n')
     } : null;
+    if (share) share.label = 'Share image: ' + share.text.split('\n').join(', ');
+    // Share via… only where the browser can share the PNG file (flows.md §8).
+    let canShare = false;
+    if (shareOpen) try {
+      canShare = !!(navigator.canShare && navigator.canShare({
+        files: [new File([new Blob([''], {
+          type: 'image/png'
+        })], 'x.png', {
+          type: 'image/png'
+        })]
+      }));
+    } catch (e) {}
     const R = Object.assign({
       numeric: false,
       textual: false,
@@ -13420,7 +13869,7 @@ class TestScreen extends React.Component {
         xStep: cc.xStep,
         xLabel: cc.xLabel
       },
-      summary: cc.title + (cc.empty ? ': no data yet' : ': ' + [R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : R.title, cc.meta].filter(Boolean).join(', ')) + (bandsOn ? '; warm-up shaded' : '') + ((cc.marks || []).length ? '; marked: ' + cc.marks.map(x => x.label).join(', ') : '')
+      summary: cc.title + (cc.empty ? ': no data yet' : ': ' + [R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : R.title, cc.meta].filter(Boolean).join(', ')) + (bandsOn ? '; warm-up shaded' : '') + (cc.lat && cc.lat.length ? '; latency under load on a second scale' : '') + ((cc.marks || []).length ? '; marked: ' + cc.marks.map(x => x.label).join(', ') : '')
     };
     // MetricTile props (tiles.md).
     const tile = x => ({
@@ -13581,6 +14030,7 @@ class TestScreen extends React.Component {
       bar,
       shareOpen,
       share,
+      canShare,
       label,
       incLabel: inc,
       incDis: !label,
@@ -13894,6 +14344,8 @@ class TestScreen extends React.Component {
       align: v.mobile ? 'top' : 'center',
       footerStack: v.mobile,
       body: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Card, {
+        as: "section",
+        headingLevel: 3,
         title: "Share image",
         icon: "image",
         actions: /*#__PURE__*/React.createElement("span", {
@@ -13906,6 +14358,7 @@ class TestScreen extends React.Component {
           gap: "var(--space-3)"
         }
       }, /*#__PURE__*/React.createElement(DS.SharePreview, {
+        label: v.share.label,
         grade: v.load ? v.load.grade : null,
         head: v.share.head,
         blocks: v.share.blocks,
@@ -13931,16 +14384,18 @@ class TestScreen extends React.Component {
       }), "Include label ", /*#__PURE__*/React.createElement("span", {
         className: "ds-mono-sm"
       }, v.incNote)))), /*#__PURE__*/React.createElement(DS.Card, {
+        as: "section",
+        headingLevel: 3,
         title: "Text summary",
         icon: "file-text"
       }, /*#__PURE__*/React.createElement(DS.Snippet, {
         lines: v.share.text.split('\n')
       }))),
-      footer: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(DS.Button, {
+      footer: /*#__PURE__*/React.createElement(React.Fragment, null, v.canShare ? /*#__PURE__*/React.createElement(DS.Button, {
         variant: "ghost",
         icon: "share",
         title: "Opens the system share sheet. Shown only when the browser supports it."
-      }, "Share via\u2026"), /*#__PURE__*/React.createElement(DS.Button, {
+      }, "Share via\u2026") : null, /*#__PURE__*/React.createElement(DS.Button, {
         icon: "copy"
       }, "Copy summary"), /*#__PURE__*/React.createElement(DS.Button, {
         variant: "primary",
@@ -13965,8 +14420,8 @@ try { (() => {
   if (!me || !me.hasAttribute('data-kit')) return;
   const NS = 'BitGaugeDesignSystem_1ab699';
   const ROOT = me.getAttribute('data-root') || '../../';
-  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'NotMeasured', 'NotMeasuredWhy', 'NOT_MEASURED_REASON', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart'];
-  const FILES = ['brand/Icon', 'brand/Logo', 'status/StatusPill', 'status/StatusBadge', 'status/Chip', 'actions/Link', 'actions/Tooltip', 'actions/Button', 'actions/StartButton', 'actions/Menu', 'actions/Popover', 'forms/Input', 'forms/Select', 'forms/Segmented', 'forms/Switch', 'forms/Toggle', 'forms/Checkbox', 'layout/Card', 'layout/Tabs', 'layout/Table', 'layout/MetaList', 'layout/Snippet', 'feedback/Notice', 'feedback/Toast', 'feedback/EmptyState', 'feedback/Skeleton', 'feedback/LiveRegion', 'feedback/SaveBar', 'feedback/FullScreenError', 'dialog/Dialog', 'charts/Format', 'charts/Chart', 'charts/PhaseChart', 'gauge/Gauge', 'measurement/MetricTile', 'measurement/PhaseStep', 'measurement/LoadCard', 'measurement/NotMeasured', 'measurement/QualityList', 'measurement/SharePreview', 'navigation/AppHeader'];
+  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'NotMeasured', 'NotMeasuredWhy', 'NOT_MEASURED_REASON', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart', 'Modal'];
+  const FILES = ['brand/Icon', 'brand/Logo', 'status/StatusPill', 'status/StatusBadge', 'status/Chip', 'actions/Link', 'actions/Tooltip', 'actions/Button', 'actions/StartButton', 'dialog/Modal', 'actions/Menu', 'actions/Popover', 'forms/Input', 'forms/Select', 'forms/Segmented', 'forms/Switch', 'forms/Toggle', 'forms/Checkbox', 'layout/Card', 'layout/Tabs', 'layout/Table', 'layout/MetaList', 'layout/Snippet', 'feedback/Notice', 'feedback/Toast', 'feedback/EmptyState', 'feedback/Skeleton', 'feedback/LiveRegion', 'feedback/SaveBar', 'feedback/FullScreenError', 'dialog/Dialog', 'charts/Format', 'charts/Chart', 'charts/PhaseChart', 'gauge/Gauge', 'measurement/MetricTile', 'measurement/PhaseStep', 'measurement/LoadCard', 'measurement/NotMeasured', 'measurement/QualityList', 'measurement/SharePreview', 'navigation/AppHeader'];
   window.DS_READY = (async () => {
     const ns = window[NS];
     if (ns && NEED.every(k => ns[k])) {
@@ -14234,8 +14689,86 @@ try { (() => {
   }
   // Data used (bytes) of a sampled rate series [[t s, bit/s]] at `step` s: the integral of the curve.
   const usedBytes = (pts, step = 0.1) => pts.reduce((a, q) => a + (q[1] || 0), 0) * step / 8;
+
+  // ---------- dates and times (features/ui/i18n-a11y.md §1.3) ----------
+  // Intl.DateTimeFormat in the active locale (<html lang>) and the browser's time zone. Values are ISO instants
+  // ("2026-10-08T12:02:11.000Z"), calendar dates ("YYYY-MM-DD", "YYYY-MM": read as local dates, so no zone shift)
+  // or Date objects. en: date "Oct 8, 2026" · dateTime "Oct 8, 2026, 2:02 PM" · dateTimeSec "Oct 8, 2026, 2:02:11 PM"
+  // · time "2:02:11 PM" · abs "Thursday, October 8, 2026 at 2:02:11 PM GMT+2" · day "Sep 26" · month "Oct 2026".
+  const DATE = {
+    date: {
+      dateStyle: 'medium'
+    },
+    dateTime: {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    },
+    dateTimeSec: {
+      dateStyle: 'medium',
+      timeStyle: 'medium'
+    },
+    time: {
+      timeStyle: 'medium'
+    },
+    abs: {
+      dateStyle: 'full',
+      timeStyle: 'long'
+    },
+    day: {
+      month: 'short',
+      day: 'numeric'
+    },
+    month: {
+      month: 'short',
+      year: 'numeric'
+    }
+  };
+  const loc = () => document.documentElement.lang || undefined;
+  const CAL = /^\d{4}-\d{2}(-\d{2})?$/;
+  const toDate = v => v instanceof Date ? v : CAL.test(v) ? (([y, m, d]) => new Date(y, m - 1, d || 1))(v.split('-').map(Number)) : new Date(v);
+  const pad2 = n => String(n).padStart(2, '0');
+  // Local calendar date of a Date as "YYYY-MM-DD" (for datetime attributes and <input type="date">).
+  const isoDay = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  const dtf = k => new Intl.DateTimeFormat(loc(), DATE[k] || k);
+  const date = (v, k) => dtf(k).format(toDate(v));
+  // <time datetime="ISO">formatted</time>
+  const timeEl = (v, k, props) => React.createElement('time', Object.assign({
+    dateTime: v
+  }, props), date(v, k));
+  // A range via formatRange; each end's own parts sit in a <time> carrying its value, shared parts stay plain.
+  const timeRange = (a, b, k) => {
+    const runs = [];
+    dtf(k).formatRangeToParts(toDate(a), toDate(b)).forEach(p => {
+      const l = runs[runs.length - 1];
+      if (l && l.s === p.source) l.t += p.value;else runs.push({
+        s: p.source,
+        t: p.value
+      });
+    });
+    return React.createElement(React.Fragment, null, ...runs.map((r, i) => r.s === 'shared' ? r.t : React.createElement('time', {
+      key: i,
+      dateTime: r.s === 'startRange' ? a : b
+    }, r.t)));
+  };
+  // A list of dates joined by the locale (Intl.ListFormat: "Sep 26 and Oct 2"), each in its own <time>.
+  const timeList = (vals, k) => {
+    let i = 0;
+    const parts = new Intl.ListFormat(loc(), {
+      type: 'conjunction'
+    }).formatToParts(vals.map(v => date(v, k)));
+    return React.createElement(React.Fragment, null, ...parts.map((p, j) => p.type === 'element' ? React.createElement('time', {
+      key: j,
+      dateTime: vals[i++]
+    }, p.value) : p.value));
+  };
   window.BG = {
     KIT,
+    date,
+    timeEl,
+    timeRange,
+    timeList,
+    toDate,
+    isoDay,
     rate,
     rateStr,
     ms,
@@ -14289,6 +14822,8 @@ __ds_ns.Format = __ds_scope.Format;
 __ds_ns.PhaseChart = __ds_scope.PhaseChart;
 
 __ds_ns.Dialog = __ds_scope.Dialog;
+
+__ds_ns.Modal = __ds_scope.Modal;
 
 __ds_ns.EmptyState = __ds_scope.EmptyState;
 

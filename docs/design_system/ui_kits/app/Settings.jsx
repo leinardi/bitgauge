@@ -462,12 +462,12 @@ class Settings extends React.Component {
               </div>
             </DS.Card>
             <DS.Card as="section" labelledBy="s-adv" padded={false}>
-              <button type="button" className="disclosure" aria-expanded={v.advAria} aria-controls="adv-body" onClick={v.toggleAdv}>
+              <h2 style={{ margin: "0", font: "inherit" }}><button type="button" className="disclosure" aria-expanded={v.advAria} aria-controls="adv-body" onClick={v.toggleAdv}>
                 <span className="ic"><DS.Icon name="sliders" size={15} /></span>
                 <span className="t" id="s-adv">Advanced</span>
                 <span className="sum">{v.advSummary}</span>
                 <span className="chev"><DS.Icon name={v.advIcon} size={16} /></span>
-              </button>
+              </button></h2>
               {v.advOpen ? (
                 <div id="adv-body">
                 <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderTop: "1px solid var(--border-subtle)" }}>

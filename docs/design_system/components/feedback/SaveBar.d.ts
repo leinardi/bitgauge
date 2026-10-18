@@ -10,8 +10,8 @@ export interface SaveBarProps {
   /** @default "saved" */
   status?: 'saved' | 'unsaved' | 'kept' | 'complete';
   title: React.ReactNode;
-  /** Mono time of the result, e.g. "14:02:11". */
-  time?: string;
+  /** Mono time of the result, formatted in the active locale and wrapped in <time datetime>, e.g. <time dateTime="2026-10-12T12:02:11Z">2:02:11 PM</time>. */
+  time?: React.ReactNode;
   /** One line of explanation, e.g. "Download the JSON to keep it." */
   message?: React.ReactNode;
   /** Inline label field (saved only). */

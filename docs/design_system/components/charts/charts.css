@@ -31,7 +31,7 @@
 /* PhaseChart */
 .pchart { padding: var(--space-3-5) var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2-5); min-width: 0; }
 .pchart-h { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1-5) var(--space-3-5); }
-.pchart-h .t { display: flex; align-items: center; gap: var(--space-1-5); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.pchart-h .t { margin: 0; display: flex; align-items: center; gap: var(--space-1-5); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .pchart-h .ic { display: inline-flex; }
 .pchart-h .meta { font-family: var(--font-mono); font-size: var(--text-caption); color: var(--fg-subtle); }
 .pchart-h .lg { margin-left: auto; display: flex; align-items: center; gap: var(--space-1-5); font-size: var(--text-caption); color: var(--fg-muted); }

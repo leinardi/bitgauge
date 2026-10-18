@@ -2,11 +2,13 @@
  * PhaseChart — Result-detail per-phase chart card (charts.md): stored series with null gaps (never interpolated),
  * warm-up as a hatched, excluded interval (--chart-hatch), event chips (cancelled, cap, extended, lost), latency
  * under load dashed on its own axis, and the "Chart / Table" toggle — the table (children) is the text alternative.
- * The plot's aria-label is the data summary (`summary`, required).
+ * The plot's aria-label is "<title> chart: <summary>" (`summary`, required: the data, without the title).
  */
 export interface PhaseChartMark { t: number; label: string; icon: string; /** line colour */ c: string; /** chip border */ bd?: string; /** chip text */ fg?: string; }
 export interface PhaseChartProps {
   title: string; icon: string; color: string; meta?: string;
+  /** Title heading level; the chart is a region named by it. @default 2 */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
   summary: string;
   /** [t s, value | null]; nulls are gaps. */
   pts: Array<[number, number | null]>;

@@ -51,6 +51,8 @@ Axes come from the filter and the data, never fixed ranges.
 - **X (time):** the date filter's window. "All time" spans first result → today. Minimum span
   7 days, always ending today (no future dates; the right edge is stable as results arrive).
   Three to five ticks; the step (day, week, month) follows the span. The last tick reads "Today".
+  Tick labels use the active locale: month short + day for days ("Sep 26"), month short + year for
+  months ("Oct 2026"). Each point sits at its result's instant, so it always falls on its row's date.
 - **Y, download and upload (log):** whole decades around the data — bottom = decade at or below
   the lowest value, top = decade at or above the highest — with at least 2 decades. One result at
   241 Mbit/s → 10M – 1G.

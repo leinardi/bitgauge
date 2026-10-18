@@ -19,7 +19,7 @@
 .modal .mi { width: var(--modal-icon); height: var(--modal-icon); flex: none; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; }
 .modal .mi.danger { background: var(--danger-bg); border: var(--border-width) solid var(--danger-border); color: var(--danger-fg); }
 .modal .mi.primary { background: var(--primary-bg); border: var(--border-width) solid var(--primary-border); color: var(--primary); }
-.modal .mt { font-size: var(--text-lg); font-weight: var(--weight-semibold); line-height: var(--lh-snug); text-wrap: pretty; }
+.modal .mt { margin: 0; font-size: var(--text-lg); font-weight: var(--weight-semibold); line-height: var(--lh-snug); text-wrap: pretty; }
 .modal .md { font-size: var(--text-sm); color: var(--fg-muted); line-height: var(--lh-prose); margin-top: var(--space-1); text-wrap: pretty; }
 .modal .md b { color: var(--fg); font-family: var(--font-mono); font-weight: var(--weight-medium); }
 .modal .mbody { padding: 0 var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); }

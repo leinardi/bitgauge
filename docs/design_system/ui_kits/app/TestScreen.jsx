@@ -57,7 +57,11 @@ class TestScreen extends React.Component {
     const on = v => !!v && v !== 'false';
     const m = on(this.props.mobile);
     const caps = this.props.caps || { history: true, settings: true, share: true, loaded: true, clients: true, quality: true };
-    const st = this.props.state || 'idle', bp = st === 'basepath', v01 = !caps.history, Q = !!caps.quality;
+    // A complete result always has a steady window in each direction and no direction as short as the WebSocket's close
+    // sequence (measurement §11.1, §11.4): these two gaps are drawn on a run stopped in the upload (partial, not saved).
+    const st0 = this.props.state || 'idle', LLSTOP = caps.loaded ? { 'no-steady-window': 3.1, 'no-probe-path': 0.8 }[this.props.llGap] : undefined;
+    const gapStop = LLSTOP != null && ['complete', 'cancelled', 'cancelled-late', 'slowdone', 'cancelled-slow-up'].includes(st0) ? this.props.llGap : null;
+    const st = gapStop ? (['slowdone', 'cancelled-slow-up'].includes(st0) ? 'cancelled-slow-up' : 'cancelled') : st0, bp = st === 'basepath', v01 = !caps.history, Q = !!caps.quality;
     // Server name from GET /info; while it is unknown the page's host stands in. Never a hard-coded name.
     const SRV = this.props.server || BG.KIT.host;
     const eeDown = st === 'error-early' && !!this.state.eeDown, unreach = st === 'offline' || eeDown;
@@ -102,8 +106,9 @@ class TestScreen extends React.Component {
     let ctx = { label: sel === 'Custom…' ? (this.state.ctxCustom || 'Custom') : sel, icon: CO.find(o => o[0] === sel)[1], suggested: !this.state.ctxSel };
     const ctxOpts = CO.map(([label, icon]) => ({ label, icon, on: label === sel, checked: label === sel ? 'true' : 'false', bg: label === sel ? 'var(--primary-bg)' : 'transparent', pick: () => this.setState({ ctxSel: label, ctxOpen: label === 'Custom…' }) }));
     const streams = slow ? '2' : st === 'insufficient' && !custom ? '1' : custom ? '4' : reserved ? '5' : '6', auto = slow || !custom;
-    // Fast LAN (§19.4): 1 → 2 → 4 → 6 streams keep gaining, so the ramp stops at the cap. The slow link stops gaining at 2.
-    const plateau = auto ? ' · plateau: ' + (slow ? 'no-gain' : streams === '5' ? 'HTTP/1.1 probe reservation' : 'cap') : '';
+    // Fast LAN (§19.4): 1 → 2 → 4 → 6 streams keep gaining, so the ramp stops at the cap. The slow link's download stops gaining at 2;
+    // its 210 kbit/s upload skips the trial to 4 streams (≈ 6.4 KiB/s each, under the 8 KiB/s floor) as floor-limited (§8.2).
+    const plateau = auto ? ' · plateau: ' + (slow ? (st === 'slowdone' ? 'floor-limited' : 'no-gain') : streams === '5' ? 'HTTP/1.1 probe reservation' : 'cap') : '';
     // Closed-after-idle on HTTP/1.1: the WebSocket closes during download, which keeps 6 streams; the probe reservation
     // (5 streams) starts with upload. WebSocket never opened (no wsClose): 5 for both directions from the start.
     const wsH1 = wsClose && reserved && streams === '5';
@@ -161,7 +166,7 @@ class TestScreen extends React.Component {
     };
     const lrow = (k, v, o) => {
       o = o || {};
-      const label = (k === 'down' ? 'During download' : 'During upload') + ' · ' + src;
+      const label = (k === 'down' ? 'During download' : 'During upload') + (o.noSrc ? '' : ' · ' + src);
       if (v == null) return { icon: PI[k][1], ic: C[k], label, sub: o.sub || 'Pending', num: '—', unit: '', nc: 'var(--fg-subtle)', v: null };
       // Idle over the WebSocket, loaded over the HTTP fallback: the change names the idle path.
       const sub = (o.p90 != null ? 'p90 ' + fms(o.p90) + ' · ' : '') + '+' + fms(v - IDLE.v) + ' ms vs idle' + (idleSrc !== src ? ' over ' + idleSrc : '') + (o.partial ? ' · partial' : '');
@@ -317,7 +322,7 @@ class TestScreen extends React.Component {
         prim: [DONE_D, DONE_U, latT(), jitT()],
         load: load('B', [ROW_D, lrow('up', 42, { p90: 55 })], respB(1420, 980)), fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 42 - IDLE.v)), meta: meta(BG.bytes(USED_D + used(UPC)), '', (PRE + 10 + UEND).toFixed(1) + ' s', ''),
         notices: (on(this.props.cpu) ? [N('warn', 'cpu', "Limited by this device's CPU", 'The browser ran at full CPU during download, so the link may be faster than measured. Close other tabs or test from a faster device.')] : []).concat(BUL(438e6)),
-        btn: BTN.again, saved: { time: '14:02:11', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] }, dl: 612e6,
+        btn: BTN.again, saved: { iso: '2026-10-12T12:02:11.000Z', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] }, dl: 612e6,
         share: { blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 438e6, C.up]], foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+39 ms under load', 'B · Mild bufferbloat'], lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +39 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV] },
         ph: 'Upload result: ' + sayR(438e6), sum: { st: 'done', down: 'Download ' + sayR(612e6), up: 'Upload ' + sayR(438e6) }
       }; } break;
@@ -331,7 +336,7 @@ class TestScreen extends React.Component {
         prim: [DONE_D, rt('Upload', 'arrow-up', C.up, 402e6, { sub: 'window up to the failed request at ' + UF + ' s' }), latT(), jitT()],
         load: load('B', [ROW_D, lrow('up', 40, { p90: 52 })], respB(1420, 960)), fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 40 - IDLE.v)), meta: meta(BG.bytes(USED_D + used(UPF)), '', (PRE + 10 + UF).toFixed(1) + ' s', ''),
         notices: [N('danger', 'circle-x', 'Upload interrupted by a failed request', 'Over HTTP/1.1 one failed request ends the upload, so its number covers the window up to the failure. HTTP/2 at the proxy lets uploads survive transient failures.', [{ label: 'Deployment guide', href: '#' }])],
-        btn: BTN.again, saved: { time: '14:02:11', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] }, dl: 612e6,
+        btn: BTN.again, saved: { iso: '2026-10-12T12:02:11.000Z', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] }, dl: 612e6,
         share: { blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 402e6, C.up]], foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+37 ms under load', 'B · Mild bufferbloat'], lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(402e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +37 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV] },
         ph: 'Upload result: ' + sayR(402e6), sum: { st: 'done', down: 'Download ' + sayR(612e6), up: 'Upload ' + sayR(402e6) }
       }; } break;
@@ -362,9 +367,12 @@ class TestScreen extends React.Component {
             dPts: SD, dLat: SDL, dBand: { t0: 0, t1: SDWU }, dV: 640e3, dLL: 162, rowD: lrow('down', 162, { p90: 205 }), tileD: rt('Download', 'arrow-down', C.down, 640e3, { sub: 'peak ' + rn(702e3) + ' · 2 streams · plateau: no-gain' }), def: 8 / SUEND }
           : { span: UEND, lag: STOP_LAG, wu: UWU, ns: 6, up: 402e6, snd: t => BG.thr(7, 431e6, t), uLat: t => BG.lat(9, 3.1, 40, t), uLL: [37, 46], rpm: [1420, 610, 'few'],
             dPts: DOWN, dLat: DLAT, dBand: DBAND, dV: 612e6, dLL: 18, rowD: ROW_D, tileD: DONE_D, def: st === 'cancelled' ? 3.1 / UEND : 14 / UEND };
-        const p = pv(K.def), Tt = Math.max(0.2, K.span * p), wEnd = Math.floor((Tt - K.lag) * 10 + 1e-6) / 10;
+        const npp = gapStop === 'no-probe-path', WSL = 9.7, dLatC = npp ? K.dLat.filter(q => q[0] < WSL) : K.dLat;
+        const p = gapStop ? LLSTOP / K.span : pv(K.def), Tt = Math.max(0.2, K.span * p), wEnd = Math.floor((Tt - K.lag) * 10 + 1e-6) / 10;
         const win = Math.max(0, Math.round((wEnd - K.wu) * 10) / 10), nReq = Math.max(0, Math.round(K.ns * win) - 1), part = win >= 3 && nReq >= 3, inWarm = wEnd <= K.wu;
-        const snd = K.snd(Tt), rcv = upto(snd, wEnd), uv = part ? avgOf(snd, K.wu, wEnd) : null, uUsed = used(snd), lp = K.uLat(Tt), stopAt = (10 + Tt).toFixed(1), Ts = Tt.toFixed(1);
+        const snd = K.snd(Tt), rcv = upto(snd, wEnd), uv = part ? avgOf(snd, K.wu, wEnd) : null, uUsed = used(snd), lp = npp ? [] : K.uLat(Tt), stopAt = (10 + Tt).toFixed(1), Ts = Tt.toFixed(1);
+        // no-probe-path: the WebSocket closed 9.7 s into the download and its reopening was never answered, so the download's
+        // loaded latency comes from the samples before the close and no probe runs in the upload.
         const PT = { state: 'partial', tag: 'Partial — stopped early' }, gD = gradeOf(K.dLL - IDLE.v);
         // Partial loaded latency: median and p90 of the same probe curve over the confirmed window.
         const lw = lp.filter(q => q[0] >= K.wu - 1e-6 && q[0] < wEnd - 1e-6).map(q => q[1]).sort((x, y) => x - y);
@@ -373,15 +381,15 @@ class TestScreen extends React.Component {
           phases: [ph('lat', 'done', LATD), ph('down', 'done', rs(K.dV)), ph('up', 'cancelled', Ts + ' s', Math.min(100, Tt / K.span * 100))],
           gauge: { opts: Object.assign({ value: K.dV }, part ? { inner: uv } : {}), prev: K.dPts, c: C.down, noDot: true },
           R: { textual: true, title: 'Cancelled', sub: 'Partial results · not saved', icon: 'circle-minus', ec: 'var(--fg-subtle)' },
-          chart: { xMax: 10 + K.span, series: [ser(K.dPts, C.down), ser(shift(snd, 10), C.up, true), ser(shift(rcv, 10), C.up)], lat: K.dLat.concat(shift(lp, 10)), seps: [{ t: 0, label: 'Download' }, { t: 10, label: 'Upload' }], bands: [K.dBand, { t0: 10, t1: 10 + Math.max(0, Math.min(wEnd, K.wu)) }], wins: part ? [{ t0: 10 + K.wu, t1: 10 + wEnd, label: 'Steady ' + win.toFixed(1) + ' s' }] : [], marks: [{ t: 10 + Tt, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Throughput', legend: [LG.d, LG.ur, LG.us, LG.l], meta: 'stopped at ' + stopAt + ' s', noEnd: true },
+          chart: { xMax: 10 + K.span, series: [ser(K.dPts, C.down), ser(shift(snd, 10), C.up, true), ser(shift(rcv, 10), C.up)], lat: dLatC.concat(shift(lp, 10)), seps: [{ t: 0, label: 'Download' }, { t: 10, label: 'Upload' }], bands: [K.dBand, { t0: 10, t1: 10 + Math.max(0, Math.min(wEnd, K.wu)) }], wins: part ? [{ t0: 10 + K.wu, t1: 10 + wEnd, label: 'Steady ' + win.toFixed(1) + ' s' }] : [], marks: [{ t: 10 + Tt, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Throughput', legend: [LG.d, LG.ur, LG.us, LG.l], meta: 'stopped at ' + stopAt + ' s', noEnd: true },
           prim: [K.tileD, part ? rt('Upload', 'arrow-up', C.up, uv, Object.assign({ sub: 'based on a ' + win.toFixed(1) + ' s steady window · ' + nReq + ' requests' }, PT))
             : T({ label: 'Upload', icon: 'arrow-up', ic: C.up, state: 'insufficient-data', sub: 'Insufficient data — confirmed steady window shorter than 3 s' + (inWarm ? ' (stopped in warm-up)' : ''), notes: [BG.bytes(uUsed) + ' used'] }), latT(), jitT()],
           load: part ? load(gradeOf(Math.max(K.dLL, uLLc[0]) - IDLE.v), [K.rowD, lrow('up', uLLc[0], { p90: uLLc[1], partial: true })], respB(K.rpm[0], K.rpm[1]))
-            : load(gD, [K.rowD, lrow('up', null, { sub: 'no steady window' + (inWarm ? ' · stopped in warm-up' : '') })], respB(K.rpm[0], K.rpm[2]), BG.GRADES[gD].text + ' · download only'),
+            : load(gD, [K.rowD, lrow('up', null, npp ? { sub: 'no latency probe', noSrc: true } : { sub: 'no steady window' + (inWarm ? ' · stopped in warm-up' : '') })], respB(K.rpm[0], K.rpm[2]), BG.GRADES[gD].text + ' · download only'),
           fit: fit(aim(IDLE.v, IDLE.jit, K.dV, (part ? Math.max(K.dLL, uLLc[0]) : K.dLL) - IDLE.v)), fitBasis: part ? '' : 'download only',
           meta: meta(BG.bytes(used(K.dPts) + uUsed), '', (PRE + 10 + Tt).toFixed(1) + ' s', ''),
           notices: [].concat([part ? N('neutral', 'circle-minus', 'Partial — stopped early · upload based on a ' + win.toFixed(1) + ' s steady window', 'Latency and download completed. Upload stopped at ' + Ts + ' s; in-flight requests were aborted, and the ' + nReq + ' requests confirmed by ' + wEnd.toFixed(1) + ' s give the partial value.')
-            : N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed. Upload stopped at ' + Ts + ' s, before a 3 s confirmed steady window' + (inWarm ? ' (still in warm-up)' : '') + ', so it has no value and no loaded latency. The grade and quality scores use download only.')]),
+            : N('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed.' + (npp ? ' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.' : '') + ' Upload stopped at ' + Ts + ' s, before a 3 s confirmed steady window' + (inWarm ? ' (still in warm-up)' : '') + ', so it has no value and no loaded latency. The grade and quality scores use download only.')]),
           btn: BTN.again, partial: { kind: 'partial', keep: true },
           ph: part ? 'Upload result: ' + sayR(uv) : 'Upload finished without a number',
           sum: { st: 'partial', down: 'Download ' + sayR(K.dV), up: part ? 'Upload ' + sayR(uv) + ', partial, stopped early' : 'Upload: insufficient data' }
@@ -448,10 +456,10 @@ class TestScreen extends React.Component {
         gauge: { opts: { value: 640e3, inner: 210e3 }, prev: SD, c: C.down },
         R: { numeric: true, eyebrow: 'Download', icon: 'arrow-down', ec: C.down, num: rn(640e3), unit: BG.rate(640e3, unit).u, sub: '', up: rs(210e3) + ' upload', oh: OH[0] },
         chart: { xMax: 10 + SUEND, series: [ser(SD, C.down), ser(shift(SU, 10), C.up)], lat: SDL.concat(shift(SUL, 10)), seps: [{ t: 0, label: 'Download' }, { t: 10, label: 'Upload' }], bands: [{ t0: 0, t1: SDWU }, { t0: 10, t1: 10 + SUWU }], title: 'Throughput', legend: [LG.d, LG.u, LG.l], meta: tot + ' s total', noEnd: true },
-        prim: [rt('Download', 'arrow-down', C.down, 640e3, { sub: 'peak ' + rn(702e3) + ' · 2 streams · plateau: no-gain' }), rt('Upload', 'arrow-up', C.up, 210e3, { state: 'low-confidence', sub: 'peak ' + rn(224e3) + ' · 2 streams · plateau: no-gain', notes: OH.concat(['low confidence · few samples']) }), latT(), jitT()],
+        prim: [rt('Download', 'arrow-down', C.down, 640e3, { sub: 'peak ' + rn(702e3) + ' · 2 streams · plateau: no-gain' }), rt('Upload', 'arrow-up', C.up, 210e3, { state: 'low-confidence', sub: 'peak ' + rn(224e3) + ' · 2 streams · plateau: floor-limited', notes: OH.concat(['low confidence · few samples']) }), latT(), jitT()],
         load: load('D', [lrow('down', 162, { p90: 205 }), lrow('up', 310, { p90: 380 })], respB(240, 'few')), fit: fit(aim(IDLE.v, IDLE.jit, 640e3, 310 - IDLE.v)), meta: meta(BG.bytes(used(SD) + used(SU)), '', tot + ' s', ''),
         notices: [N('warn', 'triangle-alert', 'Low confidence', 'Upload: few samples.')],
-        btn: BTN.again, saved: { time: '08:41:57', label: 'VPN via 5G', chips: ['VPN', 'Mobile'] }, dl: 640e3,
+        btn: BTN.again, saved: { iso: '2026-10-12T06:41:57.000Z', label: 'VPN via 5G', chips: ['VPN', 'Mobile'] }, dl: 640e3,
         share: { blocks: [['↓ DOWNLOAD', 640e3, C.down], ['↑ UPLOAD', 210e3, C.up]], foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+262 ms under load', 'D · High bufferbloat'], lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +262 ms (worse direction)', 'Bufferbloat D · High bufferbloat', SRV] },
         ph: 'Upload result: ' + sayR(210e3), sum: { st: 'done', down: 'Download ' + sayR(640e3), up: 'Upload ' + sayR(210e3) + ', low confidence: few samples' }
       }; } break;
@@ -533,7 +541,7 @@ class TestScreen extends React.Component {
             dataT
           ],
           meta: [{ icon: 'timer', label: 'Duration', sub: 'stopped by you · planned 2:00:00', value: '42:18', vc: 'var(--fg)' }, mm, idleM, PL],
-          notices: [], btn: BTN.again, saved: { time: '15:26:40', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] },
+          notices: [], btn: BTN.again, saved: { iso: '2026-10-12T13:26:40.000Z', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] },
           share: { blocks: [['↓ AVERAGE', 921e6, C.down], ['PEAK · P90', 936e6, C.down]], foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+18 ms under load', 'continuous · 42:18'], lines: ['↓ avg ' + rs(921e6) + ' · peak ' + rs(936e6) + ' (p90)', 'Continuous · 42:18', 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +18 ms', SRV] }
         }, common) : Object.assign({
           phases: [ph('lat', 'done', LATD), ph('down', 'active', '42:18 of 2:00:00', 35, 'Download · continuous')],
@@ -555,7 +563,8 @@ class TestScreen extends React.Component {
 
     // ---- v0.2 loaded latency (screens.md §1, measurement §11): reasons, basis, fallback notices.
     const LLR = { 'no-steady-window': 'no steady window', 'insufficient-samples': 'fewer than 10 samples', 'reservation-broken': 'HTTP/1.1 reservation not held', 'no-probe-path': 'no latency probe' };
-    const GAP = LLR[this.props.llGap];
+    // no-steady-window and no-probe-path never reach a complete run; they are drawn on the stopped run above.
+    const GAP = LLSTOP != null ? null : LLR[this.props.llGap];
     if (caps.loaded && GAP && S.load && S.load.grade !== '—' && S.load.rows[1] && S.load.rows[1].v != null) {
       // Demo: the upload direction ends without a loaded-latency value; the grade rests on download alone.
       const r0 = S.load.rows[0], di = r0.v - IDLE.v, g = gradeOf(di), gt = BG.GRADES[g].text, inc = '+' + fms(di);
@@ -610,20 +619,26 @@ class TestScreen extends React.Component {
     const JSONA = Object.assign(A('Download JSON', 'file-json', 'btn ghost sm'), { wrap: 'has-tip tip-end', tip: 'Contains your IP address and notes', tipO });
     const DET = A('Details', null, 'btn secondary sm', null, 'chevron-right');
     let bar = null;
+    // Save-bar time from the result's instant, in the active locale (i18n-a11y.md §1.3).
+    const barT = iso => BG.timeEl(iso, 'time');
     if (S.saved) bar = v01
-      ? { icon: 'circle-check', ic: 'var(--ok)', title: 'Test complete', time: S.saved.time, sub: 'Not stored in this browser. Download the JSON to keep it.', labelled: false, actions: [Object.assign({}, JSONA, { cls: 'btn secondary sm' })] }
-      : { icon: 'circle-check', ic: 'var(--ok)', title: 'Saved to history', time: S.saved.time, sub: null, labelled: true, chips: S.saved.chips, actions: [A('Share', 'share-2', 'btn ghost sm', () => this.setState({ share: true })), JSONA, DET] };
+      ? { icon: 'circle-check', ic: 'var(--ok)', title: 'Test complete', time: barT(S.saved.iso), sub: 'Not stored in this browser. Download the JSON to keep it.', labelled: false, actions: [Object.assign({}, JSONA, { cls: 'btn secondary sm' })] }
+      : { icon: 'circle-check', ic: 'var(--ok)', title: 'Saved to history', time: barT(S.saved.iso), sub: null, labelled: true, chips: S.saved.chips, actions: [A('Share', 'share-2', 'btn ghost sm', () => this.setState({ share: true })), JSONA, DET] };
     else if (S.partial) {
       const canKeep = S.partial.keep && !v01;
       if (canKeep && kept) {
         // Undo lives in the undo toast, not in the bar (save-bar.md).
-      bar = { icon: 'circle-check', ic: 'var(--ok)', title: 'Saved as ' + S.partial.kind, time: '14:06:52', sub: null, labelled: false, actions: [JSONA, DET] };
+      bar = { icon: 'circle-check', ic: 'var(--ok)', title: 'Saved as ' + S.partial.kind, time: barT('2026-10-12T12:06:52.000Z'), sub: null, labelled: false, actions: [JSONA, DET] };
         if (S.R.sub && S.R.sub.indexOf('not saved') >= 0) S.R = Object.assign({}, S.R, { sub: S.R.sub.replace('not saved', 'saved as ' + S.partial.kind) });
         if (S.meta && S.meta[0] && S.meta[0].sub === 'not saved') S.meta[0].sub = 'saved as ' + S.partial.kind;
       } else bar = { icon: 'circle-minus', ic: 'var(--fg-subtle)', title: 'Partial results are not saved', time: '', sub: v01 ? 'Download the JSON to keep them.' : canKeep ? null : 'No phase finished, so there is nothing to keep in history.', labelled: false, actions: canKeep ? [A('Keep in history', 'history', 'btn secondary sm', () => { const kind = S.partial.kind; this.setState({ kept: true }); this._toast({ icon: 'history', t: 'Kept in history as ' + kind + '.', undo: true }); }), JSONA] : [JSONA] };
     }
-    const SH = S.share, inc = !!label && !!this.state.inc, dateT = '2026-10-12 ' + (S.saved ? S.saved.time.slice(0, 5) : '');
-    const share = SH ? { blocks: SH.blocks.map(([k, v, c]) => ({ label: k, color: c, value: rn(v), unit: BG.rate(v, unit).u })), foot: SH.foot, head: inc ? label : '', where: SRV + ' · 12 Oct 2026 ' + (S.saved ? S.saved.time.slice(0, 5) : ''), text: ['BitGauge · ' + (inc ? label + ' · ' : '') + dateT].concat(SH.lines).join('\n') } : null;
+    const SH = S.share, inc = !!label && !!this.state.inc, dateT = S.saved ? BG.date(S.saved.iso, 'dateTime') : '';
+    const share = SH ? { blocks: SH.blocks.map(([k, v, c]) => ({ label: k, color: c, value: rn(v), unit: BG.rate(v, unit).u })), foot: SH.foot, head: inc ? label : '', where: SRV + (dateT ? ' · ' + dateT : ''), text: ['BitGauge · ' + (inc ? label + ' · ' : '') + dateT].concat(SH.lines).join('\n') } : null;
+    if (share) share.label = 'Share image: ' + share.text.split('\n').join(', ');
+    // Share via… only where the browser can share the PNG file (flows.md §8).
+    let canShare = false;
+    if (shareOpen) try { canShare = !!(navigator.canShare && navigator.canShare({ files: [new File([new Blob([''], { type: 'image/png' })], 'x.png', { type: 'image/png' })] })); } catch (e) {}
     const R = Object.assign({ numeric: false, textual: false, ec: 'var(--fg-subtle)', up: null, oh: null, faint: null, action: null }, S.R);
     // Gauge props (gauge.md modes × states). Values in bit/s; bytes mode passes B/s.
     const G = S.gauge.opts || {}, div = unit === 'bytes' && G.mode !== 'ms' ? 8 : 1, sc = x => x == null ? undefined : x / div;
@@ -637,7 +652,7 @@ class TestScreen extends React.Component {
     const chart = { title: cc.title, meta: cc.meta, empty: cc.empty || undefined, markColor: cc.markColor || 'var(--fg-muted)', endDot: !cc.noEnd, units: unit, compact: m,
       legend: (cc.legend || []).map(l => ({ label: l.t, color: l.c, dashed: l.dash === 'dashed', faint: (l.o || 1) < 1 })),
       data: { xMax: cc.xMax, yMax: cc.yMax, ms: cc.ms, series: cc.series.map(s => ({ pts: s.pts, color: s.c, faint: s.so < 1 })), lat: cc.lat, now: cc.now, seps: cc.seps, wins: cc.wins, marks: cc.marks, bands: cc.bands, xStep: cc.xStep, xLabel: cc.xLabel },
-      summary: cc.title + (cc.empty ? ': no data yet' : ': ' + [R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : R.title, cc.meta].filter(Boolean).join(', ')) + (bandsOn ? '; warm-up shaded' : '') + ((cc.marks || []).length ? '; marked: ' + cc.marks.map(x => x.label).join(', ') : '') };
+      summary: cc.title + (cc.empty ? ': no data yet' : ': ' + [R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : R.title, cc.meta].filter(Boolean).join(', ')) + (bandsOn ? '; warm-up shaded' : '') + (cc.lat && cc.lat.length ? '; latency under load on a second scale' : '') + ((cc.marks || []).length ? '; marked: ' + cc.marks.map(x => x.label).join(', ') : '') };
     // MetricTile props (tiles.md).
     const tile = x => ({ label: x.label, icon: x.icon, accent: x.ic, value: x.num === '—' ? undefined : x.num, unit: x.unit, note: x.sub, notes: x.notes, state: x.state || (x.num === '—' || x.num == null ? 'empty' : 'done'), tag: x.state === 'partial' ? x.tag : undefined, compact: m, style: x.span && x.span !== 'auto' ? { gridColumn: x.span } : undefined });
     const DIRK = { 'arrow-down': 'download', 'arrow-up': 'upload' };
@@ -671,7 +686,7 @@ class TestScreen extends React.Component {
       conn, custom,
       customChips: bytesOnly && !this.props.chips ? [{ t: 'Units · MB/s', icon: 'sliders' }] : customChips, customCount: (bytesOnly && !this.props.chips ? 1 : customChips.length) + ' changed:',
       phases: S.phases, gauge, chart, btn: S.btn, notices: S.notices, tiles: S.prim.map(tile), resCols: S.resCols || L.resCols, load: loadP, fit: fitP, meta: metaP,
-      bar, shareOpen, share, label, incLabel: inc, incDis: !label, incNote: label ? '“' + label + '”' : 'no label set',
+      bar, shareOpen, share, canShare, label, incLabel: inc, incDis: !label, incNote: label ? '“' + label + '”' : 'no label set',
       toggleInc: e => this.setState({ inc: e.target.checked }), closeShare: () => this.setState({ share: false }), onLabel: e => this.setState({ label: e.target.value }), pickLabel: c => this.setState({ label: c }),
       toast: this.state.toast, dismissToast: () => { clearTimeout(this._tt); this.setState({ toast: null }); },
       undoKeep: () => { this.setState({ kept: false }); this._toast({ icon: 'circle-check', t: 'Removed from history.' }); },
@@ -750,19 +765,19 @@ class TestScreen extends React.Component {
         {v.shareOpen ? (
           <DS.Dialog wide icon="share-2" title="Share result" onClose={v.closeShare} align={v.mobile ? 'top' : 'center'} footerStack={v.mobile}
             body={<>
-              <DS.Card title="Share image" icon="image" actions={<span className="ds-mono-sm">1200 × 630 PNG</span>}>
+              <DS.Card as="section" headingLevel={3} title="Share image" icon="image" actions={<span className="ds-mono-sm">1200 × 630 PNG</span>}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-                  <DS.SharePreview grade={v.load ? v.load.grade : null} head={v.share.head} blocks={v.share.blocks} foot={v.share.foot} where={v.share.where} />
+                  <DS.SharePreview label={v.share.label} grade={v.load ? v.load.grade : null} head={v.share.head} blocks={v.share.blocks} foot={v.share.foot} where={v.share.where} />
                   <label style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: v.incDis ? "var(--fg-subtle)" : "var(--fg)", cursor: "pointer" }}>
                     <input type="checkbox" checked={v.incLabel} disabled={v.incDis} onChange={v.toggleInc} style={{ accentColor: "var(--primary)" }} />
                     Include label <span className="ds-mono-sm">{v.incNote}</span>
                   </label>
                 </div>
               </DS.Card>
-              <DS.Card title="Text summary" icon="file-text"><DS.Snippet lines={v.share.text.split('\n')} /></DS.Card>
+              <DS.Card as="section" headingLevel={3} title="Text summary" icon="file-text"><DS.Snippet lines={v.share.text.split('\n')} /></DS.Card>
             </>}
             footer={<>
-              <DS.Button variant="ghost" icon="share" title="Opens the system share sheet. Shown only when the browser supports it.">Share via…</DS.Button>
+              {v.canShare ? <DS.Button variant="ghost" icon="share" title="Opens the system share sheet. Shown only when the browser supports it.">Share via…</DS.Button> : null}
               <DS.Button icon="copy">Copy summary</DS.Button>
               <DS.Button variant="primary" icon="download">Download image</DS.Button>
             </>}>

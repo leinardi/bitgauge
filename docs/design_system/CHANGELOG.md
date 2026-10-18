@@ -1,5 +1,39 @@
 # Changelog
 
+## Accessibility follow-ups (2026-10-18)
+
+Shared components and `ui_kits/app`; `features/` was not edited.
+
+- **Popover non-modal by default:** Escape and a click outside still call `onClose`, but the page stays readable and
+  Tab can leave it (History's Date range). `modal` opts in; History's Export menu sets it. The mobile Compare sheet stays modal.
+- **Menu is modal:** page inert while open, focus in the menu, back on the trigger on close; a click outside closes it.
+  New `placement="top"` (`.menu.up`) and a placement-only `style`. History's row Actions buttons are now Menus (Open,
+  Delete); the last two table rows open upward so the card's clipping doesn't cut them.
+- **Named regions:** Result detail's tiles are a section "Results" (the Test screen's already was); `LoadCard` is a
+  section named "Bufferbloat" by aria-label, its title still the small caps label. PhaseChart's image reads
+  "<title> chart: <summary>"; Result detail's summaries no longer repeat the title.
+- **Test screen chart summary** ends with "; latency under load on a second scale" while that series is drawn.
+
+---
+
+## Accessibility: modal dialogs, headings, named sections (2026-10-18)
+
+Shared components and `ui_kits/app`; `features/` was not edited. Semantic changes only, no visual change.
+
+- **Modal:** new `useModal` / `Modal` (dialog/Modal.jsx). While open, the page behind is inert (`inert` on the siblings
+  of the dialog and of each ancestor; aria-hidden as fallback), focus moves inside and Tab wraps; on close both are
+  restored and focus returns to the invoking control. Used by `Dialog` (non-inline) and `Popover` (new `modal`, default
+  true, and `onClose` for Escape / click outside). Kit: History's Export menu, Date range, Compare (desktop dialog and
+  mobile sheet) and Clear all, Settings' Reset all, the Test screen's Share result. The Demo panel is `data-modal-exempt`.
+- **Headings:** `Card` gets `headingLevel` (default 2) and renders its title as that heading; `Dialog` titles are h2;
+  `EmptyState` gets `headingLevel` (default 2); `PhaseChart` titles are h2. Group titles inside cards (Test parameters,
+  Confidence and notices) are h3; History's Trend title and Settings' Advanced disclosure are h2. Cards in the share
+  dialog use h3. v0.1's "Not available" page uses its empty-state title as the screen's h1.
+- **Named sections:** a titled `Card as="section"` is labelled by its title heading. Result detail's Share image, Text
+  summary and Test parameters, and the share dialog's cards, are sections named this way; PhaseChart sections too.
+
+---
+
 ## Chart follow-ups (2026-10-16)
 
 `components/charts/`; `features/` was not edited.
