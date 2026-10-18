@@ -208,8 +208,10 @@ parameters collapse into a disclosure.
 - Recent labels, offered by the Test screen's label field, are the 5 most recent distinct labels
   of the stored results.
 
-**States:** loading; empty ("No results yet" with Start a test and Import JSON); populated;
-filtered with no match (with Clear filters); history unavailable ([../edge-cases.md
+**States:** loading (placeholder chips, trend and rows under a status that announces "Loading
+history"; Import JSON waits, disabled, until the store is open, since an import cannot write before
+it); empty ("No results yet" with Start a test and Import JSON); populated; filtered with no match
+(with Clear filters); history unavailable ([../edge-cases.md
 §7](../edge-cases.md#7-indexeddb-unavailable-private-mode)); import in progress, import result
 (added, skipped as duplicates, rejected with each record's position and reason, or the whole file
 refused with its reason).
