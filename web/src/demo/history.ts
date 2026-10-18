@@ -26,7 +26,7 @@ import type { Bufferbloat, DirectionResult, LoadedLatency, Notice, Result, Resul
 // them, with a steady window of stored cells and loaded-latency samples per measured direction for
 // the Result detail, whose increases make the row's grade. The page writes them into its history
 // (composables/useHistory.ts), which this module never touches. The single one is a fresh install's
-// first result, the kit's 2 Oct office row taken today at 09:14.
+// first result, the kit's 2 Oct office row taken today at 07:14 UTC.
 
 /** The panel's History variant: '' leaves the browser's history as it is. */
 export type DemoHistory = '' | 'populated' | 'single' | 'empty' | 'unavailable' | 'loading'
@@ -38,8 +38,8 @@ export function isDemoHistory(value: unknown): value is DemoHistory {
 }
 
 interface KitRow {
-  /** Local date and time, as the kit shows it. */
-  at: [number, number, number, number, number]
+  /** The instant the result started, as the kit's rows give it (History.jsx). */
+  at: string
   label: string
   down: number | null
   up: number | null
@@ -54,14 +54,14 @@ interface KitRow {
 }
 
 const ROWS: readonly KitRow[] = [
-  { at: [2026, 10, 8, 8, 41], label: 'VPN via 5G', down: 640e3, up: 210e3, latencyMs: 48, jitterMs: 9.4, grade: 'D', increaseMs: 262, lowConfidence: true, protocol: 'HTTP/2', status: 'complete' },
-  { at: [2026, 10, 7, 19, 12], label: 'VPN · hotel Wi-Fi', down: 38.4e6, up: 12.1e6, latencyMs: 61, jitterMs: 4.2, grade: 'C', increaseMs: 120, lowConfidence: false, protocol: 'HTTP/1.1', status: 'complete' },
-  { at: [2026, 10, 5, 12, 30], label: 'VPN via 5G', down: 84.2e6, up: 21.7e6, latencyMs: 39, jitterMs: 6.8, grade: 'C', increaseMs: 95, lowConfidence: false, protocol: 'HTTP/2', status: 'complete' },
-  { at: [2026, 10, 2, 9, 5], label: 'VPN · office', down: 241e6, up: 198e6, latencyMs: 14, jitterMs: 1.9, grade: 'B', increaseMs: 43, lowConfidence: false, protocol: 'HTTP/1.1', status: 'complete' },
-  { at: [2026, 9, 29, 22, 47], label: 'VPN via 5G', down: 52.9e6, up: null, latencyMs: 44, jitterMs: 7.1, grade: 'D', increaseMs: 210, lowConfidence: false, protocol: 'HTTP/2', status: 'partial' },
-  { at: [2026, 9, 26, 18, 20], label: 'VPN · office', down: 233e6, up: 187e6, latencyMs: 15, jitterMs: 2.2, grade: 'B', increaseMs: 57, lowConfidence: false, protocol: 'HTTP/2', status: 'complete' },
-  { at: [2026, 9, 21, 7, 58], label: 'VPN via 5G', down: null, up: null, latencyMs: 41, jitterMs: 5.9, grade: null, increaseMs: 0, lowConfidence: false, protocol: 'HTTP/2', status: 'error' },
-  { at: [2026, 9, 17, 13, 14], label: 'VPN · café', down: 19.6e6, up: 4.1e6, latencyMs: 72, jitterMs: 11.3, grade: 'F', increaseMs: 480, lowConfidence: false, protocol: 'HTTP/2', status: 'complete' },
+  { at: '2026-10-08T06:41:00.000Z', label: 'VPN via 5G', down: 640e3, up: 210e3, latencyMs: 48, jitterMs: 9.4, grade: 'D', increaseMs: 262, lowConfidence: true, protocol: 'HTTP/2', status: 'complete' },
+  { at: '2026-10-07T17:12:00.000Z', label: 'VPN · hotel Wi-Fi', down: 38.4e6, up: 12.1e6, latencyMs: 61, jitterMs: 4.2, grade: 'C', increaseMs: 120, lowConfidence: false, protocol: 'HTTP/1.1', status: 'complete' },
+  { at: '2026-10-05T10:30:00.000Z', label: 'VPN via 5G', down: 84.2e6, up: 21.7e6, latencyMs: 39, jitterMs: 6.8, grade: 'C', increaseMs: 95, lowConfidence: false, protocol: 'HTTP/2', status: 'complete' },
+  { at: '2026-10-02T07:05:00.000Z', label: 'VPN · office', down: 241e6, up: 198e6, latencyMs: 14, jitterMs: 1.9, grade: 'B', increaseMs: 43, lowConfidence: false, protocol: 'HTTP/1.1', status: 'complete' },
+  { at: '2026-09-29T20:47:00.000Z', label: 'VPN via 5G', down: 52.9e6, up: null, latencyMs: 44, jitterMs: 7.1, grade: 'D', increaseMs: 210, lowConfidence: false, protocol: 'HTTP/2', status: 'partial' },
+  { at: '2026-09-26T16:20:00.000Z', label: 'VPN · office', down: 233e6, up: 187e6, latencyMs: 15, jitterMs: 2.2, grade: 'B', increaseMs: 57, lowConfidence: false, protocol: 'HTTP/2', status: 'complete' },
+  { at: '2026-09-21T05:58:00.000Z', label: 'VPN via 5G', down: null, up: null, latencyMs: 41, jitterMs: 5.9, grade: null, increaseMs: 0, lowConfidence: false, protocol: 'HTTP/2', status: 'error' },
+  { at: '2026-09-17T11:14:00.000Z', label: 'VPN · café', down: 19.6e6, up: 4.1e6, latencyMs: 72, jitterMs: 11.3, grade: 'F', increaseMs: 480, lowConfidence: false, protocol: 'HTTP/2', status: 'complete' },
 ]
 
 /** Seconds a direction ran for; its bytes follow from its rate. */
@@ -116,7 +116,6 @@ function notices(row: KitRow): Notice[] {
 }
 
 function result(row: KitRow, index: number): Result {
-  const [year, month, day, hour, minute] = row.at
   // The worse direction's increase is the row's; the other has half of it.
   const both = row.status === 'complete'
   const download = direction(row.down, row.lowConfidence, loaded(row.latencyMs, row.jitterMs, both ? row.increaseMs / 2 : row.increaseMs, index))
@@ -130,7 +129,7 @@ function result(row: KitRow, index: number): Result {
     schema: 'bitgauge.result',
     schemaVersion: 1,
     id: `d0000000-0000-4000-8000-00000000000${index + 1}`,
-    startedAt: new Date(year, month - 1, day, hour, minute).toISOString(),
+    startedAt: row.at,
     durationMs: row.status === 'complete' ? 34_000 : 12_000,
     status: row.status,
     label: row.label,
@@ -148,7 +147,8 @@ function result(row: KitRow, index: number): Result {
 
 /** The kit's row the single variant holds (History.jsx R[3]), and when today it was taken. */
 const SINGLE_ROW = 3
-const SINGLE_AT = [9, 14] as const
+/** The single result's time of day, in UTC as the kit's instant (History.jsx: 07:14Z). */
+const SINGLE_AT = [7, 14] as const
 
 /** The results a variant puts in the history: the kit's eight, the single one at `now`'s day, or none. */
 export function demoHistoryResults(variant: 'populated' | 'single' | 'empty', now = new Date()): Result[] {
@@ -157,8 +157,8 @@ export function demoHistoryResults(variant: 'populated' | 'single' | 'empty', no
     if (row === undefined) {
       return []
     }
-    // Today at 09:14, or now when the day is younger than that.
-    const at = new Date(Math.min(now.getTime(), new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...SINGLE_AT).getTime()))
+    // Today at 07:14 UTC, or now when the day is younger than that.
+    const at = new Date(Math.min(now.getTime(), Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), ...SINGLE_AT)))
     return [{ ...result(row, SINGLE_ROW), startedAt: at.toISOString() }]
   }
   return variant === 'populated' ? ROWS.map(result) : []
