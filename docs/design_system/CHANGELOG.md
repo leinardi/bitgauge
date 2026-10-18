@@ -13,6 +13,9 @@ Shared components and `ui_kits/app`; `features/` was not edited.
 - **Test screen load rows:** the source is named only once the direction has its result; Pending, Not run and live
   rows read "During download" / "During upload". A partial download row (cancelled-slow, cancelled-download) gives its
   p90 before the increase.
+- **Test screen follow-ups:** `ended` follows the button's role, so error-early's Retry copy also reads "Bufferbloat
+  not graded". While the run is in progress (upload, slow, insufficient) no load row names a source; the download row
+  reads "During download" with its p90 and increase, and the source appears with the result.
 - **Result detail header:** the breadcrumb "/" and the meta line's "·" separators are aria-hidden, still visible.
 - **Result detail not-saved-partial:** draws the run stopped 3.1 s into the upload (the no-steady-window run): upload
   insufficient data, grade from download only, "Test cancelled during upload", "Upload: insufficient data", no upload

@@ -659,7 +659,9 @@ class TestScreen extends React.Component {
     const tile = x => ({ label: x.label, icon: x.icon, accent: x.ic, value: x.num === '—' ? undefined : x.num, unit: x.unit, note: x.sub, notes: x.notes, state: x.state || (x.num === '—' || x.num == null ? 'empty' : 'done'), tag: x.state === 'partial' ? x.tag : undefined, compact: m, style: x.span && x.span !== 'auto' ? { gridColumn: x.span } : undefined });
     const DIRK = { 'arrow-down': 'download', 'arrow-up': 'upload' };
     // ended: the run stopped, failed or finished, so a missing grade reads "not graded", not "pending".
-    const loadP = S.load ? { grade: S.load.grade === '—' ? null : S.load.grade, gradeText: S.load.gText, ended: !!S.partial || S.btn === BTN.again || S.btn === BTN.retry, basis: S.load.basis, compact: m, style: { gridColumn: L.loadSpan },
+    // Loaded latency and its source are computed with the run's result: while the run is in progress no row names a source.
+    if (S.load && S.btn && S.btn.role === 'stop') S.load = Object.assign({}, S.load, { rows: S.load.rows.map(r => Object.assign({}, r, { label: r.label.split(' · ')[0] })) });
+    const loadP = S.load ? { grade: S.load.grade === '—' ? null : S.load.grade, gradeText: S.load.gText, ended: !!S.partial || (!!S.btn && (S.btn.role === 'again' || S.btn.role === 'retry')), basis: S.load.basis, compact: m, style: { gridColumn: L.loadSpan },
       rows: S.load.rows.map(r => ({ dir: DIRK[r.icon], label: r.label, sub: r.sub, value: r.num === '—' ? null : r.num, live: r.nc === 'var(--primary-text)' })),
       responsiveness: !Q ? undefined : { protocol: S.load.resp.proto, note: S.load.resp.note, tag: S.load.resp.tag || undefined, dirs: S.load.resp.dirs.map(d => ({ dir: DIRK[d.icon], value: d.num || null, text: d.text || undefined, uncertain: d.nc === 'var(--fg-muted)' })) } } : null;
     const fitP = S.fit ? { bands: S.fit.map(f => f.rating || null), missing: S.fit.map(f => f.none || '—'), basis: S.fitBasis || undefined, compact: m, style: { gridColumn: L.fitSpan } } : null;
