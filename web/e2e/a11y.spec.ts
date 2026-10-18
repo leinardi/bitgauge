@@ -99,10 +99,11 @@ for (const theme of ['light', 'dark'] as const) {
       const boxes = table.getByTestId('row-select')
       await boxes.nth(0).click()
       await boxes.nth(1).click()
+      // The selected rows first: their subtle text reads as muted on the selection's background.
+      await expectAccessible(page)
       await table.getByTestId('selection-bar').getByTestId('compare').click()
       await expect(page.getByRole('dialog', { name: 'Compare results' })).toBeVisible()
-      // The dialog alone: the rows behind it are hidden while it is open, and the dark theme's
-      // selected row is an open export note (design-system-upstream.md).
+      // The dialog alone: the rows behind it are hidden while it is open.
       await expect(page.getByRole('toolbar', { name: 'Selection' })).toHaveCount(0)
       await expectAccessible(page, '[role="dialog"]')
     })

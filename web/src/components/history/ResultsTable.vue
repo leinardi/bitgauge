@@ -129,7 +129,7 @@ const UNIT = 'text-(length:--text-micro) text-subtle-foreground'
           :key="row.id"
           tabindex="0"
           :data-selected="selected.has(row.id)"
-          class="cursor-pointer border-(--border-subtle) hover:bg-(--surface-1) data-[selected=true]:bg-(--primary-bg)"
+          class="cursor-pointer border-(--border-subtle) hover:bg-(--surface-1) data-[selected=true]:bg-(--primary-bg) data-[selected=true]:[--fg-subtle:var(--fg-muted)]"
           data-testid="history-row"
           @click="emit('open', row.id)"
           @keydown="keydown($event, row.id)"

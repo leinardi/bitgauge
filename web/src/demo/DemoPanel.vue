@@ -192,7 +192,7 @@ const selectClass = 'min-w-0 flex-1 border-none bg-transparent font-sans text-(l
         @click="toggle"
       >
         <component
-          :is="choice.open ? ChevronDown : ChevronUp"
+          :is="choice.open ? ChevronUp : ChevronDown"
           :size="14"
           aria-hidden="true"
         />
