@@ -7,11 +7,11 @@ export const GRADES = {
   C: { tone: 'warn', text: 'Moderate bufferbloat' }, D: { tone: 'warn', text: 'High bufferbloat' }, F: { tone: 'danger', text: 'Severe bufferbloat' }
 };
 const DIR = { download: ['arrow-down', 'var(--series-download)'], upload: ['arrow-up', 'var(--series-upload)'] };
-export function GradeBadge({ grade, text }) {
+export function GradeBadge({ grade, text, ended = false }) {
   const G = grade ? GRADES[grade] : null;
   const words = text || (G ? G.text : 'Graded after upload');
   return <div className="grade">
-    <span className={'grade-l ' + (G ? G.tone : 'none')} role="img" aria-label={G ? 'Bufferbloat grade ' + grade + ', ' + words : 'Bufferbloat grade pending'}>{grade || '—'}</span>
+    <span className={'grade-l ' + (G ? G.tone : 'none')} role="img" aria-label={G ? 'Bufferbloat grade ' + grade + ', ' + words : ended ? 'Bufferbloat not graded' : 'Bufferbloat grade pending'}>{grade || '—'}</span>
     <div className="grade-s">
       <div className="grade-strip" aria-hidden="true">{Object.keys(GRADES).map(g => <span key={g} className={g === grade ? 'on ' + GRADES[g].tone : undefined}>{g}</span>)}</div>
       <span className="grade-t">{words}</span>
@@ -22,11 +22,11 @@ function NumU({ value, unit, live, uncertain }) {
   const none = value == null || value === '—';
   return <span className={'num-u' + (none ? ' none' : live ? ' live' : uncertain ? ' uncertain' : '')}>{none ? '—' : value}{!none && unit ? <span className="u">{unit}</span> : null}</span>;
 }
-export function LoadCard({ grade, gradeText, basis, rows = [], responsiveness, compact = false, className, style }) {
+export function LoadCard({ grade, gradeText, ended = false, basis, rows = [], responsiveness, compact = false, className, style }) {
   const r = responsiveness;
   // A region named "Bufferbloat" (i18n-a11y.md §2); the visible title stays the small caps label, not a heading.
   return <section aria-label="Bufferbloat" className={'card tile load' + (compact ? ' compact' : '') + (className ? ' ' + className : '')} style={style}>
-    <div className="load-g"><span className="ds-eyebrow">Bufferbloat</span><GradeBadge grade={grade} text={gradeText} />{basis ? <span className="grade-b">{basis}</span> : null}</div>
+    <div className="load-g"><span className="ds-eyebrow">Bufferbloat</span><GradeBadge grade={grade} text={gradeText} ended={ended} />{basis ? <span className="grade-b">{basis}</span> : null}</div>
     <div className="load-r">
       {rows.map((x, i) => <div className="lrow" key={i}>
         <span className="ic" style={{ color: DIR[x.dir][1] }}><Icon name={DIR[x.dir][0]} size={14} stroke={2} /></span>

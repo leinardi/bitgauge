@@ -22,6 +22,9 @@ export interface LoadCardProps {
   grade?: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F' | null;
   /** Words under the strip. Default: the grade's words ("Mild bufferbloat") or "Graded after upload". */
   gradeText?: string;
+  /** The run has ended (complete, stopped or failed). With no grade the letter reads "Bufferbloat not graded"
+   *  instead of "Bufferbloat grade pending". Default false. */
+  ended?: boolean;
   /** Which directions the grade rests on, under the words: "Basis: download only". */
   basis?: string;
   rows: LoadRow[];
@@ -32,6 +35,6 @@ export interface LoadCardProps {
   style?: React.CSSProperties;
 }
 export declare function LoadCard(props: LoadCardProps): JSX.Element;
-export interface GradeBadgeProps { grade?: string | null; text?: string; }
+export interface GradeBadgeProps { grade?: string | null; text?: string; ended?: boolean; }
 export declare function GradeBadge(props: GradeBadgeProps): JSX.Element;
 export declare const GRADES: Record<string, { tone: 'ok' | 'warn' | 'danger'; text: string }>;

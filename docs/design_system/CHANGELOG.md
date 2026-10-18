@@ -1,5 +1,27 @@
 # Changelog
 
+## Result detail, Test screen and History fixes (2026-10-18)
+
+Shared components and `ui_kits/app`; `features/` was not edited.
+
+- **Result detail chart summaries:** Download and Upload end with "; latency under load on a second scale" while that
+  series is drawn, as on the Test screen.
+- **Result detail Copy:** the Text summary's button keeps the visible "Copy" and is named "Copy summary" (aria-label).
+- **LoadCard `ended`:** with no grade, the letter reads "Bufferbloat not graded" once the run has ended, and
+  "Bufferbloat grade pending" only while it can still be graded. The Test screen sets it in its ended states
+  (complete, cancelled, error).
+- **Test screen load rows:** the source is named only once the direction has its result; Pending, Not run and live
+  rows read "During download" / "During upload". A partial download row (cancelled-slow, cancelled-download) gives its
+  p90 before the increase.
+- **Result detail header:** the breadcrumb "/" and the meta line's "·" separators are aria-hidden, still visible.
+- **Result detail not-saved-partial:** draws the run stopped 3.1 s into the upload (the no-steady-window run): upload
+  insufficient data, grade from download only, "Test cancelled during upload", "Upload: insufficient data", no upload
+  chart. Badge, reason line and read-only note unchanged.
+- **History Date range:** a custom range sits in one span inside the button ("Oct 2 – 8, 2026"), its time elements kept.
+- **History unavailable:** new body text, starting with the spec's sentence for this state.
+
+---
+
 ## Accessibility follow-ups (2026-10-18)
 
 Shared components and `ui_kits/app`; `features/` was not edited.

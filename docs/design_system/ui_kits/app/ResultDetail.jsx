@@ -48,7 +48,10 @@ class ResultDetail extends React.Component {
     const wsClose = !!caps.loaded && !!this.props.wsClose;
     const src = wsClose ? httpSrc : (SJ[PRB] ? PRB : 'WebSocket'), idleSrc = wsClose ? 'WebSocket' : src;
     const dnGap = wsClose && !cont && src === 'HTTP/1.1 reserved' ? 'reservation-broken' : null;
-    const gapK = !cont && !dnGap && caps.loaded && LLR[this.props.llGap] ? this.props.llGap : null;
+    // not-saved-partial: only a partial result is "not saved" for that reason (screens.md §2), so it draws the run stopped
+    // in the upload (no-steady-window) unless another stopped-run gap is chosen.
+    const partSt = this.props.state === 'not-saved-partial', llG = this.props.llGap;
+    const gapK = cont || dnGap || !caps.loaded ? null : partSt && !['no-steady-window', 'no-probe-path'].includes(llG) ? 'no-steady-window' : LLR[llG] ? llG : null;
     // A complete result always has a steady window in each direction and no direction as short as the WebSocket's close
     // sequence (measurement §11.1, §11.4): these two reasons come from the run stopped in the upload, partial and not saved,
     // the same run as the Test screen. no-probe-path: the WebSocket closed 9.7 s into the download, its reopening never answered.
@@ -351,7 +354,7 @@ class ResultDetail extends React.Component {
       const v = view(o.key), tbl = v === 'table';
       const pc = { title: o.title, icon: o.icon, color: o.c, meta: o.meta, pts: o.pts, lat: o.lat, xMax: o.xMax, ms: o.ms, xStep: o.xStep, xLabel: o.xLabel, width: o.w, height: o.h, units: 'bits',
         warmup: o.wu != null ? { t1: o.wu, label: 'Warm-up · not stored (' + o.wuText + ')' } : null, marks: (o.marks || []).map(([t, type]) => Object.assign({}, EV[type], { t, label: EV[type].t })), gapLabel: o.gapLabel || 'No known data',
-        summary: [o.meta, o.wu != null ? 'warm-up excluded' : '', o.marks && o.marks.length ? 'events: ' + o.marks.map(q => EV[q[1]].t + ' at ' + (o.xLabel ? mmss(q[0]) : q[0] + ' s')).join(', ') : ''].filter(Boolean).join('; '),
+        summary: [o.meta, o.wu != null ? 'warm-up excluded' : '', o.marks && o.marks.length ? 'events: ' + o.marks.map(q => EV[q[1]].t + ' at ' + (o.xLabel ? mmss(q[0]) : q[0] + ' s')).join(', ') : '', o.lat && !tbl ? 'latency under load on a second scale' : ''].filter(Boolean).join('; '),
         view: v, onViewChange: nv => this.setState(s => ({ views: Object.assign({}, s.views || {}, { [o.key]: nv }) })) };
       return {
         pc, title: o.title, icon: o.icon, c: o.c, meta: o.meta, span: o.span, g, segs, gaps, marks, hasGaps: gaps.length > 0, gapLabel: o.gapLabel || 'No known data',
@@ -443,7 +446,7 @@ class ResultDetail extends React.Component {
                 <DS.Icon name="chevron-left" size={14} />
                 History
               </a>
-              <span>/</span>
+              <span aria-hidden="true">/</span>
               <time dateTime={v.D?.iso} style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)" }}>{v.D?.crumb}</time>
             </nav>
             {v.histOff ? (
@@ -468,9 +471,9 @@ class ResultDetail extends React.Component {
                 <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2) var(--space-3)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
                   <DS.Chip size="sm" icon={v.D?.ctxIcon}>{v.D?.ctx}</DS.Chip>
                   <time dateTime={v.D?.iso} style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)" }} title={v.D?.abs}>{v.D?.when}</time>
-                  <span style={{ color: "var(--fg-subtle)" }}>·</span>
+                  <span aria-hidden="true" style={{ color: "var(--fg-subtle)" }}>·</span>
                   <span>{v.D?.preset}{" preset"}</span>
-                  <span style={{ color: "var(--fg-subtle)" }}>·</span>
+                  <span aria-hidden="true" style={{ color: "var(--fg-subtle)" }}>·</span>
                   <span>{v.D?.server}</span>
                 </div>
                 {v.hu ? (
@@ -616,7 +619,7 @@ class ResultDetail extends React.Component {
                     </div>
                   </div>
                 </DS.Card>
-                <DS.Card as="section" padded={false} icon="file-text" title={"Text summary"} actions={<><DS.Button variant="ghost" size="sm" icon="copy" onClick={v.copy}>Copy</DS.Button></>}>
+                <DS.Card as="section" padded={false} icon="file-text" title={"Text summary"} actions={<><DS.Button variant="ghost" size="sm" icon="copy" aria-label="Copy summary" onClick={v.copy}>Copy</DS.Button></>}>
                   {v.denied ? (
                     <DS.Notice attached tone="warn" title="Clipboard access was denied">{"The text below is selected — press "}
                         <span style={{ fontFamily: "var(--font-mono)" }}>Ctrl+C</span>

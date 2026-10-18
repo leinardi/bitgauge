@@ -167,7 +167,7 @@ class History extends React.Component {
       toast: deleted,
       cmpGroups, cmpCards, cmpWarn, showCompareD: is('compare') && !m, showCompareM: is('compare') && m, showConfirm: is('confirm'),
       showExport: is('export'), exportAria: is('export') ? 'true' : 'false', showDate: is('daterange'), dateAria: is('daterange') ? 'true' : 'false',
-      dateLabel: custom ? rangeEl : single ? 'All time' : 'Last 30 days', fromDate: fromDay, toDate: toDay, searchVal: nomatch ? 'airport' : '',
+      dateLabel: custom ? <span>{rangeEl}</span> : single ? 'All time' : 'Last 30 days', fromDate: fromDay, toDate: toDay, searchVal: nomatch ? 'airport' : '',
       noMatchText: nomatch ? <>{'Nothing with context VPN dated '}{rangeEl}{` matches “airport”. All ${total} results are still in history.`}</> : '',
       noop: () => {},
       skChips: [56, 64, 64, 72, 76].map(n => ({ w: n + 'px' })), skTrends: m ? [1] : [1, 2, 3],
@@ -271,7 +271,7 @@ class History extends React.Component {
           ) : null}
           {v.unavailable ? (
             <DS.Card as="section" padded={false}>
-              <DS.EmptyState icon="hard-drive" title="History isn't available in this window" actions={<><DS.Button variant="primary" icon="play">Start a test</DS.Button></>}>The browser isn't letting this site store data — usually because this is a private window. Tests still run, and you can copy or download each result, but nothing is saved here. Open BitGauge in a normal window to keep history.</DS.EmptyState>
+              <DS.EmptyState icon="hard-drive" title="History isn't available in this window" actions={<><DS.Button variant="primary" icon="play">Start a test</DS.Button></>}>History is unavailable in this browser mode — results are not saved. The browser isn't letting this site store data, usually because this is a private window. Tests still run, and you can download each result as JSON. Open BitGauge in a normal window to keep history.</DS.EmptyState>
             </DS.Card>
           ) : null}
           {v.loading ? (

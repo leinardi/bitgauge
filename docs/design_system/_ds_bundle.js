@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"Modal","sourcePath":"components/dialog/Modal.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"b6d7512cba67","components/actions/Popover.jsx":"17fb94643252","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"8c64b796dbea","components/dialog/Dialog.jsx":"d768c4c46975","components/dialog/Modal.jsx":"6e5aa13fff4b","components/feedback/EmptyState.jsx":"e038cf24992f","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"142490c65469","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"688e79e64b71","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"752ee31dc794","ui_kits/app/App.jsx":"9f95c1c67ab2","ui_kits/app/History.jsx":"437d9ccafa40","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"bfe86a4a09cf","ui_kits/app/ResultDetail.jsx":"b8c9d7c18610","ui_kits/app/Settings.jsx":"40f28b1ef7d1","ui_kits/app/TestScreen.jsx":"de024b1fc105","ui_kits/app/ds.js":"6b9fcec54767","ui_kits/app/fixtures.js":"b1aef770195b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useDismiss","sourcePath":"components/dialog/Modal.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"},{"name":"useModal","sourcePath":"components/dialog/Modal.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"Modal","sourcePath":"components/dialog/Modal.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"b6d7512cba67","components/actions/Popover.jsx":"17fb94643252","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"8c64b796dbea","components/dialog/Dialog.jsx":"d768c4c46975","components/dialog/Modal.jsx":"6e5aa13fff4b","components/feedback/EmptyState.jsx":"e038cf24992f","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"142490c65469","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"49dbc7e56df0","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"752ee31dc794","ui_kits/app/App.jsx":"9f95c1c67ab2","ui_kits/app/History.jsx":"e3f5b083a9d3","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"bfe86a4a09cf","ui_kits/app/ResultDetail.jsx":"10d3733173ee","ui_kits/app/Settings.jsx":"40f28b1ef7d1","ui_kits/app/TestScreen.jsx":"72bf9749c82c","ui_kits/app/ds.js":"6b9fcec54767","ui_kits/app/fixtures.js":"b1aef770195b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useDismiss","sourcePath":"components/dialog/Modal.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"},{"name":"useModal","sourcePath":"components/dialog/Modal.jsx"}]} */
 
 (() => {
 
@@ -3153,7 +3153,8 @@ const DIR = {
 };
 function GradeBadge({
   grade,
-  text
+  text,
+  ended = false
 }) {
   const G = grade ? GRADES[grade] : null;
   const words = text || (G ? G.text : 'Graded after upload');
@@ -3162,7 +3163,7 @@ function GradeBadge({
   }, /*#__PURE__*/React.createElement("span", {
     className: 'grade-l ' + (G ? G.tone : 'none'),
     role: "img",
-    "aria-label": G ? 'Bufferbloat grade ' + grade + ', ' + words : 'Bufferbloat grade pending'
+    "aria-label": G ? 'Bufferbloat grade ' + grade + ', ' + words : ended ? 'Bufferbloat not graded' : 'Bufferbloat grade pending'
   }, grade || '—'), /*#__PURE__*/React.createElement("div", {
     className: "grade-s"
   }, /*#__PURE__*/React.createElement("div", {
@@ -3191,6 +3192,7 @@ function NumU({
 function LoadCard({
   grade,
   gradeText,
+  ended = false,
   basis,
   rows = [],
   responsiveness,
@@ -3210,7 +3212,8 @@ function LoadCard({
     className: "ds-eyebrow"
   }, "Bufferbloat"), /*#__PURE__*/React.createElement(GradeBadge, {
     grade: grade,
-    text: gradeText
+    text: gradeText,
+    ended: ended
   }), basis ? /*#__PURE__*/React.createElement("span", {
     className: "grade-b"
   }, basis) : null), /*#__PURE__*/React.createElement("div", {
@@ -4758,7 +4761,7 @@ class History extends React.Component {
       exportAria: is('export') ? 'true' : 'false',
       showDate: is('daterange'),
       dateAria: is('daterange') ? 'true' : 'false',
-      dateLabel: custom ? rangeEl : single ? 'All time' : 'Last 30 days',
+      dateLabel: custom ? /*#__PURE__*/React.createElement("span", null, rangeEl) : single ? 'All time' : 'Last 30 days',
       fromDate: fromDay,
       toDate: toDay,
       searchVal: nomatch ? 'airport' : '',
@@ -5077,7 +5080,7 @@ class History extends React.Component {
         variant: "primary",
         icon: "play"
       }, "Start a test"))
-    }, "The browser isn't letting this site store data \u2014 usually because this is a private window. Tests still run, and you can copy or download each result, but nothing is saved here. Open BitGauge in a normal window to keep history.")) : null, v.loading ? /*#__PURE__*/React.createElement("div", {
+    }, "History is unavailable in this browser mode \u2014 results are not saved. The browser isn't letting this site store data, usually because this is a private window. Tests still run, and you can download each result as JSON. Open BitGauge in a normal window to keep history.")) : null, v.loading ? /*#__PURE__*/React.createElement("div", {
       "aria-busy": "true",
       "aria-label": "Loading history",
       style: {
@@ -7414,7 +7417,11 @@ class ResultDetail extends React.Component {
     const src = wsClose ? httpSrc : SJ[PRB] ? PRB : 'WebSocket',
       idleSrc = wsClose ? 'WebSocket' : src;
     const dnGap = wsClose && !cont && src === 'HTTP/1.1 reserved' ? 'reservation-broken' : null;
-    const gapK = !cont && !dnGap && caps.loaded && LLR[this.props.llGap] ? this.props.llGap : null;
+    // not-saved-partial: only a partial result is "not saved" for that reason (screens.md §2), so it draws the run stopped
+    // in the upload (no-steady-window) unless another stopped-run gap is chosen.
+    const partSt = this.props.state === 'not-saved-partial',
+      llG = this.props.llGap;
+    const gapK = cont || dnGap || !caps.loaded ? null : partSt && !['no-steady-window', 'no-probe-path'].includes(llG) ? 'no-steady-window' : LLR[llG] ? llG : null;
     // A complete result always has a steady window in each direction and no direction as short as the WebSocket's close
     // sequence (measurement §11.1, §11.4): these two reasons come from the run stopped in the upload, partial and not saved,
     // the same run as the Test screen. no-probe-path: the WebSocket closed 9.7 s into the download, its reopening never answered.
@@ -8450,7 +8457,7 @@ class ResultDetail extends React.Component {
           label: EV[type].t
         })),
         gapLabel: o.gapLabel || 'No known data',
-        summary: [o.meta, o.wu != null ? 'warm-up excluded' : '', o.marks && o.marks.length ? 'events: ' + o.marks.map(q => EV[q[1]].t + ' at ' + (o.xLabel ? mmss(q[0]) : q[0] + ' s')).join(', ') : ''].filter(Boolean).join('; '),
+        summary: [o.meta, o.wu != null ? 'warm-up excluded' : '', o.marks && o.marks.length ? 'events: ' + o.marks.map(q => EV[q[1]].t + ' at ' + (o.xLabel ? mmss(q[0]) : q[0] + ' s')).join(', ') : '', o.lat && !tbl ? 'latency under load on a second scale' : ''].filter(Boolean).join('; '),
         view: v,
         onViewChange: nv => this.setState(s => ({
           views: Object.assign({}, s.views || {}, {
@@ -8747,7 +8754,9 @@ class ResultDetail extends React.Component {
     }, /*#__PURE__*/React.createElement(DS.Icon, {
       name: "chevron-left",
       size: 14
-    }), "History"), /*#__PURE__*/React.createElement("span", null, "/"), /*#__PURE__*/React.createElement("time", {
+    }), "History"), /*#__PURE__*/React.createElement("span", {
+      "aria-hidden": "true"
+    }, "/"), /*#__PURE__*/React.createElement("time", {
       dateTime: v.D?.iso,
       style: {
         fontFamily: "var(--font-mono)",
@@ -8829,10 +8838,12 @@ class ResultDetail extends React.Component {
       },
       title: v.D?.abs
     }, v.D?.when), /*#__PURE__*/React.createElement("span", {
+      "aria-hidden": "true",
       style: {
         color: "var(--fg-subtle)"
       }
     }, "\xB7"), /*#__PURE__*/React.createElement("span", null, v.D?.preset, " preset"), /*#__PURE__*/React.createElement("span", {
+      "aria-hidden": "true",
       style: {
         color: "var(--fg-subtle)"
       }
@@ -9256,6 +9267,7 @@ class ResultDetail extends React.Component {
         variant: "ghost",
         size: "sm",
         icon: "copy",
+        "aria-label": "Copy summary",
         onClick: v.copy
       }, "Copy"))
     }, v.denied ? /*#__PURE__*/React.createElement(DS.Notice, {
@@ -11851,7 +11863,9 @@ class TestScreen extends React.Component {
     };
     const lrow = (k, v, o) => {
       o = o || {};
-      const label = (k === 'down' ? 'During download' : 'During upload') + (o.noSrc ? '' : ' · ' + src);
+      // The source qualifies a result (screens.md §6): none while Pending, Not run or live (it can still fall back to HTTP).
+      const named = !o.noSrc && !o.live && !(v == null && (!o.sub || o.sub === 'Not run'));
+      const label = (k === 'down' ? 'During download' : 'During upload') + (named ? ' · ' + src : '');
       if (v == null) return {
         icon: PI[k][1],
         ic: C[k],
@@ -12905,6 +12919,7 @@ class TestScreen extends React.Component {
               notes: [ub + ' used']
             }), eUp('not run'), latT(), jitT()],
             load: part ? load(g, [lrow('down', D.ll, {
+              p90: Math.max(D.ll, latP90(lp)),
               partial: true
             }), lrow('up', null, {
               sub: 'Not run'
@@ -13891,9 +13906,11 @@ class TestScreen extends React.Component {
       'arrow-down': 'download',
       'arrow-up': 'upload'
     };
+    // ended: the run stopped, failed or finished, so a missing grade reads "not graded", not "pending".
     const loadP = S.load ? {
       grade: S.load.grade === '—' ? null : S.load.grade,
       gradeText: S.load.gText,
+      ended: !!S.partial || S.btn === BTN.again || S.btn === BTN.retry,
       basis: S.load.basis,
       compact: m,
       style: {

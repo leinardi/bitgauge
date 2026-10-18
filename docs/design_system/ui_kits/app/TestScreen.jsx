@@ -166,7 +166,9 @@ class TestScreen extends React.Component {
     };
     const lrow = (k, v, o) => {
       o = o || {};
-      const label = (k === 'down' ? 'During download' : 'During upload') + (o.noSrc ? '' : ' · ' + src);
+      // The source qualifies a result (screens.md §6): none while Pending, Not run or live (it can still fall back to HTTP).
+      const named = !o.noSrc && !o.live && !(v == null && (!o.sub || o.sub === 'Not run'));
+      const label = (k === 'down' ? 'During download' : 'During upload') + (named ? ' · ' + src : '');
       if (v == null) return { icon: PI[k][1], ic: C[k], label, sub: o.sub || 'Pending', num: '—', unit: '', nc: 'var(--fg-subtle)', v: null };
       // Idle over the WebSocket, loaded over the HTTP fallback: the change names the idle path.
       const sub = (o.p90 != null ? 'p90 ' + fms(o.p90) + ' · ' : '') + '+' + fms(v - IDLE.v) + ' ms vs idle' + (idleSrc !== src ? ' over ' + idleSrc : '') + (o.partial ? ' · partial' : '');
@@ -419,7 +421,7 @@ class TestScreen extends React.Component {
         R: { textual: true, title: 'Cancelled', sub: 'Partial results · not saved', icon: 'circle-minus', ec: 'var(--fg-subtle)' },
         chart: { xMax: 10, series: [ser(dp, C.down)], lat: lp, bands: [{ t0: 0, t1: Math.min(t, D.warm) }], wins: part ? [{ t0: D.warm, t1: t, label: 'Steady ' + win.toFixed(1) + ' s' }] : [], marks: [{ t, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Throughput', legend: [LG.d, LG.l], meta: 'stopped at ' + t.toFixed(1) + ' s', noEnd: true },
         prim: [part ? rt('Download', 'arrow-down', C.down, sw.avg, { state: 'partial', tag: 'Partial — stopped early', sub: 'based on a ' + win.toFixed(1) + ' s steady window' }) : T({ label: 'Download', icon: 'arrow-down', ic: C.down, state: 'insufficient-data', sub: t < D.warm ? 'Insufficient data — stopped during warm-up' : 'Insufficient data — steady window shorter than 3 s', notes: [ub + ' used'] }), eUp('not run'), latT(), jitT()],
-        load: part ? load(g, [lrow('down', D.ll, { partial: true }), lrow('up', null, { sub: 'Not run' })], respB(null, null), BG.GRADES[g].text + ' · download only') : load(null, [lrow('down', null, { sub: 'no steady window' }), lrow('up', null, { sub: 'Not run' })], respB(null, null), 'Not graded — no gradable direction'),
+        load: part ? load(g, [lrow('down', D.ll, { p90: Math.max(D.ll, latP90(lp)), partial: true }), lrow('up', null, { sub: 'Not run' })], respB(null, null), BG.GRADES[g].text + ' · download only') : load(null, [lrow('down', null, { sub: 'no steady window' }), lrow('up', null, { sub: 'Not run' })], respB(null, null), 'Not graded — no gradable direction'),
         fit: part ? fit(aim(IDLE.v, IDLE.jit, sw.avg, inc)) : fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']), fitBasis: part ? 'download only' : '',
         meta: meta(ub, '', (t + PRE).toFixed(1) + ' s', ''),
         notices: [N('neutral', 'circle-minus', 'Test cancelled during download', part ? 'Latency completed. Download has a ' + win.toFixed(1) + ' s steady window, enough for a partial value. Upload did not run.' : 'Latency completed. Download stopped before a 3 s steady window, so it has no value. Upload did not run.')],
@@ -656,7 +658,8 @@ class TestScreen extends React.Component {
     // MetricTile props (tiles.md).
     const tile = x => ({ label: x.label, icon: x.icon, accent: x.ic, value: x.num === '—' ? undefined : x.num, unit: x.unit, note: x.sub, notes: x.notes, state: x.state || (x.num === '—' || x.num == null ? 'empty' : 'done'), tag: x.state === 'partial' ? x.tag : undefined, compact: m, style: x.span && x.span !== 'auto' ? { gridColumn: x.span } : undefined });
     const DIRK = { 'arrow-down': 'download', 'arrow-up': 'upload' };
-    const loadP = S.load ? { grade: S.load.grade === '—' ? null : S.load.grade, gradeText: S.load.gText, basis: S.load.basis, compact: m, style: { gridColumn: L.loadSpan },
+    // ended: the run stopped, failed or finished, so a missing grade reads "not graded", not "pending".
+    const loadP = S.load ? { grade: S.load.grade === '—' ? null : S.load.grade, gradeText: S.load.gText, ended: !!S.partial || S.btn === BTN.again || S.btn === BTN.retry, basis: S.load.basis, compact: m, style: { gridColumn: L.loadSpan },
       rows: S.load.rows.map(r => ({ dir: DIRK[r.icon], label: r.label, sub: r.sub, value: r.num === '—' ? null : r.num, live: r.nc === 'var(--primary-text)' })),
       responsiveness: !Q ? undefined : { protocol: S.load.resp.proto, note: S.load.resp.note, tag: S.load.resp.tag || undefined, dirs: S.load.resp.dirs.map(d => ({ dir: DIRK[d.icon], value: d.num || null, text: d.text || undefined, uncertain: d.nc === 'var(--fg-muted)' })) } } : null;
     const fitP = S.fit ? { bands: S.fit.map(f => f.rating || null), missing: S.fit.map(f => f.none || '—'), basis: S.fitBasis || undefined, compact: m, style: { gridColumn: L.fitSpan } } : null;
