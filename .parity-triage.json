@@ -46379,10 +46379,10 @@
         {
           "target": "upstream",
           "what": "Covered by the upstream notes of v02-result-confidence-card, v02-result-probe-precision and v02-result-not-saved: the main column's cards sit where those cards end.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -47024,10 +47024,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Result detail without history shows the \"Not saved\" badge beside the label and the reason as text under the header, the note read-only, as screens.md section 2 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -47106,10 +47106,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-result-not-saved's upstream note: the header's height follows its badge and reason.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {

@@ -61,3 +61,13 @@ the export shows, and what it should show, with the reason; behavior comes from
   with one decimal, "0.0 % probe timeouts", as
   [screens.md §6](../features/ui/screens.md#6-result-metrics-units-and-precision) sets and the Test
   screen's tile already does.
+- **`v02-result-not-saved`** (also `v02-result-not-saved-geometry`, and with the two notes above
+  `v02-result-column-geometry`), `ui_kits/app/ResultDetail.jsx`, a result not in history
+  (`history-unavailable`): there is no badge, and each disabled control carries the reason in a
+  tooltip ("History unavailable · labels can't be saved", "… nothing saved to delete", "… notes
+  can't be saved"). It should show the "Not saved" badge beside the label and the reason as text
+  under the header, with the note read-only, as
+  [screens.md §2](../features/ui/screens.md#2-result-detail--resultid) sets: Download JSON and
+  Share work, editing and deleting are disabled with the reason. The header's height follows the
+  badge and the reason, and the main column's cards sit where the header and the cards above them
+  end.
