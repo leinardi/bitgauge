@@ -264,16 +264,20 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   simulated instant the transport reports is floored to the clock's resolution, as a reading of the
   clock would be. **Under load** a link's queue fills: each link has, per direction, a loaded
   delay `loaded: {downloadMs, uploadMs, tauMs}`, and while a direction has requests in flight,
-  every round trip the link simulates (the echo, the probes and the requests' own) gains
-  `loaded × (1 − e^(−t/τ))`, with `loaded` that direction's delay and `t` the time since its
-  requests began to be in flight; with none in flight the delay is gone. The LAN links' delays are
-  15 ms on download and 39 ms on upload with τ = 1000 ms, the VPN link's 114 ms and 262 ms with
-  τ = 2000 ms, the kit's fixture numbers. The HTTP/1.1 link holds the browser's six connections
-  per origin: a request or probe beyond six in flight waits, first come first served, until one
-  is free. `GET /info` answers with the scenario's fixture and the current epoch; its client
-  is 192.168.1.42, a private address suggested as LAN, on the LAN links, and 100.101.4.17, a CGNAT
-  address suggested as VPN ([../wire-protocol.md §5](../wire-protocol.md#5-get-apiv1info)), on the VPN
-  link. A link can
+  every round trip the link simulates (the echo and the probes) gains `loaded × (1 − e^(−t/τ))`,
+  with `loaded` that direction's delay and `t` the time since its requests began to be in flight;
+  with none in flight the delay is gone. A request's own round trip to its first byte gains it only
+  while another request of its direction is moving, whose bytes hold the queue: with none moving
+  the queue is empty, and two streams that end together would otherwise both wait a loaded round
+  trip, idling the link and swinging the steady window. The LAN links' delays are 15 ms on
+  download and 39 ms on upload, the VPN link's 114 ms and 262 ms, the kit's fixture numbers, all
+  with τ = 1000 ms: a VPN queue filling more slowly leaves a run stopped in its download or upload
+  near grade B's bound, where the kit's grades C. The HTTP/1.1 link holds the browser's six
+  connections per origin: a request or probe beyond six in flight waits, first come first served,
+  until one is free. `GET /info` answers with the scenario's fixture and the current epoch; its
+  client is 192.168.1.42, a private address suggested as LAN, on the LAN links, and 100.101.4.17,
+  a CGNAT address suggested as VPN ([../wire-protocol.md §5](../wire-protocol.md#5-get-apiv1info)),
+  on the VPN link. A link can
   lose each request with a probability, fail every request from an instant, restart (a new epoch
   from an instant; the WebSocket closes with 1001 while requests in flight drain, as a graceful
   shutdown lets them) or become unreachable (requests in flight fail, the WebSocket closes with
