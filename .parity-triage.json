@@ -6667,7 +6667,7 @@
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^(?!main > (img \"Throughput: no data yet\"|region \"(Results|Speed test)\"|text \"(0\\.25|0\\.50|0\\.75|0|# Gbit/s|#s|Download|Upload|3\\.0|3\\.1|Throughput over time appears here[^\"]*|Nothing to measure yet[^\"]*)\"( #\\d+)?)$)",
+        "path": "^(?!main > (img \"Throughput: no data yet\"|region \"(Results|Speed test)\"|text \"(0\\.25|0\\.50|0\\.75|0|# Gbit/s|#s|Download|Upload|3\\.0|3\\.1|View|Throughput over time appears here[^\"]*|Nothing to measure yet[^\"]*)\"( #\\d+)?)$)",
         "kind": null,
         "detail": null
       },
@@ -13367,13 +13367,13 @@
           "done": true
         }
       ],
-      "status": "in-progress",
+      "status": "done",
       "resolution": {
         "note": null,
-        "on": "2026-10-16",
+        "on": "2026-10-18",
         "run": {
-          "runId": "d8b660d0-b8e7-40ef-b4c3-ec08ec82e390",
-          "finishedAt": "2026-10-16T14:49:12.090Z",
+          "runId": "c2870386-c8c9-462a-9193-06da0114ac73",
+          "finishedAt": "2026-10-18T19:56:41.588Z",
           "matrix": "full",
           "projects": [
             "light-desktop",
@@ -13405,6 +13405,45 @@
             "test/ws-fallback",
             "test/insufficient",
             "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
             "about",
             "about/unreachable",
             "demo/closed",
@@ -24392,17 +24431,17 @@
     },
     {
       "id": "v02-fixture-last-test",
-      "title": "The idle Test screen's last result: the kit's mock (2 h ago, Home Wi-Fi) vs the newest of the demo's seeded results",
+      "title": "The idle Test screen's last result: the kit's mock (2 h ago, Home Wi-Fi) vs the newest of the demo's seeded results, and where View sits after that text",
       "match": {
         "scenarios": [
           "test/idle",
           "test/param-ignored"
         ],
         "projects": null,
-        "layer": "content",
-        "path": "^main$",
-        "kind": null,
-        "detail": "^link \"Last test "
+        "layer": null,
+        "path": "^main( > text \"View\")?$",
+        "kind": "^(changed|x)$",
+        "detail": "^(link \"Last test |-?\\d+px → )"
       },
       "type": "fixture",
       "aspect": null,
@@ -24429,11 +24468,27 @@
       "owned": {
         "test/idle": {
           "903eb9a2d6c0": "*",
-          "b2882cc5e532": "*"
+          "a9bcde6effb6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b2882cc5e532": "*",
+          "d5d0c80860fa": [
+            "dark-desktop",
+            "light-desktop"
+          ]
         },
         "test/param-ignored": {
           "903eb9a2d6c0": "*",
-          "b2882cc5e532": "*"
+          "a9bcde6effb6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b2882cc5e532": "*",
+          "d5d0c80860fa": [
+            "dark-desktop",
+            "light-desktop"
+          ]
         }
       },
       "actions": [],
@@ -24718,11 +24773,7 @@
           "0acc7ee4d5ed": "*",
           "2cd6da0b498c": "*",
           "5dbdebe005e0": "*",
-          "6a8a134d2a79": [
-            "dark-desktop",
-            "dark-narrow",
-            "light-desktop"
-          ],
+          "6a8a134d2a79": "*",
           "bed2497373c3": [
             "dark-desktop",
             "dark-narrow",
@@ -25042,7 +25093,8 @@
             "light-narrow"
           ],
           "fe8f792e6d99": [
-            "dark-desktop"
+            "dark-desktop",
+            "light-desktop"
           ]
         },
         "test/download": {
@@ -25221,10 +25273,12 @@
         },
         "loaded/ws-close": {
           "22d40d62f407": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "32b06cd5c7c6": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "7f11ba81b530": [
             "dark-desktop"
@@ -25233,7 +25287,8 @@
             "dark-desktop"
           ],
           "c85590f78aad": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "d88373a559b7": [
             "dark-narrow"
@@ -25242,7 +25297,8 @@
             "dark-desktop"
           ],
           "f1399d0ae3bd": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "fe8f792e6d99": [
             "dark-desktop"
@@ -25356,11 +25412,17 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "88e65a1c41d9": [
+            "dark-narrow"
+          ],
           "8f842bd086ff": [
             "light-desktop"
           ],
           "9dccfe919c50": [
             "light-desktop"
+          ],
+          "a6b05ff89eb0": [
+            "dark-narrow"
           ],
           "a87cb916e6aa": [
             "dark-narrow",
@@ -26256,6 +26318,58 @@
         },
         "history/export": {
           "aa8c9cdd7f99": "*"
+        }
+      },
+      "actions": [],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "v02-harness-trend-axis-text",
+      "title": "History with a single result: the kit's trend axis labels are text, Vue's are drawn on the canvas, so the layout layer pairs the kit's \"80 ms\" axis label with Vue's \"14 ms\" value label",
+      "match": {
+        "scenarios": [
+          "history/single"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"# ms\"$",
+        "kind": "^(y|height)$",
+        "detail": null
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "visuals from the export"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:418",
+          "says": "the trend's value axis labels are spans: \"80 ms\", \"40\", \"0\""
+        },
+        "vue": {
+          "ref": "web/src/components/history/TrendPlot.vue",
+          "says": "uPlot draws the axis labels on its canvas; the single result's value is the only \"# ms\" text"
+        },
+        "notes": "A name collision of the layout layer: both sides' first \"# ms\" text are different elements. Split on 2026-10-18 from v02-history-single-trend-label (kit wins, fixed in ed99faa: the single value placed and sized as the kit draws it), whose other entries the full run e3b87071 no longer found; the release that moved these emptied it, so it was removed."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer confirmed on 2026-10-18 that these are harness noise to keep: the layout layer pairs the kit's text axis label with Vue's value label, as Vue's axis labels are on the canvas, which no change to either side's drawing clears.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "history/single": {
+          "09d60ec0f129": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "12da5d7e2499": [
+            "dark-desktop",
+            "light-desktop"
+          ]
         }
       },
       "actions": [],
@@ -31324,74 +31438,6 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's History keeps its search field on narrow screens, as screens.md section 3 sets.",
-          "done": true
-        }
-      ],
-      "status": "in-progress",
-      "resolution": null
-    },
-    {
-      "id": "v02-history-single-trend-label",
-      "title": "History with a single result: the trend's one value label sits elsewhere and at another size than the kit's",
-      "match": {
-        "scenarios": [
-          "history/single"
-        ],
-        "projects": [
-          "light-desktop",
-          "dark-desktop"
-        ],
-        "layer": "layout",
-        "path": "^main > text \"# (ms|Mbit/s)\"( #\\d+)?$",
-        "kind": "^(y|height)$",
-        "detail": null
-      },
-      "type": "conflict",
-      "aspect": "style",
-      "evidence": {
-        "spec": {
-          "ref": "silent",
-          "says": "visuals from the export"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/History.jsx:92 (mkTrend lbl)",
-          "says": "the single point's value drawn at the marker's own x and y"
-        },
-        "vue": {
-          "ref": "web/src/components/history/TrendPlot.vue:112-120,176-180",
-          "says": "the value left of its marker, where the plot drew it, at its own type size"
-        }
-      },
-      "decision": {
-        "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-18 that the kit wins: visuals come from the export, which draws a single result's value at its marker.",
-        "on": "2026-10-18"
-      },
-      "owned": {
-        "history/single": {
-          "0ca71155d252": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "12da5d7e2499": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "438e9bc70e4f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ced30d6013a6": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        }
-      },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "web/src/components/history/TrendPlot.vue: the single result's value label placed and sized as the kit's trend draws it (History.jsx mkTrend lbl), at the marker's position; test.",
           "done": true
         }
       ],
@@ -49847,6 +49893,9 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "d5cc9de05695": [
+            "dark-desktop"
+          ],
           "d6aacd711ea9": [
             "dark-narrow",
             "light-narrow"
@@ -52496,7 +52545,8 @@
             "light-desktop"
           ],
           "10f9b1142214": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "1336dca3e29e": [
             "dark-narrow",
@@ -56100,6 +56150,9 @@
           ],
           "ba53ac0651fc": "*",
           "bc6b43f6fee5": "*",
+          "bed2497373c3": [
+            "light-desktop"
+          ],
           "bf35b39b5419": [
             "dark-desktop",
             "light-desktop"
