@@ -77,3 +77,10 @@ the export shows, and what it should show, with the reason; behavior comes from
   screen reader lands on each card by name, as
   [i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility) holds the UI to WCAG 2.2 AA.
   The Test parameters rows, which already match, then pair with Vue's.
+- **`v02-modal-inert-page`**, `components/dialog/Dialog.jsx` and `ui_kits/app/History.jsx` (the
+  Compare, Clear all and Export dialogs and menus), `Settings.jsx` (Reset all), the share dialog:
+  they are drawn over the page without `aria-modal`, so the page under them stays in the
+  accessibility tree. They should be modal: `aria-modal="true"`, focus trapped, and the page
+  behind them inert while they are open, as
+  [screens.md §3](../features/ui/screens.md#3-history--history) and
+  [i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility) set.

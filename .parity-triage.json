@@ -43594,10 +43594,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's dialogs and menus are modal (aria-modal, the page behind them inert), as screens.md section 3 and i18n-a11y.md section 2 set.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
