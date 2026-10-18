@@ -20,35 +20,40 @@
 import { useNavigation } from '@/components/layout/navigation'
 
 // The narrow-screen tab bar (ui/screens.md section 1, design_system kit Nav.jsx mobile-bottom):
-// Test, History, Settings and About, the active one marked by a bar along its top edge.
+// Test, History, Settings and About, the active one marked by a bar along its top edge. The bar is
+// fixed, not sticky: Firefox for Android moves fixed elements with its dynamic toolbar but leaves a
+// sticky one at the toolbar's old edge, so the bar floated above a gap or hid below the screen. The
+// wrapper keeps its height in the page flow, so the last content still scrolls clear of it.
 
 const { items, current } = useNavigation()
 </script>
 
 <template>
-  <nav
-    :aria-label="$t('app.nav.label')"
-    class="sticky bottom-0 z-(--z-nav) grid h-16 grid-cols-4 border-t border-border bg-(--surface-1) pb-1 desktop:hidden"
-  >
-    <RouterLink
-      v-for="item in items"
-      :key="item.name"
-      :to="item.to"
-      :aria-current="current === item.name ? 'page' : undefined"
-      class="relative flex flex-col items-center justify-center gap-1 text-(length:--text-micro) no-underline"
-      :class="current === item.name ? 'font-semibold text-primary-text' : 'font-medium text-subtle-foreground'"
+  <div class="h-16 shrink-0 desktop:hidden">
+    <nav
+      :aria-label="$t('app.nav.label')"
+      class="fixed inset-x-0 bottom-0 z-(--z-nav) grid h-16 grid-cols-4 border-t border-border bg-(--surface-1) pb-1"
     >
-      <span
-        v-if="current === item.name"
-        aria-hidden="true"
-        class="absolute -top-px inset-x-(--tab-indicator-inset) h-0.5 rounded-xs bg-primary"
-      />
-      <component
-        :is="item.icon"
-        :size="20"
-        aria-hidden="true"
-      />
-      {{ item.label }}
-    </RouterLink>
-  </nav>
+      <RouterLink
+        v-for="item in items"
+        :key="item.name"
+        :to="item.to"
+        :aria-current="current === item.name ? 'page' : undefined"
+        class="relative flex flex-col items-center justify-center gap-1 text-(length:--text-micro) no-underline"
+        :class="current === item.name ? 'font-semibold text-primary-text' : 'font-medium text-subtle-foreground'"
+      >
+        <span
+          v-if="current === item.name"
+          aria-hidden="true"
+          class="absolute -top-px inset-x-(--tab-indicator-inset) h-0.5 rounded-xs bg-primary"
+        />
+        <component
+          :is="item.icon"
+          :size="20"
+          aria-hidden="true"
+        />
+        {{ item.label }}
+      </RouterLink>
+    </nav>
+  </div>
 </template>
