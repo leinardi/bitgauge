@@ -634,7 +634,7 @@
         "layer": "content",
         "path": "^main( > status)?$",
         "kind": null,
-        "detail": "^(status( \\(#\\d+\\))?$|text \"(Connecting to|Measuring|Latency|Download|Upload|Test (?!cancelled during \\w+ [A-Z])|Connection |WebSocket unavailable, using))"
+        "detail": "^(status \\(#\\d+\\)$|text \"(Connecting to|Measuring|Latency|Download|Upload|Test (?!cancelled during \\w+ [A-Z])|Connection |WebSocket unavailable, using))"
       },
       "type": "conflict",
       "aspect": "a11y",
@@ -1687,7 +1687,7 @@
         "layer": "content",
         "path": "^main( > region \"(Speed test\"( > list \"Test phases\" > listitem)?|Results\" > definition))?$",
         "kind": null,
-        "detail": "^(?!img |link \"Why|text \"No test has run yet|text \"Latency samples |text \"Throughput over time appears here|status$)"
+        "detail": "^(?!link \"Edit\" → )(?!img |link \"Why|text \"No test has run yet|text \"Latency samples |text \"Throughput over time appears here|status$)"
       },
       "type": "conflict",
       "aspect": "behavior",
@@ -1812,7 +1812,7 @@
         "layer": "content",
         "path": "^main( > complementary( > (term|definition|list > listitem))?)?$",
         "kind": null,
-        "detail": "^(?!text \"Other clients arrive)"
+        "detail": "^(?!text \"Other clients arrive)(?!text \"… server keeps no results — history)"
       },
       "type": "conflict",
       "aspect": "content",
@@ -2481,7 +2481,7 @@
         "layer": "content",
         "path": "^main$",
         "kind": "^(changed|missing|extra)$",
-        "detail": "^text \"(…\\.168\\.1\\.42|Client IP|…[^\"]*(Protocol HTTP|reams [#—] auto))"
+        "detail": "^(?!text \"…1\\.42 IPv4 Protocol HTTP/2 Streams # auto Standard…\" → )(?!text \"[^\"]*plateau: no-gain Standard)(?!text \"…l HTTP/2 Streams # auto Standard preset · Auto s…\" → \"[^\"]*plateau: cap)text \"(…\\.168\\.1\\.42|Client IP|…[^\"]*(Protocol HTTP|reams [#—] auto))"
       },
       "type": "conflict",
       "aspect": "content",
@@ -3583,7 +3583,7 @@
         "layer": "content",
         "path": "^main > region \"Result status\"",
         "kind": null,
-        "detail": null
+        "detail": "#:#"
       },
       "type": "conflict",
       "aspect": "content",
@@ -3610,12 +3610,15 @@
       },
       "owned": {
         "test/complete": {
+          "44ed69b5a609": "*",
           "e33df25c9501": "*"
         },
         "test/slowdone": {
+          "44ed69b5a609": "*",
           "e33df25c9501": "*"
         },
         "test/upload-interrupted": {
+          "44ed69b5a609": "*",
           "e33df25c9501": "*"
         }
       },
@@ -3636,7 +3639,7 @@
         "layer": "content",
         "path": "^main > region \"Results\"$",
         "kind": "^changed$",
-        "detail": "^text "
+        "detail": "^text (?!\"(.*Bufferbloat\" → |(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis|Graded after upload During|Not graded — ))(?!\"[^\"]*plateau: no-gain low confidence)"
       },
       "type": "conflict",
       "aspect": "content",
@@ -4140,11 +4143,24 @@
     {
       "owned": {
         "demo/open": {
+          "0990ec315a14": "*",
           "1978f936a320": "*",
           "352c9d16d341": "*",
           "3b427644cbbc": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "3cba0d9e2992": "*",
+          "6e8586155650": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "78422df2be77": "*",
+          "787d8f11e1e8": "*",
+          "8b319baa56e7": "*",
+          "9ffca9cec12d": [
+            "dark-desktop",
+            "light-desktop"
           ],
           "db2e3c30134f": "*",
           "de74816f22c2": "*",
@@ -4487,7 +4503,9 @@
       "owned": {
         "test/insufficient": {
           "4237a173c693": "*",
-          "bd6b84888992": "*"
+          "9a748c9ce1b9": "*",
+          "bd6b84888992": "*",
+          "ef4c64bebcd7": "*"
         }
       },
       "resolution": null
@@ -4559,9 +4577,29 @@
     {
       "owned": {
         "test/cancelled": {
+          "1c7c792bd508": [
+            "light-narrow"
+          ],
           "298f0ee1c46c": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "70d06d438882": [
+            "dark-narrow"
+          ],
+          "986cb4d36c17": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a46e35539597": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a54962747f6e": [
+            "dark-desktop"
+          ],
+          "b6953ae8bf4d": [
+            "light-desktop"
           ],
           "b82f793f77bd": [
             "dark-desktop",
@@ -4571,12 +4609,26 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "e5089d998868": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "eb18518bc2ac": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "f583054b6fa9": [
+            "dark-narrow",
+            "light-narrow"
           ]
         },
         "test/cancelled-late": {
+          "01e682a0789b": [
+            "dark-desktop"
+          ],
+          "047dd3cc432d": [
+            "dark-narrow"
+          ],
           "1907c3714e72": [
             "dark-narrow",
             "light-narrow"
@@ -4591,9 +4643,23 @@
           "818af8f4145c": [
             "dark-desktop"
           ],
+          "aa937be1c1c3": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ac3aba2a94d8": [
+            "light-desktop"
+          ],
+          "bbc11cfa41d8": [
+            "light-narrow"
+          ],
           "eb18518bc2ac": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "f781f85f1644": [
+            "dark-narrow",
+            "light-narrow"
           ]
         },
         "test/cancelled-latency": {
@@ -4601,15 +4667,31 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "5f5114be9cc4": [
+            "dark-desktop"
+          ],
+          "67fd963a33e3": [
+            "light-desktop"
+          ],
           "d7e9c2a4796f": [
             "dark-desktop",
             "light-desktop"
           ]
         },
         "test/cancelled-slow": {
+          "01c25a5a2dcb": [
+            "dark-narrow"
+          ],
+          "26a963e9ad8b": [
+            "light-narrow"
+          ],
           "6f03ed691026": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "9f1be64cd029": [
+            "dark-desktop",
+            "light-desktop"
           ],
           "cd6854f02327": [
             "dark-desktop",
@@ -4624,6 +4706,17 @@
           "04132bcd4162": [
             "dark-desktop"
           ],
+          "242d340d9e29": [
+            "light-desktop"
+          ],
+          "28310d07a06c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "2dd7a92e057a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "4f95ecaf61b9": [
             "dark-narrow",
             "light-narrow"
@@ -4631,6 +4724,9 @@
           "63cc45188a7e": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "be1be8c7b32b": [
+            "dark-desktop"
           ],
           "c29be2163184": [
             "dark-desktop",
@@ -4646,15 +4742,33 @@
           "defe8f05da74": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "f8787856bea1": [
+            "dark-narrow",
+            "light-narrow"
           ]
         },
         "test/complete": {
+          "5b430d10db22": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "cca2da094a30": [
             "dark-desktop"
           ]
         },
         "test/error": {
+          "286976235ce3": [
+            "light-desktop"
+          ],
           "3297f3b9577e": [
+            "dark-desktop"
+          ],
+          "64aec28d3671": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "71edf6b88251": [
             "dark-desktop"
           ],
           "d6887409d67a": [
@@ -4672,9 +4786,17 @@
           ]
         },
         "test/insufficient": {
+          "066148ea5096": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "554f1e3946fe": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "6452ceb241ef": [
+            "dark-desktop",
+            "light-desktop"
           ],
           "de9900f96d58": [
             "dark-desktop",
@@ -4682,6 +4804,14 @@
           ]
         },
         "test/slow": {
+          "28310d07a06c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "2dd7a92e057a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "4f95ecaf61b9": [
             "dark-narrow",
             "light-narrow"
@@ -4704,6 +4834,9 @@
           ]
         },
         "test/slowdone": {
+          "1d7625fb8f29": [
+            "light-narrow"
+          ],
           "4ffa8331cfc1": [
             "light-desktop"
           ],
@@ -4713,6 +4846,13 @@
           ],
           "7c31dd1f68fd": [
             "dark-desktop"
+          ],
+          "8b11fc68096c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "bfb3e38cc32b": [
+            "dark-narrow"
           ],
           "c29be2163184": [
             "dark-desktop",
@@ -4736,12 +4876,23 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "aa937be1c1c3": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "eb18518bc2ac": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "f781f85f1644": [
+            "dark-narrow",
+            "light-narrow"
           ]
         },
         "test/upload-interrupted": {
+          "22c5b1b8f1a0": [
+            "light-desktop"
+          ],
           "241bd8bedcb5": [
             "light-desktop"
           ],
@@ -4756,9 +4907,26 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "6e8ca9cc1691": [
+            "dark-desktop"
+          ],
+          "76bf1024627e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8fb6181a4412": [
+            "dark-desktop"
+          ],
+          "91749b1dfecf": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "97f6484072f2": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "c17eed646b1d": [
+            "light-desktop"
           ]
         }
       },
@@ -4768,7 +4936,23 @@
       "title": "Chart labels placed by the run: separators, marks and axis numbers follow the demo run's own timing and values, not the kit's fixed mock",
       "match": {
         "scenarios": [
-          "test/*"
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/ws-fallback",
+          "test/insufficient"
         ],
         "projects": null,
         "layer": "layout",
@@ -4908,11 +5092,23 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "9a6f2e35fa87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "a2729208ca9a": [
             "dark-desktop",
             "light-desktop"
           ],
+          "a550b2cbfb7c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "b2fd82f38780": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f73f5f65c2f5": [
             "dark-desktop",
             "light-desktop"
           ]
@@ -4934,6 +5130,18 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "5f60e0dfb3b6": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6aad002e552f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a167c1815bf3": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "dc4ee817d180": [
             "dark-narrow",
             "light-narrow"
@@ -4949,6 +5157,14 @@
             "light-desktop"
           ],
           "44b3de82c2be": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5f60e0dfb3b6": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8a3d1d609321": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -4970,6 +5186,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "38ee2174517b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "53a3839efc64": [
             "dark-narrow",
             "light-narrow"
@@ -4985,9 +5205,21 @@
           "bc4f9762362a": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "c028c2c894f2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c854aa6a7f76": [
+            "dark-desktop",
+            "light-desktop"
           ]
         },
         "test/upload-interrupted": {
+          "0a17ba11e72a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "1aacac037f84": [
             "dark-narrow",
             "light-narrow"
@@ -4997,6 +5229,10 @@
             "light-desktop"
           ],
           "926cc4fdd3c0": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c028c2c894f2": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -5022,11 +5258,23 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "9a6f2e35fa87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "a2729208ca9a": [
             "dark-desktop",
             "light-desktop"
           ],
+          "a550b2cbfb7c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "b2fd82f38780": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f73f5f65c2f5": [
             "dark-desktop",
             "light-desktop"
           ]
@@ -5490,7 +5738,7 @@
         "layer": "content",
         "path": "^main > (region \"Results\"|status)$",
         "kind": "^changed$",
-        "detail": "^text \"(?!…-up\\), so)(?!Test )(?!Partial result)(?!(Upload|Download) result)"
+        "detail": "^text \"(?!…-up\\), so)(?!Test )(?!Partial result)(?!(Upload|Download) result)(?!.*Bufferbloat\" → )(?!(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis)(?!Graded after upload During)(?!Not graded — )(?![^\"]*plateau: no-gain low confidence)(?!…onds\\. Bufferbloat grade)"
       },
       "type": "harness",
       "aspect": null,
@@ -5995,7 +6243,7 @@
         "layer": "content",
         "path": "^main( > region \"Speed test\"( > list \"Test phases\")?)?$",
         "kind": null,
-        "detail": "^(?!img |figure)"
+        "detail": "^(?!img |figure)(?!link \"Edit\"$)(?!text \"[^\"]*Latency under load\" → )"
       },
       "type": "conflict",
       "aspect": "content",
@@ -6344,13 +6592,12 @@
           "test/countdown",
           "test/basepath",
           "test/param-ignored",
-          "test/cancelled-download",
           "about",
           "about/unreachable"
         ],
         "projects": null,
         "layer": "layout",
-        "path": null,
+        "path": "^(?!main > (img \"Throughput: no data yet\"|region \"(Results|Speed test)\"|text \"(0\\.25|0\\.50|0\\.75|0|# Gbit/s|#s|Download|Upload|3\\.0|3\\.1|Throughput over time appears here[^\"]*|Nothing to measure yet[^\"]*)\"( #\\d+)?)$)",
         "kind": null,
         "detail": null
       },
@@ -6379,6 +6626,7 @@
       },
       "owned": {
         "about": {
+          "00d9ac36ba9a": "*",
           "047aa7e2ef1e": [
             "dark-narrow",
             "light-narrow"
@@ -6417,18 +6665,26 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "3a1f1556e827": "*",
+          "4adf109615a2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "4ae32826c4cc": [
             "dark-narrow",
             "light-narrow"
           ],
           "4afdb49c2e59": "*",
           "4db12f26814b": "*",
+          "564bcb00d854": "*",
+          "59100cd792ce": "*",
           "6612093d1e7b": [
             "dark-narrow",
             "light-narrow"
           ],
           "6bb9ad8e91d9": "*",
           "6e18274943ea": "*",
+          "73c59b35694b": "*",
           "750331ec5510": [
             "dark-desktop",
             "light-desktop"
@@ -6474,15 +6730,19 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "a12553a28808": "*",
           "a200ef1e8e87": [
             "dark-narrow",
             "light-narrow"
           ],
+          "a2aa91a59d3f": "*",
           "a8e48a0bb7c0": "*",
+          "aa14bd203660": "*",
           "aa1be374baef": [
             "dark-narrow",
             "light-narrow"
           ],
+          "b4a9bc743570": "*",
           "bd7ad39d43cd": "*",
           "bd90af4123c4": [
             "dark-desktop",
@@ -6503,17 +6763,29 @@
             "light-narrow"
           ],
           "e610479c1131": "*",
+          "e6bfaf3a8997": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "e826c674fce7": "*",
+          "ebdf61b4a073": "*",
+          "ec9d278660d3": "*",
           "ecb1daee8aa1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "fa8544b44683": [
             "dark-desktop",
             "light-desktop"
           ],
           "fc67ddefe7de": [
             "dark-narrow",
             "light-narrow"
-          ]
+          ],
+          "ff1157882b27": "*"
         },
         "about/unreachable": {
+          "00d9ac36ba9a": "*",
           "081569d34b3c": "*",
           "0a7c60b65308": [
             "dark-desktop",
@@ -6548,6 +6820,7 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "3a1f1556e827": "*",
           "3bf24497fdcb": [
             "dark-desktop",
             "light-desktop"
@@ -6567,6 +6840,8 @@
           ],
           "4afdb49c2e59": "*",
           "4db12f26814b": "*",
+          "564bcb00d854": "*",
+          "59100cd792ce": "*",
           "6612093d1e7b": [
             "dark-narrow",
             "light-narrow"
@@ -6577,6 +6852,7 @@
           ],
           "6bb9ad8e91d9": "*",
           "6e18274943ea": "*",
+          "73c59b35694b": "*",
           "750331ec5510": [
             "dark-desktop",
             "light-desktop"
@@ -6614,7 +6890,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "a12553a28808": "*",
+          "a2aa91a59d3f": "*",
           "a8e48a0bb7c0": "*",
+          "aa14bd203660": "*",
           "aa1be374baef": [
             "dark-narrow",
             "light-narrow"
@@ -6627,6 +6906,7 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "b4a9bc743570": "*",
           "b4cec63ee438": [
             "dark-narrow",
             "light-narrow"
@@ -6651,10 +6931,16 @@
             "light-desktop"
           ],
           "e610479c1131": "*",
+          "e6bfaf3a8997": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "e8ffcb6d4094": [
             "dark-desktop",
             "light-desktop"
           ],
+          "ebdf61b4a073": "*",
+          "ec9d278660d3": "*",
           "ecb1daee8aa1": [
             "dark-desktop",
             "light-desktop"
@@ -6664,6 +6950,10 @@
             "light-desktop"
           ],
           "f48414a855d9": "*",
+          "f86ee7884fbb": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "f91db244f0be": [
             "dark-narrow",
             "light-narrow"
@@ -6671,7 +6961,12 @@
           "fa222e5eafaa": [
             "dark-narrow",
             "light-narrow"
-          ]
+          ],
+          "fa8544b44683": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ff1157882b27": "*"
         },
         "test/basepath": {
           "124635adb24f": [
@@ -8116,6 +8411,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "6503c3091073": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "6663401c13af": [
             "dark-narrow",
             "light-narrow"
@@ -8767,6 +9066,10 @@
           "27cb6c6c27e3": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "283f9a130c3b": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "28b00ba75880": [
             "dark-narrow",
@@ -9423,6 +9726,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "05509aa7a1da": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "05c2b94efee3": [
             "dark-desktop",
             "light-desktop"
@@ -9749,6 +10056,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "721ae63b6ce2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "7231b0e5b294": [
             "dark-narrow",
             "light-narrow"
@@ -9802,6 +10113,10 @@
             "light-desktop"
           ],
           "82fd04ca2d5b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8540a097852e": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -10105,6 +10420,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "e064664ff246": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "e0c000c3f9ed": [
             "dark-narrow",
             "light-narrow"
@@ -10151,6 +10470,7 @@
           ],
           "e66a0284628c": "*",
           "e79f236be59d": "*",
+          "eb5a23968d22": "*",
           "ec7d84aa348d": [
             "dark-desktop",
             "light-desktop"
@@ -11212,6 +11532,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "08506ef1ba98": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "0a55f1648f6f": [
             "dark-narrow",
             "light-narrow"
@@ -12053,6 +12377,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "05509aa7a1da": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "05c2b94efee3": [
             "dark-desktop",
             "light-desktop"
@@ -12265,6 +12593,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "510e376212b8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "51cda0f57ff3": [
             "dark-desktop",
             "light-desktop"
@@ -12443,6 +12775,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "8540a097852e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "864fa7cc341f": [
             "dark-desktop",
             "light-desktop"
@@ -12610,6 +12946,10 @@
             "light-desktop"
           ],
           "b3e054767d52": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b583a9ab81e5": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -12789,6 +13129,7 @@
           ],
           "e66a0284628c": "*",
           "e79f236be59d": "*",
+          "eb5a23968d22": "*",
           "ec7d84aa348d": [
             "dark-desktop",
             "light-desktop"
@@ -13399,7 +13740,23 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "4802773a0b0e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "48446a317c03": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "50b3c5becdd6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "64423e4949e8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "982a87dd1aff": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -13408,6 +13765,10 @@
             "light-narrow"
           ],
           "a5fcdb3a1007": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a99bd087e405": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -13422,6 +13783,10 @@
           "c63e08daaac2": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "dff0f48b3e85": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "e21fca81c148": [
             "dark-narrow",
@@ -13449,7 +13814,23 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "4802773a0b0e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "48446a317c03": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "50b3c5becdd6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "64423e4949e8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "982a87dd1aff": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -13458,6 +13839,10 @@
             "light-narrow"
           ],
           "a5fcdb3a1007": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a99bd087e405": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -13472,6 +13857,10 @@
           "c63e08daaac2": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "dff0f48b3e85": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "e21fca81c148": [
             "dark-narrow",
@@ -17365,7 +17754,8 @@
           "test/param-ignored",
           "loaded/ws-close",
           "loaded/ll-insufficient-samples",
-          "loaded/ll-reservation-broken"
+          "loaded/ll-reservation-broken",
+          "test/cancelled-latency"
         ],
         "projects": null,
         "layer": "content",
@@ -17426,7 +17816,7 @@
           "ref": "web/src/components/connection/SettingsSummary.vue",
           "says": "the text Edit under a link named Edit settings"
         },
-        "notes": "Follows v02-a11y-edit-name; on test/cancelled-latency the name itself is held by behavior-stop-in-latency."
+        "notes": "Follows v02-a11y-edit-name."
       },
       "decision": null,
       "owned": {},
@@ -17509,9 +17899,10 @@
     },
     {
       "id": "v02-a11y-load-card-region-text",
-      "title": "Loaded-latency cases: the results text without the load card, which Vue's Bufferbloat region holds apart (follows v02-a11y-load-card-region)",
+      "title": "Test screen and loaded-latency cases: the results text without the load card, which Vue's Bufferbloat region holds apart (follows v02-a11y-load-card-region)",
       "match": {
         "scenarios": [
+          "test/*",
           "loaded/ws-close",
           "loaded/ll-insufficient-samples",
           "loaded/ll-reservation-broken"
@@ -17520,7 +17911,7 @@
         "layer": "content",
         "path": "^main > region \"Results\"$",
         "kind": "^changed$",
-        "detail": "^text \"(.*Bufferbloat\" → |(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis)"
+        "detail": "^text \"(?![^\"]*HTTP/2 probe · # % probe timeouts)(.*Bufferbloat\" → |(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis|Graded after upload During|Not graded — )"
       },
       "type": "conflict",
       "aspect": "a11y",
@@ -17537,7 +17928,7 @@
           "ref": "web/src/components/result/LoadCard.vue",
           "says": "the card's words inside its own region"
         },
-        "notes": "Follows v02-a11y-load-card-region; the Test screen states' same text stays with content-results-tiles."
+        "notes": "Follows v02-a11y-load-card-region, on every Test screen state and the loaded cases. The WebSocket fallback's idle tile line, which also names the probe, is v02-fixture-loaded-mechanisms'."
       },
       "decision": null,
       "owned": {},
@@ -17740,6 +18131,7 @@
       "match": {
         "scenarios": [
           "history/populated",
+          "history/single",
           "history/daterange",
           "history/deleted",
           "history/importerror",
@@ -17808,6 +18200,43 @@
           "ref": "web/src/components/history/SelectionBar.vue",
           "says": "the hint as visually hidden text that also describes Compare"
         }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v02-about-privacy-history",
+      "title": "About, Privacy: the kit says history lives only in your browser; Vue keeps the v0.1 sentence without history",
+      "match": {
+        "scenarios": [
+          "about",
+          "about/unreachable"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > complementary$",
+        "kind": "^changed$",
+        "detail": "^text \"… server keeps no results — history"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:283-284",
+          "says": "no accounts, no tracking; the server keeps no results, which exist only in this browser (from v0.2, so does the history)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/About.jsx:58",
+          "says": "with history: \"No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.\""
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/about.json:29",
+          "says": "\"No accounts, no tracking, no ads. The server keeps no results: a result exists only in this browser.\""
+        },
+        "notes": "content-about-page (done) chose the v0.1 sentence while v0.1 had no history."
       },
       "decision": null,
       "owned": {},
@@ -18084,45 +18513,8 @@
       "resolution": null
     },
     {
-      "id": "v02-fixture-cancelled-slow-grade",
-      "title": "Slow link stopped mid-run: the kit's mock VPN loaded latency grades C; the demo engine's pings up to the stop grade B or C",
-      "match": {
-        "scenarios": [
-          "test/cancelled-slow",
-          "test/cancelled-slow-up"
-        ],
-        "projects": null,
-        "layer": "content",
-        "path": "^main > region \"Results\"",
-        "kind": null,
-        "detail": "(grade C, Moderate bufferbloat\" → \"[^\"]*grade B, Mild bufferbloat\"|^text \"C\" → \"B\"$)"
-      },
-      "type": "fixture",
-      "aspect": null,
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/technical-stack/frontend.md §9",
-          "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:368-379,403-414",
-          "says": "the grade from the mock VPN curve's loaded latency over idle: C"
-        },
-        "vue": {
-          "ref": "web/src/demo/scenarios.ts:106-107; web/src/demo/link.ts",
-          "says": "the grade from the engine's pings on the simulated VPN up to the stop, near the B/C boundary: B in some runs"
-        },
-        "notes": "Seed only: the grade is computed by the same rule from different pings."
-      },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
-      "resolution": null
-    },
-    {
       "id": "v02-fixture-cancelled-slow-grade-geometry",
-      "title": "Slow link stopped mid-run, load card (follows v02-fixture-cancelled-slow-grade): when the demo run grades B, \"Mild bufferbloat\" sets the grade column's rows and the row labels' width otherwise than the kit's \"Moderate bufferbloat\"",
+      "title": "Slow link stopped mid-run, load card (follows v02-fixture-cancelled-slow-up-status): when the demo run grades B, \"Mild bufferbloat\" sets the grade column's rows and the row labels' width otherwise than the kit's \"Moderate bufferbloat\"",
       "match": {
         "scenarios": [
           "test/cancelled-slow",
@@ -18149,26 +18541,64 @@
           "ref": "web/src/demo/scenarios.ts:106-107",
           "says": "grade B or C from the run's pings"
         },
-        "notes": "Follows v02-fixture-cancelled-slow-grade; present only in the runs that grade B."
+        "notes": "Follows v02-fixture-cancelled-slow-up-status; present only in the runs that grade B."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "Confirmed on 2026-10-18 with v02-fixture-cancelled-slow-up-status: the geometry follows the grade.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "test/cancelled-slow": {
+          "07e64c67eac2": [
+            "dark-desktop"
+          ],
+          "3e3557c84fd3": [
+            "dark-desktop"
+          ],
+          "3ea713f85c75": [
+            "dark-desktop"
+          ],
+          "4041f52f5db4": [
+            "dark-desktop"
+          ],
+          "510523c0cb10": [
+            "dark-desktop"
+          ],
+          "640071628a5c": [
+            "dark-desktop"
+          ],
+          "ce393fc7a421": [
+            "dark-desktop"
+          ],
+          "ff29ea3f5611": [
+            "dark-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "fixture",
+          "what": "Follows v02-fixture-cancelled-slow-up-status: gone once the slow link grades C in every run.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
       "id": "v02-fixture-cancelled-slow-up-status",
-      "title": "Slow link stopped during upload: the status line reads the demo run's grade, B or C, where the kit's mock reads C (v02-fixture-cancelled-slow-grade)",
+      "title": "Slow link stopped mid-run: the demo engine's pings up to the stop grade B or C, where the kit's mock VPN loaded latency grades C; the load card and the status line read the run's grade",
       "match": {
         "scenarios": [
+          "test/cancelled-slow",
           "test/cancelled-slow-up"
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main > status$",
+        "path": "^main > (status|region \"Results\"( > .*)?)$",
         "kind": null,
-        "detail": "grade C, moderate bufferbloat, plus # mil…\" → \"…onds\\. Bufferbloat grade B, mild bufferbloat"
+        "detail": "(grade C, Moderate bufferbloat\" → \"[^\"]*grade B, Mild bufferbloat\"|^text \"C\" → \"B\"$|grade C, moderate bufferbloat, plus # mil…\" → \"…onds\\. Bufferbloat grade B, mild bufferbloat)"
       },
       "type": "fixture",
       "aspect": null,
@@ -18178,19 +18608,35 @@
           "says": "the demo's history holds the kit's eight VPN results (src/demo/history.ts); its runs are the engine's own against the simulated link"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:368-384",
-          "says": "the live summary names the mock run's grade, C"
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:368-384,403-414",
+          "says": "the grade from the mock VPN curve's loaded latency over idle: C, and the live summary names it"
         },
         "vue": {
-          "ref": "web/src/demo/scenarios.ts:107",
-          "says": "the live summary names the grade of the engine's run, B in some runs"
+          "ref": "web/src/demo/scenarios.ts:106-107; web/src/demo/link.ts",
+          "says": "the grade from the engine's pings on the simulated VPN up to the stop, near the B/C boundary: B in some runs, in the load card and the live summary"
         },
-        "notes": "On test/cancelled-slow the same sentence is held by harness-tile-values."
+        "notes": "Seed only: the grade is computed by the same rule from different pings. Present only in the runs that grade B. Merged with v02-fixture-cancelled-slow-grade on 2026-10-18."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "The maintainer confirmed on 2026-10-18: tune the slow link so a stopped run grades as the kit's does; entries that come and go cannot be held by a baseline.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "test/cancelled-slow": {
+          "843bdf5251d4": [
+            "dark-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "fixture",
+          "what": "web/src/demo/link.ts (vpn): enough queueing under load that the pings up to the stops of test/cancelled-slow and test/cancelled-slow-up grade C, Moderate bufferbloat, in every run, as the kit's mock does; frontend.md §9 if the link's description changes.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -18225,10 +18671,34 @@
         },
         "notes": "Seed only; the same rule as fixture-chart-run-timing, for the scenarios that rule does not list."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it, as for fixture-chart-run-timing: the numbers are the demo engine's own measurement of the simulated link, not the kit's mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "loaded/ll-insufficient-samples": {
+          "5b430d10db22": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "loaded/ws-close": {
+          "5b430d10db22": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "share/complete": {
+          "5b430d10db22": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -18263,10 +18733,198 @@
           "says": "every filtered result as a card"
         }
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: every count, card, suggestion and last result is what the demo's stored results give (frontend.md §9); the kit's literals are a mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "history/daterange": {
+          "334326c1ff45": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "acb065fb27b6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ae5e2f7f38c7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b879dd81dcea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bb9e07c131cd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d3128be11ca8": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "history/importerror": {
+          "334326c1ff45": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "acb065fb27b6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ae5e2f7f38c7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b879dd81dcea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bb9e07c131cd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d3128be11ca8": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "history/importing": {
+          "334326c1ff45": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "acb065fb27b6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ae5e2f7f38c7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b879dd81dcea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bb9e07c131cd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d3128be11ca8": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "history/importresult": {
+          "334326c1ff45": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "acb065fb27b6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ae5e2f7f38c7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b879dd81dcea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bb9e07c131cd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d3128be11ca8": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "history/populated": {
+          "334326c1ff45": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "acb065fb27b6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ae5e2f7f38c7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b879dd81dcea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bb9e07c131cd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d3128be11ca8": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "history/safari": {
+          "334326c1ff45": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "acb065fb27b6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ae5e2f7f38c7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b879dd81dcea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bb9e07c131cd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d3128be11ca8": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "history/select3": {
+          "334326c1ff45": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "acb065fb27b6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ae5e2f7f38c7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b879dd81dcea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bb9e07c131cd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d3128be11ca8": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -18299,24 +18957,100 @@
         },
         "notes": "Seed only: each count is what the stored results give."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: every count, card, suggestion and last result is what the demo's stored results give (frontend.md §9); the kit's literals are a mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "history/confirm": {
+          "41aaefa7c222": "*"
+        },
+        "history/daterange": {
+          "51cee8f1e031": "*",
+          "aa5770cbf59f": "*",
+          "e43d04a475b7": "*",
+          "f481cee6f502": "*"
+        },
+        "history/deleted": {
+          "029d7b0159a8": "*",
+          "51cee8f1e031": "*",
+          "e43d04a475b7": "*",
+          "f481cee6f502": "*"
+        },
+        "history/export": {
+          "2f6888d6617e": "*",
+          "e1317b58d466": "*"
+        },
+        "history/importerror": {
+          "51cee8f1e031": "*",
+          "aa5770cbf59f": "*",
+          "e43d04a475b7": "*",
+          "f481cee6f502": "*"
+        },
+        "history/importing": {
+          "51cee8f1e031": "*",
+          "aa5770cbf59f": "*",
+          "e43d04a475b7": "*",
+          "f481cee6f502": "*"
+        },
+        "history/importresult": {
+          "0aca0bb5422d": "*",
+          "10d9c723948a": "*",
+          "20aa5968498c": "*",
+          "3ae202692341": "*",
+          "bcce8b5dc032": "*",
+          "cf5eb94495f9": "*",
+          "e1d4b34637e2": "*",
+          "e43d04a475b7": "*",
+          "e9537de95e82": "*",
+          "f481cee6f502": "*"
+        },
+        "history/nomatch": {
+          "51cee8f1e031": "*",
+          "aa5770cbf59f": "*",
+          "e43d04a475b7": "*",
+          "f481cee6f502": "*"
+        },
+        "history/populated": {
+          "51cee8f1e031": "*",
+          "aa5770cbf59f": "*",
+          "e43d04a475b7": "*",
+          "f481cee6f502": "*"
+        },
+        "history/safari": {
+          "51cee8f1e031": "*",
+          "aa5770cbf59f": "*",
+          "e43d04a475b7": "*",
+          "f481cee6f502": "*"
+        },
+        "history/select3": {
+          "51cee8f1e031": "*",
+          "aa5770cbf59f": "*",
+          "e43d04a475b7": "*",
+          "f481cee6f502": "*"
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
       "id": "v02-fixture-label-suggestions",
-      "title": "Save bar suggestions: the kit's \"Home Wi-Fi\" and \"Office\" vs the demo's recent labels, of which a fresh page has none",
+      "title": "Save bar label: the kit's suggestions (\"Home Wi-Fi\", \"Office\", \"Mobile\") and slowdone's pre-filled \"VPN via 5G\" vs the demo's recent labels, of which a fresh page has none",
       "match": {
         "scenarios": [
+          "test/complete",
+          "test/upload-interrupted",
+          "test/slowdone",
           "loaded/ws-close",
           "loaded/ll-insufficient-samples",
           "loaded/ll-reservation-broken"
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main > region \"Result status\" > group \"Suggested labels\"$",
+        "path": "^main > region \"Result status\" > (group \"Suggested labels\"|textbox \"Result label\")$",
         "kind": "^missing$",
         "detail": null
       },
@@ -18329,17 +19063,47 @@
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
-          "says": "suggestions \"Home Wi-Fi\", \"Office\""
+          "says": "suggestions \"Home Wi-Fi\", \"Office\" (and \"Mobile\" on slowdone); slowdone's label field holds \"VPN via 5G\""
         },
         "vue": {
           "ref": "web/src/components/test/SaveBar.vue",
           "says": "the stored results' recent labels and the context label; the loaded scenarios start with no history"
         }
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: every count, card, suggestion and last result is what the demo's stored results give (frontend.md §9); the kit's literals are a mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "loaded/ll-insufficient-samples": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        },
+        "loaded/ll-reservation-broken": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        },
+        "loaded/ws-close": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        },
+        "test/complete": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        },
+        "test/slowdone": {
+          "32800ffe52a4": "*",
+          "99bbf6648a9c": "*"
+        },
+        "test/upload-interrupted": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -18372,17 +19136,30 @@
           "says": "the newest stored result: VPN via 5G, 08:41 that day"
         }
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: every count, card, suggestion and last result is what the demo's stored results give (frontend.md §9); the kit's literals are a mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "test/idle": {
+          "b2882cc5e532": "*"
+        },
+        "test/param-ignored": {
+          "b2882cc5e532": "*"
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
       "id": "v02-fixture-loaded-mechanisms",
-      "title": "Loaded-latency cases: how the demo reaches them (the WebSocket closing, HTTP/1.1 for the reservation) shows as a notice and a protocol the kit's panel switches do not have",
+      "title": "WebSocket fallback and loaded-latency cases: how the demo reaches them (the WebSocket closing, HTTP/1.1 for the reservation) shows as a notice, a status and a protocol the kit's panel switches do not have",
       "match": {
         "scenarios": [
+          "test/ws-fallback",
           "loaded/ws-close",
           "loaded/ll-insufficient-samples",
           "loaded/ll-reservation-broken"
@@ -18391,7 +19168,7 @@
         "layer": "content",
         "path": null,
         "kind": null,
-        "detail": "(Notice: WebSocket unavailable — HTTP latency fallback\\.|Protocol HTTP/1\\.1 Streams|^status$)"
+        "detail": "(Notice: WebSocket unavailable — HTTP latency fallback\\.|Protocol HTTP/1\\.1 Streams|· HTTP/1\\.1 probe · |^status$)"
       },
       "type": "fixture",
       "aspect": null,
@@ -18402,17 +19179,37 @@
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/App.jsx (wsClose, LL_GAPS)",
-          "says": "the case is drawn on the LAN run as is: HTTP/2, no notice"
+          "says": "the case is drawn on the LAN run as is: HTTP/2, no notice; ws-fallback: the HTTP/2 probe, one notice"
         },
         "vue": {
           "ref": "web/src/demo/scenarios.ts:115-119",
-          "says": "ws-close and ll-insufficient-samples close the WebSocket; ll-reservation-broken runs over HTTP/1.1 and closes it in the upload: the WebSocket-unavailable notice, and HTTP/1.1 in the strip"
+          "says": "ws-close and ll-insufficient-samples close the WebSocket; ll-reservation-broken runs over HTTP/1.1 and closes it in the upload: the WebSocket-unavailable notice, and HTTP/1.1 in the strip; ws-fallback runs on lan-http1, so the strip and the idle tile say HTTP/1.1 and the reservation notice is a status (scenarios.ts:83-85)"
         }
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: the demo reaches each case as the engine would, the WebSocket fallback and the reservation over HTTP/1.1 (lan-http1), so their notices and protocol are honest.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "loaded/ll-insufficient-samples": {
+          "51af95f96c45": "*",
+          "8dce668032fb": "*"
+        },
+        "loaded/ll-reservation-broken": {
+          "51af95f96c45": "*",
+          "5a6d6d49c897": "*",
+          "8dce668032fb": "*"
+        },
+        "test/ws-fallback": {
+          "89c561e3fca8": "*",
+          "8dce668032fb": "*",
+          "dbad4f3648b2": "*"
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -18454,10 +19251,34 @@
         },
         "notes": "Seed only: the run's numbers, not its presentation."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it, as for fixture-chart-run-timing: the numbers are the demo engine's own measurement of the simulated link, not the kit's mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "result": {
+          "0acc7ee4d5ed": "*"
+        },
+        "result/clipboard-denied": {
+          "0acc7ee4d5ed": "*"
+        },
+        "result/history-unavailable": {
+          "0acc7ee4d5ed": "*"
+        },
+        "result/ll-insufficient-samples": {
+          "0acc7ee4d5ed": "*"
+        },
+        "result/ll-reservation-broken": {
+          "0acc7ee4d5ed": "*"
+        },
+        "result/ws-close": {
+          "0acc7ee4d5ed": "*"
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -18496,10 +19317,72 @@
         },
         "notes": "Seed only; the label's y moves with the column (v02-result-column-geometry)."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it, as for fixture-chart-run-timing: the numbers are the demo engine's own measurement of the simulated link, not the kit's mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "result": {
+          "3394cde8ebe3": [
+            "dark-narrow"
+          ],
+          "a090576f51b9": [
+            "dark-narrow"
+          ],
+          "ffb9f23f71a6": [
+            "dark-narrow"
+          ]
+        },
+        "result/clipboard-denied": {
+          "3394cde8ebe3": [
+            "light-narrow"
+          ],
+          "a090576f51b9": [
+            "light-narrow"
+          ],
+          "a31534f8af17": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c5cc5e438ac2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cf5314acfd58": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ffb9f23f71a6": [
+            "light-narrow"
+          ]
+        },
+        "result/history-unavailable": {
+          "a31534f8af17": [
+            "light-desktop"
+          ],
+          "c5cc5e438ac2": [
+            "light-desktop"
+          ],
+          "cf5314acfd58": [
+            "light-desktop"
+          ]
+        },
+        "result/ll-reservation-broken": {
+          "a31534f8af17": [
+            "dark-desktop"
+          ],
+          "c5cc5e438ac2": [
+            "dark-desktop"
+          ],
+          "cf5314acfd58": [
+            "dark-desktop"
+          ]
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -18507,6 +19390,7 @@
       "title": "Boxes named by a run's numbers: the kit's chart axis \"400\" and \"600\" pair with Vue boxes of the same name elsewhere (the gauge readout, a tile's number), since the runs' numbers differ",
       "match": {
         "scenarios": [
+          "test/latency",
           "test/slow",
           "test/slowdone",
           "test/cancelled-slow-up",
@@ -18517,7 +19401,7 @@
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^main > text \"(400|600)\"$",
+        "path": "^main > text \"(400|600|3\\.0|3\\.1)\"$",
         "kind": null,
         "detail": null
       },
@@ -18536,12 +19420,112 @@
           "ref": "web/src/demo/link.ts",
           "says": "the engine's run: the gauge reads 600 on the LAN, the slow link's axis has other ticks"
         },
-        "notes": "Seed only, as fixture-chart-run-timing (accepted) for the other chart labels."
+        "notes": "Seed only, as fixture-chart-run-timing (accepted) for the other chart labels. On test/latency the gauge and the idle tile swap \"3.0\" and \"3.1\"."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it, as for fixture-chart-run-timing: the numbers are the demo engine's own measurement of the simulated link, not the kit's mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "share/complete": {
+          "32b06cd5c7c6": [
+            "dark-narrow"
+          ],
+          "c85590f78aad": [
+            "dark-narrow"
+          ],
+          "d88373a559b7": [
+            "dark-narrow"
+          ],
+          "f1399d0ae3bd": [
+            "dark-narrow"
+          ]
+        },
+        "test/cancelled-slow-up": {
+          "c505adc90c44": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f67e4de54f6a": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/latency": {
+          "398296203982": [
+            "light-desktop"
+          ],
+          "3b6a0c45eb74": [
+            "light-narrow"
+          ],
+          "44e7a48f5513": [
+            "light-desktop"
+          ],
+          "4d1d82da4c67": [
+            "light-narrow"
+          ],
+          "506e5ace6601": [
+            "light-desktop"
+          ],
+          "52c9079a7680": [
+            "light-narrow"
+          ],
+          "76aa375a7726": [
+            "light-desktop"
+          ],
+          "78032ed66b76": [
+            "light-narrow"
+          ],
+          "8f842bd086ff": [
+            "light-desktop"
+          ],
+          "9dccfe919c50": [
+            "light-desktop"
+          ],
+          "a87cb916e6aa": [
+            "light-narrow"
+          ],
+          "b3368e76871a": [
+            "light-desktop"
+          ],
+          "bafb3479b4e0": [
+            "light-narrow"
+          ],
+          "d82baaa67ee5": [
+            "light-desktop"
+          ],
+          "f762afba6c60": [
+            "light-narrow"
+          ],
+          "ffe9cda571b6": [
+            "light-narrow"
+          ]
+        },
+        "test/slow": {
+          "c505adc90c44": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f67e4de54f6a": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/slowdone": {
+          "c505adc90c44": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f67e4de54f6a": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -18574,24 +19558,243 @@
         },
         "notes": "Follows v02-fixture-slowdone-unstable: the Results card's height and everything in it below the tiles, and the strip's Streams width; the save bar's, as v02-save-bar-geometry describes for the other saved runs (v02-fixture-label-suggestions)."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "Confirmed on 2026-10-18 with v02-fixture-slowdone-unstable: the geometry follows the tile's words.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "test/slowdone": {
+          "074f0ddc5467": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0a0645e1b69b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "115266021058": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "12d18359e953": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "13039fd93ed4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1c1533c29923": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "1dfaf615dcce": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "229b508f097d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "33555a18339c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3c6af5cc4734": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3ea713f85c75": [
+            "light-desktop"
+          ],
+          "44253244b366": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "47b196469e94": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "489e1d7d75b0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "4a1c8981c09c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4b7f9e4c0a34": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "4fb2eeee3fa0": "*",
+          "54e7c253dc3b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "63bfaf8723a0": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "646fdf58f5fd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "6842ddacf3eb": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "6af969d2b56f": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "6afc9c410d4b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6d5ed4b549bf": "*",
+          "76eef7950a76": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "788950ab017e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8a47c5076549": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91384328fc4b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "971a013e09a5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9f8985afc47e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a74fd32459ea": "*",
+          "ab2204b22161": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af26c8652288": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af91ac093a69": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b38dd4beb7c2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b3e40ed7b0d0": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b48e447f4360": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b624cc0f0f4e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b6428a047778": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b9ae3a7f3d99": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c1a5bcc0086d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c361f4f5519d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c5f33679b3c3": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "cc1419a967e5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d02474603343": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d8576edacc10": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e27480802a2c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e4d65869c313": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "edf112885a07": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "efcb63319581": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f197983d2c60": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f633ef406051": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f79d22948a4c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "fbb417ffeab0": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "fixture",
+          "what": "Follows v02-fixture-slowdone-unstable: gone once the slowdone upload tile reads \"few samples\" on one line and the strip says no-gain.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
       "id": "v02-fixture-slowdone-unstable",
-      "title": "Slow link, done: the demo run also reads unstable; the kit's mock says few samples only",
+      "title": "Slow link, done: the demo run also reads unstable and its upload plateau floor-limited; the kit's mock says few samples and no-gain",
       "match": {
         "scenarios": [
           "test/slowdone"
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main > status$",
+        "path": "^main( > status| > region \"Results\")?$",
         "kind": null,
-        "detail": "few samples and unstable"
+        "detail": "(few samples and unstable|plateau: no-gain low confidence|plateau: no-gain Standard preset)"
       },
       "type": "fixture",
       "aspect": null,
@@ -18602,17 +19805,34 @@
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/TestScreen.jsx (slowdone)",
-          "says": "\"low confidence: few samples\""
+          "says": "\"low confidence: few samples\"; the upload tile and the strip say plateau: no-gain"
         },
         "vue": {
           "ref": "web/src/demo/link.ts (slow link)",
-          "says": "the engine reads the simulated slow link's window as unstable too"
+          "says": "the engine reads the simulated slow link's window as unstable too, and its upload plateau as floor-limited"
         }
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "The maintainer confirmed on 2026-10-18: tune the slow link so its finished run reads as the kit's does.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "test/slowdone": {
+          "3b79f9a226ef": "*",
+          "45f33d4ff068": "*",
+          "6443975ab446": "*",
+          "bf028d6d042b": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "fixture",
+          "what": "web/src/demo/link.ts (vpn): an upload stable enough that the slowdone run reads low confidence for few samples only, and an upload ramp that ends no-gain rather than floor-limited, as the kit shows; frontend.md §9 if the link's description changes.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -18848,10 +20068,408 @@
         },
         "notes": "Follows v02-fixture-history-totals."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: every count, card, suggestion and last result is what the demo's stored results give (frontend.md §9); the kit's literals are a mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "history/compare": {
+          "074a01e69fc9": "*",
+          "1484e9eaca5e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f6905ce1675": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "598cff92a105": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5c30caff15a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bac220240f08": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bcca2b90d283": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f173e48eab90": "*"
+        },
+        "history/confirm": {
+          "074a01e69fc9": "*",
+          "1484e9eaca5e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f6905ce1675": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "598cff92a105": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5c30caff15a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bac220240f08": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bcca2b90d283": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f173e48eab90": "*"
+        },
+        "history/daterange": {
+          "074a01e69fc9": "*",
+          "1484e9eaca5e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f6905ce1675": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "598cff92a105": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5c30caff15a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bac220240f08": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bcca2b90d283": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f173e48eab90": "*"
+        },
+        "history/deleted": {
+          "b196dd43d65e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ccf3ac9a9260": "*",
+          "edab2239c6da": "*",
+          "fd46f7c97272": "*"
+        },
+        "history/export": {
+          "074a01e69fc9": "*",
+          "1484e9eaca5e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f6905ce1675": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "598cff92a105": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5c30caff15a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bac220240f08": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bcca2b90d283": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f173e48eab90": "*"
+        },
+        "history/importerror": {
+          "074a01e69fc9": "*",
+          "1484e9eaca5e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f6905ce1675": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "598cff92a105": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7ce03c99bfd5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9728cddc4860": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b1438f7f1f17": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f173e48eab90": "*"
+        },
+        "history/importing": {
+          "074a01e69fc9": "*",
+          "1484e9eaca5e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "33f9b94bf315": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f6905ce1675": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "598cff92a105": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "6235c75cdaca": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6540be9cee91": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7dc9e42718c3": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9e0b4e32ad01": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c3fc6a9696b3": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d85698bee61e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f173e48eab90": "*"
+        },
+        "history/importresult": {
+          "0040571dc2ac": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "90d9b86ba420": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91c88f6af8fd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "be33a0c78097": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e84d31369ff8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "fae9e57e089e": "*"
+        },
+        "history/nomatch": {
+          "074a01e69fc9": "*",
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5c30caff15a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bcca2b90d283": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f173e48eab90": "*"
+        },
+        "history/populated": {
+          "074a01e69fc9": "*",
+          "1484e9eaca5e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f6905ce1675": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "598cff92a105": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5c30caff15a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bac220240f08": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bcca2b90d283": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f173e48eab90": "*"
+        },
+        "history/safari": {
+          "074a01e69fc9": "*",
+          "1484e9eaca5e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f6905ce1675": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "598cff92a105": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "915e45e95d81": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ccafd1355a9c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d902114e576b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f173e48eab90": "*"
+        },
+        "history/select3": {
+          "074a01e69fc9": "*",
+          "1484e9eaca5e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f6905ce1675": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44a0e204278c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "598cff92a105": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5c30caff15a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bac220240f08": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bcca2b90d283": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "beeda36ff3a5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f173e48eab90": "*"
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -18884,10 +20502,22 @@
         },
         "notes": "Follows v02-fixture-history-totals."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: every count, card, suggestion and last result is what the demo's stored results give (frontend.md §9); the kit's literals are a mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "history/confirm": {
+          "6a595406d257": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -19188,6 +20818,44 @@
       "resolution": null
     },
     {
+      "id": "v02-history-single-trend-label",
+      "title": "History with a single result: the trend's one value label sits elsewhere and at another size than the kit's",
+      "match": {
+        "scenarios": [
+          "history/single"
+        ],
+        "projects": [
+          "light-desktop",
+          "dark-desktop"
+        ],
+        "layer": "layout",
+        "path": "^main > text \"# (ms|Mbit/s)\"( #\\d+)?$",
+        "kind": "^(y|height)$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "silent",
+          "says": "visuals from the export"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:92 (mkTrend lbl)",
+          "says": "the single point's value drawn at the marker's own x and y"
+        },
+        "vue": {
+          "ref": "web/src/components/history/TrendPlot.vue:112-120,176-180",
+          "says": "the value left of its marker, where the plot drew it, at its own type size"
+        }
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
       "id": "v02-history-storage-used",
       "title": "History header: Vue adds the storage this origin uses after the count",
       "match": {
@@ -19294,6 +20962,112 @@
         },
         "notes": "Follows v02-fixture-loaded-mechanisms (and, for test/ws-fallback, the accepted content-connection-strip): the test card and the strip's Protocol and Streams."
       },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: the demo reaches each case as the engine would, the WebSocket fallback and the reservation over HTTP/1.1 (lan-http1), so their notices and protocol are honest.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "loaded/ll-insufficient-samples": {
+          "12fac85017f7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "bd4875cc9d10": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "loaded/ll-reservation-broken": {
+          "0c7be4129ad1": "*",
+          "12fac85017f7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "23602c45e5b2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "2aa163fe2731": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "49b2626265d6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bd4875cc9d10": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "cb0f20b069a8": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/ws-fallback": {
+          "0c7be4129ad1": "*",
+          "23602c45e5b2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "52dc20e14e64": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "cb0f20b069a8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d463dc79a54a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "deb3033084e3": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6e12effd26b": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "v02-keep-without-finished-phase",
+      "title": "Stop during idle latency with its samples kept: the kit offers Keep in history; Vue says no phase finished, so there is nothing to keep",
+      "match": {
+        "scenarios": [
+          "test/cancelled-latency"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > (region \"(Result status|Results)\"|main \"\"|button \"Download JSON\")$",
+        "kind": "^(extra|missing|y|height)$",
+        "detail": "^(text \"No phase finished, so there is nothing to keep in history\\.\"|button \"Keep in history\"|-?\\d+px → -?\\d+px)$"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:58-59; flows.md §4 steps 4-5",
+          "says": "screens.md: Keep in history for a partial or error result with at least one finished phase; flows.md §4: a stop during idle latency that keeps its samples gets the stop notice, and the partial result is offered Keep in history; only fewer than 5 samples returns to Idle"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:617-623",
+          "says": "Keep in history and Download JSON for the stopped latency phase (S.partial.keep)"
+        },
+        "vue": {
+          "ref": "web/src/components/test/SaveBar.vue; i18n/locales/en/test.json:240",
+          "says": "\"No phase finished, so there is nothing to keep in history.\" and Download JSON only"
+        },
+        "notes": "The spec's two pages read differently for a kept partial idle latency: flows.md offers Keep, screens.md asks for a finished phase. Also holds the bar's height on narrow screens and what it moves, where Vue's sentence and Details wrap Download JSON to another row; Download JSON's x is v02-partial-details-buttons'."
+      },
       "decision": null,
       "owned": {},
       "actions": [],
@@ -19381,21 +21155,22 @@
     },
     {
       "id": "v02-partial-details-buttons",
-      "title": "Stopped and failed runs' bar (follows content-result-time's Details link): Vue offers Details beside Keep in history and Download JSON, so they sit further left",
+      "title": "Stopped and failed runs' bar: Vue offers Details beside Keep in history and Download JSON, so they sit further left; the kit has no Details there",
       "match": {
         "scenarios": [
           "test/cancelled",
           "test/cancelled-late",
           "test/cancelled-latency",
+          "test/cancelled-download",
           "test/cancelled-slow",
           "test/cancelled-slow-up",
           "test/error"
         ],
         "projects": null,
-        "layer": "layout",
-        "path": "^main > button \"(Keep in history|Download JSON)\"$",
-        "kind": null,
-        "detail": null
+        "layer": null,
+        "path": "^main > (button \"(Keep in history|Download JSON)\"|region \"Result status\")$",
+        "kind": "^(extra|x)$",
+        "detail": "^(link \"Details\"$|-?\\d+(\\.\\d+)?px → )"
       },
       "type": "conflict",
       "aspect": "feature",
@@ -19412,7 +21187,7 @@
           "ref": "web/src/components/test/SaveBar.vue",
           "says": "Details on every finished run, its result held in memory until kept"
         },
-        "notes": "Follows the extra Details link, whose content difference sits in content-result-time (accepted) as scope growth; the maintainer decides whether a partial or error run links to its Result detail."
+        "notes": "The Details link itself and the buttons it moves; the maintainer decides whether a partial or error run links to its Result detail."
       },
       "decision": null,
       "owned": {},
@@ -19426,7 +21201,7 @@
       "match": {
         "scenarios": [
           "test/cancelled-late",
-          "test/cancelled-latency",
+          "test/cancelled-download",
           "test/cancelled-slow",
           "test/error"
         ],
@@ -19498,10 +21273,140 @@
         },
         "notes": "Follows v02-fixture-result-run."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it, as for fixture-chart-run-timing: the numbers are the demo engine's own measurement of the simulated link, not the kit's mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "result": {
+          "193cfa65a737": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2b4c7865dc73": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "33c7e543d0da": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "615bb5ade6c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "67c506a41251": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8bff8337018b": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/clipboard-denied": {
+          "193cfa65a737": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2b4c7865dc73": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "33c7e543d0da": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "615bb5ade6c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "67c506a41251": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8bff8337018b": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/history-unavailable": {
+          "112826cec8f8": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "45d0f8d88bbf": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5653fa6911fe": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5f113adcb86c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "615bb5ade6c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "67c506a41251": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/ll-insufficient-samples": {
+          "513884971dea": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c496b6b12a3b": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "result/ll-reservation-broken": {
+          "513884971dea": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c496b6b12a3b": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "result/ws-close": {
+          "0ab1302d8c56": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "26796e11a1bc": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "53364808db2e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "615bb5ade6c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "67c506a41251": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a8ef7b60eb93": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -20106,10 +22011,290 @@
         },
         "notes": "Follows v02-fixture-label-suggestions (and v02-date-format for the time's width): the suggestions' place and width, the bar's height and its buttons on narrow screens, and the Results card, page height and scroll offset below it. In loaded/ll-reservation-broken the WebSocket notice above adds to the shift (v02-fixture-loaded-mechanisms)."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: every count, card, suggestion and last result is what the demo's stored results give (frontend.md §9); the kit's literals are a mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "loaded/ll-insufficient-samples": {
+          "074f0ddc5467": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0a0645e1b69b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1847ad2701f4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "71cb482f9588": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7ef9f82238e6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91384328fc4b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "af91ac093a69": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b38dd4beb7c2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b43902e9d906": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c13320b51d3a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ca7bd3dad1a0": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e27480802a2c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "eb66f1889e51": "*",
+          "f843bed39851": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "loaded/ll-reservation-broken": {
+          "074f0ddc5467": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0a0645e1b69b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1847ad2701f4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "71cb482f9588": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7ef9f82238e6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91384328fc4b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "af91ac093a69": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b38dd4beb7c2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b43902e9d906": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c13320b51d3a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ca7bd3dad1a0": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e27480802a2c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "eb66f1889e51": "*",
+          "f843bed39851": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "loaded/ws-close": {
+          "074f0ddc5467": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0a0645e1b69b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "6cc0aa61e386": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91384328fc4b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9217d56da169": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af91ac093a69": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b38dd4beb7c2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e27480802a2c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "eb66f1889e51": "*",
+          "f843bed39851": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "share/complete": {
+          "074f0ddc5467": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0a0645e1b69b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0d40758f4970": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "283a9d6d9a4e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "71142b8810d2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91384328fc4b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9b49b8efb61a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af91ac093a69": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b38dd4beb7c2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e27480802a2c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "eb66f1889e51": "*",
+          "f843bed39851": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/complete": {
+          "074f0ddc5467": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0a0645e1b69b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "283a9d6d9a4e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91384328fc4b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9b49b8efb61a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af91ac093a69": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b38dd4beb7c2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e27480802a2c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "eb66f1889e51": "*",
+          "f843bed39851": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/upload-interrupted": {
+          "074f0ddc5467": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0a0645e1b69b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "4913f5c27760": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91384328fc4b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "af91ac093a69": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b38dd4beb7c2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "dcebf59109c5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e27480802a2c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "eb66f1889e51": "*",
+          "f843bed39851": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -20482,16 +22667,16 @@
     },
     {
       "id": "v02-strip-plateau-geometry",
-      "title": "Failed download's strip (follows content-connection-strip): Vue names the plateau the download reached before it failed, so the Streams entry is wider",
+      "title": "Failed download's strip: Vue names the plateau the download reached before it failed (\"# auto · plateau: cap\"), the kit none, so the Streams entry is also wider",
       "match": {
         "scenarios": [
           "test/error"
         ],
         "projects": null,
-        "layer": "layout",
-        "path": "^main > text \"(Streams|6)\"$",
-        "kind": "^width$",
-        "detail": null
+        "layer": null,
+        "path": "^main( > text \"(Streams|6)\")?$",
+        "kind": "^(width|changed)$",
+        "detail": "^(?!link )"
       },
       "type": "conflict",
       "aspect": "content",
@@ -20508,7 +22693,7 @@
           "ref": "web/src/components/connection/ConnectionStrip.vue",
           "says": "\"6 auto · plateau: cap\", the plateau reached before the failure"
         },
-        "notes": "Follows the strip text, which content-connection-strip (done) holds as a regression for the maintainer."
+        "notes": "The strip text and the Streams entry's width; the rest of the strip is content-connection-strip's (done)."
       },
       "decision": null,
       "owned": {},
@@ -20554,10 +22739,11 @@
     },
     {
       "id": "v02-test-edit-without-settings",
-      "title": "Error before the server answered: the kit still shows the Edit link; Vue hides the settings summary, Edit with it, until the server's settings are in",
+      "title": "Offline, and an error before the server answered: the kit still shows the Edit link; Vue hides the settings summary, Edit with it, until the server's settings are in",
       "match": {
         "scenarios": [
-          "test/error-early"
+          "test/error-early",
+          "test/offline"
         ],
         "projects": null,
         "layer": "content",
@@ -20624,8 +22810,51 @@
       "resolution": null
     },
     {
+      "id": "v02-test-latency-legend-geometry",
+      "title": "Chart header before a run on narrow screens (follows v02-test-latency-toggle): the kit's third legend item wraps the legend under the title, so the chart and everything under it sit lower",
+      "match": {
+        "scenarios": [
+          "test/idle",
+          "test/connecting",
+          "test/countdown",
+          "test/offline",
+          "test/param-ignored"
+        ],
+        "projects": [
+          "light-narrow",
+          "dark-narrow"
+        ],
+        "layer": "layout",
+        "path": "^main > (img \"Throughput: no data yet\"|region \"(Results|Speed test)\"|text \"(0\\.25|0\\.50|0\\.75|0|# Gbit/s|#s|Download|Upload|Throughput over time appears here[^\"]*|Nothing to measure yet[^\"]*)\"( #\\d+)?)$",
+        "kind": "^(x|y|height)$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md:38-39",
+          "says": "optional loaded-latency series toggle on its own axis"
+        },
+        "kit": {
+          "ref": "docs/design_system/components/charts/ThroughputChart.jsx; ui_kits/app/TestScreen.jsx",
+          "says": "Download, Upload and Latency under load in the legend before a run: on 390 px it wraps to its own row under the title"
+        },
+        "vue": {
+          "ref": "web/src/components/chart/text.ts:84; ChartHeader.vue",
+          "says": "Download and Upload only until loaded pings exist: the legend stays on the title row"
+        },
+        "notes": "Layout that follows v02-test-latency-toggle: the legend labels, the plot and its axis labels, the test card's height and the Results card under it (the page height stays with layout-pages-kit-geometry). On test/offline the missing Edit row (v02-test-edit-without-settings) adds to the test card's offset. Decided with it."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
       "id": "v02-test-latency-toggle",
-      "title": "Throughput chart legend: Vue's \"Latency under load\" entry is the series toggle; the kit's is a static legend item",
+      "title": "Throughput chart legend: the kit lists \"Latency under load\" in every state as a static item; Vue lists it only once loaded pings exist, as the series toggle",
       "match": {
         "scenarios": [
           "test/idle",
@@ -20646,6 +22875,7 @@
           "test/cancelled-slow-up",
           "test/slow",
           "test/slowdone",
+          "test/offline",
           "test/basepath",
           "test/ws-fallback",
           "test/insufficient",
@@ -20669,11 +22899,11 @@
         },
         "kit": {
           "ref": "docs/design_system/components/charts/ThroughputChart.jsx; ui_kits/app/TestScreen.jsx",
-          "says": "a legend item \"Latency under load\", not interactive"
+          "says": "a legend item \"Latency under load\", not interactive, before any run too (idle, offline, connecting)"
         },
         "vue": {
           "ref": "web/src/components/chart/ChartHeader.vue",
-          "says": "the legend item is a button with aria-pressed that shows or hides the series"
+          "says": "the legend item is a button with aria-pressed that shows or hides the series, listed only while the series has points (components/chart/text.ts:84)"
         }
       },
       "decision": null,
@@ -20712,10 +22942,34 @@
         },
         "notes": "Follows the notice of v02-http1-notice-geometry; not part of the save bar, which this live state has not reached."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it: the demo reaches each case as the engine would, the WebSocket fallback and the reservation over HTTP/1.1 (lan-http1), so their notices and protocol are honest.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "test/ws-fallback": {
+          "5b348448f66c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "87070fb3a5b5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c13320b51d3a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f16267d79af2": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     }
   ]
