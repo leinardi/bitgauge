@@ -33,9 +33,11 @@ import type { Result } from '@/engine/messages'
 // share-panel.md): the share image's preview with "include label", off by default, Download image
 // and, where the browser can share files, Share; then the text summary exactly as it is copied, with
 // Copy. Where the clipboard is refused, the summary gets focus with its whole text selected for a
-// copy by hand. The Result detail shows it beside the metrics, the Test screen in a dialog.
+// copy by hand. The Result detail shows it beside the metrics, the Test screen in a dialog: there,
+// as the kit's share dialog (TestScreen.jsx), the actions leave the cards for the dialog's footer,
+// Share via… (only where files can be shared), Copy summary and Download image, the primary one.
 
-const props = defineProps<{ result: Result; units: 'bits' | 'bytes' }>()
+const props = withDefaults(defineProps<{ result: Result; units: 'bits' | 'bytes'; inDialog?: boolean }>(), { inDialog: false })
 
 const { t } = useI18n()
 const imageId = useId()
@@ -68,106 +70,154 @@ watch(denied, async (denied) => {
 
 <template>
   <div
-    class="flex flex-col gap-4"
+    :class="inDialog ? 'flex flex-col' : 'flex flex-col gap-4'"
     data-testid="share-panel"
   >
-    <SettingsCard
-      :id="imageId"
-      :title="t('share.image.title')"
-      :icon="Image"
-    >
-      <template #actions>
-        <span>{{ t('share.image.size') }}</span>
-      </template>
-      <div class="flex flex-col gap-3 p-3.5">
-        <SharePreview :view="view" />
-        <div class="flex items-start gap-2">
-          <Checkbox
-            :id="includeId"
-            v-model="includeLabel"
-            :disabled="!hasLabel"
-            class="mt-0.5"
-            data-testid="include-label"
-          />
-          <label
-            :for="includeId"
-            class="flex flex-col gap-px text-(length:--text-sm)"
-            :class="hasLabel ? 'cursor-pointer' : 'text-subtle-foreground'"
+    <div :class="inDialog ? 'flex flex-col gap-3 px-5' : 'contents'">
+      <SettingsCard
+        :id="imageId"
+        :title="t('share.image.title')"
+        :icon="Image"
+      >
+        <template #actions>
+          <span>{{ t('share.image.size') }}</span>
+        </template>
+        <div class="flex flex-col gap-3 p-3.5">
+          <SharePreview :view="view" />
+          <div class="flex items-start gap-2">
+            <Checkbox
+              :id="includeId"
+              v-model="includeLabel"
+              :disabled="!hasLabel"
+              class="mt-0.5"
+              data-testid="include-label"
+            />
+            <label
+              :for="includeId"
+              class="flex flex-col gap-px text-(length:--text-sm)"
+              :class="hasLabel ? 'cursor-pointer' : 'text-subtle-foreground'"
+            >
+              {{ t('share.include.label') }}
+              <span class="text-(length:--text-micro) text-subtle-foreground">{{ hasLabel ? t('share.include.note', { label: result.label }) : t('share.include.none') }}</span>
+            </label>
+          </div>
+          <div
+            v-if="!inDialog"
+            class="grid gap-2"
+            :class="canShare ? 'grid-cols-2' : 'grid-cols-1'"
           >
-            {{ t('share.include.label') }}
-            <span class="text-(length:--text-micro) text-subtle-foreground">{{ hasLabel ? t('share.include.note', { label: result.label }) : t('share.include.none') }}</span>
-          </label>
+            <AppButton
+              v-if="canShare"
+              class="justify-center"
+              :title="t('share.image.shareHint')"
+              :disabled="busy"
+              data-testid="share-image"
+              @click="share"
+            >
+              <Share
+                :size="15"
+                aria-hidden="true"
+              />
+              {{ t('share.image.share') }}
+            </AppButton>
+            <AppButton
+              class="justify-center"
+              :disabled="busy"
+              data-testid="download-image"
+              @click="download"
+            >
+              <Download
+                :size="15"
+                aria-hidden="true"
+              />
+              {{ t('share.image.save') }}
+            </AppButton>
+          </div>
         </div>
-        <div
-          class="grid gap-2"
-          :class="canShare ? 'grid-cols-2' : 'grid-cols-1'"
+      </SettingsCard>
+      <SettingsCard
+        :id="textId"
+        :title="t('share.text.heading')"
+        :icon="FileText"
+      >
+        <template
+          v-if="!inDialog"
+          #actions
         >
           <AppButton
-            v-if="canShare"
-            class="justify-center"
-            :title="t('share.image.shareHint')"
-            :disabled="busy"
-            data-testid="share-image"
-            @click="share"
+            variant="ghost"
+            size="sm"
+            :aria-label="t('share.text.copy')"
+            data-testid="copy-summary"
+            @click="copy"
           >
-            <Share
-              :size="15"
+            <Copy
+              :size="14"
               aria-hidden="true"
             />
-            {{ t('share.image.share') }}
+            {{ t('share.text.copyShort') }}
           </AppButton>
-          <AppButton
-            class="justify-center"
-            :disabled="busy"
-            data-testid="download-image"
-            @click="download"
-          >
-            <Download
-              :size="15"
-              aria-hidden="true"
-            />
-            {{ t('share.image.save') }}
-          </AppButton>
-        </div>
-      </div>
-    </SettingsCard>
-    <SettingsCard
-      :id="textId"
-      :title="t('share.text.heading')"
-      :icon="FileText"
+        </template>
+        <NoticeBox
+          v-if="denied"
+          tone="warn"
+          :icon="Copy"
+          :title="t('share.text.denied')"
+          :body="t('share.text.deniedBody')"
+          attached
+          data-testid="copy-denied"
+        />
+        <pre
+          ref="summary"
+          tabindex="0"
+          :aria-label="t('share.text.heading')"
+          class="m-0 bg-(--term-bg) px-4 py-3 font-mono text-(length:--text-micro) leading-(--lh-relaxed) whitespace-pre-wrap text-(--term-fg) select-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+          :class="denied ? 'outline-2 -outline-offset-2 outline-ring' : ''"
+          data-testid="share-summary"
+        >{{ view.lines.join(LINE_BREAK) }}</pre>
+      </SettingsCard>
+    </div>
+    <div
+      v-if="inDialog"
+      class="sticky bottom-0 mt-3.5 flex flex-wrap items-center justify-end gap-2.5 bg-(--surface-2) px-5 py-4 max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:[&>*]:justify-center"
+      data-testid="share-actions"
     >
-      <template #actions>
-        <AppButton
-          variant="ghost"
-          size="sm"
-          :aria-label="t('share.text.copy')"
-          data-testid="copy-summary"
-          @click="copy"
-        >
-          <Copy
-            :size="14"
-            aria-hidden="true"
-          />
-          {{ t('share.text.copyShort') }}
-        </AppButton>
-      </template>
-      <NoticeBox
-        v-if="denied"
-        tone="warn"
-        :icon="Copy"
-        :title="t('share.text.denied')"
-        :body="t('share.text.deniedBody')"
-        attached
-        data-testid="copy-denied"
-      />
-      <pre
-        ref="summary"
-        tabindex="0"
-        :aria-label="t('share.text.heading')"
-        class="m-0 bg-(--term-bg) px-4 py-3 font-mono text-(length:--text-micro) leading-(--lh-relaxed) whitespace-pre-wrap text-(--term-fg) select-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
-        :class="denied ? 'outline-2 -outline-offset-2 outline-ring' : ''"
-        data-testid="share-summary"
-      >{{ view.lines.join(LINE_BREAK) }}</pre>
-    </SettingsCard>
+      <AppButton
+        v-if="canShare"
+        variant="ghost"
+        :title="t('share.image.shareHint')"
+        :disabled="busy"
+        data-testid="share-image"
+        @click="share"
+      >
+        <Share
+          :size="15"
+          aria-hidden="true"
+        />
+        {{ t('share.image.shareVia') }}
+      </AppButton>
+      <AppButton
+        data-testid="copy-summary"
+        @click="copy"
+      >
+        <Copy
+          :size="15"
+          aria-hidden="true"
+        />
+        {{ t('share.text.copy') }}
+      </AppButton>
+      <AppButton
+        variant="primary"
+        :disabled="busy"
+        data-testid="download-image"
+        @click="download"
+      >
+        <Download
+          :size="15"
+          aria-hidden="true"
+        />
+        {{ t('share.image.save') }}
+      </AppButton>
+    </div>
   </div>
 </template>

@@ -20,6 +20,7 @@
       "saved": "Image downloaded.",
       "failed": "The browser couldn't make the image.",
       "share": "Share",
+      "shareVia": "Share via…",
       "shareHint": "Sends the image to the system share sheet",
       "shareTitle": "BitGauge result"
     },

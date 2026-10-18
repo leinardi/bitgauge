@@ -152,4 +152,17 @@ describe('the share dialog', () => {
     expect(dialog?.querySelector('[data-testid="share-panel"]')).not.toBeNull()
     wrapper.unmount()
   })
+
+  it('moves the actions to its footer, as the kit does: Copy summary, then Download image, the primary', async () => {
+    browser({})
+    const wrapper = mount(ShareDialog, { props: { result: RESULT, units: 'bits' }, global: { plugins: [createAppI18n('', ['en'])] }, attachTo: document.body })
+    await wrapper.get('[data-testid="share-open"]').trigger('click')
+    await flushPromises()
+    const footer = document.querySelector('[data-testid="share-actions"]')
+    const actions = [...(footer?.querySelectorAll('button') ?? [])].map((button) => button.getAttribute('data-testid'))
+    expect(actions).toEqual(['copy-summary', 'download-image'])
+    expect(footer?.querySelector('[data-testid="download-image"]')?.className).toContain('bg-primary')
+    expect(document.querySelectorAll('[data-testid="copy-summary"]')).toHaveLength(1)
+    wrapper.unmount()
+  })
 })

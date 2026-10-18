@@ -29,7 +29,8 @@ import type { Result } from '@/engine/messages'
 
 // Share on the Test screen (ui/screens.md section 1, ui/flows.md section 8; kit TestScreen.jsx,
 // Dialog wide): the save bar's Share opens the Result detail's share panel as a focus-trapped
-// dialog, which Escape closes with the focus back on Share.
+// dialog, which Escape closes with the focus back on Share. The whole dialog scrolls, under its
+// sticky footer of actions, as the kit's does.
 
 defineProps<{ result: Result; units: 'bits' | 'bytes' }>()
 
@@ -55,7 +56,7 @@ const open = shallowRef(false)
     <DialogPortal>
       <DialogOverlay class="fixed inset-0 z-(--z-overlay) bg-(--scrim) backdrop-blur-(--scrim-blur)" />
       <DialogContent
-        class="fixed inset-x-0 top-0 z-(--z-overlay) flex max-h-full flex-col overflow-hidden rounded-b-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop) tablet:top-16 tablet:left-1/2 tablet:max-h-[calc(100vh-var(--space-20))] tablet:w-(--modal-w-wide) tablet:max-w-(--modal-max-w) tablet:-translate-x-1/2 tablet:rounded-(--radius-xl)"
+        class="fixed inset-x-0 top-0 z-(--z-overlay) flex max-h-full flex-col overflow-x-hidden overflow-y-auto overscroll-contain rounded-b-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop) tablet:top-16 tablet:left-1/2 tablet:max-h-[calc(100vh-var(--space-20))] tablet:w-(--modal-w-wide) tablet:max-w-(--modal-max-w) tablet:-translate-x-1/2 tablet:rounded-(--radius-xl)"
         data-testid="share-dialog"
       >
         <div class="flex items-start gap-3.5 px-5 pt-4.5 pb-3.5">
@@ -87,12 +88,11 @@ const open = shallowRef(false)
             </AppButton>
           </DialogClose>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto border-t border-(--border-subtle) bg-background p-4">
-          <SharePanel
-            :result="result"
-            :units="units"
-          />
-        </div>
+        <SharePanel
+          :result="result"
+          :units="units"
+          in-dialog
+        />
       </DialogContent>
     </DialogPortal>
   </Dialog>
