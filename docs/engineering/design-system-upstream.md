@@ -16,11 +16,6 @@ the export shows, and what it should show, with the reason; behavior comes from
 
 ### Test screen (`ui_kits/app/TestScreen.jsx`)
 
-- **`v02-test-latency-toggle`**, `ui_kits/app/TestScreen.jsx` and the throughput chart's legend:
-  "Latency under load" is a static legend item. It is the loaded-latency series' toggle ([screens.md
-  §1](../features/ui/screens.md#1-test-home--)): a button with `aria-pressed`, pressed while the
-  series is drawn, that hides and shows the series and its right-hand axis. It stays listed in every
-  state, before the first loaded ping too, as the kit lists it today.
 - **`v02-test-edit-without-settings`**, the settings summary row: offline and in `error-early` the
   Edit link still shows over an empty summary. The summary, Edit included, should show only while
   the server's settings are known and the server is reachable: absent before `GET /info` answers,
