@@ -21,7 +21,7 @@ import type { LegendEntry } from '@/components/chart/text'
 
 // Over a live chart: its title, its legend and where the run stands (design_system/components/charts.md).
 // The loaded latency's legend entry is its toggle (ui/screens.md section 1): a button, pressed while
-// the series is drawn, whose swatch is dashed as the line is.
+// the series is drawn, whose swatch is dashed as the line is, and struck through while off.
 
 withDefaults(defineProps<{ title: string; legend: readonly LegendEntry[]; meta: string; latencyShown?: boolean }>(), { latencyShown: true })
 const emit = defineEmits<{ toggleLatency: [] }>()
@@ -38,7 +38,7 @@ const emit = defineEmits<{ toggleLatency: [] }>()
         :type="entry.key === 'latency' ? 'button' : undefined"
         :aria-pressed="entry.key === 'latency' ? latencyShown : undefined"
         class="flex items-center gap-1.5 text-(length:--text-caption) text-muted-foreground"
-        :class="entry.key === 'latency' ? 'cursor-pointer rounded-(--radius-xs) hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring' : ''"
+        :class="entry.key === 'latency' ? 'cursor-pointer rounded-(--radius-xs) hover:text-foreground aria-[pressed=false]:line-through focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring' : ''"
         :data-testid="entry.key === 'latency' ? 'latency-toggle' : undefined"
         @click="entry.key === 'latency' ? emit('toggleLatency') : undefined"
       >

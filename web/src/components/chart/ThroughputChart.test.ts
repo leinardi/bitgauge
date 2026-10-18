@@ -112,6 +112,8 @@ describe('the throughput chart', () => {
     expect(right()).toEqual(['0', '30', '60\u00a0ms'])
     await toggle.trigger('click')
     expect(toggle.attributes('aria-pressed')).toBe('false')
+    // The export strikes an unpressed toggle through (charts.css .tg[aria-pressed="false"]).
+    expect(toggle.classes()).toContain('aria-[pressed=false]:line-through')
     expect(host.attributes('aria-label')).not.toContain('latency under load')
     expect(right()).toEqual([])
     wrapper.unmount()
