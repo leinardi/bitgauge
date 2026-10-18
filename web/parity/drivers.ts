@@ -451,14 +451,14 @@ async function driveHistory(page: Page, variant: HistoryVariant): Promise<void> 
       return
     case 'importing': {
       // The kit's file, held where the kit shows it: the import yields after each record it checks,
-      // and the turn after the ninth never comes, as on a file that takes long to check.
+      // and the turn after the ninth never ends, as on a file that takes long to check.
       const exported = await exportJson(page)
       await page.evaluate((held) => {
         const { scheduler } = globalThis as unknown as { scheduler: { yield: () => Promise<void> } }
         const turn = scheduler.yield.bind(scheduler)
         let turns = 0
         scheduler.yield = () => (++turns < held ? turn() : new Promise<void>(() => undefined))
-      }, KIT_IMPORT_CHECKED + 1)
+      }, KIT_IMPORT_CHECKED)
       await importFile(`${KIT_IMPORT_FILE}.json`, kitImport(exported))
       await page.getByText(`Checking ${KIT_IMPORT_CHECKED} of`).waitFor()
       return
