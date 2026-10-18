@@ -514,7 +514,7 @@ class History extends React.Component {
                 </div>
                 {(v.rows || []).map((r, $index) => (
                   <React.Fragment key={$index}>
-                    <div style={{ display: "flex", alignItems: "stretch", borderRadius: "var(--radius-lg)", border: `1px solid ${r?.cardBd ?? ""}`, background: r?.cardBg, "--fg-subtle": r?.cardSub }}>
+                    <div className={r?.sel ? "tinted" : undefined} style={{ display: "flex", alignItems: "stretch", borderRadius: "var(--radius-lg)", border: `1px solid ${r?.cardBd ?? ""}`, background: r?.cardBg, "--fg-subtle": r?.cardSub }}>
                       <button role="checkbox" aria-checked={r?.selAria} aria-label={`Select ${r?.label ?? ""}, ${r?.d ?? ""}`} style={{ all: "unset", boxSizing: "border-box", flex: "none", width: "44px", minHeight: "44px", display: "flex", justifyContent: "center", paddingTop: "var(--space-3-5)", cursor: "pointer" }}>
                         {r?.sel ? (
                           <span style={{ width: "18px", height: "18px", borderRadius: "4px", background: "var(--primary)", color: "var(--primary-fg)", display: "flex", alignItems: "center", justifyContent: "center" }}>

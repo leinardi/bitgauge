@@ -21,6 +21,12 @@
 .pill.offline { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-fg); }
 .pill.offline .d { background: transparent; border: var(--border-width-strong) solid var(--warn); width: var(--dot-size-lg); height: var(--dot-size-lg); }
 .pill.dashed.neutral, .sbadge.dashed.neutral { border-color: var(--border-strong); }
+/* On a tinted surface (inside a Notice, or a .tinted container such as a selected card on --primary-bg) the pill's translucent tint
+   would stack on the surface's and drop --text-nano under 4.5:1 in light. Lay the tint over opaque --surface-2 instead. */
+.signal .pill.ok:not(.dashed), .tinted .pill.ok:not(.dashed) { background: linear-gradient(var(--ok-bg), var(--ok-bg)) var(--surface-2); }
+.signal .pill.warn:not(.dashed), .tinted .pill.warn:not(.dashed), .signal .pill.offline, .tinted .pill.offline { background: linear-gradient(var(--warn-bg), var(--warn-bg)) var(--surface-2); }
+.signal .pill.danger:not(.dashed), .tinted .pill.danger:not(.dashed) { background: linear-gradient(var(--danger-bg), var(--danger-bg)) var(--surface-2); }
+.signal .pill.info:not(.dashed), .tinted .pill.info:not(.dashed) { background: linear-gradient(var(--info-bg), var(--info-bg)) var(--surface-2); }
 .sbadge > svg { flex: none; }
 
 .chip {
