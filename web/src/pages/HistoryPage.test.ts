@@ -53,8 +53,21 @@ async function open(path = '/history', results: readonly Result[] = RESULTS) {
   const { default: HistoryPage } = await import('@/pages/HistoryPage.vue')
   const { mountApp } = await import('@/test/mount')
   const page = await mountApp(HistoryPage, path, { attachTo: document.body })
-  await settle()
+  await settled(() => expect(page.find('[data-testid="history-loading"]').exists()).toBe(false))
   return page
+}
+
+// fake-indexeddb runs its requests on setImmediate, which Node does not order against
+// setTimeout, so a fixed number of turns can end before a read or a write lands on a loaded
+// runner. Whatever waits on the database waits for its outcome instead.
+const IDB_TIMEOUT = 4000
+
+/** Turns the event loop until the assertion holds, for an outcome that waits on the database. */
+async function settled<T>(assertion: () => T): Promise<T> {
+  return vi.waitFor(async () => {
+    await settle()
+    return assertion()
+  }, { timeout: IDB_TIMEOUT })
 }
 
 async function settle(): Promise<void> {
@@ -241,15 +254,13 @@ describe('the list', () => {
     await first?.trigger('click')
     await second?.trigger('click')
     await page.get('[data-testid="delete-selected"]').trigger('click')
-    await settle()
-    expect(rows(page)).toHaveLength(6)
+    await settled(() => expect(rows(page)).toHaveLength(6))
     expect(page.find('[data-testid="selection-bar"]').exists()).toBe(false)
     const [title, options] = vi.mocked(toast).mock.calls[0] ?? []
     expect(title).toBe('2 results deleted.')
     expect(options).toMatchObject({ duration: 8000, action: { label: 'Undo' } })
     ;(options as { action: { onClick: () => void } }).action.onClick()
-    await settle()
-    expect(rows(page)).toHaveLength(8)
+    await settled(() => expect(rows(page)).toHaveLength(8))
     page.unmount()
   })
 })
@@ -330,8 +341,7 @@ describe('Clear all', () => {
     expect(dialog.text()).toContain('This removes 8 results with their labels and notes from this browser. This cannot be undone.')
     expect(dialog.text()).toContain('Export JSON first')
     await body().get('[data-testid="clear-confirm"]').trigger('click')
-    await settle()
-    expect(page.get('[data-testid="history-empty"]').text()).toContain('No results yet')
+    await settled(() => expect(page.get('[data-testid="history-empty"]').text()).toContain('No results yet'))
     page.unmount()
   })
 })
@@ -348,10 +358,7 @@ describe('the import', () => {
     const newer = { ...RESULTS[2], schemaVersion: 3 }
     await choose(page, 'bitgauge-history.json', EXPORT([...RESULTS.slice(0, 2), newer as unknown as Result, ...RESULTS.slice(3)]))
     // The records are checked one turn of the event loop at a time.
-    const done = await vi.waitFor(async () => {
-      await settle()
-      return page.get('[data-testid="import-done"]')
-    })
+    const done = await settled(() => page.get('[data-testid="import-done"]'))
     expect(done.text()).toContain('Imported bitgauge-history.json')
     expect(done.text()).toContain('5 added, 2 skipped as duplicates, 1 rejected: result 3: schema version 3 is newer than this app')
     expect(rows(page)).toHaveLength(7)
