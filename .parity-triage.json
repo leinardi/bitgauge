@@ -42948,10 +42948,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit draws ll-no-steady-window and ll-no-probe-path on a run stopped in the upload (partial, not saved, Keep in history), since a complete result always has a steady window and a direction longer than the close sequence (measurement.md sections 11.1, 11.4).",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {

@@ -32,3 +32,13 @@ the export shows, and what it should show, with the reason; behavior comes from
   ([i18n-a11y.md §1.3](../features/ui/i18n-a11y.md#13-number-unit-and-date-formatting)). The
   History table's Date column then takes the locale's width, and its value columns, rows and the
   Result header's meta line follow it.
+- **`v02-loaded-stopped-cases`**, `ui_kits/app/App.jsx` (`LL_GAPS`), `TestScreen.jsx` and
+  `ResultDetail.jsx`, the loaded-latency cases `ll-no-steady-window` and `ll-no-probe-path`: both
+  are drawn on the complete LAN run, saved, with the upload's loaded latency marked "no steady
+  window" or "no latency probe". A complete result always has a steady window in each direction
+  and no direction as short as the WebSocket's close sequence
+  ([measurement.md §11.1](../features/measurement.md#111-path-a--websocket-echo-bufferbloat-source),
+  [§11.4](../features/measurement.md#114-loaded-latency-statistics-and-availability)), so both
+  should be drawn on a run stopped in the upload: partial, not saved, with Keep in history.
+  `ll-no-steady-window` stops 3.1 s into the upload, before its window; `ll-no-probe-path` loses
+  the WebSocket in the download, its reopening unanswered, and stops 0.8 s into the upload.
