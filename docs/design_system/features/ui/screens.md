@@ -128,8 +128,9 @@ scrolling.
   the median loaded latency of the samples in the window ("—" when it holds none). When the stored
   cells are coarser than 2 s (Continuous), one row per stored cell, with the header naming the cell
   size.
-- **Test parameters:** preset, phases and order, stream mode, count and plateau reason, durations,
-  data cap, units, warm-up mode, ping count, overhead compensation, protocol, server name and
+- **Test parameters:** preset, phases and order, stream mode, count and plateau reason, each
+  direction's duration with its configured bounds (when the result records them), data cap with
+  the data used, units, warm-up mode, ping count, overhead compensation, protocol, server name and
   version, browser, client IP, timer resolution and whether the page was cross-origin isolated.
 - **Label and note:** editable, saved with the result in history as they change.
 - **Share panel:** always visible beside the metrics: a preview of the share image and of the

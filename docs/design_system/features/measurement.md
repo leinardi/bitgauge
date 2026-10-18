@@ -1297,6 +1297,7 @@ CSV export flattens the same fields, one row per result.
   "settings": {
     "preset": "standard", "phases": ["idle", "download", "upload"],
     "streams": { "mode": "auto", "max": 6 },
+    "download": { "minMs": 10000, "maxMs": 20000 }, "upload": { "minMs": 15000, "maxMs": 25000 },
     "dataCapBytes": null, "overheadCompensationPercent": 0, "warmup": "auto", "pingCount": 20
   },
   "idle": {
@@ -1341,7 +1342,9 @@ CSV export flattens the same fields, one row per result.
   `bytes`, `events`, `plateau` once the ramp stopped, `windowMs`, `confidence` and `series` once
   warm-up ended, and `bitsPerSecond`, `peakBitsPerSecond` and `uncompensatedBitsPerSecond` when it
   reports a number; upload adds `confirmedRequests`. v0.2 adds `note` (history), each direction's
-  `loadedLatency` and the result's `bufferbloat`, all optional, so a v0.1 result stays valid.
+  `loadedLatency`, the result's `bufferbloat`, and `settings.download` and `settings.upload`, each
+  direction's resolved duration bounds `{minMs, maxMs}` (shown with its duration among the test
+  parameters), all optional, so a v0.1 result stays valid.
   Absent through v0.2: `responsiveness`, `scores`, `minBitsPerSecond`, `maxBitsPerSecond` and
   `series.knownMs`. `schemaVersion` stays 1: these are additions.
 - `idle` is absent when idle latency did not run. A direction that did not run, left out by the
