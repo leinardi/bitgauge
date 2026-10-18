@@ -174,7 +174,9 @@ parameters collapse into a disclosure.
   label.
 - **Trend chart** (uPlot) over the filtered results: small multiples of download and upload (log
   scale) and idle latency (linear). Results whose status is not `complete` are drawn as hollow
-  markers, with a legend entry.
+  markers, with a legend entry. Axes follow the date filter and the data, with minimum spans; a
+  single result shows as a labeled marker with "Trends appear from the second result." See
+  [components/charts.md § Trend chart axes](../../design_system/components/charts.md#trend-chart-axes).
 - **Selection bar** once rows are selected: the selection count, Compare (exactly two), Delete
   selected (with an undo toast), Clear selection.
 - **Compare two results**, in a focus-trapped dialog: side-by-side metrics with the change per

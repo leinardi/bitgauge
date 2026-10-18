@@ -19,7 +19,7 @@ const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', '
 const V03_STATES = ['continuous', 'cont-warmup', 'cont-done'];
 const SCOPES = ['v0.1', 'v0.2', 'v0.3'];
 const LL_GAPS = [['none', 'measured'], ['no-steady-window', 'no steady window'], ['insufficient-samples', 'fewer than 10 samples'], ['reservation-broken', 'HTTP/1.1 reservation not held'], ['no-probe-path', 'no latency probe']];
-const HISTORY_VARIANTS = ['populated', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
+const HISTORY_VARIANTS = ['populated', 'single', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 
 function DemoSelect({ label, value, options, onChange }) {
   return (

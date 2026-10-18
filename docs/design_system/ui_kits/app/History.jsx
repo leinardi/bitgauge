@@ -1,6 +1,6 @@
 /* BitGauge web UI kit — History
  * Props:
- *   variant: "populated" | "select3" | "deleted" | "compare" | "confirm" | "export" | "daterange" | "loading" | "nomatch" | "empty" | "unavailable" | "importing" | "importresult" | "importerror" | "safari"  (default "populated")
+ *   variant: "populated" | "single" | "select3" | "deleted" | "compare" | "confirm" | "export" | "daterange" | "loading" | "nomatch" | "empty" | "unavailable" | "importing" | "importresult" | "importerror" | "safari"  (default "populated")
  *   mobile: boolean  (default false)
  *   whyOpen: boolean  (default false)
  *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM row in Compare)
@@ -18,7 +18,8 @@ class History extends React.Component {
       : { pad: 'var(--space-6) var(--space-10) var(--space-12)', gap: 'var(--space-4-5)', h1: 'var(--text-4xl)', chipWrap: 'wrap', filterML: 'auto', legendML: 'auto', cardPad: '16px 20px', trendCols: 'repeat(3, minmax(0,1fr))', tw: 340, th: 130, thpx: '130px', tL: 'auto', tR: '24px', tB: '24px', cfAlign: 'flex-start', cfTop: '140px', cfW: '460px', cfRad: 'var(--radius-xl)' };
     const empty = is('empty'), unavail = is('unavailable'), loading = is('loading'), nomatch = is('nomatch'), deleted = is('deleted');
     const hasData = !empty && !unavail && !loading;
-    const total = deleted ? 46 : is('importresult') ? 60 : 48;
+    const single = is('single');
+    const total = single ? 1 : deleted ? 46 : is('importresult') ? 60 : 48;
     // [date, label, down, up, lat, jit, grade, flag, day, protocol, status]
     const R = [
       ['2026-10-08 08:41', 'VPN via 5G', 640e3, 210e3, 48, 9.4, 'D', 'Low confidence', 23, 'HTTP/2', 'complete'],
@@ -30,9 +31,11 @@ class History extends React.Component {
       ['2026-09-21 07:58', 'VPN via 5G', null, null, 41, 5.9, null, null, 6, 'HTTP/2', 'error'],
       ['2026-09-17 13:14', 'VPN · café', 19.6e6, 4.1e6, 72, 11.3, 'F', null, 2, 'HTTP/2', 'complete']
     ];
-    const selIdx = is('select3') ? [1, 3, 5] : deleted ? [] : [3, 5];
+    const selIdx = is('select3') ? [1, 3, 5] : deleted || single ? [] : [3, 5];
     let list = R.map((r, i) => ({ r, i, sel: selIdx.includes(i) }));
     if (deleted) list = list.filter(x => x.i !== 3 && x.i !== 5);
+    // single: fresh install, first result taken today (18 Oct = day 33)
+    if (single) list = [{ r: ['2026-10-18 09:14'].concat(R[3].slice(1, 8), [33], R[3].slice(9)), i: 3, sel: false }];
     const selN = selIdx.length;
     const tone = { 'A+': 'ok', A: 'ok', B: 'ok', C: 'warn', D: 'warn', F: 'danger' };
     const GW = { 'A+': 'Minimal', A: 'Low', B: 'Mild', C: 'Moderate', D: 'High', F: 'Severe' };
@@ -51,17 +54,31 @@ class History extends React.Component {
     const chip = ([t, n, on]) => ({ t, n, cls: on ? 'chip on' : 'chip', pressed: on ? 'true' : 'false' });
     const byLabel = l => list.filter(x => x.r[1] === l).length;
     const chipGroups = [
-      { t: 'Context', aria: 'Filter by context label', chips: [['All', total], ['LAN', 21], ['VPN', list.length, true], ['Wi-Fi', 13], ['Mobile', 6]].map(chip) },
+      { t: 'Context', aria: 'Filter by context label', chips: (single ? [['All', total], ['VPN', 1, true]] : [['All', total], ['LAN', 21], ['VPN', list.length, true], ['Wi-Fi', 13], ['Mobile', 6]]).map(chip) },
       { t: 'Label', aria: 'Filter by label', chips: [['Any label', list.length, true], ['VPN via 5G', byLabel('VPN via 5G')], ['VPN · office', byLabel('VPN · office')], ['VPN · hotel Wi-Fi', byLabel('VPN · hotel Wi-Fi')], ['VPN · café', byLabel('VPN · café')]].filter(c => c[1] > 0).map(chip) }
     ];
 
     const pts = list.slice().reverse().map(({ r, sel }) => ({ day: r[8], down: r[2], up: r[3], lat: r[4], done: r[10] === 'complete', sel }));
+    // Axis rules (components/charts.md § Trend chart axes)
+    // X: [d0, d1] = date filter window; "All time" = first result → today, min 7 days ending today.
+    const [d0, d1] = single ? [27, 33] : [1, 24];
+    const xTicks = single ? [[27, '12 Oct'], [30, '15 Oct'], [33, 'Today']] : [[2, '17 Sep'], [9, '24 Sep'], [16, '1 Oct'], [23, '8 Oct']];
+    const nice = v => { const p = Math.pow(10, Math.floor(Math.log10(v))); return [1, 2, 2.5, 5, 10].map(k => k * p).find(n => n >= v); };
     const mkTrend = (key, title, icon, c, log) => {
       const w = L.tw, h = L.th, pl = 40, pr = 8, pt = 6, pb = 20, W = w - pl - pr, H = h - pt - pb;
-      const X = d => pl + W * (d - 1) / 23;
+      const X = d => pl + W * (d - d0) / (d1 - d0);
+      const vals = pts.map(p => p[key]).filter(v => v != null);
       let Y, grid;
-      if (log) { const lo = 5, hi = 9; Y = v => pt + H * (1 - (Math.log10(v) - lo) / (hi - lo)); grid = [1e5, 1e6, 1e7, 1e8, 1e9].map(v => ({ y: Y(v).toFixed(1), t: v >= 1e9 ? '1G' : v >= 1e6 ? (v / 1e6) + 'M' : (v / 1e3) + 'k' })); }
-      else { Y = v => pt + H * (1 - v / 80); grid = [0, 40, 80].map(v => ({ y: Y(v).toFixed(1), t: v + (v === 80 ? ' ms' : '') })); }
+      if (log) {
+        // whole decades around the data, at least 2 decades
+        const hi = Math.ceil(Math.log10(Math.max(...vals))); let lo = Math.floor(Math.log10(Math.min(...vals))); if (hi - lo < 2) lo = hi - 2;
+        Y = v => pt + H * (1 - (Math.log10(v) - lo) / (hi - lo));
+        grid = Array.from({ length: hi - lo + 1 }, (_, i) => Math.pow(10, lo + i)).map(v => ({ y: Y(v).toFixed(1), t: v >= 1e9 ? (v / 1e9) + 'G' : v >= 1e6 ? (v / 1e6) + 'M' : v >= 1e3 ? (v / 1e3) + 'k' : String(v) }));
+      } else {
+        // 0 → max(80 ms, nice(max × 1.25))
+        const top = Math.max(80, nice(Math.max(...vals) * 1.25));
+        Y = v => pt + H * (1 - v / top); grid = [0, top / 2, top].map(v => ({ y: Y(v).toFixed(1), t: v + (v === top ? ' ms' : '') }));
+      }
       const P = []; let line = '', pen = false, hollow = 0;
       pts.forEach(p => {
         const val = p[key];
@@ -71,8 +88,10 @@ class History extends React.Component {
         if (!p.done) hollow++;
         P.push({ x, y, r: p.sel ? 4.5 : p.done ? 3 : 3.5, fill: p.done ? c : 'var(--surface-2)' });
       });
-      const xt = [[2, '17 Sep'], [9, '24 Sep'], [16, '1 Oct'], [23, '8 Oct']].map(([d, t]) => ({ x: X(d).toFixed(1), t }));
-      return { title, icon, c, w, h, grid, pts: P, line, xt, x0: pl, x1: pl + W, lx: pl - 6, xy: h - 14, scale: log ? 'log' : 'linear',
+      const xt = xTicks.map(([d, t]) => ({ x: X(d).toFixed(1), t }));
+      let lbl = null;
+      if (P.length === 1) { const v = vals[0], f = log ? fr(v) : { n: String(v), u: 'ms' }; lbl = { x: P[0].x, y: P[0].y, t: f.n + ' ' + f.u }; }
+      return { title, icon, c, w, h, grid, pts: P, line, xt, lbl, x0: pl, x1: pl + W, lx: pl - 6, xy: h - 14, scale: log ? 'log' : 'linear',
         aria: `${title} trend, ${P.length} results, ${hollow} partial or error` };
     };
     let trends = [mkTrend('down', 'Download', 'arrow-down', 'var(--series-download)', true), mkTrend('up', 'Upload', 'arrow-up', 'var(--series-upload)', true), mkTrend('lat', 'Idle latency', 'activity', 'var(--series-latency)', false)];
@@ -109,18 +128,19 @@ class History extends React.Component {
       importDisabled: unavail || is('importing'), importLabel: is('importing') ? 'Importing…' : 'Import JSON',
       whyOpen: why, whyAria: why ? 'true' : 'false', toggleWhy: () => this.setState({ why: !why }),
       exportFormats: [{ t: 'Export JSON', s: 'Full samples · re-importable', icon: 'file-json' }, { t: 'Export CSV', s: 'One row per test · summary only', icon: 'file-text' }],
-      rows: m ? rows.slice(0, 6) : rows, cols, chipGroups, trends, trendMeta: `${shownN} results · 17 Sep – 8 Oct`,
+      rows: m ? rows.slice(0, 6) : rows, cols, chipGroups, trends, trendMeta: single ? '1 result · today' : `${shownN} results · 17 Sep – 8 Oct`,
       hasSel: selN > 0, selN, cmpDisabled: selN !== 2, cmpHint: selN > 0 && selN !== 2,
       selSummary: selN === 2 ? 'VPN · office · 26 Sep and 2 Oct' : '26 Sep – 7 Oct',
       toast: deleted,
       cmpRows, cmpCards, cmpWarn, showCompareD: is('compare') && !m, showCompareM: is('compare') && m, showConfirm: is('confirm'),
       showExport: is('export'), exportAria: is('export') ? 'true' : 'false', showDate: is('daterange'), dateAria: is('daterange') ? 'true' : 'false',
-      dateLabel: nomatch ? 'Last 7 days' : 'Last 30 days', searchVal: nomatch ? 'airport' : '',
+      dateLabel: nomatch ? 'Last 7 days' : single ? 'All time' : 'Last 30 days', searchVal: nomatch ? 'airport' : '',
       noMatchText: nomatch ? `Nothing with context VPN in the last 7 days matches “airport”. All ${total} results are still in history.` : '',
       noop: () => {},
       skChips: [56, 64, 64, 72, 76].map(n => ({ w: n + 'px' })), skTrends: m ? [1] : [1, 2, 3],
       skRows: (m ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8]).map(() => ({ cols: [sk('16px', 'none'), sk('110px', 'none'), sk('auto', '1'), sk('52px', 'none'), sk('56px', 'none'), sk('64px', 'none'), sk('80px', 'none'), sk('80px', 'none'), sk('56px', 'none'), sk('52px', 'none'), sk('26px', 'none')] })),
-      ranges: [['Last 7 days', 3], ['Last 30 days', 8, true], ['Last 90 days', 8], ['All time', 8]].map(([t, n, on]) => ({ t, n, on: !!on, aria: on ? 'true' : 'false', bg: on ? 'var(--primary-bg)' : 'transparent', c: on ? 'var(--primary-text)' : 'var(--fg)' }))
+      trendSingle: single,
+      ranges: (single ? [['Last 7 days', 1], ['Last 30 days', 1], ['Last 90 days', 1], ['All time', 1, true]] : [['Last 7 days', 3], ['Last 30 days', 8, true], ['Last 90 days', 8], ['All time', 8]]).map(([t, n, on]) => ({ t, n, on: !!on, aria: on ? 'true' : 'false', bg: on ? 'var(--primary-bg)' : 'transparent', c: on ? 'var(--primary-text)' : 'var(--fg)' }))
     };
   }
     render() {
@@ -374,12 +394,18 @@ class History extends React.Component {
                               </span>
                             </React.Fragment>
                           ))}
+                          {tr?.lbl ? (
+                            <span style={{ position: "absolute", left: `${tr.lbl.x}px`, top: `${tr.lbl.y}px`, transform: "translate(calc(-100% - 8px),-50%)", whiteSpace: "nowrap", fontSize: "var(--text-caption)", color: "var(--fg)" }}>{tr.lbl.t}</span>
+                          ) : null}
                         </div>
                       </div>
                     </div>
                   </React.Fragment>
                 ))}
               </div>
+              {v.trendSingle ? (
+                <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)" }}>Trends appear from the second result.</span>
+              ) : null}
             </DS.Card>
               {v.desktop ? (
               <DS.Card as="section" label="Results" padded={false} style={{ overflow: "hidden", position: "relative" }}>

@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"b6d7fe7e8713","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"9df6af312bac","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"af57de6fd238","ui_kits/app/App.jsx":"76dbe976e578","ui_kits/app/History.jsx":"284ef3ea9ea8","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"569218fbff72","ui_kits/app/ResultDetail.jsx":"0ca4ffe7d3b5","ui_kits/app/Settings.jsx":"0be72ef0379c","ui_kits/app/TestScreen.jsx":"fc42e2034669","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"b6d7fe7e8713","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"9df6af312bac","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"af57de6fd238","ui_kits/app/App.jsx":"2171e2a7fdde","ui_kits/app/History.jsx":"1a69954b6843","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"569218fbff72","ui_kits/app/ResultDetail.jsx":"0ca4ffe7d3b5","ui_kits/app/Settings.jsx":"0be72ef0379c","ui_kits/app/TestScreen.jsx":"fc42e2034669","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"}]} */
 
 (() => {
 
@@ -3703,7 +3703,7 @@ const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', '
 const V03_STATES = ['continuous', 'cont-warmup', 'cont-done'];
 const SCOPES = ['v0.1', 'v0.2', 'v0.3'];
 const LL_GAPS = [['none', 'measured'], ['no-steady-window', 'no steady window'], ['insufficient-samples', 'fewer than 10 samples'], ['reservation-broken', 'HTTP/1.1 reservation not held'], ['no-probe-path', 'no latency probe']];
-const HISTORY_VARIANTS = ['populated', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
+const HISTORY_VARIANTS = ['populated', 'single', 'select3', 'deleted', 'compare', 'confirm', 'export', 'daterange', 'loading', 'nomatch', 'empty', 'unavailable', 'importing', 'importresult', 'importerror', 'safari'];
 function DemoSelect({
   label,
   value,
@@ -4071,7 +4071,7 @@ window.App = App;
 try { (() => {
 /* BitGauge web UI kit — History
  * Props:
- *   variant: "populated" | "select3" | "deleted" | "compare" | "confirm" | "export" | "daterange" | "loading" | "nomatch" | "empty" | "unavailable" | "importing" | "importresult" | "importerror" | "safari"  (default "populated")
+ *   variant: "populated" | "single" | "select3" | "deleted" | "compare" | "confirm" | "export" | "daterange" | "loading" | "nomatch" | "empty" | "unavailable" | "importing" | "importresult" | "importerror" | "safari"  (default "populated")
  *   mobile: boolean  (default false)
  *   whyOpen: boolean  (default false)
  *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM row in Compare)
@@ -4132,16 +4132,23 @@ class History extends React.Component {
       nomatch = is('nomatch'),
       deleted = is('deleted');
     const hasData = !empty && !unavail && !loading;
-    const total = deleted ? 46 : is('importresult') ? 60 : 48;
+    const single = is('single');
+    const total = single ? 1 : deleted ? 46 : is('importresult') ? 60 : 48;
     // [date, label, down, up, lat, jit, grade, flag, day, protocol, status]
     const R = [['2026-10-08 08:41', 'VPN via 5G', 640e3, 210e3, 48, 9.4, 'D', 'Low confidence', 23, 'HTTP/2', 'complete'], ['2026-10-07 19:12', 'VPN · hotel Wi-Fi', 38.4e6, 12.1e6, 61, 4.2, 'C', null, 22, 'HTTP/1.1', 'complete'], ['2026-10-05 12:30', 'VPN via 5G', 84.2e6, 21.7e6, 39, 6.8, 'C', null, 20, 'HTTP/2', 'complete'], ['2026-10-02 09:05', 'VPN · office', 241e6, 198e6, 14, 1.9, 'B', null, 17, 'HTTP/1.1', 'complete'], ['2026-09-29 22:47', 'VPN via 5G', 52.9e6, null, 44, 7.1, 'D', null, 14, 'HTTP/2', 'partial'], ['2026-09-26 18:20', 'VPN · office', 233e6, 187e6, 15, 2.2, 'B', null, 11, 'HTTP/2', 'complete'], ['2026-09-21 07:58', 'VPN via 5G', null, null, 41, 5.9, null, null, 6, 'HTTP/2', 'error'], ['2026-09-17 13:14', 'VPN · café', 19.6e6, 4.1e6, 72, 11.3, 'F', null, 2, 'HTTP/2', 'complete']];
-    const selIdx = is('select3') ? [1, 3, 5] : deleted ? [] : [3, 5];
+    const selIdx = is('select3') ? [1, 3, 5] : deleted || single ? [] : [3, 5];
     let list = R.map((r, i) => ({
       r,
       i,
       sel: selIdx.includes(i)
     }));
     if (deleted) list = list.filter(x => x.i !== 3 && x.i !== 5);
+    // single: fresh install, first result taken today (18 Oct = day 33)
+    if (single) list = [{
+      r: ['2026-10-18 09:14'].concat(R[3].slice(1, 8), [33], R[3].slice(9)),
+      i: 3,
+      sel: false
+    }];
     const selN = selIdx.length;
     const tone = {
       'A+': 'ok',
@@ -4229,7 +4236,7 @@ class History extends React.Component {
     const chipGroups = [{
       t: 'Context',
       aria: 'Filter by context label',
-      chips: [['All', total], ['LAN', 21], ['VPN', list.length, true], ['Wi-Fi', 13], ['Mobile', 6]].map(chip)
+      chips: (single ? [['All', total], ['VPN', 1, true]] : [['All', total], ['LAN', 21], ['VPN', list.length, true], ['Wi-Fi', 13], ['Mobile', 6]]).map(chip)
     }, {
       t: 'Label',
       aria: 'Filter by label',
@@ -4246,6 +4253,14 @@ class History extends React.Component {
       done: r[10] === 'complete',
       sel
     }));
+    // Axis rules (components/charts.md § Trend chart axes)
+    // X: [d0, d1] = date filter window; "All time" = first result → today, min 7 days ending today.
+    const [d0, d1] = single ? [27, 33] : [1, 24];
+    const xTicks = single ? [[27, '12 Oct'], [30, '15 Oct'], [33, 'Today']] : [[2, '17 Sep'], [9, '24 Sep'], [16, '1 Oct'], [23, '8 Oct']];
+    const nice = v => {
+      const p = Math.pow(10, Math.floor(Math.log10(v)));
+      return [1, 2, 2.5, 5, 10].map(k => k * p).find(n => n >= v);
+    };
     const mkTrend = (key, title, icon, c, log) => {
       const w = L.tw,
         h = L.th,
@@ -4255,21 +4270,28 @@ class History extends React.Component {
         pb = 20,
         W = w - pl - pr,
         H = h - pt - pb;
-      const X = d => pl + W * (d - 1) / 23;
+      const X = d => pl + W * (d - d0) / (d1 - d0);
+      const vals = pts.map(p => p[key]).filter(v => v != null);
       let Y, grid;
       if (log) {
-        const lo = 5,
-          hi = 9;
+        // whole decades around the data, at least 2 decades
+        const hi = Math.ceil(Math.log10(Math.max(...vals)));
+        let lo = Math.floor(Math.log10(Math.min(...vals)));
+        if (hi - lo < 2) lo = hi - 2;
         Y = v => pt + H * (1 - (Math.log10(v) - lo) / (hi - lo));
-        grid = [1e5, 1e6, 1e7, 1e8, 1e9].map(v => ({
+        grid = Array.from({
+          length: hi - lo + 1
+        }, (_, i) => Math.pow(10, lo + i)).map(v => ({
           y: Y(v).toFixed(1),
-          t: v >= 1e9 ? '1G' : v >= 1e6 ? v / 1e6 + 'M' : v / 1e3 + 'k'
+          t: v >= 1e9 ? v / 1e9 + 'G' : v >= 1e6 ? v / 1e6 + 'M' : v >= 1e3 ? v / 1e3 + 'k' : String(v)
         }));
       } else {
-        Y = v => pt + H * (1 - v / 80);
-        grid = [0, 40, 80].map(v => ({
+        // 0 → max(80 ms, nice(max × 1.25))
+        const top = Math.max(80, nice(Math.max(...vals) * 1.25));
+        Y = v => pt + H * (1 - v / top);
+        grid = [0, top / 2, top].map(v => ({
           y: Y(v).toFixed(1),
-          t: v + (v === 80 ? ' ms' : '')
+          t: v + (v === top ? ' ms' : '')
         }));
       }
       const P = [];
@@ -4294,10 +4316,23 @@ class History extends React.Component {
           fill: p.done ? c : 'var(--surface-2)'
         });
       });
-      const xt = [[2, '17 Sep'], [9, '24 Sep'], [16, '1 Oct'], [23, '8 Oct']].map(([d, t]) => ({
+      const xt = xTicks.map(([d, t]) => ({
         x: X(d).toFixed(1),
         t
       }));
+      let lbl = null;
+      if (P.length === 1) {
+        const v = vals[0],
+          f = log ? fr(v) : {
+            n: String(v),
+            u: 'ms'
+          };
+        lbl = {
+          x: P[0].x,
+          y: P[0].y,
+          t: f.n + ' ' + f.u
+        };
+      }
       return {
         title,
         icon,
@@ -4308,6 +4343,7 @@ class History extends React.Component {
         pts: P,
         line,
         xt,
+        lbl,
         x0: pl,
         x1: pl + W,
         lx: pl - 6,
@@ -4442,7 +4478,7 @@ class History extends React.Component {
       cols,
       chipGroups,
       trends,
-      trendMeta: `${shownN} results · 17 Sep – 8 Oct`,
+      trendMeta: single ? '1 result · today' : `${shownN} results · 17 Sep – 8 Oct`,
       hasSel: selN > 0,
       selN,
       cmpDisabled: selN !== 2,
@@ -4459,7 +4495,7 @@ class History extends React.Component {
       exportAria: is('export') ? 'true' : 'false',
       showDate: is('daterange'),
       dateAria: is('daterange') ? 'true' : 'false',
-      dateLabel: nomatch ? 'Last 7 days' : 'Last 30 days',
+      dateLabel: nomatch ? 'Last 7 days' : single ? 'All time' : 'Last 30 days',
       searchVal: nomatch ? 'airport' : '',
       noMatchText: nomatch ? `Nothing with context VPN in the last 7 days matches “airport”. All ${total} results are still in history.` : '',
       noop: () => {},
@@ -4470,7 +4506,8 @@ class History extends React.Component {
       skRows: (m ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8]).map(() => ({
         cols: [sk('16px', 'none'), sk('110px', 'none'), sk('auto', '1'), sk('52px', 'none'), sk('56px', 'none'), sk('64px', 'none'), sk('80px', 'none'), sk('80px', 'none'), sk('56px', 'none'), sk('52px', 'none'), sk('26px', 'none')]
       })),
-      ranges: [['Last 7 days', 3], ['Last 30 days', 8, true], ['Last 90 days', 8], ['All time', 8]].map(([t, n, on]) => ({
+      trendSingle: single,
+      ranges: (single ? [['Last 7 days', 1], ['Last 30 days', 1], ['Last 90 days', 1], ['All time', 1, true]] : [['Last 7 days', 3], ['Last 30 days', 8, true], ['Last 90 days', 8], ['All time', 8]]).map(([t, n, on]) => ({
         t,
         n,
         on: !!on,
@@ -5192,7 +5229,22 @@ class History extends React.Component {
         transform: "translateX(-50%)",
         whiteSpace: "nowrap"
       }
-    }, xt?.t)))))))))), v.desktop ? /*#__PURE__*/React.createElement(DS.Card, {
+    }, xt?.t))), tr?.lbl ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        position: "absolute",
+        left: `${tr.lbl.x}px`,
+        top: `${tr.lbl.y}px`,
+        transform: "translate(calc(-100% - 8px),-50%)",
+        whiteSpace: "nowrap",
+        fontSize: "var(--text-caption)",
+        color: "var(--fg)"
+      }
+    }, tr.lbl.t) : null)))))), v.trendSingle ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: "var(--text-caption)",
+        color: "var(--fg-subtle)"
+      }
+    }, "Trends appear from the second result.") : null), v.desktop ? /*#__PURE__*/React.createElement(DS.Card, {
       as: "section",
       label: "Results",
       padded: false,

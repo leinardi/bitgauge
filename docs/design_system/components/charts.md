@@ -44,6 +44,21 @@ Small multiples over the filtered results: download and upload on a **log** scal
 **linear**. Results whose status is not `complete` are drawn as **hollow markers**, with a legend
 entry. Mobile: one metric at a time with a selector.
 
+### Trend chart axes
+
+Axes come from the filter and the data, never fixed ranges.
+
+- **X (time):** the date filter's window. "All time" spans first result → today. Minimum span
+  7 days, always ending today (no future dates; the right edge is stable as results arrive).
+  Three to five ticks; the step (day, week, month) follows the span. The last tick reads "Today".
+- **Y, download and upload (log):** whole decades around the data — bottom = decade at or below
+  the lowest value, top = decade at or above the highest — with at least 2 decades. One result at
+  241 Mbit/s → 10M – 1G.
+- **Y, idle latency (linear):** 0 to max(80 ms, highest value × 1.25 rounded up to 1/2/2.5/5 × 10ⁿ).
+- **One result:** the marker only (no line), labelled with its value; frame and gridlines stay so
+  the layout doesn't shift on the second result. A caption under the charts reads "Trends appear
+  from the second result."
+
 ## Chart or table
 
 Every chart is `role="img"` whose label is a **summary of the data shown** ("Throughput: Download 590 Mbit/s,
