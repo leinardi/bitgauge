@@ -109,7 +109,7 @@ function tickText(at: number): string {
   return tick?.today === true ? t('history.trend.today') : (tick?.year === true ? month : day).value.format(at * 1000)
 }
 
-// The single result's value, left of its marker, where the plot drew it.
+// The single result's value, left of its marker, where the plot drew it (History.jsx mkTrend lbl).
 const single = shallowRef<{ left: string; top: string; text: string } | null>(null)
 function placeSingle(chart: uPlot): void {
   const drawn = props.points.flatMap((point) => (point.value === null ? [] : [{ at: point.at, value: point.value }]))
@@ -130,10 +130,12 @@ function options(size: { width: number; height: number }): uPlot.Options {
     height: size.height,
     cursor: { show: false },
     legend: { show: false },
+    // The kit's plot inset above, 6 px (History.jsx pt); the axes set the others.
+    padding: [6, null, 0, null],
     scales: { x: { time: true, range: () => [props.frame.from, props.frame.to] }, y: props.log ? { distr: 3, range: () => [first(), last()] } : { range: () => [first(), last()] } },
     axes: [
       { ...axis, grid: { show: false }, size: 20, splits: () => props.ticks.map((tick) => tick.at), values: (_plot, splits) => splits.map(tickText) },
-      { ...axis, grid: { stroke: () => palette.value.grid, width: 1 }, size: 44, splits: () => [...yTicks.value], filter: (_plot, splits) => splits, values: (_plot, splits) => splits.map(valueText) },
+      { ...axis, grid: { stroke: () => palette.value.grid, width: 1 }, size: 40, splits: () => [...yTicks.value], filter: (_plot, splits) => splits, values: (_plot, splits) => splits.map(valueText) },
     ],
     hooks: { draw: [placeSingle] },
     series: [
@@ -175,7 +177,7 @@ watch(applied, () => {
     <span
       v-if="single !== null"
       aria-hidden="true"
-      class="pointer-events-none absolute -translate-x-full -translate-y-1/2 pr-2 font-mono text-(length:--text-caption) whitespace-nowrap text-foreground"
+      class="pointer-events-none absolute -translate-x-[calc(100%+var(--space-2))] -translate-y-1/2 font-mono text-(length:--text-caption) whitespace-nowrap text-foreground"
       :style="{ left: single.left, top: single.top }"
     >{{ single.text }}</span>
   </div>
