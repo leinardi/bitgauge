@@ -34,8 +34,8 @@ class History extends React.Component {
     const selIdx = is('select3') ? [1, 3, 5] : deleted || single ? [] : [3, 5];
     let list = R.map((r, i) => ({ r, i, sel: selIdx.includes(i) }));
     if (deleted) list = list.filter(x => x.i !== 3 && x.i !== 5);
-    // single: fresh install, first result taken today (18 Oct = day 33)
-    if (single) list = [{ r: ['2026-10-18 09:14'].concat(R[3].slice(1, 8), [33], R[3].slice(9)), i: 3, sel: false }];
+    // single: fresh install, first result taken today (8 Oct = day 23)
+    if (single) list = [{ r: ['2026-10-08 09:14'].concat(R[3].slice(1, 8), [23], R[3].slice(9)), i: 3, sel: false }];
     const selN = selIdx.length;
     const tone = { 'A+': 'ok', A: 'ok', B: 'ok', C: 'warn', D: 'warn', F: 'danger' };
     const GW = { 'A+': 'Minimal', A: 'Low', B: 'Mild', C: 'Moderate', D: 'High', F: 'Severe' };
@@ -47,7 +47,7 @@ class History extends React.Component {
       return { d, label, down: dn.n, du: dn.u, up: un.n, uu: un.u, lat: String(lat), jit: jit < 10 ? jit.toFixed(1) : String(Math.round(jit)), grade: grade || '—', gAria: grade ? 'Grade ' + grade + ' · ' + GW[grade] + ' bufferbloat' : 'No grade', flag, proto,
         st: S[0], stCls: S[1], stDot: S[2], stM: st !== 'complete', sel, unsel: !sel, selAria: sel ? 'true' : 'false', cls: sel ? 'rowlink sel' : 'rowlink', ctx: 'VPN', cicon: 'shield',
         gbd: t ? `var(--${t}-border)` : 'var(--border-subtle)', gbg: t ? `var(--${t}-bg)` : 'transparent', gfg: t ? `var(--${t}-fg)` : 'var(--fg-subtle)',
-        cardBd: sel ? 'var(--primary-border)' : 'var(--border-subtle)', cardBg: sel ? 'var(--primary-bg)' : 'var(--surface-2)' };
+        cardBd: sel ? 'var(--primary-border)' : 'var(--border-subtle)', cardBg: sel ? 'var(--primary-bg)' : 'var(--surface-2)', cardSub: sel ? 'var(--fg-muted)' : undefined };
     });
     const colDefs = [['Date', 'left', true], ['Label', 'left'], ['Context', 'left'], ['Protocol', 'left'], ['Status', 'left'], ['Download', 'right'], ['Upload', 'right'], ['Latency', 'right'], ['Jitter', 'right'], ['Grade', 'center']];
     const cols = colDefs.map(([t, align, on]) => ({ t, align, on: !!on, aria: on ? 'descending' : 'none', icon: on ? 'chevron-down' : 'arrow-up-down', c: on ? 'var(--primary-text)' : 'var(--fg-subtle)' }));
@@ -60,9 +60,11 @@ class History extends React.Component {
 
     const pts = list.slice().reverse().map(({ r, sel }) => ({ day: r[8], down: r[2], up: r[3], lat: r[4], done: r[10] === 'complete', sel }));
     // Axis rules (components/charts.md § Trend chart axes)
-    // X: [d0, d1] = date filter window; "All time" = first result → today, min 7 days ending today.
-    const [d0, d1] = single ? [27, 33] : [1, 24];
-    const xTicks = single ? [[27, '12 Oct'], [30, '15 Oct'], [33, 'Today']] : [[2, '17 Sep'], [9, '24 Sep'], [16, '1 Oct'], [23, '8 Oct']];
+    // X: [d0, d1] = date filter window ending today (8 Oct = day 23; day d = 15 Sep + d). "All time" = first result →
+    // today, min 7 days. Ticks step back from today (3 / 10 days), the last reads "Today"; results outside are not drawn.
+    const d1 = 23, span = single || nomatch ? 7 : 30, d0 = d1 - (span - 1), step = span <= 7 ? 3 : 10;
+    const dayLabel = d => { const t = new Date(2026, 8, 15 + d); return t.getDate() + ' ' + ['Sep', 'Oct', 'Nov'][t.getMonth() - 8]; };
+    const xTicks = []; for (let d = d1; d >= d0; d -= step) xTicks.unshift([d, d === d1 ? 'Today' : dayLabel(d)]);
     const nice = v => { const p = Math.pow(10, Math.floor(Math.log10(v))); return [1, 2, 2.5, 5, 10].map(k => k * p).find(n => n >= v); };
     const mkTrend = (key, title, icon, c, log) => {
       const w = L.tw, h = L.th, pl = 40, pr = 8, pt = 6, pb = 20, W = w - pl - pr, H = h - pt - pb;
@@ -82,7 +84,7 @@ class History extends React.Component {
       const P = []; let line = '', pen = false, hollow = 0;
       pts.forEach(p => {
         const val = p[key];
-        if (val == null) { pen = false; return; }
+        if (val == null || p.day < d0 || p.day > d1) { pen = false; return; }
         const x = X(p.day).toFixed(1), y = Y(val).toFixed(1);
         line += (pen ? 'L' : 'M') + x + ' ' + y; pen = true;
         if (!p.done) hollow++;
@@ -140,7 +142,7 @@ class History extends React.Component {
       skChips: [56, 64, 64, 72, 76].map(n => ({ w: n + 'px' })), skTrends: m ? [1] : [1, 2, 3],
       skRows: (m ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8]).map(() => ({ cols: [sk('16px', 'none'), sk('110px', 'none'), sk('auto', '1'), sk('52px', 'none'), sk('56px', 'none'), sk('64px', 'none'), sk('80px', 'none'), sk('80px', 'none'), sk('56px', 'none'), sk('52px', 'none'), sk('26px', 'none')] })),
       trendSingle: single,
-      ranges: (single ? [['Last 7 days', 1], ['Last 30 days', 1], ['Last 90 days', 1], ['All time', 1, true]] : [['Last 7 days', 3], ['Last 30 days', 8, true], ['Last 90 days', 8], ['All time', 8]]).map(([t, n, on]) => ({ t, n, on: !!on, aria: on ? 'true' : 'false', bg: on ? 'var(--primary-bg)' : 'transparent', c: on ? 'var(--primary-text)' : 'var(--fg)' }))
+      ranges: (single ? [['Last 7 days', 1], ['Last 30 days', 1], ['Last 90 days', 1], ['All time', 1, true]] : [['Last 7 days', 4, nomatch], ['Last 30 days', 8, !nomatch], ['Last 90 days', 8], ['All time', 8]]).map(([t, n, on]) => ({ t, n, on: !!on, aria: on ? 'true' : 'false', bg: on ? 'var(--primary-bg)' : 'transparent', c: on ? 'var(--primary-text)' : 'var(--fg)' }))
     };
   }
     render() {
@@ -433,7 +435,7 @@ class History extends React.Component {
                   <tbody>
                     {(v.rows || []).map((r, $index) => (
                       <React.Fragment key={$index}>
-                        <tr className={r?.cls}>
+                        <tr className={r?.cls} style={{ "--fg-subtle": r?.cardSub }}>
                           <td>
                             {r?.sel ? (
                               <span role="checkbox" aria-checked="true" tabIndex="0" style={{ width: "16px", height: "16px", borderRadius: "4px", background: "var(--primary)", color: "var(--primary-fg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -512,7 +514,7 @@ class History extends React.Component {
                 </div>
                 {(v.rows || []).map((r, $index) => (
                   <React.Fragment key={$index}>
-                    <div style={{ display: "flex", alignItems: "stretch", borderRadius: "var(--radius-lg)", border: `1px solid ${r?.cardBd ?? ""}`, background: r?.cardBg }}>
+                    <div style={{ display: "flex", alignItems: "stretch", borderRadius: "var(--radius-lg)", border: `1px solid ${r?.cardBd ?? ""}`, background: r?.cardBg, "--fg-subtle": r?.cardSub }}>
                       <button role="checkbox" aria-checked={r?.selAria} aria-label={`Select ${r?.label ?? ""}, ${r?.d ?? ""}`} style={{ all: "unset", boxSizing: "border-box", flex: "none", width: "44px", minHeight: "44px", display: "flex", justifyContent: "center", paddingTop: "var(--space-3-5)", cursor: "pointer" }}>
                         {r?.sel ? (
                           <span style={{ width: "18px", height: "18px", borderRadius: "4px", background: "var(--primary)", color: "var(--primary-fg)", display: "flex", alignItems: "center", justifyContent: "center" }}>

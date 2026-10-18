@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"b6d7fe7e8713","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"9df6af312bac","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"af57de6fd238","ui_kits/app/App.jsx":"2171e2a7fdde","ui_kits/app/History.jsx":"1a69954b6843","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"569218fbff72","ui_kits/app/ResultDetail.jsx":"0ca4ffe7d3b5","ui_kits/app/Settings.jsx":"0be72ef0379c","ui_kits/app/TestScreen.jsx":"fc42e2034669","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"9da97baad534","components/actions/Popover.jsx":"4cbb81336a6f","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"f3348a45407c","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"b6d7fe7e8713","components/dialog/Dialog.jsx":"0b46ae660645","components/feedback/EmptyState.jsx":"a3c2bd29c99d","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"a5e9b3ece403","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"9df6af312bac","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"af57de6fd238","ui_kits/app/App.jsx":"5f056fcdcdd5","ui_kits/app/History.jsx":"12350ee97174","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"569218fbff72","ui_kits/app/ResultDetail.jsx":"0ca4ffe7d3b5","ui_kits/app/Settings.jsx":"0be72ef0379c","ui_kits/app/TestScreen.jsx":"fc42e2034669","ui_kits/app/ds.js":"25c48416eeb7","ui_kits/app/fixtures.js":"6111fa146f5b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"}]} */
 
 (() => {
 
@@ -3798,7 +3798,7 @@ function DemoPanel({
     "aria-label": open ? 'Collapse demo panel' : 'Expand demo panel',
     onClick: () => setOpen(!open)
   }, /*#__PURE__*/React.createElement(DS.Icon, {
-    name: open ? 'chevron-down' : 'chevron-up',
+    name: open ? 'chevron-up' : 'chevron-down',
     size: 14
   }))), open ? /*#__PURE__*/React.createElement("div", {
     className: "demo-b"
@@ -4143,9 +4143,9 @@ class History extends React.Component {
       sel: selIdx.includes(i)
     }));
     if (deleted) list = list.filter(x => x.i !== 3 && x.i !== 5);
-    // single: fresh install, first result taken today (18 Oct = day 33)
+    // single: fresh install, first result taken today (8 Oct = day 23)
     if (single) list = [{
-      r: ['2026-10-18 09:14'].concat(R[3].slice(1, 8), [33], R[3].slice(9)),
+      r: ['2026-10-08 09:14'].concat(R[3].slice(1, 8), [23], R[3].slice(9)),
       i: 3,
       sel: false
     }];
@@ -4214,7 +4214,8 @@ class History extends React.Component {
         gbg: t ? `var(--${t}-bg)` : 'transparent',
         gfg: t ? `var(--${t}-fg)` : 'var(--fg-subtle)',
         cardBd: sel ? 'var(--primary-border)' : 'var(--border-subtle)',
-        cardBg: sel ? 'var(--primary-bg)' : 'var(--surface-2)'
+        cardBg: sel ? 'var(--primary-bg)' : 'var(--surface-2)',
+        cardSub: sel ? 'var(--fg-muted)' : undefined
       };
     });
     const colDefs = [['Date', 'left', true], ['Label', 'left'], ['Context', 'left'], ['Protocol', 'left'], ['Status', 'left'], ['Download', 'right'], ['Upload', 'right'], ['Latency', 'right'], ['Jitter', 'right'], ['Grade', 'center']];
@@ -4254,9 +4255,18 @@ class History extends React.Component {
       sel
     }));
     // Axis rules (components/charts.md § Trend chart axes)
-    // X: [d0, d1] = date filter window; "All time" = first result → today, min 7 days ending today.
-    const [d0, d1] = single ? [27, 33] : [1, 24];
-    const xTicks = single ? [[27, '12 Oct'], [30, '15 Oct'], [33, 'Today']] : [[2, '17 Sep'], [9, '24 Sep'], [16, '1 Oct'], [23, '8 Oct']];
+    // X: [d0, d1] = date filter window ending today (8 Oct = day 23; day d = 15 Sep + d). "All time" = first result →
+    // today, min 7 days. Ticks step back from today (3 / 10 days), the last reads "Today"; results outside are not drawn.
+    const d1 = 23,
+      span = single || nomatch ? 7 : 30,
+      d0 = d1 - (span - 1),
+      step = span <= 7 ? 3 : 10;
+    const dayLabel = d => {
+      const t = new Date(2026, 8, 15 + d);
+      return t.getDate() + ' ' + ['Sep', 'Oct', 'Nov'][t.getMonth() - 8];
+    };
+    const xTicks = [];
+    for (let d = d1; d >= d0; d -= step) xTicks.unshift([d, d === d1 ? 'Today' : dayLabel(d)]);
     const nice = v => {
       const p = Math.pow(10, Math.floor(Math.log10(v)));
       return [1, 2, 2.5, 5, 10].map(k => k * p).find(n => n >= v);
@@ -4300,7 +4310,7 @@ class History extends React.Component {
         hollow = 0;
       pts.forEach(p => {
         const val = p[key];
-        if (val == null) {
+        if (val == null || p.day < d0 || p.day > d1) {
           pen = false;
           return;
         }
@@ -4507,7 +4517,7 @@ class History extends React.Component {
         cols: [sk('16px', 'none'), sk('110px', 'none'), sk('auto', '1'), sk('52px', 'none'), sk('56px', 'none'), sk('64px', 'none'), sk('80px', 'none'), sk('80px', 'none'), sk('56px', 'none'), sk('52px', 'none'), sk('26px', 'none')]
       })),
       trendSingle: single,
-      ranges: (single ? [['Last 7 days', 1], ['Last 30 days', 1], ['Last 90 days', 1], ['All time', 1, true]] : [['Last 7 days', 3], ['Last 30 days', 8, true], ['Last 90 days', 8], ['All time', 8]]).map(([t, n, on]) => ({
+      ranges: (single ? [['Last 7 days', 1], ['Last 30 days', 1], ['Last 90 days', 1], ['All time', 1, true]] : [['Last 7 days', 4, nomatch], ['Last 30 days', 8, !nomatch], ['Last 90 days', 8], ['All time', 8]]).map(([t, n, on]) => ({
         t,
         n,
         on: !!on,
@@ -5293,7 +5303,10 @@ class History extends React.Component {
     }))), /*#__PURE__*/React.createElement("tbody", null, (v.rows || []).map((r, $index) => /*#__PURE__*/React.createElement(React.Fragment, {
       key: $index
     }, /*#__PURE__*/React.createElement("tr", {
-      className: r?.cls
+      className: r?.cls,
+      style: {
+        "--fg-subtle": r?.cardSub
+      }
     }, /*#__PURE__*/React.createElement("td", null, r?.sel ? /*#__PURE__*/React.createElement("span", {
       role: "checkbox",
       "aria-checked": "true",
@@ -5514,7 +5527,8 @@ class History extends React.Component {
         alignItems: "stretch",
         borderRadius: "var(--radius-lg)",
         border: `1px solid ${r?.cardBd ?? ""}`,
-        background: r?.cardBg
+        background: r?.cardBg,
+        "--fg-subtle": r?.cardSub
       }
     }, /*#__PURE__*/React.createElement("button", {
       role: "checkbox",

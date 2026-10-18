@@ -27,6 +27,7 @@
 .tbl tbody tr { transition: background var(--dur-fast); }
 .tbl tbody tr.rowlink { cursor: pointer; }
 .tbl tbody tr.rowlink:hover { background: var(--surface-1); }
+/* Subtle text on --primary-bg falls under 4.5:1 in the dark theme: on a selected row, use --fg-muted for secondary text. */
 .tbl tbody tr.sel { background: var(--primary-bg); }
 .tbl .num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 /* Card list below --breakpoint-tablet (768 px; media queries can't read custom properties, so the literal repeats here). */

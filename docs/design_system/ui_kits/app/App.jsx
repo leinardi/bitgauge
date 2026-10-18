@@ -64,7 +64,7 @@ function DemoPanel({ d, set, reset }) {
         <span className="t">Demo<span className="t-long"> state{open ? '' : ' \u00b7 ' + (d.mobile ? 'Mobile' : 'Auto') + ' \u00b7 ' + d.scenario}</span></span>
         {open ? <button type="button" className="btn ghost sm" onClick={reset}>Reset</button> : null}
         <button type="button" className="btn ghost sm icon" aria-label={open ? 'Collapse demo panel' : 'Expand demo panel'} onClick={() => setOpen(!open)}>
-          <DS.Icon name={open ? 'chevron-down' : 'chevron-up'} size={14} />
+          <DS.Icon name={open ? 'chevron-up' : 'chevron-down'} size={14} />
         </button>
       </div>
       {open ? (
