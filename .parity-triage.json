@@ -23712,7 +23712,7 @@
       },
       "decision": {
         "kind": "confirmation",
-        "rationale": "The maintainer confirmed on 2026-10-18: tune the slow link so its finished run reads as the kit's does.",
+        "rationale": "The maintainer confirmed on 2026-10-18: tune the slow link so its finished run reads as the kit's does. On 2026-10-18 the maintainer decided the spec wins on the upload's plateau: at 210 kbit/s a ramp that kept its second stream stops floor-limited (measurement.md section 8.2), and tuning the demo to no-gain leaves a single stream's idle on the 5 % gain bound.",
         "on": "2026-10-18"
       },
       "owned": {
@@ -23726,11 +23726,16 @@
       "actions": [
         {
           "target": "fixture",
-          "what": "web/src/demo/link.ts (vpn): an upload stable enough that the slowdone run reads low confidence for few samples only, and an upload ramp that ends no-gain rather than floor-limited, as the kit shows; frontend.md §9 if the link's description changes.",
-          "done": false
+          "what": "web/src/demo/link.ts and transport.ts (vpn): an upload stable enough that the slowdone run reads low confidence for few samples only, as the kit shows; frontend.md section 9. Done by the queue held by moving requests (v02-fixture-cancelled-slow-up-status).",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's slowdone upload tile and strip read 2 streams · plateau: floor-limited, since the 210 kbit/s link cannot feed 4 streams at the 8 KiB/s floor (measurement.md section 8.2).",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {

@@ -14,4 +14,11 @@ the export shows, and what it should show, with the reason; behavior comes from
 
 ## Notes
 
-None open: the export of 2026-10-18 carried the last ones.
+- **`v02-fixture-slowdone-unstable`**, `ui_kits/app/TestScreen.jsx`, state `slowdone`: the
+  upload tile's sub line and the connection strip read `2 streams · plateau: no-gain`. They should
+  read `2 streams · plateau: floor-limited`. On the kit's 210 kbit/s upload, a trial to 4 streams
+  would give each about 6.4 KiB/s, under the 8 KiB/s floor, so a ramp that kept its second stream
+  skips it as `floor-limited`
+  ([measurement.md §8.2](../features/measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare));
+  `no-gain` needs one stream to fill the link within 5 %, which a 48 ms round trip per request
+  cycle leaves on the bound. The download keeps `no-gain`.
