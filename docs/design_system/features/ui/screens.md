@@ -35,13 +35,15 @@ from the design export; this page fixes content and behavior only. Terms follow 
   caption naming the current window; during idle latency it switches to milliseconds; during
   upload it shows the client's sending progress, labeled "sending".
 - **Live chart:** throughput over time (download; upload `received` solid and `sending` faint),
-  phase separators, event marks (extended, data cap, cancelled, error), optional loaded-latency
-  series toggle on its own axis. Warm-up samples are drawn over a shaded band until warm-up ends:
-  they exist only in memory and count toward no number. During idle latency it is the **latency
-  samples** chart instead: each ping's round-trip time in milliseconds on a linear axis, over the
-  phase's time, a lost ping a gap and the warm-up ping not drawn, with the "now" line and the phase
-  time against its estimate ("1.4 s / ~2 s"). A run that stops or fails during idle latency keeps
-  it, marked "Cancelled" or "Connection lost", with the time it stopped at.
+  phase separators, event marks (extended, data cap, cancelled, error), and the loaded-latency
+  series on its own axis. Its legend entry, "Latency under load", is the series' toggle (a button,
+  pressed while the series is shown), listed in every state, before the first loaded ping too.
+  Warm-up samples are drawn over a shaded band until warm-up ends: they exist only in memory and
+  count toward no number. During idle latency it is the **latency samples** chart instead: each
+  ping's round-trip time in milliseconds on a linear axis, over the phase's time, a lost ping a gap
+  and the warm-up ping not drawn, with the "now" line and the phase time against its estimate
+  ("1.4 s / ~2 s"). A run that stops or fails during idle latency keeps it, marked "Cancelled" or
+  "Connection lost", with the time it stopped at.
 - **Result metrics** (§6), each with its qualifiers. While a direction runs, its tile shows
   "warming up" until warm-up ends, then the steady-window average and peak so far.
 - **Packet loss slot** reading "packet loss — not measured" (§6).
