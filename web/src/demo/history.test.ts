@@ -43,14 +43,15 @@ describe('the demo history', () => {
   })
 
   it("holds one result in the single variant, today's office run", () => {
-    const now = new Date(2026, 9, 18, 14, 2)
+    // Today at the kit's 07:14 UTC, whatever the machine's time zone; or now, earlier in the day.
+    const now = new Date(Date.UTC(2026, 9, 18, 14, 2))
     const [only, ...rest] = demoHistoryResults('single', now)
     expect(rest).toEqual([])
     expect(only === undefined ? ['missing'] : validateResult(only)).toEqual([])
     expect(only?.label).toBe('VPN · office')
     expect(only?.download?.bitsPerSecond).toBe(241e6)
-    expect(only?.startedAt).toBe(new Date(2026, 9, 18, 9, 14).toISOString())
-    expect(demoHistoryResults('single', new Date(2026, 9, 18, 7, 0))[0]?.startedAt).toBe(new Date(2026, 9, 18, 7, 0).toISOString())
+    expect(only?.startedAt).toBe('2026-10-18T07:14:00.000Z')
+    expect(demoHistoryResults('single', new Date(Date.UTC(2026, 9, 18, 7, 0)))[0]?.startedAt).toBe('2026-10-18T07:00:00.000Z')
   })
 
   it('grades each result as the engine grades its stored loaded latency, on a stored steady window', () => {
