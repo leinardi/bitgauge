@@ -56,3 +56,8 @@ the export shows, and what it should show, with the reason; behavior comes from
   window covered 3.5 s."), then every notice
   ([screens.md §7](../features/ui/screens.md#7-notices)). The spec defines no known-time reason,
   so "94 % of upload time known" goes. The card's height follows its lines.
+- **`v02-result-probe-precision`**, `ui_kits/app/ResultDetail.jsx`, the Idle latency tile: its note
+  reads "min 2.4 · p90 4.1 ms · WebSocket · 0 % probe timeouts". It should give the probe timeouts
+  with one decimal, "0.0 % probe timeouts", as
+  [screens.md §6](../features/ui/screens.md#6-result-metrics-units-and-precision) sets and the Test
+  screen's tile already does.
