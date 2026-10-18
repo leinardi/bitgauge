@@ -142,14 +142,17 @@ scrolling.
   ([../security.md §7](../security.md#7-browser-only-history-and-privacy)), an "include label"
   option (off by default), Download image, Copy summary and, where the Web Share API is available,
   Share ([flows.md §8](flows.md#8-sharing)).
-- **Download JSON**, **Delete** (with an undo toast) and **Run again** (same settings).
+- **Download JSON**, **Delete** and **Run again** (same settings). Delete removes the result from
+  history at once and shows an undo toast for 8 s, as on History; the page then shows "Result
+  deleted" with a link to History in place of the result, and the toast's Undo puts the result
+  back and shows it again.
 
-**States:** loaded; not saved (the id is not in history but matches the result of the run just
-finished, which the Test screen still holds in memory: a `partial` or `error` result not kept, or
-any result while history is unavailable; it is shown with a "not saved" badge, Download JSON and
-Share work, and editing and deleting are disabled with the reason); not found (any other id, or
-history unavailable after a reload) with a link to History; history unavailable (as not saved for
-the current in-memory result).
+**States:** loaded; deleted, until the undo toast's Undo; not saved (the id is not in history but
+matches the result of the run just finished, which the Test screen still holds in memory: a
+`partial` or `error` result not kept, or any result while history is unavailable; it is shown with a
+"not saved" badge, Download JSON and Share work, and editing and deleting are disabled with the
+reason); not found (any other id, or history unavailable after a reload) with a link to History;
+history unavailable (as not saved for the current in-memory result).
 
 **Responsive notes.** One column; charts stack vertically; the share panel follows the charts;
 parameters collapse into a disclosure.
