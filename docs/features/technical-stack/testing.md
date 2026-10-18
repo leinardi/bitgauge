@@ -82,7 +82,8 @@ Scenarios:
   cells only, unknown cells never treated as zero, the warm-up cap, its move while the ramp runs
   (bounded at 50 % of the phase max), and each low-confidence reason.
 - **Ramp baseline / trial / plateau:** baseline growth up to its cap, kept trials, `no-gain`, `cap`
-  and `floor-limited` plateaus, the effective cap lowered to 5.
+  and `floor-limited` plateaus, the one more step after a no-gain trial from 900 Mbit/s, the
+  effective cap lowered to 5.
 - **Server epoch change:** an upload response with a new epoch, and the WebSocket-close sequence
   finding a new epoch, both aborting with `server restarted`.
 - **Loss:** idle-ping timeouts counted as loss percentage, never as packet loss; loaded pings lost

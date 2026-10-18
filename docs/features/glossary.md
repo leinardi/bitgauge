@@ -119,8 +119,9 @@ step only if it raised throughput (§4, §8).
 measure, and compare against the baseline. A trial that gains at least 5 % is kept.
 
 **Plateau.** The end of the ramp. Its recorded reason is one of `no-gain` (the last trial gained
-less than 5 %), `cap` (the effective stream cap was reached) or `floor-limited` (the next step would
-make the minimum request size take longer than twice the request target).
+less than 5 %; from 900 Mbit/s, the last two), `cap` (the effective stream cap was reached) or
+`floor-limited` (the next step would make the minimum request size take longer than twice the
+request target).
 
 **Effective cap.** The maximum stream count for a direction: the configured maximum (default 6),
 bounded by the server's `max_streams_per_client`, lowered to 5 while the HTTP/1.1 probe reservation

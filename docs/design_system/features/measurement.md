@@ -22,6 +22,7 @@ Defaults used throughout:
 | Growth per step | at most 8× | §3 |
 | Server cap per request (download and upload) | 256 MiB | §3 |
 | Maximum streams | 6 | §4 |
+| Ramp: a no-gain trial is followed by one more step from | 900 Mbit/s | §8.2 |
 | Upload preparation turn: requests from, held at most | 1 MiB, 1 s | §7.2 |
 | Early issue: from an issue gap of | 50 ms | §3 |
 | Engine per-request timeout | 30 s | §5 |
@@ -633,6 +634,19 @@ trips the formula already allows for.
    trial starts. Otherwise the ramp **plateaus**: no further trials, the stream count stays where it
    is (the extra streams are not removed, to avoid churn; the aggregate is what is measured), and
    the plateau reason is recorded (`no-gain`). Reaching the effective cap is the other end (`cap`).
+
+   **One more step on fast links.** When a trial shows no gain, `T_base` is at least
+   **900 Mbit/s** and the sequence has a next step under the effective cap, the ramp does not
+   plateau yet: it moves to the next step, settles and measures as for any trial, and compares
+   that step with the same `T_base`. A gain keeps it as usual; no gain again plateaus `no-gain`,
+   with the streams of that step kept. From about a gigabit, one connection is often held by a
+   ceiling on the path that is per connection, not per link: a router core or a network card
+   queue picked by hashing the connection's addresses and ports, or one member of a link
+   aggregate. An added connection can then hash onto the same core, queue or member as one already
+   running and show no gain where one more connection, likely to land elsewhere, would. Below
+   900 Mbit/s, which a saturated 1 GbE link stays just above, the extra step would cost a trial's
+   time on links that one or two streams already fill, and could carry the phase past its
+   minimum.
 4. On upload, each measurement waits for the watermark to pass the end of its interval; the per-step
    time is therefore `I_s + I_m + confirmation delay`.
 

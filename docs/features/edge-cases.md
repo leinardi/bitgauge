@@ -209,6 +209,15 @@ harness tolerance at
 ([technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness)); the confidence
 level is defined in [measurement.md §16](measurement.md#16-confidence-and-notices).
 
+A ceiling can also sit on the path and hold each connection rather than the link: a router that
+forwards each connection on one CPU core, a network card queue, or one member of a link aggregate,
+picked by hashing the connection. Two connections that hash together share it, so a ramp trial can
+show no gain where one more connection would; from 900 Mbit/s the ramp tries one more step before
+it plateaus
+([measurement.md §8.2](measurement.md#82-ramp-auto-mode--baseline-trial-settle-compare)). A
+connection the browser replaces mid-phase can still land elsewhere and step the rate up or down;
+the window then reads `unstable`.
+
 **User sees.** "Limited by this device's CPU, not by the network", with tips: close other tabs, use
 a desktop browser, compare with `networkQuality` or iperf3; where the browser's preparation
 showed, or on Firefox at 100 Mbit/s and above, `browser upload limit` with a link to the known
