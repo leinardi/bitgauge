@@ -38,7 +38,7 @@ const emit = defineEmits<{ toggleLatency: [] }>()
         :type="entry.key === 'latency' ? 'button' : undefined"
         :aria-pressed="entry.key === 'latency' ? latencyShown : undefined"
         class="flex items-center gap-1.5 text-(length:--text-caption) text-muted-foreground"
-        :class="entry.key === 'latency' ? 'cursor-pointer rounded-(--radius-xs) hover:text-foreground aria-[pressed=false]:line-through focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring' : ''"
+        :class="entry.key === 'latency' ? 'cursor-pointer hover:text-foreground aria-[pressed=false]:line-through focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring' : ''"
         :data-testid="entry.key === 'latency' ? 'latency-toggle' : undefined"
         @click="entry.key === 'latency' ? emit('toggleLatency') : undefined"
       >
