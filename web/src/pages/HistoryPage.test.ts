@@ -347,8 +347,11 @@ describe('the import', () => {
     const page = await open('/history', RESULTS.slice(0, 2))
     const newer = { ...RESULTS[2], schemaVersion: 3 }
     await choose(page, 'bitgauge-history.json', EXPORT([...RESULTS.slice(0, 2), newer as unknown as Result, ...RESULTS.slice(3)]))
-    await settle()
-    const done = page.get('[data-testid="import-done"]')
+    // The records are checked one turn of the event loop at a time.
+    const done = await vi.waitFor(async () => {
+      await settle()
+      return page.get('[data-testid="import-done"]')
+    })
     expect(done.text()).toContain('Imported bitgauge-history.json')
     expect(done.text()).toContain('5 added, 2 skipped as duplicates, 1 rejected: result 3: schema version 3 is newer than this app')
     expect(rows(page)).toHaveLength(7)
@@ -366,6 +369,33 @@ describe('the import', () => {
     await settle()
     expect(page.get('[data-testid="import-failed"]').text()).toContain('The file is larger than 10 MB')
     expect(text).not.toHaveBeenCalled()
+    page.unmount()
+  })
+
+  it('counts the records it checks with a progress bar, and Cancel ends it with nothing written', async () => {
+    const page = await open('/history', RESULTS.slice(0, 2))
+    // The check yields after each record; the third turn is held, as a long file would hold it.
+    let release = (): void => undefined
+    let turns = 0
+    vi.stubGlobal('scheduler', {
+      yield: () => {
+        turns += 1
+        return turns < 3 ? Promise.resolve() : new Promise<void>((resolve) => (release = resolve))
+      },
+    })
+    await choose(page, 'bitgauge-history.json', EXPORT(RESULTS))
+    await settle()
+    const busy = page.get('[data-testid="import-busy"]')
+    expect(busy.text()).toContain(`Checking 3 of ${RESULTS.length} results…`)
+    const bar = busy.get('[role="progressbar"]')
+    expect(bar.attributes()).toMatchObject({ 'aria-label': 'Import progress', 'aria-valuemin': '0', 'aria-valuemax': String(RESULTS.length), 'aria-valuenow': '3' })
+    await busy.get('[data-testid="import-cancel"]').trigger('click')
+    release()
+    await settle()
+    expect(page.find('[data-testid="import-busy"]').exists()).toBe(false)
+    expect(page.find('[data-testid="import-done"]').exists()).toBe(false)
+    expect(rows(page)).toHaveLength(2)
+    vi.unstubAllGlobals()
     page.unmount()
   })
 

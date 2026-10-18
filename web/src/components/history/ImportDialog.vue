@@ -29,7 +29,8 @@ import type { History } from '@/composables/useHistory'
 import { MAX_IMPORT_BYTES, type RejectedRecord } from '@/history/import'
 
 // Import JSON (ui/screens.md section 3, frontend.md section 5; kit History.jsx): the browser's file
-// dialog, then the import in progress, its summary (added, skipped as duplicates, rejected with each
+// dialog, then the import in progress (the records checked so far of the file's, with a progress
+// bar and Cancel, which ends it with nothing written), its summary (added, skipped as duplicates, rejected with each
 // record's position and reason) or the whole file refused with its reason. The summary's pills are
 // neutral: the kit's ok and warn pills lack contrast on the notice's own tinted surface. A CSV export is refused
 // by its name before it is read: it is a summary and can't be restored. The page opens the dialog
@@ -39,7 +40,7 @@ const props = defineProps<{ history: History }>()
 
 type Refusal = 'csv' | 'notJson' | 'notHistory' | 'tooLarge' | 'unreadable' | 'unavailable' | 'writeFailed'
 type ImportState =
-  | { kind: 'busy'; file: string }
+  | { kind: 'busy'; file: string; checked: number | null; total: number }
   | { kind: 'done'; file: string; added: number; skipped: number; rejected: RejectedRecord[] }
   | { kind: 'failed'; file: string; reason: Refusal }
 
@@ -65,6 +66,13 @@ async function read(file: File): Promise<string | null> {
   }
 }
 
+/** Cancels the import in progress: the notice goes, and nothing is written. */
+let cancel = (): void => undefined
+function stop(): void {
+  cancel()
+  state.value = null
+}
+
 async function picked(): Promise<void> {
   const file = input.value?.files?.[0]
   if (input.value !== null) {
@@ -83,15 +91,29 @@ async function picked(): Promise<void> {
     state.value = { kind: 'failed', file: file.name, reason: 'tooLarge' }
     return
   }
-  state.value = { kind: 'busy', file: file.name }
+  const controller = new AbortController()
+  cancel = () => controller.abort()
+  state.value = { kind: 'busy', file: file.name, checked: null, total: 0 }
   const text = await read(file)
+  if (controller.signal.aborted) {
+    return
+  }
   if (text === null) {
     state.value = { kind: 'failed', file: file.name, reason: 'unreadable' }
     return
   }
+  const onProgress = (checked: number, total: number) => {
+    if (!controller.signal.aborted) {
+      state.value = { kind: 'busy', file: file.name, checked, total }
+    }
+  }
   try {
-    const outcome = await props.history.importText(text)
-    state.value = outcome.ok ? { kind: 'done', file: file.name, ...outcome } : { kind: 'failed', file: file.name, reason: REFUSALS[outcome.refused] }
+    const outcome = await props.history.importText(text, { onProgress, signal: controller.signal })
+    if (outcome.ok) {
+      state.value = { kind: 'done', file: file.name, ...outcome }
+    } else if (outcome.refused !== 'cancelled') {
+      state.value = { kind: 'failed', file: file.name, reason: REFUSALS[outcome.refused] }
+    }
   } catch {
     // A write the database refused for another reason than its quota: nothing was added.
     state.value = { kind: 'failed', file: file.name, reason: 'writeFailed' }
@@ -149,7 +171,7 @@ function refusal(reason: Refusal): string {
     tone="neutral"
     :icon="Upload"
     :title="t('history.import.progressTitle', { file: state.file })"
-    :body="t('history.import.progressBody')"
+    :body="state.checked === null ? t('history.import.progressBody') : undefined"
     data-testid="import-busy"
   >
     <template #title>
@@ -158,6 +180,39 @@ function refusal(reason: Refusal): string {
         name="file"
         :value="state.file"
       />
+    </template>
+    <span
+      v-if="state.checked !== null"
+      class="text-(length:--text-caption) leading-(--lh-compact) text-pretty text-muted-foreground"
+    >
+      <span class="font-mono tabular-nums">{{ t('history.import.progressCount', { n: state.checked, total: state.total }, state.total) }}</span>
+      <span
+        role="progressbar"
+        :aria-label="t('history.import.progressLabel')"
+        aria-valuemin="0"
+        :aria-valuemax="state.total"
+        :aria-valuenow="state.checked"
+        class="mt-1.5 block h-(--progress-h) overflow-hidden rounded-(--radius-2xs) bg-(--surface-3)"
+      >
+        <span
+          class="block h-full bg-primary transition-[width] duration-(--dur-slow) ease-(--ease-out) motion-reduce:transition-none"
+          :style="{ width: `${state.total === 0 ? 0 : (state.checked / state.total) * 100}%` }"
+        />
+      </span>
+    </span>
+    <!-- Once every record is checked the results are being written, which Cancel cannot undo. -->
+    <template
+      v-if="state.checked === null || state.checked < state.total"
+      #actions
+    >
+      <AppButton
+        variant="ghost"
+        size="sm"
+        data-testid="import-cancel"
+        @click="stop"
+      >
+        {{ t('history.import.cancel') }}
+      </AppButton>
     </template>
   </NoticeBox>
   <NoticeBox

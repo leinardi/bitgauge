@@ -22,7 +22,7 @@ import { readonly, type Ref, shallowReadonly, shallowRef } from 'vue'
 import type { Result } from '@/engine/messages'
 import { openIfAvailable, storageExhausted } from '@/history/availability'
 import type { HistoryDB } from '@/history/db'
-import { type ImportSummary, newRecords, parseImport, type RefusedFile } from '@/history/import'
+import { type CheckOptions, checkImport, type ImportSummary, newRecords, readImport, type RefusedFile } from '@/history/import'
 import { createHistoryStore, type HistoryStore, type ResultEdit } from '@/history/store'
 
 // The results stored in this browser (frontend.md sections 4 and 5), shared by every screen: the
@@ -33,7 +33,7 @@ import { createHistoryStore, type HistoryStore, type ResultEdit } from '@/histor
 export type HistoryStatus = 'loading' | 'available' | 'unavailable'
 
 /** An import's summary, or why the file was refused, `unavailable` when there is no history to import into. */
-export type ImportOutcome = { ok: false; refused: RefusedFile | 'unavailable' } | ({ ok: true } & ImportSummary)
+export type ImportOutcome = { ok: false; refused: RefusedFile | 'unavailable' | 'cancelled' } | ({ ok: true } & ImportSummary)
 
 export interface History {
   status: Readonly<Ref<HistoryStatus>>
@@ -49,7 +49,7 @@ export interface History {
   restore(results: readonly Result[]): Promise<void>
   clear(): Promise<void>
   /** Imports a JSON export's text, with its summary or the reason the file was refused. */
-  importText(text: string): Promise<ImportOutcome>
+  importText(text: string, options?: CheckOptions): Promise<ImportOutcome>
 }
 
 export function createHistory(open: () => Promise<HistoryDB | null> = openIfAvailable, persist?: (() => Promise<boolean>) | null): History {
@@ -113,16 +113,21 @@ export function createHistory(open: () => Promise<HistoryDB | null> = openIfAvai
     remove: (ids) => write((opened) => opened.remove(ids), []),
     restore: (removed) => write((opened) => opened.restore(removed), undefined),
     clear: () => write((opened) => opened.clear(), undefined),
-    async importText(text) {
-      const parsed = parseImport(text)
-      if (!parsed.ok) {
-        return parsed
+    async importText(text, options = {}) {
+      const file = readImport(text)
+      if (!file.ok) {
+        return file
+      }
+      // Cancel stops the check; nothing is written until every record is checked.
+      const checked = await checkImport(file.records, options)
+      if (checked === null) {
+        return { ok: false, refused: 'cancelled' }
       }
       const refused: ImportOutcome = { ok: false, refused: 'unavailable' }
       return write<ImportOutcome>(async (opened) => {
-        const { added, skipped } = newRecords(parsed.results, await opened.ids())
+        const { added, skipped } = newRecords(checked.results, await opened.ids())
         await opened.restore(added)
-        return { ok: true, added: added.length, skipped, rejected: parsed.rejected }
+        return { ok: true, added: added.length, skipped, rejected: checked.rejected }
       }, refused)
     },
   }

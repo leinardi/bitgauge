@@ -38,16 +38,14 @@ export interface RejectedRecord {
   detail: string
 }
 
-export type ParsedImport = { ok: false; refused: RefusedFile } | { ok: true; results: Result[]; rejected: RejectedRecord[] }
-
 export interface ImportSummary {
   added: number
   skipped: number
   rejected: RejectedRecord[]
 }
 
-/** The import file `text`, read record by record. */
-export function parseImport(text: string, maxBytes = MAX_IMPORT_BYTES): ParsedImport {
+/** The import file `text`: refused as a whole, or its records still to check. */
+export function readImport(text: string, maxBytes = MAX_IMPORT_BYTES): { ok: false; refused: RefusedFile } | { ok: true; records: unknown[] } {
   if (new TextEncoder().encode(text).length > maxBytes) {
     return { ok: false, refused: 'too-large' }
   }
@@ -61,22 +59,69 @@ export function parseImport(text: string, maxBytes = MAX_IMPORT_BYTES): ParsedIm
   if (format !== 'bitgauge.history' || formatVersion !== 1 || !Array.isArray(results)) {
     return { ok: false, refused: 'not-history' }
   }
-  const parsed: Result[] = []
-  const rejected: RejectedRecord[] = []
-  results.forEach((record: unknown, index) => {
-    try {
-      parsed.push(migrate(record))
-    } catch (error) {
-      if (error instanceof UnsupportedSchema) {
-        rejected.push({ index, reason: 'newer-schema', detail: String(error.schemaVersion) })
-      } else if (error instanceof InvalidRecord) {
-        rejected.push({ index, reason: 'invalid', detail: error.message })
-      } else {
-        throw error
-      }
+  return { ok: true, records: results }
+}
+
+/** One record at its position in `results`: the result it migrates to, or why it is rejected. */
+function checkRecord(record: unknown, index: number): { result: Result } | { rejected: RejectedRecord } {
+  try {
+    return { result: migrate(record) }
+  } catch (error) {
+    if (error instanceof UnsupportedSchema) {
+      return { rejected: { index, reason: 'newer-schema', detail: String(error.schemaVersion) } }
     }
+    if (error instanceof InvalidRecord) {
+      return { rejected: { index, reason: 'invalid', detail: error.message } }
+    }
+    throw error
+  }
+}
+
+/** A turn of the event loop, so the page paints and handles input between two records. */
+function nextTurn(): Promise<void> {
+  const { scheduler } = globalThis as { scheduler?: { yield?: () => Promise<void> } }
+  if (scheduler?.yield !== undefined) {
+    return scheduler.yield()
+  }
+  return new Promise((resolve) => {
+    const channel = new MessageChannel()
+    channel.port1.onmessage = () => {
+      channel.port1.close()
+      resolve()
+    }
+    channel.port2.postMessage(null)
   })
-  return { ok: true, results: parsed, rejected }
+}
+
+export interface CheckOptions {
+  /** After each record: how many are checked, of how many. */
+  onProgress?: (checked: number, total: number) => void
+  /** Cancel: the check stops at the next record, and nothing comes of it. */
+  signal?: AbortSignal
+}
+
+/**
+ * The records of a read file, checked one at a time with a turn of the event loop after each, so a
+ * long file shows its progress and can be cancelled (ui/screens.md section 3); null once cancelled.
+ */
+export async function checkImport(records: readonly unknown[], { onProgress, signal }: CheckOptions = {}): Promise<{ results: Result[]; rejected: RejectedRecord[] } | null> {
+  const results: Result[] = []
+  const rejected: RejectedRecord[] = []
+  onProgress?.(0, records.length)
+  for (const [index, record] of records.entries()) {
+    if (signal?.aborted === true) {
+      return null
+    }
+    const checked = checkRecord(record, index)
+    if ('result' in checked) {
+      results.push(checked.result)
+    } else {
+      rejected.push(checked.rejected)
+    }
+    onProgress?.(index + 1, records.length)
+    await nextTurn()
+  }
+  return signal?.aborted === true ? null : { results, rejected }
 }
 
 /** The records to add: those whose `id` is neither stored nor earlier in the file; and the count skipped. */

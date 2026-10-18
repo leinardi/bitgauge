@@ -18,11 +18,12 @@
  */
 
 // The JSON import (frontend.md section 5): the whole file refused by size, JSON and format; each
-// record rejected by its position and reason; duplicates skipped.
+// record rejected by its position and reason, checked one at a time with its progress and
+// cancellable (ui/screens.md section 3); duplicates skipped.
 
 import { describe, expect, it } from 'vitest'
 
-import { MAX_IMPORT_BYTES, newRecords, parseImport } from '@/history/import'
+import { checkImport, MAX_IMPORT_BYTES, newRecords, readImport } from '@/history/import'
 import { resultFixture } from '@/test/fixtures'
 
 function file(results: unknown[], extra: Record<string, unknown> = {}): string {
@@ -35,32 +36,38 @@ function sized(bytes: number): string {
   return text + ' '.repeat(bytes - new TextEncoder().encode(text).length)
 }
 
+/** The file read, then its records checked. */
+async function parse(text: string, maxBytes?: number) {
+  const read = readImport(text, maxBytes)
+  return read.ok ? { ok: true, ...(await checkImport(read.records)) } : read
+}
+
 describe('the import', () => {
-  it('takes a file of 10 MB, decimal, and refuses one byte more', () => {
+  it('takes a file of 10 MB, decimal, and refuses one byte more', async () => {
     expect(MAX_IMPORT_BYTES).toBe(10_000_000)
-    expect(parseImport(sized(10_000_000)).ok).toBe(true)
-    expect(parseImport(sized(10_000_001))).toEqual({ ok: false, refused: 'too-large' })
+    expect((await parse(sized(10_000_000))).ok).toBe(true)
+    expect(await parse(sized(10_000_001))).toEqual({ ok: false, refused: 'too-large' })
   })
 
-  it('counts the size in UTF-8 bytes', () => {
+  it('counts the size in UTF-8 bytes', async () => {
     const text = file([resultFixture({ label: 'é' })])
     const bytes = new TextEncoder().encode(text).length
     expect(bytes).toBe(text.length + 1)
-    expect(parseImport(text, bytes).ok).toBe(true)
-    expect(parseImport(text, bytes - 1)).toEqual({ ok: false, refused: 'too-large' })
+    expect((await parse(text, bytes)).ok).toBe(true)
+    expect(await parse(text, bytes - 1)).toEqual({ ok: false, refused: 'too-large' })
   })
 
-  it('refuses what is not JSON or not the history format', () => {
-    expect(parseImport('id,startedAt\r\n')).toEqual({ ok: false, refused: 'not-json' })
-    expect(parseImport('[]')).toEqual({ ok: false, refused: 'not-history' })
-    expect(parseImport(file([], { format: 'other' }))).toEqual({ ok: false, refused: 'not-history' })
-    expect(parseImport(file([], { formatVersion: 2 }))).toEqual({ ok: false, refused: 'not-history' })
-    expect(parseImport(JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, results: {} }))).toEqual({ ok: false, refused: 'not-history' })
+  it('refuses what is not JSON or not the history format', async () => {
+    expect(await parse('id,startedAt\r\n')).toEqual({ ok: false, refused: 'not-json' })
+    expect(await parse('[]')).toEqual({ ok: false, refused: 'not-history' })
+    expect(await parse(file([], { format: 'other' }))).toEqual({ ok: false, refused: 'not-history' })
+    expect(await parse(file([], { formatVersion: 2 }))).toEqual({ ok: false, refused: 'not-history' })
+    expect(await parse(JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, results: {} }))).toEqual({ ok: false, refused: 'not-history' })
   })
 
-  it('rejects a record by its position and reason, keeping the others', () => {
+  it('rejects a record by its position and reason, keeping the others', async () => {
     const good = resultFixture({ id: 'good' })
-    const parsed = parseImport(file([{ ...resultFixture(), schemaVersion: 2 }, good, { ...resultFixture(), id: 7 }, 'text']))
+    const parsed = await parse(file([{ ...resultFixture(), schemaVersion: 2 }, good, { ...resultFixture(), id: 7 }, 'text']))
     expect(parsed).toEqual({
       ok: true,
       results: [good],
@@ -72,10 +79,28 @@ describe('the import', () => {
     })
   })
 
-  it('accepts a v0.1 record without a note', () => {
+  it('accepts a v0.1 record without a note', async () => {
     const v01 = resultFixture()
     expect('note' in v01).toBe(false)
-    expect(parseImport(file([v01]))).toEqual({ ok: true, results: [v01], rejected: [] })
+    expect(await parse(file([v01]))).toEqual({ ok: true, results: [v01], rejected: [] })
+  })
+
+  it('counts the records as it checks them, and a cancel stops it with nothing to write', async () => {
+    const records = [resultFixture({ id: 'a' }), resultFixture({ id: 'b' }), resultFixture({ id: 'c' })]
+    const progress: string[] = []
+    expect(await checkImport(records, { onProgress: (checked, total) => progress.push(`${checked}/${total}`) })).toEqual({ results: records, rejected: [] })
+    expect(progress).toEqual(['0/3', '1/3', '2/3', '3/3'])
+    const controller = new AbortController()
+    const seen: number[] = []
+    const cancelled = checkImport(records, {
+      signal: controller.signal,
+      onProgress: (checked) => {
+        seen.push(checked)
+        if (checked === 1) controller.abort()
+      },
+    })
+    expect(await cancelled).toBeNull()
+    expect(seen).toEqual([0, 1])
   })
 
   it('skips the records already stored or earlier in the file', () => {

@@ -23,18 +23,19 @@
 import { describe, expect, it } from 'vitest'
 
 import { historyCsv, historyExport } from '@/history/export'
-import { parseImport } from '@/history/import'
+import { checkImport, readImport } from '@/history/import'
 import { resultFixture } from '@/test/fixtures'
 
 const NOW = new Date(2026, 9, 17, 9, 5)
 
 describe('the History exports', () => {
-  it('writes the JSON export format with every result, notes included, and reads back', () => {
+  it('writes the JSON export format with every result, notes included, and reads back', async () => {
     const results = [resultFixture({ id: 'a', note: 'kitchen' }), resultFixture({ id: 'b' })]
     const file = historyExport(results, NOW)
     expect(file?.filename).toBe('bitgauge-history-2026-10-17-0905.json')
     expect(JSON.parse(file?.json ?? '')).toEqual({ format: 'bitgauge.history', formatVersion: 1, exportedAt: NOW.toISOString(), results })
-    expect(parseImport(file?.json ?? '')).toEqual({ ok: true, results, rejected: [] })
+    const read = readImport(file?.json ?? '')
+    expect(read.ok && (await checkImport(read.records))).toEqual({ results, rejected: [] })
   })
 
   it('exports nothing when a result fails validation', () => {
