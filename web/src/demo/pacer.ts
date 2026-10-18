@@ -61,6 +61,11 @@ export class Pacer {
     this.timer ??= this.clock.setTimer(TICK_MS, () => this.tick())
   }
 
+  /** Whether a transfer of `direction` is moving at `at`, so that its bytes hold the bottleneck's queue. */
+  moving(direction: Direction, at: number): boolean {
+    return [...this.transfers].some((transfer) => transfer.direction === direction && transfer.firstByteAt < at)
+  }
+
   remove(transfer: Transfer): void {
     this.transfers.delete(transfer)
   }

@@ -25,9 +25,10 @@ import type { Info } from '@/engine/types'
 // latency over HTTP/2, or the same LAN over HTTP/1.1 and its six connections for the
 // upload-interrupted and ws-fallback states; over a VPN at 640 kbit/s and 210 kbit/s with 48 ms;
 // and the 20 kbit/s link of its insufficient-data state. Under load the LAN's queue adds 15 ms on
-// download and 39 ms on upload within about a second, the VPN's 114 ms and 262 ms within about two:
-// the kit's loaded-latency numbers. The GET /info answers are what the server would send to that
-// client with its default configuration (configuration.md section 1).
+// download and 39 ms on upload, the VPN's 114 ms and 262 ms, each within about a second: the kit's
+// loaded-latency numbers. A VPN queue filling more slowly would leave a run stopped in its download
+// or upload near grade B's bound, where the kit's grades C. The GET /info answers are what the
+// server would send to that client with its default configuration (configuration.md section 1).
 
 export type DemoLinkName = 'lan' | 'lan-http1' | 'vpn' | 'insufficient'
 
@@ -35,7 +36,7 @@ const MIB = 1024 * 1024
 
 /** The kit's loaded latency over its idle latency: grade B on the LAN, D on the VPN. */
 const LAN_LOADED: LoadedDelay = { downloadMs: 15, uploadMs: 39, tauMs: 1000 }
-const VPN_LOADED: LoadedDelay = { downloadMs: 114, uploadMs: 262, tauMs: 2000 }
+const VPN_LOADED: LoadedDelay = { downloadMs: 114, uploadMs: 262, tauMs: 1000 }
 
 function info(client: Info['client'], basePath: string): Info {
   return {

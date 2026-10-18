@@ -292,14 +292,6 @@
         "rationale": "The export's chart contract defines the summary; the spec is silent on the live chart.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "ThroughputChart.vue and test.json: the chart is role=img labelled with charts.md's summary (title, readout, elapsed / total, warm-up shaded, marked: …, no data yet), in markup the kit's chart matches. The chart also shows the kit's title, legend wording and meta line.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/cancelled": {
           "0abe9c585292": "*",
@@ -405,6 +397,14 @@
           "e02b18720344": "*"
         }
       },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "ThroughputChart.vue and test.json: the chart is role=img labelled with charts.md's summary (title, readout, elapsed / total, warm-up shaded, marked: …, no data yet), in markup the kit's chart matches. The chart also shows the kit's title, legend wording and meta line.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-15",
@@ -659,19 +659,6 @@
         "rationale": "i18n-a11y.md §2.1 and §2.7 define the wording, the long spoken units and the separate summary region, and Vue follows them; the long unit names are deliberate, as screen readers read Mbit/s badly.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: the kit announces with i18n-a11y.md §2.1's wording and long units, and puts the end of a run in a separate summary region (§2.7).",
-          "done": true
-        },
-        {
-          "target": "harness",
-          "what": "Compare the kit's status region with Vue's summary region in the final states (complete, cancelled, error), so the comparison pairs the regions that carry the same message.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/cancelled": {
           "4dbe6deba063": "*",
@@ -767,6 +754,19 @@
           "c87674b69dca": "*"
         }
       },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit announces with i18n-a11y.md §2.1's wording and long units, and puts the end of a run in a separate summary region (§2.7).",
+          "done": true
+        },
+        {
+          "target": "harness",
+          "what": "Compare the kit's status region with Vue's summary region in the final states (complete, cancelled, error), so the comparison pairs the regions that carry the same message.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -1215,6 +1215,18 @@
         "rationale": "flows.md §5 re-checks /info after a network-changed ending, which fails here, so the header shows unreachable, as the kit does.",
         "on": "2026-10-15"
       },
+      "owned": {
+        "test/error-early": {
+          "50f1a82cf0e6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a3d5215e14eb": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
       "actions": [
         {
           "target": "vue",
@@ -1228,18 +1240,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "test/error-early": {
-          "50f1a82cf0e6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a3d5215e14eb": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -1429,6 +1429,11 @@
         "rationale": "No phase completed, so there is no result to keep or download; the failed tiles show the failure, not a result.",
         "on": "2026-10-15"
       },
+      "owned": {
+        "test/error-early": {
+          "9850eccf6f7a": "*"
+        }
+      },
       "actions": [
         {
           "target": "upstream",
@@ -1437,11 +1442,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "test/error-early": {
-          "9850eccf6f7a": "*"
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -1521,6 +1521,11 @@
         "rationale": "A stop in idle latency with enough samples gets the stop notice like the other stops: it says how many pings were kept and that download and upload did not run.",
         "on": "2026-10-16"
       },
+      "owned": {
+        "test/cancelled-latency": {
+          "c87674b69dca": "*"
+        }
+      },
       "actions": [
         {
           "target": "spec",
@@ -1534,11 +1539,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "test/cancelled-latency": {
-          "c87674b69dca": "*"
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -1618,6 +1618,12 @@
         "rationale": "architecture.md §4 has each phase event carry the notices so far, and screens.md §7 shows them live and announces them during the run; the kit already does.",
         "on": "2026-10-16"
       },
+      "owned": {
+        "test/insufficient": {
+          "b286899b82a8": "*",
+          "c87674b69dca": "*"
+        }
+      },
       "actions": [
         {
           "target": "vue",
@@ -1626,12 +1632,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "test/insufficient": {
-          "b286899b82a8": "*",
-          "c87674b69dca": "*"
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -1712,24 +1712,6 @@
         "rationale": "flows.md returns to Idle only with too few samples, so a stop with enough samples keeps a partial idle latency, as the kit shows. Extended 2026-10-15 with the re-identified phase line of test/cancelled-latency. Re-identified lines routed 2026-10-15: the live status to a11y-live-status, the tiles to content-results-tiles; the strip and data used wait on the export.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "spec",
-          "what": "Check measurement.md for the stop-during-idle-latency rule (the minimum usable samples) and align it with flows.md §4 before the code changes. Done: measurement.md §10 Stop and flows.md §4 name the 5-sample threshold.",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "engine/run.ts, useRunState.ts and screen.ts: a stop during idle latency with enough samples keeps a partial idle-latency result (cancelled · n / 20 pings), skips download and upload and offers Run again; useRun.test.ts:326 is rewritten for the too-few-samples case.",
-          "done": true
-        },
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: the strip's streams read — and data used — after a stop during idle latency (no direction ran; probe bytes are not counted).",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/cancelled-latency": {
           "030c578364fb": "*",
@@ -1756,6 +1738,24 @@
           "fcd1764dc717": "*"
         }
       },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "Check measurement.md for the stop-during-idle-latency rule (the minimum usable samples) and align it with flows.md §4 before the code changes. Done: measurement.md §10 Stop and flows.md §4 name the 5-sample threshold.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "engine/run.ts, useRunState.ts and screen.ts: a stop during idle latency with enough samples keeps a partial idle-latency result (cancelled · n / 20 pings), skips download and upload and offers Run again; useRun.test.ts:326 is rewritten for the too-few-samples case.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the strip's streams read — and data used — after a stop during idle latency (no direction ran; probe bytes are not counted).",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -1838,29 +1838,6 @@
         "rationale": "The spec and v0.1 side with Vue on the rows, the version, the intro and privacy; headings help navigation; the maintainer chose US English for the whole project.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "spec",
-          "what": "US English across docs/ (licence → license, internationalisation → internationalization, …), with the convention written down; screens.md:226's privacy sentence made true for v0.1 (no history).",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "Locale files in US English (Licence → License); AboutPage.vue's intro drops the v0.3 sentence the kit's v0.3 Notice now carries.",
-          "done": true
-        },
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: About uses h2 section headings, no Clients row, the spec's version with an Intl date, the credits' version notes, an intro true for v0.1 and a privacy text without history.",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "AboutPage.vue: the section headings take the eyebrow's line-height (--lh-snug), as the export's .ds-eyebrow sets it; a kit copy with h2 headings showed 16.5 px against 14.3 px.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "about": {
           "0ca756a59c68": "*",
@@ -1896,6 +1873,29 @@
           "fdeac76eb8dc": "*"
         }
       },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "US English across docs/ (licence → license, internationalisation → internationalization, …), with the convention written down; screens.md:226's privacy sentence made true for v0.1 (no history).",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "Locale files in US English (Licence → License); AboutPage.vue's intro drops the v0.3 sentence the kit's v0.3 Notice now carries.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: About uses h2 section headings, no Clients row, the spec's version with an Intl date, the credits' version notes, an intro true for v0.1 and a privacy text without history.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "AboutPage.vue: the section headings take the eyebrow's line-height (--lh-snug), as the export's .ds-eyebrow sets it; a kit copy with h2 headings showed 16.5 px against 14.3 px.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -1978,6 +1978,16 @@
         "rationale": "The export decides where the spec is silent, but its alert refers to commands v0.1 does not have, and the Test screen's wording does not fit About.",
         "on": "2026-10-15"
       },
+      "owned": {
+        "about": {
+          "72dbb3a55028": "*"
+        },
+        "about/unreachable": {
+          "1f7ebecab78e": "*",
+          "2dce2aa2417b": "*",
+          "72dbb3a55028": "*"
+        }
+      },
       "actions": [
         {
           "target": "vue",
@@ -1991,16 +2001,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "about": {
-          "72dbb3a55028": "*"
-        },
-        "about/unreachable": {
-          "1f7ebecab78e": "*",
-          "2dce2aa2417b": "*",
-          "72dbb3a55028": "*"
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -2080,14 +2080,6 @@
         "rationale": "edge-cases.md §20 defines the wording and rows; the page sends no request, so there is no Check result, and the SPA cannot know whether an environment variable is set.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: the kit's base-path screen uses edge-cases.md §20's sentence and rows, with no Check row (the page sends no request) and no claim about the environment variable.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/basepath": {
           "133a935e9b62": "*",
@@ -2109,6 +2101,14 @@
           "ef406850e4ef": "*"
         }
       },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's base-path screen uses edge-cases.md §20's sentence and rows, with no Check row (the page sends no request) and no claim about the environment variable.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -2299,6 +2299,11 @@
         "rationale": "The window is a function of the values (gauge.md rules, measurement.md §14), which Vue follows; the kit draws its start window because its cancelled-slow state does not carry the window the download reached, as its cancelled-slow-up does.",
         "on": "2026-10-15"
       },
+      "owned": {
+        "test/cancelled-slow": {
+          "cb36f64934a8": "*"
+        }
+      },
       "actions": [
         {
           "target": "upstream",
@@ -2307,11 +2312,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "test/cancelled-slow": {
-          "cb36f64934a8": "*"
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -2391,6 +2391,12 @@
         "rationale": "One rule for every running state, as charts.md's example and the kit's other states read; the kit's slow upload is the odd one out.",
         "on": "2026-10-15"
       },
+      "owned": {
+        "test/slow": {
+          "9cf73723a6d1": "*",
+          "dc2576c6a3f3": "*"
+        }
+      },
       "actions": [
         {
           "target": "upstream",
@@ -2399,12 +2405,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "test/slow": {
-          "9cf73723a6d1": "*",
-          "dc2576c6a3f3": "*"
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -2507,39 +2507,6 @@
         "rationale": "The spec decides the label, the plateau reason and the HTTP/1.1 fixture; the protocol is only known from throughput requests, so nothing is reported before a run; the streams wording follows the export. Decided 2026-10-15: the sample event carries the live stream count; before a run an automatic count reads — (Vue wins, upstream note); test/cancelled-latency's strip line belongs to behavior-stop-in-latency.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "spec",
-          "what": "screens.md §1 connection strip: before a run the protocol is not reported, as no throughput request has run.",
-          "done": true
-        },
-        {
-          "target": "spec",
-          "what": "architecture.md §4: the sample event carries the stream count the ramp has reached; screens.md §1: streams read — before a run when the count is automatic.",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "engine: each sample carries the ramp's stream count (run/samples.ts, the download and upload phases' streamCount).",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "ConnectionStrip.vue, TestPage.vue and test.json: the protocol shown as its label (HTTP/1.1, HTTP/2, HTTP/3), streams as the kit's # auto, live from each sample, and · plateau: <reason> after a run.",
-          "done": true
-        },
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: the kit's strip reports no protocol and an automatic stream count of — before a run, HTTP/1.1 in the upload-interrupted state, and the plateau reason after the cancelled slow run, as its own notice and the spec say.",
-          "done": true
-        },
-        {
-          "target": "fixture",
-          "what": "fixtures.ts and frontend.md §9: the LAN links carry a ceiling per request of 110 Mbit/s down and 80 Mbit/s up, so the upload ramp gains at each trial and reaches six streams at plateau cap, as measurement.md §19.4 and the kit give; before, four streams filled the 438 Mbit/s upload and it plateaued no-gain. Chosen 2026-10-16 on the user's delegation.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/cancelled": {
           "acdadac68b6a": "*",
@@ -2625,6 +2592,39 @@
           "04cf7ebb4c09": "*"
         }
       },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "screens.md §1 connection strip: before a run the protocol is not reported, as no throughput request has run.",
+          "done": true
+        },
+        {
+          "target": "spec",
+          "what": "architecture.md §4: the sample event carries the stream count the ramp has reached; screens.md §1: streams read — before a run when the count is automatic.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "engine: each sample carries the ramp's stream count (run/samples.ts, the download and upload phases' streamCount).",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "ConnectionStrip.vue, TestPage.vue and test.json: the protocol shown as its label (HTTP/1.1, HTTP/2, HTTP/3), streams as the kit's # auto, live from each sample, and · plateau: <reason> after a run.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's strip reports no protocol and an automatic stream count of — before a run, HTTP/1.1 in the upload-interrupted state, and the plateau reason after the cancelled slow run, as its own notice and the spec say.",
+          "done": true
+        },
+        {
+          "target": "fixture",
+          "what": "fixtures.ts and frontend.md §9: the LAN links carry a ceiling per request of 110 Mbit/s down and 80 Mbit/s up, so the upload ramp gains at each trial and reaches six streams at plateau cap, as measurement.md §19.4 and the kit give; before, four streams filled the 438 Mbit/s upload and it plateaued no-gain. Chosen 2026-10-16 on the user's delegation.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -2704,6 +2704,11 @@
         "rationale": "Vue's wording follows the spec's own term, start automatically.",
         "on": "2026-10-15"
       },
+      "owned": {
+        "test/countdown": {
+          "440a4c836d49": "*"
+        }
+      },
       "actions": [
         {
           "target": "upstream",
@@ -2712,11 +2717,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "test/countdown": {
-          "440a4c836d49": "*"
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -2798,14 +2798,6 @@
         "rationale": "The export decides the empty layout where the spec is silent.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "TestPage.vue: drop \"No test has run yet.\"; the Results section shows its empty tiles.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/cancelled-latency": {
           "328ec6b70007": "*"
@@ -2820,6 +2812,14 @@
           "328ec6b70007": "*"
         }
       },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "TestPage.vue: drop \"No test has run yet.\"; the Results section shows its empty tiles.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -2900,6 +2900,15 @@
         "rationale": "The spec is silent on the alert's wording, so the export decides; the error-early cause follows flows.md §5.",
         "on": "2026-10-15"
       },
+      "owned": {
+        "test/error": {
+          "7772483af61d": "*"
+        },
+        "test/error-early": {
+          "11c89d849aa0": "*",
+          "1a3334675f73": "*"
+        }
+      },
       "actions": [
         {
           "target": "vue",
@@ -2913,15 +2922,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "test/error": {
-          "7772483af61d": "*"
-        },
-        "test/error-early": {
-          "11c89d849aa0": "*",
-          "1a3334675f73": "*"
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -3003,14 +3003,6 @@
         "rationale": "The export's gauge contract defines the readout per state and screens.md agrees where it speaks; the inner label also keeps the upload result from being colour-only.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "Gauge.vue, CountdownRing.vue and screen.ts: gauge.md's title, message, note and detail per state (Ready, Connecting…, Latency with median · ping n of 20, avg so far · peak or warming up, Connection lost · Error during <phase> · last sample), the inner arc's label, and the scale caption under the countdown.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/complete": {
           "7a2b4440ca78": "*"
@@ -3072,6 +3064,14 @@
           "9cf8621f89da": "*"
         }
       },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "Gauge.vue, CountdownRing.vue and screen.ts: gauge.md's title, message, note and detail per state (Ready, Connecting…, Latency with median · ping n of 20, avg so far · peak or warming up, Connection lost · Error during <phase> · last sample), the inner arc's label, and the scale caption under the countdown.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-15",
@@ -3153,6 +3153,15 @@
         "rationale": "The kit's body names a request count and an in-flight request that the result does not record, as content-results-tiles found for the tile; the rest of it (maximum, data used, the direction still running, the offer) is what measurement.md §8.6 asks the notice for.",
         "on": "2026-10-16"
       },
+      "owned": {
+        "test/insufficient": {
+          "2a27b8a29e2b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f32fcb2f8637": "*"
+        }
+      },
       "actions": [
         {
           "target": "spec",
@@ -3171,15 +3180,6 @@
         }
       ],
       "status": "done",
-      "owned": {
-        "test/insufficient": {
-          "2a27b8a29e2b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f32fcb2f8637": "*"
-        }
-      },
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -3472,19 +3472,6 @@
         "rationale": "The export's phase-indicator contract lists every detail and screens.md is compatible with it; Vue adds them. The offline phases have no estimate without the server defaults (extended 2026-10-15; upstream note in layout-offline-state).",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "spec",
-          "what": "architecture.md §4: a failed phase event carries how long the phase ran, and each sample how long its phase has run on the client clock (both display only), for failed · interrupted at and the time left before an upload confirms (decided 2026-10-15).",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "PhaseIndicator.vue, screen.ts, test.json: every detail of phase-indicator.md (idle estimate, ping count, mid-run done · result, done · insufficient data, active · time left, failed · interrupted at), and the first step labelled Connecting… (active · server info) during the info phase.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/connecting": {
           "ce9b55ed6a88": "*"
@@ -3526,6 +3513,19 @@
           "79359344e183": "*"
         }
       },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "architecture.md §4: a failed phase event carries how long the phase ran, and each sample how long its phase has run on the client clock (both display only), for failed · interrupted at and the time left before an upload confirms (decided 2026-10-15).",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "PhaseIndicator.vue, screen.ts, test.json: every detail of phase-indicator.md (idle estimate, ping count, mid-run done · result, done · insufficient data, active · time left, failed · interrupted at), and the first step labelled Connecting… (active · server info) during the info phase.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -3665,39 +3665,6 @@
         "rationale": "The export's tiles contract and flows.md agree on the states and wording; screens.md already asks for no number on insufficient data; the one-decimal probe loss is the spec's. Decided 2026-10-15: the slowdone upload's low confidence (few samples) is an upstream note; the window's request count is masked by harness-tile-values.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "spec",
-          "what": "architecture.md §4: the phase finished message carries the phase's tile result (idle stats, jitter, peak, streams, plateau, status); measurement.md §7.8 takes flows.md §4's partial wording (based on a <s> steady window, <n> requests).",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "Engine and MetricTile.vue: each finished tile shows its result as soon as its phase ends; Error, Partial and Insufficient-data pills; up next, warming up / no confirmed request yet, error · <n> requests in a row failed; error-early keeps the failed idle latency with download and upload skipped.",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "test.json formats: peak <n> without a repeated unit, plateau: cap / no-gain, min <n> · p90 <n> ms, HTTP/2 probe on the fallback; probe loss stays one decimal.",
-          "done": true
-        },
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: the kit's probe timeouts take one decimal (0.0 %), as screens.md §6 sets.",
-          "done": true
-        },
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: the kit's slowdone upload tile shows the Low confidence pill and few samples, as the demo's slow link and measurement.md §19.1 give.",
-          "done": true
-        },
-        {
-          "target": "fixture",
-          "what": "fixtures.ts and frontend.md §9: the LAN links carry a ceiling per request of 110 Mbit/s down and 80 Mbit/s up, so the upload ramp gains at each trial and reaches six streams at plateau cap, as measurement.md §19.4 and the kit give; before, four streams filled the 438 Mbit/s upload and it plateaued no-gain. Chosen 2026-10-16 on the user's delegation.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/cancelled": {
           "042cb2c171de": "*"
@@ -3755,6 +3722,39 @@
           "9d99a44df552": "*"
         }
       },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "architecture.md §4: the phase finished message carries the phase's tile result (idle stats, jitter, peak, streams, plateau, status); measurement.md §7.8 takes flows.md §4's partial wording (based on a <s> steady window, <n> requests).",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "Engine and MetricTile.vue: each finished tile shows its result as soon as its phase ends; Error, Partial and Insufficient-data pills; up next, warming up / no confirmed request yet, error · <n> requests in a row failed; error-early keeps the failed idle latency with download and upload skipped.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "test.json formats: peak <n> without a repeated unit, plateau: cap / no-gain, min <n> · p90 <n> ms, HTTP/2 probe on the fallback; probe loss stays one decimal.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's probe timeouts take one decimal (0.0 %), as screens.md §6 sets.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's slowdone upload tile shows the Low confidence pill and few samples, as the demo's slow link and measurement.md §19.1 give.",
+          "done": true
+        },
+        {
+          "target": "fixture",
+          "what": "fixtures.ts and frontend.md §9: the LAN links carry a ceiling per request of 110 Mbit/s down and 80 Mbit/s up, so the upload ramp gains at each trial and reaches six streams at plateau cap, as measurement.md §19.4 and the kit give; before, four streams filled the 438 Mbit/s upload and it plateaued no-gain. Chosen 2026-10-16 on the user's delegation.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -3836,24 +3836,6 @@
         "rationale": "The export's MetaList carries these qualifiers and the spec is silent on them. Data used counts the download and upload transfers only; the kit's ping bytes during idle latency go upstream (decided 2026-10-15).",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "TestPage.vue, screen.ts and test.json: the Test card's sub lines (so far, elapsed, not saved, so far · download <bytes>), the elapsed duration live from the page's clock since the run started, and — for data used until the first byte.",
-          "done": true
-        },
-        {
-          "target": "spec",
-          "what": "glossary.md: data used counts the download and upload transfers only, not the idle latency probes.",
-          "done": true
-        },
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: the kit's data used during idle latency and after an early error reads — until the first download byte.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/connecting": {
           "8a5bc6e8b7c8": "*",
@@ -3899,6 +3881,24 @@
           "a6efe82d88f4": "*"
         }
       },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "TestPage.vue, screen.ts and test.json: the Test card's sub lines (so far, elapsed, not saved, so far · download <bytes>), the elapsed duration live from the page's clock since the run started, and — for data used until the first byte.",
+          "done": true
+        },
+        {
+          "target": "spec",
+          "what": "glossary.md: data used counts the download and upload transfers only, not the idle latency probes.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's data used during idle latency and after an early error reads — until the first download byte.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -4141,38 +4141,6 @@
       }
     },
     {
-      "owned": {
-        "demo/open": {
-          "0990ec315a14": "*",
-          "1978f936a320": "*",
-          "352c9d16d341": "*",
-          "3b427644cbbc": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3cba0d9e2992": "*",
-          "6e8586155650": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "78422df2be77": "*",
-          "787d8f11e1e8": "*",
-          "8b319baa56e7": "*",
-          "9ffca9cec12d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "db2e3c30134f": "*",
-          "de74816f22c2": "*",
-          "e1dcd06d2f94": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fbcc904762fe": "*"
-        }
-      },
-      "actions": [],
-      "resolution": null,
       "id": "demo-panel-kit-only-controls",
       "title": "Open demo panel: the kit's controls outside v0.1 make it taller and push its Test screen section down",
       "match": {
@@ -4208,7 +4176,39 @@
         "rationale": "The maintainer decided on 2026-10-16 to keep the panel to the v0.1 controls of frontend.md §9; the height and offsets follow from that.",
         "on": "2026-10-16"
       },
-      "status": "accepted"
+      "owned": {
+        "demo/open": {
+          "0990ec315a14": "*",
+          "1978f936a320": "*",
+          "352c9d16d341": "*",
+          "3b427644cbbc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3cba0d9e2992": "*",
+          "6e8586155650": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "78422df2be77": "*",
+          "787d8f11e1e8": "*",
+          "8b319baa56e7": "*",
+          "9ffca9cec12d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "db2e3c30134f": "*",
+          "de74816f22c2": "*",
+          "e1dcd06d2f94": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "fbcc904762fe": "*"
+        }
+      },
+      "actions": [],
+      "status": "accepted",
+      "resolution": null
     },
     {
       "id": "demo-panel-look",
@@ -4385,19 +4385,6 @@
         "rationale": "The maintainer wants the latency chart: the live chart shows the latency samples during idle latency, and the spec is updated to include it.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "spec",
-          "what": "screens.md (Running: idle latency, the live chart) and architecture.md §4 (the idle event carries its phase time): during idle latency the live chart shows the latency samples, as the kit draws it, with its role=img summary; STATUS.md's UI row already covers web/src/components/chart/.",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "The live chart shows the latency samples during idle latency, and keeps them when the run stops or fails in that phase.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/cancelled-latency": {
           "274a2acf8f56": "*",
@@ -4420,6 +4407,19 @@
           "e98c75f73da6": "*"
         }
       },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "screens.md (Running: idle latency, the live chart) and architecture.md §4 (the idle event carries its phase time): during idle latency the live chart shows the latency samples, as the kit draws it, with its role=img summary; STATUS.md's UI row already covers web/src/components/chart/.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "The live chart shows the latency samples during idle latency, and keeps them when the run stops or fails in that phase.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -4498,8 +4498,6 @@
         "rationale": "Live extension and maximum marks need the engine to report an extension during the run, which the spec does not define yet; deferred until that is specified.",
         "on": "2026-10-15"
       },
-      "actions": [],
-      "status": "deferred",
       "owned": {
         "test/insufficient": {
           "4237a173c693": "*",
@@ -4508,6 +4506,8 @@
           "ef4c64bebcd7": "*"
         }
       },
+      "actions": [],
+      "status": "deferred",
       "resolution": null
     },
     {
@@ -4575,6 +4575,54 @@
       "resolution": null
     },
     {
+      "id": "fixture-chart-run-timing",
+      "title": "Chart labels placed by the run: separators, marks and axis numbers follow the demo run's own timing and values, not the kit's fixed mock",
+      "match": {
+        "scenarios": [
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/ws-fallback",
+          "test/insufficient"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"(Upload|Download|Cancelled|Connection lost|Request failed|0)\"( #\\d+)?$",
+        "kind": "^x$",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": null,
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:288-357",
+          "says": "fixed mock instants: upload separator at 10 s, a cancel at a scripted moment, axes from the mock's values"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts",
+          "says": "the simulated link's run: its own phase ends, stop moments and measured values"
+        },
+        "notes": "Each label sits where the run put it; the x offset follows the time or the y-label width."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-16 to keep it: the labels follow where the demo's run actually is, and the kit's instants are a fixed mock.",
+        "on": "2026-10-16"
+      },
       "owned": {
         "test/cancelled": {
           "1c7c792bd508": [
@@ -4586,7 +4634,8 @@
             "light-narrow"
           ],
           "70d06d438882": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "986cb4d36c17": [
             "dark-narrow",
@@ -4671,6 +4720,9 @@
           ]
         },
         "test/cancelled-latency": {
+          "02e38ad2b830": [
+            "light-desktop"
+          ],
           "32bfcfe6125e": [
             "dark-narrow",
             "light-narrow"
@@ -4734,14 +4786,16 @@
             "light-narrow"
           ],
           "57fa2495db3d": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "63cc45188a7e": [
             "dark-desktop",
             "light-desktop"
           ],
           "b6a6da033d3d": [
-            "dark-desktop"
+            "dark-desktop",
+            "light-desktop"
           ],
           "be1be8c7b32b": [
             "dark-desktop"
@@ -4802,6 +4856,9 @@
           "e24bccbbd3e8": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "e50108747f30": [
+            "light-desktop"
           ]
         },
         "test/insufficient": {
@@ -4854,7 +4911,12 @@
         },
         "test/slowdone": {
           "1d7625fb8f29": [
+            "dark-narrow",
             "light-narrow"
+          ],
+          "2d830a170c3d": [
+            "dark-desktop",
+            "light-desktop"
           ],
           "4ffa8331cfc1": [
             "light-desktop"
@@ -4929,7 +4991,8 @@
             "light-desktop"
           ],
           "6e8ca9cc1691": [
-            "dark-desktop"
+            "dark-desktop",
+            "light-desktop"
           ],
           "76bf1024627e": [
             "dark-narrow",
@@ -4947,62 +5010,17 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "9ef20b2448af": [
+            "dark-narrow"
+          ],
           "c17eed646b1d": [
             "light-desktop"
           ]
         }
       },
       "actions": [],
-      "resolution": null,
-      "id": "fixture-chart-run-timing",
-      "title": "Chart labels placed by the run: separators, marks and axis numbers follow the demo run's own timing and values, not the kit's fixed mock",
-      "match": {
-        "scenarios": [
-          "test/latency",
-          "test/download",
-          "test/upload",
-          "test/complete",
-          "test/upload-interrupted",
-          "test/error",
-          "test/error-early",
-          "test/cancelled",
-          "test/cancelled-late",
-          "test/cancelled-latency",
-          "test/cancelled-download",
-          "test/cancelled-slow",
-          "test/cancelled-slow-up",
-          "test/slow",
-          "test/slowdone",
-          "test/ws-fallback",
-          "test/insufficient"
-        ],
-        "projects": null,
-        "layer": "layout",
-        "path": "^main > text \"(Upload|Download|Cancelled|Connection lost|Request failed|0)\"( #\\d+)?$",
-        "kind": "^x$",
-        "detail": null
-      },
-      "type": "fixture",
-      "aspect": null,
-      "evidence": {
-        "spec": null,
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:288-357",
-          "says": "fixed mock instants: upload separator at 10 s, a cancel at a scripted moment, axes from the mock's values"
-        },
-        "vue": {
-          "ref": "web/src/demo/scenarios.ts",
-          "says": "the simulated link's run: its own phase ends, stop moments and measured values"
-        },
-        "notes": "Each label sits where the run put it; the x offset follows the time or the y-label width."
-      },
-      "decision": {
-        "kind": "verdict",
-        "winner": "keep",
-        "rationale": "The maintainer decided on 2026-10-16 to keep it: the labels follow where the demo's run actually is, and the kit's instants are a fixed mock.",
-        "on": "2026-10-16"
-      },
-      "status": "accepted"
+      "status": "accepted",
+      "resolution": null
     },
     {
       "id": "fixture-insufficient-ip",
@@ -5096,6 +5114,38 @@
       }
     },
     {
+      "id": "fixture-meta-measured-width",
+      "title": "Test list rows: the label column gives way to measured values of another width than the kit's mock",
+      "match": {
+        "scenarios": [
+          "test/*"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (text|term) \"(Data used|Duration|so far|elapsed|Duration elapsed|Data used so far)\"$",
+        "kind": "^width$",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": null,
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:280-290",
+          "says": "mock values such as 10.1 s and 523 MB"
+        },
+        "vue": {
+          "ref": "web/src/components/layout/MetaList.vue",
+          "says": "the demo run's measured values, such as 9.4 s and 335 MB"
+        },
+        "notes": "The values themselves are masked as measured; their labels share the row."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-16 to keep it: the row's label column follows the width of the measured value beside it.",
+        "on": "2026-10-16"
+      },
       "owned": {
         "test/download": {
           "4a4c2bd2629b": [
@@ -5303,40 +5353,8 @@
         }
       },
       "actions": [],
-      "resolution": null,
-      "id": "fixture-meta-measured-width",
-      "title": "Test list rows: the label column gives way to measured values of another width than the kit's mock",
-      "match": {
-        "scenarios": [
-          "test/*"
-        ],
-        "projects": null,
-        "layer": "layout",
-        "path": "^main > (text|term) \"(Data used|Duration|so far|elapsed|Duration elapsed|Data used so far)\"$",
-        "kind": "^width$",
-        "detail": null
-      },
-      "type": "fixture",
-      "aspect": null,
-      "evidence": {
-        "spec": null,
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:280-290",
-          "says": "mock values such as 10.1 s and 523 MB"
-        },
-        "vue": {
-          "ref": "web/src/components/layout/MetaList.vue",
-          "says": "the demo run's measured values, such as 9.4 s and 335 MB"
-        },
-        "notes": "The values themselves are masked as measured; their labels share the row."
-      },
-      "decision": {
-        "kind": "verdict",
-        "winner": "keep",
-        "rationale": "The maintainer decided on 2026-10-16 to keep it: the row's label column follows the width of the measured value beside it.",
-        "on": "2026-10-16"
-      },
-      "status": "accepted"
+      "status": "accepted",
+      "resolution": null
     },
     {
       "id": "fixture-slow-context",
@@ -6291,29 +6309,6 @@
         "rationale": "The export decides layout where the spec is silent; the spec requires the alert, and a summary of settings /info never delivered would not be honest.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "spec",
-          "what": "flows.md §1 and screens.md §5: the automatic re-checks of /info (2, 4, 8, 16 s, then every 30 s, visible only; Retry starts them over), and the phases and metrics staying, pending and empty.",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "The gauge readout carries the unreachable state (Server unreachable, <host> didn't respond. Next check in # s.) with Retry, and the empty chart the kit's text; the role=\"alert\" notice stays. The server is checked again on its own after 2, 4, 8 and 16 s, then every 30 s, while the page is visible (decided 2026-10-15; flows.md §1).",
-          "done": true
-        },
-        {
-          "target": "vue",
-          "what": "Without /info: the phase list and the Results tiles stay, empty; Start's tooltip reads Server unreachable — use Retry first.",
-          "done": true
-        },
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: the kit's offline state carries the role=\"alert\" danger notice (screens.md:290) and no preset summary, since /info never delivered the settings. Also no phase estimates, which come from the same defaults.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/offline": {
           "0252f447a111": [
@@ -6341,6 +6336,29 @@
           "e9bef9a4d59b": "*"
         }
       },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "flows.md §1 and screens.md §5: the automatic re-checks of /info (2, 4, 8, 16 s, then every 30 s, visible only; Retry starts them over), and the phases and metrics staying, pending and empty.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "The gauge readout carries the unreachable state (Server unreachable, <host> didn't respond. Next check in # s.) with Retry, and the empty chart the kit's text; the role=\"alert\" notice stays. The server is checked again on its own after 2, 4, 8 and 16 s, then every 30 s, while the page is visible (decided 2026-10-15; flows.md §1).",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "Without /info: the phase list and the Results tiles stay, empty; Start's tooltip reads Server unreachable — use Retry first.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's offline state carries the role=\"alert\" danger notice (screens.md:290) and no preset summary, since /info never delivered the settings. Also no phase estimates, which come from the same defaults.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-16",
@@ -13323,40 +13341,6 @@
       }
     },
     {
-      "owned": {
-        "test/complete": {
-          "17190fad8008": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b6c20668ada2": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        },
-        "test/slowdone": {
-          "17190fad8008": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b6c20668ada2": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        },
-        "test/upload-interrupted": {
-          "17190fad8008": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b6c20668ada2": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        }
-      },
-      "actions": [],
-      "resolution": null,
       "id": "layout-result-time-shift",
       "title": "Save bar message moved by the 12-hour completion time",
       "match": {
@@ -13394,7 +13378,41 @@
         "rationale": "The maintainer decided on 2026-10-16 that it shares content-result-time: Vue follows i18n-a11y §1.3, so the message moves with the wider time.",
         "on": "2026-10-16"
       },
-      "status": "accepted"
+      "owned": {
+        "test/complete": {
+          "17190fad8008": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b6c20668ada2": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/slowdone": {
+          "17190fad8008": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b6c20668ada2": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/upload-interrupted": {
+          "17190fad8008": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b6c20668ada2": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [],
+      "status": "accepted",
+      "resolution": null
     },
     {
       "id": "layout-results-metrics",
@@ -13748,6 +13766,41 @@
       }
     },
     {
+      "id": "layout-stop-notice-v02-height",
+      "title": "Cancel notice for an upload with no number: one line shorter without the v0.2 clause, and everything under it moves up",
+      "match": {
+        "scenarios": [
+          "test/cancelled",
+          "test/cancelled-slow-up"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > (main \"\"|status \"Test cancelled during upload.*|text \"Latency and download completed\\. Upload stopped.*|region \"(Speed test|Result status|Results)\")$",
+        "kind": "^(height|y)$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "feature",
+      "evidence": {
+        "spec": {
+          "ref": "docs/STATUS.md (Loaded latency and bufferbloat grade: v0.2)",
+          "says": "v0.1 has no loaded latency and no grade"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:335",
+          "says": "the clause on loaded latency and the grade adds a line"
+        },
+        "vue": {
+          "ref": "web/src/components/test/stop.ts",
+          "says": "the notice without the clause"
+        },
+        "notes": "A knock-on of feature-stop-notice-v02."
+      },
+      "decision": {
+        "kind": "deferral",
+        "rationale": "The maintainer decided on 2026-10-16 that it shares feature-stop-notice-v02: the clause, and the height it adds, ship with loaded latency in v0.2.",
+        "on": "2026-10-16"
+      },
       "owned": {
         "test/cancelled": {
           "0fac2a6700b2": [
@@ -13899,43 +13952,8 @@
         }
       },
       "actions": [],
-      "resolution": null,
-      "id": "layout-stop-notice-v02-height",
-      "title": "Cancel notice for an upload with no number: one line shorter without the v0.2 clause, and everything under it moves up",
-      "match": {
-        "scenarios": [
-          "test/cancelled",
-          "test/cancelled-slow-up"
-        ],
-        "projects": null,
-        "layer": "layout",
-        "path": "^main > (main \"\"|status \"Test cancelled during upload.*|text \"Latency and download completed\\. Upload stopped.*|region \"(Speed test|Result status|Results)\")$",
-        "kind": "^(height|y)$",
-        "detail": null
-      },
-      "type": "conflict",
-      "aspect": "feature",
-      "evidence": {
-        "spec": {
-          "ref": "docs/STATUS.md (Loaded latency and bufferbloat grade: v0.2)",
-          "says": "v0.1 has no loaded latency and no grade"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:335",
-          "says": "the clause on loaded latency and the grade adds a line"
-        },
-        "vue": {
-          "ref": "web/src/components/test/stop.ts",
-          "says": "the notice without the clause"
-        },
-        "notes": "A knock-on of feature-stop-notice-v02."
-      },
-      "decision": {
-        "kind": "deferral",
-        "rationale": "The maintainer decided on 2026-10-16 that it shares feature-stop-notice-v02: the clause, and the height it adds, ship with loaded latency in v0.2.",
-        "on": "2026-10-16"
-      },
-      "status": "deferred"
+      "status": "deferred",
+      "resolution": null
     },
     {
       "id": "markup-notices-list",
@@ -13994,14 +14012,6 @@
         "rationale": "The export decides the markup where the spec is silent.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "NoticeList.vue: render the notices as siblings, with no list wrapper.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/cancelled": {
           "b2b6051be1cd": "*"
@@ -14032,6 +14042,14 @@
           "b2b6051be1cd": "*"
         }
       },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "NoticeList.vue: render the notices as siblings, with no list wrapper.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-15",
@@ -14116,14 +14134,6 @@
         "rationale": "The export decides the gauge's readout where the spec is silent.",
         "on": "2026-10-15"
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "screen.ts and the gauge: after a stop the readout is Cancelled with Partial results · not saved.",
-          "done": true
-        }
-      ],
-      "status": "done",
       "owned": {
         "test/cancelled": {
           "98f598d3b877": "*"
@@ -14143,6 +14153,14 @@
           "578c0d2e0d5c": "*"
         }
       },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "screen.ts and the gauge: after a stop the readout is Cancelled with Partial results · not saved.",
+          "done": true
+        }
+      ],
+      "status": "done",
       "resolution": {
         "note": null,
         "on": "2026-10-15",
@@ -22061,11 +22079,92 @@
         {
           "target": "fixture",
           "what": "Follows v02-fixture-cancelled-slow-up-status: gone once the slow link grades C in every run.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "6c5ead02-1e65-4b0d-82ad-fa688a5be128",
+          "finishedAt": "2026-10-18T13:43:32.501Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-fixture-cancelled-slow-up-status",
@@ -22115,11 +22214,92 @@
         {
           "target": "fixture",
           "what": "web/src/demo/link.ts (vpn): enough queueing under load that the pings up to the stops of test/cancelled-slow and test/cancelled-slow-up grade C, Moderate bufferbloat, in every run, as the kit's mock does; frontend.md §9 if the link's description changes.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "6c5ead02-1e65-4b0d-82ad-fa688a5be128",
+          "finishedAt": "2026-10-18T13:43:32.501Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-fixture-chart-phase-labels",
@@ -22841,14 +23021,37 @@
           ]
         },
         "result/history-unavailable": {
+          "3394cde8ebe3": [
+            "light-narrow"
+          ],
+          "a090576f51b9": [
+            "light-narrow"
+          ],
           "a31534f8af17": [
+            "dark-desktop",
             "light-desktop"
           ],
           "c5cc5e438ac2": [
+            "dark-desktop",
             "light-desktop"
           ],
           "cf5314acfd58": [
+            "dark-desktop",
             "light-desktop"
+          ],
+          "ffb9f23f71a6": [
+            "light-narrow"
+          ]
+        },
+        "result/ll-insufficient-samples": {
+          "3394cde8ebe3": [
+            "light-narrow"
+          ],
+          "a090576f51b9": [
+            "light-narrow"
+          ],
+          "ffb9f23f71a6": [
+            "light-narrow"
           ]
         },
         "result/ll-reservation-broken": {
@@ -22880,6 +23083,147 @@
           ],
           "cf5314acfd58": [
             "light-desktop"
+          ]
+        }
+      },
+      "actions": [],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "v02-fixture-run-number-names",
+      "title": "Boxes named by a run's numbers, more of them: the kit's \"600\", \"597\" and \"48\" pair with Vue boxes of the same name that show the run's own numbers, so their place and size differ",
+      "match": {
+        "scenarios": [
+          "loaded/ll-reservation-broken",
+          "test/upload-interrupted",
+          "test/insufficient",
+          "test/download"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"(600|597|48)\"$",
+        "kind": "^(x|y|width|height)$",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "the mock run's fixed numbers: axis labels, 597 avg so far, 48 ms idle on the insufficient link"
+        },
+        "vue": {
+          "ref": "web/src/demo/link.ts",
+          "says": "the engine's run: a gauge readout or tile number that matches one of the kit's in some runs"
+        },
+        "notes": "Seed only, as v02-fixture-run-value-names (accepted) for other names and scenarios. Present only in the runs whose number matches one of the kit's."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18 to keep it, as for v02-fixture-run-value-names: the numbers are the demo engine's own measurement of the simulated link, not the kit's mock.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "loaded/ll-reservation-broken": {
+          "00396753fd3c": [
+            "light-desktop"
+          ],
+          "32b06cd5c7c6": [
+            "dark-narrow"
+          ],
+          "7f11ba81b530": [
+            "light-desktop"
+          ],
+          "c2add92073b6": [
+            "light-desktop"
+          ],
+          "c85590f78aad": [
+            "dark-narrow"
+          ],
+          "d88373a559b7": [
+            "dark-narrow"
+          ],
+          "e496964a7d40": [
+            "light-desktop"
+          ],
+          "f1399d0ae3bd": [
+            "dark-narrow"
+          ]
+        },
+        "test/download": {
+          "01eb6f3cf547": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3dc8d0a2d00b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b5ba3fc1067b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ef325581e8dc": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/insufficient": {
+          "0c68b4a753e3": [
+            "light-desktop"
+          ],
+          "31155e3f31c0": [
+            "light-desktop"
+          ],
+          "63efdf1974de": [
+            "light-narrow"
+          ],
+          "6a42c10b413f": [
+            "light-narrow"
+          ],
+          "a6c179d4e2c1": [
+            "light-narrow"
+          ],
+          "b65916435194": [
+            "light-desktop"
+          ],
+          "bc788fca66f5": [
+            "light-narrow"
+          ],
+          "f8f87c630053": [
+            "light-desktop"
+          ]
+        },
+        "test/upload-interrupted": {
+          "00396753fd3c": [
+            "light-desktop"
+          ],
+          "32b06cd5c7c6": [
+            "dark-narrow"
+          ],
+          "7f11ba81b530": [
+            "light-desktop"
+          ],
+          "c2add92073b6": [
+            "light-desktop"
+          ],
+          "c85590f78aad": [
+            "dark-narrow"
+          ],
+          "d88373a559b7": [
+            "dark-narrow"
+          ],
+          "e496964a7d40": [
+            "light-desktop"
+          ],
+          "f1399d0ae3bd": [
+            "dark-narrow"
           ]
         }
       },
@@ -22931,7 +23275,7 @@
         "on": "2026-10-18"
       },
       "owned": {
-        "share/complete": {
+        "loaded/ws-close": {
           "32b06cd5c7c6": [
             "dark-narrow"
           ],
@@ -22945,6 +23289,24 @@
             "dark-narrow"
           ]
         },
+        "share/complete": {
+          "32b06cd5c7c6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c85590f78aad": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d88373a559b7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f1399d0ae3bd": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
         "test/cancelled-slow-up": {
           "c505adc90c44": [
             "dark-desktop",
@@ -22953,6 +23315,20 @@
           "f67e4de54f6a": [
             "dark-narrow",
             "light-narrow"
+          ]
+        },
+        "test/complete": {
+          "00396753fd3c": [
+            "light-desktop"
+          ],
+          "7f11ba81b530": [
+            "light-desktop"
+          ],
+          "c2add92073b6": [
+            "light-desktop"
+          ],
+          "e496964a7d40": [
+            "light-desktop"
           ]
         },
         "test/latency": {
@@ -22967,9 +23343,11 @@
             "light-desktop"
           ],
           "4d1d82da4c67": [
+            "dark-narrow",
             "light-narrow"
           ],
           "506e5ace6601": [
+            "dark-desktop",
             "light-desktop"
           ],
           "52c9079a7680": [
@@ -22977,6 +23355,7 @@
             "light-narrow"
           ],
           "76aa375a7726": [
+            "dark-desktop",
             "light-desktop"
           ],
           "78032ed66b76": [
@@ -22994,18 +23373,23 @@
             "light-narrow"
           ],
           "b3368e76871a": [
+            "dark-desktop",
             "light-desktop"
           ],
           "bafb3479b4e0": [
+            "dark-narrow",
             "light-narrow"
           ],
           "d82baaa67ee5": [
+            "dark-desktop",
             "light-desktop"
           ],
           "f762afba6c60": [
+            "dark-narrow",
             "light-narrow"
           ],
           "ffe9cda571b6": [
+            "dark-narrow",
             "light-narrow"
           ]
         },
@@ -23043,7 +23427,7 @@
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^main > (region \"(Results|Result status)\"|main \"\"|group \"Suggested labels\"|button \"(Share|Download JSON|Details)\"|list \"\"|img \"Bufferbloat grade [^\"]*\"|text \"(Bufferbloat|A\\+|A|B|C|D|F|High bufferbloat|Basis: [^\"]*|During (download|upload) · WebSocket|ms|Test|Idle latency|Jitter|mean of consecutive differences|min # · p90[^\"]*|Streams|2)\"( #\\d+)?)$",
+        "path": "^main > (region \"(Results|Result status)\"|main \"\"|group \"Suggested labels\"|button \"(Share|Download JSON|Details)\"|list \"\"|img \"Bufferbloat grade [^\"]*\"|text \"(low confidence · few samples|Bufferbloat|A\\+|A|B|C|D|F|High bufferbloat|Basis: [^\"]*|During (download|upload) · WebSocket|ms|Test|Idle latency|Jitter|mean of consecutive differences|min # · p90[^\"]*|Streams|2)\"( #\\d+)?)$",
         "kind": null,
         "detail": null
       },
@@ -23220,6 +23604,10 @@
           "b6428a047778": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "b8d824855259": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "b9ae3a7f3d99": [
             "dark-narrow",
@@ -39980,7 +40368,8 @@
           ],
           "9c0dbbc2652f": "*",
           "9d0e91a5b4e6": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "9f4c56891a61": [
             "dark-narrow",
@@ -40500,6 +40889,7 @@
             "light-desktop"
           ],
           "9d0e91a5b4e6": [
+            "dark-narrow",
             "light-narrow"
           ],
           "9f4c56891a61": [
@@ -40957,7 +41347,8 @@
             "light-desktop"
           ],
           "3394cde8ebe3": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "34bb890e6f00": [
             "dark-desktop",
@@ -41284,7 +41675,8 @@
             "light-narrow"
           ],
           "801f79b40417": [
-            "dark-desktop"
+            "dark-desktop",
+            "light-desktop"
           ],
           "8021983d12a3": [
             "dark-desktop",
@@ -41397,7 +41789,8 @@
             "light-desktop"
           ],
           "a090576f51b9": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "a2198980a9d7": [
             "dark-narrow"
@@ -41608,7 +42001,8 @@
             "light-narrow"
           ],
           "d972c40e2764": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "da64ccbaf33b": [
             "dark-narrow",
@@ -41741,7 +42135,8 @@
           "ff6033ecb561": "*",
           "ff8a29e2faaf": "*",
           "ffb9f23f71a6": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ]
         },
         "result/ll-no-steady-window": {
@@ -41938,6 +42333,9 @@
           "33401b1aca41": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "3394cde8ebe3": [
+            "dark-narrow"
           ],
           "34bb890e6f00": [
             "dark-desktop",
@@ -42336,6 +42734,9 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "a090576f51b9": [
+            "dark-narrow"
+          ],
           "a29bd7ad041a": [
             "dark-narrow",
             "light-narrow"
@@ -42343,6 +42744,9 @@
           "a300a48bd6bd": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "a31534f8af17": [
+            "dark-desktop"
           ],
           "a344818c2e08": [
             "dark-narrow",
@@ -42413,6 +42817,9 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "b38c9b4b54a1": [
+            "dark-desktop"
+          ],
           "b5c7f9d12710": "*",
           "b67ff6423f5e": [
             "dark-desktop",
@@ -42477,6 +42884,9 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "c5cc5e438ac2": [
+            "dark-desktop"
+          ],
           "c79c8b971f25": [
             "dark-desktop",
             "light-desktop"
@@ -42500,6 +42910,9 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "cf5314acfd58": [
+            "dark-desktop"
+          ],
           "d0f9f6f60558": "*",
           "d11007f6c717": [
             "dark-desktop",
@@ -42520,6 +42933,9 @@
           "d87be846cb4e": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "d972c40e2764": [
+            "dark-narrow"
           ],
           "da64ccbaf33b": [
             "dark-narrow",
@@ -42632,7 +43048,10 @@
             "light-narrow"
           ],
           "ff6033ecb561": "*",
-          "ff8a29e2faaf": "*"
+          "ff8a29e2faaf": "*",
+          "ffb9f23f71a6": [
+            "dark-narrow"
+          ]
         }
       },
       "actions": [
@@ -42801,6 +43220,7 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "eaf965d37cf3": "*",
           "f0119d77f103": [
             "dark-narrow",
             "light-narrow"
@@ -42934,6 +43354,7 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "eaf965d37cf3": "*",
           "f0119d77f103": [
             "dark-narrow",
             "light-narrow"
@@ -43067,6 +43488,7 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "eaf965d37cf3": "*",
           "f0119d77f103": [
             "dark-narrow",
             "light-narrow"
@@ -43882,6 +44304,7 @@
             "light-narrow"
           ],
           "76a4fd4ceb3f": [
+            "dark-narrow",
             "light-narrow"
           ],
           "770899453ee2": [
@@ -44226,7 +44649,8 @@
             "light-narrow"
           ],
           "606f3572a844": [
-            "dark-desktop"
+            "dark-desktop",
+            "light-desktop"
           ],
           "63fbaed30532": [
             "dark-narrow",
@@ -44597,6 +45021,9 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "374665663e28": [
+            "dark-desktop"
+          ],
           "37548931a824": [
             "dark-narrow",
             "light-narrow"
@@ -44682,6 +45109,7 @@
             "light-desktop"
           ],
           "5bc77e4fec60": [
+            "dark-desktop",
             "light-desktop"
           ],
           "5d9339bc9fd7": [
@@ -44870,6 +45298,9 @@
           ],
           "c541e92d7599": [
             "dark-narrow",
+            "light-narrow"
+          ],
+          "c555c0d72d3c": [
             "light-narrow"
           ],
           "c5669d417ef0": [
@@ -45122,6 +45553,9 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "76a4fd4ceb3f": [
+            "dark-narrow"
+          ],
           "79753acb932c": [
             "dark-desktop",
             "light-desktop"
@@ -45129,6 +45563,9 @@
           "81be16fee123": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "834f68713bff": [
+            "light-narrow"
           ],
           "83a1cec360e6": [
             "dark-narrow",
@@ -45468,6 +45905,7 @@
             "light-desktop"
           ],
           "76a4fd4ceb3f": [
+            "dark-narrow",
             "light-narrow"
           ],
           "79753acb932c": [

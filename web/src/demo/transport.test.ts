@@ -130,7 +130,7 @@ describe('the demo link under load', () => {
     expect(link.roundTrip(5000)).toBe(48)
   })
 
-  it('delays the echo, the probes and the requests’ own round trips while a direction is loaded', async () => {
+  it('delays the echo and the probes while a direction is loaded, and a request while another moves', async () => {
     const clock = new FakeClock()
     const demo = new DemoTransport(clock, new Link({ ...steady, loaded: { downloadMs: 100, uploadMs: 300, tauMs: 1 } }, 'epoch-1'), infoFor('lan'), BROWSER)
     const opening = demo.ws()
@@ -148,8 +148,15 @@ describe('the demo link under load', () => {
     await clock.advance(200)
     expect(pongs).toEqual([103])
     expect(probeRtt).toBe(103)
-    // The download's own round trip began with the load, at t = 0: no delay yet.
+    // The download found no request moving, so no queue ahead of its first byte.
     expect(firstByte).toEqual([13.1])
+    // A second one, sent while the first moves, waits behind the bytes that hold the queue.
+    const second = new AbortController()
+    const sentAt = clock.now()
+    void demo.download(10_000_000, second.signal).then(() => firstByte.push(Math.round(clock.now() - sentAt)))
+    await clock.advance(150)
+    expect(firstByte).toEqual([13.1, 103])
+    second.abort()
     download.abort()
     echo.ping(1, clock.now())
     await clock.advance(50)

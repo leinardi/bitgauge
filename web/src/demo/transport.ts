@@ -100,7 +100,7 @@ export class DemoTransport implements Transport {
   /** A download on its connection; `end` runs once it is over, at its last byte, failure or abort. */
   private sendDownload(size: number, signal: AbortSignal, end: () => void): Promise<DownloadResponse> {
     const sentAt = this.clock.now()
-    const rtt = this.link.profile.rttMs + this.link.loadedMs(sentAt)
+    const rtt = this.requestRoundTrip('download', sentAt)
     const answered = this.answer(rtt, signal, this.failed(sentAt), () => {
       const body = new Body()
       let endAt = sentAt + rtt
@@ -155,7 +155,7 @@ export class DemoTransport implements Transport {
   /** An upload on its connection: its first byte half a round trip after it is sent, its answer half a round trip after its last. */
   private sendUpload(size: number, onProgress: (sentBytes: number, at: number) => void, signal: AbortSignal): Promise<UploadResponse> {
     const sentAt = this.clock.now()
-    const rtt = this.link.profile.rttMs + this.link.loadedMs(sentAt)
+    const rtt = this.requestRoundTrip('upload', sentAt)
     const half = rtt / 2
     if (signal.aborted || this.failed(sentAt) || this.link.uploadLost(sentAt)) {
       // A lost upload fails like an XMLHttpRequest's error, once the round trip has passed.
@@ -297,6 +297,15 @@ export class DemoTransport implements Transport {
   /** Sends a request on a connection, once one is free (demo/connections.ts). */
   private connected<T>(signal: AbortSignal | undefined, send: (release: () => void) => Promise<T>): Promise<T> {
     return this.connections.connected(signal, abortError, send)
+  }
+
+  /**
+   * A request's own round trip to its first byte: behind the queue only while another request of
+   * its direction is moving, whose bytes hold it; with none moving the queue is empty, and two
+   * streams that end together would otherwise both wait a loaded round trip, idling the link.
+   */
+  private requestRoundTrip(direction: Direction, at: number): number {
+    return this.link.profile.rttMs + (this.pacer.moving(direction, at) ? this.link.loadedMs(at) : 0)
   }
 
   /** A throughput request in flight on its connection from now; the end it returns runs once, on abort too. */

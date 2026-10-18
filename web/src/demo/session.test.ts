@@ -107,6 +107,16 @@ describe('the demo session', () => {
     expect(vpn.bufferbloat).toMatchObject({ grade: 'D', basis: 'download+upload' })
   })
 
+  it('grades the VPN stopped in its download or upload C, the kit’s grade, well clear of B, and stable', async () => {
+    // B ends at a 60 ms increase; the margin keeps a browser's timing from tipping a run to B.
+    for (const name of ['cancelled-slow', 'cancelled-slow-up'] as const) {
+      const result = resultOf((await play(name)).events)
+      expect(result.bufferbloat).toMatchObject({ grade: 'C', basis: 'download' })
+      expect(result.bufferbloat?.increaseMs).toBeGreaterThan(85)
+      expect(result.download?.confidence).toEqual({ level: 'normal', reasons: [] })
+    }
+  })
+
   it('runs the ws-fallback state on HTTP/1.1, reserved: five streams and http-h1-reserved samples', async () => {
     const { events, failures } = await play('ws-fallback', { hold: false })
     const result = resultOf(events)
