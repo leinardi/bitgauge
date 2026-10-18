@@ -84,3 +84,18 @@ the export shows, and what it should show, with the reason; behavior comes from
   behind them inert while they are open, as
   [screens.md §3](../features/ui/screens.md#3-history--history) and
   [i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility) set.
+- **`v02-compare-table-headers`**, **`v02-compare-rows`** and **`v02-compare-detail-links`** (also
+  `v02-compare-geometry`), `ui_kits/app/History.jsx`, the Compare dialog and its narrow cards:
+  - The metric names and the Parameters and Results rows are plain cells. The metric names
+    should be row headers (`th scope="row"`), and the Parameters and Results rows column headers
+    spanning the table ([i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility)).
+  - The parameters are Label, Preset, Protocol, Streams, the download and upload durations as
+    ranges, and Browser; the results have no peaks, probe timeouts, data used or duration; the
+    change reads "+12%". The parameters should be Label, Context, Preset, Protocol, Streams, Data
+    cap and Browser; the results add the peaks, probe timeouts, data used and duration, which show
+    both values without a judgment; the change reads "+3.4 %", one decimal with a space before
+    the percent sign ([screens.md §3](../features/ui/screens.md#3-history--history)).
+  - The column heads and the narrow cards are plain text. Each should link to its result's Result
+    detail, so the detail opens from either side
+    ([flows.md §6](../features/ui/flows.md#6-history-review-and-compare)).
+  - The dialog's rows, cells and buttons then sit where those rows, headers and links put them.

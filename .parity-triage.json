@@ -19282,10 +19282,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Compare column heads and narrow cards link to each result's Result detail, as flows.md section 6 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -19912,10 +19912,10 @@
         {
           "target": "upstream",
           "what": "Covered by the upstream notes of v02-compare-table-headers, v02-compare-rows and v02-compare-detail-links: the kit's dialog geometry follows its rows, headers and links.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -20106,10 +20106,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Compare lists Label, Context, Preset, Protocol, Streams, Data cap and Browser, and among the results the peaks, probe timeouts, data used and duration without a judgment; the change reads \"+3.4 %\" (one decimal, a space before %), as screens.md section 3 and Vue give it.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -20263,10 +20263,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Compare table marks the metric names as row headers (th scope=row) and the Parameters and Results rows as column headers spanning the table.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
