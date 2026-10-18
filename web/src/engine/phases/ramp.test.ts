@@ -238,6 +238,69 @@ describe('plateaus', () => {
   })
 })
 
+describe('one more step on fast links', () => {
+  // A LAN: I_s = 1 s and I_m = 500 ms. 1.4 Gbit/s is 17.5 MB per bucket, 2.33 Gbit/s 29.1 MB.
+  const LAN: RampOptions = { ...AUTO, rttMs: 0.3 }
+  const ONE_CONNECTION = 17_500_000
+  const LINK = 29_125_000
+
+  it('tries the next step after a no-gain trial from 900 Mbit/s, and keeps going when it gains', () => {
+    const ramp = new Ramp(LAN)
+    // Two connections hashed onto one router core share its ceiling; four spread over the cores.
+    const rates: Record<number, number> = { 1: ONE_CONNECTION, 2: ONE_CONNECTION, 4: LINK, 6: LINK }
+    expect(download(ramp, (streams) => rates[streams] ?? 0, 200)).toEqual([
+      { atMs: 2300, streams: 2 },
+      { atMs: 3800, streams: 4 },
+      { atMs: 5300, streams: 6 },
+      { atMs: 6800, streams: 6, plateau: 'no-gain' },
+    ])
+  })
+
+  it('plateaus when the step after a no-gain trial gains nothing over the same T_base either', () => {
+    const ramp = new Ramp(LAN)
+    // 4 streams read 2.9 % over 2, but only 4.3 % over T_base, the single stream's 17.5 MB.
+    const rates: Record<number, number> = { 1: ONE_CONNECTION, 2: 17_750_000, 4: 18_260_000 }
+    expect(download(ramp, (streams) => rates[streams] ?? 0, 200)).toEqual([
+      { atMs: 2300, streams: 2 },
+      { atMs: 3800, streams: 4 },
+      { atMs: 5300, streams: 4, plateau: 'no-gain' },
+    ])
+    // The streams of the last step are kept, as on any no-gain plateau.
+    expect(ramp.streams).toBe(4)
+    expect(ramp.settledAt).toBe(53)
+  })
+
+  it('plateaus at the first no-gain trial below 900 Mbit/s', () => {
+    const ramp = new Ramp(LAN)
+    // 11.2 MB per bucket is 896 Mbit/s.
+    expect(download(ramp, () => 11_200_000, 200)).toEqual([
+      { atMs: 2300, streams: 2 },
+      { atMs: 3800, streams: 2, plateau: 'no-gain' },
+    ])
+  })
+
+  it('has no step to try at the effective cap', () => {
+    const ramp = new Ramp({ ...LAN, max: 2 })
+    expect(download(ramp, () => LINK, 200)).toEqual([
+      { atMs: 2300, streams: 2 },
+      { atMs: 3800, streams: 2, plateau: 'no-gain' },
+    ])
+  })
+
+  it('gives a later no-gain trial its own step after a gain', () => {
+    const ramp = new Ramp({ ...LAN, max: 8, serverMax: 8 })
+    // 2 gains nothing, 4 gains over T_base, 6 gains nothing: the cap of 8 is past the sequence.
+    const rates: Record<number, number> = { 1: ONE_CONNECTION, 2: ONE_CONNECTION, 4: LINK, 6: LINK }
+    const steps = download(ramp, (streams) => rates[streams] ?? 0, 200)
+    expect(steps.map((step) => [step.streams, step.plateau])).toEqual([
+      [2, undefined],
+      [4, undefined],
+      [6, undefined],
+      [6, 'no-gain'],
+    ])
+  })
+})
+
 describe('a 429', () => {
   it('lowers the effective cap by one and the ramp continues within it', () => {
     const ramp = new Ramp({ ...AUTO, rttMs: null })

@@ -44,6 +44,9 @@ const REQUEST_CYCLE_MS = 1000
 /** A measurement interval of this many RTT keeps a restarted slow start's loss to its noise. */
 const CYCLE_ROUND_TRIPS = 100
 
+/** From this T_base, in bytes per second (900 Mbit/s), a no-gain trial is followed by one more step. */
+const RETRY_RATE = 900e6 / 8
+
 /** The RTT the intervals use when idle latency was skipped. */
 const DEFAULT_RTT_MS = 100
 
@@ -129,6 +132,8 @@ export class Ramp {
   private seen = 0
   /** The sum of rate_s over the current streams, in bytes per second; null before any completes. */
   private streamRate: number | null = null
+  /** Whether the trial running is the one more step after a no-gain trial. */
+  private retrying = false
 
   constructor(options: RampOptions) {
     this.cap = Math.max(1, Math.min(options.max, options.serverMax, options.streamCap ?? options.serverMax))
@@ -253,15 +258,24 @@ export class Ramp {
     return this.intervalEnd() + this.im - ((this.start ?? this.seen) + this.settle) <= wholeBuckets(BASELINE_CAP_MS)
   }
 
-  /** Compare: keep the trial on a 5 % gain, otherwise plateau. */
+  /**
+   * Compare: keep the trial on a 5 % gain, otherwise plateau, unless the link is fast enough for a
+   * per-connection ceiling on the path: then one more step is tried against the same T_base.
+   */
   private trialMeasured(mean: number | null): void {
     if (mean === null) {
       return
     }
     if (mean < GAIN * this.reference) {
-      this.finish('no-gain', this.intervalEnd())
+      if (this.retrying || this.nextStep() === undefined || (this.reference * 1000) / BUCKET_MS < RETRY_RATE) {
+        this.finish('no-gain', this.intervalEnd())
+        return
+      }
+      this.retrying = true
+      this.nextTrial()
       return
     }
+    this.retrying = false
     this.reference = mean
     if (this.streams >= this.cap) {
       this.finish('cap', this.intervalEnd())
@@ -277,7 +291,7 @@ export class Ramp {
    * link that overlapping streams share.
    */
   private nextTrial(): void {
-    const next = SEQUENCE.map((count) => Math.min(count, this.cap)).find((count) => count > this.streams)
+    const next = this.nextStep()
     if (next === undefined) {
       this.finish('cap', this.intervalEnd())
       return
@@ -290,6 +304,11 @@ export class Ramp {
     this.streams = next
     this.start = null
     this.stage = 'placing'
+  }
+
+  /** The next stream count of the sequence, clamped to the cap; undefined past its end. */
+  private nextStep(): number | undefined {
+    return SEQUENCE.map((count) => Math.min(count, this.cap)).find((count) => count > this.streams)
   }
 
   /** The end of the interval measured last, or where the first one starts when none was. */
