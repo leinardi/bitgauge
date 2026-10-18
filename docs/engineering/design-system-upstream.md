@@ -99,3 +99,7 @@ the export shows, and what it should show, with the reason; behavior comes from
     detail, so the detail opens from either side
     ([flows.md §6](../features/ui/flows.md#6-history-review-and-compare)).
   - The dialog's rows, cells and buttons then sit where those rows, headers and links put them.
+- **`v02-history-row-checkbox-names`**, `ui_kits/app/History.jsx`, the desktop table's rows: each
+  row's checkbox (`span role="checkbox"`) has no name. It should be named "Select <label>,
+  <date>", as the narrow cards' already are, since every control has an accessible name
+  ([i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility)).
