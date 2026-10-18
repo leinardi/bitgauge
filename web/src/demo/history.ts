@@ -136,7 +136,7 @@ function result(row: KitRow, index: number): Result {
     label: row.label,
     server: { name: 'Basement NAS', version: '1.4.0', epoch: '2026-09-30T08:12:44.000Z' },
     client: { ip: '100.101.4.17', contextLabel: 'VPN', protocol: row.protocol, browser: { name: 'Chrome', major: 130, os: 'Linux' }, timerResolutionMs: 0.1, crossOriginIsolated: true },
-    settings: { preset: 'standard', phases: ['idle', 'download', 'upload'], streams: { mode: 'auto', max: 6 }, dataCapBytes: null, overheadCompensationPercent: 0, warmup: 'auto', pingCount: 20 },
+    settings: { preset: 'standard', phases: ['idle', 'download', 'upload'], streams: { mode: 'auto', max: 6 }, download: { minMs: 10_000, maxMs: 20_000 }, upload: { minMs: 15_000, maxMs: 25_000 }, dataCapBytes: null, overheadCompensationPercent: 0, warmup: 'auto', pingCount: 20 },
     idle: { path: 'websocket', lossPercent: 0, minMs: row.latencyMs - 1, medianMs: row.latencyMs, p90Ms: row.latencyMs + row.jitterMs, jitterMs: row.jitterMs, samples: [row.latencyMs] },
     download,
     upload,
