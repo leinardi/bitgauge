@@ -18417,8 +18417,91 @@
           "done": true
         }
       ],
-      "status": "in-progress",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "Carried by the export imported in 3c72eee.",
+        "on": "2026-10-18",
+        "run": {
+          "runId": "00c63507-144d-481e-9bca-f43b2f89e3d7",
+          "finishedAt": "2026-10-18T18:17:05.874Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-a11y-load-card-region",
@@ -21693,7 +21776,7 @@
         ],
         "projects": null,
         "layer": "content",
-        "path": "^main > status$",
+        "path": "^main( > status)?$",
         "kind": null,
         "detail": "’"
       },
@@ -21722,6 +21805,9 @@
       "owned": {
         "result/not-found": {
           "35c6a6eb7402": "*"
+        },
+        "result/not-saved-missing": {
+          "fa386bd9e09c": "*"
         }
       },
       "actions": [
@@ -24490,23 +24576,14 @@
           "7babf93aa887": "*"
         },
         "result": {
-          "054d41a823f5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
+          "054d41a823f5": "*",
           "0acc7ee4d5ed": "*",
-          "71cbf3647d15": [
-            "dark-narrow",
-            "light-narrow"
-          ],
+          "71cbf3647d15": "*",
           "87319a23a9a2": "*",
           "e94985b75879": "*"
         },
         "result/clipboard-denied": {
-          "054d41a823f5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
+          "054d41a823f5": "*",
           "0acc7ee4d5ed": "*",
           "71cbf3647d15": [
             "dark-narrow",
@@ -24522,7 +24599,8 @@
         "result/history-unavailable": {
           "054d41a823f5": [
             "dark-narrow",
-            "light-desktop"
+            "light-desktop",
+            "light-narrow"
           ],
           "0acc7ee4d5ed": "*",
           "71cbf3647d15": "*",
@@ -24538,20 +24616,20 @@
         },
         "result/ll-reservation-broken": {
           "0acc7ee4d5ed": "*",
-          "2cd6da0b498c": [
-            "dark-narrow",
-            "light-desktop",
-            "light-narrow"
-          ],
+          "2cd6da0b498c": "*",
           "5dbdebe005e0": "*",
           "6a8a134d2a79": [
             "dark-desktop"
+          ],
+          "bed2497373c3": [
+            "dark-narrow"
           ],
           "e94985b75879": "*"
         },
         "result/not-saved-missing": {
           "054d41a823f5": [
             "dark-desktop",
+            "dark-narrow",
             "light-narrow"
           ],
           "71cbf3647d15": [
@@ -24566,7 +24644,8 @@
           "0acc7ee4d5ed": "*",
           "2cd6da0b498c": [
             "dark-narrow",
-            "light-desktop"
+            "light-desktop",
+            "light-narrow"
           ],
           "6a8a134d2a79": "*",
           "cf2057c4d4bc": "*",
@@ -24736,7 +24815,13 @@
             "dark-narrow"
           ]
         },
-        "result/ws-close": {
+        "result/not-saved-missing": {
+          "3394cde8ebe3": [
+            "light-narrow"
+          ],
+          "a090576f51b9": [
+            "light-narrow"
+          ],
           "a31534f8af17": [
             "light-desktop"
           ],
@@ -24745,6 +24830,32 @@
           ],
           "cf5314acfd58": [
             "light-desktop"
+          ],
+          "ffb9f23f71a6": [
+            "light-narrow"
+          ]
+        },
+        "result/ws-close": {
+          "3394cde8ebe3": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a090576f51b9": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a31534f8af17": [
+            "light-desktop"
+          ],
+          "c5cc5e438ac2": [
+            "light-desktop"
+          ],
+          "cf5314acfd58": [
+            "light-desktop"
+          ],
+          "ffb9f23f71a6": [
+            "dark-narrow",
+            "light-narrow"
           ]
         }
       },
@@ -24801,9 +24912,11 @@
             "light-narrow"
           ],
           "7f11ba81b530": [
+            "dark-desktop",
             "light-desktop"
           ],
           "c2add92073b6": [
+            "dark-desktop",
             "light-desktop"
           ],
           "c85590f78aad": [
@@ -24815,11 +24928,15 @@
             "light-narrow"
           ],
           "e496964a7d40": [
+            "dark-desktop",
             "light-desktop"
           ],
           "f1399d0ae3bd": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "fe8f792e6d99": [
+            "dark-desktop"
           ]
         },
         "test/download": {
@@ -24827,12 +24944,24 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "183265e35b36": [
+            "dark-narrow"
+          ],
+          "325796247efc": [
+            "dark-narrow"
+          ],
           "3dc8d0a2d00b": [
             "dark-desktop",
             "light-desktop"
           ],
           "544563717f9d": [
             "light-desktop"
+          ],
+          "63cae3c9b644": [
+            "dark-narrow"
+          ],
+          "90d7e370ec1d": [
+            "dark-narrow"
           ],
           "b5ba3fc1067b": [
             "dark-desktop",
@@ -24897,6 +25026,9 @@
           ],
           "f1399d0ae3bd": [
             "dark-narrow"
+          ],
+          "fe8f792e6d99": [
+            "light-desktop"
           ]
         }
       },
@@ -25005,6 +25137,7 @@
         },
         "share/complete": {
           "22d40d62f407": [
+            "dark-narrow",
             "light-narrow"
           ],
           "32b06cd5c7c6": [
@@ -25519,6 +25652,106 @@
           "complete": true
         }
       }
+    },
+    {
+      "id": "v02-fixture-test-load-values",
+      "title": "Test screen load card: the demo engine's loaded-latency values (p90, and the row widths they set) vs the kit's mock run",
+      "match": {
+        "scenarios": [
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-slow-up",
+          "test/complete",
+          "test/slowdone",
+          "test/upload-interrupted",
+          "test/download",
+          "test/ws-fallback",
+          "test/upload",
+          "test/slow",
+          "test/insufficient"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > (region \"Results\" > region \"Bufferbloat\"|text \"During upload\")$",
+        "kind": "^(changed|width)$",
+        "detail": "^(?!text \"… upload During download · WebSocket)"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "a mock run: p90 24 and 55 ms on the LAN, 205 and 380 ms on the slow link, 176 and 241 ms when insufficient"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts; web/src/demo/link.ts",
+          "says": "the engine's run on the simulated link: p90 about 17-19 and 43-52 ms on the LAN, 166-168 ms on the slow link, 60 ms when insufficient"
+        },
+        "notes": "Seed only: the run's numbers, not its presentation. Split from v02-test-load-rows once the export named the source and the p90 as decided."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-18, with v02-test-load-rows, that the demo's own p90 values are kept: they are the demo engine's measurement of the simulated link, as v02-fixture-result-run keeps them on the Result detail.",
+        "on": "2026-10-18"
+      },
+      "owned": {
+        "test/cancelled": {
+          "1f2052a7ea30": "*"
+        },
+        "test/cancelled-late": {
+          "e5fa8ef365c5": "*"
+        },
+        "test/cancelled-slow-up": {
+          "84cb43f9534b": "*"
+        },
+        "test/complete": {
+          "c7df89feb667": "*"
+        },
+        "test/download": {
+          "11bd24f945ee": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "84a36fc82898": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/insufficient": {
+          "110ffd2f3cc7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "237f6daf1899": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/slowdone": {
+          "aee046c233e6": "*"
+        },
+        "test/upload-interrupted": {
+          "cc2f0e3a4d67": "*"
+        },
+        "test/ws-fallback": {
+          "11bd24f945ee": [
+            "dark-narrow"
+          ],
+          "84a36fc82898": [
+            "dark-desktop",
+            "light-desktop",
+            "light-narrow"
+          ]
+        }
+      },
+      "actions": [],
+      "status": "accepted",
+      "resolution": null
     },
     {
       "id": "v02-harness-dialog-frame",
@@ -26526,6 +26759,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "1b7016942122": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "26b339b9b498": [
             "dark-desktop",
             "light-desktop"
@@ -26544,6 +26781,10 @@
           ],
           "552019b38c2f": "*",
           "5c30caff15a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5f2428cc8ab6": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -26572,11 +26813,20 @@
             "light-desktop"
           ],
           "cf48a69250fd": "*",
+          "d4c1b83066fa": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d4de612756dc": "*",
           "e9bcbf3bc2e1": [
             "dark-narrow",
             "light-narrow"
           ],
           "f173e48eab90": "*",
+          "f646f1555d89": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "f7f9131f7bb9": "*"
         },
         "history/populated": {
@@ -29908,8 +30158,91 @@
           "done": true
         }
       ],
-      "status": "in-progress",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "Carried by the export imported in 3c72eee.",
+        "on": "2026-10-18",
+        "run": {
+          "runId": "00c63507-144d-481e-9bca-f43b2f89e3d7",
+          "finishedAt": "2026-10-18T18:17:05.874Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-history-row-checkbox-names",
@@ -45059,8 +45392,91 @@
           "done": true
         }
       ],
-      "status": "in-progress",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "Carried by the export imported in 3c72eee.",
+        "on": "2026-10-18",
+        "run": {
+          "runId": "00c63507-144d-481e-9bca-f43b2f89e3d7",
+          "finishedAt": "2026-10-18T18:17:05.874Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-http1-notice-geometry",
@@ -46022,11 +46438,7 @@
             "light-narrow"
           ],
           "1f1d47188e9a": "*",
-          "1f2052a7ea30": [
-            "dark-desktop",
-            "light-desktop",
-            "light-narrow"
-          ],
+          "1f2052a7ea30": "*",
           "218aace84587": "*",
           "223666a8b800": [
             "dark-desktop",
@@ -46616,6 +47028,7 @@
             "dark-narrow"
           ],
           "044261ba365f": [
+            "dark-desktop",
             "light-desktop"
           ],
           "06229f7ffcf1": [
@@ -46949,6 +47362,7 @@
             "light-desktop"
           ],
           "47e641a592a3": [
+            "dark-narrow",
             "light-narrow"
           ],
           "48584517e814": [
@@ -47474,6 +47888,7 @@
             "light-desktop"
           ],
           "a31534f8af17": [
+            "dark-desktop",
             "light-desktop"
           ],
           "a31bcedc5d05": "*",
@@ -47504,6 +47919,10 @@
           "a50e5e4eef12": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "a521014a0c7c": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "a55ca7d28482": [
             "dark-desktop",
@@ -47658,6 +48077,7 @@
           ],
           "c55de7d600f3": "*",
           "c5cc5e438ac2": [
+            "dark-desktop",
             "light-desktop"
           ],
           "c7011d477aec": [
@@ -47698,6 +48118,7 @@
             "light-desktop"
           ],
           "cf5314acfd58": [
+            "dark-desktop",
             "light-desktop"
           ],
           "cfef53f1fd81": [
@@ -48900,7 +49321,8 @@
           ],
           "ba53ac0651fc": "*",
           "bed2497373c3": [
-            "dark-desktop"
+            "dark-desktop",
+            "dark-narrow"
           ],
           "bfc68c2dfedd": [
             "dark-desktop",
@@ -50570,8 +50992,91 @@
           "done": true
         }
       ],
-      "status": "in-progress",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "Carried by the export imported in 3c72eee.",
+        "on": "2026-10-18",
+        "run": {
+          "runId": "00c63507-144d-481e-9bca-f43b2f89e3d7",
+          "finishedAt": "2026-10-18T18:17:05.874Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-result-column-geometry",
@@ -50942,6 +51447,7 @@
             "light-desktop"
           ],
           "cf543cc38d19": [
+            "dark-desktop",
             "light-desktop"
           ],
           "d23ec9fbde8c": [
@@ -52897,6 +53403,12 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "af94bf025582": [
+            "light-narrow"
+          ],
+          "b5878f5536c2": [
+            "light-desktop"
+          ],
           "b612b0bb2d2b": [
             "dark-narrow",
             "light-narrow"
@@ -53272,6 +53784,10 @@
           "d06739ef92e4": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "d0b1c8eb8737": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "d2b4d5111cb2": [
             "dark-narrow",
@@ -53731,8 +54247,91 @@
           "done": true
         }
       ],
-      "status": "in-progress",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "Carried by the export imported in 3c72eee.",
+        "on": "2026-10-18",
+        "run": {
+          "runId": "00c63507-144d-481e-9bca-f43b2f89e3d7",
+          "finishedAt": "2026-10-18T18:17:05.874Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-result-delete",
@@ -53801,6 +54400,7 @@
           "bd9601747059": "*",
           "d56a2540e288": "*",
           "e5784c4e6aa0": "*",
+          "f0c3f6d7f7a1": "*",
           "fd8454e816f0": "*"
         }
       },
@@ -54426,7 +55026,7 @@
     },
     {
       "id": "v02-result-not-saved-partial-run",
-      "title": "Result detail, not-saved-partial: the kit draws the complete LAN run with the partial reason; Vue opens a run stopped in the upload",
+      "title": "Result detail, not-saved-partial: the kit drew the complete LAN run with the partial reason; Vue opens a run stopped in the upload. The export now draws that run, so what remains is v02-loaded-stopped-cases' run, which it closes with",
       "match": {
         "scenarios": [
           "result/not-saved-partial"
@@ -54470,6 +55070,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "02d5dff0030d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "0302209a6b76": [
             "dark-narrow",
             "light-narrow"
@@ -54486,12 +55090,21 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "0996b022126f": "*",
           "0a897bfdb87f": [
             "dark-desktop",
             "light-desktop"
           ],
+          "0f1c6e12a838": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "0f52681d0ab3": "*",
           "134f3e8880eb": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "135a9259d01e": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -54508,6 +55121,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "1a66efa4cebc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "1e9c1d73c8e7": [
             "dark-desktop",
             "light-desktop"
@@ -54515,6 +55132,10 @@
           "1fd0d165ad29": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "2062240df44a": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "20ebb5d6bbdf": "*",
           "23a46fdeb469": [
@@ -54534,6 +55155,10 @@
             "light-desktop"
           ],
           "25c89aa56ac9": "*",
+          "25e078ee6daf": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "27f2a48d43d5": [
             "dark-desktop",
             "light-desktop"
@@ -54541,6 +55166,14 @@
           "296d334a881c": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "29a67aca4508": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2b550410554e": [
+            "dark-desktop",
+            "light-desktop"
           ],
           "2d05ecc36e32": [
             "dark-desktop",
@@ -54578,7 +55211,16 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "35091c9fa9f2": "*",
+          "38b0263555a8": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "38bdd63fffdd": "*",
+          "3c6e62c3b1b5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "3d7d021b6b95": [
             "dark-desktop",
             "light-desktop"
@@ -54602,6 +55244,10 @@
           "466851b9269d": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "487d7f5adc19": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "48f2da8ef4e3": [
             "dark-narrow",
@@ -54627,6 +55273,18 @@
             "light-desktop"
           ],
           "53ac12125d2c": "*",
+          "554b5e3fd318": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "56b0fb99a1a0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "57ac72e08bf5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "58c6753c266f": [
             "dark-desktop",
             "light-desktop"
@@ -54639,15 +55297,25 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "5a820f32da97": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5cfc2d02fe1e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "5d0506ce388c": [
             "dark-desktop",
             "light-desktop"
           ],
+          "5dbdebe005e0": "*",
           "5f63e7127a70": [
             "dark-narrow",
             "light-narrow"
           ],
           "618ecffd2cf5": "*",
+          "624a8de0570f": "*",
           "626c8b5e0870": "*",
           "651c8a65f765": [
             "dark-desktop",
@@ -54657,12 +55325,24 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "66dde5cc0ea7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "677cf17dc67e": [
             "dark-desktop",
             "light-desktop"
           ],
           "679753aca244": "*",
           "69f50687dd61": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6adb636cf34f": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "717dd520af01": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -54674,9 +55354,21 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "7294dc000e66": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "729e1d4766c1": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "742076f48c23": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7464f3c874c3": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "752897c77053": [
             "dark-narrow",
@@ -54702,7 +55394,27 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "7942697dd37d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "794760b7c6b8": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7a576d65bc3e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7c5e6e8757a7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "7cf8ece17e8e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7dad9da5516e": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -54722,15 +55434,28 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "84682897ec1f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "872f0bc28d30": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "87de3ec25fb1": [
+            "dark-desktop",
+            "light-desktop"
           ],
           "884de5d4a56a": "*",
           "8a2fd3a63238": [
             "dark-desktop",
             "light-desktop"
           ],
+          "8a3f9790b755": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8a63f3b240de": "*",
           "8abb379d11ac": [
             "dark-desktop",
             "light-desktop"
@@ -54739,6 +55464,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "8da2cbe025bc": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "8e037aa16104": [
             "dark-desktop",
             "light-desktop"
@@ -54746,6 +55475,14 @@
           "8f307eeaa2a4": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "91a2fab4d1ff": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "92283b2a1201": [
+            "dark-desktop",
+            "light-desktop"
           ],
           "9306ad608404": [
             "dark-narrow",
@@ -54767,6 +55504,14 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "9d43faaa7878": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9da298c65764": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "9ded317b22de": [
             "dark-narrow",
             "light-narrow"
@@ -54786,6 +55531,7 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "a31bcedc5d05": "*",
           "a38750dc8d03": [
             "dark-desktop",
             "light-desktop"
@@ -54806,6 +55552,14 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "aa1b3d31e09c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "aa89ed9c17f0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "ab8377d93495": [
             "dark-narrow",
             "light-narrow"
@@ -54814,10 +55568,26 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "ae0d675023ad": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "af94bf025582": [
             "light-narrow"
           ],
           "afdcdfabe555": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b0502c50482f": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b06045884925": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b47a357d2de8": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -54845,6 +55615,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "ba084e4d9fbd": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "ba53ac0651fc": "*",
           "bc6b43f6fee5": "*",
           "bf35b39b5419": [
@@ -54859,7 +55633,12 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "c2d16ff122a7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "c43b50d7c182": "*",
+          "c55de7d600f3": "*",
           "c5cc5e438ac2": [
             "dark-desktop",
             "light-desktop"
@@ -54871,6 +55650,11 @@
           "cb826b952596": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "cc6fa170f994": "*",
+          "cc9c22b67785": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "ceab04c09c3d": "*",
           "cf2e6c9450e8": [
@@ -54890,9 +55674,25 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "d3352074b89e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d5c99d35a762": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d5cc9de05695": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "d705de9a9430": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "d7ef7db49557": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "dc097528c4eb": [
             "dark-narrow",
@@ -54906,7 +55706,12 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "dd65f4ad3f7a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "e0983dd02d15": "*",
+          "e12e27ff79d8": "*",
           "e28e0906277c": [
             "dark-desktop",
             "light-desktop"
@@ -54929,6 +55734,18 @@
             "light-desktop"
           ],
           "e94985b75879": "*",
+          "e9cc9c8b1500": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e9ea2f5225b8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ecccf973e216": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "ee2fc2af6c15": [
             "dark-desktop",
             "light-desktop"
@@ -54937,9 +55754,21 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "f0fdbf5da252": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f276783d6bac": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "f57b31b7e4e4": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "f5eb3ab1ec60": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "f841c545f367": [
             "dark-desktop",
@@ -54948,6 +55777,10 @@
           "f84b2d6c4828": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "f84dfd8a2f8f": [
+            "dark-desktop",
+            "light-desktop"
           ],
           "fdb0fdac1d55": [
             "dark-desktop",
@@ -60005,7 +60838,7 @@
     },
     {
       "id": "v02-test-load-rows",
-      "title": "Test screen load card rows: the kit names the source on rows without a result (pending, not run, live) and leaves the p90 out of the stopped slow run's partial row; Vue gives the source with the result and always the p90",
+      "title": "Test screen load card rows: the kit names the source on the finished download's row while the upload runs; Vue gives it with the run's result",
       "match": {
         "scenarios": [
           "test/*"
@@ -60014,7 +60847,7 @@
         "layer": "content",
         "path": "^main > region \"Results\" > region \"Bufferbloat\"$",
         "kind": "^changed$",
-        "detail": "^text \""
+        "detail": "^text \"… upload During download · WebSocket"
       },
       "type": "conflict",
       "aspect": "content",
@@ -60040,35 +60873,14 @@
         "on": "2026-10-18"
       },
       "owned": {
-        "test/cancelled": {
-          "1f2052a7ea30": "*"
-        },
         "test/cancelled-download": {
           "00121566d61d": "*"
-        },
-        "test/cancelled-late": {
-          "a56b0d8d1634": [
-            "light-desktop"
-          ],
-          "e5fa8ef365c5": "*"
         },
         "test/cancelled-latency": {
           "ded47b01f1de": "*"
         },
         "test/cancelled-slow": {
           "be0bd78932ec": "*"
-        },
-        "test/cancelled-slow-up": {
-          "310cc27058fb": [
-            "light-desktop"
-          ],
-          "84cb43f9534b": "*"
-        },
-        "test/complete": {
-          "549cd174468e": [
-            "light-desktop"
-          ],
-          "c7df89feb667": "*"
         },
         "test/connecting": {
           "9e5092669973": "*"
@@ -60092,7 +60904,8 @@
           "9e5092669973": "*"
         },
         "test/insufficient": {
-          "afe0a50b0a21": "*"
+          "afe0a50b0a21": "*",
+          "ecb6913688c9": "*"
         },
         "test/latency": {
           "9e5092669973": "*"
@@ -60104,23 +60917,16 @@
           "9e5092669973": "*"
         },
         "test/slow": {
-          "8b0e679ea9e7": "*"
-        },
-        "test/slowdone": {
-          "aee046c233e6": "*"
+          "8b0e679ea9e7": "*",
+          "b062aafaa9e5": "*"
         },
         "test/upload": {
           "3de8db318f89": [
             "dark-narrow",
             "light-desktop"
           ],
+          "6eb3a2e8b42a": "*",
           "dd29bc63f492": "*"
-        },
-        "test/upload-interrupted": {
-          "7b0d2e63b99d": [
-            "dark-narrow"
-          ],
-          "cc2f0e3a4d67": "*"
         },
         "test/ws-fallback": {
           "4317bc4ff917": [
