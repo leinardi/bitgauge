@@ -4680,7 +4680,8 @@
         },
         "test/cancelled-late": {
           "01e682a0789b": [
-            "dark-desktop"
+            "dark-desktop",
+            "light-desktop"
           ],
           "047dd3cc432d": [
             "dark-narrow",
@@ -24570,6 +24571,9 @@
           "1aca0c520d98": "*"
         },
         "loaded/ll-reservation-broken": {
+          "094616d66687": [
+            "dark-narrow"
+          ],
           "aa9256852ea8": "*"
         },
         "loaded/ws-close": {
@@ -24585,11 +24589,7 @@
         "result/clipboard-denied": {
           "054d41a823f5": "*",
           "0acc7ee4d5ed": "*",
-          "71cbf3647d15": [
-            "dark-narrow",
-            "light-desktop",
-            "light-narrow"
-          ],
+          "71cbf3647d15": "*",
           "87319a23a9a2": "*",
           "88dd9fb8fa1c": [
             "light-desktop"
@@ -24597,11 +24597,7 @@
           "e94985b75879": "*"
         },
         "result/history-unavailable": {
-          "054d41a823f5": [
-            "dark-narrow",
-            "light-desktop",
-            "light-narrow"
-          ],
+          "054d41a823f5": "*",
           "0acc7ee4d5ed": "*",
           "71cbf3647d15": "*",
           "87319a23a9a2": "*",
@@ -24619,10 +24615,12 @@
           "2cd6da0b498c": "*",
           "5dbdebe005e0": "*",
           "6a8a134d2a79": [
-            "dark-desktop"
+            "dark-desktop",
+            "dark-narrow"
           ],
           "bed2497373c3": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-desktop"
           ],
           "e94985b75879": "*"
         },
@@ -24823,12 +24821,15 @@
             "light-narrow"
           ],
           "a31534f8af17": [
+            "dark-desktop",
             "light-desktop"
           ],
           "c5cc5e438ac2": [
+            "dark-desktop",
             "light-desktop"
           ],
           "cf5314acfd58": [
+            "dark-desktop",
             "light-desktop"
           ],
           "ffb9f23f71a6": [
@@ -25110,6 +25111,9 @@
           ]
         },
         "loaded/ws-close": {
+          "22d40d62f407": [
+            "dark-narrow"
+          ],
           "32b06cd5c7c6": [
             "dark-narrow"
           ],
@@ -25187,14 +25191,26 @@
           "00396753fd3c": [
             "light-desktop"
           ],
+          "22d40d62f407": [
+            "light-narrow"
+          ],
+          "32b06cd5c7c6": [
+            "light-narrow"
+          ],
           "7f11ba81b530": [
             "light-desktop"
           ],
           "c2add92073b6": [
             "light-desktop"
           ],
+          "c85590f78aad": [
+            "light-narrow"
+          ],
           "e496964a7d40": [
             "light-desktop"
+          ],
+          "f1399d0ae3bd": [
+            "light-narrow"
           ]
         },
         "test/latency": {
@@ -25672,7 +25688,7 @@
         ],
         "projects": null,
         "layer": null,
-        "path": "^main > (region \"Results\" > region \"Bufferbloat\"|text \"During upload\")$",
+        "path": "^main > (region \"Results\" > region \"Bufferbloat\"|text \"During (download|upload)\")$",
         "kind": "^(changed|width)$",
         "detail": "^(?!text \"… upload During download · WebSocket)"
       },
@@ -25715,12 +25731,10 @@
         "test/download": {
           "11bd24f945ee": [
             "dark-desktop",
-            "light-desktop"
-          ],
-          "84a36fc82898": [
-            "dark-narrow",
+            "light-desktop",
             "light-narrow"
-          ]
+          ],
+          "84a36fc82898": "*"
         },
         "test/insufficient": {
           "110ffd2f3cc7": [
@@ -25730,10 +25744,32 @@
           "237f6daf1899": [
             "dark-desktop",
             "light-desktop"
-          ]
+          ],
+          "54c932ff68cb": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b45d8ac74653": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ecd7ed4eb6ca": "*"
+        },
+        "test/slow": {
+          "1f4c23de29de": "*"
         },
         "test/slowdone": {
           "aee046c233e6": "*"
+        },
+        "test/upload": {
+          "2ba57a86806f": [
+            "light-narrow"
+          ],
+          "a454dfae4a47": [
+            "dark-desktop",
+            "dark-narrow",
+            "light-desktop"
+          ]
         },
         "test/upload-interrupted": {
           "cc2f0e3a4d67": "*"
@@ -25742,11 +25778,7 @@
           "11bd24f945ee": [
             "dark-narrow"
           ],
-          "84a36fc82898": [
-            "dark-desktop",
-            "light-desktop",
-            "light-narrow"
-          ]
+          "84a36fc82898": "*"
         }
       },
       "actions": [],
@@ -45756,6 +45788,9 @@
           "1617bc732c8c": [
             "light-desktop"
           ],
+          "16bd58eb6de5": [
+            "dark-narrow"
+          ],
           "16d6360ed059": [
             "dark-desktop",
             "light-desktop"
@@ -45983,6 +46018,9 @@
             "light-narrow"
           ],
           "7bedcd081dd5": "*",
+          "7c7b24f5746e": [
+            "dark-narrow"
+          ],
           "7cad935c2c7d": [
             "dark-desktop",
             "light-desktop"
@@ -46005,6 +46043,7 @@
           ],
           "86d9f63fb4f6": "*",
           "8700836324bd": [
+            "dark-narrow",
             "light-desktop"
           ],
           "87530d2d3746": [
@@ -46065,6 +46104,9 @@
           "9d0e91a5b4e6": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "9d1fbfb18cd7": [
+            "dark-narrow"
           ],
           "9f4c56891a61": [
             "dark-narrow",
@@ -46178,6 +46220,9 @@
           "bd4875cc9d10": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "be0a2f1f4c0d": [
+            "dark-narrow"
           ],
           "becff8be0b13": [
             "dark-narrow",
@@ -46357,6 +46402,9 @@
           "f928c10a661e": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "fb45a7324520": [
+            "dark-narrow"
           ],
           "fbdb0a40754f": "*",
           "fc33e93f1400": [
@@ -46682,6 +46730,7 @@
             "light-desktop"
           ],
           "99c52bc1d5af": [
+            "dark-desktop",
             "dark-narrow"
           ],
           "9a3448e10d32": [
@@ -52457,6 +52506,7 @@
             "light-desktop"
           ],
           "d9d0293b9f01": [
+            "dark-desktop",
             "light-desktop"
           ],
           "df7860c58a85": [
@@ -52934,6 +52984,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "fc361fecd8a3": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "fc7e384fd094": [
             "dark-desktop",
             "light-desktop"
@@ -53407,6 +53461,7 @@
             "light-narrow"
           ],
           "b5878f5536c2": [
+            "dark-desktop",
             "light-desktop"
           ],
           "b612b0bb2d2b": [
@@ -53839,6 +53894,9 @@
           ],
           "f746e54841d2": [
             "dark-narrow",
+            "light-narrow"
+          ],
+          "fc361fecd8a3": [
             "light-narrow"
           ],
           "fc7e384fd094": [
@@ -55201,6 +55259,7 @@
             "light-narrow"
           ],
           "3394cde8ebe3": [
+            "dark-narrow",
             "light-narrow"
           ],
           "345b64b241c2": [
@@ -55244,6 +55303,10 @@
           "466851b9269d": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "47e641a592a3": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "487d7f5adc19": [
             "dark-narrow",
@@ -55310,6 +55373,9 @@
             "light-desktop"
           ],
           "5dbdebe005e0": "*",
+          "5e734e542ad0": [
+            "dark-narrow"
+          ],
           "5f63e7127a70": [
             "dark-narrow",
             "light-narrow"
@@ -55521,6 +55587,7 @@
             "light-desktop"
           ],
           "a090576f51b9": [
+            "dark-narrow",
             "light-narrow"
           ],
           "a29bd7ad041a": [
@@ -55799,6 +55866,7 @@
             "light-narrow"
           ],
           "ffb9f23f71a6": [
+            "dark-narrow",
             "light-narrow"
           ]
         }
@@ -59941,8 +60009,91 @@
           "done": true
         }
       ],
-      "status": "in-progress",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "8f8e962a-14cc-4ac2-9a22-0da79344f0c9",
+          "finishedAt": "2026-10-18T18:46:20.169Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-test-latency-legend-geometry",
@@ -60942,8 +61093,91 @@
           "done": true
         }
       ],
-      "status": "in-progress",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "8f8e962a-14cc-4ac2-9a22-0da79344f0c9",
+          "finishedAt": "2026-10-18T18:46:20.169Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-ws-fallback-geometry",
