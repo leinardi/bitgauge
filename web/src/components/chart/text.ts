@@ -57,13 +57,18 @@ export interface ChartTextInput {
 
 const hasValue = (live: DirectionLive | null) => live !== null && live.values.some((value) => value !== null)
 
-/** The series drawn and the warm-up band; an empty chart names the two directions it will draw. */
+/**
+ * The series drawn and the warm-up band; an empty chart names the two directions it will draw. The
+ * loaded latency's entry is its toggle, listed in every state, before its first ping too
+ * (ui/screens.md section 1).
+ */
 export function chartLegend({ state, order, live, model }: ChartTextInput, { t }: Wording): LegendEntry[] {
   const entry = (key: LegendEntry['key'], label: string, color: string, faint = false, band = false): LegendEntry => ({ key, label, color, faint, band })
   const download = entry('download', t('test.chart.legend.download'), 'var(--series-download)')
   const upload = entry('upload', t('test.chart.legend.upload'), 'var(--series-upload)')
+  const latency: LegendEntry = { ...entry('latency', t('test.chart.legend.latency'), 'var(--series-latency)'), dashed: true }
   if (state === 'empty') {
-    return order.map((direction) => (direction === 'download' ? download : upload))
+    return [...order.map((direction) => (direction === 'download' ? download : upload)), latency]
   }
   const entries = order.flatMap((direction): LegendEntry[] => {
     const shown = live[direction]
@@ -80,10 +85,8 @@ export function chartLegend({ state, order, live, model }: ChartTextInput, { t }
     const received = hasValue(shown) ? [entry('received', t('test.chart.legend.received'), 'var(--series-upload)')] : []
     return [...received, entry('sending', t('test.chart.legend.sending'), 'var(--sending)', true)]
   })
-  // The loaded latency's entry is its toggle, there whether it is shown or not.
-  const latency: LegendEntry[] = model.latency.length === 0 ? [] : [{ ...entry('latency', t('test.chart.legend.latency'), 'var(--series-latency)'), dashed: true }]
   const banded = model.warmup.some((span) => span.to > span.from)
-  return banded ? [...entries, ...latency, entry('warmup', t('test.chart.legend.warmup'), 'var(--chart-band)', false, true)] : [...entries, ...latency]
+  return banded ? [...entries, latency, entry('warmup', t('test.chart.legend.warmup'), 'var(--chart-band)', false, true)] : [...entries, latency]
 }
 
 /** Where the run stands: elapsed over the current phase's minimum, the total, or where it stopped. */

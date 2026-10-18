@@ -76,7 +76,7 @@ describe('the throughput chart', () => {
     Object.assign(props, { state: 'running', readout: 'Upload · sending 20.0 Mbit/s' })
     await flushPromises()
     expect(host.attributes('aria-label')).toBe('Throughput: Upload · sending 20.0 Mbit/s, 0.4 s / 15.2 s; warm-up shaded')
-    expect(wrapper.text()).toContain('Download Upload · received Upload · sending Warm-up')
+    expect(wrapper.text()).toContain('Download Upload · received Upload · sending Latency under load Warm-up')
     expect(wrapper.get('[data-testid="chart-meta"]').text()).toBe('0.4 s / 15.2 s')
 
     wrapper.unmount()
@@ -117,10 +117,12 @@ describe('the throughput chart', () => {
     wrapper.unmount()
   })
 
-  it('has no latency toggle without pings', async () => {
+  it('lists the latency toggle before the first ping, with nothing on a second scale', async () => {
     const wrapper = chart({ order: ['download'], live: { download: live({ values: [1] }), upload: null } })
     await flushPromises()
-    expect(wrapper.find('[data-testid="latency-toggle"]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="latency-toggle"]').attributes('aria-pressed')).toBe('true')
+    expect(wrapper.get('[data-testid="throughput-chart"]').attributes('aria-label')).not.toContain('latency under load')
+    expect(wrapper.findAll('.text-\\(--series-latency\\)')).toEqual([])
     wrapper.unmount()
   })
 

@@ -60,26 +60,26 @@ const labels = (text: ChartTextInput) => chartLegend(text, wording).map((entry) 
 const download = live({ values: Array.from({ length: 50 }, () => 1000), warmupEnd: 20 })
 
 describe('the chart text', () => {
-  it('names both directions when empty, and no data yet', () => {
+  it('names both directions and the latency toggle when empty, and no data yet', () => {
     const empty = input('empty', {})
-    expect(labels(empty)).toEqual(['Download', 'Upload'])
+    expect(labels(empty)).toEqual(['Download', 'Upload', 'Latency under load'])
     expect(chartMeta(empty, wording)).toBe('')
     expect(chartSummary(empty, wording)).toBe('Throughput: no data yet')
   })
 
   it('reads a live direction against its minimum, with the warm-up shaded', () => {
     const running = input('running', { download }, { readout: 'Download 597 Mbit/s' })
-    expect(labels(running)).toEqual(['Download', 'Warm-up'])
+    expect(labels(running)).toEqual(['Download', 'Latency under load', 'Warm-up'])
     expect(chartMeta(running, wording)).toBe('5.0 s / 10 s')
     expect(chartSummary(running, wording)).toBe('Throughput: Download 597 Mbit/s, 5.0 s / 10 s; warm-up shaded')
   })
 
   it('names received only once the server has confirmed something, and sending while the run goes on', () => {
     const sendingOnly = live({ firstBucket: 0, values: [null], sendingTrace: [{ cell: 1, bitsPerSecond: 1e4 }] })
-    expect(labels(input('running', { download, upload: sendingOnly }))).toEqual(['Download', 'Upload · sending', 'Warm-up'])
+    expect(labels(input('running', { download, upload: sendingOnly }))).toEqual(['Download', 'Upload · sending', 'Latency under load', 'Warm-up'])
     const both = live({ values: [1000, 1000], start: 0 })
-    expect(labels(input('stopped', { download, upload: both }))).toEqual(['Download', 'Upload · received', 'Upload · sending', 'Warm-up'])
-    expect(labels(input('done', { download, upload: both }))).toEqual(['Download', 'Upload', 'Warm-up'])
+    expect(labels(input('stopped', { download, upload: both }))).toEqual(['Download', 'Upload · received', 'Upload · sending', 'Latency under load', 'Warm-up'])
+    expect(labels(input('done', { download, upload: both }))).toEqual(['Download', 'Upload', 'Latency under load', 'Warm-up'])
   })
 
   it('names the loaded latency, dashed, as its toggle, and says its second scale while it is shown', () => {
@@ -90,6 +90,8 @@ describe('the chart text', () => {
     expect(labels(withLatency)).toEqual(['Download', 'Latency under load', 'Warm-up'])
     expect(chartSummary({ ...withLatency, latencyShown: true }, wording)).toBe('Throughput: Download 597 Mbit/s, 5.0 s / 10 s; warm-up shaded; latency under load on a second scale')
     expect(chartSummary({ ...withLatency, latencyShown: false }, wording)).not.toContain('latency')
+    // Before its first ping the toggle is listed, and nothing is drawn on a second scale.
+    expect(chartSummary({ ...text, latencyShown: true }, wording)).not.toContain('latency')
   })
 
   it('gives the total once done, and where a stop or an error ended it with its mark', () => {
