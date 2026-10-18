@@ -89,7 +89,7 @@ export type HistoryVariant = (typeof HISTORY_VARIANTS)[number]
  * The Result detail's states: the kit panel's Result detail State choices and its Demo choices
  * other than none (App.jsx), which coverage.test.ts holds this list to.
  */
-export const RESULT_STATES = ['result', 'not-found', 'history-unavailable', 'deleted', 'clipboard-denied'] as const
+export const RESULT_STATES = ['result', 'not-found', 'history-unavailable', 'not-saved-partial', 'not-saved-missing', 'deleted', 'clipboard-denied'] as const
 export type ResultState = (typeof RESULT_STATES)[number] | LoadedCase
 
 /**

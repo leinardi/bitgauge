@@ -133,7 +133,7 @@ export const proto: Driver = {
   // The panel's Result detail State and Demo choices; any link in the History list's main area opens
   // the Result detail (Prototype.jsx route()), which shows the forced state.
   showResult: async (page, state) => {
-    const resultState = state === 'not-found' || state === 'history-unavailable' ? state : 'result'
+    const resultState = state === 'not-found' || state === 'history-unavailable' || state === 'not-saved-partial' || state === 'not-saved-missing' ? state : 'result'
     const resultDemo = state === 'deleted' || state === 'clipboard-denied' ? state : 'none'
     await storeAndReload(page, KIT_DEMO_KEY, { resultState, resultDemo, ...(isLoadedCase(state) ? kitLoadedChoice(state) : {}) })
     await goto(page, 'History')
@@ -313,19 +313,36 @@ export const vue: Driver = {
       await page.getByTestId('result-missing').waitFor()
       return
     }
-    // The Result detail of this session's run, from its Details: the kit's run (VUE_RESULT_RUN), or
-    // its run in a loaded-latency case. It carries the kit's label from the Result label setting,
-    // which a run held in memory (stopped, or with history unavailable) has no save bar to set; it is
-    // saved when complete, with the kit's note.
+    // The Result detail of this session's run, from its Details: the kit's run (VUE_RESULT_RUN), its
+    // run in a loaded-latency case, or a run stopped in the upload and not kept (not-saved-partial).
+    // It carries the kit's label from the Result label setting, which a run held in memory
+    // (stopped, or with history unavailable) has no save bar to set; it is saved when complete,
+    // with the kit's note. In not-saved-missing the saved run is then deleted from the History list
+    // and its Result detail opened again, so the run held in memory is no longer in this browser's
+    // history.
     await goto(page, 'Settings')
     const label = page.getByRole('textbox', { name: 'Result label', exact: true })
     await label.fill(KIT_RESULT.label)
     await label.blur()
     await goto(page, 'Test')
     if (state === 'history-unavailable') await seedHistory(page, 'unavailable')
-    await forceVue(page, isLoadedCase(state) ? state : VUE_RESULT_RUN)
+    await forceVue(page, isLoadedCase(state) ? state : state === 'not-saved-partial' ? 'cancelled' : VUE_RESULT_RUN)
     await page.getByTestId('result-details').filter({ visible: true }).click()
     await page.getByRole('navigation', { name: 'Breadcrumb' }).waitFor()
+    if (state === 'not-saved-missing') {
+      const path = new URL(page.url()).pathname
+      await goto(page, 'History')
+      await page.getByRole('checkbox', { name: new RegExp(`^Select ${KIT_RESULT.label},`) }).filter({ visible: true }).first().click()
+      await page.getByRole('button', { name: 'Delete selected', exact: true }).filter({ visible: true }).first().click()
+      await page.locator('[data-sonner-toast]').first().waitFor()
+      await page.evaluate((to) => {
+        history.pushState(null, '', to)
+        dispatchEvent(new PopStateEvent('popstate'))
+      }, path)
+      await page.getByTestId('not-saved-reason').waitFor()
+      // The undo toast goes once its time is up, as the kit's screen has none.
+      await page.locator('[data-sonner-toast]').first().waitFor({ state: 'detached', timeout: 20_000 })
+    }
     const note = page.getByTestId('note-field').filter({ visible: true })
     if ((await note.getAttribute('readonly')) === null) {
       await note.fill(KIT_RESULT.note)
@@ -372,7 +389,7 @@ async function seedHistory(page: Page, seed: HistorySeed): Promise<void> {
 const KIT_SELECTED = { select3: [1, 3, 5], pair: [3, 5] }
 
 // The kit's variants that show results (History.jsx hasData): each filtered to the VPN context over
-// the last 30 days, or the last 7 in nomatch, as the kit's are.
+// the last 30 days, or in nomatch over the custom range of its last seven days, as the kit's are.
 const KIT_EMPTY_VARIANTS: readonly HistoryVariant[] = ['empty', 'unavailable', 'loading']
 
 // The file the kit's import variants name (History.jsx), and its import result: 12 added, 3 skipped
@@ -401,12 +418,13 @@ async function driveHistory(page: Page, variant: HistoryVariant): Promise<void> 
   }
   const button = (name: string) => page.getByRole('button', { name, exact: true }).filter({ visible: true }).first()
   const importFile = (name: string, buffer: Buffer) => page.getByTestId('import-input').setInputFiles({ name, mimeType: name.endsWith('.csv') ? 'text/csv' : 'application/json', buffer })
-  await filterHistory(page, variant === 'nomatch' ? 'Last 7 days' : 'Last 30 days')
   if (variant === 'nomatch') {
+    await filterCustomRange(page, KIT_NOMATCH_RANGE)
     await page.getByTestId('history-search').filter({ visible: true }).fill('airport')
     await page.getByTestId('history-no-match').waitFor()
     return
   }
+  await filterHistory(page)
   await select(variant === 'select3' ? KIT_SELECTED.select3 : KIT_SELECTED.pair)
   switch (variant) {
     case 'compare':
@@ -460,11 +478,23 @@ async function filterContext(page: Page): Promise<void> {
 }
 
 // The kit's filter: the VPN context chip, then a preset date range.
-async function filterHistory(page: Page, range: 'Last 30 days' | 'Last 7 days'): Promise<void> {
+async function filterHistory(page: Page): Promise<void> {
   await filterContext(page)
   await page.getByTestId('date-range').filter({ visible: true }).click()
-  await page.getByRole('radio', { name: new RegExp(`^${range}`) }).click()
-  await page.waitForURL(range === 'Last 7 days' ? /range=7d/ : /range=30d/)
+  await page.getByRole('radio', { name: /^Last 30 days/ }).click()
+  await page.waitForURL(/range=30d/)
+}
+
+// The custom range of the kit's nomatch variant (History.jsx `custom`): its last seven days.
+const KIT_NOMATCH_RANGE = { from: '2026-10-02', to: '2026-10-08' }
+
+async function filterCustomRange(page: Page, range: { from: string; to: string }): Promise<void> {
+  await filterContext(page)
+  await page.getByTestId('date-range').filter({ visible: true }).click()
+  await page.getByTestId('range-from').fill(range.from)
+  await page.getByTestId('range-to').fill(range.to)
+  await page.getByTestId('range-apply').click()
+  await page.waitForURL(new RegExp(`range=${range.from}..${range.to}`))
 }
 
 // The kit's import file from the page's own export: its first results again, as duplicates; new
