@@ -20,7 +20,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { normalizeTree, normalizeValue, PAGE_HOST } from '../normalize.ts'
+import { normalizeTree, normalizeValue, PAGE_HOST, PAGE_SCHEME } from '../normalize.ts'
 import { parseAriaSnapshot } from './ariaTree.ts'
 import { compareContent, textChange, type RegionTrees } from './content.ts'
 
@@ -99,6 +99,14 @@ describe('normalizeTree', () => {
     const tree = parseAriaSnapshot('- text: Basement NAS, connected speed.home.lan, not example.org')
     expect(normalizeTree(tree, 'speed.home.lan')[0]?.name).toBe(`Basement NAS, connected ${PAGE_HOST}, not example.org`)
     expect(normalizeTree(tree)[0]?.name).toBe('Basement NAS, connected speed.home.lan, not example.org')
+  })
+
+  it("reads http and https before the page host as one scheme, and no other host's", () => {
+    const kit = parseAriaSnapshot('- text: https://speed.home.lan/?run=1 and https://example.org')
+    const vue = parseAriaSnapshot('- text: http://127.0.0.1:5182/?run=1 and https://example.org')
+    const read = `${PAGE_SCHEME}://${PAGE_HOST}/?run=1 and https://example.org`
+    expect(normalizeTree(kit, 'speed.home.lan')[0]?.name).toBe(read)
+    expect(normalizeTree(vue, '127.0.0.1:5182')[0]?.name).toBe(read)
   })
 })
 

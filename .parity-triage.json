@@ -23607,11 +23607,49 @@
         {
           "target": "harness",
           "what": "web/parity/normalize.ts: read http:// and https:// before <page host> as one scheme, with a unit test; note it in demo-parity.md beside the page host.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "36a0a996-1d20-4f1f-9c2d-dd282ea3466d",
+          "finishedAt": "2026-10-18T12:42:20.871Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-harness-overlay-in-place",

@@ -94,7 +94,9 @@ harness waits until the DOM has stopped changing.
 - decorative icons;
 - empty live regions;
 - each side's own page host: the Vue demo shows the origin it is served from and the prototype a
-  mocked host, as the spec asks of both, so either reads as one token (never any other host);
+  mocked host, as the spec asks of both, so either reads as one token (never any other host), and
+  the scheme before it is each server's (the demo's http, the prototype's mocked https), so either
+  reads as one scheme;
 - a measured value: the number of a rate, latency, size, duration or share, also where the gauge's
   note, a result tile or the stop notice words it without its unit (avg so far, peak, median, min,
   a stopped upload's confirmed requests), the prefix of a data size, short or spoken (1.15 GB,

@@ -123,8 +123,14 @@ function isEmptyLiveRegion(node: AriaNode, children: readonly AriaNode[]): boole
 // the prototype's a mocked name. Only the side's own host is replaced, never a host in general.
 export const PAGE_HOST = '<page host>'
 
+// The scheme before the page's own host is each server's: the demo is served over http, the
+// prototype mocks https. Either reads as one token, and only before the page host.
+export const PAGE_SCHEME = '<page scheme>'
+const PAGE_HOST_SCHEME = /\bhttps?:\/\/<page host>/g
+
 function replaceHost(text: string, pageHost: string | undefined): string {
-  return pageHost === undefined || pageHost === '' ? text : text.split(pageHost).join(PAGE_HOST)
+  if (pageHost === undefined || pageHost === '') return text
+  return text.split(pageHost).join(PAGE_HOST).replace(PAGE_HOST_SCHEME, `${PAGE_SCHEME}://${PAGE_HOST}`)
 }
 
 export function normalizeTree(nodes: readonly AriaNode[], pageHost?: string): AriaNode[] {
