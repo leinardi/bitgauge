@@ -115,3 +115,15 @@ the export shows, and what it should show, with the reason; behavior comes from
   WebSocket should be named with the direction, "+38 ms loaded (upload, HTTP/2 probe)", since
   each number carries its qualifiers ([flows.md §8](../features/ui/flows.md#8-sharing)). The
   side column's boxes then follow that line, the card headings and the side regions.
+- **`v02-share-dialog`**, `ui_kits/app/TestScreen.jsx`, the share dialog:
+  - Share via… is always drawn. It should be offered only where the Web Share API can share the
+    image, as [flows.md §8](../features/ui/flows.md#8-sharing) and
+    [screens.md §2](../features/ui/screens.md#2-result-detail--resultid) set; its own tooltip
+    already says so.
+  - The image preview takes `SharePreview`'s default name, "Share image preview". It should be
+    named with what the image holds, "Share image: <the summary's lines>", as Vue's share panel
+    names it, so a screen reader hears the numbers.
+  - Its Share image and Text summary cards should be regions named by their titles, as the Result
+    detail's (`v02-a11y-result-side-regions`), and its title a heading (`v02-headings`).
+  - Vue follows the kit's dialog otherwise: the actions in the sticky footer, Download image the
+    primary one, Copy summary bordered.
