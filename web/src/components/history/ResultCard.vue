@@ -44,7 +44,7 @@ const name = computed(() => (props.row.label === '' ? t('history.table.noLabel')
 <template>
   <div
     class="flex items-stretch rounded-(--radius-lg) border"
-    :class="selected ? 'border-(--primary-border) bg-(--primary-bg) [--fg-subtle:var(--fg-muted)]' : 'border-(--border-subtle) bg-(--surface-2)'"
+    :class="selected ? 'tinted border-(--primary-border) bg-(--primary-bg) [--fg-subtle:var(--fg-muted)]' : 'border-(--border-subtle) bg-(--surface-2)'"
     data-testid="history-card"
   >
     <button

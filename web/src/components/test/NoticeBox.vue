@@ -47,7 +47,7 @@ const TONES: Record<Tone, { box: string; icon: string }> = {
   <div
     :role="tone === 'danger' ? 'alert' : live ? 'status' : undefined"
     :data-tone="tone"
-    class="flex flex-wrap items-start gap-x-3 gap-y-2.5 border"
+    class="tinted flex flex-wrap items-start gap-x-3 gap-y-2.5 border"
     :class="[TONES[tone].box, attached ? 'rounded-none border-x-0 border-t-0 px-4 py-2.5' : 'rounded-(--radius-md) px-3.5 py-3']"
   >
     <component

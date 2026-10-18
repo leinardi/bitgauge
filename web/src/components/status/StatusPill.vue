@@ -19,7 +19,9 @@
 <script setup lang="ts">
 // The kit's StatusPill (design_system/components/status: StatusPill.jsx, status.css `.pill`): a
 // tone's surface, border and text, with the tone's dot unless `dot` is false; small unless `size`
-// is md, as the Result detail's confidence pill is.
+// is md, as the Result detail's confidence pill is. Inside a tinted surface (a notice, a selected
+// card: any `.tinted` ancestor) a toned pill lays its tint over opaque --surface-2 rather than over
+// the surface's own tint, which would stack the two under 4.5:1 in the light theme.
 
 type PillTone = 'ok' | 'warn' | 'danger' | 'info' | 'neutral'
 
@@ -31,10 +33,10 @@ const SIZES = {
 }
 
 const TONES: Record<PillTone, { pill: string; dot: string }> = {
-  ok: { pill: 'border-(--ok-border) bg-(--ok-bg) text-(--ok-fg)', dot: 'bg-(--ok)' },
-  warn: { pill: 'border-(--warn-border) bg-(--warn-bg) text-(--warn-fg)', dot: 'bg-(--warn)' },
-  danger: { pill: 'border-(--danger-border) bg-(--danger-bg) text-(--danger-fg)', dot: 'bg-(--danger)' },
-  info: { pill: 'border-(--info-border) bg-(--info-bg) text-(--info-fg)', dot: 'bg-(--info)' },
+  ok: { pill: 'border-(--ok-border) bg-(--ok-bg) text-(--ok-fg) in-[.tinted]:bg-(--surface-2) in-[.tinted]:bg-linear-to-b in-[.tinted]:from-(--ok-bg) in-[.tinted]:to-(--ok-bg)', dot: 'bg-(--ok)' },
+  warn: { pill: 'border-(--warn-border) bg-(--warn-bg) text-(--warn-fg) in-[.tinted]:bg-(--surface-2) in-[.tinted]:bg-linear-to-b in-[.tinted]:from-(--warn-bg) in-[.tinted]:to-(--warn-bg)', dot: 'bg-(--warn)' },
+  danger: { pill: 'border-(--danger-border) bg-(--danger-bg) text-(--danger-fg) in-[.tinted]:bg-(--surface-2) in-[.tinted]:bg-linear-to-b in-[.tinted]:from-(--danger-bg) in-[.tinted]:to-(--danger-bg)', dot: 'bg-(--danger)' },
+  info: { pill: 'border-(--info-border) bg-(--info-bg) text-(--info-fg) in-[.tinted]:bg-(--surface-2) in-[.tinted]:bg-linear-to-b in-[.tinted]:from-(--info-bg) in-[.tinted]:to-(--info-bg)', dot: 'bg-(--info)' },
   neutral: { pill: 'border-(--border-default) bg-(--surface-3) text-muted-foreground', dot: 'bg-(--fg-faint)' },
 }
 </script>
