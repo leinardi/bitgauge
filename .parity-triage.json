@@ -6311,7 +6311,7 @@
         "layer": "content",
         "path": "^main( > region \"Speed test\"( > list \"Test phases\")?)?$",
         "kind": null,
-        "detail": "^(?!img |figure)(?!link \"Edit\"$)(?!text \"[^\"]*Latency under load\" → )"
+        "detail": "^(?!img |figure)(?!link \"Edit\"$)(?!button \"Latency under load\"$)(?!text \"[^\"]*Latency under load\" → )"
       },
       "type": "conflict",
       "aspect": "content",
@@ -6654,7 +6654,6 @@
       "match": {
         "scenarios": [
           "test/idle",
-          "test/offline",
           "test/connecting",
           "test/latency",
           "test/countdown",
@@ -9815,6 +9814,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "093537c13024": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "0b1dab59f21e": [
             "dark-desktop",
             "light-desktop"
@@ -10296,6 +10299,10 @@
             "light-narrow"
           ],
           "a200ef1e8e87": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a29ae18ebe32": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -12440,6 +12447,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "020227e8f67a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "0223b873daed": [
             "dark-narrow",
             "light-narrow"
@@ -12534,6 +12545,10 @@
             "light-desktop"
           ],
           "1a95adc94c93": "*",
+          "1a9eaeb45eb9": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "1d2dd2de953b": [
             "dark-desktop",
             "light-desktop"
@@ -24619,6 +24634,7 @@
             "dark-narrow"
           ],
           "bed2497373c3": [
+            "dark-desktop",
             "dark-narrow",
             "light-desktop"
           ],
@@ -24640,11 +24656,7 @@
         },
         "result/ws-close": {
           "0acc7ee4d5ed": "*",
-          "2cd6da0b498c": [
-            "dark-narrow",
-            "light-desktop",
-            "light-narrow"
-          ],
+          "2cd6da0b498c": "*",
           "6a8a134d2a79": "*",
           "cf2057c4d4bc": "*",
           "e94985b75879": "*"
@@ -24946,10 +24958,12 @@
             "light-desktop"
           ],
           "183265e35b36": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "325796247efc": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "3dc8d0a2d00b": [
             "dark-desktop",
@@ -24959,10 +24973,12 @@
             "light-desktop"
           ],
           "63cae3c9b644": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "90d7e370ec1d": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ],
           "b5ba3fc1067b": [
             "dark-desktop",
@@ -25214,6 +25230,9 @@
           ]
         },
         "test/latency": {
+          "2ea4c0cff654": [
+            "light-desktop"
+          ],
           "398296203982": [
             "light-desktop"
           ],
@@ -25264,6 +25283,9 @@
           ],
           "d82baaa67ee5": [
             "dark-desktop",
+            "light-desktop"
+          ],
+          "e9a5121e745b": [
             "light-desktop"
           ],
           "f762afba6c60": [
@@ -25729,11 +25751,7 @@
           "c7df89feb667": "*"
         },
         "test/download": {
-          "11bd24f945ee": [
-            "dark-desktop",
-            "light-desktop",
-            "light-narrow"
-          ],
+          "11bd24f945ee": "*",
           "84a36fc82898": "*"
         },
         "test/insufficient": {
@@ -25763,13 +25781,10 @@
         },
         "test/upload": {
           "2ba57a86806f": [
+            "light-desktop",
             "light-narrow"
           ],
-          "a454dfae4a47": [
-            "dark-desktop",
-            "dark-narrow",
-            "light-desktop"
-          ]
+          "a454dfae4a47": "*"
         },
         "test/upload-interrupted": {
           "cc2f0e3a4d67": "*"
@@ -59821,10 +59836,11 @@
     },
     {
       "id": "v02-test-edit-geometry",
-      "title": "Error before the server answered (follows v02-test-edit-without-settings): without Vue's Edit row the notice, the test card and the Results card sit higher",
+      "title": "Error before the server answered, and offline (follows v02-test-edit-without-settings): without Vue's Edit row the notice, the test card and the Results card sit higher",
       "match": {
         "scenarios": [
-          "test/error-early"
+          "test/error-early",
+          "test/offline"
         ],
         "projects": null,
         "layer": "layout",
@@ -59878,6 +59894,20 @@
             "light-narrow"
           ],
           "dbde78694d54": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/offline": {
+          "0351f02d7a2e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "15ba64ab61f0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "4e7e51a0ab6e": [
             "dark-narrow",
             "light-narrow"
           ]
@@ -60103,7 +60133,6 @@
           "test/idle",
           "test/connecting",
           "test/countdown",
-          "test/offline",
           "test/param-ignored"
         ],
         "projects": [
@@ -60530,140 +60559,6 @@
             "light-narrow"
           ]
         },
-        "test/offline": {
-          "056a357fac50": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0c8f05f2ac06": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "15ba64ab61f0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2edd08bfc6a3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3116c0440103": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "352cc1c8f955": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3998936698b4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3a7007b1aa56": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3cc397570520": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4ad68a2f911e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4af9bf1693df": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "62a52cc3ece7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7262d8cde2b7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "78df4e6d741d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8a252e4e3d44": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9050a0451975": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "908848e42269": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "98794f6e8c56": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a0dab3687477": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a2b440ba49ea": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a8e87d948dc3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ab3ddaa2c092": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c03b2aaf2301": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c5217568efbd": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d20fe59a0bd9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "db845282a980": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e1a2fefe1a59": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e620a2d0839b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e95e1dd931fb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "eb35f587930c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "eb4d18803082": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f6e367750ba6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f761134310dd": [
-            "dark-narrow",
-            "light-narrow"
-          ]
-        },
         "test/param-ignored": {
           "08f858abf616": [
             "dark-narrow",
@@ -60799,11 +60694,94 @@
         {
           "target": "vue",
           "what": "Follows v02-test-latency-toggle's Vue action: gone once the toggle is listed before a run.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "40d108ae-9dac-4c05-9241-86b7a172a483",
+          "finishedAt": "2026-10-18T19:08:39.616Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-test-latency-toggle",
@@ -60913,9 +60891,11 @@
           "30e3701474c1": "*"
         },
         "test/connecting": {
+          "218aace84587": "*",
           "aeac2fad93dd": "*"
         },
         "test/countdown": {
+          "218aace84587": "*",
           "aeac2fad93dd": "*"
         },
         "test/download": {
@@ -60929,6 +60909,7 @@
           "8d9f979b86b4": "*"
         },
         "test/idle": {
+          "218aace84587": "*",
           "aeac2fad93dd": "*"
         },
         "test/insufficient": {
@@ -60936,9 +60917,11 @@
           "f2457d860f50": "*"
         },
         "test/offline": {
+          "218aace84587": "*",
           "aeac2fad93dd": "*"
         },
         "test/param-ignored": {
+          "218aace84587": "*",
           "aeac2fad93dd": "*"
         },
         "test/slow": {
@@ -60971,20 +60954,20 @@
         {
           "target": "spec",
           "what": "docs/features/ui/screens.md section 1 (Live chart): the loaded-latency series toggle is a legend entry listed in every state, before the series has points (symlinked page: paste into Claude Design).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "web/src/components/chart/text.ts and ChartHeader.vue: list the latency toggle in every state, idle, offline and connecting included, not only once the series has points; tests.",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's \"Latency under load\" legend item is the series toggle, a button with aria-pressed, as screens.md section 1 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
