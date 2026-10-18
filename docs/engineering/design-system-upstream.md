@@ -92,9 +92,10 @@ the export shows, and what it should show, with the reason; behavior comes from
   - The parameters are Label, Preset, Protocol, Streams, the download and upload durations as
     ranges, and Browser; the results have no peaks, probe timeouts, data used or duration; the
     change reads "+12%". The parameters should be Label, Context, Preset, Protocol, Streams, Data
-    cap and Browser; the results add the peaks, probe timeouts, data used and duration, which show
-    both values without a judgment; the change reads "+3.4 %", one decimal with a space before
-    the percent sign ([screens.md §3](../features/ui/screens.md#3-history--history)).
+    cap and Browser; the results add the peaks, judged as rates (±2 % reads "same"), and the
+    probe timeouts, data used and duration, which show both values without a judgment; the change
+    reads "+3.4 %", one decimal with a space before the percent sign
+    ([screens.md §3](../features/ui/screens.md#3-history--history)).
   - The column heads and the narrow cards are plain text. Each should link to its result's Result
     detail, so the detail opens from either side
     ([flows.md §6](../features/ui/flows.md#6-history-review-and-compare)).
