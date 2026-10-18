@@ -47,3 +47,12 @@ the export shows, and what it should show, with the reason; behavior comes from
   too: the filter bar has search, and the responsive notes of
   [screens.md §3](../features/ui/screens.md#3-history--history) change the rows, the trend and
   Compare, not the filters. The narrow card list then sits under the search field.
+- **`v02-result-confidence-card`** (also `v02-result-confidence-geometry`),
+  `ui_kits/app/ResultDetail.jsx`, the Confidence and notices card: it lists per-run reasons ("Both
+  directions reached the 6-stream cap…", "94 % of upload time known — 0.4 s unknown after a failed
+  request…"). It should give one confidence line per direction in the terms of
+  [measurement.md §16](../features/measurement.md#16-confidence-and-notices): normal, low with its
+  reasons, or cpu-bound (en: "Download confidence: normal — Warm-up ended at 6.5 s and the steady
+  window covered 3.5 s."), then every notice
+  ([screens.md §7](../features/ui/screens.md#7-notices)). The spec defines no known-time reason,
+  so "94 % of upload time known" goes. The card's height follows its lines.

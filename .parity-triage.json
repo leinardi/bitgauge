@@ -46464,10 +46464,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Confidence and notices card gives one confidence line per direction in measurement.md section 16's terms (normal, low with its reasons, cpu-bound) and drops the per-run \"94 % of upload time known\" reason, which the spec does not define.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -46638,10 +46638,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-result-confidence-card's upstream note: the card's height follows its lines.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
