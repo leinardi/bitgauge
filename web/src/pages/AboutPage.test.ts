@@ -78,4 +78,9 @@ describe('the About screen', () => {
     expect(page.text()).not.toContain('Credits')
     expect(page.find('pre').exists()).toBe(false)
   })
+
+  it('says the history, like every result, lives only in the browser', async () => {
+    const page = await mountApp(AboutPage, '/about')
+    expect(page.text()).toContain('The server keeps no results — history lives only in your browser.')
+  })
 })
