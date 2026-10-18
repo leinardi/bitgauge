@@ -395,6 +395,8 @@ const KIT_EMPTY_VARIANTS: readonly HistoryVariant[] = ['empty', 'unavailable', '
 // The file the kit's import variants name (History.jsx), and its import result: 12 added, 3 skipped
 // as duplicates, and 1 rejected for its newer schema version, of 16 records.
 const KIT_IMPORT_FILE = 'bitgauge-2026-10-01'
+// The kit's import in progress: "Checking 9 of 16 results…" (History.jsx).
+const KIT_IMPORT_CHECKED = 9
 const KIT_IMPORT = { added: 12, duplicates: 3, newerSchema: 3 }
 const DAY_MS = 86_400_000
 
@@ -447,18 +449,23 @@ async function driveHistory(page: Page, variant: HistoryVariant): Promise<void> 
       await page.getByTestId('date-range').filter({ visible: true }).click()
       await page.getByTestId('range-apply').waitFor()
       return
-    case 'importing':
-      // A file that takes as long as the harness looks at it to read.
-      await page.evaluate(() => {
-        Blob.prototype.text = () => new Promise<string>(() => undefined)
-      })
-      await importFile(`${KIT_IMPORT_FILE}.json`, Buffer.from('{}'))
-      await page.getByTestId('import-busy').waitFor()
+    case 'importing': {
+      // The kit's file, held where the kit shows it: the import yields after each record it checks,
+      // and the turn after the ninth never comes, as on a file that takes long to check.
+      const exported = await exportJson(page)
+      await page.evaluate((held) => {
+        const { scheduler } = globalThis as unknown as { scheduler: { yield: () => Promise<void> } }
+        const turn = scheduler.yield.bind(scheduler)
+        let turns = 0
+        scheduler.yield = () => (++turns < held ? turn() : new Promise<void>(() => undefined))
+      }, KIT_IMPORT_CHECKED + 1)
+      await importFile(`${KIT_IMPORT_FILE}.json`, kitImport(exported))
+      await page.getByText(`Checking ${KIT_IMPORT_CHECKED} of`).waitFor()
       return
+    }
     case 'importresult': {
-      await page.getByTestId('export-menu').filter({ visible: true }).click()
-      const [file] = await Promise.all([page.waitForEvent('download'), page.getByTestId('export-json-all').click()])
-      await importFile(`${KIT_IMPORT_FILE}.json`, kitImport(await readFile(await file.path(), 'utf8')))
+      const exported = await exportJson(page)
+      await importFile(`${KIT_IMPORT_FILE}.json`, kitImport(exported))
       await page.getByTestId('import-done').waitFor()
       return
     }
@@ -470,6 +477,13 @@ async function driveHistory(page: Page, variant: HistoryVariant): Promise<void> 
     default:
       return
   }
+}
+
+/** The page's own Export JSON of every result, as the kit's import file starts from it. */
+async function exportJson(page: Page): Promise<string> {
+  await page.getByTestId('export-menu').filter({ visible: true }).click()
+  const [file] = await Promise.all([page.waitForEvent('download'), page.getByTestId('export-json-all').click()])
+  return readFile(await file.path(), 'utf8')
 }
 
 async function filterContext(page: Page): Promise<void> {
