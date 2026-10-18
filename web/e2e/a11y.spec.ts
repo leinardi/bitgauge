@@ -81,7 +81,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.locator('main a[href*="/result/"]').first().click()
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G')
       await expect(page.getByTestId('phase-chart-download')).toBeVisible()
-      await page.getByTestId('chart-card-upload').getByRole('button', { name: 'Table' }).click()
+      await page.getByTestId('chart-card-upload').getByRole('radio', { name: 'Table' }).click()
       await expect(page.getByTestId('chart-card-upload').getByTestId('window-table')).toBeVisible()
       await expectAccessible(page)
     })

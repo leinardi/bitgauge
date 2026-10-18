@@ -26,7 +26,7 @@
 import type { Page } from '@playwright/test'
 
 import { expectAccessible } from './fixtures/axe'
-import { DEMO_RESULTS, importHistory } from './fixtures/history'
+import { DEMO_RESULTS, importHistory, storedNotes } from './fixtures/history'
 import { expect, test } from './fixtures/test'
 
 /** The demo's results with the newest one run on the Quick preset with 12 pings. */
@@ -43,7 +43,7 @@ test('shows a stored result and keeps its label and note across a reload', async
   await expect(page.getByTestId('load-grade')).toHaveText('D')
   await expect(page.getByTestId('load-card')).toContainText('High bufferbloat')
   await expect(page.getByTestId('phase-chart-download')).toBeVisible()
-  await page.getByTestId('chart-card-download').getByRole('button', { name: 'Table' }).click()
+  await page.getByTestId('chart-card-download').getByRole('radio', { name: 'Table' }).click()
   await expect(page.getByTestId('chart-card-download').getByTestId('window-table')).toBeVisible()
   await expect(page.getByTestId('parameter-ip')).toContainText('100.101.4.17')
   await expectAccessible(page)
@@ -55,11 +55,11 @@ test('shows a stored result and keeps its label and note across a reload', async
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G, train')
   await page.getByTestId('note-field').fill('Between two tunnels')
   await page.getByTestId('note-field').blur()
-  await expect(async () => {
-    await page.reload()
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G, train', { timeout: 1000 })
-    await expect(page.getByTestId('note-field')).toHaveValue('Between two tunnels', { timeout: 1000 })
-  }).toPass({ timeout: 10_000 })
+  // The save lands in IndexedDB before the reload, which would otherwise abort it in flight.
+  await expect.poll(() => storedNotes(page)).toContain('Between two tunnels')
+  await page.reload()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G, train')
+  await expect(page.getByTestId('note-field')).toHaveValue('Between two tunnels')
 })
 
 test('deletes the result with an undo, and runs its settings again on the Test screen', async ({ page }) => {

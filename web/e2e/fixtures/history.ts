@@ -43,3 +43,23 @@ export async function importHistory(page: Page, results: readonly unknown[] = DE
   await page.getByTestId('import-input').setInputFiles({ name: 'bitgauge-history.json', mimeType: 'application/json', buffer: Buffer.from(historyExport(results)) })
   await expect(page.getByTestId('history-count')).toContainText(`${results.length} of ${results.length} shown`)
 }
+
+/** The notes the page's history holds, read from IndexedDB as the page stored them. */
+export async function storedNotes(page: Page): Promise<string[]> {
+  return page.evaluate(
+    () =>
+      new Promise<string[]>((resolve, reject) => {
+        const request = indexedDB.open('bitgauge')
+        request.onerror = () => reject(request.error ?? new Error('IndexedDB did not open'))
+        request.onsuccess = () => {
+          const db = request.result
+          const all = db.transaction('results').objectStore('results').getAll()
+          all.onerror = () => reject(all.error ?? new Error('IndexedDB did not read'))
+          all.onsuccess = () => {
+            db.close()
+            resolve((all.result as { note?: string }[]).flatMap((result) => (result.note === undefined ? [] : [result.note])))
+          }
+        }
+      }),
+  )
+}
