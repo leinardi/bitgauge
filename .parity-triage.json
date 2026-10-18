@@ -4785,6 +4785,9 @@
           "04132bcd4162": [
             "dark-desktop"
           ],
+          "07854c19d61a": [
+            "light-desktop"
+          ],
           "242d340d9e29": [
             "light-desktop"
           ],
@@ -13361,7 +13364,7 @@
         {
           "target": "vue",
           "what": "About aside header from the export at 49d7a81 (About.jsx): the logo decorative at the left, the wordmark and the caption \"Self-hosted network speed test\" in a column beside it, centered on the logo; the parity run of 2026-10-17 finds it on about and about/unreachable in all four projects.",
-          "done": false
+          "done": true
         }
       ],
       "status": "in-progress",
@@ -17857,10 +17860,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Changed from defaults card lists its settings as a ul with an li each.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -18177,10 +18180,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's settings summary Edit link is named \"Edit settings\" (its visible text stays Edit), as i18n-a11y.md section 2 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -18297,10 +18300,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-a11y-edit-name's upstream note.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -18347,10 +18350,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Export menu rule before its note is a separator (role separator).",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -19046,10 +19049,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Phases checkboxes form a group named by the Phases label.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -19099,10 +19102,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Date range popover groups the From and To fields under the Custom range heading and hides the dash between them from assistive technology.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -19592,10 +19595,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Shareable link checkbox writes run=1 in a code element.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -19751,10 +19754,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's History search is an input of type search.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -19871,10 +19874,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-a11y-search-field's upstream note.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -19960,10 +19963,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's narrow selection bar keeps Compare's \"Compare needs exactly 2…\" hint as visually hidden text that describes Compare.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -20015,11 +20018,94 @@
         {
           "target": "vue",
           "what": "web/src/i18n/locales/en/about.json: privacy \"No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.\"; test.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "e3b87071-bc81-4c4c-b3dc-f9ace051b05b",
+          "finishedAt": "2026-10-18T19:48:28.264Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-compare-detail-links",
@@ -21830,10 +21916,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's strings use straight apostrophes (ResultDetail.jsx: \"isn't\", \"browser's\", \"can't\").",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -24616,6 +24702,9 @@
           "0acc7ee4d5ed": "*",
           "71cbf3647d15": "*",
           "87319a23a9a2": "*",
+          "88dd9fb8fa1c": [
+            "light-desktop"
+          ],
           "e94985b75879": "*"
         },
         "result/ll-insufficient-samples": {
@@ -24631,7 +24720,8 @@
           "5dbdebe005e0": "*",
           "6a8a134d2a79": [
             "dark-desktop",
-            "dark-narrow"
+            "dark-narrow",
+            "light-desktop"
           ],
           "bed2497373c3": [
             "dark-desktop",
@@ -24858,12 +24948,15 @@
             "light-narrow"
           ],
           "a31534f8af17": [
+            "dark-desktop",
             "light-desktop"
           ],
           "c5cc5e438ac2": [
+            "dark-desktop",
             "light-desktop"
           ],
           "cf5314acfd58": [
+            "dark-desktop",
             "light-desktop"
           ],
           "ffb9f23f71a6": [
@@ -25787,6 +25880,9 @@
           "a454dfae4a47": "*"
         },
         "test/upload-interrupted": {
+          "7b0d2e63b99d": [
+            "light-narrow"
+          ],
           "cc2f0e3a4d67": "*"
         },
         "test/ws-fallback": {
@@ -26747,7 +26843,15 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "68d8e145114d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "6c598ec2a7f8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "6d2d4e067560": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -26758,6 +26862,10 @@
           "9e0b4e32ad01": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "aa1c512df3b6": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "beeda36ff3a5": [
             "dark-desktop",
@@ -27095,16 +27203,99 @@
         {
           "target": "spec",
           "what": "docs/features/ui/screens.md section 3 (States) and technical-stack/frontend.md section 5: import in progress shows \"Checking <n> of <total> results…\" with a determinate progress bar named Import progress and Cancel, which stops the import before anything is written (screens.md is symlinked: paste into Claude Design).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "web/src/components/history/ImportDialog.vue and the import in the history module: count the records as they are checked, a progressbar and a Cancel that ends the import with nothing written; tests.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "e3b87071-bc81-4c4c-b3dc-f9ace051b05b",
+          "finishedAt": "2026-10-18T19:48:28.264Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-history-import-progress-geometry",
@@ -27165,11 +27356,94 @@
         {
           "target": "vue",
           "what": "Follows v02-history-import-progress's Vue action: gone once the notice holds the count, the progress bar and Cancel.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "e3b87071-bc81-4c4c-b3dc-f9ace051b05b",
+          "finishedAt": "2026-10-18T19:48:28.264Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-history-import-result",
@@ -27215,10 +27489,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's import result names each rejected record's position (\"1 rejected: result 16: schema version 3 is newer…\"), as screens.md section 3 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -27266,15 +27540,15 @@
         {
           "target": "spec",
           "what": "docs/features/ui/screens.md section 3 (States): while loading, a status announces \"Loading history\" over the skeleton rows and Import JSON waits, disabled, until the store is open (symlinked page: paste into Claude Design).",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's History loading state disables Import JSON and announces \"Loading history\" in a status over the skeleton.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -28932,6 +29206,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "98979bc39d00": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "9ed9bcfb9f18": [
             "dark-narrow",
             "light-narrow"
@@ -30146,10 +30424,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's .pop popovers and menus (actions.css) shift to stay within the screen on narrow widths instead of hanging past its edge.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -31114,10 +31392,10 @@
         {
           "target": "vue",
           "what": "web/src/components/history/TrendPlot.vue: the single result's value label placed and sized as the kit's trend draws it (History.jsx mkTrend lbl), at the marker's position; test.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -31195,10 +31473,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's History header adds the storage used after the count (\"8 of 8 shown · 12 kB used\"), as screens.md section 3 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -39746,6 +40024,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "dac3d8e5eb0d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "dd6765697463": [
             "dark-desktop",
             "light-desktop"
@@ -45641,9 +45923,9 @@
           "test/cancelled-latency"
         ],
         "projects": null,
-        "layer": null,
-        "path": "^main > (region \"(Result status|Results)\"|main \"\"|button \"Download JSON\")$",
-        "kind": "^(extra|missing|y|height)$",
+        "layer": "content",
+        "path": null,
+        "kind": "^(extra|missing)$",
         "detail": "^(text \"No phase finished, so there is nothing to keep in history\\.\"|button \"Keep in history\"|-?\\d+px → -?\\d+px)$"
       },
       "type": "conflict",
@@ -45703,16 +45985,99 @@
         {
           "target": "spec",
           "what": "docs/features/ui/screens.md section 1: Keep in history for a partial or error result with at least one finished phase, or with the partial idle latency a stop during latency keeps (flows.md section 4); the Cancelled row agrees (symlinked page: paste into Claude Design).",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "web/src/components/test/SaveBar.vue and its rule: offer Keep in history and Download JSON for a stop during idle latency that kept its samples; tests.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-18",
+        "run": {
+          "runId": "e3b87071-bc81-4c4c-b3dc-f9ace051b05b",
+          "finishedAt": "2026-10-18T19:48:28.264Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v02-loaded-stopped-cases",
@@ -46810,6 +47175,9 @@
           "a84f509a2330": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "a99e9e6b3e5c": [
+            "dark-desktop"
           ],
           "acdadac68b6a": "*",
           "adf406e10b83": [
@@ -50448,6 +50816,18 @@
           ]
         },
         "test/cancelled-latency": {
+          "16d6360ed059": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "1c744d1c9c4e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a787cea81c5f": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "b2ff0421a437": "*",
           "b72b2e071196": [
             "dark-desktop",
@@ -50520,10 +50900,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's result bar on stopped and failed runs offers Details beside Keep in history and Download JSON, as screens.md section 1 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -50534,7 +50914,8 @@
           "test/cancelled-late",
           "test/cancelled-download",
           "test/cancelled-slow",
-          "test/error"
+          "test/error",
+          "test/cancelled-latency"
         ],
         "projects": [
           "light-narrow",
@@ -50613,6 +50994,20 @@
             "light-narrow"
           ]
         },
+        "test/cancelled-latency": {
+          "3d96a0ed8cce": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "560a739fec19": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "dff0f48b3e85": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
         "test/cancelled-slow": {
           "b393cb77a0c6": [
             "dark-narrow",
@@ -50662,10 +51057,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-partial-details-buttons' upstream note: three actions wrap the narrow bar.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -50973,10 +51368,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's .pchart-k .sw.hatch swatch (charts.css:41) sits inline before its words; the absolute position belongs to the plot overlay only.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -52039,7 +52434,8 @@
             "light-desktop"
           ],
           "fc361fecd8a3": [
-            "dark-narrow"
+            "dark-narrow",
+            "light-narrow"
           ]
         },
         "result/history-unavailable": {
@@ -53789,6 +54185,7 @@
             "light-narrow"
           ],
           "ab7f33a84cfd": [
+            "dark-desktop",
             "light-desktop"
           ],
           "ad9a73588bb1": [
@@ -54481,15 +54878,15 @@
         {
           "target": "spec",
           "what": "docs/features/ui/screens.md section 2: Delete removes the result from history at once; the page then shows \"Result deleted\" with a link to History, and the undo toast's Undo puts the result back and shows it again (symlinked page: paste into Claude Design).",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Result detail after Delete shows the deleted state (\"Result deleted\", a link to History) under the undo toast instead of the result.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -54792,10 +55189,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Result detail upload tile drops \"· 6.1 of 6.5 s known\", which screens.md section 6 does not list among the qualifiers.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -56060,10 +56457,10 @@
         {
           "target": "upstream",
           "what": "Covered by the upstream notes of the confidence, probe-precision, not-saved and Delete clusters.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -58674,10 +59071,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-settings-label-setting's upstream note: the page's height follows the row.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -58738,10 +59135,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Settings has the Result label row in Display and behavior (an optional label, at most 64 characters, that pre-fills every result's label), as screens.md section 4 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -58808,10 +59205,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Select (forms/Select.jsx) stands for the shadcn-vue Select, a combobox button whose listbox opens on demand, rather than a native select.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -58868,10 +59265,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Phases lets idle latency be turned off too, the last phase on disabled, with \"Idle latency runs first. Turn off a phase to test the others; at least one stays on.\", as screens.md section 4 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -58933,10 +59330,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Shareable link caption is its first sentence, and a \"Not in the link: …\" line names the changed settings without parameters only when there are some, as url-params.md section 3 sets.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -59017,10 +59414,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-settings-share-sentence's upstream note.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -59068,10 +59465,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's fixed stream count is a spinbutton between its Fewer and More steppers (the shadcn-vue NumberField).",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -59128,10 +59525,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Settings card title reads \"Display and behavior\" (US English).",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -59828,10 +60225,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's strip after a failed download names the plateau the download reached before the failure (\"6 auto · plateau: cap\").",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -59917,10 +60314,10 @@
         {
           "target": "upstream",
           "what": "Covered by v02-test-edit-without-settings' upstream note.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -59971,15 +60368,15 @@
         {
           "target": "spec",
           "what": "docs/features/ui/screens.md section 1 (Settings summary): the summary and its Edit link appear once GET /info has answered; offline and on an error before it, the row is absent (symlinked page: paste into Claude Design).",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's Test screen hides the settings summary and its Edit link until the server's settings are known (offline, error-early).",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
