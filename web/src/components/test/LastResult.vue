@@ -60,6 +60,7 @@ const label = computed(() => (props.result.label === '' ? '' : `${SEPARATOR}${pr
       :size="13"
       aria-hidden="true"
     />
-    <span>{{ t('test.lastResult.when', { when }) }}{{ SEPARATOR }}<span class="font-mono text-muted-foreground">{{ values }}</span>{{ label }} <span class="ml-1.5 font-semibold text-primary-text">{{ t('test.lastResult.view') }}</span></span>
+    <!-- Each part is its own flex item, spaced by the gap and wrapping as a whole, as the kit's are. -->
+    {{ t('test.lastResult.when', { when }) }}{{ SEPARATOR }}<span class="font-mono text-muted-foreground">{{ values }}</span>{{ label }} <span class="font-semibold text-primary-text">{{ t('test.lastResult.view') }}</span>
   </RouterLink>
 </template>
