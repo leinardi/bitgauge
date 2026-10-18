@@ -92,12 +92,14 @@ const facts = computed(() => {
     </div>
     <aside class="flex min-w-0 flex-col gap-4">
       <section class="overflow-hidden rounded-(--radius-lg) border border-border bg-card shadow-card">
-        <div class="flex flex-col gap-0.5 border-b border-border px-4 pt-4.5 pb-3.5">
-          <span class="inline-flex items-center gap-3 text-(length:--text-xl) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) text-foreground">
-            <BrandLogo :size="40" />
-            <span>{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
-          </span>
-          <span class="pl-13 text-(length:--text-caption) leading-(--lh-snug) text-subtle-foreground">{{ t('about.tagline') }}</span>
+        <div class="flex items-center gap-3 border-b border-(--border-subtle) px-4 pt-4.5 pb-3.5">
+          <BrandLogo :size="40" />
+          <div class="flex min-w-0 flex-col gap-0.5">
+            <span class="inline-flex text-(length:--text-xl) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) text-foreground">
+              <span>{{ t('app.brand.bit') }}<span class="text-primary-text">{{ t('app.brand.gauge') }}</span></span>
+            </span>
+            <span class="text-(length:--text-caption) leading-(--lh-snug) text-subtle-foreground">{{ t('about.tagline') }}</span>
+          </div>
         </div>
         <div class="px-4 pt-1 pb-2">
           <dl class="m-0 grid grid-cols-1">
