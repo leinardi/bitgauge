@@ -47,7 +47,7 @@ function values(value: Query[string]): string[] {
 }
 
 /** A local date `YYYY-MM-DD` as its midnight, or null when it is not one. */
-function localDay(text: string): Date | null {
+export function localDay(text: string): Date | null {
   const match = LOCAL_DATE.exec(text)
   if (match === null) {
     return null

@@ -61,3 +61,17 @@ no triage cluster: parity compares the light and dark kit pages, whose rows are 
   darker in the dark theme. The Vue app keeps the export's tokens until an export carries the fix
   (design-system-guard, accessibility). Meanwhile the Compare dialog's axe check covers the dialog,
   which is the only thing a screen reader can reach while it is open.
+
+### Trend axes in the populated History variant
+
+From the port of the trend chart axes of 2026-10-18 (no triage cluster: the axes are drawn on a
+canvas in the Vue app, so the harness compares only their positions).
+
+- **Kit:** `ui_kits/app/History.jsx`, `mkTrend()`: the `[d0, d1]` window and the `xTicks` of
+  every variant but `single`.
+- **The export shows:** under "Last 30 days", the time axis spans 16 Sep to 9 Oct, only the days
+  the results cover, with ticks on 17 Sep, 24 Sep, 1 Oct and 8 Oct and no "Today".
+- **It should show:** the date filter's window, as
+  [components/charts.md § Trend chart axes](../design_system/components/charts.md#trend-chart-axes)
+  says: the 30 days back from today, three to five ticks, the last one reading "Today". The
+  `single` variant already does.

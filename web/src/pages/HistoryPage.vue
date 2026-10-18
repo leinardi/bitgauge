@@ -273,6 +273,8 @@ watch(comparedPair, (chosen) => {
           :results="list.filtered.value"
           :units="units"
           :contexts="list.filter.value.contexts"
+          :range="list.filter.value.range"
+          :now="list.now.value"
         />
         <ResultsTable
           class="hidden tablet:block"

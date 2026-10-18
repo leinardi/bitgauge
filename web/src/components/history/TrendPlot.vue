@@ -25,12 +25,15 @@ import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useUplot } from '@/components/chart/useUplot'
+import { decadeLabel, latencyTop, rateDecades, type TimeTick, type TimeWindow } from '@/components/history/trendAxes'
 import { useTheme } from '@/composables/useTheme'
 
 // One small multiple of the History trend (ui/screens.md section 3; kit History.jsx): a metric over
 // the results' start times on uPlot, a line through the results that have the number and a marker
 // on each, filled for a complete result and hollow for a partial or error one. Rates use a log
-// scale, latency a linear one from 0. The colors are the theme's tokens, read again when it changes.
+// scale of whole decades, latency a linear one from 0, the time axis the window and ticks the
+// trend gives (trendAxes.ts); a single result's marker carries its value. The colors are the
+// theme's tokens, read again when it changes.
 
 export interface TrendPoint {
   /** The result's start, in seconds. */
@@ -39,14 +42,27 @@ export interface TrendPoint {
   complete: boolean
 }
 
-const props = defineProps<{ points: TrendPoint[]; color: string; log: boolean; label: string; format: (value: number) => string }>()
+const props = withDefaults(
+  defineProps<{
+    points: TrendPoint[]
+    frame: TimeWindow
+    ticks: readonly TimeTick[]
+    color: string
+    log: boolean
+    label: string
+    format: (value: number) => string
+    /** What a rate is divided by in the units shown, 8 for bytes, so the decades are the units'. */
+    divisor?: number
+  }>(),
+  { divisor: 1 },
+)
 
 // The kit's plot size: 130 px high, 120 px on a narrow screen (History.jsx th), and at most 340 px
 // wide (tw), the host's max-w-85.
 const narrow = useMediaQuery('(max-width: 767.98px)')
 const height = computed(() => (narrow.value ? 120 : 130))
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const { applied } = useTheme()
 const host = useTemplateRef<HTMLDivElement>('host')
 const palette = shallowRef({ line: 'currentColor', grid: 'currentColor', axis: 'currentColor', surface: 'transparent', font: '10px monospace' })
@@ -64,20 +80,62 @@ function readPalette(): void {
 }
 
 const day = computed(() => new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'short' }))
+const month = computed(() => new Intl.DateTimeFormat(locale.value, { month: 'short', year: 'numeric' }))
+
+const values = computed(() => props.points.flatMap((point) => (point.value === null ? [] : [point.value])))
+// The value axis: the decades around the rates in the units shown, or 0 to the latency's top
+// with its middle.
+const yTicks = computed(() => {
+  if (props.log) {
+    const [lo, hi] = rateDecades(values.value.map((value) => value / props.divisor))
+    return Array.from({ length: hi - lo + 1 }, (_, index) => 10 ** (lo + index) * props.divisor)
+  }
+  const top = latencyTop(values.value)
+  return [0, top / 2, top]
+})
+
+const whole = computed(() => new Intl.NumberFormat(locale.value, { maximumFractionDigits: 0 }))
+
+// The kit's value labels: 10M, 100M, 1G on a rate axis; 0, 40, 80 ms on the latency one.
+function valueText(value: number): string {
+  if (props.log) {
+    return decadeLabel(value / props.divisor)
+  }
+  return value === yTicks.value.at(-1) ? props.format(value) : whole.value.format(value)
+}
+
+function tickText(at: number): string {
+  const tick = props.ticks.find((candidate) => candidate.at === at)
+  return tick?.today === true ? t('history.trend.today') : (tick?.year === true ? month : day).value.format(at * 1000)
+}
+
+// The single result's value, left of its marker, where the plot drew it.
+const single = shallowRef<{ left: string; top: string; text: string } | null>(null)
+function placeSingle(chart: uPlot): void {
+  const drawn = props.points.flatMap((point) => (point.value === null ? [] : [{ at: point.at, value: point.value }]))
+  const [only] = drawn
+  single.value =
+    drawn.length === 1 && only !== undefined
+      ? { left: `${chart.over.offsetLeft + chart.valToPos(only.at, 'x')}px`, top: `${chart.over.offsetTop + chart.valToPos(only.value, 'y')}px`, text: props.format(only.value) }
+      : null
+}
 
 function options(size: { width: number; height: number }): uPlot.Options {
   readPalette()
   const axis = { stroke: () => palette.value.axis, font: palette.value.font, ticks: { show: false } }
+  const first = (): number => yTicks.value[0] ?? 0
+  const last = (): number => yTicks.value.at(-1) ?? 1
   return {
     width: size.width,
     height: size.height,
     cursor: { show: false },
     legend: { show: false },
-    scales: { x: { time: true }, y: props.log ? { distr: 3 } : { range: (_plot, _min, max) => [0, max > 0 ? max * 1.1 : 1] } },
+    scales: { x: { time: true, range: () => [props.frame.from, props.frame.to] }, y: props.log ? { distr: 3, range: () => [first(), last()] } : { range: () => [first(), last()] } },
     axes: [
-      { ...axis, grid: { show: false }, size: 20, values: (_plot, splits) => splits.map((at) => day.value.format(at * 1000)) },
-      { ...axis, grid: { stroke: () => palette.value.grid, width: 1 }, size: 44, values: (_plot, splits) => splits.map((value) => props.format(value)) },
+      { ...axis, grid: { show: false }, size: 20, splits: () => props.ticks.map((tick) => tick.at), values: (_plot, splits) => splits.map(tickText) },
+      { ...axis, grid: { stroke: () => palette.value.grid, width: 1 }, size: 44, splits: () => [...yTicks.value], filter: (_plot, splits) => splits, values: (_plot, splits) => splits.map(valueText) },
     ],
+    hooks: { draw: [placeSingle] },
     series: [
       {},
       { stroke: () => palette.value.line, width: 1.5, points: { show: false } },
@@ -98,6 +156,9 @@ function data(): uPlot.AlignedData {
 
 const { plot } = useUplot(host, options, data, () => height.value)
 
+// The axes follow the filter's window too, which the data alone does not carry.
+watch([() => props.frame, () => props.ticks], () => plot.value?.setData(data()))
+
 watch(applied, () => {
   readPalette()
   plot.value?.redraw(false, true)
@@ -105,10 +166,17 @@ watch(applied, () => {
 </script>
 
 <template>
-  <div
-    ref="host"
-    role="img"
-    :aria-label="label"
-    class="max-w-85 min-w-0"
-  />
+  <div class="relative max-w-85 min-w-0">
+    <div
+      ref="host"
+      role="img"
+      :aria-label="label"
+    />
+    <span
+      v-if="single !== null"
+      aria-hidden="true"
+      class="pointer-events-none absolute -translate-x-full -translate-y-1/2 pr-2 font-mono text-(length:--text-caption) whitespace-nowrap text-foreground"
+      :style="{ left: single.left, top: single.top }"
+    >{{ single.text }}</span>
+  </div>
 </template>

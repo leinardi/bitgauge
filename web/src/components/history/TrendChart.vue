@@ -23,18 +23,21 @@ import { computed, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { resultDay } from '@/components/history/rows'
+import { timeTicks, timeWindow } from '@/components/history/trendAxes'
 import TrendPlot, { type TrendPoint } from '@/components/history/TrendPlot.vue'
 import SegmentedControl from '@/components/settings/SegmentedControl.vue'
 import type { Result } from '@/engine/messages'
+import type { DateRange } from '@/history/filters'
 import { formatLatency, formatRate } from '@/lib/format'
 
 // The trend over the filtered results (ui/screens.md section 3; kit History.jsx): small multiples
 // of download and upload on a log scale and idle latency on a linear one, oldest to newest, a result
 // whose status is not complete drawn as a hollow marker, with the legend; the context labels the
-// filter selects, as chips beside the title, and the days the results span. On narrow screens one
-// metric shows at a time, with a selector.
+// filter selects, as chips beside the title, and the days the results span. The time axis is the
+// date filter's window, ending today (trendAxes.ts); a single result says when trends appear. On
+// narrow screens one metric shows at a time, with a selector.
 
-const props = defineProps<{ results: readonly Result[]; units: 'bits' | 'bytes'; contexts: readonly string[] }>()
+const props = defineProps<{ results: readonly Result[]; units: 'bits' | 'bytes'; contexts: readonly string[]; range: DateRange; now: Date }>()
 
 const contextIcon = (context: string) => (context === 'LAN' ? House : context === 'VPN' ? Shield : Tag)
 
@@ -49,6 +52,9 @@ const oldestFirst = computed(() => [...props.results].sort((a, b) => Date.parse(
 function points(value: (result: Result) => number | undefined): TrendPoint[] {
   return oldestFirst.value.map((result) => ({ at: Date.parse(result.startedAt) / 1000, value: value(result) ?? null, complete: result.status === 'complete' }))
 }
+
+const frame = computed(() => timeWindow(props.range, oldestFirst.value[0]?.startedAt, props.now))
+const ticks = computed(() => timeTicks(frame.value, props.now))
 
 const rate = (value: number) => formatRate(value, props.units, locale.value, true)
 const latency = (value: number) => formatLatency(value, locale.value)
@@ -65,10 +71,18 @@ const plots = computed(() => {
   })
 })
 
+const sameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+
 const meta = computed(() => {
   const first = oldestFirst.value[0]
   const last = oldestFirst.value.at(-1)
-  return first === undefined || last === undefined ? '' : t('history.trend.meta', { n: props.results.length, from: resultDay(first.startedAt, locale.value), to: resultDay(last.startedAt, locale.value) })
+  if (first === undefined || last === undefined) {
+    return ''
+  }
+  if (first === last) {
+    return t('history.trend.metaOne', { day: sameDay(new Date(first.startedAt), props.now) ? t('history.trend.todayLower') : resultDay(first.startedAt, locale.value) })
+  }
+  return t('history.trend.meta', { n: props.results.length, from: resultDay(first.startedAt, locale.value), to: resultDay(last.startedAt, locale.value) })
 })
 
 const metrics = computed(() => [
@@ -146,12 +160,19 @@ const metrics = computed(() => [
         </span>
         <TrendPlot
           :points="plot.points"
+          :frame="frame"
+          :ticks="ticks"
           :color="plot.color"
           :log="plot.log"
           :label="plot.aria"
           :format="plot.format"
+          :divisor="plot.log && units === 'bytes' ? 8 : 1"
         />
       </div>
     </div>
+    <span
+      v-if="results.length === 1"
+      class="text-(length:--text-caption) text-subtle-foreground"
+    >{{ t('history.trend.single') }}</span>
   </section>
 </template>

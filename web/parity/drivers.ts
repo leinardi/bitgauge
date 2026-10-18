@@ -81,6 +81,7 @@ const KIT_LAST_RESULT_STATES: readonly TestState[] = ['idle', 'param-ignored']
 
 // The kit's instant: when the run of its Result detail starts (ResultDetail.jsx), in local time.
 const KIT_INSTANT = new Date(2026, 9, 8, 14, 2, 11)
+const KIT_SINGLE_INSTANT = new Date(2026, 9, 18, 14, 2, 11)
 
 // The label and note of the kit's Result detail (ResultDetail.jsx).
 const KIT_RESULT = { label: 'Home Wi-Fi', note: 'Office desk, 5 GHz. Router is in the hallway, one wall between.' }
@@ -296,6 +297,9 @@ export const vue: Driver = {
     if (variant === 'safari') {
       await page.addInitScript(() => Object.defineProperty(navigator, 'vendor', { configurable: true, get: () => 'Apple Computer, Inc.' }))
     }
+    // The kit's single variant is a first result taken on its own today, 18 Oct, ten days after the
+    // other variants' instant.
+    if (variant === 'single') await page.context().clock.setFixedTime(KIT_SINGLE_INSTANT)
     await seedHistory(page, VUE_HISTORY_SEEDS[variant] ?? 'populated')
     await goto(page, 'History')
     await reachHistory(page, variant)
@@ -348,17 +352,20 @@ export const vue: Driver = {
   },
 }
 
+type HistorySeed = 'populated' | 'single' | 'empty' | 'unavailable' | 'loading'
+
 // The demo's history each kit variant starts from (src/demo/history.ts): the kit's eight results,
-// none, unavailable, or never opened; a variant not listed starts from the eight and reaches its
-// state through the screen (reachHistory below).
-const VUE_HISTORY_SEEDS: Partial<Record<HistoryVariant, 'populated' | 'empty' | 'unavailable' | 'loading'>> = {
+// its one result of today, none, unavailable, or never opened; a variant not listed starts from
+// the eight and reaches its state through the screen (reachHistory below).
+const VUE_HISTORY_SEEDS: Partial<Record<HistoryVariant, HistorySeed>> = {
+  single: 'single',
   empty: 'empty',
   unavailable: 'unavailable',
   loading: 'loading',
 }
 
 // Replaces the page's history with a demo variant from the next load on.
-async function seedHistory(page: Page, seed: 'populated' | 'empty' | 'unavailable' | 'loading'): Promise<void> {
+async function seedHistory(page: Page, seed: HistorySeed): Promise<void> {
   await openPanel(page)
   await applyAndWait(page, () => page.getByTestId('demo-history').selectOption(seed))
   await closePanel(page)
@@ -387,6 +394,11 @@ async function reachHistory(page: Page, variant: HistoryVariant): Promise<void> 
 }
 
 async function driveHistory(page: Page, variant: HistoryVariant): Promise<void> {
+  // The kit's single variant: its one result under the VPN context chip, over all time.
+  if (variant === 'single') {
+    await filterContext(page)
+    return
+  }
   const select = async (rows: readonly number[]) => {
     const boxes = page.getByRole('checkbox', { name: /^Select / }).filter({ visible: true })
     for (const row of rows) await boxes.nth(row).click()
@@ -446,10 +458,14 @@ async function driveHistory(page: Page, variant: HistoryVariant): Promise<void> 
   }
 }
 
-// The kit's filter: the VPN context chip, then a preset date range.
-async function filterHistory(page: Page, range: 'Last 30 days' | 'Last 7 days'): Promise<void> {
+async function filterContext(page: Page): Promise<void> {
   await page.getByRole('group', { name: 'Filter by context label', exact: true }).filter({ visible: true }).getByRole('button', { name: /^VPN \d/ }).click()
   await page.waitForURL(/contexts=VPN/)
+}
+
+// The kit's filter: the VPN context chip, then a preset date range.
+async function filterHistory(page: Page, range: 'Last 30 days' | 'Last 7 days'): Promise<void> {
+  await filterContext(page)
   await page.getByTestId('date-range').filter({ visible: true }).click()
   await page.getByRole('radio', { name: new RegExp(`^${range}`) }).click()
   await page.waitForURL(range === 'Last 7 days' ? /range=7d/ : /range=30d/)

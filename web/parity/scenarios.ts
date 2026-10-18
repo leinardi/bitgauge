@@ -67,6 +67,7 @@ export type Screen = 'Test' | 'History' | 'Settings' | 'About'
 /** The kit's History variants (App.jsx HISTORY_VARIANTS), which coverage.test.ts holds this list to. */
 export const HISTORY_VARIANTS = [
   'populated',
+  'single',
   'select3',
   'deleted',
   'compare',

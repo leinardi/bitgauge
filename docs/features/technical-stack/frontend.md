@@ -340,9 +340,10 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   need: `populated` replaces the browser's history with the kit's eight results over a VPN (the
   rows of `History.jsx`, each a valid result, with a stored steady window and loaded-latency
   samples per measured direction for the Result detail, graded as the engine grades them),
-  `empty` with none, `unavailable` opens no database, so history is unavailable for the page
-  load, and `loading` never finishes opening it, so the screen stays loading; "stored" leaves the
-  browser's history as it is. The page writes the results itself (`composables/useHistory.ts`);
+  `single` with one of them taken today, a fresh install's first result, `empty` with none,
+  `unavailable` opens no database, so history is unavailable for the page load, and `loading`
+  never finishes opening it, so the screen stays loading; "stored" leaves the browser's history
+  as it is. The page writes the results itself (`composables/useHistory.ts`);
   the demo module only holds them.
 - **Boundaries.** The demo's Worker-side files, `src/demo/**/*.ts`, follow the engine's import
   policy extended by `@/demo/`: framework-free, no DOM library, no application code; like

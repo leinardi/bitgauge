@@ -42,6 +42,17 @@ describe('the demo history', () => {
     expect(demoHistoryResults('empty')).toEqual([])
   })
 
+  it("holds one result in the single variant, today's office run", () => {
+    const now = new Date(2026, 9, 18, 14, 2)
+    const [only, ...rest] = demoHistoryResults('single', now)
+    expect(rest).toEqual([])
+    expect(only === undefined ? ['missing'] : validateResult(only)).toEqual([])
+    expect(only?.label).toBe('VPN · office')
+    expect(only?.download?.bitsPerSecond).toBe(241e6)
+    expect(only?.startedAt).toBe(new Date(2026, 9, 18, 9, 14).toISOString())
+    expect(demoHistoryResults('single', new Date(2026, 9, 18, 7, 0))[0]?.startedAt).toBe(new Date(2026, 9, 18, 7, 0).toISOString())
+  })
+
   it('grades each result as the engine grades its stored loaded latency, on a stored steady window', () => {
     for (const result of demoHistoryResults('populated')) {
       expect(result.bufferbloat).toEqual(bufferbloat(result.download?.loadedLatency, result.upload?.loadedLatency, true))

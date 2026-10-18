@@ -20,17 +20,18 @@
 import type { Bufferbloat, DirectionResult, LoadedLatency, Notice, Result, ResultStatus, UploadResult } from '@/engine/messages'
 
 // The demo's history (frontend.md section 9): the design export's History variants (ui_kits/app/
-// History.jsx) the demo panel can put in the page's history, so the demo shows the populated, empty,
-// unavailable and loading History screens. The populated one holds the kit's eight results over a VPN, newest
+// History.jsx) the demo panel can put in the page's history, so the demo shows the populated, single,
+// empty, unavailable and loading History screens. The populated one holds the kit's eight results over a VPN, newest
 // first: label, rates, idle latency and jitter, grade, protocol and status as the kit's rows give
 // them, with a steady window of stored cells and loaded-latency samples per measured direction for
 // the Result detail, whose increases make the row's grade. The page writes them into its history
-// (composables/useHistory.ts), which this module never touches.
+// (composables/useHistory.ts), which this module never touches. The single one is a fresh install's
+// first result, the kit's 2 Oct office row taken today at 09:14.
 
 /** The panel's History variant: '' leaves the browser's history as it is. */
-export type DemoHistory = '' | 'populated' | 'empty' | 'unavailable' | 'loading'
+export type DemoHistory = '' | 'populated' | 'single' | 'empty' | 'unavailable' | 'loading'
 
-export const DEMO_HISTORY_VARIANTS: readonly DemoHistory[] = ['', 'populated', 'empty', 'unavailable', 'loading']
+export const DEMO_HISTORY_VARIANTS: readonly DemoHistory[] = ['', 'populated', 'single', 'empty', 'unavailable', 'loading']
 
 export function isDemoHistory(value: unknown): value is DemoHistory {
   return DEMO_HISTORY_VARIANTS.includes(value as DemoHistory)
@@ -145,7 +146,20 @@ function result(row: KitRow, index: number): Result {
   }
 }
 
-/** The results a variant puts in the history: the kit's eight, or none. */
-export function demoHistoryResults(variant: 'populated' | 'empty'): Result[] {
+/** The kit's row the single variant holds (History.jsx R[3]), and when today it was taken. */
+const SINGLE_ROW = 3
+const SINGLE_AT = [9, 14] as const
+
+/** The results a variant puts in the history: the kit's eight, the single one at `now`'s day, or none. */
+export function demoHistoryResults(variant: 'populated' | 'single' | 'empty', now = new Date()): Result[] {
+  if (variant === 'single') {
+    const row = ROWS[SINGLE_ROW]
+    if (row === undefined) {
+      return []
+    }
+    // Today at 09:14, or now when the day is younger than that.
+    const at = new Date(Math.min(now.getTime(), new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...SINGLE_AT).getTime()))
+    return [{ ...result(row, SINGLE_ROW), startedAt: at.toISOString() }]
+  }
   return variant === 'populated' ? ROWS.map(result) : []
 }

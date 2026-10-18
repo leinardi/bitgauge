@@ -178,7 +178,7 @@ describe('the demo panel', () => {
     expect(options(wrapper.get('[data-testid="demo-force-state"]').element)).toEqual(['', ...NAMES])
     expect(options(wrapper.get('[data-testid="demo-error-kind"]').element)).toEqual(['requests', 'unreachable', 'restarted', 'network'])
     expect(options(wrapper.get('[data-testid="demo-timer"]').element)).toEqual(['0.1', '1'])
-    expect(options(wrapper.get('[data-testid="demo-history"]').element)).toEqual(['', 'populated', 'empty', 'unavailable', 'loading'])
+    expect(options(wrapper.get('[data-testid="demo-history"]').element)).toEqual(['', 'populated', 'single', 'empty', 'unavailable', 'loading'])
   })
 
   it('keeps a choice and loads the page again with its scenario parameters', async () => {

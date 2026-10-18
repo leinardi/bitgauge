@@ -116,6 +116,10 @@
     "trend": {
       "title": "Trend",
       "meta": "{n} results · {from} – {to}",
+      "metaOne": "1 result · {day}",
+      "today": "Today",
+      "todayLower": "today",
+      "single": "Trends appear from the second result.",
       "legend": "Legend",
       "complete": "Complete",
       "incomplete": "Partial or error",

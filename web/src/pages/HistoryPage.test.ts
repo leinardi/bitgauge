@@ -106,6 +106,14 @@ describe('the states', () => {
     page.unmount()
   })
 
+  it('says when trends appear while it holds a single result of today', async () => {
+    const page = await open('/history', demoHistoryResults('single'))
+    const trend = page.get('[data-testid="history-trend"]')
+    expect(trend.text()).toContain('1 result · today')
+    expect(trend.text()).toContain('Trends appear from the second result.')
+    page.unmount()
+  })
+
   it('explains the Why? of the per-origin notice on demand', async () => {
     const page = await open()
     const why = page.get('[data-testid="origin-notice"] button')
