@@ -650,11 +650,13 @@ class TestScreen extends React.Component {
       eyebrow: R.eyebrow, eyebrowIcon: R.icon, readout: R.num, unit: S.countdown ? ['second', 'seconds'] : R.unit, note: R.numeric ? R.sub : undefined, sub: R.oh || undefined,
       title: R.title, message: R.textual ? R.sub : undefined, detail: R.faint || undefined, icon: R.textual ? R.icon : undefined, countdownLeft: 3 * (1 - pv(0.2)) };
     // Chart props (charts.md): the accessible label is a summary of the data, never the static title.
+    const latOn = !this.state.latOff;
     const cc = S.chart, bandsOn = (cc.bands || []).some(b => b.t1 > b.t0);
     const chart = { title: cc.title, meta: cc.meta, empty: cc.empty || undefined, markColor: cc.markColor || 'var(--fg-muted)', endDot: !cc.noEnd, units: unit, compact: m,
-      legend: (cc.legend || []).map(l => ({ label: l.t, color: l.c, dashed: l.dash === 'dashed', faint: (l.o || 1) < 1 })),
-      data: { xMax: cc.xMax, yMax: cc.yMax, ms: cc.ms, series: cc.series.map(s => ({ pts: s.pts, color: s.c, faint: s.so < 1 })), lat: cc.lat, now: cc.now, seps: cc.seps, wins: cc.wins, marks: cc.marks, bands: cc.bands, xStep: cc.xStep, xLabel: cc.xLabel },
-      summary: cc.title + (cc.empty ? ': no data yet' : ': ' + [R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : R.title, cc.meta].filter(Boolean).join(', ')) + (bandsOn ? '; warm-up shaded' : '') + (cc.lat && cc.lat.length ? '; latency under load on a second scale' : '') + ((cc.marks || []).length ? '; marked: ' + cc.marks.map(x => x.label).join(', ') : '') };
+      // "Latency under load" is the loaded-latency series' toggle: pressed while it (and its right-hand axis) is drawn.
+      legend: (cc.legend || []).map(l => Object.assign({ label: l.t, color: l.c, dashed: l.dash === 'dashed', faint: (l.o || 1) < 1 }, l === LG.l ? { pressed: latOn, onToggle: () => this.setState({ latOff: latOn }) } : {})),
+      data: { xMax: cc.xMax, yMax: cc.yMax, ms: cc.ms, series: cc.series.map(s => ({ pts: s.pts, color: s.c, faint: s.so < 1 })), lat: latOn ? cc.lat : null, now: cc.now, seps: cc.seps, wins: cc.wins, marks: cc.marks, bands: cc.bands, xStep: cc.xStep, xLabel: cc.xLabel },
+      summary: cc.title + (cc.empty ? ': no data yet' : ': ' + [R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : R.title, cc.meta].filter(Boolean).join(', ')) + (bandsOn ? '; warm-up shaded' : '') + (latOn && cc.lat && cc.lat.length ? '; latency under load on a second scale' : '') + ((cc.marks || []).length ? '; marked: ' + cc.marks.map(x => x.label).join(', ') : '') };
     // MetricTile props (tiles.md).
     const tile = x => ({ label: x.label, icon: x.icon, accent: x.ic, value: x.num === '—' ? undefined : x.num, unit: x.unit, note: x.sub, notes: x.notes, state: x.state || (x.num === '—' || x.num == null ? 'empty' : 'done'), tag: x.state === 'partial' ? x.tag : undefined, compact: m, style: x.span && x.span !== 'auto' ? { gridColumn: x.span } : undefined });
     const DIRK = { 'arrow-down': 'download', 'arrow-up': 'upload' };

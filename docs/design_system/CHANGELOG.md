@@ -13,6 +13,9 @@ Shared components and `ui_kits/app`; `features/` was not edited.
 - **Test screen load rows:** the source is named only once the direction has its result; Pending, Not run and live
   rows read "During download" / "During upload". A partial download row (cancelled-slow, cancelled-download) gives its
   p90 before the increase.
+- **Test screen latency toggle:** the throughput chart's "Latency under load" legend item is a button with
+  aria-pressed (pressed while drawn) that hides and shows the loaded-latency series and its right-hand axis; it stays
+  listed in every state, before the first loaded ping too. Chart legend items accept `pressed` + `onToggle`.
 - **Test screen follow-ups:** `ended` follows the button's role, so error-early's Retry copy also reads "Bufferbloat
   not graded". While the run is in progress (upload, slow, insufficient) no load row names a source; the download row
   reads "During download" with its p90 and increase, and the source appears with the result.

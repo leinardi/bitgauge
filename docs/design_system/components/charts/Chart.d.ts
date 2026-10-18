@@ -28,7 +28,9 @@ export interface ChartData {
   xStep?: number;
   xLabel?: (t: number) => string;
 }
-export interface ChartLegendItem { label: string; color: string; dashed?: boolean; faint?: boolean; }
+/** With `onToggle` the item is a toggle button (aria-pressed = `pressed`) that shows/hides its series; the caller
+ *  owns the state and drops the series (e.g. `data.lat`, which also removes the right-hand axis) while unpressed. */
+export interface ChartLegendItem { label: string; color: string; dashed?: boolean; faint?: boolean; pressed?: boolean; onToggle?: () => void; }
 export interface ChartProps {
   title: string;
   /** Mono meta on the right, e.g. "7.5 s / 10 s". */

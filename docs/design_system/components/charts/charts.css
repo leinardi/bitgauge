@@ -3,7 +3,10 @@
 .chart-h { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
 .chart-h .t { font-size: var(--text-base); font-weight: var(--weight-semibold); }
 .chart-h .lg { display: flex; flex-wrap: wrap; gap: var(--space-1-5) var(--space-3-5); }
-.chart-h .lg > span { display: flex; align-items: center; gap: var(--space-1-5); font-size: var(--text-caption); color: var(--fg-muted); }
+.chart-h .lg > span, .chart-h .lg > .tg { display: flex; align-items: center; gap: var(--space-1-5); font-size: var(--text-caption); color: var(--fg-muted); }
+.chart-h .lg > .tg { font: inherit; font-size: var(--text-caption); background: none; border: 0; padding: 0; margin: 0; cursor: pointer; }
+.chart-h .lg > .tg:hover { color: var(--fg); }
+.chart-h .lg > .tg[aria-pressed="false"] { text-decoration: line-through; }
 .chart-h .sw { width: var(--legend-swatch-w); height: 0; }
 .chart-h .sw.band { width: var(--legend-band-w); height: var(--legend-swatch-h); background: var(--chart-band); border-left: var(--border-width) solid var(--chart-hatch); border-right: var(--border-width) solid var(--chart-hatch); }
 .chart-h .meta { margin-left: auto; font-family: var(--font-mono); font-size: var(--text-caption); color: var(--fg-subtle); }

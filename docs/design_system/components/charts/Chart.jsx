@@ -83,7 +83,12 @@ export function Chart({ title, meta, legend = [], summary, empty, data, height =
   return <div className="chart">
     <div className="chart-h">
       <span className="t">{title}</span>
-      <div className="lg">{legend.map((l, i) => <span key={i}><span className="sw" style={{ borderTop: '2px ' + (l.dashed ? 'dashed' : 'solid') + ' ' + l.color, opacity: l.faint ? 0.4 : 1 }}></span>{l.label}</span>)}
+      <div className="lg">{legend.map((l, i) => {
+        const sw = <span className="sw" style={{ borderTop: '2px ' + (l.dashed ? 'dashed' : 'solid') + ' ' + l.color, opacity: l.faint || (l.onToggle && !l.pressed) ? 0.4 : 1 }}></span>;
+        return l.onToggle
+          ? <button key={i} type="button" className="tg" aria-pressed={l.pressed ? 'true' : 'false'} onClick={l.onToggle}>{sw}{l.label}</button>
+          : <span key={i}>{sw}{l.label}</span>;
+      })}
         {g.bands.length ? <span><span className="sw band"></span>Warm-up</span> : null}</div>
       {meta ? <span className="meta">{meta}</span> : null}
     </div>
