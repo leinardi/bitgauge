@@ -20,7 +20,9 @@ from the design export; this page fixes content and behavior only. Terms follow 
   count is automatic), with the plateau reason afterwards.
 - **Settings summary:** the settings that differ from the server defaults, one chip each (for
   example "Extended", "4 streams", "Cap 500 MB"), or the preset name when nothing differs, with
-  an Edit link to Settings.
+  an Edit link to Settings. It summarizes against the server's settings, so it shows only while
+  they are known and the server is reachable: before `GET /info` has answered, offline, and after
+  an error whose re-check of `/info` fails, the row, Edit included, is absent.
 - **Start / Stop** button (one control that changes role, each with its label: Start "Start
   test", Stop "Stop test", Run again "Run again", Retry "Retry test", Start now "Start now");
   keyboard accessible, including the page-wide Enter shortcut
@@ -83,7 +85,7 @@ from the design export; this page fixes content and behavior only. Terms follow 
 | Done | Result metrics, notices, save bar (v0.2), Details link, Download JSON, Run again. |
 | Cancelled | Partial result with `partial — stopped early` and what was covered ([../measurement.md §7.8](../measurement.md#78-worked-example-b--cancellation-mid-request)); an interrupted direction shows a number only when its confirmed steady window meets the minimum ([../measurement.md §7.6](../measurement.md#76-headline-peak-and-minimum-window)), otherwise "insufficient data". Not saved; Keep in history and Download JSON offered. |
 | Error | What failed and in which phase, completed phases kept, the failed direction with status `error` and no number, Retry. Not saved; Keep in history and Download JSON offered. |
-| Offline / retry | `GET /info` fails, or every idle-latency ping is lost ([../measurement.md §10](../measurement.md#10-idle-latency)): "Server unreachable" with Retry and the time to the next automatic check ([flows.md §1](flows.md#1-first-run)); Start disabled until `/info` succeeds; the phases and the metrics stay, pending and empty. A WebSocket that cannot be opened is **not** offline: the test runs with the HTTP latency fallback and the notice `WebSocket unavailable — HTTP latency fallback`. |
+| Offline / retry | `GET /info` fails, or every idle-latency ping is lost ([../measurement.md §10](../measurement.md#10-idle-latency)): "Server unreachable" with Retry and the time to the next automatic check ([flows.md §1](flows.md#1-first-run)); Start disabled until `/info` succeeds; the phases and the metrics stay, pending and empty; no settings summary. A WebSocket that cannot be opened is **not** offline: the test runs with the HTTP latency fallback and the notice `WebSocket unavailable — HTTP latency fallback`. |
 | Auto-start countdown | When `run` is set, or the stored Auto-start is on: a cancellable countdown (3 s, or the Auto-start setting's length) before the test starts ([flows.md §2](flows.md#2-auto-run-from-url)). |
 
 **Before v0.2.** The v0.1 Test screen has no history, Result detail, share, loaded latency, grade,
