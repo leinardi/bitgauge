@@ -30,7 +30,7 @@ import CompareChange from '@/components/history/CompareChange.vue'
 // one result per column, paged horizontally by swipe or by the previous and next buttons, each
 // linking to its detail; B's column carries each change.
 
-const props = defineProps<{ comparison: Comparison; sides: { side: 'A' | 'B'; id: string; label: string; date: string }[] }>()
+const props = defineProps<{ comparison: Comparison; sides: { side: 'A' | 'B'; id: string; label: string; date: string; startedAt: string }[] }>()
 
 const { t } = useI18n()
 const scroller = useTemplateRef<HTMLDivElement>('scroller')
@@ -118,16 +118,25 @@ const EYEBROW = 'pt-3 pb-1 font-(family-name:--font-cond) text-(length:--text-mi
         class="flex flex-[0_0_calc(100%-28px)] snap-start flex-col rounded-(--radius-lg) border border-(--border-subtle) bg-(--surface-2) p-3.5"
         data-testid="compare-card"
       >
-        <div class="flex items-center gap-2.5 pb-2.5">
-          <span class="flex size-6.5 items-center justify-center rounded-(--radius-sm) border border-(--border-default) bg-(--surface-3) font-mono text-(length:--text-caption) font-semibold">{{ side.side }}</span>
-          <span class="flex min-w-0 flex-col">
-            <RouterLink
-              :to="`/result/${encodeURIComponent(side.id)}`"
-              class="truncate text-(length:--text-sm) font-semibold text-foreground no-underline hover:underline"
-            >{{ side.label }}</RouterLink>
-            <span class="font-mono text-(length:--text-micro) text-subtle-foreground">{{ side.date }}</span>
+        <RouterLink
+          :to="`/result/${encodeURIComponent(side.id)}`"
+          class="group flex min-h-11 items-center gap-2.5 pb-2.5 text-foreground no-underline"
+        >
+          <span class="flex size-6.5 flex-none items-center justify-center rounded-(--radius-sm) border border-(--border-default) bg-(--surface-3) font-mono text-(length:--text-caption) font-semibold">{{ side.side }}</span>
+          <span class="flex min-w-0 flex-1 flex-col">
+            <span class="truncate text-(length:--text-sm) font-semibold group-hover:underline">{{ side.label }}</span>
+            <time
+              :datetime="side.startedAt"
+              class="font-mono text-(length:--text-micro) text-subtle-foreground"
+            >{{ side.date }}</time>
           </span>
-        </div>
+          <ChevronRight
+            :size="16"
+            :stroke-width="2"
+            aria-hidden="true"
+            class="flex-none text-subtle-foreground"
+          />
+        </RouterLink>
         <template
           v-for="group in (['parameters', 'metrics'] as const)"
           :key="group"

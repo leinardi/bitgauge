@@ -145,7 +145,7 @@
     },
     "note": {
       "label": "Note",
-      "placeholder": "Add a note",
+      "placeholder": "No note",
       "hint": "Saved automatically in this browser. Never included when you share."
     },
     "parameters": {

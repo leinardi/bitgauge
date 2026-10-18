@@ -77,7 +77,7 @@ const shared = computed<Result>(() => ({ ...props.result, label: label.value }))
 
 const endedAt = computed(() => {
   const end = new Date(new Date(props.result.startedAt).getTime() + props.result.durationMs)
-  return Number.isNaN(end.getTime()) ? '' : new Intl.DateTimeFormat(locale.value, { timeStyle: 'medium' }).format(end)
+  return Number.isNaN(end.getTime()) ? null : { iso: end.toISOString(), text: new Intl.DateTimeFormat(locale.value, { timeStyle: 'medium' }).format(end) }
 })
 const body = computed(() => {
   switch (props.save) {
@@ -111,7 +111,7 @@ const body = computed(() => {
         v-if="endedAt"
         class="font-mono text-(length:--text-caption) font-normal text-subtle-foreground"
         data-testid="result-bar-time"
-      >{{ endedAt }}</span>
+      ><time :datetime="endedAt.iso">{{ endedAt.text }}</time></span>
     </span>
     <span
       v-if="body"

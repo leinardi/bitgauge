@@ -85,24 +85,26 @@ function overhead(value: unknown): void {
     aria-labelledby="settings-advanced"
     class="overflow-hidden rounded-(--radius-lg) border border-(--border-subtle) bg-(--surface-2) shadow-card"
   >
-    <CollapsibleTrigger class="flex min-h-(--control-h-touch) w-full cursor-pointer items-center gap-2.5 px-4 py-3 text-left focus-visible:-outline-offset-(--focus-offset)">
-      <SlidersHorizontal
-        :size="15"
-        class="flex-none text-subtle-foreground"
-        aria-hidden="true"
-      />
-      <span
-        id="settings-advanced"
-        class="text-(length:--text-base) font-semibold"
-      >{{ t('settings.advanced.title') }}</span>
-      <span class="min-w-0 truncate text-(length:--text-caption) text-subtle-foreground">{{ t('settings.advanced.summary') }}</span>
-      <component
-        :is="open ? ChevronUp : ChevronDown"
-        :size="16"
-        class="ml-auto flex-none text-subtle-foreground"
-        aria-hidden="true"
-      />
-    </CollapsibleTrigger>
+    <h2>
+      <CollapsibleTrigger class="flex min-h-(--control-h-touch) w-full cursor-pointer items-center gap-2.5 px-4 py-3 text-left focus-visible:-outline-offset-(--focus-offset)">
+        <SlidersHorizontal
+          :size="15"
+          class="flex-none text-subtle-foreground"
+          aria-hidden="true"
+        />
+        <span
+          id="settings-advanced"
+          class="text-(length:--text-base) font-semibold"
+        >{{ t('settings.advanced.title') }}</span>
+        <span class="min-w-0 truncate text-(length:--text-caption) text-subtle-foreground">{{ t('settings.advanced.summary') }}</span>
+        <component
+          :is="open ? ChevronUp : ChevronDown"
+          :size="16"
+          class="ml-auto flex-none text-subtle-foreground"
+          aria-hidden="true"
+        />
+      </CollapsibleTrigger>
+    </h2>
     <CollapsibleContent class="border-t border-(--border-subtle)">
       <SettingRow
         dense

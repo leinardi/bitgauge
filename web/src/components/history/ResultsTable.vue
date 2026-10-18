@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { ChevronDown, ChevronUp } from '@lucide/vue'
+import { ChevronDown, ChevronUp, House, Shield, Tag } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -82,8 +82,12 @@ function keydown(event: KeyboardEvent, id: string): void {
 
 const HEAD = 'sticky top-0 h-auto bg-(--surface-2) px-3.5 py-2.5 font-(family-name:--font-cond) text-(length:--text-micro) font-semibold tracking-(--tracking-caps-tight) text-subtle-foreground uppercase'
 const CELL = 'px-3.5 py-(--density-cell-padding-y) text-(length:--text-sm)'
-const NUMBER = 'text-right font-mono tabular-nums'
+const NUMBER = 'text-right font-mono tabular-nums whitespace-nowrap'
 const UNIT = 'text-(length:--text-micro) text-subtle-foreground'
+// The kit's context pill (History.jsx, a neutral .pill at the small pill height): its icon and name.
+const CONTEXT =
+  'inline-flex h-(--pill-h-sm) items-center gap-1 rounded-full border border-(--border-default) bg-(--surface-3) pr-2.5 pl-2 font-(family-name:--font-cond) text-(length:--text-micro) leading-none font-semibold tracking-(--tracking-caps-tight) whitespace-nowrap text-muted-foreground uppercase'
+const contextIcon = (context: string) => (context === 'LAN' ? House : context === 'VPN' ? Shield : Tag)
 </script>
 
 <template>
@@ -163,7 +167,21 @@ const UNIT = 'text-(length:--text-micro) text-subtle-foreground'
             </span>
           </TableCell>
           <TableCell :class="[CELL, 'text-muted-foreground']">
-            {{ row.contextLabel || DASH }}
+            <span
+              v-if="row.contextLabel"
+              :class="CONTEXT"
+            >
+              <component
+                :is="contextIcon(row.contextLabel)"
+                :size="11"
+                :stroke-width="2"
+                aria-hidden="true"
+              />
+              {{ row.contextLabel }}
+            </span>
+            <template v-else>
+              {{ DASH }}
+            </template>
           </TableCell>
           <TableCell :class="[CELL, 'font-mono text-(length:--text-caption) whitespace-nowrap text-muted-foreground']">
             {{ row.protocol || DASH }}

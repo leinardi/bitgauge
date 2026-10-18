@@ -115,7 +115,9 @@ function reload(): void {
                 aria-hidden="true"
               />
             </span>
-            <span class="text-(length:--text-base) font-semibold">{{ $t('app.basePath.hintTitle') }}</span>
+            <h2 class="text-(length:--text-base) font-semibold">
+              {{ $t('app.basePath.hintTitle') }}
+            </h2>
           </div>
           <div class="p-4">
             <span class="text-(length:--text-sm) leading-normal text-muted-foreground">{{ $t('app.basePath.hint') }}</span>

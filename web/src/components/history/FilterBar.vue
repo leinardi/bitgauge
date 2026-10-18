@@ -104,14 +104,14 @@ const CHIP =
         </button>
       </div>
     </div>
-    <div class="flex flex-wrap gap-2 tablet:ml-auto">
+    <div class="flex flex-wrap gap-2 max-tablet:w-full tablet:ml-auto">
       <DateRangePicker
         :range="filter.range"
         :results="results"
         :now="now"
         @update:range="range"
       />
-      <div class="relative w-55 max-w-full">
+      <div class="relative w-55 max-w-full min-w-0 max-tablet:w-auto max-tablet:flex-1 max-tablet:basis-40">
         <Search
           :size="14"
           aria-hidden="true"

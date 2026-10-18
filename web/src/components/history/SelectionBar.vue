@@ -22,6 +22,8 @@ import { computed, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import TimeText from '@/components/a11y/TimeText.vue'
+import type { TimedText } from '@/lib/timeText'
 
 // The selection bar (ui/screens.md section 3; kit History.jsx) once rows are selected: the count,
 // what it holds (its days, after the label two results share), Clear selection, Delete selected,
@@ -30,7 +32,7 @@ import AppButton from '@/components/actions/AppButton.vue'
 // described by the hint that says why. At the foot of the table on wider screens; on narrow ones
 // it floats over the cards, with touch-sized buttons and the hint kept out of sight, as the kit's.
 
-const props = defineProps<{ count: number; summary?: string; floating?: boolean }>()
+const props = defineProps<{ count: number; summary?: TimedText; floating?: boolean }>()
 const emit = defineEmits<{ clear: []; remove: []; compare: [] }>()
 
 const { t } = useI18n()
@@ -103,9 +105,9 @@ function compare(): void {
   >
     <span class="text-(length:--text-sm) font-semibold">{{ t('history.selection.count', { n: count }) }}</span>
     <span
-      v-if="summary"
+      v-if="summary !== undefined && summary.length > 0"
       class="text-(length:--text-caption) text-subtle-foreground"
-    >{{ summary }}</span>
+    ><TimeText :runs="summary" /></span>
     <div class="ml-auto flex flex-wrap items-center gap-2">
       <span
         :id="hintId"

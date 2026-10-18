@@ -36,7 +36,7 @@ import { noMatchBody } from '@/components/history/noMatch'
 import OriginNotice from '@/components/history/OriginNotice.vue'
 import ResultCardList from '@/components/history/ResultCardList.vue'
 import ResultsTable from '@/components/history/ResultsTable.vue'
-import { resultDay } from '@/components/history/rows'
+import { DAY } from '@/components/history/rows'
 import SafariNotice from '@/components/history/SafariNotice.vue'
 import SelectionBar from '@/components/history/SelectionBar.vue'
 import TrendChart from '@/components/history/TrendChart.vue'
@@ -47,6 +47,7 @@ import { useSettings } from '@/composables/useSettings'
 import { NO_FILTER } from '@/history/filters'
 import { formatBytes } from '@/lib/format'
 import { isSafari } from '@/lib/safari'
+import { fill, slot, timeList, timeRange, type TimedText } from '@/lib/timeText'
 
 // The History screen (ui/screens.md section 3, ui/flows.md section 6; kit History.jsx): the results
 // stored in this browser, for this origin, with their count and the storage they use; the filters,
@@ -63,19 +64,19 @@ const list = useHistoryList(history)
 const importer = useTemplateRef<InstanceType<typeof ImportDialog>>('importer')
 const origin = window.location.origin
 // What the selection holds (kit History.jsx): two results by their days, after their label when
-// they share one; more by the days they span.
-const selectionSummary = computed(() => {
+// they share one; more by the days they span; each day in a <time>.
+const selectionSummary = computed((): TimedText => {
   const picked = list.sorted.value.filter((result) => list.selected.value.has(result.id)).sort((a, b) => Date.parse(a.startedAt) - Date.parse(b.startedAt))
   const first = picked[0]
   const last = picked.at(-1)
   if (first === undefined || last === undefined || picked.length < 2) {
-    return ''
+    return []
   }
-  const days = { a: resultDay(first.startedAt, locale.value), b: resultDay(last.startedAt, locale.value) }
   if (picked.length > 2) {
-    return t('history.selection.span', days)
+    return timeRange(first.startedAt, last.startedAt, DAY, locale.value)
   }
-  return first.label !== '' && first.label === last.label ? t('history.selection.pair', { ...days, label: first.label }) : t('history.selection.pairDays', days)
+  const days = timeList([first.startedAt, last.startedAt], DAY, locale.value)
+  return first.label !== '' && first.label === last.label ? fill(t('history.selection.pair', { label: first.label, days: slot('days') }), { days }) : days
 })
 const safari = isSafari()
 const safariDismissed = shallowRef(false)

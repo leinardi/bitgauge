@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { Copy, GitCompare, TriangleAlert, X } from '@lucide/vue'
+import { ChevronRight, Copy, GitCompare, TriangleAlert, X } from '@lucide/vue'
 import { DialogClose, DialogContent, DialogOverlay, DialogPortal } from 'reka-ui'
 import { computed, nextTick, shallowRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -48,7 +48,7 @@ const comparison = computed(() => compare(props.results[0], props.results[1], pr
 const sides = computed(() =>
   (['A', 'B'] as const).map((side) => {
     const result = side === 'A' ? comparison.value.a : comparison.value.b
-    return { side, id: result.id, label: result.label === '' ? t('history.table.noLabel') : result.label, date: resultDate(result.startedAt, locale.value) }
+    return { side, id: result.id, label: result.label === '' ? t('history.table.noLabel') : result.label, date: resultDate(result.startedAt, locale.value), startedAt: result.startedAt }
   }),
 )
 const sections = computed(() => [
@@ -145,13 +145,24 @@ const CELL = 'border-b border-(--border-subtle) px-3.5 py-(--density-cell-paddin
                   :key="side.side"
                   :class="[HEAD, 'text-right']"
                 >
-                  <span class="flex flex-col items-end gap-0.5 tracking-normal normal-case">
-                    <RouterLink
-                      :to="`/result/${encodeURIComponent(side.id)}`"
-                      class="font-sans text-(length:--text-sm) font-semibold text-foreground no-underline hover:underline"
-                    >{{ t('history.compare.column', { side: side.side, label: side.label }) }}</RouterLink>
-                    <span class="font-mono font-normal text-subtle-foreground">{{ side.date }}</span>
-                  </span>
+                  <RouterLink
+                    :to="`/result/${encodeURIComponent(side.id)}`"
+                    class="group flex flex-col items-end gap-0.5 tracking-normal normal-case no-underline"
+                  >
+                    <span class="inline-flex items-center gap-1 font-sans text-(length:--text-sm) font-semibold text-foreground group-hover:underline">
+                      {{ t('history.compare.column', { side: side.side, label: side.label }) }}
+                      <ChevronRight
+                        :size="13"
+                        :stroke-width="2"
+                        aria-hidden="true"
+                        class="flex-none text-subtle-foreground"
+                      />
+                    </span>
+                    <time
+                      :datetime="side.startedAt"
+                      class="font-mono font-normal text-subtle-foreground"
+                    >{{ side.date }}</time>
+                  </RouterLink>
                 </th>
                 <th :class="[HEAD, 'w-[24%] text-right']">
                   {{ t('history.compare.change') }}

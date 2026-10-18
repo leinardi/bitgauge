@@ -27,19 +27,23 @@ import { describe, expect, it } from 'vitest'
 import { noMatchBody } from '@/components/history/noMatch'
 import { NO_FILTER } from '@/history/filters'
 import { createAppI18n } from '@/i18n'
+import { plainText } from '@/lib/timeText'
 
 const wording = { t: createAppI18n('', ['en']).global.t as unknown as Parameters<typeof noMatchBody>[2]['t'], locale: 'en' }
 
 describe('noMatchBody', () => {
   it('names the context, the preset range and the search, as the kit words it', () => {
-    expect(noMatchBody({ ...NO_FILTER, contexts: ['VPN'], range: { kind: 'days', days: 7 }, q: 'airport' }, 48, wording)).toBe(
+    expect(plainText(noMatchBody({ ...NO_FILTER, contexts: ['VPN'], range: { kind: 'days', days: 7 }, q: 'airport' }, 48, wording))).toBe(
       'Nothing with context VPN in the last 7 days matches “airport”. All 48 results are still in history.',
     )
   })
 
-  it('joins several chips with or, and words a custom range and no search', () => {
-    expect(noMatchBody({ ...NO_FILTER, labels: ['Office', 'Home'], range: { kind: 'custom', from: '2026-10-02', to: '2026-10-05' } }, 1, wording)).toBe(
-      'Nothing with label Office or Home from Oct 2, 2026 to Oct 5, 2026 matches. The 1 result is still in history.',
-    )
+  it('joins several chips with or, and words a custom range and no search, its days in time elements', () => {
+    const body = noMatchBody({ ...NO_FILTER, labels: ['Office', 'Home'], range: { kind: 'custom', from: '2026-10-02', to: '2026-10-05' } }, 1, wording)
+    expect(plainText(body)).toBe('Nothing with label Office or Home dated Oct 2\u2009–\u20095, 2026 matches. The 1 result is still in history.')
+    expect(body.filter((run) => run.datetime !== undefined)).toEqual([
+      { text: '2', datetime: '2026-10-02' },
+      { text: '5', datetime: '2026-10-05' },
+    ])
   })
 })

@@ -28,20 +28,21 @@ import { useDebouncedSave } from '@/composables/useDebouncedSave'
 // history as it changes, a moment after the last keystroke, and at once when the field loses focus
 // or the page leaves. Its text is the field's own while it is open, so a save landing late never
 // rewrites what is being typed. A result that is not in history shows the field read-only, with
-// the reason and the "Add a note" placeholder, as the kit's does; an editable one has none.
+// the "No note" placeholder and no hint, described by the header's reason, as the kit's does; an
+// editable one has no placeholder.
 
 const props = defineProps<{
   /** The result the note belongs to; a new one starts the field afresh. */
   id: string
   note: string
-  /** Why the note cannot be saved; null when it can. */
-  disabledReason: string | null
+  /** The id of the header's reason the note cannot be saved; null when it can. */
+  reasonId: string | null
 }>()
 const emit = defineEmits<{ save: [id: string, note: string] }>()
 
 const { t } = useI18n()
 const fieldId = useId()
-const reasonId = useId()
+const hintId = useId()
 const text = shallowRef(props.note)
 // Each save names the result it was typed for, which a new result's arrival does not change.
 const { schedule, flush } = useDebouncedSave<{ id: string; note: string }>(({ id, note }) => emit('save', id, note))
@@ -76,18 +77,18 @@ watch(
       :id="fieldId"
       :model-value="text"
       :rows="3"
-      :placeholder="disabledReason === null ? undefined : t('result.note.placeholder')"
-      :readonly="disabledReason !== null"
-      :aria-disabled="disabledReason === null ? undefined : 'true'"
-      :aria-describedby="reasonId"
-      class="min-h-0 field-sizing-fixed resize-y rounded-(--radius-md) border-(--border-default) bg-(--surface-1) px-2.5 py-2 text-(length:--text-sm) leading-(--lh-normal) text-foreground shadow-none aria-disabled:cursor-not-allowed aria-disabled:resize-none aria-disabled:opacity-45 md:text-(length:--text-sm)"
+      :placeholder="reasonId === null ? undefined : t('result.note.placeholder')"
+      :readonly="reasonId !== null"
+      :aria-describedby="reasonId ?? hintId"
+      class="min-h-0 field-sizing-fixed resize-y rounded-(--radius-md) border-(--border-default) bg-(--surface-1) px-2.5 py-2 text-(length:--text-sm) leading-(--lh-normal) text-foreground shadow-none read-only:resize-none read-only:border-(--border-subtle) read-only:bg-(--surface-2) read-only:text-muted-foreground md:text-(length:--text-sm)"
       data-testid="note-field"
       @update:model-value="input"
       @blur="flush"
     />
     <span
-      :id="reasonId"
+      v-if="reasonId === null"
+      :id="hintId"
       class="text-(length:--text-micro) text-subtle-foreground"
-    >{{ disabledReason ?? t('result.note.hint') }}</span>
+    >{{ t('result.note.hint') }}</span>
   </section>
 </template>

@@ -59,11 +59,8 @@ export function resultDate(startedAt: string, locale: string): string {
   return Number.isNaN(date.getTime()) ? startedAt : new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 }
 
-/** The day a result started on, without the year or the time, as the trend's span names it. */
-export function resultDay(startedAt: string, locale: string): string {
-  const date = new Date(startedAt)
-  return Number.isNaN(date.getTime()) ? startedAt : new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(date)
-}
+/** A day without the year or the time ("Sep 26"), as the trend's span and the selection name it. */
+export const DAY: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
 
 export function rowView(result: Result, units: 'bits' | 'bytes', locale: string): RowView {
   const resolution = result.client.timerResolutionMs

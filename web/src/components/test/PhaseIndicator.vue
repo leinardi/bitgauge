@@ -137,7 +137,7 @@ const rows = computed(() =>
       :key="row.key"
       :aria-current="row.active ? 'step' : undefined"
       :data-state="row.step.state"
-      class="flex min-w-0 flex-col gap-1"
+      class="flex min-w-0 flex-col gap-2"
     >
       <div class="flex min-w-0 items-center gap-2 max-desktop:flex-wrap max-desktop:gap-y-0.5">
         <component
@@ -154,7 +154,7 @@ const rows = computed(() =>
         >{{ row.meta }}</span>
       </div>
       <div
-        class="h-(--progress-h) overflow-hidden rounded-(--radius-2xs) bg-(--surface-3)"
+        class="order-first h-(--progress-h) overflow-hidden rounded-(--radius-2xs) bg-(--surface-3)"
         aria-hidden="true"
       >
         <div

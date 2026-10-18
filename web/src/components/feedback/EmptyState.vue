@@ -19,10 +19,14 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 
-// The kit's EmptyState (design_system/components/feedback: EmptyState.jsx, feedback.css
-// `.empty-state`) in its card: the glyph, the title, the explanation and the actions, centered.
+import TimeText from '@/components/a11y/TimeText.vue'
+import type { TimedText } from '@/lib/timeText'
 
-defineProps<{ icon: Component; title: string; body?: string }>()
+// The kit's EmptyState (design_system/components/feedback: EmptyState.jsx, feedback.css
+// `.empty-state`) in its card: the glyph, the title, the explanation, its dates in <time>
+// elements, and the actions, centered.
+
+defineProps<{ icon: Component; title: string; body?: string | TimedText }>()
 </script>
 
 <template>
@@ -39,10 +43,16 @@ defineProps<{ icon: Component; title: string; body?: string }>()
         {{ title }}
       </h2>
       <p
-        v-if="body"
+        v-if="body !== undefined && body.length > 0"
         class="max-w-(--layout-measure-md) text-(length:--text-sm) leading-(--lh-prose) text-subtle-foreground"
       >
-        {{ body }}
+        <template v-if="typeof body === 'string'">
+          {{ body }}
+        </template>
+        <TimeText
+          v-else
+          :runs="body"
+        />
       </p>
       <div
         v-if="$slots.default"

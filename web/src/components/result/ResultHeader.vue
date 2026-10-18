@@ -42,11 +42,12 @@ const props = defineProps<{
   result: Result
   /** Why the result cannot be edited or deleted; null when it is in history. */
   notSaved: string | null
+  /** The id the reason carries, so the page's read-only note can be described by it too. */
+  reasonId: string
 }>()
 const emit = defineEmits<{ rename: [label: string]; runAgain: []; remove: [] }>()
 
 const { t, locale } = useI18n()
-const reasonId = useId()
 const warningId = useId()
 const SEPARATOR = '·'
 const SLASH = '/'
@@ -109,10 +110,11 @@ async function finish(save: boolean): Promise<void> {
       {{ t('result.history') }}
     </RouterLink>
     <span aria-hidden="true">{{ SLASH }}</span>
-    <span
+    <time
+      :datetime="result.startedAt"
       aria-current="page"
       class="font-mono text-(length:--text-caption)"
-    >{{ resultDate(result.startedAt, locale) }}</span>
+    >{{ resultDate(result.startedAt, locale) }}</time>
   </nav>
   <slot />
   <header class="flex flex-wrap items-start gap-x-6 gap-y-4">
@@ -145,7 +147,7 @@ async function finish(save: boolean): Promise<void> {
           class="w-7 justify-center px-0"
           :aria-label="t('result.header.editLabel')"
           :aria-disabled="notSaved === null ? undefined : 'true'"
-          :aria-describedby="notSaved === null ? undefined : reasonId"
+          :aria-describedby="notSaved === null ? undefined : props.reasonId"
           data-testid="edit-label"
           @click="edit"
         >
@@ -174,11 +176,12 @@ async function finish(save: boolean): Promise<void> {
           />
           {{ result.client.contextLabel }}
         </span>
-        <span
+        <time
+          :datetime="result.startedAt"
           class="font-mono text-(length:--text-caption)"
           :title="absolute"
           data-testid="result-when"
-        >{{ when }}</span>
+        >{{ when }}</time>
         <span
           aria-hidden="true"
           class="text-subtle-foreground"
@@ -190,12 +193,14 @@ async function finish(save: boolean): Promise<void> {
         >{{ SEPARATOR }}</span>
         <span>{{ result.server.name }}</span>
       </div>
-      <span
+      <p
         v-if="notSaved !== null"
         :id="reasonId"
-        class="text-(length:--text-caption) text-(--warn-fg)"
+        class="text-(length:--text-sm) leading-(--lh-compact) text-pretty text-muted-foreground"
         data-testid="not-saved-reason"
-      >{{ notSaved }}</span>
+      >
+        {{ notSaved }}
+      </p>
     </div>
     <div class="flex flex-wrap items-center gap-2">
       <DownloadJson
@@ -221,7 +226,7 @@ async function finish(save: boolean): Promise<void> {
         :aria-label="t('result.actions.delete')"
         :title="t('result.actions.delete')"
         :aria-disabled="notSaved === null ? undefined : 'true'"
-        :aria-describedby="notSaved === null ? undefined : reasonId"
+        :aria-describedby="notSaved === null ? undefined : props.reasonId"
         data-testid="delete-result"
         @click="notSaved === null && emit('remove')"
       >

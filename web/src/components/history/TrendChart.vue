@@ -19,16 +19,18 @@
 <script setup lang="ts">
 import { Activity, ArrowDown, ArrowUp, House, Shield, Tag } from '@lucide/vue'
 import { useMediaQuery } from '@vueuse/core'
-import { computed, shallowRef } from 'vue'
+import { computed, shallowRef, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { resultDay } from '@/components/history/rows'
+import TimeText from '@/components/a11y/TimeText.vue'
+import { DAY } from '@/components/history/rows'
 import { timeTicks, timeWindow } from '@/components/history/trendAxes'
 import TrendPlot, { type TrendPoint } from '@/components/history/TrendPlot.vue'
 import SegmentedControl from '@/components/settings/SegmentedControl.vue'
 import type { Result } from '@/engine/messages'
 import type { DateRange } from '@/history/filters'
 import { formatLatency, formatRate } from '@/lib/format'
+import { fill, slot, timeOf, timeRange } from '@/lib/timeText'
 
 // The trend over the filtered results (ui/screens.md section 3; kit History.jsx): small multiples
 // of download and upload on a log scale and idle latency on a linear one, oldest to newest, a result
@@ -44,6 +46,7 @@ const contextIcon = (context: string) => (context === 'LAN' ? House : context ==
 type Metric = 'download' | 'upload' | 'latency'
 
 const { t, locale } = useI18n()
+const titleId = useId()
 const narrow = useMediaQuery('(max-width: 767.98px)')
 const metric = shallowRef<Metric>('download')
 
@@ -77,12 +80,13 @@ const meta = computed(() => {
   const first = oldestFirst.value[0]
   const last = oldestFirst.value.at(-1)
   if (first === undefined || last === undefined) {
-    return ''
+    return []
   }
   if (first === last) {
-    return t('history.trend.metaOne', { day: sameDay(new Date(first.startedAt), props.now) ? t('history.trend.todayLower') : resultDay(first.startedAt, locale.value) })
+    const day = sameDay(new Date(first.startedAt), props.now) ? [{ text: t('history.trend.todayLower') }] : timeOf(first.startedAt, DAY, locale.value)
+    return fill(t('history.trend.metaOne', { day: slot('day') }), { day })
   }
-  return t('history.trend.meta', { n: props.results.length, from: resultDay(first.startedAt, locale.value), to: resultDay(last.startedAt, locale.value) })
+  return fill(t('history.trend.meta', { n: props.results.length, range: slot('range') }), { range: timeRange(first.startedAt, last.startedAt, DAY, locale.value) })
 })
 
 const metrics = computed(() => [
@@ -94,12 +98,17 @@ const metrics = computed(() => [
 
 <template>
   <section
-    :aria-label="t('history.trend.title')"
+    :aria-labelledby="titleId"
     class="flex flex-col gap-3 rounded-(--radius-lg) border border-(--border-subtle) bg-(--surface-2) p-3.5 shadow-card tablet:px-5 tablet:py-4"
     data-testid="history-trend"
   >
     <div class="flex flex-wrap items-center gap-x-3.5 gap-y-2">
-      <span class="text-(length:--text-base) font-semibold">{{ t('history.trend.title') }}</span>
+      <h2
+        :id="titleId"
+        class="text-(length:--text-base) font-semibold"
+      >
+        {{ t('history.trend.title') }}
+      </h2>
       <span
         v-for="context in contexts"
         :key="context"
@@ -113,7 +122,7 @@ const metrics = computed(() => [
         />
         {{ context }}
       </span>
-      <span class="text-(length:--text-caption) text-subtle-foreground">{{ meta }}</span>
+      <span class="text-(length:--text-caption) text-subtle-foreground"><TimeText :runs="meta" /></span>
       <div
         role="list"
         :aria-label="t('history.trend.legend')"

@@ -22,10 +22,12 @@ import { computed, shallowRef, useId, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import TimeText from '@/components/a11y/TimeText.vue'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import type { Result } from '@/engine/messages'
 import { type DateRange, filterResults, NO_FILTER } from '@/history/filters'
+import { type TimedText, timeRange } from '@/lib/timeText'
 
 // The date-range filter (ui/screens.md section 3; kit History.jsx, Popover and OptionRows in
 // design_system/components/actions): the last 7, 30 or 90 days or all time, applied at once with
@@ -79,13 +81,9 @@ function presetName(preset: Preset): string {
   }
 }
 
-function localDate(text: string): string {
-  const [year, month, day] = text.split('-').map(Number)
-  return new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium' }).format(new Date(year ?? 0, (month ?? 1) - 1, day ?? 1))
-}
-
-const label = computed(() =>
-  props.range.kind === 'custom' ? t('history.filters.range.customValue', { from: localDate(props.range.from), to: localDate(props.range.to) }) : presetName(selected.value ?? 'all'),
+// A custom range reads as the locale writes it, its days in <time> elements, as the kit's.
+const label = computed((): TimedText =>
+  props.range.kind === 'custom' ? timeRange(props.range.from, props.range.to, { dateStyle: 'medium' }, locale.value) : [{ text: presetName(selected.value ?? 'all') }],
 )
 
 /** A local date as the date fields hold it, `YYYY-MM-DD`. */
@@ -143,7 +141,7 @@ function apply(): void {
           :size="14"
           aria-hidden="true"
         />
-        {{ label }}
+        <span><TimeText :runs="label" /></span>
         <ChevronDown
           :size="14"
           aria-hidden="true"
@@ -196,6 +194,7 @@ function apply(): void {
         <Input
           v-model="from"
           type="date"
+          :max="to"
           :aria-label="t('history.filters.range.from')"
           class="h-(--control-h-sm) min-w-0 flex-1 font-mono text-(length:--text-caption)"
           data-testid="range-from"
@@ -207,6 +206,8 @@ function apply(): void {
         <Input
           v-model="to"
           type="date"
+          :min="from"
+          :max="isoDay(now)"
           :aria-label="t('history.filters.range.to')"
           class="h-(--control-h-sm) min-w-0 flex-1 font-mono text-(length:--text-caption)"
           data-testid="range-to"

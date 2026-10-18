@@ -52,9 +52,11 @@ const facts = computed(() => {
       key: 'version',
       label: t('about.facts.version'),
       value: server ? t('about.facts.build', { version: server.version, commit: server.commit, date: buildDate(server.buildDate) }) : unknownVersion,
+      // The build date in a time element, as every date is (ui/i18n-a11y.md section 1.3).
+      build: server ? { version: server.version, commit: server.commit, iso: server.buildDate, date: buildDate(server.buildDate) } : null,
     },
-    { key: 'license', label: t('about.facts.license'), value: t('about.facts.licenseValue') },
-    { key: 'server', label: t('about.facts.serverName'), value: server?.name ?? t('about.facts.unknown') },
+    { key: 'license', label: t('about.facts.license'), value: t('about.facts.licenseValue'), build: null },
+    { key: 'server', label: t('about.facts.serverName'), value: server?.name ?? t('about.facts.unknown'), build: null },
   ]
 })
 </script>
@@ -112,7 +114,24 @@ const facts = computed(() => {
                 class="m-0 font-mono text-(length:--text-sm) whitespace-nowrap"
                 :class="fact.value === t('about.facts.unknown') ? 'text-subtle-foreground' : 'text-foreground'"
               >
-                {{ fact.value }}
+                <i18n-t
+                  v-if="fact.build"
+                  keypath="about.facts.build"
+                  scope="global"
+                >
+                  <template #version>
+                    {{ fact.build.version }}
+                  </template>
+                  <template #commit>
+                    {{ fact.build.commit }}
+                  </template>
+                  <template #date>
+                    <time :datetime="fact.build.iso">{{ fact.build.date }}</time>
+                  </template>
+                </i18n-t>
+                <template v-else>
+                  {{ fact.value }}
+                </template>
               </dd>
             </div>
           </dl>

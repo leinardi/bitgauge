@@ -55,7 +55,7 @@ const keyed = computed(() => props.warmup !== null || props.gap !== null)
     :aria-label="title"
   >
     <div class="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
-      <h3 class="flex items-center gap-1.5 text-(length:--text-sm) font-semibold">
+      <h2 class="flex items-center gap-1.5 text-(length:--text-sm) font-semibold">
         <component
           :is="icon"
           :size="14"
@@ -64,7 +64,7 @@ const keyed = computed(() => props.warmup !== null || props.gap !== null)
           :style="{ color }"
         />
         {{ title }}
-      </h3>
+      </h2>
       <span
         v-if="meta"
         class="font-mono text-(length:--text-caption) text-subtle-foreground"

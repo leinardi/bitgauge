@@ -80,7 +80,7 @@ const groups = computed(() => [
         {{ pill.text }}
       </StatusPill>
     </template>
-    <div class="grid grid-cols-1 gap-x-6 px-4 pt-1 pb-2 desktop:grid-cols-2">
+    <div class="grid grid-cols-1 gap-x-6 px-4 pt-1 pb-2">
       <div
         v-for="group in groups"
         :key="group.key"

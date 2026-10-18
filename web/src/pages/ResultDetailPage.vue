@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { Database } from '@lucide/vue'
-import { computed, shallowRef, watch } from 'vue'
+import { computed, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
@@ -63,6 +63,7 @@ const id = computed(() => String(route.params.id ?? ''))
 const units = computed(() => stored.value.units ?? info.value?.defaults.units ?? 'bits')
 const saved = computed(() => history.results.value.find((result) => result.id === id.value) ?? null)
 const deleted = shallowRef(false)
+const reasonId = useId()
 watch(id, () => {
   deleted.value = false
 })
@@ -149,6 +150,7 @@ function runAgain(): void {
       <ResultHeader
         :result="result"
         :not-saved="notSaved"
+        :reason-id="reasonId"
         @rename="rename"
         @run-again="runAgain"
         @remove="remove"
@@ -193,7 +195,7 @@ function runAgain(): void {
           <NoteField
             :id="result.id"
             :note="result.note ?? ''"
-            :disabled-reason="notSaved"
+            :reason-id="notSaved === null ? null : reasonId"
             @save="saveNote"
           />
           <SharePanel
