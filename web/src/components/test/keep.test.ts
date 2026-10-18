@@ -18,33 +18,33 @@
  */
 
 // Keep in history's condition (ui/screens.md section 1): a partial or error result with at least one
-// finished phase.
+// finished phase, or with the partial idle latency a stop during it kept.
 
 import { describe, expect, it } from 'vitest'
 
-import { hasFinishedPhase } from '@/components/test/keep'
+import { canKeep } from '@/components/test/keep'
 import { resultFixture } from '@/test/fixtures'
 
 const base = resultFixture()
 
-describe('hasFinishedPhase', () => {
+describe('canKeep', () => {
   it('counts idle latency and a direction that ended on its own', () => {
-    expect(hasFinishedPhase(resultFixture({ status: 'partial', notices: [{ code: 'stopped-early', direction: 'upload', coveredMs: 3000 }] }))).toBe(true)
+    expect(canKeep(resultFixture({ status: 'partial', notices: [{ code: 'stopped-early', direction: 'upload', coveredMs: 3000 }] }))).toBe(true)
   })
 
-  it('does not count idle latency stopped while it ran, with no direction run', () => {
+  it('keeps the partial idle latency a stop during it kept, with no direction run (flows.md section 4)', () => {
     const skipped = { status: 'skipped' as const, streams: 0, bytes: 0, events: [] }
-    expect(hasFinishedPhase({ ...base, status: 'partial', download: skipped, upload: { ...skipped, confirmedRequests: 0 } })).toBe(false)
+    expect(canKeep({ ...base, status: 'partial', download: skipped, upload: { ...skipped, confirmedRequests: 0 } })).toBe(true)
   })
 
   it('does not count the direction the stop ended, even without a number', () => {
     const { idle: _idle, ...withoutIdle } = base
     const stopped = { ...withoutIdle, status: 'partial' as const, download: { ...base.download!, status: 'insufficient-data' as const }, upload: undefined, notices: [{ code: 'stopped-early' as const, direction: 'download' as const, coveredMs: 1200 }] }
-    expect(hasFinishedPhase(stopped)).toBe(false)
+    expect(canKeep(stopped)).toBe(false)
   })
 
   it('does not count a direction that ended with an error', () => {
     const { idle: _idle, ...withoutIdle } = base
-    expect(hasFinishedPhase({ ...withoutIdle, status: 'error', download: { ...base.download!, status: 'error' }, upload: undefined })).toBe(false)
+    expect(canKeep({ ...withoutIdle, status: 'error', download: { ...base.download!, status: 'error' }, upload: undefined })).toBe(false)
   })
 })

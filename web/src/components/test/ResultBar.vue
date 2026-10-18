@@ -24,7 +24,7 @@ import { RouterLink } from 'vue-router'
 
 import AppButton from '@/components/actions/AppButton.vue'
 import DownloadJson from '@/components/test/DownloadJson.vue'
-import { hasFinishedPhase } from '@/components/test/keep'
+import { canKeep } from '@/components/test/keep'
 import KeepInHistory from '@/components/test/KeepInHistory.vue'
 import type { SaveState } from '@/composables/useResultSave'
 import type { Result } from '@/engine/messages'
@@ -43,7 +43,7 @@ const kept = defineModel<boolean>('kept', { required: true })
 const { t } = useI18n()
 
 const unavailable = computed(() => props.save === 'unavailable')
-const keepable = computed(() => !unavailable.value && hasFinishedPhase(props.result))
+const keepable = computed(() => !unavailable.value && canKeep(props.result))
 const title = computed(() => {
   if (!kept.value) {
     return t('test.bar.unsaved')

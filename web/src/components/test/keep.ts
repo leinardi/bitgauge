@@ -17,19 +17,18 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { idleStopped } from '@/components/test/screen/states'
 import type { Direction, Result } from '@/engine/messages'
 
-// Whether a partial or error result can be kept in history (ui/screens.md section 1, save-bar.md):
-// it needs at least one finished phase. Idle latency finished unless the stop came during it; a
-// direction finished when it ended on its own, with or without a number, and not when the stop or
-// the error ended it.
+// Whether a partial or error result can be kept in history (ui/screens.md section 1, save-bar.md,
+// flows.md section 4): it needs at least one finished phase, or the partial idle latency a stop
+// during it kept, so idle latency counts whenever the result has it. A direction finished when it
+// ended on its own, with or without a number, and not when the stop or the error ended it.
 
-export function hasFinishedPhase(result: Result): boolean {
+export function canKeep(result: Result): boolean {
   const stopped = new Set(result.notices.flatMap((notice) => (notice.code === 'stopped-early' ? [notice.direction] : [])))
   const finished = (direction: Direction) => {
     const status = result[direction]?.status
     return (status === 'measured' || status === 'insufficient-data') && !stopped.has(direction)
   }
-  return (result.idle !== undefined && !idleStopped(result)) || finished('download') || finished('upload')
+  return result.idle !== undefined || finished('download') || finished('upload')
 }
