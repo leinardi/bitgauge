@@ -74,6 +74,14 @@ from the design export; this page fixes content and behavior only. Terms follow 
   download as an ISO 8601 timestamp.
 - **Last result line** in the idle state: when, headline numbers and label of the latest saved
   result, linking to its detail.
+- **Continuous live view** (v0.3), in place of the direction's tile while a Continuous run runs
+  ([flows.md §7](flows.md#7-continuous-mode)): the run-wide minimum, average and maximum; the
+  "p90, last hour"; the loaded latency of the last minute; data used with its rate; and the elapsed
+  time against the run length with the run's end time, or the elapsed time alone without a run
+  length. The rates read "—" until the run has 3 fully known 1 s cells, never 0
+  ([../measurement.md §15](../measurement.md#15-continuous-mode)). The live chart shows the
+  retention tier the elapsed time picks. The grade, the HTTP loaded responsiveness and the quality
+  scores appear only in the finished result.
 
 **States:**
 
@@ -84,6 +92,8 @@ from the design export; this page fixes content and behavior only. Terms follow 
 | Running: idle latency | Gauge in milliseconds, ping counter, live median, latency samples chart. |
 | Running: download / upload | Gauge, chart, stream count, protocol, data used; per-direction "measuring" or "warming up" hint; loaded latency live. |
 | Done | Result metrics, notices, save bar (v0.2), Details link, Download JSON, Run again. |
+| Running: Continuous | Idle latency first unless the phases leave it out, then the Continuous live view; Stop ends the run. |
+| Done: Continuous | With at least 3 fully known 1 s cells since the steady start, `complete`: the Done state, saved automatically, the direction's run-wide numbers and its "p90, last hour", with no `partial — stopped early`. With fewer, a stop right after warm-up included, `partial` with the direction `insufficient-data`: the Cancelled state's Keep in history and Download JSON ([../measurement.md §15](../measurement.md#15-continuous-mode)). |
 | Cancelled | Partial result with `partial — stopped early` and what was covered ([../measurement.md §7.8](../measurement.md#78-worked-example-b--cancellation-mid-request)); an interrupted direction shows a number only when its confirmed steady window meets the minimum ([../measurement.md §7.6](../measurement.md#76-headline-peak-and-minimum-window)), otherwise "insufficient data". Not saved; Keep in history and Download JSON offered. |
 | Error | What failed and in which phase, completed phases kept, the failed direction with status `error` and no number, Retry. Not saved; Keep in history and Download JSON offered. |
 | Offline / retry | `GET /info` fails, or every idle-latency ping is lost ([../measurement.md §10](../measurement.md#10-idle-latency)): "Server unreachable" with Retry and the time to the next automatic check ([flows.md §1](flows.md#1-first-run)); Start disabled until `/info` succeeds; the phases and the metrics stay, pending and empty; no settings summary. A WebSocket that cannot be opened is **not** offline: the test runs with the HTTP latency fallback and the notice `WebSocket unavailable — HTTP latency fallback`. |
@@ -119,6 +129,10 @@ scrolling.
   (absolute on hover), preset and server name.
 - All metrics of §6 with full qualifiers, and a **confidence and notices** card listing every
   confidence reason and notice, each with an icon and text.
+- **Continuous results:** the direction that ran shows its headline (the run-wide average) with
+  its minimum, maximum and "p90, last hour"; the other direction reads `skipped`, worded "not run ·
+  Continuous runs one direction", never "not measured". A run longer than 7 days notes that only
+  its last 7 days were saved ([../measurement.md §15](../measurement.md#15-continuous-mode)).
 - **Per-phase charts:** download and upload steady-window series with their event marks, each
   with the direction's loaded-latency samples on a second axis in milliseconds, and the idle
   latency samples. Each throughput chart and its loaded latency are drawn on the direction's own
@@ -142,7 +156,10 @@ scrolling.
   copied text, showing exactly what each contains
   ([../security.md §7](../security.md#7-browser-only-history-and-privacy)), an "include label"
   option (off by default), Download image, Copy summary and, where the Web Share API is available,
-  Share ([flows.md §8](flows.md#8-sharing)).
+  Share ([flows.md §8](flows.md#8-sharing)). A Continuous result is one direction block, its
+  headline with its qualifiers and no peak, as the export's share panel draws it
+  ([share-panel.md](../../design_system/components/share-panel.md)). The HTTP loaded
+  responsiveness and the quality scores stay off the share image and the copied summary.
 - **Download JSON**, **Delete** and **Run again** (same settings). Delete removes the result from
   history at once and shows an undo toast for 8 s, as on History; the page then shows "Result
   deleted" with a link to History in place of the result, and the toast's Undo puts the result
@@ -196,7 +213,12 @@ parameters collapse into a disclosure.
   within 1 ms of A's read "same"; grades compare by their order, A+ best; any other difference in
   those metrics is better or worse. A metric absent on either side (a direction without a number,
   no grade) reads "not comparable". The other rows (probe timeouts, data used, duration) show both
-  values without a judgment.
+  values without a judgment. From v0.3 the comparison adds:
+  - one HTTP loaded responsiveness row per direction: the RPM is compared, higher being better and
+    within ±2 % "same", only when both sides are `measured`; otherwise the row shows both states and
+    reads "not comparable";
+  - one row per quality-score experience (streaming, gaming, video calls), compared by band order,
+    `great` best and `bad` worst; an experience scored on one side only reads "not comparable".
 - **Delete** removes the rows at once and shows an undo toast for 8 s, whose Undo puts them back;
   **Clear all** has no undo.
 - **Export** (JSON or CSV, each for all results or the current filter, with the "contains client
@@ -238,16 +260,18 @@ effective settings are the URL parameters over the stored settings over the serv
 - **Preset:** Quick, Standard, Extended, Continuous, as cards with a one-line description each
   stating streams, durations and ping count
   ([../measurement.md §8.5](../measurement.md#85-presets)). Before v0.3 the Continuous card is
-  disabled, with a "v0.3" badge.
+  disabled, with a "v0.3" badge; from v0.3 it is a preset like the others.
 - **Phases:** toggles for idle latency, download, upload (at least one stays on), and the order of
-  download and upload; for Continuous, the one direction it runs (current answer to an item in
-  [../open-questions.md](../open-questions.md)).
+  download and upload; for Continuous, the idle-latency toggle and the one direction it runs,
+  download by default (current answer to an item in [../open-questions.md](../open-questions.md)),
+  stored as `continuousDirection` only when the user picks upload or picks download over another
+  stored value.
 - **Streams:** auto, fixed (1–6), single.
 - **Duration:** minimum and maximum per direction in whole seconds, 5–600 s, the minimum at most
   the maximum (defaults from the preset; "custom" when edited, and kept with no question when
   another preset is chosen, current answer to an item in
-  [../open-questions.md](../open-questions.md)); for Continuous, an optional **run length** (none
-  by default, 1 minute to 7 days).
+  [../open-questions.md](../open-questions.md)); for Continuous, an optional **run length** in
+  whole seconds (none by default, 60 s to 7 days), stored as `runLengthS`, absent meaning none.
 - **Data cap:** none or a whole number of MB (decimal, 10^6 bytes) from 2 to 100000; 1 MB is
   below the 1 MiB floor of a data cap
   ([../configuration.md §2.3](../configuration.md#23-test-defaults)). A server default that is not
@@ -282,14 +306,22 @@ field, value not saved; focus is not moved, and Tab leaves the field as usual); 
 
 **Elements:**
 
-- **Copyable snippets**, each shown only when its layer is enabled (`compat` in `GET /info`),
-  otherwise a note that the operator can enable it:
-  - `librespeed-cli` server-list JSON and command lines
+- **Copyable snippets**, each shown only when its layer's flag is on (`compat` in `GET /info`),
+  otherwise a note that the operator can enable it. Every URL in them starts with the
+  `<base URL>`, the page's `location.origin` followed by the base path without its trailing `/`
+  (`https://speed.example.lan/speed` with `base_path: /speed`), and their content follows the
+  compatibility page exactly:
+  - `librespeed-cli`: the `bitgauge.json` server-list JSON, with this server as entry `1`, and the
+    command lines `librespeed-cli --local-json bitgauge.json --server 1 --no-icmp --chunks 8 --json`
+    and `librespeed-cli --server-json <base URL>/.well-known/librespeed --server 1 --no-icmp`
     ([../compatibility.md §2.3](../compatibility.md#23-librespeed-cli-server-list));
-  - the OpenSpeedTest UI `?Host=` URL, with the note about its results link
-    ([../compatibility.md §1.3](../compatibility.md#13-client-usage));
-  - `networkQuality -C …/nq/config` ([../compatibility.md
-    §3.5](../compatibility.md#35-client-usage)).
+  - the OpenSpeedTest UI `?Host=` URL, `<your OpenSpeedTest UI>/?Host=<base URL>`, with the note about
+    its results link ([../compatibility.md §1.3](../compatibility.md#13-client-usage));
+  - `networkQuality -C <base URL>/nq/config` and its verbose form with `-v` ([../compatibility.md
+    §3.5](../compatibility.md#35-client-usage)). On a page that is not `https` the snippet carries
+    a note that networkQuality needs HTTPS through the reverse proxy (or `server.public_url`), so
+    the URL shown may not be the one to use ([../compatibility.md
+    §3.3](../compatibility.md#33-absolute-url-construction)).
 - **About BitGauge:** server name, **version** (`server.version`) with build commit and date
   (`server.commit`, `server.buildDate`), **license** (GPL-3.0-or-later), **source link**.
 - **Privacy:** no accounts, no tracking; the server keeps no results, which exist only in this
@@ -306,7 +338,8 @@ credited in the README and the docs ([../technical-stack/decisions.md
 shows no snippets ([../roadmap.md](../roadmap.md)); its methodology summary covers the v0.1
 metrics only: download, upload, idle latency and jitter, with data used and duration.
 
-**Responsive notes.** Snippets wrap with a horizontal scroll inside the code block only.
+**Responsive notes.** Snippets never wrap: a long line scrolls horizontally inside its code block,
+and the page itself never scrolls sideways.
 
 ## 6. Result Metrics, Units and Precision
 
@@ -314,12 +347,13 @@ metrics only: download, upload, idle latency and jitter, with data used and dura
 | --- | --- | --- |
 | Download, upload (headline) | auto-scaled kbit/s, Mbit/s, Gbit/s (or kB/s, MB/s, GB/s), 3 significant digits | direction status (`insufficient-data` shown as "insufficient data", `partial`, `skipped`, `error`; `measured` shows the number), confidence and reasons, overhead compensation when non-zero |
 | Peak (per direction) | as above, labeled "peak" (the p90 of the steady window, never a maximum); live, the steady-window p90 so far, hidden during warm-up | Continuous: "p90, last hour" |
+| Minimum and maximum (Continuous) | as above, run-wide over fully known 1 s cells | "run-wide"; "—" while absent |
 | Idle latency | ms; min, median, p90; whole ms ≥ 10 ms, one decimal below, "< 1 ms" below the timer resolution | path (`websocket` or HTTP), loss percentage |
 | Jitter | ms, same precision | described as the mean of consecutive differences |
 | Idle probe loss | %, one decimal | labeled "probe timeouts", never "packet loss" |
-| Loaded latency (per direction) | ms; median and p90; increase over idle | label "Loaded latency (WebSocket)" or the fallback source `http-h1-reserved` / `http-h2` / `http-h3`; "vs idle over WebSocket" (or HTTP) when idle latency ran on the other path; "no idle latency" in place of the increase when idle latency has no median; `unavailable` with reason (no steady window, fewer than 10 samples, HTTP/1.1 reservation not held, no latency probe) |
+| Loaded latency (per direction) | ms; median and p90; increase over idle | Continuous: "last hour"; label "Loaded latency (WebSocket)" or the fallback source `http-h1-reserved` / `http-h2` / `http-h3`; "vs idle over WebSocket" (or HTTP) when idle latency ran on the other path; "no idle latency" in place of the increase when idle latency has no median; `unavailable` with reason (no steady window, fewer than 10 samples, HTTP/1.1 reservation not held, no latency probe) |
 | Bufferbloat grade | letter plus words: A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe bufferbloat | basis (`download+upload` or one direction) |
-| HTTP loaded responsiveness | RPM, integer | always labeled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples") |
+| HTTP loaded responsiveness | RPM, integer | always labeled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples"); the Result detail adds TM95 and the samples, and states "TM95 equals the plain mean" when `trimmed` is 0 |
 | Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great), each band with an icon and its name | missing input named; basis when only one direction has a loaded-latency increase ("download only"); note "upper bound: packet loss is not measured" |
 | Packet loss | reserved slot: "packet loss — not measured" | "browsers can't see packet loss over TCP", link to why ([../measurement.md §18](../measurement.md#18-future-packet-loss-via-webrtcturn)); no promise of a release |
 | Data used | decimal kB, MB, GB, 3 significant digits | — |
@@ -345,10 +379,11 @@ detail, each with a short explanation and, where useful, a link to the docs. The
 - **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU");
   `browser upload limit` with a "Known browser limits" link to the docs.
 - **Limits:** `data cap reached`; `server stream limit — N streams`; `data used: N GB`
-  (Continuous); `overhead compensation +p %`.
+  (Continuous, live and in the result); `overhead compensation +p %`.
 - **Settings:** `URL parameter ignored`, naming each invalid parameter.
-- **Interrupted:** `partial — stopped early` (a Continuous run stopped after its steady window began
-  is `complete` instead); `upload interrupted by a failed request`;
+- **Interrupted:** `partial — stopped early` (a Continuous run that ends with at least 3 fully known
+  1 s cells is `complete` instead, and one with fewer is `partial`, a stop right after warm-up
+  included); `upload interrupted by a failed request`;
   `server restarted`; `network changed`; `page was hidden during the test`.
 - **Connectivity:** `server unreachable` with Retry; `WebSocket reopened`;
   `WebSocket unavailable — HTTP latency fallback`; `HTTP/1.1 probe reservation active — 5 streams`.
@@ -359,7 +394,7 @@ detail, each with a short explanation and, where useful, a link to the docs. The
 Notices are text with an icon, never color alone, and are announced to screen readers when they
 appear during a run ([i18n-a11y.md](i18n-a11y.md)). Their tones: **info** for test extended,
 server stream limit, overhead compensation, browser upload limit, WebSocket reopened,
-WebSocket unavailable and HTTP/1.1 probe reservation;
+WebSocket unavailable, HTTP/1.1 probe reservation and data used;
 **warn** for low confidence, cpu-bound, data cap reached, insufficient data, URL parameter
 ignored, proxy buffering suspected, response compression detected and timer throttling detected;
 **danger**, with `role="alert"`, for server unreachable, upload interrupted and base path mismatch;

@@ -340,7 +340,9 @@ carries a recommendation; where the specification already relies on an answer, i
     `ignoredParameters`, each with its value, so the run carries a `url-parameter-ignored` notice
     for each up to the result. A value outside the table or the configuration ranges is invalid:
     a `cap` below 1 MiB, a fixed `streams` above the server's maximum, `preset=continuous` before
-    v0.3. The first occurrence of a repeated name counts. The countdown waits for the engine's
+    v0.3; from v0.3 `duration` is checked against the resolved preset's range (5–600 s, or
+    60–604800 s for Continuous), and under Continuous `test=latency` is ignored and gives download.
+    The first occurrence of a repeated name counts. The countdown waits for the engine's
     `settings` answer.
     Enter's "interactive control" is a link, a form control, editable text, an element with an
     ARIA widget role or a tab index of 0 or more, and Escape is left to a control that already
@@ -510,13 +512,15 @@ carries a recommendation; where the specification already relies on an answer, i
     answer: **`localStorage` key `bitgauge.settings.v1` holds a sparse object of the fields the
     user set (`theme`, `lang`, `preset`, `phases`, `streams`, `download`, `upload`,
     `dataCapBytes`, `units`, `autoStart: {enabled, countdownS}`, `warmup`, `pingCount`,
-    `overheadCompensationPercent`, `label`), `streams` holding `{mode, fixed}` with the maximum
+    `overheadCompensationPercent`, `label`, and from v0.3 `continuousDirection` and `runLengthS`,
+    absent meaning download and no run length), `streams` holding `{mode, fixed}` with the maximum
     always the server's, `label` the screen's result label that pre-fills every result, keeps
     fields it does not know, and is where
     `useTheme` keeps writing `theme`; the URL wins over the stored fields, which win over the server
     defaults; the fields take the kit's ranges, durations 5–600 s, countdown 1–30 s, pings 6–200,
     warm-up 1–60 s, and a data cap of 2–100000 MB, where the kit's 1 MB would fall below the 1 MiB
-    floor; the Continuous card is disabled with a v0.3 badge; the shareable URL carries the
+    floor; the Continuous card is disabled with a v0.3 badge before v0.3 and enabled from it, with
+    its direction and its 60 s–7 day run length; the shareable URL carries the
     parameters that differ from the server defaults in table order, `run=1` when ticked, `label`
     when set, `theme` and `lang` only when stored, and a "Not in the link" line names the
     changed settings it cannot carry; a stored Auto-start counts as `run=1` on each load, a URL
@@ -729,6 +733,36 @@ carries a recommendation; where the specification already relies on an answer, i
     (the protocol, a new-connection toggle, a `/small` starvation for few samples) and switches for
     the About screen's layers. Recommendation: keep it. See
     [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build).
+62. What do the v0.3 screens show, where screens.md, flows.md and url-params.md left it open?
+    Current answer: **the spec's numbers, each with its qualifier, and nothing the live run cannot
+    know yet.**
+    - Settings store sparse `continuousDirection` and `runLengthS`, which the URL's `test=upload`
+      and `duration=` map onto; under `preset=continuous`, `test=all` gives download and
+      `test=latency` is ignored with the notice and gives download; `duration` is checked against
+      the resolved preset's range, and the ignored table names both ranges.
+    - The About snippets show per `compat` flag, are built from `location.origin` and the base
+      path, follow compatibility.md §1.3, §2.3 and §3.5 exactly, scroll horizontally inside their
+      block, and the networkQuality one notes on a non-`https` page that it needs HTTPS through the
+      proxy (or `server.public_url`).
+    - The screen-reader summary adds the HTTP loaded responsiveness with its label and state, and
+      the scores.
+    - The Result detail states "TM95 equals the plain mean" when `trimmed` is 0, notes a Continuous
+      run longer than 7 days, reads a Continuous result's other direction as skipped ("not run ·
+      Continuous runs one direction"), and `data-used` has the info tone.
+    - Compare adds per-direction responsiveness rows, RPM compared only when both are `measured`,
+      and one row per experience in band order.
+    - CSV has `downloadRpm`, `downloadRpmState`, `uploadRpm`, `uploadRpmState` and the four
+      Continuous minimum and maximum columns, empty when absent, with no migration.
+    - A Continuous share image is one direction block without a peak; RPM and scores stay off it
+      and off the summary.
+    - The Continuous Test screen shows min, average and max, the last hour's p90, the last
+      minute's loaded latency, data used with its rate and the elapsed time against the run length
+      with its end time; the grade, RPM and scores appear only in the finished result, which is
+      `complete` and saved with at least 3 fully known 1 s cells, and `partial` with Keep in
+      history otherwise.
+
+    Recommendation: keep it. See [ui/screens.md](ui/screens.md) and
+    [ui/flows.md §7](ui/flows.md#7-continuous-mode).
 
 Resolved and removed:
 

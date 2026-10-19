@@ -26,7 +26,9 @@ apply to the page load they appear on; they are not stored unless the user saves
   A value is invalid when it is outside the table below or outside the ranges of
   [../configuration.md §2.3](../configuration.md#23-test-defaults): a `cap` below 1 MiB, or a
   fixed `streams` count above the server's `streams.max`. `run` accepts only the values its row
-  lists. Before v0.3, `preset=continuous` is invalid, since Continuous is a v0.3 preset.
+  lists. Before v0.3, `preset=continuous` is invalid, since Continuous is a v0.3 preset. From v0.3,
+  `duration` is checked against the range of the **resolved** preset, the URL's `preset`, else the
+  stored one, else the server's: 5–600 s for a bounded preset, 60–604800 s for Continuous.
 - The page hands the settings parameters to the engine with its configuration, so every run of
   the page load uses them, and the engine resolves a `preset` there with its durations, ping count
   and stream mode ([../architecture.md §4](../architecture.md#4-engine--ui-message-contract)).
@@ -40,9 +42,9 @@ apply to the page load they appear on; they are not stored unless the user saves
 | Parameter | Type and values | Default | Effect |
 | --- | --- | --- | --- |
 | `run` | flag: present, `1` or `true` starts; `0` or `false` does not | not set | Auto-start after the cancellable countdown ([flows.md §2](flows.md#2-auto-run-from-url)). |
-| `test` | `all`, `download`, `upload`, `latency` (`ping` accepted as an alias of `latency`) | `all` | Which phases run: `all` = idle latency, download and upload in the configured order; `download` or `upload` = idle latency plus that direction; `latency` = idle latency only. With `preset=continuous`, picks the direction. |
+| `test` | `all`, `download`, `upload`, `latency` (`ping` accepted as an alias of `latency`) | `all` | Which phases run: `all` = idle latency, download and upload in the configured order; `download` or `upload` = idle latency plus that direction; `latency` = idle latency only. Under a resolved Continuous preset it picks the direction instead: `download` or `upload` runs that direction, `all` gives download, and `latency` is ignored with the `URL parameter ignored` notice and gives download; idle latency runs first as the stored phases say. |
 | `preset` | `quick`, `standard`, `extended`, `continuous` | server default (`standard`) | Selects the preset ([../measurement.md §8.5](../measurement.md#85-presets)). |
-| `duration` | integer seconds: 5–600 for bounded presets; 60–604800 (1 minute to 7 days, the retention horizon) with `preset=continuous` | preset; none for Continuous | Bounded presets: maximum duration per direction (the minimum becomes the smaller of the preset's minimum and this value). Continuous: the run length, after which the run ends as `complete`. |
+| `duration` | integer seconds: 5–600 for bounded presets; 60–604800 (1 minute to 7 days, the retention horizon) when the resolved preset is Continuous | preset; none for Continuous | Bounded presets: maximum duration per direction (the minimum becomes the smaller of the preset's minimum and this value). Continuous: the run length, after which the run ends, its status following [../measurement.md §15](../measurement.md#15-continuous-mode). |
 | `streams` | `auto`, `single`, or an integer 1–6 | server default (`auto`) | Stream mode; an integer means fixed N. |
 | `cap` | size: integer bytes or a number with `kB`, `MB`, `GB`, `KiB`, `MiB`, `GiB`; `0` or `none` | server default (none) | Data cap per test. |
 | `units` | `bits`, `bytes` | server default (`bits`) | Display units. |
@@ -56,9 +58,9 @@ sentence:
 | Parameter | Allowed | Stays on |
 | --- | --- | --- |
 | `run` | 1, true, 0 or false | The test waits for Start |
-| `test` | all, download, upload or latency | Phases stay on the run's phases ("idle latency, download and upload") |
-| `preset` | quick, standard or extended | The preset stays on the run's ("Standard") |
-| `duration` | 5–600 s | Durations stay on the preset's |
+| `test` | all, download, upload or latency; under Continuous, all, download or upload | Phases stay on the run's phases ("idle latency, download and upload"); under Continuous, the direction is download |
+| `preset` | quick, standard, extended or continuous | The preset stays on the run's ("Standard") |
+| `duration` | 5–600 s; under Continuous, 60–604800 s | Durations stay on the preset's; under Continuous, the run length stays on the stored one, or none |
 | `streams` | 1–`streams.max` for a number, otherwise auto, single or 1–`streams.max` | Streams stay on the run's mode ("Auto", "Single" or the count) |
 | `cap` | 1 MiB or more, 0 or none | The data cap stays on the run's ("none" or the size) |
 | `units` | bits or bytes | Units stay on the run's ("bits") |
@@ -82,6 +84,8 @@ The Settings screen builds a URL from the current settings:
   browser's own language or the system theme.
 - `label` is included only if the Settings screen's result label is set.
 - Values are percent-encoded with `encodeURIComponent`.
+- Under Continuous, `test=upload` carries a stored `continuousDirection` of upload and `duration`
+  a stored `runLengthS`; the stored settings map back onto them when the link is opened.
 - A changed setting that no parameter carries is named in a "Not in the link" line under the
   field: the advanced settings (warm-up, ping count, overhead compensation), the auto-start
   countdown length, and any phase set or order, or per-direction duration, that `test` and

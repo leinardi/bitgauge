@@ -164,31 +164,38 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 
 ## 7. Continuous Mode
 
-1. The user selects the Continuous preset in Settings (or opens `?preset=continuous&test=upload`),
-   choosing the one direction it runs (download by default; one direction per run is the current
-   answer to an item in [../open-questions.md](../open-questions.md)).
-2. The user starts the run. Idle latency runs first, then the chosen direction with the Standard
-   ramp and no maximum.
-3. Warm-up ends at the latest after 10 s of confirmed series. The screen then shows live min,
-   average and max, "p90, last hour", loaded latency, data used with its rate, and the elapsed
-   time against the run length with its end time when a run length is set.
-4. Data-used notices appear at 1 GB, 10 GB, 100 GB and every further tenfold step.
-   - **Branch: data cap reached.** The run ends with `data cap reached`.
-   - **Branch: page hidden and the browser pauses the engine.** The run ends as in step 5:
-     `complete` once the steady window had begun, `partial` during warm-up.
+1. The user selects the Continuous preset in Settings, choosing the one direction it runs
+   (download by default; one direction per run is the current answer to an item in
+   [../open-questions.md](../open-questions.md)) and an optional run length, or opens
+   `?preset=continuous&test=upload&duration=3600` ([url-params.md §2](url-params.md#2-parameters)).
+2. The user starts the run. Idle latency runs first unless the phases leave it out, then the chosen
+   direction with the Standard ramp and no maximum.
+3. Warm-up ends at the latest after 10 s of confirmed series. The screen then shows the
+   Continuous live view ([screens.md §1](screens.md#1-test-home--)): live min, average and max,
+   "p90, last hour", loaded latency over the last minute, data used with its rate, and the elapsed
+   time against the run length with its end time when a run length is set. The rates read "—"
+   until the run has 3 fully known 1 s cells. The grade, the HTTP loaded responsiveness and the
+   quality scores wait for the finished result.
+4. Data-used notices appear at 1 GB, 10 GB, 100 GB and every further tenfold step, with the info
+   tone.
+   - **Branch: data cap reached.** The run ends with `data cap reached`; its status follows step 5.
+   - **Branch: page hidden and the browser pauses the engine.** The run ends; its status follows
+     step 5.
    - **Branch: upload over HTTP/1.1 with a failed request.** The run ends with
      `upload interrupted by a failed request` and the HTTP/2 hint; its status follows step 5.
-   - **Branch: `duration` set.** The run ends after that duration.
-5. The user presses Stop (or the run length elapses, the data cap is reached, or an HTTP/1.1
-   upload request fails). If the steady window had begun, the result has status `complete`, not
-   `partial`; any of these endings during warm-up gives `partial` ([../measurement.md
-   §15](../measurement.md#15-continuous-mode)). A `complete` result is saved automatically with
-   the run-wide statistics and a series of at most 2000 points downsampled from the finest
-   retention tier whose ring covers the whole run; the other tiers are only kept in memory while
-   the run is on screen. A run longer than 7 days saves only its last 7 days, and the result detail
-   says so.
-   - **Branch: the run ended during warm-up (`partial`).** As in flow 4 step 5: not saved unless
-     the user chooses Keep in history; Download JSON is offered.
+   - **Branch: run length set.** The run ends once the run length has elapsed since its direction
+     began; its status follows step 5.
+5. The user presses Stop (or one of the endings of step 4 happens). The outcome depends only on
+   what was measured ([../measurement.md §15](../measurement.md#15-continuous-mode)):
+   - **At least 3 fully known 1 s cells since the steady start:** the result has status
+     `complete`, not `partial`, and is saved automatically with the run-wide statistics, the grade,
+     the HTTP loaded responsiveness, the quality scores and a series of at most 2000 points
+     downsampled from the finest retention tier whose ring covers the run since the steady start;
+     the other tiers are only kept in memory while the run is on screen. A run longer than 7 days
+     saves only its last 7 days, and the result detail says so.
+   - **Fewer, a stop right after warm-up or during it included:** the result is `partial` with the
+     direction `insufficient-data`. As in flow 4 step 5: not saved unless the user chooses Keep in
+     history; Download JSON is offered.
 
 ## 8. Sharing
 

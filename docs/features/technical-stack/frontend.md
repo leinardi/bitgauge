@@ -124,8 +124,8 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
 | State | Owner | Storage |
 | --- | --- | --- |
 | A running test (phases, buckets, streams, watermark, samples) | the engine | Worker memory, gone after `result` |
-| Live view of a run (gauge, chart series, notices) | `useRun` | component memory, fed by `sample` and `phase` events |
-| User settings | `useSettings` | `localStorage` key `bitgauge.settings.v1`: a sparse object holding only the fields the user set: `theme` and `lang`; `preset`, `phases`, `download` and `upload` (`{minMs, maxMs}`), `dataCapBytes`, `units`, `warmup` (`auto` or milliseconds), `pingCount` and `overheadCompensationPercent`, as the engine's settings hold them; `streams` as `{mode, fixed}` only, its maximum always the server's from `GET /info`; `autoStart` as `{enabled, countdownS}`; and `label`, the Settings screen's result label. A reset removes its field, and fields it does not know are kept as they are. The effective settings are the URL parameters over the stored fields over the server defaults ([../ui/url-params.md](../ui/url-params.md)). `useTheme` keeps writing `theme` there, as it did in v0.1, which had no Settings screen |
+| Live view of a run (gauge, chart series, notices, the Continuous live figures) | `useRun` | component memory, fed by `sample` and `phase` events; fixed-length rings, so a Continuous run's view does not grow with its length |
+| User settings | `useSettings` | `localStorage` key `bitgauge.settings.v1`: a sparse object holding only the fields the user set: `theme` and `lang`; `preset`, `phases`, `download` and `upload` (`{minMs, maxMs}`), `dataCapBytes`, `units`, `warmup` (`auto` or milliseconds), `pingCount` and `overheadCompensationPercent`, as the engine's settings hold them; from v0.3 `continuousDirection` (`download` or `upload`) and `runLengthS` (whole seconds, 60–604800; absent means no run length), which the URL's `test` and `duration` map onto under Continuous; `streams` as `{mode, fixed}` only, its maximum always the server's from `GET /info`; `autoStart` as `{enabled, countdownS}`; and `label`, the Settings screen's result label. A reset removes its field, and fields it does not know are kept as they are. The effective settings are the URL parameters over the stored fields over the server defaults ([../ui/url-params.md](../ui/url-params.md)). `useTheme` keeps writing `theme` there, as it did in v0.1, which had no Settings screen |
 | Server defaults and info for display | `useInfo` | memory; `GET /info` fetched by the UI once for display and again on Retry, and by the engine at each start |
 | Result history | `useHistory` and `history/` | IndexedDB (§5) |
 
@@ -151,19 +151,24 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
     [ …result objects… ] }`, including series, client IPs and notes. The v0.1 Test screen's
     single-result Download JSON uses the same format with one entry, so its serializer ships in
     v0.1 without IndexedDB ([../ui/screens.md §1](../ui/screens.md#1-test-home--)).
-  - CSV: one row per result, UTF-8 without a byte order mark, a header row, lines ended by CRLF
-    and fields quoted as RFC 4180 does (a field holding a comma, a quote, CR or LF is quoted, its
-    quotes doubled); an absent value is an empty field. A text field that starts with `=`, `+`,
-    `-`, `@`, a tab or CR gets a leading `'`, so a spreadsheet does not read it as a formula.
-    Columns `id`, `startedAt`, `label`,
-    `contextLabel`, `note`, `status`, `preset`, `protocol`, `clientIp`, `browser` (name, major
-    version and OS as one text value), `serverName`, `serverVersion`,
+  - CSV: one row per result, UTF-8 without a byte order mark, a header row, lines ended by CRLF and
+    fields quoted as RFC 4180 does (a field holding a comma, a quote, CR or LF is quoted, its quotes
+    doubled); an absent value is an empty field. A text field that starts with `=`, `+`, `-`, `@`, a
+    tab or CR gets a leading `'`, so a spreadsheet does not read it as a formula. Columns `id`,
+    `startedAt`, `label`, `contextLabel`, `note`, `status`, `preset`, `protocol`, `clientIp`,
+    `browser` (name, major version and OS as one text value), `serverName`, `serverVersion`,
     `downloadBitsPerSecond`, `downloadPeakBitsPerSecond`, `downloadStatus`, `downloadConfidence`,
     `uploadBitsPerSecond`, `uploadPeakBitsPerSecond`, `uploadStatus`, `uploadConfidence`,
     `idleMedianMs`, `idleP90Ms`, `jitterMs`, `idleLossPercent`, `downloadLoadedMedianMs`,
-    `uploadLoadedMedianMs`, `bufferbloatGrade`, `rpm`, `rpmState`, `streamingBand`, `gamingBand`,
-    `rtcBand`, `overheadCompensationPercent`, `dataUsedBytes`, `durationMs`. Series, samples and
-    events are omitted.
+    `uploadLoadedMedianMs`, `bufferbloatGrade`, and from v0.3 (in place of v0.2's `rpm` and
+    `rpmState`, never filled before v0.3) `downloadRpm`, `downloadRpmState`, `uploadRpm`,
+    `uploadRpmState`, `downloadMinBitsPerSecond`, `downloadMaxBitsPerSecond`,
+    `uploadMinBitsPerSecond`, `uploadMaxBitsPerSecond`, then `streamingBand`, `gamingBand`,
+    `rtcBand`, `overheadCompensationPercent`, `dataUsedBytes`, `durationMs`. The RPM and its state
+    are per direction, as `responsiveness` is; the minimum and maximum are a Continuous direction's
+    and empty otherwise; every column is empty when its value is absent. Series, samples and events
+    are omitted. The columns changed before any release that shipped CSV, so no CSV migration
+    exists.
   - **Scope.** Each format exports either every result or the results matching the current History
     filter; the export menu states which, with the count.
   - **File names.** `bitgauge-history-<YYYY-MM-DD>-<HHMM>.json` or `.csv`, after the export moment
@@ -192,8 +197,11 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   hatched,
   empty interval ending at `warmupEndMs`, because warm-up samples are not stored, and the table
   view follows the row rules of [../ui/screens.md §2](../ui/screens.md#2-result-detail--resultid).
-  For Continuous runs the chart picks the retention tier that keeps at most about 2000 points in
-  view ([../measurement.md §15](../measurement.md#15-continuous-mode)).
+  For Continuous runs the live chart keeps fixed rings of the engine's `RING_LENGTHS`, fed by each
+  `sample`'s native buckets and closed `cells`, and picks the tier by the run's elapsed time
+  (native up to 10 min, hour up to 60 min, day up to 24 h, long beyond), which keeps at most about
+  2000 points in view; the live bucket array of a bounded run is a fixed ring too
+  ([../measurement.md §15](../measurement.md#15-continuous-mode)).
 - **Gauge.** Hand-rolled SVG: a logarithmic arc whose window of four decades follows the value
   as [../measurement.md §14](../measurement.md#14-units-and-gauge) specifies, ticks per decade,
   a recent-range band, the peak tick and, at completion, an inner arc for upload. The needle and
@@ -209,7 +217,10 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   qualifier: a direction status other than `measured`, a confidence other than `normal`, a
   non-zero overhead compensation, a loaded-latency source other than the WebSocket and an increase
   over idle latency measured on the other path. The copied summary holds the same lines as text,
-  in the page's language. Content rules are in
+  in the page's language. A Continuous result is one direction block, its headline without a peak
+  ([../../design_system/components/share-panel.md](../../design_system/components/share-panel.md)).
+  The HTTP loaded responsiveness and the quality scores are never on the share image or in the
+  copied summary. Content rules are in
   [../security.md §7](../security.md#7-browser-only-history-and-privacy).
 
 ## 7. i18n

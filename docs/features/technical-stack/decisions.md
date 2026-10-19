@@ -378,6 +378,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 59 | Continuous: one `continuousDirection` with an optional run length and `null` bounds, `measured` from 3 fully known 1 s cells else `insufficient-data` under `partial`, run-wide numbers from running sums, last-hour loaded latency, the last 64 path B probes | v0.3 |
 | 60 | Continuous `sample` fields `continuous`, `cells` and `notices`, exported ring lengths, the live chart's tier by elapsed time, the `data-used` notice | v0.3 |
 | 61 | The v0.3 demo: the Continuous scenarios with a fast-forward rate, a 921 Mbit/s fixture, path B controls and About layer switches | v0.3 |
+| 62 | v0.3 UI: Continuous settings and URL mapping, About snippets per layer, the summary's responsiveness and scores, the Result detail's TM95, 7-day and skipped lines, Compare rows, per-direction CSV columns, the share image, the Continuous live view and endings | v0.3 |
 
 ## Related
 
