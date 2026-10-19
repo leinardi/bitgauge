@@ -205,6 +205,19 @@ const responsiveness = either(
   object({ state: literal('unavailable_h1', 'unavailable_insufficient'), ...pathB }),
 )
 
+/** One quality-score experience (v0.3, section 13.5): its points and band, or what it misses. */
+const experience = either(
+  object({ points: count, band: literal('bad', 'poor', 'average', 'good', 'great') }),
+  object({ missing: list(literal('idle-latency', 'jitter', 'loaded-latency', 'download')) }),
+)
+const scores = object({
+  basis: literal('download+upload', 'download', 'upload', 'none'),
+  packetLoss: literal('not-measured'),
+  streaming: experience,
+  gaming: experience,
+  rtc: experience,
+})
+
 /** A direction's resolved duration bounds (v0.2). */
 const bounds = object({ minMs: count, maxMs: count })
 
@@ -270,6 +283,7 @@ const result = object(
     download: object(directionFields.required, directionFields.optional),
     upload: object({ ...directionFields.required, confirmedRequests: count }, directionFields.optional),
     bufferbloat: object({ grade: literal('A+', 'A', 'B', 'C', 'D', 'F'), basis: literal('download+upload', 'download', 'upload'), increaseMs: amount }),
+    scores,
   },
 )
 

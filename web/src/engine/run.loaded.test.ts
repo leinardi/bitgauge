@@ -118,6 +118,14 @@ describe('loaded latency over the WebSocket', () => {
     expect(result.upload?.loadedLatency).toMatchObject({ source: 'websocket', medianMs: 42, increaseMs: 39 })
     expect(result.download?.loadedLatency).not.toHaveProperty('idleSource')
     expect(result.bufferbloat).toEqual({ grade: 'B', basis: 'download+upload', increaseMs: 39 })
+    // The fixture's quality scores: 20 + 30 + 5, 20 + 5 and 20 + 10 + 5, all good.
+    expect(result.scores).toEqual({
+      basis: 'download+upload',
+      packetLoss: 'not-measured',
+      streaming: { points: 55, band: 'good' },
+      gaming: { points: 25, band: 'good' },
+      rtc: { points: 35, band: 'good' },
+    })
     expect(result.notices.map((notice) => notice.code)).not.toContain('probe-reservation')
     // The live samples carry the pings as they are answered.
     expect(livePings(harness, 'download').length).toBeGreaterThanOrEqual(10)
@@ -271,7 +279,7 @@ describe('the last direction’s grace', () => {
 })
 
 describe('a latency-only run', () => {
-  it('has no loaded latency and no grade', async () => {
+  it('has no loaded latency, no grade and no scored experience', async () => {
     const harness = start({ phases: ['idle'] })
     const { report, result } = await finish(harness)
     expect(report.loaded).toEqual({ download: null, upload: null })
@@ -279,5 +287,13 @@ describe('a latency-only run', () => {
     expect(result.upload).not.toHaveProperty('loadedLatency')
     expect(result).not.toHaveProperty('bufferbloat')
     expect(livePings(harness, 'download')).toEqual([])
+    // The scores are present, every experience naming what it misses (measurement.md section 13.5).
+    expect(result.scores).toEqual({
+      basis: 'none',
+      packetLoss: 'not-measured',
+      streaming: { missing: ['loaded-latency', 'download'] },
+      gaming: { missing: ['loaded-latency'] },
+      rtc: { missing: ['loaded-latency'] },
+    })
   })
 })

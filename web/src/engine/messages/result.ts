@@ -20,9 +20,9 @@
 import type { Confidence, Notice, NoticeCode } from '@/engine/messages/notices'
 import type { Direction, DurationBounds, MeasuringPhase, Preset, StreamMode } from '@/engine/messages/settings'
 
-// Result object (measurement.md section 17): the fields of later versions (quality scores,
-// Continuous fields) are absent, never null-filled, and the v0.2 and v0.3 additions are optional,
-// so a v0.1 or v0.2 result stays valid.
+// Result object (measurement.md section 17): the fields of later versions (the Continuous fields)
+// are absent, never null-filled, and the v0.2 and v0.3 additions are optional, so a v0.1 or v0.2
+// result stays valid.
 
 export type DirectionStatus = 'measured' | 'insufficient-data' | 'partial' | 'skipped' | 'error'
 
@@ -98,6 +98,25 @@ export interface Bufferbloat {
   grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F'
   basis: 'download+upload' | Direction
   increaseMs: number
+}
+
+/** A quality-score band (measurement.md section 13.3), from the lowest. */
+export type ScoreBand = 'bad' | 'poor' | 'average' | 'good' | 'great'
+
+/** An input a quality score needs (measurement.md section 13.1), by the name a missing one is listed with. */
+export type ScoreInput = 'idle-latency' | 'jitter' | 'loaded-latency' | 'download'
+
+/** One experience's score: its clamped points and band, or every input it misses, never both. */
+export type Experience = { points: number; band: ScoreBand } | { missing: ScoreInput[] }
+
+/** The AIM quality scores (measurement.md section 13.5); packet loss is not measured, 0 points. */
+export interface Scores {
+  /** The bufferbloat grade's basis, `none` without one. */
+  basis: Bufferbloat['basis'] | 'none'
+  packetLoss: 'not-measured'
+  streaming: Experience
+  gaming: Experience
+  rtc: Experience
 }
 
 /**
@@ -176,6 +195,8 @@ export interface Result {
   upload?: UploadResult
   /** Absent without idle latency or a gradable direction (v0.2). */
   bufferbloat?: Bufferbloat
+  /** Present on every result from v0.3, even when no experience is scored. */
+  scores?: Scores
   dataUsedBytes: number
   notices: Notice[]
 }

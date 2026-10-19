@@ -21,7 +21,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { Result } from '@/engine/messages'
+import type { Result, Scores } from '@/engine/messages'
 import { validateResult } from '@/engine/result/validate'
 
 const VALID: Result = {
@@ -88,7 +88,7 @@ describe('the result validator', () => {
   })
 
   it('rejects a field of a later version, wherever it is', () => {
-    expect(validateResult(changed((result) => (result['scores'] = {})))).toEqual(['result.scores: not a field of this schema version'])
+    expect(validateResult(changed((result) => Object.assign(result.settings, { runLengthMs: 60_000 })))).toEqual(['result.settings.runLengthMs: not a field of this schema version'])
     expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { minBitsPerSecond: 1 })))).toEqual([
       'result.download.minBitsPerSecond: not a field of this schema version',
     ])
@@ -137,6 +137,32 @@ describe('the result validator', () => {
     expect(validateResult(measuredWithout)).not.toEqual([])
     const unknownState = changed((result) => Object.assign(result.download ?? {}, { responsiveness: { state: 'unknown', protocol: 'h2', samples: 0 } }))
     expect(validateResult(unknownState)).not.toEqual([])
+  })
+
+  it('accepts the v0.3 scores, scored or naming what they miss, and a result without them', () => {
+    const scored = {
+      basis: 'download+upload',
+      packetLoss: 'not-measured',
+      streaming: { points: 20, band: 'average' },
+      gaming: { points: 0, band: 'bad' },
+      rtc: { points: 10, band: 'poor' },
+    }
+    expect(validateResult(changed((result) => (result['scores'] = scored as Scores)))).toEqual([])
+    const missing = { ...scored, basis: 'none', streaming: { missing: ['idle-latency', 'loaded-latency', 'download'] }, gaming: { missing: ['idle-latency', 'loaded-latency'] } }
+    expect(validateResult(changed((result) => (result['scores'] = missing as Scores)))).toEqual([])
+    expect(validateResult(VALID)).toEqual([])
+  })
+
+  it('rejects scores outside their shape', () => {
+    const scored = { basis: 'download', packetLoss: 'not-measured', streaming: { points: 20, band: 'average' }, gaming: { points: 0, band: 'bad' }, rtc: { points: 10, band: 'poor' } }
+    const withScores = (scores: object) => changed((result) => (result['scores'] = scores as Scores))
+    expect(validateResult(withScores({ ...scored, packetLoss: 0 }))).toEqual(['result.scores.packetLoss: not one of not-measured'])
+    expect(validateResult(withScores({ ...scored, basis: 'both' }))).toEqual(['result.scores.basis: not one of download+upload, download, upload, none'])
+    expect(validateResult(withScores({ ...scored, rtc: { points: 10, band: 'poor', missing: ['jitter'] } }))).not.toEqual([])
+    expect(validateResult(withScores({ ...scored, gaming: { points: -5, band: 'bad' } }))).not.toEqual([])
+    expect(validateResult(withScores({ ...scored, gaming: { missing: ['packet-loss'] } }))).not.toEqual([])
+    const { rtc: _rtc, ...withoutRtc } = scored
+    expect(validateResult(withScores(withoutRtc))).toEqual(['result.scores.rtc: missing'])
   })
 
   it('accepts the v0.2 duration bounds in the settings, and a result without them', () => {

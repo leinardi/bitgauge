@@ -54,7 +54,7 @@ const STANDARD: RunSettings = {
 
 // Fields the engine never writes: the history's note, and those of later versions (measurement.md
 // section 17).
-const LATER = ['note', 'scores', 'minBitsPerSecond', 'maxBitsPerSecond', 'knownMs']
+const LATER = ['note', 'minBitsPerSecond', 'maxBitsPerSecond', 'knownMs']
 
 interface Options {
   settings?: Partial<RunSettings>
@@ -139,6 +139,13 @@ describe('a fast LAN Standard run', () => {
     expect(emitted.upload?.confirmedRequests).toBeGreaterThanOrEqual(3)
     expect(emitted.download?.loadedLatency).toMatchObject({ source: 'websocket', increaseMs: 0 })
     expect(emitted.bufferbloat).toEqual({ grade: 'A+', basis: 'download+upload', increaseMs: 0 })
+    expect(emitted.scores).toEqual({
+      basis: 'download+upload',
+      packetLoss: 'not-measured',
+      streaming: { points: 70, band: 'great' },
+      gaming: { points: 40, band: 'great' },
+      rtc: { points: 50, band: 'great' },
+    })
     expect(emitted.dataUsedBytes).toBe((emitted.download?.bytes ?? 0) + (emitted.upload?.bytes ?? 0))
     expect(keys(emitted).filter((key) => LATER.includes(key))).toEqual([])
   })

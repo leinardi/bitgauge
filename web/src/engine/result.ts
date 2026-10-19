@@ -21,6 +21,7 @@ import type { IdleResult, Notice, Result, UploadResult } from '@/engine/messages
 import { directionNotices, downloadResult, resultNotices, skippedDirection, uploadResult } from '@/engine/result/direction'
 import { quantized, withLoaded } from '@/engine/result/loaded'
 import { withResponsiveness } from '@/engine/result/responsiveness'
+import { scores } from '@/engine/result/scores'
 import type { RunReport } from '@/engine/run/report'
 import type { BrowserIdentity, Clock } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
@@ -89,7 +90,8 @@ export function buildResult(context: ResultContext): Result {
   const { bufferbloat } = loaded
   const download = withResponsiveness(loaded.download, report.responsiveness.download)
   const upload = withResponsiveness(loaded.upload, report.responsiveness.upload)
-  const idle = report.idle?.result
+  const measuredIdle = report.idle?.result
+  const idle = measuredIdle === undefined ? undefined : idleResult(measuredIdle, clock.resolutionMs)
   return {
     schema: 'bitgauge.result',
     schemaVersion: 1,
@@ -119,10 +121,11 @@ export function buildResult(context: ResultContext): Result {
       warmup: settings.warmup,
       pingCount: settings.pingCount,
     },
-    ...(idle === undefined ? {} : { idle: idleResult(idle, clock.resolutionMs) }),
+    ...(idle === undefined ? {} : { idle }),
     download,
     upload,
     ...(bufferbloat === undefined ? {} : { bufferbloat }),
+    scores: scores({ idle, bufferbloat, download }),
     dataUsedBytes: report.dataUsedBytes,
     notices: resultNotices([directionNotices(report.download?.notices, download), directionNotices(report.upload?.notices, upload), report.notices, browserUploadLimit(report.browser, report.upload, upload)], percent),
   }
