@@ -18,6 +18,7 @@
  */
 
 import type { DurationBounds, Preset, TestSettings } from '@/engine/messages'
+import type { WarmupEnd } from '@/engine/phases/warmup'
 import type { Clock } from '@/engine/types'
 
 /** What a throughput phase, download or upload, takes from the run. */
@@ -36,6 +37,8 @@ export interface ThroughputOptions {
   streamCap?: number
   /** Called once at the phase's end instant with the grace its loaded-latency pings get (section 11.4). */
   ended?: (graceMs: number) => void
+  /** Called once when the phase learns its warm-up has ended, which starts path B (section 12.3). */
+  warmedUp?: (end: WarmupEnd) => void
 }
 
 /** The grace is min(2 s, 2 × d), d the expected duration of the longest request in flight (measurement.md section 5). */

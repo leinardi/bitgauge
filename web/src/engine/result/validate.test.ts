@@ -89,8 +89,8 @@ describe('the result validator', () => {
 
   it('rejects a field of a later version, wherever it is', () => {
     expect(validateResult(changed((result) => (result['scores'] = {})))).toEqual(['result.scores: not a field of this schema version'])
-    expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { responsiveness: {} })))).toEqual([
-      'result.download.responsiveness: not a field of this schema version',
+    expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { minBitsPerSecond: 1 })))).toEqual([
+      'result.download.minBitsPerSecond: not a field of this schema version',
     ])
   })
 
@@ -113,6 +113,30 @@ describe('the result validator', () => {
     })
     expect(validateResult(withLoaded)).toEqual([])
     expect(validateResult(VALID)).toEqual([])
+  })
+
+  it('accepts the v0.3 responsiveness in each of its states, and a result without it', () => {
+    const measured = { state: 'measured', protocol: 'h2', samples: 31, rpm: 1765, tm95Ms: 34, trimmed: 0, totalMedianMs: 36.5 }
+    const withPathB = changed((result) => {
+      Object.assign(result.download ?? {}, { responsiveness: measured })
+      Object.assign(result.upload ?? {}, { responsiveness: { state: 'unavailable_h1', protocol: '', samples: 0 } })
+    })
+    expect(validateResult(withPathB)).toEqual([])
+    const uncertain = changed((result) => Object.assign(result.download ?? {}, { responsiveness: { ...measured, state: 'uncertain', protocol: 'h3', samples: 7 } }))
+    expect(validateResult(uncertain)).toEqual([])
+    const insufficient = changed((result) => Object.assign(result.download ?? {}, { responsiveness: { state: 'unavailable_insufficient', protocol: 'h2', samples: 3 } }))
+    expect(validateResult(insufficient)).toEqual([])
+    expect(validateResult(VALID)).toEqual([])
+  })
+
+  it('rejects a responsiveness outside its shape', () => {
+    const numbers = { rpm: 1765, tm95Ms: 34, trimmed: 0, totalMedianMs: 36.5 }
+    const unavailableWithNumbers = changed((result) => Object.assign(result.download ?? {}, { responsiveness: { state: 'unavailable_h1', protocol: 'http/1.1', samples: 0, ...numbers } }))
+    expect(validateResult(unavailableWithNumbers)).not.toEqual([])
+    const measuredWithout = changed((result) => Object.assign(result.download ?? {}, { responsiveness: { state: 'measured', protocol: 'h2', samples: 12 } }))
+    expect(validateResult(measuredWithout)).not.toEqual([])
+    const unknownState = changed((result) => Object.assign(result.download ?? {}, { responsiveness: { state: 'unknown', protocol: 'h2', samples: 0 } }))
+    expect(validateResult(unknownState)).not.toEqual([])
   })
 
   it('accepts the v0.2 duration bounds in the settings, and a result without them', () => {

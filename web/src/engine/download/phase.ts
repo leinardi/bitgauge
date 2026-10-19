@@ -198,7 +198,10 @@ export class DownloadPhase {
     }
     this.streams.settled = this.ramp.settled
     if (this.warmup.end === null) {
-      this.warmup.update(this.series, this.ramp, this.streams.completedPerStream(this.ramp.streams))
+      const end = this.warmup.update(this.series, this.ramp, this.streams.completedPerStream(this.ramp.streams))
+      if (end !== null) {
+        this.options.warmedUp?.(end)
+      }
     }
     const elapsedMs = at * BUCKET_MS
     const extended = this.rule.extended

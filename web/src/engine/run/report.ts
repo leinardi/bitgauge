@@ -20,7 +20,7 @@
 import type { DownloadOutcome } from '@/engine/download/phase'
 import type { IdleOutcome } from '@/engine/latency/idle'
 import type { LoadedOutcome } from '@/engine/latency/loaded'
-import type { DirectionEvent, EngineErrorCode, MeasuringPhase, Notice, NoticeCode, ResultStatus } from '@/engine/messages'
+import type { DirectionEvent, EngineErrorCode, MeasuringPhase, Notice, NoticeCode, Responsiveness, ResultStatus } from '@/engine/messages'
 import type { RunSettings } from '@/engine/settings'
 import type { BrowserIdentity, Info } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
@@ -51,6 +51,8 @@ export interface RunReport {
   upload: UploadOutcome | null
   /** Each direction's loaded latency; null for a direction the pinger did not run for. */
   loaded: Record<'download' | 'upload', LoadedDirection | null>
+  /** Each direction's HTTP loaded responsiveness, settled as it finished; null for one that did not run (v0.3). */
+  responsiveness: Record<'download' | 'upload', Responsiveness | null>
   /** The measuring phases that did not run: left out by the settings, or after a stop, an error or the data cap. */
   skipped: MeasuringPhase[]
   notices: Notice[]

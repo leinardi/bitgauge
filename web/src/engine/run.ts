@@ -19,6 +19,7 @@
 
 import { type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
 import type { IdleLatency, IdleOutcome } from '@/engine/latency/idle'
+import type { WarmupEnd } from '@/engine/phases/warmup'
 import type { Direction, DirectionResult, EngineEvent, IdleResult, MeasuringPhase, Notice, PhaseName, PhaseState } from '@/engine/messages'
 import { buildResult } from '@/engine/result'
 import { directionNotices, downloadResult, resultNotices, uploadResult } from '@/engine/result/direction'
@@ -28,6 +29,7 @@ import { type Interrupt, Interruption } from '@/engine/run/interrupt'
 import { LoadedProbes } from '@/engine/run/latency'
 import { PageState } from '@/engine/run/page'
 import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices, urlNotices } from '@/engine/run/report'
+import { capabilityOf, ResponsivenessProbes } from '@/engine/run/responsiveness'
 import { SampleFeed } from '@/engine/run/samples'
 import { idlePhase, infoPhase, type StartContext } from '@/engine/run/start'
 import { Housekeeping } from '@/engine/run/tick'
@@ -38,8 +40,8 @@ import type { UploadOutcome } from '@/engine/upload/outcome'
 import { UploadPhase } from '@/engine/upload/phase'
 
 // A run from `start` to its last phase (measurement.md section 1, architecture.md section 4): the
-// info phase, then the configured measuring phases in order, loaded latency alongside each
-// direction (run/latency.ts), with every interruption: a user
+// info phase, then the configured measuring phases in order, loaded latency and path B alongside
+// each direction (run/latency.ts, run/responsiveness.ts), with every interruption: a user
 // stop, a page the browser paused while hidden, a network change, a server restart, an
 // unreachable server and the WebSocket-close sequence (edge-cases.md sections 2, 5, 6, 11, 15).
 
@@ -71,6 +73,7 @@ export class Run {
   private connection: Connection | null = null
   private readonly page: PageState
   private readonly loaded: LoadedProbes
+  private readonly responsiveness: ResponsivenessProbes
   private restartIdle = false
   private readonly housekeeping: Housekeeping
   private sampling: { phase: DownloadPhase | UploadPhase; feed: SampleFeed; before: number } | null = null
@@ -93,6 +96,7 @@ export class Run {
     this.clock = options.clock
     this.page = new PageState(options.visible)
     this.loaded = new LoadedProbes({ clock: this.clock, path: () => this.connection?.loaded ?? null, fallbackAt: () => this.connection?.fallbackAt ?? null })
+    this.responsiveness = new ResponsivenessProbes(this.clock, options.transport)
     this.housekeeping = new Housekeeping({ clock: this.clock, busy: this.busy, late: (last) => this.late(last), tick: (now) => this.sample(now) })
   }
 
@@ -119,6 +123,7 @@ export class Run {
       this.finished = true
       this.housekeeping.stop()
       this.loaded.drain()
+      this.responsiveness.drain()
       this.connection?.dispose()
     }
   }
@@ -166,7 +171,7 @@ export class Run {
     this.loaded.infoProtocol = this.protocol
     skipped.forEach((phase) => this.event(phase, 'skipped'))
     const directions = { overheadCompensationPercent: settings.overheadCompensationPercent, busy: this.fraction }
-    const report: RunReport = { ...start, status: 'complete', protocol: null, settings, idle: null, download: null, upload: null, loaded: { download: null, upload: null }, skipped, notices: [], dataUsedBytes: 0, error: null }
+    const report: RunReport = { ...start, status: 'complete', protocol: null, settings, idle: null, download: null, upload: null, loaded: { download: null, upload: null }, responsiveness: { download: null, upload: null }, skipped, notices: [], dataUsedBytes: 0, error: null }
     for (const phase of settings.phases) {
       if (this.interrupt !== null || report.download?.dataCapReached === true || report.upload?.dataCapReached === true) {
         report.skipped.push(phase)
@@ -191,6 +196,7 @@ export class Run {
     report.loaded = await this.loaded.results()
     return {
       ...report,
+      responsiveness: this.responsiveness.results(),
       status: interrupt === null ? 'complete' : interrupt.kind === 'stop' ? 'partial' : 'error',
       protocol: this.protocol,
       dataUsedBytes: this.dataUsed,
@@ -211,6 +217,9 @@ export class Run {
       interrupted: () => this.interrupt?.kind ?? null,
       fail: (code) => this.fail(code),
       record: (protocol) => this.record(protocol),
+      capability: (probe) => {
+        this.responsiveness.protocol = capabilityOf(probe)
+      },
       opened: (connection) => {
         this.connection = connection
       },
@@ -256,7 +265,11 @@ export class Run {
       limits: start.info.limits,
       rttMs: this.idleMedian,
       ...this.loaded.reserve(direction),
-      ended: (graceMs: number) => this.loaded.end(direction, graceMs),
+      ended: (graceMs: number) => {
+        this.loaded.end(direction, graceMs)
+        this.responsiveness.end(direction)
+      },
+      warmedUp: (end: WarmupEnd) => this.responsiveness.warmedUp(direction, end),
     }
   }
 
@@ -291,7 +304,8 @@ export class Run {
       this.fail(settled.notices.some((notice) => notice.code === 'server-restarted') ? 'server-restarted' : 'requests-failed')
     }
     this.kept ||= settled.status !== 'error'
-    const block = tile(settled)
+    const tiled = tile(settled)
+    const block = { ...tiled, responsiveness: this.responsiveness.settle(direction, tiled, this.clock.resolutionMs) }
     this.measured.push(...directionNotices(settled.notices, block))
     this.event(direction, settled.status === 'error' ? 'failed' : 'finished', { streams: settled.streams, result: block })
     return settled

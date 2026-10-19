@@ -20,14 +20,15 @@
 import type { IdleResult, Notice, Result, UploadResult } from '@/engine/messages'
 import { directionNotices, downloadResult, resultNotices, skippedDirection, uploadResult } from '@/engine/result/direction'
 import { quantized, withLoaded } from '@/engine/result/loaded'
+import { withResponsiveness } from '@/engine/result/responsiveness'
 import type { RunReport } from '@/engine/run/report'
 import type { BrowserIdentity, Clock } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
 import { IDLE_SHARE } from '@/engine/upload/streams'
 
-// The versioned result object of measurement.md section 17, v0.2 field set: what a run reports,
-// with the client's timer resolution and cross-origin isolation (edge-cases.md section 9). The
-// fields of later versions are absent, never null-filled.
+// The versioned result object of measurement.md section 17, v0.3 field set so far: what a run
+// reports, with the client's timer resolution and cross-origin isolation (edge-cases.md section 9).
+// The fields of later versions are absent, never null-filled.
 
 export interface ResultContext {
   report: RunReport
@@ -84,7 +85,10 @@ export function buildResult(context: ResultContext): Result {
   const directions = { overheadCompensationPercent: percent, busy: context.busy }
   const measured = report.download === null || context.downloadStartAt === null ? skippedDirection() : downloadResult(report.download, context.downloadStartAt, directions)
   const sent = report.upload === null ? { ...skippedDirection(), confirmedRequests: 0 } : uploadResult(report.upload, directions)
-  const { download, upload, bufferbloat } = withLoaded(report, measured, sent, clock.resolutionMs)
+  const loaded = withLoaded(report, measured, sent, clock.resolutionMs)
+  const { bufferbloat } = loaded
+  const download = withResponsiveness(loaded.download, report.responsiveness.download)
+  const upload = withResponsiveness(loaded.upload, report.responsiveness.upload)
   const idle = report.idle?.result
   return {
     schema: 'bitgauge.result',

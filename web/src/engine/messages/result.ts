@@ -20,9 +20,9 @@
 import type { Confidence, Notice, NoticeCode } from '@/engine/messages/notices'
 import type { Direction, DurationBounds, MeasuringPhase, Preset, StreamMode } from '@/engine/messages/settings'
 
-// Result object (measurement.md section 17), the v0.2 field set: the fields of later versions
-// (responsiveness, quality scores, Continuous fields) are absent, never null-filled, and the v0.2
-// additions are optional, so a v0.1 result stays valid.
+// Result object (measurement.md section 17): the fields of later versions (quality scores,
+// Continuous fields) are absent, never null-filled, and the v0.2 and v0.3 additions are optional,
+// so a v0.1 or v0.2 result stays valid.
 
 export type DirectionStatus = 'measured' | 'insufficient-data' | 'partial' | 'skipped' | 'error'
 
@@ -80,6 +80,19 @@ export type LoadedLatency =
     }
   | { status: 'unavailable'; reason: LoadedLatencyReason; source?: LoadedSource; samples: number; skippedTicks: number; lost: number }
 
+/** How far a direction's HTTP loaded responsiveness can be trusted (measurement.md section 12.4). */
+export type ResponsivenessState = 'measured' | 'uncertain' | 'unavailable_h1' | 'unavailable_insufficient'
+
+/**
+ * A direction's HTTP loaded responsiveness, path B (measurement.md section 12.6): `protocol` is the
+ * capability check's, empty when it was not reported, failed or had no timing entry; `samples`
+ * counts the window's valid probes. The numbers exist only on `measured` and `uncertain`, the
+ * times quantized to the timer resolution; `trimmed` 0 means TM95 is the plain mean.
+ */
+export type Responsiveness =
+  | { state: Extract<ResponsivenessState, 'measured' | 'uncertain'>; protocol: string; samples: number; rpm: number; tm95Ms: number; trimmed: number; totalMedianMs: number }
+  | { state: Extract<ResponsivenessState, 'unavailable_h1' | 'unavailable_insufficient'>; protocol: string; samples: number }
+
 /** The bufferbloat grade of measurement.md section 11.3. */
 export interface Bufferbloat {
   grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F'
@@ -105,6 +118,8 @@ export interface DirectionResult {
   events: DirectionEvent[]
   /** Present when the direction ran while a loaded-latency path existed (v0.2). */
   loadedLatency?: LoadedLatency
+  /** Present on every direction that ran, from v0.3. */
+  responsiveness?: Responsiveness
 }
 
 export interface UploadResult extends DirectionResult {

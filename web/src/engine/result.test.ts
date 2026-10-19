@@ -52,9 +52,9 @@ const STANDARD: RunSettings = {
   overheadCompensationPercent: 0,
 }
 
-/** The fields of later versions (measurement.md section 17), absent from a v0.1 result. */
-// Fields the engine never writes: the history's note, and those of later versions.
-const LATER = ['note', 'scores', 'responsiveness', 'minBitsPerSecond', 'maxBitsPerSecond', 'knownMs']
+// Fields the engine never writes: the history's note, and those of later versions (measurement.md
+// section 17).
+const LATER = ['note', 'scores', 'minBitsPerSecond', 'maxBitsPerSecond', 'knownMs']
 
 interface Options {
   settings?: Partial<RunSettings>
@@ -134,6 +134,7 @@ describe('a fast LAN Standard run', () => {
       expect(Math.abs((direction?.bitsPerSecond ?? 0) / 2.5e9 - 1)).toBeLessThan(0.05)
       expect(direction?.peakBitsPerSecond).toBeGreaterThanOrEqual((direction?.bitsPerSecond ?? 0) * 0.9)
       expect(direction?.windowMs).toBeGreaterThanOrEqual(3000)
+      expect(direction?.responsiveness).toMatchObject({ state: 'measured', protocol: 'h2' })
     }
     expect(emitted.upload?.confirmedRequests).toBeGreaterThanOrEqual(3)
     expect(emitted.download?.loadedLatency).toMatchObject({ source: 'websocket', increaseMs: 0 })

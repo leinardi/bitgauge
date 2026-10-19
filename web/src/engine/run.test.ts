@@ -134,8 +134,9 @@ describe('the phase order', () => {
     expect(report?.download?.status).toBe('measured')
     expect(report?.upload?.status).toBe('measured')
     expect(report?.dataUsedBytes).toBe((report?.download?.bytes ?? 0) + (report?.upload?.bytes ?? 0))
-    // The info phase's one idle request.
-    expect(harness.transport.server.probed).toEqual(['/api/v1/small'])
+    // The info phase's idle request, then path B's probes under load: the protocol is h2.
+    expect(new Set(harness.transport.server.probed)).toEqual(new Set(['/api/v1/small']))
+    expect(harness.transport.server.probed.length).toBeGreaterThan(1)
   })
 
   it('carries each finished phase’s part of the result on its phase event, as the result reports it', async () => {

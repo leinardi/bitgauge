@@ -256,7 +256,11 @@ export class UploadPhase {
     }
     this.streams.settled = this.ramp.settled
     if (series !== null && this.warmup.end === null) {
-      this.warmup.update(series, this.ramp, this.streams.confirmedPerStream(this.ramp.streams))
+      // The confirmation that ends warm-up on the server timeline is the client instant it is known.
+      const end = this.warmup.update(series, this.ramp, this.streams.confirmedPerStream(this.ramp.streams))
+      if (end !== null) {
+        this.options.warmedUp?.(end)
+      }
     }
     this.evaluate()
     this.grow()

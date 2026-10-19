@@ -17,9 +17,9 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// A structural check of the result object (measurement.md section 17, v0.2 field set): every
-// required field present with its type, nothing unknown, so a field of a later version fails. The
-// v0.2 additions are optional, so a v0.1 result stays valid.
+// A structural check of the result object (measurement.md section 17): every required field
+// present with its type, nothing unknown, so a field of a later version fails. The v0.2 and v0.3
+// additions are optional, so a v0.1 or v0.2 result stays valid.
 // The tests run it on every emitted result; the application runs it before Download JSON.
 
 /** Appends a problem, `path: what is wrong`, for each way the value differs. */
@@ -198,6 +198,13 @@ const loadedLatency = either(
   object({ status: literal('unavailable'), reason: literal('no-steady-window', 'insufficient-samples', 'reservation-broken', 'no-probe-path'), ...probes }, { source }),
 )
 
+/** A direction's HTTP loaded responsiveness (v0.3, section 12.6): its numbers only when measured or uncertain. */
+const pathB = { protocol: string, samples: count }
+const responsiveness = either(
+  object({ state: literal('measured', 'uncertain'), ...pathB, rpm: count, tm95Ms: amount, trimmed: count, totalMedianMs: amount }),
+  object({ state: literal('unavailable_h1', 'unavailable_insufficient'), ...pathB }),
+)
+
 /** A direction's resolved duration bounds (v0.2). */
 const bounds = object({ minMs: count, maxMs: count })
 
@@ -217,6 +224,7 @@ const directionFields = {
     confidence: object({ level: literal('normal', 'low', 'cpu-bound'), reasons }),
     series,
     loadedLatency,
+    responsiveness,
   },
 }
 

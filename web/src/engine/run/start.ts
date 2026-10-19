@@ -22,14 +22,14 @@ import type { EngineEvent, IdleResult } from '@/engine/messages'
 import { Connection } from '@/engine/run/connection'
 import type { RunErrorCode, RunReport } from '@/engine/run/report'
 import type { RunSettings } from '@/engine/settings'
-import type { Clock, InfoResult, Transport } from '@/engine/types'
+import type { Clock, InfoResult, ProbeTiming, Transport } from '@/engine/types'
 
 // The run's first two phases (measurement.md sections 1 and 4): the info phase, which reads GET
 // /info, opens the WebSocket or its fallback and records the protocol, and idle latency, which
 // starts over when the page was hidden or the echo reconnected. The run owns the state; these
 // read and report it through a narrow context.
 
-/** The info phase's one idle request, which records the protocol (path B is v0.3). */
+/** The info phase's one idle request, which records the protocol and is path B's capability check. */
 const SMALL_PATH = '/api/v1/small'
 
 /** What the info and idle phases read and report of their run. */
@@ -45,6 +45,8 @@ export interface StartContext {
   fail(code: RunErrorCode): void
   /** A protocol a request reported. */
   record(protocol: string | null | undefined): void
+  /** Path B's capability check: the idle request's answer, null when it failed (measurement.md section 12.3). */
+  capability(probe: ProbeTiming | null): void
   /** The info phase's connection, adopted as soon as it exists so the run can dispose of it. */
   opened(connection: Connection): void
   /** The idle median the connection's close sequence compares with. */
@@ -85,8 +87,12 @@ export async function infoPhase(context: StartContext): Promise<Pick<RunReport, 
   try {
     const probe = await context.guard(context.transport.probe(SMALL_PATH))
     context.record(probe?.timing?.nextHopProtocol)
+    if (probe !== null) {
+      context.capability(probe)
+    }
   } catch {
-    // The idle request only records the protocol; a failure here is the phases' to meet.
+    // A failed idle request records no protocol and rules path B out; the rest is the phases' to meet.
+    context.capability(null)
   }
   if (context.interrupted() !== null) {
     return null
