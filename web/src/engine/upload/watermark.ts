@@ -168,6 +168,24 @@ export class UploadLedger {
     }
   }
 
+  /**
+   * Continuous only: drops the closed requests whose failure gap ends by `beforeMs` on the server
+   * timeline, every cell of it already handed on, and returns their gaps for the direction's
+   * events. A closed request's bounds no longer move once its gap lies before the window end.
+   */
+  releaseGaps(beforeMs: number): FailureGap[] {
+    const gaps: FailureGap[] = []
+    for (const [id, entry] of this.entries) {
+      const endMs = entry.state === 'ended' ? this.upperBound(id) : null
+      const startMs = endMs === null ? null : this.lowerBound(id)
+      if (endMs !== null && startMs !== null && endMs <= beforeMs) {
+        gaps.push({ startMs, endMs })
+        this.entries.delete(id)
+      }
+    }
+    return gaps
+  }
+
   /** How many requests confirmed, released ones included. */
   get confirmedRequests(): number {
     return this.confirmedCount

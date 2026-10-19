@@ -23,6 +23,7 @@ import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule } from '@/engine/phases/window'
 import { BUCKET_MS } from '@/engine/stats/units'
 import type { Clock, Info, TimerId, Transport, UploadResponse } from '@/engine/types'
+import { ContinuousUpload } from '@/engine/upload/continuous'
 import { cellOf } from '@/engine/upload/grid'
 import { type InFlight, uploadLoop, type UploadIssueHost } from '@/engine/upload/issue'
 import { type Halt, uploadOutcome, type UploadOutcome } from '@/engine/upload/outcome'
@@ -36,6 +37,7 @@ import { confirmedSeries, endConditionHolds } from '@/engine/upload/window'
 // through the transport (upload/issue.ts); each answer's telemetry is validated and confirmed into
 // the ledger, and every decision reads only the confirmed series. The phase stops issuing at its
 // end decision, gives the requests in flight a grace, and measures the window up to W_end_final.
+// A Continuous upload has no end decision: it hands its confirmed cells to its retention instead.
 
 const MAX_FAILURES = 3
 const TOO_MANY_REQUESTS = 429
@@ -54,6 +56,8 @@ export class UploadPhase {
   readonly ledger = new UploadLedger()
   /** When the phase stopped issuing requests, on the client clock; null while it issues. */
   haltedAt: number | null = null
+  /** Continuous only: the retention its cells go to, and the data-used notices. */
+  readonly continuous: ContinuousUpload | null
 
   private readonly options: UploadOptions
   private readonly clock: Clock
@@ -74,6 +78,7 @@ export class UploadPhase {
   /** The first stream the ramp's last step added, while it waits to be placed. */
   private addedFrom = 0
   private tickTimer: TimerId | null = null
+  private runTimer: TimerId | null = null
   private graceTimer: TimerId | null = null
   /** The reason the phase halted for, last first: a stop or a restart can cut a grace short. */
   private halted: Halt | null = null
@@ -84,7 +89,8 @@ export class UploadPhase {
     this.options = options
     this.clock = options.clock
     this.turn = new PreparationTurn(options.clock)
-    this.streams = new UploadStreams(options.rttMs)
+    this.streams = new UploadStreams(options.rttMs, options.continuous !== undefined)
+    this.continuous = options.continuous === undefined ? null : new ContinuousUpload(this.ledger)
     const { mode, fixed, max } = options.streams
     this.ramp = new Ramp({ mode, fixed, max, serverMax: options.limits.maxStreamsPerClient, ...(options.streamCap === undefined ? {} : { streamCap: options.streamCap }), rttMs: options.rttMs })
     this.warmup = new Warmup({ direction: 'upload', maxMs: options.bounds?.maxMs ?? null, fixedMs: options.warmup === 'auto' ? null : options.warmup })
@@ -133,8 +139,8 @@ export class UploadPhase {
   }
 
   /** The length of each structure the phase grows, which the footprint test reads. */
-  footprint(): { uploadEntries: number; uploadCells: number; uploadOffsets: number } {
-    return { ...this.ledger.footprint(), uploadOffsets: this.streams.footprint() }
+  footprint(): Record<string, number> {
+    return { ...this.ledger.footprint(), uploadOffsets: this.streams.footprint(), ...this.continuous?.footprint() }
   }
 
   /** Runs the phase to its end, grace included. */
@@ -142,6 +148,11 @@ export class UploadPhase {
     return new Promise((resolve) => {
       this.done = resolve
       this.start = this.clock.now()
+      const runLengthMs = this.options.continuous?.runLengthMs ?? null
+      if (runLengthMs !== null) {
+        // The run length stops the issue and gives the requests in flight their grace (section 15).
+        this.runTimer = this.clock.setTimer(runLengthMs, () => this.halt('run-length'))
+      }
       this.tick()
       this.grow()
     })
@@ -154,6 +165,9 @@ export class UploadPhase {
 
   /** The duration rule on the client clock, every bucket; a confirmation also evaluates it. */
   private tick(): void {
+    // Continuous: the cells confirmed since go to the retention, released once the ramp has settled.
+    this.continuous?.feed(this.clock.now(), this.ramp.settled)
+    this.continuous?.usedNotices.update(this.options.dataUsedBefore + this.dataUsed)
     this.evaluate()
     if (this.halted === null) {
       this.tickTimer = this.clock.setTimer(BUCKET_MS, () => this.tick())
@@ -161,7 +175,7 @@ export class UploadPhase {
   }
 
   private evaluate(): void {
-    if (this.halted !== null) {
+    if (this.halted !== null || this.continuous !== null) {
       return
     }
     const warmupEnd = this.warmup.end
@@ -266,6 +280,7 @@ export class UploadPhase {
       if (end !== null) {
         // No window counts a request whose cells all came before warm-up ended.
         this.ledger.release(end.bucket, this.clock.now())
+        this.continuous?.begin(end.bucket)
         this.options.warmedUp?.(end)
       }
     }
@@ -288,8 +303,10 @@ export class UploadPhase {
       this.options.ended?.(grace)
     }
     this.ledger.halt([...this.inFlight].map(({ request }) => ({ id: request.id, stream: request.stream })))
-    if (this.tickTimer !== null) {
-      this.clock.clearTimer(this.tickTimer)
+    for (const timer of [this.tickTimer, this.runTimer]) {
+      if (timer !== null) {
+        this.clock.clearTimer(timer)
+      }
     }
     const at = this.clock.now()
     if (reason === 'data-cap') {
@@ -325,6 +342,8 @@ export class UploadPhase {
       flight.controller.abort()
     }
     this.inFlight.clear()
+    // The cells confirmed up to W_end_final.
+    this.continuous?.feed(this.clock.now(), false)
     done(this.outcome())
   }
 
@@ -344,6 +363,7 @@ export class UploadPhase {
       displayOffsetMs: this.streams.displayOffset(),
       events: this.clientEvents,
       startAt: this.start,
+      continuous: this.continuous,
     })
   }
 }

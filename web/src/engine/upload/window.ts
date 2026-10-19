@@ -31,7 +31,7 @@ import type { FailureGap, UploadLedger } from '@/engine/upload/watermark'
 const PEAK_PERCENTILE = 90
 
 /** Whether cell `cell` overlaps any of the failure gaps. */
-function overlapsGap(cell: number, gaps: readonly FailureGap[]): boolean {
+export function overlapsGap(cell: number, gaps: readonly FailureGap[]): boolean {
   const start = cellStart(cell)
   return gaps.some((gap) => start < gap.endMs && start + BUCKET_MS > gap.startMs)
 }

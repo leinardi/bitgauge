@@ -20,7 +20,7 @@
 import type { DirectionEvent, NoticeCode } from '@/engine/messages'
 import type { UploadTelemetry } from '@/engine/types'
 import { cellOf } from '@/engine/upload/grid'
-import type { UploadLedger } from '@/engine/upload/watermark'
+import type { FailureGap, UploadLedger } from '@/engine/upload/watermark'
 
 // Where the upload's two timelines meet: the validation of an answer's telemetry (measurement.md
 // section 7.3) and the events of section 17, which sit on the server timeline from P_start.
@@ -55,20 +55,22 @@ export function validTelemetry(telemetry: UploadTelemetry, size: number): boolea
 /**
  * The phase's events on the server timeline from P_start, failure gaps included. A client instant
  * is moved by the display offset of section 7.4; without a confirmed request there is no offset,
- * and it stays relative to the client start `startAt`.
+ * and it stays relative to the client start `startAt`. A Continuous upload passes the last 100
+ * gaps, those its ledger released included.
  */
 export function serverEvents(
   events: readonly ClientEvent[],
   startAt: number,
   ledger: UploadLedger,
   offset: number | null,
+  gaps: readonly FailureGap[] = ledger.failureGaps(),
 ): DirectionEvent[] {
   const phaseStart = ledger.phaseStart() ?? 0
   const placed: DirectionEvent[] = events.map(({ code, at, notice }) => {
     const atMs = offset === null ? at - startAt : at - offset - phaseStart
     return code === 'error' ? { code, atMs, notice: notice ?? 'requests-failed' } : { code, atMs }
   })
-  for (const gap of ledger.failureGaps()) {
+  for (const gap of gaps) {
     placed.push({ code: 'failure-gap', startMs: gap.startMs - phaseStart, endMs: gap.endMs - phaseStart })
   }
   return placed

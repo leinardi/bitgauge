@@ -17,7 +17,9 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { DataUsedNotices } from '@/engine/continuous/dataUsed'
 import { continuousSoFar } from '@/engine/continuous/live'
+import type { Retention } from '@/engine/continuous/retention'
 import type { DownloadPhase } from '@/engine/download/phase'
 import type { EngineEvent, LoadedPing, SteadySoFar } from '@/engine/messages'
 import { type Cell, mean, percentile } from '@/engine/stats/buckets'
@@ -69,6 +71,25 @@ function values(phase: DownloadPhase, from: number, to: number): Cell[] {
   return [...phase.series.range(start, Math.min(first, to)), ...phase.retention.values(Math.max(start, first), to)]
 }
 
+/**
+ * The upload's confirmed cells from `next`, or from the first confirmed one: from the confirmed
+ * series up to a Continuous steady start, from the retention after it. Null before a confirmation.
+ */
+function uploadValues(phase: UploadPhase, next: number | null): { from: number; values: Cell[] } | null {
+  const series = confirmedSeries(phase.ledger)
+  if (series === null) {
+    return null
+  }
+  const from = next ?? series.first
+  const retention = phase.continuous?.retention ?? null
+  const first = retention?.first ?? null
+  if (retention === null || first === null) {
+    return { from, values: series.range(from, Math.max(from, series.end)) }
+  }
+  const end = Math.max(from, retention.end)
+  return { from, values: [...series.range(from, Math.min(first, end)), ...retention.values(Math.max(from, first), end)] }
+}
+
 export interface LiveOptions {
   runLengthMs: number | null
   loadedMs: () => number | null
@@ -114,7 +135,7 @@ export class SampleFeed {
       gauge: bucketRate(mean(known(values(phase, end - GAUGE_BUCKETS, end))) ?? 0),
       streams: phase.streamCount,
       dataUsedBytes,
-      ...this.continuous(phase, phaseMs, dataUsedBytes),
+      ...this.continuous(phase.retention, phase.usedNotices, phaseMs, dataUsedBytes),
     }
     if (warmupEnd === null) {
       return this.withPings(sample)
@@ -124,19 +145,18 @@ export class SampleFeed {
   }
 
   /** In Continuous, the live figures, the coarse cells closed and the notices raised since the previous sample. */
-  private continuous(phase: DownloadPhase, elapsedMs: number, dataBytes: number): Pick<Sample, 'continuous' | 'cells' | 'notices'> {
-    const retention = phase.retention
+  private continuous(retention: Retention | null, used: DataUsedNotices | null, elapsedMs: number, dataBytes: number): Pick<Sample, 'continuous' | 'cells' | 'notices'> {
     if (retention === null || this.live === null) {
       return {}
     }
     const cells = retention.drain()
-    const notices = phase.usedNotices?.drain() ?? []
+    const notices = used?.drain() ?? []
     const live = continuousSoFar(retention, { elapsedMs, runLengthMs: this.live.runLengthMs, dataBytes, loadedMs: this.live.loadedMs() })
     return { continuous: live, ...(cells.length === 0 ? {} : { cells }), ...(notices.length === 0 ? {} : { notices }) }
   }
 
   /** The upload's gauge is the client's sending progress; its buckets are confirmed server cells. */
-  upload(phase: UploadPhase, dataUsedBefore: number, now: number): Sample {
+  upload(phase: UploadPhase, dataUsedBefore: number, now: number, phaseMs: number): Sample {
     const sent = phase.dataUsed
     this.progress.push({ at: now, bytes: sent })
     if (this.progress.length > SENDING_BUCKETS + 1) {
@@ -144,15 +164,13 @@ export class SampleFeed {
     }
     const oldest = this.progress[0] ?? { at: now, bytes: sent }
     const sending = now > oldest.at ? (bitsFromBytes(sent - oldest.bytes) * 1000) / (now - oldest.at) : 0
-    const series = confirmedSeries(phase.ledger)
     // Cells are absolute server-grid indices, far from 0: values start at the first confirmed
     // cell, and nothing is remembered before the first confirmation.
-    const from = this.next ?? series?.first ?? 0
-    let values: Cell[] = []
-    if (series !== null) {
-      const end = Math.max(from, series.end)
-      values = series.range(from, end)
-      this.next = end
+    const confirmed = uploadValues(phase, this.next)
+    const from = confirmed?.from ?? 0
+    const values = confirmed?.values ?? []
+    if (confirmed !== null) {
+      this.next = from + values.length
     }
     const windowEnd = phase.ledger.windowEnd()
     // The chart's placing of the sending line: this instant on the server grid, by the offset.
@@ -167,6 +185,7 @@ export class SampleFeed {
       sending,
       streams: phase.streamCount,
       dataUsedBytes: dataUsedBefore + sent,
+      ...this.continuous(phase.continuous?.retention ?? null, phase.continuous?.usedNotices ?? null, phaseMs, dataUsedBefore + sent),
       ...(windowEnd === null ? {} : { windowEnd }),
       ...(offset === null || phaseStart === null ? {} : { startBucket: phaseStart / BUCKET_MS, sendingBucket: (now - offset) / BUCKET_MS }),
     }
@@ -174,8 +193,7 @@ export class SampleFeed {
     if (warmupEnd === null) {
       return this.withPings(sample)
     }
-    const window = steadyWindow(phase.ledger, warmupEnd.bucket * BUCKET_MS)
-    const live = steady(window.cells.map((cell) => phase.ledger.grid.bytes(cell)))
+    const live = phase.continuous === null ? steady(steadyWindow(phase.ledger, warmupEnd.bucket * BUCKET_MS).cells.map((cell) => phase.ledger.grid.bytes(cell))) : undefined
     return this.withPings({ ...sample, warmupEndBucket: warmupEnd.bucket, ...(live === undefined ? {} : { steady: live }) })
   }
 }

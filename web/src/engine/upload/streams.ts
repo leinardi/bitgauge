@@ -40,6 +40,9 @@ export const IDLE_SHARE = 0.2
 /** A request's idle share is read only from a server duration of at least one bucket. */
 const IDLE_MIN_DURATION_MS = 100
 
+/** A Continuous upload's display offset reads its last 100 confirmed requests (measurement.md section 15). */
+const CONTINUOUS_OFFSETS = 100
+
 /** One request of a stream, from its send to its telemetry or its end. */
 export interface UploadRequest {
   id: RequestId
@@ -70,8 +73,9 @@ export class UploadStreams {
   /** Whether a confirmed request of at least 1 s on the client was read in under 10 % of it. */
   bufferingSuspected = false
   private readonly streams: StreamState[] = []
-  /** t_done − (startMs + durationMs) of every confirmed request. */
+  /** t_done − (startMs + durationMs) of every confirmed request, or in Continuous of the last 100. */
   private readonly offsets: number[] = []
+  private readonly offsetLimit: number
 
   /** How many streams have been started. */
   get started(): number {
@@ -101,8 +105,9 @@ export class UploadStreams {
   private readonly gaps = new IssueGaps()
   private readonly rttMs: number
 
-  constructor(rttMs: number | null) {
+  constructor(rttMs: number | null, continuous = false) {
     this.rttMs = rttMs ?? DEFAULT_RTT_MS
+    this.offsetLimit = continuous ? CONTINUOUS_OFFSETS : Number.POSITIVE_INFINITY
   }
 
   /** Whether streams issue their next request early (measurement.md section 3). */
@@ -165,6 +170,9 @@ export class UploadStreams {
       this.bufferingSuspected = true
     }
     this.offsets.push(doneAt - (telemetry.startMs + telemetry.durationMs))
+    if (this.offsets.length > this.offsetLimit) {
+      this.offsets.shift()
+    }
   }
 
   /** The confirmed requests of each of the first `active` streams. */
@@ -198,7 +206,7 @@ export class UploadStreams {
     return this.offsets.length
   }
 
-  /** The display-only offset of section 7.4: the median of t_done − server end; null before one. */
+  /** The display-only offset of section 7.4: the median of t_done − server end over the offsets kept; null before one. */
   displayOffset(): number | null {
     return percentile(this.offsets, 50)
   }

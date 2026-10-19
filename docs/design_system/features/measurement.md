@@ -404,8 +404,9 @@ the peak or the warm-up decisions.
 
 The only place client time meets server time is the live chart, where the faint `sending` line
 (client `onprogress`) is drawn against the solid `received` line using a display-only offset: the
-median over confirmed requests of `t_done − (startMs + durationMs)`. This offset is cosmetic, its
-error under load is unbounded, and it never feeds a number.
+median over confirmed requests of `t_done − (startMs + durationMs)`, over the last 100 of them in
+a Continuous upload (§15). This offset is cosmetic, its error under load is unbounded, and it never
+feeds a number.
 
 ### 7.5 Phase Start, Measurement End and the Confirmed Watermark
 
@@ -1355,6 +1356,8 @@ full length when the run starts; nothing grows with run length:
   7 days, and the result detail says so.
 - **Failure gaps.** The direction's `events` keep the last 100 `failure-gap` events; an older gap
   still shows in the saved series as unknown or partly known cells.
+- **Display offset (upload).** The display-only offset of §7.4 is the median over the last 100
+  confirmed requests, a fixed ring, rather than over every one.
 - **Live chart.** The UI keeps rings of its own of the ring lengths above, which
   `engine/messages.ts` exports as constants, fed by each `sample`'s native buckets and closed coarse
   cells ([architecture.md §4](architecture.md#4-engine--ui-message-contract)). It picks the tier by

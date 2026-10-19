@@ -166,6 +166,10 @@ describe('Continuous', () => {
     })
   })
 
+  it('runs upload when its direction is upload', () => {
+    expect(settings({ preset: 'continuous', continuousDirection: 'upload' }).continuousDirection).toBe('upload')
+  })
+
   it('takes the duration as its run length, 60 s to 7 days', () => {
     expect(settings({ preset: 'continuous', durationMs: 60_000 }).runLengthMs).toBe(60_000)
     expect(settings({ preset: 'continuous', durationMs: 604_800_000 })).toMatchObject({ runLengthMs: 604_800_000, download: { minMs: null, maxMs: null } })
@@ -181,7 +185,7 @@ describe('Continuous', () => {
 describe('invalid settings', () => {
   const cases: [string, SettingsOverride][] = [
     ['preset', { preset: 'turbo' as TestSettings['preset'] }],
-    ['continuousDirection', { preset: 'continuous', continuousDirection: 'upload' }],
+    ['continuousDirection', { preset: 'continuous', continuousDirection: 'both' as 'upload' }],
     ['continuousDirection', { continuousDirection: 'download' }],
     ['runLengthMs', { runLengthMs: 60_000 }],
     ['runLengthMs', { preset: 'continuous', runLengthMs: 59_000 }],

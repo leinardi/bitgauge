@@ -17,30 +17,36 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { MEASURED_SECONDS, type Retention } from '@/engine/continuous/retention'
 import type { DirectionEvent, DirectionStatus, Notice, Plateau } from '@/engine/messages'
 import type { WarmupEnd } from '@/engine/phases/warmup'
 import type { DurationRule } from '@/engine/phases/window'
 import type { BucketSeries } from '@/engine/stats/buckets'
 import { BUCKET_MS } from '@/engine/stats/units'
+import type { ContinuousUpload } from '@/engine/upload/continuous'
 import { type ClientEvent, serverEvents } from '@/engine/upload/timeline'
 import type { UploadLedger } from '@/engine/upload/watermark'
 import { confirmedSeries, steadyWindow, type UploadWindow } from '@/engine/upload/window'
 
-// What an upload phase reports once it is over (measurement.md sections 5, 7.6 and 16).
+// What an upload phase reports once it is over (measurement.md sections 5, 7.6, 15 and 16). A
+// Continuous upload is measured from three fully known 1 s cells since its steady start, whatever
+// ended it, and reads its numbers from its retention rather than from a window.
 
 /** Why the phase stopped issuing requests. */
-export type Halt = 'duration' | 'data-cap' | 'interrupted' | 'failures' | 'stopped' | 'server-restarted'
+export type Halt = 'duration' | 'run-length' | 'data-cap' | 'interrupted' | 'failures' | 'stopped' | 'server-restarted'
 
 export interface UploadOutcome {
   status: Exclude<DirectionStatus, 'skipped'>
   warmup: WarmupEnd | null
-  /** The steady window up to W_end_final; null when warm-up never ended. */
+  /** The steady window up to W_end_final; null when warm-up never ended, and in Continuous. */
   window: UploadWindow | null
+  /** Continuous only: the retention its numbers come from. */
+  retention: Retention | null
   /** Server timeline: P_start, the end of warm-up and W_end_final; null before a confirmation. */
   phaseStartMs: number | null
   warmupEndMs: number | null
   windowEndMs: number | null
-  /** The confirmed series up to W_end_final. */
+  /** The confirmed series up to W_end_final; null in Continuous, whose retention holds it. */
   series: BucketSeries | null
   streams: number
   plateau: Plateau | undefined
@@ -77,6 +83,22 @@ export interface PhaseRecord {
   events: readonly ClientEvent[]
   /** The phase start on the client clock. */
   startAt: number
+  continuous: ContinuousUpload | null
+}
+
+/** A Continuous upload's status (measurement.md section 15), with the notices of its ending. */
+function continuousStatus(record: PhaseRecord, retention: Retention, notices: Notice[]): UploadOutcome['status'] {
+  const seconds = retention.aggregates().seconds
+  if (seconds < MEASURED_SECONDS) {
+    if (record.halts.has('stopped')) {
+      notices.push({ code: 'stopped-early', direction: 'upload', coveredMs: seconds * 1000 })
+    }
+    return 'insufficient-data'
+  }
+  if (record.warmup?.confidence.level === 'low') {
+    notices.push({ code: 'low-confidence', direction: 'upload', reasons: record.warmup.confidence.reasons })
+  }
+  return 'measured'
 }
 
 export function uploadOutcome(record: PhaseRecord): UploadOutcome {
@@ -84,7 +106,8 @@ export function uploadOutcome(record: PhaseRecord): UploadOutcome {
   // A restarted server's grid cannot be combined with the one before: the phase reports nothing.
   const restarted = halts.has('server-restarted')
   const warmupEndMs = warmup === null || restarted ? null : warmup.bucket * BUCKET_MS
-  const window = warmupEndMs === null ? null : steadyWindow(ledger, warmupEndMs)
+  const retention = restarted ? null : (record.continuous?.retention ?? null)
+  const window = warmupEndMs === null || record.continuous !== null ? null : steadyWindow(ledger, warmupEndMs)
   const notices: Notice[] = []
   let status: UploadOutcome['status']
   if (restarted) {
@@ -92,6 +115,8 @@ export function uploadOutcome(record: PhaseRecord): UploadOutcome {
     notices.push({ code: 'server-restarted' })
   } else if (halts.has('failures')) {
     status = 'error'
+  } else if (retention !== null) {
+    status = continuousStatus(record, retention, notices)
   } else if (halts.has('stopped')) {
     status = 'partial'
   } else {
@@ -115,14 +140,16 @@ export function uploadOutcome(record: PhaseRecord): UploadOutcome {
   if (record.bufferingSuspected) {
     notices.push({ code: 'proxy-buffering-suspected' })
   }
+  notices.push(...(record.continuous?.usedNotices.raised ?? []))
   return {
     status,
     warmup: restarted ? null : warmup,
     window,
+    retention,
     phaseStartMs: restarted ? null : ledger.phaseStart(),
     warmupEndMs,
     windowEndMs: restarted ? null : ledger.windowEnd(),
-    series: restarted ? null : confirmedSeries(ledger),
+    series: restarted || record.continuous !== null ? null : confirmedSeries(ledger),
     streams: record.streams,
     plateau: record.plateau,
     bytes: record.bytes,
@@ -131,7 +158,7 @@ export function uploadOutcome(record: PhaseRecord): UploadOutcome {
     protocol: record.protocol,
     displayOffsetMs: record.displayOffsetMs,
     notices,
-    events: serverEvents(record.events, record.startAt, ledger, record.displayOffsetMs),
+    events: serverEvents(record.events, record.startAt, ledger, record.displayOffsetMs, record.continuous?.failureGaps()),
     dataCapReached: halts.has('data-cap'),
   }
 }

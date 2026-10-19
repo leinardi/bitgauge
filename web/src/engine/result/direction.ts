@@ -103,12 +103,11 @@ function reportsNumber(outcome: DownloadOutcome | UploadOutcome, sufficient: boo
  * known 1 s cells since the steady start, its minimum and maximum the lowest and highest of them,
  * its peak the final p90 of the last hour; insufficient-data without any number or confidence.
  */
-function continuousResult(outcome: DownloadOutcome, retention: Retention, startAt: number, context: DirectionContext): DirectionResult {
-  const series = savedSeries(retention)
+function continuousResult(outcome: DownloadOutcome | UploadOutcome, retention: Retention, span: Continuous, context: DirectionContext): DirectionResult {
+  const series = savedSeries(retention, span.originMs)
   const block = { ...base(outcome), ...(series === null ? {} : { series }) }
   const { warmup } = outcome
-  const first = retention.first
-  if (outcome.status !== 'measured' || warmup === null || first === null) {
+  if (outcome.status !== 'measured' || warmup === null || retention.first === null) {
     return block
   }
   const { seconds, bytes, minBytes, maxBytes, variation, peakLastHourBytes } = retention.aggregates()
@@ -124,15 +123,24 @@ function continuousResult(outcome: DownloadOutcome, retention: Retention, startA
     ...(minBytes === null || maxBytes === null ? {} : { minBitsPerSecond: rate(minBytes), maxBitsPerSecond: rate(maxBytes) }),
     windowMs,
     // cpu-bound reads the Worker's busy fraction from the steady start to the end.
-    confidence: confidence(warmup, context.busy(startAt + first * BUCKET_MS, startAt + outcome.endMs), variation),
+    confidence: confidence(warmup, span.busy === null ? null : context.busy(span.busy.fromMs, span.busy.toMs), variation),
   }
+}
+
+/** Where a Continuous direction's series and busy span sit. */
+interface Continuous {
+  /** The instant its cells count from: the phase start on download, P_start on upload. */
+  originMs: number
+  /** From the steady start to the end, on the client clock; null without a display offset. */
+  busy: { fromMs: number; toMs: number } | null
 }
 
 /** `startAt` is the phase start on the client clock. */
 export function downloadResult(outcome: DownloadOutcome, startAt: number, context: DirectionContext): DirectionResult {
   const { window, warmup } = outcome
-  if (outcome.retention !== null) {
-    return continuousResult(outcome, outcome.retention, startAt, context)
+  const { retention } = outcome
+  if (retention !== null) {
+    return continuousResult(outcome, retention, { originMs: 0, busy: { fromMs: startAt + (retention.first ?? 0) * BUCKET_MS, toMs: startAt + outcome.endMs } }, context)
   }
   if (window === null || warmup === null) {
     return base(outcome)
@@ -155,6 +163,13 @@ export function downloadResult(outcome: DownloadOutcome, startAt: number, contex
 export function uploadResult(outcome: UploadOutcome, context: DirectionContext): UploadResult {
   const { window, warmup, series, phaseStartMs, warmupEndMs, windowEndMs, displayOffsetMs } = outcome
   const block: UploadResult = { ...base(outcome), confirmedRequests: outcome.confirmedRequests }
+  const { retention } = outcome
+  if (retention !== null) {
+    // The steady start's cell and W_end_final, placed on the client clock by the display offset.
+    const first = (retention.first ?? 0) * BUCKET_MS
+    const busy = displayOffsetMs === null || windowEndMs === null ? null : { fromMs: first + displayOffsetMs, toMs: windowEndMs + displayOffsetMs }
+    return { ...continuousResult(outcome, retention, { originMs: phaseStartMs ?? 0, busy }, context), confirmedRequests: outcome.confirmedRequests }
+  }
   if (window === null || warmup === null || series === null || phaseStartMs === null || warmupEndMs === null || windowEndMs === null) {
     return block
   }

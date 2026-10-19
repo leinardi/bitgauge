@@ -268,7 +268,11 @@ export class Run {
   /** What a throughput phase's options read from the run. */
   private phaseContext(start: Pick<RunReport, 'info'>): PhaseContext {
     const { clock, transport, settings } = this.options
-    const steady = (end: WarmupEnd) => this.busy.pin(this.enteredAt + end.bucket * BUCKET_MS)
+    // The steady start on the client clock: a download bucket from the phase start, an upload cell placed by the display offset.
+    const steady = (end: WarmupEnd) => {
+      const phase = this.sampling?.phase
+      this.busy.pin(phase instanceof UploadPhase ? end.bucket * BUCKET_MS + (phase.displayOffset ?? 0) : this.enteredAt + end.bucket * BUCKET_MS)
+    }
     return { clock, transport, settings, limits: start.info.limits, dataUsedBefore: this.dataUsed, rttMs: this.idleMedian, loaded: this.loaded, responsiveness: this.responsiveness, steady }
   }
 
@@ -338,7 +342,7 @@ export class Run {
     // Typed here so that the dead-code analysis sees the feed's members in use.
     const feed: SampleFeed = sampling.feed
     const { phase, before } = sampling
-    const event = phase instanceof DownloadPhase ? feed.download(phase, before, now - this.enteredAt) : feed.upload(phase, before, now)
+    const event = phase instanceof DownloadPhase ? feed.download(phase, before, now - this.enteredAt) : feed.upload(phase, before, now, now - this.enteredAt)
     if (event !== null) {
       this.options.emit({ ...event, phaseMs: now - this.enteredAt })
     }

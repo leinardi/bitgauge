@@ -30,8 +30,8 @@ const MAX_DURATION_MS = 600 * SECOND
 /** A Continuous run length: 60 s to 7 days (measurement.md section 8.5). */
 const MIN_RUN_LENGTH_MS = 60 * SECOND
 const MAX_RUN_LENGTH_MS = 604_800 * SECOND
-/** The directions a Continuous run accepts so far: upload follows in a later step. */
-const CONTINUOUS_DIRECTIONS: readonly Direction[] = ['download']
+/** The directions a Continuous run accepts. */
+const CONTINUOUS_DIRECTIONS: readonly Direction[] = ['download', 'upload']
 const MAX_STREAMS = 6
 const MIN_DATA_CAP = 1024 * 1024
 const MIN_WARMUP_MS = SECOND

@@ -37,8 +37,11 @@ export function savedTier(retention: Retention): Tier {
   return ORDER.find((tier) => retention.rings[tier].total <= retention.rings[tier].length) ?? 'long'
 }
 
-/** The saved series, times from the phase start; null before the steady start's first cell. */
-export function savedSeries(retention: Retention): ResultSeries | null {
+/**
+ * The saved series, times from `originMs`: cell 0's start on download, P_start on the upload's
+ * server timeline. Null before the steady start's first cell.
+ */
+export function savedSeries(retention: Retention, originMs = 0): ResultSeries | null {
   const first = retention.first
   const native = retention.rings.native
   if (first === null || native.total === 0) {
@@ -57,7 +60,7 @@ export function savedSeries(retention: Retention): ResultSeries | null {
     values.push(known === 0 ? null : points.reduce((sum, cell) => sum + cell.bytes, 0))
     knownMs.push(known)
   }
-  const startMs = first * BUCKET_MS
+  const startMs = first * BUCKET_MS - originMs
   return {
     bucketMs: group * CELL_MS[tier],
     firstCellMs: startMs + (ring.total - ring.size) * CELL_MS[tier],
