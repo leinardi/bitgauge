@@ -64,6 +64,10 @@ Scenarios:
 - **h2 vs h1:** protocol detection from `nextHopProtocol` (including an empty value), the 5-stream
   reservation with the HTTP fallback, path B `unavailable_h1` vs `measured`/`uncertain`, and h2
   multiplexing modeled as one shared window.
+- **Path B:** HTTP/1.1, an empty protocol and a failed capability probe giving `unavailable_h1`;
+  h2 `measured`; a new connection, an unknown one, fewer than 10 samples and a capped warm-up each
+  giving `uncertain`; fewer than 4 samples in the last 4 s giving `unavailable_insufficient`; TM95
+  at 19 samples (nothing trimmed) and at 20 (one trimmed); path B never feeding the grade.
 - **Cancel mid-request with the watermark rule:** user stop during uploads; worked example B
   reproduced exactly (`C = 7000`, `W_end_final = 7000`, `partial`).
 - **Issue gap:** a browser that takes 150 ms to start each request, download and upload; early issue
@@ -92,9 +96,19 @@ Scenarios:
   fallback single-outstanding with recorded gaps, Waveform grade boundaries, TM95 trimming and the
   four path B states.
 - **Scores:** every AIM threshold boundary and band, and experiences omitted when an input is
-  missing.
-- **Continuous:** constant memory over a simulated 8-day run (ring sizes fixed), tier sums with
-  unknown cells, "p90, last hour", data-used notices.
+  missing, each `missing` combination, a download-only run, and the worked example of
+  [../measurement.md §17](../measurement.md#17-result-object).
+- **Continuous:** a synthetic clock over **more than 7 days** of cells (8 days), on which every
+  retention ring keeps exactly its fixed length (6000, 3600, 1440, 1008) from the moment it is
+  allocated, the saved series follows the tier rule at each tier boundary and beyond 7 days (the
+  last 7 saved), unknown and partly known cells keep their known time, and the run-wide aggregates
+  and "p90, last hour" match a brute-force reference on a short run; data-used notices at each
+  threshold; the outcome rule (a stop during warm-up and a stop right after it, before 3 fully
+  known 1 s cells, give `insufficient-data` under a `partial` result; with 3 cells, `complete`);
+  and constant memory, the engine's test-only `footprint()` reporting every structure that grows
+  per tick, request, chunk, sample, probe or message, each length equal at minutes 5 and 15 of a
+  simulated 15-minute run on h2 with the WebSocket loaded path and path B running, in each
+  direction.
 - **Visibility and throttling:** late ticks while hidden stopping the run; hidden without late ticks
   continuing.
 - **Result object:** schema validation of every emitted result; `schemaVersion` migration.
@@ -144,6 +158,13 @@ behavior are re-checked manually on real Safari (macOS) and iOS Safari before ea
   closes the WebSocket, and the run ends with `network changed`
   ([../edge-cases.md §6](../edge-cases.md#6-network-change-mid-test), step 3) or, when three
   download requests fail first, with `requests-failed`; the spec accepts either.
+- **v0.3 coverage** (built with the v0.3 UI). Flow 7, Continuous mode, short: `continuous.spec.ts`
+  starts a Continuous download with the shortest run length, 60 s, waits for the `complete` result
+  and finds it saved in History, then starts another and stops it right after warm-up, expecting
+  `partial` with `insufficient-data` and Keep in history offered. `about.spec.ts` starts servers
+  with each compatibility toggle (`BITGAUGE_COMPAT__*`) and checks that each snippet shows only for
+  its enabled layer. A run on the plain-HTTP/1.1 E2E server reports path B `unavailable_h1`. axe
+  scans the new states: the Continuous live view and its two endings, and About with the snippets.
 - **v0.2 coverage.** Flows 6, 8 and 9 (`history`, `share` and `settings` specs) and the Result
   detail (`result-detail`). Their history comes from the demo's eight results, imported through
   History's own Import JSON (`web/e2e/fixtures/history.ts`); runs are left to what needs one: the
@@ -269,6 +290,38 @@ The harness report says which layer each result comes from.
 - Playwright WebKit ≠ Safari: Worker XHR and `nextHopProtocol` behavior must be re-checked on real
   Safari.
 - Mobile power management: device runs happen with the screen on.
+
+**Path B (v0.3).** On `ci-100m-50ms-caddy-h2` each measured direction's `responsiveness.state`
+must be `measured`, and on `ci-100m-50ms-traefik-h1` it must be `unavailable_h1`; a missing
+`responsiveness` on a measured direction fails the run there. Every other profile records the
+state, with the RPM where there is one, and does not judge it: neither the protocol nor the
+connection sharing it rests on is under the profile's control.
+
+**Compatibility clients (v0.3).** On `ci-100m-50ms-caddy-h2`, the one CI profile with HTTPS, which
+networkQuality needs, BitGauge runs with the three compatibility toggles on and
+`server.trusted_proxies` set to the proxy network, so the absolute URLs are built from Caddy's
+forwarding headers. After the browser runs:
+
+- `librespeed-cli --no-icmp --server-json https://…/.well-known/librespeed --server 1 --json` runs
+  in the tools container;
+- `goresponsiveness` runs in the tools container against `https://…/nq/config`, with Caddy's
+  internal root CA installed in the tools container's trust store;
+- a pinned OpenSpeedTest UI container on the client network is opened by Playwright at
+  `?Host=` pointing at BitGauge through Caddy, and runs one test.
+
+Each passes when it exits or finishes without an error and reports a non-zero download and upload
+throughput, and `goresponsiveness` an RPM. Its numbers follow the client's own method
+([../compatibility.md](../compatibility.md)) and are recorded, not held to the tolerance table. A
+missing or unreadable output fails the profile; it is never a skip. The no-egress layers stay on
+for the whole profile, and the OpenSpeedTest UI's results link is never followed.
+
+**Continuous memory (manual, v0.3).** Beside the three tiers, `make harness-continuous` runs one
+hour of a Continuous download on the `ci-100m-50ms` profile in Chromium. Every 60 s from the
+steady start the browser driver forces a garbage collection on the Worker's target and reads its
+`Runtime.getHeapUsage` through the Chrome DevTools Protocol. The run passes when every sample from
+minute 5 to minute 60 lies within 2 MiB of the minute-5 sample. It runs before each release, not on
+CI, and is recorded in `docs/engineering/harness-runs/<version>.md` with the floor and ceiling
+tiers.
 
 **What the harness cannot prove:** real Wi-Fi behavior, real VPN MTU effects, carrier-grade NAT,
 and anything about networks the project does not target.

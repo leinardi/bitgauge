@@ -174,15 +174,21 @@ tiers must additionally show for the features it adds. Progress per feature area
 **Acceptance (accuracy harness):**
 
 - Everything v0.2 requires, still passing.
-- On 100 Mbit + 50 ms through Caddy (h2), path B is `measured`; through Traefik (h1) it is
-  `unavailable_h1`. See [measurement.md §12](measurement.md#12-http-loaded-responsiveness).
-- `librespeed-cli --no-icmp`, `goresponsiveness` and a hosted copy of the OpenSpeedTest UI complete
-  a test against each enabled layer on the 100 Mbit + 50 ms profile. See
+- On `ci-100m-50ms-caddy-h2` (100 Mbit + 50 ms through Caddy, h2), each measured direction's path
+  B state is `measured`; on `ci-100m-50ms-traefik-h1` it is `unavailable_h1`, in every CI browser.
+  See [measurement.md §12](measurement.md#12-http-loaded-responsiveness).
+- On `ci-100m-50ms-caddy-h2`, with the three layers on: `librespeed-cli --no-icmp` against
+  `/.well-known/librespeed`, `goresponsiveness` against `/nq/config` and a pinned OpenSpeedTest UI
+  opened with `?Host=` each finish without an error and report a non-zero download and upload
+  throughput (and an RPM for `goresponsiveness`), with the no-egress layers on. See
+  [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness) and
   [compatibility.md](compatibility.md).
-- A one-hour Continuous run on the 100 Mbit + 50 ms profile keeps the engine's memory constant from
-  the start of the steady window, with all four rings allocated at full length when the run starts.
-  An engine test on a synthetic clock covering more than 7 days checks that every ring keeps exactly
-  its fixed length and that the saved series follows the tier rule. See
+- A one-hour Continuous download on `ci-100m-50ms` in Chromium (`make harness-continuous`, manual,
+  recorded per release) keeps the Worker's heap, read after a forced garbage collection every
+  minute from the steady start, within 2 MiB of the minute-5 reading from minute 5 to minute 60.
+- An engine test on a synthetic clock covering more than 7 days checks that every ring keeps
+  exactly its fixed length and that the saved series follows the tier rule, and a 15-minute
+  simulated run in each direction keeps every `footprint()` length equal at minutes 5 and 15. See
   [measurement.md §15](measurement.md#15-continuous-mode).
 
 ### 1.4 Beyond v0.3 — Unscheduled

@@ -1,7 +1,8 @@
 # Accuracy Harness Runbook
 
 How to run the two manual tiers of the accuracy harness, the range floor and the range ceiling,
-before each release, and where their results go. The harness itself, its profiles, tolerances and
+and from v0.3 the manual Continuous memory check, before each release, and where their results
+go. The harness itself, its profiles, tolerances and
 no-egress layers are specified in
 [testing.md §5](../features/technical-stack/testing.md#5-accuracy-harness); this note is only the
 procedure. The CI tier needs no runbook: `harness.yaml` runs it.
@@ -104,6 +105,15 @@ wall-clock time (`ping -D`).
   the window fails the run. `ci-100m-50ms-traefik-h1-ws-blocked` must report `http-h1-reserved`
   with at least 10 samples in each direction, at most 5 streams and the `probe-reservation` notice
   (testing.md §5).
+- **HTTP loaded responsiveness** (v0.3): each direction's path B state, with its RPM when it has
+  one. On `ci-100m-50ms-caddy-h2` a measured direction must read `measured`, on
+  `ci-100m-50ms-traefik-h1` `unavailable_h1`; every other profile records it unjudged
+  (testing.md §5).
+- **Compatibility clients** (v0.3, `ci-100m-50ms-caddy-h2` only): `librespeed-cli`,
+  `goresponsiveness` and the OpenSpeedTest UI, each with its download and upload (and the RPM for
+  `goresponsiveness`). Each must finish without an error with non-zero numbers, which follow the
+  client's own method and are not held to the tolerances; a missing or unreadable output fails the
+  profile.
 - **Egress counters**: every one is zero, or the run is not evidence of anything. The report names
   the no-egress layer it comes from (netguard's packet layer, not the image test's syscall layer).
 - **Client usage** (ceiling): the client container's CPU and memory over the browser run. At
@@ -125,7 +135,9 @@ before tagging. It holds, in this order:
 2. the ceiling tier's `report.md`, as written, and the hand verdict;
 3. the manual runs: device, OS and browser versions, the VPN and network used, the headline and
    its qualifiers from the downloaded JSON;
-4. the environmental notes: the host (CPU, cores, kernel, Docker version), anything that differed
+4. from v0.3, the Continuous memory check (§7): the browser version, the minute-by-minute heap
+   readings and the verdict;
+5. the environmental notes: the host (CPU, cores, kernel, Docker version), anything that differed
    from this runbook, and anything that looked wrong even if it passed.
 
 A failed or inconclusive profile is recorded as such, with its re-run beside it, never replaced by
@@ -204,3 +216,18 @@ The runs of 2026-10-16 that closed this question did exactly that:
 gaps, the phase continued), and `ci-20261016T212626Z-f09d157a` (Caddy, `requests-failed` at
 12.5 s), every netguard counter at zero. The script as shown was checked once more on
 `ci-20261016T213146Z-c97571bf` (Caddy, one kill: a 1.3 s failure gap, the phase continued).
+
+## 7. Run the Continuous Memory Check
+
+From v0.3, before each release. The target arrives with the v0.3 UI and does not exist before it.
+
+```bash
+make harness-continuous
+```
+
+One hour of a Continuous download on the `ci-100m-50ms` profile in Chromium. From the steady
+start, every 60 s, the browser driver forces a garbage collection on the Worker's target through
+the Chrome DevTools Protocol and reads `Runtime.getHeapUsage`. The check passes when every reading
+from minute 5 to minute 60 lies within 2 MiB of the minute-5 reading
+([testing.md §5](../features/technical-stack/testing.md#5-accuracy-harness)). Record the readings
+and the verdict in the release's file (§5).

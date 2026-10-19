@@ -763,6 +763,22 @@ carries a recommendation; where the specification already relies on an answer, i
 
     Recommendation: keep it. See [ui/screens.md](ui/screens.md) and
     [ui/flows.md §7](ui/flows.md#7-continuous-mode).
+63. How does the harness judge v0.3? Current answer: **path B and the compatibility clients on
+    the CI tier, Continuous memory by hand.** On `ci-100m-50ms-caddy-h2` each measured direction's
+    `responsiveness.state` must be `measured`, on `ci-100m-50ms-traefik-h1` `unavailable_h1`, and
+    other profiles record it unjudged. On the same Caddy profile BitGauge runs with the three
+    toggles and `server.trusted_proxies` set to the proxy network; `librespeed-cli --no-icmp
+    --server-json https://…/.well-known/librespeed --server 1 --json` and `goresponsiveness`
+    (against `/nq/config`, with Caddy's internal root CA in the tools container's trust store) run
+    in the tools container, and Playwright opens a pinned OpenSpeedTest UI container at `?Host=`
+    pointing at BitGauge; each passes when it finishes without an error with non-zero download and
+    upload throughput (RPM for `goresponsiveness`), the no-egress layers on and the OpenSpeedTest
+    results link never followed. `make harness-continuous` runs one hour of Continuous download on
+    `ci-100m-50ms` in Chromium, forcing a garbage collection on the Worker target and reading
+    `Runtime.getHeapUsage` every 60 s from the steady start; it passes when every sample from
+    minute 5 to 60 lies within 2 MiB of the minute-5 sample, and is recorded per release in
+    `docs/engineering/harness-runs/`. Recommendation: keep it. See
+    [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
 
 Resolved and removed:
 
