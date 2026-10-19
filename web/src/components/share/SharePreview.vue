@@ -28,7 +28,8 @@ import type { QualifierTone, ShareView } from '@/share/summary'
 // "Share image layout"): the image's 480 × 252 reference box, always in the dark theme, scaled to
 // the panel's width, so the preview is the PNG (share/render.ts draws the same box at 2.5×) at any
 // width. The header on top, the foot on the bottom padding, and between them the group of number
-// row, qualifier stacks and grade, centered; both numbers share one row whatever their qualifiers.
+// row and qualifier stacks, centered, with the grade and its words on the number row; both numbers
+// share one row whatever their qualifiers.
 // Named for assistive technology by the summary it carries.
 
 const props = defineProps<{ view: ShareView }>()
@@ -84,7 +85,7 @@ const label = computed(() => t('share.image.preview', { summary: props.view.line
         >{{ view.head }}</span>
       </div>
       <div class="flex min-h-0 flex-1 items-center py-(--share-gap-min)">
-        <div class="grid w-full grid-cols-[repeat(2,var(--share-block-w))_minmax(0,1fr)] grid-rows-[var(--share-label-h)_var(--type-share-value)_auto] gap-x-4.5 gap-y-0.75">
+        <div class="grid w-full grid-cols-[repeat(2,var(--share-block-w))_minmax(0,1fr)] grid-rows-[var(--share-label-h)_var(--type-share-value)_auto] gap-x-3.5 gap-y-0.75">
           <template
             v-for="(block, index) in view.blocks"
             :key="block.direction"
@@ -115,13 +116,13 @@ const label = computed(() => t('share.image.preview', { summary: props.view.line
           </template>
           <span
             v-if="view.grade"
-            class="col-start-3 row-span-2 row-start-2 flex w-(--share-grade-w) flex-col items-center gap-1.25 self-start justify-self-end"
+            class="col-start-3 row-start-2 flex items-center gap-1.5 self-center justify-self-end"
           >
             <span
               class="flex size-(--share-grade-size) items-center justify-center rounded-(--radius-md) border font-mono text-(length:--type-share-grade) font-semibold tracking-(--tracking-metric)"
               :class="tone"
             >{{ view.grade.letter }}</span>
-            <span class="flex flex-col items-center text-(length:--type-share-meta) leading-(--lh-snug) whitespace-nowrap">
+            <span class="flex flex-col items-start text-(length:--type-share-meta) leading-(--lh-snug) whitespace-nowrap">
               <b>{{ view.grade.word }}</b>
               <span class="text-subtle-foreground">{{ t('share.image.bufferbloat') }}</span>
               <span

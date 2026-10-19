@@ -105,7 +105,7 @@ describe('renderShareImage', () => {
     expect([IMAGE_WIDTH, IMAGE_HEIGHT]).toEqual([1200, 630])
     expect(scales[0]).toEqual([2.5, 2.5])
     expect(fills[0]).toBe('oklch(0.165 0.013 255)')
-    expect(load).toHaveBeenCalledWith(expect.stringMatching(/^500 48px "IBM Plex Mono"/))
+    expect(load).toHaveBeenCalledWith(expect.stringMatching(/^500 42px "IBM Plex Mono"/))
     expect(texts).toEqual([
       'bit',
       'gauge',
@@ -117,12 +117,14 @@ describe('renderShareImage', () => {
       '↓ DOWNLOAD',
       '612',
       'Mbit/s',
-      // A qualifier wraps inside its block's column.
-      'low confidence:',
+      // A qualifier wraps inside its block's column, 148 wide, at this canvas's 10 per character.
+      'low',
+      'confidence:',
       'unstable',
       '↑ UPLOAD',
       '—',
-      'insufficient data',
+      'insufficient',
+      'data',
       'A',
       'Low',
       'bufferbloat',

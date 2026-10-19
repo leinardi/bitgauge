@@ -24,8 +24,8 @@ import type { ShareTokens } from '@/share/tokens'
 // The share image's layout and painting (share-panel.md "Share image layout"), on the 480 × 252
 // reference box SharePreview.vue lays out with CSS, scaled by --share-scale: the header on the top
 // padding, the foot on the bottom padding, wrapping upward, and between them one group of label
-// row, number row and qualifier stacks, with the grade beside them, centered in the band that is
-// left. Both numbers sit in one row of fixed height, so a qualifier never lifts one number above
+// row, number row and qualifier stacks, centered in the band that is left, with the grade tile and
+// its words at the right of the number row. Both numbers sit in one row of fixed height, so a qualifier never lifts one number above
 // the other. Each step mirrors the CSS rule it stands for.
 
 type Context = CanvasRenderingContext2D
@@ -164,16 +164,23 @@ function paintFoot(context: Context, view: ShareView, { sizes: s, colors, fonts 
   return top
 }
 
-/** The grade tile at the number row's top in the right column, its words centered under it. */
-function paintGrade(context: Context, grade: NonNullable<ShareView['grade']>, { sizes: s, colors, fonts }: ShareTokens, words: string[], top: number): void {
+/** The grade tile centered on the number row at its right edge, its words left-aligned beside it. */
+function paintGrade(context: Context, grade: NonNullable<ShareView['grade']>, { sizes: s, colors, fonts }: ShareTokens, words: string[], row: number): void {
   const tone =
     grade.letter === 'F'
       ? { border: colors.dangerBorder, bg: colors.dangerBg, fg: colors.dangerFg }
       : grade.letter === 'C' || grade.letter === 'D'
         ? { border: colors.warnBorder, bg: colors.warnBg, fg: colors.warnFg }
         : { border: colors.okBorder, bg: colors.okBg, fg: colors.okFg }
-  const center = s.width - s.padX - s.gradeW / 2
-  const left = center - s.gradeSize / 2
+  const wordFont = (index: number): Font => ({ weight: index === 0 ? s.bold : s.regular, size: s.meta, family: fonts.sans })
+  const wordsWidth = Math.max(
+    ...words.map((word, index) => {
+      setFont(context, wordFont(index))
+      return context.measureText(word).width
+    }),
+  )
+  const left = s.width - s.padX - wordsWidth - s.space15 - s.gradeSize
+  const top = row + (s.value - s.gradeSize) / 2
   // The border sits inside the tile, as CSS draws it.
   context.beginPath()
   context.roundRect(left + s.border / 2, top + s.border / 2, s.gradeSize - s.border, s.gradeSize - s.border, s.radius - s.border / 2)
@@ -185,17 +192,18 @@ function paintGrade(context: Context, grade: NonNullable<ShareView['grade']>, { 
   context.textAlign = 'center'
   setFont(context, { weight: s.semibold, size: s.grade, family: fonts.mono, tracking: s.trackingMetric })
   context.fillStyle = tone.fg
-  context.fillText(grade.letter, center, baseline(context, top, s.gradeSize))
-  const line = s.meta * s.lhSnug
-  words.forEach((word, index) => {
-    setFont(context, { weight: index === 0 ? s.bold : s.regular, size: s.meta, family: fonts.sans })
-    context.fillStyle = index === 0 ? colors.fg : colors.subtle
-    context.fillText(word, center, baseline(context, top + s.gradeSize + s.space125 + index * line, line))
-  })
+  context.fillText(grade.letter, left + s.gradeSize / 2, baseline(context, top, s.gradeSize))
   context.textAlign = 'left'
+  const line = s.meta * s.lhSnug
+  const wordsTop = row + (s.value - words.length * line) / 2
+  words.forEach((word, index) => {
+    setFont(context, wordFont(index))
+    context.fillStyle = index === 0 ? colors.fg : colors.subtle
+    context.fillText(word, left + s.gradeSize + s.space15, baseline(context, wordsTop + index * line, line))
+  })
 }
 
-/** The group, centered between `top` and `bottom`: the blocks' label, number and qualifier rows, and the grade. */
+/** The group, centered between `top` and `bottom`: the blocks' label, number and qualifier rows, the grade on the number row. */
 function paintGroup(context: Context, view: ShareView, tokens: ShareTokens, bufferbloat: string, top: number, bottom: number): void {
   const { sizes: s, colors, fonts } = tokens
   const qualifierFont: Font = { weight: s.regular, size: s.qual, family: fonts.mono }
@@ -203,16 +211,15 @@ function paintGroup(context: Context, view: ShareView, tokens: ShareTokens, buff
   setFont(context, qualifierFont)
   const stacks = view.blocks.map((block) => block.qualifiers.flatMap(({ text, tone }) => wrap(context, text, s.blockW).map((line) => ({ line, tone }))))
   const gradeWords = view.grade === null ? [] : [view.grade.word, bufferbloat, ...(view.grade.basis === null ? [] : [view.grade.basis])]
-  const gradeHeight = view.grade === null ? 0 : s.gradeSize + s.space125 + gradeWords.length * s.meta * s.lhSnug
-  // The qualifier row is as tall as the tallest stack, or as the grade needs below the number row.
-  const third = Math.max(0, ...stacks.map((stack) => (stack.length === 0 ? 0 : s.space05 + stack.length * qualifierLine)), gradeHeight - s.value - s.space075)
+  // The qualifier row is as tall as the tallest stack; the grade sits in the number row.
+  const third = Math.max(0, ...stacks.map((stack) => (stack.length === 0 ? 0 : s.space05 + stack.length * qualifierLine)))
   const height = s.labelH + s.space075 + s.value + s.space075 + third
   const labelTop = top + (bottom - top - height) / 2
   const numberTop = labelTop + s.labelH + s.space075
   const tones: Record<QualifierTone, string> = { muted: colors.muted, warn: colors.warn, danger: colors.danger }
 
   view.blocks.forEach((block, index) => {
-    const x = s.padX + index * (s.blockW + s.space45)
+    const x = s.padX + index * (s.blockW + s.space35)
     setFont(context, { weight: s.semibold, size: s.label, family: fonts.cond, tracking: s.trackingCaps })
     context.fillStyle = block.direction === 'download' ? colors.download : colors.upload
     context.fillText(block.label.toLocaleUpperCase(), x, baseline(context, labelTop, s.labelH))
