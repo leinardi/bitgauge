@@ -33,17 +33,22 @@ func TestPreset(t *testing.T) {
 			Download:  [2]time.Duration{5 * time.Second, 10 * time.Second},
 			Upload:    [2]time.Duration{5 * time.Second, 10 * time.Second},
 			PingCount: 10,
+			Bounded:   true,
 		},
 		"standard": {
 			Download:  [2]time.Duration{10 * time.Second, 20 * time.Second},
 			Upload:    [2]time.Duration{15 * time.Second, 25 * time.Second},
 			PingCount: 20,
+			Bounded:   true,
 		},
 		"extended": {
 			Download:  [2]time.Duration{20 * time.Second, 40 * time.Second},
 			Upload:    [2]time.Duration{20 * time.Second, 40 * time.Second},
 			PingCount: 50,
+			Bounded:   true,
 		},
+		// No minimum, no maximum: zero durations, and the 20 pings of Standard.
+		"continuous": {PingCount: 20},
 	} {
 		got, known := Preset(name)
 		if !known || got != want {
@@ -51,9 +56,9 @@ func TestPreset(t *testing.T) {
 		}
 	}
 
-	for _, name := range []string{"continuous", "", "Standard"} {
+	for _, name := range []string{"", "Standard", "custom"} {
 		if _, known := Preset(name); known {
-			t.Fatalf("Preset(%q) is known, want unknown in this release", name)
+			t.Fatalf("Preset(%q) is known, want unknown", name)
 		}
 	}
 }

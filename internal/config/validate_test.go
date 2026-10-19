@@ -26,6 +26,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 )
 
 // problemsFor loads a YAML file and an environment and returns every problem Check reports.
@@ -523,11 +524,16 @@ func TestRulesOfSection4(t *testing.T) {
 				"compat:\n  networkquality:\n    enabled: true\n",
 			wantKeys: []string{"compat.networkquality.enabled"},
 		},
-		// Features not in this release.
+		// Continuous compares only a pair with both bounds set: an empty one is no bound.
 		{
-			name:     "Continuous preset",
-			file:     "test_defaults:\n  preset: continuous\n",
-			wantKeys: []string{"test_defaults.preset"},
+			name:     "Continuous with min 30s max 20s",
+			file:     "test_defaults:\n  preset: continuous\n  download:\n    min_duration: 30s\n    max_duration: 20s\n",
+			wantKeys: []string{"test_defaults.download.max_duration"},
+		},
+		{
+			name:     "Continuous with a duration out of range",
+			file:     "test_defaults:\n  preset: continuous\n  upload:\n    max_duration: 11m\n",
+			wantKeys: []string{"test_defaults.upload.max_duration"},
 		},
 	}
 
@@ -640,6 +646,12 @@ server: {public_url: "HTTPS://speed.example.lan"}
 compat:
   networkquality: {enabled: true}
 `
+	// Continuous, with a lone bound that has no preset value to be compared with.
+	files["Continuous with a lone minimum"] = `
+test_defaults:
+  preset: continuous
+  download: {min_duration: 30s}
+`
 	files["networkQuality behind a trusted proxy"] = `
 server: {trusted_proxies: [172.20.0.2/32]}
 compat:
@@ -734,6 +746,22 @@ func TestWarnings(t *testing.T) {
 		netip.MustParsePrefix("172.20.0.2/32"),
 	}
 
+	continuousPlain := Defaults()
+	continuousPlain.TestDefaults.Preset = "continuous"
+
+	continuous := continuousPlain
+	continuous.TestDefaults.Download.MinDuration = OptionalDuration{
+		Duration: 30 * time.Second,
+		Set:      true,
+	}
+	continuous.TestDefaults.Upload = DurationRange{
+		MinDuration: OptionalDuration{Duration: 20 * time.Second, Set: true},
+		MaxDuration: OptionalDuration{Duration: 40 * time.Second, Set: true},
+	}
+
+	bounded := continuous
+	bounded.TestDefaults.Preset = "extended"
+
 	everyone := Defaults()
 	everyone.Server.TrustedProxies = []netip.Prefix{
 		netip.MustParsePrefix("10.0.0.0/8"),
@@ -757,6 +785,17 @@ func TestWarnings(t *testing.T) {
 			cfg:      everyone,
 			wantKeys: []string{"server.trusted_proxies[1]", "server.trusted_proxies[2]"},
 		},
+		{
+			name: "duration keys with Continuous, which ignores them",
+			cfg:  continuous,
+			wantKeys: []string{
+				"test_defaults.download.min_duration",
+				"test_defaults.upload.min_duration",
+				"test_defaults.upload.max_duration",
+			},
+		},
+		{name: "Continuous without duration keys", cfg: continuousPlain, wantKeys: []string{}},
+		{name: "duration keys with a bounded preset", cfg: bounded, wantKeys: []string{}},
 	}
 
 	for _, tc := range tests {

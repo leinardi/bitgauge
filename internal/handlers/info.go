@@ -192,7 +192,8 @@ func newInfoLimits(limits *config.Limits) infoLimits {
 }
 
 // newInfoDefaults resolves the test defaults: an empty duration bound becomes the preset's
-// value and ping_count 0 the preset's idle ping count (wire-protocol.md section 5).
+// value and ping_count 0 the preset's idle ping count (wire-protocol.md section 5). Continuous
+// has no minimum or maximum, so its bounds are null whatever the duration keys say.
 func newInfoDefaults(defaults *config.TestDefaults) infoDefaults {
 	preset, known := config.Preset(defaults.Preset)
 
@@ -210,6 +211,11 @@ func newInfoDefaults(defaults *config.TestDefaults) infoDefaults {
 		Warmup:                      warmupAuto,
 		PingCount:                   defaults.PingCount,
 		OverheadCompensationPercent: defaults.OverheadCompensationPercent,
+	}
+
+	if known && !preset.Bounded {
+		resolved.Download = infoDurations{}
+		resolved.Upload = infoDurations{}
 	}
 
 	if defaults.DataCap != 0 {

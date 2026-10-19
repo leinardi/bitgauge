@@ -47,5 +47,41 @@ func Warnings(cfg *Config) []Problem {
 		}
 	}
 
+	return append(warnings, continuousDurations(&cfg.TestDefaults)...)
+}
+
+// continuousDurations names each duration key set with the Continuous preset, which has no
+// minimum or maximum and ignores them (configuration.md section 2.3).
+func continuousDurations(defaults *TestDefaults) []Problem {
+	if defaults.Preset != presetContinuous {
+		return nil
+	}
+
+	var warnings []Problem
+
+	for _, direction := range []struct {
+		key    string
+		bounds DurationRange
+	}{
+		{"test_defaults.download", defaults.Download},
+		{"test_defaults.upload", defaults.Upload},
+	} {
+		for _, bound := range []struct {
+			key   string
+			value OptionalDuration
+		}{
+			{direction.key + ".min_duration", direction.bounds.MinDuration},
+			{direction.key + ".max_duration", direction.bounds.MaxDuration},
+		} {
+			if bound.value.Set {
+				warnings = append(warnings, Problem{
+					Key:   bound.key,
+					Value: bound.value.Duration.String(),
+					Rule:  "ignored with test_defaults.preset continuous, which has no minimum or maximum",
+				})
+			}
+		}
+	}
+
 	return warnings
 }

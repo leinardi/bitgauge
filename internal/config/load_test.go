@@ -607,6 +607,13 @@ func TestValueSyntax(t *testing.T) {
 			},
 		},
 		{
+			"the Continuous preset",
+			"BITGAUGE_TEST_DEFAULTS__PRESET=continuous",
+			func(cfg Config) bool {
+				return cfg.TestDefaults.Preset == "continuous" && len(Validate(&cfg)) == 0
+			},
+		},
+		{
 			"public url",
 			"BITGAUGE_SERVER__PUBLIC_URL=https://speed.example.lan",
 			func(cfg Config) bool {

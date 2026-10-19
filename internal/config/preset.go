@@ -23,29 +23,37 @@ import "time"
 
 // PresetValues are the values of a preset (measurement.md section 8.5) that an empty
 // test_defaults key stands for: the download and upload minimum and maximum durations, and the
-// idle ping count that ping_count 0 means.
+// idle ping count that ping_count 0 means. Continuous is not Bounded: it has no minimum and no
+// maximum, its durations are zero and its duration keys are ignored.
 type PresetValues struct {
 	Download  [2]time.Duration
 	Upload    [2]time.Duration
 	PingCount int
+	Bounded   bool
 }
 
-// presets holds the presets of this release. Continuous has no maximum and is not in it.
+// presets holds the presets of this release.
 var presets = map[string]PresetValues{
 	presetQuick: {
 		Download:  [2]time.Duration{5 * time.Second, 10 * time.Second},
 		Upload:    [2]time.Duration{5 * time.Second, 10 * time.Second},
 		PingCount: 10,
+		Bounded:   true,
 	},
 	presetStandard: {
 		Download:  [2]time.Duration{10 * time.Second, 20 * time.Second},
 		Upload:    [2]time.Duration{15 * time.Second, 25 * time.Second},
 		PingCount: 20,
+		Bounded:   true,
 	},
 	presetExtended: {
 		Download:  [2]time.Duration{20 * time.Second, 40 * time.Second},
 		Upload:    [2]time.Duration{20 * time.Second, 40 * time.Second},
 		PingCount: 50,
+		Bounded:   true,
+	},
+	presetContinuous: {
+		PingCount: 20,
 	},
 }
 

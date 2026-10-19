@@ -42,42 +42,41 @@ type Problem struct {
 
 // The ranges of configuration.md section 2.
 const (
-	minPort                = 1
-	maxPort                = 65535
-	minDisplayNameRunes    = 1
-	maxDisplayNameRunes    = 64
-	minTransferCap         = 64 * KiB
-	maxTransferCap         = 4 * GiB
-	minStreamsPerClient    = 1
-	maxStreamsPerClient    = 64
-	minRequestsPerMinute   = 60
-	maxRequestsPerMinute   = 100000
-	minTrackedClients      = 16
-	maxTrackedClients      = 1000000
-	minNQUploadBytes       = 1 * MiB
-	maxNQUploadBytes       = 64 * GiB
-	minNQFlowsPerClient    = 1
-	maxNQFlowsPerClient    = 256
-	minStreams             = 1
-	maxStreams             = 6
-	minPhaseDuration       = 5 * time.Second
-	maxPhaseDuration       = 10 * time.Minute
-	minDataCap             = 1 * MiB
-	minFixedWarmup         = 1 * time.Second
-	maxFixedWarmup         = 60 * time.Second
-	minPingCount           = 6
-	maxPingCount           = 200
-	maxOverheadPercent     = 20
-	baseRoot               = "/"
-	pathSegmentCurrent     = "."
-	pathSegmentParent      = ".."
-	schemeHTTP             = "http"
-	schemeHTTPS            = "https"
-	presetQuick            = "quick"
-	presetStandard         = "standard"
-	presetExtended         = "extended"
-	presetContinuous       = "continuous"
-	milestoneCompatibility = "v0.3"
+	minPort              = 1
+	maxPort              = 65535
+	minDisplayNameRunes  = 1
+	maxDisplayNameRunes  = 64
+	minTransferCap       = 64 * KiB
+	maxTransferCap       = 4 * GiB
+	minStreamsPerClient  = 1
+	maxStreamsPerClient  = 64
+	minRequestsPerMinute = 60
+	maxRequestsPerMinute = 100000
+	minTrackedClients    = 16
+	maxTrackedClients    = 1000000
+	minNQUploadBytes     = 1 * MiB
+	maxNQUploadBytes     = 64 * GiB
+	minNQFlowsPerClient  = 1
+	maxNQFlowsPerClient  = 256
+	minStreams           = 1
+	maxStreams           = 6
+	minPhaseDuration     = 5 * time.Second
+	maxPhaseDuration     = 10 * time.Minute
+	minDataCap           = 1 * MiB
+	minFixedWarmup       = 1 * time.Second
+	maxFixedWarmup       = 60 * time.Second
+	minPingCount         = 6
+	maxPingCount         = 200
+	maxOverheadPercent   = 20
+	baseRoot             = "/"
+	pathSegmentCurrent   = "."
+	pathSegmentParent    = ".."
+	schemeHTTP           = "http"
+	schemeHTTPS          = "https"
+	presetQuick          = "quick"
+	presetStandard       = "standard"
+	presetExtended       = "extended"
+	presetContinuous     = "continuous"
 )
 
 // The sizes a compatibility layer needs the limits to allow while it is enabled: the
@@ -344,22 +343,16 @@ func (c *checker) testDefaults(defaults *TestDefaults, limits Limits) {
 		presetContinuous,
 	)
 
-	if defaults.Preset == presetContinuous {
-		c.add(
-			"test_defaults.preset",
-			defaults.Preset,
-			notInRelease("the Continuous preset", milestoneCompatibility),
-		)
-	}
-
 	c.phases(defaults.Phases)
 	c.streams(defaults.Streams, limits)
 
-	// The ranges hold whatever the preset; an unknown preset only leaves an empty bound without
-	// a value to compare against.
+	// The ranges hold whatever the preset. An unknown preset leaves an empty bound without a
+	// value to compare against, and so does Continuous, which has none: an empty bound is then
+	// no bound, and only a pair with both bounds set is compared (configuration.md section 2.3).
 	preset, known := Preset(defaults.Preset)
-	c.durations("test_defaults.download", defaults.Download, preset.Download, known)
-	c.durations("test_defaults.upload", defaults.Upload, preset.Upload, known)
+	bounded := known && preset.Bounded
+	c.durations("test_defaults.download", defaults.Download, preset.Download, bounded)
+	c.durations("test_defaults.upload", defaults.Upload, preset.Upload, bounded)
 
 	if defaults.DataCap != 0 && defaults.DataCap < minDataCap {
 		c.add(
@@ -577,14 +570,4 @@ func (c *checker) log(log Log) {
 
 func (c *checker) metrics(metrics Metrics) {
 	c.basePath("metrics.path", metrics.Path)
-}
-
-// notInRelease is the rule for a toggle of a feature this release does not include
-// (configuration.md section 4, "Features not in this release").
-func notInRelease(feature, milestone string) string {
-	return fmt.Sprintf(
-		"%s arrives in %s and is not in this release; remove the setting",
-		feature,
-		milestone,
-	)
 }

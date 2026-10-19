@@ -192,8 +192,8 @@ func TestInfoDefaultsPerPreset(t *testing.T) {
 		{"quick", []any{5000.0, 10000.0}, []any{5000.0, 10000.0}, 10},
 		{"standard", []any{10000.0, 20000.0}, []any{15000.0, 25000.0}, 20},
 		{"extended", []any{20000.0, 40000.0}, []any{20000.0, 40000.0}, 50},
-		// Not in this release, so validation rejects it; resolving it has nothing to fill in.
-		{"continuous", []any{nil, nil}, []any{nil, nil}, 0},
+		// No minimum and no maximum, and the preset's 20 pings.
+		{"continuous", []any{nil, nil}, []any{nil, nil}, 20},
 	} {
 		deps := testDeps()
 		deps.Config.TestDefaults.Preset = test.preset
@@ -212,6 +212,30 @@ func TestInfoDefaultsPerPreset(t *testing.T) {
 			t.Fatalf("%s: preset %v, pingCount %v, want %v", test.preset,
 				defaults["preset"], defaults["pingCount"], test.pingCount)
 		}
+	}
+}
+
+func TestInfoContinuousIgnoresTheDurationKeys(t *testing.T) {
+	t.Parallel()
+
+	deps := testDeps()
+	defaults := &deps.Config.TestDefaults
+	defaults.Preset = "continuous"
+	defaults.Download.MinDuration = config.OptionalDuration{Duration: 30 * time.Second, Set: true}
+	defaults.Upload.MaxDuration = config.OptionalDuration{Duration: 90 * time.Second, Set: true}
+	defaults.PingCount = 30
+
+	got, _ := fetchInfo(t, deps, "10.0.0.1")
+	resolved, _ := got["defaults"].(map[string]any)
+	none := map[string]any{"minMs": nil, "maxMs": nil}
+
+	if !reflect.DeepEqual(resolved["download"], none) ||
+		!reflect.DeepEqual(resolved["upload"], none) {
+		t.Fatalf("bounds = %v and %v, want null", resolved["download"], resolved["upload"])
+	}
+
+	if resolved["pingCount"] != 30.0 {
+		t.Fatalf("pingCount = %v, want the configured 30", resolved["pingCount"])
 	}
 }
 
