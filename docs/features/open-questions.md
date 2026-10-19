@@ -765,8 +765,17 @@ carries a recommendation; where the specification already relies on an answer, i
     [ui/flows.md §7](ui/flows.md#7-continuous-mode).
 63. How does the harness judge v0.3? Current answer: **path B and the compatibility clients on
     the CI tier, Continuous memory by hand.** On `ci-100m-50ms-caddy-h2` each measured direction's
-    `responsiveness.state` must be `measured`, on `ci-100m-50ms-traefik-h1` `unavailable_h1`, and
-    other profiles record it unjudged. On the same Caddy profile BitGauge runs with the three
+    path B must run over HTTP/2: `responsiveness.state` `measured` or `uncertain`, with `protocol`
+    `h2` and an RPM, which of the two being recorded and not judged; on `ci-100m-50ms-traefik-h1`
+    it must be `unavailable_h1`; other profiles record it unjudged. Amended by the maintainer on
+    2026-10-19 from "must be `measured`" on the Caddy profile, after the first CI runs read
+    `uncertain` there in every browser for reasons §12.4 defines and the profile does not
+    control: 5 to 9 download samples in a 3 to 4.7 s window, each probe on the loaded HTTP/2
+    connection taking about 300 to 340 ms (no WebSocket queue, and unchanged by a low
+    `tcp_notsent_lowat` on Caddy), and upload warm-ups that sometimes end at their cap. Every probe
+    reused the loaded connection, so the engine's evidence holds. Two leads stay open for the
+    engine: where in the HTTP/2 path the probe waits, and Firefox keeping only about a quarter of
+    its upload probes. On the same Caddy profile BitGauge runs with the three
     toggles and `server.trusted_proxies` set to the proxy network; `librespeed-cli --no-icmp
     --server-json https://…/.well-known/librespeed --server 1 --json` and `goresponsiveness`
     (against `/nq/config`, with Caddy's internal root CA in the tools container's trust store) run

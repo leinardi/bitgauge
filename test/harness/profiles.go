@@ -54,6 +54,31 @@ const (
 	ProxyCaddy   Proxy = "caddy-h2"
 )
 
+// HTTPS reports whether the proxy serves TLS: only Caddy does, on its internal CA.
+func (p Proxy) HTTPS() bool {
+	return p == ProxyCaddy
+}
+
+// PathBRule is what testing.md section 5 holds a profile's path B to in each measured direction.
+type PathBRule string
+
+// The path B rules. PathBRecorded records the state without judging it; PathBOverH2 needs path B
+// to run over HTTP/2 and give an RPM, measured or uncertain alike, since which of the two a
+// direction reads rests on what the profile does not control (measurement.md section 12.4, open
+// question 63); PathBUnavailableH1 needs the HTTP/1.1 state.
+const (
+	PathBRecorded      PathBRule = ""
+	PathBOverH2        PathBRule = "over-h2"
+	PathBUnavailableH1 PathBRule = "unavailable-h1"
+)
+
+// The path B states the rules read (measurement.md section 12.4).
+const (
+	ResponsivenessMeasured  = "measured"
+	ResponsivenessUncertain = "uncertain"
+	ResponsivenessH1        = "unavailable_h1"
+)
+
 // The Playwright projects of web/playwright.harness.config.ts.
 const (
 	BrowserChromium = "chromium"
@@ -106,6 +131,12 @@ type Profile struct {
 	// the samples, streams and notice testing.md section 5 asks of it; empty for none.
 	ExpectFallback string
 	Preset         string
+	// PathB is the path B rule each measured direction is held to.
+	PathB PathBRule
+	// Compat runs the compatibility clients after the browser (testing.md section 5): BitGauge starts
+	// with the three layers on and server.trusted_proxies set to the proxy network (BitGaugeEnv). It
+	// needs an HTTPS proxy, since networkQuality does.
+	Compat bool
 	// Shaped is false on the ceiling tier, which runs on bare metal or a veth without shaping:
 	// shaping at 10 Gbit is CPU-bound and not representative.
 	Shaped bool
@@ -165,6 +196,7 @@ func Tiers() []TierSpec {
 					RateBitsPerSecond: 100 * mbit,
 					RTT:               50 * time.Millisecond,
 					Proxy:             ProxyTraefik,
+					PathB:             PathBUnavailableH1,
 					Preset:            PresetStandard,
 					Shaped:            true,
 				},
@@ -174,6 +206,8 @@ func Tiers() []TierSpec {
 					RateBitsPerSecond: 100 * mbit,
 					RTT:               50 * time.Millisecond,
 					Proxy:             ProxyCaddy,
+					PathB:             PathBOverH2,
+					Compat:            true,
 					Preset:            PresetStandard,
 					Shaped:            true,
 				},
@@ -296,6 +330,23 @@ func Select(tier *TierSpec, profiles, browsers string) (TierSpec, error) {
 	}
 
 	return spec, nil
+}
+
+// BitGaugeEnv is the environment BitGauge starts with on this profile: none, or on a Compat
+// profile the three compatibility toggles and server.trusted_proxies set to the proxy network's
+// subnets, so the layers' absolute URLs come from the proxy's forwarding headers (testing.md
+// section 5).
+func (p *Profile) BitGaugeEnv(proxySubnets []string) []string {
+	if !p.Compat {
+		return nil
+	}
+
+	return []string{
+		"BITGAUGE_COMPAT__OPENSPEEDTEST__ENABLED=true",
+		"BITGAUGE_COMPAT__LIBRESPEED__ENABLED=true",
+		"BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED=true",
+		"BITGAUGE_SERVER__TRUSTED_PROXIES=" + strings.Join(proxySubnets, ","),
+	}
 }
 
 // ReferenceDuration is how long each iperf3 reference run lasts. testing.md asks for the preset's

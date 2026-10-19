@@ -50,10 +50,14 @@ const (
 	browserLimit  = 20 * time.Minute
 	pingInterval  = "0.2"
 	pollInterval  = 200 * time.Millisecond
+	// openSpeedTestPort is the OpenSpeedTest image's HTTP port.
+	openSpeedTestPort = "3000"
 )
 
 // ErrShaperSelfTest reports a shaped link that does not hold its configured rate.
 var ErrShaperSelfTest = errors.New("shaper self-test failed")
+
+var errNoSubnet = errors.New("the network has no subnet")
 
 // Config is what every topology of one harness invocation shares.
 type Config struct {
@@ -72,8 +76,8 @@ type Config struct {
 
 // Topology is one profile's containers (testing.md section 5.1): an internal network with no route
 // out; the netguard holder owning BitGauge's namespace, which BitGauge (read-only) and the iperf3
-// server join; an optional proxy; and the Playwright client, whose namespace the shaper sidecar
-// shares and shapes.
+// server join; an optional proxy; the Playwright client, whose namespace the shaper sidecar shares
+// and shapes; and on a Compat profile the OpenSpeedTest UI (testing.md section 5).
 type Topology struct {
 	env     *testenv.Env
 	cfg     Config
@@ -84,6 +88,8 @@ type Topology struct {
 	shaper  string
 	// proxy is the proxy's container, empty without one.
 	proxy string
+	// openSpeedTest is the OpenSpeedTest UI's container on a Compat profile, empty otherwise.
+	openSpeedTest string
 	// selfTest is the measurement the shaper self-test judged.
 	selfTest *Throughput
 	// URL is where the browser opens BitGauge, through the proxy when there is one.
@@ -114,6 +120,8 @@ func Up(ctx context.Context, env *testenv.Env, cfg Config, profile *Profile) (*T
 		topology.startProxy,
 		topology.startClient,
 		topology.startShaper,
+		topology.trustProxyCA,
+		topology.startOpenSpeedTest,
 	}
 
 	for _, step := range steps {
@@ -222,12 +230,6 @@ func (t *Topology) Iperf3(ctx context.Context, duration time.Duration) (*Through
 // its wall-clock time (-D), which the loaded-latency rule places in those phases.
 func (t *Topology) Browse(ctx context.Context, browser string) (ping string, err error) {
 	exportDir := filepath.Dir(ArtifactsFor(t.profile.Name, browser).Export)
-	ignoreHTTPS := "0"
-
-	if t.profile.Proxy == ProxyCaddy {
-		ignoreHTTPS = "1"
-	}
-
 	pingDone := make(chan string, 1)
 
 	go func() {
@@ -236,32 +238,10 @@ func (t *Topology) Browse(ctx context.Context, browser string) (ping string, err
 		pingDone <- out
 	}()
 
-	browseCtx, cancel := context.WithTimeout(ctx, browserLimit)
-	defer cancel()
-
-	_, err = t.env.Docker(
-		browseCtx,
-		"exec",
-		"--env",
-		"BITGAUGE_HARNESS_URL="+t.URL,
-		"--env",
+	err = t.playwright(ctx, "harness/run.spec.ts", browser,
 		"HARNESS_PRESET="+t.profile.Preset,
-		"--env",
-		"HARNESS_EXPORT_DIR="+clientOut+"/"+exportDir,
-		"--env",
-		"HARNESS_OUTPUT_DIR="+clientOut+"/playwright/"+t.profile.Name+"-"+browser,
-		"--env",
-		"HARNESS_IGNORE_HTTPS_ERRORS="+ignoreHTTPS,
-		t.client,
-		"npx",
-		"--no-install",
-		"playwright",
-		"test",
-		"--config",
-		"playwright.harness.config.ts",
-		"--project",
-		browser,
-	)
+		"HARNESS_EXPORT_DIR="+clientOut+"/"+filepath.ToSlash(exportDir),
+		"HARNESS_OUTPUT_DIR="+clientOut+"/playwright/"+t.profile.Name+"-"+browser)
 
 	// SIGINT makes ping print its summary and exit; the goroutine then returns its whole output.
 	_, _ = t.exec(ctx, t.shaper, "pkill", "-INT", "ping")
@@ -275,11 +255,73 @@ func (t *Topology) Browse(ctx context.Context, browser string) (ping string, err
 	return ping, nil
 }
 
+// playwright runs one harness spec, selected by Playwright's file filter, in one browser in the
+// client, with the BitGauge URL and the variables given; the Caddy profile's browser accepts
+// Caddy's internal CA.
+func (t *Topology) playwright(ctx context.Context, spec, browser string, env ...string) error {
+	ignoreHTTPS := "0"
+	if t.profile.Proxy.HTTPS() {
+		ignoreHTTPS = "1"
+	}
+
+	env = append([]string{
+		"BITGAUGE_HARNESS_URL=" + t.URL,
+		"HARNESS_IGNORE_HTTPS_ERRORS=" + ignoreHTTPS,
+	}, env...)
+	// The file filter goes before the options: --project takes every value that follows it.
+	command := []string{
+		t.client, "npx", "--no-install", "playwright", "test", spec,
+		"--config", "playwright.harness.config.ts", "--project", browser,
+	}
+	args := make([]string, 0, 1+2*len(env)+len(command))
+	args = append(args, "exec")
+
+	for _, variable := range env {
+		args = append(args, "--env", variable)
+	}
+
+	args = append(args, command...)
+
+	browseCtx, cancel := context.WithTimeout(ctx, browserLimit)
+	defer cancel()
+
+	_, err := t.env.Docker(browseCtx, args...)
+	if err != nil {
+		return fmt.Errorf("playwright %s: %w", spec, err)
+	}
+
+	return nil
+}
+
+// startBitGauge starts the shipped image read-only in the guard's namespace, with the profile's
+// environment; on a Compat profile that names the proxy network's subnets as trusted proxies.
 func (t *Topology) startBitGauge(ctx context.Context) error {
-	_, err := t.env.Docker(ctx, "run", "--detach", "--name", t.env.Name("bitgauge"),
+	var subnets []string
+
+	if t.profile.Compat {
+		out, err := t.env.Docker(ctx, "network", "inspect", "--format",
+			"{{range .IPAM.Config}}{{.Subnet}} {{end}}", t.network)
+		if err != nil {
+			return fmt.Errorf("read the network's subnets: %w", err)
+		}
+
+		subnets = strings.Fields(out)
+		if len(subnets) == 0 {
+			return fmt.Errorf("%w: %s", errNoSubnet, t.network)
+		}
+	}
+
+	args := []string{
+		"run", "--detach", "--name", t.env.Name("bitgauge"),
 		"--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
 		"--network", t.guard.NetworkMode(),
-		t.cfg.BitGaugeImage)
+	}
+
+	for _, variable := range t.profile.BitGaugeEnv(subnets) {
+		args = append(args, "--env", variable)
+	}
+
+	_, err := t.env.Docker(ctx, append(args, t.cfg.BitGaugeImage)...)
 	if err != nil {
 		return fmt.Errorf("start BitGauge: %w", err)
 	}
@@ -393,6 +435,38 @@ func (t *Topology) startProxy(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// startOpenSpeedTest starts the pinned OpenSpeedTest UI on the network, on a Compat profile only,
+// and waits until the shaper, in the client's namespace, loads its page. It serves the UI alone:
+// the browser points it at BitGauge with ?Host=.
+func (t *Topology) startOpenSpeedTest(ctx context.Context) error {
+	if !t.profile.Compat {
+		return nil
+	}
+
+	t.openSpeedTest = t.env.Name("openspeedtest")
+
+	_, err := t.env.Docker(ctx, "run", "--detach", "--name", t.openSpeedTest,
+		"--network", t.network, "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+		OpenSpeedTestImage)
+	if err != nil {
+		return fmt.Errorf("start the OpenSpeedTest UI: %w", err)
+	}
+
+	return poll(ctx, func() error {
+		_, probeErr := t.exec(ctx, t.shaper, "wget", "-q", "-O", "/dev/null", t.openSpeedTestURL())
+		if probeErr != nil {
+			return fmt.Errorf("probe the OpenSpeedTest UI: %w", probeErr)
+		}
+
+		return nil
+	})
+}
+
+// openSpeedTestURL is the OpenSpeedTest UI's page on its HTTP port.
+func (t *Topology) openSpeedTestURL() string {
+	return "http://" + t.openSpeedTest + ":" + openSpeedTestPort
 }
 
 // startClient starts the Playwright image idle, so the shaper can join and shape its namespace

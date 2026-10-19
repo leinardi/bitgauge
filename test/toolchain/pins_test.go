@@ -54,8 +54,10 @@ type pinSource struct {
 var (
 	nodeImage  = regexp.MustCompile(`dhi\.io/node:(\d+)-`)
 	golangLine = regexp.MustCompile(`dhi\.io/golang:(\d+\.\d+)-`)
-	nodeMajor  = regexp.MustCompile(`^\d+$`)
-	exactTag   = regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
+	// toolsGolangLine is the official golang image the tools image builds its clients with.
+	toolsGolangLine = regexp.MustCompile(`docker\.io/library/golang:(\d+\.\d+)-`)
+	nodeMajor       = regexp.MustCompile(`^\d+$`)
+	exactTag        = regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
 )
 
 // The actions whose inputs carry a shared pin.
@@ -100,8 +102,9 @@ func TestNodeLineIsOneValue(t *testing.T) {
 	}, steps[nodeVersionInput])
 }
 
-// TestGoLineIsOneValue: .go-version, the go directive, the build stage image and its documentation
-// name the same Go line, and every setup-go step reads it from .go-version instead of writing it.
+// TestGoLineIsOneValue: .go-version, the go directive, the build stage image and its documentation,
+// and the harness tools image's builder of the compatibility clients name the same Go line, and
+// every setup-go step reads it from .go-version instead of writing it.
 func TestGoLineIsOneValue(t *testing.T) {
 	t.Parallel()
 
@@ -110,6 +113,7 @@ func TestGoLineIsOneValue(t *testing.T) {
 		{file: "go.mod", pattern: regexp.MustCompile(`(?m)^go (\d+\.\d+)(?:\.\d+)?$`)},
 		{file: "deployments/docker/Dockerfile", pattern: golangLine},
 		{file: "docs/features/technical-stack/build-packaging.md", pattern: golangLine},
+		{file: "test/harness/tools.Dockerfile", pattern: toolsGolangLine},
 	}, nil)
 }
 

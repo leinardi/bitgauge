@@ -376,3 +376,98 @@ func TestLossyReference(t *testing.T) {
 		}
 	}
 }
+
+// TestPathBRule is the path B rule of testing.md section 5: on the Caddy profile each measured
+// direction must run path B over h2 with an RPM, measured or uncertain alike; on the Traefik
+// profile it must read unavailable_h1; a missing responsiveness fails both; elsewhere any state
+// passes.
+func TestPathBRule(t *testing.T) {
+	t.Parallel()
+
+	measured := &Responsiveness{
+		State:    ResponsivenessMeasured,
+		Protocol: "h2",
+		Samples:  30,
+		RPM:      900,
+	}
+	uncertain := &Responsiveness{
+		State:    ResponsivenessUncertain,
+		Protocol: "h2",
+		Samples:  8,
+		RPM:      180,
+	}
+	h3 := &Responsiveness{State: ResponsivenessMeasured, Protocol: "h3", Samples: 30, RPM: 900}
+	insufficient := &Responsiveness{State: "unavailable_insufficient", Protocol: "h2", Samples: 3}
+	h1 := &Responsiveness{State: ResponsivenessH1, Protocol: "http/1.1"}
+
+	for _, tc := range []struct {
+		name             string
+		rule             PathBRule
+		download, upload *Responsiveness
+		pass             bool
+		finding          string
+	}{
+		{"h2 measured", PathBOverH2, measured, measured, true, "download path B measured"},
+		{"h2 uncertain", PathBOverH2, uncertain, measured, true, "download path B uncertain"},
+		{"h2 upload on h1", PathBOverH2, measured, h1, false, `upload: path B unavailable_h1 (protocol "http/1.1", 0 samples), want measured or uncertain over h2 with an RPM`},
+		{"h2 upload over h3", PathBOverH2, measured, h3, false, `upload: path B measured (protocol "h3", 30 samples)`},
+		{"h2 no number", PathBOverH2, insufficient, measured, false, "download: path B unavailable_insufficient"},
+		{"h2 download missing", PathBOverH2, nil, measured, false, "download: no path B responsiveness, want measured or uncertain"},
+		{"h1 unavailable", PathBUnavailableH1, h1, h1, true, ""},
+		{"h1 measured", PathBUnavailableH1, measured, h1, false, "download: path B measured"},
+		{"h1 missing", PathBUnavailableH1, h1, nil, false, "upload: no path B responsiveness, want unavailable_h1"},
+		{"not judged", PathBRecorded, h1, nil, true, ""},
+	} {
+		run := stableRun(100*mbit, 1, 1)
+		run.Result.Download.Responsiveness = tc.download
+		run.Result.Upload.Responsiveness = tc.upload
+		profile := profileAt(100*mbit, true)
+		profile.PathB = tc.rule
+
+		run.Judge(profile)
+
+		if (run.Status == StatusPass) != tc.pass || !strings.Contains(run.Verdict, tc.finding) {
+			t.Errorf("%s: %s", tc.name, run.Verdict)
+		}
+	}
+
+	// A direction that was not measured is not held to the rule.
+	run := stableRun(100*mbit, 1, 1)
+	run.Result.Download.Responsiveness = measured
+	run.Result.Upload = &Direction{Status: "skipped"}
+	profile := profileAt(100*mbit, true)
+	profile.PathB = PathBOverH2
+
+	run.Judge(profile)
+
+	if strings.Contains(run.Verdict, "upload: no path B") ||
+		!strings.Contains(run.Verdict, "download path B measured") {
+		t.Errorf("a skipped upload: %s", run.Verdict)
+	}
+}
+
+// TestCompatProfileNeedsItsStep fails a Compat profile's run that carries no compatibility results.
+func TestCompatProfileNeedsItsStep(t *testing.T) {
+	t.Parallel()
+
+	profile := profileAt(100*mbit, true)
+	profile.Compat = true
+
+	run := stableRun(100*mbit, 1, 1)
+	run.Judge(profile)
+
+	if run.Status != StatusFailed ||
+		!strings.Contains(run.Verdict, "compatibility step recorded nothing") {
+		t.Errorf("a Compat run without its step: %s", run.Verdict)
+	}
+
+	run = stableRun(100*mbit, 1, 1)
+	run.Compat = &Compat{
+		LibreSpeed: &CompatClient{DownloadBitsPerSecond: 1, UploadBitsPerSecond: 1},
+	}
+	run.Judge(profile)
+
+	if run.Status != StatusPass {
+		t.Errorf("a Compat run with its step: %s", run.Verdict)
+	}
+}

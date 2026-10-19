@@ -256,7 +256,8 @@ func measure(
 }
 
 // observe is one run on a ready topology: the iperf3 reference before, the browser with the ping
-// and the client's counters, the iperf3 reference after, and the export.
+// and the client's counters, the iperf3 reference after, the export, and on a Compat profile the
+// compatibility step.
 func observe(ctx context.Context, cfg Config, topology *Topology, browser string, run *Run) error {
 	reference := ReferenceDuration(topology.profile.Preset)
 
@@ -313,7 +314,14 @@ func observe(ctx context.Context, cfg Config, topology *Topology, browser string
 
 	run.Result = &summary
 
-	return nil
+	if !topology.profile.Compat {
+		return nil
+	}
+
+	// The compatibility step's failure fails the run, with whatever it recorded kept.
+	run.Compat, err = topology.Compat(ctx, browser)
+
+	return err
 }
 
 // readEgress records the guard's counters, and fails the run when any is not zero.

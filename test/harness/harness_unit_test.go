@@ -103,9 +103,16 @@ func TestProfileValues(t *testing.T) {
 	}
 
 	for name, want := range map[string]Profile{
-		"ci-500k-300ms":         {RateBitsPerSecond: 500_000, RTT: 300 * time.Millisecond, Preset: PresetStandard},
-		"ci-1g":                 {RateBitsPerSecond: 1_000_000_000, Preset: PresetStandard},
-		"ci-100m-50ms-caddy-h2": {RateBitsPerSecond: 100_000_000, RTT: 50 * time.Millisecond, Proxy: ProxyCaddy, Preset: PresetStandard},
+		"ci-500k-300ms": {RateBitsPerSecond: 500_000, RTT: 300 * time.Millisecond, Preset: PresetStandard},
+		"ci-1g":         {RateBitsPerSecond: 1_000_000_000, Preset: PresetStandard},
+		"ci-100m-50ms-caddy-h2": {
+			RateBitsPerSecond: 100_000_000, RTT: 50 * time.Millisecond, Proxy: ProxyCaddy,
+			PathB: PathBOverH2, Compat: true, Preset: PresetStandard,
+		},
+		"ci-100m-50ms-traefik-h1": {
+			RateBitsPerSecond: 100_000_000, RTT: 50 * time.Millisecond, Proxy: ProxyTraefik,
+			PathB: PathBUnavailableH1, Preset: PresetStandard,
+		},
 		"ci-100m-50ms-traefik-h1-ws-blocked": {
 			RateBitsPerSecond: 100_000_000, RTT: 50 * time.Millisecond, Proxy: ProxyTraefik, WebSocketBlocked: true,
 			ExpectFallback: SourceReserved, Preset: PresetStandard,
@@ -119,6 +126,71 @@ func TestProfileValues(t *testing.T) {
 
 		if got != want {
 			t.Errorf("%s = %+v, want %+v", name, got, want)
+		}
+	}
+}
+
+// TestCompatProfile pins the compatibility step to the one CI profile testing.md section 5 names
+// for it: ci-100m-50ms-caddy-h2 is the only profile with Compat.
+func TestCompatProfile(t *testing.T) {
+	t.Parallel()
+
+	var compat []string
+
+	for _, spec := range Tiers() {
+		for _, profile := range spec.Profiles {
+			if profile.Compat {
+				compat = append(compat, profile.Name)
+			}
+		}
+	}
+
+	if !slices.Equal(compat, []string{"ci-100m-50ms-caddy-h2"}) {
+		t.Errorf("the Compat profiles are %v, want only ci-100m-50ms-caddy-h2", compat)
+	}
+}
+
+// TestCompatNeedsHTTPS pins that a Compat profile runs behind an HTTPS proxy, which networkQuality
+// needs, and that only a Compat profile starts BitGauge with an environment: the three toggles and
+// the proxy network as trusted proxies.
+func TestCompatNeedsHTTPS(t *testing.T) {
+	t.Parallel()
+
+	for _, spec := range Tiers() {
+		for _, profile := range spec.Profiles {
+			env := profile.BitGaugeEnv([]string{"172.30.0.0/16", "fd00:30::/64"})
+
+			if !profile.Compat {
+				if env != nil {
+					t.Errorf("%s is not Compat but starts BitGauge with %v", profile.Name, env)
+				}
+
+				continue
+			}
+
+			if !profile.Proxy.HTTPS() {
+				t.Errorf(
+					"%s is Compat behind %q, which serves no HTTPS",
+					profile.Name,
+					profile.Proxy,
+				)
+			}
+
+			want := []string{
+				"BITGAUGE_COMPAT__OPENSPEEDTEST__ENABLED=true",
+				"BITGAUGE_COMPAT__LIBRESPEED__ENABLED=true",
+				"BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED=true",
+				"BITGAUGE_SERVER__TRUSTED_PROXIES=172.30.0.0/16,fd00:30::/64",
+			}
+			if !slices.Equal(env, want) {
+				t.Errorf("%s starts BitGauge with %v, want %v", profile.Name, env, want)
+			}
+		}
+	}
+
+	for proxy, https := range map[Proxy]bool{ProxyNone: false, ProxyTraefik: false, ProxyCaddy: true} {
+		if proxy.HTTPS() != https {
+			t.Errorf("%q.HTTPS() = %v, want %v", proxy, proxy.HTTPS(), https)
 		}
 	}
 }
@@ -416,6 +488,9 @@ func TestReport(t *testing.T) {
 						MedianMs:   760,
 						IncreaseMs: new(float64(160)),
 					},
+					Responsiveness: &Responsiveness{
+						State: ResponsivenessMeasured, Protocol: "h2", Samples: 31, RPM: 95,
+					},
 				},
 				Upload: &Direction{
 					Status:        "measured",
@@ -427,6 +502,7 @@ func TestReport(t *testing.T) {
 						MedianMs:   790,
 						IncreaseMs: new(float64(190)),
 					},
+					Responsiveness: &Responsiveness{State: ResponsivenessH1, Protocol: "http/1.1"},
 				},
 				Bufferbloat: &Bufferbloat{Grade: "C", Basis: basisBoth, IncreaseMs: 190},
 			},
@@ -454,6 +530,22 @@ func TestReport(t *testing.T) {
 			},
 			ClientUsage: &Usage{CPUSeconds: 40.5, WallSeconds: 27, PeakMemoryBytes: 812_400_000},
 			Egress:      map[string]uint64{"egress": 0, "dns": 0, "loopback": 0},
+			Compat: &Compat{
+				LibreSpeed: &CompatClient{
+					DownloadBitsPerSecond: 280_000,
+					UploadBitsPerSecond:   270_000,
+				},
+				GoResponsiveness: &CompatClient{
+					DownloadBitsPerSecond: 250_000,
+					UploadBitsPerSecond:   240_000,
+					RPM:                   61,
+					Estimate:              true,
+				},
+				OpenSpeedTest: &CompatClient{
+					DownloadBitsPerSecond: 275_000,
+					UploadBitsPerSecond:   265_000,
+				},
+			},
 		},
 		{
 			Profile: "floor-300k-300ms-1pct-loss",
@@ -508,6 +600,11 @@ func TestReport(t *testing.T) {
 		t.Errorf("the loaded latency did not survive: %+v", decoded.Runs[0])
 	}
 
+	if decoded.Runs[0].Result.Download.Responsiveness.RPM != 95 ||
+		decoded.Runs[0].Compat.GoResponsiveness.RPM != 61 || decoded.Runs[0].Compat.OpenSpeedTest == nil {
+		t.Errorf("path B or the compatibility results did not survive: %+v", decoded.Runs[0])
+	}
+
 	if decoded.Tolerances != Tolerances || decoded.Runs[0].Verdict != report.Runs[0].Verdict ||
 		decoded.Runs[0].Reference.DownloadBitsPerSecond != 297_000 || !decoded.Runs[2].Rerun {
 		t.Errorf("the judgment did not survive: %+v", decoded)
@@ -524,6 +621,9 @@ func TestReport(t *testing.T) {
 		"| +160.0 ms (websocket, 40 samples) / +190.0 ms (websocket, 40 samples) | 600.0 ms / +150.0 ms / +170.0 ms | C (download+upload, +190.0 ms) |",
 		`failed: shaper \| self-test`, "one real iOS Safari run over an actual VPN",
 		"40.5 s CPU in 27.0 s (1.50 cores), 812.4 MB peak",
+		"| measured, 95 RPM (h2, 31 samples) / unavailable_h1 |",
+		"| librespeed-cli 280.0 kbit/s / 270.0 kbit/s; goresponsiveness 250.0 kbit/s / 240.0 kbit/s, " +
+			"61 RPM (estimate); OpenSpeedTest UI 275.0 kbit/s / 265.0 kbit/s |",
 	}, EnvironmentalLimits...) {
 		if !strings.Contains(markdown, want) {
 			t.Errorf("report.md lacks %q:\n%s", want, markdown)

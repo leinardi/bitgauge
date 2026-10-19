@@ -2,7 +2,7 @@
   "workspaces": {
     "patterns": ["web"]
   },
-  "entry": ["web/src/engine/worker.ts", "web/src/demo/worker.ts", "web/e2e/**/*.spec.ts", "web/harness/run.spec.ts", "web/parity/*.parity.ts", "web/parity/reporter.ts", "web/parity/triage/cli.ts"],
+  "entry": ["web/src/engine/worker.ts", "web/src/demo/worker.ts", "web/e2e/**/*.spec.ts", "web/harness/run.spec.ts", "web/harness/openspeedtest.spec.ts", "web/parity/*.parity.ts", "web/parity/reporter.ts", "web/parity/triage/cli.ts"],
   "ignorePatterns": ["docs/**", "!docs/design_system/colors_and_type.css", "!docs/design_system/base.css", "scripts/**", "web/dist/**", "web/dist-demo/**", "web/coverage/**"],
   "ignoreExports": [
     {

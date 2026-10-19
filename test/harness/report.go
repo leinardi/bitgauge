@@ -65,6 +65,8 @@ const (
 const (
 	msPerSecond = 1000
 	bytesPerMB  = 1e6
+	// runColumns is the number of columns of the report's runs table.
+	runColumns = 19
 )
 
 var errNoResult = errors.New("the export holds no result")
@@ -94,15 +96,26 @@ type LoadedLatency struct {
 	IncreaseMs *float64 `json:"increaseMs,omitempty"`
 }
 
+// Responsiveness is a direction's HTTP loaded responsiveness, path B (measurement.md sections 12.6
+// and 17): its state, the protocol and samples it rests on, and the RPM when measured or
+// uncertain.
+type Responsiveness struct {
+	State    string  `json:"state"`
+	Protocol string  `json:"protocol"`
+	Samples  int     `json:"samples"`
+	RPM      float64 `json:"rpm,omitempty"`
+}
+
 // Direction is one direction of a result, as the harness records it.
 type Direction struct {
-	Status        string         `json:"status"`
-	BitsPerSecond float64        `json:"bitsPerSecond"`
-	WindowMs      float64        `json:"windowMs"`
-	Bytes         float64        `json:"bytes"`
-	Streams       int            `json:"streams"`
-	Confidence    *Confidence    `json:"confidence,omitempty"`
-	LoadedLatency *LoadedLatency `json:"loadedLatency,omitempty"`
+	Status         string          `json:"status"`
+	BitsPerSecond  float64         `json:"bitsPerSecond"`
+	WindowMs       float64         `json:"windowMs"`
+	Bytes          float64         `json:"bytes"`
+	Streams        int             `json:"streams"`
+	Confidence     *Confidence     `json:"confidence,omitempty"`
+	LoadedLatency  *LoadedLatency  `json:"loadedLatency,omitempty"`
+	Responsiveness *Responsiveness `json:"responsiveness,omitempty"`
 }
 
 // Bufferbloat is the result's grade (measurement.md section 11.3): its letter, the directions it
@@ -227,6 +240,8 @@ type Run struct {
 	Egress map[string]uint64 `json:"egress,omitempty"`
 	// Export is the path of the downloaded result, relative to the report directory.
 	Export string `json:"export,omitempty"`
+	// Compat is what the compatibility step recorded on a Compat profile (testing.md section 5).
+	Compat *Compat `json:"compat,omitempty"`
 }
 
 // Report is one harness invocation.
@@ -305,19 +320,17 @@ func (r *Report) Markdown() string {
 	out.WriteString(
 		"| Profile | Browser | Attempt | Status | Self-test down / up | iperf3 before down / up | " +
 			"iperf3 after down / up | Reference down / up | Download | Upload | " +
-			"Loaded latency down / up | Ping idle / down / up | Grade | Data used | " +
-			"Client CPU and memory | Egress | Verdict |\n",
+			"Loaded latency down / up | Ping idle / down / up | Grade | Path B down / up | " +
+			"Data used | Client CPU and memory | Egress | Compatibility clients | Verdict |\n",
 	)
-	out.WriteString(
-		"| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n",
-	)
+	out.WriteString("|" + strings.Repeat(" --- |", runColumns) + "\n")
 
 	for index := range r.Runs {
 		run := &r.Runs[index]
 
 		fmt.Fprintf(
 			&out,
-			"| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+			"|"+strings.Repeat(" %s |", runColumns)+"\n",
 			run.Profile,
 			run.Browser,
 			attempt(run),
@@ -331,9 +344,11 @@ func (r *Report) Markdown() string {
 			loaded(run.Result),
 			pingFigures(run.Ping),
 			grade(run.Result),
+			pathB(run.Result),
 			dataUsed(run.Result),
 			usage(run.ClientUsage),
 			egress(run.Egress),
+			compatClients(run.Compat),
 			cell(run.Verdict),
 		)
 	}
@@ -486,6 +501,71 @@ func grade(result *ResultSummary) string {
 		result.Bufferbloat.Basis,
 		result.Bufferbloat.IncreaseMs,
 	)
+}
+
+// pathB is each direction's path B state, with its RPM and protocol where it has them.
+func pathB(result *ResultSummary) string {
+	if result == nil {
+		return "—"
+	}
+
+	parts := make([]string, 0, 2)
+
+	for _, dir := range []*Direction{result.Download, result.Upload} {
+		switch {
+		case dir == nil || dir.Responsiveness == nil:
+			parts = append(parts, "—")
+		case dir.Responsiveness.RPM > 0:
+			parts = append(parts, fmt.Sprintf("%s, %.0f RPM (%s, %d samples)",
+				dir.Responsiveness.State, dir.Responsiveness.RPM, dir.Responsiveness.Protocol,
+				dir.Responsiveness.Samples))
+		default:
+			parts = append(parts, dir.Responsiveness.State)
+		}
+	}
+
+	return strings.Join(parts, " / ")
+}
+
+// compatClients is each compatibility client's download and upload, with goresponsiveness's RPM.
+func compatClients(compat *Compat) string {
+	if compat == nil {
+		return "—"
+	}
+
+	clients := []struct {
+		name   string
+		client *CompatClient
+	}{
+		{"librespeed-cli", compat.LibreSpeed},
+		{"goresponsiveness", compat.GoResponsiveness},
+		{"OpenSpeedTest UI", compat.OpenSpeedTest},
+	}
+	parts := make([]string, 0, len(clients))
+
+	for _, entry := range clients {
+		if entry.client == nil {
+			continue
+		}
+
+		part := entry.name + " " + rate(entry.client.DownloadBitsPerSecond) + " / " +
+			rate(entry.client.UploadBitsPerSecond)
+		if entry.client.RPM > 0 {
+			part += fmt.Sprintf(", %.0f RPM", entry.client.RPM)
+		}
+
+		if entry.client.Estimate {
+			part += " (estimate)"
+		}
+
+		parts = append(parts, part)
+	}
+
+	if len(parts) == 0 {
+		return "—"
+	}
+
+	return cell(strings.Join(parts, "; "))
 }
 
 func dataUsed(result *ResultSummary) string {

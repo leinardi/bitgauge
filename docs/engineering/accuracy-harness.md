@@ -106,14 +106,21 @@ wall-clock time (`ping -D`).
   with at least 10 samples in each direction, at most 5 streams and the `probe-reservation` notice
   (testing.md §5).
 - **HTTP loaded responsiveness** (v0.3): each direction's path B state, with its RPM when it has
-  one. On `ci-100m-50ms-caddy-h2` a measured direction must read `measured`, on
+  one. On `ci-100m-50ms-caddy-h2` a measured direction must read `measured` or `uncertain` with
+  `protocol` `h2` and an RPM (which of the two is recorded, not judged: a Standard download window
+  there holds fewer than 10 probes, each taking about 300 to 340 ms on the loaded connection), on
   `ci-100m-50ms-traefik-h1` `unavailable_h1`; every other profile records it unjudged
-  (testing.md §5).
+  (testing.md §5, open question 63).
 - **Compatibility clients** (v0.3, `ci-100m-50ms-caddy-h2` only): `librespeed-cli`,
   `goresponsiveness` and the OpenSpeedTest UI, each with its download and upload (and the RPM for
   `goresponsiveness`). Each must finish without an error with non-zero numbers, which follow the
   client's own method and are not held to the tolerances; a missing or unreadable output fails the
-  profile.
+  profile. The two command-line clients run after every browser's run, in the shaper (the tools
+  image, which builds them from source at pinned versions), with Caddy's internal root appended to
+  its trust store; the OpenSpeedTest UI (`openspeedtest/latest:v2.0.6`, pinned by digest) runs in
+  Chromium only. Their outputs are in `exports/<profile>/<browser>-compat/`. `goresponsiveness` has
+  no JSON output and its Prometheus file keeps only the last direction, so `goresponsiveness.json`
+  is read from the summary lines of `goresponsiveness.txt`.
 - **Egress counters**: every one is zero, or the run is not evidence of anything. The report names
   the no-egress layer it comes from (netguard's packet layer, not the image test's syscall layer).
 - **Client usage** (ceiling): the client container's CPU and memory over the browser run. At

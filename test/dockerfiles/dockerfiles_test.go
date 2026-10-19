@@ -53,6 +53,12 @@ const (
 	// The release tools' pins; test/toolchain/pins_test.go holds the same values.
 	svuPin   = "v3.4.1"
 	trivyPin = "v0.75.0"
+	// toolsDockerfile is the harness's tools image, which builds the compatibility clients
+	// (testing.md section 5) at these module versions: librespeed-cli at its release tag, and
+	// goresponsiveness, which publishes no tags, at the pseudo-version of one commit.
+	toolsDockerfile     = "test/harness/tools.Dockerfile"
+	libreSpeedCLIPin    = "v1.0.14"
+	goResponsivenessPin = "v0.0.0-20240129151524-343954285090"
 	// The actions whose inputs decide where the release pushes.
 	loginAction     = "docker/login-action"
 	buildPushAction = "docker/build-push-action"
@@ -79,6 +85,70 @@ func TestShippedDockerfileIsTheOnlyOne(t *testing.T) {
 
 	if !slices.Equal(found, []string{"Dockerfile"}) {
 		t.Errorf("%s holds %v, want exactly [Dockerfile]", shippedDir, found)
+	}
+}
+
+// TestToolsImageClients pins how the tools image gets the compatibility clients: a Go builder stage
+// from the official golang image, pinned by digest (TestOtherDockerfilesAreTestOnly) on the Go
+// line test/toolchain holds, installs each at its exact module version, which the Go checksum
+// database verifies, and the runtime stage copies the two binaries alone.
+func TestToolsImageClients(t *testing.T) {
+	t.Parallel()
+
+	stages, err := dockerfiles.Parse(readRepoFile(t, toolsDockerfile))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(stages) != 2 || stages[0].Name != "clients" ||
+		dockerfiles.Repository(stages[0].Image) != "docker.io/library/golang" {
+		t.Fatalf("%s: want a clients stage from docker.io/library/golang, then the runtime stage",
+			toolsDockerfile)
+	}
+
+	var runs strings.Builder
+
+	for _, instruction := range stages[0].Instructions {
+		if instruction.Keyword == "RUN" {
+			runs.WriteString(instruction.Args + "\n")
+		}
+	}
+
+	install := runs.String()
+
+	for _, want := range []string{
+		"github.com/librespeed/speedtest-cli@" + libreSpeedCLIPin + " ",
+		"defs.ProgVersion=" + libreSpeedCLIPin + `"`,
+		"github.com/network-quality/goresponsiveness@" + goResponsivenessPin + "\n",
+	} {
+		if !strings.Contains(install, want) {
+			t.Errorf("%s: the clients stage does not install %q", toolsDockerfile, want)
+		}
+	}
+
+	if strings.Count(install, "go install ") != 2 || strings.Contains(install, "@latest") {
+		t.Errorf("%s: the clients stage installs something besides the two pinned clients:\n%s",
+			toolsDockerfile, install)
+	}
+
+	var copies []string
+
+	for _, instruction := range stages[1].Instructions {
+		if instruction.Keyword == "COPY" {
+			copies = append(copies, instruction.Args)
+		}
+	}
+
+	want := "--from=clients /out/librespeed-cli /out/goresponsiveness /usr/local/bin/"
+	if !slices.Equal(copies, []string{want}) {
+		t.Errorf("%s: the runtime stage copies %q, want only %q", toolsDockerfile, copies, want)
+	}
+
+	description := dockerfiles.Labels(stages[1])["org.opencontainers.image.description"]
+	for _, version := range []string{"librespeed-cli " + libreSpeedCLIPin, "goresponsiveness " + goResponsivenessPin} {
+		if !strings.Contains(description, version) {
+			t.Errorf("%s: the image description does not record %q", toolsDockerfile, version)
+		}
 	}
 }
 

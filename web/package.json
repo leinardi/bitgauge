@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "harness": "playwright test -c playwright.harness.config.ts",
+    "harness": "playwright test harness/run.spec.ts -c playwright.harness.config.ts",
     "parity": "playwright test -c playwright.parity.config.ts",
     "parity:serve:demo": "npm run build:demo && vite preview --outDir dist-demo --host 127.0.0.1 --port \"${PARITY_DEMO_PORT:-5182}\" --strictPort",
     "parity:serve:prototype": "python3 -m http.server --directory ../docs/design_system --bind 127.0.0.1 \"${PARITY_PROTO_PORT:-5183}\" 2>/dev/null",

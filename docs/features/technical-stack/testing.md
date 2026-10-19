@@ -291,11 +291,17 @@ The harness report says which layer each result comes from.
   Safari.
 - Mobile power management: device runs happen with the screen on.
 
-**Path B (v0.3).** On `ci-100m-50ms-caddy-h2` each measured direction's `responsiveness.state`
-must be `measured`, and on `ci-100m-50ms-traefik-h1` it must be `unavailable_h1`; a missing
-`responsiveness` on a measured direction fails the run there. Every other profile records the
-state, with the RPM where there is one, and does not judge it: neither the protocol nor the
-connection sharing it rests on is under the profile's control.
+**Path B (v0.3).** On `ci-100m-50ms-caddy-h2` path B must run over HTTP/2 in each measured
+direction: `responsiveness.state` `measured` or `uncertain`, with `protocol` `h2` and an RPM. On
+`ci-100m-50ms-traefik-h1` it must be `unavailable_h1`. Any other state, or a missing
+`responsiveness` on a measured direction, fails the run on those two profiles. Which of `measured`
+and `uncertain` a Caddy direction reads is recorded, not judged: it rests on the sample count, the
+connection evidence the browser exposes and whether the warm-up ended at its cap (measurement.md
+§12.4), none of which the profile controls. On this profile each probe on the loaded HTTP/2
+connection takes about 300 to 340 ms, so a Standard download window holds fewer than the 10
+samples `measured` needs. Every other profile records the state, with the RPM where there is one,
+and does not judge it: neither the protocol nor the connection sharing it rests on is under the
+profile's control.
 
 **Compatibility clients (v0.3).** On `ci-100m-50ms-caddy-h2`, the one CI profile with HTTPS, which
 networkQuality needs, BitGauge runs with the three compatibility toggles on and

@@ -191,6 +191,12 @@ func (r *Run) Judge(profile *Profile) {
 		r.Verdict = "failed: " + r.Findings[0]
 
 		return
+	case profile.Compat && r.Compat == nil:
+		r.Status = StatusFailed
+		r.Findings = []string{"the compatibility step recorded nothing"}
+		r.Verdict = "failed: " + r.Findings[0]
+
+		return
 	}
 
 	goodput := ConfiguredGoodput(profile)
@@ -278,6 +284,10 @@ func (r *Run) judgeHeadlines(profile *Profile, reference *Throughput) {
 	parts = append(parts, latency...)
 	findings = append(findings, latencyFindings...)
 
+	responsiveness, responsivenessFindings := r.judgeResponsiveness(profile)
+	parts = append(parts, responsiveness...)
+	findings = append(findings, responsivenessFindings...)
+
 	r.Findings = findings
 	r.Status = StatusPass
 
@@ -288,6 +298,60 @@ func (r *Run) judgeHeadlines(profile *Profile, reference *Throughput) {
 	}
 
 	r.Verdict = r.Status + ": " + strings.Join(parts, "; ")
+}
+
+// judgeResponsiveness is the path B rule of testing.md section 5: on the Caddy profile each
+// measured direction's path B must run over HTTP/2 and give an RPM, measured or uncertain, and on
+// the Traefik profile read unavailable_h1; a measured direction without its responsiveness fails
+// there. On every other profile the state is recorded and not judged.
+func (r *Run) judgeResponsiveness(profile *Profile) (parts, findings []string) {
+	if profile.PathB == PathBRecorded {
+		return nil, nil
+	}
+
+	for _, side := range []struct {
+		name string
+		dir  *Direction
+	}{{"download", r.Result.Download}, {"upload", r.Result.Upload}} {
+		if side.dir == nil || side.dir.Status != "measured" {
+			continue
+		}
+
+		switch got := side.dir.Responsiveness; {
+		case got == nil:
+			findings = append(findings, fmt.Sprintf(
+				"%s: no path B responsiveness, want %s", side.name, pathBWant(profile.PathB)))
+		case !pathBHolds(profile.PathB, got):
+			findings = append(
+				findings,
+				fmt.Sprintf("%s: path B %s (protocol %q, %d samples), want %s",
+					side.name, got.State, got.Protocol, got.Samples, pathBWant(profile.PathB)),
+			)
+		default:
+			parts = append(parts, side.name+" path B "+got.State)
+		}
+	}
+
+	return parts, findings
+}
+
+// pathBHolds reports whether a direction's path B meets the rule.
+func pathBHolds(rule PathBRule, got *Responsiveness) bool {
+	if rule == PathBUnavailableH1 {
+		return got.State == ResponsivenessH1
+	}
+
+	return (got.State == ResponsivenessMeasured || got.State == ResponsivenessUncertain) &&
+		got.Protocol == "h2" && got.RPM > 0
+}
+
+// pathBWant is the rule in the words of a finding.
+func pathBWant(rule PathBRule) string {
+	if rule == PathBUnavailableH1 {
+		return ResponsivenessH1
+	}
+
+	return "measured or uncertain over h2 with an RPM"
 }
 
 // ShouldRerun is the re-run-once rule: an inconclusive first attempt is run again, and the second

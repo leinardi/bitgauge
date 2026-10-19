@@ -20,7 +20,9 @@
 // The accuracy harness's browser driver (testing.md section 5.1). The Go runners in test/harness
 // start this inside the client container, one browser and one profile at a time, and read the
 // result JSON it downloads from HARNESS_EXPORT_DIR. Runs are serial: a second browser on the same
-// shaped link would measure the other one.
+// shaped link would measure the other one. Each invocation selects one spec with a file filter:
+// run.spec.ts measures BitGauge on every profile, and openspeedtest.spec.ts drives the
+// OpenSpeedTest UI on the profiles that run the compatibility clients, in Chromium only.
 
 import { defineConfig, devices } from '@playwright/test'
 
@@ -28,7 +30,7 @@ const baseURL = process.env.BITGAUGE_HARNESS_URL ?? 'http://bitgauge:8080'
 
 export default defineConfig({
   testDir: './harness',
-  testMatch: 'run.spec.ts',
+  testMatch: ['run.spec.ts', 'openspeedtest.spec.ts'],
   outputDir: process.env.HARNESS_OUTPUT_DIR ?? './test-results/harness',
   retries: 0,
   forbidOnly: true,

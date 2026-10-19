@@ -35,9 +35,13 @@ const (
 	// CaddyImage is the HTTP/2 proxy, on its internal CA.
 	CaddyImage = "docker.io/library/caddy:2.11.7-alpine" +
 		"@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f"
+	// OpenSpeedTestImage is the OpenSpeedTest UI the compatibility step drives with ?Host= on a
+	// Compat profile (testing.md section 5); it is run as published, never copied or shipped.
+	OpenSpeedTestImage = "docker.io/openspeedtest/latest:v2.0.6" +
+		"@sha256:a6a7e3b3e9e93cfe7b9b2eb49c60b2a93644149a0a600845d4df57148b193ff6"
 )
 
 // Images lists the pinned third-party images.
 func Images() []string {
-	return []string{PlaywrightImage, TraefikImage, CaddyImage}
+	return []string{PlaywrightImage, TraefikImage, CaddyImage, OpenSpeedTestImage}
 }

@@ -79,6 +79,23 @@ tier's row in testing.md §5 word for word, with exactly 7, 2 and 2 profiles.
 | `ceiling` | `ceiling-2.5g` | 2.5 Gbit, unshaped (bare metal or veth) | Standard |
 | `ceiling` | `ceiling-10g` | 10 Gbit, unshaped | Standard |
 
+Two profiles carry v0.3 rules (testing.md §5). `PathB` holds `ci-100m-50ms-caddy-h2` to path B
+running over HTTP/2 with an RPM in each measured direction (`measured` or `uncertain`, the choice
+recorded and not judged, as the maintainer amended it on 2026-10-19: a Standard download window
+there holds fewer than 10 probes) and `ci-100m-50ms-traefik-h1` to `unavailable_h1`. `Compat` is set
+on the Caddy profile alone (`TestCompatProfile`), and only on an HTTPS proxy
+(`TestCompatNeedsHTTPS`): BitGauge starts there with the three compatibility toggles and
+`server.trusted_proxies` set to the network's subnets (`Profile.BitGaugeEnv`), the OpenSpeedTest UI
+container joins the network, and Caddy's internal root is appended to the shaper's trust store.
+After each browser run, `compat.go` runs `librespeed-cli` and `goresponsiveness` in the shaper, on
+the browser's path, and in Chromium only drives the OpenSpeedTest UI with
+`web/harness/openspeedtest.spec.ts` (`?Host=`, every other origin aborted, so its results link is
+never followed). The clients are built in `tools.Dockerfile` at the module versions
+`test/dockerfiles` pins (`librespeed-cli` v1.0.14; `goresponsiveness`, which has no release tags, at
+the pseudo-version of one commit). A missing or empty output, a parse failure, a non-zero exit, an
+OpenSpeedTest UI that ends on its network error, or a zero download, upload or RPM fails the run
+(`compatresult.go`); none is a skip.
+
 Every tier drives the Playwright projects `chromium`, `firefox` and `webkit`, one at a time
 (`workers: 1`: a second browser on the same link would measure the other one). Each tier also
 lists the runs no runner can make, and the report repeats them:
@@ -293,6 +310,12 @@ Read each run in this order; stop at the first that fails:
 8. **Client CPU and memory:** CPU seconds over wall seconds (mean cores busy) and the peak memory
    of the whole client container (browser and Playwright, from its cgroup v2). On the ceiling tier
    these are the documented counters; a run near the machine's core count is CPU-bound.
+9. **Path B** (down / up): each direction's state, with its RPM, protocol and samples when it has
+   a number; judged on the Caddy and Traefik profiles only.
+10. **Compatibility clients** (Caddy profile): each client's download and upload, with
+   `goresponsiveness`'s RPM and `(estimate)` when it did not run to stability; their raw outputs
+   are in `exports/<profile>/<browser>-compat/` (`librespeed.json`, `goresponsiveness.txt` and the
+   `goresponsiveness.json` read from it, `openspeedtest.json` in Chromium).
 
 `report.json` keeps `ping` per run: ping's own closing summary, the path of its full output, and
 its median per phase window with each direction's increase over idle, the loaded-latency

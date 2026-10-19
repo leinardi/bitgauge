@@ -175,7 +175,8 @@ tiers must additionally show for the features it adds. Progress per feature area
 
 - Everything v0.2 requires, still passing.
 - On `ci-100m-50ms-caddy-h2` (100 Mbit + 50 ms through Caddy, h2), each measured direction's path
-  B state is `measured`; on `ci-100m-50ms-traefik-h1` it is `unavailable_h1`, in every CI browser.
+  B runs over HTTP/2 and gives an RPM (`measured` or `uncertain`, which of the two recorded); on
+  `ci-100m-50ms-traefik-h1` it is `unavailable_h1`, in every CI browser.
   See [measurement.md §12](measurement.md#12-http-loaded-responsiveness).
 - On `ci-100m-50ms-caddy-h2`, with the three layers on: `librespeed-cli --no-icmp` against
   `/.well-known/librespeed`, `goresponsiveness` against `/nq/config` and a pinned OpenSpeedTest UI

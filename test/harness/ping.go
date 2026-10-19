@@ -237,11 +237,13 @@ func median(values []float64) float64 {
 }
 
 // Artifacts are where one browser run's files go, relative to the report directory: the export,
-// the phase transitions the driver recorded beside it, and the ping's full output.
+// the phase transitions the driver recorded beside it, the ping's full output, and the directory of
+// the compatibility step's outputs on a Compat profile.
 type Artifacts struct {
 	Export  string
 	Phases  string
 	PingLog string
+	Compat  string
 }
 
 // ArtifactsFor is the files of one profile in one browser.
@@ -252,6 +254,7 @@ func ArtifactsFor(profile, browser string) Artifacts {
 		Export:  filepath.Join(dir, browser+".json"),
 		Phases:  filepath.Join(dir, browser+".phases.json"),
 		PingLog: filepath.Join(dir, browser+".ping.txt"),
+		Compat:  filepath.Join(dir, browser+"-compat"),
 	}
 }
 
