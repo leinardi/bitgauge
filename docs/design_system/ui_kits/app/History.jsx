@@ -3,7 +3,8 @@
  *   variant: "populated" | "single" | "select3" | "deleted" | "compare" | "confirm" | "export" | "daterange" | "loading" | "nomatch" | "empty" | "unavailable" | "importing" | "importresult" | "importerror" | "safari"  (default "populated")
  *   mobile: boolean  (default false)
  *   whyOpen: boolean  (default false)
- *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM row in Compare)
+ *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM or quality-score rows in Compare)
+ *   compareB: "h1" | "h2"  (default "h1") — v0.3 Compare demo: B over HTTP/1.1 (RPM not comparable) or HTTP/2 (measured)
  */
 // Row action menu (screens.md: open, delete).
 const HISTORY_ROW_ACTIONS = [{ value: 'open', label: 'Open', icon: 'chevron-right' }, { value: 'delete', label: 'Delete', icon: 'trash', danger: true }];
@@ -123,20 +124,42 @@ class History extends React.Component {
     const ch = (d, w, dw) => ({ dc: w === 'better' ? 'var(--ok-fg)' : w === 'worse' || w === 'crit' ? 'var(--warn-fg)' : w === 'differs' ? 'var(--fg-muted)' : 'var(--fg-subtle)',
       di: w === 'better' ? 'trending-up' : w === 'worse' || w === 'crit' ? 'triangle-alert' : w === 'differs' ? 'info' : 'minus', d, dw: dw || w });
     const CRIT = ['Label', 'Preset', 'Protocol'];
-    const params = [['Label', 'VPN · office', 'VPN · office'], ['Context', 'VPN', 'VPN'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', 'HTTP/1.1'], ['Streams', 'Auto', 'Auto'], ['Data cap', 'Off', 'Off'], ['Browser', 'Firefox 131', 'Safari 18']]
+    // compareB "h2" (demo): B ran over HTTP/2 too, so the download RPM is compared (both measured); default "h1" keeps B on
+    // HTTP/1.1, both responsiveness rows "not comparable".
+    const B2 = this.props.compareB === 'h2';
+    const params = [['Label', 'VPN · office', 'VPN · office'], ['Context', 'VPN', 'VPN'], ['Preset', 'Standard', 'Standard'], ['Protocol', 'HTTP/2', B2 ? 'HTTP/2' : 'HTTP/1.1'], ['Streams', 'Auto', 'Auto'], ['Data cap', 'Off', 'Off'], ['Browser', 'Firefox 131', 'Safari 18']]
       .map(([k, a, b]) => { const diff = a !== b, crit = diff && CRIT.includes(k); return Object.assign({ k, a, b, diff, crit }, ch('', crit ? 'crit' : diff ? 'differs' : 'same', diff ? 'differs' : 'same')); });
     // Rates (download, upload, peak): B against A in percent, one decimal, within ±2 % reads "same" (screens.md §3).
     const rs = b => { const f = fr(b); return f.n + ' ' + f.u; };
     const rate = (k, a, b) => { const p = (b - a) / a * 100; return [k, rs(a), rs(b), (p < 0 ? '−' : '+') + Math.abs(p).toFixed(1) + '\u00a0%', Math.abs(p) <= 2 ? 'same' : p > 0 ? 'better' : 'worse']; };
     // Probe timeouts, data used and duration: both values, no judgment.
     const plain = (k, a, b) => [k, a, b, '', 'none'];
+    const RPMS = { measured: 'measured', uncertain: 'uncertain', unavailable_h1: 'needs HTTP/2 or HTTP/3 at the reverse proxy', unavailable_insufficient: 'not enough samples' };
+    const rpmV = x => (x.rpm != null ? x.rpm.toLocaleString('en-US') + ' RPM · ' : '') + RPMS[x.state] + ' · ' + x.proto;
+    const rpmRow = (dir, a, b) => {
+      const k = 'HTTP loaded responsiveness — connection sharing not verifiable · ' + dir;
+      if (a.state !== 'measured' || b.state !== 'measured') return [k, rpmV(a), rpmV(b), '', 'differs', 'not comparable'];
+      const p = (b.rpm - a.rpm) / a.rpm * 100;
+      return [k, rpmV(a), rpmV(b), (p < 0 ? '−' : '+') + Math.abs(p).toFixed(1) + '\u00a0%', Math.abs(p) <= 2 ? 'same' : p > 0 ? 'better' : 'worse'];
+    };
+    const BANDS = ['bad', 'poor', 'average', 'good', 'great'], cap = s => s[0].toUpperCase() + s.slice(1);
+    const bandRow = (k, a, b) => {
+      if (!a || !b) return ['Quality · ' + k, a ? cap(a) : 'not scored', b ? cap(b) : 'not scored', '', 'differs', 'not comparable'];
+      const d = BANDS.indexOf(b) - BANDS.indexOf(a);
+      return ['Quality · ' + k, cap(a), cap(b), '', d === 0 ? 'same' : d > 0 ? 'better' : 'worse'];
+    };
     const metrics = [
       rate('Download', 233e6, 241e6), rate('Peak · download', 262e6, 268e6), rate('Upload', 187e6, 198e6), rate('Peak · upload', 211e6, 214e6),
       ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'], plain('Idle probe timeouts', '0.0\u00a0%', '0.5\u00a0%'),
       ['Loaded latency · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Loaded latency · upload', '58 ms', '71 ms', '+13 ms', 'worse'],
       ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms']
     ].concat(Q ? [
-      ['HTTP loaded responsiveness — connection sharing not verifiable', '980 RPM · HTTP/2', 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', '', 'differs', 'not comparable']
+      // v0.3 (screens.md §3): one responsiveness row per direction, the RPM compared (higher better, ±2 % same) only
+      // when both sides are measured; otherwise both states and "not comparable". A runs over HTTP/2, B over HTTP/1.1.
+      rpmRow('download', { state: 'measured', rpm: 980, proto: 'HTTP/2' }, B2 ? { state: 'measured', rpm: 1010, proto: 'HTTP/2' } : { state: 'unavailable_h1', proto: 'HTTP/1.1' }),
+      rpmRow('upload', { state: 'uncertain', rpm: 610, proto: 'HTTP/2' }, B2 ? { state: 'measured', rpm: 640, proto: 'HTTP/2' } : { state: 'unavailable_h1', proto: 'HTTP/1.1' }),
+      // One row per quality-score experience, compared by band order (great best, bad worst).
+      bandRow('Streaming', 'good', 'good'), bandRow('Gaming', 'good', 'average'), bandRow('Video calls', 'average', 'good')
     ] : []).concat([plain('Data used', '1.21 GB', '1.27 GB'), plain('Duration', '48 s', '47 s')])
       .map(([k, a, b, d, w, dw]) => Object.assign({ k, a, b, nj: w === 'none' }, w === 'none' ? {} : ch(d, w, dw)));
     const cmpWarn = params.filter(p => p.crit).map(p => `different ${p.k.toLowerCase()} (${p.a} vs ${p.b})`).join('; ');
@@ -160,6 +183,8 @@ class History extends React.Component {
       showOrigin: !unavail, safari: is('safari'), importing: is('importing'), importResult: is('importresult'), importError: is('importerror'),
       importDisabled: unavail || is('importing'), importLabel: is('importing') ? 'Importing…' : 'Import JSON',
       whyOpen: why, whyAria: why ? 'true' : 'false', toggleWhy: () => this.setState({ why: !why }),
+      // CSV (frontend.md §5, not in the export): one row per result; from v0.3 the RPM columns are per direction —
+      // downloadRpm, downloadRpmState, uploadRpm, uploadRpmState — with each Continuous direction's minimum and maximum.
       exportFormats: [{ t: 'Export JSON', s: 'Full samples · re-importable', icon: 'file-json' }, { t: 'Export CSV', s: 'One row per test · summary only', icon: 'file-text' }],
       rows: m ? rows.slice(0, 6) : rows, cols, chipGroups, trends, trendMeta: single || !list.length ? (single ? '1 result · today' : '') : <>{shownN + ' results · '}{BG ? BG.timeRange(list[list.length - 1].r[0], list[0].r[0], 'day') : null}</>,
       hasSel: selN > 0, selN, cmpDisabled: selN !== 2, cmpHint: selN > 0 && selN !== 2,

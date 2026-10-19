@@ -19,7 +19,7 @@ class Settings extends React.Component {
   }
   on(v) { return !!v && v !== 'false' && v !== '0'; }
   defaults() {
-    return { preset: 'standard', dir: 'download', runLimit: false, runUnit: 'h', phases: { latency: true, download: true, upload: true }, order: 'down', ov: {}, v: { capMB: 500, countdown: 3, warmS: 2, runVal: 1 }, cap: false, units: 'bits', theme: 'system', autostart: false, warm: 'auto', overhead: '0', drafts: {}, err: {}, keepAsk: null };
+    return { preset: 'standard', dir: 'download', runLimit: false, runUnit: 'h', phases: { latency: true, download: true, upload: true }, order: 'down', ov: {}, v: { capMB: 500, countdown: 3, warmS: 2, runVal: null }, cap: false, units: 'bits', theme: 'system', autostart: false, warm: 'auto', overhead: '0', drafts: {}, err: {}, keepAsk: null };
   }
   initState() {
     const p = this.props || {};
@@ -52,11 +52,14 @@ class Settings extends React.Component {
   validate(k, str, st) {
     const R = { dlMin: [5, 600], dlMax: [5, 600], ulMin: [5, 600], ulMax: [5, 600], capMB: [1, 100000], countdown: [1, 30], pings: [6, 200], warmS: [1, 60], runVal: ({ m: [1, 10080], h: [1, 168], d: [1, 7] })[st.runUnit] }[k];
     const s = String(str).trim(), n = Number(s), u = this.unitOf(k, st);
+    // Run length: empty is valid and means none (screens.md §4); a value is a whole number of the unit, 60 s to 7 days.
+    if (k === 'runVal' && s === '') return null;
+    const cur = this.eff(k, st), restore = cur == null ? 'no run length' : cur + ' ' + u;
     let msg = null;
     if (s === '' || !isFinite(n) || (!R[2] && !Number.isInteger(n)) || n < R[0] || n > R[1]) msg = k === 'runVal' ? 'Run length must be 1 minute to 7 days.' : /^(dl|ul)/.test(k) ? 'Enter whole seconds from 5 s to 10 min (600 s).' : 'Enter a ' + (R[2] ? '' : 'whole ') + 'number from ' + R[0] + ' to ' + R[1] + '.';
     else if (/Min$/.test(k) && n > this.eff(k.replace('Min', 'Max'), st)) msg = 'Must be at most the maximum (' + this.eff(k.replace('Min', 'Max'), st) + ' s).';
     else if (/Max$/.test(k) && n < this.eff(k.replace('Max', 'Min'), st)) msg = 'Must be at least the minimum (' + this.eff(k.replace('Max', 'Min'), st) + ' s).';
-    return msg ? msg + ' Not saved · Esc restores ' + this.eff(k, st) + ' ' + u + '.' : null;
+    return msg ? msg + ' Not saved · Esc restores ' + restore + '.' : null;
   }
   drop(o, k) { const c = Object.assign({}, o); delete c[k]; return c; }
   check(k, el) {
@@ -64,7 +67,7 @@ class Settings extends React.Component {
     if (str === undefined) return;
     const e = this.validate(k, str, st);
     if (e) { this.setState({ err: Object.assign({}, st.err, { [k]: e }) }); return; } // error shown, focus stays free: Tab moves on
-    const n = Number(String(str).trim());
+    const n = String(str).trim() === '' ? null : Number(String(str).trim());
     this.setState(s => {
       const pv = this.pv(s), out = { drafts: this.drop(s.drafts, k), err: this.drop(s.err, k) };
       if (k in pv) { const ov = Object.assign({}, s.ov); if (n === pv[k]) delete ov[k]; else ov[k] = n; out.ov = ov; }
@@ -73,9 +76,9 @@ class Settings extends React.Component {
     });
   }
   field(k) {
-    const st = this.state, e = st.err[k], d = st.drafts[k];
+    const st = this.state, e = st.err[k], d = st.drafts[k], cur = this.eff(k, st);
     return {
-      val: d !== undefined ? d : String(this.eff(k, st)), bad: !!e, err: e || '', eid: 'err-' + k, desc: e ? 'err-' + k : undefined,
+      val: d !== undefined ? d : cur == null ? '' : String(cur), bad: !!e, err: e || '', eid: 'err-' + k, desc: e ? 'err-' + k : undefined,
       // Invalid keeps its error styling; the focus ring comes from :focus-within only, so Tab moves it on.
       cls: 'input mono' + (e ? ' invalid' : ''), aria: e ? 'true' : 'false',
       onChange: ev => { const val = ev.target.value; this.setState(s => { const out = { drafts: Object.assign({}, s.drafts, { [k]: val }) }; if (s.err[k]) { const ne = this.validate(k, val, s); out.err = ne ? Object.assign({}, s.err, { [k]: ne }) : this.drop(s.err, k); } return out; }); },
@@ -99,7 +102,8 @@ class Settings extends React.Component {
     const dur = (a, b) => a + '–' + b + ' s';
     const e = k => this.eff(k, s);
     const dirName = s.dir === 'download' ? 'download' : 'upload';
-    const runStr = s.v.runVal + ({ m: ' min', h: ' h', d: ' d' })[s.runUnit];
+    const runSet = s.runLimit && s.v.runVal != null;
+    const runStr = runSet ? s.v.runVal + ({ m: ' min', h: ' h', d: ' d' })[s.runUnit] : '';
     const phOn = s.phases, phAll = phOn.latency && phOn.download && phOn.upload;
 
     const C = {
@@ -110,7 +114,7 @@ class Settings extends React.Component {
     };
     const changed = [];
     const add = (k, d, v, reset) => changed.push({ k, d, v, reset, label: 'Reset ' + k.toLowerCase() });
-    if (s.preset !== 'standard') add('Preset', 'Standard', P.t + (isCont ? ' · ' + dirName + (s.runLimit ? ' · ' + runStr : '') : ''), () => set({ preset: 'standard', dir: 'download', runLimit: false, runUnit: 'h', v: Object.assign({}, s.v, { runVal: 1 }), drafts: {}, err: {} }));
+    if (s.preset !== 'standard') add('Preset', 'Standard', P.t + (isCont ? ' · ' + dirName + (runSet ? ' · ' + runStr : '') : ''), () => set({ preset: 'standard', dir: 'download', runLimit: false, runUnit: 'h', v: Object.assign({}, s.v, { runVal: null }), drafts: {}, err: {} }));
     if (C.streams) add('Parallel streams', streamsLbl(P.streams, pn), streamsLbl(sm, n), () => this.resetOv(['streams', 'n']));
     if (C.dl) add('Download duration', dur(P.dl[0], P.dl[1]), dur(e('dlMin'), e('dlMax')), () => this.resetOv(['dlMin', 'dlMax']));
     if (C.ul) add('Upload duration', dur(P.ul[0], P.ul[1]), dur(e('ulMin'), e('ulMax')), () => this.resetOv(['ulMin', 'ulMax']));
@@ -131,7 +135,7 @@ class Settings extends React.Component {
     const test = isCont ? (s.dir === 'upload' ? 'upload' : null) : phOn.download && phOn.upload ? null : phOn.download ? 'download' : phOn.upload ? 'upload' : 'latency';
     if (test) q.push('test=' + test);
     if (s.preset !== 'standard') q.push('preset=' + s.preset);
-    if (isCont && s.runLimit) q.push('duration=' + s.v.runVal * ({ m: 60, h: 3600, d: 86400 })[s.runUnit]);
+    if (isCont && runSet) q.push('duration=' + s.v.runVal * ({ m: 60, h: 3600, d: 86400 })[s.runUnit]);
     if (C.streams) q.push('streams=' + (sm === 'fixed' ? n : sm));
     if (C.cap) q.push('cap=' + s.v.capMB + 'MB');
     if (C.units) q.push('units=' + s.units);
@@ -170,8 +174,9 @@ class Settings extends React.Component {
       },
       phasesOpacity: isCont ? '0.45' : '1', orderOpacity: orderOk ? '1' : '0.45', orderPe: orderOk ? 'auto' : 'none',
       phasesHelp: isCont ? 'Continuous runs one direction. Phases apply to the timed presets.' : 'Idle latency always runs first. Turn off a direction to test the other one, or latency only.',
-      runSw: this.sw(s.runLimit, () => set({ runLimit: !s.runLimit, drafts: this.drop(s.drafts, 'runVal'), err: this.drop(s.err, 'runVal') })), runLimit: s.runLimit, noRunLimit: !s.runLimit, runUnit: s.runUnit,
-      setRunUnit: ev => { const u = ev.target.value, max = { m: 10080, h: 168, d: 7 }[u]; set({ runUnit: u, v: Object.assign({}, s.v, { runVal: Math.min(s.v.runVal, max) }), drafts: this.drop(s.drafts, 'runVal'), err: this.drop(s.err, 'runVal') }); },
+      // Switched on, the field starts empty (no run length until a valid value is entered); switched off, it clears.
+      runSw: this.sw(s.runLimit, () => set({ runLimit: !s.runLimit, v: Object.assign({}, s.v, { runVal: null }), drafts: this.drop(s.drafts, 'runVal'), err: this.drop(s.err, 'runVal') })), runLimit: s.runLimit, noRunLimit: !s.runLimit, runUnit: s.runUnit,
+      setRunUnit: ev => { const u = ev.target.value, max = { m: 10080, h: 168, d: 7 }[u]; set({ runUnit: u, v: Object.assign({}, s.v, { runVal: s.v.runVal == null ? null : Math.min(s.v.runVal, max) }), drafts: this.drop(s.drafts, 'runVal'), err: this.drop(s.err, 'runVal') }); },
       isFixed: sm === 'fixed', n, nMin: n <= 1, nMax: n >= 6,
       nDec: () => this.setState(st => { const ov = Object.assign({}, st.ov), nv = Math.max(1, n - 1); if (nv === pn) delete ov.n; else ov.n = nv; return { ov }; }),
       nInc: () => this.setState(st => { const ov = Object.assign({}, st.ov), nv = Math.min(6, n + 1); if (nv === pn) delete ov.n; else ov.n = nv; return { ov }; }),
@@ -254,7 +259,7 @@ class Settings extends React.Component {
                       <div style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: "3px" }}>
                         <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>Run length</span>
                         <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
-                          Optional. No limit by default. 1 minute to 7 days.
+                          Optional. None by default. A whole number of minutes, hours or days, 1 minute to 7 days.
                         </span>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-1-5)" }}>
@@ -262,7 +267,7 @@ class Settings extends React.Component {
                           <DS.Switch checked={v.runSw?.aria === 'true'} aria-label="Stop after a set time" onChange={v.runSw?.on} />
                           {v.runLimit ? (
                             <>
-                              <DS.Input mono invalid={v.F?.runVal?.bad} style={{ width: "72px" }} value={v.F?.runVal?.val} aria-label="Run length" aria-invalid={v.F?.runVal?.aria} aria-describedby={v.F?.runVal?.desc} onChange={v.F?.runVal?.onChange} onBlur={v.F?.runVal?.onBlur} onKeyDown={v.F?.runVal?.onKeyDown} />
+                              <DS.Input mono invalid={v.F?.runVal?.bad} style={{ width: "72px" }} value={v.F?.runVal?.val} placeholder="none" aria-label="Run length" aria-invalid={v.F?.runVal?.aria} aria-describedby={v.F?.runVal?.desc} onChange={v.F?.runVal?.onChange} onBlur={v.F?.runVal?.onBlur} onKeyDown={v.F?.runVal?.onKeyDown} />
                               <DS.Select aria-label="Run length unit" value={v.runUnit} onChange={v.setRunUnit} options={[{ value: 'm', label: 'minutes' }, { value: 'h', label: 'hours' }, { value: 'd', label: 'days' }]} style={{ width: "112px" }} />
                             </>
                           ) : null}

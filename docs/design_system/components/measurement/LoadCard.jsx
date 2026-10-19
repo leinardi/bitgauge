@@ -42,6 +42,7 @@ export function LoadCard({ grade, gradeText, ended = false, basis, rows = [], re
         <div className="rpm-d">{(r.dirs || []).map((d, i) => <div key={i}>
           <span className="ic" style={{ color: DIR[d.dir][1] }}><Icon name={DIR[d.dir][0]} size={12} stroke={2.25} /></span>
           {d.value != null ? <NumU value={d.value} unit="RPM" uncertain={d.uncertain} /> : <span className="txt">{d.text || '—'}</span>}
+          {d.detail ? <span className="sub">{d.detail}</span> : null}
         </div>)}</div>
       </div> : null}
     </div>

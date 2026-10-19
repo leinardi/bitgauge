@@ -7,6 +7,9 @@
  *   unreachable: boolean  (default false) — /api/v1/info failed: snippets come from the page's own origin, layer state unknown
  *   caps: version scope (caps.clients false before v0.3: no snippets, v0.1 methodology)
  *   server: string | null — server.display_name; null while /info fails
+ *   insecure: boolean  (default false) — the page is served over http, not https: the networkQuality snippet notes that
+ *     it needs HTTPS through the reverse proxy (or server.public_url)
+ * Snippet content follows compatibility.md exactly (screens.md §5); no extras beyond the spec.
  */
 class About extends React.Component {
   renderVals() {
@@ -17,7 +20,8 @@ class About extends React.Component {
     const un = !!this.props.unreachable && this.props.unreachable !== 'false';
     // Snippets are always built from the page's own origin (location.origin + base path); the kit mocks it.
     const S0 = BG.KIT.server;
-    const host = BG.KIT.origin, hostName = BG.KIT.host;
+    const insecure = !!this.props.insecure && this.props.insecure !== 'false';
+    const host = insecure ? BG.KIT.origin.replace(/^https:/, 'http:') : BG.KIT.origin, hostName = BG.KIT.host;
     const srvName = this.props.server || hostName;
     const caps = this.props.caps || { clients: true, history: true };
     const v03 = !!caps.clients;
@@ -34,26 +38,23 @@ class About extends React.Component {
         desc: 'Save this server to a local list, then run the CLI against it.',
         offWhat: 'The LibreSpeed protocol endpoints are switched off, so librespeed-cli can’t test against this server.',
         blocks: [
-          { cap: 'servers.json', copy: 'Copy servers.json', lines: [ln('[{ "id": 1, "name": "' + srvName + '",'), ln('   "server": "' + host + '/",'), ln('   "dlURL": "garbage", "ulURL": "empty",'), ln('   "pingURL": "empty", "getIpURL": "getIP" }]')] },
-          { cap: null, copy: 'Copy librespeed-cli command', lines: [ln('# --no-icmp: measure ping over HTTP', cm), ln('librespeed-cli --local-json servers.json --server 1 --no-icmp', cmd)] },
-          { cap: 'Or let the CLI fetch the list from this server', copy: 'Copy librespeed-cli command with server list URL', lines: [ln('librespeed-cli --server-json ' + host + '/.well-known/librespeed --server 1 --no-icmp', cmd)] },
-          { cap: 'Slow VPN link', copy: 'Copy librespeed-cli command for slow links', lines: [ln('# fewer chunks per download request (default 100), so each one finishes in time', cm), ln('librespeed-cli --local-json servers.json --server 1 --no-icmp --chunks 10', cmd)] }
-        ],
-        note: 'On a slow VPN link, lower --chunks: each download request asks for that many chunks, and the default 100 can outlast the test.' },
+          { cap: 'bitgauge.json', copy: 'Copy bitgauge.json', lines: [ln('[{ "id": 1, "name": "' + srvName + '",'), ln('   "server": "' + host + '/",'), ln('   "dlURL": "garbage", "ulURL": "empty",'), ln('   "pingURL": "empty", "getIpURL": "getIP" }]')] },
+          { cap: null, copy: 'Copy librespeed-cli command', lines: [ln('librespeed-cli --local-json bitgauge.json --server 1 --no-icmp --chunks 8 --json', cmd)] },
+          { cap: 'Or let the CLI fetch the list from this server', copy: 'Copy librespeed-cli command with server list URL', lines: [ln('librespeed-cli --server-json ' + host + '/.well-known/librespeed --server 1 --no-icmp', cmd)] }
+        ] },
       { k: 'nq', name: 'macOS networkQuality', icon: 'monitor', tag: 'macOS 12+',
         desc: 'Apple’s built-in tool reports throughput and responsiveness (RPM). Point it at this server’s config.',
         offWhat: 'The networkQuality config isn’t served, so networkQuality -C can’t use this server.',
-        blocks: [{ cap: null, copy: 'Copy networkQuality commands', lines: [ln('# throughput and responsiveness', cm), ln('networkQuality -C ' + host + '/nq/config', cmd), ln('# verbose output', cm), ln('networkQuality -v -C ' + host + '/nq/config', cmd)] }],
+        blocks: [{ cap: null, copy: 'Copy networkQuality command', lines: [ln('networkQuality -C ' + host + '/nq/config', cmd)] }, { cap: 'Verbose', copy: 'Copy verbose networkQuality command', lines: [ln('networkQuality -C ' + host + '/nq/config -v', cmd)] }],
+        warn: insecure ? 'This page is not served over HTTPS. networkQuality needs HTTPS through the reverse proxy (or server.public_url), so the URL shown may not be the one to use.' : null,
         note: 'networkQuality needs TLS 1.3 and HTTP/2 at the reverse proxy. Over HTTP/1.1 or plain HTTP it won’t run.' }
-    ].map(c => ({ ...c, hid: 'cl-' + c.k, on: on[c.k], off: !on[c.k], note: c.note || null, unk: un, docsAria: c.name + ' in the BitGauge docs' }));
-    const names = { ost: 'OpenSpeedTest', ls: 'LibreSpeed', nq: 'networkQuality' };
-    const enabled = Object.keys(on).filter(k => on[k]).map(k => names[k]);
+    ].map(c => ({ ...c, hid: 'cl-' + c.k, on: on[c.k], off: !on[c.k], note: c.note || null, warn: c.warn || null, unk: un }));
     const S = BG.KIT.server;
     return {
       mobile: m, un, host, clients, layers: !!caps.clients,
       L: m ? { cols: 'minmax(0,1fr)' } : { cols: 'minmax(0,1fr) var(--layout-rail)' },
-      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—'], v03 ? ['Clients', 'Unknown'] : null]
-        : [['Version', <>{S.version + ' · ' + S.commit + ' · '}{built}</>], ['License', 'GPL-3.0-or-later'], ['Server name', srvName], v03 ? ['Clients', enabled.length ? enabled.join(' · ') : 'None enabled'] : null]).filter(Boolean).map(([k, v]) => ({ label: k, value: v })),
+      facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—']]
+        : [['Version', <>{S.version + ' · ' + S.commit + ' · '}{built}</>], ['License', 'GPL-3.0-or-later'], ['Server name', srvName]]).map(([k, v]) => ({ label: k, value: v })),
       intro: v03 ? 'This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.' : 'How to test against this server from other speed test clients, and what BitGauge is.',
       unBody: v03 ? "The commands below are built from this page's address, " + host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers." : 'BitGauge could not reach the server at ' + hostName + ', so its version and name are unknown until it answers.',
       privacy: caps.history ? 'No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.' : 'No accounts, no tracking, no ads. The server keeps no results: a result exists only in this browser.',
@@ -87,11 +88,12 @@ class About extends React.Component {
             ) : v.clients.map(c => (
               <DS.Card key={c.k} as="section" labelledBy={c.hid} padded={false}
                 title={<span id={c.hid}>{c.name}</span>} icon={c.icon}
-                actions={<>{pill(c.tag)}{c.off ? pill('Off', true) : null}{c.unk ? pill('Not confirmed', true) : null}<DS.Link external href="#" aria-label={c.docsAria}>BitGauge docs</DS.Link></>}>
+                actions={<>{pill(c.tag)}{c.off ? pill('Off', true) : null}{c.unk ? pill('Not confirmed', true) : null}</>}>
                 {c.on ? (
                   <div style={{ padding: "var(--space-3) var(--space-4) var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                     <span className="ds-body-sm">{c.desc}</span>
                     {c.blocks.map((b, i) => <DS.Snippet key={i} caption={b.cap} copyLabel={b.copy} lines={b.lines} />)}
+                    {c.warn ? <span className="ds-caption" style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-start", color: "var(--fg-muted)", lineHeight: "var(--lh-normal)" }}><span style={{ display: "flex", color: "var(--warn)" }}><DS.Icon name="triangle-alert" size={14} /></span>{c.warn}</span> : null}
                     {c.note ? <span className="ds-caption" style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-start", color: "var(--fg-muted)", lineHeight: "var(--lh-normal)" }}><span style={{ display: "flex", color: "var(--info)" }}><DS.Icon name="info" size={14} /></span>{c.note}</span> : null}
                   </div>
                 ) : (

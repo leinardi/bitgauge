@@ -11,13 +11,14 @@ const CONF_OPTS = [['normal', 'normal'], ['low:ramp-unsettled', 'low · ramp uns
 const DEMO_DEFAULTS = {
   scenario: 'normal', speed: '1', mobile: false,
   testState: '', scope: 'v0.2', cpu: false, llGap: 'none', wsClose: false, browser: 'Firefox', uploadPauses: false,
-  errKind: 'requests', probe: 'auto', resp: 'ok', timerRes: '0.1',
-  historyVariant: '', resultState: 'result', resultKind: 'standard', resultDemo: 'none', resultOverhead: '0', resultConfDown: 'normal', resultConfUp: 'normal',
-  openspeedtest: true, librespeed: true, networkquality: true, aboutUnreachable: false
+  errKind: 'requests', probe: 'auto', resp: 'ok', timerRes: '0.1', runLength: 'none',
+  historyVariant: '', compareB: 'h1', resultState: 'result', resultKind: 'standard', resultContLen: '2h', resultResp: 'ok', resultDemo: 'none', resultOverhead: '0', resultConfDown: 'normal', resultConfUp: 'normal',
+  openspeedtest: true, librespeed: true, networkquality: true, aboutUnreachable: false, aboutInsecure: false
 };
-const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'upload-interrupted', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'cancelled-slow-up', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
+const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'upload-interrupted', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'cancelled-slow-up', 'slow', 'slowdone', 'continuous', 'cont-upload', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
 // v0.3-only Force-state entries (Continuous); hidden, not renamed, in v0.1 and v0.2.
-const V03_STATES = ['continuous', 'cont-warmup', 'cont-done'];
+const V03_STATES = ['continuous', 'cont-upload', 'cont-warmup', 'cont-done'];
+const RESP_OPTS = [['ok', 'measured'], ['uncertain', 'uncertain'], ['needs-h2', 'unavailable_h1 · HTTP/1.1 at the proxy'], ['not-reported', 'unavailable_h1 · protocol not reported'], ['few-samples', 'unavailable_insufficient · upload']];
 const SCOPES = ['v0.1', 'v0.2', 'v0.3'];
 // no-steady-window and no-probe-path never reach a complete run (measurement §11.1, §11.4): the Test screen and Result
 // detail draw them on a run stopped in the upload, partial and not saved.
@@ -94,7 +95,9 @@ function DemoPanel({ d, set, reset }) {
             <DemoSelect label="Latency probe" value={d.probe} options={['auto', 'WebSocket', 'HTTP/2 probe', 'HTTP/3 probe', 'HTTP/1.1 reserved']} onChange={v => set({ probe: v })} />
             {!v01 ? <DemoCheck label="WebSocket closes after idle latency" value={d.wsClose} onChange={v => set({ wsClose: v })} /> : null}
             {!v01 ? <DemoSelect label="Upload loaded lat." value={d.llGap} options={LL_GAPS} onChange={v => set({ llGap: v })} /> : null}
-            {v03 ? <DemoSelect label="Responsiveness" value={d.resp} options={['ok', 'uncertain', 'needs-h2', 'not-reported', 'few-samples']} onChange={v => set({ resp: v })} /> : null}
+            {v03 ? <DemoSelect label="Responsiveness" value={d.resp} options={RESP_OPTS} onChange={v => set({ resp: v })} /> : null}
+            {v03 ? <DemoSeg label="Continuous run length" value={d.runLength} options={[['none', 'None'], ['2h', '2 h']]} onChange={v => set({ runLength: v })} /> : null}
+            {v03 ? <span className="demo-note">Continuous states: continuous (download), cont-upload, cont-warmup, cont-done.</span> : null}
             <DemoSelect label="Timer resolution" value={d.timerRes} options={[['0.1', '0.1 ms'], ['1', '1 ms']]} onChange={v => set({ timerRes: v })} />
           </div>
           <div className="demo-sec">
@@ -105,11 +108,14 @@ function DemoPanel({ d, set, reset }) {
           <div className="demo-sec">
             <span className="st">History</span>
             <DemoSelect label="Force variant" value={d.historyVariant} options={[['', 'follow clicks'], ...HISTORY_VARIANTS]} onChange={v => set({ historyVariant: v })} />
+            {v03 ? <DemoSeg label="Compare B" value={d.compareB} options={[['h1', 'HTTP/1.1'], ['h2', 'HTTP/2 · measured']]} onChange={v => set({ compareB: v })} /> : null}
           </div>
           <div className="demo-sec">
             <span className="st">Result detail</span>
             <DemoSelect label="State" value={d.resultState} options={['result', 'not-found', 'history-unavailable', 'not-saved-partial', 'not-saved-missing']} onChange={v => set({ resultState: v })} />
             {v03 ? <DemoSeg label="Kind" value={d.resultKind} options={[['standard', 'Standard'], ['continuous', 'Continuous']]} onChange={v => set({ resultKind: v })} /> : null}
+            {v03 && d.resultKind === 'continuous' ? <DemoSeg label="Continuous length" value={d.resultContLen} options={[['2h', '2 h'], ['9d', '9 days']]} onChange={v => set({ resultContLen: v })} /> : null}
+            {v03 ? <DemoSelect label="Responsiveness" value={d.resultResp} options={RESP_OPTS} onChange={v => set({ resultResp: v })} /> : null}
             <DemoSelect label="Demo" value={d.resultDemo} options={['none', 'deleted', 'clipboard-denied']} onChange={v => set({ resultDemo: v })} />
             <DemoSelect label="Overhead comp." value={d.resultOverhead} options={[['0', '0 % (example)'], ['6', '+6 %'], ['5.13', '+5.13 %'], ['3.69', '+3.69 %'], ['8.1', '+8.1 %']]} onChange={v => set({ resultOverhead: v })} />
             <DemoSelect label="Download confidence" value={d.resultConfDown} options={CONF_OPTS} onChange={v => set({ resultConfDown: v })} />
@@ -121,6 +127,7 @@ function DemoPanel({ d, set, reset }) {
             <DemoCheck label="OpenSpeedTest" value={d.openspeedtest} onChange={v => set({ openspeedtest: v })} />
             <DemoCheck label="LibreSpeed" value={d.librespeed} onChange={v => set({ librespeed: v })} />
             <DemoCheck label="networkQuality" value={d.networkquality} onChange={v => set({ networkquality: v })} />
+            {v03 ? <DemoCheck label="Page served over http (not https)" value={d.aboutInsecure} onChange={v => set({ aboutInsecure: v })} /> : null}
           </div>
         </div>
       ) : null}
@@ -139,11 +146,11 @@ function App() {
   const scope = SCOPES.includes(d.scope) ? d.scope : 'v0.2', v03 = scope === 'v0.3';
   const scenario = !v03 && d.scenario === 'continuous' ? 'normal' : d.scenario;
   const llGap = scope === 'v0.1' ? 'none' : d.llGap;
-  const testExtra = { cpu: d.cpu, errKind: d.errKind, probe: d.probe, resp: v03 ? d.resp : 'ok', llGap, wsClose: scope !== 'v0.1' && d.wsClose, timerRes: d.timerRes, browser: d.browser, uploadPauses: d.uploadPauses };
+  const testExtra = { cpu: d.cpu, errKind: d.errKind, probe: d.probe, resp: v03 ? d.resp : 'ok', llGap, wsClose: scope !== 'v0.1' && d.wsClose, timerRes: d.timerRes, browser: d.browser, uploadPauses: d.uploadPauses, runLength: v03 ? d.runLength : 'none' };
   if (d.testState && (v03 || !V03_STATES.includes(d.testState))) testExtra.state = d.testState;
-  const historyExtra = d.historyVariant ? { variant: d.historyVariant } : {};
-  const resultExtra = { state: d.resultState, kind: v03 ? d.resultKind : 'standard', llGap, probe: d.probe, wsClose: scope !== 'v0.1' && d.wsClose, demo: d.resultDemo, overhead: d.resultOverhead, confDown: d.resultConfDown, confUp: d.resultConfUp, browser: d.browser, uploadPauses: d.uploadPauses };
-  const aboutExtra = { openspeedtest: d.openspeedtest, librespeed: d.librespeed, networkquality: d.networkquality, unreachable: d.aboutUnreachable };
+  const historyExtra = Object.assign({ compareB: v03 ? d.compareB : 'h1' }, d.historyVariant ? { variant: d.historyVariant } : {});
+  const resultExtra = { state: d.resultState, kind: v03 ? d.resultKind : 'standard', contLen: d.resultContLen, resp: v03 ? d.resultResp : 'ok', llGap, probe: d.probe, wsClose: scope !== 'v0.1' && d.wsClose, demo: d.resultDemo, overhead: d.resultOverhead, confDown: d.resultConfDown, confUp: d.resultConfUp, browser: d.browser, uploadPauses: d.uploadPauses };
+  const aboutExtra = { openspeedtest: d.openspeedtest, librespeed: d.librespeed, networkquality: d.networkquality, unreachable: d.aboutUnreachable, insecure: v03 && d.aboutInsecure };
   return (
     <>
       <Prototype scenario={scenario} speed={d.speed} mobile={d.mobile} scope={scope}

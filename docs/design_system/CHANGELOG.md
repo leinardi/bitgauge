@@ -1,5 +1,32 @@
 # Changelog
 
+## App UI kit to v0.3 (2026-10-19)
+
+`ui_kits/app` (TestScreen, ResultDetail, About, History, Settings, App), `Snippet`, `LoadCard`; `features/` was not edited.
+
+- **Test screen:** the screen-reader summary reads HTTP loaded responsiveness per direction (label, protocol, state)
+  and each quality-score experience (band or missing inputs) before data used. `cont-done` adds the grade,
+  responsiveness and quality scores, loaded latency "median, last hour", and keeps each data-used notice (info).
+  New `cont-upload` state: live Continuous upload, `received` with unknown cells as gaps. Live view shows elapsed
+  against the run length with its end time, or elapsed alone (new `runLength` prop, default none).
+- **Result detail:** Continuous upload is `skipped` ("not run · Continuous runs one direction"), no notice; the
+  "Connection sharing not verifiable" notice is gone (it is the metric's label); responsiveness states `uncertain`,
+  `unavailable_h1`, `unavailable_insufficient` (new `resp` prop) with TM95, samples and "TM95 equals the plain
+  mean"; data-used notices are info, one per threshold; new `contLen: "9d"` notes only the last 7 days were saved.
+- **About:** snippets follow compatibility.md (`bitgauge.json`, `--chunks 8 --json`, `--server-json`,
+  `networkQuality -C … -v`); "Clients" fact and per-client "BitGauge docs" links removed; HTTPS note for
+  networkQuality on a non-https page (new `insecure` prop). `Snippet` never wraps: long lines scroll inside the block.
+- **History:** Compare has one responsiveness row per direction and one row per quality-score experience.
+  CSV column names (`downloadRpm`, `downloadRpmState`, `uploadRpm`, `uploadRpmState`) recorded as a comment: the kit
+  shows no CSV columns.
+- **Settings:** the Continuous run length starts empty (none) when switched on.
+- **Demo panel (v0.3):** `cont-upload` state, Continuous run length, Result-detail responsiveness and Continuous
+  length, About "page served over http", History "Compare B" (HTTP/1.1, or HTTP/2 · measured, which draws the RPM
+  comparison).
+- **Follow-up:** the 9-day result's run-wide minimum, average and maximum now cover the whole run (all 9 days, the
+  unsaved first 2 d 4 h included); "only the last 7 days were saved" lives on the chart only. The OpenSpeedTest
+  results-link note is unchanged.
+
 ## Share image layout and states (2026-10-18)
 
 - **Grade back on the number row (2026-10-19):** the grade words sit beside the tile again, not under it. To fit two

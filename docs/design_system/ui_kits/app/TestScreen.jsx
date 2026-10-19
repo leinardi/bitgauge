@@ -1,6 +1,6 @@
 /* BitGauge web UI kit — TestScreen
  * Props:
- *   state: "idle" | "countdown" | "connecting" | "latency" | "download" | "upload" | "complete" | "error" | "error-early" | "cancelled" | "cancelled-late" | "cancelled-latency" | "cancelled-download" | "cancelled-slow" | "cancelled-slow-up" | "slow" | "slowdone" | "continuous" | "cont-warmup" | "cont-done" | "offline" | "basepath" | "ws-fallback" | "insufficient" | "param-ignored"  (default "download")
+ *   state: "idle" | "countdown" | "connecting" | "latency" | "download" | "upload" | "complete" | "error" | "error-early" | "cancelled" | "cancelled-late" | "cancelled-latency" | "cancelled-download" | "cancelled-slow" | "cancelled-slow-up" | "slow" | "slowdone" | "continuous" | "cont-upload" | "cont-warmup" | "cont-done" | "offline" | "basepath" | "ws-fallback" | "insufficient" | "param-ignored"  (default "download")
  *   mobile: boolean  (default false)
  *   custom: boolean  (default false)
  *   units: "bits" | "bytes"  (default "bits")
@@ -26,6 +26,8 @@
  *   timerRes: number  (default 0.1) — the page's timer resolution in ms; latencies below it read "< 1 ms" etc.
  *   browser: "Firefox" | "Chrome" | "Safari" | "Edge"  (default "Firefox") — browser family, named by the browser upload limit notice
  *   uploadPauses: boolean  (default false) — the engine saw the browser pause between upload requests (idle share > 20 %)
+ *   runLength: "none" | "2h"  (default "none") — v0.3 Continuous: no run length (elapsed time alone) or a 2 h run length
+ *     (elapsed against it, with the run's end time)
  */
 class TestScreen extends React.Component {
   state = { ann: '', ctxOpen: false, ctxSel: null, ctxCustom: '', kept: null, share: null, label: null, inc: false, toast: null };
@@ -171,24 +173,25 @@ class TestScreen extends React.Component {
       const label = (k === 'down' ? 'During download' : 'During upload') + (named ? ' · ' + src : '');
       if (v == null) return { icon: PI[k][1], ic: C[k], label, sub: o.sub || 'Pending', num: '—', unit: '', nc: 'var(--fg-subtle)', v: null };
       // Idle over the WebSocket, loaded over the HTTP fallback: the change names the idle path.
-      const sub = (o.p90 != null ? 'p90 ' + fms(o.p90) + ' · ' : '') + '+' + fms(v - IDLE.v) + ' ms vs idle' + (idleSrc !== src ? ' over ' + idleSrc : '') + (o.partial ? ' · partial' : '');
+      const sub = (o.p90 != null ? 'p90 ' + fms(o.p90) + ' · ' : '') + '+' + fms(v - IDLE.v) + ' ms vs idle' + (idleSrc !== src ? ' over ' + idleSrc : '') + (o.partial ? ' · partial' : '') + (o.tail ? ' · ' + o.tail : '');
       return { icon: PI[k][1], ic: C[k], label, sub: o.sub || sub, num: fms(v), unit: 'ms', nc: o.live ? 'var(--primary-text)' : 'var(--fg)', v, live: !!o.live };
     };
-    // HTTP loaded responsiveness: one RPM per direction; no High/Low levels.
-    const respB = (d, u) => {
+    // HTTP loaded responsiveness: one RPM per direction; no High/Low levels. Each direction carries its state (§12.4)
+    // for the summary; null while it has none yet (pending, not run). one: Continuous, the one direction it ran.
+    const respB = (d, u, one) => {
       const blocked = RS === 'needs-h2' || RS === 'not-reported';
       const dir = (k, v) => {
-        const b = { icon: PI[k][1], ic: C[k], num: null, unit: 'RPM', text: null, nc: RS === 'uncertain' ? 'var(--fg-muted)' : 'var(--fg)' };
-        if (blocked) return Object.assign(b, { text: '—' });
-        if (v === 'few' || (RS === 'few-samples' && k === 'up' && typeof v === 'number')) return Object.assign(b, { text: 'not enough samples' });
+        const b = { icon: PI[k][1], ic: C[k], num: null, unit: 'RPM', text: null, state: null, nc: RS === 'uncertain' ? 'var(--fg-muted)' : 'var(--fg)' };
+        if (blocked) return Object.assign(b, { text: '—', state: v == null ? null : 'unavailable_h1' });
+        if (v === 'few' || (RS === 'few-samples' && k === 'up' && typeof v === 'number')) return Object.assign(b, { text: 'not enough samples', state: 'unavailable_insufficient' });
         if (v == null) return Object.assign(b, { text: '—' });
-        return Object.assign(b, { num: v.toLocaleString('en-US') });
+        return Object.assign(b, { num: v.toLocaleString('en-US'), state: RS === 'uncertain' ? 'uncertain' : 'measured' });
       };
       const has = typeof d === 'number' || typeof u === 'number';
       return {
         proto: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? 'not reported' : 'h2',
-        note: RS === 'needs-h2' ? 'needs HTTP/2 or HTTP/3 at the reverse proxy' : RS === 'not-reported' ? 'protocol not reported — treated as HTTP/1.1' : RS === 'uncertain' && has ? 'round trips per minute · uncertain' : 'round trips per minute, one per direction',
-        tag: RS === 'uncertain' && has ? 'Uncertain' : null, dirs: [dir('down', d), dir('up', u)]
+        note: RS === 'needs-h2' ? 'needs HTTP/2 or HTTP/3 at the reverse proxy' : RS === 'not-reported' ? 'protocol not reported — treated as HTTP/1.1' : RS === 'uncertain' && has ? 'round trips per minute · uncertain' : one ? 'round trips per minute, download only' : 'round trips per minute, one per direction',
+        tag: RS === 'uncertain' && has ? 'Uncertain' : null, dirs: one ? [dir('down', d)] : [dir('down', d), dir('up', u)]
       };
     };
     const load = (g, rows, resp, text) => Object.assign(GR(g), { rows, resp }, text ? { gText: text } : {});
@@ -524,42 +527,71 @@ class TestScreen extends React.Component {
         btn: BTN.again, partial: { kind: 'partial', keep: true }
       }; } break;
       // Continuous at 42:18: the live run and its stopped state share one curve, so they show the same data used.
+      // Live view (screens.md §1): run-wide min / average / max, "p90, last hour", last-minute loaded latency, data used with
+      // its rate, and the elapsed time against the run length with its end time, or the elapsed time alone (the default).
+      // cont-upload: a live Continuous upload, "received" solid with its unknown cells as gaps, "sending" faint (flows.md §7).
+      // cont-done: the finished result adds the grade, the HTTP loaded responsiveness and the quality scores; its loaded
+      // latency is the last hour's median, and it keeps each data-used notice the run raised (measurement §15, screens.md §7).
       case 'cont-done':
+      case 'cont-upload':
       case 'continuous': {
-        const pts = BG.thr(19, 921e6, 2538, 10, 0.025, 30), d = tail(pts), CU = used(pts, 10), perMin = BG.bytes(CU / (2538 / 60)) + '/min', done = st === 'cont-done';
-        const cLat = BG.lat(21, 3.1, 21, 2538, 10, 0.3, 30), common = { resCols: m ? null : 'repeat(5, minmax(0,1fr))', load: null, fit: null, metaTitle: 'Session', metaSpan: m ? 'span 2' : 'span 5', metaCols: m ? 'minmax(0,1fr)' : 'repeat(4, minmax(0,1fr))' };
+        const up = st === 'cont-upload', done = st === 'cont-done', EL = 2538, elS = '42:18';
+        const RL = this.props.runLength && this.props.runLength !== 'none' ? 7200 : null, rlS = '2:00:00';
+        const DCc = up ? C.up : C.down, dIcon = up ? 'arrow-up' : 'arrow-down', dName = up ? 'Upload' : 'Download';
+        const K = up ? { av: 412e6, p90: 428e6, mn: 318e6, mx: 437e6, cur: 426e6, ll: 38 } : { av: 921e6, p90: 936e6, mn: 702e6, mx: 941e6, cur: 934e6, ll: 21 };
+        const pts = BG.thr(19, 921e6, EL, 10, 0.025, 30), d = tail(pts);
+        // Upload: two failure gaps leave unknown cells, drawn as gaps in "received"; "sending" (client progress) continues.
+        const inGap = t => (t >= 1210 && t < 1250) || (t >= 2100 && t < 2120);
+        const snd = up ? BG.thr(29, 418e6, EL, 10, 0.02, 30) : null, rcv = up ? BG.thr(23, 412e6, EL, 10, 0.03, 30) : null, segs = [];
+        if (up) { let cur = []; rcv.forEach(p => { if (inGap(p[0])) { if (cur.length > 1) segs.push(cur); cur = []; } else cur.push(p); }); if (cur.length > 1) segs.push(cur); }
+        const CU = used(up ? rcv : pts, 10), perMin = BG.bytes(CU / (EL / 60)) + '/min';
+        const cLat = BG.lat(21, 3.1, K.ll, EL, 10, 0.3, 30), common = { resCols: m ? null : 'repeat(5, minmax(0,1fr))', load: null, fit: null, metaTitle: 'Session', metaSpan: m ? 'span 2' : 'span 5', metaCols: m ? 'minmax(0,1fr)' : 'repeat(4, minmax(0,1fr))' };
         const dataT = T(Object.assign({ label: 'Data used', icon: 'database', sub: '≈ ' + perMin, span: m ? 'span 2' : 'auto' }, bparts(CU)));
-        const mm = { icon: 'arrow-up-down', label: 'Min / max', sub: 'download, 1 s cells', value: rn(702e6) + ' / ' + rs(941e6), vc: 'var(--fg)' }, idleM = { icon: 'activity', label: 'Idle latency', sub: 'measured at start', value: LATD, vc: 'var(--fg)' };
-        S = done ? Object.assign({
-          phases: [ph('lat', 'done', LATD), ph('down', 'done', 'stopped at 42:18', 100, 'Download · continuous')],
-          gauge: { opts: { value: 921e6, peak: 936e6 }, note: 'session average', src: pts, c: C.down },
-          R: { numeric: true, eyebrow: 'Average', icon: 'arrow-down', ec: C.down, num: rn(921e6), unit: BG.rate(921e6, unit).u, sub: 'peak ' + rn(936e6) + ' · p90, last hour', oh: OH[0] },
-          chart: { xMax: 2700, xStep: 600, xLabel: t => (t / 60) + 'm', series: [ser(pts, C.down)], lat: cLat, marks: [{ t: 2538, label: 'Stopped' }], markColor: 'var(--fg-muted)', title: 'Throughput · session', legend: [LG.d, LG.l], meta: '42:18 · stopped by you', noEnd: true },
+        const mm = { icon: 'arrow-up-down', label: 'Min / max', sub: (up ? 'upload' : 'download') + ', run-wide, fully known 1 s cells', value: rn(K.mn) + ' / ' + rs(K.mx), vc: 'var(--fg)' }, idleM = { icon: 'activity', label: 'Idle latency', sub: 'measured at start', value: LATD, vc: 'var(--fg)' };
+        const chartBase = { xMax: 2700, xStep: 600, xLabel: t => (t / 60) + 'm', lat: cLat, title: 'Throughput · session', legend: up ? [LG.ur, LG.us, LG.l] : [LG.d, LG.l],
+          series: up ? [ser(snd, C.up, true)].concat(segs.map(s => ser(s, C.up))) : [ser(pts, C.down)] };
+        const gapNote = up ? ' · unknown cells as gaps' : '';
+        // Data-used notices (info): 1 GB, 10 GB, 100 GB, … each step the run passed.
+        const DUv = []; for (let x = 1e9; x <= CU; x *= 10) DUv.push(x);
+        const DUN = x => N('info', 'database', 'Data used: ' + BG.bytes(x), x === DUv[DUv.length - 1] && !done ? 'This run has passed ' + BG.bytes(x) + '. The next notice appears at ' + BG.bytes(x * 10) + '.' : 'This run passed ' + BG.bytes(x) + '.');
+        if (done) {
+          const inc = K.ll - IDLE.v, g = gradeOf(inc);
+          S = Object.assign({}, common, {
+            phases: [ph('lat', 'done', LATD), ph('down', 'done', 'stopped at ' + elS, 100, 'Download · continuous')],
+            gauge: { opts: { value: K.av, peak: K.p90 }, note: 'session average', src: pts, c: C.down },
+            R: { numeric: true, eyebrow: 'Average', icon: 'arrow-down', ec: C.down, num: rn(K.av), unit: BG.rate(K.av, unit).u, sub: 'peak ' + rn(K.p90) + ' · p90, last hour', oh: OH[0] },
+            chart: Object.assign({}, chartBase, { marks: [{ t: EL, label: 'Stopped' }], markColor: 'var(--fg-muted)', meta: elS + ' · stopped by you', noEnd: true }),
+            prim: [
+              rt('Average', 'arrow-down', C.down, K.av, { sub: 'run-wide, since warm-up ended' }),
+              rt('Peak · p90, last hour', 'trending-up', C.down, K.p90, { sub: '1 s cells · max ' + rs(K.mx) }),
+              rt('Minimum', 'arrow-down', C.down, K.mn, { sub: 'run-wide, 1 s cells' }),
+              msT('Loaded latency', 'activity', K.ll, 'median, last hour'),
+              dataT
+            ],
+            load: load(g, [lrow('down', K.ll, { p90: 27, tail: 'last hour' })], respB(1380, null, true), BG.GRADES[g].text),
+            fit: fit(aim(IDLE.v, IDLE.jit, K.av, inc)), fitBasis: 'download only', dl: K.av,
+            loadSpan: m ? 'span 2' : 'span 3', fitSpan: m ? 'span 2' : 'span 2',
+            meta: [{ icon: 'timer', label: 'Duration', sub: RL ? 'stopped by you · planned ' + rlS : 'stopped by you', value: elS, vc: 'var(--fg)' }, mm, idleM, PL],
+            notices: DUv.map(DUN), btn: BTN.again, saved: { iso: '2026-10-12T13:26:40.000Z', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] },
+            share: { blocks: [{ dir: 'download', bps: K.av }], loaded: { inc: '+' + fms(inc) + ' ms', dir: 'download' } },
+            sum: { st: 'done', down: 'Download average ' + sayR(K.av) + ', run-wide minimum ' + sayR(K.mn) + ', maximum ' + sayR(K.mx) + ', peak ' + sayR(K.p90) + ' p90, last hour', up: 'Upload not run', used: BG.bytes(CU) }
+          });
+        } else S = Object.assign({}, common, {
+          phases: [ph('lat', 'done', LATD), ph(up ? 'up' : 'down', 'active', RL ? elS + ' of ' + rlS : elS + ' elapsed', RL ? EL / RL * 100 : 0, dName + ' · continuous')],
+          gauge: { opts: { value: K.cur, bandLo: up ? 404e6 : d.lo, bandHi: up ? 433e6 : d.hi, peak: up ? null : K.p90 }, note: up ? 'sending' : 'tick p90, last hour', c: DCc },
+          R: { numeric: true, eyebrow: up ? 'Upload · sending' : 'Download', icon: dIcon, ec: DCc, num: rn(K.cur), unit: BG.rate(K.cur, unit).u, sub: 'avg ' + rn(K.av) + ' · peak ' + rn(K.p90), oh: OH[0] },
+          chart: Object.assign({}, chartBase, { now: EL, meta: (RL ? elS + ' / ' + rlS : elS + ' elapsed') + gapNote }),
           prim: [
-            rt('Average', 'arrow-down', C.down, 921e6, { sub: 'since warm-up ended' }),
-            rt('Peak · p90, last hour', 'trending-up', C.down, 936e6, { sub: '1 s cells · max ' + rs(941e6) }),
-            rt('Minimum', 'arrow-down', C.down, 702e6, { sub: '1 s cells' }),
-            msT('Loaded latency', 'activity', 21, 'session median'),
+            rt(up ? 'Current · sending' : 'Current', dIcon, DCc, K.cur, Object.assign({ sub: up ? 'client progress, last 0.5 s' : 'last 0.5 s' }, LIVE)),
+            rt('Average', dIcon, DCc, K.av, { sub: 'run-wide, since warm-up ended' }),
+            rt('Peak · p90, last hour', 'trending-up', DCc, K.p90, { sub: '1 s cells · max ' + rs(K.mx) }),
+            msT('Loaded latency', 'activity', K.ll, 'last-minute median'),
             dataT
           ],
-          meta: [{ icon: 'timer', label: 'Duration', sub: 'stopped by you · planned 2:00:00', value: '42:18', vc: 'var(--fg)' }, mm, idleM, PL],
-          notices: [], btn: BTN.again, saved: { iso: '2026-10-12T13:26:40.000Z', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] },
-          share: { blocks: [{ dir: 'download', bps: 921e6 }], loaded: { inc: '+18 ms', dir: 'download' } }
-        }, common) : Object.assign({
-          phases: [ph('lat', 'done', LATD), ph('down', 'active', '42:18 of 2:00:00', 35, 'Download · continuous')],
-          gauge: { opts: { value: 934e6, bandLo: d.lo, bandHi: d.hi, peak: 936e6 }, note: 'tick p90, last hour', c: C.down },
-          R: { numeric: true, eyebrow: 'Download', icon: 'arrow-down', ec: C.down, num: rn(934e6), unit: BG.rate(934e6, unit).u, sub: 'avg ' + rn(921e6) + ' · peak ' + rn(936e6), oh: OH[0] },
-          chart: { xMax: 2700, xStep: 600, xLabel: t => (t / 60) + 'm', series: [ser(pts, C.down)], lat: cLat, now: 2538, title: 'Throughput · session', legend: [LG.d, LG.l], meta: '42:18 elapsed' },
-          prim: [
-            rt('Current', 'arrow-down', C.down, 934e6, Object.assign({ sub: 'last 0.5 s' }, LIVE)),
-            rt('Average', 'arrow-down', C.down, 921e6, { sub: 'since warm-up ended' }),
-            rt('Peak · p90, last hour', 'trending-up', C.down, 936e6, { sub: '1 s cells · max ' + rs(941e6) }),
-            msT('Loaded latency', 'activity', 21, 'last-minute median'),
-            dataT
-          ],
-          meta: [{ icon: 'timer', label: 'Elapsed', sub: 'of 2:00:00 · ends 16:44', value: '42:18', vc: 'var(--fg)' }, mm, idleM, PL],
-          notices: [N('info', 'database', 'Data used: 100 GB', 'This run has passed 100 GB. The next notice appears at 1 TB.')], btn: BTN.stop
-        }, common);
+          meta: [{ icon: 'timer', label: 'Elapsed', sub: RL ? 'of ' + rlS + ' · ends 16:44' : 'no run length set', value: elS, vc: 'var(--fg)' }, mm, idleM, PL],
+          notices: [DUN(DUv[DUv.length - 1])], btn: BTN.stop, cont: true
+        });
+        S.cont = true;
       } break;
     }
 
@@ -582,7 +614,7 @@ class TestScreen extends React.Component {
     if (wsH1) conn.forEach(c => { if (c.k !== 'Streams' || c.v !== '5') return;
       if (!upOn) { c.v = '6'; c.s = c.s.replace(plateau, plateauD); }
       else if (upDone) { c.v = '6 · 5'; c.s = auto ? 'auto · download 6 · plateau: cap; upload 5 · plateau: HTTP/1.1 probe reservation' : 'fixed · download 6; upload 5'; } });
-    if (wsClose && reserved && S.load && S.load.rows[0] && S.load.rows[0].v != null) {
+    if (wsClose && reserved && !S.cont && S.load && S.load.rows[0] && S.load.rows[0].v != null) {
       const ru = S.load.rows[1], rows = [lrow('down', null, { sub: LLR['reservation-broken'] }), ru];
       if (ru && ru.v != null && !ru.live) {
         const di = ru.v - IDLE.v, g = gradeOf(di), gt = BG.GRADES[g].text, inc = '+' + fms(di);
@@ -671,25 +703,33 @@ class TestScreen extends React.Component {
     // ended: the run stopped, failed or finished, so a missing grade reads "not graded", not "pending".
     // Loaded latency and its source are computed with the run's result: while the run is in progress no row names a source.
     if (S.load && S.btn && S.btn.role === 'stop') S.load = Object.assign({}, S.load, { rows: S.load.rows.map(r => Object.assign({}, r, { label: r.label.split(' · ')[0] })) });
-    const loadP = S.load ? { grade: S.load.grade === '—' ? null : S.load.grade, gradeText: S.load.gText, ended: !!S.partial || (!!S.btn && (S.btn.role === 'again' || S.btn.role === 'retry')), basis: S.load.basis, compact: m, style: { gridColumn: L.loadSpan },
+    const loadP = S.load ? { grade: S.load.grade === '—' ? null : S.load.grade, gradeText: S.load.gText, ended: !!S.partial || (!!S.btn && (S.btn.role === 'again' || S.btn.role === 'retry')), basis: S.load.basis, compact: m, style: { gridColumn: S.loadSpan || L.loadSpan },
       rows: S.load.rows.map(r => ({ dir: DIRK[r.icon], label: r.label, sub: r.sub, value: r.num === '—' ? null : r.num, live: r.nc === 'var(--primary-text)' })),
       responsiveness: !Q ? undefined : { protocol: S.load.resp.proto, note: S.load.resp.note, tag: S.load.resp.tag || undefined, dirs: S.load.resp.dirs.map(d => ({ dir: DIRK[d.icon], value: d.num || null, text: d.text || undefined, uncertain: d.nc === 'var(--fg-muted)' })) } } : null;
-    const fitP = S.fit ? { bands: S.fit.map(f => f.rating || null), missing: S.fit.map(f => f.none || '—'), basis: S.fitBasis || undefined, compact: m, style: { gridColumn: L.fitSpan } } : null;
+    const fitP = S.fit ? { bands: S.fit.map(f => f.rating || null), missing: S.fit.map(f => f.none || '—'), basis: S.fitBasis || undefined, compact: m, style: { gridColumn: S.fitSpan || L.fitSpan } } : null;
     const mcols = S.metaCols ? +((S.metaCols.match(/repeat\((\d+)/) || [0, 1])[1]) : 1;
     const metaP = { title: S.metaTitle || 'Test', compact: m, columns: mcols, style: { gridColumn: S.metaSpan || L.metaSpan },
       rows: S.meta.map(r => r.na ? { icon: r.icon, label: r.label, sub: r.sub, node: 'NM' } : { icon: r.icon, label: r.label, sub: r.sub || undefined, value: r.value }) };
     // v0.3 Continuous keeps its own sentences and rate.
-    const PH = { continuous: 'Continuous download running.', 'cont-warmup': 'Continuous run stopped during warm-up. Partial results were not saved.', 'cont-done': 'Continuous run stopped. Saved to history.' };
+    const PH = { continuous: 'Continuous download running.', 'cont-upload': 'Continuous upload running.', 'cont-warmup': 'Continuous run stopped during warm-up. Partial results were not saved.', 'cont-done': 'Continuous run stopped. Saved to history.' };
     if (v01) Object.keys(PH).forEach(k => { PH[k] = PH[k].replace(' and saved to history', '').replace(' Saved to history.', ''); });
     const phMsg = PH[st] || S.ph || '';
-    this._live = { st, key: st + '|' + (S.phKey || ''), ph: phMsg, rate: st === 'continuous' && R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : S.live ? phMsg : null };
+    this._live = { st, key: st + '|' + (S.phKey || ''), ph: phMsg, rate: (st === 'continuous' || st === 'cont-upload') && R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : S.live ? phMsg : null };
     const SUMST = { done: 'Test complete.', partial: 'Partial result: the test was stopped early.', fail: 'Test failed. The phases that finished before the error are kept.' };
     let sumMsg = '';
     if (S.sum) {
       const nt = S.sum.n || S.notices.map(n => n.title);
       // From v0.2 the loaded-latency increase and the grade follow idle latency (i18n-a11y §2.7).
       const LD = caps.loaded && S.load && S.load.grade !== '—' ? ['Bufferbloat grade ' + S.load.grade + ', ' + (S.load.gText || '').toLowerCase() + ', plus ' + sayMs(fms(S.load.inc)) + ' under load.'] : [];
-      sumMsg = [SUMST[S.sum.st], S.sum.down + '.', S.sum.up + '.', 'Idle latency ' + sayMs(fms(IDLE.v)) + ', jitter ' + sayMs(fjit(IDLE.jit)) + '.'].concat(LD, ['Data used ' + sayB(S.meta[0].value) + '.'])
+      // From v0.3 (i18n-a11y §2.7): HTTP loaded responsiveness per direction with its label, protocol and state (no number
+      // where it has none), then each quality-score experience with its band or the inputs it is missing.
+      const RR = Q && S.load && S.load.resp, RD = RR ? RR.dirs.filter(x => x.state) : [];
+      const RSW = { measured: 'measured', uncertain: 'uncertain', unavailable_h1: 'unavailable, ' + (RR ? RR.note : ''), unavailable_insufficient: 'unavailable, not enough samples' };
+      const RP = RD.length ? ['HTTP loaded responsiveness, connection sharing not verifiable, over ' + (RR.proto === 'h2' ? 'HTTP/2' : RR.proto === 'not reported' ? 'a protocol not reported' : RR.proto) + ': '
+        + RD.map(x => (x.icon === 'arrow-up' ? 'upload ' : 'download ') + (x.num ? x.num + ' round trips per minute, ' : '') + RSW[x.state]).join('; ') + '.'] : [];
+      const QF = Q && S.fit ? S.fit.filter(f => f.rating || (f.none && f.none !== '—')) : [];
+      const QS = QF.length ? ['Quality scores' + (S.fitBasis ? ', ' + S.fitBasis : '') + ', an upper bound since packet loss is not measured: ' + QF.map(f => f.label.toLowerCase() + ' ' + (f.rating ? String(f.rating).toLowerCase() : f.none)).join(', ') + '.'] : [];
+      sumMsg = [SUMST[S.sum.st], S.sum.down + '.', S.sum.up + '.', 'Idle latency ' + sayMs(fms(IDLE.v)) + ', jitter ' + sayMs(fjit(IDLE.jit)) + '.'].concat(LD, RP, QS, ['Data used ' + sayB(S.sum.used || S.meta[0].value) + '.'])
         .concat(nt.length ? [(nt.length > 1 ? 'Notices: ' : 'Notice: ') + nt.join(', ') + '.'] : []).join(' ');
     }
     const bytesOnly = unit === 'bytes' && !on(this.props.custom);

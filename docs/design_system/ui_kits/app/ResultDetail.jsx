@@ -19,6 +19,10 @@
  *     "cpu-bound"  (default "normal") — each direction's confidence (measurement §16); confUp is ignored without an upload
  *   wsClose: boolean  (default false) — the WebSocket closed after idle latency: idle stays WebSocket, loaded over the HTTP
  *     source from `probe`; on HTTP/1.1 download (running at the close) is unavailable, reason reservation-broken (Standard only)
+ *   resp: "ok" | "uncertain" | "needs-h2" | "not-reported" | "few-samples"  (default "ok") — v0.3 responsiveness state:
+ *     measured, uncertain, unavailable_h1 (HTTP/1.1 at the proxy / protocol not reported), unavailable_insufficient (upload)
+ *   contLen: "2h" | "9d"  (default "2h") — Continuous only: a 2 h run with a run length, or a 9-day run without one,
+ *     of which only the last 7 days were saved (measurement §15)
  */
 class ResultDetail extends React.Component {
   state = { views: null, inc: null, clipDenied: null, toast: null, del: null, delN: 8, paramsOpen: false, note: null };
@@ -90,33 +94,51 @@ class ResultDetail extends React.Component {
     const gradeOf = inc => inc < 5 ? 'A+' : inc < 30 ? 'A' : inc < 60 ? 'B' : inc < 200 ? 'C' : inc < 400 ? 'D' : 'F';
     const hms = s => { s = Math.round(s); return Math.floor(s / 3600) + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
 
-    // Continuous: a 2 h download run. Longer than 1 h, so it is stored in 1 min cells (day tier). Auto warm-up ends at
-    // ≈ 6.5 s (6-stream ramp, plateau cap) and the cells start there. Download cells are always known. The run length ends it.
-    const CWU = 6.5, CEND = 7200, cells = [];
-    for (let i = 0; CWU + 60 * i < CEND; i++) {
-      const a = CWU + 60 * i, b = Math.min(a + 60, CEND);
+    // Continuous: a 2 h download run with a 2 h run length, longer than 1 h, so stored in 1 min cells (day tier); or
+    // (contLen 9d) a 9-day run without a run length, longer than the long ring, so only its last 7 days were saved in
+    // 10 min cells. Auto warm-up ends at ≈ 6.5 s (6-stream ramp, plateau cap). Download cells are always known.
+    const LONG = cont && this.props.contLen === '9d';
+    const CWU = 6.5, CEND = LONG ? 9 * 86400 + 4 * 3600 + 12 * 60 : 7200, CS = LONG ? 600 : 60, C0 = LONG ? CEND - 7 * 86400 : CWU, cells = [];
+    for (let i = 0; C0 + CS * i < CEND; i++) {
+      const a = C0 + CS * i, b = Math.min(a + CS, CEND);
       cells.push({ a, b, known: b - a, v: OHF * (412e6 + 26e6 * Math.sin(i * 0.7) + 11e6 * Math.cos(i * 2.3) - (i >= 40 && i <= 52 ? 31e6 : 0)), l: 17 + 3.5 * Math.sin(i * 1.3) + (i % 5) * 0.5 });
     }
-    const cKnown = cells.reduce((s, c) => s + c.known, 0), cAvg = cells.reduce((s, c) => s + c.v * c.known, 0) / cKnown;
+    // Run-wide statistics (§15) are running aggregates over every fully known 1 s cell since the steady start, in constant
+    // memory: on the 9-day run they cover all of it, including the first 2 d 4 h whose cells were not saved (slower, with an
+    // evening dip to ≈ 236 Mbit/s). Only the saved series is cut to the last 7 days. The unsaved stretch is modeled here in
+    // 10 min steps (the aggregates themselves are exact sums over 1 s cells in the engine).
+    const pre = [];
+    if (LONG) for (let t = CWU, i = 0; t < C0 - 1e-6; t += 600, i++) {
+      const b = Math.min(t + 600, C0);
+      pre.push({ a: t, b, known: b - t, v: OHF * (378e6 + 22e6 * Math.sin(i * 0.9) + 9e6 * Math.cos(i * 1.7) - (i >= 110 && i <= 128 ? 128e6 : 0)) });
+    }
+    const runCells = pre.concat(cells);
+    const cKnown = runCells.reduce((s, c) => s + c.known, 0), cAvg = runCells.reduce((s, c) => s + c.v * c.known, 0) / cKnown;
     // The run's 1 s cells (hour tier while it ran): "p90, last hour" is the p90 of the last 3600 of them; the run max is
-    // a running aggregate over all of them. Only the 1 min cells are saved.
-    if (!this._sec || this._secF !== OHF) {
+    // a running aggregate over all of them. Only the stored cells are saved. A long run keeps 1 s cells for its last hour only.
+    if (!this._sec || this._secF !== OHF || this._secL !== LONG) {
       let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647, sec = [];
-      cells.forEach(c => { for (let t = c.a; t < c.b - 1e-6; t++) sec.push([t, c.v * (1 + 0.07 * (rnd() - 0.5) + 0.02 * Math.sin(t * 0.9))]); });
-      this._sec = sec; this._secF = OHF;
+      cells.forEach(c => { if (LONG && c.b <= CEND - 3600) return; for (let t = c.a; t < c.b - 1e-6; t++) sec.push([t, c.v * (1 + 0.07 * (rnd() - 0.5) + 0.02 * Math.sin(t * 0.9))]); });
+      this._sec = sec; this._secF = OHF; this._secL = LONG;
     }
     const lastHr = this._sec.filter(q => q[0] >= CEND - 3600).map(q => q[1]).sort((x, y) => x - y), cP90 = lastHr[Math.floor(0.9 * (lastHr.length - 1))];
     // Run-wide running aggregates over the 1 s cells (§15); saved as minBitsPerSecond / maxBitsPerSecond (§17).
-    const CAGG = this._sec.reduce((a, q) => ({ min: Math.min(a.min, q[1]), max: Math.max(a.max, q[1]) }), { min: Infinity, max: 0 });
+    const CAGG0 = this._sec.reduce((a, q) => ({ min: Math.min(a.min, q[1]), max: Math.max(a.max, q[1]) }), { min: Infinity, max: 0 });
+    // 9 days: min / max over the whole run's 1 s cells; each coarse step spreads ≈ −6 % / +3.5 % at 1 s resolution.
+    const CAGG = LONG ? { min: Math.min(CAGG0.min, Math.min(...runCells.map(c => c.v)) * 0.94), max: Math.max(CAGG0.max, Math.max(...runCells.map(c => c.v)) * 1.035) } : CAGG0;
     const cMax = CAGG.max, cMin = CAGG.min;
-    const cUsedB = Math.round(cAvg / OHF * CEND / 8), cUsed = Math.round(cUsedB / 1e9) + ' GB';
+    const fmtB = b => BG ? BG.bytes(b) : Math.round(b / 1e9) + ' GB';
+    const cUsedB = Math.round(cAvg / OHF * CEND / 8), cUsed = fmtB(cUsedB);
+    const dhm = s => (s >= 86400 ? Math.floor(s / 86400) + ' d ' : '') + Math.floor(s % 86400 / 3600) + ' h' + (s % 3600 >= 60 ? ' ' + Math.floor(s % 3600 / 60) + ' min' : '');
+    // data-used notices (§16): 1 GB, 10 GB, 100 GB and every further tenfold step the run passed, each kept in the result.
+    const DU = []; for (let v = 1e9; v <= cUsedB; v *= 10) DU.push(v);
     // Standard run on the fast LAN: the same curves as the Test screen, so data used = 737 MB down + 855 MB up
     // (upload sends for ≈ 16 s: until its 15 s minimum, then the last in-flight requests).
     const SUSED = { down: 736700000, up: stop ? (BG ? BG.usedBytes(BG.thr(7, 431e6, USTOP)) : 0) : 854549086 }, sUsed = (SUSED.down + SUSED.up) / 1e9;
 
     const D = cont ? {
-      label: 'Overnight check', ctx: 'LAN', ctxIcon: 'house', iso: '2026-10-07T23:00:04.000Z', file: 'bitgauge-2026-10-08-0100',
-      preset: 'Continuous', server: 'Basement NAS', note: 'Checking whether the evening dip comes back after midnight.', down: cAvg, up: null
+      label: LONG ? 'Week-long soak' : 'Overnight check', ctx: 'LAN', ctxIcon: 'house', iso: '2026-10-07T23:00:04.000Z', file: 'bitgauge-2026-10-08-0100',
+      preset: 'Continuous', server: 'Basement NAS', note: LONG ? 'Left running while away, to catch any drop over the week.' : 'Checking whether the evening dip comes back after midnight.', down: cAvg, up: null
     } : {
       label: 'Home Wi-Fi', ctx: 'LAN', ctxIcon: 'house', iso: '2026-10-08T12:02:11.000Z', file: 'bitgauge-2026-10-08-1402',
       preset: 'Standard', server: 'Basement NAS', note: 'Office desk, 5 GHz. Router is in the hallway, one wall between.', down: 612e6 * OHF, up: stop ? null : 438e6 * OHF
@@ -133,7 +155,7 @@ class ResultDetail extends React.Component {
     const grade = gradeOf(D.worst[1]), gT = GT[grade], gradeWords = gT[1] + ' bufferbloat';
     const gradeBasis = basisK === 'download+upload' ? 'Basis: worse of download and upload — upload +' + jit(INC.up) + ' ms (download +' + jit(INC.down) + ' ms)'
       : basisK === 'upload' ? 'Basis: upload only — +' + jit(INC.up) + ' ms vs idle; download: ' + LLR[dnGap]
-      : 'Basis: download only — +' + jit(INC.down) + ' ms vs idle' + (cont ? '; upload not measured' : '; upload: ' + LLR[gapK]);
+      : 'Basis: download only — +' + jit(INC.down) + ' ms vs idle' + (cont ? '; upload not run · Continuous runs one direction' : '; upload: ' + LLR[gapK]);
     // Each number carries its qualifiers (flows.md §8): a loaded-latency source other than the WebSocket is named.
     const worstQ = D.worst[0] + (src !== 'WebSocket' ? ', ' + src : '');
     const worstStr = '+' + jit(D.worst[1]) + ' ms loaded (' + worstQ + ')';
@@ -157,18 +179,37 @@ class ResultDetail extends React.Component {
     // Continuous (download +15 ms): Great/Great/Great (60/30/40).
     const SC = Q && BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
     const tiles = [
-      { label: cont ? 'Download · average' : 'Download', icon: 'arrow-down', ic: 'var(--series-download)', num: rn(D.down), unit: ru(D.down), nc: 'var(--fg)', sub: ohs(cont ? 'peak ' + rn(cP90) + ' · p90, last hour, 1 s cells · max ' + rn(cMax) + ' · ' + STR.down + ' streams · ' + pl(STR.down) : 'peak ' + rn(641e6 * OHF) + ' · ' + STR.down + ' streams · ' + pl(STR.down)) },
-      cont ? { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: '—', unit: '', nc: 'var(--fg-subtle)', sub: 'not measured · Continuous runs one direction' }
+      { label: cont ? 'Download · average' : 'Download', icon: 'arrow-down', ic: 'var(--series-download)', num: rn(D.down), unit: ru(D.down), nc: 'var(--fg)', sub: ohs(cont ? 'run-wide min ' + rn(cMin) + ' · max ' + rn(cMax) + ' · peak ' + rn(cP90) + ' · p90, last hour, 1 s cells · ' + STR.down + ' streams · ' + pl(STR.down) : 'peak ' + rn(641e6 * OHF) + ' · ' + STR.down + ' streams · ' + pl(STR.down)) },
+      cont ? { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: '—', unit: '', nc: 'var(--fg-subtle)', state: 'skipped', sub: 'not run · Continuous runs one direction' }
         : stop ? { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: '—', unit: '', nc: 'var(--fg-subtle)', sub: 'insufficient data · stopped at ' + USTOP.toFixed(1) + ' s, in warm-up' + (BG ? ' · ' + BG.bytes(SUSED.up) + ' used' : '') }
         : { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: rn(D.up), unit: ru(D.up), nc: 'var(--fg)', sub: ohs('peak ' + rn(455e6 * OHF) + ' · ' + STR.up + ' streams · ' + pl(STR.up) + ' · 6.1 of 6.5 s known') },
       { label: 'Idle latency', icon: 'activity', ic: 'var(--series-latency)', num: BGF.ms(IDLE), unit: 'ms', nc: 'var(--fg)', sub: 'min 2.4 · p90 4.1 ms · ' + idleSrc + ' · 0.0 % probe timeouts' },
       { label: 'Jitter', icon: 'activity', ic: 'var(--series-latency)', num: jit(JIT), unit: 'ms', nc: 'var(--fg)', sub: 'mean of consecutive differences' }
     ];
     const loadRows = [dnGap ? { icon: 'arrow-down', ic: 'var(--primary-text)', label: 'During download · ' + gapSrc(dnGap), sub: LLR[dnGap], num: '—', unit: '' }
-      : { icon: 'arrow-down', ic: 'var(--primary-text)', label: 'During download · ' + src, sub: 'p90 24 · +15' + vsIdle, num: '18', unit: 'ms' }];
+      : { icon: 'arrow-down', ic: 'var(--primary-text)', label: 'During download · ' + src, sub: 'p90 24 · +15' + vsIdle + (cont ? ' · last hour' : ''), num: '18', unit: 'ms' }];
     if (!cont) loadRows.push(gapK ? { icon: 'arrow-up', ic: 'var(--series-upload)', label: 'During upload' + (gapSrc(gapK) ? ' · ' + gapSrc(gapK) : ''), sub: LLR[gapK], num: '—', unit: '' }
       : { icon: 'arrow-up', ic: 'var(--series-upload)', label: 'During upload · ' + src, sub: 'p90 55 · +39' + vsIdle, num: '42', unit: 'ms' });
-    const rpm = !Q ? [] : [{ icon: 'arrow-down', ic: 'var(--series-download)', num: '1,420' }].concat(cont ? [] : [{ icon: 'arrow-up', ic: 'var(--series-upload)', num: '980' }]);
+    // HTTP loaded responsiveness (measurement §12.4–12.6, screens.md §6): one state per direction; no number where it has
+    // none. TM95 over the last 4 s (≈ 13 samples at 300 ms): fewer than 20, so nothing is trimmed and TM95 is the plain mean.
+    const RS = this.props.resp || 'ok', H1 = RS === 'needs-h2' || RS === 'not-reported';
+    const RPMV = { down: 1420, up: 980 }, RN = 13, q02 = v => Math.round(v / 0.02) * 0.02;
+    const respOf = k => {
+      if (H1) return { k, state: 'unavailable_h1', samples: 0 };
+      if (RS === 'few-samples' && k === 'up') return { k, state: 'unavailable_insufficient', samples: 3 };
+      const tm = q02(60000 / RPMV[k]);
+      return { k, state: RS === 'uncertain' ? 'uncertain' : 'measured', samples: RN, tm95: tm, rpm: Math.round(60000 / tm), trimmed: Math.floor(0.05 * RN), med: q02(tm * 1.08) };
+    };
+    const RESP = (cont ? ['down'] : ['down', 'up']).map(respOf);
+    const respP = {
+      protocol: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? 'not reported' : 'h2',
+      note: RS === 'needs-h2' ? 'needs HTTP/2 or HTTP/3 at the reverse proxy' : RS === 'not-reported' ? 'protocol not reported — treated as HTTP/1.1' : RS === 'uncertain' ? 'round trips per minute · uncertain' : cont ? 'round trips per minute, download only' : 'round trips per minute, one per direction',
+      tag: RS === 'uncertain' ? 'Uncertain' : undefined,
+      dirs: RESP.map(r => ({ dir: r.k === 'up' ? 'upload' : 'download', value: r.rpm != null ? r.rpm.toLocaleString('en-US') : null, uncertain: r.state === 'uncertain',
+        text: r.state === 'unavailable_insufficient' ? 'not enough samples' : r.state === 'unavailable_h1' ? 'unavailable' : undefined,
+        detail: r.rpm != null ? 'TM95 ' + r.tm95.toFixed(1) + ' ms · ' + r.samples + ' samples' + (r.trimmed === 0 ? ' · TM95 equals the plain mean' : ' · ' + r.trimmed + ' trimmed') : undefined }))
+    };
+    const respJ = k => { const r = RESP.find(x => x.k === k) || respOf(k); return Object.assign({ state: r.state, protocol: RS === 'needs-h2' ? 'http/1.1' : RS === 'not-reported' ? '' : 'h2', samples: cont && r.rpm != null ? 23950 : r.samples }, r.rpm != null ? { rpm: r.rpm, tm95Ms: Math.round(r.tm95 * 100) / 100, trimmed: r.trimmed, totalMedianMs: Math.round(r.med * 100) / 100 } : {}); };
 
     // Confidence levels (§16): normal | low (ramp-unsettled, unstable, insufficient-samples) | cpu-bound.
     const lvls = [DC.down, DC.up].filter(Boolean).map(c => c.level);
@@ -180,7 +221,7 @@ class ResultDetail extends React.Component {
       return it('ok', 'circle-check', dn + ' confidence: normal', wu + ' and the steady window covered ' + c.win + '.');
     };
     const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', Q ? 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.' : 'Browsers can’t see packet loss over TCP, so BitGauge doesn’t report it.');
-    const N_RESP = Q ? [it('neutral', 'gauge', 'Connection sharing not verifiable', 'Responsiveness ran over HTTP/2; the browser doesn’t report whether probes shared the load connections.')] : [];
+    // "Connection sharing not verifiable" is part of the responsiveness label (LoadCard), never a notice (screens.md §6).
     // Browser upload limit: any browser that paused between upload requests; always Firefox at ≥ 100 Mbit/s upload.
     const BUL = !cont && (PAUSES || (BRW.name === 'Firefox' && D.up >= 100e6));
     const N_BUL = BUL ? [it('info', 'globe', BRW.name + ' may limit the upload', 'On fast links ' + BRW.name + '’s own upload path, not the network, can bound the upload number; the measurement is the server’s and stands. Compare with another browser on this device to tell the two apart.', { label: 'Known browser limits', href: '#' })] : [];
@@ -191,28 +232,26 @@ class ResultDetail extends React.Component {
     // One confidence line per direction, then every notice (screens.md §7); one column, so the card's height follows its lines.
     const confGroups = cont ? [
       { h: 'Confidence', items: [confLine('down')] },
-      { h: 'Notices', items: [
-        it('neutral', 'database', 'Data used: ' + cUsed, 'Data-used notices appeared at 1 GB, 10 GB and 100 GB.'),
-        it('neutral', 'circle-dashed', 'Upload not measured', 'Continuous runs one direction.'),
-        N_LOSS
-      ].concat(N_FB, N_RSV, N_RESP, N_OH) }
+      { h: 'Notices', items: DU.map(v => it('info', 'database', 'Data used: ' + fmtB(v), 'Passed at ' + hms(CWU + v / (cAvg / OHF / 8)) + ' into the run.'))
+        .concat([N_LOSS], N_FB, N_RSV, N_OH) }
     ] : [
       { h: 'Confidence', items: [confLine('down'), stop ? it('warn', 'triangle-alert', 'Upload: insufficient data', 'Stopped at ' + USTOP.toFixed(1) + ' s, still in warm-up, before a 3 s confirmed steady window: no value and no loaded latency.') : confLine('up')] },
-      { h: 'Notices', items: (stop ? [it('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed.' + (npp ? ' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.' : '') + ' Upload stopped at ' + USTOP.toFixed(1) + ' s, so the grade and quality scores use download only.')] : []).concat(N_BUL,[N_LOSS], N_FB, N_RSV, N_RESP, N_OH) }
+      { h: 'Notices', items: (stop ? [it('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed.' + (npp ? ' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.' : '') + ' Upload stopped at ' + USTOP.toFixed(1) + ' s, so the grade and quality scores use download only.')] : []).concat(N_BUL,[N_LOSS], N_FB, N_RSV, N_OH) }
     ];
 
     const OHV = OH ? '+' + OHP + ' %' : 'None · 0 %';
     const P = (h, rows) => ({ h, rows: rows.map(([k, v]) => ({ k, v })) });
     const env = P('Environment', [['Server', 'Basement NAS · v1.4.0'], ['Browser', BRW.name + ' ' + BRW.major + ' · ' + BRW.os], ['Client IP', '192.168.1.42'], ['Timer resolution', '0.02 ms'], ['Cross-origin isolated', 'Yes']]);
+    const PROTO = RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? '— · not reported' : resv ? 'HTTP/1.1' : 'HTTP/2';
     const params = cont ? [
       P('Test', [['Preset', 'Continuous'], ['Phases and order', 'Idle latency → Download (continuous)'], ['Streams', 'Auto · Standard ramp · ' + STR.down + ' · ' + pl(STR.down)]]),
-      P('Limits', [['Run length', '2 h'], ['Stored cells', '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]),
-      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]),
+      P('Limits', [['Run length', LONG ? 'None · ran ' + dhm(CEND) : '2 h'], ['Stored cells', LONG ? '10 min · runs over 24 h' : '1 min · runs over 1 h, up to 24 h'], ['Data cap', 'Off · ' + cUsed + ' used']]),
+      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', 'Auto · ended at 6.5 s'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', PROTO]]),
       env
     ] : [
       P('Test', [['Preset', 'Standard'], ['Phases and order', 'Idle latency → Download → Upload'], ['Streams', STR.down === STR.up ? 'Auto · ' + STR.down + ' · ' + pl(STR.down) : 'Auto · download ' + STR.down + ' · ' + pl(STR.down) + '; upload ' + STR.up + ' · ' + pl(STR.up)]]),
       P('Limits', [['Download', '10.0 s · min 10 · max 20'], ['Upload', stop ? USTOP.toFixed(1) + ' s · stopped by you · min 15 · max 25' : '16.0 s · min 15 · max 25'], ['Data cap', 'Off · ' + sUsed.toFixed(2) + ' GB used']]),
-      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', stop ? 'Auto · ended at 6.5 s (download); upload stopped in warm-up' : 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', resv ? 'HTTP/1.1' : 'HTTP/2']]),
+      P('Measurement', [['Units', 'Bits · Mbit/s'], ['Warm-up', stop ? 'Auto · ended at 6.5 s (download); upload stopped in warm-up' : 'Auto · ended at 6.5 s (download), 9.5 s (upload)'], ['Ping count', '20'], ['Overhead compensation', OHV], ['Protocol', PROTO]]),
       env
     ];
     // Share shows only where the browser can share files (the PNG goes to the system sheet).
@@ -227,7 +266,7 @@ class ResultDetail extends React.Component {
       mobile: m, desktop: !m, L, D, hu, histOff, unsavedWhy: UNS[st] || '', canEdit: !hu, found: !notFound, notFound,
       nf: delSt === 'done' ? { icon: 'trash', title: 'Result deleted', body: 'It has been removed from history in this browser.' } : { icon: 'search', title: 'Result not found', body: 'This result isn’t in this browser’s history. It may have been deleted, or saved in a different browser.' },
       dimOp: delSt === 'pending' ? '0.45' : '1',
-      tiles, loadRows, rpm, Q, midCols: Q ? L.midCols : 'minmax(0,1fr)', rpmSub: cont ? 'round trips per minute, download only' : 'round trips per minute, one per direction',
+      tiles, loadRows, respP, Q, midCols: Q ? L.midCols : 'minmax(0,1fr)',
       fit: SC ? [['Streaming', 'tv'], ['Gaming', 'gamepad'], ['Video calls', 'video']].map(([label, icon], i) => { const rating = SC.bands[i], Q = BG.QUALITY[rating]; return { label, icon, rating, cls: 'sbadge ' + Q.tone, ricon: Q.icon }; }) : [],
       conf, confGroups, params, summary, inc, denied,
       grade, gradeWords, gradeBasis, gShort: gT[1], gradeAria: 'Bufferbloat grade ' + grade + ', ' + gradeWords, gBd: 'var(--' + gT[0] + '-border)', gBg: 'var(--' + gT[0] + '-bg)', gFg: 'var(--' + gT[0] + '-fg)',
@@ -280,8 +319,8 @@ class ResultDetail extends React.Component {
           status: 'measured', bitsPerSecond: Math.round(o.bps), peakBitsPerSecond: Math.round(o.peak), uncompensatedBitsPerSecond: Math.round(o.bps / OHF),
           windowMs: o.windowMs, streams: o.streams, plateau: 'cap', confidence: { level: o.conf.level, reasons: o.conf.reasons }, bytes: o.bytes,
           loadedLatency: llJ(o)
-        }, Q ? { responsiveness: { state: 'measured', protocol: 'h2', samples: 18, rpm: o.rpm } } : {}, {
-          series: { bucketMs: o.bucketMs, firstCellMs: o.wu, warmupEndMs: o.wu, endMs: o.end, values: o.values },
+        }, Q ? { responsiveness: respJ(o.k) } : {}, {
+          series: { bucketMs: o.bucketMs, firstCellMs: o.first != null ? o.first : o.wu, warmupEndMs: o.wu, endMs: o.end, values: o.values },
           events: o.events || []
         }, o.agg || {});
         const idleS = ping.slice(1).map(p => r1(p[1]));
@@ -293,15 +332,15 @@ class ResultDetail extends React.Component {
           settings: { preset: D.preset.toLowerCase(), phases: cont ? ['idle', 'download'] : ['idle', 'download', 'upload'], streams: { mode: 'auto', max: 6 }, dataCapBytes: null, overheadCompensationPercent: OHP, warmup: 'auto', pingCount: 20 },
           idle: { path: SJ[idleSrc], lossPercent: 0, minMs: 2.4, medianMs: IDLE, p90Ms: 4.1, jitterMs: JIT, samples: idleS },
           download: cont
-            ? dir({ bps: cAvg, peak: cP90, windowMs: Math.round((CEND - CWU) * 1000), bytes: cUsedB, lat: cells.map(c => ({ atMs: Math.round((c.a + c.b) / 2 * 1000), rttMs: r1(c.l) })), ll: LL.down, conf: DC.down, streams: STR.down, inc: INC.down, agg: { minBitsPerSecond: Math.round(cMin), maxBitsPerSecond: Math.round(cMax) }, rpm: 1420, bucketMs: 60000, wu: CWU * 1000, end: CEND * 1000, values: cells.map(c => Math.round(c.v)) })
-            : dir({ bps: D.down, peak: 641e6 * OHF, windowMs: 3500, bytes: SUSED.down, lat: latSer(S.dLat), ll: LL.down, conf: DC.down, gap: dnGap, streams: STR.down, inc: INC.down, rpm: 1420, bucketMs: 100, wu: 6500, end: 10000, values: vals(S.down) }),
+            ? dir({ bps: cAvg, peak: cP90, windowMs: Math.round((CEND - CWU) * 1000), bytes: cUsedB, lat: cells.map(c => ({ atMs: Math.round((c.a + c.b) / 2 * 1000), rttMs: r1(c.l) })), ll: LL.down, conf: DC.down, streams: STR.down, inc: INC.down, agg: { minBitsPerSecond: Math.round(cMin), maxBitsPerSecond: Math.round(cMax) }, k: 'down', bucketMs: CS * 1000, wu: CWU * 1000, first: C0 * 1000, end: CEND * 1000, values: cells.map(c => Math.round(c.v)) })
+            : dir({ bps: D.down, peak: 641e6 * OHF, windowMs: 3500, bytes: SUSED.down, lat: latSer(S.dLat), ll: LL.down, conf: DC.down, gap: dnGap, streams: STR.down, inc: INC.down, k: 'down', bucketMs: 100, wu: 6500, end: 10000, values: vals(S.down) }),
           upload: cont ? { status: 'skipped' }
             : stop ? { status: 'insufficient-data', streams: STR.up, plateau: null, bytes: SUSED.up, loadedLatency: llJ({ gap: gapK }), events: [{ code: 'cancelled', atMs: Math.round(USTOP * 1000) }] }
-            : Object.assign(dir({ bps: D.up, peak: 455e6 * OHF, windowMs: 6100, bytes: SUSED.up, lat: latSer(S.uLat), ll: LL.up, conf: DC.up, gap: gapK, streams: STR.up, inc: INC.up, rpm: 980, bucketMs: 100, wu: 9500, end: 16000, values: vals(S.up), events: [{ code: 'failure-gap', startMs: 10400, endMs: 10800 }] }), { confirmedRequests: 38 }),
+            : Object.assign(dir({ bps: D.up, peak: 455e6 * OHF, windowMs: 6100, bytes: SUSED.up, lat: latSer(S.uLat), ll: LL.up, conf: DC.up, gap: gapK, streams: STR.up, inc: INC.up, k: 'up', bucketMs: 100, wu: 9500, end: 16000, values: vals(S.up), events: [{ code: 'failure-gap', startMs: 10400, endMs: 10800 }] }), { confirmedRequests: 38 }),
           bufferbloat: { grade, basis: basisK, increaseMs: D.worst[1] },
           scores,
           dataUsedBytes: cont ? cUsedB : SUSED.down + SUSED.up,
-          notices: (cont ? [1e9, 1e10, 1e11].map(v => ({ code: 'data-used', bytes: v })) : []).concat(['down', 'up'].filter(k => DC[k] && DC[k].level === 'low').map(k => ({ code: 'low-confidence', direction: k === 'down' ? 'download' : 'upload', reasons: DC[k].reasons }))).concat(BUL ? [{ code: 'browser-upload-limit', browser: BRW.name }] : []).concat(rsvOn ? [{ code: 'probe-reservation', streams: 5 }] : []).concat(OHP ? [{ code: 'overhead-compensation', percent: OHP }] : [])
+          notices: (cont ? DU.map(v => ({ code: 'data-used', bytes: v })) : []).concat(['down', 'up'].filter(k => DC[k] && DC[k].level === 'low').map(k => ({ code: 'low-confidence', direction: k === 'down' ? 'download' : 'upload', reasons: DC[k].reasons }))).concat(BUL ? [{ code: 'browser-upload-limit', browser: BRW.name }] : []).concat(rsvOn ? [{ code: 'probe-reservation', streams: 5 }] : []).concat(OHP ? [{ code: 'overhead-compensation', percent: OHP }] : [])
         };
         if (!Q) delete result.scores;
         // History export format with one entry (ui/screens.md §1), so it re-imports as is.
@@ -390,11 +429,13 @@ class ResultDetail extends React.Component {
     if (cont) {
       const cpts = cells.map(c => [(c.a + c.b) / 2, c.v]), clat = cells.map(c => [(c.a + c.b) / 2, c.l]);
       const crow = cells.map(c => [cL(hms(c.a) + '–' + hms(c.b)), cK((c.known % 1 ? c.known.toFixed(1) : c.known) + ' s'), cV(rs(c.v)), cV(BG.ms(c.l) + ' ms')]);
-      const hl = t => t === 0 ? '0' : t < 3600 ? (t / 60) + 'm' : Math.floor(t / 3600) + 'h' + (t % 3600 ? String(t % 3600 / 60).padStart(2, '0') : '');
-      charts = [mk({ key: 'down', title: 'Download', icon: 'arrow-down', c: 'var(--series-download)', pts: cpts, lat: clat, xMax: CEND, xStep: 1200, xLabel: hl, wu: CWU, wuText: '0–0:07',
-        meta: ohs('2 h · 1 min cells · ' + STR.down + ' streams'), w: wide, h: m ? 150 : 190, span: m ? 'auto' : 'span 2',
-        cols: ['1 min averages', 'Known', 'Throughput', 'Latency (median)'], rows: crow,
-        foot: 'One row per stored 1 min cell, from warm-up end (0:07). A run is saved from the finest cells that cover it, downsampled to at most 2000 points: up to 10 min from 100 ms cells, up to 1 h from 1 s cells, up to 24 h from 1 min cells, longer from 10 min cells, so this 2 h run keeps 1 min cells' + (OH ? '; throughput includes ' + OH : '') + '. The last cell is 53.5 s because the 2 h run length ended the run.' }), idle];
+      const hl = LONG ? (t => t === 0 ? '0' : Math.round(t / 86400) + 'd') : (t => t === 0 ? '0' : t < 3600 ? (t / 60) + 'm' : Math.floor(t / 3600) + 'h' + (t % 3600 ? String(t % 3600 / 60).padStart(2, '0') : ''));
+      charts = [mk({ key: 'down', title: 'Download', icon: 'arrow-down', c: 'var(--series-download)', pts: cpts, lat: clat, xMax: CEND, xStep: LONG ? 86400 : 1200, xLabel: hl, wu: LONG ? null : CWU, wuText: '0–0:07',
+        meta: ohs(LONG ? dhm(CEND) + ' · last 7 days saved · 10 min cells · ' + STR.down + ' streams' : '2 h · 1 min cells · ' + STR.down + ' streams'), w: wide, h: m ? 150 : 190, span: m ? 'auto' : 'span 2',
+        cols: [LONG ? '10 min averages' : '1 min averages', 'Known', 'Throughput', 'Latency (median)'], rows: crow,
+        foot: LONG
+          ? 'One row per stored 10 min cell. This ' + dhm(CEND) + ' run is longer than the 7-day long ring, so only its last 7 days were saved (from ' + hms(C0) + '); the chart and this table show those 7 days' + (OH ? '; throughput includes ' + OH : '') + '.'
+          : 'One row per stored 1 min cell, from warm-up end (0:07). A run is saved from the finest cells that cover it, downsampled to at most 2000 points: up to 10 min from 100 ms cells, up to 1 h from 1 s cells, up to 24 h from 1 min cells, longer from 10 min cells, so this 2 h run keeps 1 min cells' + (OH ? '; throughput includes ' + OH : '') + '. The last cell is 53.5 s because the 2 h run length ended the run.' }), idle];
     } else {
       // Same run as the Test screen (§8.3): both directions ramp to the 6-stream cap.
       // Download: warm-up 0–6.5 s, phase ends at 10 s. Upload (server timeline, measurement §19.4): each ramp decision
@@ -500,14 +541,14 @@ class ResultDetail extends React.Component {
                 <section aria-label="Results" style={{ display: "grid", gridTemplateColumns: v.L?.tileCols, gap: v.L?.tileGap }}>
                   {(v.tiles || []).map((t, $index) => (
                     <React.Fragment key={$index}>
-                      <DS.MetricTile label={t?.label} icon={t?.icon} accent={t?.ic} value={t?.num === '—' ? undefined : t?.num} unit={t?.unit} note={t?.sub} notes={t?.notes} state={t?.num === '—' ? 'empty' : 'done'} compact={v.mobile} />
+                      <DS.MetricTile label={t?.label} icon={t?.icon} accent={t?.ic} value={t?.num === '—' ? undefined : t?.num} unit={t?.unit} note={t?.sub} notes={t?.notes} state={t?.state || (t?.num === '—' ? 'empty' : 'done')} compact={v.mobile} />
                     </React.Fragment>
                   ))}
                 </section>
                 <div style={{ display: "grid", gridTemplateColumns: v.midCols, gap: "var(--space-3)" }}>
                   <DS.LoadCard grade={v.grade} gradeText={v.gradeWords} basis={v.gradeBasis} compact={v.mobile}
                     rows={(v.loadRows || []).map(r => ({ dir: r.icon === 'arrow-up' ? 'upload' : 'download', label: r.label, sub: r.sub, value: r.num }))}
-                    responsiveness={v.Q ? { protocol: 'h2', note: v.rpmSub, dirs: (v.rpm || []).map(d => ({ dir: d.icon === 'arrow-up' ? 'upload' : 'download', value: d.num })) } : undefined} />
+                    responsiveness={v.Q ? v.respP : undefined} />
                   {v.Q ? <DS.QualityList packetLoss compact={v.mobile} bands={(v.fit || []).map(f => f.rating || null)} /> : null}
                 </div>
                 <DS.Card as="section" labelledBy="conf-h" padded={false} icon="shield" title={<span id="conf-h">Confidence and notices</span>} actions={<><DS.StatusPill tone={v.conf?.tone}>{v.conf?.label}</DS.StatusPill></>}>

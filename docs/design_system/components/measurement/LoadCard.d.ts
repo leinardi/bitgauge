@@ -16,7 +16,9 @@ export interface LoadRow {
   /** Live value (--primary-text). */
   live?: boolean;
 }
-export interface ResponsivenessDir { dir: 'download' | 'upload'; value?: string | null; text?: string; uncertain?: boolean; }
+export interface ResponsivenessDir { dir: 'download' | 'upload'; value?: string | null; text?: string; uncertain?: boolean;
+  /** Result detail only: TM95 and the samples ("TM95 42.3 ms · 13 samples · TM95 equals the plain mean"). */
+  detail?: string; }
 export interface LoadCardProps {
   /** null = not graded yet. */
   grade?: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F' | null;
