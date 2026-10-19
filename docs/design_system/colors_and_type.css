@@ -342,13 +342,13 @@
     --type-page-title-compact: var(--text-3xl);
     --type-state-title: 26px;
     --type-state-title-compact: 22px;
-    --type-share-value: 48px;          /* Share image, on its 480 × 252 box (× 2.5 in the PNG): rate number */
+    --type-share-value: 42px;          /* Share image, on its 480 × 252 box (× 2.5 in the PNG): rate number */
     --type-share-label: 12px;          /* block label ("↓ DOWNLOAD") */
-    --type-share-unit: 16px;           /* rate unit */
+    --type-share-unit: 15px;           /* rate unit */
     --type-share-qual: 10px;           /* qualifier lines */
     --type-share-meta: 10px;           /* foot, grade words */
     --type-share-head: 11px;           /* header label */
-    --type-share-grade: 26px;          /* grade letter */
+    --type-share-grade: 24px;          /* grade letter */
     --tracking-readout: -0.03em; /* @kind other */
     --tracking-metric: -0.02em; /* @kind other */
 
@@ -465,9 +465,8 @@
     --share-header-h: 20px;            /* 50 px: the logo row */
     --share-gap-min: var(--space-2-5); /* 25 px: least space between the middle group and the header or the foot */
     --share-label-h: 14px;             /* 35 px: block-label row */
-    --share-block-w: 171px;            /* 427.5 px: one number block column */
-    --share-grade-size: 48px;          /* 120 px: grade tile = number row height */
-    --share-grade-w: 74px;             /* 185 px: grade column (tile + words under it) */
+    --share-block-w: 148px;            /* 370 px: one number block column ("9.41 Gbit/s" ≈ 146) */
+    --share-grade-size: 42px;          /* 105 px: grade tile = number row height; words beside it, on the number row */
     --share-server-max: 224px;         /* 560 px: server name before its ellipsis */
 
     /* Lines and focus */

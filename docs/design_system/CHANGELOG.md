@@ -2,6 +2,12 @@
 
 ## Share image layout and states (2026-10-18)
 
+- **Grade back on the number row (2026-10-19):** the grade words sit beside the tile again, not under it. To fit two
+  "9.41 Gbit/s" blocks plus tile and words in the width: number 48 → 42 (120 → 105 px in the PNG), unit 16 → 15,
+  grade tile 48 → 42 and letter 26 → 24, block columns 171 → 148, column gap 18 → 14; `--share-grade-w` removed.
+- **Result detail share image:** the view's Share action now has its own key (`shareNow`), so the preview gets the
+  share fields instead of a function and shows blocks, foot, server and date.
+
 `components/share-panel.md`, `SharePreview`, tokens, `ui_kits/app` (ResultDetail, TestScreen, App); `features/` was not edited.
 
 - **Share image layout:** new section in share-panel.md specifying the 1200 × 630 image: regions (header, number

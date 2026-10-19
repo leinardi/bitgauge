@@ -41,29 +41,29 @@ image's own content (its tallest qualifier stack, its grade, its foot lines), no
 | Box | 480 × 252 → 1200 × 630; `--bg-base` (dark); padding `--share-pad-y` 14 → 35, `--share-pad-x` 16 → 40; content 448 × 224 → 1120 × 560 | — |
 | Header | top band: y 14–34 → 35–85 (`--share-header-h` 20 → 50), full content width | Wordmark (`Logo` 20 → 50, wordmark); the label, right-aligned, only when "include label" is ticked |
 | Middle band | from the header's bottom to the foot's top, padded `--share-gap-min` 10 → 25 at top and bottom; the group is centred in it vertically | The group |
-| Number blocks | in the group, left 16 → 40; two columns `--share-block-w` 171 → 427.5, gap `--space-4-5` 18 → 45 (x 16–187 and 205–376 → 40–467.5 and 512.5–940) | One block per direction in the run's phases, in phase order: block label, number + unit, qualifier stack |
-| Grade | in the group: column `--share-grade-w` 74 → 185 at the right edge (x 390–464 → 975–1160), ≥ 14 → 35 from the second block; top = number row top, spanning the number and qualifier rows | Grade tile (`--share-grade-size` 48 → 120, the number row's height), words centred under it, then the basis when it is one direction |
+| Number blocks | in the group, left 16 → 40; two columns `--share-block-w` 148 → 370, gap `--space-3-5` 14 → 35 (x 16–164 and 178–326 → 40–410 and 445–815) | One block per direction in the run's phases, in phase order: block label, number + unit, qualifier stack |
+| Grade | in the group, on the **number row**: third column, right-aligned at the right edge (ends x 464 → 1160), ≥ 14 → 35 from the second block; vertically centred on the number row | Grade tile (`--share-grade-size` 42 → 105, the number row's height), then the words **beside** it: first word, "bufferbloat", and the basis when it is one direction (≤ 3 lines, 39 → 97.5, within the row) |
 | Foot | bottom band: on the bottom padding (bottom 14 → 35), full content width; wraps upward | Idle latency, jitter, loaded-latency increase; then server name · date and time, right-aligned |
 
 **Group rows** (heights, not positions): label row `--share-label-h` 14 → 35; gap `--space-0-75` 3 → 7.5; number
-row `--type-share-value` 48 → 120 at line-height 1; gap `--space-0-75` + `--space-0-5` 5 → 12.5; qualifier row
-(auto, 0–5 lines of 13 → 32.5). The grade spans the number and qualifier rows; when it is taller than the number row
-plus the tallest qualifier stack (tile 48 + 5 + up to 3 word lines 39 = 92 → 230), it sets the group's height.
-Group height = 14 + 3 + max(48 + (stack ? 5 + 13 × lines : 0), grade) → × 2.5.
+row `--type-share-value` 42 → 105 at line-height 1; gap `--space-0-75` + `--space-0-5` 5 → 12.5; qualifier row
+(auto, 0–5 lines of 13 → 32.5). The grade sits in the number row and never makes it taller.
+Group height = 14 + 3 + 42 + (stack ? 5 + 13 × lines : 0) → × 2.5.
 
-**Widest number:** a four-character value plus the longest unit ("9.41 Gbit/s") is 115 + 4 + ≈ 43 = ≈ 162 → 405 of the
-171 → 427.5 column. Rates have 3 significant digits, so no value is longer than four characters.
+**Widest row:** a four-character value plus the longest unit ("9.41 Gbit/s") is 101 + 4 + ≈ 41 = ≈ 146 → 365 of the
+148 → 370 column. Two such blocks (148 + 14 + 148) + 14 + grade (tile 42 + 6 + words ≤ 62, "download only") = 434 → 1085
+of the 448 → 1120 content width. Rates have 3 significant digits, so no value is longer than four characters.
 
 ### Type roles
 
 | Element | Card → image | Font |
 | --- | --- | --- |
 | Block label ("↓ DOWNLOAD") | `--type-share-label` 12 → 30, line `--share-label-h` | `--font-cond`, semibold, caps tracking, series colour |
-| Number | `--type-share-value` 48 → 120, line-height 1 | `--font-mono`, medium, `--fg`; "—" in `--fg-subtle` |
-| Unit | `--type-share-unit` 16 → 40, `--space-1` 4 → 10 after the number, on its baseline | `--font-sans`, `--fg-muted` |
+| Number | `--type-share-value` 42 → 105, line-height 1 | `--font-mono`, medium, `--fg`; "—" in `--fg-subtle` |
+| Unit | `--type-share-unit` 15 → 37.5, `--space-1` 4 → 10 after the number, on its baseline | `--font-sans`, `--fg-muted` |
 | Qualifier line | `--type-share-qual` 10 → 25, `--lh-snug` (13 → 32.5 per line) | `--font-mono`; tone: insufficient data, low confidence, CPU-bound `--warn-fg`; error `--danger-fg`; partial, skipped, overhead `--fg-muted` |
-| Grade letter | tile `--share-grade-size` 48 → 120, `--radius-md`; letter `--type-share-grade` 26 → 65 | grade tone (A+–B ok, C–D warn, F danger) |
-| Grade words | `--type-share-meta` 10 → 25, `--lh-snug`, `--space-1-25` 5 → 12.5 under the tile | `--font-sans`; first word bold `--fg`, "bufferbloat" and basis `--fg-subtle` |
+| Grade letter | tile `--share-grade-size` 42 → 105, `--radius-md`; letter `--type-share-grade` 24 → 60 | grade tone (A+–B ok, C–D warn, F danger) |
+| Grade words | `--type-share-meta` 10 → 25, `--lh-snug`, `--space-1-5` 6 → 15 beside the tile, left-aligned | `--font-sans`; first word bold `--fg`, "bufferbloat" and basis `--fg-subtle` |
 | Header label | `--type-share-head` 11 → 27.5 | `--font-mono`, `--fg-subtle` |
 | Foot | `--type-share-meta` 10 → 25, `--lh-snug` | `--font-mono`; items `--fg-muted`, server · date `--fg-subtle` |
 
@@ -93,12 +93,12 @@ Group height = 14 + 3 + max(48 + (stack ? 5 + 13 × lines : 0), grade) → × 2.
   latency ran on the other path (`loadedLatency.idleSource`), `vs idle over WebSocket` or `vs idle over HTTP` —
   `+41 ms under load (upload, HTTP/2 probe, vs idle over WebSocket)`. Only the worse direction's source is named.
   The grade's basis follows the grade words: `download only`, `upload only`.
-- **Space budget (bounds the worst case; nothing is reserved).** A column holds 28 qualifier characters per line
-  (171 ÷ 6 at `--type-share-qual`), so the longest entries take: status 1 line, `low confidence: insufficient samples,
-  unstable` 2, `+5.13 % overhead compensation` 2. A qualifier stack holds at most **5 lines**; the foot at most
+- **Space budget (bounds the worst case; nothing is reserved).** A column holds 24 qualifier characters per line
+  (148 ÷ 6 at `--type-share-qual`), so the longest entries take: status 1 line, `low confidence: insufficient samples,
+  unstable` 2, `limited by this device’s CPU` 2, `+5.13 % overhead compensation` 2. A qualifier stack holds at most **5 lines**; the foot at most
   **3 lines** (3 × 13 + 2 × 3 = 45 → 112.5). Worst case: middle band = 252 − 28 padding − 20 header − 45 foot = 159
-  (→ 397.5); minus 2 × 10 gap = 139 (→ 347.5) for the group; worst group = 14 + 3 + 48 + 5 + 5 × 13 = 135 (→ 337.5).
-  It fits with 4 → 10 to spare, so the gaps to header and foot are always at least **10 → 25**.
+  (→ 397.5); minus 2 × 10 gap = 139 (→ 347.5) for the group; worst group = 14 + 3 + 42 + 5 + 5 × 13 = 129 (→ 322.5).
+  It fits with 10 → 25 to spare, so the gaps to header and foot are always at least **10 → 25**.
 - **Foot wrapping.** Items are never broken inside (each is one line); they wrap as whole items, gap `--space-0-75`
   3 → 7.5 between lines and `--space-3-5` 14 → 35 between items. Server · date is the last item, pushed right; when it
   does not fit it takes its own line, right-aligned. Lines are added at the top, so the last line stays on the bottom

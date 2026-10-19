@@ -253,7 +253,7 @@ class ResultDetail extends React.Component {
         try { navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(summary).then(ok, no) : no(); } catch (e) { no(); }
       },
       canShare, shareCols: canShare ? 'repeat(2, minmax(0,1fr))' : 'minmax(0,1fr)',
-      share: () => {
+      shareNow: () => {
         // Stand-in for the real 1200 × 630 renderer: the file, not text, goes to the share sheet.
         const c = document.createElement('canvas'); c.width = 1200; c.height = 630;
         const x = c.getContext('2d'), cs = getComputedStyle(document.documentElement);
@@ -613,7 +613,7 @@ class ResultDetail extends React.Component {
                     </label>
                     <div style={{ display: "grid", gridTemplateColumns: v.shareCols, gap: "var(--space-2)" }}>
                       {v.canShare ? (
-                        <DS.Button variant="secondary" icon="share" onClick={v.share} title="Sends the image to the system share sheet" style={{ justifyContent: "center" }}>Share</DS.Button>
+                        <DS.Button variant="secondary" icon="share" onClick={v.shareNow} title="Sends the image to the system share sheet" style={{ justifyContent: "center" }}>Share</DS.Button>
                       ) : null}
                       <DS.Button variant="secondary" icon="download" onClick={v.dlImg} style={{ justifyContent: "center" }}>Download image</DS.Button>
                     </div>
