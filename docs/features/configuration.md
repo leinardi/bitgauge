@@ -140,9 +140,14 @@ specified in [measurement.md](measurement.md).
 | `test_defaults.ping_count` | `BITGAUGE_TEST_DEFAULTS__PING_COUNT` | `0` | `0` (the preset's value) or 6–200 (the first ping is a discarded warm-up sample and idle latency needs at least 5 successful samples, [measurement.md §10](measurement.md#10-idle-latency)). |
 | `test_defaults.overhead_compensation_percent` | `BITGAUGE_TEST_DEFAULTS__OVERHEAD_COMPENSATION_PERCENT` | `0` | 0–20, decimals allowed; LibreSpeed presets are 6, 5.13, 3.69 and 8.1 ([measurement.md §9.3](measurement.md#93-overhead-compensation)). |
 
-The duration keys are ignored for the `continuous` preset, which has no maximum; an optional run
+The duration keys apply only to the bounded presets. With `preset: continuous`, which has no minimum
+or maximum, they are still parsed and validated by the duration pair rule (§4), in which an empty
+bound then counts as no bound, so only a pair with both bounds set is compared (`min 30s`, `max 20s`
+exits with status 2, `min 30s` alone does not); `GET /info` reports `null` bounds, and the startup
+log's warn line names each duration key that is set as ignored for Continuous. An optional run
 length is set per run only, in Settings or with the `duration` URL parameter
-([ui/url-params.md](ui/url-params.md)).
+([ui/url-params.md](ui/url-params.md)); its ping count is 20, the preset's, unless `ping_count` sets
+another.
 
 ### 2.4 Compatibility Toggles
 
@@ -209,8 +214,9 @@ text to stderr. Nothing is ever silently corrected or defaulted.
 | `metrics.path` must not collide with any route of the route table. | `/api/v1/info`, `/upload` |
 
 Warnings (logged, not fatal) cover settings that are valid but probably unintended, for example
-`metrics.enabled: true` with no `trusted_proxies` (the metrics endpoint is then reachable directly)
-or `trusted_proxies` containing `0.0.0.0/0`.
+`metrics.enabled: true` with no `trusted_proxies` (the metrics endpoint is then reachable directly),
+`trusted_proxies` containing `0.0.0.0/0`, or a duration key set with `test_defaults.preset:
+continuous`, which ignores it (§2.3).
 
 ## 5. Read-Only Configuration and the No-Write Guarantee
 

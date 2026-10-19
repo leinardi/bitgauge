@@ -85,7 +85,7 @@ application code; the UI talks to it only through typed messages defined in one 
 
 | Message | Payload | Effect |
 | --- | --- | --- |
-| `configure` | resolved settings (preset, phases, streams, durations, data cap, units, warm-up, ping count, overhead compensation), optional override of the URL parameters' settings, base path | Resolves the override over the settings, validates and stores them for the next run; answered by `settings` with what it stored, or by `error` if invalid. |
+| `configure` | resolved settings (preset, phases, streams, durations, data cap, units, warm-up, ping count, overhead compensation; with Continuous, `continuousDirection` and the optional `runLengthMs`), optional override of the URL parameters' settings, base path | Resolves the override over the settings, validates and stores them for the next run; answered by `settings` with what it stored, or by `error` if invalid. |
 | `start` | optional settings override (with the result's label, the context label and the URL parameters ignored), `visible` flag | Starts a run with the configured settings. The engine's own Info phase then calls `GET /api/v1/info`; that response, fetched at the start of this run, is the only source of the epoch and limits the run uses ([measurement.md §1](measurement.md#1-phases-and-order)). The UI may fetch `/info` separately for display, but never hands it to the engine. |
 | `stop` | — | Stops the run as a user stop: in-flight requests aborted, partial result emitted. |
 | `visibility` | `visible: boolean` | Forwards `visibilitychange` ([edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test)). |
@@ -104,7 +104,7 @@ the page's `Worker` object; the next `start` may begin another run.
 | --- | --- | --- |
 | `settings` | scope (`configured` or `run`), the resolved settings | The settings shown before a run (`configured`, answering each valid `configure`) and during and after it (`run`, sent as a run starts, its override applied). |
 | `phase` | phase name (`info`, `idle`, `download`, `upload`), state (`started`, `finished`, `skipped`, `failed`), protocol, stream count, notices so far; a `finished` idle latency, download or upload, and a `failed` download or upload, carries its part of the result object, the `idle` or direction object the result will report, so its tile shows at once, except a direction's `loadedLatency`, which only the `result` carries: its pings' grace ([measurement.md §11.4](measurement.md#114-loaded-latency-statistics-and-availability)) runs on into the next phase; a finished or failed direction's `responsiveness` is settled at its end and travels with it ([measurement.md §12.3](measurement.md#123-path-b-procedure)); the `scores` only with the `result`; a `failed` phase carries how long it ran (display only) | Phase indicator, connection info, the headline announced as a direction finishes ([ui/i18n-a11y.md §2.1](ui/i18n-a11y.md#21-live-region-for-the-gauge)), the download's share of the data used while upload runs ([ui/screens.md §1](ui/screens.md#1-test-home--)). |
-| `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up; Continuous adds "p90, last hour"); the warm-up end and, for upload, P_start and the sample's instant on the server grid (display only); the stream count the ramp has reached; how long its phase has run on the client clock (display only); the loaded-latency pings answered since the previous `sample`, each `{atMs, rttMs}` on the client clock ([measurement.md §11.5](measurement.md#115-time-base-and-series)); data used | Live gauge, tiles and chart, at most every 100 ms. |
+| `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up, and in Continuous, which sends its `continuous` block instead); with Continuous, the run's live figures (`continuous`) and the coarse cells closed since the previous `sample` (`cells`); the notices raised since the previous `sample` (`notices`, such as `data-used`); the warm-up end and, for upload, P_start and the sample's instant on the server grid (display only); the stream count the ramp has reached; how long its phase has run on the client clock (display only); the loaded-latency pings answered since the previous `sample`, each `{atMs, rttMs}` on the client clock ([measurement.md §11.5](measurement.md#115-time-base-and-series)); data used | Live gauge, tiles and chart, at most every 100 ms. |
 | `idle` | the path (`websocket` or `http`); pings answered or lost so far, of the ping count (the warm-up ping included); the last RTT; the running median, min, p90 and jitter of the samples so far and their probe-timeout share; how long its phase has run on the client clock (display only) | The idle-latency gauge in milliseconds, ping counter, live tiles and latency samples chart, after each ping. |
 | `result` | the versioned result object ([measurement.md §17](measurement.md#17-result-object)) | Result screen, history, export. |
 | `error` | code, message key, phase, whether partial results exist | Error states and retry ([ui/flows.md](ui/flows.md)). |
@@ -131,8 +131,21 @@ type EngineEvent =
       values: (number | null)[];       // bytes per bucket; null = unknown (failure gap)
       windowEnd?: number;              // upload only: current W_end on the server grid
       gauge: number; sending?: number;
-      steady?: { avgBitsPerSecond: number; peakBitsPerSecond: number;
-                 peakLastHourBitsPerSecond?: number };  // absent during warm-up
+      steady?: { avgBitsPerSecond: number; peakBitsPerSecond: number };
+                                       // absent during warm-up and in Continuous
+      continuous?: {                   // Continuous only (measurement.md §15)
+        elapsedMs: number;             // since the phase start, on the client clock; the
+                                       // run length and the chart's tier count from there
+        runLengthMs?: number;          // the configured run length, absent without one
+        minBitsPerSecond?: number;     // the four rates: absent until 3 fully known 1 s
+        avgBitsPerSecond?: number;     //   cells exist; the UI shows "—", never 0
+        maxBitsPerSecond?: number;
+        peakLastHourBitsPerSecond?: number;
+        dataBytes: number;             // data used by the run so far
+        loadedLastMinuteMedianMs?: number };  // median of the last minute's per-second medians
+      cells?: { tier: 'hour' | 'day' | 'long'; bytes: number; knownMs: number }[];
+                                       // coarse cells closed since the previous sample, in order
+      notices?: Notice[];              // notices raised since the previous sample (data-used)
       warmupEndBucket?: number;        // once warm-up has ended, on the same axis as fromBucket
       startBucket?: number;            // upload only: P_start on the server grid, in cells
       sendingBucket?: number;          // upload only: this instant on the grid, by the offset
@@ -160,6 +173,12 @@ confirmed, because there is no offset before. Once warm-up has ended, every `sam
 `warmupEndBucket`, the bucket (download) or cell (upload) where it ended, which bounds the live
 chart's warm-up band. All three are display-only and feed no number.
 
+**Continuous samples.** The UI keeps fixed rings of its own for the live chart, of the lengths
+`engine/messages.ts` exports as constants (6000 native buckets, 3600 hour, 1440 day and 1008 long
+cells, [measurement.md §15](measurement.md#15-continuous-mode)): it appends each `sample`'s native
+`values` to the native ring and each entry of `cells` to its tier's ring, in order, so nothing on
+either side grows with run length. A notice in `notices` is also kept for the `result`.
+
 **Error codes.** The `error` event's `code` is one of `invalid-settings` (a `configure` or
 `start` whose settings fail validation), `requests-failed` (three consecutive failed requests,
 [measurement.md §5](measurement.md#5-adaptive-duration)), `network-changed`, `server-restarted`
@@ -183,8 +202,10 @@ the configured preset. `durationMs` sets both directions' maximum to it and thei
 smaller of the minimum and it. The resolved settings are checked against the ranges of
 [configuration.md §2.3](configuration.md#23-test-defaults), the `duration` range of the URL
 parameter (5–600 s for the bounded presets), the 64-character `label` and the parameter names of
-the URL parameters' table, each at most once; Continuous is not a v0.1 preset. Any invalid value
-fails the `configure` or `start` with `invalid-settings`. The `settings` event gives the UI the
+the URL parameters' table, each at most once. With Continuous, `durationMs` sets `runLengthMs`
+instead, in the 60 s–7 days range of the URL parameter, and the bounds stay `null`
+([measurement.md §8.5](measurement.md#85-presets)). Any invalid value fails the `configure` or
+`start` with `invalid-settings`. The `settings` event gives the UI the
 outcome, which it shows rather than resolving presets itself: after a valid `configure` with
 scope `configured`, and as a run starts with scope `run`, without the labels.
 

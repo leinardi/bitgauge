@@ -680,6 +680,55 @@ carries a recommendation; where the specification already relies on an answer, i
     upload is listed by §13.1 but used by no experience. `scores` is present on every v0.3 result,
     and `schemaVersion` stays 1. Recommendation: keep it. See
     [measurement.md §13](measurement.md#13-quality-scores).
+59. What are a Continuous run's settings, outcomes and numbers, where measurement.md §15 left them
+    open? Current answer: **one direction, two outcomes, run-wide numbers from bounded state.**
+    - Continuous resolves to `continuousDirection` (`download` by default) with an optional
+      `runLengthMs` of 60 s–7 days; its bounds are `null` in the settings, in `/info` and in the
+      result; its ping count is 20; idle latency runs first unless `phases` leaves it out.
+    - The config duration keys are still validated by the pair rule (an empty bound counting as no
+      bound), apply only to the bounded presets, and the startup warn line names them as ignored
+      for Continuous.
+    - The run length counts from the direction's phase start; at it, a download ends at once and
+      an upload stops issuing and gives its requests the grace, as at a bounded maximum.
+    - The direction is `measured` once at least 3 fully known 1 s cells exist since the steady
+      start, which replaces the bounded minimum window and its request counts, and the run that
+      ends then is `complete` with no `stopped-early`; any ending with
+      fewer gives `insufficient-data` with no headline, minimum, maximum, peak or confidence, under
+      a `partial` result offered through Keep in history. Stop, run length, data cap, an HTTP/1.1
+      upload failure and a hidden page all read this way; there is no `extended` event and no
+      maximum.
+    - `bitsPerSecond` is the run-wide average over fully known 1 s cells and `windowMs` their
+      time; `confidence` comes from running sums over them, and `cpu-bound` from bounded busy
+      bookkeeping over the same span; the "p90, last hour" needs at least 3 fully known cells in the
+      hour ring and is absent otherwise.
+    - A run without a run length may exceed 7 days and saves its last 7; the saved series counts
+      from the steady start; the events keep the last 100 failure gaps.
+    - Loaded latency keeps per-second medians in an hour ring with run-wide min, average and max;
+      `medianMs`, `p90Ms`, the increase, the grade and the scores are the last hour's; a source
+      switch restarts them from the later source on HTTP/2 or HTTP/3 and gives
+      `reservation-broken` on HTTP/1.1.
+    - Path B keeps its last 64 probes, reads its connection evidence and `totalMedianMs` over them,
+      and takes TM95 over the last 4 s at the end.
+
+    Recommendation: keep it; every number stays exact within its stated span, and memory stays
+    constant. See [measurement.md §15](measurement.md#15-continuous-mode).
+60. How does the Worker tell the UI about a Continuous run while it runs? Current answer: **three
+    optional fields of `sample`.** `continuous` carries `elapsedMs`, the optional `runLengthMs`,
+    `minBitsPerSecond`, `avgBitsPerSecond`, `maxBitsPerSecond` and `peakLastHourBitsPerSecond`
+    (all four absent until 3 fully known 1 s cells exist; the UI shows "—", never 0), `dataBytes`
+    and the optional `loadedLastMinuteMedianMs`; `cells` carries the hour, day and long cells
+    closed since the previous `sample` as `{tier, bytes, knownMs}`; `notices` carries live notices
+    such as `data-used` (`{code: "data-used", bytes}` at 10⁹ × 10ᵏ bytes, tone info, kept in the
+    result). `engine/messages.ts` exports the ring lengths as `RING_LENGTHS`, so the UI keeps fixed
+    rings of its own, and the live chart picks its tier by elapsed time: native up to 10 min, hour
+    up to 60 min, day up to 24 h, long beyond. Recommendation: keep it. See
+    [architecture.md §4](architecture.md#4-engine--ui-message-contract).
+61. How does the demo build show v0.3? Current answer: **as more scenarios and panel controls
+    over the real engine**: the kit's three Continuous states as scenarios, a demo clock
+    fast-forward rate per Continuous scenario, a 921 Mbit/s HTTP/2 LAN fixture, path B controls
+    (the protocol, a new-connection toggle, a `/small` starvation for few samples) and switches for
+    the About screen's layers. Recommendation: keep it. See
+    [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build).
 
 Resolved and removed:
 

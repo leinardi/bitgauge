@@ -269,6 +269,13 @@ reached (the window condition decides between a number and
 `insufficient data`), remaining throughput phases are skipped, and the result carries the
 `data cap reached` notice.
 
+**Continuous.** A Continuous direction (§15) has no minimum, no maximum and no extension: the end
+condition is never tested, it never carries the `test extended` notice or an `extended` event, and
+it never reaches `insufficient data` by running out of time. It ends only by the user's stop, its
+optional run length, the data cap (which ends the run, since no other direction follows), an upload
+failure over HTTP/1.1 (§7.5), the browser pausing a hidden page, or an error; how each ending reads
+is §15.
+
 **Data used** is the sum of throughput bytes in both directions: bytes read by the client on
 download and bytes sent by the client on upload, including warm-up and aborted or failed requests.
 Latency probes and protocol overhead are not included. It is shown live and in every result.
@@ -461,8 +468,8 @@ error under load is unbounded, and it never feeds a number.
   failure: it stops issuing requests, gives the in-flight ones the grace of §5, and reports the
   window up to `W_end_final` if it meets the minimum window (§7.6), otherwise
   `insufficient data`, with the notice `upload interrupted by a failed request`. Continuous upload
-  runs end the same way, with a hint that HTTP/2 at the proxy lets long upload runs survive
-  transient failures.
+  runs end the same way, with the outcomes of §15, and a hint that HTTP/2 at the proxy lets long
+  upload runs survive transient failures.
 - **Confirmed watermark `C`.** `C = min over open u of lb(u)` when there is an open request; when
   there is none (every request of the phase was confirmed or is closed) the watermark is not a limit
   and `C = M_end`.
@@ -494,11 +501,13 @@ error under load is unbounded, and it never feeds a number.
 - **Peak.** p90 of `S_up[b]` over *W*, labeled "peak", never the headline.
 - **Minimum window.** If `|W| × bucketMs < 3000 ms`, or fewer than 3 confirmed requests lie inside
   *W*, the upload direction status is `insufficient-data` ("insufficient data"): no number, data
-  used shown. If the phase was stopped by the user, the result status is `partial`. The phase
+  used shown. If the phase was stopped by the user, the result status is `partial`. A bounded phase
   never reports a number from one request. A confirmed request lies inside *W* when every cell of
   its telemetry, from the cell of its first byte read to the cell of its last, belongs to *W*; a
   request that straddles the warm-up end, the window end or a failure gap contributes its bytes in
-  *W* but does not count toward the three, and a request that read no bytes never counts.
+  *W* but does not count toward the three, and a request that read no bytes never counts. A
+  Continuous upload replaces this minimum window, the three requests included, with the rule of §15:
+  three fully known 1 s cells since the steady start.
 - **Phase end and aborted requests.** As in §5: no new requests from `max − 1 s` or from the window
   decision; in-flight requests get the grace, then are aborted. Aborted and failed requests have no
   telemetry, so they only lower `C` (while open) or leave a failure gap (once closed); their bytes
@@ -702,7 +711,8 @@ their sums are flat, which is delivery, not the link. The window therefore shows
 the warm-up could not (a browser that sends each request in one burst can keep the first seconds
 choppy on a steady link) and the instability a quiet warm-up missed (a rate that steps for
 seconds at a time). A direction left with no reason has `normal` confidence. The other two
-reasons stay as the warm-up set them: the window shows nothing about them.
+reasons stay as the warm-up set them: the window shows nothing about them. A Continuous direction
+reads `unstable` from its 1 s cells instead of the 500 ms sums (§15).
 
 **A running ramp moves the bounded cap.** A full ramp needs at least `I_s + 2 × I_m` for the
 baseline plus `I_s + I_m` per trial, ≈ 6.5 s at the 1 s and 500 ms floors, more than Standard's
@@ -743,7 +753,7 @@ the phase keeps sending until the *confirmed* window is long enough and stable.
 | Quick | fixed 3, no ramp | 5 s / 10 s | 5 s / 10 s | 10 |
 | Standard (default) | auto, full ramp | 10 s / 20 s | 15 s / 25 s | 20 |
 | Extended | auto, full ramp | 20 s / 40 s | 20 s / 40 s | 50 |
-| Continuous | auto, Standard ramp | no max | no max | 20 |
+| Continuous | auto, Standard ramp | none (`null`) | none (`null`) | 20 |
 
 Standard's upload minimum is 5 s longer than its download minimum because every upload ramp
 decision waits for the confirmation delay (§8.2): on a fast link the full ramp to 6 streams settles
@@ -756,17 +766,25 @@ already spans ≈ 5 s, so warm-up ends at Quick's 3 s cap (`max(3 s, 25 % × 10 
 requests per stream have confirmed, and the window condition holds at ≈ 7–8 s when the 16 KiB
 follow-up requests confirm. Quick then reports an upload number with `confidence: low`
 (`insufficient-samples`); the UI suggests Standard for links this slow. Continuous runs one
-throughput direction (download by default, upload selectable) until stopped, until the data cap is
-reached or until an optional run length elapses (§15), with a 10 s absolute warm-up cap (§8.3, §15);
-running a single direction is the current answer to an item tracked in
-[open-questions.md](open-questions.md).
+throughput direction until stopped, until the data cap is reached or until an optional run length
+elapses (§15), with a 10 s absolute warm-up cap (§8.3, §15); running a single direction is the
+current answer to an item tracked in [open-questions.md](open-questions.md).
+
+**Continuous settings.** A Continuous run resolves to one direction, `continuousDirection`
+(`download` by default, or `upload`), and an optional `runLengthMs` from 60 s to 7 days
+(60 000–604 800 000 ms), absent for a run that lasts until it is stopped. Its duration bounds are
+`{minMs: null, maxMs: null}` for both directions, in the settings, in `GET /info` and in the
+result. Its idle ping count is 20. Idle latency runs first unless `phases` leaves it out; the
+throughput entries of `phases` do not choose the direction, which is always
+`continuousDirection`, so a Continuous run whose `phases` lists no throughput direction still runs
+it.
 
 ### 8.6 Shortfall
 
 If a phase reaches its max and the window condition is not met, the result for that direction is
 `insufficient data` (no number; data used shown), with a notice offering the next larger preset
-(Quick → Standard → Extended); the other direction's result is kept. A phase never reports a number
-from one request.
+(Quick → Standard → Extended); the other direction's result is kept. A bounded phase never reports a
+number from one request (Continuous follows §15).
 
 The slow-link time budget that shows how Standard fits a 300 kbit/s link is worked out per ramp step
 in §19.1.
@@ -1069,13 +1087,13 @@ the HTTP/2 connection that carries the load.
 - **Capability check before load.** One probe at idle, during the info phase (§1). If
   `nextHopProtocol` is `http/1.1`, path B is `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the
   reverse proxy") and no path B probe runs under load. Any value other than `h2` or `h3`
-  (`http/1.0`, a draft label such as `h3-29`) is treated as `http/1.1`. A capability probe that fails, or whose
-  timing entry is not found, gives `unavailable_h1` with `protocol: ''`, exactly like the empty
-  protocol below and shown with the same words. An empty `nextHopProtocol` (the protocol was
-  not reported) is treated the same way: path B is `unavailable_h1`, shown as "protocol not
-  reported — treated as HTTP/1.1", because on a possibly HTTP/1.1 connection with every connection
-  busy the probe would measure browser scheduling, not a loaded shared connection. This matches the
-  reservation rule of §4, which also treats an unknown protocol as HTTP/1.1.
+  (`http/1.0`, a draft label such as `h3-29`) is treated as `http/1.1`. A capability probe that
+  fails, or whose timing entry is not found, gives `unavailable_h1` with `protocol: ''`, exactly
+  like the empty protocol below and shown with the same words. An empty `nextHopProtocol` (the
+  protocol was not reported) is treated the same way: path B is `unavailable_h1`, shown as "protocol
+  not reported — treated as HTTP/1.1", because on a possibly HTTP/1.1 connection with every
+  connection busy the probe would measure browser scheduling, not a loaded shared connection. This
+  matches the reservation rule of §4, which also treats an unknown protocol as HTTP/1.1.
 
 ### 12.4 States
 
@@ -1129,7 +1147,7 @@ tm95Ms?, trimmed?, totalMedianMs?}`:
 - `rpm`, `tm95Ms`, `trimmed` and `totalMedianMs` are present on `measured` and `uncertain`, absent
   otherwise: `tm95Ms` is the TM95 of §12.5, `trimmed` the number of samples dropped from the slow
   end (`0` means the plain mean), and `totalMedianMs` the median of `responseEnd − fetchStart` over
-  the window's valid probes, the "recorded too" value.
+  the window's valid probes, the "recorded too" value (in Continuous, over the last 64, §15).
 
 `tm95Ms` and `totalMedianMs` are quantized to `client.timerResolutionMs`, as the loaded-latency
 statistics are (§17).
@@ -1251,24 +1269,65 @@ Every v0.3 result carries `scores: {basis, packetLoss: "not-measured", streaming
 - **Live average and peak.** While a direction runs, its live average and peak are computed by the
   engine over the steady window so far, with the rules of §9 and §7.6, and sent in its `sample`
   messages ([architecture.md §4](architecture.md#4-engine--ui-message-contract)). Until warm-up ends
-  the UI shows "warming up" instead of either number.
+  the UI shows "warming up" instead of either number. A Continuous direction sends its run-wide
+  minimum, average and maximum and its "p90, last hour" instead, absent until 3 fully known 1 s
+  cells exist (§15); the UI shows "—" for an absent figure, never 0.
 
 ## 15. Continuous Mode
 
-Continuous mode runs one throughput direction (the current answer to an item tracked in
-[open-questions.md](open-questions.md)) with the Standard ramp, no maximum and a 10 s absolute
-warm-up cap, until the user stops it, the data cap is reached, or an optional run length (the
-`duration` URL parameter or the Settings run-length field, [ui/url-params.md](ui/url-params.md))
-elapses. It shows live min, average and max. A Continuous run that ends after its steady window
-began, by the user's stop, the run length, the data cap, an upload failure over HTTP/1.1 (§7.5,
-with the notice `upload interrupted by a failed request`) or the browser pausing a hidden page
-([edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test)), has result status `complete`: stopping
-is how such a run normally ends. Any of these endings during the warm-up gives `partial`, with the
-direction status `insufficient-data`. The saved result's `series` (§17) is the run
-downsampled to at most 2000 points from the finest retention tier whose ring covers the whole run
-(native, hour, day or long, in that order); the other tiers exist only in memory while the run is
-shown. A run longer than the long ring (7 days) saves only its last 7 days, and the result detail
-says so.
+Continuous mode runs one throughput direction, `continuousDirection` (the current answer to an item
+tracked in [open-questions.md](open-questions.md); settings in §8.5), with the Standard ramp, no
+maximum and a 10 s absolute warm-up cap, until the user stops it, the data cap is reached, or an
+optional run length (the `duration` URL parameter or the Settings run-length field,
+[ui/url-params.md](ui/url-params.md)) elapses. A run without a run length may go on past 7 days.
+It shows live min, average and max.
+
+**Run length.** The run length counts from the direction's phase start on the client clock, the
+same instant `continuous.elapsedMs` counts from, so idle latency is not part of it. When it
+elapses, a download ends at that instant like a bounded download at its end instant (§5), and an
+upload stops issuing requests then and gives those in flight the grace of §5, as at a bounded
+upload's request target, so its last cells can still be confirmed.
+
+**Direction status and result status.** Result completion is kept apart from measurement
+availability. A **fully known 1 s cell** is an hour-tier cell whose ten native cells are all known
+(on download every cell is). Counting from the steady start (the warm-up end):
+
+- **Measured.** Once at least **3** fully known 1 s cells exist, the direction is `measured`, and a
+  run that ends then has result status `complete`, with no `stopped-early` notice: stopping is how
+  such a run normally ends. The three cells are the whole rule: they replace the bounded minimum
+  window of §5 and §7.6, request counts included.
+- **Insufficient data.** A run that ends during the warm-up, or after the steady start with fewer
+  than 3 fully known 1 s cells, gives the direction status `insufficient-data`, with no
+  `bitsPerSecond`, `peakBitsPerSecond`, `minBitsPerSecond`, `maxBitsPerSecond` or `confidence`,
+  and result status `partial`, which the UI offers through Keep in history (§17), with the
+  `stopped-early` notice of a stopped bounded direction when a stop or a hidden page ended it.
+  Examples: a stop right after the warm-up ends; an upload whose cells are all unknown because a
+  failure gap runs from the steady start to the end.
+
+Every ending reads by these two outcomes: the user's stop, the run length, the data cap (with the
+`data cap reached` notice), an upload failure over HTTP/1.1 (§7.5, with the notice
+`upload interrupted by a failed request`) and the browser pausing a hidden page
+([edge-cases.md §5](edge-cases.md#5-tab-hidden-mid-test)). An error (§5, the error codes of
+[architecture.md §4](architecture.md#4-engine--ui-message-contract)) ends the run with result
+status `error`, as in a bounded run. There is no `extended` event and no maximum.
+
+**Headline, peak and confidence.**
+
+- `bitsPerSecond` is the run-wide average over the fully known 1 s cells since the steady start:
+  their bytes over their time. `windowMs` is that run-wide known time.
+- `minBitsPerSecond` and `maxBitsPerSecond` are the lowest and highest of those cells.
+- `peakBitsPerSecond` is the **"p90, last hour"**: the p90 of the fully known 1 s cells in the hour
+  ring (§2's percentile rule), present only when the ring holds at least 3 of them and absent
+  otherwise, also on a `measured` direction whose last hour is all failure gap. An exact run-wide
+  p90 is **not** computed; an approximate run-wide quantile sketch is a possible later addition.
+- `confidence` is read from **running sums** over the same cells (count, sum and sum of squares),
+  which give the population coefficient of variation of §2 over 1 s cells without keeping them:
+  the reason `unstable` holds when it exceeds 10 %, in place of the bounded window's 500 ms sums
+  (§8.3), and the warm-up's reasons stay as it set them; `cpu-bound`
+  (§16) takes the Worker's busy fraction over the same span, from steady start to end, through
+  bookkeeping that keeps a bounded number of busy samples and answers that span exactly.
+- Overhead compensation (§9.3) applies to the headline, the minimum, the maximum and the peak as it
+  does to a bounded direction's numbers.
 
 **Retention (constant memory).** Every retained structure is a fixed-size ring, allocated at its
 full length when the run starts; nothing grows with run length:
@@ -1280,22 +1339,50 @@ full length when the run starts; nothing grows with run length:
 | day | 1 min (exact sum of sixty 1 s cells) | 1440 (24 h) | chart history |
 | long | 10 min (exact sum of ten 1 min cells) | 1008 (7 days) | chart history; beyond 7 days the oldest cells are dropped |
 
-- Run-wide statistics are **running aggregates** over 1 s cells since the steady window began:
-  count, sum (giving the average), min, max, and the data-used counter. They need constant memory.
-- The **peak** for a continuous run is the p90 over the hour ring (the last 60 min of 1 s cells),
-  labeled "p90, last hour", plus the run-wide max. An exact run-wide p90 is **not** computed;
-  an approximate run-wide quantile sketch is a possible later addition.
+- Run-wide statistics are **running aggregates** over fully known 1 s cells since the steady start:
+  count, sum (giving the average), sum of squares, min, max, and the data-used counter. They need
+  constant memory.
 - **Unknown cells (upload).** Native cells enter the rings only once confirmed. A native cell that
   overlaps a failure gap (§7.5) is stored as unknown and shown as a gap. Every coarser cell stores
   two exact sums over its finer cells: bytes, and known time (the time covered by known cells). Its
   rate is bytes ÷ known time, and a cell with no known time is a gap. Run-wide aggregates and the
-  "p90, last hour" use only 1 s cells whose ten native cells are all known. On download every cell
-  is known, and the coarser cells are the plain exact sums of the table.
-- Loaded latency keeps running on path A; its last-minute median is shown live and run-wide min,
-  average and max of per-second medians are kept as running aggregates.
-- The chart renders at most about 2000 points by picking the tier that fits the visible range.
-- **Data used** is shown and the per-test data cap applies. Data-used notices appear at 1 GB, 10 GB,
-  100 GB and every further tenfold step, so a long run on a metered link is never silent.
+  "p90, last hour" use only fully known 1 s cells. On download every cell is known, and the
+  coarser cells are the plain exact sums of the table.
+- **Saved series.** The result's `series` (§17) is the run since the steady start, downsampled to
+  at most 2000 points from the finest tier whose ring covers the whole run since the steady start
+  (native, hour, day or long, in that order), with `knownMs` per point; the other tiers exist only
+  in memory while the run is shown. A run longer than the long ring (7 days) saves only its last
+  7 days, and the result detail says so.
+- **Failure gaps.** The direction's `events` keep the last 100 `failure-gap` events; an older gap
+  still shows in the saved series as unknown or partly known cells.
+- **Live chart.** The UI keeps rings of its own of the ring lengths above, which
+  `engine/messages.ts` exports as constants, fed by each `sample`'s native buckets and closed coarse
+  cells ([architecture.md §4](architecture.md#4-engine--ui-message-contract)). It picks the tier by
+  the run's elapsed time, `continuous.elapsedMs` (from the phase start): native up to 10 min, hour
+  up to 60 min, day up to 24 h, long beyond, and so renders at most about 2000 points.
+- **Data used** is shown and the per-test data cap applies. The `data-used` notice (§16) appears at
+  1 GB, 10 GB, 100 GB and every further tenfold step, so a long run on a metered link is never
+  silent.
+
+**Loaded latency, last hour.** Path A keeps running. Its samples fold into **per-second medians**:
+a one-second scratch buffer is the only per-sample store, and each second's median enters an hour
+ring (3600) and run-wide running aggregates (min, average and max of the per-second medians). The
+direction's `loadedLatency.medianMs` and `p90Ms` are the median and p90 over the hour ring's
+per-second medians, labeled "last hour", and its `increaseMs`, the bufferbloat grade (§11.3) and
+the quality scores (§13) derive from that median. `samples` counts every counted sample of the run,
+and `series` is the hour ring's per-second medians, downsampled. The live view shows the median of
+the last minute's per-second medians. **Source switch.** No statistic spans two sources (§11.4):
+when path A's source changes during the run (the WebSocket lost for the rest of the test,
+[edge-cases.md §14](edge-cases.md#14-proxy-idle-timeouts-on-long-continuous-runs)), on HTTP/2 or
+HTTP/3 the hour ring, the run-wide aggregates, `samples`, `skippedTicks` and `lost` restart from
+the later source's first sample, and `source` names the later source; on HTTP/1.1 the direction's
+loaded latency is `unavailable` with reason `reservation-broken`, as §11.4 says, and no grade or
+increase follows from it.
+
+**Path B in Continuous.** The prober keeps a ring of its last 64 valid probes. At the run's end,
+TM95 is taken over the probes of the last 4 s, as §12.5; `totalMedianMs` is the median over the
+ring's probes; the new-connection, unknown-connection and protocol-change evidence of §12.4 is read
+over the ring; and `samples` counts every valid probe since the warm-up end.
 
 Fixed-size rings keep memory constant however long the run lasts.
 
@@ -1307,7 +1394,7 @@ Fixed-size rings keep memory constant however long the run lasts.
 | --- | --- |
 | `normal` | no reason remains after the window is read (§8.3) and the window condition held |
 | `low` | a reason remains after the window is read: `ramp-unsettled` or `insufficient-samples` from the warm-up's cap, or `unstable` from the steady window (§8.3) |
-| `cpu-bound` | the Worker's busy fraction exceeded 90 % over the steady window |
+| `cpu-bound` | the Worker's busy fraction exceeded 90 % over the steady window (Continuous: from the steady start to the end, §15) |
 
 `cpu-bound` takes precedence over the other two levels: `reasons` still lists the warm-up's
 reasons, and the direction has no `low-confidence` notice. A direction whose warm-up never ended
@@ -1330,10 +1417,12 @@ engine emits the code with the raw values the notice names, and the UI words it.
 - `server stream limit — N streams` (`stream-limit`, per direction with the lowered cap; §4);
 - `insufficient data` per direction, with the next-larger-preset offer (`insufficient-data`; §8.6);
 - `data used: N GB` at 1 GB, 10 GB, 100 GB and every further tenfold step during Continuous runs
-  (`data-used`; §15);
+  (`data-used`, with `bytes`, the decimal threshold crossed, 10⁹ × 10ᵏ; §15), informational,
+  emitted live as the threshold is crossed and kept in the result;
 - `URL parameter ignored` naming each parameter whose value was invalid, with the value the link
   gave, cut to 64 characters (`url-parameter-ignored`; [ui/url-params.md](ui/url-params.md));
-- `partial — stopped early` with the covered duration (`stopped-early`; §7.8), which the UI words
+- `partial — stopped early` with the covered duration (`stopped-early`; §7.8; never on a
+  `complete` Continuous result, §15), which the UI words
   with the stop instant and, on upload, the confirmed requests and the window end the result
   carries ([ui/flows.md §4](ui/flows.md#4-cancel-mid-test));
 - `server restarted` (`server-restarted`; epoch change, test aborted; §7.3);
@@ -1439,8 +1528,11 @@ CSV export flattens the same fields, one row per result.
   parameters), all optional, so a v0.1 result stays valid.
   Absent through v0.2: `responsiveness`, `scores`, `minBitsPerSecond`, `maxBitsPerSecond` and
   `series.knownMs`. v0.3 adds `responsiveness` on every direction that is not `skipped` (§12.6)
-  and `scores` on every result (§13.5), both optional so a v0.1 or v0.2 result stays valid.
-  `schemaVersion` stays 1: these are additions.
+  and `scores` on every result (§13.5), and for Continuous (§15) the `continuous` preset,
+  `settings.continuousDirection`, `settings.runLengthMs`, `minBitsPerSecond`, `maxBitsPerSecond`
+  and `series.knownMs`, all optional so a v0.1 or v0.2 result stays valid; a Continuous direction
+  that is `insufficient-data` has no `confidence`, even after its warm-up. `schemaVersion` stays 1:
+  these are additions.
 - `idle` is absent when idle latency did not run. A direction that did not run, left out by the
   settings or not reached, is `{status: "skipped", streams: 0, bytes: 0, events: []}` (upload with
   `confirmedRequests: 0`). `client.contextLabel` is the `start` override's, else the label `GET
@@ -1458,8 +1550,8 @@ CSV export flattens the same fields, one row per result.
   peak is `peakBitsPerSecond / (1 + p / 100)` with `p` from `settings`.
 - Direction `status`: `measured`, `insufficient-data`, `partial`, `skipped` or `error`; the UI
   shows `insufficient-data` as "insufficient data". Result `status`: `complete`, `partial` (stopped
-  by the user or by the browser pausing a hidden page; for Continuous, only during warm-up, §15) or
-  `error`.
+  by the user or by the browser pausing a hidden page; for Continuous, whenever its direction is
+  `insufficient-data`, §15) or `error`.
 - `series` holds the steady-window bucket values for the result-detail charts, downsampled to at
   most 2000 points. All its times are milliseconds from the direction's phase start (on upload, on
   the server timeline): `firstCellMs` is the start of the first value's cell, `warmupEndMs` the end
@@ -1478,9 +1570,15 @@ CSV export flattens the same fields, one row per result.
   the display offset of §7.4.
 - `idle.samples` holds the idle RTTs in send order (at most the ping count of §8.5); its length
   is the sample count.
-- A Continuous direction also carries `minBitsPerSecond` and `maxBitsPerSecond`, the run-wide
-  running aggregates over 1 s cells (§15), and its `peakBitsPerSecond` is the final "p90, last
-  hour". Bounded directions omit the two fields.
+- A Continuous result's `settings` carry `preset: "continuous"`, `continuousDirection` and, when
+  set, `runLengthMs`; its `download` and `upload` bounds are `{minMs: null, maxMs: null}`. The
+  direction it did not run is `skipped`. A `measured` Continuous direction also carries
+  `minBitsPerSecond` and `maxBitsPerSecond`, the run-wide running aggregates over fully known 1 s
+  cells (§15); its `peakBitsPerSecond` is the final "p90, last hour", absent with fewer than 3
+  fully known cells in the hour ring; `windowMs` is the run-wide known time; `series` holds
+  `knownMs`; and its `events` keep at most the last 100 failure gaps. Bounded directions omit
+  `minBitsPerSecond`, `maxBitsPerSecond` and `series.knownMs`. `notices` keeps each `data-used`
+  notice the run emitted.
 - `loadedLatency` is present on a direction that ran while a loaded-latency path existed and is
   absent when the run measured no loaded latency (a `latency`-only run, a skipped direction). It
   has two shapes (§11.4). Measured: `{source, idleSource?, samples, skippedTicks, lost, medianMs,
@@ -1494,8 +1592,9 @@ CSV export flattens the same fields, one row per result.
   pings lost. `medianMs`, `p90Ms`, `increaseMs` and `series[].rttMs` are quantized to
   `client.timerResolutionMs`, as the idle statistics are.
   `loadedLatency.series` holds the direction's counted samples as `{atMs, rttMs}` on the
-  direction's `series` timeline (§11.5), at most 2000 points; Continuous stores per-second
-  medians, downsampled.
+  direction's `series` timeline (§11.5), at most 2000 points; Continuous stores the hour ring's
+  per-second medians, downsampled, and its `medianMs`, `p90Ms` and `increaseMs` are the last
+  hour's (§15).
 - `bufferbloat` is `{grade, basis, increaseMs}` (§11.3), absent without idle latency or a gradable
   direction.
 - `responsiveness` is `{state, protocol, samples, rpm?, tm95Ms?, trimmed?, totalMedianMs?}` on

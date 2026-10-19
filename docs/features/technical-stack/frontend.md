@@ -51,10 +51,13 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
   rule lives in plain modules. Besides the types, `engine/messages.ts` has two runtime exports:
   `validateResult`, re-exported from `engine/result/validate.ts`, the structural check of the
   result object ([../measurement.md §17](../measurement.md#17-result-object)), so the application
-  validates a result before exporting it without importing engine internals; and from v0.2
+  validates a result before exporting it without importing engine internals; from v0.2
   `PRESETS`, re-exported from `engine/presets.ts`, the preset table of
   [../measurement.md §8.5](../measurement.md#85-presets), so the Settings screen states a preset's
-  streams, durations and ping count and applies a stored preset as the engine resolves one.
+  streams, durations and ping count and applies a stored preset as the engine resolves one; and
+  from v0.3 `RING_LENGTHS`, the Continuous retention rings' lengths (`native` 6000, `hour` 3600,
+  `day` 1440, `long` 1008) of [../measurement.md §15](../measurement.md#15-continuous-mode), so
+  the live chart keeps fixed rings of the same lengths.
 - **Synthetic clock injection.** The engine never calls `performance.now()`, `setTimeout`,
   `fetch`, `XMLHttpRequest` or `WebSocket` directly. It receives two interfaces:
   - `Clock`: `now()`, `setTimer(ms, fn)`, `clearTimer(id)`, `busyMs()` (the time spent in the
@@ -110,7 +113,11 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
 - The engine chunk has no dependency on Vue, Tailwind or component code. Its budget is
   **128 KiB minified**, enforced by the `chunk-size` step of `web.yaml`
   ([build-packaging.md §4](build-packaging.md#4-ci-workflows)); the number, in bytes, lives in
-  `.chunk-budget` and is lowered once the engine's real size is known.
+  `.chunk-budget` and is lowered once the engine's real size is known. The v0.3 additions, the
+  path B prober, the quality scores and the Continuous retention, stay inside that budget.
+- The application's chunks take from the engine only `engine/messages.ts`'s runtime exports
+  (`validateResult`, `PRESETS` and `RING_LENGTHS`, §2); the measurement logic itself ships only in
+  the Worker chunk.
 
 ## 4. State Ownership
 
@@ -368,6 +375,25 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   run in the page under the same policy, `choice.ts` reading and writing the storage the panel
   hands it. `DemoPanel.vue` follows the application's policy. Every demo file
   obeys the production file ceiling of `.file-budgets`.
+- **v0.3 additions.** The demo grows with the v0.3 features, so the kit's v0.3 states play on the
+  real engine:
+  - **Continuous scenarios.** The kit's three Continuous states, `continuous` (a Continuous
+    download running), `cont-warmup` (a Continuous run stopped during its warm-up, `partial`) and
+    `cont-done` (a finished Continuous download), each a scenario like the others.
+  - **Fast-forward.** A Continuous scenario runs the demo clock at a fast-forward rate of its
+    own, on top of the panel's speed, so a run the kit shows after tens of minutes reaches that
+    state in about a minute; the rate is a property of the scenario and changes no rule of the
+    engine.
+  - **Link fixture.** A LAN link at 921 Mbit/s over HTTP/2, the kit's Continuous fixture
+    (`TestScreen.jsx`), with the LAN's loaded delays.
+  - **Path B controls.** The panel sets the protocol the link reports (`h2`, `h3`, `http/1.1` or
+    empty), a toggle that makes the link's probes open a new connection (their timing shows
+    `connectStart ≠ connectEnd`), and a starvation of `/small` that leaves path B too few samples,
+    for the kit's few-samples state ([../measurement.md
+    §12.4](../measurement.md#124-states)).
+  - **About layer switches.** The panel turns each `compat` flag of the scenario's `GET /info` on
+    or off, so the About screen's snippets show per layer
+    ([../wire-protocol.md §5](../wire-protocol.md#5-get-apiv1info)).
 
 ## Related
 

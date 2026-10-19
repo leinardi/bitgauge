@@ -183,8 +183,11 @@ test when `epoch` differs from the one `GET /info` reported at test start.
 - `defaults` are the test defaults exposed to the client from configuration; the SPA applies them
   unless the user's settings or URL parameters override them. They arrive resolved: an empty
   duration bound is sent as the preset's value and `ping_count: 0` as the preset's idle ping count
-  ([measurement.md §8.5](measurement.md#85-presets)). `dataCapBytes` is `null` without a cap, and
-  `warmup` is `"auto"` or the fixed warm-up in whole milliseconds (`3000`).
+  ([measurement.md §8.5](measurement.md#85-presets)). With `preset: "continuous"`, which has no
+  bounds, `download` and `upload` are `{"minMs": null, "maxMs": null}` whatever the duration keys
+  say, and `pingCount` is 20 unless `ping_count` sets another; the run length is chosen per run in
+  the browser and is not part of `defaults`. `dataCapBytes` is `null` without a cap, and `warmup`
+  is `"auto"` or the fixed warm-up in whole milliseconds (`3000`).
 - `compat` lists which compatibility layers are enabled, for the About screen's snippets.
 - The response contains nothing about other clients and nothing that outlives the request.
 

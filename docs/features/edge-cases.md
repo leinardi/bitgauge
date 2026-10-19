@@ -33,6 +33,9 @@ nothing else. The Worker runs a 100 ms housekeeping tick; a tick that arrives mo
 means the engine was throttled or suspended, and timestamps around it cannot be trusted. Hidden
 pages are handled by §5.
 
+A Continuous run holds the wake lock for as long as it runs; a late tick while the page is visible
+never ends it, as in a bounded run.
+
 **User sees.** A `timer throttling detected` notice on the result when late ticks occurred while
 the page was visible (for example Low Power Mode); the advice to keep the screen on during tests.
 
@@ -85,7 +88,8 @@ throttling of the Worker makes chunk timestamps and probe timings stop reflectin
   results, and the interrupted direction reports a number only if its window up to that instant
   meets the minimum window. The download window ends at that tick; the upload, timed on the
   server grid, stops at once and its window ends at the confirmed watermark, as after any stop.
-  Continuous runs end the same way.
+  Continuous runs end the same way, with the outcomes of [measurement.md
+  §15](measurement.md#15-continuous-mode).
 - A late tick counts as a pause of the hidden page when the page was hidden at any point since the
   last on-time tick, whichever of the late tick and the visibility message the resumed Worker
   handles first; only a tick late while the page stayed visible is timer throttling (§2).
@@ -94,7 +98,8 @@ throttling of the Worker makes chunk timestamps and probe timings stop reflectin
 
 **User sees.** Either the informational notice, or `partial — stopped early` with "stopped because
 the page was hidden and the browser paused the test", and a Run again button. A Continuous run
-stopped this way after its steady window began is `complete`, as after a user stop
+stopped this way with at least 3 fully known 1 s cells since its steady start is `complete`, as
+after a user stop, and one with fewer is `partial` with its direction `insufficient-data`
 ([measurement.md §15](measurement.md#15-continuous-mode)).
 
 ## 6. Network Change Mid-Test
@@ -280,6 +285,11 @@ the HTTP probe for the rest of the test (§6 step 5). A connection reopened mid-
 next path B probe's timing entry (`connectStart ≠ connectEnd`) as a new connection, which makes the
 direction's path B `uncertain` ([measurement.md §12.4](measurement.md#124-states)).
 
+Path B keeps only its last 64 probes in Continuous, and reads its new-connection evidence over
+them ([measurement.md §15](measurement.md#15-continuous-mode)): a connection the proxy reopened
+hours before the end does not make the run's responsiveness `uncertain`, one reopened within its
+last 64 probes does.
+
 **User sees.** Loaded-latency gaps in the chart and the `WebSocket reopened` notice. The deployment
 guide sets read timeouts above the 120 s upload lifetime.
 
@@ -358,6 +368,10 @@ too.
 remains, the current phase ends as if its maximum had been reached, so the window condition decides
 between a number and `insufficient data`, and remaining throughput phases are skipped
 ([measurement.md §5](measurement.md#5-adaptive-duration)).
+
+In Continuous mode the data cap ends the run, which then reads like any other ending: `complete`
+with at least 3 fully known 1 s cells since the steady start, `partial` with its direction
+`insufficient-data` otherwise ([measurement.md §15](measurement.md#15-continuous-mode)).
 
 **User sees.** `data cap reached`, the data used, and which phases were skipped.
 
