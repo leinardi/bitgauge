@@ -173,10 +173,16 @@ hosted on another origin.
   is a private address that browsers otherwise hide from web pages. With `*`, any site a LAN or VPN
   user visits could read it. BitGauge therefore never sends `*` on `/getIP`: with `cors=true` it
   answers `Access-Control-Allow-Origin` only for an origin listed in `server.cors.allowed_origins`
-  (the origin of a self-hosted LibreSpeed UI), and otherwise sends no CORS headers, so the browser
-  hides the response ([compatibility.md §2.2](compatibility.md#22-cors-and-corstrue)). `GET
-  /api/v1/info`, which also returns the caller's IP, is same-origin unless the requesting origin is
-  listed in `server.cors.allowed_origins`, for the same reason.
+  (the origin of a self-hosted LibreSpeed UI), and otherwise sends no CORS headers, a preflight
+  included (it answers `200` without them), so the browser hides the response
+  ([compatibility.md §2.2](compatibility.md#22-cors-and-corstrue)). `GET /api/v1/info`, which also
+  returns the caller's IP, is same-origin unless the requesting origin is listed in
+  `server.cors.allowed_origins`, for the same reason.
+- **No CORS elsewhere.** `/.well-known/librespeed` and the networkQuality routes send no CORS
+  headers at all.
+- **Forwarding headers.** The absolute URLs of `/.well-known/librespeed` and `/nq/config` read
+  `X-Forwarded-Proto` and `X-Forwarded-Host` only from a trusted proxy (§4,
+  [compatibility.md §6](compatibility.md#6-rules-every-layer-shares)).
 - **Mitigation:** layers are off by default; enable only the ones in use.
 
 The native API never uses `*`: cross-origin access requires an exact origin in

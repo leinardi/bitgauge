@@ -9,7 +9,7 @@ native API ([wire-protocol.md](wire-protocol.md)); they never change the native 
 measurement engine ([principles.md §2.7](principles.md#27-compatibility-is-a-layer-not-the-core)).
 
 - **Every layer is off by default** and enabled by exactly one toggle. A disabled layer's routes
-  answer `404`.
+  are not mounted and answer the plain `404` of any unmatched path.
 - All routes are mounted under `server.base_path`, like the native API.
 - No layer stores anything: LibreSpeed's telemetry and results routes are not implemented.
 - No OpenSpeedTest or LibreSpeed code or assets are copied or served. BitGauge implements their
@@ -17,6 +17,9 @@ measurement engine ([principles.md §2.7](principles.md#27-compatibility-is-a-la
   used only to describe compatibility. OpenSpeedTest™ is a trademark of its owner.
 - Numbers reported by these clients come from their own methodologies, not BitGauge's: client-timed
   upload, fixed request sizes and overhead factors stay theirs.
+
+- Errors, methods, headers, bodies without a length and absolute URLs follow the rules every layer
+  shares (§6).
 
 Requirement statements about what a server or client does on the wire use RFC 2119 keywords.
 
@@ -43,9 +46,13 @@ ships the OpenSpeedTest UI; the user hosts it (for example in the old container)
 - The server MUST answer the ping with `200`, never `204`: the OpenSpeedTest client expects `200`
   as the ping reply.
 - **Body cap.** The upload route accepts bodies up to 35 MiB (36 700 160 bytes), the same class as
-  the OpenSpeedTest image's `client_max_body_size 35m`; OpenSpeedTest sends 30 MiB. Larger bodies
-  MUST yield `413`. The 120 s request lifetime of the native upload applies (`408` after it).
-- Both routes count against `limits.max_streams_per_client` and `limits.requests_per_minute`.
+  the OpenSpeedTest image's `client_max_body_size 35m`; OpenSpeedTest sends 30 MiB. The cap is
+  fixed: `limits.max_upload_bytes` does not change it and only gates startup (below). Larger bodies
+  MUST yield `413`; a body without `Content-Length` is accepted and read to its end, or answered
+  `413` once it passes the cap (§6). The 120 s request lifetime of the native upload applies
+  (`408` after it).
+- Both routes count against `limits.max_streams_per_client` and `limits.requests_per_minute`, the
+  ping (`GET`/`HEAD /upload`) included: the default 1200 requests per minute covers its cadence.
 - Startup fails when the layer is enabled and `limits.max_download_bytes` is below 30 MiB or
   `limits.max_upload_bytes` is below 35 MiB ([configuration.md](configuration.md)).
 
@@ -59,6 +66,9 @@ Access-Control-Allow-Origin: *
 Access-Control-Allow-Methods: GET, POST, OPTIONS
 Access-Control-Allow-Headers: Content-Type
 ```
+
+These headers are set before the rate limiter, so a `429` carries them too
+([backend.md §3](technical-stack/backend.md#3-middleware-chain-order)).
 
 The `*` origin is a deliberate trade-off: any page the browser visits can drive throughput through
 these routes; see [security.md](security.md).
@@ -120,13 +130,14 @@ Each route exists in four spellings, matching LibreSpeed's Go server: bare (`/ga
 
 | Method | Path (bare form) | Behavior |
 | --- | --- | --- |
-| `GET` | `/garbage?ckSize=N` | `200`, `N` chunks of 1 MiB of random data (`N` in MB units as LibreSpeed documents it, sent as 1 MiB chunks as its Go server does). Default 4. Capped at `min(1024, floor(limits.max_download_bytes / 1 MiB))` = 256 with defaults. `Content-Type: application/octet-stream`, `Content-Length`, no `Content-Encoding`, `Cache-Control: no-store` |
+| `GET` | `/garbage?ckSize=N` | `200`, `N` chunks of 1 MiB of random data (`N` in MB units as LibreSpeed documents it, sent as 1 MiB chunks as its Go server does). Absent: 4. Present but not a positive decimal integer (`0`, `-1`, `1.5`, `abc`, empty): `400` `bad_request`. Above `min(1024, floor(limits.max_download_bytes / 1 MiB))` = 256 with defaults: clamped silently to it. `Content-Type: application/octet-stream`, `Content-Length`, no `Content-Encoding`, `Cache-Control: no-store` |
 | `GET`, `POST` | `/empty` | Drain any body, then `200`, empty body, `Cache-Control: no-store`, `Connection: keep-alive` on HTTP/1.1. Used for both upload and ping |
 | `GET` | `/getIP` | `200`, JSON `{processedString, rawIspInfo}` (below), `Cache-Control: no-store` |
 | `OPTIONS` | all of the above | `200` with the CORS headers of §2.2, empty body |
 
 - `/empty` bodies are capped at `limits.max_upload_bytes` (`413` above) and follow the 120 s
-  lifetime. LibreSpeed's web UI uploads 20 MB blobs by default and `librespeed-cli` uploads
+  lifetime. A body without `Content-Length` is accepted and read to its end, or answered `413` once
+  it passes the cap (§6). LibreSpeed's web UI uploads 20 MB blobs by default and `librespeed-cli` uploads
   1024 KiB payloads with an explicit `Content-Length` (it never chunks), both well inside the cap.
 - **`/getIP`.** BitGauge never performs ISP or geolocation lookups, so `isp=true` and `distance`
   are ignored and `rawIspInfo` is always an empty object, the shape LibreSpeed's Go server returns
@@ -136,23 +147,25 @@ Each route exists in four spellings, matching LibreSpeed's Go server: bare (`/ga
   { "processedString": "10.8.0.2 - private IPv4 access", "rawIspInfo": {} }
   ```
 
-  `processedString` is the client IP (derived through trusted proxies only); when the address is
-  private it reads `<ip> - <class>`, using LibreSpeed's classification strings:
-  `localhost IPv6 access` (`::1`), `link-local IPv6 access` (`fe80::/10`), `ULA IPv6 access`
-  (`fc00::/7`), `localhost IPv4 access` (`127.0.0.0/8`), `private IPv4 access` (`10.0.0.0/8`,
-  `172.16.0.0/12`, `192.168.0.0/16`), `link-local IPv4 access` (`169.254.0.0/16`) and
-  `CGNAT IPv4 access` (`100.64.0.0/10`). A leading `::ffff:` is stripped first. The response is
-  always JSON, as in LibreSpeed's Go server (its PHP backend returns plain text without `isp`);
-  `librespeed-cli` requires JSON.
+  `processedString` is the client IP (derived through trusted proxies only). A public address reads
+  `<ip>` alone; when the address is private it reads `<ip> - <class>`, using LibreSpeed's
+  classification strings: `localhost IPv6 access` (`::1`), `link-local IPv6 access`
+  (`fe80::/10`), `ULA IPv6 access` (`fc00::/7`), `localhost IPv4 access` (`127.0.0.0/8`),
+  `private IPv4 access` (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`),
+  `link-local IPv4 access` (`169.254.0.0/16`) and `CGNAT IPv4 access` (`100.64.0.0/10`). A
+  leading `::ffff:` is stripped first. The response is always JSON, as in LibreSpeed's Go server
+  (its PHP backend returns plain text without `isp`); `librespeed-cli` requires JSON.
 - `/garbage` and `/empty` count against `limits.max_streams_per_client` and
   `limits.requests_per_minute`.
 - **Not implemented:** `/results`, `/results/telemetry`, `/stats`, `/results/json` and their
-  variants answer `404`. BitGauge never stores results.
+  variants are not mounted and answer the plain `404` of any unmatched path. BitGauge never stores
+  results.
 
 ### 2.2 CORS and `cors=true`
 
 As in LibreSpeed, CORS headers are sent only when the request carries `cors=true` (LibreSpeed's
-multi-server mode adds it). On `/garbage` and `/empty` they are:
+multi-server mode adds it). Only the exact query value `true` counts: `cors=1` or `cors=TRUE` sends
+no CORS headers. On `/garbage` and `/empty` they are:
 
 ```text
 Access-Control-Allow-Origin: *
@@ -174,7 +187,8 @@ BitGauge as its server, so that it sends `cors=true`, and its origin should be a
 an origin in it may also call the native API and open WebSockets cross-origin
 ([wire-protocol.md §8](wire-protocol.md#8-caching-cors-and-compression)). `OPTIONS` preflights on
 `/garbage` and `/empty` always answer with the headers above, because a preflight cannot carry the
-query parameter reliably; preflights on `/getIP` follow the `/getIP` origin rule.
+query parameter reliably; preflights on `/getIP` follow the `/getIP` origin rule: a preflight from an
+origin not in `server.cors.allowed_origins` answers `200` with no CORS headers.
 
 ### 2.3 `librespeed-cli` Server List
 
@@ -211,16 +225,12 @@ librespeed-cli --server-json https://speed.example.lan/.well-known/librespeed --
 
 When the layer is enabled, `GET /.well-known/librespeed` returns the server list above with one
 entry describing this instance, so `librespeed-cli --server-json` can point straight at it. This is
-a BitGauge convenience, **not** a LibreSpeed standard. `name` is `server.display_name`. `server` is
-an absolute URL ending in the base path and `/`, built by this rule (plain `http` is allowed,
-because LibreSpeed clients work over HTTP):
-
-1. If `server.public_url` is set: `public_url` + base path.
-2. Otherwise, for a request whose TCP peer is a trusted proxy: `X-Forwarded-Proto` and `Host` (or
-   `X-Forwarded-Host`) + base path.
-3. Otherwise: the request's own `Host` header with scheme `http` (BitGauge itself speaks plain
-   HTTP) + base path. The URL is only echoed back to the client that asked, so an untrusted `Host`
-   can only mislead that client.
+a BitGauge convenience, **not** a LibreSpeed standard. The response is `application/json` with
+`Cache-Control: no-store` and no CORS headers; the entry's `id` is `1`, `name` is
+`server.display_name`, and the path fields are those of §2.3. `server` is the request origin of
+§6 + base path + `/` (plain `http` is allowed, because LibreSpeed clients work over HTTP). Without
+`server.public_url` the origin comes from the request: the URL is only echoed back to the client
+that asked, so an untrusted `Host` can only mislead that client.
 
 ### 2.5 Android App
 
@@ -268,6 +278,7 @@ Apple's default paths would collide with BitGauge's `/api/v1`.
   `Content-Length` (streamed) that exceeds the limit is read up to it, then answered `413` and the
   connection closed. The 120 s request lifetime
   applies. The default drain limit is tracked in [open-questions.md](open-questions.md).
+- `/nq/upload` accepts a body without `Content-Length`, the one networkQuality route that drains.
 - `/nq/large` and `/nq/upload` count against `compat.networkquality.max_flows_per_client`
   (default 32), not against the native stream limit, because `networkQuality` opens many parallel
   flows by design. `/nq/large` is not bounded by `limits.max_download_bytes`.
@@ -276,7 +287,8 @@ Apple's default paths would collide with BitGauge's `/api/v1`.
   ([wire-protocol.md §9](wire-protocol.md#9-rate-limits)); `/nq/config` has no limit of its own and
   answers `503` only when it cannot build its URLs (§3.3).
 - **CORS.** None. `networkQuality` and `goresponsiveness` are native clients, not browser pages,
-  so these routes send no CORS headers and answer no preflights.
+  so these routes send no CORS headers and answer no preflights: `OPTIONS` on any `/nq/` route or
+  `/.well-known/nq` answers `405` (§6).
 
 ### 3.2 Config JSON
 
@@ -302,14 +314,12 @@ and are emitted so that every client version finds the keys it reads.
 
 ### 3.3 Absolute URL Construction
 
-The config holds absolute `https://` URLs, so the server needs its public origin:
-
-1. If `server.public_url` is set, URLs are `public_url` + base path + route.
-2. Otherwise, only for a request whose TCP peer is a trusted proxy, the origin is built from
-   `X-Forwarded-Proto` and `Host` (or `X-Forwarded-Host` when the proxy sets it).
-3. Otherwise, or when the resulting scheme is not `https`, `/nq/config` answers `503` with the
-   error envelope (code `public_url_required`) and a message naming `server.public_url`. Headers
-   from untrusted peers are never used to build URLs.
+The config holds absolute `https://` URLs, so the server needs its public origin. The URLs are the
+request origin of §6 + base path + route. When that origin's scheme is not `https` (no
+`public_url`, an untrusted peer, or a trusted proxy that forwards `http` or no
+`X-Forwarded-Proto`), `/nq/config` and `/.well-known/nq` answer `503` with the error envelope (code
+`public_url_required`) and a message naming `server.public_url`. Headers from untrusted peers are
+never used to build URLs.
 
 ### 3.4 Proxy Requirements
 
@@ -382,6 +392,46 @@ path and method.
 
 `metrics.path` is validated at startup so it cannot collide with any row above
 ([configuration.md](configuration.md)).
+
+## 6. Rules Every Layer Shares
+
+- **Errors.** Every error status a layer answers (`400`, `405`, `408`, `413`, `429`, `500`,
+  `503`) carries the native error envelope of
+  [wire-protocol.md §7](wire-protocol.md#7-error-envelope), with `Content-Type: application/json`.
+  A path that is not mounted (every path of a disabled layer, and LibreSpeed's results, telemetry
+  and stats routes) answers the plain `404` of any unmatched path, with no envelope.
+- **Methods.** A mounted path answers a method its route-table row (§5) does not list with `405`,
+  an `Allow` header naming the row's methods, and the envelope with code `method_not_allowed`.
+  `HEAD` exists only where the row lists it. networkQuality has no `OPTIONS`, so `OPTIONS` on its
+  paths answers `405`.
+- **Headers.** Every response carries `Cache-Control: no-store` and `X-Content-Type-Options:
+  nosniff`. A `200` with an empty body sends `Content-Length: 0` and no `Content-Type`; the
+  random-data bodies (`/downloading`, `/garbage`, `/nq/large`) are `application/octet-stream`.
+- **Bodies without a length.** The OpenSpeedTest, LibreSpeed and networkQuality upload routes
+  accept a body without `Content-Length` (chunked): one that ends within the route's cap is read to
+  its end and answered `200`; one that passes the cap is answered `413` with the connection closed
+  once the cap is reached. A declared `Content-Length` above the cap answers `413` without
+  reading. `411` is the native upload's alone.
+- **Request origin.** `/.well-known/librespeed`, `/nq/config` and `/.well-known/nq` build their
+  absolute URLs with one shared builder:
+  1. If `server.public_url` is set, the origin is `public_url`.
+  2. Otherwise, for a request whose TCP peer is a trusted proxy: the scheme is the first
+     comma-separated value of `X-Forwarded-Proto`, trimmed and lower-cased, and `http` when the
+     header is absent or that value is neither `http` nor `https`; the host is the first
+     comma-separated value of `X-Forwarded-Host`, trimmed, when it passes the same validation as
+     the CSP's `Host` ([technical-stack/configuration-security.md
+     §3](technical-stack/configuration-security.md#3-security-headers-middleware)), and the
+     request's `Host` otherwise.
+  3. Otherwise: scheme `http` (BitGauge itself speaks plain HTTP) and the request's `Host`.
+
+  Forwarding headers from an untrusted peer are ignored.
+- **Classification.** The security-header classifier
+  ([technical-stack/configuration-security.md
+  §3](technical-stack/configuration-security.md#3-security-headers-middleware)) puts an enabled
+  layer's exact route paths in that layer's group, with the API header set and envelope recovery
+  of a panic; a disabled layer's paths stay unmatched.
+- **Logging.** Nothing is logged per request beyond the `debug` line every route has; the startup
+  line's `compatibility_layers` field lists the enabled layers, or `none`.
 
 ## Related
 

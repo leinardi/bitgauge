@@ -50,7 +50,8 @@ but never the reverse, and nothing imports `cmd/`.
 - **Sizes and caps** are decided before any write, per route:
   - native `GET /api/v1/download`: `N` above `limits.max_download_bytes` answers `400`;
   - OpenSpeedTest `/downloading`: always exactly 30 MiB;
-  - LibreSpeed `/garbage`: `ckSize` is clamped silently to its cap, never rejected;
+  - LibreSpeed `/garbage`: a `ckSize` that is not a positive decimal integer answers `400`, and
+    one above its cap is clamped silently to it;
   - networkQuality `/nq/large`: always 8 GiB, not bounded by `limits.max_download_bytes`, only by
     the networkQuality flow limit ([../compatibility.md](../compatibility.md)).
 - **Stall detection per write.** There is no global write timeout (responses can legitimately run
@@ -66,11 +67,13 @@ but never the reverse, and nothing imports `cmd/`.
 
 - **Drain before respond.** The handler reads the whole body and only then writes the response.
   Native upload, OpenSpeedTest `/upload`, LibreSpeed `/empty` and `/nq/upload` share one drainer.
-- **Caps.** A missing `Content-Length` answers `411` (native route); a declared `Content-Length`
-  above the route's cap answers `413` without reading, on every route. Reads are additionally
-  bounded with `http.MaxBytesReader`, so a lying `Content-Length`, or a body without one (allowed on
-  `/nq/upload`, whose client may stream), is read up to the cap and then answered `413` with the
-  connection closed.
+- **Caps.** A missing `Content-Length` answers `411` on the native route only; a declared
+  `Content-Length` above the route's cap answers `413` without reading, on every route. Reads are
+  additionally bounded with `http.MaxBytesReader`, so a lying `Content-Length`, or a body without
+  one (allowed on OpenSpeedTest `/upload`, LibreSpeed `/empty` and `/nq/upload`, whose clients may
+  stream), is read up to the cap and then answered `413` with the connection closed. The caps are
+  the native and LibreSpeed `limits.max_upload_bytes`, OpenSpeedTest's fixed 35 MiB and
+  `compat.networkquality.max_upload_bytes`.
 - **Reading is discarding.** The drainer reads into a pooled 64 KiB buffer (`sync.Pool`) and drops
   the data, which is what `io.Copy(io.Discard, body)` does, except that each read's byte count is
   available for the grid. No allocation per request beyond the pooled buffer and the counts slice.
@@ -112,7 +115,8 @@ but never the reverse, and nothing imports `cmd/`.
 Applied in this order to every request, before routing:
 
 1. **Panic recovery**: logs the panic with the route pattern and answers `500` (error envelope on
-   API routes).
+   API routes and on an enabled compatibility layer's routes, by the classifier's group:
+   [configuration-security.md §3](configuration-security.md#3-security-headers-middleware)).
 2. **Client IP**: derives the client IP once ([configuration-security.md
    §4](configuration-security.md#4-trusted-proxies-and-client-ip-derivation)) and stores it in the
    request context.
@@ -202,15 +206,16 @@ Plus the standard Go runtime (`go_*`) and process (`process_*`) collectors.
   the native API, `openspeedtest`, `librespeed` and `nq` for the compatibility layers, and
   `metrics` for the endpoint itself. A request no route matched takes the group of the
   security-header classifier ([configuration-security.md
-  §3](configuration-security.md#3-security-headers-middleware)): `api` under `/api/v1`, `spa`
-  elsewhere.
+  §3](configuration-security.md#3-security-headers-middleware)): `api` under `/api/v1`, the
+  layer's group on an enabled compatibility layer's exact route path (a method its row does not
+  list, for example), `spa` elsewhere, a disabled layer's paths included.
 - `route` is the matched route pattern as the route table writes it, without `base_path`
   (`/api/v1/download`, `/assets/*`); a request no route matched counts as `unmatched`, so a
   scanner's paths never become label values.
 - `code` is the response status as three digits when it is one BitGauge answers: `101`, `200`,
-  `204`, `206`, `304`, `400`, `403`, `404`, `405`, `408`, `411`, `413`, `416`, `429` or `500`. Any
-  other status counts as `other`, and so does a request that ends with no response at all, such
-  as an upload whose client went away mid-body.
+  `204`, `206`, `304`, `400`, `403`, `404`, `405`, `408`, `411`, `413`, `416`, `429`, `500` or
+  `503`. Any other status counts as `other`, and so does a request that ends with no response at
+  all, such as an upload whose client went away mid-body.
 - Every label value therefore comes from a fixed set, and a request never formats or looks up a
   label value. The children of every metric except `bitgauge_http_requests_total` are created at
   startup, the duration histogram's one per route. A route's request counter for a status is

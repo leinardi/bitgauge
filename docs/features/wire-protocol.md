@@ -40,7 +40,9 @@ lowercase wording.
 | `GET` | `/metrics` | — | — | Prometheus text exposition, or OpenMetrics when `Accept` asks for it | `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`, no `Content-Encoding` | 200, 405, 500; 404 when disabled | path from `metrics.path`; off by default |
 
 Any other method on these paths answers `405` with an `Allow` header (a plain `405` on
-`/metrics`). Unknown paths under `/api/v1` answer `404` with the error envelope (§7).
+`/metrics`). Unknown paths under `/api/v1` answer `404` with the error envelope (§7). The
+compatibility layers' routes are outside this table and this API; they answer their errors with
+the same envelope ([compatibility.md §6](compatibility.md#6-rules-every-layer-shares)).
 
 ## 3. Throughput Endpoints
 
@@ -223,7 +225,9 @@ test when `epoch` differs from the one `GET /info` reported at test start.
 ## 7. Error Envelope
 
 Every error response from `/api/v1` (except `204`/`200` success paths and the WebSocket close
-codes) carries `Content-Type: application/json` and:
+codes), and every error status of an enabled compatibility layer's routes
+([compatibility.md §6](compatibility.md#6-rules-every-layer-shares)), carries
+`Content-Type: application/json` and:
 
 ```json
 {
@@ -237,14 +241,15 @@ codes) carries `Content-Type: application/json` and:
 
 | Status | `code` | When |
 | --- | --- | --- |
-| 400 | `bad_request`, `bytes_out_of_range` | malformed query or parameter outside its range |
+| 400 | `bad_request`, `bytes_out_of_range` | malformed query or parameter outside its range (LibreSpeed's malformed `ckSize`: `bad_request`) |
 | 404 | `not_found` | unknown path under `/api/v1` |
 | 405 | `method_not_allowed` | wrong method (with `Allow`) |
 | 408 | `request_timeout` | upload body not complete within the 120 s lifetime |
 | 411 | `length_required` | upload without `Content-Length` |
-| 413 | `payload_too_large` | upload `Content-Length` above `limits.max_upload_bytes` |
+| 413 | `payload_too_large` | upload `Content-Length` above the route's cap (`limits.max_upload_bytes` on the native route), or a compatibility layer's body without `Content-Length` that exceeds it |
 | 429 | `rate_limited`, `too_many_streams`, `table_full` | a limit of §9 was hit, or the rate-limit table is full of active clients (with `Retry-After`) |
 | 500 | `internal` | unexpected server error |
+| 503 | `public_url_required` | networkQuality's `/nq/config` or `/.well-known/nq` cannot build an `https` origin ([compatibility.md §3.3](compatibility.md#33-absolute-url-construction)); never on `/api/v1` |
 
 `message` is English, for logs and debugging; the SPA maps `code` to localized text. Error responses
 never echo request bodies or headers.

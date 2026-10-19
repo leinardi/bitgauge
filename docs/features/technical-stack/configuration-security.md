@@ -58,7 +58,17 @@ One middleware sets headers by route group:
 The exact header values are in [../security.md
 §5](../security.md#5-content-security-policy-and-security-headers). The CSP is a constant except for
 the host, which is validated as a hostname (with optional port) before use; an invalid `Host` gets a
-CSP without the `ws:`/`wss:` sources.
+CSP without the `ws:`/`wss:` sources. The same validation decides whether a trusted proxy's
+`X-Forwarded-Host` may build a compatibility layer's absolute URLs
+([../compatibility.md §6](../compatibility.md#6-rules-every-layer-shares)).
+
+The classifier puts a request in a group by its path alone: the native API under `/api/v1` and
+`metrics.path` (when enabled) get the API header set; an **enabled** compatibility layer's exact
+route paths ([../compatibility.md §5](../compatibility.md#5-route-table)) go to that layer's group,
+with the same API header set and the error envelope when a panic is recovered; everything else is
+the SPA group. A disabled layer's paths stay unmatched: SPA headers and the plain `404` of any
+unknown path. The same groups label a request no route matched in the metrics
+([backend.md §7](backend.md#7-prometheus-metric-set)).
 
 ## 4. Trusted Proxies and Client IP Derivation
 
@@ -84,8 +94,8 @@ return leftmost parsed entry, or peer if there were no entries
 - The derived address is computed once per request in middleware and stored in the context; every
   consumer (limiter, `/info`, `/getIP`, debug logs) uses the same value.
 - URL construction for networkQuality and the LibreSpeed server list reads `X-Forwarded-Proto`
-  and `Host`/`X-Forwarded-Host` only under the same trusted-peer condition
-  ([../compatibility.md §3.3](../compatibility.md#33-absolute-url-construction)).
+  and `X-Forwarded-Host` only under the same trusted-peer condition, through one shared builder
+  ([../compatibility.md §6](../compatibility.md#6-rules-every-layer-shares)).
 
 ## 5. Bounded Rate Limiter
 
@@ -111,7 +121,8 @@ return leftmost parsed entry, or peer if there were no entries
 
 **Logged** (stdout/stderr, `log.format`):
 
-- At `info`: startup (version, listen address, base path, enabled layers, metrics on/off), the
+- At `info`: startup (version, listen address, base path, the `compatibility_layers` field listing
+  the enabled layers or `none`, metrics on/off), the
   effective configuration (no value in BitGauge's configuration is secret; `server.labels` as
   `cidr=label` strings), shutdown. The label a request is given is never logged.
 - At `warn`: suspicious configuration, rate-limit table full, panics recovered.

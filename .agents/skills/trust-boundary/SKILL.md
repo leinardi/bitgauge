@@ -60,8 +60,11 @@ context; the limiter, `/info`, `/getIP` and debug logs all use that value
   untrusted address is the client. A malformed entry falls back to the peer.
 - `X-Real-IP`, `Client-IP`, `CF-Connecting-IP`, `CF-Connecting-IPv6` and `Forwarded` are **never**
   read. `::ffff:`-mapped addresses are normalized to IPv4.
-- `X-Forwarded-Proto`, `Host` and `X-Forwarded-Host` build networkQuality and LibreSpeed URLs only
-  under the same trusted-peer condition.
+- `X-Forwarded-Proto` and `X-Forwarded-Host` build networkQuality and LibreSpeed URLs only under
+  the same trusted-peer condition, through one builder: the first comma-separated value of each,
+  trimmed; `http` without a forwarded scheme; the request's `Host` when the forwarded host fails
+  the CSP's `Host` validation
+  ([compatibility.md §6](../../../docs/features/compatibility.md#6-rules-every-layer-shares)).
 - [ ] A new header-derived fact goes through the trusted-peer check, never the raw header.
 - [ ] A test proves an untrusted peer's header and a spoofed left-hand entry are ignored.
 
@@ -102,8 +105,8 @@ visitor's four slots
 | --- | --- |
 | `GET /api/v1/download` | `bytes` ≤ `limits.max_download_bytes` (256 MiB), else `400` `bytes_out_of_range` |
 | `POST /api/v1/upload` | `Content-Length` required (`411`); above `limits.max_upload_bytes` (256 MiB) `413` without reading; 120 s lifetime, then `408` |
-| OpenSpeedTest `/downloading`, `/upload` | always 30 MiB down; upload bodies up to 35 MiB, else `413`; 120 s lifetime |
-| LibreSpeed `/garbage`, `/empty` | `ckSize` clamped silently to its cap; `/empty` bodies ≤ `limits.max_upload_bytes` |
+| OpenSpeedTest `/downloading`, `/upload` | always 30 MiB down; upload bodies up to a fixed 35 MiB, else `413`; a length-less body read to its end or `413` and close past the cap; 120 s lifetime |
+| LibreSpeed `/garbage`, `/empty` | `ckSize` clamped silently to its cap, `400` when not a positive decimal integer; `/empty` bodies ≤ `limits.max_upload_bytes`, a length-less body read to its end or `413` and close past the cap |
 | networkQuality `/nq/upload`, `/nq/large` | upload ≤ `compat.networkquality.max_upload_bytes` (1 GiB), streamed bodies read to the cap then `413` and close; `/nq/large` bounded by the flow limit only |
 | WebSocket message | 256 bytes |
 

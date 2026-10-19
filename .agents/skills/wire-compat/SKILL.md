@@ -18,7 +18,8 @@ OpenSpeedTest web UI, LibreSpeed clients and Apple `networkQuality`
 ([compatibility.md](../../../docs/features/compatibility.md)). A foreign contract is matched
 exactly, from its documented behavior, and never bends the native API or the engine
 ([principles.md §2.7](../../../docs/features/principles.md#27-compatibility-is-a-layer-not-the-core)).
-Every layer is off by default, has exactly one toggle, and answers `404` when disabled.
+Every layer is off by default, has exactly one toggle, and answers the plain `404` of an unmatched
+path when disabled.
 
 `internal/handlers` exists since v0.1; the three packages under `internal/compat/` are not built
 yet: they land with v0.3, as the approved specification is implemented (AGENTS.md).
@@ -105,9 +106,9 @@ the read deadline from handler entry, `413` before reading). The values
 | `GET /api/v1/download?bytes=N` | `N` ≥ 1, ≤ cap (default 256 MiB) | `limits.max_download_bytes` | `400` `bytes_out_of_range` |
 | `POST /api/v1/upload` | `Content-Length` required, ≤ cap (default 256 MiB) | `limits.max_upload_bytes` | `411`; `413` without reading; `408` after 120 s |
 | `GET`, `HEAD /downloading` | always exactly 30 MiB (31 457 280 bytes); `n` ignored | none; startup fails if `limits.max_download_bytes` < 30 MiB | — |
-| `POST /upload` (OpenSpeedTest) | body up to 35 MiB (36 700 160 bytes) | none; startup fails if `limits.max_upload_bytes` < 35 MiB | `413`; `408` after 120 s |
-| `GET /garbage?ckSize=N` | `N` chunks of 1 MiB, default 4, clamped silently to `min(1024, floor(limits.max_download_bytes / 1 MiB))` = 256 with defaults | `limits.max_download_bytes`; startup fails below 1 MiB | never rejected: clamped |
-| `GET`, `POST /empty` | body ≤ cap | `limits.max_upload_bytes` | `413`; `408` after 120 s |
+| `POST /upload` (OpenSpeedTest) | body up to 35 MiB (36 700 160 bytes), fixed; `Content-Length` optional | none; startup fails if `limits.max_upload_bytes` < 35 MiB | declared above: `413` without reading; length-less body: read to its end, or `413` and close once past the cap; `408` after 120 s |
+| `GET /garbage?ckSize=N` | `N` chunks of 1 MiB; absent: 4; clamped silently to `min(1024, floor(limits.max_download_bytes / 1 MiB))` = 256 with defaults | `limits.max_download_bytes`; startup fails below 1 MiB | above the cap: clamped; not a positive decimal integer: `400` `bad_request` |
+| `GET`, `POST /empty` | body ≤ cap; `Content-Length` optional | `limits.max_upload_bytes` | declared above: `413` without reading; length-less body: read to its end, or `413` and close once past the cap; `408` after 120 s |
 | `GET /nq/large` | always `Content-Length: 8589934592` (8 GiB), streamed; clients close early | none: not bounded by `limits.max_download_bytes` | only the flow limit |
 | `POST /nq/upload` | body ≤ cap (default 1 GiB, range 1 MiB–64 GiB; the default is open decision 1) | `compat.networkquality.max_upload_bytes` | declared `Content-Length` above: `413` without reading; streamed body: read to the cap, then `413` and close; `408` after 120 s |
 | `GET /api/v1/small`, `/nq/small` | one byte, `Content-Length: 1` | — | — |
@@ -168,7 +169,9 @@ new route gets its row there before code, and a native one also follows `api-con
   `metrics.path: /api/v1/info` or `/upload` exits with status 2; configuration.md lists `/upload`
   as rejected without tying it to the OpenSpeedTest toggle.
 - Anything else answers `404`: with the error envelope under `/api/v1`, plain elsewhere. A
-  disabled layer's routes answer `404`. networkQuality routes never redirect.
+  disabled layer's routes are not mounted and answer that plain `404`. A mounted route answers a
+  method its row does not list with `405`, `Allow` and the envelope; `HEAD` exists only where the
+  row lists it, and networkQuality has no `OPTIONS`. networkQuality routes never redirect.
 - With a non-root `server.base_path` every route moves under it together, `/.well-known/nq`
   included; the proxy must forward the base path unchanged.
 
@@ -214,11 +217,22 @@ route-collision checks. Spelled out from compatibility.md:
 
 ### 7.1 Every layer
 
-- With the toggle off, every route of the layer answers `404`.
+The shared rules are [compatibility.md
+§6](../../../docs/features/compatibility.md#6-rules-every-layer-shares).
+
+- With the toggle off, every route of the layer answers the plain `404` of an unmatched path.
+- Every error status carries the native error envelope.
+- A method the route-table row does not list answers `405` with `Allow` and `method_not_allowed`;
+  `HEAD` only where the row lists it.
 - Where the layer sends CORS headers, a `429` carries them too (CORS runs before the limiter).
-- `Cache-Control: no-store` on every response.
+- `Cache-Control: no-store` and `X-Content-Type-Options: nosniff` on every response; an empty
+  `200` has `Content-Length: 0` and no `Content-Type`; random-data bodies are
+  `application/octet-stream`.
 - A lying `Content-Length` stops at the cap; an over-cap `Content-Length` gets `413` without the
-  body being read; `408` after 120 s on every drain.
+  body being read; a body without `Content-Length` under the cap is read to its end and answered
+  `200`, and one over it gets `413` and a closed connection; `408` after 120 s on every drain.
+- An enabled layer's paths are in its classifier group (API headers, envelope on a recovered
+  panic); a disabled layer's are not.
 - The startup conflicts of §3 exit with status 2 (config tests).
 
 ### 7.2 OpenSpeedTest
@@ -233,31 +247,37 @@ route-collision checks. Spelled out from compatibility.md:
 ### 7.3 LibreSpeed
 
 - Each route answers in all four spellings: bare, `backend/`, `.php`, both.
-- `/garbage`: default 4 chunks of 1 MiB; a `ckSize` above the cap is clamped to it, never
-  rejected; the cap follows `limits.max_download_bytes`.
+- `/garbage`: default 4 chunks of 1 MiB; a `ckSize` above the cap is clamped to it; one that is
+  not a positive decimal integer (`0`, `-1`, `1.5`, `abc`, empty) answers `400` `bad_request`; the
+  cap follows `limits.max_download_bytes`.
 - `/empty`: `GET` and `POST` drain, then `200` empty with `Connection: keep-alive` on HTTP/1.1.
-- `/getIP`: JSON `{processedString, rawIspInfo}` with `rawIspInfo: {}`; every classification
-  string of compatibility.md §2.1, a leading `::ffff:` stripped; the IP derived through trusted
-  proxies only; `isp` and `distance` ignored.
-- CORS only with `cors=true`; `/getIP` never `*`, only a listed origin with `Vary: Origin`;
-  preflights on `/garbage` and `/empty` always answered.
+- `/getIP`: JSON `{processedString, rawIspInfo}` with `rawIspInfo: {}`; a public address alone;
+  every classification string of compatibility.md §2.1, a leading `::ffff:` stripped; the IP
+  derived through trusted proxies only; `isp` and `distance` ignored.
+- CORS only with the exact value `cors=true` (`cors=1` sends none); `/getIP` never `*`, only a
+  listed origin with `Vary: Origin`, and a preflight from an unlisted origin answers `200` with no
+  CORS headers; preflights on `/garbage` and `/empty` always answered.
 - `/results`, `/results/telemetry`, `/stats`, `/results/json` and variants answer `404`.
-- `/.well-known/librespeed`: the server URL from `server.public_url`, else trusted-peer
-  `X-Forwarded-Proto` and `Host`/`X-Forwarded-Host`, else the request's `Host` with `http`.
+- `/.well-known/librespeed`: `application/json`, `id: 1`, no CORS; the server URL from
+  `server.public_url`, else from a trusted peer the first comma-separated, trimmed value of
+  `X-Forwarded-Proto` (`http` when absent) and of `X-Forwarded-Host` (the request's `Host` when
+  absent or failing the CSP's `Host` validation), else the request's `Host` with `http`; an
+  untrusted peer's forwarding headers are ignored.
 
 ### 7.4 networkQuality
 
 - `/nq/config` and `/.well-known/nq` return the same JSON with both key sets (Apple's and the
   IETF draft's), all pointing at the same routes.
-- URL construction: `server.public_url` first; then only a trusted peer's forwarding headers;
-  otherwise, or with a scheme other than `https`, `503` with code `public_url_required`. An
+- URL construction: the shared builder of compatibility.md §6 (`server.public_url` first; then
+  only a trusted peer's first, trimmed `X-Forwarded-Proto` and validated `X-Forwarded-Host`);
+  a resulting scheme other than `https` answers `503` with code `public_url_required`. An
   untrusted peer's headers never reach a URL.
 - `/nq/small` is the `/api/v1/small` handler; `/nq/large` declares 8 589 934 592 bytes and ends on
   the client's close.
 - `/nq/upload`: declared over-cap `413` without reading; a streamed over-cap body is read to the
   cap, then `413` and close.
-- The flow limit answers `429` with `Retry-After`; no CORS headers, no preflights, no redirects,
-  no `Content-Encoding`.
+- The flow limit answers `429` with `Retry-After`; no CORS headers, no preflights (`OPTIONS`
+  answers `405`), no redirects, no `Content-Encoding`.
 
 ---
 

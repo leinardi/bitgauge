@@ -25,11 +25,11 @@ carries a recommendation; where the specification already relies on an answer, i
    two sessions. See [measurement.md §15](measurement.md#15-continuous-mode).
 4. How does a release validate the configuration keys of features it does not ship yet, and an
    empty duration bound? Current answer: **a toggle for an unshipped feature is rejected, naming
-   its milestone** (the three `compat.*.enabled` toggles and `test_defaults.preset: continuous`
-   before v0.3), while their other keys are parsed and validated; the compatibility conflict rules
-   apply from v0.3; and a duration pair is checked with an empty bound counting as the preset's
-   value. Recommendation: keep it, since accepting a toggle that does nothing would be a silent
-   default. See
+   its milestone**, while its other keys are parsed and validated. No toggle remains unshipped in
+   v0.3: the three `compat.*.enabled` toggles and `test_defaults.preset: continuous`, rejected
+   before it, are accepted, and the compatibility conflict rules apply whenever a layer is on. A
+   duration pair is checked with an empty bound counting as the preset's value. Recommendation:
+   keep it, since accepting a toggle that does nothing would be a silent default. See
    [configuration.md §4](configuration.md#4-fail-closed-validation).
 5. Which `429` code do the WebSocket and networkQuality flow limits answer with? Current answer:
    **`too_many_streams`**, since both are concurrency limits like the throughput-stream limit;
@@ -609,6 +609,41 @@ carries a recommendation; where the specification already relies on an answer, i
     100 ms spacing. Recommendation: keep it. See
     [measurement.md §10](measurement.md#10-idle-latency) and
     [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
+56. What do the compatibility layers answer on the edges their third-party contracts leave open?
+    Current answer: **the native API's habits, applied per layer.**
+    - Every error status a layer answers (`400`, `405`, `408`, `413`, `429`, `500`, `503`) carries
+      the native error envelope; a disabled layer's paths, and LibreSpeed's results, telemetry and
+      stats routes, are not mounted and answer a plain `404` like any unmatched path.
+    - A method missing from a mounted route's row answers `405` with `Allow` and
+      `method_not_allowed`; `HEAD` exists only where the route table lists it, and networkQuality
+      has no `OPTIONS`.
+    - An absent `ckSize` is 4, one that is not a positive decimal integer answers `400`
+      `bad_request`, and one above `min(1024, floor(max_download_bytes / 1 MiB))` is clamped
+      silently.
+    - `/getIP` reads a public address alone; `cors` counts only as the exact value `true`; a
+      `/getIP` preflight from an unlisted origin answers `200` with no CORS headers.
+    - `/.well-known/librespeed` and the networkQuality config build their URLs with one builder:
+      from a trusted
+      peer, the first comma-separated value of `X-Forwarded-Proto` and of `X-Forwarded-Host`,
+      trimmed; a forwarded host that fails the CSP's `Host` validation falls back to the request's
+      `Host`, and a missing (or neither `http` nor `https`) forwarded scheme gives `http`.
+      `/.well-known/librespeed` is `application/json` with `id: 1` and no CORS; networkQuality's
+      non-`https` origin answers `503` `public_url_required`.
+    - An empty `200` sends `Content-Length: 0` and no `Content-Type`; random-data bodies are
+      `application/octet-stream`.
+    - OpenSpeedTest's upload cap is a fixed 35 MiB, which `limits.max_upload_bytes` only gates at
+      startup; OpenSpeedTest and LibreSpeed accept a body without `Content-Length`, read to its
+      end, or answered `413` with the connection closed once it passes the cap, and `411` stays
+      native-only.
+    - The OpenSpeedTest ping counts against both the stream and the per-minute limits.
+    - The classifier puts an enabled layer's exact route paths in its group, with the API header
+      set and envelope recovery, and `503` joins the metrics' `code` labels; the startup line's
+      `compatibility_layers` field lists the enabled layers or `none`.
+    - `server.public_url` is recommended, not required, for the LibreSpeed server list.
+
+    Recommendation: keep it; each rule is what the native API already does, or what the
+    third-party client is documented to read. See
+    [compatibility.md §6](compatibility.md#6-rules-every-layer-shares).
 
 Resolved and removed:
 

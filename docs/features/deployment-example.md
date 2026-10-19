@@ -295,8 +295,9 @@ The shipped compose file runs it with BitGauge in the shape of §2:
       Firefox clients are another reason to keep HTTP/1.1 for the test endpoints: Firefox before
       115 uploads slowly over HTTP/2, and its HTTP/3 uploads are still slower than its HTTP/1.1
       ones ([research/browser-upload-limits.md](../research/browser-upload-limits.md)).
-- [ ] **`public_url`** set (or forwarding headers from a trusted proxy) if networkQuality or the
-      LibreSpeed server list is used.
+- [ ] **`public_url`** set (or forwarding headers from a trusted proxy) if networkQuality is used;
+      recommended for the LibreSpeed server list, which otherwise falls back to the request's
+      `Host` ([compatibility.md §6](compatibility.md#6-rules-every-layer-shares)).
 
 ## 6. Sub-Path Deployment
 
