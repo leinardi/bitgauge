@@ -157,8 +157,10 @@ export function demoHistoryResults(variant: 'populated' | 'single' | 'empty', no
     if (row === undefined) {
       return []
     }
-    // Today at 07:14 UTC, or now when the day is younger than that.
-    const at = new Date(Math.min(now.getTime(), Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), ...SINGLE_AT)))
+    // Today at 07:14 UTC, or now when the day is younger than that or 07:14 UTC falls on another
+    // local day: the History screen's "today" is the browser's day, not the UTC one.
+    const kit = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), ...SINGLE_AT))
+    const at = kit <= now && kit.toDateString() === now.toDateString() ? kit : now
     return [{ ...result(row, SINGLE_ROW), startedAt: at.toISOString() }]
   }
   return variant === 'populated' ? ROWS.map(result) : []

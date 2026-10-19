@@ -88,11 +88,15 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
   - A request's Resource Timing entry is the earliest entry with its URL that started at or
     after the request was sent, since requests to one URL repeat; a missing `nextHopProtocol` is
     read as empty, not reported. The browser may add the entry after the response, so a request
-    that ended without one waits up to 50 ms for it, watching for new entries: the probe and
-    upload answers and the end of a download body are delivered after that wait. A browser that
-    missed the bound once is not waited for again until an entry is found at once, so one that
-    never reports timing costs a single wait. The buffer holds 2000 entries and is cleared when
-    full, which can cost a few requests their timing.
+    that ended without one waits for it, watching for new entries, with the two patiences of
+    [../measurement.md §11.6](../measurement.md#116-probe-bookkeeping), one `TimingWaiter` each
+    per transport: downloads and uploads wait up to 50 ms (`TIMING_WAIT_MS`) and, once one missed
+    the bound, are not waited for again until an entry is found at once; probes wait up to 250 ms
+    (`TIMING_PROBE_WAIT_MS`), once while the browser has reported no probe entry yet, then every
+    time. The probe and upload answers and the end of a download body are delivered after that
+    wait, so the short bound keeps a stream from idling, and a browser that never reports timing
+    costs each waiter a single wait. The buffer holds 2000 entries and is cleared when full, which
+    can cost a few requests their timing.
   - Every path sits under the configured base path on the page's origin; the WebSocket takes the
     `ws:` or `wss:` scheme matching the page. `client.browser` comes from a table of families
     (Edge, Opera, Samsung Internet, Firefox, Chrome, Safari) and systems (iOS, Android, ChromeOS,

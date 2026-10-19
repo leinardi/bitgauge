@@ -34,6 +34,7 @@ import {
   resolutionOf,
   SEED_BYTES,
   type TimingEntry,
+  TIMING_PROBE_WAIT_MS,
   TIMING_WAIT_MS,
   timingFor,
   TimingWaiter,
@@ -124,19 +125,19 @@ describe('waiting for a timing entry', () => {
 
   it('takes an entry already there without waiting', async () => {
     const page = browser(0)
-    expect(await new TimingWaiter().find(page.lookup, page.added, page.now)).toEqual(TIMING)
+    expect(await new TimingWaiter(TIMING_WAIT_MS, 'once').find(page.lookup, page.added, page.now)).toEqual(TIMING)
     expect(page.waits).toEqual([])
   })
 
   it('waits for an entry added after the response, as long as the bound allows', async () => {
     const page = browser(12)
-    expect(await new TimingWaiter().find(page.lookup, page.added, page.now)).toEqual(TIMING)
+    expect(await new TimingWaiter(TIMING_WAIT_MS, 'once').find(page.lookup, page.added, page.now)).toEqual(TIMING)
     expect(page.waits).toEqual([TIMING_WAIT_MS])
     expect(page.now()).toBe(12)
   })
 
   it('gives up at the bound, and waits no more once the browser missed it', async () => {
-    const waiter = new TimingWaiter()
+    const waiter = new TimingWaiter(TIMING_WAIT_MS, 'once')
     const never = browser(null)
     expect(await waiter.find(never.lookup, never.added, never.now)).toBeNull()
     expect(never.now()).toBe(TIMING_WAIT_MS)
@@ -148,6 +149,74 @@ describe('waiting for a timing entry', () => {
     expect(await waiter.find(ready.lookup, ready.added, ready.now)).toEqual(TIMING)
     const again = browser(5)
     expect(await waiter.find(again.lookup, again.added, again.now)).toEqual(TIMING)
+  })
+})
+
+describe('waiting for probe timing entries under load', () => {
+  const TIMING = { nextHopProtocol: 'h2', requestStart: 1, responseStart: 2, responseEnd: 3 }
+
+  /** One request whose entry the browser adds `afterMs` after it ended, or never (null). */
+  async function request(waiter: TimingWaiter, afterMs: number | null): Promise<{ found: boolean; waits: number[] }> {
+    let time = 0
+    const waits: number[] = []
+    const entry = await waiter.find(
+      () => (afterMs !== null && time >= afterMs ? TIMING : null),
+      (ms) => {
+        waits.push(ms)
+        const arrives = afterMs !== null && afterMs > time && afterMs - time <= ms
+        time = arrives ? afterMs : time + ms
+        return Promise.resolve(arrives)
+      },
+      () => time,
+    )
+    return { found: entry !== null, waits }
+  }
+
+  const LATE_PROBES = [20, 35, 40, 25, 30]
+
+  it('loses every later probe entry on one shared waiter after a late upload entry', async () => {
+    const shared = new TimingWaiter(TIMING_WAIT_MS, 'once')
+    expect((await request(shared, 60)).found).toBe(false)
+    for (const after of LATE_PROBES) {
+      expect(await request(shared, after)).toEqual({ found: false, waits: [] })
+    }
+  })
+
+  it('keeps them with a waiter of their own', async () => {
+    const streams = new TimingWaiter(TIMING_WAIT_MS, 'once')
+    const probes = new TimingWaiter(TIMING_PROBE_WAIT_MS, 'sticky')
+    expect((await request(streams, 60)).found).toBe(false)
+    for (const after of LATE_PROBES) {
+      expect(await request(probes, after)).toEqual({ found: true, waits: [TIMING_PROBE_WAIT_MS] })
+    }
+  })
+
+  it('keeps waiting for every probe once one entry was found, however many miss', async () => {
+    const probes = new TimingWaiter(TIMING_PROBE_WAIT_MS, 'sticky')
+    expect((await request(probes, 30)).found).toBe(true)
+    expect(await request(probes, null)).toEqual({ found: false, waits: [TIMING_PROBE_WAIT_MS] })
+    expect(await request(probes, null)).toEqual({ found: false, waits: [TIMING_PROBE_WAIT_MS] })
+    expect(await request(probes, 40)).toEqual({ found: true, waits: [TIMING_PROBE_WAIT_MS] })
+  })
+
+  it('costs a missed upload entry exactly one wait, and the next upload none', async () => {
+    const streams = new TimingWaiter(TIMING_WAIT_MS, 'once')
+    expect(await request(streams, 60)).toEqual({ found: false, waits: [TIMING_WAIT_MS] })
+    expect(await request(streams, 30)).toEqual({ found: false, waits: [] })
+  })
+
+  it('costs a browser that never reports one probe wait', async () => {
+    const probes = new TimingWaiter(TIMING_PROBE_WAIT_MS, 'sticky')
+    expect(await request(probes, null)).toEqual({ found: false, waits: [TIMING_PROBE_WAIT_MS] })
+    for (let i = 0; i < 5; i++) {
+      expect(await request(probes, null)).toEqual({ found: false, waits: [] })
+    }
+  })
+
+  it('misses an entry that arrives after the probe bound', async () => {
+    const probes = new TimingWaiter(TIMING_PROBE_WAIT_MS, 'sticky')
+    expect((await request(probes, 0)).found).toBe(true)
+    expect(await request(probes, TIMING_PROBE_WAIT_MS + 10)).toEqual({ found: false, waits: [TIMING_PROBE_WAIT_MS] })
   })
 })
 

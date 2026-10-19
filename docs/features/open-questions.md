@@ -198,7 +198,9 @@ carries a recommendation; where the specification already relies on an answer, i
     network callbacks, the engine's handling of each download chunk); the timer resolution is the
     median of about 20 consecutive reading differences, 50 ms when the clock barely moves; a
     request's timing entry is the earliest with its URL started at or after its send, waited for
-    up to 50 ms after the request ended, in a 2000-entry buffer cleared when full;
+    up to 50 ms after a download or upload ended and up to 250 ms after a probe was answered
+    ([measurement.md §11.6](measurement.md#116-probe-bookkeeping)), in a 2000-entry buffer cleared
+    when full;
     `client.browser` comes from a fixed family and system table. A WebSocket handshake that
     neither opens nor fails within 10 s counts as unavailable, and a run that fails inside the
     engine is the Worker's uncaught error rather than an `error` message. Recommendation: keep
@@ -775,10 +777,22 @@ carries a recommendation; where the specification already relies on an answer, i
     connection taking about 300 to 340 ms (no WebSocket queue, and unchanged by a low
     `tcp_notsent_lowat` on Caddy), and upload warm-ups that sometimes end at their cap. Every probe
     reused the loaded connection, so the engine's evidence holds. Two leads stay open for the
-    engine: where in the HTTP/2 path the probe waits (question 65), and Firefox keeping only about
-    a quarter of its upload probes, investigated in the timing-entry change. A WebKit run of
-    `ci-500k-300ms` failed once and passed on a re-run; a recurrence is investigated, never re-run
-    away, and no tolerance is widened. On the same Caddy profile BitGauge runs with the three
+    engine: where in the HTTP/2 path the probe waits (question 65), and Firefox's few upload
+    samples (6 in an 8 s steady window in run `eec847e0`), investigated in the timing-entry change
+    of 2026-10-19. That change gave probes a patience of their own
+    ([measurement.md §11.6](measurement.md#116-probe-bookkeeping)), so a late upload entry no
+    longer stops probes being waited for, but it is not what Firefox lacked: 13 instrumented
+    Firefox runs on the Caddy profile, with the shared waiter and with the split alike, found every
+    upload probe's entry at once. The samples are few because the upload's sampling window is
+    short: probing starts when the engine learns the warm-up end, which the server timeline places
+    seconds earlier, and the end condition holds soon after, so the probing span ran from 1.3 s to
+    15 s and gave 4 to 52 samples. After the change, a full CI run gave Firefox 5 download samples
+    (3.0 s window) and 0 upload samples (10.1 s window, `unavailable_insufficient`, failing this
+    rule), and the next full run 5 and 7 (3.0 s and 4.6 s), passing; the pass is not taken as proof
+    that the failure cannot recur, which question 66 tracks.
+    A WebKit run of `ci-500k-300ms` failed once and passed on a re-run; a recurrence is
+    investigated, never re-run away, and no tolerance is widened; it passed in both full runs of
+    2026-10-19. On the same Caddy profile BitGauge runs with the three
     toggles and `server.trusted_proxies` set to the proxy network; `librespeed-cli --no-icmp
     --server-json https://…/.well-known/librespeed --server 1 --json` and `goresponsiveness`
     (against `/nq/config`, with Caddy's internal root CA in the tools container's trust store) run
@@ -826,6 +840,20 @@ carries a recommendation; where the specification already relies on an answer, i
     label and [measurement.md §12.3](measurement.md#123-path-b-procedure) describe. Finding where
     Caddy or the kernel queues it is server-side tuning research. Recommendation: investigate it
     after v0.3 with the harness's Caddy profile. See question 63.
+66. Should an upload's path B start before the engine learns the warm-up end? On upload, probing
+    starts at the client instant the engine learns the warm-up end
+    ([measurement.md §12.3](measurement.md#123-path-b-procedure)), which the server timeline places
+    seconds earlier, and the end condition often holds soon after. In 13 instrumented Firefox runs
+    on `ci-100m-50ms-caddy-h2` the upload's probing span ran from 1.3 s to 15 s (4 to 52 samples),
+    and one full CI run on 2026-10-19 gave Firefox 0 upload samples in a 10.1 s steady window,
+    `unavailable_insufficient`, which fails question 63's Caddy rule. Current answer: **no, not in
+    v0.3: probing starts at the learned warm-up end**, so every sample is known to fall after the
+    warm-up under full load, and a run whose upload learns its warm-up end at or just before its
+    end instant has few samples or none and fails that rule; the harness tolerance is not widened.
+    Recommendation: decide before the v0.3 release whether to probe an upload from its first
+    request and keep, once the warm-up end is learned, only the probes sent after it on the client
+    clock (which needs a server-to-client mapping of that instant that §7.4 keeps display-only), or
+    to keep §12.3 as it is and accept the failure mode. See question 63.
 
 Resolved and removed:
 

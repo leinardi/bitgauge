@@ -109,26 +109,47 @@ function optionalTiming(entry: TimingEntry): Pick<ResourceTiming, 'fetchStart' |
   return fields
 }
 
-/** How long a request that has ended waits for its timing entry: the browser may add it later. */
+/**
+ * How long a download or upload that has ended waits for its timing entry: the browser may add it
+ * later. Short, so that a stream's timing never holds it (measurement.md section 11.6).
+ */
 export const TIMING_WAIT_MS = 50
+
+/** How long a probe waits for its timing entry: single-outstanding, it holds no stream. */
+export const TIMING_PROBE_WAIT_MS = 250
+
+/**
+ * After a miss: `once` stops waiting until an entry is found at once again; `sticky` stops only
+ * while the browser has not reported any entry yet, and keeps waiting once it has.
+ */
+export type TimingPolicy = 'once' | 'sticky'
 
 /**
  * Finds a request's timing entry once the request has ended. The browser adds the entry on its
  * own schedule, possibly after the response; `added(ms)` resolves true when any entry is added
- * within `ms`, false when none is. A browser that missed the bound once is not waited for again
- * until an entry is found at once, so one that never reports timing costs a single wait.
+ * within `ms`, false when none is. Either policy costs a browser that never reports timing a
+ * single wait (measurement.md section 11.6).
  */
 export class TimingWaiter {
+  private readonly boundMs: number
+  private readonly policy: TimingPolicy
   private patient = true
+  private reported = false
+
+  constructor(boundMs: number, policy: TimingPolicy) {
+    this.boundMs = boundMs
+    this.policy = policy
+  }
 
   async find(lookup: () => ResourceTiming | null, added: (ms: number) => Promise<boolean>, now: () => number): Promise<ResourceTiming | null> {
-    const deadline = now() + (this.patient ? TIMING_WAIT_MS : 0)
+    const deadline = now() + (this.patient ? this.boundMs : 0)
     for (;;) {
       const found = lookup()
       const left = deadline - now()
       if (found !== null || left <= 0 || !(await added(left))) {
         const entry = found ?? lookup()
-        this.patient = entry !== null
+        this.reported ||= entry !== null
+        this.patient = entry !== null || (this.policy === 'sticky' && this.reported)
         return entry
       }
     }

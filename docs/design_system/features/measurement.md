@@ -855,7 +855,8 @@ the Resource Timing `transferSize`, falling back to a +0.5 % header estimate
   increase over idle. The first ping on each path is the warm-up: its sample is
   discarded and it is counted neither in the statistics nor as loss, answered or not. On the HTTP
   path a ping answered with a status other than `204` is lost, and one whose Resource Timing entry
-  is missing uses up its place in the count but gives no sample and is not counted as loss.
+  is missing, waited for as §11.6 says, uses up its place in the count but gives no sample and is
+  not counted as loss.
 - **Statistics.** min, median and p90 of the RTT samples.
 - **Jitter** = mean absolute difference of consecutive successful samples, in send order.
 - **Timeout policy, tolerant of VPN RTTs.** The first ping times out after 10 s; later pings after
@@ -1021,6 +1022,20 @@ statistic reads `series` times.
   behavior (§10).
 - **Bounds.** At most 4 pings outstanding on the WebSocket and 1 probe on HTTP; an HTTP probe is
   aborted after 30 s.
+- **Timing entries.** The browser may add a request's Resource Timing entry after the response,
+  so a request that ended without one waits for it, with two patiences:
+  - **Probes** (the idle and loaded HTTP pings of §10 and §11.2, the path B capability probe and
+    the path B probes of §12.3) wait up to **250 ms** after the answer, on a patience of their
+    own. A browser that has reported no probe entry yet in the run is waited for once; after its
+    first found probe entry, every probe is waited for, however many miss.
+  - **Download and upload requests** wait up to **50 ms**, and after a miss are not waited for
+    again until an entry is found at once, so their timing never holds a stream.
+
+  A late upload entry under load must therefore not stop path B finding its own entries. A probe
+  being single-outstanding, a tick is skipped only while a late or missing entry is waited for,
+  and a probe whose wait runs past its direction's end instant is dropped as any probe outstanding
+  then (§12.3), so the longer bound may lose a window's last probe. Either patience costs a browser
+  that never reports timing a single wait.
 
 ## 12. HTTP Loaded Responsiveness
 
@@ -1065,8 +1080,9 @@ the HTTP/2 connection that carries the load.
 
   A probe still outstanding at the end instant is aborted and not counted, so path B needs no
   grace and is settled when its direction finishes. A **valid probe**
-  is one answered `200` within the window whose Resource Timing entry was found with non-zero
-  `requestStart` and `responseStart`; a failed, aborted or unmatched probe is not a sample.
+  is one answered `200` within the window whose Resource Timing entry was found (waited for as
+  §11.6 says) with non-zero `requestStart` and `responseStart`; a failed, aborted or unmatched
+  probe is not a sample.
   `samples` counts the valid probes of the window, and the 10-sample rule of §12.4 counts them.
 - **Timing.** From the Resource Timing entry for that fetch: `http_l = responseStart −
   requestStart`, quantized to the timer resolution like every other latency (§17);

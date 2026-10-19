@@ -382,6 +382,7 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 63 | v0.3 harness rules: path B over h2 with an RPM (`measured` or `uncertain`, recorded) on the Caddy profile and `unavailable_h1` on the Traefik profile, the three compatibility clients on the Caddy profile, a manual one-hour Continuous heap check within 2 MiB | v0.3 |
 | 64 | v0.3 UI details after the export: the kit's run length control, the latest data-used notice live, the scores' basis in the summary, the Continuous chart's overlay rings, clipping and re-binning, bounded live rings, the demo panel's v0.3 controls | v0.3 |
 | 65 | Where a path B probe waits on a loaded HTTP/2 connection through Caddy | Unscheduled |
+| 66 | An upload's path B starts at the learned warm-up end, so a short probing span can leave Firefox too few samples | v0.3 |
 
 ## Related
 

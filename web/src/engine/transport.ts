@@ -19,7 +19,19 @@
 
 import type { BrowserClock } from '@/engine/clock'
 import type { DownloadChunk, DownloadResponse, InfoResult, ProbeTiming, ResourceTiming, Transport, UploadResponse, UploadTelemetry, WsEcho } from '@/engine/types'
-import { apiUrl, browserIdentity, checkedInfo, pong, type TimingEntry, timingFor, TimingWaiter, UploadBody, webSocketUrl } from '@/engine/wiring'
+import {
+  apiUrl,
+  browserIdentity,
+  checkedInfo,
+  pong,
+  TIMING_PROBE_WAIT_MS,
+  TIMING_WAIT_MS,
+  type TimingEntry,
+  timingFor,
+  TimingWaiter,
+  UploadBody,
+  webSocketUrl,
+} from '@/engine/wiring'
 
 // The production Transport (frontend.md section 2): fetch for download and the probes, an
 // XMLHttpRequest for upload, the WebSocket echo and GET /info, every path under the base path
@@ -102,7 +114,10 @@ export class BrowserTransport implements Transport {
   private readonly clock: BrowserClock
   private readonly basePath: string
   private readonly body: UploadBody
-  private readonly waiter = new TimingWaiter()
+  // Downloads and uploads wait briefly and give up after a miss; probes have patience of their own,
+  // so a late upload entry under load never stops path B finding its entries (measurement.md 11.6).
+  private readonly waiter = new TimingWaiter(TIMING_WAIT_MS, 'once')
+  private readonly probeWaiter = new TimingWaiter(TIMING_PROBE_WAIT_MS, 'sticky')
 
   constructor(clock: BrowserClock, basePath: string) {
     this.clock = clock
@@ -213,7 +228,7 @@ export class BrowserTransport implements Transport {
     const response = await fetch(url, { cache: 'no-store', ...(signal === undefined ? {} : { signal }) })
     await response.arrayBuffer()
     const doneAt = this.clock.now()
-    return { status: response.status, sentAt, doneAt, timing: await this.timing(url, sentAt) }
+    return { status: response.status, sentAt, doneAt, timing: await this.timing(url, sentAt, this.probeWaiter) }
   }
 
   async info(): Promise<InfoResult> {
@@ -226,8 +241,8 @@ export class BrowserTransport implements Transport {
   }
 
   /** The request's timing entry, waited for a bounded time after the request ended. */
-  private timing(url: string, sentAt: number): Promise<ResourceTiming | null> {
-    return this.waiter.find(() => entryOf(url, sentAt), added, () => this.clock.now())
+  private timing(url: string, sentAt: number, waiter = this.waiter): Promise<ResourceTiming | null> {
+    return waiter.find(() => entryOf(url, sentAt), added, () => this.clock.now())
   }
 
   private url(path: string): string {

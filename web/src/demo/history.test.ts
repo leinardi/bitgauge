@@ -43,15 +43,26 @@ describe('the demo history', () => {
   })
 
   it("holds one result in the single variant, today's office run", () => {
-    // Today at the kit's 07:14 UTC, whatever the machine's time zone; or now, earlier in the day.
+    // Today at the kit's 07:14 UTC; or now, earlier in the day, or where 07:14 UTC is another
+    // local day (east of UTC+9:46 at this instant).
     const now = new Date(Date.UTC(2026, 9, 18, 14, 2))
+    const kit = '2026-10-18T07:14:00.000Z'
     const [only, ...rest] = demoHistoryResults('single', now)
     expect(rest).toEqual([])
     expect(only === undefined ? ['missing'] : validateResult(only)).toEqual([])
     expect(only?.label).toBe('VPN · office')
     expect(only?.download?.bitsPerSecond).toBe(241e6)
-    expect(only?.startedAt).toBe('2026-10-18T07:14:00.000Z')
+    expect(only?.startedAt).toBe(new Date(kit).toDateString() === now.toDateString() ? kit : now.toISOString())
     expect(demoHistoryResults('single', new Date(Date.UTC(2026, 9, 18, 7, 0)))[0]?.startedAt).toBe('2026-10-18T07:00:00.000Z')
+  })
+
+  it('dates the single result on the local today at every hour, never after now', () => {
+    for (let minutes = 0; minutes < 48 * 60; minutes += 30) {
+      const now = new Date(Date.UTC(2026, 9, 18) + minutes * 60_000)
+      const at = new Date(demoHistoryResults('single', now)[0]?.startedAt ?? '')
+      expect(at.toDateString()).toBe(now.toDateString())
+      expect(at.getTime()).toBeLessThanOrEqual(now.getTime())
+    }
   })
 
   it('grades each result as the engine grades its stored loaded latency, on a stored steady window', () => {
