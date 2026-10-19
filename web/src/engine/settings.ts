@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { DurationBounds, IgnoredParameter, MeasuringPhase, SettingsOverride, TestSettings } from '@/engine/messages'
+import type { Direction, DurationBounds, IgnoredParameter, MeasuringPhase, NoBounds, SettingsOverride, TestSettings } from '@/engine/messages'
 import { PRESETS } from '@/engine/presets'
 
 // Settings resolution (architecture.md section 4): the configured settings, a run's override on
@@ -27,6 +27,11 @@ import { PRESETS } from '@/engine/presets'
 const SECOND = 1000
 const MIN_DURATION_MS = 5 * SECOND
 const MAX_DURATION_MS = 600 * SECOND
+/** A Continuous run length: 60 s to 7 days (measurement.md section 8.5). */
+const MIN_RUN_LENGTH_MS = 60 * SECOND
+const MAX_RUN_LENGTH_MS = 604_800 * SECOND
+/** The directions a Continuous run accepts so far: upload follows in a later step. */
+const CONTINUOUS_DIRECTIONS: readonly Direction[] = ['download']
 const MAX_STREAMS = 6
 const MIN_DATA_CAP = 1024 * 1024
 const MIN_WARMUP_MS = SECOND
@@ -63,7 +68,10 @@ function isInteger(value: unknown, least: number, most: number): boolean {
   return typeof value === 'number' && Number.isInteger(value) && value >= least && value <= most
 }
 
-/** The configured settings with another preset's durations, ping count and stream mode. */
+/**
+ * The configured settings with another preset's durations, ping count and stream mode; Continuous
+ * runs download unless the settings name its direction, and a bounded preset has neither field.
+ */
 function withPreset(configured: TestSettings, preset: TestSettings['preset']): TestSettings {
   const table = PRESETS[preset]
   const streams =
@@ -71,19 +79,32 @@ function withPreset(configured: TestSettings, preset: TestSettings['preset']): T
       ? // A preset's fixed count stays within the configured maximum.
         { ...configured.streams, mode: table.streams.mode, fixed: Math.min(table.streams.fixed, configured.streams.max) }
       : { ...configured.streams, mode: table.streams.mode }
+  const { continuousDirection, runLengthMs: _runLengthMs, ...rest } = configured
   return {
-    ...configured,
+    ...rest,
     preset,
     streams,
     download: { ...table.download },
     upload: { ...table.upload },
     pingCount: table.pingCount,
+    ...(preset === 'continuous' ? { continuousDirection: continuousDirection ?? 'download' } : {}),
   }
 }
 
+/**
+ * The measuring phases a run goes through: the settings' own for a bounded preset; for
+ * Continuous, idle latency when listed, then its one direction whatever else is listed.
+ */
+export function runPhases(settings: Pick<TestSettings, 'preset' | 'phases' | 'continuousDirection'>): MeasuringPhase[] {
+  if (settings.preset !== 'continuous') {
+    return settings.phases
+  }
+  return [...(settings.phases.includes('idle') ? ['idle' as const] : []), settings.continuousDirection ?? 'download']
+}
+
 /** The bounds with the `duration` rule: the maximum is it, the minimum at most it. */
-function capped(bounds: DurationBounds, durationMs: number): DurationBounds {
-  return { minMs: Math.min(bounds.minMs, durationMs), maxMs: durationMs }
+function capped(bounds: DurationBounds | NoBounds, durationMs: number): DurationBounds | NoBounds {
+  return bounds.minMs === null ? bounds : { minMs: Math.min(bounds.minMs, durationMs), maxMs: durationMs }
 }
 
 /** Resolves the settings of a run: `override` on top of `configured`, then validated. */
@@ -103,13 +124,24 @@ export function resolveSettings(configured: TestSettings, override: SettingsOver
     download: { ...merged.download },
     upload: { ...merged.upload },
   }
+  if (settings.preset === 'continuous') {
+    // Continuous runs download unless its direction is named (measurement.md section 8.5).
+    settings.continuousDirection ??= 'download'
+  }
 
   if (durationMs !== undefined) {
-    if (!isInteger(durationMs / SECOND, MIN_DURATION_MS / SECOND, MAX_DURATION_MS / SECOND)) {
+    // Under Continuous `duration` is the run length, in its own range; the bounds stay null.
+    const continuous = settings.preset === 'continuous'
+    const [least, most] = continuous ? [MIN_RUN_LENGTH_MS, MAX_RUN_LENGTH_MS] : [MIN_DURATION_MS, MAX_DURATION_MS]
+    if (!isInteger(durationMs / SECOND, least / SECOND, most / SECOND)) {
       return { ok: false, code: 'invalid-settings', field: 'durationMs' }
     }
-    settings.download = capped(settings.download, durationMs)
-    settings.upload = capped(settings.upload, durationMs)
+    if (continuous) {
+      settings.runLengthMs = durationMs
+    } else {
+      settings.download = capped(settings.download, durationMs)
+      settings.upload = capped(settings.upload, durationMs)
+    }
   }
   if (label !== undefined) {
     settings.label = label
@@ -132,8 +164,10 @@ function invalidField(settings: RunSettings): string | null {
     ['streams.mode', ['auto', 'fixed', 'single'].includes(settings.streams.mode)],
     ['streams.max', isInteger(settings.streams.max, 1, MAX_STREAMS)],
     ['streams.fixed', isInteger(settings.streams.fixed, 1, settings.streams.max)],
-    ['download', validBounds(settings.download)],
-    ['upload', validBounds(settings.upload)],
+    ['download', validBounds(settings.download, settings.preset === 'continuous')],
+    ['upload', validBounds(settings.upload, settings.preset === 'continuous')],
+    ['continuousDirection', validDirection(settings)],
+    ['runLengthMs', validRunLength(settings)],
     ['dataCapBytes', settings.dataCapBytes === null || isInteger(settings.dataCapBytes, MIN_DATA_CAP, Infinity)],
     ['units', settings.units === 'bits' || settings.units === 'bytes'],
     ['warmup', settings.warmup === 'auto' || isInteger(settings.warmup, MIN_WARMUP_MS, MAX_WARMUP_MS)],
@@ -169,10 +203,25 @@ function validPhases(phases: readonly MeasuringPhase[]): boolean {
   )
 }
 
-/** A duration range of 5 s to 10 min with the maximum not below the minimum. */
-function validBounds(bounds: DurationBounds): boolean {
-  return (
-    isInteger(bounds.minMs, MIN_DURATION_MS, MAX_DURATION_MS) &&
-    isInteger(bounds.maxMs, bounds.minMs, MAX_DURATION_MS)
-  )
+/** A duration range of 5 s to 10 min with the maximum not below the minimum; none at all for Continuous. */
+function validBounds(bounds: DurationBounds | NoBounds, continuous: boolean): boolean {
+  if (continuous || bounds.minMs === null || bounds.maxMs === null) {
+    return continuous && bounds.minMs === null && bounds.maxMs === null
+  }
+  return isInteger(bounds.minMs, MIN_DURATION_MS, MAX_DURATION_MS) && isInteger(bounds.maxMs, bounds.minMs, MAX_DURATION_MS)
+}
+
+/** Continuous names a direction it can run; a bounded preset names none. */
+function validDirection(settings: TestSettings): boolean {
+  const direction = settings.continuousDirection
+  return settings.preset === 'continuous' ? direction !== undefined && CONTINUOUS_DIRECTIONS.includes(direction) : direction === undefined
+}
+
+/** A Continuous run length is whole seconds from 60 s to 7 days; a bounded preset has none. */
+function validRunLength(settings: TestSettings): boolean {
+  const length = settings.runLengthMs
+  if (length === undefined) {
+    return true
+  }
+  return settings.preset === 'continuous' && isInteger(length / SECOND, MIN_RUN_LENGTH_MS / SECOND, MAX_RUN_LENGTH_MS / SECOND)
 }

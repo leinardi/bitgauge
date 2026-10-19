@@ -18,11 +18,11 @@
  */
 
 import type { Confidence, Notice, NoticeCode } from '@/engine/messages/notices'
-import type { Direction, DurationBounds, MeasuringPhase, Preset, StreamMode } from '@/engine/messages/settings'
+import type { Direction, DurationBounds, MeasuringPhase, NoBounds, Preset, StreamMode } from '@/engine/messages/settings'
 
-// Result object (measurement.md section 17): the fields of later versions (the Continuous fields)
-// are absent, never null-filled, and the v0.2 and v0.3 additions are optional, so a v0.1 or v0.2
-// result stays valid.
+// Result object (measurement.md section 17): the fields of later versions are absent, never
+// null-filled, and the v0.2 and v0.3 additions are optional, so a v0.1 or v0.2 result stays valid.
+// The Continuous fields are absent from a bounded run's result.
 
 export type DirectionStatus = 'measured' | 'insufficient-data' | 'partial' | 'skipped' | 'error'
 
@@ -42,6 +42,8 @@ export interface ResultSeries {
   endMs: number
   /** Bytes per bucket; `null` is an unknown cell. */
   values: (number | null)[]
+  /** Continuous only: each point's known time, so a rate over points is Σ bytes ÷ Σ known time (v0.3). */
+  knownMs?: number[]
 }
 
 export type DirectionEvent =
@@ -128,6 +130,9 @@ export interface DirectionResult {
   bitsPerSecond?: number
   peakBitsPerSecond?: number
   uncompensatedBitsPerSecond?: number
+  /** Continuous only (v0.3): the lowest and highest fully known 1 s cell since the steady start. */
+  minBitsPerSecond?: number
+  maxBitsPerSecond?: number
   windowMs?: number
   streams: number
   plateau?: Plateau
@@ -182,9 +187,12 @@ export interface Result {
     preset: Preset
     phases: MeasuringPhase[]
     streams: { mode: StreamMode; max: number }
-    /** Each direction's resolved duration bounds (v0.2); absent on an older result. */
-    download?: DurationBounds
-    upload?: DurationBounds
+    /** Each direction's resolved duration bounds (v0.2), null in Continuous; absent on an older result. */
+    download?: DurationBounds | NoBounds
+    upload?: DurationBounds | NoBounds
+    /** Continuous only (v0.3): the direction it runs, and its run length when it has one. */
+    continuousDirection?: Direction
+    runLengthMs?: number
     dataCapBytes: number | null
     overheadCompensationPercent: number
     warmup: 'auto' | number

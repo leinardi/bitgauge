@@ -19,22 +19,25 @@
 
 import { type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
 import type { IdleLatency, IdleOutcome } from '@/engine/latency/idle'
-import type { WarmupEnd } from '@/engine/phases/warmup'
 import type { Direction, DirectionResult, EngineEvent, IdleResult, MeasuringPhase, Notice, PhaseName, PhaseState } from '@/engine/messages'
+import { settleBuckets } from '@/engine/phases/ramp'
+import type { WarmupEnd } from '@/engine/phases/warmup'
 import { buildResult } from '@/engine/result'
 import { directionNotices, downloadResult, resultNotices, uploadResult } from '@/engine/result/direction'
 import type { Connection } from '@/engine/run/connection'
 import { phaseEvent } from '@/engine/run/events'
 import { type Interrupt, Interruption } from '@/engine/run/interrupt'
 import { LoadedProbes } from '@/engine/run/latency'
+import { type PhaseContext, phaseOptions } from '@/engine/run/options'
 import { PageState } from '@/engine/run/page'
-import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices, urlNotices } from '@/engine/run/report'
+import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices, runStatus, urlNotices } from '@/engine/run/report'
 import { capabilityOf, ResponsivenessProbes } from '@/engine/run/responsiveness'
 import { SampleFeed } from '@/engine/run/samples'
 import { idlePhase, infoPhase, type StartContext } from '@/engine/run/start'
 import { Housekeeping } from '@/engine/run/tick'
-import type { RunSettings } from '@/engine/settings'
+import { runPhases, type RunSettings } from '@/engine/settings'
 import { BusyTrack } from '@/engine/stats/busy'
+import { BUCKET_MS } from '@/engine/stats/units'
 import type { Clock, Transport } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
 import { UploadPhase } from '@/engine/upload/phase'
@@ -141,7 +144,7 @@ export class Run {
    */
   footprint(): Record<string, number> {
     const phase = this.sampling?.phase.footprint() ?? {}
-    const run = { busySamples: this.busy.footprint(), loadedSamples: this.loaded.footprint(), pathBSamples: this.responsiveness.footprint() }
+    const run = { busySamples: this.busy.footprint(), ...this.loaded.footprint(), pathBSamples: this.responsiveness.footprint() }
     return { ...phase, ...run, connectionNotices: this.connection?.notices.length ?? 0 }
   }
 
@@ -166,7 +169,8 @@ export class Run {
 
   private async sequence(): Promise<RunReport | null> {
     const { settings } = this.options
-    const skipped = MEASURING.filter((name) => !settings.phases.includes(name))
+    const phases = runPhases(settings)
+    const skipped = MEASURING.filter((name) => !phases.includes(name))
     this.enter('info')
     const start = await infoPhase(this.startContext())
     if (start === null) {
@@ -174,7 +178,7 @@ export class Run {
         this.event('info', 'failed')
       }
       // A stop or an error before the first measuring phase: every one of them is skipped.
-      ;[...skipped, ...settings.phases].forEach((phase) => this.event(phase, 'skipped'))
+      ;[...skipped, ...phases].forEach((phase) => this.event(phase, 'skipped'))
       return null
     }
     this.event('info', 'finished')
@@ -182,17 +186,17 @@ export class Run {
     skipped.forEach((phase) => this.event(phase, 'skipped'))
     const directions = { overheadCompensationPercent: settings.overheadCompensationPercent, busy: this.fraction }
     const report: RunReport = { ...start, status: 'complete', protocol: null, settings, idle: null, download: null, upload: null, loaded: { download: null, upload: null }, responsiveness: { download: null, upload: null }, skipped, notices: [], dataUsedBytes: 0, error: null }
-    for (const phase of settings.phases) {
+    for (const phase of phases) {
       if (this.interrupt !== null || report.download?.dataCapReached === true || report.upload?.dataCapReached === true) {
         report.skipped.push(phase)
         this.event(phase, 'skipped')
       } else if (phase === 'idle') {
         report.idle = await this.idlePhase()
       } else if (phase === 'download') {
-        const download = new DownloadPhase(this.phaseOptions('download', start))
+        const download = new DownloadPhase(phaseOptions('download', this.phaseContext(start)))
         report.download = this.settle('download', await this.throughput(download, () => download.inFlightCount), discardedDownload, (outcome) => downloadResult(outcome, this.downloadStartAt ?? 0, directions))
       } else {
-        const upload = new UploadPhase({ ...this.phaseOptions('upload', start), epoch: start.info.server.epoch })
+        const upload = new UploadPhase({ ...phaseOptions('upload', this.phaseContext(start)), epoch: start.info.server.epoch })
         report.upload = this.settle('upload', await this.throughput(upload, () => upload.inFlightCount), discardedUpload, (outcome) => uploadResult(outcome, directions))
       }
     }
@@ -207,7 +211,7 @@ export class Run {
     return {
       ...report,
       responsiveness: this.responsiveness.results(),
-      status: interrupt === null ? 'complete' : interrupt.kind === 'stop' ? 'partial' : 'error',
+      status: runStatus(interrupt, report),
       protocol: this.protocol,
       dataUsedBytes: this.dataUsed,
       error: interrupt?.kind === 'error' ? interrupt.code : null,
@@ -261,26 +265,11 @@ export class Run {
     return outcome
   }
 
-  private phaseOptions(direction: Direction, start: Pick<RunReport, 'info'>) {
-    const { settings } = this.options
-    return {
-      clock: this.clock,
-      transport: this.options.transport,
-      preset: settings.preset,
-      streams: settings.streams,
-      bounds: settings[direction],
-      warmup: settings.warmup,
-      dataCapBytes: settings.dataCapBytes,
-      dataUsedBefore: this.dataUsed,
-      limits: start.info.limits,
-      rttMs: this.idleMedian,
-      ...this.loaded.reserve(direction),
-      ended: (graceMs: number) => {
-        this.loaded.end(direction, graceMs)
-        this.responsiveness.end(direction)
-      },
-      warmedUp: (end: WarmupEnd) => this.responsiveness.warmedUp(direction, end),
-    }
+  /** What a throughput phase's options read from the run. */
+  private phaseContext(start: Pick<RunReport, 'info'>): PhaseContext {
+    const { clock, transport, settings } = this.options
+    const steady = (end: WarmupEnd) => this.busy.pin(this.enteredAt + end.bucket * BUCKET_MS)
+    return { clock, transport, settings, limits: start.info.limits, dataUsedBefore: this.dataUsed, rttMs: this.idleMedian, loaded: this.loaded, responsiveness: this.responsiveness, steady }
   }
 
   /** Runs a direction with loaded latency alongside; `inFlight` counts its throughput requests. */
@@ -290,11 +279,14 @@ export class Run {
     const direction = phase instanceof DownloadPhase ? 'download' : 'upload'
     this.enter(direction)
     this.current = phase
-    this.sampling = { phase, feed: new SampleFeed(() => this.loaded.answered()), before: this.dataUsed }
+    const { settings } = this.options
+    // Continuous: the live figures, and loaded latency folded into per-second medians (measurement.md section 15).
+    const continuous = settings.preset === 'continuous' ? { runLengthMs: settings.runLengthMs ?? null, loadedMs: () => this.loaded.lastMinuteMedianMs() } : null
+    this.sampling = { phase, feed: new SampleFeed(() => this.loaded.answered(), continuous), before: this.dataUsed }
     if (phase instanceof DownloadPhase) {
       this.downloadStartAt = this.clock.now()
     }
-    this.loaded.start(direction, this.clock.now(), inFlight)
+    this.loaded.start(direction, this.clock.now(), inFlight, continuous === null ? null : settleBuckets(this.idleMedian) * BUCKET_MS)
     const outcome = await phase.run()
     this.busy.record(this.clock.now(), this.clock.busyMs())
     this.sample(this.clock.now())
@@ -346,7 +338,7 @@ export class Run {
     // Typed here so that the dead-code analysis sees the feed's members in use.
     const feed: SampleFeed = sampling.feed
     const { phase, before } = sampling
-    const event = phase instanceof DownloadPhase ? feed.download(phase, before) : feed.upload(phase, before, now)
+    const event = phase instanceof DownloadPhase ? feed.download(phase, before, now - this.enteredAt) : feed.upload(phase, before, now)
     if (event !== null) {
       this.options.emit({ ...event, phaseMs: now - this.enteredAt })
     }

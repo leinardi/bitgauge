@@ -81,7 +81,8 @@ function duration(result: Result, direction: Direction, { t, locale }: Wording):
   }
   const value = formatDuration(series.endMs, locale)
   const bounds = result.settings[direction]
-  if (bounds === undefined) {
+  // A Continuous result's bounds are null: it has a duration and no bounds.
+  if (bounds === undefined || bounds.minMs === null) {
     return t('result.parameters.durationOnly', { duration: value })
   }
   const seconds = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 })

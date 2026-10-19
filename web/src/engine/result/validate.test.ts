@@ -21,7 +21,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { Result, Scores } from '@/engine/messages'
+import type { Notice, Result, Scores } from '@/engine/messages'
 import { validateResult } from '@/engine/result/validate'
 
 const VALID: Result = {
@@ -88,10 +88,28 @@ describe('the result validator', () => {
   })
 
   it('rejects a field of a later version, wherever it is', () => {
-    expect(validateResult(changed((result) => Object.assign(result.settings, { runLengthMs: 60_000 })))).toEqual(['result.settings.runLengthMs: not a field of this schema version'])
-    expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { minBitsPerSecond: 1 })))).toEqual([
-      'result.download.minBitsPerSecond: not a field of this schema version',
+    expect(validateResult(changed((result) => Object.assign(result.settings, { liveTiers: 4 })))).toEqual(['result.settings.liveTiers: not a field of this schema version'])
+    expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { medianBitsPerSecond: 1 })))).toEqual([
+      'result.download.medianBitsPerSecond: not a field of this schema version',
     ])
+  })
+
+  it('accepts the v0.3 Continuous fields, and a result without them', () => {
+    const continuous = changed((result) => {
+      Object.assign(result.settings, { preset: 'continuous', continuousDirection: 'download', runLengthMs: 3_600_000, download: { minMs: null, maxMs: null }, upload: { minMs: null, maxMs: null } })
+      Object.assign(result.download ?? {}, { minBitsPerSecond: 80_000_000, maxBitsPerSecond: 97_000_000 })
+      Object.assign(result.download?.series ?? {}, { knownMs: [100, 0] })
+      result.notices.push({ code: 'data-used', bytes: 1e9 })
+    })
+    expect(validateResult(continuous)).toEqual([])
+    expect(validateResult(VALID)).toEqual([])
+  })
+
+  it('rejects Continuous fields outside their shape', () => {
+    const halfBounded = changed((result) => Object.assign(result.settings, { download: { minMs: null, maxMs: 20_000 } }))
+    expect(validateResult(halfBounded)).toEqual(['result.settings.download.maxMs: not one of null'])
+    expect(validateResult(changed((result) => Object.assign(result.settings, { continuousDirection: 'both' })))).toEqual(['result.settings.continuousDirection: not one of download, upload'])
+    expect(validateResult(changed((result) => result.notices.push({ code: 'data-used' } as Notice)))).toEqual(['result.notices[2].bytes: missing'])
   })
 
   it('accepts the v0.2 loaded latency and bufferbloat, and a result without them', () => {
@@ -196,7 +214,7 @@ describe('the result validator', () => {
   })
 
   it('rejects an unknown notice or event, and a notice without its values', () => {
-    expect(validateResult(changed((result) => result.notices.push({ code: 'data-used' } as never)))).toEqual(['result.notices[2].code: unknown'])
+    expect(validateResult(changed((result) => result.notices.push({ code: 'latency-spike' } as never)))).toEqual(['result.notices[2].code: unknown'])
     expect(validateResult(changed((result) => result.notices.push({ code: 'stream-limit', direction: 'upload' } as never)))).toEqual([
       'result.notices[2].streams: missing',
     ])

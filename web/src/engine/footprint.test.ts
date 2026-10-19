@@ -28,7 +28,7 @@ import { Streams } from '@/engine/download/streams'
 import { LoadedLatency, type LoadedSample } from '@/engine/latency/loaded'
 import { Run } from '@/engine/run'
 import type { RunSettings } from '@/engine/settings'
-import type { BucketSink, Cell } from '@/engine/stats/buckets'
+import type { BucketSink } from '@/engine/stats/buckets'
 import { FakeClock } from '@/engine/test/fakeClock'
 import { FakeTransport, type Scenario } from '@/engine/test/fakeTransport'
 import type { ProbeTiming } from '@/engine/types'
@@ -75,22 +75,22 @@ describe('the download requests', () => {
   })
 })
 
-/** A download phase on the fake transport, run to its end. */
-async function download(sink?: BucketSink): Promise<{ phase: DownloadPhase; outcome: DownloadOutcome }> {
+/** A download phase on the fake transport, run to its end at 30 s: bounded at 30 s to 30 s, or Continuous with a 30 s run length. */
+async function download(continuous: boolean): Promise<{ phase: DownloadPhase; outcome: DownloadOutcome }> {
   const clock = new FakeClock()
   const scenario: Scenario = { rate: () => 12_500_000, rttMs: 50, protocol: 'h2' }
   const phase = new DownloadPhase({
     clock,
     transport: new FakeTransport(clock, scenario),
-    preset: 'standard',
+    preset: continuous ? 'continuous' : 'standard',
     streams: { mode: 'auto', fixed: 3, max: 6 },
-    bounds: { minMs: 10_000, maxMs: 20_000 },
+    bounds: continuous ? null : { minMs: 30_000, maxMs: 30_000 },
+    ...(continuous ? { continuous: { runLengthMs: 30_000 } } : {}),
     warmup: 'auto',
     dataCapBytes: null,
     dataUsedBefore: 0,
     limits: { maxDownloadBytes: 256 * MIB, maxStreamsPerClient: 6 },
     rttMs: scenario.rttMs,
-    ...(sink === undefined ? {} : { sink }),
   })
   let outcome: DownloadOutcome | undefined
   void phase.run().then((value) => (outcome = value))
@@ -102,20 +102,22 @@ async function download(sink?: BucketSink): Promise<{ phase: DownloadPhase; outc
 }
 
 describe('the bucket sink', () => {
-  it('takes the buckets closed after warm-up instead of the live series, the outcome unchanged', async () => {
-    const plain = await download()
-    const sink = kept<Cell>()
-    const handed = await download(sink)
-    expect(handed.outcome).toEqual(plain.outcome)
-    const warmup = handed.outcome.warmup?.bucket ?? Number.NaN
-    // The series stops within the tick that ended warm-up; the sink has every bucket after it.
-    expect(handed.phase.series.end).toBeGreaterThanOrEqual(warmup)
-    expect(handed.phase.series.end + sink.values.length).toBe(plain.phase.series.end)
-    expect(sink.values).toEqual(plain.phase.series.range(handed.phase.series.end, plain.phase.series.end))
-    expect(handed.phase.footprint().downloadSeries).toBe(handed.phase.series.end)
-    // The per-bucket bytes stay whole: the bounded window rules read them to the end, and a
-    // Continuous download, which has no such rules, is the next step's.
-    expect(handed.phase.footprint().downloadBytes).toBe(plain.phase.footprint().downloadBytes)
+  it('hands a Continuous download’s buckets from its steady start to the retention, which keeps them, and the phase only the open one', async () => {
+    const bounded = await download(false)
+    const { phase, outcome } = await download(true)
+    const retention = outcome.retention
+    const first = retention?.first ?? Number.NaN
+    expect(outcome.endMs).toBe(bounded.outcome.endMs)
+    expect(first).toBe(bounded.outcome.warmup?.bucket)
+    expect(retention?.end).toBe(300)
+    // Up to the steady start in the live series, then in the retention, the same bytes as a bounded run's buckets.
+    expect(phase.series.range(0, first)).toEqual(bounded.outcome.buckets.slice(0, first))
+    expect(retention?.values(first, 300)).toEqual(bounded.outcome.buckets.slice(first, 300))
+    expect(outcome.buckets).toEqual([])
+    // The series stops once the ramp settles; the per-bucket bytes keep the open bucket alone.
+    expect(phase.footprint().downloadSeries).toBeLessThan(first + 50)
+    expect(phase.footprint().downloadBytes).toBeLessThanOrEqual(1)
+    expect(phase.footprint().retentionCells).toBe(6000 + 3600 + 1440 + 1008)
   })
 
   it('takes the answered pings instead of the pinger, whose outcome then keeps none', async () => {
@@ -282,7 +284,7 @@ describe('the run’s footprint', () => {
     const transport = new FakeTransport(clock, { rate: () => 1_000_000, rttMs: 50, protocol: 'h2' })
     const run = new Run({ clock, transport, settings: quick, visible: true, emit: () => undefined })
     void run.start()
-    expect(Object.keys(run.footprint()).sort()).toEqual(['busySamples', 'connectionNotices', 'loadedSamples', 'pathBSamples'])
+    expect(Object.keys(run.footprint()).sort()).toEqual(['busySamples', 'connectionNotices', 'loadedSamples', 'loadedSeconds', 'pathBSamples'])
     const phases: Record<string, number>[] = []
     let issued = 0
     for (let at = 0; at < 60_000; at += 100) {
@@ -297,8 +299,8 @@ describe('the run’s footprint', () => {
       }
     }
     const [during, upload] = phases
-    expect(Object.keys(during ?? {}).sort()).toEqual(['busySamples', 'connectionNotices', 'downloadBytes', 'downloadRequests', 'downloadSeries', 'loadedSamples', 'pathBSamples'])
-    expect(Object.keys(upload ?? {}).sort()).toEqual(['busySamples', 'connectionNotices', 'loadedSamples', 'pathBSamples', 'uploadCells', 'uploadEntries', 'uploadOffsets'])
+    expect(Object.keys(during ?? {}).sort()).toEqual(['busySamples', 'connectionNotices', 'downloadBytes', 'downloadRequests', 'downloadSeries', 'loadedSamples', 'loadedSeconds', 'pathBSamples'])
+    expect(Object.keys(upload ?? {}).sort()).toEqual(['busySamples', 'connectionNotices', 'loadedSamples', 'loadedSeconds', 'pathBSamples', 'uploadCells', 'uploadEntries', 'uploadOffsets'])
     // The requests that ended before warm-up are gone: fewer kept than issued by then.
     expect(during?.['downloadRequests'] ?? Number.NaN).toBeLessThan(issued)
     expect(during?.['loadedSamples'] ?? 0).toBeGreaterThan(0)

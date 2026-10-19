@@ -35,6 +35,8 @@ const REQUESTS_PER_STREAM = 2
 export const MAX_VARIATION = 0.1
 /** The cap: max(3 s, 25 % of the phase max), moved by a running ramp to at most 50 % of the max. */
 const CAP_FLOOR_MS = 3000
+/** Continuous has no max: an absolute 10 s cap that never moves (measurement.md section 8.3). */
+const CONTINUOUS_CAP_MS = 10_000
 const CAP_SHARE = 0.25
 const BOUND_SHARE = 0.5
 
@@ -50,8 +52,8 @@ export interface RampView {
 
 export interface WarmupOptions {
   direction: Direction
-  /** The phase's maximum duration. */
-  maxMs: number
+  /** The phase's maximum duration; null in Continuous, which has none. */
+  maxMs: number | null
   /** A fixed warm-up in milliseconds, or null for the auto rule. */
   fixedMs: number | null
 }
@@ -86,8 +88,9 @@ export class Warmup {
   constructor(options: WarmupOptions) {
     this.direction = options.direction
     this.fixed = options.fixedMs === null ? null : buckets(options.fixedMs)
-    this.cap = buckets(Math.max(CAP_FLOOR_MS, CAP_SHARE * options.maxMs))
-    this.bound = buckets(BOUND_SHARE * options.maxMs)
+    const { maxMs } = options
+    this.cap = buckets(maxMs === null ? CONTINUOUS_CAP_MS : Math.max(CAP_FLOOR_MS, CAP_SHARE * maxMs))
+    this.bound = maxMs === null ? this.cap : buckets(BOUND_SHARE * maxMs)
   }
 
   /**

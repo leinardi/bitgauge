@@ -43,9 +43,10 @@ function opened(url: string) {
   const { durationMs, ...fields } = override
   let settings = storedOver(DEFAULTS, { preset: fields.preset ?? DEFAULTS.preset })
   settings = { ...settings, ...fields }
-  if (durationMs !== undefined) {
-    settings.download = { minMs: Math.min(settings.download.minMs, durationMs), maxMs: durationMs }
-    settings.upload = { minMs: Math.min(settings.upload.minMs, durationMs), maxMs: durationMs }
+  const { download, upload } = settings
+  if (durationMs !== undefined && download.minMs !== null && upload.minMs !== null) {
+    settings.download = { minMs: Math.min(download.minMs, durationMs), maxMs: durationMs }
+    settings.upload = { minMs: Math.min(upload.minMs, durationMs), maxMs: durationMs }
   }
   return { params, settings, ignored }
 }

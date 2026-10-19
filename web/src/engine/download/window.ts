@@ -33,7 +33,7 @@ export interface DownloadWindow {
 }
 
 /**
- * The steady window from the bucket `warmupEnd` to `endMs`, over `bytes` per bucket, with
+ * The steady window from the bucket `warmupEnd` to `endMs`, over `bytes` of each bucket, with
  * `contributors` the different requests that added bytes to a bucket range. It holds the full
  * buckets only: an end between two ticks, a stop or the data cap, leaves the last bucket partial,
  * and the window ends before it. Null before warm-up ended, or within the first bucket after it.
@@ -41,7 +41,7 @@ export interface DownloadWindow {
 export function downloadWindow(
   warmupEnd: number,
   endMs: number,
-  bytes: readonly number[],
+  bytes: (bucket: number) => number,
   contributors: (from: number, to: number) => number,
 ): (DownloadWindow & { holds: boolean }) | null {
   const to = Math.floor(endMs / BUCKET_MS)
@@ -53,7 +53,7 @@ export function downloadWindow(
   const requests = contributors(warmupEnd, to)
   let sum = 0
   for (let bucket = warmupEnd; bucket < to; bucket++) {
-    sum += bytes[bucket] ?? 0
+    sum += bytes(bucket)
   }
   return { fromMs, toMs, bytes: sum, requests, holds: windowConditionHolds('download', toMs - fromMs, requests) }
 }

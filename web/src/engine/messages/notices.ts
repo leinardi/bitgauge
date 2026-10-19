@@ -31,14 +31,13 @@ export interface Confidence {
   reasons: ConfidenceReason[]
 }
 
-/**
- * The notices of measurement.md section 16, each with the raw values it names. `data-used`
- * (Continuous) belongs to a later version.
- */
+/** The notices of measurement.md section 16, each with the raw values it names. */
 export type Notice =
   | { code: 'slow-link-extended'; direction: Direction }
   | { code: 'low-confidence'; direction: Direction; reasons: ConfidenceReason[] }
   | { code: 'data-cap-reached'; direction: Direction }
+  /** A Continuous run's data used crossed `bytes`, 10⁹ × 10ᵏ (measurement.md section 15). */
+  | { code: 'data-used'; bytes: number }
   /** A `429` lowered the effective cap; `streams` is the lowered cap (measurement.md section 4). */
   | { code: 'stream-limit'; direction: Direction; streams: number }
   | { code: 'insufficient-data'; direction: Direction; offer: Preset | null }

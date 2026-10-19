@@ -74,10 +74,11 @@ export class DurationRule {
   extended = false
 
   private readonly direction: Direction
-  private readonly bounds: DurationBounds
+  /** Null in Continuous, which has no minimum, no maximum and no extension (measurement.md section 5). */
+  private readonly bounds: DurationBounds | null
   private readonly preset: Preset
 
-  constructor(direction: Direction, bounds: DurationBounds, preset: Preset) {
+  constructor(direction: Direction, bounds: DurationBounds | null, preset: Preset) {
     this.direction = direction
     this.bounds = bounds
     this.preset = preset
@@ -91,6 +92,9 @@ export class DurationRule {
   evaluate(elapsedMs: number, conditionHolds: boolean, dataCapReached = false): DurationVerdict {
     if (dataCapReached) {
       return 'end'
+    }
+    if (this.bounds === null) {
+      return 'continue'
     }
     if (elapsedMs >= this.bounds.minMs) {
       if (conditionHolds) {

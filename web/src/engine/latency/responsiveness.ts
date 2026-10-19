@@ -54,8 +54,10 @@ export interface PathBSample {
 export interface PathBInput {
   /** The capability check's nextHopProtocol; empty when it was not reported, failed or had no entry. */
   protocol: string
-  /** The valid probes of the direction's window, in send order. */
+  /** The valid probes of the direction's window, in send order; in Continuous the last 64 (section 15). */
   samples: readonly PathBSample[]
+  /** Every valid probe since the warm-up end; more than `samples` holds once a Continuous ring dropped some. */
+  count?: number
   /** The direction's end instant on the client clock; null when its prober never ran. */
   endAt: number | null
   /** Whether the direction has a steady window: it is measured, or partial with a window. */
@@ -89,7 +91,8 @@ export function tm95(values: readonly number[]): { meanMs: number; trimmed: numb
 /** The direction's responsiveness block, its state by the precedence of section 12.4. */
 export function responsiveness(input: PathBInput): Responsiveness {
   const { protocol, samples, endAt, resolutionMs } = input
-  const counted = { protocol, samples: samples.length }
+  const total = input.count ?? samples.length
+  const counted = { protocol, samples: total }
   if (!pathBRuns(protocol)) {
     return { state: 'unavailable_h1', ...counted }
   }
@@ -102,7 +105,7 @@ export function responsiveness(input: PathBInput): Responsiveness {
     return { state: 'unavailable_insufficient', ...counted }
   }
   const uncertain =
-    samples.length < MEASURED_SAMPLES || input.cappedWarmup || samples.some((sample) => sample.connection !== 'reused' || sample.protocol !== protocol)
+    total < MEASURED_SAMPLES || input.cappedWarmup || samples.some((sample) => sample.connection !== 'reused' || sample.protocol !== protocol)
   return {
     state: uncertain ? 'uncertain' : 'measured',
     ...counted,

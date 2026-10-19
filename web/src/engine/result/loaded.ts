@@ -17,6 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { continuousLoadedResult } from '@/engine/continuous/loaded'
 import { bufferbloat, loadedLatencyResult } from '@/engine/latency/grade'
 import type { Bufferbloat, DirectionResult, LoadedLatency, LoadedPing, UploadResult } from '@/engine/messages'
 import { settleBuckets } from '@/engine/phases/ramp'
@@ -85,13 +86,15 @@ export function withLoaded(report: Pick<RunReport, 'idle' | 'upload' | 'loaded'>
     if (direction === null) {
       return undefined
     }
-    const loaded = loadedLatencyResult(direction.outcome, {
+    const context = {
       idleMedianMs,
       idleSource: idle?.result.path ?? null,
       settleMs,
       hasWindow: result.bitsPerSecond !== undefined && (result.status === 'measured' || result.status === 'partial'),
       reservation: direction.reserved,
-    })
+    }
+    // In Continuous the last hour's per-second medians stand for the samples (measurement.md section 15).
+    const loaded = direction.seconds === null ? loadedLatencyResult(direction.outcome, context) : continuousLoadedResult(direction.seconds, direction.outcome, context)
     return stored(loaded, resolutionMs, place)
   }
   const down = block(report.loaded.download, download, (atMs) => atMs)

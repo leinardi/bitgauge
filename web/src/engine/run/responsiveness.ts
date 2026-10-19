@@ -29,6 +29,8 @@ import type { Clock, ProbeTiming, Transport } from '@/engine/types'
 // capability rules path B out. Each direction's block is settled as it finishes.
 
 const SMALL_PATH = '/api/v1/small'
+/** In Continuous the prober keeps its last 64 valid probes (measurement.md section 15). */
+const CONTINUOUS_PROBES = 64
 
 /** The capability check's protocol: the one reported, empty when the probe failed, answered other than 200 or had no entry. */
 export function capabilityOf(probe: ProbeTiming | null): string {
@@ -52,17 +54,24 @@ function sampleOf(probe: ProbeTiming): PathBSample | null {
   }
 }
 
-/** One direction's prober: a probe every 300 ms, a tick skipped while the last is pending. */
+/**
+ * One direction's prober: a probe every 300 ms, a tick skipped while the last is pending. It keeps
+ * every valid probe, or in Continuous a ring of the last 64, with the count of every one.
+ */
 class Prober {
   readonly samples: PathBSample[] = []
+  /** Every valid probe since it started, those the ring dropped included. */
+  count = 0
   private readonly transport: Pick<Transport, 'probe'>
   private readonly ticker: Ticker
+  private readonly limit: number
   private pending: AbortController | null = null
   private stopped = false
 
-  constructor(clock: Clock, transport: Pick<Transport, 'probe'>) {
+  constructor(clock: Clock, transport: Pick<Transport, 'probe'>, continuous: boolean) {
     this.transport = transport
     this.ticker = new Ticker(clock, () => this.tick())
+    this.limit = continuous ? CONTINUOUS_PROBES : Number.POSITIVE_INFINITY
   }
 
   start(): void {
@@ -85,7 +94,11 @@ class Prober {
       this.pending = null
       const sample = this.stopped || probe === null ? null : sampleOf(probe)
       if (sample !== null) {
+        this.count++
         this.samples.push(sample)
+        if (this.samples.length > this.limit) {
+          this.samples.shift()
+        }
       }
     })
   }
@@ -118,11 +131,11 @@ export class ResponsivenessProbes {
   }
 
   /** The direction learned its warm-up ended: its prober starts now, when the capability allows it. */
-  warmedUp(direction: Direction, end: WarmupEnd): void {
+  warmedUp(direction: Direction, end: WarmupEnd, continuous = false): void {
     if (this.probing.has(direction)) {
       return
     }
-    const prober = pathBRuns(this.protocol ?? '') ? new Prober(this.clock, this.transport) : null
+    const prober = pathBRuns(this.protocol ?? '') ? new Prober(this.clock, this.transport, continuous) : null
     this.probing.set(direction, { prober, capped: end.confidence.reasons.length > 0, endAt: null })
     prober?.start()
   }
@@ -143,6 +156,7 @@ export class ResponsivenessProbes {
     const settled = responsiveness({
       protocol: this.protocol ?? '',
       samples: probing?.prober?.samples ?? [],
+      count: probing?.prober?.count ?? 0,
       endAt: probing?.endAt ?? null,
       window: hasWindow(block),
       cappedWarmup: probing?.capped ?? false,

@@ -101,11 +101,13 @@ export function chartMeta({ state, order, live, model, durations, totalMs }: Cha
       return t('test.chart.stopped', { s: seconds(model.end) })
     case 'running': {
       const current = order.filter((direction) => live[direction] !== null).at(-1)
-      if (current === undefined || durations === null) {
+      // Continuous, which the app does not run yet, plans no end.
+      const minMs = current === undefined || durations === null ? null : durations[current].minMs
+      if (minMs === null) {
         return ''
       }
       // The phase's planned end reads as briefly as it is: 10 s, 15.2 s (charts.md: "7.5 s / 10 s").
-      const planned = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format((model.separators.at(-1) ?? 0) + durations[current].minMs / 1000)
+      const planned = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format((model.separators.at(-1) ?? 0) + minMs / 1000)
       return t('test.chart.elapsed', { s: seconds(model.end), of: planned })
     }
   }

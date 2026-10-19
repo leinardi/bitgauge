@@ -73,6 +73,22 @@ describe('a direction’s prober', () => {
     expect(paths.results()).toMatchObject({ download: { state: 'measured' }, upload: null })
   })
 
+  it('keeps a ring of the last 64 probes in Continuous, counting every one, with TM95 over the last 4 s', async () => {
+    // The first minute answered in 40 ms, the rest in 90 ms: by the end the ring holds only the slow ones.
+    const scenario = { ...H2 }
+    const { clock, probes: delayed } = await probes(scenario)
+    delayed.protocol = 'h2'
+    delayed.warmedUp('download', UNCAPPED, true)
+    await clock.advance(60_000)
+    scenario.rttMs = 90
+    await clock.advance(60_020)
+    expect(delayed.footprint()).toBe(64)
+    delayed.end('download')
+    const block = delayed.settle('download', MEASURED, 0.1)
+    expect(block).toMatchObject({ state: 'measured', protocol: 'h2', tm95Ms: 90, totalMedianMs: 90, trimmed: 0 })
+    expect(block.samples).toBeGreaterThan(300)
+  })
+
   it('keeps one probe outstanding: a tick while one is pending is skipped', async () => {
     // 500 ms per probe: the 300 ms tick finds it pending, the 600 ms one sends the next. The tenth,
     // sent at 5400 ms, is still outstanding at the end: fewer than 10 samples.

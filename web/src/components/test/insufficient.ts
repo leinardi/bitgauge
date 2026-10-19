@@ -52,7 +52,7 @@ export function insufficientWording(notice: InsufficientData, context: Wording &
   const current = context.current ?? null
   const continuing = current === 'download' || current === 'upload' ? (current === direction ? null : current) : null
   const sentences = [
-    maxMs === undefined
+    maxMs === undefined || maxMs === null
       ? download ? t('notices.insufficientData.download') : t('notices.insufficientData.upload')
       : download ? t('notices.insufficientData.downloadMax', { max: formatLimit(maxMs, locale) }) : t('notices.insufficientData.uploadMax', { max: formatLimit(maxMs, locale) }),
     ...(bytes === undefined ? [] : [t('notices.insufficientData.used', { data: formatBytes(bytes, locale) })]),

@@ -135,6 +135,11 @@ export class LoadedLatency {
     return this.samples.length
   }
 
+  /** The ticks skipped and the pings lost so far, which a Continuous source switch restarts from. */
+  counters(): { skippedTicks: number; lost: number } {
+    return { skippedTicks: this.skippedTicks, lost: this.lost }
+  }
+
   /** Stops sending; resolves once every outstanding ping is answered, or after `graceMs` with the rest lost. */
   finish(graceMs: number): Promise<LoadedOutcome> {
     this.stop()

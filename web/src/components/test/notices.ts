@@ -17,11 +17,11 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { CircleAlert, CircleMinus, EyeOff, Gauge, Hourglass, Info, Layers, Link, Percent, RefreshCw, ServerOff, Timer, TriangleAlert, Wifi } from '@lucide/vue'
+import { CircleAlert, CircleMinus, Database, EyeOff, Gauge, Hourglass, Info, Layers, Link, Percent, RefreshCw, ServerOff, Timer, TriangleAlert, Wifi } from '@lucide/vue'
 import type { Component } from 'vue'
 
 import type { Notice, Preset, Result } from '@/engine/messages'
-import { formatPercent } from '@/lib/format'
+import { formatBytes, formatPercent } from '@/lib/format'
 import { links } from '@/lib/links'
 
 import { type IgnoredContext, ignoredBody } from '@/components/test/ignored'
@@ -105,6 +105,11 @@ export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
     }
     case 'data-cap-reached':
       return { tone: 'warn', icon: Gauge, title: t('notices.dataCapReached.title'), body: notice.direction === 'download' ? t('notices.dataCapReached.download') : t('notices.dataCapReached.upload'), actions: [] }
+    case 'data-used': {
+      // A Continuous run passed 10⁹ × 10ᵏ bytes; the next notice comes at ten times as much.
+      const data = formatBytes(notice.bytes, locale)
+      return { tone: 'info', icon: Database, title: t('notices.dataUsed.title', { data }), body: t('notices.dataUsed.body', { data, next: formatBytes(notice.bytes * 10, locale) }), actions: [] }
+    }
     case 'stream-limit': {
       const n = notice.streams
       return { tone: 'info', icon: Layers, title: t('notices.streamLimit.title', { n }, n), body: notice.direction === 'download' ? t('notices.streamLimit.download', { n }) : t('notices.streamLimit.upload', { n }), actions: [] }

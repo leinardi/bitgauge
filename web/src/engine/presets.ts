@@ -17,19 +17,19 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { DurationBounds, Preset } from '@/engine/messages'
+import type { BoundedPreset, DurationBounds, NoBounds, Preset } from '@/engine/messages'
 
-// The presets of measurement.md section 8.5. Continuous arrives in v0.3 and is absent.
+// The presets of measurement.md section 8.5: Continuous has no bounds and runs one direction.
 
-export interface PresetDefinition {
+export interface PresetDefinition<Bounds extends DurationBounds | NoBounds = DurationBounds | NoBounds> {
   /** Quick runs three fixed streams; the others ramp (measurement.md section 4). */
   streams: { mode: 'fixed'; fixed: number } | { mode: 'auto' }
-  download: DurationBounds
-  upload: DurationBounds
+  download: Bounds
+  upload: Bounds
   pingCount: number
 }
 
-export const PRESETS: Readonly<Record<Preset, PresetDefinition>> = {
+export const PRESETS: Readonly<Record<BoundedPreset, PresetDefinition<DurationBounds>> & Record<'continuous', PresetDefinition<NoBounds>>> = {
   quick: {
     streams: { mode: 'fixed', fixed: 3 },
     download: { minMs: 5000, maxMs: 10_000 },
@@ -48,11 +48,17 @@ export const PRESETS: Readonly<Record<Preset, PresetDefinition>> = {
     upload: { minMs: 20_000, maxMs: 40_000 },
     pingCount: 50,
   },
+  continuous: {
+    streams: { mode: 'auto' },
+    download: { minMs: null, maxMs: null },
+    upload: { minMs: null, maxMs: null },
+    pingCount: 20,
+  },
 }
 
-const ORDER: readonly Preset[] = ['quick', 'standard', 'extended']
+const ORDER: readonly BoundedPreset[] = ['quick', 'standard', 'extended']
 
-/** The next larger preset, offered on a shortfall (measurement.md section 8.6); null after Extended. */
+/** The next larger preset, offered on a shortfall (measurement.md section 8.6); null after Extended and for Continuous. */
 export function nextPreset(preset: Preset): Preset | null {
-  return ORDER[ORDER.indexOf(preset) + 1] ?? null
+  return preset === 'continuous' ? null : (ORDER[ORDER.indexOf(preset) + 1] ?? null)
 }

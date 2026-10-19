@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { DurationBounds, TestSettings } from '@/engine/messages'
+import type { DurationBounds, NoBounds, TestSettings } from '@/engine/messages'
 import { DEFAULT_AUTO_START, MB, same, type StoredSettings, storedOver, streamsShown } from '@/lib/settingsStorage'
 import { SECOND, type Test, testPhases } from '@/lib/urlValues'
 
@@ -37,8 +37,8 @@ export interface SettingsLink {
 const TESTS: readonly Test[] = ['all', 'download', 'upload', 'latency']
 
 /** The bounds with the `duration` parameter: the maximum is it, the minimum at most it. */
-function capped(bounds: DurationBounds, durationMs: number): DurationBounds {
-  return { minMs: Math.min(bounds.minMs, durationMs), maxMs: durationMs }
+function capped(bounds: DurationBounds | NoBounds, durationMs: number): DurationBounds | NoBounds {
+  return bounds.minMs === null ? bounds : { minMs: Math.min(bounds.minMs, durationMs), maxMs: durationMs }
 }
 
 /** A data cap as the `cap` parameter writes it: `none`, whole megabytes, or bytes. */
@@ -74,8 +74,9 @@ export function buildSettingsUrl(base: string, current: TestSettings, defaults: 
     parameters.push(['preset', current.preset])
   }
   if (!same(current.download, linked.download) || !same(current.upload, linked.upload)) {
+    // Continuous, which the app does not run yet, has no duration to link.
     const durationMs = current.download.maxMs
-    if (same(capped(linked.download, durationMs), current.download) && same(capped(linked.upload, durationMs), current.upload)) {
+    if (durationMs !== null && same(capped(linked.download, durationMs), current.download) && same(capped(linked.upload, durationMs), current.upload)) {
       parameters.push(['duration', String(durationMs / SECOND)])
     } else {
       notInLink.push('durations')

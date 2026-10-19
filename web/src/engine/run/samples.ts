@@ -17,9 +17,10 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { continuousSoFar } from '@/engine/continuous/live'
 import type { DownloadPhase } from '@/engine/download/phase'
 import type { EngineEvent, LoadedPing, SteadySoFar } from '@/engine/messages'
-import { type Cell, percentile } from '@/engine/stats/buckets'
+import { type Cell, mean, percentile } from '@/engine/stats/buckets'
 import { BUCKET_MS, bitsFromBytes, bitsPerSecond, bucketRate } from '@/engine/stats/units'
 import type { UploadPhase } from '@/engine/upload/phase'
 import { confirmedSeries, steadyWindow } from '@/engine/upload/window'
@@ -50,6 +51,29 @@ function steady(values: readonly number[]): SteadySoFar | undefined {
   return { avgBitsPerSecond: bitsPerSecond(bytes, values.length * BUCKET_MS), peakBitsPerSecond: bucketRate(peak) }
 }
 
+/** The non-null values of a range of buckets. */
+function known(cells: readonly Cell[]): number[] {
+  return cells.filter((cell) => cell !== null)
+}
+
+/**
+ * The download's buckets from `from` to `to` (exclusive): from the live series up to a Continuous
+ * steady start, from the retention after it, which keeps the last 10 minutes.
+ */
+function values(phase: DownloadPhase, from: number, to: number): Cell[] {
+  const start = Math.max(0, from)
+  const first = phase.retention?.first ?? null
+  if (phase.retention === null || first === null) {
+    return phase.series.range(start, to)
+  }
+  return [...phase.series.range(start, Math.min(first, to)), ...phase.retention.values(Math.max(start, first), to)]
+}
+
+export interface LiveOptions {
+  runLengthMs: number | null
+  loadedMs: () => number | null
+}
+
 /** One direction's feed: each call returns the next message, or null when nothing changed. */
 export class SampleFeed {
   /** The next bucket to send. */
@@ -58,9 +82,12 @@ export class SampleFeed {
   private readonly progress: { at: number; bytes: number }[] = []
   /** Takes the loaded-latency pings answered since it was last called. */
   private readonly pings: () => LoadedPing[]
+  /** Continuous only: the run length, and the loaded latency of the last minute. */
+  private readonly live: LiveOptions | null
 
-  constructor(pings: () => LoadedPing[] = () => []) {
+  constructor(pings: () => LoadedPing[] = () => [], live: LiveOptions | null = null) {
     this.pings = pings
+    this.live = live
   }
 
   /** The sample with the pings answered since the previous one, when there are any. */
@@ -69,28 +96,43 @@ export class SampleFeed {
     return loadedLatency.length === 0 ? sample : { ...sample, loadedLatency }
   }
 
-  download(phase: DownloadPhase, dataUsedBefore: number): Sample | null {
-    const series = phase.series
-    const from = this.next ?? series.first
-    if (series.end <= from) {
+  /** `phaseMs` is how long the phase has run on the client clock. */
+  download(phase: DownloadPhase, dataUsedBefore: number, phaseMs: number): Sample | null {
+    const end = phase.closedBuckets
+    const from = this.next ?? 0
+    if (end <= from) {
       return null
     }
-    this.next = series.end
+    this.next = end
     const warmupEnd = phase.warmupEnd
+    const dataUsedBytes = dataUsedBefore + phase.dataUsed
     const sample: Sample = {
       type: 'sample',
       direction: 'download',
       fromBucket: from,
-      values: series.range(from, series.end),
-      gauge: bucketRate(series.mean(series.end - GAUGE_BUCKETS, series.end) ?? 0),
+      values: values(phase, from, end),
+      gauge: bucketRate(mean(known(values(phase, end - GAUGE_BUCKETS, end))) ?? 0),
       streams: phase.streamCount,
-      dataUsedBytes: dataUsedBefore + phase.dataUsed,
+      dataUsedBytes,
+      ...this.continuous(phase, phaseMs, dataUsedBytes),
     }
     if (warmupEnd === null) {
       return this.withPings(sample)
     }
-    const live = steady(series.known(warmupEnd.bucket, series.end))
+    const live = phase.retention === null ? steady(known(values(phase, warmupEnd.bucket, end))) : undefined
     return this.withPings({ ...sample, warmupEndBucket: warmupEnd.bucket, ...(live === undefined ? {} : { steady: live }) })
+  }
+
+  /** In Continuous, the live figures, the coarse cells closed and the notices raised since the previous sample. */
+  private continuous(phase: DownloadPhase, elapsedMs: number, dataBytes: number): Pick<Sample, 'continuous' | 'cells' | 'notices'> {
+    const retention = phase.retention
+    if (retention === null || this.live === null) {
+      return {}
+    }
+    const cells = retention.drain()
+    const notices = phase.usedNotices?.drain() ?? []
+    const live = continuousSoFar(retention, { elapsedMs, runLengthMs: this.live.runLengthMs, dataBytes, loadedMs: this.live.loadedMs() })
+    return { continuous: live, ...(cells.length === 0 ? {} : { cells }), ...(notices.length === 0 ? {} : { notices }) }
   }
 
   /** The upload's gauge is the client's sending progress; its buckets are confirmed server cells. */

@@ -30,8 +30,11 @@ export type PhaseState = 'started' | 'finished' | 'skipped' | 'failed'
 
 export type Direction = 'download' | 'upload'
 
-/** The v0.1 presets (measurement.md section 8.5); Continuous arrives in v0.3. */
-export type Preset = 'quick' | 'standard' | 'extended'
+/** The presets of measurement.md section 8.5; Continuous from v0.3. */
+export type Preset = 'quick' | 'standard' | 'extended' | 'continuous'
+
+/** The presets with a minimum and a maximum duration. */
+export type BoundedPreset = Exclude<Preset, 'continuous'>
 
 export type StreamMode = 'auto' | 'fixed' | 'single'
 
@@ -41,20 +44,35 @@ export interface DurationBounds {
   maxMs: number
 }
 
-/** The resolved settings of a run, as `configure` carries them (configuration.md section 2.3). */
+/** Continuous has neither a minimum nor a maximum (measurement.md section 8.5). */
+export interface NoBounds {
+  minMs: null
+  maxMs: null
+}
+
+/**
+ * The resolved settings of a run, as `configure` carries them (configuration.md section 2.3). A
+ * Continuous run (measurement.md section 8.5) has `NoBounds` for both directions, runs
+ * `continuousDirection` whatever `phases` lists of the two, and may have a run length of 60 s to
+ * 7 days; the bounded presets have neither field.
+ */
 export interface TestSettings {
   preset: Preset
   /** The measuring phases to run, in order; info is not listed because it always runs. */
   phases: MeasuringPhase[]
   streams: { mode: StreamMode; fixed: number; max: number }
-  download: DurationBounds
-  upload: DurationBounds
+  download: DurationBounds | NoBounds
+  upload: DurationBounds | NoBounds
   dataCapBytes: number | null
   units: 'bits' | 'bytes'
   /** `auto`, or a fixed warm-up in milliseconds (measurement.md section 8.3). */
   warmup: 'auto' | number
   pingCount: number
   overheadCompensationPercent: number
+  /** Continuous only: the one direction it runs (v0.3). */
+  continuousDirection?: Direction
+  /** Continuous only: how long its direction runs, absent for a run that lasts until stopped (v0.3). */
+  runLengthMs?: number
 }
 
 /**

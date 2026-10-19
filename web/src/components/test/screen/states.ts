@@ -78,6 +78,10 @@ function activeStep(phase: MeasuringPhase, run: RunView, settings: TestSettings)
   // The phase's own time, on the client clock as its duration rule runs; time left to the minimum,
   // and past it, while the phase extends, to the maximum.
   const { minMs, maxMs } = settings[phase]
+  // Continuous, which the app does not run yet, has no duration to count down.
+  if (minMs === null || maxMs === null) {
+    return { phase, state: 'active' }
+  }
   const left = (elapsed < minMs ? minMs : maxMs) - elapsed
   return { phase, state: 'active', progress: elapsed / maxMs, ...(left > 0 ? { leftMs: left } : {}) }
 }
@@ -130,7 +134,9 @@ export const PENDING_STEPS: PhaseStep[] = [
 /** The phase indicator's steps, in the run's order; between runs every step is pending. */
 export function phaseSteps(run: RunView, settings: TestSettings, locale: string): PhaseStep[] {
   return settings.phases.map((phase): PhaseStep => {
-    const pending: PhaseStep = { phase, state: 'pending', estimate: phase === 'idle' ? { aboutMs: settings.pingCount * PING_SPACING_MS } : settings[phase] }
+    const bounds = phase === 'idle' ? null : settings[phase]
+    const estimate = bounds === null ? { aboutMs: settings.pingCount * PING_SPACING_MS } : bounds.minMs === null ? undefined : bounds
+    const pending: PhaseStep = { phase, state: 'pending', estimate }
     if (run.status === 'idle') {
       return pending
     }
@@ -216,7 +222,9 @@ export function screenTiles(run: RunView, settings: TileSettings, context: Wordi
     // A finished direction shows its part of the result at once, before the run's result.
     const part = result?.[name] ?? (shown ? run.phases[name].result : undefined) ?? null
     const upNext = running && current >= 0 && order.indexOf(name) === current + 1 && run.phases[name].state === 'pending'
-    const tile = directionTile({ direction: name, units: settings.units, live, result: part, overheadPercent: settings.overheadCompensationPercent, upNext, ...(settings[name] === undefined ? {} : { maxMs: settings[name].maxMs }) }, context)
+    // Continuous, which the app does not run yet, has no maximum.
+    const maxMs = settings[name]?.maxMs ?? null
+    const tile = directionTile({ direction: name, units: settings.units, live, result: part, overheadPercent: settings.overheadCompensationPercent, upNext, ...(maxMs === null ? {} : { maxMs }) }, context)
     return shown && part === null && run.phases[name].state === 'skipped' ? { ...tile, lines: [{ text: context.t('test.tiles.skipped') }] } : tile
   }
   const idle = shown ? idleInput(run, result) : null

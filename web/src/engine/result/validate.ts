@@ -144,6 +144,7 @@ const notices: Record<string, Check> = {
   'slow-link-extended': directed('slow-link-extended'),
   'low-confidence': directed('low-confidence', { reasons }),
   'data-cap-reached': directed('data-cap-reached'),
+  'data-used': object({ code: literal('data-used'), bytes: count }),
   'stream-limit': directed('stream-limit', { streams: count }),
   'insufficient-data': directed('insufficient-data', { offer: nullable(literal('quick', 'standard', 'extended')) }),
   'url-parameter-ignored': object({ code: literal('url-parameter-ignored'), parameter: string, value: string }),
@@ -178,13 +179,17 @@ const event = byCode({
   'failure-gap': object({ code: literal('failure-gap'), startMs: amount, endMs: amount }),
 })
 
-const series = object({
-  bucketMs: number(100, true),
-  firstCellMs: amount,
-  warmupEndMs: amount,
-  endMs: amount,
-  values: list(nullable(amount), 2000),
-})
+/** A direction's saved series; `knownMs` only in Continuous (v0.3, section 15). */
+const series = object(
+  {
+    bucketMs: number(100, true),
+    firstCellMs: amount,
+    warmupEndMs: amount,
+    endMs: amount,
+    values: list(nullable(amount), 2000),
+  },
+  { knownMs: list(amount, 2000) },
+)
 
 const source = literal('websocket', 'http-h1-reserved', 'http-h2', 'http-h3')
 const probes = { samples: count, skippedTicks: count, lost: count }
@@ -218,8 +223,10 @@ const scores = object({
   rtc: experience,
 })
 
-/** A direction's resolved duration bounds (v0.2). */
-const bounds = object({ minMs: count, maxMs: count })
+/** A direction's resolved duration bounds (v0.2), both null in Continuous (v0.3). */
+const numericBounds = object({ minMs: count, maxMs: count })
+const noBounds = object({ minMs: literal(null), maxMs: literal(null) })
+const bounds: Check = (value, path, problems) => (isObject(value) && value['minMs'] === null ? noBounds : numericBounds)(value, path, problems)
 
 const directionFields = {
   required: {
@@ -232,6 +239,8 @@ const directionFields = {
     bitsPerSecond: amount,
     peakBitsPerSecond: amount,
     uncompensatedBitsPerSecond: amount,
+    minBitsPerSecond: amount,
+    maxBitsPerSecond: amount,
     windowMs: amount,
     plateau: literal('no-gain', 'cap', 'floor-limited'),
     confidence: object({ level: literal('normal', 'low', 'cpu-bound'), reasons }),
@@ -261,7 +270,7 @@ const result = object(
     }),
     settings: object(
       {
-        preset: literal('quick', 'standard', 'extended'),
+        preset: literal('quick', 'standard', 'extended', 'continuous'),
         phases: list(literal('idle', 'download', 'upload')),
         streams: object({ mode: literal('auto', 'fixed', 'single'), max: count }),
         dataCapBytes: nullable(count),
@@ -269,7 +278,7 @@ const result = object(
         warmup: either(literal('auto'), count),
         pingCount: count,
       },
-      { download: bounds, upload: bounds },
+      { download: bounds, upload: bounds, continuousDirection: direction, runLengthMs: count },
     ),
     dataUsedBytes: count,
     notices: list(notice),

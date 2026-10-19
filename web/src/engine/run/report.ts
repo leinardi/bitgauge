@@ -17,6 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { LoadedSeconds } from '@/engine/continuous/loaded'
 import type { DownloadOutcome } from '@/engine/download/phase'
 import type { IdleOutcome } from '@/engine/latency/idle'
 import type { LoadedOutcome } from '@/engine/latency/loaded'
@@ -35,6 +36,8 @@ export interface LoadedDirection {
   reserved: boolean
   /** The phase start on the client clock, which the pings' instants count from. */
   startAt: number
+  /** Continuous only: the per-second medians the pings folded into, the outcome keeping none. */
+  seconds: LoadedSeconds | null
 }
 
 export interface RunReport {
@@ -135,4 +138,20 @@ export function discardedUpload(outcome: UploadOutcome, code: RunErrorCode): Upl
     windowEndMs: null,
     series: null,
   }
+}
+
+/**
+ * The result status: `error` after an error; for Continuous, `complete` when its direction was
+ * measured, however it ended, and `partial` otherwise (measurement.md section 15); for a bounded
+ * preset, `partial` after a stop.
+ */
+export function runStatus(interrupt: { kind: 'stop' | 'error' } | null, report: Pick<RunReport, 'settings' | 'download' | 'upload'>): ResultStatus {
+  if (interrupt?.kind === 'error') {
+    return 'error'
+  }
+  const { settings } = report
+  if (settings.preset === 'continuous') {
+    return report[settings.continuousDirection ?? 'download']?.status === 'measured' ? 'complete' : 'partial'
+  }
+  return interrupt === null ? 'complete' : 'partial'
 }

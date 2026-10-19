@@ -33,7 +33,7 @@ describe('the stored series', () => {
     // 4001 counted samples alternating 10.0 and 10.1 ms: a group's mean, 10.05 ms, is not on a 0.1 ms grid.
     const samples: LoadedSample[] = Array.from({ length: 4001 }, (_, index) => ({ atMs: 1000 + index * 300, rttMs: index % 2 === 0 ? 10 : 10.1, loaded: true, inFlight: 3, source: 'websocket' }))
     const outcome = { samples, skippedTicks: 0, lost: 0, maxInFlight: 3, sources: ['websocket' as const] }
-    const { download } = withLoaded({ idle: null, upload: null, loaded: { download: { outcome, reserved: false, startAt: 0 }, upload: null } }, MEASURED, SKIPPED, 0.1)
+    const { download } = withLoaded({ idle: null, upload: null, loaded: { download: { outcome, reserved: false, startAt: 0, seconds: null }, upload: null } }, MEASURED, SKIPPED, 0.1)
     const loaded = download.loadedLatency
     if (loaded === undefined || 'status' in loaded) {
       throw new Error('the direction should be measured')

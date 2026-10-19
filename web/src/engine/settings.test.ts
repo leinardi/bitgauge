@@ -155,9 +155,40 @@ describe('the duration override', () => {
   })
 })
 
+describe('Continuous', () => {
+  it('has no bounds and runs download unless its direction is named (measurement.md section 8.5)', () => {
+    expect(settings({ preset: 'continuous' })).toEqual({
+      ...STANDARD,
+      preset: 'continuous',
+      download: { minMs: null, maxMs: null },
+      upload: { minMs: null, maxMs: null },
+      continuousDirection: 'download',
+    })
+  })
+
+  it('takes the duration as its run length, 60 s to 7 days', () => {
+    expect(settings({ preset: 'continuous', durationMs: 60_000 }).runLengthMs).toBe(60_000)
+    expect(settings({ preset: 'continuous', durationMs: 604_800_000 })).toMatchObject({ runLengthMs: 604_800_000, download: { minMs: null, maxMs: null } })
+  })
+
+  it('drops its fields on a switch back to a bounded preset', () => {
+    const continuous = settings({ preset: 'continuous', durationMs: 120_000 })
+    const resolution = resolveSettings(continuous, { preset: 'quick' })
+    expect(resolution.ok && resolution.settings).toEqual({ ...STANDARD, preset: 'quick', streams: { mode: 'fixed', fixed: 3, max: 6 }, download: { minMs: 5000, maxMs: 10_000 }, upload: { minMs: 5000, maxMs: 10_000 }, pingCount: 10 })
+  })
+})
+
 describe('invalid settings', () => {
   const cases: [string, SettingsOverride][] = [
-    ['preset', { preset: 'continuous' as TestSettings['preset'] }],
+    ['preset', { preset: 'turbo' as TestSettings['preset'] }],
+    ['continuousDirection', { preset: 'continuous', continuousDirection: 'upload' }],
+    ['continuousDirection', { continuousDirection: 'download' }],
+    ['runLengthMs', { runLengthMs: 60_000 }],
+    ['runLengthMs', { preset: 'continuous', runLengthMs: 59_000 }],
+    ['download', { preset: 'continuous', download: { minMs: 10_000, maxMs: 20_000 } }],
+    ['download', { download: { minMs: null, maxMs: null } }],
+    ['durationMs', { preset: 'continuous', durationMs: 59_000 }],
+    ['durationMs', { preset: 'continuous', durationMs: 604_801_000 }],
     ['phases', { phases: [] }],
     ['phases', { phases: ['download', 'idle'] }],
     ['phases', { phases: ['download', 'download'] }],

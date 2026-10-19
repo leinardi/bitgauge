@@ -17,6 +17,8 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { Retention } from '@/engine/continuous/retention'
+import { savedSeries } from '@/engine/continuous/series'
 import type { DownloadOutcome } from '@/engine/download/phase'
 import type { Confidence, ConfidenceReason, DirectionResult, Notice, ResultSeries, UploadResult } from '@/engine/messages'
 import { MAX_VARIATION, type WarmupEnd } from '@/engine/phases/warmup'
@@ -28,10 +30,12 @@ import type { UploadOutcome } from '@/engine/upload/outcome'
 
 // A throughput direction's block of the result object (measurement.md sections 9, 16 and 17): the
 // headline and peak over the steady window, overhead compensation, the confidence with the
-// cpu-bound check, and the steady-window series downsampled to at most 2000 points.
+// cpu-bound check, and the steady-window series downsampled to at most 2000 points; a Continuous
+// direction's from its retention (section 15).
 
 const MAX_POINTS = 2000
 const PEAK_PERCENTILE = 90
+const SECOND_MS = 1000
 
 export interface DirectionContext {
   overheadCompensationPercent: number
@@ -94,9 +98,42 @@ function reportsNumber(outcome: DownloadOutcome | UploadOutcome, sufficient: boo
   return sufficient && (outcome.status === 'measured' || outcome.status === 'partial')
 }
 
+/**
+ * A Continuous direction (section 15): measured, its headline the run-wide average over the fully
+ * known 1 s cells since the steady start, its minimum and maximum the lowest and highest of them,
+ * its peak the final p90 of the last hour; insufficient-data without any number or confidence.
+ */
+function continuousResult(outcome: DownloadOutcome, retention: Retention, startAt: number, context: DirectionContext): DirectionResult {
+  const series = savedSeries(retention)
+  const block = { ...base(outcome), ...(series === null ? {} : { series }) }
+  const { warmup } = outcome
+  const first = retention.first
+  if (outcome.status !== 'measured' || warmup === null || first === null) {
+    return block
+  }
+  const { seconds, bytes, minBytes, maxBytes, variation, peakLastHourBytes } = retention.aggregates()
+  const factor = 1 + context.overheadCompensationPercent / 100
+  const windowMs = seconds * SECOND_MS
+  const bits = bitsPerSecond(bytes, windowMs)
+  const rate = (cell: number) => bitsPerSecond(cell, SECOND_MS) * factor
+  return {
+    ...block,
+    bitsPerSecond: bits * factor,
+    ...(peakLastHourBytes === null ? {} : { peakBitsPerSecond: rate(peakLastHourBytes) }),
+    uncompensatedBitsPerSecond: bits,
+    ...(minBytes === null || maxBytes === null ? {} : { minBitsPerSecond: rate(minBytes), maxBitsPerSecond: rate(maxBytes) }),
+    windowMs,
+    // cpu-bound reads the Worker's busy fraction from the steady start to the end.
+    confidence: confidence(warmup, context.busy(startAt + first * BUCKET_MS, startAt + outcome.endMs), variation),
+  }
+}
+
 /** `startAt` is the phase start on the client clock. */
 export function downloadResult(outcome: DownloadOutcome, startAt: number, context: DirectionContext): DirectionResult {
   const { window, warmup } = outcome
+  if (outcome.retention !== null) {
+    return continuousResult(outcome, outcome.retention, startAt, context)
+  }
   if (window === null || warmup === null) {
     return base(outcome)
   }

@@ -25,7 +25,7 @@ import { useI18n } from 'vue-i18n'
 import { presetName } from '@/components/settings/changes'
 import { useSettingsForm } from '@/components/settings/form'
 import { RadioGroup } from '@/components/ui/radio-group'
-import { type Preset, PRESETS, type PresetDefinition } from '@/engine/messages'
+import { type BoundedPreset, type DurationBounds, type Preset, PRESETS, type PresetDefinition } from '@/engine/messages'
 
 // The preset picker (ui/screens.md section 4, kit Settings.jsx and ChoiceCard in forms): one card
 // per preset with the streams, durations and ping count it runs, the server's default marked.
@@ -36,11 +36,11 @@ const { t } = useI18n()
 const form = useSettingsForm()
 const tipId = useId()
 
-function range({ minMs, maxMs }: PresetDefinition['download']): string {
+function range({ minMs, maxMs }: DurationBounds): string {
   return t('settings.values.range', { min: minMs / 1000, max: maxMs / 1000 })
 }
 
-function line(table: PresetDefinition): string {
+function line(table: PresetDefinition<DurationBounds>): string {
   const streams = table.streams.mode === 'fixed' ? t('settings.preset.streamsFixed', table.streams.fixed) : t('settings.preset.streamsAuto')
   const durations =
     table.download.minMs === table.upload.minMs && table.download.maxMs === table.upload.maxMs
@@ -49,10 +49,13 @@ function line(table: PresetDefinition): string {
   return t('settings.preset.line', { streams, durations, pings: t('settings.preset.pings', table.pingCount) })
 }
 
-const ICONS: Record<Preset | 'continuous', Component> = { quick: Zap, standard: Gauge, extended: Timer, continuous: InfinityIcon }
+/** The presets the app runs; Continuous stays a disabled card. */
+const BOUNDED: readonly BoundedPreset[] = ['quick', 'standard', 'extended']
+
+const ICONS: Record<Preset, Component> = { quick: Zap, standard: Gauge, extended: Timer, continuous: InfinityIcon }
 
 const cards = computed(() => [
-  ...(Object.keys(PRESETS) as Preset[]).map((preset) => ({ value: preset, title: presetName(preset, t), text: line(PRESETS[preset]), disabled: false })),
+  ...BOUNDED.map((preset) => ({ value: preset, title: presetName(preset, t), text: line(PRESETS[preset]), disabled: false })),
   { value: 'continuous' as const, title: t('settings.preset.names.continuous'), text: t('settings.preset.continuous'), disabled: true },
 ])
 

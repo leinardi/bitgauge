@@ -41,8 +41,10 @@ const errors = reactive<Record<string, string | null>>({})
 const { t } = useI18n()
 const form = useSettingsForm()
 
-function seconds(direction: Direction, bound: Bound): number {
-  return form.current.value[direction][bound] / SECOND
+/** The bound in seconds; null for Continuous, which has none and which the app does not run yet. */
+function seconds(direction: Direction, bound: Bound): number | null {
+  const ms = form.current.value[direction][bound]
+  return ms === null ? null : ms / SECOND
 }
 
 function validate(direction: Direction, bound: Bound, text: string): string | null {
@@ -50,11 +52,13 @@ function validate(direction: Direction, bound: Bound, text: string): string | nu
   if (value === undefined) {
     return t('settings.errors.duration')
   }
-  if (bound === 'minMs' && value > seconds(direction, 'maxMs')) {
-    return t('settings.errors.minAboveMax', { max: seconds(direction, 'maxMs') })
+  const max = seconds(direction, 'maxMs')
+  const min = seconds(direction, 'minMs')
+  if (bound === 'minMs' && max !== null && value > max) {
+    return t('settings.errors.minAboveMax', { max })
   }
-  if (bound === 'maxMs' && value < seconds(direction, 'minMs')) {
-    return t('settings.errors.maxBelowMin', { min: seconds(direction, 'minMs') })
+  if (bound === 'maxMs' && min !== null && value < min) {
+    return t('settings.errors.maxBelowMin', { min })
   }
   return null
 }
@@ -95,7 +99,7 @@ const rows = computed(() => [
           </span>
           <SettingInput
             :id="`settings-${row.direction}-min`"
-            :value="String(seconds(row.direction, 'minMs'))"
+            :value="String(seconds(row.direction, 'minMs') ?? '')"
             :label="row.min"
             :suffix="t('settings.values.secondsUnit')"
             :validate="(text) => validate(row.direction, 'minMs', text)"
@@ -108,7 +112,7 @@ const rows = computed(() => [
           <span class="text-subtle-foreground">{{ t('settings.duration.to') }}</span>
           <SettingInput
             :id="`settings-${row.direction}-max`"
-            :value="String(seconds(row.direction, 'maxMs'))"
+            :value="String(seconds(row.direction, 'maxMs') ?? '')"
             :label="row.max"
             :suffix="t('settings.values.secondsUnit')"
             :validate="(text) => validate(row.direction, 'maxMs', text)"

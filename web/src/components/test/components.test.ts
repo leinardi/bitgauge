@@ -55,6 +55,7 @@ const EVERY: Record<NoticeCode, Notice> = {
   'slow-link-extended': { code: 'slow-link-extended', direction: 'download' },
   'low-confidence': { code: 'low-confidence', direction: 'upload', reasons: ['insufficient-samples'] },
   'data-cap-reached': { code: 'data-cap-reached', direction: 'download' },
+  'data-used': { code: 'data-used', bytes: 1e11 },
   'stream-limit': { code: 'stream-limit', direction: 'upload', streams: 3 },
   'insufficient-data': { code: 'insufficient-data', direction: 'download', offer: 'extended' },
   'url-parameter-ignored': { code: 'url-parameter-ignored', parameter: 'streams', value: '12' },
@@ -86,6 +87,7 @@ const TONES: Record<NoticeCode, string> = {
   'probe-reservation': 'info',
   'low-confidence': 'warn',
   'data-cap-reached': 'warn',
+  'data-used': 'info',
   'insufficient-data': 'warn',
   'url-parameter-ignored': 'warn',
   'proxy-buffering-suspected': 'warn',
@@ -119,6 +121,7 @@ describe('the notices', () => {
     expect(noticeView(EVERY['stopped-early'], context).title).toBe('Test cancelled during upload')
     expect(noticeView(EVERY['url-parameter-ignored'], context).body).toContain('streams')
     expect(noticeView(EVERY['low-confidence'], context).body).toBe('Upload: few samples.')
+    expect(noticeView(EVERY['data-used'], context)).toMatchObject({ title: `Data used: 100${NB}GB`, body: `This run has passed 100${NB}GB. The next notice appears at 1${NB}TB.` })
   })
 
   it('shows one test-extended notice naming both directions when both extended, in place of the first', () => {

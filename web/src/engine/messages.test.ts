@@ -23,7 +23,7 @@
 
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { EngineCommand, EngineErrorCode, EngineEvent, NoticeCode, PhaseName } from '@/engine/messages'
+import { type EngineCommand, type EngineErrorCode, type EngineEvent, type NoticeCode, type PhaseName, RING_LENGTHS } from '@/engine/messages'
 
 function unreachable(value: never): never {
   throw new Error(`unhandled message ${JSON.stringify(value)}`)
@@ -73,16 +73,21 @@ describe('message contract', () => {
     expectTypeOf<PhaseName>().toEqualTypeOf<'info' | 'idle' | 'download' | 'upload'>()
   })
 
+  it('exports the Continuous ring lengths of measurement.md section 15 for the live chart', () => {
+    expect(RING_LENGTHS).toEqual({ native: 6000, hour: 3600, day: 1440, long: 1008 })
+  })
+
   it('carries a sample value as bytes or null, never anything else', () => {
     type Sample = Extract<EngineEvent, { type: 'sample' }>
     expectTypeOf<Sample['values']>().toEqualTypeOf<(number | null)[]>()
   })
 
-  it('has the v0.2 notice codes of measurement.md section 16', () => {
+  it('has the notice codes of measurement.md section 16', () => {
     expectTypeOf<NoticeCode>().toEqualTypeOf<
       | 'slow-link-extended'
       | 'low-confidence'
       | 'data-cap-reached'
+      | 'data-used'
       | 'stream-limit'
       | 'insufficient-data'
       | 'url-parameter-ignored'

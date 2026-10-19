@@ -87,7 +87,7 @@ export class UploadPhase {
     this.streams = new UploadStreams(options.rttMs)
     const { mode, fixed, max } = options.streams
     this.ramp = new Ramp({ mode, fixed, max, serverMax: options.limits.maxStreamsPerClient, ...(options.streamCap === undefined ? {} : { streamCap: options.streamCap }), rttMs: options.rttMs })
-    this.warmup = new Warmup({ direction: 'upload', maxMs: options.bounds.maxMs, fixedMs: options.warmup === 'auto' ? null : options.warmup })
+    this.warmup = new Warmup({ direction: 'upload', maxMs: options.bounds?.maxMs ?? null, fixedMs: options.warmup === 'auto' ? null : options.warmup })
     this.rule = new DurationRule('upload', options.bounds, options.preset)
     this.issue = {
       clock: this.clock,

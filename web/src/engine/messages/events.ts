@@ -39,6 +39,31 @@ export interface SteadySoFar {
   peakBitsPerSecond: number
 }
 
+/**
+ * A Continuous run's live figures (measurement.md section 15): the four rates are absent until
+ * three fully known 1 s cells exist, so the UI shows a dash, never 0.
+ */
+export interface ContinuousSoFar {
+  /** Since the phase start on the client clock; the run length and the chart's tier count from there. */
+  elapsedMs: number
+  runLengthMs?: number
+  minBitsPerSecond?: number
+  avgBitsPerSecond?: number
+  maxBitsPerSecond?: number
+  peakLastHourBitsPerSecond?: number
+  /** The data the run has used so far. */
+  dataBytes: number
+  /** The median of the last minute's per-second loaded-latency medians. */
+  loadedLastMinuteMedianMs?: number
+}
+
+/** A coarse retention cell closed since the previous sample (measurement.md section 15). */
+export interface ClosedCellEvent {
+  tier: 'hour' | 'day' | 'long'
+  bytes: number
+  knownMs: number
+}
+
 /** Events, engine to UI. */
 export type EngineEvent =
   | {
@@ -68,7 +93,14 @@ export type EngineEvent =
       gauge: number
       /** Upload only: the client's sending progress in bits per second; it never feeds a number. */
       sending?: number
+      /** Absent while warming up, and in Continuous, which sends `continuous` instead. */
       steady?: SteadySoFar
+      /** Continuous only: the run's live figures. */
+      continuous?: ContinuousSoFar
+      /** Continuous only: the coarse cells closed since the previous sample, in order. */
+      cells?: ClosedCellEvent[]
+      /** The notices raised since the previous sample, such as `data-used`. */
+      notices?: Notice[]
       /** Once warm-up has ended: its bucket, on the same axis as `fromBucket` (display only). */
       warmupEndBucket?: number
       /** Upload only, once a request has confirmed: P_start on the server grid, in cells. */

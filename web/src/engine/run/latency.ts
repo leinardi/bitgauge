@@ -17,6 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { LoadedSeconds } from '@/engine/continuous/loaded'
 import { RESERVED_STREAMS } from '@/engine/latency/grade'
 import { type HttpSource, LoadedLatency, type LoadedPath } from '@/engine/latency/loaded'
 import type { Direction, LoadedPing, Notice } from '@/engine/messages'
@@ -44,6 +45,7 @@ interface Running {
   pinger: LoadedLatency
   reserved: boolean
   startAt: number
+  seconds: LoadedSeconds | null
 }
 
 export class LoadedProbes {
@@ -77,11 +79,16 @@ export class LoadedProbes {
     return reserved ? { streamCap: RESERVED_STREAMS } : {}
   }
 
-  /** Starts the direction's pinger at its phase start; `inFlight` counts its throughput requests. */
-  start(direction: Direction, startAt: number, inFlight: () => number): void {
+  /**
+   * Starts the direction's pinger at its phase start; `inFlight` counts its throughput requests.
+   * In Continuous, `settleMs` given, the pings fold into per-second medians instead of being kept.
+   */
+  start(direction: Direction, startAt: number, inFlight: () => number, settleMs: number | null = null): void {
     this.current = direction
     this.answeredPings = []
-    const pinger = new LoadedLatency({
+    let pinger: LoadedLatency | null = null
+    const seconds = settleMs === null ? null : new LoadedSeconds(settleMs, () => pinger?.counters() ?? { skippedTicks: 0, lost: 0 })
+    pinger = new LoadedLatency({
       clock: this.options.clock,
       path: this.options.path,
       inFlight,
@@ -92,26 +99,35 @@ export class LoadedProbes {
           this.answeredPings.push(ping)
         }
       },
+      ...(seconds === null ? {} : { sink: seconds }),
     })
-    this.running.set(direction, { pinger, reserved: this.reserved.get(direction) ?? false, startAt })
+    this.running.set(direction, { pinger, reserved: this.reserved.get(direction) ?? false, startAt, seconds })
     pinger.start()
+  }
+
+  /** The median of the last minute's per-second medians of the running Continuous direction, for the live view. */
+  lastMinuteMedianMs(): number | null {
+    const run = this.current === null ? undefined : this.running.get(this.current)
+    return run?.seconds?.lastMinuteMedianMs() ?? null
   }
 
   /** The direction's end instant: the pinger stops sending, and its outstanding pings get `graceMs`. */
   end(direction: Direction, graceMs: number): void {
     const run = this.running.get(direction)
     if (run !== undefined && !this.ended.has(direction)) {
-      this.ended.set(direction, run.pinger.finish(graceMs).then((outcome) => ({ outcome, reserved: run.reserved, startAt: run.startAt })))
+      this.ended.set(direction, run.pinger.finish(graceMs).then((outcome) => ({ outcome, reserved: run.reserved, startAt: run.startAt, seconds: run.seconds })))
     }
   }
 
-  /** The answered pings each running pinger keeps, which the footprint test reads. */
-  footprint(): number {
-    let kept = 0
+  /** The answered pings each pinger keeps, and in Continuous its per-second stores, which the footprint test reads. */
+  footprint(): { loadedSamples: number; loadedSeconds: number } {
+    let samples = 0
+    let seconds = 0
     for (const run of this.running.values()) {
-      kept += run.pinger.footprint()
+      samples += run.pinger.footprint()
+      seconds += run.seconds?.footprint() ?? 0
     }
-    return kept
+    return { loadedSamples: samples, loadedSeconds: seconds }
   }
 
   /** The pings answered since the last call, for the live sample. */

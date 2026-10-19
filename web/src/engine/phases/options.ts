@@ -26,7 +26,10 @@ export interface ThroughputOptions {
   clock: Clock
   preset: Preset
   streams: TestSettings['streams']
-  bounds: DurationBounds
+  /** Null in Continuous, which has no minimum and no maximum (measurement.md section 15). */
+  bounds: DurationBounds | null
+  /** Continuous only: the run length from the phase start, null for a run until stopped. */
+  continuous?: { runLengthMs: number | null }
   warmup: TestSettings['warmup']
   dataCapBytes: number | null
   /** The data the test used before this phase, which counts against the data cap. */

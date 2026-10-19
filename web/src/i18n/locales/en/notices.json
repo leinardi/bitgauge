@@ -16,6 +16,10 @@
       "download": "Download stopped at the data cap; what it measured until then is kept.",
       "upload": "Upload stopped at the data cap; what it measured until then is kept."
     },
+    "dataUsed": {
+      "title": "Data used: {data}",
+      "body": "This run has passed {data}. The next notice appears at {next}."
+    },
     "streamLimit": {
       "title": "Server stream limit — {n} stream | Server stream limit — {n} streams",
       "download": "The server refused more parallel streams, so download ran with at most {n}.",

@@ -55,6 +55,7 @@ const NOTICES: Record<NoticeCode, true> = {
   'slow-link-extended': true,
   'low-confidence': true,
   'data-cap-reached': true,
+  'data-used': true,
   'stream-limit': true,
   'insufficient-data': true,
   'url-parameter-ignored': true,

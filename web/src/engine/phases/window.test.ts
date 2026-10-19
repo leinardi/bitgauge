@@ -166,13 +166,20 @@ describe('presets', () => {
         upload: { minMs: 20_000, maxMs: 40_000 },
         pingCount: 50,
       },
+      continuous: {
+        streams: { mode: 'auto' },
+        download: { minMs: null, maxMs: null },
+        upload: { minMs: null, maxMs: null },
+        pingCount: 20,
+      },
     })
   })
 
-  it('offer Quick, then Standard, then Extended, then nothing', () => {
-    expect([nextPreset('quick'), nextPreset('standard'), nextPreset('extended')]).toEqual([
+  it('offer Quick, then Standard, then Extended, then nothing, and nothing from Continuous', () => {
+    expect([nextPreset('quick'), nextPreset('standard'), nextPreset('extended'), nextPreset('continuous')]).toEqual([
       'standard',
       'extended',
+      null,
       null,
     ])
   })
