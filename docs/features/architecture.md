@@ -103,7 +103,7 @@ the page's `Worker` object; the next `start` may begin another run.
 | Message | Payload | Used for |
 | --- | --- | --- |
 | `settings` | scope (`configured` or `run`), the resolved settings | The settings shown before a run (`configured`, answering each valid `configure`) and during and after it (`run`, sent as a run starts, its override applied). |
-| `phase` | phase name (`info`, `idle`, `download`, `upload`), state (`started`, `finished`, `skipped`, `failed`), protocol, stream count, notices so far; a `finished` idle latency, download or upload, and a `failed` download or upload, carries its part of the result object, the `idle` or direction object the result will report, so its tile shows at once, except a direction's `loadedLatency`, which only the `result` carries: its pings' grace ([measurement.md §11.4](measurement.md#114-loaded-latency-statistics-and-availability)) runs on into the next phase; a `failed` phase carries how long it ran (display only) | Phase indicator, connection info, the headline announced as a direction finishes ([ui/i18n-a11y.md §2.1](ui/i18n-a11y.md#21-live-region-for-the-gauge)), the download's share of the data used while upload runs ([ui/screens.md §1](ui/screens.md#1-test-home--)). |
+| `phase` | phase name (`info`, `idle`, `download`, `upload`), state (`started`, `finished`, `skipped`, `failed`), protocol, stream count, notices so far; a `finished` idle latency, download or upload, and a `failed` download or upload, carries its part of the result object, the `idle` or direction object the result will report, so its tile shows at once, except a direction's `loadedLatency`, which only the `result` carries: its pings' grace ([measurement.md §11.4](measurement.md#114-loaded-latency-statistics-and-availability)) runs on into the next phase; a finished or failed direction's `responsiveness` is settled at its end and travels with it ([measurement.md §12.3](measurement.md#123-path-b-procedure)); the `scores` only with the `result`; a `failed` phase carries how long it ran (display only) | Phase indicator, connection info, the headline announced as a direction finishes ([ui/i18n-a11y.md §2.1](ui/i18n-a11y.md#21-live-region-for-the-gauge)), the download's share of the data used while upload runs ([ui/screens.md §1](ui/screens.md#1-test-home--)). |
 | `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up; Continuous adds "p90, last hour"); the warm-up end and, for upload, P_start and the sample's instant on the server grid (display only); the stream count the ramp has reached; how long its phase has run on the client clock (display only); the loaded-latency pings answered since the previous `sample`, each `{atMs, rttMs}` on the client clock ([measurement.md §11.5](measurement.md#115-time-base-and-series)); data used | Live gauge, tiles and chart, at most every 100 ms. |
 | `idle` | the path (`websocket` or `http`); pings answered or lost so far, of the ping count (the warm-up ping included); the last RTT; the running median, min, p90 and jitter of the samples so far and their probe-timeout share; how long its phase has run on the client clock (display only) | The idle-latency gauge in milliseconds, ping counter, live tiles and latency samples chart, after each ping. |
 | `result` | the versioned result object ([measurement.md §17](measurement.md#17-result-object)) | Result screen, history, export. |
@@ -198,7 +198,12 @@ the wiring parses from the user agent for `client.browser`
 `GET /api/v1/ping` with the `websocket-unavailable` notice) and sends the one idle
 `GET /api/v1/small`, whose answer records the protocol, which also decides the probe reservation
 of the HTTP latency fallback ([measurement.md
-§11.2](measurement.md#112-path-a-fallback--http-probe)). A `phase` event marks each
+§11.2](measurement.md#112-path-a-fallback--http-probe)) and is path B's capability check
+([measurement.md §12.3](measurement.md#123-path-b-procedure)). Each throughput direction runs
+path B's prober beside path A's pinger, from its warm-up end to its end instant, unless the
+capability check gave `unavailable_h1`. The transport's Resource Timing entry carries
+`nextHopProtocol`, `fetchStart`, `connectStart`, `connectEnd`, `requestStart`, `responseStart`
+and `responseEnd`. A `phase` event marks each
 measuring phase `skipped` when the settings leave it out, and again when a stop, an error or the
 data cap prevents it. While idle latency runs, an `idle` event follows each answered or lost ping:
 the warm-up ping counts toward `pings` but carries no RTT, a lost ping carries none either, and
@@ -276,8 +281,11 @@ Path A — WebSocket echo (idle latency, loaded latency, bufferbloat grade)
   fallback: GET /api/v1/ping (204), single-outstanding, Resource Timing; 5-stream reservation on h1
 
 Path B — HTTP loaded responsiveness (RPM-style), h2/h3 only
+  capability: the Info phase's idle GET /api/v1/small (h1, empty or failed → unavailable_h1)
   Worker ── GET /api/v1/small ──▶ (multiplexed with the load on the shared connection, unverifiable)
-           every 300 ms, single-outstanding; http_l = responseStart − requestStart
+           every 300 ms from warm-up end to the direction's end, single-outstanding, beside
+           path A; http_l = responseStart − requestStart, quantized; connectStart ≠ connectEnd
+           marks a new connection; RPM = 60000 / TM95 over the last 4 s
 ```
 
 Path B never feeds the grade; path A never feeds RPM

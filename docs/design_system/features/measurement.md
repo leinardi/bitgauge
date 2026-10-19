@@ -1032,10 +1032,32 @@ the HTTP/2 connection that carries the load.
 - **Probe.** `GET /api/v1/small` (200, one-byte body, `no-store`; the same object the networkQuality
   layer serves, added to the native API for this purpose — `/ping` stays 204 for path A) every
   300 ms during the working-conditions part of each direction, single-outstanding like the HTTP
-  fallback (a tick while a probe is pending is skipped).
+  fallback (a tick while a probe is pending is skipped). It runs beside path A, on its own 300 ms
+  cadence: neither path waits for the other.
+- **Sampling window.** Probing runs from the direction's warm-up end to the direction's end
+  instant, on the client clock, so every sample falls under full load:
+  - **Start.** On download, the warm-up end (§8.3). On upload, whose warm-up end is decided on the
+    server timeline, the client instant the engine learns it: the confirmation that ended the
+    warm-up.
+  - **End instant.** On download, the end instant of §5, where in-flight requests are aborted. On
+    upload, the instant the direction stops issuing requests (the request target `max − 1 s`, the
+    end condition, the data cap, or the failure that ends it), or the abort instant of a stop, an
+    error or a paused page; the grace's drain that follows is never sampled.
+
+  A probe still outstanding at the end instant is aborted and not counted, so path B needs no
+  grace and is settled when its direction finishes. A **valid probe**
+  is one answered `200` within the window whose Resource Timing entry was found with non-zero
+  `requestStart` and `responseStart`; a failed, aborted or unmatched probe is not a sample.
+  `samples` counts the valid probes of the window, and the 10-sample rule of §12.4 counts them.
 - **Timing.** From the Resource Timing entry for that fetch: `http_l = responseStart −
-  requestStart`; `responseEnd − fetchStart` is recorded too. Same-origin requests expose these
-  fields without `Timing-Allow-Origin`.
+  requestStart`, quantized to the timer resolution like every other latency (§17);
+  `responseEnd − fetchStart` is recorded too, and its median is reported as `totalMedianMs`. The
+  entry's `fetchStart`, `connectStart` and `connectEnd` are read as well. Same-origin requests
+  expose these fields without `Timing-Allow-Origin`.
+- **New connection.** A probe whose entry has `connectStart !== connectEnd` opened a new
+  connection. An entry without connect fields (absent, or both zero because the browser did not
+  expose them) gives no evidence either way: the connection is unknown, which counts like a new
+  one for the state (§12.4).
 - **What the browser can and cannot tell.** The entry's `nextHopProtocol` gives the protocol the
   probe used, and `connectStart === connectEnd` shows that *an* existing connection was reused. It
   does **not** identify which connection. Browsers coalesce same-origin HTTP/2 and HTTP/3 traffic
@@ -1046,7 +1068,10 @@ the HTTP/2 connection that carries the load.
   is not used in the UI.
 - **Capability check before load.** One probe at idle, during the info phase (§1). If
   `nextHopProtocol` is `http/1.1`, path B is `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the
-  reverse proxy") and no path B probe runs under load. An empty `nextHopProtocol` (the protocol was
+  reverse proxy") and no path B probe runs under load. Any value other than `h2` or `h3`
+  (`http/1.0`, a draft label such as `h3-29`) is treated as `http/1.1`. A capability probe that fails, or whose
+  timing entry is not found, gives `unavailable_h1` with `protocol: ''`, exactly like the empty
+  protocol below and shown with the same words. An empty `nextHopProtocol` (the protocol was
   not reported) is treated the same way: path B is `unavailable_h1`, shown as "protocol not
   reported — treated as HTTP/1.1", because on a possibly HTTP/1.1 connection with every connection
   busy the probe would measure browser scheduling, not a loaded shared connection. This matches the
@@ -1057,12 +1082,19 @@ the HTTP/2 connection that carries the load.
 | State | Meaning |
 | --- | --- |
 | `measured` | h2 or h3, at least 10 samples per direction with no new connection opened, and the ramp reached the stability criterion (warm-up ended without the cap) |
-| `uncertain` | h2 or h3 but fewer than 10 samples, or any sample opened a new connection, or the protocol changed mid-phase |
-| `unavailable_h1` | the capability check saw HTTP/1.1 or an empty protocol |
-| `unavailable_insufficient` | fewer than 4 samples in the intervals the formula uses, so no meaningful trimmed mean exists; no number is shown |
+| `uncertain` | h2 or h3 but fewer than 10 samples, or any sample opened a new connection or has an unknown connection, or the protocol changed mid-phase (a sample's protocol differs from the capability check's), or the warm-up ended at its cap |
+| `unavailable_h1` | the capability check saw any protocol other than `h2` or `h3` (HTTP/1.1, an empty value, anything else), or failed, or found no timing entry |
+| `unavailable_insufficient` | the direction has no steady window (it ended `insufficient-data`, `error`, or `partial` without a window), or fewer than 4 samples in the intervals the formula uses, so no meaningful trimmed mean exists; no number is shown |
+
+**Precedence.** When several rows apply, the first of `unavailable_h1`, `unavailable_insufficient`,
+`uncertain`, `measured` wins. A `skipped` direction has no `responsiveness` block at all.
 
 `measured` still carries the "not verifiable" qualifier; it only says the observable preconditions
 held.
+
+The state names keep the snake_case spelling above, an explicit exception to the kebab-case codes
+of [open-questions.md](open-questions.md) item 11: they are states of a result field, not notice
+codes, and no notice carries them.
 
 ### 12.5 Formula
 
@@ -1074,12 +1106,33 @@ RPM = 60000 / TM95(http_l)
 
 where TM95 is the 95 % single-sided trimmed mean over the samples of the last 4 intervals of the
 direction, as in the draft: intervals are 1 s long (the draft's interval length, independent of the
-ramp's `I_m`), so at one probe per 300 ms the formula sees about 13 samples. The number of samples
-dropped from the slow end is `floor(0.05 × n)`; with fewer than 20 samples nothing is trimmed and
-TM95 equals the plain mean, which the result detail states. Fewer than 4 samples in those 4 s give
-`unavailable_insufficient`. There is no
-foreign component, and the UI copy never compares this number to Apple's RPM. Path B samples feed
-only this metric; the bufferbloat grade uses path A or its qualified fallback.
+ramp's `I_m`), so at one probe per 300 ms the formula sees about 13 samples. The four intervals end
+at the direction's end instant, on the client clock; a sample belongs to them when its probe was
+sent (`fetchStart`) within those 4 s. The number of samples dropped from the slow end is
+`floor(0.05 × n)`; with fewer than 20 samples nothing is trimmed and TM95 equals the plain mean,
+which the result detail states. TM95 is quantized to the timer resolution like every other latency
+statistic (§17), and `rpm` is `60000 / tm95Ms` from that quantized value, rounded to a whole
+number. Fewer than 4 samples in those 4 s give `unavailable_insufficient`, and so does a quantized
+TM95 of 0 (samples below the timer resolution), from which no RPM follows. There is no foreign
+component, and the UI copy never compares this number to Apple's RPM. Path B samples feed only
+this metric; the bufferbloat grade uses path A or its qualified fallback.
+
+### 12.6 Result Shape
+
+Each direction that ran (not `skipped`) carries `responsiveness: {state, protocol, samples, rpm?,
+tm95Ms?, trimmed?, totalMedianMs?}`:
+
+- `protocol` is the capability check's `nextHopProtocol` as the browser reported it (`h2`, `h3`,
+  `http/1.1`, or any other value, which gives `unavailable_h1`), or `''` when it was empty, failed
+  or had no timing entry;
+- `samples` counts the window's valid probes (§12.3), `0` when no probe ran;
+- `rpm`, `tm95Ms`, `trimmed` and `totalMedianMs` are present on `measured` and `uncertain`, absent
+  otherwise: `tm95Ms` is the TM95 of §12.5, `trimmed` the number of samples dropped from the slow
+  end (`0` means the plain mean), and `totalMedianMs` the median of `responseEnd − fetchStart` over
+  the window's valid probes, the "recorded too" value.
+
+`tm95Ms` and `totalMedianMs` are quantized to `client.timerResolutionMs`, as the loaded-latency
+statistics are (§17).
 
 ## 13. Quality Scores
 
@@ -1088,14 +1141,17 @@ Quality scores follow Cloudflare's AIM (Aggregated Internet Measurement) point t
 
 ### 13.1 Inputs
 
-| AIM metric | BitGauge input |
-| --- | --- |
-| `latency` | idle latency median (ms) |
-| `jitter` | idle jitter (ms) |
-| `loadedLatencyIncrease` | the larger of the per-direction increases from path A or its qualified fallback (ms); when only one direction has an increase (§11.1), that one, and the scores are labeled with the direction ("download only"), as the grade is (§11.3) |
-| `download` | download headline (bit/s) |
-| `upload` | upload headline (bit/s) |
-| `packetLoss` | **not measured**: fixed at 0 points |
+| AIM metric | BitGauge input | Input name when missing |
+| --- | --- | --- |
+| `latency` | idle latency median (ms), quantized (§17) | `idle-latency` |
+| `jitter` | idle jitter (ms), quantized (§17) | `jitter` |
+| `loadedLatencyIncrease` | `bufferbloat.increaseMs` (§11.3): the larger of the per-direction increases from path A or its qualified fallback (ms); when only one direction has an increase (§11.1), that one, and the scores are labeled with the direction ("download only"), as the grade is | `loaded-latency` |
+| `download` | the download direction's `bitsPerSecond` headline (bit/s) | `download` |
+| `upload` | upload headline (bit/s) | — |
+| `packetLoss` | **not measured**: fixed at 0 points | — |
+
+`upload` is listed for completeness with AIM, but no experience of §13.3 uses it, so it is never
+an input and never missing.
 
 ### 13.2 Point Functions
 
@@ -1129,11 +1185,28 @@ Bands, by the same threshold rule: `bad` (below the first), `poor`, `average`, `
 or above the last). An experience is not scored when any of its inputs is unavailable (for example
 no loaded latency), and the UI says which input is missing.
 
+An input is unavailable when its value does not exist: `idle-latency` and `jitter` without an idle
+median and jitter (idle latency left out, or `unavailable`, §10), `loaded-latency` without
+`bufferbloat` (§11.3), `download` without a download headline (a skipped download, or a direction
+with no number).
+
 ### 13.4 Packet-Loss Handling
 
 Packet loss is fixed at 0 points in every experience and displayed as "packet loss — not measured"
 in its reserved slot. Because a measured loss could only lower the points, the scores are an upper
 bound with respect to loss, and the UI notes this next to them.
+
+### 13.5 Result Shape
+
+Every v0.3 result carries `scores: {basis, packetLoss: "not-measured", streaming, gaming, rtc}`:
+
+- `basis` is `bufferbloat.basis` (`download+upload`, `download` or `upload`), or `none` when the
+  result has no `bufferbloat`, so the scores' direction label reads as the grade's;
+- each experience is `{points, band}` when all its inputs exist, with `points` the clamped sum, or
+  `{missing: [...]}` naming every unavailable input of that experience (§13.3) in the order of
+  §13.1 (`idle-latency`, `jitter`, `loaded-latency`, `download`), never both: gaming never names
+  `jitter` or `download`;
+- `scores` is present even when no experience is scored, as on a `latency`-only run.
 
 ## 14. Units and Gauge
 
@@ -1246,7 +1319,8 @@ elapsed time. At multi-Gbit rates the browser, not the link, is often the limit;
 instead of reporting a link speed.
 
 **Notices** shown with the result and, where relevant, live. Each has a code, in parentheses: the
-engine emits the code with the raw values the notice names, and the UI words it.
+engine emits the code with the raw values the notice names, and the UI words it. Path B's states
+(§12.4) and the quality scores' missing inputs (§13.5) are fields of the result, not notices.
 
 - `test extended` (`slow-link-extended`, per direction; §5): the phase ran past its minimum,
   which a slow link needs, and a fast one whose ramp settled late or whose window stayed unstable
@@ -1329,7 +1403,10 @@ CSV export flattens the same fields, one row per result.
       "medianMs": 132.0, "p90Ms": 151.0, "increaseMs": 81.0,
       "series": [{ "atMs": 1310, "rttMs": 128.4 }]
     },
-    "responsiveness": { "state": "measured", "protocol": "h2", "samples": 18, "rpm": 412 },
+    "responsiveness": {
+      "state": "measured", "protocol": "h2", "samples": 18,
+      "rpm": 412, "tm95Ms": 145.6, "trimmed": 0, "totalMedianMs": 147.2
+    },
     "series": {
       "bucketMs": 100, "firstCellMs": 4300, "warmupEndMs": 4300, "endMs": 9900, "values": []
     },
@@ -1338,6 +1415,7 @@ CSV export flattens the same fields, one row per result.
   "upload": { "status": "measured", "confirmedRequests": 34, "…": "same fields as download" },
   "bufferbloat": { "grade": "C", "basis": "download+upload", "increaseMs": 81.0 },
   "scores": {
+    "basis": "download+upload",
     "streaming": { "points": 20, "band": "average" },
     "gaming": { "points": 0, "band": "bad" },
     "rtc": { "points": 10, "band": "poor" },
@@ -1360,7 +1438,9 @@ CSV export flattens the same fields, one row per result.
   direction's resolved duration bounds `{minMs, maxMs}` (shown with its duration among the test
   parameters), all optional, so a v0.1 result stays valid.
   Absent through v0.2: `responsiveness`, `scores`, `minBitsPerSecond`, `maxBitsPerSecond` and
-  `series.knownMs`. `schemaVersion` stays 1: these are additions.
+  `series.knownMs`. v0.3 adds `responsiveness` on every direction that is not `skipped` (§12.6)
+  and `scores` on every result (§13.5), both optional so a v0.1 or v0.2 result stays valid.
+  `schemaVersion` stays 1: these are additions.
 - `idle` is absent when idle latency did not run. A direction that did not run, left out by the
   settings or not reached, is `{status: "skipped", streams: 0, bytes: 0, events: []}` (upload with
   `confirmedRequests: 0`). `client.contextLabel` is the `start` override's, else the label `GET
@@ -1418,6 +1498,13 @@ CSV export flattens the same fields, one row per result.
   medians, downsampled.
 - `bufferbloat` is `{grade, basis, increaseMs}` (§11.3), absent without idle latency or a gradable
   direction.
+- `responsiveness` is `{state, protocol, samples, rpm?, tm95Ms?, trimmed?, totalMedianMs?}` on
+  every direction that is not `skipped` (§12.6); the example's `tm95Ms` of 145.6 ms gives
+  `60000 / 145.6` ≈ 412 RPM, from 18 samples with nothing trimmed.
+- `scores` is `{basis, packetLoss, streaming, gaming, rtc}` (§13.5). In the example the idle median
+  of 51.0 ms gives 0 points, the jitter of 1.9 ms 10, the increase of 81.0 ms 0 and the download
+  of 94.1 Mbit/s 20: streaming 0 + 0 + 20 + 0 = 20 (`average`), gaming 0 + 0 + 0 = 0 (`bad`), and
+  video calls 0 + 10 + 0 + 0 = 10 (`poor`).
 - `client.browser` is the browser's family, major version and operating system, parsed in the
   browser; the raw user-agent string is never stored.
 - **Saving.** A `complete` result is saved to history automatically. A `partial` or `error`

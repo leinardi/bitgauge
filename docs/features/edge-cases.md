@@ -276,8 +276,9 @@ idle timeouts; a connection closed by the proxy between requests is simply reope
 carries a ping every 300 ms during load; if the proxy still closes it, the WebSocket-close sequence
 of §6 runs: with the same epoch and no network event, the WebSocket is reopened and the test
 continues with a gap in loaded latency (§6 step 4); if it cannot be reopened, path A falls back to
-the HTTP probe for the rest of the test (§6 step 5). A connection reopened mid-phase marks path B
-samples as having opened a new connection (`uncertain`).
+the HTTP probe for the rest of the test (§6 step 5). A connection reopened mid-phase shows in the
+next path B probe's timing entry (`connectStart ≠ connectEnd`) as a new connection, which makes the
+direction's path B `uncertain` ([measurement.md §12.4](measurement.md#124-states)).
 
 **User sees.** Loaded-latency gaps in the chart and the `WebSocket reopened` notice. The deployment
 guide sets read timeouts above the 120 s upload lifetime.

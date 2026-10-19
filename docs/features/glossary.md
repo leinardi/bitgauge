@@ -153,8 +153,19 @@ loaded, expressed in round trips per minute.
 path B as `60000 / TM95(http_l)`. It is labeled "HTTP loaded responsiveness — connection sharing
 not verifiable" and is never presented as comparable to Apple's networkQuality RPM (§12).
 
+**TM95.** The 95 % single-sided trimmed mean: the mean after dropping the slowest
+`floor(0.05 × n)` of `n` samples; with fewer than 20 samples nothing is dropped and it equals the
+plain mean. Path B takes it over the samples of the direction's last 4 s (§12.5).
+
+**Path B state.** How far a direction's HTTP loaded responsiveness can be trusted: `measured`,
+`uncertain`, `unavailable_h1` (HTTP/1.1, an unreported protocol or a failed capability check) or
+`unavailable_insufficient` (no steady window, or too few samples). The snake_case names are states,
+not notice codes (§12.4).
+
 **Quality score.** A rating of how well the measured link suits streaming, gaming and video calls,
-computed with Cloudflare AIM-style point tables (§13).
+computed with Cloudflare AIM-style point tables (§13). Each experience has points and a band
+(`bad`, `poor`, `average`, `good`, `great`), or the list of its missing inputs; its `basis` is the
+bufferbloat grade's, or `none` without a loaded-latency increase.
 
 **Confidence.** A per-direction qualifier: `normal`, `low` (with a reason such as `ramp-unsettled`,
 `unstable` or `insufficient-samples`) or `cpu-bound` (the Worker was busy more than 90 % of the

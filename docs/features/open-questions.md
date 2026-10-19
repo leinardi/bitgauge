@@ -644,6 +644,42 @@ carries a recommendation; where the specification already relies on an answer, i
     Recommendation: keep it; each rule is what the native API already does, or what the
     third-party client is documented to read. See
     [compatibility.md §6](compatibility.md#6-rules-every-layer-shares).
+57. How does path B decide its state, its samples and its numbers, where measurement.md §12 left
+    them open? Current answer: **one rule each, from what the browser exposes.**
+    - Precedence: `unavailable_h1` over `unavailable_insufficient` over `uncertain` over
+      `measured`. The snake_case state names stay, an explicit exception to item 11's kebab-case:
+      they are states, not notice codes.
+    - A capability protocol other than `h2` or `h3` gives `unavailable_h1`; a capability probe
+      that fails or has no timing entry gives it too, with `protocol: ''`, worded like an empty
+      protocol; a warm-up that ended at its cap on h2 or h3 gives
+      `uncertain`; a direction with no steady window gives `unavailable_insufficient`; a skipped
+      direction has no `responsiveness` block.
+    - Probing runs from the warm-up end to the direction's end on the client clock, beside path A
+      at its own 300 ms cadence; a probe still outstanding at the end is aborted and not counted.
+      On upload the start is the client instant the confirmation that ended warm-up arrives, and
+      the end is the instant the direction stops issuing requests (or the abort of a stop, an
+      error or a paused page), so the grace's drain is never sampled. `samples` counts the valid
+      probes there, and the 10-sample rule counts them; the four 1 s TM95 intervals end at the
+      direction's end instant.
+    - A timing entry with `connectStart !== connectEnd` opened a new connection; one without
+      connect fields is unknown, which also gives `uncertain`.
+    - The block is `{state, protocol, samples, rpm?, tm95Ms?, trimmed?, totalMedianMs?}`, the
+      optional fields present on `measured` and `uncertain` only; `http_l`, `tm95Ms` and
+      `totalMedianMs` are quantized to the timer resolution; `rpm` is `60000 / tm95Ms` from the
+      quantized value, rounded to a whole number, and a quantized TM95 of 0 gives
+      `unavailable_insufficient`.
+    - The engine's Resource Timing entry gains `fetchStart`, `connectStart` and `connectEnd`.
+
+    Recommendation: keep it. See [measurement.md §12](measurement.md#12-http-loaded-responsiveness).
+58. What exactly do the quality scores read and report? Current answer: **the result's own
+    numbers, with every gap named.** `scores` is `{basis, packetLoss: "not-measured", streaming,
+    gaming, rtc}`, each experience `{points, band}` or `{missing: [...]}` with inputs named
+    `idle-latency`, `jitter`, `loaded-latency` and `download`. `basis` is `bufferbloat.basis`, or
+    `none` without an increase. The latency inputs are the quantized idle median and jitter, the
+    increase is `bufferbloat.increaseMs`, and download is the direction's `bitsPerSecond` headline;
+    upload is listed by §13.1 but used by no experience. `scores` is present on every v0.3 result,
+    and `schemaVersion` stays 1. Recommendation: keep it. See
+    [measurement.md §13](measurement.md#13-quality-scores).
 
 Resolved and removed:
 

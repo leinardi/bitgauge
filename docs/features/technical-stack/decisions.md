@@ -373,6 +373,8 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 54 | Edited durations are kept as "custom", with no question, when another preset is chosen | v0.2 |
 | 55 | An idle ping waits 50 ms after the previous answer as well as 100 ms after the previous send | v0.2 |
 | 56 | Compatibility wire details: the native envelope for every layer error, `405` with `Allow`, the `ckSize` rule, `/getIP` and `cors=true` edges, one absolute-URL builder over trusted forwarding headers, empty-body headers, length-less bodies up to the cap, the classifier group and the startup field | v0.3 |
+| 57 | Path B: state precedence with snake_case states, the sampling window from warm-up end, connect-field evidence, the result block, quantized `http_l`, a whole-number RPM | v0.3 |
+| 58 | Quality scores: `basis`, `{points, band}` or named missing inputs, inputs from the result's own numbers, present on every v0.3 result | v0.3 |
 
 ## Related
 
