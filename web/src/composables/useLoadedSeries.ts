@@ -19,14 +19,17 @@
 
 import { type Ref, shallowRef } from 'vue'
 
-import type { Direction, EngineEvent, LoadedPing } from '@/engine/messages'
+import { liveCapacity } from '@/composables/runLive'
+import type { Direction, EngineEvent, LoadedPing, TestSettings } from '@/engine/messages'
+import { FixedRing } from '@/lib/ring'
 
 // The live loaded latency (ui/screens.md section 1): each direction's answered pings as the samples
 // bring them, for the live chart's second axis and the Test screen's load card. A ping is placed on
 // its direction's chart axis: download from its phase start, in buckets; upload on the server grid,
 // in cells, by the display-only offset the engine gives the sending line (measurement.md section
 // 7.4), so the latency lines up with the received series as the sending line does. Pings that come
-// before the upload's first confirmed request wait for the offset. Display only: the result's
+// before the upload's first confirmed request wait for the offset. Each direction's pings are a
+// fixed ring allocated at its phase start (frontend.md section 6). Display only: the result's
 // loaded latency comes from the engine.
 
 const BUCKET_MS = 100
@@ -46,10 +49,18 @@ export function useLoadedSeries() {
   const series = shallowRef<LoadedSeries>(empty())
   /** Upload pings answered before the offset was known. */
   let waiting: LoadedPing[] = []
+  /** The run's settings, which size the rings; null until the run's settings event. */
+  let settings: TestSettings | null = null
+  let rings: Partial<Record<Direction, FixedRing<LoadedPoint>>> = {}
+
+  const ring = (direction: Direction) => new FixedRing<LoadedPoint>(liveCapacity(settings, direction).pings)
 
   function place(direction: Direction, pings: readonly LoadedPing[], offsetCells: number): void {
-    const points = pings.map((ping) => ({ at: ping.atMs / BUCKET_MS + offsetCells, ms: ping.rttMs }))
-    series.value = { ...series.value, [direction]: [...series.value[direction], ...points] }
+    const own = (rings[direction] ??= ring(direction))
+    for (const ping of pings) {
+      own.push({ at: ping.atMs / BUCKET_MS + offsetCells, ms: ping.rttMs })
+    }
+    series.value = { ...series.value, [direction]: own.toArray() }
   }
 
   return {
@@ -59,10 +70,20 @@ export function useLoadedSeries() {
     reset(): void {
       series.value = empty()
       waiting = []
+      settings = null
+      rings = {}
     },
 
-    /** Takes a sample's pings; every other event is ignored. */
+    /** Takes a sample's pings, allocating a direction's ring at its phase start; other events are ignored. */
     apply(event: EngineEvent): void {
+      if (event.type === 'settings' && event.scope === 'run') {
+        settings = event.settings
+        return
+      }
+      if (event.type === 'phase' && event.state === 'started' && (event.phase === 'download' || event.phase === 'upload')) {
+        rings[event.phase] = ring(event.phase)
+        return
+      }
       if (event.type !== 'sample') {
         return
       }

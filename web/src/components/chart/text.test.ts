@@ -27,7 +27,7 @@ import { describe, expect, it } from 'vitest'
 import { buildChart } from '@/components/chart/series'
 import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput } from '@/components/chart/text'
 import type { Wording } from '@/components/test/wording'
-import type { DirectionLive } from '@/composables/useRunState'
+import type { DirectionLive } from '@/composables/runLive'
 import type { Direction, DirectionEvent } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 

@@ -19,7 +19,7 @@
 
 import type { ChartModel, MarkCode } from '@/components/chart/series'
 import type { Wording } from '@/components/test/wording'
-import type { DirectionLive } from '@/composables/useRunState'
+import type { DirectionLive } from '@/composables/runLive'
 import type { Direction, TestSettings } from '@/engine/messages'
 import { secondsNumber } from '@/lib/format'
 

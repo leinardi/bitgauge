@@ -20,32 +20,25 @@
 import { Connections } from '@/demo/connections'
 import type { Link } from '@/demo/link'
 import { Body, Pacer, TICK_MS, type Transfer, wholeBytes } from '@/demo/pacer'
+import { abortError, info, networkError, probe, type ProbeHost, timingEntry } from '@/demo/probes'
 import type { Direction } from '@/engine/messages'
-import type { BrowserIdentity, Clock, DownloadResponse, Info, InfoResult, ProbeTiming, ResourceTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
+import type { BrowserIdentity, Clock, DownloadResponse, Info, InfoResult, ProbeTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
 
 // The demo's Transport (frontend.md section 9): the engine's requests answered by a simulated
 // server across the simulated link, on the demo clock. A download's first byte arrives one round
 // trip after it is sent; an upload's first byte reaches the server half a round trip after it is
 // sent, and its answer carries the telemetry of wire-protocol.md section 4, counted on the server's
-// own 100 ms grid from the paced arrivals. The WebSocket echo and the probes answer one jittered
-// round trip later, and GET /info answers with the fixture and the link's current epoch. While a
-// direction has requests in flight, every round trip gains the link's queue delay; on a link with a
-// connection limit, as on HTTP/1.1, a request or probe beyond it waits, first come first served,
-// until a connection is free.
+// own 100 ms grid from the paced arrivals. The WebSocket echo answers one jittered round trip
+// later; the probes and GET /info are demo/probes.ts. While a direction has requests in flight,
+// every round trip gains the link's queue delay; on a link with a connection limit, as on
+// HTTP/1.1, a request or probe beyond it waits, first come first served, until a connection is
+// free.
 
 const BUCKET_MS = 100
 /** The server grid's instant minus the client's: the two clocks share no origin. */
 const GRID_OFFSET_MS = 1_000_037
 const WS_GOING_AWAY = 1001
 const WS_ABNORMAL = 1006
-
-function abortError(): DOMException {
-  return new DOMException('The request was aborted.', 'AbortError')
-}
-
-function networkError(): TypeError {
-  return new TypeError('network error')
-}
 
 /** Adds `bytes`, moved evenly from `from` to `to` on the server timeline, to the grid cells from `first` on. */
 function spread(cells: number[], first: number, from: number, to: number, bytes: number): void {
@@ -64,6 +57,7 @@ export class DemoTransport implements Transport {
   private readonly pacer: Pacer
   private readonly closers = new Set<(code: number) => void>()
   private readonly connections: Connections
+  private readonly host: ProbeHost
 
   constructor(clock: Clock, link: Link, fixture: Info, browser: BrowserIdentity) {
     this.clock = clock
@@ -72,6 +66,13 @@ export class DemoTransport implements Transport {
     this.browser = browser
     this.pacer = new Pacer(clock, link)
     this.connections = new Connections(link.profile.connections)
+    this.host = {
+      clock,
+      link,
+      connected: (signal, send) => this.connected(signal, send),
+      failed: (at) => this.failed(at),
+      stamp: (at) => this.stamp(at),
+    }
     // A server that stops answering drops every connection at that instant. A restart closes the
     // WebSocket as the old process goes away, while its requests in flight drain, as a graceful
     // shutdown lets them; a proxy that drops the WebSocket closes it alone.
@@ -136,7 +137,7 @@ export class DemoTransport implements Transport {
         status: 200,
         contentEncoding: null,
         chunks: body,
-        timing: () => this.entry(sentAt, sentAt + rtt, endAt),
+        timing: () => timingEntry(this.link, sentAt, sentAt + rtt, endAt),
       }
     })
     answered.catch(end)
@@ -194,7 +195,7 @@ export class DemoTransport implements Transport {
                 startMs,
                 durationMs: Math.max(0, Math.round(at + GRID_OFFSET_MS) - startMs),
               },
-              timing: this.entry(sentAt, responseAt, responseAt),
+              timing: timingEntry(this.link, sentAt, responseAt, responseAt),
             })
           })
           signal.addEventListener('abort', () => this.clock.clearTimer(timer))
@@ -251,47 +252,11 @@ export class DemoTransport implements Transport {
   }
 
   probe(path: string, signal?: AbortSignal): Promise<ProbeTiming> {
-    const sentAt = this.clock.now()
-    return this.connected(signal, (release) => {
-      // A probe that waited for a connection starts when it has one, as Resource Timing's
-      // requestStart does.
-      const requestStart = this.clock.now()
-      const lost = this.failed(requestStart)
-      const rtt = this.link.roundTrip(requestStart)
-      return new Promise<ProbeTiming>((resolve, reject) => {
-        const timer = this.clock.setTimer(rtt, () => {
-          release()
-          if (lost) {
-            reject(networkError())
-            return
-          }
-          // Stamped with the simulated answer, as the echo is.
-          const doneAt = this.stamp(requestStart + rtt)
-          const status = path.endsWith('/ping') ? 204 : path.endsWith('/small') ? 200 : 404
-          resolve({ status, sentAt, doneAt, timing: this.entry(requestStart, doneAt, doneAt) })
-        })
-        signal?.addEventListener('abort', () => {
-          this.clock.clearTimer(timer)
-          release()
-          reject(abortError())
-        })
-      })
-    })
+    return probe(this.host, path, signal)
   }
 
   info(): Promise<InfoResult> {
-    return this.connected(undefined, (release) =>
-      this.later(this.link.roundTrip(this.clock.now()), (resolve, reject) => {
-        release()
-        const now = this.clock.now()
-        if (!this.link.reachable(now)) {
-          reject(networkError())
-          return
-        }
-        const server = { ...this.fixture.server, epoch: this.link.epochAt(now) }
-        resolve({ info: { ...this.fixture, server }, browser: this.browser })
-      }),
-    )
+    return info(this.host, this.fixture, this.browser)
   }
 
   /** Sends a request on a connection, once one is free (demo/connections.ts). */
@@ -365,11 +330,6 @@ export class DemoTransport implements Transport {
     const transfer: Transfer = { direction, target, firstByteAt, moved: 0, movedTo: null, ...callbacks }
     this.pacer.add(transfer)
     return transfer
-  }
-
-  private entry(requestStart: number, responseStart: number, responseEnd: number): ResourceTiming | null {
-    const protocol = this.link.profile.protocol
-    return protocol === null ? null : { nextHopProtocol: protocol, requestStart, responseStart, responseEnd }
   }
 
   /** Settles `delayMs` from now. */

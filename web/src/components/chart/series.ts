@@ -19,7 +19,7 @@
 
 import type { LatencySample } from '@/components/chart/draw'
 import type { LoadedPoint } from '@/composables/useLoadedSeries'
-import type { DirectionLive } from '@/composables/useRunState'
+import type { DirectionLive } from '@/composables/runLive'
 import type { Direction, DirectionEvent, NoticeCode } from '@/engine/messages'
 
 // The live chart's data (ui/screens.md section 1, design_system/components/charts.md), built
@@ -118,12 +118,19 @@ export function buildChart(input: ChartInput): ChartModel {
       separators.push(offset)
     }
     // Download counts from its phase start, bucket 0; upload from the cell of P_start (its first
-    // bucket until a request has placed it), so every segment starts on a whole bucket.
+    // bucket until a request has placed it), so every segment starts on a whole bucket. Once the
+    // live ring has overwritten its oldest buckets, the segment starts at the oldest it holds: the
+    // elapsed time stays in x, never in leading placeholders (measurement.md section 15).
     const origin = direction === 'upload' ? Math.floor(live.start ?? live.firstBucket) : 0
-    const first = Math.min(origin, live.firstBucket)
+    const first = Math.max(Math.min(origin, live.firstBucket), live.evictedBefore ?? Number.NEGATIVE_INFINITY)
     const received: (number | null)[] = []
     const sending: (number | null)[] = []
-    live.values.forEach((bytes, index) => put(received, live.firstBucket + index - first, rate(bytes, input.units)))
+    live.values.forEach((bytes, index) => {
+      const at = live.firstBucket + index - first
+      if (at >= 0) {
+        put(received, at, rate(bytes, input.units))
+      }
+    })
     for (const point of live.sendingTrace) {
       const index = Math.floor(point.cell) - first
       if (index >= 0) {
@@ -153,7 +160,9 @@ export function buildChart(input: ChartInput): ChartModel {
       values.forEach((value, column) => columns[column]?.push(value))
     }
     const end = at(first + length - 1)
-    warmup.push({ from: at(first), to: live.warmupEnd === null ? end : at(live.warmupEnd) })
+    // A warm-up end the ring has overwritten is clipped to the oldest bucket it holds.
+    const warmupEnd = live.warmupEnd === null || live.evictedBefore === undefined ? live.warmupEnd : Math.max(first, live.warmupEnd)
+    warmup.push({ from: at(first), to: warmupEnd === null ? end : at(warmupEnd) })
     // Event times run from the phase start: P_start on upload.
     const phaseStart = direction === 'upload' ? at(live.start ?? origin) : offset
     for (const event of input.events?.[direction] ?? []) {

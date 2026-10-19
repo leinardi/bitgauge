@@ -23,7 +23,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { useLoadedSeries } from '@/composables/useLoadedSeries'
-import type { EngineEvent } from '@/engine/messages'
+import type { EngineEvent, TestSettings } from '@/engine/messages'
 
 type Sample = Extract<EngineEvent, { type: 'sample' }>
 
@@ -63,5 +63,33 @@ describe('useLoadedSeries', () => {
     loaded.reset()
     loaded.apply(sample({ direction: 'upload', phaseMs: 0, sendingBucket: 50 }))
     expect(loaded.series.value).toEqual({ download: [], upload: [] })
+  })
+
+  it("keeps a bounded run's pings in a fixed ring sized at its phase start", () => {
+    const loaded = useLoadedSeries()
+    const settings: TestSettings = {
+      preset: 'extended',
+      phases: ['idle', 'download'],
+      streams: { mode: 'auto', fixed: 3, max: 6 },
+      download: { minMs: 600_000, maxMs: 600_000 },
+      upload: { minMs: 600_000, maxMs: 600_000 },
+      dataCapBytes: null,
+      units: 'bits',
+      warmup: 'auto',
+      pingCount: 20,
+      overheadCompensationPercent: 0,
+    }
+    loaded.apply({ type: 'settings', scope: 'run', settings })
+    loaded.apply({ type: 'phase', phase: 'download', state: 'started', notices: [] })
+    // A 600 s download and its 5 s grace at one ping per 300 ms: 2017 pings, all kept.
+    for (let ping = 0; ping < 2017; ping++) {
+      loaded.apply(sample({ phaseMs: ping * 300, loadedLatency: [{ atMs: ping * 300, rttMs: 10 + (ping % 7) }] }))
+    }
+    expect(loaded.series.value.download).toHaveLength(2017)
+    expect(loaded.series.value.download[0]).toEqual({ at: 0, ms: 10 })
+    loaded.apply(sample({ phaseMs: 605_100, loadedLatency: [{ atMs: 605_100, rttMs: 99 }] }))
+    expect(loaded.series.value.download).toHaveLength(2017)
+    expect(loaded.series.value.download[0]).toEqual({ at: 3, ms: 11 })
+    expect(loaded.series.value.download.at(-1)).toEqual({ at: 6051, ms: 99 })
   })
 })

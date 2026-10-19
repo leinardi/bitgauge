@@ -29,7 +29,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, reactive } from 'vue'
 
 import ThroughputChart from '@/components/chart/ThroughputChart.vue'
-import { createRunState, type DirectionLive } from '@/composables/useRunState'
+import type { DirectionLive } from '@/composables/runLive'
+import { createRunState } from '@/composables/useRunState'
 import { createAppI18n } from '@/i18n'
 
 const DURATIONS = { download: { minMs: 10_000, maxMs: 20_000 }, upload: { minMs: 15_000, maxMs: 25_000 } }

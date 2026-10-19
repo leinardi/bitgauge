@@ -296,7 +296,8 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   `Basement NAS` and `demo/worker`; a demo build fails it, which is its negative control.
 - **Builds.** `npm run dev:demo` (`make web-demo`) and `npm run build:demo` (`make web-build-demo`,
   into `web/dist-demo/`, which never ships) set the flag.
-- **Simulated link** (`demo/link.ts`, `demo/pacer.ts`, `demo/connections.ts`, `demo/transport.ts`).
+- **Simulated link** (`demo/link.ts`, `demo/pacer.ts`, `demo/connections.ts`, `demo/transport.ts`,
+  with the probes and `GET /info` in `demo/probes.ts`).
   Per direction, the requests in flight share a bottleneck's goodput equally, each up to an
   optional per-request ceiling, moved every 10 ms of demo time as counts, not bytes. When the
   Worker is busy and the pacer fires late, a download's bytes for the longer stretch arrive as one
@@ -378,7 +379,8 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   sequence still covers it. A run is dated by the page's wall clock: the page sends its time with
   the scenario, and the Worker dates its runs from it, so a page whose clock is fixed, as the parity
   harness fixes it at the kit's instant, dates them from that instant.
-- **Panel** (`demo/DemoPanel.vue`, with `demo/choice.ts` and `demo/control.ts`). The kit's Demo
+- **Panel** (`demo/DemoPanel.vue`, its Test screen, History and Result detail sections in
+  `demo/panel/`, with `demo/choice.ts` and `demo/control.ts`). The kit's Demo
   state panel as far as the app goes, collapsed by default: the scenario, the speed (1×, 2×, 4×),
   a forced state, a CPU-bound Worker, the error kind, the timer resolution (0.1 ms or 1 ms), the
   History variant and the Result detail's download and upload confidence, in the kit's own words,
@@ -410,7 +412,8 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   `engine/worker.ts`, `demo/worker.ts` alone reaches the Worker's globals, which the engine's
   banned-globals rule keeps out of every other demo file; `control.ts`, `choice.ts` and `start.ts`
   run in the page under the same policy, `choice.ts` reading and writing the storage the panel
-  hands it. `DemoPanel.vue` follows the application's policy. Every demo file
+  hands it. `DemoPanel.vue` and the section components of `demo/panel/` follow the application's
+  policy. Every demo file
   obeys the production file ceiling of `.file-budgets`.
 - **v0.3 additions.** The demo grows with the v0.3 features, so the kit's v0.3 states play on the
   real engine, and its panel takes the kit's v0.3 controls (`App.jsx`):

@@ -25,7 +25,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { type LoadInput, loadView } from '@/components/test/tiles'
+import { type LoadInput, loadView } from '@/components/test/loadView'
 import type { Wording } from '@/components/test/wording'
 import { useLoadedSeries } from '@/composables/useLoadedSeries'
 import { demoSession, ended, start } from '@/demo/test/play'

@@ -30,9 +30,9 @@ import type {
   PhaseName,
   PhaseState,
   Result,
-  SteadySoFar,
   TestSettings,
 } from '@/engine/messages'
+import { type DirectionLive, emptyLive, type LiveRings, liveRings, record } from '@/composables/runLive'
 
 // The live view of a run (frontend.md section 4), fed by the engine's settings, phase, sample, idle,
 // result and error events. No event marks the end of a run: it is read from their order (architecture.md
@@ -53,32 +53,6 @@ export interface PhaseView {
   idle?: IdleResult
   /** A failed phase: how long it ran, as its phase event carried it. */
   ranMs?: number
-}
-
-/** The live numbers of one direction, as the last `sample` carried them. */
-export interface DirectionLive {
-  /** The bucket of `values[0]`: from the phase start on download, a server grid cell on upload. */
-  firstBucket: number
-  /** Bytes per bucket; `null` is an unknown bucket, never zero. */
-  values: (number | null)[]
-  /** Upload only: the current window end on the server grid. */
-  windowEnd: number | null
-  /** Bits per second over the last 5 buckets. */
-  gauge: number
-  /** Upload only: the client's sending progress in bits per second. */
-  sending: number | null
-  /** The steady-window average and peak so far; null while warming up. */
-  steady: SteadySoFar | null
-  /** The bucket where warm-up ended, on the axis of `firstBucket`; null while warming up. */
-  warmupEnd: number | null
-  /** Upload only: P_start on the server grid, in cells; null before a request has confirmed. */
-  start: number | null
-  /** Upload only: the sending values, each at its instant on the server grid in cells. */
-  sendingTrace: { cell: number; bitsPerSecond: number }[]
-  /** The stream count the ramp has reached. */
-  streams: number
-  /** How long the phase has run on the client clock. */
-  phaseMs: number
 }
 
 /** Idle latency so far, as the last `idle` event carried it. */
@@ -104,43 +78,14 @@ function pendingPhases(): Record<PhaseName, PhaseView> {
   return { info: { state: 'pending' }, idle: { state: 'pending' }, download: { state: 'pending' }, upload: { state: 'pending' } }
 }
 
-function emptyLive(): Record<Direction, DirectionLive | null> {
-  return { download: null, upload: null }
-}
-
-/** Writes a sample's range of buckets into the direction's buffer, unknown across any hole. */
-function record(live: DirectionLive | null, event: Extract<EngineEvent, { type: 'sample' }>): DirectionLive {
-  const buffer = live ?? { firstBucket: event.fromBucket, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: event.streams, phaseMs: event.phaseMs }
-  // Until a bucket is known, the buffer follows the samples: an upload sends empty ones before its
-  // first confirmation, and its cells start far from 0.
-  if (buffer.values.length === 0) {
-    buffer.firstBucket = event.fromBucket
-  }
-  const offset = event.fromBucket - buffer.firstBucket
-  while (buffer.values.length < offset) {
-    buffer.values.push(null)
-  }
-  buffer.values.splice(offset, event.values.length, ...event.values)
-  buffer.windowEnd = event.windowEnd ?? null
-  buffer.gauge = event.gauge
-  buffer.streams = event.streams
-  buffer.phaseMs = event.phaseMs
-  buffer.sending = event.sending ?? null
-  buffer.steady = event.steady ?? null
-  buffer.warmupEnd = event.warmupEndBucket ?? buffer.warmupEnd
-  buffer.start = event.startBucket ?? buffer.start
-  if (event.sendingBucket !== undefined && event.sending !== undefined) {
-    buffer.sendingTrace.push({ cell: event.sendingBucket, bitsPerSecond: event.sending })
-  }
-  return buffer
-}
-
 /** The state of the current run and the reducer that applies the engine's events to it. */
 export function createRunState() {
   const status = shallowRef<RunStatus>('idle')
   const phase = shallowRef<PhaseName | null>(null)
   const phases = shallowRef(pendingPhases())
   const live = shallowRef(emptyLive())
+  /** Each direction's live rings, allocated at its phase start. */
+  let rings: Partial<Record<Direction, LiveRings>> = {}
   const idle = shallowRef<IdleLive | null>(null)
   const latency = shallowRef<LatencyPoint[]>([])
   const configured = shallowRef<TestSettings | null>(null)
@@ -200,14 +145,18 @@ export function createRunState() {
     phases.value = { ...phases.value, [event.phase]: view }
     if (event.state === 'started') {
       phase.value = event.phase
+      if (event.phase === 'download' || event.phase === 'upload') {
+        rings[event.phase] = liveRings(runSettings.value, event.phase)
+      }
     }
     notices.value = event.notices
   }
 
   // A new record and direction object per sample, so that a component given them as props sees
-  // the change; the bucket arrays inside are extended in place.
+  // the change; the rings behind them are written in place.
   function onSample(event: Extract<EngineEvent, { type: 'sample' }>): void {
-    live.value = { ...live.value, [event.direction]: { ...record(live.value[event.direction], event) } }
+    const own = (rings[event.direction] ??= liveRings(runSettings.value, event.direction))
+    live.value = { ...live.value, [event.direction]: { ...record(live.value[event.direction], own, event) } }
     direction.value = event.direction
     dataUsedBytes.value = event.dataUsedBytes
   }
@@ -244,6 +193,7 @@ export function createRunState() {
       phase.value = null
       phases.value = pendingPhases()
       live.value = emptyLive()
+      rings = {}
       idle.value = null
       latency.value = []
       runSettings.value = null

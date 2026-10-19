@@ -31,8 +31,8 @@ import NoticeList from '@/components/test/NoticeList.vue'
 import ResultSection from '@/components/test/ResultSection.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
 import RunSection from '@/components/test/RunSection.vue'
-import { PENDING_STEPS, phaseSteps, type RunView, screenState, screenTiles } from '@/components/test/screen/states'
-import { loadView } from '@/components/test/tiles'
+import { PENDING_STEPS, phaseSteps, screenTiles } from '@/components/test/screen/states'
+import { loadView } from '@/components/test/loadView'
 import { gaugeInput, offlineGauge } from '@/components/test/screen/view'
 import { useContextLabel } from '@/composables/useContextLabel'
 import { useCountdown } from '@/composables/useCountdown'
@@ -44,8 +44,9 @@ import { type StartOptions, useRun } from '@/composables/useRun'
 import { takeRunAgain } from '@/composables/useRunAgain'
 import { effectiveSettings, useSettings } from '@/composables/useSettings'
 import { useTestKeys } from '@/composables/useTestKeys'
+import { useTestScreen } from '@/composables/useTestScreen'
 import { consumeAutoRun, urlOverride, useUrlParams } from '@/composables/useUrlParams'
-import type { Notice, Preset } from '@/engine/messages'
+import type { Preset } from '@/engine/messages'
 import { DEFAULT_AUTO_START } from '@/lib/settingsStorage'
 import { SECOND } from '@/lib/urlValues'
 
@@ -67,20 +68,10 @@ const { label: contextLabel } = useContextLabel(computed(() => info.value?.clien
 const { t, locale } = useI18n()
 const host = window.location.host
 
-const view = computed<RunView>(() => ({
-  status: run.status.value,
-  phase: run.phase.value,
-  phases: run.phases.value,
-  live: run.live.value,
-  idle: run.idle.value,
-  dataUsedBytes: run.dataUsedBytes.value,
-  result: run.result.value,
-  error: run.error.value,
-  loaded: run.loaded.value,
-}))
-const state = computed(() => screenState(view.value))
-const running = computed(() => state.value === 'running')
 const counting = computed(() => countdown.remainingMs.value !== null)
+// The URL parameters ignored; before the first run they show as the notices a run will carry.
+const ignored = computed(() => (defaults.value === null ? url.ignored : effectiveSettings(url, defaults.value, stored.value).ignored))
+const { view, state, running, notices, dismiss, disabledReason } = useTestScreen({ run, info: { info, reachability }, counting, ignored })
 const wording = computed(() => ({ t, locale: locale.value }))
 // A run shows the settings it runs with; between runs, those the next one starts from.
 const shownSettings = computed(() => (state.value === 'idle' ? null : run.runSettings.value) ?? settings.value)
@@ -111,20 +102,8 @@ const load = computed(() =>
 )
 const tiles = computed(() => screenTiles(view.value, shownSettings.value ?? { units: 'bits', overheadCompensationPercent: 0 }, wording.value, elapsed.value, kept.value))
 
-// The URL parameters ignored; before the first run they show as the notices a run will carry.
-const ignored = computed(() => (defaults.value === null ? url.ignored : effectiveSettings(url, defaults.value, stored.value).ignored))
 // The result's label: the link's for this page load, otherwise the one stored on the Settings screen.
 const label = computed(() => url.label ?? stored.value.label)
-// A dismissed ignored-parameter notice stays hidden for the page load; the result still carries it.
-const dismissed = shallowRef<ReadonlySet<string>>(new Set())
-function dismiss(parameter: string): void {
-  dismissed.value = new Set([...dismissed.value, parameter])
-}
-const notices = computed<Notice[]>(() =>
-  (state.value === 'idle' ? ignored.value.map(({ parameter, value }): Notice => ({ code: 'url-parameter-ignored', parameter, value })) : run.notices.value).filter(
-    (notice) => notice.code !== 'url-parameter-ignored' || !dismissed.value.has(notice.parameter),
-  ),
-)
 
 const shown = computed(() => state.value !== 'idle')
 const endedResult = computed(() => (shown.value && !running.value ? run.result.value : null))
@@ -161,20 +140,6 @@ const plateau = computed(() => {
 const reserved = computed(() => {
   const notice = shown.value ? run.notices.value.find((item) => item.code === 'probe-reservation') : undefined
   return notice?.code === 'probe-reservation' ? notice.streams : null
-})
-
-// Start is disabled until GET /info answers with defaults this version can run (flows.md section 1).
-const disabledReason = computed(() => {
-  if (running.value || counting.value) {
-    return null
-  }
-  if (reachability.value === 'unreachable') {
-    return t('test.start.unreachable')
-  }
-  if (info.value === null) {
-    return t('test.start.waiting')
-  }
-  return defaults.value === null ? t('test.start.unsupported') : null
 })
 
 function begin(preset?: Preset, again: StartOptions = {}): void {

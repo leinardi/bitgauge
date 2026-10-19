@@ -24,7 +24,9 @@
 import { describe, expect, it } from 'vitest'
 
 import { buildChart } from '@/components/chart/series'
-import type { DirectionLive } from '@/composables/useRunState'
+import { type DirectionLive, type LiveRings, record } from '@/composables/runLive'
+import type { EngineEvent } from '@/engine/messages'
+import { FixedRing } from '@/lib/ring'
 
 function live(overrides: Partial<DirectionLive>): DirectionLive {
   return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, phaseMs: 0, ...overrides }
@@ -143,5 +145,61 @@ describe('buildChart', () => {
     const model = buildChart({ order: ['download', 'upload'], live: { download: null, upload: null }, units: 'bits' })
     expect(model.data).toEqual([[], [], [], []])
     expect(model.end).toBe(0)
+  })
+})
+
+describe('buildChart over live rings that rolled over', () => {
+  type Sample = Extract<EngineEvent, { type: 'sample' }>
+  const CAPACITY = 50
+  const rings = (): LiveRings => ({ buckets: new FixedRing(CAPACITY), trace: new FixedRing(CAPACITY) })
+  const sample = (overrides: Partial<Sample>): Sample => ({ type: 'sample', direction: 'download', fromBucket: 0, values: [], gauge: 0, streams: 1, phaseMs: 0, dataUsedBytes: 0, ...overrides })
+
+  /** A direction fed one bucket per sample, from `from` to `to` exclusive, with a sending point and a ping each. */
+  function fed(direction: 'download' | 'upload', from: number, to: number, start: number | null) {
+    const own = rings()
+    let live: DirectionLive | null = null
+    const loaded = []
+    for (let bucket = from; bucket < to; bucket++) {
+      const upload = direction === 'upload' ? { sendingBucket: bucket + 0.5, sending: 8e6, ...(start === null ? {} : { startBucket: start }) } : {}
+      live = record(live, own, sample({ direction, fromBucket: bucket, values: [10_000], warmupEndBucket: from + 5, ...upload }))
+      loaded.push({ at: bucket + 0.5, ms: 20 })
+    }
+    return { live: live as DirectionLive, loaded }
+  }
+
+  it('builds a download past its capacity from the oldest bucket held, on its elapsed time', () => {
+    const { live, loaded } = fed('download', 0, 120, null)
+    expect(live.firstBucket).toBe(70)
+    const model = buildChart({ order: ['download'], live: { download: live, upload: null }, units: 'bits', loaded: { download: loaded } })
+    for (const column of model.data) {
+      expect(column.length).toBeLessThanOrEqual(CAPACITY + 2)
+    }
+    expect(model.latency.length).toBeLessThanOrEqual(CAPACITY + 2)
+    expect(model.data[0][0]).toBeCloseTo(7)
+    expect(model.latency[0]?.at).toBeCloseTo(7.05)
+    // The warm-up ended at bucket 5, long overwritten: its band is clipped to what is held.
+    expect(model.warmup[0]?.to).toBeCloseTo(7)
+  })
+
+  it('builds an upload past its capacity, starting far from 0, from the oldest cell held', () => {
+    const { live, loaded } = fed('upload', 9001, 9121, 9000)
+    const model = buildChart({ order: ['upload'], live: { download: null, upload: live }, units: 'bits', loaded: { upload: loaded } })
+    const [x, , received, sending] = model.data
+    for (const column of model.data) {
+      expect(column.length).toBeLessThanOrEqual(CAPACITY + 2)
+    }
+    expect(model.latency.length).toBeLessThanOrEqual(CAPACITY + 2)
+    // The oldest cell held is 9071: 7.1 s after P_start's cell.
+    expect(x[0]).toBeCloseTo(7.1)
+    expect(received[0]).toBe(8e5)
+    expect(sending.filter((value) => value !== null).length).toBeLessThanOrEqual(CAPACITY + 1)
+  })
+
+  it("keeps the upload's leading unknown cell one cell short of eviction", () => {
+    const { live } = fed('upload', 9001, 9001 + CAPACITY, 9000)
+    expect(live.evictedBefore).toBeUndefined()
+    const [x, , received] = buildChart({ order: ['upload'], live: { download: null, upload: live }, units: 'bits' }).data
+    expect(x[0]).toBe(0)
+    expect(received.slice(0, 2)).toEqual([null, 8e5])
   })
 })

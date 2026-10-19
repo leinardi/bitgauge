@@ -19,7 +19,8 @@
 
 import { idleStopped, type RunView, screenState } from '@/components/test/screen/states'
 import type { Wording } from '@/components/test/wording'
-import type { DirectionLive, IdleLive } from '@/composables/useRunState'
+import type { DirectionLive } from '@/composables/runLive'
+import type { IdleLive } from '@/composables/useRunState'
 import type { Direction, MeasuringPhase, PhaseName } from '@/engine/messages'
 import { formatRate, latencyNumber, rateParts } from '@/lib/format'
 

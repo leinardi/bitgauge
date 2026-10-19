@@ -21,14 +21,17 @@ import { ChevronDown, ChevronUp, SlidersHorizontal } from '@lucide/vue'
 import { shallowRef, useId } from 'vue'
 
 import AppButton from '@/components/actions/AppButton.vue'
-import { type Choice, commandOf, DEFAULTS, ERROR_KINDS, NAMES, RESOLUTIONS, restore, save, SPEEDS } from '@/demo/choice'
-import { DEMO_CONFIDENCES, isDemoConfidence } from '@/demo/confidence'
+import { type Choice, commandOf, DEFAULTS, NAMES, restore, save, SPEEDS } from '@/demo/choice'
 import { chooseHistory, chooseScenario, onScriptedStop } from '@/demo/control'
-import { DEMO_HISTORY_VARIANTS, isDemoHistory } from '@/demo/history'
+import { inputClass, rowClass, selectClass } from '@/demo/panel/classes'
+import HistoryControls from '@/demo/panel/HistoryControls.vue'
+import ResultControls from '@/demo/panel/ResultControls.vue'
+import TestControls from '@/demo/panel/TestControls.vue'
 import { DEMO_SCENARIOS, isScenarioName } from '@/demo/scenarios'
 
 // The demo panel (frontend.md section 9), the UI kit's Demo state panel as far as the app goes: the
-// scenario, the speed, a forced state, a CPU-bound Worker, the error kind, the timer resolution, the
+// scenario and the speed here, then the Test screen, History and Result detail sections
+// (demo/panel/): a forced state, a CPU-bound Worker, the error kind, the timer resolution, the
 // History variant and the Result detail's confidence per direction. It exists in demo builds only,
 // so its words are the kit's, not translated. The choice is kept in localStorage (demo/choice.ts)
 // and applied by loading the page again with the scenario's URL parameters, so every scenario
@@ -52,18 +55,6 @@ const TEXT = {
   scenario: 'Scenario',
   speed: 'Speed',
   startNote: 'Start with the button or Enter; Escape stops.',
-  testScreen: 'Test screen',
-  forceState: 'Force state',
-  followRun: 'follow run',
-  cpuBound: 'CPU-bound',
-  errorKind: 'Error kind',
-  timerResolution: 'Timer resolution',
-  history: 'History',
-  historyVariant: 'Force variant',
-  historyStored: 'stored',
-  result: 'Result detail',
-  downloadConfidence: 'Download confidence',
-  uploadConfidence: 'Upload confidence',
 }
 
 const choice = shallowRef(restore(localStorage))
@@ -71,7 +62,7 @@ const command = commandOf(choice.value)
 const current = DEMO_SCENARIOS[command.scenario]
 chooseScenario(command)
 chooseHistory(choice.value.history)
-const ids = { scenario: useId(), forceState: useId(), errorKind: useId(), timer: useId(), history: useId(), downloadConfidence: useId(), uploadConfidence: useId() }
+const ids = { scenario: useId() }
 
 /**
  * Presses Start once the Test screen offers it, for a scenario that runs as soon as it is chosen:
@@ -123,42 +114,11 @@ function onScenario(event: Event): void {
   }
 }
 
-function onForceState(event: Event): void {
-  const value = selected(event)
-  apply({ forceState: isScenarioName(value) ? value : '' })
-}
-
-function onErrorKind(event: Event): void {
-  const value = selected(event)
-  apply({ errorKind: ERROR_KINDS.find((kind) => kind === value) ?? DEFAULTS.errorKind })
-}
-
-function onHistory(event: Event): void {
-  const value = selected(event)
-  apply({ history: isDemoHistory(value) ? value : DEFAULTS.history })
-}
-
-function onConfidence(event: Event, key: 'downloadConfidence' | 'uploadConfidence'): void {
-  const value = selected(event)
-  apply({ [key]: isDemoConfidence(value) ? value : DEFAULTS[key] })
-}
-
-function onTimer(event: Event): void {
-  const value = Number(selected(event))
-  apply({ timerResolutionMs: RESOLUTIONS.find((resolution) => resolution === value) ?? DEFAULTS.timerResolutionMs })
-}
-
 // The kit's panel (kit.css .demo): centered under the top edge; in the compact layout, open at the
 // right edge and closed as a pill just left of the theme button.
 const OPEN_CLASS =
   'w-(--demo-w) rounded-(--radius-lg) border border-input shadow-(--shadow-pop) max-desktop:right-3 max-desktop:max-h-[calc(100vh_-_2*var(--space-2))] max-desktop:w-[min(var(--demo-w-compact),calc(100vw_-_2*var(--space-3)))]'
 const CLOSED_CLASS = 'w-auto rounded-full border border-(--primary-border) max-desktop:right-[calc(var(--layout-gutter-compact)_+_var(--control-h-touch)_+_var(--space-2))]'
-const rowClass = 'flex items-center justify-between gap-2 text-(length:--text-caption) text-muted-foreground'
-// A select as the kit's small input (forms.css .input.sm): the box is the span, the native select
-// sits in it without its own frame, and the box shows the focus.
-const inputClass =
-  'flex h-(--control-h-sm) min-w-0 flex-[0_1_var(--demo-row-basis)] items-center gap-2 rounded-(--radius-md) border border-input bg-(--surface-1) px-2.5 text-(length:--text-caption) text-foreground focus-within:border-primary focus-within:outline-(length:--focus-width) focus-within:outline-offset-(--focus-offset) focus-within:outline-(--focus-ring)'
-const selectClass = 'min-w-0 flex-1 border-none bg-transparent font-sans text-(length:--text-sm) text-foreground outline-none'
 </script>
 
 <template>
@@ -256,130 +216,18 @@ const selectClass = 'min-w-0 flex-1 border-none bg-transparent font-sans text-(l
         </div>
         <span class="text-(length:--text-caption) leading-(--lh-compact) text-subtle-foreground">{{ TEXT.startNote }}</span>
       </section>
-      <section class="flex flex-col gap-2 border-t border-border pt-3">
-        <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.testScreen }}</span>
-        <div :class="rowClass">
-          <label :for="ids.forceState">{{ TEXT.forceState }}</label>
-          <span :class="inputClass">
-            <select
-              :id="ids.forceState"
-              :class="selectClass"
-              :value="choice.forceState"
-              data-testid="demo-force-state"
-              @change="onForceState"
-            >
-              <option value="">
-                {{ TEXT.followRun }}
-              </option>
-              <option
-                v-for="name in NAMES"
-                :key="name"
-                :value="name"
-              >
-                {{ name }}
-              </option>
-            </select>
-          </span>
-        </div>
-        <label class="flex cursor-pointer items-center gap-2 text-(length:--text-caption) text-muted-foreground">
-          <input
-            type="checkbox"
-            class="size-3.5 flex-none accent-(--primary)"
-            :checked="choice.cpuBound"
-            data-testid="demo-cpu"
-            @change="apply({ cpuBound: !choice.cpuBound })"
-          >{{ TEXT.cpuBound }}</label>
-        <div :class="rowClass">
-          <label :for="ids.errorKind">{{ TEXT.errorKind }}</label>
-          <span :class="inputClass">
-            <select
-              :id="ids.errorKind"
-              :class="selectClass"
-              :value="choice.errorKind"
-              data-testid="demo-error-kind"
-              @change="onErrorKind"
-            >
-              <option
-                v-for="kind in ERROR_KINDS"
-                :key="kind"
-                :value="kind"
-              >
-                {{ kind }}
-              </option>
-            </select>
-          </span>
-        </div>
-        <div :class="rowClass">
-          <label :for="ids.timer">{{ TEXT.timerResolution }}</label>
-          <span :class="inputClass">
-            <select
-              :id="ids.timer"
-              :class="selectClass"
-              :value="String(choice.timerResolutionMs)"
-              data-testid="demo-timer"
-              @change="onTimer"
-            >
-              <option
-                v-for="resolution in RESOLUTIONS"
-                :key="resolution"
-                :value="String(resolution)"
-              >
-                {{ `${resolution} ms` }}
-              </option>
-            </select>
-          </span>
-        </div>
-      </section>
-      <section class="flex flex-col gap-2 border-t border-border pt-3">
-        <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.history }}</span>
-        <div :class="rowClass">
-          <label :for="ids.history">{{ TEXT.historyVariant }}</label>
-          <span :class="inputClass">
-            <select
-              :id="ids.history"
-              :class="selectClass"
-              :value="choice.history"
-              data-testid="demo-history"
-              @change="onHistory"
-            >
-              <option
-                v-for="variant in DEMO_HISTORY_VARIANTS"
-                :key="variant"
-                :value="variant"
-              >
-                {{ variant === '' ? TEXT.historyStored : variant }}
-              </option>
-            </select>
-          </span>
-        </div>
-      </section>
-      <section class="flex flex-col gap-2 border-t border-border pt-3">
-        <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.result }}</span>
-        <div
-          v-for="key in ['downloadConfidence', 'uploadConfidence'] as const"
-          :key="key"
-          :class="rowClass"
-        >
-          <label :for="ids[key]">{{ TEXT[key] }}</label>
-          <span :class="inputClass">
-            <select
-              :id="ids[key]"
-              :class="selectClass"
-              :value="choice[key]"
-              :data-testid="`demo-${key}`"
-              @change="onConfidence($event, key)"
-            >
-              <option
-                v-for="[value, words] in DEMO_CONFIDENCES"
-                :key="value"
-                :value="value"
-              >
-                {{ words }}
-              </option>
-            </select>
-          </span>
-        </div>
-      </section>
+      <TestControls
+        :choice="choice"
+        @apply="apply"
+      />
+      <HistoryControls
+        :choice="choice"
+        @apply="apply"
+      />
+      <ResultControls
+        :choice="choice"
+        @apply="apply"
+      />
     </div>
   </aside>
 </template>
