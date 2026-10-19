@@ -490,12 +490,21 @@ func TestRulesOfSection4(t *testing.T) {
 			file:     "test_defaults:\n  preset: extended\n  download:\n    max_duration: 15s\n",
 			wantKeys: []string{"test_defaults.download.max_duration"},
 		},
-		// Features not in this release.
+		// Conflicting toggles.
 		{
-			name:     "OpenSpeedTest enabled",
-			file:     "compat:\n  openspeedtest:\n    enabled: true\n",
-			wantKeys: []string{"compat.openspeedtest.enabled"},
+			name:     "OpenSpeedTest with a download cap under 30 MiB",
+			file:     "compat:\n  openspeedtest:\n    enabled: true\nlimits:\n  max_download_bytes: 16MiB\n",
+			wantKeys: []string{"limits.max_download_bytes"},
 		},
+		{
+			name: "OpenSpeedTest with an upload cap under 35 MiB",
+			environ: []string{
+				"BITGAUGE_COMPAT__OPENSPEEDTEST__ENABLED=true",
+				"BITGAUGE_LIMITS__MAX_UPLOAD_BYTES=36700159",
+			},
+			wantKeys: []string{"limits.max_upload_bytes"},
+		},
+		// Features not in this release.
 		{
 			name:     "LibreSpeed enabled",
 			environ:  []string{"BITGAUGE_COMPAT__LIBRESPEED__ENABLED=true"},
@@ -598,11 +607,19 @@ test_defaults:
   ping_count: 200
   overhead_compensation_percent: 20
 compat:
+  openspeedtest: {enabled: true}
   networkquality: {max_upload_bytes: 64GiB, max_flows_per_client: 256}
 log: {format: json, level: debug}
 metrics: {enabled: true, path: /internal/metrics}
 `,
 	}
+
+	// The OpenSpeedTest layer at the lowest limits it accepts.
+	files["OpenSpeedTest at its minimums"] = `
+compat:
+  openspeedtest: {enabled: true}
+limits: {max_download_bytes: 30MiB, max_upload_bytes: 36700160}
+`
 
 	for name, file := range files {
 		t.Run(name, func(t *testing.T) {

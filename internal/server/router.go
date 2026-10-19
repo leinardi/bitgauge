@@ -20,6 +20,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"maps"
@@ -29,6 +30,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/leinardi/bitgauge/internal/compat/openspeedtest"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
 	"github.com/leinardi/bitgauge/internal/metrics"
@@ -200,15 +202,50 @@ func matches(pattern, path string) bool {
 	return true
 }
 
+// ownerMounted reports whether NewRouter mounts owner's rows of the route table for cfg: the
+// SPA's and the native API's always, a compatibility layer's when its toggle is on. The
+// LibreSpeed and networkQuality layers join with the commits that ship them.
+func ownerMounted(cfg *config.Config, owner string) bool {
+	switch owner {
+	case ownerSPA, ownerNative:
+		return true
+	case ownerOpenSpeedTest:
+		return cfg.Compat.OpenSpeedTest.Enabled
+	}
+
+	return false
+}
+
+// layerGroups are the security-header groups of the compatibility layers' owners.
+var layerGroups = map[string]Group{
+	ownerOpenSpeedTest: GroupOpenSpeedTest,
+	ownerLibreSpeed:    GroupLibreSpeed,
+	ownerNQ:            GroupNQ,
+}
+
+// LayerPaths are the exact route paths of every compatibility layer NewRouter mounts for cfg,
+// without base_path, by the layer's group: what NewClassifier takes.
+func LayerPaths(cfg *config.Config) map[Group][]string {
+	paths := map[Group][]string{}
+
+	for _, route := range RouteTable() {
+		if group, isLayer := layerGroups[route.Owner]; isLayer && ownerMounted(cfg, route.Owner) {
+			paths[group] = append(paths[group], route.Pattern)
+		}
+	}
+
+	return paths
+}
+
 // MountedRoutes are the routes NewRouter mounts for cfg, without base_path, each with the
-// metrics' group of its owner: the SPA's, the native API's, and metrics.path when
-// metrics.enabled is set. The compatibility layers join with the release that mounts them.
+// metrics' group of its owner: the SPA's, the native API's, each enabled compatibility layer's,
+// and metrics.path when metrics.enabled is set.
 func MountedRoutes(cfg *config.Config) []metrics.Route {
 	table := RouteTable()
 	routes := make([]metrics.Route, 0, len(table)+1)
 
 	for _, route := range table {
-		if route.Owner == ownerSPA || route.Owner == ownerNative {
+		if ownerMounted(cfg, route.Owner) {
 			routes = append(
 				routes,
 				metrics.Route{Pattern: route.Pattern, Group: groupOf[route.Owner]},
@@ -232,7 +269,10 @@ type Groups struct {
 	SPA func(chi.Router)
 	// Native builds the native API.
 	Native *handlers.Deps
-	// Limiter limits the native throughput routes.
+	// OpenSpeedTest builds the OpenSpeedTest layer, mounted when compat.openspeedtest.enabled
+	// is set; NewRouter adds its limiter.
+	OpenSpeedTest *openspeedtest.Deps
+	// Limiter limits the native throughput routes and the compatibility layers'.
 	Limiter *ratelimit.Limiter
 	// Metrics serves the metrics endpoint (metrics.Metrics.Handler), mounted when
 	// metrics.enabled is set; without it the path answers 404. Native.Metrics, not this,
@@ -242,10 +282,11 @@ type Groups struct {
 }
 
 // NewRouter mounts the route groups under base_path: the SPA's fixed routes, the native API at
-// /api/v1 behind its CORS step, with the limiter on download and upload only, and the metrics
-// endpoint at metrics.path when metrics.enabled is set, for GET only and outside any limit. The
-// compatibility layers join with the release that ships them. Unknown paths under /api/v1 get
-// the error envelope; any other unknown path a plain 404.
+// /api/v1 behind its CORS step, with the limiter on download and upload only, each enabled
+// compatibility layer at its exact paths for the methods of its route-table rows, and the
+// metrics endpoint at metrics.path when metrics.enabled is set, for GET only and outside any
+// limit. Unknown paths under /api/v1 get the error envelope; any other unknown path a plain
+// 404. A method a layer's row does not list reaches that layer, which answers 405 itself.
 //
 // The route collision check runs first, so no router exists for a configuration that fails
 // it: a non-empty problem list comes with a nil router, and the caller reports it and exits
@@ -260,9 +301,19 @@ func NewRouter(cfg *config.Config, groups *Groups) (*chi.Mux, []config.Problem) 
 	native.Limit = ratelimit.Middleware(groups.Limiter, handlers.ErrorWriter{}, groups.Log,
 		native.Metrics)
 
+	layers := layerHandlers(cfg, groups, native.Limit)
+
 	mount := func(base chi.Router) {
 		if groups.SPA != nil {
 			groups.SPA(base)
+		}
+
+		for _, route := range RouteTable() {
+			if handler, mounted := layers[route.Pattern]; mounted {
+				for _, method := range route.Methods {
+					base.Method(method, route.Pattern, handler)
+				}
+			}
 		}
 
 		if cfg.Metrics.Enabled && groups.Metrics != nil {
@@ -279,6 +330,9 @@ func NewRouter(cfg *config.Config, groups *Groups) (*chi.Mux, []config.Problem) 
 	root.NotFound(http.NotFound)
 
 	base := strings.TrimSuffix(cfg.Server.BasePath, "/")
+	// Set before the base path's sub-router exists, which inherits it.
+	root.MethodNotAllowed(methodNotAllowed(root, base, layers))
+
 	if base == "" {
 		mount(root)
 	} else {
@@ -286,6 +340,79 @@ func NewRouter(cfg *config.Config, groups *Groups) (*chi.Mux, []config.Problem) 
 	}
 
 	return root, nil
+}
+
+// layerHandlers are the entries into every enabled compatibility layer's router, by exact
+// path without base_path, the layer limited by limit.
+func layerHandlers(
+	cfg *config.Config,
+	groups *Groups,
+	limit func(http.Handler) http.Handler,
+) map[string]http.Handler {
+	routers := map[string]http.Handler{}
+
+	if ownerMounted(cfg, ownerOpenSpeedTest) {
+		deps := *groups.OpenSpeedTest
+		deps.Limit = limit
+		routers[ownerOpenSpeedTest] = openspeedtest.Routes(&deps)
+	}
+
+	entries := map[string]http.Handler{}
+
+	for _, route := range RouteTable() {
+		if layer, mounted := routers[route.Owner]; mounted {
+			entries[route.Pattern] = enter(layer, route.Pattern)
+		}
+	}
+
+	return entries
+}
+
+// enter hands a request to a layer's router at its route-table path, below base_path, with a
+// route context of the layer's own: the layer routes on that path, and the request keeps the
+// pattern the outer router matched, which the metrics label it with.
+func enter(layer http.Handler, path string) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		routeContext := chi.NewRouteContext()
+		routeContext.RoutePath = path
+
+		layer.ServeHTTP(writer, request.WithContext(
+			context.WithValue(request.Context(), chi.RouteCtxKey, routeContext)))
+	})
+}
+
+// probedMethods are the methods methodNotAllowed probes the router for.
+var probedMethods = [...]string{
+	http.MethodGet, http.MethodHead, http.MethodPost, http.MethodPut, http.MethodPatch,
+	http.MethodDelete, http.MethodConnect, http.MethodOptions, http.MethodTrace,
+}
+
+// methodNotAllowed answers a method no route of a known path lists. On a compatibility
+// layer's path the layer answers, with its own 405 (compatibility.md section 6); anywhere
+// else the answer is chi's own: 405, an Allow value for each method the path does serve, and
+// no body. chi passes a custom handler no method list, so the router is probed for it.
+func methodNotAllowed(
+	router *chi.Mux,
+	base string,
+	layers map[string]http.Handler,
+) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		if trimmed, below := strings.CutPrefix(request.URL.Path, base); below {
+			if layer, isLayer := layers[trimmed]; isLayer {
+				layer.ServeHTTP(writer, request)
+
+				return
+			}
+		}
+
+		for _, method := range probedMethods {
+			if router.Match(chi.NewRouteContext(), method, request.URL.Path) {
+				writer.Header().Add("Allow", method)
+			}
+		}
+
+		writer.WriteHeader(http.StatusMethodNotAllowed)
+	}
 }
 
 // getOnly answers any method but GET with a plain 405 and Allow: GET (backend.md section 7).

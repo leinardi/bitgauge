@@ -283,6 +283,8 @@ func TestServeExitsTwoOnInvalidConfig(t *testing.T) {
 		{"invalid environment value", []string{"serve", "--config", empty}, []string{"BITGAUGE_LOG__LEVEL=loud"}, 2},
 		{"metrics.path collision", []string{"--config", empty}, []string{"BITGAUGE_METRICS__PATH=/upload"}, 2},
 		{"server.labels item without =", []string{"--config", empty}, []string{"BITGAUGE_SERVER__LABELS=10.8.0.0/24"}, 2},
+		{"OpenSpeedTest with a 16 MiB download cap", []string{"--config", empty}, []string{"BITGAUGE_COMPAT__OPENSPEEDTEST__ENABLED=true", "BITGAUGE_LIMITS__MAX_DOWNLOAD_BYTES=16MiB"}, 2},
+		{"OpenSpeedTest with a 32 MiB upload cap", []string{"--config", empty}, []string{"BITGAUGE_COMPAT__OPENSPEEDTEST__ENABLED=true", "BITGAUGE_LIMITS__MAX_UPLOAD_BYTES=32MiB"}, 2},
 		{"unknown command", []string{"version"}, nil, 2},
 		{"healthcheck with an invalid file", []string{"healthcheck", "--config", invalidFile}, nil, 1},
 	} {
@@ -440,5 +442,24 @@ func TestServeExitsOneWithoutTheSPA(t *testing.T) {
 		!strings.Contains(logs.String(), "build it with make build") ||
 		strings.Contains(logs.String(), "msg=starting") {
 		t.Fatalf("logs %q, want the render error and no startup line", logs.String())
+	}
+}
+
+func TestCompatibilityLayersOnTheStartupLine(t *testing.T) {
+	t.Parallel()
+
+	cfg := config.Defaults()
+	if got := compatibilityLayers(&cfg); got != "none" {
+		t.Fatalf("no layer enabled: %q, want none", got)
+	}
+
+	cfg.Compat.OpenSpeedTest.Enabled = true
+	if got := compatibilityLayers(&cfg); got != "openspeedtest" {
+		t.Fatalf("OpenSpeedTest enabled: %q, want openspeedtest", got)
+	}
+
+	cfg.Compat.NetworkQuality.Enabled = true
+	if got := compatibilityLayers(&cfg); got != "openspeedtest,networkquality" {
+		t.Fatalf("two layers enabled: %q, want openspeedtest,networkquality", got)
 	}
 }

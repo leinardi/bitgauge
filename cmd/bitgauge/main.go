@@ -30,9 +30,11 @@ import (
 	"log/slog"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/leinardi/bitgauge/internal/buildinfo"
 	"github.com/leinardi/bitgauge/internal/clientip"
+	"github.com/leinardi/bitgauge/internal/compat/openspeedtest"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
 	"github.com/leinardi/bitgauge/internal/logger"
@@ -168,6 +170,31 @@ func usage(out io.Writer) {
 	)
 }
 
+// compatibilityLayers is the startup line's list of the enabled compatibility layers, by their
+// configuration names, or none (configuration-security.md section 6).
+func compatibilityLayers(cfg *config.Config) string {
+	var layers []string
+
+	for _, layer := range []struct {
+		name    string
+		enabled bool
+	}{
+		{"openspeedtest", cfg.Compat.OpenSpeedTest.Enabled},
+		{"librespeed", cfg.Compat.LibreSpeed.Enabled},
+		{"networkquality", cfg.Compat.NetworkQuality.Enabled},
+	} {
+		if layer.enabled {
+			layers = append(layers, layer.name)
+		}
+	}
+
+	if len(layers) == 0 {
+		return "none"
+	}
+
+	return strings.Join(layers, ",")
+}
+
 // labelRules hands server.labels to clientip, which does not import the configuration.
 func labelRules(entries []config.LabelRule) []clientip.Rule {
 	rules := make([]clientip.Rule, 0, len(entries))
@@ -243,6 +270,12 @@ func serve(
 			Metrics:    meter,
 			Labeler:    clientip.NewLabeler(labelRules(cfg.Server.Labels)),
 		},
+		OpenSpeedTest: &openspeedtest.Deps{
+			Buffer:   buffer,
+			Now:      clock.Now,
+			Download: meter.Transfer(metrics.GroupOpenSpeedTest, metrics.Download),
+			Upload:   meter.Transfer(metrics.GroupOpenSpeedTest, metrics.Upload),
+		},
 		Limiter: limiter,
 		Metrics: meter.Handler(log),
 		Log:     log,
@@ -274,7 +307,7 @@ func serve(
 		slog.String("commit", build.Commit),
 		slog.String("listen", listener.Addr().String()),
 		slog.String("base_path", cfg.Server.BasePath),
-		slog.String("compatibility_layers", "none"),
+		slog.String("compatibility_layers", compatibilityLayers(cfg)),
 		slog.Bool("metrics", cfg.Metrics.Enabled))
 	log.LogAttrs(ctx, slog.LevelInfo, "configuration", config.Effective(cfg)...)
 

@@ -260,3 +260,17 @@ func TestInfoWithoutClientAddressIs500(t *testing.T) {
 
 	assertEnvelope(t, recorder, http.StatusInternalServerError, CodeInternal)
 }
+
+func TestInfoReportsTheCompatibilityToggles(t *testing.T) {
+	t.Parallel()
+
+	deps := testDeps()
+	deps.Config.Compat.OpenSpeedTest.Enabled = true
+
+	got, _ := fetchInfo(t, deps, "10.0.0.5")
+
+	want := map[string]any{"openspeedtest": true, "librespeed": false, "networkquality": false}
+	if !reflect.DeepEqual(got["compat"], want) {
+		t.Fatalf("compat = %v, want %v", got["compat"], want)
+	}
+}

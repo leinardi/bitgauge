@@ -80,6 +80,13 @@ const (
 	milestoneCompatibility = "v0.3"
 )
 
+// The OpenSpeedTest layer's fixed download size and upload cap, which the limits must allow
+// while it is enabled (compatibility.md section 1.1).
+const (
+	minOpenSpeedTestDownloadBytes = 30 * MiB
+	minOpenSpeedTestUploadBytes   = 35 * MiB
+)
+
 // Validate checks a decoded configuration against every rule of configuration.md section 4
 // that this release can decide, and returns every problem, not only the first. The one rule
 // it leaves out is the metrics.path route collision, which needs the router's own route list
@@ -91,7 +98,7 @@ func Validate(cfg *Config) []Problem {
 	check.server(&cfg.Server)
 	check.limits(cfg.Limits)
 	check.testDefaults(&cfg.TestDefaults, cfg.Limits)
-	check.compat(cfg.Compat)
+	check.compat(cfg.Compat, cfg.Limits)
 	check.log(cfg.Log)
 	check.metrics(cfg.Metrics)
 
@@ -484,17 +491,29 @@ func (c *checker) durations(
 		"must not exceed max_duration (%s, the preset's value since it is empty)", maximum))
 }
 
-func (c *checker) compat(compat Compat) {
+func (c *checker) compat(compat Compat, limits Limits) {
+	if compat.OpenSpeedTest.Enabled {
+		c.layerNeeds(
+			"limits.max_download_bytes",
+			limits.MaxDownloadBytes,
+			minOpenSpeedTestDownloadBytes,
+			"compat.openspeedtest.enabled",
+			"its fixed 30 MiB download",
+		)
+		c.layerNeeds(
+			"limits.max_upload_bytes",
+			limits.MaxUploadBytes,
+			minOpenSpeedTestUploadBytes,
+			"compat.openspeedtest.enabled",
+			"its fixed 35 MiB upload cap",
+		)
+	}
+
 	toggles := []struct {
 		key     string
 		enabled bool
 		name    string
 	}{
-		{
-			"compat.openspeedtest.enabled",
-			compat.OpenSpeedTest.Enabled,
-			"the OpenSpeedTest compatibility layer",
-		},
 		{
 			"compat.librespeed.enabled",
 			compat.LibreSpeed.Enabled,
@@ -525,6 +544,15 @@ func (c *checker) compat(compat Compat) {
 		minNQFlowsPerClient,
 		maxNQFlowsPerClient,
 	)
+}
+
+// layerNeeds is a conflicting-toggles rule of configuration.md section 4: with toggle on, the
+// limit under key must be at least minimum, for the reason given.
+func (c *checker) layerNeeds(key string, value, minimum Size, toggle, reason string) {
+	if value < minimum {
+		c.add(key, value, fmt.Sprintf("must be at least %s (%d bytes) while %s is true, for %s",
+			minimum, int64(minimum), toggle, reason))
+	}
 }
 
 func (c *checker) log(log Log) {

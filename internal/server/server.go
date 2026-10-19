@@ -58,8 +58,14 @@ type Deps struct {
 func New(cfg *config.Config, log *slog.Logger, deps *Deps) *http.Server {
 	return &http.Server{
 		Addr: cfg.Server.Listen.String(),
-		Handler: Chain(deps.Handler, deps.Deriver, NewClassifier(cfg, nil), deps.Clock, log,
-			NewObserver(cfg, deps.Metrics)),
+		Handler: Chain(
+			deps.Handler,
+			deps.Deriver,
+			NewClassifier(cfg, LayerPaths(cfg)),
+			deps.Clock,
+			log,
+			NewObserver(cfg, deps.Metrics),
+		),
 		ReadHeaderTimeout: ReadHeaderTimeout,
 		IdleTimeout:       IdleTimeout,
 		MaxHeaderBytes:    MaxHeaderBytes,

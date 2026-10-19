@@ -141,9 +141,7 @@ func Info(
 			Client:   newInfoClient(addr, labeler),
 			Limits:   newInfoLimits(&cfg.Limits),
 			Defaults: newInfoDefaults(&cfg.TestDefaults),
-			// No compatibility layer ships in this release: configuration validation rejects
-			// enabling one (configuration.md section 4).
-			Compat: infoCompat{},
+			Compat:   infoCompat{OpenSpeedTest: cfg.Compat.OpenSpeedTest.Enabled},
 		})
 		if err != nil {
 			WriteError(writer, http.StatusInternalServerError, CodeInternal, "encode info", nil)

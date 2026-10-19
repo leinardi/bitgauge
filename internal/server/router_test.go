@@ -33,6 +33,7 @@ import (
 
 	"github.com/leinardi/bitgauge/internal/buildinfo"
 	"github.com/leinardi/bitgauge/internal/clientip"
+	"github.com/leinardi/bitgauge/internal/compat/openspeedtest"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
 	"github.com/leinardi/bitgauge/internal/metrics"
@@ -75,8 +76,14 @@ func newStack(t *testing.T, cfg *config.Config, spa func(chi.Router)) *stack {
 	}
 
 	router, problems := NewRouter(cfg, &Groups{
-		SPA:     spa,
-		Native:  native,
+		SPA:    spa,
+		Native: native,
+		OpenSpeedTest: &openspeedtest.Deps{
+			Buffer:   native.Buffer,
+			Now:      clock.Now,
+			Download: meter.Transfer(metrics.GroupOpenSpeedTest, metrics.Download),
+			Upload:   meter.Transfer(metrics.GroupOpenSpeedTest, metrics.Upload),
+		},
 		Limiter: limiter,
 		Metrics: meter.Handler(log),
 		Log:     log,
@@ -85,8 +92,8 @@ func newStack(t *testing.T, cfg *config.Config, spa func(chi.Router)) *stack {
 		t.Fatalf("route problems %v", problems)
 	}
 
-	server := httptest.NewServer(Chain(router, clientip.NewDeriver(nil), NewClassifier(cfg, nil),
-		clock, log, NewObserver(cfg, meter)))
+	server := httptest.NewServer(Chain(router, clientip.NewDeriver(nil),
+		NewClassifier(cfg, LayerPaths(cfg)), clock, log, NewObserver(cfg, meter)))
 	t.Cleanup(server.Close)
 
 	return &stack{server: server, native: native, meter: meter}
@@ -382,19 +389,6 @@ func TestRouterWithoutSPA(t *testing.T) {
 func TestRouterServesOnlyTheRouteTable(t *testing.T) {
 	t.Parallel()
 
-	cfg := testConfig()
-	stack := newStack(t, cfg, stubSPA(http.NotFoundHandler()))
-
-	router, problems := NewRouter(cfg, &Groups{
-		SPA:     stubSPA(http.NotFoundHandler()),
-		Native:  stack.native,
-		Limiter: ratelimit.New(ratelimit.Options{}, &fakeClock{}),
-		Log:     slog.New(slog.DiscardHandler),
-	})
-	if problems != nil {
-		t.Fatalf("route problems %v", problems)
-	}
-
 	table := map[string]bool{}
 
 	for _, route := range RouteTable() {
@@ -403,32 +397,51 @@ func TestRouterServesOnlyTheRouteTable(t *testing.T) {
 		}
 	}
 
-	served := 0
+	// The SPA's patterns and the native API's seven method and path pairs, then
+	// OpenSpeedTest's seven when it is enabled.
+	for layerPairs, openSpeedTest := range map[int]bool{0: false, 7: true} {
+		cfg := testConfig()
+		cfg.Compat.OpenSpeedTest.Enabled = openSpeedTest
+		stack := newStack(t, cfg, stubSPA(http.NotFoundHandler()))
 
-	err := chi.Walk(
-		router,
-		func(method, route string, _ http.Handler, _ ...func(http.Handler) http.Handler) error {
-			route = strings.TrimSuffix(strings.ReplaceAll(route, "/*/", "/"), "/")
-			if route == "" {
-				route = "/"
-			}
+		router, problems := NewRouter(cfg, &Groups{
+			SPA:           stubSPA(http.NotFoundHandler()),
+			Native:        stack.native,
+			OpenSpeedTest: &openspeedtest.Deps{Buffer: stack.native.Buffer},
+			Limiter:       ratelimit.New(ratelimit.Options{}, &fakeClock{}),
+			Log:           slog.New(slog.DiscardHandler),
+		})
+		if problems != nil {
+			t.Fatalf("route problems %v", problems)
+		}
 
-			if !table[method+" "+route] {
-				t.Errorf("the router serves %s %s, which the route table lacks", method, route)
-			}
+		served := 0
 
-			served++
+		err := chi.Walk(
+			router,
+			func(method, route string, _ http.Handler, _ ...func(http.Handler) http.Handler) error {
+				route = strings.TrimSuffix(strings.ReplaceAll(route, "/*/", "/"), "/")
+				if route == "" {
+					route = "/"
+				}
 
-			return nil
-		},
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
+				if !table[method+" "+route] {
+					t.Errorf("the router serves %s %s, which the route table lacks", method, route)
+				}
 
-	// The SPA's patterns and the native API's seven method and path pairs.
-	if served != len(spaRoutes())+7 {
-		t.Fatalf("the router serves %d routes, want %d", served, len(spaRoutes())+7)
+				served++
+
+				return nil
+			},
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if want := len(spaRoutes()) + 7 + layerPairs; served != want {
+			t.Fatalf("OpenSpeedTest %v: the router serves %d routes, want %d",
+				openSpeedTest, served, want)
+		}
 	}
 }
 

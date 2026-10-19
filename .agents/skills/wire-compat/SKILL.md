@@ -21,8 +21,9 @@ exactly, from its documented behavior, and never bends the native API or the eng
 Every layer is off by default, has exactly one toggle, and answers the plain `404` of an unmatched
 path when disabled.
 
-`internal/handlers` exists since v0.1; the three packages under `internal/compat/` are not built
-yet: they land with v0.3, as the approved specification is implemented (AGENTS.md).
+`internal/handlers` exists since v0.1 and `internal/compat/openspeedtest` since v0.3; the
+LibreSpeed and networkQuality packages land with v0.3 too, as the approved specification is
+implemented ([STATUS.md](../../../docs/STATUS.md)).
 
 This skill owns what is specific to the wire. It links instead of repeating:
 
@@ -84,8 +85,8 @@ Layers translate a foreign contract onto the native building blocks
 | Bounded per-IP limiter | `internal/ratelimit` | throughput routes, WebSocket | throughput routes, networkQuality flows |
 
 - `internal/compat/*` imports `internal/handlers`, `internal/clientip` and `internal/ratelimit`,
-  never the reverse; nothing imports `cmd/`. No lint rule enforces the direction, so review does:
-  `go list -deps ./internal/handlers/...` must not list an `internal/compat` package.
+  never the reverse; nothing imports `cmd/`. No lint rule enforces the direction; `test/boundary`
+  does: `go list -deps ./internal/handlers/...` must not list an `internal/compat` package.
 - Layers cannot reach the native handlers' telemetry, and the native API never depends on a layer.
 - Each layer is a chi sub-router built by its own package (`openspeedtest.Routes()`,
   `librespeed.Routes()`, `nq.Routes()`) and mounted only when its toggle is on.
