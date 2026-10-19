@@ -33,6 +33,7 @@ import (
 
 	"github.com/leinardi/bitgauge/internal/buildinfo"
 	"github.com/leinardi/bitgauge/internal/clientip"
+	"github.com/leinardi/bitgauge/internal/compat/librespeed"
 	"github.com/leinardi/bitgauge/internal/compat/openspeedtest"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
@@ -84,6 +85,13 @@ func newStack(t *testing.T, cfg *config.Config, spa func(chi.Router)) *stack {
 			Download: meter.Transfer(metrics.GroupOpenSpeedTest, metrics.Download),
 			Upload:   meter.Transfer(metrics.GroupOpenSpeedTest, metrics.Upload),
 		},
+		LibreSpeed: &librespeed.Deps{
+			Config:   cfg,
+			Buffer:   native.Buffer,
+			Now:      clock.Now,
+			Download: meter.Transfer(metrics.GroupLibreSpeed, metrics.Download),
+			Upload:   meter.Transfer(metrics.GroupLibreSpeed, metrics.Upload),
+		},
 		Limiter: limiter,
 		Metrics: meter.Handler(log),
 		Log:     log,
@@ -92,7 +100,7 @@ func newStack(t *testing.T, cfg *config.Config, spa func(chi.Router)) *stack {
 		t.Fatalf("route problems %v", problems)
 	}
 
-	server := httptest.NewServer(Chain(router, clientip.NewDeriver(nil),
+	server := httptest.NewServer(Chain(router, clientip.NewDeriver(cfg.Server.TrustedProxies),
 		NewClassifier(cfg, LayerPaths(cfg)), clock, log, NewObserver(cfg, meter)))
 	t.Cleanup(server.Close)
 
@@ -398,16 +406,22 @@ func TestRouterServesOnlyTheRouteTable(t *testing.T) {
 	}
 
 	// The SPA's patterns and the native API's seven method and path pairs, then
-	// OpenSpeedTest's seven when it is enabled.
-	for layerPairs, openSpeedTest := range map[int]bool{0: false, 7: true} {
+	// OpenSpeedTest's seven and LibreSpeed's 29 (seven in each of four spellings, and the
+	// server list) when they are enabled.
+	for _, layers := range []struct {
+		pairs                     int
+		openSpeedTest, libreSpeed bool
+	}{{0, false, false}, {7, true, false}, {29, false, true}, {36, true, true}} {
 		cfg := testConfig()
-		cfg.Compat.OpenSpeedTest.Enabled = openSpeedTest
+		cfg.Compat.OpenSpeedTest.Enabled = layers.openSpeedTest
+		cfg.Compat.LibreSpeed.Enabled = layers.libreSpeed
 		stack := newStack(t, cfg, stubSPA(http.NotFoundHandler()))
 
 		router, problems := NewRouter(cfg, &Groups{
 			SPA:           stubSPA(http.NotFoundHandler()),
 			Native:        stack.native,
 			OpenSpeedTest: &openspeedtest.Deps{Buffer: stack.native.Buffer},
+			LibreSpeed:    &librespeed.Deps{Config: cfg, Buffer: stack.native.Buffer},
 			Limiter:       ratelimit.New(ratelimit.Options{}, &fakeClock{}),
 			Log:           slog.New(slog.DiscardHandler),
 		})
@@ -438,9 +452,8 @@ func TestRouterServesOnlyTheRouteTable(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if want := len(spaRoutes()) + 7 + layerPairs; served != want {
-			t.Fatalf("OpenSpeedTest %v: the router serves %d routes, want %d",
-				openSpeedTest, served, want)
+		if want := len(spaRoutes()) + 7 + layers.pairs; served != want {
+			t.Fatalf("layers %+v: the router serves %d routes, want %d", layers, served, want)
 		}
 	}
 }

@@ -266,10 +266,11 @@ func TestInfoReportsTheCompatibilityToggles(t *testing.T) {
 
 	deps := testDeps()
 	deps.Config.Compat.OpenSpeedTest.Enabled = true
+	deps.Config.Compat.LibreSpeed.Enabled = true
 
 	got, _ := fetchInfo(t, deps, "10.0.0.5")
 
-	want := map[string]any{"openspeedtest": true, "librespeed": false, "networkquality": false}
+	want := map[string]any{"openspeedtest": true, "librespeed": true, "networkquality": false}
 	if !reflect.DeepEqual(got["compat"], want) {
 		t.Fatalf("compat = %v, want %v", got["compat"], want)
 	}

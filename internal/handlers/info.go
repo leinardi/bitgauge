@@ -141,7 +141,10 @@ func Info(
 			Client:   newInfoClient(addr, labeler),
 			Limits:   newInfoLimits(&cfg.Limits),
 			Defaults: newInfoDefaults(&cfg.TestDefaults),
-			Compat:   infoCompat{OpenSpeedTest: cfg.Compat.OpenSpeedTest.Enabled},
+			Compat: infoCompat{
+				OpenSpeedTest: cfg.Compat.OpenSpeedTest.Enabled,
+				LibreSpeed:    cfg.Compat.LibreSpeed.Enabled,
+			},
 		})
 		if err != nil {
 			WriteError(writer, http.StatusInternalServerError, CodeInternal, "encode info", nil)

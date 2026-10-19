@@ -30,6 +30,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/leinardi/bitgauge/internal/compat/librespeed"
 	"github.com/leinardi/bitgauge/internal/compat/openspeedtest"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
@@ -204,13 +205,15 @@ func matches(pattern, path string) bool {
 
 // ownerMounted reports whether NewRouter mounts owner's rows of the route table for cfg: the
 // SPA's and the native API's always, a compatibility layer's when its toggle is on. The
-// LibreSpeed and networkQuality layers join with the commits that ship them.
+// networkQuality layer joins with the commit that ships it.
 func ownerMounted(cfg *config.Config, owner string) bool {
 	switch owner {
 	case ownerSPA, ownerNative:
 		return true
 	case ownerOpenSpeedTest:
 		return cfg.Compat.OpenSpeedTest.Enabled
+	case ownerLibreSpeed:
+		return cfg.Compat.LibreSpeed.Enabled
 	}
 
 	return false
@@ -272,6 +275,9 @@ type Groups struct {
 	// OpenSpeedTest builds the OpenSpeedTest layer, mounted when compat.openspeedtest.enabled
 	// is set; NewRouter adds its limiter.
 	OpenSpeedTest *openspeedtest.Deps
+	// LibreSpeed builds the LibreSpeed layer, mounted when compat.librespeed.enabled is set;
+	// NewRouter adds its limiter.
+	LibreSpeed *librespeed.Deps
 	// Limiter limits the native throughput routes and the compatibility layers'.
 	Limiter *ratelimit.Limiter
 	// Metrics serves the metrics endpoint (metrics.Metrics.Handler), mounted when
@@ -355,6 +361,12 @@ func layerHandlers(
 		deps := *groups.OpenSpeedTest
 		deps.Limit = limit
 		routers[ownerOpenSpeedTest] = openspeedtest.Routes(&deps)
+	}
+
+	if ownerMounted(cfg, ownerLibreSpeed) {
+		deps := *groups.LibreSpeed
+		deps.Limit = limit
+		routers[ownerLibreSpeed] = librespeed.Routes(&deps)
 	}
 
 	entries := map[string]http.Handler{}

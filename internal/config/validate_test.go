@@ -504,12 +504,15 @@ func TestRulesOfSection4(t *testing.T) {
 			},
 			wantKeys: []string{"limits.max_upload_bytes"},
 		},
-		// Features not in this release.
 		{
-			name:     "LibreSpeed enabled",
-			environ:  []string{"BITGAUGE_COMPAT__LIBRESPEED__ENABLED=true"},
-			wantKeys: []string{"compat.librespeed.enabled"},
+			name: "LibreSpeed with a download cap under one chunk",
+			environ: []string{
+				"BITGAUGE_COMPAT__LIBRESPEED__ENABLED=true",
+				"BITGAUGE_LIMITS__MAX_DOWNLOAD_BYTES=1048575",
+			},
+			wantKeys: []string{"limits.max_download_bytes"},
 		},
+		// Features not in this release.
 		{
 			name:     "networkQuality enabled",
 			file:     "compat:\n  networkquality:\n    enabled: true\n",
@@ -614,11 +617,16 @@ metrics: {enabled: true, path: /internal/metrics}
 `,
 	}
 
-	// The OpenSpeedTest layer at the lowest limits it accepts.
+	// The OpenSpeedTest and LibreSpeed layers at the lowest limits they accept.
 	files["OpenSpeedTest at its minimums"] = `
 compat:
   openspeedtest: {enabled: true}
 limits: {max_download_bytes: 30MiB, max_upload_bytes: 36700160}
+`
+	files["LibreSpeed at its minimum"] = `
+compat:
+  librespeed: {enabled: true}
+limits: {max_download_bytes: 1MiB}
 `
 
 	for name, file := range files {

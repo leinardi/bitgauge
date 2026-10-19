@@ -80,11 +80,13 @@ const (
 	milestoneCompatibility = "v0.3"
 )
 
-// The OpenSpeedTest layer's fixed download size and upload cap, which the limits must allow
-// while it is enabled (compatibility.md section 1.1).
+// The sizes a compatibility layer needs the limits to allow while it is enabled: the
+// OpenSpeedTest layer's fixed download size and upload cap (compatibility.md section 1.1), and
+// one LibreSpeed ckSize chunk (section 2.1).
 const (
 	minOpenSpeedTestDownloadBytes = 30 * MiB
 	minOpenSpeedTestUploadBytes   = 35 * MiB
+	minLibreSpeedDownloadBytes    = 1 * MiB
 )
 
 // Validate checks a decoded configuration against every rule of configuration.md section 4
@@ -509,16 +511,21 @@ func (c *checker) compat(compat Compat, limits Limits) {
 		)
 	}
 
+	if compat.LibreSpeed.Enabled {
+		c.layerNeeds(
+			"limits.max_download_bytes",
+			limits.MaxDownloadBytes,
+			minLibreSpeedDownloadBytes,
+			"compat.librespeed.enabled",
+			"one 1 MiB ckSize chunk",
+		)
+	}
+
 	toggles := []struct {
 		key     string
 		enabled bool
 		name    string
 	}{
-		{
-			"compat.librespeed.enabled",
-			compat.LibreSpeed.Enabled,
-			"the LibreSpeed compatibility layer",
-		},
 		{
 			"compat.networkquality.enabled",
 			compat.NetworkQuality.Enabled,

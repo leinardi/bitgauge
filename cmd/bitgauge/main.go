@@ -34,6 +34,7 @@ import (
 
 	"github.com/leinardi/bitgauge/internal/buildinfo"
 	"github.com/leinardi/bitgauge/internal/clientip"
+	"github.com/leinardi/bitgauge/internal/compat/librespeed"
 	"github.com/leinardi/bitgauge/internal/compat/openspeedtest"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
@@ -275,6 +276,13 @@ func serve(
 			Now:      clock.Now,
 			Download: meter.Transfer(metrics.GroupOpenSpeedTest, metrics.Download),
 			Upload:   meter.Transfer(metrics.GroupOpenSpeedTest, metrics.Upload),
+		},
+		LibreSpeed: &librespeed.Deps{
+			Config:   cfg,
+			Buffer:   buffer,
+			Now:      clock.Now,
+			Download: meter.Transfer(metrics.GroupLibreSpeed, metrics.Download),
+			Upload:   meter.Transfer(metrics.GroupLibreSpeed, metrics.Upload),
 		},
 		Limiter: limiter,
 		Metrics: meter.Handler(log),
