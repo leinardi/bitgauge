@@ -18,6 +18,7 @@
  */
 
 import { DemoClock } from '@/demo/clock'
+import { withConfidence } from '@/demo/confidence'
 import { Link, type LinkProfile } from '@/demo/link'
 import type { DemoCommand, DemoErrorKind, DemoScenario, ScriptPoint } from '@/demo/scenarios'
 import { DemoTransport } from '@/demo/transport'
@@ -79,7 +80,8 @@ export class DemoSession {
       if (event.type === 'phase' && event.state === 'started') {
         this.script(event.phase)
       }
-      options.emit(event)
+      // The panel's confidence choice lands on the finished result alone (demo/confidence.ts).
+      options.emit(event.type === 'result' && command.confidence !== undefined ? { ...event, result: withConfidence(event.result, command.confidence) } : event)
     }
     // The page's wall clock, as far as it is from the Worker's when the command arrived.
     const offsetMs = command.wallClockMs === undefined ? 0 : command.wallClockMs - Date.now()

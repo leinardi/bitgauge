@@ -18,7 +18,8 @@
  */
 
 import type { DemoLinkName } from '@/demo/fixtures'
-import type { PhaseName } from '@/engine/messages'
+import type { DemoConfidence } from '@/demo/confidence'
+import type { Direction, PhaseName } from '@/engine/messages'
 
 // The demo's scenarios (frontend.md section 9): one per state of the UI kit's Test screen that v0.1
 // and v0.2 have (the kit's TEST_STATES without continuous, cont-warmup and cont-done), and one per
@@ -155,6 +156,8 @@ export interface DemoCommand {
   errorKind: DemoErrorKind
   /** Whether the scenario's hold applies; without it the run plays on past its state. */
   hold: boolean
+  /** Each direction's confidence on the run's result (demo/confidence.ts); absent leaves the engine's. */
+  confidence?: Record<Direction, DemoConfidence>
   /**
    * The page's wall clock when it sent the command, which the Worker's runs are dated from, so a
    * page whose clock is fixed dates them from it; the Worker's own first command has none.

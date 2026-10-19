@@ -106,7 +106,7 @@ describe('the demo panel', () => {
       { timeout: 5000 },
     )
     expect(worker?.url).toMatch(/\/demo\/worker\.ts\b/)
-    expect(worker?.worker.posted).toContainEqual({ type: 'demo', scenario, speed: 2, cpuBound: false, timerResolutionMs: 0.1, errorKind: 'requests', hold: false, wallClockMs: expect.any(Number) })
+    expect(worker?.worker.posted).toContainEqual({ type: 'demo', scenario, speed: 2, cpuBound: false, timerResolutionMs: 0.1, errorKind: 'requests', hold: false, confidence: { download: 'normal', upload: 'normal' }, wallClockMs: expect.any(Number) })
     // The configure carries the scenario's server defaults, from the page's own GET /info, which
     // the scenario's server answered.
     expect(worker?.worker.posted).toContainEqual({ type: 'configure', settings: settingsFromDefaults(infoFor(link).defaults), basePath: '/' })
@@ -179,6 +179,9 @@ describe('the demo panel', () => {
     expect(options(wrapper.get('[data-testid="demo-error-kind"]').element)).toEqual(['requests', 'unreachable', 'restarted', 'network'])
     expect(options(wrapper.get('[data-testid="demo-timer"]').element)).toEqual(['0.1', '1'])
     expect(options(wrapper.get('[data-testid="demo-history"]').element)).toEqual(['', 'populated', 'single', 'empty', 'unavailable', 'loading'])
+    for (const key of ['downloadConfidence', 'uploadConfidence']) {
+      expect(options(wrapper.get(`[data-testid="demo-${key}"]`).element)).toEqual(['normal', 'low:ramp-unsettled', 'low:unstable', 'low:ramp-unsettled,unstable', 'low:insufficient-samples,unstable', 'cpu-bound'])
+    }
   })
 
   it('keeps a choice and loads the page again with its scenario parameters', async () => {
@@ -199,17 +202,21 @@ describe('the demo panel', () => {
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ errorKind: 'restarted', timerResolutionMs: 1, cpuBound: true })
     await wrapper.get('[data-testid="demo-history"]').setValue('empty')
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ history: 'empty' })
-    expect(navigate).toHaveBeenCalledTimes(7)
+    await wrapper.get('[data-testid="demo-downloadConfidence"]').setValue('low:unstable')
+    await wrapper.get('[data-testid="demo-uploadConfidence"]').setValue('cpu-bound')
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ downloadConfidence: 'low:unstable', uploadConfidence: 'cpu-bound' })
+    expect(navigate).toHaveBeenCalledTimes(9)
   })
 
   it('restores only what it knows: an unknown stored value falls back to its default', async () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ open: true, scenario: 'continuous', speed: 3, errorKind: 'meteor', timerResolutionMs: 0 }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ open: true, scenario: 'continuous', speed: 3, errorKind: 'meteor', timerResolutionMs: 0, uploadConfidence: 'low:lucky' }))
     const wrapper = mount(DemoPanel, { props: { navigate: vi.fn() } })
     await flushPromises()
     expect((wrapper.get('[data-testid="demo-scenario"]').element as HTMLSelectElement).value).toBe('idle')
     expect(wrapper.get('[data-testid="demo-speed-1"]').attributes('aria-pressed')).toBe('true')
     expect((wrapper.get('[data-testid="demo-error-kind"]').element as HTMLSelectElement).value).toBe('requests')
     expect((wrapper.get('[data-testid="demo-timer"]').element as HTMLSelectElement).value).toBe('0.1')
+    expect((wrapper.get('[data-testid="demo-uploadConfidence"]').element as HTMLSelectElement).value).toBe('normal')
   })
 })
 

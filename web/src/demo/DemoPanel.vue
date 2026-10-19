@@ -22,16 +22,17 @@ import { shallowRef, useId } from 'vue'
 
 import AppButton from '@/components/actions/AppButton.vue'
 import { type Choice, commandOf, DEFAULTS, ERROR_KINDS, NAMES, RESOLUTIONS, restore, save, SPEEDS } from '@/demo/choice'
+import { DEMO_CONFIDENCES, isDemoConfidence } from '@/demo/confidence'
 import { chooseHistory, chooseScenario, onScriptedStop } from '@/demo/control'
 import { DEMO_HISTORY_VARIANTS, isDemoHistory } from '@/demo/history'
 import { DEMO_SCENARIOS, isScenarioName } from '@/demo/scenarios'
 
 // The demo panel (frontend.md section 9), the UI kit's Demo state panel as far as the app goes: the
-// scenario, the speed, a forced state, a CPU-bound Worker, the error kind, the timer resolution and
-// the History variant. It exists in demo builds only, so its words are the kit's, not translated.
-// The choice is kept in localStorage (demo/choice.ts) and applied by loading the page again with the
-// scenario's URL parameters, so every scenario starts from a fresh page; one that starts does so
-// through the Start button, as a user would.
+// scenario, the speed, a forced state, a CPU-bound Worker, the error kind, the timer resolution, the
+// History variant and the Result detail's confidence per direction. It exists in demo builds only,
+// so its words are the kit's, not translated. The choice is kept in localStorage (demo/choice.ts)
+// and applied by loading the page again with the scenario's URL parameters, so every scenario
+// starts from a fresh page; one that starts does so through the Start button, as a user would.
 
 const props = withDefaults(defineProps<{ navigate?: (url: string) => void }>(), {
   navigate: (url: string) => window.location.assign(url),
@@ -60,6 +61,9 @@ const TEXT = {
   history: 'History',
   historyVariant: 'Force variant',
   historyStored: 'stored',
+  result: 'Result detail',
+  downloadConfidence: 'Download confidence',
+  uploadConfidence: 'Upload confidence',
 }
 
 const choice = shallowRef(restore(localStorage))
@@ -67,7 +71,7 @@ const command = commandOf(choice.value)
 const current = DEMO_SCENARIOS[command.scenario]
 chooseScenario(command)
 chooseHistory(choice.value.history)
-const ids = { scenario: useId(), forceState: useId(), errorKind: useId(), timer: useId(), history: useId() }
+const ids = { scenario: useId(), forceState: useId(), errorKind: useId(), timer: useId(), history: useId(), downloadConfidence: useId(), uploadConfidence: useId() }
 
 /**
  * Presses Start once the Test screen offers it, for a scenario that runs as soon as it is chosen:
@@ -132,6 +136,11 @@ function onErrorKind(event: Event): void {
 function onHistory(event: Event): void {
   const value = selected(event)
   apply({ history: isDemoHistory(value) ? value : DEFAULTS.history })
+}
+
+function onConfidence(event: Event, key: 'downloadConfidence' | 'uploadConfidence'): void {
+  const value = selected(event)
+  apply({ [key]: isDemoConfidence(value) ? value : DEFAULTS[key] })
 }
 
 function onTimer(event: Event): void {
@@ -339,6 +348,33 @@ const selectClass = 'min-w-0 flex-1 border-none bg-transparent font-sans text-(l
                 :value="variant"
               >
                 {{ variant === '' ? TEXT.historyStored : variant }}
+              </option>
+            </select>
+          </span>
+        </div>
+      </section>
+      <section class="flex flex-col gap-2 border-t border-border pt-3">
+        <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.result }}</span>
+        <div
+          v-for="key in ['downloadConfidence', 'uploadConfidence'] as const"
+          :key="key"
+          :class="rowClass"
+        >
+          <label :for="ids[key]">{{ TEXT[key] }}</label>
+          <span :class="inputClass">
+            <select
+              :id="ids[key]"
+              :class="selectClass"
+              :value="choice[key]"
+              :data-testid="`demo-${key}`"
+              @change="onConfidence($event, key)"
+            >
+              <option
+                v-for="[value, words] in DEMO_CONFIDENCES"
+                :key="value"
+                :value="value"
+              >
+                {{ words }}
               </option>
             </select>
           </span>

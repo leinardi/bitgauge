@@ -99,6 +99,20 @@ describe('the demo session', () => {
     expect(noticesOf(slower)).toContain('extended')
   })
 
+  it('sets the confidence the panel chose on the finished result alone, with its notice', async () => {
+    const { events } = await play('complete', { confidence: { download: 'low:ramp-unsettled,unstable', upload: 'cpu-bound' } })
+    const result = resultOf(events)
+    expect(result.download?.confidence).toEqual({ level: 'low', reasons: ['ramp-unsettled', 'unstable'] })
+    expect(result.upload?.confidence).toEqual({ level: 'cpu-bound', reasons: [] })
+    expect(result.notices.filter((notice) => notice.code === 'low-confidence')).toEqual([{ code: 'low-confidence', direction: 'download', reasons: ['ramp-unsettled', 'unstable'] }])
+    // The run's live events keep what the engine found.
+    expect(JSON.stringify(events.filter((event) => event.type !== 'result'))).not.toContain('ramp-unsettled')
+    // "normal" leaves the engine's own.
+    const normal = resultOf((await play('complete', { confidence: { download: 'normal', upload: 'normal' } })).events)
+    const engine = resultOf((await play('complete')).events)
+    expect([normal.download?.confidence, normal.upload?.confidence, normal.notices]).toEqual([engine.download?.confidence, engine.upload?.confidence, engine.notices])
+  })
+
   it('grades the LAN B and the VPN D under load, the kit’s grades', async () => {
     const lan = resultOf((await play('complete')).events)
     expect(lan.download?.loadedLatency).toMatchObject({ source: 'websocket' })

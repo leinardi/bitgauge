@@ -336,14 +336,22 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   harness fixes it at the kit's instant, dates them from that instant.
 - **Panel** (`demo/DemoPanel.vue`, with `demo/choice.ts` and `demo/control.ts`). The kit's Demo
   state panel as far as the app goes, collapsed by default: the scenario, the speed (1×, 2×, 4×),
-  a forced state, a CPU-bound Worker, the error kind, the timer resolution (0.1 ms or 1 ms) and
-  the History variant, in the kit's own words, not translated, since it never ships. A forced
+  a forced state, a CPU-bound Worker, the error kind, the timer resolution (0.1 ms or 1 ms), the
+  History variant and the Result detail's download and upload confidence, in the kit's own words,
+  not translated, since it never ships. A forced
   state plays that state's scenario and holds it; "follow run" plays the chosen scenario without
   its hold. The choice is kept in `localStorage` under `bitgauge-demo` and applied by loading the
   page again with the scenario's URL parameters, so every scenario starts from a fresh page: the
   panel hands the choice to each demo Worker, to the page's `GET /info` (unreachable for
   `offline`) and to the page's history, and presses Start for a scenario that starts, and Stop
   when its script stops the run, as a user would.
+- **Confidence** (`demo/confidence.ts`). The one place the demo sets a value the engine did not
+  find: the kit's Result detail chooses each direction's confidence (`CONF_OPTS` in `App.jsx`:
+  normal, low for one or two reasons, CPU-bound), which a link cannot be made to reach on demand.
+  "normal" leaves the engine's own; any other choice replaces, on the run's finished result, the
+  confidence of a direction that has a number, with the matching `low-confidence` notice in place
+  of the engine's, so the Test screen's result, its Result detail and its share show the chosen
+  state. The live events of the run keep the engine's.
 - **History variants** (`demo/history.ts`). The kit's History variants the History screen's states
   need: `populated` replaces the browser's history with the kit's eight results over a VPN (the
   rows of `History.jsx`, each a valid result, with a stored steady window and loaded-latency

@@ -17,6 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { type DemoConfidence, isDemoConfidence } from '@/demo/confidence'
 import { type DemoHistory, isDemoHistory } from '@/demo/history'
 import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoErrorKind, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
 
@@ -41,9 +42,12 @@ export interface Choice {
   timerResolutionMs: (typeof RESOLUTIONS)[number]
   /** The History variant the page's history starts from, or '' for the browser's own. */
   history: DemoHistory
+  /** Each direction's confidence on the run's result; 'normal' leaves the engine's. */
+  downloadConfidence: DemoConfidence
+  uploadConfidence: DemoConfidence
 }
 
-export const DEFAULTS: Choice = { open: false, scenario: DEFAULT_SCENARIO, speed: 1, forceState: '', cpuBound: false, errorKind: 'requests', timerResolutionMs: 0.1, history: '' }
+export const DEFAULTS: Choice = { open: false, scenario: DEFAULT_SCENARIO, speed: 1, forceState: '', cpuBound: false, errorKind: 'requests', timerResolutionMs: 0.1, history: '', downloadConfidence: 'normal', uploadConfidence: 'normal' }
 
 type ChoiceStorage = Pick<Storage, 'getItem' | 'setItem'>
 
@@ -66,6 +70,8 @@ export function restore(storage: ChoiceStorage): Choice {
     errorKind: pick(stored.errorKind, ERROR_KINDS, DEFAULTS.errorKind),
     timerResolutionMs: pick(stored.timerResolutionMs, RESOLUTIONS, DEFAULTS.timerResolutionMs),
     history: isDemoHistory(stored.history) ? stored.history : DEFAULTS.history,
+    downloadConfidence: isDemoConfidence(stored.downloadConfidence) ? stored.downloadConfidence : DEFAULTS.downloadConfidence,
+    uploadConfidence: isDemoConfidence(stored.uploadConfidence) ? stored.uploadConfidence : DEFAULTS.uploadConfidence,
   }
 }
 
@@ -87,5 +93,6 @@ export function commandOf(choice: Choice): DemoCommand {
     timerResolutionMs: choice.timerResolutionMs,
     errorKind: choice.errorKind,
     hold: choice.forceState !== '',
+    confidence: { download: choice.downloadConfidence, upload: choice.uploadConfidence },
   }
 }
