@@ -51,6 +51,12 @@ the export shows, and what it should show, with the reason; behavior comes from
 - **`v02-curly-apostrophes`**, the strings: "This result isn’t in this browser’s history" and the
   packet-loss notice's "can’t" use the typographic ’. The product's strings use the straight
   apostrophe, as the spec writes them: "isn't", "browser's", "can't".
+- **Share preview without content** (demo parity, scenario `result`): the share panel's image
+  shows only the wordmark and the grade. The view object sets `share: shareP` and, further down,
+  `share: () => { … }` for the Share button, so the second key replaces the first and
+  `{...(v.share || {})}` spreads a function into `SharePreview`. The preview should get the result
+  fields of `shareP` (the blocks, the foot and the server with the date), as the copied summary
+  does; the Share action needs a key of its own.
 
 ### History (`ui_kits/app/History.jsx`)
 
