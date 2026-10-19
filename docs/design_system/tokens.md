@@ -179,9 +179,14 @@ need 3:1. Measured against `--bg-base` and `--surface-2`; tinted rows composite 
 | `--progress-h`, `--indicator-h` | 4, 2 px | PhaseStep bar; Tabs underline and TabBar indicator |
 | `--tab-indicator-inset` | 28 % | TabBar indicator inset from each side of its tab |
 | `--tile-value-h`, `--tile-qualifier-h` | 34, 15 px | MetricTile word-value line ( "warming up"); qualifier line minimum |
-| `--grade-size`, `--grade-size-sm`, `--grade-cell` | 52, 30, 17 px | GradeBadge; in SharePreview; scale strip cell |
+| `--grade-size`, `--grade-size-sm`, `--grade-cell` | 52, 30, 17 px | GradeBadge; small GradeBadge (no longer used by SharePreview); scale strip cell |
 | `--empty-glyph` | 46 px | EmptyState glyph box |
 | `--share-aspect` | 1200 / 630 | SharePreview |
+| `--share-w`, `--share-h`, `--share-scale` | 480, 252 px; 2.5 | Share image reference box; × 2.5 = the 1200 × 630 PNG |
+| `--share-pad-y`, `--share-pad-x`, `--share-header-h` | space-3-5, space-4, 20 px | Share image padding; logo row |
+| `--share-gap-min`, `--share-label-h`, `--share-block-w` | space-2-5 (10 px), 14, 171 px | Share image: least gap around the middle group; label row; column width |
+| `--share-grade-size`, `--share-grade-w` | 48, 74 px | Share image grade tile; grade column |
+| `--share-server-max` | 224 px | Share image server name before its ellipsis |
 | `--term-comment`, `--term-command`, `--term-muted` | slate-5, teal-5, slate-3 | Snippet syntax on `--term-bg` |
 
 ## Type
@@ -203,7 +208,8 @@ Role tokens: `--type-gauge-readout` 58 / `-compact` 46, `--type-metric-value` 30
 `--tracking-metric` −0.02em. Line heights: `--lh-tight` 1.15 · `--lh-snug` 1.3 · `--lh-compact` 1.45 ·
 `--lh-normal` 1.5 (body default, set in `base.css`) · `--lh-prose` 1.55 · `--lh-relaxed` 1.65 · `--lh-none` 1 (pills,
 badges) · `--lh-display` 1.05 (gauge readout) · `--lh-stat` 22 px (Stat value row). `--text-pico` 9 px (grade strip,
-share-image meta); share image `--type-share-value` 26, `--type-share-label` 8 (the 1200 × 630 image's sizes, scaled).
+share-image meta); share image (480 × 252 box, × 2.5 in the PNG) `--type-share-value` 48, `--type-share-label` 12, `--type-share-unit` 16,
+`--type-share-qual` 10, `--type-share-meta` 10, `--type-share-head` 11, `--type-share-grade` 26.
 
 ## Breakpoints
 

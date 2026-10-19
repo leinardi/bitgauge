@@ -325,7 +325,7 @@ class TestScreen extends React.Component {
         load: load('B', [ROW_D, lrow('up', 42, { p90: 55 })], respB(1420, 980)), fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 42 - IDLE.v)), meta: meta(BG.bytes(USED_D + used(UPC)), '', (PRE + 10 + UEND).toFixed(1) + ' s', ''),
         notices: (on(this.props.cpu) ? [N('warn', 'cpu', "Limited by this device's CPU", 'The browser ran at full CPU during download, so the link may be faster than measured. Close other tabs or test from a faster device.')] : []).concat(BUL(438e6)),
         btn: BTN.again, saved: { iso: '2026-10-12T12:02:11.000Z', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] }, dl: 612e6,
-        share: { blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 438e6, C.up]], foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+39 ms under load', 'B · Mild bufferbloat'], lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +39 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV] },
+        share: { blocks: [{ dir: 'download', bps: 612e6, conf: on(this.props.cpu) ? { level: 'cpu-bound', reasons: [] } : null }, { dir: 'upload', bps: 438e6 }], loaded: { inc: '+39 ms', dir: 'upload' } },
         ph: 'Upload result: ' + sayR(438e6), sum: { st: 'done', down: 'Download ' + sayR(612e6), up: 'Upload ' + sayR(438e6) }
       }; } break;
       // Upload interrupted (flows.md §1 branch, measurement.md §7.5): over HTTP/1.1 the first failed upload request ends
@@ -339,7 +339,7 @@ class TestScreen extends React.Component {
         load: load('B', [ROW_D, lrow('up', 40, { p90: 52 })], respB(1420, 960)), fit: fit(aim(IDLE.v, IDLE.jit, 612e6, 40 - IDLE.v)), meta: meta(BG.bytes(USED_D + used(UPF)), '', (PRE + 10 + UF).toFixed(1) + ' s', ''),
         notices: [N('danger', 'circle-x', 'Upload interrupted by a failed request', 'Over HTTP/1.1 one failed request ends the upload, so its number covers the window up to the failure. HTTP/2 at the proxy lets uploads survive transient failures.', [{ label: 'Deployment guide', href: '#' }])],
         btn: BTN.again, saved: { iso: '2026-10-12T12:02:11.000Z', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] }, dl: 612e6,
-        share: { blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 402e6, C.up]], foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+37 ms under load', 'B · Mild bufferbloat'], lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(402e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +37 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV] },
+        share: { blocks: [{ dir: 'download', bps: 612e6 }, { dir: 'upload', bps: 402e6 }], loaded: { inc: '+37 ms', dir: 'upload' } },
         ph: 'Upload result: ' + sayR(402e6), sum: { st: 'done', down: 'Download ' + sayR(612e6), up: 'Upload ' + sayR(402e6) }
       }; } break;
       case 'error': { const ep = BG.thr(3, 575e6, 6.4); S = {
@@ -462,7 +462,7 @@ class TestScreen extends React.Component {
         load: load('D', [lrow('down', 162, { p90: 205 }), lrow('up', 310, { p90: 380 })], respB(240, 'few')), fit: fit(aim(IDLE.v, IDLE.jit, 640e3, 310 - IDLE.v)), meta: meta(BG.bytes(used(SD) + used(SU)), '', tot + ' s', ''),
         notices: [N('warn', 'triangle-alert', 'Low confidence', 'Upload: few samples.')],
         btn: BTN.again, saved: { iso: '2026-10-12T06:41:57.000Z', label: 'VPN via 5G', chips: ['VPN', 'Mobile'] }, dl: 640e3,
-        share: { blocks: [['↓ DOWNLOAD', 640e3, C.down], ['↑ UPLOAD', 210e3, C.up]], foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+262 ms under load', 'D · High bufferbloat'], lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +262 ms (worse direction)', 'Bufferbloat D · High bufferbloat', SRV] },
+        share: { blocks: [{ dir: 'download', bps: 640e3 }, { dir: 'upload', bps: 210e3, conf: { level: 'low', reasons: ['insufficient-samples'] } }], loaded: { inc: '+262 ms', dir: 'upload' } },
         ph: 'Upload result: ' + sayR(210e3), sum: { st: 'done', down: 'Download ' + sayR(640e3), up: 'Upload ' + sayR(210e3) + ', low confidence: few samples' }
       }; } break;
       case 'offline': S = {
@@ -544,7 +544,7 @@ class TestScreen extends React.Component {
           ],
           meta: [{ icon: 'timer', label: 'Duration', sub: 'stopped by you · planned 2:00:00', value: '42:18', vc: 'var(--fg)' }, mm, idleM, PL],
           notices: [], btn: BTN.again, saved: { iso: '2026-10-12T13:26:40.000Z', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] },
-          share: { blocks: [['↓ AVERAGE', 921e6, C.down], ['PEAK · P90', 936e6, C.down]], foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+18 ms under load', 'continuous · 42:18'], lines: ['↓ avg ' + rs(921e6) + ' · peak ' + rs(936e6) + ' (p90)', 'Continuous · 42:18', 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +18 ms', SRV] }
+          share: { blocks: [{ dir: 'download', bps: 921e6 }], loaded: { inc: '+18 ms', dir: 'download' } }
         }, common) : Object.assign({
           phases: [ph('lat', 'done', LATD), ph('down', 'active', '42:18 of 2:00:00', 35, 'Download · continuous')],
           gauge: { opts: { value: 934e6, bandLo: d.lo, bandHi: d.hi, peak: 936e6 }, note: 'tick p90, last hour', c: C.down },
@@ -572,7 +572,7 @@ class TestScreen extends React.Component {
       const r0 = S.load.rows[0], di = r0.v - IDLE.v, g = gradeOf(di), gt = BG.GRADES[g].text, inc = '+' + fms(di);
       S.load = Object.assign(load(g, [r0, lrow('up', null, { sub: GAP })], S.load.resp, gt), { basisK: 'download' });
       if (S.fit && S.dl) { S.fit = fit(aim(IDLE.v, IDLE.jit, S.dl, di)); S.fitBasis = 'download only'; }
-      if (S.share) S.share = Object.assign({}, S.share, { foot: [S.share.foot[0], S.share.foot[1], inc + ' ms under load', g + ' · ' + gt], lines: [S.share.lines[0], S.share.lines[1], 'Loaded latency ' + inc + ' ms (download)', 'Bufferbloat ' + g + ' · ' + gt, S.share.lines[4]] });
+      if (S.share) S.share = Object.assign({}, S.share, { loaded: { inc: inc + ' ms', dir: 'download' } });
     }
     // wsClose on HTTP/1.1: download was running when the WebSocket closed, so its reservation was not held;
     // upload is measured with the reservation and the grade rests on upload alone.
@@ -588,7 +588,7 @@ class TestScreen extends React.Component {
         const di = ru.v - IDLE.v, g = gradeOf(di), gt = BG.GRADES[g].text, inc = '+' + fms(di);
         S.load = Object.assign(load(g, rows, S.load.resp, gt), { basisK: 'upload' });
         if (S.fit && S.dl) S.fit = fit(aim(IDLE.v, IDLE.jit, S.dl, di));
-        if (S.share) S.share = Object.assign({}, S.share, { foot: [S.share.foot[0], S.share.foot[1], inc + ' ms under load', g + ' · ' + gt], lines: [S.share.lines[0], S.share.lines[1], 'Loaded latency ' + inc + ' ms (upload)', 'Bufferbloat ' + g + ' · ' + gt, S.share.lines[4]] });
+        if (S.share) S.share = Object.assign({}, S.share, { loaded: { inc: inc + ' ms', dir: 'upload' } });
       } else if (S.load.grade !== '—') S.load = load(null, rows, S.load.resp, 'Not graded — no loaded latency');
       else S.load = Object.assign({}, S.load, { rows });
     }
@@ -596,6 +596,7 @@ class TestScreen extends React.Component {
       const DO = ' · download only', has = S.load.rows.map(r => r.v != null && !r.live);
       const bk = S.load.basisK || ((S.load.gText || '').endsWith(DO) ? 'download' : has[0] && has[1] ? 'download+upload' : has[1] ? 'upload' : 'download');
       if ((S.load.gText || '').endsWith(DO)) S.load.gText = S.load.gText.slice(0, -DO.length);
+      S.load.basisK = bk;
       S.load.basis = { 'download+upload': 'Basis: worse of download and upload', download: 'Basis: download only', upload: 'Basis: upload only' }[bk];
       S.load.inc = Math.max(...S.load.rows.filter(r => r.v != null).map(r => r.v - IDLE.v));
     }
@@ -636,7 +637,14 @@ class TestScreen extends React.Component {
       } else bar = { icon: 'circle-minus', ic: 'var(--fg-subtle)', title: 'Partial results are not saved', time: '', sub: v01 ? 'Download the JSON to keep them.' : canKeep ? null : 'No phase finished, so there is nothing to keep in history.', labelled: false, actions: canKeep ? [A('Keep in history', 'history', 'btn secondary sm', () => { const kind = S.partial.kind; this.setState({ kept: true }); this._toast({ icon: 'history', t: 'Kept in history as ' + kind + '.', undo: true }); }), JSONA] : [JSONA] };
     }
     const SH = S.share, inc = !!label && !!this.state.inc, dateT = S.saved ? BG.date(S.saved.iso, 'dateTime') : '';
-    const share = SH ? { blocks: SH.blocks.map(([k, v, c]) => ({ label: k, color: c, value: rn(v), unit: BG.rate(v, unit).u })), foot: SH.foot, head: inc ? label : '', where: SRV + (dateT ? ' · ' + dateT : ''), text: ['BitGauge · ' + (inc ? label + ' · ' : '') + dateT].concat(SH.lines).join('\n') } : null;
+    // Share image props (share-panel.md "Share image layout"): result fields, worded by SharePreview. No foot strings.
+    const SJ = { 'WebSocket': 'websocket', 'HTTP/2 probe': 'http-h2', 'HTTP/3 probe': 'http-h3', 'HTTP/1.1 reserved': 'http-h1-reserved' };
+    const share = SH ? { blocks: SH.blocks.map(b => b.bps == null ? { dir: b.dir, status: b.status, value: null } : { dir: b.dir, status: b.status, confidence: b.conf || undefined, value: rn(b.bps), unit: BG.rate(b.bps, unit).u }),
+      overhead: OH.length ? (parseFloat(this.props.overhead) || 6) : 0, grade: S.load && S.load.grade && S.load.grade !== '—' ? S.load.grade : null, basis: S.load ? S.load.basisK : undefined,
+      idle: LATD, jitter: fjit(IDLE.jit) + ' ms', loaded: SH.loaded ? { increase: SH.loaded.inc, dir: SH.loaded.dir, source: SJ[src], idleSource: wsClose ? 'websocket' : undefined } : null,
+      head: inc ? label : '', where: SRV, when: dateT } : null;
+    // Copied text: the image's lines, from the same props (flows.md §8).
+    if (share) share.text = DS.ShareFormat.summary(share).join('\n');
     if (share) share.label = 'Share image: ' + share.text.split('\n').join(', ');
     // Share via… only where the browser can share the PNG file (flows.md §8).
     let canShare = false;
@@ -774,7 +782,7 @@ class TestScreen extends React.Component {
             body={<>
               <DS.Card as="section" headingLevel={3} title="Share image" icon="image" actions={<span className="ds-mono-sm">1200 × 630 PNG</span>}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-                  <DS.SharePreview label={v.share.label} grade={v.load ? v.load.grade : null} head={v.share.head} blocks={v.share.blocks} foot={v.share.foot} where={v.share.where} />
+                  <DS.SharePreview {...v.share} />
                   <label style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: v.incDis ? "var(--fg-subtle)" : "var(--fg)", cursor: "pointer" }}>
                     <input type="checkbox" checked={v.incLabel} disabled={v.incDis} onChange={v.toggleInc} style={{ accentColor: "var(--primary)" }} />
                     Include label <span className="ds-mono-sm">{v.incNote}</span>

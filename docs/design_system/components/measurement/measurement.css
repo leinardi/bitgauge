@@ -80,21 +80,32 @@
 
 .notmeasured { display: inline-flex; align-items: center; gap: var(--space-2); flex: none; font-size: var(--text-caption); }
 
-/* SharePreview: the 1200 × 630 image scaled into a ~500 px card; its type sizes are the image's, scaled. */
-.sharep { aspect-ratio: var(--share-aspect); border-radius: var(--radius-md); background: var(--bg-base); border: var(--border-width) solid var(--border-default); padding: var(--space-3-5) var(--space-4); display: flex; flex-direction: column; justify-content: space-between; color: var(--fg); }
-.sharep-h { display: flex; align-items: center; gap: var(--space-1-5); min-width: 0; }
-.sharep-h .hd { margin-left: auto; font-family: var(--font-mono); font-size: var(--text-pico); color: var(--fg-subtle); }
-.sharep-b { display: flex; gap: var(--space-4-5); align-items: flex-end; }
-.sharep-b > div { display: flex; flex-direction: column; }
-.sharep-b .k { font-family: var(--font-cond); font-size: var(--type-share-label); letter-spacing: var(--tracking-caps); font-weight: var(--weight-semibold); }
-.sharep-b .n { font-family: var(--font-mono); font-size: var(--type-share-value); font-weight: var(--weight-medium); line-height: var(--lh-none); }
-.sharep-b .u { font-family: var(--font-sans); font-size: var(--text-nano); color: var(--fg-muted); margin-left: var(--space-0-75); }
-.sharep-g { margin-left: auto; display: flex; align-items: center; gap: var(--space-1-5); }
-.sharep-g .grade-l { width: var(--grade-size-sm); height: var(--grade-size-sm); border-radius: var(--radius-sm); font-size: var(--text-md); }
-.sharep-g .w { display: flex; flex-direction: column; font-size: var(--text-pico); line-height: var(--lh-snug); }
+/* SharePreview (share-panel.md "Share image layout"): the image is laid out on a fixed 480 × 252 box (--share-w/-h) and
+   scaled to the frame, so the card preview and the 1200 × 630 PNG (2.5×) have the same geometry. Header on top, foot on
+   the bottom padding, and between them the middle band, which centres the group (number row, qualifier stacks, grade). */
+.sharep-fit { position: relative; width: 100%; aspect-ratio: var(--share-aspect); overflow: hidden; border-radius: var(--radius-md); box-shadow: 0 0 0 var(--border-width) var(--border-default); background: var(--bg-base); }
+.sharep-fit.full { width: calc(var(--share-w) * var(--share-scale)); flex: none; border-radius: 0; box-shadow: none; }
+.sharep { position: absolute; left: 0; top: 0; box-sizing: border-box; width: var(--share-w); height: var(--share-h); padding: var(--share-pad-y) var(--share-pad-x); display: flex; flex-direction: column; transform-origin: 0 0; background: var(--bg-base); color: var(--fg); }
+.sharep-h { flex: none; height: var(--share-header-h); display: flex; align-items: center; gap: var(--space-4-5); min-width: 0; }
+.sharep-h .wm { flex: none; }
+.sharep-h .hd { margin-left: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); font-size: var(--type-share-head); color: var(--fg-subtle); }
+.sharep-m { flex: 1; min-height: 0; display: flex; align-items: center; padding: var(--share-gap-min) 0; }
+.sharep-b { width: 100%; display: grid; grid-template-columns: repeat(2, var(--share-block-w)) minmax(0, 1fr); grid-template-rows: var(--share-label-h) var(--type-share-value) auto; column-gap: var(--space-4-5); row-gap: var(--space-0-75); }
+.sharep-b .k { grid-row: 1; align-self: end; line-height: var(--share-label-h); white-space: nowrap; font-family: var(--font-cond); font-size: var(--type-share-label); letter-spacing: var(--tracking-caps); font-weight: var(--weight-semibold); }
+.sharep-b .n { grid-row: 2; display: flex; align-items: baseline; white-space: nowrap; font-family: var(--font-mono); font-size: var(--type-share-value); font-weight: var(--weight-medium); line-height: var(--lh-none); letter-spacing: 0; }
+.sharep-b .n.none { color: var(--fg-subtle); }
+.sharep-b .u { font-family: var(--font-sans); font-size: var(--type-share-unit); font-weight: var(--weight-regular); color: var(--fg-muted); margin-left: var(--space-1); }
+.sharep-b .q { grid-row: 3; margin-top: var(--space-0-5); display: flex; flex-direction: column; font-family: var(--font-mono); font-size: var(--type-share-qual); line-height: var(--lh-snug); color: var(--fg-muted); }
+.sharep-b .q .warn { color: var(--warn-fg); }
+.sharep-b .q .danger { color: var(--danger-fg); }
+.sharep-g { grid-column: 3; grid-row: 2 / span 2; justify-self: end; align-self: start; width: var(--share-grade-w); display: flex; flex-direction: column; align-items: center; gap: var(--space-1-25); }
+.sharep-g .grade-l { width: var(--share-grade-size); height: var(--share-grade-size); border-radius: var(--radius-md); font-size: var(--type-share-grade); }
+.sharep-g .w { display: flex; flex-direction: column; align-items: center; font-size: var(--type-share-meta); line-height: var(--lh-snug); white-space: nowrap; }
 .sharep-g .w > span { color: var(--fg-subtle); }
-.sharep-f { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); font-family: var(--font-mono); font-size: var(--text-pico); color: var(--fg-muted); }
-.sharep-f .w { margin-left: auto; color: var(--fg-subtle); }
+.sharep-f { flex: none; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-0-75) var(--space-3-5); font-family: var(--font-mono); font-size: var(--type-share-meta); line-height: var(--lh-snug); color: var(--fg-muted); }
+.sharep-f > span { white-space: nowrap; }
+.sharep-f .w { margin-left: auto; display: flex; min-width: 0; color: var(--fg-subtle); }
+.sharep-f .srv { display: block; white-space: nowrap; min-width: 0; max-width: var(--share-server-max); overflow: hidden; text-overflow: ellipsis; }
 
 .lastres { align-self: flex-start; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1-5) var(--space-2-5); font-size: var(--text-caption); color: var(--fg-subtle); text-decoration: none; }
 .lastres:hover { color: var(--fg-muted); }

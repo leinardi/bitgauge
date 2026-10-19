@@ -15,6 +15,8 @@
  *   llGap: "none" | "no-steady-window" | "insufficient-samples" | "reservation-broken" | "no-probe-path"  (default "none") —
  *     the upload direction's loaded latency has no value for this reason (Standard only)
  *   probe: "auto" | "WebSocket" | "HTTP/2 probe" | "HTTP/3 probe" | "HTTP/1.1 reserved"  (default "auto") — one path for idle and loaded latency
+ *   confDown, confUp: "normal" | "low:ramp-unsettled" | "low:unstable" | "low:ramp-unsettled,unstable" | "low:insufficient-samples,unstable" |
+ *     "cpu-bound"  (default "normal") — each direction's confidence (measurement §16); confUp is ignored without an upload
  *   wsClose: boolean  (default false) — the WebSocket closed after idle latency: idle stays WebSocket, loaded over the HTTP
  *     source from `probe`; on HTTP/1.1 download (running at the close) is unavailable, reason reservation-broken (Standard only)
  */
@@ -136,21 +138,20 @@ class ResultDetail extends React.Component {
     const worstQ = D.worst[0] + (src !== 'WebSocket' ? ', ' + src : '');
     const worstStr = '+' + jit(D.worst[1]) + ' ms loaded (' + worstQ + ')';
     // Confidence per direction (measurement §16): normal | low with reasons | cpu-bound. Continuous has no upload.
-    const DC = { down: { level: 'normal', reasons: [], wu: 6.5, win: cont ? hms(CEND - CWU) : '3.5 s' }, up: cont || stop ? null : { level: 'normal', reasons: [], wu: 9.5, win: '6.5 s' } };
+    // confDown / confUp: "normal" | "low:<reason>[,<reason>]" | "cpu-bound" (reasons: ramp-unsettled, insufficient-samples, unstable).
+    const pconf = v => !v || v === 'normal' ? { level: 'normal', reasons: [] } : v === 'cpu-bound' ? { level: 'cpu-bound', reasons: [] } : { level: 'low', reasons: v.replace(/^low:?/, '').split(',').map(s => s.trim()).filter(Boolean) };
+    const DC = { down: Object.assign(pconf(this.props.confDown), { wu: 6.5, win: cont ? hms(CEND - CWU) : '3.5 s' }), up: cont || stop ? null : Object.assign(pconf(this.props.confUp), { wu: 9.5, win: '6.5 s' }) };
     const RSN = { 'ramp-unsettled': ['ramp unsettled', 'the stream ramp was still adding streams when warm-up ended'], 'insufficient-samples': ['insufficient samples', 'too few requests had confirmed when warm-up ended'], 'unstable': ['unstable', 'the steady window stayed unstable'] };
     const confQ = k => { const c = DC[k]; return !c || c.level === 'normal' ? '' : c.level === 'cpu-bound' ? 'limited by this device’s CPU' : 'low confidence: ' + c.reasons.map(r => RSN[r][0]).join(', '); };
     const withQ = (k, s) => confQ(k) ? s + ' (' + confQ(k) + ')' : s;
 
-    const summary = [
-      'BitGauge' + (inc ? ' · ' + D.label : ''),
-      D.short,
-      cont ? withQ('down', 'Download ' + rs(D.down) + ' (2 h average)') + ' · Upload not measured' : withQ('down', 'Download ' + rs(D.down)) + ' · ' + (stop ? 'Upload: insufficient data, stopped at ' + USTOP.toFixed(1) + ' s' : withQ('up', 'Upload ' + rs(D.up)))
-    ].concat(OH ? [OH] : []).concat([
-      'Idle latency ' + BGF.ms(IDLE) + ' ms · Jitter ' + jit(JIT) + ' ms',
-      'Loaded latency +' + jit(D.worst[1]) + ' ms (' + worstQ + ')',
-      'Bufferbloat grade ' + grade + ' · ' + gradeWords,
-      'Server: ' + D.server
-    ]).join('\n');
+    // Share image props (share-panel.md "Share image layout"); the copied text is built from the same props (flows.md §8).
+    const shareP = {
+      blocks: [{ dir: 'download', value: rn(D.down), unit: ru(D.down), confidence: DC.down }].concat(cont ? [] : [stop ? { dir: 'upload', status: 'insufficient-data', value: null } : { dir: 'upload', value: rn(D.up), unit: ru(D.up), confidence: DC.up }]),
+      overhead: OHP, grade, basis: basisK, idle: BGF.ms(IDLE) + ' ms', jitter: jit(JIT) + ' ms',
+      loaded: { increase: '+' + jit(D.worst[1]) + ' ms', dir: D.worst[0], source: SJ[src], idleSource: wsClose ? 'websocket' : undefined }, where: D.server, when: D.short
+    };
+    const summary = window.DS.ShareFormat.summary(Object.assign({}, shareP, { head: inc ? D.label : '' })).join('\n');
 
     // Quality scores: the same AIM function as the Test screen (fixtures.js). Standard: Good/Good/Good (55/25/35 points);
     // Continuous (download +15 ms): Great/Great/Great (60/30/40).
@@ -233,8 +234,7 @@ class ResultDetail extends React.Component {
       note: this.state.note ?? D.note,
       setNote: e => this.setState({ note: e.target.value }),
       toggleInc: () => this.setState({ inc: !inc }),
-      shareBlocks: [{ k: '↓ DOWNLOAD', c: 'var(--series-download)', n: rn(D.down), u: ru(D.down) }, { k: '↑ UPLOAD', c: 'var(--series-upload)', n: rn(D.up), u: ru(D.up) }],
-      shareFoot: [BGF.ms(IDLE) + ' ms idle', jit(JIT) + ' ms jitter', worstStr].concat(['down', 'up'].filter(confQ).map(k => (k === 'down' ? 'download: ' : 'upload: ') + confQ(k)), OH ? [OH] : []).concat([grade + ' · ' + gradeWords, D.short]),
+      share: shareP,
       shareAria: 'Share image: ' + summary.replace(/\n/g, ', '),
       preRef: this.preRef, preOutline: denied ? '2px solid var(--ring)' : 'none',
       paramsShown: !m || this.state.paramsOpen, paramsAria: this.state.paramsOpen ? 'true' : 'false', paramsChevron: this.state.paramsOpen ? 'chevron-up' : 'chevron-down', paramsBorder: this.state.paramsOpen ? '1px solid var(--border-subtle)' : '0',
@@ -601,7 +601,7 @@ class ResultDetail extends React.Component {
                 </DS.Card>
                 <DS.Card as="section" padded={false} icon="image" title={"Share image"} actions={<>1200 × 630 PNG</>}>
                   <div style={{ padding: "var(--space-3-5)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-                    <DS.SharePreview label={v.shareAria} head={v.inc ? v.D?.label : ''} grade={v.grade} blocks={(v.shareBlocks || []).map(b => ({ label: b.k, color: b.c, value: b.n, unit: b.u }))} foot={v.shareFoot} where={v.D?.server} />
+                    <DS.SharePreview label={v.shareAria} head={v.inc ? v.D?.label : ''} grade={v.grade} {...(v.share || {})} />
                     <label style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-2)", fontSize: "var(--text-sm)", cursor: "pointer" }}>
                       <input type="checkbox" checked={v.inc} onChange={v.toggleInc} style={{ width: "16px", height: "16px", margin: "var(--space-0-5) 0 0", accentColor: "var(--primary)" }} />
                       <span style={{ display: "flex", flexDirection: "column", gap: "1px" }}>

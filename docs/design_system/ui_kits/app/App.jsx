@@ -7,11 +7,12 @@
  * chart/table toggles, share, keep in history) is changed in the UI, not here.
  */
 const DEMO_KEY = 'bitgauge-kit-demo';
+const CONF_OPTS = [['normal', 'normal'], ['low:ramp-unsettled', 'low · ramp unsettled'], ['low:unstable', 'low · unstable'], ['low:ramp-unsettled,unstable', 'low · ramp unsettled, unstable'], ['low:insufficient-samples,unstable', 'low · insufficient samples, unstable'], ['cpu-bound', 'CPU-bound']];
 const DEMO_DEFAULTS = {
   scenario: 'normal', speed: '1', mobile: false,
   testState: '', scope: 'v0.2', cpu: false, llGap: 'none', wsClose: false, browser: 'Firefox', uploadPauses: false,
   errKind: 'requests', probe: 'auto', resp: 'ok', timerRes: '0.1',
-  historyVariant: '', resultState: 'result', resultKind: 'standard', resultDemo: 'none', resultOverhead: '0',
+  historyVariant: '', resultState: 'result', resultKind: 'standard', resultDemo: 'none', resultOverhead: '0', resultConfDown: 'normal', resultConfUp: 'normal',
   openspeedtest: true, librespeed: true, networkquality: true, aboutUnreachable: false
 };
 const TEST_STATES = ['idle', 'countdown', 'connecting', 'latency', 'download', 'upload', 'complete', 'upload-interrupted', 'error', 'error-early', 'cancelled', 'cancelled-late', 'cancelled-latency', 'cancelled-download', 'cancelled-slow', 'cancelled-slow-up', 'slow', 'slowdone', 'continuous', 'cont-warmup', 'cont-done', 'offline', 'basepath', 'ws-fallback', 'insufficient', 'param-ignored'];
@@ -111,6 +112,8 @@ function DemoPanel({ d, set, reset }) {
             {v03 ? <DemoSeg label="Kind" value={d.resultKind} options={[['standard', 'Standard'], ['continuous', 'Continuous']]} onChange={v => set({ resultKind: v })} /> : null}
             <DemoSelect label="Demo" value={d.resultDemo} options={['none', 'deleted', 'clipboard-denied']} onChange={v => set({ resultDemo: v })} />
             <DemoSelect label="Overhead comp." value={d.resultOverhead} options={[['0', '0 % (example)'], ['6', '+6 %'], ['5.13', '+5.13 %'], ['3.69', '+3.69 %'], ['8.1', '+8.1 %']]} onChange={v => set({ resultOverhead: v })} />
+            <DemoSelect label="Download confidence" value={d.resultConfDown} options={CONF_OPTS} onChange={v => set({ resultConfDown: v })} />
+            <DemoSelect label="Upload confidence" value={d.resultConfUp} options={CONF_OPTS} onChange={v => set({ resultConfUp: v })} />
           </div>
           <div className="demo-sec">
             <span className="st">About · compatibility layers</span>
@@ -139,7 +142,7 @@ function App() {
   const testExtra = { cpu: d.cpu, errKind: d.errKind, probe: d.probe, resp: v03 ? d.resp : 'ok', llGap, wsClose: scope !== 'v0.1' && d.wsClose, timerRes: d.timerRes, browser: d.browser, uploadPauses: d.uploadPauses };
   if (d.testState && (v03 || !V03_STATES.includes(d.testState))) testExtra.state = d.testState;
   const historyExtra = d.historyVariant ? { variant: d.historyVariant } : {};
-  const resultExtra = { state: d.resultState, kind: v03 ? d.resultKind : 'standard', llGap, probe: d.probe, wsClose: scope !== 'v0.1' && d.wsClose, demo: d.resultDemo, overhead: d.resultOverhead, browser: d.browser, uploadPauses: d.uploadPauses };
+  const resultExtra = { state: d.resultState, kind: v03 ? d.resultKind : 'standard', llGap, probe: d.probe, wsClose: scope !== 'v0.1' && d.wsClose, demo: d.resultDemo, overhead: d.resultOverhead, confDown: d.resultConfDown, confUp: d.resultConfUp, browser: d.browser, uploadPauses: d.uploadPauses };
   const aboutExtra = { openspeedtest: d.openspeedtest, librespeed: d.librespeed, networkquality: d.networkquality, unreachable: d.aboutUnreachable };
   return (
     <>

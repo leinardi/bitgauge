@@ -342,8 +342,13 @@
     --type-page-title-compact: var(--text-3xl);
     --type-state-title: 26px;
     --type-state-title-compact: 22px;
-    --type-share-value: 26px;          /* SharePreview: the 1200 × 630 image's sizes, scaled */
-    --type-share-label: 8px;
+    --type-share-value: 48px;          /* Share image, on its 480 × 252 box (× 2.5 in the PNG): rate number */
+    --type-share-label: 12px;          /* block label ("↓ DOWNLOAD") */
+    --type-share-unit: 16px;           /* rate unit */
+    --type-share-qual: 10px;           /* qualifier lines */
+    --type-share-meta: 10px;           /* foot, grade words */
+    --type-share-head: 11px;           /* header label */
+    --type-share-grade: 26px;          /* grade letter */
     --tracking-readout: -0.03em; /* @kind other */
     --tracking-metric: -0.02em; /* @kind other */
 
@@ -444,12 +449,26 @@
     --tile-value-h: 34px;              /* MetricTile word value ("warming up") line */
     --tile-qualifier-h: 15px;          /* MetricTile qualifier line minimum */
     --grade-size: 52px;                /* GradeBadge letter box */
-    --grade-size-sm: 30px;             /* GradeBadge in SharePreview */
+    --grade-size-sm: 30px;             /* small GradeBadge (SharePreview uses --share-grade-size) */
     --grade-cell: 17px;                /* grade scale strip cell */
     --empty-glyph: 46px;               /* EmptyState glyph box */
     --modal-icon: 36px;                /* Dialog icon box */
     --modal-max-w: 92vw; /* @kind other */
     --share-aspect: 1200 / 630; /* @kind other */
+    /* Share image layout (share-panel.md "Share image layout"): drawn on a 480 × 252 reference box, the 1200 × 630
+       image at 2.5×. Every share-image size is a card-scale token; the PNG multiplies it by --share-scale. */
+    --share-scale: 2.5; /* @kind other */
+    --share-w: 480px;
+    --share-h: 252px;
+    --share-pad-y: var(--space-3-5);   /* 35 px in the image */
+    --share-pad-x: var(--space-4);     /* 40 px */
+    --share-header-h: 20px;            /* 50 px: the logo row */
+    --share-gap-min: var(--space-2-5); /* 25 px: least space between the middle group and the header or the foot */
+    --share-label-h: 14px;             /* 35 px: block-label row */
+    --share-block-w: 171px;            /* 427.5 px: one number block column */
+    --share-grade-size: 48px;          /* 120 px: grade tile = number row height */
+    --share-grade-w: 74px;             /* 185 px: grade column (tile + words under it) */
+    --share-server-max: 224px;         /* 560 px: server name before its ellipsis */
 
     /* Lines and focus */
     --border-width: 1px;               /* hairlines */

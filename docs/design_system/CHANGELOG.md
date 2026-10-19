@@ -1,5 +1,48 @@
 # Changelog
 
+## Share image layout and states (2026-10-18)
+
+`components/share-panel.md`, `SharePreview`, tokens, `ui_kits/app` (ResultDetail, TestScreen, App); `features/` was not edited.
+
+- **Share image layout:** new section in share-panel.md specifying the 1200 × 630 image: regions (header, number
+  blocks, grade, foot), positions, type roles and rules. The image is laid out on a 480 × 252 reference box and
+  drawn at 2.5×; new tokens `--share-scale`, `--share-w`, `--share-h`, `--share-pad-y`, `--share-pad-x`,
+  `--share-header-h`, `--share-body-top`, `--share-label-h`, `--share-block-w`, `--share-grade-size`,
+  `--share-grade-w`, `--share-server-max`, `--type-share-unit`, `--type-share-qual`, `--type-share-meta`,
+  `--type-share-head`, `--type-share-grade`.
+- **Scale:** the numbers are the dominant element, sized for the widest case (two "9.41 Gbit/s" blocks beside the
+  grade): `--type-share-value` 26 → 48 px on the box (120 px in the PNG). Grade tile 30 → 48 (the number row's height),
+  letter 15 → 26, words now under the tile; block label 8 → 12; unit 10 → 16; qualifiers, foot and grade words 9 → 10;
+  header label 9 → 11; logo 15 → 20. Number blocks start at 48 (was 76), so the band under the header is gone.
+- **Per-image placement:** header on the top padding, foot on the bottom padding, and the group (number row, qualifier
+  stacks, grade) centred in the band between them, at least `--share-gap-min` 10 → 25 px from each (replaces the fixed
+  `--share-body-top`). Images without qualifiers no longer carry an empty band reserved for them.
+- **Limits rechecked:** qualifier stack ≤ 5 lines and foot ≤ 3 now bound the worst case: the worst group (135 → 337.5)
+  fits the worst middle band (139 → 347.5), so the 10 → 25 px minimum gap always holds. Server name ellipsis at
+  224 → 560 px, tested with a 64-character name.
+- **One baseline per image:** both numbers share one fixed-height grid row; qualifiers grow the group downward, the foot
+  grows upward. A qualifier under one number can no longer lift it above the other.
+- **Qualifiers sit with their number:** status, confidence (with reasons, or CPU-bound) and overhead compensation
+  stack under each rate; the loaded-latency increase names its direction, a non-WebSocket source and, when idle ran on
+  the other path, "vs idle over WebSocket" / "vs idle over HTTP"; the grade names a one-direction basis.
+- **SharePreview:** props `blocks[].dir/status/confidence`, `overhead`, `basis`, `idle`, `jitter`,
+  `loaded: { increase, dir, source, idleSource }`, `where`, `when`, `size` ("fluid" | "full"); it words the
+  qualifiers itself (`ShareFormat.qualifiers`, `ShareFormat.loaded`; capitalised so they reach the namespace) and builds its accessible summary from its content. It
+  scales one fixed box to its frame, so the preview matches the PNG at any panel width.
+- **Copied text = the image's lines:** new `ShareFormat.summary(props)` (also exported as `shareSummary`) builds the summary from the same props as the image.
+  Both kit screens use it, so the text carries the same numbers and qualifiers (confidence, status, overhead, source,
+  "vs idle over WebSocket / HTTP", basis) and nothing more: gone are Continuous "(2 h average)", "Upload not measured",
+  the peak and "Continuous · 42:18", "stopped at 3.1 s", and the Test screen's "(worse direction)"; added are the Test
+  screen's missing upload "low confidence: insufficient samples", CPU-bound, overhead and source qualifiers.
+- **Kit:** every share (Result detail and Test screen, Continuous included) passes result fields, no foot strings, so
+  no share repeats the grade words in the foot. Continuous shows one download block: no peak block, no
+  "continuous · 42:18" item. Result detail's confidence per direction now comes from the new `confDown` / `confUp`
+  props (Demo panel: Download / Upload confidence) instead of being fixed at normal.
+- **States sheet:** `preview/share-image-states.html` renders every state at card scale (k adds "WebSocket closed after
+  idle latency") and a, c, e, o at 1200 × 630.
+
+---
+
 ## Result detail, Test screen and History fixes (2026-10-18)
 
 Shared components and `ui_kits/app`; `features/` was not edited.

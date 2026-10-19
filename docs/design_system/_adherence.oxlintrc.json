@@ -265,8 +265,12 @@
         "message": "<SelectOption> doesn't accept that prop. Declared props: value, label."
       },
       {
-        "selector": "JSXOpeningElement[name.name='ShareBlock'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|value|unit|color|key|ref|className|style|children)$/]",
-        "message": "<ShareBlock> doesn't accept that prop. Declared props: label, value, unit, color."
+        "selector": "JSXOpeningElement[name.name='ShareConfidence'] > JSXAttribute > JSXIdentifier[name!=/^(?:level|reasons|key|ref|className|style|children)$/]",
+        "message": "<ShareConfidence> doesn't accept that prop. Declared props: level, reasons."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ShareConfidence'] > JSXAttribute[name.name='level'] > Literal[value!=/^(?:normal|low|cpu-bound)$/]",
+        "message": "<ShareConfidence> level must be one of 'normal' | 'low' | 'cpu-bound'."
       },
       {
         "selector": "JSXOpeningElement[name.name='Skeleton'] > JSXAttribute > JSXIdentifier[name!=/^(?:width|height|style|key|ref|className|style|children)$/]",
@@ -448,7 +452,7 @@
       "SelectOption": {
         "replaces": []
       },
-      "ShareBlock": {
+      "ShareConfidence": {
         "replaces": []
       },
       "Skeleton": {
@@ -678,6 +682,18 @@
       "--shadow-ring-danger",
       "--shadow-sm",
       "--share-aspect",
+      "--share-block-w",
+      "--share-gap-min",
+      "--share-grade-size",
+      "--share-grade-w",
+      "--share-h",
+      "--share-header-h",
+      "--share-label-h",
+      "--share-pad-x",
+      "--share-pad-y",
+      "--share-scale",
+      "--share-server-max",
+      "--share-w",
       "--slate-0",
       "--slate-1",
       "--slate-10",
@@ -776,7 +792,12 @@
       "--type-metric-value-compact",
       "--type-page-title",
       "--type-page-title-compact",
+      "--type-share-grade",
+      "--type-share-head",
       "--type-share-label",
+      "--type-share-meta",
+      "--type-share-qual",
+      "--type-share-unit",
       "--type-share-value",
       "--type-state-title",
       "--type-state-title-compact",
@@ -959,6 +980,11 @@
       "--type-state-title-compact": "font",
       "--type-share-value": "font",
       "--type-share-label": "font",
+      "--type-share-unit": "font",
+      "--type-share-qual": "font",
+      "--type-share-meta": "font",
+      "--type-share-head": "font",
+      "--type-share-grade": "font",
       "--tracking-readout": "other",
       "--tracking-metric": "other",
       "--weight-regular": "other",
@@ -1053,6 +1079,18 @@
       "--modal-icon": "spacing",
       "--modal-max-w": "other",
       "--share-aspect": "other",
+      "--share-scale": "other",
+      "--share-w": "spacing",
+      "--share-h": "spacing",
+      "--share-pad-y": "spacing",
+      "--share-pad-x": "spacing",
+      "--share-header-h": "spacing",
+      "--share-gap-min": "spacing",
+      "--share-label-h": "spacing",
+      "--share-block-w": "spacing",
+      "--share-grade-size": "spacing",
+      "--share-grade-w": "spacing",
+      "--share-server-max": "spacing",
       "--border-width": "spacing",
       "--border-width-strong": "spacing",
       "--focus-width": "spacing",

@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"Modal","sourcePath":"components/dialog/Modal.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"b6d7512cba67","components/actions/Popover.jsx":"17fb94643252","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"1af5604f8da1","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"8c64b796dbea","components/dialog/Dialog.jsx":"d768c4c46975","components/dialog/Modal.jsx":"6e5aa13fff4b","components/feedback/EmptyState.jsx":"e038cf24992f","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"142490c65469","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"49dbc7e56df0","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"08f21a1ef9e8","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"752ee31dc794","ui_kits/app/App.jsx":"9f95c1c67ab2","ui_kits/app/History.jsx":"e3f5b083a9d3","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"bfe86a4a09cf","ui_kits/app/ResultDetail.jsx":"10d3733173ee","ui_kits/app/Settings.jsx":"40f28b1ef7d1","ui_kits/app/TestScreen.jsx":"772d6b63ec30","ui_kits/app/ds.js":"6b9fcec54767","ui_kits/app/fixtures.js":"b1aef770195b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"useDismiss","sourcePath":"components/dialog/Modal.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"},{"name":"useModal","sourcePath":"components/dialog/Modal.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"Modal","sourcePath":"components/dialog/Modal.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"ShareFormat","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"b6d7512cba67","components/actions/Popover.jsx":"17fb94643252","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"1af5604f8da1","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"8c64b796dbea","components/dialog/Dialog.jsx":"d768c4c46975","components/dialog/Modal.jsx":"6e5aa13fff4b","components/feedback/EmptyState.jsx":"e038cf24992f","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"68d522fdec82","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"142490c65469","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"43f88aa7e107","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"49dbc7e56df0","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"7e1878e48e87","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"752ee31dc794","ui_kits/app/App.jsx":"e903de1b9272","ui_kits/app/History.jsx":"e3f5b083a9d3","ui_kits/app/Nav.jsx":"6fe371d05bf9","ui_kits/app/Prototype.jsx":"bfe86a4a09cf","ui_kits/app/ResultDetail.jsx":"e5b2e566587b","ui_kits/app/Settings.jsx":"40f28b1ef7d1","ui_kits/app/TestScreen.jsx":"b06520ea3c4e","ui_kits/app/ds.js":"a055a6aa17f5","ui_kits/app/fixtures.js":"b1aef770195b"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"shareHasNumber","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"shareLoaded","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"shareQualifiers","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"shareSummary","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"useDismiss","sourcePath":"components/dialog/Modal.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"},{"name":"useModal","sourcePath":"components/dialog/Modal.jsx"}]} */
 
 (() => {
 
@@ -3383,54 +3383,216 @@ Object.assign(__ds_scope, { MetricTile });
 
 // components/measurement/SharePreview.jsx
 try { (() => {
-// share-panel.md — preview of the 1200×630 share image (always dark). Sizes are the image scaled into the card.
+// share-panel.md "Share image layout". The image is drawn on a fixed 480 × 252 box (--share-w/-h) and scaled into
+// its frame: fluid in the share panel, 2.5× (1200 × 630) with size="full".
+const SHARE_W = 480,
+  SHARE_SCALE = 2.5;
+const STATUS = {
+  partial: ['partial', ''],
+  'insufficient-data': ['insufficient data', 'warn'],
+  skipped: ['skipped', ''],
+  error: ['error', 'danger']
+};
+const REASON = {
+  'ramp-unsettled': 'ramp unsettled',
+  'insufficient-samples': 'insufficient samples',
+  unstable: 'unstable'
+};
+const SOURCE = {
+  'http-h2': 'HTTP/2 probe',
+  'http-h3': 'HTTP/3 probe',
+  'http-h1-reserved': 'HTTP/1.1 reserved'
+};
+const DIR = {
+  download: ['↓ DOWNLOAD', 'var(--series-download)', 'Download'],
+  upload: ['↑ UPLOAD', 'var(--series-upload)', 'Upload']
+};
+// A direction reports a number when measured, or partial with a value (measurement §17).
+const shareHasNumber = b => b.value != null && b.value !== '' && b.value !== '—' && (!b.status || b.status === 'measured' || b.status === 'partial');
+// The block's qualifier lines, in fixed order: status, confidence, overhead compensation. Confidence and overhead
+// qualify a number, so they appear only on a block that has one.
+function shareQualifiers(b, overhead) {
+  const q = [],
+    has = shareHasNumber(b),
+    c = b.confidence;
+  if (b.status && b.status !== 'measured') {
+    const s = STATUS[b.status] || [b.status, ''];
+    q.push({
+      text: s[0],
+      tone: s[1]
+    });
+  }
+  if (has && c && c.level === 'low') q.push({
+    text: 'low confidence' + (c.reasons && c.reasons.length ? ': ' + c.reasons.map(r => REASON[r] || r).join(', ') : ''),
+    tone: 'warn'
+  });
+  if (has && c && c.level === 'cpu-bound') q.push({
+    text: 'limited by this device’s CPU',
+    tone: 'warn'
+  });
+  if (has && overhead) q.push({
+    text: '+' + overhead + ' % overhead compensation',
+    tone: ''
+  });
+  return q;
+}
+// The loaded-latency foot item: increase, then its direction, any source other than the WebSocket, and the idle path
+// when idle latency ran on the other path (idleSource, measurement §11.4) — worded as the Result detail words it.
+const IDLE_PATH = {
+  websocket: 'vs idle over WebSocket',
+  http: 'vs idle over HTTP'
+};
+function shareLoaded(l) {
+  if (!l || !l.increase) return '';
+  const q = [l.dir, SOURCE[l.source], IDLE_PATH[l.idleSource]].filter(Boolean);
+  return l.increase + ' under load' + (q.length ? ' (' + q.join(', ') + ')' : '');
+}
+// The copied text: the same lines as the image (flows.md §8), from the same props, so neither says more than the other.
+function shareSummary({
+  head,
+  blocks = [],
+  grade,
+  basis,
+  overhead = 0,
+  idle,
+  jitter,
+  loaded,
+  where,
+  when
+}) {
+  const lines = ['BitGauge' + (head ? ' · ' + head : '')];
+  if (when) lines.push(when);
+  blocks.forEach(b => {
+    const d = DIR[b.dir] || [],
+      has = shareHasNumber(b),
+      q = shareQualifiers(b, overhead).map(x => x.text);
+    lines.push((b.name || d[2] || b.label) + ' ' + (has ? b.value + ' ' + b.unit : '—') + (q.length ? ' (' + q.join('; ') + ')' : ''));
+  });
+  const lat = [idle ? 'Idle latency ' + idle : '', jitter ? 'Jitter ' + jitter : ''].filter(Boolean);
+  if (lat.length) lines.push(lat.join(' · '));
+  const l = shareLoaded(loaded);
+  if (l) lines.push('Loaded latency ' + l.replace(' under load', ''));
+  const G = grade ? __ds_scope.GRADES[grade] : null;
+  if (G) lines.push('Bufferbloat grade ' + grade + ' · ' + G.text + (basis === 'download' ? ' (download only)' : basis === 'upload' ? ' (upload only)' : ''));
+  if (where) lines.push('Server: ' + where);
+  return lines;
+}
+// Namespace-visible helpers (only capitalised exports reach window.<Namespace>), as Format does for numbers.
+const ShareFormat = {
+  summary: p => shareSummary(p),
+  qualifiers: (b, o) => shareQualifiers(b, o),
+  loaded: l => shareLoaded(l),
+  hasNumber: b => shareHasNumber(b)
+};
 function SharePreview({
   head,
   blocks = [],
   grade,
+  basis,
+  overhead = 0,
+  idle,
+  jitter,
+  loaded,
   foot = [],
   where,
-  label = 'Share image preview'
+  when,
+  size = 'fluid',
+  label
 }) {
+  const fit = React.useRef(null);
+  const full = size === 'full';
+  const [k, setK] = React.useState(full ? SHARE_SCALE : 1);
+  React.useLayoutEffect(() => {
+    if (full) {
+      setK(SHARE_SCALE);
+      return;
+    }
+    const el = fit.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const set = () => setK(el.clientWidth / SHARE_W);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [full]);
   const G = grade ? __ds_scope.GRADES[grade] : null;
+  const B = blocks.map(b => {
+    const d = DIR[b.dir] || [];
+    const has = shareHasNumber(b);
+    return {
+      label: b.label || d[0],
+      color: b.color || d[1],
+      name: b.name || d[2] || b.label,
+      has,
+      value: has ? b.value : '—',
+      unit: has ? b.unit : '',
+      q: shareQualifiers(b, overhead)
+    };
+  });
+  const basisT = basis === 'download' ? 'download only' : basis === 'upload' ? 'upload only' : '';
+  const F = [idle ? idle + ' idle' : '', jitter ? jitter + ' jitter' : '', shareLoaded(loaded)].concat(foot).filter(Boolean);
+  const aria = label || ['Share image: BitGauge' + (head ? ' · ' + head : '')].concat(B.map(b => b.name + ' ' + (b.has ? b.value + ' ' + b.unit : 'no number') + (b.q.length ? ' (' + b.q.map(x => x.text).join('; ') + ')' : ''))).concat(G ? ['Bufferbloat ' + grade + ', ' + G.text + (basisT ? ', ' + basisT : '')] : [], F, [where, when].filter(Boolean).join(' · ')).filter(Boolean).join(', ');
+  // Middle band: the number row, its qualifier stacks and the grade form one group, centred between header and foot.
   return /*#__PURE__*/React.createElement("div", {
+    ref: fit,
     "data-theme": "dark",
-    className: "sharep",
+    className: 'sharep-fit' + (full ? ' full' : ''),
     role: "img",
-    "aria-label": label
+    "aria-label": aria
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "sharep",
+    style: {
+      transform: 'scale(' + k + ')'
+    }
   }, /*#__PURE__*/React.createElement("div", {
     className: "sharep-h"
   }, /*#__PURE__*/React.createElement(__ds_scope.Logo, {
-    size: 15,
+    size: 20,
     wordmark: true
-  }), /*#__PURE__*/React.createElement("span", {
+  }), head ? /*#__PURE__*/React.createElement("span", {
     className: "hd"
-  }, head)), /*#__PURE__*/React.createElement("div", {
+  }, head) : null), /*#__PURE__*/React.createElement("div", {
+    className: "sharep-m"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "sharep-b"
-  }, blocks.map((b, i) => /*#__PURE__*/React.createElement("div", {
+  }, B.map((b, i) => /*#__PURE__*/React.createElement(React.Fragment, {
     key: i
   }, /*#__PURE__*/React.createElement("span", {
     className: "k",
     style: {
+      gridColumn: i + 1,
       color: b.color
     }
   }, b.label), /*#__PURE__*/React.createElement("span", {
-    className: "n"
-  }, b.value, /*#__PURE__*/React.createElement("span", {
+    className: 'n' + (b.has ? '' : ' none'),
+    style: {
+      gridColumn: i + 1
+    }
+  }, b.value, b.unit ? /*#__PURE__*/React.createElement("span", {
     className: "u"
-  }, b.unit)))), G ? /*#__PURE__*/React.createElement("span", {
+  }, b.unit) : null), b.q.length ? /*#__PURE__*/React.createElement("span", {
+    className: "q",
+    style: {
+      gridColumn: i + 1
+    }
+  }, b.q.map((x, j) => /*#__PURE__*/React.createElement("span", {
+    key: j,
+    className: x.tone
+  }, x.text))) : null)), G ? /*#__PURE__*/React.createElement("span", {
     className: "sharep-g"
   }, /*#__PURE__*/React.createElement("span", {
     className: 'grade-l ' + G.tone
   }, grade), /*#__PURE__*/React.createElement("span", {
     className: "w"
-  }, /*#__PURE__*/React.createElement("b", null, G.text.split(' ')[0]), /*#__PURE__*/React.createElement("span", null, "bufferbloat"))) : null), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("b", null, G.text.split(' ')[0]), /*#__PURE__*/React.createElement("span", null, "bufferbloat"), basisT ? /*#__PURE__*/React.createElement("span", null, basisT) : null)) : null)), /*#__PURE__*/React.createElement("div", {
     className: "sharep-f"
-  }, foot.map((f, i) => /*#__PURE__*/React.createElement("span", {
+  }, F.map((f, i) => /*#__PURE__*/React.createElement("span", {
     key: i
-  }, f)), /*#__PURE__*/React.createElement("span", {
+  }, f)), where || when ? /*#__PURE__*/React.createElement("span", {
     className: "w"
-  }, where)));
+  }, where ? /*#__PURE__*/React.createElement("span", {
+    className: "srv"
+  }, where) : null, where && when ? '\u00a0·\u00a0' : '', when || '') : null)));
 }
 // The idle-state "last result" line: when, headline numbers, label, link to its detail (screens.md §1).
 function LastResult({
@@ -3451,7 +3613,7 @@ function LastResult({
     className: "go"
   }, "View"));
 }
-Object.assign(__ds_scope, { SharePreview, LastResult });
+Object.assign(__ds_scope, { shareHasNumber, shareQualifiers, shareLoaded, shareSummary, ShareFormat, SharePreview, LastResult });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/SharePreview.jsx", error: String((e && e.message) || e) }); }
 
 // ui_kits/app/About.jsx
@@ -3859,6 +4021,7 @@ try { (() => {
  * chart/table toggles, share, keep in history) is changed in the UI, not here.
  */
 const DEMO_KEY = 'bitgauge-kit-demo';
+const CONF_OPTS = [['normal', 'normal'], ['low:ramp-unsettled', 'low · ramp unsettled'], ['low:unstable', 'low · unstable'], ['low:ramp-unsettled,unstable', 'low · ramp unsettled, unstable'], ['low:insufficient-samples,unstable', 'low · insufficient samples, unstable'], ['cpu-bound', 'CPU-bound']];
 const DEMO_DEFAULTS = {
   scenario: 'normal',
   speed: '1',
@@ -3879,6 +4042,8 @@ const DEMO_DEFAULTS = {
   resultKind: 'standard',
   resultDemo: 'none',
   resultOverhead: '0',
+  resultConfDown: 'normal',
+  resultConfUp: 'normal',
   openspeedtest: true,
   librespeed: true,
   networkquality: true,
@@ -4154,6 +4319,20 @@ function DemoPanel({
     onChange: v => set({
       resultOverhead: v
     })
+  }), /*#__PURE__*/React.createElement(DemoSelect, {
+    label: "Download confidence",
+    value: d.resultConfDown,
+    options: CONF_OPTS,
+    onChange: v => set({
+      resultConfDown: v
+    })
+  }), /*#__PURE__*/React.createElement(DemoSelect, {
+    label: "Upload confidence",
+    value: d.resultConfUp,
+    options: CONF_OPTS,
+    onChange: v => set({
+      resultConfUp: v
+    })
   })), /*#__PURE__*/React.createElement("div", {
     className: "demo-sec"
   }, /*#__PURE__*/React.createElement("span", {
@@ -4226,6 +4405,8 @@ function App() {
     wsClose: scope !== 'v0.1' && d.wsClose,
     demo: d.resultDemo,
     overhead: d.resultOverhead,
+    confDown: d.resultConfDown,
+    confUp: d.resultConfUp,
     browser: d.browser,
     uploadPauses: d.uploadPauses
   };
@@ -7325,6 +7506,8 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
  *   llGap: "none" | "no-steady-window" | "insufficient-samples" | "reservation-broken" | "no-probe-path"  (default "none") —
  *     the upload direction's loaded latency has no value for this reason (Standard only)
  *   probe: "auto" | "WebSocket" | "HTTP/2 probe" | "HTTP/3 probe" | "HTTP/1.1 reserved"  (default "auto") — one path for idle and loaded latency
+ *   confDown, confUp: "normal" | "low:ramp-unsettled" | "low:unstable" | "low:ramp-unsettled,unstable" | "low:insufficient-samples,unstable" |
+ *     "cpu-bound"  (default "normal") — each direction's confidence (measurement §16); confUp is ignored without an upload
  *   wsClose: boolean  (default false) — the WebSocket closed after idle latency: idle stays WebSocket, loaded over the HTTP
  *     source from `probe`; on HTTP/1.1 download (running at the close) is unavailable, reason reservation-broken (Standard only)
  */
@@ -7669,19 +7852,26 @@ class ResultDetail extends React.Component {
     const worstQ = D.worst[0] + (src !== 'WebSocket' ? ', ' + src : '');
     const worstStr = '+' + jit(D.worst[1]) + ' ms loaded (' + worstQ + ')';
     // Confidence per direction (measurement §16): normal | low with reasons | cpu-bound. Continuous has no upload.
+    // confDown / confUp: "normal" | "low:<reason>[,<reason>]" | "cpu-bound" (reasons: ramp-unsettled, insufficient-samples, unstable).
+    const pconf = v => !v || v === 'normal' ? {
+      level: 'normal',
+      reasons: []
+    } : v === 'cpu-bound' ? {
+      level: 'cpu-bound',
+      reasons: []
+    } : {
+      level: 'low',
+      reasons: v.replace(/^low:?/, '').split(',').map(s => s.trim()).filter(Boolean)
+    };
     const DC = {
-      down: {
-        level: 'normal',
-        reasons: [],
+      down: Object.assign(pconf(this.props.confDown), {
         wu: 6.5,
         win: cont ? hms(CEND - CWU) : '3.5 s'
-      },
-      up: cont || stop ? null : {
-        level: 'normal',
-        reasons: [],
+      }),
+      up: cont || stop ? null : Object.assign(pconf(this.props.confUp), {
         wu: 9.5,
         win: '6.5 s'
-      }
+      })
     };
     const RSN = {
       'ramp-unsettled': ['ramp unsettled', 'the stream ramp was still adding streams when warm-up ended'],
@@ -7693,7 +7883,41 @@ class ResultDetail extends React.Component {
       return !c || c.level === 'normal' ? '' : c.level === 'cpu-bound' ? 'limited by this device’s CPU' : 'low confidence: ' + c.reasons.map(r => RSN[r][0]).join(', ');
     };
     const withQ = (k, s) => confQ(k) ? s + ' (' + confQ(k) + ')' : s;
-    const summary = ['BitGauge' + (inc ? ' · ' + D.label : ''), D.short, cont ? withQ('down', 'Download ' + rs(D.down) + ' (2 h average)') + ' · Upload not measured' : withQ('down', 'Download ' + rs(D.down)) + ' · ' + (stop ? 'Upload: insufficient data, stopped at ' + USTOP.toFixed(1) + ' s' : withQ('up', 'Upload ' + rs(D.up)))].concat(OH ? [OH] : []).concat(['Idle latency ' + BGF.ms(IDLE) + ' ms · Jitter ' + jit(JIT) + ' ms', 'Loaded latency +' + jit(D.worst[1]) + ' ms (' + worstQ + ')', 'Bufferbloat grade ' + grade + ' · ' + gradeWords, 'Server: ' + D.server]).join('\n');
+
+    // Share image props (share-panel.md "Share image layout"); the copied text is built from the same props (flows.md §8).
+    const shareP = {
+      blocks: [{
+        dir: 'download',
+        value: rn(D.down),
+        unit: ru(D.down),
+        confidence: DC.down
+      }].concat(cont ? [] : [stop ? {
+        dir: 'upload',
+        status: 'insufficient-data',
+        value: null
+      } : {
+        dir: 'upload',
+        value: rn(D.up),
+        unit: ru(D.up),
+        confidence: DC.up
+      }]),
+      overhead: OHP,
+      grade,
+      basis: basisK,
+      idle: BGF.ms(IDLE) + ' ms',
+      jitter: jit(JIT) + ' ms',
+      loaded: {
+        increase: '+' + jit(D.worst[1]) + ' ms',
+        dir: D.worst[0],
+        source: SJ[src],
+        idleSource: wsClose ? 'websocket' : undefined
+      },
+      where: D.server,
+      when: D.short
+    };
+    const summary = window.DS.ShareFormat.summary(Object.assign({}, shareP, {
+      head: inc ? D.label : ''
+    })).join('\n');
 
     // Quality scores: the same AIM function as the Test screen (fixtures.js). Standard: Good/Good/Good (55/25/35 points);
     // Continuous (download +15 ms): Great/Great/Great (60/30/40).
@@ -7928,18 +8152,7 @@ class ResultDetail extends React.Component {
       toggleInc: () => this.setState({
         inc: !inc
       }),
-      shareBlocks: [{
-        k: '↓ DOWNLOAD',
-        c: 'var(--series-download)',
-        n: rn(D.down),
-        u: ru(D.down)
-      }, {
-        k: '↑ UPLOAD',
-        c: 'var(--series-upload)',
-        n: rn(D.up),
-        u: ru(D.up)
-      }],
-      shareFoot: [BGF.ms(IDLE) + ' ms idle', jit(JIT) + ' ms jitter', worstStr].concat(['down', 'up'].filter(confQ).map(k => (k === 'down' ? 'download: ' : 'upload: ') + confQ(k)), OH ? [OH] : []).concat([grade + ' · ' + gradeWords, D.short]),
+      share: shareP,
       shareAria: 'Share image: ' + summary.replace(/\n/g, ', '),
       preRef: this.preRef,
       preOutline: denied ? '2px solid var(--ring)' : 'none',
@@ -9205,19 +9418,11 @@ class ResultDetail extends React.Component {
         flexDirection: "column",
         gap: "var(--space-3)"
       }
-    }, /*#__PURE__*/React.createElement(DS.SharePreview, {
+    }, /*#__PURE__*/React.createElement(DS.SharePreview, _extends({
       label: v.shareAria,
       head: v.inc ? v.D?.label : '',
-      grade: v.grade,
-      blocks: (v.shareBlocks || []).map(b => ({
-        label: b.k,
-        color: b.c,
-        value: b.n,
-        unit: b.u
-      })),
-      foot: v.shareFoot,
-      where: v.D?.server
-    }), /*#__PURE__*/React.createElement("label", {
+      grade: v.grade
+    }, v.share || {})), /*#__PURE__*/React.createElement("label", {
       style: {
         display: "flex",
         alignItems: "flex-start",
@@ -12450,9 +12655,21 @@ class TestScreen extends React.Component {
             },
             dl: 612e6,
             share: {
-              blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 438e6, C.up]],
-              foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+39 ms under load', 'B · Mild bufferbloat'],
-              lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(438e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +39 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV]
+              blocks: [{
+                dir: 'download',
+                bps: 612e6,
+                conf: on(this.props.cpu) ? {
+                  level: 'cpu-bound',
+                  reasons: []
+                } : null
+              }, {
+                dir: 'upload',
+                bps: 438e6
+              }],
+              loaded: {
+                inc: '+39 ms',
+                dir: 'upload'
+              }
             },
             ph: 'Upload result: ' + sayR(438e6),
             sum: {
@@ -12533,9 +12750,17 @@ class TestScreen extends React.Component {
             },
             dl: 612e6,
             share: {
-              blocks: [['↓ DOWNLOAD', 612e6, C.down], ['↑ UPLOAD', 402e6, C.up]],
-              foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+37 ms under load', 'B · Mild bufferbloat'],
-              lines: ['↓ ' + rs(612e6) + '   ↑ ' + rs(402e6), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +37 ms (worse direction)', 'Bufferbloat B · Mild bufferbloat', SRV]
+              blocks: [{
+                dir: 'download',
+                bps: 612e6
+              }, {
+                dir: 'upload',
+                bps: 402e6
+              }],
+              loaded: {
+                inc: '+37 ms',
+                dir: 'upload'
+              }
             },
             ph: 'Upload result: ' + sayR(402e6),
             sum: {
@@ -13161,9 +13386,21 @@ class TestScreen extends React.Component {
             },
             dl: 640e3,
             share: {
-              blocks: [['↓ DOWNLOAD', 640e3, C.down], ['↑ UPLOAD', 210e3, C.up]],
-              foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+262 ms under load', 'D · High bufferbloat'],
-              lines: ['↓ ' + rs(640e3) + '   ↑ ' + rs(210e3), 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +262 ms (worse direction)', 'Bufferbloat D · High bufferbloat', SRV]
+              blocks: [{
+                dir: 'download',
+                bps: 640e3
+              }, {
+                dir: 'upload',
+                bps: 210e3,
+                conf: {
+                  level: 'low',
+                  reasons: ['insufficient-samples']
+                }
+              }],
+              loaded: {
+                inc: '+262 ms',
+                dir: 'upload'
+              }
             },
             ph: 'Upload result: ' + sayR(210e3),
             sum: {
@@ -13548,9 +13785,14 @@ class TestScreen extends React.Component {
               chips: ['LAN', 'Home Wi-Fi', 'Office']
             },
             share: {
-              blocks: [['↓ AVERAGE', 921e6, C.down], ['PEAK · P90', 936e6, C.down]],
-              foot: [LATD + ' idle', fjit(IDLE.jit) + ' ms jitter', '+18 ms under load', 'continuous · 42:18'],
-              lines: ['↓ avg ' + rs(921e6) + ' · peak ' + rs(936e6) + ' (p90)', 'Continuous · 42:18', 'Idle latency ' + LATD + ' · jitter ' + fjit(IDLE.jit) + ' ms', 'Loaded latency +18 ms', SRV]
+              blocks: [{
+                dir: 'download',
+                bps: 921e6
+              }],
+              loaded: {
+                inc: '+18 ms',
+                dir: 'download'
+              }
             }
           }, common) : Object.assign({
             phases: [ph('lat', 'done', LATD), ph('down', 'active', '42:18 of 2:00:00', 35, 'Download · continuous')],
@@ -13632,8 +13874,10 @@ class TestScreen extends React.Component {
         S.fitBasis = 'download only';
       }
       if (S.share) S.share = Object.assign({}, S.share, {
-        foot: [S.share.foot[0], S.share.foot[1], inc + ' ms under load', g + ' · ' + gt],
-        lines: [S.share.lines[0], S.share.lines[1], 'Loaded latency ' + inc + ' ms (download)', 'Bufferbloat ' + g + ' · ' + gt, S.share.lines[4]]
+        loaded: {
+          inc: inc + ' ms',
+          dir: 'download'
+        }
       });
     }
     // wsClose on HTTP/1.1: download was running when the WebSocket closed, so its reservation was not held;
@@ -13666,8 +13910,10 @@ class TestScreen extends React.Component {
         });
         if (S.fit && S.dl) S.fit = fit(aim(IDLE.v, IDLE.jit, S.dl, di));
         if (S.share) S.share = Object.assign({}, S.share, {
-          foot: [S.share.foot[0], S.share.foot[1], inc + ' ms under load', g + ' · ' + gt],
-          lines: [S.share.lines[0], S.share.lines[1], 'Loaded latency ' + inc + ' ms (upload)', 'Bufferbloat ' + g + ' · ' + gt, S.share.lines[4]]
+          loaded: {
+            inc: inc + ' ms',
+            dir: 'upload'
+          }
         });
       } else if (S.load.grade !== '—') S.load = load(null, rows, S.load.resp, 'Not graded — no loaded latency');else S.load = Object.assign({}, S.load, {
         rows
@@ -13678,6 +13924,7 @@ class TestScreen extends React.Component {
         has = S.load.rows.map(r => r.v != null && !r.live);
       const bk = S.load.basisK || ((S.load.gText || '').endsWith(DO) ? 'download' : has[0] && has[1] ? 'download+upload' : has[1] ? 'upload' : 'download');
       if ((S.load.gText || '').endsWith(DO)) S.load.gText = S.load.gText.slice(0, -DO.length);
+      S.load.basisK = bk;
       S.load.basis = {
         'download+upload': 'Basis: worse of download and upload',
         download: 'Basis: download only',
@@ -13792,18 +14039,42 @@ class TestScreen extends React.Component {
     const SH = S.share,
       inc = !!label && !!this.state.inc,
       dateT = S.saved ? BG.date(S.saved.iso, 'dateTime') : '';
+    // Share image props (share-panel.md "Share image layout"): result fields, worded by SharePreview. No foot strings.
+    const SJ = {
+      'WebSocket': 'websocket',
+      'HTTP/2 probe': 'http-h2',
+      'HTTP/3 probe': 'http-h3',
+      'HTTP/1.1 reserved': 'http-h1-reserved'
+    };
     const share = SH ? {
-      blocks: SH.blocks.map(([k, v, c]) => ({
-        label: k,
-        color: c,
-        value: rn(v),
-        unit: BG.rate(v, unit).u
-      })),
-      foot: SH.foot,
+      blocks: SH.blocks.map(b => b.bps == null ? {
+        dir: b.dir,
+        status: b.status,
+        value: null
+      } : {
+        dir: b.dir,
+        status: b.status,
+        confidence: b.conf || undefined,
+        value: rn(b.bps),
+        unit: BG.rate(b.bps, unit).u
+      }),
+      overhead: OH.length ? parseFloat(this.props.overhead) || 6 : 0,
+      grade: S.load && S.load.grade && S.load.grade !== '—' ? S.load.grade : null,
+      basis: S.load ? S.load.basisK : undefined,
+      idle: LATD,
+      jitter: fjit(IDLE.jit) + ' ms',
+      loaded: SH.loaded ? {
+        increase: SH.loaded.inc,
+        dir: SH.loaded.dir,
+        source: SJ[src],
+        idleSource: wsClose ? 'websocket' : undefined
+      } : null,
       head: inc ? label : '',
-      where: SRV + (dateT ? ' · ' + dateT : ''),
-      text: ['BitGauge · ' + (inc ? label + ' · ' : '') + dateT].concat(SH.lines).join('\n')
+      where: SRV,
+      when: dateT
     } : null;
+    // Copied text: the image's lines, from the same props (flows.md §8).
+    if (share) share.text = DS.ShareFormat.summary(share).join('\n');
     if (share) share.label = 'Share image: ' + share.text.split('\n').join(', ');
     // Share via… only where the browser can share the PNG file (flows.md §8).
     let canShare = false;
@@ -14396,14 +14667,7 @@ class TestScreen extends React.Component {
           flexDirection: "column",
           gap: "var(--space-3)"
         }
-      }, /*#__PURE__*/React.createElement(DS.SharePreview, {
-        label: v.share.label,
-        grade: v.load ? v.load.grade : null,
-        head: v.share.head,
-        blocks: v.share.blocks,
-        foot: v.share.foot,
-        where: v.share.where
-      }), /*#__PURE__*/React.createElement("label", {
+      }, /*#__PURE__*/React.createElement(DS.SharePreview, v.share), /*#__PURE__*/React.createElement("label", {
         style: {
           display: "flex",
           alignItems: "center",
@@ -14459,7 +14723,7 @@ try { (() => {
   if (!me || !me.hasAttribute('data-kit')) return;
   const NS = 'BitGaugeDesignSystem_1ab699';
   const ROOT = me.getAttribute('data-root') || '../../';
-  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'NotMeasured', 'NotMeasuredWhy', 'NOT_MEASURED_REASON', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart', 'Modal'];
+  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'NotMeasured', 'NotMeasuredWhy', 'NOT_MEASURED_REASON', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'ShareFormat', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart', 'Modal'];
   const FILES = ['brand/Icon', 'brand/Logo', 'status/StatusPill', 'status/StatusBadge', 'status/Chip', 'actions/Link', 'actions/Tooltip', 'actions/Button', 'actions/StartButton', 'dialog/Modal', 'actions/Menu', 'actions/Popover', 'forms/Input', 'forms/Select', 'forms/Segmented', 'forms/Switch', 'forms/Toggle', 'forms/Checkbox', 'layout/Card', 'layout/Tabs', 'layout/Table', 'layout/MetaList', 'layout/Snippet', 'feedback/Notice', 'feedback/Toast', 'feedback/EmptyState', 'feedback/Skeleton', 'feedback/LiveRegion', 'feedback/SaveBar', 'feedback/FullScreenError', 'dialog/Dialog', 'charts/Format', 'charts/Chart', 'charts/PhaseChart', 'gauge/Gauge', 'measurement/MetricTile', 'measurement/PhaseStep', 'measurement/LoadCard', 'measurement/NotMeasured', 'measurement/QualityList', 'measurement/SharePreview', 'navigation/AppHeader'];
   window.DS_READY = (async () => {
     const ns = window[NS];
@@ -14933,6 +15197,8 @@ __ds_ns.PhaseIndicator = __ds_scope.PhaseIndicator;
 __ds_ns.QUALITY = __ds_scope.QUALITY;
 
 __ds_ns.QualityList = __ds_scope.QualityList;
+
+__ds_ns.ShareFormat = __ds_scope.ShareFormat;
 
 __ds_ns.SharePreview = __ds_scope.SharePreview;
 
