@@ -17,15 +17,17 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { LOGO_BOX, LOGO_PATHS, LOGO_STROKE } from '@/components/brand/logo'
+import { computed } from 'vue'
 
-// The BitGauge mark, full geometry (design_system components/brand/Logo.jsx, brand/logo.ts): the
-// track, the download and upload arcs and the dashed latency arc, colored by the series tokens
+import { LOGO_BOX, logoGeometry } from '@/components/brand/logo'
+
+// The BitGauge mark (design_system components/brand/Logo.jsx, brand/logo.ts): the track, the
+// download and upload arcs and, above 20 px, the dashed latency arc, colored by the series tokens
 // through classes. Decorative: the wordmark or the link around it names it.
-defineProps<{ size: number }>()
+const props = defineProps<{ size: number }>()
 
 const VIEW_BOX = `0 0 ${LOGO_BOX} ${LOGO_BOX}`
-const DASH = LOGO_STROKE.latencyDash.join(' ')
+const geometry = computed(() => logoGeometry(props.size))
 </script>
 
 <template>
@@ -37,33 +39,34 @@ const DASH = LOGO_STROKE.latencyDash.join(' ')
     class="block flex-none"
   >
     <path
-      :d="LOGO_PATHS.track"
+      :d="geometry.paths.track"
       fill="none"
       stroke="currentColor"
-      :stroke-opacity="LOGO_STROKE.trackOpacity"
-      :stroke-width="LOGO_STROKE.width"
+      :stroke-opacity="geometry.trackOpacity"
+      :stroke-width="geometry.width"
       stroke-linecap="round"
     />
     <path
-      :d="LOGO_PATHS.download"
+      :d="geometry.paths.download"
       fill="none"
       class="stroke-series-download"
-      :stroke-width="LOGO_STROKE.width"
+      :stroke-width="geometry.width"
       stroke-linecap="round"
     />
     <path
-      :d="LOGO_PATHS.upload"
+      :d="geometry.paths.upload"
       fill="none"
       class="stroke-series-upload"
-      :stroke-width="LOGO_STROKE.width"
+      :stroke-width="geometry.width"
       stroke-linecap="round"
     />
     <path
-      :d="LOGO_PATHS.latency"
+      v-if="geometry.latency"
+      :d="geometry.latency.path"
       fill="none"
       class="stroke-series-latency"
-      :stroke-width="LOGO_STROKE.latencyWidth"
-      :stroke-dasharray="DASH"
+      :stroke-width="geometry.latency.width"
+      :stroke-dasharray="geometry.latency.dash.join(' ')"
     />
   </svg>
 </template>

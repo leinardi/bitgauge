@@ -14,7 +14,7 @@
       "upload": "↑ Upload",
       "idle": "{ms} ms idle",
       "jitter": "{ms} ms jitter",
-      "loaded": "+{ms} ms loaded ({qualifier})",
+      "loaded": "+{ms} ms under load ({qualifier})",
       "bufferbloat": "bufferbloat",
       "save": "Download image",
       "saved": "Image downloaded.",
@@ -22,7 +22,9 @@
       "share": "Share",
       "shareVia": "Share via…",
       "shareHint": "Sends the image to the system share sheet",
-      "shareTitle": "BitGauge result"
+      "shareTitle": "BitGauge result",
+      "basisDownload": "download only",
+      "basisUpload": "upload only"
     },
     "text": {
       "heading": "Text summary",
@@ -41,8 +43,8 @@
       "loaded": "Loaded latency +{ms} ms ({qualifier})",
       "download": "download",
       "upload": "upload",
-      "via": "{direction}, {source}",
-      "server": "Server: {server}"
+      "server": "Server: {server}",
+      "vsIdle": "vs idle over {path}"
     },
     "include": {
       "label": "Include label",
@@ -55,7 +57,13 @@
       "skipped": "skipped",
       "error": "error",
       "lowConfidence": "low confidence",
-      "cpuBound": "CPU-bound"
+      "cpuBound": "limited by this device’s CPU",
+      "lowConfidenceReasons": "low confidence: {reasons}",
+      "reasons": {
+        "rampUnsettled": "ramp unsettled",
+        "insufficientSamples": "insufficient samples",
+        "unstable": "unstable"
+      }
     }
   }
 }

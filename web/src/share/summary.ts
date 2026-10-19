@@ -20,13 +20,24 @@
 import { gradeWord } from '@/components/history/rows'
 import { sourceName } from '@/components/result/load'
 import type { Wording } from '@/components/test/wording'
-import type { Direction } from '@/engine/messages'
+import type { Confidence, Direction } from '@/engine/messages'
 import { formatPercent, latencyNumber, rateParts } from '@/lib/format'
 import type { ShareContent, ShareRate } from '@/share/content'
 
-// The share's words (ui/flows.md section 8): the image's parts and the copied summary's lines, in
-// the page's language, from the share's content alone. Each number carries its qualifiers; the
-// image and the text say the same things, which the share panel previews before anything leaves.
+// The share's words (ui/flows.md section 8, share-panel.md "Share image layout"): the image's parts
+// and the copied summary's lines, in the page's language, from the share's content alone. Each
+// qualifier sits with the number it qualifies: a rate's status, confidence and overhead
+// compensation under it, the increase's direction, source and idle path after it, the grade's
+// one-direction basis after its words. The image and the text say the same things, which the share
+// panel previews before anything leaves.
+
+/** How a qualifier reads: muted, or the warning or danger tone. */
+export type QualifierTone = 'muted' | 'warn' | 'danger'
+
+export interface ShareQualifier {
+  text: string
+  tone: QualifierTone
+}
 
 export interface ShareBlock {
   direction: Direction
@@ -34,65 +45,98 @@ export interface ShareBlock {
   /** The number, or "—" without one. */
   value: string
   unit: string
-  qualifier: string | null
+  /** Status, confidence, overhead compensation, in that order. */
+  qualifiers: ShareQualifier[]
 }
 
 export interface ShareView {
   /** The label, when included; empty otherwise. */
   head: string
   blocks: ShareBlock[]
-  grade: { letter: string; word: string; name: string } | null
-  /** Idle latency, jitter, the loaded-latency increase, overhead compensation and the date. */
+  /** The grade with its word and the one direction it reads, if only one; `name` is the summary's line. */
+  grade: { letter: string; word: string; basis: string | null; name: string } | null
+  /** Idle latency, jitter and the loaded-latency increase with its qualifiers. */
   foot: string[]
   server: string
+  date: string
   /** The copied summary, a line each. */
   lines: string[]
 }
 
 const DASH = '—'
 
-function qualifiers(rate: ShareRate, { t }: Wording): string[] {
-  const words: string[] = []
+function reasonWord(reason: Confidence['reasons'][number], { t }: Wording): string {
+  switch (reason) {
+    case 'ramp-unsettled':
+      return t('share.qualifiers.reasons.rampUnsettled')
+    case 'insufficient-samples':
+      return t('share.qualifiers.reasons.insufficientSamples')
+    case 'unstable':
+      return t('share.qualifiers.reasons.unstable')
+  }
+}
+
+function statusQualifier(rate: ShareRate, { t }: Wording): ShareQualifier | null {
   switch (rate.status) {
     case 'partial':
-      words.push(t('share.qualifiers.partial'))
-      break
+      return { text: t('share.qualifiers.partial'), tone: 'muted' }
     case 'insufficient-data':
-      words.push(t('share.qualifiers.insufficient'))
-      break
+      return { text: t('share.qualifiers.insufficient'), tone: 'warn' }
     case 'skipped':
-      words.push(t('share.qualifiers.skipped'))
-      break
+      return { text: t('share.qualifiers.skipped'), tone: 'muted' }
     case 'error':
-      words.push(t('share.qualifiers.error'))
-      break
+      return { text: t('share.qualifiers.error'), tone: 'danger' }
     case 'measured':
-      break
+      return null
   }
-  if (rate.confidence === 'low') {
-    words.push(t('share.qualifiers.lowConfidence'))
-  } else if (rate.confidence === 'cpu-bound') {
-    words.push(t('share.qualifiers.cpuBound'))
-  }
-  return words
 }
 
-function block(direction: Direction, rate: ShareRate, units: 'bits' | 'bytes', wording: Wording): ShareBlock {
+function confidenceQualifier(confidence: NonNullable<ShareRate['confidence']>, wording: Wording): ShareQualifier {
+  const { t } = wording
+  if (confidence.level === 'cpu-bound') {
+    return { text: t('share.qualifiers.cpuBound'), tone: 'warn' }
+  }
+  const reasons = confidence.reasons.map((reason) => reasonWord(reason, wording))
+  return { text: reasons.length === 0 ? t('share.qualifiers.lowConfidence') : t('share.qualifiers.lowConfidenceReasons', { reasons: reasons.join(', ') }), tone: 'warn' }
+}
+
+function block(direction: Direction, rate: ShareRate, content: ShareContent, units: 'bits' | 'bytes', wording: Wording): ShareBlock {
   const { t, locale } = wording
   const label = direction === 'download' ? t('share.image.download') : t('share.image.upload')
-  const words = qualifiers(rate, wording)
-  const qualifier = words.length === 0 ? null : words.join(', ')
+  const status = statusQualifier(rate, wording)
+  const qualifiers = status === null ? [] : [status]
   if (rate.bitsPerSecond === null) {
-    return { direction, label, value: DASH, unit: '', qualifier }
+    return { direction, label, value: DASH, unit: '', qualifiers }
+  }
+  // Confidence and overhead compensation qualify a number, so only a block with one carries them.
+  if (rate.confidence !== null) {
+    qualifiers.push(confidenceQualifier(rate.confidence, wording))
+  }
+  if (content.overheadPercent > 0) {
+    qualifiers.push({ text: t('share.overhead', { percent: formatPercent(content.overheadPercent, locale) }), tone: 'muted' })
   }
   const { number, unit } = rateParts(rate.bitsPerSecond, units, locale)
-  return { direction, label, value: number, unit, qualifier }
+  return { direction, label, value: number, unit, qualifiers }
 }
 
-/** A direction's rate as the summary says it: the number and unit, then its qualifiers. */
-function rateText(item: ShareBlock, { t }: Wording): string {
-  const value = item.value === DASH ? (item.qualifier ?? DASH) : `${item.value} ${item.unit}`
-  return item.value !== DASH && item.qualifier !== null ? t('share.text.qualified', { value, qualifier: item.qualifier }) : value
+/** A direction's line in the summary: its name, the number and unit, then its qualifiers. */
+function rateLine(item: ShareBlock, { t }: Wording): string {
+  const rate = item.value === DASH ? DASH : `${item.value} ${item.unit}`
+  const qualified = item.qualifiers.length === 0 ? rate : t('share.text.qualified', { value: rate, qualifier: item.qualifiers.map((q) => q.text).join('; ') })
+  return item.direction === 'download' ? t('share.text.downloadRate', { rate: qualified }) : t('share.text.uploadRate', { rate: qualified })
+}
+
+/** The increase's qualifier: its direction, a source other than the WebSocket, the other idle path. */
+function loadedQualifier(loaded: NonNullable<ShareContent['loaded']>, { t }: Wording): string {
+  const parts = [loaded.direction === 'download' ? t('share.text.download') : t('share.text.upload')]
+  if (loaded.source !== 'websocket') {
+    parts.push(sourceName(loaded.source, t))
+  }
+  // idleSource exists only when idle latency ran on the other path (measurement.md section 11.4).
+  if (loaded.idleSource !== null) {
+    parts.push(t('share.text.vsIdle', { path: loaded.idleSource === 'websocket' ? t('result.load.paths.websocket') : t('result.load.paths.http') }))
+  }
+  return parts.join(', ')
 }
 
 export function shareView(content: ShareContent, units: 'bits' | 'bytes', wording: Wording): ShareView {
@@ -102,23 +146,24 @@ export function shareView(content: ShareContent, units: 'bits' | 'bytes', wordin
   const date = Number.isNaN(started.getTime()) ? content.startedAt : new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(started)
   const blocks = (['download', 'upload'] as const).flatMap((direction) => {
     const rate = content[direction]
-    return rate === null ? [] : [block(direction, rate, units, wording)]
+    return rate === null ? [] : [block(direction, rate, content, units, wording)]
   })
-  const overhead = content.overheadPercent > 0 ? t('share.overhead', { percent: formatPercent(content.overheadPercent, locale) }) : null
-  const loaded = content.loaded
-  const loadedWhere = (direction: Direction) => (direction === 'download' ? t('share.text.download') : t('share.text.upload'))
-  const loadedQualifier = loaded === null ? null : loaded.source === 'websocket' ? loadedWhere(loaded.direction) : t('share.text.via', { direction: loadedWhere(loaded.direction), source: sourceName(loaded.source, t) })
-  const grade = content.grade === null ? null : { letter: content.grade, word: gradeWord(content.grade, t), name: t('share.grade', { grade: content.grade, word: gradeWord(content.grade, t) }) }
+  const loaded = content.loaded === null ? null : { ms: ms(content.loaded.increaseMs), qualifier: loadedQualifier(content.loaded, wording) }
+  const basis = content.basis === null ? null : content.basis === 'download' ? t('share.image.basisDownload') : t('share.image.basisUpload')
+  const grade =
+    content.grade === null
+      ? null
+      : (() => {
+          const word = gradeWord(content.grade, t)
+          const name = t('share.grade', { grade: content.grade, word })
+          return { letter: content.grade, word, basis, name: basis === null ? name : t('share.text.qualified', { value: name, qualifier: basis }) }
+        })()
 
   const foot = [
     ...(content.idleMs === null ? [] : [t('share.image.idle', { ms: ms(content.idleMs) })]),
     ...(content.jitterMs === null ? [] : [t('share.image.jitter', { ms: ms(content.jitterMs) })]),
-    ...(loaded === null ? [] : [t('share.image.loaded', { ms: ms(loaded.increaseMs), qualifier: loadedQualifier })]),
-    ...(overhead === null ? [] : [overhead]),
-    date,
+    ...(loaded === null ? [] : [t('share.image.loaded', loaded)]),
   ]
-
-  const rates = blocks.map((item) => (item.direction === 'download' ? t('share.text.downloadRate', { rate: rateText(item, wording) }) : t('share.text.uploadRate', { rate: rateText(item, wording) })))
   const latency = [
     ...(content.idleMs === null ? [] : [t('share.text.idle', { ms: ms(content.idleMs) })]),
     ...(content.jitterMs === null ? [] : [t('share.text.jitter', { ms: ms(content.jitterMs) })]),
@@ -126,12 +171,11 @@ export function shareView(content: ShareContent, units: 'bits' | 'bytes', wordin
   const lines = [
     content.label === null ? t('share.text.title') : t('share.text.titleLabel', { label: content.label }),
     date,
-    ...(rates.length === 0 ? [] : [rates.join(' · ')]),
-    ...(overhead === null ? [] : [overhead]),
+    ...blocks.map((item) => rateLine(item, wording)),
     ...(latency.length === 0 ? [] : [latency.join(' · ')]),
-    ...(loaded === null ? [] : [t('share.text.loaded', { ms: ms(loaded.increaseMs), qualifier: loadedQualifier })]),
+    ...(loaded === null ? [] : [t('share.text.loaded', loaded)]),
     ...(grade === null ? [] : [grade.name]),
     t('share.text.server', { server: content.server }),
   ]
-  return { head: content.label ?? '', blocks, grade, foot, server: content.server, lines }
+  return { head: content.label ?? '', blocks, grade, foot, server: content.server, date, lines }
 }

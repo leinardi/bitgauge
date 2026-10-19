@@ -17,13 +17,14 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Bufferbloat, Confidence, Direction, DirectionStatus, LoadedSource, Result } from '@/engine/messages'
+import type { Bufferbloat, Confidence, Direction, DirectionStatus, IdleResult, LoadedSource, Result } from '@/engine/messages'
 
 // What a share carries (ui/flows.md section 8, security.md section 7): download, upload, idle
 // latency, jitter, the loaded-latency increase, the grade, the date and time and the server's
 // display name, each number with the qualifiers it has: a direction status other than measured, a
-// confidence other than normal, a non-zero overhead compensation and a loaded-latency source other
-// than the WebSocket; the label only when the user includes it. Picked field by field from the
+// confidence other than normal, a non-zero overhead compensation, a loaded-latency source other
+// than the WebSocket and an increase over idle latency measured on the other path; the label only
+// when the user includes it. Picked field by field from the
 // result, so the client IP, the note, the browser and the server's URL can never reach the image or
 // the text.
 
@@ -31,8 +32,8 @@ export interface ShareRate {
   status: DirectionStatus
   /** The headline, absent without a number. */
   bitsPerSecond: number | null
-  /** The confidence other than normal, or null. */
-  confidence: Exclude<Confidence['level'], 'normal'> | null
+  /** The confidence other than normal, with its reasons, or null. */
+  confidence: { level: Exclude<Confidence['level'], 'normal'>; reasons: Confidence['reasons'] } | null
 }
 
 export interface ShareContent {
@@ -47,9 +48,14 @@ export interface ShareContent {
   idleMs: number | null
   jitterMs: number | null
   resolutionMs: number
-  /** The increase the grade reads, with the direction it comes from and that direction's source. */
-  loaded: { increaseMs: number; direction: Direction; source: LoadedSource } | null
+  /**
+   * The increase the grade reads, with the direction it comes from, that direction's source and the
+   * idle path when idle latency ran on the other one.
+   */
+  loaded: { increaseMs: number; direction: Direction; source: LoadedSource; idleSource: IdleResult['path'] | null } | null
   grade: Bufferbloat['grade'] | null
+  /** The one direction the grade reads, or null when it reads both. */
+  basis: Direction | null
 }
 
 function rate(result: Result, direction: Direction): ShareRate | null {
@@ -57,8 +63,12 @@ function rate(result: Result, direction: Direction): ShareRate | null {
   if (part === undefined || !result.settings.phases.includes(direction)) {
     return null
   }
-  const level = part.confidence?.level ?? 'normal'
-  return { status: part.status, bitsPerSecond: part.bitsPerSecond ?? null, confidence: level === 'normal' ? null : level }
+  const confidence = part.confidence
+  return {
+    status: part.status,
+    bitsPerSecond: part.bitsPerSecond ?? null,
+    confidence: confidence === undefined || confidence.level === 'normal' ? null : { level: confidence.level, reasons: confidence.reasons },
+  }
 }
 
 /** The direction whose increase the grade reads: the basis's one, or the worse of both. */
@@ -66,10 +76,12 @@ function graded(result: Result, bufferbloat: Bufferbloat): ShareContent['loaded'
   const directions: Direction[] = bufferbloat.basis === 'download+upload' ? ['download', 'upload'] : [bufferbloat.basis]
   const measured = directions.flatMap((direction) => {
     const loaded = result[direction]?.loadedLatency
-    return loaded === undefined || 'status' in loaded || loaded.increaseMs === undefined ? [] : [{ direction, increaseMs: loaded.increaseMs, source: loaded.source }]
+    return loaded === undefined || 'status' in loaded || loaded.increaseMs === undefined
+      ? []
+      : [{ direction, increaseMs: loaded.increaseMs, source: loaded.source, idleSource: loaded.idleSource ?? null }]
   })
   const worse = measured.reduce<(typeof measured)[number] | null>((found, next) => (found === null || next.increaseMs > found.increaseMs ? next : found), null)
-  return worse === null ? null : { increaseMs: bufferbloat.increaseMs, direction: worse.direction, source: worse.source }
+  return worse === null ? null : { increaseMs: bufferbloat.increaseMs, direction: worse.direction, source: worse.source, idleSource: worse.idleSource }
 }
 
 export function shareContent(result: Result, includeLabel: boolean): ShareContent {
@@ -86,5 +98,6 @@ export function shareContent(result: Result, includeLabel: boolean): ShareConten
     resolutionMs: result.client.timerResolutionMs,
     loaded: result.bufferbloat === undefined ? null : graded(result, result.bufferbloat),
     grade: result.bufferbloat?.grade ?? null,
+    basis: result.bufferbloat === undefined || result.bufferbloat.basis === 'download+upload' ? null : result.bufferbloat.basis,
   }
 }
