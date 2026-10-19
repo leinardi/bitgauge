@@ -31,6 +31,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/leinardi/bitgauge/internal/compat/librespeed"
+	"github.com/leinardi/bitgauge/internal/compat/nq"
 	"github.com/leinardi/bitgauge/internal/compat/openspeedtest"
 	"github.com/leinardi/bitgauge/internal/config"
 	"github.com/leinardi/bitgauge/internal/handlers"
@@ -204,8 +205,7 @@ func matches(pattern, path string) bool {
 }
 
 // ownerMounted reports whether NewRouter mounts owner's rows of the route table for cfg: the
-// SPA's and the native API's always, a compatibility layer's when its toggle is on. The
-// networkQuality layer joins with the commit that ships it.
+// SPA's and the native API's always, a compatibility layer's when its toggle is on.
 func ownerMounted(cfg *config.Config, owner string) bool {
 	switch owner {
 	case ownerSPA, ownerNative:
@@ -214,6 +214,8 @@ func ownerMounted(cfg *config.Config, owner string) bool {
 		return cfg.Compat.OpenSpeedTest.Enabled
 	case ownerLibreSpeed:
 		return cfg.Compat.LibreSpeed.Enabled
+	case ownerNQ:
+		return cfg.Compat.NetworkQuality.Enabled
 	}
 
 	return false
@@ -278,7 +280,11 @@ type Groups struct {
 	// LibreSpeed builds the LibreSpeed layer, mounted when compat.librespeed.enabled is set;
 	// NewRouter adds its limiter.
 	LibreSpeed *librespeed.Deps
-	// Limiter limits the native throughput routes and the compatibility layers'.
+	// NQ builds the networkQuality layer, mounted when compat.networkquality.enabled is set;
+	// NewRouter adds its flow limit.
+	NQ *nq.Deps
+	// Limiter limits the native throughput routes and the compatibility layers', and
+	// networkQuality's flows.
 	Limiter *ratelimit.Limiter
 	// Metrics serves the metrics endpoint (metrics.Metrics.Handler), mounted when
 	// metrics.enabled is set; without it the path answers 404. Native.Metrics, not this,
@@ -307,7 +313,9 @@ func NewRouter(cfg *config.Config, groups *Groups) (*chi.Mux, []config.Problem) 
 	native.Limit = ratelimit.Middleware(groups.Limiter, handlers.ErrorWriter{}, groups.Log,
 		native.Metrics)
 
-	layers := layerHandlers(cfg, groups, native.Limit)
+	layers := layerHandlers(cfg, groups, native.Limit,
+		ratelimit.FlowMiddleware(groups.Limiter, handlers.ErrorWriter{}, groups.Log,
+			native.Metrics))
 
 	mount := func(base chi.Router) {
 		if groups.SPA != nil {
@@ -349,11 +357,12 @@ func NewRouter(cfg *config.Config, groups *Groups) (*chi.Mux, []config.Problem) 
 }
 
 // layerHandlers are the entries into every enabled compatibility layer's router, by exact
-// path without base_path, the layer limited by limit.
+// path without base_path: OpenSpeedTest and LibreSpeed limited by limit, networkQuality's
+// flows by flowLimit.
 func layerHandlers(
 	cfg *config.Config,
 	groups *Groups,
-	limit func(http.Handler) http.Handler,
+	limit, flowLimit func(http.Handler) http.Handler,
 ) map[string]http.Handler {
 	routers := map[string]http.Handler{}
 
@@ -367,6 +376,12 @@ func layerHandlers(
 		deps := *groups.LibreSpeed
 		deps.Limit = limit
 		routers[ownerLibreSpeed] = librespeed.Routes(&deps)
+	}
+
+	if ownerMounted(cfg, ownerNQ) {
+		deps := *groups.NQ
+		deps.FlowLimit = flowLimit
+		routers[ownerNQ] = nq.Routes(&deps)
 	}
 
 	entries := map[string]http.Handler{}

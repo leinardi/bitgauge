@@ -21,9 +21,8 @@ exactly, from its documented behavior, and never bends the native API or the eng
 Every layer is off by default, has exactly one toggle, and answers the plain `404` of an unmatched
 path when disabled.
 
-`internal/handlers` exists since v0.1, and `internal/compat/openspeedtest` and
-`internal/compat/librespeed` since v0.3; the networkQuality package lands with v0.3 too, as the
-approved specification is implemented ([STATUS.md](../../../docs/STATUS.md)).
+`internal/handlers` exists since v0.1, and the three packages under `internal/compat/` since v0.3
+([STATUS.md](../../../docs/STATUS.md)).
 
 This skill owns what is specific to the wire. It links instead of repeating:
 

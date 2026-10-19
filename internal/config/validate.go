@@ -100,7 +100,7 @@ func Validate(cfg *Config) []Problem {
 	check.server(&cfg.Server)
 	check.limits(cfg.Limits)
 	check.testDefaults(&cfg.TestDefaults, cfg.Limits)
-	check.compat(cfg.Compat, cfg.Limits)
+	check.compat(cfg.Compat, cfg.Limits, &cfg.Server)
 	check.log(cfg.Log)
 	check.metrics(cfg.Metrics)
 
@@ -493,7 +493,13 @@ func (c *checker) durations(
 		"must not exceed max_duration (%s, the preset's value since it is empty)", maximum))
 }
 
-func (c *checker) compat(compat Compat, limits Limits) {
+func (c *checker) compat(compat Compat, limits Limits, server *Server) {
+	if compat.NetworkQuality.Enabled && !httpsOriginKnown(server) {
+		c.add("compat.networkquality.enabled", true, "needs an https server.public_url or, "+
+			"with server.public_url empty, at least one server.trusted_proxies entry, since "+
+			"the layer cannot build its https URLs otherwise")
+	}
+
 	if compat.OpenSpeedTest.Enabled {
 		c.layerNeeds(
 			"limits.max_download_bytes",
@@ -521,24 +527,6 @@ func (c *checker) compat(compat Compat, limits Limits) {
 		)
 	}
 
-	toggles := []struct {
-		key     string
-		enabled bool
-		name    string
-	}{
-		{
-			"compat.networkquality.enabled",
-			compat.NetworkQuality.Enabled,
-			"the networkQuality compatibility layer",
-		},
-	}
-
-	for _, toggle := range toggles {
-		if toggle.enabled {
-			c.add(toggle.key, toggle.enabled, notInRelease(toggle.name, milestoneCompatibility))
-		}
-	}
-
 	c.sizeRange(
 		"compat.networkquality.max_upload_bytes",
 		compat.NetworkQuality.MaxUploadBytes,
@@ -551,6 +539,19 @@ func (c *checker) compat(compat Compat, limits Limits) {
 		minNQFlowsPerClient,
 		maxNQFlowsPerClient,
 	)
+}
+
+// httpsOriginKnown reports whether the networkQuality layer can have an https origin: an https
+// server.public_url, or, with public_url empty, a trusted proxy that may forward
+// X-Forwarded-Proto: https (compatibility.md section 3.3).
+func httpsOriginKnown(server *Server) bool {
+	if server.PublicURL == "" {
+		return len(server.TrustedProxies) > 0
+	}
+
+	parsed, err := url.Parse(string(server.PublicURL))
+
+	return err == nil && parsed.Scheme == schemeHTTPS
 }
 
 // layerNeeds is a conflicting-toggles rule of configuration.md section 4: with toggle on, the

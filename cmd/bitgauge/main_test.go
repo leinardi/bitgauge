@@ -285,6 +285,7 @@ func TestServeExitsTwoOnInvalidConfig(t *testing.T) {
 		{"server.labels item without =", []string{"--config", empty}, []string{"BITGAUGE_SERVER__LABELS=10.8.0.0/24"}, 2},
 		{"OpenSpeedTest with a 16 MiB download cap", []string{"--config", empty}, []string{"BITGAUGE_COMPAT__OPENSPEEDTEST__ENABLED=true", "BITGAUGE_LIMITS__MAX_DOWNLOAD_BYTES=16MiB"}, 2},
 		{"LibreSpeed with a 512 KiB download cap", []string{"--config", empty}, []string{"BITGAUGE_COMPAT__LIBRESPEED__ENABLED=true", "BITGAUGE_LIMITS__MAX_DOWNLOAD_BYTES=512KiB"}, 2},
+		{"networkQuality without an https origin", []string{"--config", empty}, []string{"BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED=true", "BITGAUGE_SERVER__PUBLIC_URL=http://speed.lan"}, 2},
 		{"OpenSpeedTest with a 32 MiB upload cap", []string{"--config", empty}, []string{"BITGAUGE_COMPAT__OPENSPEEDTEST__ENABLED=true", "BITGAUGE_LIMITS__MAX_UPLOAD_BYTES=32MiB"}, 2},
 		{"unknown command", []string{"version"}, nil, 2},
 		{"healthcheck with an invalid file", []string{"healthcheck", "--config", invalidFile}, nil, 1},

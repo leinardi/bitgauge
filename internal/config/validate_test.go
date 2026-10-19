@@ -512,12 +512,18 @@ func TestRulesOfSection4(t *testing.T) {
 			},
 			wantKeys: []string{"limits.max_download_bytes"},
 		},
-		// Features not in this release.
 		{
-			name:     "networkQuality enabled",
+			name:     "networkQuality without public_url or a trusted proxy",
 			file:     "compat:\n  networkquality:\n    enabled: true\n",
 			wantKeys: []string{"compat.networkquality.enabled"},
 		},
+		{
+			name: "networkQuality with an http public_url",
+			file: "server:\n  public_url: http://speed.lan\n  trusted_proxies: [172.20.0.2/32]\n" +
+				"compat:\n  networkquality:\n    enabled: true\n",
+			wantKeys: []string{"compat.networkquality.enabled"},
+		},
+		// Features not in this release.
 		{
 			name:     "Continuous preset",
 			file:     "test_defaults:\n  preset: continuous\n",
@@ -627,6 +633,17 @@ limits: {max_download_bytes: 30MiB, max_upload_bytes: 36700160}
 compat:
   librespeed: {enabled: true}
 limits: {max_download_bytes: 1MiB}
+`
+	// networkQuality with either way to its https URLs.
+	files["networkQuality with an https public_url"] = `
+server: {public_url: "HTTPS://speed.example.lan"}
+compat:
+  networkquality: {enabled: true}
+`
+	files["networkQuality behind a trusted proxy"] = `
+server: {trusted_proxies: [172.20.0.2/32]}
+compat:
+  networkquality: {enabled: true}
 `
 
 	for name, file := range files {

@@ -142,8 +142,9 @@ func Info(
 			Limits:   newInfoLimits(&cfg.Limits),
 			Defaults: newInfoDefaults(&cfg.TestDefaults),
 			Compat: infoCompat{
-				OpenSpeedTest: cfg.Compat.OpenSpeedTest.Enabled,
-				LibreSpeed:    cfg.Compat.LibreSpeed.Enabled,
+				OpenSpeedTest:  cfg.Compat.OpenSpeedTest.Enabled,
+				LibreSpeed:     cfg.Compat.LibreSpeed.Enabled,
+				NetworkQuality: cfg.Compat.NetworkQuality.Enabled,
 			},
 		})
 		if err != nil {

@@ -274,4 +274,12 @@ func TestInfoReportsTheCompatibilityToggles(t *testing.T) {
 	if !reflect.DeepEqual(got["compat"], want) {
 		t.Fatalf("compat = %v, want %v", got["compat"], want)
 	}
+
+	deps.Config.Compat.NetworkQuality.Enabled = true
+	got, _ = fetchInfo(t, deps, "10.0.0.5")
+
+	want = map[string]any{"openspeedtest": true, "librespeed": true, "networkquality": true}
+	if !reflect.DeepEqual(got["compat"], want) {
+		t.Fatalf("compat = %v, want %v", got["compat"], want)
+	}
 }

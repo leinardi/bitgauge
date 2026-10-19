@@ -204,15 +204,15 @@ func TestComposeEnvironmentsValidate(t *testing.T) {
 	}
 }
 
-// TestConfigProblemsIsNotBlind proves the check above reaches the validator: a toggle for a layer
-// this release does not ship, and a key that does not exist, are both refused.
+// TestConfigProblemsIsNotBlind proves the check above reaches the validator: a layer toggle that
+// breaks a conflict rule, a key that does not exist and an invalid value are all refused.
 func TestConfigProblemsIsNotBlind(t *testing.T) {
 	t.Parallel()
 
 	for name, environment := range map[string]map[string]any{
-		"a later release's layer": {"BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED": "true"},
-		"an unknown key":          {"BITGAUGE_SERVER__NO_SUCH_KEY": "1"},
-		"an invalid value":        {"BITGAUGE_SERVER__PUBLIC_URL": "speed.example.lan"},
+		"a layer without its https origin": {"BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED": "true"},
+		"an unknown key":                   {"BITGAUGE_SERVER__NO_SUCH_KEY": "1"},
+		"an invalid value":                 {"BITGAUGE_SERVER__PUBLIC_URL": "speed.example.lan"},
 	} {
 		if len(configProblems(t, environment)) == 0 {
 			t.Errorf("%s: no problem found", name)
