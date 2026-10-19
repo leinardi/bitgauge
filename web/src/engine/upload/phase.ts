@@ -132,6 +132,11 @@ export class UploadPhase {
     return sent
   }
 
+  /** The length of each structure the phase grows, which the footprint test reads. */
+  footprint(): { uploadEntries: number; uploadCells: number; uploadOffsets: number } {
+    return { ...this.ledger.footprint(), uploadOffsets: this.streams.footprint() }
+  }
+
   /** Runs the phase to its end, grace included. */
   run(): Promise<UploadOutcome> {
     return new Promise((resolve) => {
@@ -259,6 +264,8 @@ export class UploadPhase {
       // The confirmation that ends warm-up on the server timeline is the client instant it is known.
       const end = this.warmup.update(series, this.ramp, this.streams.confirmedPerStream(this.ramp.streams))
       if (end !== null) {
+        // No window counts a request whose cells all came before warm-up ended.
+        this.ledger.release(end.bucket, this.clock.now())
         this.options.warmedUp?.(end)
       }
     }

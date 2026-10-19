@@ -156,7 +156,10 @@ export class Connection {
     const sameServer = !this.disposed && info.status === 'fulfilled' && info.value.info.server.epoch === epoch
     if (sameServer && reopen.status === 'fulfilled') {
       this.attach(reopen.value)
-      this.notices.push({ code: 'websocket-reopened' })
+      // The result lists a notice once, however often the echo reopened.
+      if (!this.notices.some((notice) => notice.code === 'websocket-reopened')) {
+        this.notices.push({ code: 'websocket-reopened' })
+      }
     } else {
       // An echo that is not used, now or after its timeout, is closed.
       void reopening.then((late) => late.close(), () => undefined)

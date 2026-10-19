@@ -38,15 +38,28 @@ export interface FailureGap {
   endMs: number
 }
 
+/**
+ * A request's ledger entry. A request without telemetry carries its lower bound's latest server
+ * end so far, and an ended one its upper bound's earliest server start so far: each confirmation
+ * updates them, so a released confirmed entry is never needed to compute them again.
+ */
 type Entry =
-  | { state: 'in-flight'; sentAt: number }
+  | { state: 'in-flight'; sentAt: number; lbEnd: number | null }
   | { state: 'confirmed'; sentAt: number; doneAt: number; telemetry: ConfirmedTelemetry }
-  | { state: 'ended'; sentAt: number; endedAt: number }
+  | { state: 'ended'; sentAt: number; endedAt: number; lbEnd: number | null; ubStart: number | null }
 
 type Confirmed = Extract<Entry, { state: 'confirmed' }>
 
 function serverEnd(entry: Confirmed): number {
   return entry.telemetry.startMs + entry.telemetry.durationMs
+}
+
+function later(bound: number | null, value: number): number {
+  return bound === null ? value : Math.max(bound, value)
+}
+
+function earlier(bound: number | null, value: number): number {
+  return bound === null ? value : Math.min(bound, value)
 }
 
 /**
@@ -65,21 +78,48 @@ export class UploadLedger {
   readonly grid = new UploadGrid()
   /** The upload requests' nextHopProtocol; empty while unreported. */
   protocol = ''
-  private readonly entries: Entry[] = []
+  /** The entries kept, by id in send order: every one until a release drops confirmed ones. */
+  private readonly entries = new Map<RequestId, Entry>()
+  private sent = 0
   /** The requests in flight when the phase stopped issuing, by stream; empty until then. */
   private readonly drain: RequestId[][] = []
+  private confirmedCount = 0
+  /** P_start and the latest server end over every confirmed request, released ones included. */
+  private earliestStart: number | null = null
+  private latestEnd: number | null = null
+  /** The released confirmed requests' latest server end and latest client done. */
+  private released: { latestEnd: number; doneAt: number } | null = null
 
   /** Records a request sent at client instant `sentAt` (t_send) and returns its id. */
   send(sentAt: number): RequestId {
-    this.entries.push({ state: 'in-flight', sentAt })
-    return this.entries.length - 1
+    let lbEnd = this.released !== null && this.released.doneAt <= sentAt ? this.released.latestEnd : null
+    for (const confirmed of this.confirmedEntries()) {
+      if (confirmed.doneAt <= sentAt) {
+        lbEnd = later(lbEnd, serverEnd(confirmed))
+      }
+    }
+    const id = this.sent++
+    this.entries.set(id, { state: 'in-flight', sentAt, lbEnd })
+    return id
   }
 
   /** Records the telemetry of request `id`, received at client instant `doneAt` (t_done). */
   confirm(id: RequestId, doneAt: number, telemetry: ConfirmedTelemetry): void {
     const entry = this.inFlight(id)
     this.grid.add(telemetry)
-    this.entries[id] = { state: 'confirmed', sentAt: entry.sentAt, doneAt, telemetry }
+    const confirmed: Confirmed = { state: 'confirmed', sentAt: entry.sentAt, doneAt, telemetry }
+    this.entries.set(id, confirmed)
+    this.confirmedCount++
+    this.earliestStart = earlier(this.earliestStart, telemetry.startMs)
+    this.latestEnd = later(this.latestEnd, serverEnd(confirmed))
+    for (const other of this.entries.values()) {
+      if (other.state !== 'confirmed' && doneAt <= other.sentAt) {
+        other.lbEnd = later(other.lbEnd, serverEnd(confirmed))
+      }
+      if (other.state === 'ended' && entry.sentAt >= other.endedAt) {
+        other.ubStart = earlier(other.ubStart, telemetry.startMs)
+      }
+    }
   }
 
   /**
@@ -88,7 +128,13 @@ export class UploadLedger {
    */
   end(id: RequestId, endedAt: number): void {
     const entry = this.inFlight(id)
-    this.entries[id] = { state: 'ended', sentAt: entry.sentAt, endedAt }
+    let ubStart: number | null = null
+    for (const confirmed of this.confirmedEntries()) {
+      if (confirmed.sentAt >= endedAt) {
+        ubStart = earlier(ubStart, confirmed.telemetry.startMs)
+      }
+    }
+    this.entries.set(id, { state: 'ended', sentAt: entry.sentAt, endedAt, lbEnd: entry.lbEnd, ubStart })
   }
 
   /**
@@ -101,15 +147,40 @@ export class UploadLedger {
     }
   }
 
-  /** The telemetry of the confirmed requests, in send order. */
+  /**
+   * Drops the confirmed requests no decision reads again: those whose every cell lies before
+   * server cell `cell`, done by client instant `at` and sent before it, and not drained at a halt.
+   * The caller promises that no window counts a request with a cell before `cell` from here on, and
+   * that every later send or end happens at or after `at`. Their bounds, P_start, M_end and the
+   * confirmed count keep what they gave; the grid keeps their bytes (UploadGrid.release drops those).
+   */
+  release(cell: number, at: number): void {
+    const drained = new Set(this.drain.flat())
+    for (const [id, entry] of this.entries) {
+      if (entry.state !== 'confirmed' || drained.has(id)) {
+        continue
+      }
+      const lastCell = entry.telemetry.firstBucket + entry.telemetry.buckets.length - 1
+      if (lastCell < cell && entry.doneAt <= at && entry.sentAt < at) {
+        this.released = { latestEnd: later(this.released?.latestEnd ?? null, serverEnd(entry)), doneAt: later(this.released?.doneAt ?? null, entry.doneAt) }
+        this.entries.delete(id)
+      }
+    }
+  }
+
+  /** How many requests confirmed, released ones included. */
+  get confirmedRequests(): number {
+    return this.confirmedCount
+  }
+
+  /** The telemetry of the confirmed requests kept, in send order. */
   confirmed(): ConfirmedTelemetry[] {
     return this.confirmedEntries().map((entry) => entry.telemetry)
   }
 
   /** P_start: the earliest first byte over the confirmed requests; null before the first. */
   phaseStart(): number | null {
-    const starts = this.confirmedEntries().map((entry) => entry.telemetry.startMs)
-    return starts.length === 0 ? null : Math.min(...starts)
+    return this.earliestStart
   }
 
   /**
@@ -119,16 +190,15 @@ export class UploadLedger {
    * over every confirmed request while none of them has, or when none was in flight.
    */
   measurementEnd(): number | null {
-    const ends = this.confirmedEntries().map(serverEnd)
-    if (ends.length === 0) {
+    if (this.latestEnd === null) {
       return null
     }
     const quiet = this.drain
       .filter((ids) => ids !== undefined)
-      .map((ids) => ids.map((id) => this.entries[id]).filter((entry): entry is Confirmed => entry?.state === 'confirmed').map(serverEnd))
+      .map((ids) => ids.map((id) => this.entries.get(id)).filter((entry): entry is Confirmed => entry?.state === 'confirmed').map(serverEnd))
       .filter((stream) => stream.length > 0)
       .map((stream) => Math.max(...stream))
-    return quiet.length === 0 ? Math.max(...ends) : Math.min(...quiet)
+    return quiet.length === 0 ? this.latestEnd : Math.min(...quiet)
   }
 
   /**
@@ -136,17 +206,11 @@ export class UploadLedger {
    * was sent, or P_start without one. Null for a request with telemetry, or before any.
    */
   lowerBound(id: RequestId): number | null {
-    const entry = this.entries[id]
-    if (entry === undefined || entry.state === 'confirmed') {
+    const entry = this.entries.get(id)
+    if (entry === undefined || entry.state === 'confirmed' || this.earliestStart === null) {
       return null
     }
-    let bound = this.phaseStart()
-    for (const confirmed of this.confirmedEntries()) {
-      if (confirmed.doneAt <= entry.sentAt) {
-        bound = Math.max(bound ?? Number.NEGATIVE_INFINITY, serverEnd(confirmed))
-      }
-    }
-    return bound
+    return entry.lbEnd === null ? this.earliestStart : Math.max(this.earliestStart, entry.lbEnd)
   }
 
   /**
@@ -154,22 +218,16 @@ export class UploadLedger {
    * at or after u ended on the client. Null while undefined.
    */
   upperBound(id: RequestId): number | null {
-    const entry = this.entries[id]
+    const entry = this.entries.get(id)
     if (entry?.state !== 'ended' || !allowsUpperBound(this.protocol)) {
       return null
     }
-    let bound: number | null = null
-    for (const confirmed of this.confirmedEntries()) {
-      if (confirmed.sentAt >= entry.endedAt) {
-        bound = Math.min(bound ?? Number.POSITIVE_INFINITY, confirmed.telemetry.startMs)
-      }
-    }
-    return bound
+    return entry.ubStart
   }
 
   /** Whether request `id` is open: without telemetry, and in flight or with no upper bound. */
   isOpen(id: RequestId): boolean {
-    const entry = this.entries[id]
+    const entry = this.entries.get(id)
     if (entry === undefined || entry.state === 'confirmed') {
       return false
     }
@@ -179,13 +237,13 @@ export class UploadLedger {
   /** The failure gaps [lb(u), ub(u)) of the closed requests, in send order. */
   failureGaps(): FailureGap[] {
     const gaps: FailureGap[] = []
-    this.entries.forEach((entry, id) => {
+    for (const [id, entry] of this.entries) {
       const endMs = entry.state === 'ended' ? this.upperBound(id) : null
       const startMs = endMs === null ? null : this.lowerBound(id)
       if (endMs !== null && startMs !== null) {
         gaps.push({ startMs, endMs })
       }
-    })
+    }
     return gaps
   }
 
@@ -199,7 +257,7 @@ export class UploadLedger {
       return null
     }
     let watermark = end
-    for (let id = 0; id < this.entries.length; id++) {
+    for (const id of this.entries.keys()) {
       const bound = this.isOpen(id) ? this.lowerBound(id) : null
       if (bound !== null) {
         watermark = Math.min(watermark, bound)
@@ -215,12 +273,17 @@ export class UploadLedger {
     return watermark === null || end === null ? null : Math.min(watermark, end)
   }
 
+  /** The entries and grid cells kept, which the footprint test reads. */
+  footprint(): { uploadEntries: number; uploadCells: number } {
+    return { uploadEntries: this.entries.size, uploadCells: this.grid.footprint() }
+  }
+
   private confirmedEntries(): Confirmed[] {
-    return this.entries.filter((entry): entry is Confirmed => entry.state === 'confirmed')
+    return [...this.entries.values()].filter((entry): entry is Confirmed => entry.state === 'confirmed')
   }
 
   private inFlight(id: RequestId): Extract<Entry, { state: 'in-flight' }> {
-    const entry = this.entries[id]
+    const entry = this.entries.get(id)
     if (entry?.state !== 'in-flight') {
       throw new Error(`upload request ${id} is not in flight`)
     }

@@ -88,11 +88,20 @@ export function coefficientOfVariation(values: readonly number[]): number | null
 }
 
 /**
+ * Where a phase hands what it completes, closed buckets or answered pings, as each completes: a
+ * store that keeps every value, as a bounded preset does, or a consumer that keeps a bounded
+ * summary of them, as a Continuous run's retention does (measurement.md section 15).
+ */
+export interface BucketSink<T = Cell> {
+  append(...values: T[]): void
+}
+
+/**
  * A run of consecutive cells starting at index `first`: on download the client bucket index from
  * the phase start, on upload the absolute server grid cell. Indexes outside the series are
  * unknown.
  */
-export class BucketSeries {
+export class BucketSeries implements BucketSink {
   readonly first: number
   private readonly cells: Cell[] = []
 

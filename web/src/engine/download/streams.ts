@@ -21,9 +21,10 @@ import { DEFAULT_RTT_MS, IssueGaps, issueGap } from '@/engine/phases/issue'
 import { nextSize, SIZE_FLOOR, streamRate } from '@/engine/phases/sizing'
 
 // Download stream bookkeeping: each stream's last completed request, which sizes its next one and
-// gives its issue gap (measurement.md section 3), and every request's arrivals on the client
-// timeline, which the warm-up's per-stream counts and the window condition read (sections 5 and
-// 8.3).
+// gives its issue gap (measurement.md section 3), and the requests' arrivals on the client
+// timeline, which the window condition reads (sections 5 and 8.3). A request that ended is kept
+// only while a window can still count it: one that read nothing, or whose last byte came before
+// the window's first bucket, is dropped.
 
 /** One request of a stream, from its issue to its end. */
 export interface DownloadRequest {
@@ -54,7 +55,11 @@ interface StreamState {
 
 export class Streams {
   private readonly streams: StreamState[] = []
-  private readonly requests: DownloadRequest[] = []
+  private requests: DownloadRequest[] = []
+  /** The requests issued and not yet ended. */
+  private readonly open = new Set<DownloadRequest>()
+  /** The first bucket any window can still read; null before warm-up ends, while it is unknown. */
+  private readsFrom: number | null = null
   /** Set once the ramp has settled: early issue begins only then (measurement.md section 3). */
   settled = false
   private readonly gaps = new IssueGaps()
@@ -108,6 +113,7 @@ export class Streams {
       lastBucket: null,
     }
     this.requests.push(request)
+    this.open.add(request)
     return request
   }
 
@@ -133,11 +139,24 @@ export class Streams {
     state.size = request.size
     state.rate = streamRate(request.read, transferMs)
     state.completed++
+    this.close(request)
   }
 
   /** Records a request that ended without completing, at `at`. */
   ended(request: DownloadRequest, at: number): void {
     this.state(request.stream).doneAt = at
+    this.close(request)
+  }
+
+  /** Every window from here on starts at bucket `from`, the end of warm-up: what ended before it goes. */
+  window(from: number): void {
+    this.readsFrom = from
+    this.requests = this.requests.filter((request) => this.readable(request))
+  }
+
+  /** The requests kept, which the footprint test reads. */
+  footprint(): number {
+    return this.requests.length
   }
 
   /** The completed requests of each of the first `active` streams. */
@@ -157,6 +176,25 @@ export class Streams {
       (request) =>
         request.firstBucket !== null && request.lastBucket !== null && request.firstBucket < to && request.lastBucket >= from,
     ).length
+  }
+
+  /** A request that ended stays only while a window can still count it. */
+  private close(request: DownloadRequest): void {
+    this.open.delete(request)
+    if (!this.readable(request)) {
+      this.requests = this.requests.filter((kept) => kept !== request)
+    }
+  }
+
+  /** Whether a window can still count the request: it is open, or it read bytes the window can reach. */
+  private readable(request: DownloadRequest): boolean {
+    if (this.open.has(request)) {
+      return true
+    }
+    if (request.lastBucket === null) {
+      return false
+    }
+    return this.readsFrom === null || request.lastBucket >= this.readsFrom
   }
 
   private state(stream: number): StreamState {

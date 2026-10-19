@@ -25,7 +25,7 @@ import { graceFor, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule, windowStable } from '@/engine/phases/window'
-import { BucketSeries } from '@/engine/stats/buckets'
+import { BucketSeries, type BucketSink } from '@/engine/stats/buckets'
 import { BUCKET_MS } from '@/engine/stats/units'
 import type { Clock, DownloadChunk, Info, ResourceTiming, TimerId, Transport } from '@/engine/types'
 
@@ -43,6 +43,11 @@ const TOO_MANY_REQUESTS = 429
 export interface DownloadOptions extends ThroughputOptions {
   transport: Pick<Transport, 'download'>
   limits: Pick<Info['limits'], 'maxDownloadBytes' | 'maxStreamsPerClient'>
+  /**
+   * Where the buckets closed after warm-up are handed on instead of the live series, which then
+   * stops at the warm-up end; absent, the series keeps every bucket, as a bounded preset needs.
+   */
+  sink?: BucketSink
 }
 
 export interface DownloadOutcome {
@@ -79,6 +84,8 @@ export class DownloadPhase {
   private readonly issue: DownloadIssueHost
   /** Bytes per bucket, the open bucket included. */
   private readonly bytes: number[] = []
+  /** The buckets closed so far: the series' end while it keeps them all. */
+  private closed = 0
   private readonly inFlight = new Map<DownloadRequest, AbortController>()
   private readonly events: DirectionEvent[] = []
   private start = 0
@@ -148,6 +155,11 @@ export class DownloadPhase {
     return this.inFlight.size
   }
 
+  /** The length of each structure the phase grows, which the footprint test reads. */
+  footprint(): { downloadRequests: number; downloadSeries: number; downloadBytes: number } {
+    return { downloadRequests: this.streams.footprint(), downloadSeries: this.series.end - this.series.first, downloadBytes: this.bytes.length }
+  }
+
   /** Runs the phase to its end. */
   run(): Promise<DownloadOutcome> {
     return new Promise((resolve) => {
@@ -168,7 +180,7 @@ export class DownloadPhase {
   }
 
   private schedule(): void {
-    const next = this.start + (this.series.end + 1) * BUCKET_MS
+    const next = this.start + (this.closed + 1) * BUCKET_MS
     this.tickTimer = this.clock.setTimer(Math.max(0, next - this.clock.now()), () => this.tick())
   }
 
@@ -177,9 +189,11 @@ export class DownloadPhase {
     this.tickTimer = null
     // The timer was set for the end of the next bucket, so that one has ended even when the
     // difference of two fractional instants rounds just below it.
-    const closed = Math.max(this.series.end + 1, Math.floor((this.clock.now() - this.start) / BUCKET_MS))
-    while (this.series.end < closed) {
-      this.series.append(this.bytes[this.series.end] ?? 0)
+    const closed = Math.max(this.closed + 1, Math.floor((this.clock.now() - this.start) / BUCKET_MS))
+    const sink = this.warmup.end === null ? this.series : (this.options.sink ?? this.series)
+    while (this.closed < closed) {
+      sink.append(this.bytes[this.closed] ?? 0)
+      this.closed++
     }
     this.decide()
     if (this.ended === null) {
@@ -188,7 +202,7 @@ export class DownloadPhase {
   }
 
   private decide(): void {
-    const at = this.series.end
+    const at = this.closed
     if (!this.ramp.settled) {
       this.ramp.update(this.series, null, this.streams.summedRate(this.ramp.streams))
       if (this.ramp.placing) {
@@ -200,6 +214,8 @@ export class DownloadPhase {
     if (this.warmup.end === null) {
       const end = this.warmup.update(this.series, this.ramp, this.streams.completedPerStream(this.ramp.streams))
       if (end !== null) {
+        // No window reads a request that ended before warm-up did.
+        this.streams.window(end.bucket)
         this.options.warmedUp?.(end)
       }
     }
@@ -251,7 +267,7 @@ export class DownloadPhase {
       return
     }
     // A bucket already read by a decision is never changed: a late chunk counts in the open one.
-    const bucket = Math.max(Math.floor((chunk.at - this.start) / BUCKET_MS), this.series.end)
+    const bucket = Math.max(Math.floor((chunk.at - this.start) / BUCKET_MS), this.closed)
     this.bytes[bucket] = (this.bytes[bucket] ?? 0) + chunk.bytes
     this.read += chunk.bytes
     this.streams.chunk(request, chunk.bytes, chunk.at, bucket)
@@ -282,7 +298,7 @@ export class DownloadPhase {
     this.ended = reason
     // A duration end falls on the tick that closed the series: it ends at that bucket's end
     // exactly, not at a difference of two fractional instants.
-    this.endMs = reason === 'duration' ? this.series.end * BUCKET_MS : Math.max(0, Math.min(at, this.clock.now()) - this.start)
+    this.endMs = reason === 'duration' ? this.closed * BUCKET_MS : Math.max(0, Math.min(at, this.clock.now()) - this.start)
     if (this.tickTimer !== null) {
       this.clock.clearTimer(this.tickTimer)
     }

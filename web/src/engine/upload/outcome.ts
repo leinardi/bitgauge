@@ -126,7 +126,7 @@ export function uploadOutcome(record: PhaseRecord): UploadOutcome {
     streams: record.streams,
     plateau: record.plateau,
     bytes: record.bytes,
-    confirmedRequests: ledger.confirmed().length,
+    confirmedRequests: ledger.confirmedRequests,
     idleShare: record.idleShare,
     protocol: record.protocol,
     displayOffsetMs: record.displayOffsetMs,

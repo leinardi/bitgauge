@@ -20,6 +20,7 @@
 import type { SharedEcho } from '@/engine/latency/shared'
 import { sendProbe, Ticker } from '@/engine/latency/ticker'
 import type { LoadedSource } from '@/engine/messages'
+import type { BucketSink } from '@/engine/stats/buckets'
 import type { Clock, TimerId, Transport } from '@/engine/types'
 
 // Loaded latency, path A and its HTTP fallback (measurement.md sections 11.1, 11.2 and 11.6): a
@@ -75,6 +76,11 @@ export interface LoadedOptions {
   startAt: number
   /** Each answered ping, for the live sample event. */
   answered?: (ping: { atMs: number; rttMs: number }) => void
+  /**
+   * Where the answered pings are handed on instead of being kept; absent, the pinger keeps every
+   * one for its outcome, as a bounded preset needs, and with one the outcome's `samples` is empty.
+   */
+  sink?: BucketSink<LoadedSample>
 }
 
 interface Pending {
@@ -95,6 +101,7 @@ export class LoadedLatency {
   private readonly clock: Clock
   private readonly pending = new Map<number, Pending>()
   private readonly samples: LoadedSample[] = []
+  private readonly sink: BucketSink<LoadedSample>
   private readonly sources: LoadedSource[] = []
   private skippedTicks = 0
   private lost = 0
@@ -114,12 +121,18 @@ export class LoadedLatency {
   constructor(options: LoadedOptions) {
     this.options = options
     this.clock = options.clock
+    this.sink = options.sink ?? { append: (...samples) => this.samples.push(...samples) }
     this.ticker = new Ticker(options.clock, () => this.send())
   }
 
   /** Sends the first ping now and one every 300 ms. */
   start(): void {
     this.ticker.start()
+  }
+
+  /** The answered pings kept, which the footprint test reads. */
+  footprint(): number {
+    return this.samples.length
   }
 
   /** Stops sending; resolves once every outstanding ping is answered, or after `graceMs` with the rest lost. */
@@ -226,7 +239,7 @@ export class LoadedLatency {
       this.lost++
     } else if (answer !== 'unmeasured') {
       const atMs = ping.sentAt - this.options.startAt
-      this.samples.push({ atMs, rttMs: answer.rttMs, loaded: ping.inFlight > 0, inFlight: ping.inFlight, source: ping.source })
+      this.sink.append({ atMs, rttMs: answer.rttMs, loaded: ping.inFlight > 0, inFlight: ping.inFlight, source: ping.source })
       this.options.answered?.({ atMs, rttMs: answer.rttMs })
     }
     if (this.pending.size === 0) {

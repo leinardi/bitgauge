@@ -193,6 +193,11 @@ export class UploadStreams {
     return starts.length === to - from ? Math.max(...starts) : null
   }
 
+  /** The offsets kept, one per confirmed request, which the footprint test reads. */
+  footprint(): number {
+    return this.offsets.length
+  }
+
   /** The display-only offset of section 7.4: the median of t_done − server end; null before one. */
   displayOffset(): number | null {
     return percentile(this.offsets, 50)

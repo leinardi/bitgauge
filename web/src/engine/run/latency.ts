@@ -105,6 +105,15 @@ export class LoadedProbes {
     }
   }
 
+  /** The answered pings each running pinger keeps, which the footprint test reads. */
+  footprint(): number {
+    let kept = 0
+    for (const run of this.running.values()) {
+      kept += run.pinger.footprint()
+    }
+    return kept
+  }
+
   /** The pings answered since the last call, for the live sample. */
   answered(): LoadedPing[] {
     return this.answeredPings.splice(0)

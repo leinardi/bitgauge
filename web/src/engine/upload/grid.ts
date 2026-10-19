@@ -44,6 +44,7 @@ export function cellStart(cell: number): number {
 /** S_up: the per-cell sum of the confirmed requests' counts. */
 export class UploadGrid {
   private readonly sums = new Map<number, number>()
+  private released: number | null = null
 
   /** Adds the counts of a newly confirmed request; invalid counts change nothing. */
   add(counts: CellCounts): void {
@@ -66,5 +67,25 @@ export class UploadGrid {
    */
   bytes(cell: number): number {
     return this.sums.get(cell) ?? 0
+  }
+
+  /** The first cell kept: the cells before it were released and are unknown; null while none was. */
+  get releasedBefore(): number | null {
+    return this.released
+  }
+
+  /** Drops the cells before `cell`, which no decision reads again; they read as unknown from here on. */
+  release(cell: number): void {
+    this.released = Math.max(this.released ?? cell, cell)
+    for (const kept of this.sums.keys()) {
+      if (kept < cell) {
+        this.sums.delete(kept)
+      }
+    }
+  }
+
+  /** The cells kept, which the footprint test reads. */
+  footprint(): number {
+    return this.sums.size
   }
 }

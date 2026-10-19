@@ -135,6 +135,16 @@ export class Run {
     }
   }
 
+  /**
+   * Test hook (testing.md section 2): the length of every structure that grows per tick, request,
+   * chunk, sample, probe or message, for the running throughput phase and the run around it.
+   */
+  footprint(): Record<string, number> {
+    const phase = this.sampling?.phase.footprint() ?? {}
+    const run = { busySamples: this.busy.footprint(), loadedSamples: this.loaded.footprint(), pathBSamples: this.responsiveness.footprint() }
+    return { ...phase, ...run, connectionNotices: this.connection?.notices.length ?? 0 }
+  }
+
   /** The page's visibility, forwarded by the UI. */
   visibility(visible: boolean): void {
     if (this.finished) {

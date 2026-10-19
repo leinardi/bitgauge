@@ -37,9 +37,10 @@ function overlapsGap(cell: number, gaps: readonly FailureGap[]): boolean {
 }
 
 /**
- * The evaluation series of measurement.md section 8.1: S_up from the cell of P_start up to the
- * window end, with the cells overlapping a failure gap unknown. Cells at or after the window end
- * are outside it, so unknown too. Null before the first confirmed request.
+ * The evaluation series of measurement.md section 8.1: S_up from the cell of P_start, or the first
+ * cell the grid kept after a release, up to the window end, with the cells overlapping a failure
+ * gap unknown. Cells at or after the window end are outside it, so unknown too, as are released
+ * ones. Null before the first confirmed request.
  */
 export function confirmedSeries(ledger: UploadLedger): BucketSeries | null {
   const start = ledger.phaseStart()
@@ -48,7 +49,8 @@ export function confirmedSeries(ledger: UploadLedger): BucketSeries | null {
     return null
   }
   const gaps = ledger.failureGaps()
-  const series = new BucketSeries(cellOf(start))
+  // The cells the grid released are unknown, so the series starts after them.
+  const series = new BucketSeries(Math.max(cellOf(start), ledger.grid.releasedBefore ?? Number.NEGATIVE_INFINITY))
   for (let cell = series.first; cell < Math.floor(windowEnd / BUCKET_MS); cell++) {
     series.append(overlapsGap(cell, gaps) ? null : ledger.grid.bytes(cell))
   }

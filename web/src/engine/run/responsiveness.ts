@@ -157,6 +157,15 @@ export class ResponsivenessProbes {
     return { ...this.settled }
   }
 
+  /** The valid probes each prober keeps, which the footprint test reads. */
+  footprint(): number {
+    let kept = 0
+    for (const probing of this.probing.values()) {
+      kept += probing.prober?.samples.length ?? 0
+    }
+    return kept
+  }
+
   /** Stops every prober at once: the run is over. */
   drain(): void {
     for (const probing of this.probing.values()) {
