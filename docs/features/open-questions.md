@@ -558,10 +558,11 @@ carries a recommendation; where the specification already relies on an answer, i
 52. How is the share image drawn, and what does the copied summary say? Current answer: **a
     1200 × 630 PNG, always in the dark theme with the dark palette's tokens, its fonts loaded
     through `document.fonts.load` first; every number keeps its qualifier, a status other than
-    `measured`, a confidence other than `normal`, a non-zero overhead compensation and a
-    loaded-latency source other than the WebSocket; the copied summary is the same lines, in the
-    page's language.** Recommendation: keep it; one fixed theme keeps a shared image the same
-    wherever it is viewed, and the size is the one link previews expect. See
+    `measured`, a confidence other than `normal`, a non-zero overhead compensation, a
+    loaded-latency source other than the WebSocket and an increase over idle latency measured on
+    the other path; the copied summary is the same lines, in the page's language.**
+    Recommendation: keep it; one fixed theme keeps a shared image the same wherever it is viewed,
+    and the size is the one link previews expect. See
     [technical-stack/frontend.md §6](technical-stack/frontend.md#6-charts-gauge-and-share-image)
     and [ui/flows.md §8](ui/flows.md#8-sharing).
 

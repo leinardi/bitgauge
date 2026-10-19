@@ -200,8 +200,9 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   the dark palette's tokens and the embedded fonts, loaded first through `document.fonts.load`;
   exported with `toBlob()` as PNG and downloaded through a `blob:` URL. Each number keeps its
   qualifier: a direction status other than `measured`, a confidence other than `normal`, a
-  non-zero overhead compensation and a loaded-latency source other than the WebSocket. The copied
-  summary holds the same lines as text, in the page's language. Content rules are in
+  non-zero overhead compensation, a loaded-latency source other than the WebSocket and an increase
+  over idle latency measured on the other path. The copied summary holds the same lines as text,
+  in the page's language. Content rules are in
   [../security.md §7](../security.md#7-browser-only-history-and-privacy).
 
 ## 7. i18n

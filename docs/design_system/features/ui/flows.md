@@ -199,10 +199,10 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    download, upload, idle latency, jitter, loaded-latency increase, grade, date and time, server
    display name, each number with its qualifier (a status other than measured, a confidence other
    than normal, a non-zero overhead compensation, a loaded-latency source other than the
-   WebSocket); the label only if the user ticks "include label" (off by default). They never
-   contain the client IP, the note, the browser or the server URL. The image is 1200 × 630 in the
-   dark theme whatever the page's theme; the copied text is the same lines in the page's
-   language.
+   WebSocket, an increase over idle latency measured on the other path); the label only if the
+   user ticks "include label" (off by default). They never contain the client IP, the note, the
+   browser or the server URL. The image is 1200 × 630 in the dark theme whatever the page's theme;
+   the copied text is the same lines in the page's language.
 3. The user chooses one of:
    - **Download image:** the PNG image is rendered client-side and downloaded.
    - **Copy summary:** the same content as plain text to the clipboard.
