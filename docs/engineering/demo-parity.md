@@ -289,11 +289,16 @@ make demo-parity-triage                        # status: coverage, problems, clu
 make demo-parity-triage CMD="drafts --limit 10" # suggested clusters for what nothing owns or matches
 make demo-parity-triage CMD="show <id>"        # owned present, owned gone, unowned matches
 cd web && node parity/triage/cli.ts try '<match JSON>'          # what a rule would match
+make demo-parity-triage CMD="pending"          # every pending entry, with its owning or matching cluster
 make demo-parity-triage CMD="snapshot <id>"    # own the rule's matches (--extend adds new ones)
 make demo-parity-triage CMD="admit <id>"       # an accepted cluster's owned entries into the baseline
 make demo-parity-triage CMD="close <id>"       # a fixed cluster done (--note "...")
 cd web && node parity/triage/cli.ts release <id> --match '<match JSON>' # give up what a rule matches
 ```
+
+`pending` is read-only, like `status`: it lists every entry of the last run the baseline does not
+list, clustered or not, one sorted identity line each, so two runs can be compared entry by entry,
+where `drafts` shows only what no cluster owns or matches.
 
 Exit codes: 0 when the command did what it was asked, 1 when it refused or `status` found a
 regression, scope growth or a problem, 2 on a usage error. Make expands `$`, so a rule with an

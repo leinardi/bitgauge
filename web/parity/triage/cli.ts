@@ -93,6 +93,7 @@ const USAGE = `usage: node parity/triage/cli.ts <command> [--json]
   drafts [--limit N]             suggested clusters for unclustered entries (default 20)
   show <id>                      a cluster's owned present, owned gone and unowned matches
   try '<match JSON>'             what a candidate rule would match
+  pending                        every pending entry of the last run, with its owning or matching clusters
   snapshot <id> [--extend]       own the cluster's current rule matches
   admit <id>                     put an accepted cluster's owned entries in the baseline
   close <id> [--note "..."]      mark a fixed cluster done
@@ -307,6 +308,34 @@ export function tryCommand(paths: Paths, raw: string): Result {
   }
 }
 
+// Every entry of the last run the baseline does not list, clustered or not, so a run can be compared
+// with an earlier one entry by entry; drafts shows only the unclustered ones. Read-only.
+export function pendingCommand(paths: Paths): Result {
+  const { assignment, inputs } = load(paths)
+  const owner = new Map<AvailableEntry, string>()
+  const matching = new Map<AvailableEntry, string[]>()
+  for (const a of assignment.clusters) {
+    for (const e of a.ownedPresent) owner.set(e, a.cluster.id)
+    for (const e of a.unowned) matching.set(e, [...(matching.get(e) ?? []), a.cluster.id])
+  }
+  const pending = inputs.available.filter((e) => e.source === 'pending').sort((a, b) => readable(a).localeCompare(readable(b)))
+  const where = (e: AvailableEntry): string => {
+    const id = owner.get(e)
+    if (id !== undefined) return `  owned by ${id}`
+    const ids = matching.get(e) ?? []
+    return ids.length > 0 ? `  matched by ${ids.join(', ')}` : ''
+  }
+  const lines = [coverageLine(inputs), `pending: ${counted(pending)}`, ...pending.map((e) => `  ${readable(e)}${where(e)}`)]
+  return {
+    code: 0,
+    text: lines.join('\n'),
+    json: {
+      differences: countDifferences(pending),
+      entries: pending.map((e) => ({ ...findingJson(e), owner: owner.get(e) ?? null, matching: matching.get(e) ?? [] })),
+    },
+  }
+}
+
 function refused(command: string, reasons: readonly string[]): Result {
   return { code: 1, text: [`${command} refused, nothing written:`, ...reasons.map((r) => `  - ${r}`)].join('\n'), json: { refused: reasons } }
 }
@@ -509,6 +538,7 @@ const ALLOWED: Record<string, { args: number; flags: string[] }> = {
   drafts: { args: 0, flags: ['--limit'] },
   show: { args: 1, flags: [] },
   try: { args: 1, flags: [] },
+  pending: { args: 0, flags: [] },
   snapshot: { args: 1, flags: ['--extend'] },
   admit: { args: 1, flags: [] },
   close: { args: 1, flags: ['--note'] },
@@ -540,6 +570,8 @@ export function runCommand(argv: readonly string[], paths: Paths): Result {
       return showCommand(paths, id)
     case 'try':
       return tryCommand(paths, id)
+    case 'pending':
+      return pendingCommand(paths)
     case 'snapshot':
       return snapshotCommand(paths, id, parsed.flags.has('--extend'))
     case 'admit':

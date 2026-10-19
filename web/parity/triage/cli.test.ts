@@ -29,7 +29,19 @@ import type { Finding } from '../findings.ts'
 import { completionRecord, computeCoverage } from '../judge.ts'
 import type { Completion, Expected, RunRecord } from '../records.ts'
 import { pairKey, type Pair } from '../selection.ts'
-import { admitCommand, closeCommand, pathsFromEnv, releaseCommand, runCommand, showCommand, snapshotCommand, statusCommand, tryCommand, type Paths } from './cli.ts'
+import {
+  admitCommand,
+  closeCommand,
+  pathsFromEnv,
+  pendingCommand,
+  releaseCommand,
+  runCommand,
+  showCommand,
+  snapshotCommand,
+  statusCommand,
+  tryCommand,
+  type Paths,
+} from './cli.ts'
 import { cluster, confirmation, DAY, decided, entry, EVIDENCE, match, ownedOf, verdict } from './fixtures.ts'
 import { ALL_PROJECT_NAMES } from './identity.ts'
 import { formatLedger, type Cluster, type Ledger } from './ledger.ts'
@@ -361,6 +373,36 @@ describe('read-only commands', () => {
   })
 })
 
+describe('pending', () => {
+  const pendingOnly = { project: C_PROJECT, scenario: 'test/idle', ...C, source: 'pending' }
+
+  it('lists every pending entry, unclustered ones included, and nothing baselined', () => {
+    writeLedgerFile()
+    expect(pendingCommand(paths).json).toEqual({ differences: 1, entries: [{ ...pendingOnly, reason: null, owner: null, matching: [] }] })
+  })
+
+  it('names the cluster whose rule matches a pending entry', () => {
+    writeLedgerFile(acceptedOwning(ownedOf(allA)))
+    expect(pendingCommand(paths).json).toMatchObject({ entries: [{ ...pendingOnly, owner: null, matching: ['start-button-weight'] }] })
+  })
+
+  it('names the cluster that owns a pending entry, and writes nothing', () => {
+    writeLedgerFile(acceptedOwning(ownedOf([...allA, pendingC])))
+    const before = snapshotFiles()
+    const result = runCommand(['pending'], paths)
+    expect(result.code).toBe(0)
+    expect(result.json).toMatchObject({ entries: [{ ...pendingOnly, owner: 'start-button-weight', matching: [] }] })
+    expect(result.text).toContain(`${C_PROJECT}  test/idle  style  ${C.path}  ${C.kind}  ${C.detail}  [pending]  owned by start-button-weight`)
+    expect(snapshotFiles()).toEqual(before)
+  })
+
+  it('lists nothing from a run whose completion cannot be trusted', () => {
+    writeLedgerFile()
+    writeRun({ completion: false })
+    expect(pendingCommand(paths).json).toEqual({ differences: 0, entries: [] })
+  })
+})
+
 describe('runCommand', () => {
   it('exits 2 on usage errors', () => {
     writeLedgerFile()
@@ -371,6 +413,7 @@ describe('runCommand', () => {
     expect(runCommand(['drafts', '--limit', '0'], paths).code).toBe(2)
     expect(runCommand(['try', '{"color":1}'], paths).code).toBe(2)
     expect(runCommand(['release', 'start-button-weight'], paths).code).toBe(2)
+    expect(runCommand(['pending', 'extra'], paths).code).toBe(2)
   })
 
   it('runs status by default and drafts with a limit', () => {

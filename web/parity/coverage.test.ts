@@ -68,6 +68,7 @@ const VUE_ONLY_PAGES: Record<string, string> = {}
 const KIT_V03_STATES: Record<string, string> = {
   continuous: 'Continuous mode is v0.3',
   'cont-warmup': 'Continuous mode is v0.3',
+  'cont-upload': 'Continuous mode is v0.3',
   'cont-done': 'Continuous mode is v0.3',
 }
 

@@ -24,7 +24,7 @@
 import type { LookRegion, Region } from './compare/content.ts'
 
 // The Test screen states v0.1 and v0.2 have: the kit's TEST_STATES (ui_kits/app/App.jsx) without
-// the continuous ones, which are v0.3. coverage.test.ts holds this list to the kit's.
+// the four Continuous ones (continuous, cont-upload, cont-warmup and cont-done), which are v0.3. coverage.test.ts holds this list to the kit's.
 export const V01_TEST_STATES = [
   'idle',
   'countdown',

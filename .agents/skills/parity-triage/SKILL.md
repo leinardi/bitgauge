@@ -31,7 +31,7 @@ make demo-parity-triage CMD="drafts --limit 10"
 cd web && node parity/triage/cli.ts try '{"scenarios":["test/idle"],"kind":"^font-weight$"}'
 ```
 
-Commands: `status`, `drafts [--limit N]`, `show <id>`, `try '<match JSON>'`,
+Commands: `status`, `drafts [--limit N]`, `show <id>`, `try '<match JSON>'`, `pending`,
 `snapshot <id> [--extend]`, `admit <id>`, `close <id> [--note "..."]`,
 `release <id> --match '<match JSON>'`; `--json` on any of them. Exit 1 means a flag or a refused
 mutation, 2 a usage error.

@@ -28,7 +28,7 @@ import { DEMO_SCENARIOS, type DemoScenarioName, isScenarioName } from '@/demo/sc
 import { demoSession, ended, start } from '@/demo/test/play'
 
 /** The kit's states of the Continuous preset (v0.3). */
-const LATER = ['continuous', 'cont-warmup', 'cont-done']
+const LATER = ['continuous', 'cont-upload', 'cont-warmup', 'cont-done']
 
 /** The names in the kit's `const TEST_STATES = [...]`. */
 function kitStates(): string[] {

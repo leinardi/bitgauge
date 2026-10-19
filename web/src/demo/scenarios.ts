@@ -22,12 +22,12 @@ import type { DemoConfidence } from '@/demo/confidence'
 import type { Direction, PhaseName } from '@/engine/messages'
 
 // The demo's scenarios (frontend.md section 9): one per state of the UI kit's Test screen that v0.1
-// and v0.2 have (the kit's TEST_STATES without continuous, cont-warmup and cont-done), and one per
-// loaded-latency case of its v0.2 panel (the WebSocket closing after idle latency, and each reason
-// the upload's loaded latency can be unavailable for), and the run its Result detail shows, each a
-// link and a script that the real
-// engine plays out. The instants follow the kit's own defaults: its `cancelled` stops 3.1 s into
-// upload, its `download` shows 7.5 s into download, and so on.
+// and v0.2 have (the kit's TEST_STATES without continuous, cont-upload, cont-warmup and cont-done),
+// one per loaded-latency case of its v0.2 panel (the WebSocket closing after idle latency, and each
+// reason the upload's loaded latency can be unavailable for), and the run its Result detail shows,
+// each a link and a script that the real engine plays out. The instants follow the kit's own
+// defaults: its `cancelled` stops 3.1 s into upload, its `download` shows 7.5 s into download, and
+// so on.
 
 /** An instant of a run: `afterMs` of demo time after `phase` started. */
 export interface ScriptPoint {
