@@ -379,7 +379,9 @@ Each item is tracked, with a recommendation, in [open-questions.md](../open-ques
 | 60 | Continuous `sample` fields `continuous`, `cells` and `notices`, exported ring lengths, the live chart's tier by elapsed time, the `data-used` notice | v0.3 |
 | 61 | The v0.3 demo: the Continuous scenarios with a fast-forward rate, a 921 Mbit/s fixture, path B controls and About layer switches | v0.3 |
 | 62 | v0.3 UI: Continuous settings and URL mapping, About snippets per layer, the summary's responsiveness and scores, the Result detail's TM95, 7-day and skipped lines, Compare rows, per-direction CSV columns, the share image, the Continuous live view and endings | v0.3 |
-| 63 | v0.3 harness rules: path B judged on the Caddy h2 and Traefik h1 profiles, the three compatibility clients on the Caddy profile, a manual one-hour Continuous heap check within 2 MiB | v0.3 |
+| 63 | v0.3 harness rules: path B over h2 with an RPM (`measured` or `uncertain`, recorded) on the Caddy profile and `unavailable_h1` on the Traefik profile, the three compatibility clients on the Caddy profile, a manual one-hour Continuous heap check within 2 MiB | v0.3 |
+| 64 | v0.3 UI details after the export: the kit's run length control, the latest data-used notice live, the scores' basis in the summary, the Continuous chart's overlay rings, clipping and re-binning, bounded live rings, the demo panel's v0.3 controls | v0.3 |
+| 65 | Where a path B probe waits on a loaded HTTP/2 connection through Caddy | Unscheduled |
 
 ## Related
 

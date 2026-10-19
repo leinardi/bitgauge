@@ -80,8 +80,10 @@ from the design export; this page fixes content and behavior only. Terms follow 
   time against the run length with the run's end time, or the elapsed time alone without a run
   length. The rates read "—" until the run has 3 fully known 1 s cells, never 0
   ([../measurement.md §15](../measurement.md#15-continuous-mode)). The live chart shows the
-  retention tier the elapsed time picks. The grade, the HTTP loaded responsiveness and the quality
-  scores appear only in the finished result.
+  retention tier the elapsed time picks. The live notices hold only the latest `data-used` notice,
+  which names the next threshold ("The next notice appears at 10 GB"); the finished result lists
+  every one. The grade, the HTTP loaded responsiveness and the quality scores appear only in the
+  finished result.
 
 **States:**
 
@@ -270,8 +272,15 @@ effective settings are the URL parameters over the stored settings over the serv
 - **Duration:** minimum and maximum per direction in whole seconds, 5–600 s, the minimum at most
   the maximum (defaults from the preset; "custom" when edited, and kept with no question when
   another preset is chosen, current answer to an item in
-  [../open-questions.md](../open-questions.md)); for Continuous, an optional **run length** in
-  whole seconds (none by default, 60 s to 7 days), stored as `runLengthS`, absent meaning none.
+  [../open-questions.md](../open-questions.md)); for Continuous, in place of the durations, an
+  optional **run length**, as the design export's kit draws it: a switch, then a number and a
+  minutes, hours or days select. Off by default, meaning none; switched on, the number starts empty
+  and the select at hours, and a value is a whole number of its unit from 1 minute to 7 days.
+  Switching it off clears it. It is stored as `runLengthS` in whole seconds, absent meaning none.
+  A stored value shows in the largest of days, hours and minutes it is a whole number of; one that
+  is not a whole number of minutes shows in minutes with up to two decimals until the user changes
+  it, as the data cap's non-whole MB does. The URL's `duration` stays whole seconds, 60–604800
+  ([url-params.md §2](url-params.md#2-parameters)).
 - **Data cap:** none or a whole number of MB (decimal, 10^6 bytes) from 2 to 100000; 1 MB is
   below the 1 MiB floor of a data cap
   ([../configuration.md §2.3](../configuration.md#23-test-defaults)). A server default that is not
@@ -379,7 +388,8 @@ detail, each with a short explanation and, where useful, a link to the docs. The
 - **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU");
   `browser upload limit` with a "Known browser limits" link to the docs.
 - **Limits:** `data cap reached`; `server stream limit — N streams`; `data used: N GB`
-  (Continuous, live and in the result); `overhead compensation +p %`.
+  (Continuous: live, only the latest, naming the next threshold; in the result, every one);
+  `overhead compensation +p %`.
 - **Settings:** `URL parameter ignored`, naming each invalid parameter.
 - **Interrupted:** `partial — stopped early` (a Continuous run that ends with at least 3 fully known
   1 s cells is `complete` instead, and one with fewer is `partial`, a stop right after warm-up

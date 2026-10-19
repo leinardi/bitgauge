@@ -728,10 +728,11 @@ carries a recommendation; where the specification already relies on an answer, i
     up to 60 min, day up to 24 h, long beyond. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract).
 61. How does the demo build show v0.3? Current answer: **as more scenarios and panel controls
-    over the real engine**: the kit's three Continuous states as scenarios, a demo clock
+    over the real engine**: the kit's four Continuous states as scenarios, a demo clock
     fast-forward rate per Continuous scenario, a 921 Mbit/s HTTP/2 LAN fixture, path B controls
-    (the protocol, a new-connection toggle, a `/small` starvation for few samples) and switches for
-    the About screen's layers. Recommendation: keep it. See
+    (the protocol, a new-connection toggle, a `/small` starvation for few samples), offered as the
+    kit's Responsiveness control (question 64), and switches for the About screen's layers.
+    Recommendation: keep it. See
     [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build).
 62. What do the v0.3 screens show, where screens.md, flows.md and url-params.md left it open?
     Current answer: **the spec's numbers, each with its qualifier, and nothing the live run cannot
@@ -774,8 +775,10 @@ carries a recommendation; where the specification already relies on an answer, i
     connection taking about 300 to 340 ms (no WebSocket queue, and unchanged by a low
     `tcp_notsent_lowat` on Caddy), and upload warm-ups that sometimes end at their cap. Every probe
     reused the loaded connection, so the engine's evidence holds. Two leads stay open for the
-    engine: where in the HTTP/2 path the probe waits, and Firefox keeping only about a quarter of
-    its upload probes. On the same Caddy profile BitGauge runs with the three
+    engine: where in the HTTP/2 path the probe waits (question 65), and Firefox keeping only about
+    a quarter of its upload probes, investigated in the timing-entry change. A WebKit run of
+    `ci-500k-300ms` failed once and passed on a re-run; a recurrence is investigated, never re-run
+    away, and no tolerance is widened. On the same Caddy profile BitGauge runs with the three
     toggles and `server.trusted_proxies` set to the proxy network; `librespeed-cli --no-icmp
     --server-json https://…/.well-known/librespeed --server 1 --json` and `goresponsiveness`
     (against `/nq/config`, with Caddy's internal root CA in the tools container's trust store) run
@@ -788,6 +791,41 @@ carries a recommendation; where the specification already relies on an answer, i
     minute 5 to 60 lies within 2 MiB of the minute-5 sample, and is recorded per release in
     `docs/engineering/harness-runs/`. Recommendation: keep it. See
     [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
+64. What do the v0.3 screens show where the design export's v0.3 kit and the spec left it open?
+    Current answer: **the kit's drawing where the spec is silent, written into the spec**; behavior
+    stays the spec's, visuals the kit's.
+    - The Continuous run length is the kit's control: a switch, a number and a minutes, hours or
+      days select, empty by default, stored as `runLengthS`; a stored value that is not a whole
+      number of minutes shows in minutes with up to two decimals until changed. The URL's
+      `duration` stays whole seconds, 60–604800.
+    - The live view shows only the latest `data-used` notice, naming the next threshold; the
+      finished result keeps every one.
+    - The screen-reader summary names the scores' basis ("download only"), as the kit reads it.
+    - The Continuous live chart's loaded latency has four overlay rings fed in parallel (raw pings,
+      the last 2000; 2 s bins, 1800; 1 min bins, 1440; 10 min bins, 1008), each bin the true
+      median of its pings, never re-binned, a display aggregate only.
+    - The chart builder clips only past what a ring has evicted, and re-bins a Continuous tier to
+      at most 2000 points by summed bytes and known time; bounded runs are not re-binned.
+    - A bounded run's live rings are allocated at phase start: `ceil((maxMs + 5000) / 100)`
+      buckets, the upload `sendingTrace` the same, `ceil((maxMs + 5000) / 300)` pings.
+    - The demo panel takes the kit's v0.3 controls: the four Continuous states, Responsiveness
+      (five options mapped onto the link, `h3` dropped), Continuous run length, Compare B, the
+      Result detail's Kind, Continuous length and Responsiveness, and the About layer switches.
+      Its Continuous Result-detail results are fixtures scored by the engine, its About always
+      shows the HTTPS note, and a fast-forwarded scenario reports a busy share of 0 unless
+      CPU-bound is on.
+
+    Recommendation: keep it. See [ui/screens.md](ui/screens.md),
+    [measurement.md §15](measurement.md#15-continuous-mode) and
+    [technical-stack/frontend.md §6](technical-stack/frontend.md#6-charts-gauge-and-share-image)
+    and [§9](technical-stack/frontend.md#9-demo-build).
+65. Where does a path B probe wait on a loaded HTTP/2 connection through Caddy? On
+    `ci-100m-50ms-caddy-h2` each probe takes about 300 to 340 ms while the WebSocket echo, on its
+    own connection, does not. Current answer: **not investigated for v0.3; the value is reported
+    as measured**, because path B measures the loaded connection's own queue, which is what its
+    label and [measurement.md §12.3](measurement.md#123-path-b-procedure) describe. Finding where
+    Caddy or the kernel queues it is server-side tuning research. Recommendation: investigate it
+    after v0.3 with the harness's Caddy profile. See question 63.
 
 Resolved and removed:
 

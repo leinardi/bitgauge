@@ -1362,7 +1362,27 @@ full length when the run starts; nothing grows with run length:
   `engine/messages.ts` exports as constants, fed by each `sample`'s native buckets and closed coarse
   cells ([architecture.md §4](architecture.md#4-engine--ui-message-contract)). It picks the tier by
   the run's elapsed time, `continuous.elapsedMs` (from the phase start): native up to 10 min, hour
-  up to 60 min, day up to 24 h, long beyond, and so renders at most about 2000 points.
+  up to 60 min, day up to 24 h, long beyond, and renders at most about 2000 points:
+  - **Clipped only past eviction.** The chart is built from what a ring still holds. Its first
+    cell is `max(min(origin, firstBucket), evictedBefore)`, where `origin` is the phase origin,
+    `firstBucket` the first received cell and `evictedBefore` the ring's lowest absolute index not
+    yet overwritten (unbounded below until the ring has overwritten anything). Before any eviction
+    the chart is anchored exactly as a bounded direction's is, an upload's leading unknown cells
+    included; after it the chart starts at the oldest retained cell, the elapsed time still read
+    from each cell's own position, and sending and latency points before it are dropped.
+  - **Re-binned throughput.** A tier that holds more than 2000 cells is drawn re-binned: k = ⌈n ÷
+    2000⌉ adjacent cells become one point by summing their bytes and their known time (a native
+    cell counts 100 ms when known), and the point's rate is bytes × 8 ÷ known time, unknown when no
+    time is known. That is an exact re-binning, not smoothing. A bounded direction is never
+    re-binned: its ring holds the whole run.
+  - **Loaded-latency overlay.** The chart's loaded latency has rings of its own, all fed from the
+    direction's start in parallel, so a tier switch finds its history: native, the raw samples,
+    the last 2000; hour, 2 s bins, 1800; day, 1 min bins, 1440; long, 10 min bins, 1008. Each
+    bin's value is the true median of the samples that fell in it, taken when the bin closes from
+    a scratch buffer of the open bin only, never a median of medians (which differs: [100, 100,
+    100, 100] and [1, 1, 1] give 50.5 ms against the median's 100 ms). Every overlay ring holds at
+    most 2000 points, so the overlay is never re-binned; its points need not line up with the
+    throughput's. The overlay is a display aggregate, never a reported number.
 - **Data used** is shown and the per-test data cap applies. The `data-used` notice (§16) appears at
   1 GB, 10 GB, 100 GB and every further tenfold step, so a long run on a metered link is never
   silent.

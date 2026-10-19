@@ -202,8 +202,27 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   For Continuous runs the live chart keeps fixed rings of the engine's `RING_LENGTHS`, fed by each
   `sample`'s native buckets and closed `cells`, and picks the tier by the run's elapsed time
   (native up to 10 min, hour up to 60 min, day up to 24 h, long beyond), which keeps at most about
-  2000 points in view; the live bucket array of a bounded run is a fixed ring too
-  ([../measurement.md §15](../measurement.md#15-continuous-mode)).
+  2000 points in view ([../measurement.md §15](../measurement.md#15-continuous-mode)).
+  - **Live rings.** Every live structure of a run is a fixed ring allocated at its phase start,
+    each keeping the absolute index of its first cell, since upload cells start far from 0 on the
+    server timeline. A bounded direction's buckets hold `ceil((maxMs + 5000) / 100)` cells, the
+    5 s covering the upload grace; its upload `sendingTrace` the same; its live pings
+    `ceil((maxMs + 5000) / 300)`. A Continuous direction's buckets hold `RING_LENGTHS.native`
+    and its live pings 2000, beside the tier rings.
+  - **Loaded overlay per tier.** Four overlay rings fed in parallel from the direction's start:
+    native, the raw pings, the last 2000; hour, 2 s bins, 1800; day, 1 min bins, 1440; long,
+    10 min bins, 1008. A bin's value is the true median of its pings, taken when it closes from a
+    scratch buffer of the open bin (at most 2000 pings at the 300 ms cadence). The chosen tier's
+    overlay ring is drawn as it is, never re-binned.
+  - **Anchoring and re-binning.** The chart builder starts each segment at
+    `max(min(origin, firstBucket), evictedBefore)`, `evictedBefore` being the ring's lowest
+    absolute index not yet overwritten, `-Infinity` until it has overwritten anything: before any
+    eviction the anchoring is the bounded one, an upload's leading unknown cell included; after
+    it the built arrays start at the oldest retained cell, `x` keeps the elapsed time, and sending
+    and latency points before the start are dropped. A Continuous tier of n cells is drawn as at
+    most 2000 points, k = ⌈n / 2000⌉ adjacent cells summed (bytes and known time, a native bucket
+    counting a known 100 ms), each point's rate bytes × 8 / known time, unknown with no known
+    time. Bounded runs are never re-binned, so their chart output is unchanged.
 - **Gauge.** Hand-rolled SVG: a logarithmic arc whose window of four decades follows the value
   as [../measurement.md §14](../measurement.md#14-units-and-gauge) specifies, ticks per decade,
   a recent-range band, the peak tick and, at completion, an inner arc for upload. The needle and
@@ -315,12 +334,13 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   time stops and no timer fires, so a screen stays in one state until the next scenario replaces
   the session.
 - **Scenarios** (`demo/scenarios.ts`, `demo/fixtures.ts`, played by `demo/session.ts`). The scenario
-  names are the UI kit's `TEST_STATES` that v0.1 and v0.2 have, all but `continuous`,
-  `cont-warmup` and `cont-done`, and its panel's loaded-latency cases: `ws-close` (the WebSocket
-  closing after idle latency) and `ll-<reason>` for each reason of its `LL_GAPS`, which a test reads
-  from `App.jsx`, and `upload-gap`, the run its Result detail shows (`ResultDetail.jsx`). Each is
-  a link, whether the run starts at once, the URL parameters the page applies, and a script: a
-  user stop, a failure, a WebSocket a proxy drops or a hold, each at an instant after a phase starts
+  names are the UI kit's `TEST_STATES`, the four Continuous states (`continuous`, `cont-upload`,
+  `cont-warmup` and `cont-done`) from v0.3 on, and its panel's loaded-latency cases: `ws-close`
+  (the WebSocket closing after idle latency) and `ll-<reason>` for each reason of its `LL_GAPS`,
+  which a test reads from `App.jsx`, and `upload-gap`, the run its Result detail shows
+  (`ResultDetail.jsx`). Each is a link, whether the run starts at once, the URL parameters the
+  page applies, and a script: a user stop, a failure, a WebSocket a proxy drops or a hold, each at
+  an instant after a phase starts
   as the run's own `phase` events report it, at the kit's own defaults (`cancelled` stops 3.1 s into
   upload, `download` holds 7.5 s into download). A user stop is the page's: the session asks the
   page to press Stop, so the run ends through the page's own stop path, as when the user presses it.
@@ -389,24 +409,36 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   hands it. `DemoPanel.vue` follows the application's policy. Every demo file
   obeys the production file ceiling of `.file-budgets`.
 - **v0.3 additions.** The demo grows with the v0.3 features, so the kit's v0.3 states play on the
-  real engine:
-  - **Continuous scenarios.** The kit's three Continuous states, `continuous` (a Continuous
-    download running), `cont-warmup` (a Continuous run stopped during its warm-up, `partial`) and
-    `cont-done` (a finished Continuous download), each a scenario like the others.
+  real engine, and its panel takes the kit's v0.3 controls (`App.jsx`):
+  - **Continuous scenarios.** The kit's four Continuous states, `continuous` (a Continuous
+    download running), `cont-upload` (a Continuous upload running, with failure gaps),
+    `cont-warmup` (a Continuous run stopped during its warm-up, `partial`) and `cont-done` (a
+    finished Continuous download), each a scenario like the others.
   - **Fast-forward.** A Continuous scenario runs the demo clock at a fast-forward rate of its
     own, on top of the panel's speed, so a run the kit shows after tens of minutes reaches that
     state in about a minute; the rate is a property of the scenario and changes no rule of the
-    engine.
+    engine. The fast-forward's own load is not the device's: a fast-forwarded scenario reports a
+    busy share of 0 unless the panel's CPU-bound is on, so it never raises `cpu-bound`.
   - **Link fixture.** A LAN link at 921 Mbit/s over HTTP/2, the kit's Continuous fixture
     (`TestScreen.jsx`), with the LAN's loaded delays.
-  - **Path B controls.** The panel sets the protocol the link reports (`h2`, `h3`, `http/1.1` or
-    empty), a toggle that makes the link's probes open a new connection (their timing shows
-    `connectStart ≠ connectEnd`), and a starvation of `/small` that leaves path B too few samples,
-    for the kit's few-samples state ([../measurement.md
-    §12.4](../measurement.md#124-states)).
+  - **Test screen controls.** "Responsiveness" with the kit's five options (`RESP_OPTS`), each
+    mapped onto the link: `ok` reports `h2`; `uncertain` makes the link's probes open a new
+    connection (their timing shows `connectStart ≠ connectEnd`); `needs-h2` reports `http/1.1`;
+    `not-reported` reports an empty protocol; `few-samples` starves `/small` during upload only,
+    leaving path B too few samples there ([../measurement.md §12.4](../measurement.md#124-states)).
+    It replaces separate protocol, new-connection and starvation controls, and `h3` is not offered.
+    "Continuous run length", none or 2 h, sets `duration=7200` on the Continuous scenarios.
+  - **History control.** "Compare B", `h1` or `h2 · measured`: the second compared result's
+    download path B over HTTP/1.1 (`unavailable_h1`), or over HTTP/2 and `measured`.
+  - **Result detail controls.** "Kind" (standard or continuous), "Continuous length" (2 h or
+    9 days) and "Responsiveness" (the same five options, applied to the run its Result detail
+    shows). The 2 h and 9-day Continuous results are demo fixtures built to pass `validateResult`
+    and scored with the engine's own `result/scores.ts`, not played runs: 9 days cannot be played.
   - **About layer switches.** The panel turns each `compat` flag of the scenario's `GET /info` on
-    or off, so the About screen's snippets show per layer
-    ([../wire-protocol.md §5](../wire-protocol.md#5-get-apiv1info)).
+    or off, all on by default as in the kit, so the About screen's snippets show per layer
+    ([../wire-protocol.md §5](../wire-protocol.md#5-get-apiv1info)). The demo never fakes the
+    page's scheme: it is served over http, so its About always shows the HTTPS note, the parity
+    harness drives the kit with `aboutInsecure: true`, and the https case is a component test.
 
 ## Related
 

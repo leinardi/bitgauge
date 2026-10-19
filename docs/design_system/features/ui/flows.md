@@ -177,7 +177,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    until the run has 3 fully known 1 s cells. The grade, the HTTP loaded responsiveness and the
    quality scores wait for the finished result.
 4. Data-used notices appear at 1 GB, 10 GB, 100 GB and every further tenfold step, with the info
-   tone.
+   tone. The live view shows only the latest, naming the next threshold; the finished result lists
+   every one.
    - **Branch: data cap reached.** The run ends with `data cap reached`; its status follows step 5.
    - **Branch: page hidden and the browser pauses the engine.** The run ends; its status follows
      step 5.
