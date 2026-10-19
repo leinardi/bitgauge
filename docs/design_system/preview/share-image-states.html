@@ -1,0 +1,81 @@
+<!-- @dsCard group="Components" viewport="1280x900" name="Share image · every state" subtitle="SharePreview at card scale for each result state; a, c, e and o at 1200 × 630" -->
+<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8">
+<title>Share image states</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="card.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../_ds_bundle.js"></script>
+<style>
+html,body{height:auto}body{padding:var(--space-6) var(--space-8, 32px);background:var(--bg-canvas, var(--bg-base))}
+a{color:var(--primary-text)}a:hover{color:var(--fg)}
+.ss-h1{font-size:var(--text-xl);font-weight:var(--weight-semibold);margin:0}
+.ss-lead{color:var(--fg-muted);font-size:var(--text-sm);margin:var(--space-1) 0 0;max-width:80ch;text-wrap:pretty}
+.ss-h2{font-family:var(--font-cond);font-size:var(--text-caption);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--fg-subtle);margin:var(--space-8, 32px) 0 var(--space-3)}
+.ss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,480px));gap:var(--space-6) var(--space-5)}
+.ss-cell{display:flex;flex-direction:column;gap:var(--space-2);min-width:0}
+.ss-cap{display:flex;gap:var(--space-2);align-items:baseline;font-size:var(--text-sm);color:var(--fg)}
+.ss-id{font-family:var(--font-mono);font-size:var(--text-caption);color:var(--primary-text);flex:none}
+.ss-note{font-size:var(--text-caption);color:var(--fg-subtle);text-wrap:pretty}
+.ss-full{display:flex;flex-direction:column;gap:var(--space-6)}
+.ss-scroll{overflow-x:auto;padding-bottom:var(--space-2)}
+</style>
+</head><body><div id="root"></div>
+<script type="text/babel">
+const { SharePreview } = window.BitGaugeDesignSystem_1ab699;
+// Kit fixtures (ui_kits/app): Basement NAS, Home Wi-Fi 612 / 438 Mbit/s, idle 3.1 ms, jitter 0.8 ms, Oct 8, 2026, 2:02 PM.
+const BASE = { idle: '3.1 ms', jitter: '0.8 ms', where: 'Basement NAS', when: 'Oct 8, 2026, 2:02 PM' };
+const DN = (v = '612', o = {}) => Object.assign({ dir: 'download', value: v, unit: 'Mbit/s' }, o);
+const UP = (v = '438', o = {}) => Object.assign({ dir: 'upload', value: v, unit: 'Mbit/s' }, o);
+const LD = (inc, dir = 'upload', source, idleSource) => ({ loaded: { increase: '+' + inc + ' ms', dir, source, idleSource } });
+const S = (o) => Object.assign({}, BASE, { blocks: [DN(), UP()], grade: 'B', basis: 'download+upload' }, LD(39), o);
+const LONG_LABEL = 'Home Wi-Fi · office desk, 5 GHz, one wall between the router and the laptop, after the firmware update';
+const LONG_SERVER = 'Basement NAS · Synology DS1520+ on rack shelf 12, behind the UPS'; // server.display_name maximum: 64 characters
+const STATES = [
+  ['a', 'Complete, normal confidence, grade B', 'The baseline.', S({})],
+  ['b', 'Both directions low confidence', 'Reasons under each number.', S({ blocks: [DN('612', { confidence: { level: 'low', reasons: ['ramp-unsettled'] } }), UP('438', { confidence: { level: 'low', reasons: ['insufficient-samples', 'unstable'] } })] })],
+  ['c', 'Download low confidence, upload normal', 'Numbers stay on one baseline.', S({ blocks: [DN('612', { confidence: { level: 'low', reasons: ['unstable'] } }), UP()] })],
+  ['d', 'Upload CPU-bound, download normal', '2.5 Gbit/s LAN.', S({ blocks: [DN('2.38', { unit: 'Gbit/s' }), UP('1.12', { unit: 'Gbit/s', confidence: { level: 'cpu-bound', reasons: [] } })], grade: 'A', ...LD(12) })],
+  ['e', 'Upload partial, low confidence', 'Two qualifiers on one number.', S({ blocks: [DN(), UP('402', { status: 'partial', confidence: { level: 'low', reasons: ['unstable'] } })] })],
+  ['f', 'Upload insufficient data', 'Run stopped in upload warm-up; result partial; grade from download only.', S({ blocks: [DN(), UP(null, { status: 'insufficient-data' })], grade: 'A', basis: 'download', ...LD(15, 'download') })],
+  ['g1', 'Upload skipped', 'In the phases, not reached.', S({ blocks: [DN(), UP(null, { status: 'skipped' })], grade: 'A', basis: 'download', ...LD(15, 'download') })],
+  ['g2', 'Upload error', 'Upload interrupted by a failed request.', S({ blocks: [DN(), UP(null, { status: 'error' })], grade: 'A', basis: 'download', ...LD(15, 'download') })],
+  ['h1', 'Download only', 'Upload not in the run’s phases: no block.', S({ blocks: [DN()], grade: 'A', basis: 'download', ...LD(15, 'download') })],
+  ['h2', 'Upload only', 'Download not in the run’s phases.', S({ blocks: [UP()], grade: 'B', basis: 'upload', ...LD(39) })],
+  ['i', 'No grade', 'No loaded latency in either direction: no grade region, no loaded item.', S({ grade: null, loaded: null })],
+  ['j1', 'Grade A+', 'ok tone.', S({ grade: 'A+', ...LD(3) })],
+  ['j2', 'Grade A', 'ok tone.', S({ grade: 'A', ...LD(15) })],
+  ['j3', 'Grade B', 'ok tone.', S({ grade: 'B', ...LD(39) })],
+  ['j4', 'Grade C', 'warn tone.', S({ grade: 'C', ...LD(118) })],
+  ['j5', 'Grade D', 'warn tone.', S({ grade: 'D', ...LD(262) })],
+  ['j6', 'Grade F', 'danger tone.', S({ grade: 'F', ...LD(431) })],
+  ['k1', 'Loaded latency via HTTP/2 probe', 'Source named after the increase.', S(LD(41, 'upload', 'http-h2'))],
+  ['k2', 'Loaded latency via HTTP/1.1 reserved', 'Source named after the increase.', S({ blocks: [DN('598'), UP('431')], ...LD(44, 'upload', 'http-h1-reserved') })],
+  ['k3', 'WebSocket closed after idle latency', 'Loaded via HTTP/2 probe, increase vs idle over WebSocket.', S(LD(41, 'upload', 'http-h2', 'websocket'))],
+  ['l', 'Overhead compensation +6 %', 'Compensated numbers, setting under each.', S({ blocks: [DN('649'), UP('464')], overhead: 6 })],
+  ['m1', 'Label included, short', '“Include label” ticked.', S({ head: 'Home Wi-Fi' })],
+  ['m2', 'Label included, very long', 'One line, ellipsis at the end.', S({ head: LONG_LABEL })],
+  ['n1', 'Byte units', 'MB/s.', S({ blocks: [DN('76.5', { unit: 'MB/s' }), UP('54.8', { unit: 'MB/s' })] })],
+  ['n2', 'Multi-Gbit', '10 GbE LAN.', S({ blocks: [DN('9.41', { unit: 'Gbit/s' }), UP('9.38', { unit: 'Gbit/s' })], grade: 'A+', ...LD(2) })],
+  ['n3', 'Below 1 Mbit/s', 'VPN via 5G, kbit/s.', S({ blocks: [DN('640', { unit: 'kbit/s' }), UP('210', { unit: 'kbit/s' })], idle: '48 ms', jitter: '9.4 ms', grade: 'D', ...LD(262) })],
+  ['o', 'Worst case', 'Long label, both directions qualified, +5.13 % overhead, HTTP/1.1 reserved vs idle over WebSocket (upload only), 64-character server name: the foot wraps to 3 lines.', S({
+    head: LONG_LABEL, where: LONG_SERVER, overhead: 5.13, grade: 'D', basis: 'upload', ...LD(262, 'upload', 'http-h1-reserved', 'websocket'),
+    blocks: [DN('644', { confidence: { level: 'low', reasons: ['ramp-unsettled', 'unstable'] } }), UP('461', { status: 'partial', confidence: { level: 'low', reasons: ['insufficient-samples', 'unstable'] } })]
+  })]
+];
+const FULL = ['a', 'c', 'e', 'o'];
+const Cap = ({ id, t, n }) => <div className="ss-cap"><span className="ss-id">{id}</span><span><b style={{ fontWeight: 600 }}>{t}</b> <span className="ss-note">{n}</span></span></div>;
+function Sheet() {
+  return <div>
+    <h1 className="ss-h1">Share image — every state</h1>
+    <p className="ss-lead">SharePreview with kit fixtures. Layout and rules: components/share-panel.md, “Share image layout”. Card scale is the share panel’s fluid preview; the full-size section is the 1200 × 630 PNG. The number row is placed per image: the group (numbers, qualifiers, grade) is centred between header and foot.</p>
+    <h2 className="ss-h2">Card scale</h2>
+    <div className="ss-grid">{STATES.map(([id, t, n, p]) => <div className="ss-cell" key={id} data-screen-label={'State ' + id}><Cap id={id} t={t} n={n} /><SharePreview {...p} /></div>)}</div>
+    <h2 className="ss-h2">1200 × 630</h2>
+    <div className="ss-full">{STATES.filter(s => FULL.includes(s[0])).map(([id, t, n, p]) => <div className="ss-cell" key={id} data-screen-label={'Full ' + id}><Cap id={id} t={t} n={n} /><div className="ss-scroll"><SharePreview {...p} size="full" /></div></div>)}</div>
+  </div>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Sheet />);
+</script>
+</body></html>
