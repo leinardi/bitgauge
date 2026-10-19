@@ -55,11 +55,23 @@ func NewDeriver(trusted []netip.Prefix) *Deriver {
 // IPv4-mapped IPv6 address as plain IPv4. It returns the zero Addr only when the peer address
 // itself cannot be parsed, which a TCP listener never produces.
 func (d *Deriver) FromRequest(request *http.Request) netip.Addr {
+	addr, _ := d.derive(request)
+
+	return addr
+}
+
+// derive returns the request's client IP, as FromRequest, and whether its TCP peer is trusted.
+func (d *Deriver) derive(request *http.Request) (netip.Addr, bool) {
 	peer := peerAddr(request.RemoteAddr)
 	if !peer.IsValid() || !d.isTrusted(peer) {
-		return peer
+		return peer, false
 	}
 
+	return d.fromChain(request, peer), true
+}
+
+// fromChain walks a trusted peer's X-Forwarded-For from the right to the first untrusted hop.
+func (d *Deriver) fromChain(request *http.Request, peer netip.Addr) netip.Addr {
 	lines := request.Header.Values(forwardedFor)
 	if len(lines) == 0 {
 		return peer

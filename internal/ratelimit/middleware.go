@@ -23,6 +23,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"net/netip"
 	"strconv"
 
 	"github.com/leinardi/bitgauge/internal/clientip"
@@ -52,13 +53,36 @@ func Middleware(
 	log *slog.Logger,
 	refusals Refusals,
 ) func(http.Handler) http.Handler {
+	return limit(limiter.AcquireStream, errorWriter, log, refusals)
+}
+
+// FlowMiddleware limits networkQuality's flows, /nq/large and /nq/upload: each request takes a
+// flow slot of compat.networkquality.max_flows_per_client for the derived client IP, not a
+// native stream slot, and gives it back when it ends. A refusal is answered as Middleware's
+// (compatibility.md section 3.1).
+func FlowMiddleware(
+	limiter *Limiter,
+	errorWriter ErrorWriter,
+	log *slog.Logger,
+	refusals Refusals,
+) func(http.Handler) http.Handler {
+	return limit(limiter.AcquireFlow, errorWriter, log, refusals)
+}
+
+// limit wraps a handler in one acquisition per request, refused with Refuse.
+func limit(
+	acquire func(addr netip.Addr) (func(), error),
+	errorWriter ErrorWriter,
+	log *slog.Logger,
+	refusals Refusals,
+) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 			// Without the clientip middleware the zero address is the key: every such request
 			// then shares one budget, which limits too much rather than too little.
 			addr, _ := clientip.FromContext(request.Context())
 
-			release, err := limiter.AcquireStream(addr)
+			release, err := acquire(addr)
 			if err != nil {
 				Refuse(writer, request, err, errorWriter, log, refusals)
 

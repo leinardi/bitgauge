@@ -58,7 +58,7 @@ type Deps struct {
 func New(cfg *config.Config, log *slog.Logger, deps *Deps) *http.Server {
 	return &http.Server{
 		Addr: cfg.Server.Listen.String(),
-		Handler: Chain(deps.Handler, deps.Deriver, NewClassifier(cfg), deps.Clock, log,
+		Handler: Chain(deps.Handler, deps.Deriver, NewClassifier(cfg, nil), deps.Clock, log,
 			NewObserver(cfg, deps.Metrics)),
 		ReadHeaderTimeout: ReadHeaderTimeout,
 		IdleTimeout:       IdleTimeout,
@@ -68,9 +68,10 @@ func New(cfg *config.Config, log *slog.Logger, deps *Deps) *http.Server {
 }
 
 // NewClassifier puts the native API under base_path, and /metrics when it is enabled, in the
-// API group; everything else is the SPA group. The compatibility layers join the API group
-// with the release that ships them.
-func NewClassifier(cfg *config.Config) Classifier {
+// API group, and each exact route path of an enabled compatibility layer, given without
+// base_path in layers, in that layer's group; everything else, a disabled layer's paths
+// included, is the SPA group (configuration-security.md section 3).
+func NewClassifier(cfg *config.Config, layers map[Group][]string) Classifier {
 	base := strings.TrimSuffix(cfg.Server.BasePath, "/")
 	apiPrefix := base + handlers.Prefix
 	metricsPath := ""
@@ -79,11 +80,23 @@ func NewClassifier(cfg *config.Config) Classifier {
 		metricsPath = base + cfg.Metrics.Path
 	}
 
+	layerOf := map[string]Group{}
+
+	for group, paths := range layers {
+		for _, path := range paths {
+			layerOf[base+path] = group
+		}
+	}
+
 	return func(request *http.Request) Group {
 		path := request.URL.Path
 		if path == apiPrefix || strings.HasPrefix(path, apiPrefix+"/") ||
 			(metricsPath != "" && path == metricsPath) {
 			return GroupAPI
+		}
+
+		if group, found := layerOf[path]; found {
+			return group
 		}
 
 		return GroupSPA

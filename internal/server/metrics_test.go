@@ -232,7 +232,7 @@ func TestPanickingRequestsAreCounted(t *testing.T) {
 		panic(http.ErrAbortHandler)
 	})
 
-	handler := Chain(router, clientip.NewDeriver(nil), NewClassifier(cfg), &fakeClock{},
+	handler := Chain(router, clientip.NewDeriver(nil), NewClassifier(cfg, nil), &fakeClock{},
 		slog.New(slog.DiscardHandler), NewObserver(cfg, meter))
 
 	if got := get(t, handler, "/api/v1/boom").Code; got != http.StatusInternalServerError {

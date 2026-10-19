@@ -152,8 +152,8 @@ func Info(
 		}
 
 		header := writer.Header()
-		header["Cache-Control"] = noStore
-		header["Content-Type"] = jsonType
+		header["Cache-Control"] = NoStore
+		header["Content-Type"] = JSONType
 
 		writer.WriteHeader(http.StatusOK)
 

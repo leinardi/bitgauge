@@ -21,19 +21,46 @@ package server
 
 import (
 	"net/http"
-	"strconv"
-	"strings"
+
+	"github.com/leinardi/bitgauge/internal/handlers"
+	"github.com/leinardi/bitgauge/internal/metrics"
 )
 
-// Group is the header set a route group gets (configuration-security.md section 3).
+// Group is the route group the security-header classifier puts a request in, which decides
+// its header set and its error format (configuration-security.md section 3).
 type Group int
 
 const (
-	// GroupSPA is the SPA document and its assets, and anything outside the API groups.
+	// GroupSPA is the SPA document and its assets, and anything outside the other groups.
 	GroupSPA Group = iota
-	// GroupAPI is the native API, the compatibility layers and /metrics.
+	// GroupAPI is the native API and /metrics.
 	GroupAPI
+	// GroupOpenSpeedTest is an enabled OpenSpeedTest layer's exact route paths.
+	GroupOpenSpeedTest
+	// GroupLibreSpeed is an enabled LibreSpeed layer's exact route paths.
+	GroupLibreSpeed
+	// GroupNQ is an enabled networkQuality layer's exact route paths.
+	GroupNQ
 )
+
+// metricsGroup is the group label of a request in g that no route matched (backend.md
+// section 7).
+func (g Group) metricsGroup() metrics.Group {
+	switch g {
+	case GroupAPI:
+		return metrics.GroupAPI
+	case GroupOpenSpeedTest:
+		return metrics.GroupOpenSpeedTest
+	case GroupLibreSpeed:
+		return metrics.GroupLibreSpeed
+	case GroupNQ:
+		return metrics.GroupNQ
+	case GroupSPA:
+		return metrics.GroupSPA
+	}
+
+	return metrics.GroupSPA
+}
 
 const (
 	// cspStart and cspEnd surround the WebSocket sources of connect-src; together they are
@@ -44,11 +71,6 @@ const (
 		"form-action 'none'; frame-ancestors 'none'"
 	// cspWithoutWebSockets is the policy for a request whose Host is not a valid host.
 	cspWithoutWebSockets = cspStart + cspEnd
-
-	maxHostLength  = 253
-	maxLabelLength = 63
-	maxPort        = 65535
-	maxPortDigits  = 5
 )
 
 // The constant header values, as shared slices so that setting them allocates nothing;
@@ -71,18 +93,19 @@ var (
 // not a hostname or IP literal with an optional port gets the policy without them, so the
 // header only ever reflects a well-formed host the browser asked for.
 func contentSecurityPolicy(host string) string {
-	if !validHost(host) {
+	if !handlers.ValidHost(host) {
 		return cspWithoutWebSockets
 	}
 
 	return cspStart + " ws://" + host + " wss://" + host + cspEnd
 }
 
-// setHeaders sets the header set of group on header.
+// setHeaders sets the header set of group on header: every group but the SPA's gets the API
+// set.
 func setHeaders(header http.Header, group Group, host string) {
 	header["X-Content-Type-Options"] = valueNoSniff
 
-	if group == GroupAPI {
+	if group != GroupSPA {
 		header["Cache-Control"] = valueNoStore
 
 		return
@@ -100,66 +123,4 @@ func setHeaders(header http.Header, group Group, host string) {
 	header["Cross-Origin-Embedder-Policy"] = valueRequireCORP
 	header["Cross-Origin-Resource-Policy"] = valueSameOrigin
 	header["X-Frame-Options"] = valueDeny
-}
-
-// validHost reports whether host is a hostname, a DNS name or an IPv4 address, followed by
-// an optional port of 1 to 65535 (configuration-security.md section 3). An IPv6 literal is not
-// a hostname, and CSP host sources cannot express one; its CSP falls back to 'self'.
-func validHost(host string) bool {
-	name, port := host, ""
-	if index := strings.LastIndex(host, ":"); index >= 0 {
-		name, port = host[:index], host[index:]
-	}
-
-	return validHostname(name) && (port == "" || validPort(port))
-}
-
-// validPort checks ":<port>".
-func validPort(port string) bool {
-	digits, found := strings.CutPrefix(port, ":")
-	if !found || digits == "" || len(digits) > maxPortDigits {
-		return false
-	}
-
-	for _, char := range digits {
-		if char < '0' || char > '9' {
-			return false
-		}
-	}
-
-	number, err := strconv.Atoi(digits)
-
-	return err == nil && number >= 1 && number <= maxPort
-}
-
-// validHostname checks a DNS name of letters, digits and hyphens in dot-separated labels of 1
-// to 63 characters that neither start nor end with a hyphen; an IPv4 address passes too.
-func validHostname(name string) bool {
-	if name == "" || len(name) > maxHostLength {
-		return false
-	}
-
-	for label := range strings.SplitSeq(name, ".") {
-		if !validLabel(label) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func validLabel(label string) bool {
-	if label == "" || len(label) > maxLabelLength ||
-		strings.HasPrefix(label, "-") || strings.HasSuffix(label, "-") {
-		return false
-	}
-
-	for _, char := range label {
-		isLetter := (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z')
-		if !isLetter && (char < '0' || char > '9') && char != '-' {
-			return false
-		}
-	}
-
-	return true
 }

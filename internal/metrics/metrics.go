@@ -165,6 +165,7 @@ func New(build buildinfo.Build, tracked func() int, routes []Route) *Metrics {
 	all := append(
 		[]Route{{Pattern: Unmatched, Group: GroupSPA}, {Pattern: Unmatched, Group: GroupAPI}},
 		routes...)
+	all = append(all, layerUnmatched(routes)...)
 	metrics := &Metrics{
 		registry:  registry,
 		routes:    make(map[routeKey]*routeSeries, len(all)),
@@ -345,4 +346,24 @@ func (m *Metrics) registerWebSockets() {
 		Help:      "Echoed ping messages.",
 	})
 	m.registry.MustRegister(m.wsConnections, m.wsMessages)
+}
+
+// layerUnmatched is the Unmatched route of each compatibility layer that has a mounted route:
+// a request the security-header classifier puts in an enabled layer's group without a route
+// matching it, such as a method its route-table row does not list, counts there
+// (backend.md section 7).
+func layerUnmatched(routes []Route) []Route {
+	var unmatched []Route
+
+	for _, layer := range [...]Group{GroupOpenSpeedTest, GroupLibreSpeed, GroupNQ} {
+		for _, route := range routes {
+			if route.Group == layer {
+				unmatched = append(unmatched, Route{Pattern: Unmatched, Group: layer})
+
+				break
+			}
+		}
+	}
+
+	return unmatched
 }

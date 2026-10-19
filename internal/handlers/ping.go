@@ -24,6 +24,6 @@ import "net/http"
 // Ping answers GET and HEAD /api/v1/ping with 204, no body and no-store: the HTTP fallback for
 // idle and loaded latency (wire-protocol.md section 3.3). It allocates nothing.
 func Ping(writer http.ResponseWriter, _ *http.Request) {
-	writer.Header()["Cache-Control"] = noStore
+	writer.Header()["Cache-Control"] = NoStore
 	writer.WriteHeader(http.StatusNoContent)
 }

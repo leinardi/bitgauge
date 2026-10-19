@@ -25,6 +25,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 var errStop = errors.New("stop")
@@ -97,5 +98,78 @@ func TestDrainCutsAtTheCap(t *testing.T) {
 
 	if _, overCap := errors.AsType[*http.MaxBytesError](err); !overCap || total > 600 {
 		t.Fatalf("total %d, err %v; want at most 600 bytes and a MaxBytesError", total, err)
+	}
+}
+
+// chunkedRequest is a request whose body declares no length, as a chunked one does.
+func chunkedRequest(t *testing.T, body string) *http.Request {
+	t.Helper()
+
+	request := drainRequest(t, body)
+	request.ContentLength = -1
+
+	return request
+}
+
+func TestDrainBodyReadsALengthlessBodyUpToTheCap(t *testing.T) {
+	t.Parallel()
+
+	options := &DrainOptions{Limit: 1000, Lifetime: time.Minute, Transfer: noTransfer}
+	writer := newRecordingWriter()
+
+	total, drained := DrainBody(writer, chunkedRequest(t, strings.Repeat("x", 1000)),
+		time.Now(), options, nil)
+	if !drained || total != 1000 || writer.written {
+		t.Fatalf("total %d, drained %v, written %v; want the whole body and no answer",
+			total, drained, writer.written)
+	}
+
+	writer = newRecordingWriter()
+
+	_, drained = DrainBody(writer, chunkedRequest(t, strings.Repeat("x", 1001)),
+		time.Now(), options, nil)
+	if drained || writer.status != http.StatusRequestEntityTooLarge ||
+		writer.header.Get("Connection") != "close" {
+		t.Fatalf("drained %v, status %d, Connection %q; want 413 and close",
+			drained, writer.status, writer.header.Get("Connection"))
+	}
+}
+
+func TestDrainBodyRequiresALengthOnlyWhenAsked(t *testing.T) {
+	t.Parallel()
+
+	writer := newRecordingWriter()
+	options := &DrainOptions{
+		Limit: 1000, Lifetime: time.Minute, RequireLength: true, Transfer: noTransfer,
+	}
+
+	_, drained := DrainBody(writer, chunkedRequest(t, "x"), time.Now(), options, nil)
+	if drained || writer.status != http.StatusLengthRequired {
+		t.Fatalf("drained %v, status %d; want 411", drained, writer.status)
+	}
+}
+
+func TestDrainBodyRefusesADeclaredLengthOverTheCap(t *testing.T) {
+	t.Parallel()
+
+	writer := newRecordingWriter()
+	request := drainRequest(t, strings.Repeat("x", 1001))
+	entry := time.Date(2026, 10, 19, 8, 0, 0, 0, time.UTC)
+
+	_, drained := DrainBody(writer, request, entry,
+		&DrainOptions{Limit: 1000, Lifetime: time.Minute, Transfer: noTransfer}, nil)
+	if drained || writer.status != http.StatusRequestEntityTooLarge ||
+		!writer.readDeadline.IsZero() {
+		t.Fatalf("drained %v, status %d, read deadline %v; want 413 before any deadline",
+			drained, writer.status, writer.readDeadline)
+	}
+
+	writer = newRecordingWriter()
+
+	_, drained = DrainBody(writer, drainRequest(t, "x"), entry,
+		&DrainOptions{Limit: 1000, Lifetime: time.Minute, Transfer: noTransfer}, nil)
+	if !drained || !writer.readDeadline.Equal(entry.Add(time.Minute)) {
+		t.Fatalf("drained %v, read deadline %v; want entry plus the lifetime",
+			drained, writer.readDeadline)
 	}
 }

@@ -31,8 +31,8 @@ var smallLength = []string{"1"}
 // and the path B capability check (wire-protocol.md section 3.3). It allocates nothing.
 func Small(writer http.ResponseWriter, _ *http.Request) {
 	header := writer.Header()
-	header["Cache-Control"] = noStore
-	header["Content-Type"] = octetStream
+	header["Cache-Control"] = NoStore
+	header["Content-Type"] = OctetStream
 	header["Content-Length"] = smallLength
 
 	writer.WriteHeader(http.StatusOK)

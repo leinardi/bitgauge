@@ -68,8 +68,8 @@ func Download(buffer *Buffer, maxBytes int64, transfer metrics.Transfer) http.Ha
 		}
 
 		header := writer.Header()
-		header["Cache-Control"] = noStore
-		header["Content-Type"] = octetStream
+		header["Cache-Control"] = NoStore
+		header["Content-Type"] = OctetStream
 		header["Content-Length"] = []string{strconv.FormatInt(size, decimalBase)}
 
 		writer.WriteHeader(http.StatusOK)

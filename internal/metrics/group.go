@@ -130,6 +130,7 @@ var answeredStatuses = [...]int{
 	http.StatusRequestedRangeNotSatisfiable,
 	http.StatusTooManyRequests,
 	http.StatusInternalServerError,
+	http.StatusServiceUnavailable,
 }
 
 // codeSlots is one code label per answered status, plus other.

@@ -63,7 +63,7 @@ func TestClassifier(t *testing.T) {
 	cfg.Server.BasePath = "/speed"
 	cfg.Metrics.Enabled = true
 
-	classify := NewClassifier(&cfg)
+	classify := NewClassifier(&cfg, nil)
 
 	for path, want := range map[string]Group{
 		"/speed/api/v1":          GroupAPI,
@@ -86,7 +86,7 @@ func TestClassifier(t *testing.T) {
 	cfg.Metrics.Enabled = false
 
 	request := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/speed/metrics", nil)
-	if NewClassifier(&cfg)(request) != GroupSPA {
+	if NewClassifier(&cfg, nil)(request) != GroupSPA {
 		t.Fatal("/metrics is in the API group while metrics are off")
 	}
 }

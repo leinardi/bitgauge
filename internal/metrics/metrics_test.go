@@ -211,14 +211,31 @@ bitgauge_http_requests_total{code="other",group="spa",route="unmatched"} 2
 func TestEveryStatusHasItsCode(t *testing.T) {
 	t.Parallel()
 
-	answered := []int{101, 200, 204, 206, 304, 400, 403, 404, 405, 408, 411, 413, 416, 429, 500}
+	answered := []int{
+		101,
+		200,
+		204,
+		206,
+		304,
+		400,
+		403,
+		404,
+		405,
+		408,
+		411,
+		413,
+		416,
+		429,
+		500,
+		503,
+	}
 	for _, status := range answered {
 		if got := codeLabels[codeSlot(status)]; got != strconv.Itoa(status) {
 			t.Fatalf("status %d has code %q", status, got)
 		}
 	}
 
-	for _, status := range []int{0, 100, 201, 302, 401, 418, 502, 503, 999} {
+	for _, status := range []int{0, 100, 201, 302, 401, 418, 502, 504, 999} {
 		if got := codeLabels[codeSlot(status)]; got != "other" {
 			t.Fatalf("status %d has code %q, want other", status, got)
 		}
@@ -407,4 +424,27 @@ func TestHandlerAnswers500AndWarnsOnAGatherError(t *testing.T) {
 		!strings.Contains(line, errGather.Error()) {
 		t.Fatalf("log = %q, want one warn line naming the error", line)
 	}
+}
+
+func TestEachMountedLayerHasItsUnmatchedRoute(t *testing.T) {
+	t.Parallel()
+
+	meter := New(testBuild, nil, []Route{
+		{Pattern: "/api/v1/download", Group: GroupAPI},
+		{Pattern: "/garbage", Group: GroupLibreSpeed},
+		{Pattern: "/empty", Group: GroupLibreSpeed},
+		{Pattern: "/nq/config", Group: GroupNQ},
+	})
+
+	meter.Observe(GroupLibreSpeed, Unmatched, http.StatusMethodNotAllowed, 0.002)
+	meter.Observe(GroupNQ, Unmatched, http.StatusServiceUnavailable, 0.002)
+	// No OpenSpeedTest route is mounted, so it has no series of its own to count in.
+	meter.Observe(GroupOpenSpeedTest, Unmatched, http.StatusNotFound, 0.002)
+
+	compare(t, meter, `
+# HELP bitgauge_http_requests_total Requests by route group, route pattern and status.
+# TYPE bitgauge_http_requests_total counter
+bitgauge_http_requests_total{code="405",group="librespeed",route="unmatched"} 1
+bitgauge_http_requests_total{code="503",group="nq",route="unmatched"} 1
+`, "bitgauge_http_requests_total")
 }

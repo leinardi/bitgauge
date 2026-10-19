@@ -298,3 +298,40 @@ func TestFromContextWithoutTheMiddleware(t *testing.T) {
 		t.Fatal("FromContext reported the zero address as stored")
 	}
 }
+
+func TestMiddlewareRecordsWhetherThePeerIsTrusted(t *testing.T) {
+	t.Parallel()
+
+	var trusted bool
+
+	handler := Middleware(
+		NewDeriver(prefixes("172.20.0.2/32")),
+	)(
+		http.HandlerFunc(func(_ http.ResponseWriter, request *http.Request) {
+			trusted = PeerTrusted(request.Context())
+		}),
+	)
+
+	for peer, want := range map[string]bool{
+		"172.20.0.2:41000":      true,
+		"172.20.0.3:41000":      false,
+		"[::ffff:172.20.0.2]:1": true,
+		"not an address":        false,
+	} {
+		request := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", http.NoBody)
+		request.RemoteAddr = peer
+		handler.ServeHTTP(httptest.NewRecorder(), request)
+
+		if trusted != want {
+			t.Fatalf("peer %q: PeerTrusted = %v, want %v", peer, trusted, want)
+		}
+	}
+
+	if PeerTrusted(context.Background()) {
+		t.Fatal("PeerTrusted without the middleware, want false")
+	}
+
+	if PeerTrusted(WithAddr(context.Background(), netip.MustParseAddr("172.20.0.2"))) {
+		t.Fatal("PeerTrusted after WithAddr, want false")
+	}
+}

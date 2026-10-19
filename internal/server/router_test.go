@@ -85,7 +85,7 @@ func newStack(t *testing.T, cfg *config.Config, spa func(chi.Router)) *stack {
 		t.Fatalf("route problems %v", problems)
 	}
 
-	server := httptest.NewServer(Chain(router, clientip.NewDeriver(nil), NewClassifier(cfg),
+	server := httptest.NewServer(Chain(router, clientip.NewDeriver(nil), NewClassifier(cfg, nil),
 		clock, log, NewObserver(cfg, meter)))
 	t.Cleanup(server.Close)
 

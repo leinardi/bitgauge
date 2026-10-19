@@ -42,19 +42,25 @@ const (
 	CodeTooManyStreams   = ratelimit.CodeTooManyStreams
 	CodeTableFull        = ratelimit.CodeTableFull
 	CodeInternal         = "internal"
+	// CodePublicURLRequired answers a networkQuality config that cannot build an https origin
+	// (compatibility.md section 3.3); never on /api/v1.
+	CodePublicURLRequired = "public_url_required"
 )
 
 // internalBody is the envelope written when an envelope cannot be encoded, so that even that
 // failure answers in the documented shape.
 const internalBody = `{"error":{"code":"internal","message":"internal server error"}}`
 
-// The shared header values. Assigning one of these slices instead of calling Header().Set
-// keeps the hot handlers free of allocations; net/http only reads header values, never
-// modifies them.
+// The shared header sets, exported for the compatibility layers. Assigning one of these slices
+// instead of calling Header().Set keeps the hot handlers free of allocations; net/http only
+// reads header values, and no caller may modify them.
 var (
-	noStore     = []string{"no-store"}
-	jsonType    = []string{"application/json"}
-	octetStream = []string{"application/octet-stream"}
+	// NoStore is the Cache-Control value of every API and compatibility response.
+	NoStore = []string{"no-store"}
+	// JSONType is the Content-Type of a JSON body.
+	JSONType = []string{"application/json"}
+	// OctetStream is the Content-Type of a random-data body.
+	OctetStream = []string{"application/octet-stream"}
 )
 
 type envelope struct {
@@ -101,8 +107,8 @@ func WriteError(
 	}
 
 	header := writer.Header()
-	header["Content-Type"] = jsonType
-	header["Cache-Control"] = noStore
+	header["Content-Type"] = JSONType
+	header["Cache-Control"] = NoStore
 	header.Del("Content-Length")
 	header.Del("Content-Encoding")
 

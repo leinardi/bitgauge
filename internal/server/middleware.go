@@ -142,7 +142,8 @@ func Chain(
 	return compose(next, stages(routes, deriver, classify, clock, log, observer))
 }
 
-// recovery answers a panic with 500, as the error envelope on the API groups, and logs it at
+// recovery answers a panic with 500, as the error envelope on every group but the SPA's (the
+// native API, /metrics and the enabled compatibility layers), and logs it at
 // warn with the route pattern and the panic's type, never its value, which could quote the
 // request. http.ErrAbortHandler passes through: it is how a handler asks net/http to drop the
 // connection. A panic after the response has started cannot be answered, so the connection
@@ -179,7 +180,7 @@ func recovery(
 				panic(http.ErrAbortHandler)
 			}
 
-			if classify(request) == GroupAPI {
+			if classify(request) != GroupSPA {
 				handlers.WriteError(wrapped, http.StatusInternalServerError, handlers.CodeInternal,
 					"internal server error", nil)
 
@@ -247,11 +248,7 @@ func (o *Observer) labels(
 		}
 	}
 
-	if classify(request) == GroupAPI {
-		return metrics.GroupAPI, metrics.Unmatched
-	}
-
-	return metrics.GroupSPA, metrics.Unmatched
+	return classify(request).metricsGroup(), metrics.Unmatched
 }
 
 func (o *Observer) record(

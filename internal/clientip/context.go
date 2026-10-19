@@ -28,27 +28,54 @@ import (
 // contextKey is unexported so that only this package can store or read the client IP.
 type contextKey struct{}
 
+// client is what Middleware records about a request: its client IP and whether its TCP peer
+// is a trusted proxy. One value keeps the middleware at one context allocation.
+type client struct {
+	addr        netip.Addr
+	peerTrusted bool
+}
+
 // Middleware derives the client IP once per request and stores it in the request context, so
 // that the limiter, GET /api/v1/info and the debug log all use the same value
-// (configuration-security.md section 4).
+// (configuration-security.md section 4). It records too whether the TCP peer is a trusted
+// proxy, which decides whether a compatibility layer may read forwarding headers
+// (PeerTrusted).
 func Middleware(deriver *Deriver) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-			addr := deriver.FromRequest(request)
-			next.ServeHTTP(writer, request.WithContext(WithAddr(request.Context(), addr)))
+			addr, peerTrusted := deriver.derive(request)
+			next.ServeHTTP(
+				writer,
+				request.WithContext(WithClient(request.Context(), addr, peerTrusted)),
+			)
 		})
 	}
 }
 
-// WithAddr returns a context carrying addr as the client IP.
+// WithAddr returns a context carrying addr as the client IP, with an untrusted peer.
 func WithAddr(ctx context.Context, addr netip.Addr) context.Context {
-	return context.WithValue(ctx, contextKey{}, addr)
+	return WithClient(ctx, addr, false)
+}
+
+// WithClient returns a context carrying addr as the client IP and whether the TCP peer is a
+// trusted proxy.
+func WithClient(ctx context.Context, addr netip.Addr, peerTrusted bool) context.Context {
+	return context.WithValue(ctx, contextKey{}, client{addr: addr, peerTrusted: peerTrusted})
 }
 
 // FromContext returns the client IP stored by Middleware. ok is false when the middleware did
 // not run or the peer address could not be parsed.
 func FromContext(ctx context.Context) (netip.Addr, bool) {
-	addr, stored := ctx.Value(contextKey{}).(netip.Addr)
+	stored, found := ctx.Value(contextKey{}).(client)
 
-	return addr, stored && addr.IsValid()
+	return stored.addr, found && stored.addr.IsValid()
+}
+
+// PeerTrusted reports whether Middleware found the request's TCP peer inside
+// server.trusted_proxies. It is false when the middleware did not run, so a forwarding header is
+// believed only when the middleware said so.
+func PeerTrusted(ctx context.Context) bool {
+	stored, found := ctx.Value(contextKey{}).(client)
+
+	return found && stored.peerTrusted
 }

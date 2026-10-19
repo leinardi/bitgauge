@@ -135,7 +135,7 @@ func testChain(
 		clock = &fakeClock{now: time.Date(2026, 10, 12, 8, 0, 0, 0, time.UTC)}
 	}
 
-	return Chain(router, clientip.NewDeriver(nil), NewClassifier(&cfg), clock, log, nil), logs
+	return Chain(router, clientip.NewDeriver(nil), NewClassifier(&cfg, nil), clock, log, nil), logs
 }
 
 func get(t *testing.T, handler http.Handler, target string) *httptest.ResponseRecorder {
@@ -161,7 +161,7 @@ func probedChain(
 
 	cfg := config.Defaults()
 	clock := &fakeClock{now: time.Date(2026, 10, 12, 8, 0, 0, 0, time.UTC)}
-	chain := stages(nil, clientip.NewDeriver(nil), NewClassifier(&cfg), clock,
+	chain := stages(nil, clientip.NewDeriver(nil), NewClassifier(&cfg, nil), clock,
 		slog.New(slog.DiscardHandler), nil)
 	entered = &[]string{}
 
@@ -199,7 +199,7 @@ func TestChainOrder(t *testing.T) {
 
 	// Chain is exactly these stages in this order around the router.
 	cfg := config.Defaults()
-	chain := stages(nil, clientip.NewDeriver(nil), NewClassifier(&cfg),
+	chain := stages(nil, clientip.NewDeriver(nil), NewClassifier(&cfg, nil),
 		&fakeClock{}, slog.New(slog.DiscardHandler), nil)
 	names := make([]string, 0, len(chain))
 

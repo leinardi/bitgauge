@@ -335,3 +335,62 @@ func TestRealClockAfterFunc(t *testing.T) {
 		t.Fatal("the timer did not fire")
 	}
 }
+
+func TestFlowMiddlewareTakesAFlowSlotNotAStream(t *testing.T) {
+	t.Parallel()
+
+	limiter := New(
+		Options{MaxStreams: 1, RequestsPerMinute: 1200, TrackedClients: 16, MaxFlows: 2},
+		newFakeClock(),
+	)
+	envelope := &recordingWriter{}
+	refusals := &recordingRefusals{}
+
+	// The client's one stream slot is taken: flows do not count against it.
+	releaseStream, err := limiter.AcquireStream(netip.MustParseAddr("10.0.0.1"))
+	if err != nil {
+		t.Fatalf("AcquireStream: %v", err)
+	}
+	defer releaseStream()
+
+	var nested func(int) http.Handler
+
+	statuses := []int{}
+	nested = func(depth int) http.Handler {
+		return FlowMiddleware(limiter, envelope, slog.New(slog.DiscardHandler), refusals)(
+			http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+				if depth > 0 {
+					recorder := httptest.NewRecorder()
+					nested(depth-1).ServeHTTP(recorder, request)
+					statuses = append(statuses, recorder.Code)
+				}
+
+				writer.WriteHeader(http.StatusOK)
+			}),
+		)
+	}
+
+	// Three flows at once: the third is refused while the first two hold their slots.
+	recorder := httptest.NewRecorder()
+	nested(2).ServeHTTP(recorder, limitedRequest(t, "10.0.0.1", 1, http.NoBody))
+
+	if recorder.Code != http.StatusOK || len(statuses) != 2 ||
+		statuses[0] != http.StatusTooManyRequests || statuses[1] != http.StatusOK {
+		t.Fatalf("statuses %d and %v, want 200 with 429 then 200 inside", recorder.Code, statuses)
+	}
+
+	if len(refusals.errs) != 1 || !errors.Is(refusals.errs[0], ErrFlows) ||
+		envelope.code != CodeTooManyStreams {
+		t.Fatalf("refusals %v, code %q; want the one flows refusal", refusals.errs, envelope.code)
+	}
+
+	// Every flow gave its slot back.
+	recorder = httptest.NewRecorder()
+	statuses = statuses[:0]
+
+	nested(1).ServeHTTP(recorder, limitedRequest(t, "10.0.0.1", 1, http.NoBody))
+
+	if recorder.Code != http.StatusOK || len(statuses) != 1 || statuses[0] != http.StatusOK {
+		t.Fatalf("after release: %d and %v, want two admitted flows", recorder.Code, statuses)
+	}
+}

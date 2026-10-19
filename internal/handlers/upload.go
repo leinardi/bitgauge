@@ -22,9 +22,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -104,98 +102,24 @@ func Upload(
 	lifetime time.Duration,
 	transfer metrics.Transfer,
 ) http.HandlerFunc {
+	options := DrainOptions{
+		Limit:         maxBytes,
+		Lifetime:      lifetime,
+		RequireLength: true,
+		Transfer:      transfer,
+	}
+
 	return func(writer http.ResponseWriter, request *http.Request) {
 		entry := grid.Now()
-
-		if !declaresLength(request) {
-			refuseBody(writer, request, http.StatusLengthRequired, CodeLengthRequired,
-				"Content-Length is required")
-
-			return
-		}
-
-		if request.ContentLength > maxBytes {
-			refuseBody(writer, request, http.StatusRequestEntityTooLarge, CodePayloadTooLarge,
-				fmt.Sprintf("the body must be at most %d bytes", maxBytes))
-
-			return
-		}
-
 		counter := &arrivals{grid: grid, deadline: entry.Add(lifetime), counts: []int64{}}
 
-		err := http.NewResponseController(writer).SetReadDeadline(counter.deadline)
-		if err != nil {
-			// Without the deadline a stalled body would hold the handler forever.
-			refuseBody(writer, request, http.StatusInternalServerError, CodeInternal,
-				"internal server error")
-
-			return
-		}
-
-		total, err := Drain(writer, request, maxBytes, transfer, counter.record)
-		if err != nil {
-			answerDrainError(writer, request, err, maxBytes, transfer)
-
+		total, drained := DrainBody(writer, request, entry, &options, counter.record)
+		if !drained {
 			return
 		}
 
 		writeTelemetry(writer, epoch, counter, total, entry)
 	}
-}
-
-// declaresLength reports whether the request declared its body's length. net/http reports a
-// chunked body as -1, but a request without any length header, which it treats as bodiless,
-// as 0: only the header tells that 0 apart from a declared Content-Length: 0.
-func declaresLength(request *http.Request) bool {
-	if request.ContentLength > 0 {
-		return true
-	}
-
-	return request.ContentLength == 0 && len(request.Header.Values("Content-Length")) > 0
-}
-
-// answerDrainError answers a drain that did not reach the body's end: 408 when the lifetime
-// ran out and 413 when the body outgrew the cap. Any other error is a client that went away
-// mid-body, such as a short body or a reset stream: nobody is left to read an answer, and
-// returning normally would let net/http send an empty 200, so the handler panics with
-// http.ErrAbortHandler, on which net/http closes the connection (or resets the HTTP/2 stream)
-// without logging. The recovery middleware must let that panic through.
-func answerDrainError(
-	writer http.ResponseWriter,
-	request *http.Request,
-	err error,
-	maxBytes int64,
-	transfer metrics.Transfer,
-) {
-	_, overCap := errors.AsType[*http.MaxBytesError](err)
-
-	switch {
-	case errors.Is(err, errLifetime) || errors.Is(err, os.ErrDeadlineExceeded):
-		transfer.Timeout()
-		refuseBody(writer, request, http.StatusRequestTimeout, CodeRequestTimeout,
-			"the body did not arrive within the upload lifetime")
-	case overCap:
-		refuseBody(writer, request, http.StatusRequestEntityTooLarge, CodePayloadTooLarge,
-			fmt.Sprintf("the body must be at most %d bytes", maxBytes))
-	default:
-		transfer.Abort()
-		panic(http.ErrAbortHandler)
-	}
-}
-
-// refuseBody answers with the error envelope without reading the rest of the body, and on
-// HTTP/1.x closes the connection afterwards so the unread rest never has to be drained.
-func refuseBody(
-	writer http.ResponseWriter,
-	request *http.Request,
-	status int,
-	code, message string,
-) {
-	if request.ProtoMajor == 1 {
-		writer.Header().Set("Connection", "close")
-	}
-
-	WriteError(writer, status, code, message, nil)
 }
 
 // writeTelemetry answers a drained body. An empty body has no first byte: its timeline point
@@ -230,8 +154,8 @@ func writeTelemetry(
 	}
 
 	header := writer.Header()
-	header["Cache-Control"] = noStore
-	header["Content-Type"] = jsonType
+	header["Cache-Control"] = NoStore
+	header["Content-Type"] = JSONType
 	header.Set("Server-Timing", "bg-recv;dur="+strconv.FormatInt(durationMs, decimalBase))
 
 	writer.WriteHeader(http.StatusOK)
