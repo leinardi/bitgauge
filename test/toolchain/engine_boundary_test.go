@@ -214,6 +214,12 @@ func TestEngineBoundaryLint(t *testing.T) {
 				"export const a = [Run, Link] as unknown as Info\n",
 			"",
 		},
+		"app imports a message union's own file": {
+			"src/composables/useRun.ts", "import type { Result } from '@/engine/messages/result'\nexport type A = Result\n", "messages.ts",
+		},
+		"messages.ts re-exports the unions": {
+			"src/engine/messages.ts", "export type * from '@/engine/messages/result'\nexport type { Notice } from '@/engine/messages/notices'\n", "",
+		},
 		"app imports the message types": {
 			"src/composables/useRun.ts", "import type { Command } from '@/engine/messages'\nexport type A = Command\n", "",
 		},

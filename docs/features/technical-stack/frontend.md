@@ -16,7 +16,8 @@ web/
   src/
     engine/                   measurement engine (Worker); framework-free
       worker.ts               Worker entry: wires the message loop of loop.ts
-      messages.ts             command and event types shared with the UI
+      messages.ts             command and event types shared with the UI, re-exported
+      messages/               from messages/, which holds the unions by topic
       run.ts, run/, phases/, upload/, download/, latency/, stats/, result.ts, result/
       clock.ts, transport.ts, wiring.ts   browser clock and transport, their pure helpers
     demo/                     demo builds only (section 9): the simulated link, its Worker entry
@@ -46,7 +47,8 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
   from the generated API types. An ESLint `no-restricted-imports` rule enforces the boundary in
   both directions: the app may import only `engine/messages.ts` and the Worker URL.
 - **Message schema.** All traffic between the UI and the Worker uses the discriminated unions in
-  `engine/messages.ts` ([../architecture.md §4](../architecture.md#4-engine--ui-message-contract)).
+  `engine/messages.ts` ([../architecture.md §4](../architecture.md#4-engine--ui-message-contract)),
+  which defines them in `engine/messages/` and re-exports them; the app imports only the former.
   `loop.ts` holds the message loop and `worker.ts` only wires it to the Worker's messages; every
   rule lives in plain modules. Besides the types, `engine/messages.ts` has two runtime exports:
   `validateResult`, re-exported from `engine/result/validate.ts`, the structural check of the

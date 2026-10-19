@@ -23,14 +23,17 @@ import type { Direction, DirectionResult, EngineEvent, IdleResult, MeasuringPhas
 import { buildResult } from '@/engine/result'
 import { directionNotices, downloadResult, resultNotices, uploadResult } from '@/engine/result/direction'
 import type { Connection } from '@/engine/run/connection'
+import { phaseEvent } from '@/engine/run/events'
+import { type Interrupt, Interruption } from '@/engine/run/interrupt'
 import { LoadedProbes } from '@/engine/run/latency'
 import { PageState } from '@/engine/run/page'
 import { discardedDownload, discardedUpload, type RunErrorCode, type RunReport, runNotices, urlNotices } from '@/engine/run/report'
 import { SampleFeed } from '@/engine/run/samples'
 import { idlePhase, infoPhase, type StartContext } from '@/engine/run/start'
+import { Housekeeping } from '@/engine/run/tick'
 import type { RunSettings } from '@/engine/settings'
 import { BusyTrack } from '@/engine/stats/busy'
-import type { Clock, TimerId, Transport } from '@/engine/types'
+import type { Clock, Transport } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
 import { UploadPhase } from '@/engine/upload/phase'
 
@@ -40,9 +43,6 @@ import { UploadPhase } from '@/engine/upload/phase'
 // stop, a page the browser paused while hidden, a network change, a server restart, an
 // unreachable server and the WebSocket-close sequence (edge-cases.md sections 2, 5, 6, 11, 15).
 
-/** The housekeeping tick; one more than 1 s late means the Worker was throttled or paused. */
-const TICK_MS = 100
-const LATE_MS = 1000
 const MEASURING: readonly MeasuringPhase[] = ['idle', 'download', 'upload']
 
 export interface RunOptions {
@@ -56,8 +56,6 @@ export interface RunOptions {
   wallClock?: () => number
 }
 
-type Interrupt = { kind: 'stop'; at?: number } | { kind: 'error'; code: RunErrorCode }
-
 /** What a running phase offers the run: a stop, at an earlier instant for a paused page. */
 interface Stoppable {
   stop(at?: number): void
@@ -66,9 +64,7 @@ interface Stoppable {
 export class Run {
   private readonly options: RunOptions
   private readonly clock: Clock
-  private interrupt: Interrupt | null = null
-  private wake: () => void = () => undefined
-  private readonly interrupted: Promise<null>
+  private readonly interruption = new Interruption()
   private current: Stoppable | null = null
   private phase: PhaseName = 'info'
   private enteredAt = 0
@@ -76,8 +72,7 @@ export class Run {
   private readonly page: PageState
   private readonly loaded: LoadedProbes
   private restartIdle = false
-  private lastTick: number | null = null
-  private tickTimer: TimerId | null = null
+  private readonly housekeeping: Housekeeping
   private sampling: { phase: DownloadPhase | UploadPhase; feed: SampleFeed; before: number } | null = null
   private idle: IdleLatency | null = null
   private idleMedian: number | null = null
@@ -98,16 +93,19 @@ export class Run {
     this.clock = options.clock
     this.page = new PageState(options.visible)
     this.loaded = new LoadedProbes({ clock: this.clock, path: () => this.connection?.loaded ?? null, fallbackAt: () => this.connection?.fallbackAt ?? null })
-    this.interrupted = new Promise((resolve) => {
-      this.wake = () => resolve(null)
-    })
+    this.housekeeping = new Housekeeping({ clock: this.clock, busy: this.busy, late: (last) => this.late(last), tick: (now) => this.sample(now) })
+  }
+
+  /** The run's interruption, or null while it runs uninterrupted. */
+  private get interrupt(): Interrupt | null {
+    return this.interruption.value
   }
 
   /** Runs every phase and emits the result object; resolves with the report, or null when no phase has a result to keep, which emits no result. */
   async start(): Promise<RunReport | null> {
     const startedAt = new Date(this.options.wallClock?.() ?? Date.now())
     const startAt = this.clock.now()
-    this.tick()
+    this.housekeeping.start()
     try {
       const report = await this.sequence()
       if (report !== null) {
@@ -119,9 +117,7 @@ export class Run {
       return report
     } finally {
       this.finished = true
-      if (this.tickTimer !== null) {
-        this.clock.clearTimer(this.tickTimer)
-      }
+      this.housekeeping.stop()
       this.loaded.drain()
       this.connection?.dispose()
     }
@@ -211,7 +207,7 @@ export class Run {
       transport,
       settings,
       emit: (event) => this.options.emit(event),
-      guard: (promise) => this.guard(promise),
+      guard: (promise) => this.interruption.guard(promise),
       interrupted: () => this.interrupt?.kind ?? null,
       fail: (code) => this.fail(code),
       record: (protocol) => this.record(protocol),
@@ -309,18 +305,13 @@ export class Run {
     }
   }
 
-  private tick(): void {
-    const now = this.clock.now()
-    const last = this.lastTick
+  /** A late tick: the Worker was throttled, or paused with the page hidden. */
+  private late(last: number): void {
     // A hidden page the browser paused stops a throughput phase as a user stop at the last on-time
     // tick; in the info phase nothing is timed, and idle latency restarts once the page is visible.
-    if (last !== null && now - last - TICK_MS > LATE_MS && this.page.paused(last) && (this.phase === 'download' || this.phase === 'upload')) {
+    if (this.page.paused(last) && (this.phase === 'download' || this.phase === 'upload')) {
       this.halt({ kind: 'stop', at: last })
     }
-    this.lastTick = now
-    this.busy.record(now, this.clock.busyMs())
-    this.sample(now)
-    this.tickTimer = this.clock.setTimer(TICK_MS, () => this.tick())
   }
 
   private sample(now: number): void {
@@ -348,17 +339,11 @@ export class Run {
   }
 
   private halt(interrupt: Interrupt): void {
-    if (this.interrupt !== null || this.finished) {
+    if (this.finished || !this.interruption.record(interrupt)) {
       return
     }
-    this.interrupt = interrupt
     this.current?.stop(interrupt.kind === 'stop' ? interrupt.at : undefined)
-    this.wake()
-  }
-
-  /** Settles with `promise`, or with null once the run is interrupted. */
-  private guard<T>(promise: Promise<T>): Promise<T | null> {
-    return Promise.race([promise, this.interrupted])
+    this.interruption.release()
   }
 
   private record(protocol: string | null | undefined): void {
@@ -376,16 +361,7 @@ export class Run {
   private event(phase: PhaseName, state: PhaseState, { streams, result, idle }: { streams?: number; result?: DirectionResult; idle?: IdleResult } = {}): void {
     // The notices so far (architecture.md section 4), in the order the result will list them.
     const notices = resultNotices([this.measured, urlNotices(this.options.settings), this.connection?.notices ?? [], this.loaded.notices], 0)
-    this.options.emit({
-      type: 'phase',
-      phase,
-      state,
-      notices,
-      ...(this.protocol === null ? {} : { protocol: this.protocol }),
-      ...(streams === undefined ? {} : { streams }),
-      ...(result === undefined ? {} : { result }),
-      ...(idle === undefined ? {} : { idle }),
-      ...(state === 'failed' ? { ranMs: this.clock.now() - this.enteredAt } : {}),
-    })
+    const ranMs = state === 'failed' ? this.clock.now() - this.enteredAt : undefined
+    this.options.emit(phaseEvent(phase, state, notices, { protocol: this.protocol, streams, result, idle, ranMs }))
   }
 }

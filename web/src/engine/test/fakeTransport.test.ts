@@ -270,3 +270,37 @@ describe('the load on the latency paths', () => {
     expect(answeredAt).toBe(100)
   })
 })
+
+describe('the probes path B reads', () => {
+  it('answer /api/v1/small with 200 and the ping with 204, a reused connection by default', async () => {
+    const clock = new FakeClock()
+    const transport = new FakeTransport(clock, LINK)
+    const small = transport.probe('/api/v1/small')
+    const ping = transport.probe('/api/v1/ping')
+    await clock.advance(100)
+    expect(await small).toEqual({
+      status: 200,
+      sentAt: 0,
+      doneAt: 100,
+      timing: { nextHopProtocol: 'h2', requestStart: 0, responseStart: 100, responseEnd: 100, fetchStart: 0, connectStart: 0, connectEnd: 0 },
+    })
+    expect((await ping).status).toBe(204)
+  })
+
+  it('give each probe of a path the protocol and the connection the scenario names', async () => {
+    const clock = new FakeClock()
+    const transport = new FakeTransport(clock, {
+      ...LINK,
+      probeProtocol: (path, index) => (path === '/api/v1/small' && index === 1 ? 'http/1.1' : index === 2 ? null : 'h3'),
+      newConnection: (_path, index) => (index === 0 ? true : index === 1 ? null : false),
+    })
+    const probes = [0, 1, 2].map(() => transport.probe('/api/v1/small'))
+    const other = transport.probe('/api/v1/ping')
+    await clock.advance(100)
+    const [first, second, third] = await Promise.all(probes)
+    expect(first?.timing).toMatchObject({ nextHopProtocol: 'h3', connectStart: 0, connectEnd: 100 })
+    expect(second?.timing).toEqual({ nextHopProtocol: 'http/1.1', requestStart: 0, responseStart: 100, responseEnd: 100, fetchStart: 0 })
+    expect(third?.timing).toBeNull()
+    expect((await other).timing).toMatchObject({ nextHopProtocol: 'h3', connectStart: 0, connectEnd: 100 })
+  })
+})

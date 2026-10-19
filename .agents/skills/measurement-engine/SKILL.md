@@ -110,7 +110,7 @@ and starts the Worker by URL, which is not an import. A page never computes a me
 ## 3. Typed messages: discriminated unions in `messages.ts`
 
 All traffic between the UI and the Worker uses the discriminated unions in `engine/messages.ts`,
-both directions keyed on `type`
+which re-exports them from their files in `engine/messages/`, both directions keyed on `type`
 ([architecture.md §4](../../../docs/features/architecture.md#4-engine--ui-message-contract)):
 
 | Direction | `type` values |

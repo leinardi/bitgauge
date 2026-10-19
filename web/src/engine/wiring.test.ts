@@ -88,6 +88,13 @@ describe('the timing entry of a request', () => {
     expect(timingFor([], url, 0)).toBeNull()
   })
 
+  it('carries the fetch and connect fields the browser exposes, and leaves out the others', () => {
+    const exposed = { ...entry(url, 100), fetchStart: 100, connectStart: 100, connectEnd: 100.5 }
+    expect(timingFor([exposed], url, 100)).toEqual({ nextHopProtocol: 'h2', requestStart: 101, responseStart: 102, responseEnd: 103, fetchStart: 100, connectStart: 100, connectEnd: 100.5 })
+    const partial = { ...entry(url, 100), fetchStart: 100, connectStart: undefined } as unknown as TimingEntry
+    expect(Object.keys(timingFor([partial], url, 100) ?? {})).toEqual(['nextHopProtocol', 'requestStart', 'responseStart', 'responseEnd', 'fetchStart'])
+  })
+
   it('reads a protocol the browser does not report as empty', () => {
     const missing = { ...entry(url, 100), nextHopProtocol: undefined } as unknown as TimingEntry
     expect(timingFor([missing], url, 100)?.nextHopProtocol).toBe('')

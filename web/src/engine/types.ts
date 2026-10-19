@@ -49,6 +49,14 @@ export interface ResourceTiming {
   requestStart: number
   responseStart: number
   responseEnd: number
+  /**
+   * The fetch start and the connection's setup, for path B (measurement.md section 12.3); absent
+   * when the browser does not expose them. `connectStart` equal to `connectEnd` shows an existing
+   * connection was reused.
+   */
+  fetchStart?: number
+  connectStart?: number
+  connectEnd?: number
 }
 
 /** A piece of a download body as it was read, with its arrival instant (measurement.md section 6). */

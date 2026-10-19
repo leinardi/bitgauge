@@ -93,7 +93,20 @@ export function timingFor(entries: readonly TimingEntry[], url: string, sentAt: 
     requestStart: found.requestStart,
     responseStart: found.responseStart,
     responseEnd: found.responseEnd,
+    ...optionalTiming(found),
   }
+}
+
+/** The entry's fetch and connect fields that the browser exposes; a missing one stays absent. */
+function optionalTiming(entry: TimingEntry): Pick<ResourceTiming, 'fetchStart' | 'connectStart' | 'connectEnd'> {
+  const fields: Pick<ResourceTiming, 'fetchStart' | 'connectStart' | 'connectEnd'> = {}
+  for (const name of ['fetchStart', 'connectStart', 'connectEnd'] as const) {
+    const value: unknown = entry[name]
+    if (typeof value === 'number') {
+      fields[name] = value
+    }
+  }
+  return fields
 }
 
 /** How long a request that has ended waits for its timing entry: the browser may add it later. */

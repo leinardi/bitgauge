@@ -21,17 +21,21 @@ import { BUCKET_MS } from '@/engine/stats/units'
 import { abortError } from '@/engine/test/body'
 import type { FakeClock } from '@/engine/test/fakeClock'
 import type { Scenario } from '@/engine/test/fakeTransport'
-import type { InfoResult, ProbeTiming, WsEcho } from '@/engine/types'
+import type { InfoResult, ProbeTiming, ResourceTiming, WsEcho } from '@/engine/types'
 
 // The fake transport's server side for the latency paths and GET /info: a WebSocket echo that a
-// test can close or refuse, the ping probe, and an info answer whose epoch a test can change to
-// play a restart. Every answer arrives one RTT after it was asked for; a pong and a probe also
+// test can close or refuse, the probes (204 from /api/v1/ping, 200 from /api/v1/small, each with
+// the protocol and connection the scenario gives it), and an info answer whose epoch a test can
+// change to play a restart. Every answer arrives one RTT after it was asked for; a pong and a probe also
 // take the delay the link's load adds (Scenario.loadedDelayMs). On HTTP/1.1 the browser holds
 // Scenario.h1Connections connections, 6 by default: each request holds one until it ends, and a
 // probe waits, first come first served, until one is free.
 
 /** The connections a browser holds per server on HTTP/1.1 unless the scenario says otherwise. */
 const H1_CONNECTIONS = 6
+
+/** The probe answered 200 with its one byte; every other probe path is the ping's 204. */
+const SMALL_PATH = '/api/v1/small'
 
 export class FakeServer {
   /** The current epoch; upload telemetry carries it too. */
@@ -126,8 +130,9 @@ export class FakeServer {
     })
   }
 
-  /** The ping probe: it waits for a free connection on HTTP/1.1, then answers one RTT plus the loaded delay later. */
+  /** A probe: it waits for a free connection on HTTP/1.1, then answers one RTT plus the loaded delay later. */
   probe(path: string, signal?: AbortSignal): Promise<ProbeTiming> {
+    const index = this.probed.filter((probed) => probed === path).length
     this.probed.push(path)
     const sentAt = this.clock.now()
     return new Promise((resolve, reject) => {
@@ -139,9 +144,7 @@ export class FakeServer {
         timer = this.clock.setTimer(this.scenario.rttMs + this.loadedDelay(), () => {
           release()
           const doneAt = this.clock.now()
-          const protocol = this.scenario.protocol
-          const timing = protocol === null ? null : { nextHopProtocol: protocol, requestStart, responseStart: doneAt, responseEnd: doneAt }
-          resolve({ status: 204, sentAt, doneAt, timing })
+          resolve({ status: path === SMALL_PATH ? 200 : 204, sentAt, doneAt, timing: this.timing(path, index, { sentAt, requestStart, doneAt }) })
         })
       }
       signal?.addEventListener('abort', () => {
@@ -158,6 +161,19 @@ export class FakeServer {
         this.waiting.push(send)
       }
     })
+  }
+
+  /** The `index`-th probe of `path`'s timing entry, with the scenario's protocol and connection. */
+  private timing(path: string, index: number, at: { sentAt: number; requestStart: number; doneAt: number }): ResourceTiming | null {
+    const { probeProtocol, newConnection } = this.scenario
+    const protocol = probeProtocol === undefined ? this.scenario.protocol : probeProtocol(path, index)
+    if (protocol === null) {
+      return null
+    }
+    const timing = { nextHopProtocol: protocol, requestStart: at.requestStart, responseStart: at.doneAt, responseEnd: at.doneAt, fetchStart: at.sentAt }
+    const opened = newConnection === undefined ? false : newConnection(path, index)
+    // A new connection takes one RTT to set up before the request goes.
+    return opened === null ? timing : { ...timing, connectStart: at.sentAt, connectEnd: opened ? at.sentAt + this.scenario.rttMs : at.sentAt }
   }
 
   info(): Promise<InfoResult> {

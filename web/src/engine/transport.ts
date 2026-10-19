@@ -206,6 +206,7 @@ export class BrowserTransport implements Transport {
     })
   }
 
+  /** The probe's timing entry carries the fetch and connect fields path B reads (timingFor). */
   async probe(path: string, signal?: AbortSignal): Promise<ProbeTiming> {
     const url = this.url(path.replace(/^\/+/, ''))
     const sentAt = this.clock.now()

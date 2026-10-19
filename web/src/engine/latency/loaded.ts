@@ -18,11 +18,12 @@
  */
 
 import type { SharedEcho } from '@/engine/latency/shared'
+import { sendProbe, Ticker } from '@/engine/latency/ticker'
 import type { LoadedSource } from '@/engine/messages'
 import type { Clock, TimerId, Transport } from '@/engine/types'
 
 // Loaded latency, path A and its HTTP fallback (measurement.md sections 11.1, 11.2 and 11.6): a
-// ping every 300 ms on the injected clock while a direction runs, at most 4 outstanding on the
+// ping every 300 ms on the injected clock (latency/ticker.ts) while a direction runs, at most 4 outstanding on the
 // WebSocket and 1 probe on HTTP, a tick over the bound skipped and never queued. While the
 // WebSocket's close sequence runs there is no path: the tick is skipped, a gap in the series. A
 // ping unanswered after 30 s is lost, and so is one still outstanding on an echo that closed, as
@@ -30,7 +31,6 @@ import type { Clock, TimerId, Transport } from '@/engine/types'
 // for the outstanding pings up to the grace; the rest are lost.
 
 const PING_PATH = '/api/v1/ping'
-const LOADED_INTERVAL_MS = 300
 const WEBSOCKET_OUTSTANDING = 4
 const HTTP_OUTSTANDING = 1
 const LOSS_MS = 30_000
@@ -100,9 +100,8 @@ export class LoadedLatency {
   private lost = 0
   private maxInFlight = 0
   private next = 0
-  private tickTimer: TimerId | null = null
+  private readonly ticker: Ticker
   private graceTimer: TimerId | null = null
-  private stopped = false
   private settled: (() => void) | null = null
   private subscribed: SharedEcho | null = null
   private readonly listener = (seq: number, sentAt: number, receivedAt: number): void => {
@@ -115,15 +114,12 @@ export class LoadedLatency {
   constructor(options: LoadedOptions) {
     this.options = options
     this.clock = options.clock
+    this.ticker = new Ticker(options.clock, () => this.send())
   }
 
   /** Sends the first ping now and one every 300 ms. */
   start(): void {
-    if (this.stopped) {
-      return
-    }
-    this.tickTimer = this.clock.setTimer(LOADED_INTERVAL_MS, () => this.start())
-    this.send()
+    this.ticker.start()
   }
 
   /** Stops sending; resolves once every outstanding ping is answered, or after `graceMs` with the rest lost. */
@@ -162,11 +158,7 @@ export class LoadedLatency {
   }
 
   private stop(): void {
-    this.stopped = true
-    if (this.tickTimer !== null) {
-      this.clock.clearTimer(this.tickTimer)
-      this.tickTimer = null
-    }
+    this.ticker.stop()
   }
 
   private send(): void {
@@ -188,17 +180,16 @@ export class LoadedLatency {
       this.sources.push(source)
     }
     this.maxInFlight = Math.max(this.maxInFlight, inFlight)
-    const controller = path.kind === 'http' ? new AbortController() : null
     const timer = this.clock.setTimer(LOSS_MS, () => this.answer(seq, 'lost'))
-    this.pending.set(seq, { sentAt, kind: path.kind, echo, source, inFlight, timer, controller })
+    const ping: Pending = { sentAt, kind: path.kind, echo, source, inFlight, timer, controller: null }
+    this.pending.set(seq, ping)
     if (path.kind === 'websocket') {
       this.subscribe(path.echo)
       path.echo.ping(seq, sentAt)
       return
     }
-    path.transport.probe(PING_PATH, controller?.signal).then(
-      (probe) => this.answer(seq, probe.status !== 204 ? 'lost' : probe.timing === null ? 'unmeasured' : { rttMs: probe.timing.responseStart - probe.timing.requestStart }),
-      () => this.answer(seq, 'lost'),
+    ping.controller = sendProbe(path.transport, PING_PATH, (probe) =>
+      this.answer(seq, probe === null || probe.status !== 204 ? 'lost' : probe.timing === null ? 'unmeasured' : { rttMs: probe.timing.responseStart - probe.timing.requestStart }),
     )
   }
 

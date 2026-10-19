@@ -73,6 +73,17 @@ export interface Scenario extends LinkModel {
   loadedDelayMs?: (direction: Direction, inFlight: number, sinceLoadMs: number) => number
   /** The connections the browser holds per server on HTTP/1.1; 6 when absent. */
   h1Connections?: number
+  /**
+   * The nextHopProtocol of the `index`-th probe of `path` (from 0), null for one without a
+   * Resource Timing entry; absent, every probe reports `protocol`.
+   */
+  probeProtocol?: (path: string, index: number) => string | null
+  /**
+   * Whether the `index`-th probe of `path` (from 0) opened a new connection: true gives its entry
+   * a connectEnd after its connectStart, null leaves both out (the browser did not expose them);
+   * absent or false, it reused one, connectStart equal to connectEnd.
+   */
+  newConnection?: (path: string, index: number) => boolean | null
 }
 
 export class FakeTransport implements Transport {
