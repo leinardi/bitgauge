@@ -24,12 +24,15 @@
 import { describe, expect, it } from 'vitest'
 
 import { buildChart } from '@/components/chart/series'
-import { type DirectionLive, type LiveRings, record } from '@/composables/runLive'
+import { type DirectionLive, type LiveRings, liveRings, record } from '@/composables/runLive'
+import { useContinuousSeries } from '@/composables/useContinuousSeries'
+import { useLoadedSeries } from '@/composables/useLoadedSeries'
 import type { EngineEvent } from '@/engine/messages'
 import { FixedRing } from '@/lib/ring'
+import { continuousSettings, continuousStream } from '@/test/continuous'
 
 function live(overrides: Partial<DirectionLive>): DirectionLive {
-  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, phaseMs: 0, ...overrides }
+  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, continuous: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, phaseMs: 0, ...overrides }
 }
 
 /** Rounds x to the millisecond, so floating sums compare. */
@@ -201,5 +204,87 @@ describe('buildChart over live rings that rolled over', () => {
     const [x, , received] = buildChart({ order: ['upload'], live: { download: null, upload: live }, units: 'bits' }).data
     expect(x[0]).toBe(0)
     expect(received.slice(0, 2)).toEqual([null, 8e5])
+  })
+})
+
+describe('buildChart for a Continuous run', () => {
+  type Built = ReturnType<typeof buildChart>
+  /** The run fed through the live rings and the tier rings, the chart built at each of `seconds`. */
+  function run(direction: 'download' | 'upload', seconds: number[], gaps: [number, number][] = []): Map<number, Built> {
+    const continuous = useContinuousSeries()
+    const loaded = useLoadedSeries(continuous.ping)
+    const rings = liveRings(continuousSettings(direction), direction)
+    let live: DirectionLive | null = null
+    const built = new Map<number, Built>()
+    continuousStream({ direction, seconds: Math.max(...seconds), stepS: 60, gaps }, (event) => {
+      loaded.apply(event)
+      continuous.apply(event)
+      if (event.type === 'sample') {
+        live = record(live, rings, event)
+      }
+    }, (elapsed) => {
+      if (seconds.includes(elapsed)) {
+        built.set(elapsed, buildChart({ order: [direction], live: { download: null, upload: null, [direction]: live }, units: 'bits', continuous: continuous.series.value }))
+      }
+    })
+    return built
+  }
+  const SAMPLED = [9 * 60, 59 * 60, 23 * 3600, 8 * 24 * 3600]
+
+  it('keeps every built array of an 8-day download at most 2001 entries, sampled at 9 min, 59 min, 23 h and 8 days', () => {
+    const built = run('download', SAMPLED)
+    expect([...built.keys()]).toEqual(SAMPLED)
+    for (const [elapsed, model] of built) {
+      for (const column of model.data) {
+        expect(column.length).toBeLessThanOrEqual(2001)
+      }
+      expect(model.latency.length).toBeLessThanOrEqual(2001)
+      // A coarse tier ends at its last closed cell: at most one 10 min long-tier cell behind.
+      expect(elapsed - model.end).toBeGreaterThanOrEqual(-0.1)
+      expect(elapsed - model.end).toBeLessThan(600)
+    }
+    // After a day the long ring has dropped its oldest cells: the chart starts at the oldest kept.
+    const last = built.get(8 * 24 * 3600)
+    expect(last?.start).toBeGreaterThan(0)
+    expect(last?.data[0][0]).toBe(last?.start)
+    expect(built.get(9 * 60)?.start).toBe(0)
+  })
+
+  it('keeps an 8-day upload with failure gaps at most 2001 entries per array, its gaps unknown', () => {
+    // Two failure gaps: in the first minutes, and late on the 8th day.
+    const gaps: [number, number][] = [[1200, 1500], [6_900_000, 6_906_000]]
+    const built = run('upload', SAMPLED, gaps)
+    for (const model of built.values()) {
+      const [x, , received, sending] = model.data
+      expect(x.length).toBeLessThanOrEqual(2001)
+      expect(received.length).toBeLessThanOrEqual(2001)
+      expect(sending.length).toBeLessThanOrEqual(2001)
+      expect(model.latency.length).toBeLessThanOrEqual(2001)
+    }
+    // At 9 min, natively drawn, the first gap's cells are unknown; the chart starts at P_start.
+    const early = built.get(9 * 60)
+    const [x, , received] = early?.data ?? [[], [], [], []]
+    expect(x[0]).toBe(0)
+    const inGap = x.findIndex((at) => at >= 125 && at < 145)
+    expect(received[inGap]).toBeNull()
+  })
+
+  it('re-bins a tier by summed bytes over summed known time, unknown when none is known', () => {
+    const continuous = useContinuousSeries()
+    continuous.apply({ type: 'settings', scope: 'run', settings: continuousSettings('download') })
+    continuous.apply({ type: 'phase', phase: 'download', state: 'started', notices: [] })
+    // 3600 hour cells: 2 per point; one pair half known, one pair unknown.
+    const cells = Array.from({ length: 3600 }, (_, index) => (index < 2 ? { tier: 'hour' as const, bytes: index === 0 ? 125_000 : 0, knownMs: index === 0 ? 1000 : 500 } : index < 4 ? { tier: 'hour' as const, bytes: 0, knownMs: 0 } : { tier: 'hour' as const, bytes: 250_000, knownMs: 1000 }))
+    const sample = { type: 'sample' as const, direction: 'download' as const, fromBucket: 0, values: [], gauge: 0, streams: 1, phaseMs: 0, dataUsedBytes: 0, warmupEndBucket: 0, cells, continuous: { elapsedMs: 59 * 60_000, dataBytes: 0 } }
+    continuous.apply(sample)
+    const live: DirectionLive = { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, continuous: null, warmupEnd: 0, start: null, sendingTrace: [], streams: 1, phaseMs: 0 }
+    const model = buildChart({ order: ['download'], live: { download: live, upload: null }, units: 'bits', continuous: continuous.series.value })
+    const [x, rates] = model.data
+    expect(x.length).toBe(1801)
+    // (125 000 + 0) bytes × 8 over 1.5 s of known time.
+    expect(rates[0]).toBeCloseTo((125_000 * 8) / 1.5)
+    expect(rates[1]).toBeNull()
+    expect(rates[2]).toBeCloseTo((500_000 * 8) / 2)
+    expect(x[1]).toBeCloseTo(2)
   })
 })

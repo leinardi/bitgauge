@@ -18,6 +18,7 @@
  */
 
 import type { DirectionEvent, MeasuringPhase, Notice, Result } from '@/engine/messages'
+import { runPhases } from '@/lib/continuous'
 import { formatDuration } from '@/lib/format'
 
 import type { Wording } from '@/components/test/wording'
@@ -25,7 +26,8 @@ import type { Wording } from '@/components/test/wording'
 // The stop notice (ui/flows.md section 4): what a stop left, worded from the stopped-early notice and
 // the result it belongs to: the phases that completed, where the stopped direction stopped and why
 // it has or has no value, and the phases that did not run. The upload's times are on its phase
-// timeline from P_start, as its chart and events are.
+// timeline from P_start, as its chart and events are. A Continuous run runs one direction, so the
+// other is never among the phases that did not run.
 
 type StoppedEarly = Extract<Notice, { code: 'stopped-early' }>
 
@@ -51,7 +53,7 @@ export function stopWording(notice: StoppedEarly, result: Result | null, wording
   const measured = part?.bitsPerSecond !== undefined
   const title = direction === 'upload' && measured ? t('notices.stoppedEarly.partialUpload', { covered }) : t('notices.stoppedEarly.title', { phase: phaseName(direction, wording) })
 
-  const order = result?.settings.phases ?? [direction]
+  const order = result === null ? [direction] : runPhases(result.settings)
   const index = order.indexOf(direction)
   const completed = order.slice(0, index).filter((phase) => (phase === 'idle' ? result?.idle !== undefined : result?.[phase] !== undefined && result[phase].status !== 'skipped'))
   const notRun = order.slice(index + 1)

@@ -50,6 +50,7 @@ export function useTestScreen({ run, info: { info, reachability }, counting, ign
     result: run.result.value,
     error: run.error.value,
     loaded: run.loaded.value,
+    continuous: run.continuous.value,
   }))
   const state = computed(() => screenState(view.value))
   const running = computed(() => state.value === 'running')

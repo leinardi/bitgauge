@@ -41,6 +41,7 @@ import type { Notice, NoticeCode } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 import notices from '@/i18n/locales/en/notices.json'
 import { links } from '@/lib/links'
+import { resultFixture } from '@/test/fixtures'
 
 const i18n = () => createAppI18n('', ['en'])
 const context: Wording = { t: i18n().global.t as unknown as Wording['t'], locale: 'en' }
@@ -122,6 +123,8 @@ describe('the notices', () => {
     expect(noticeView(EVERY['url-parameter-ignored'], context).body).toContain('streams')
     expect(noticeView(EVERY['low-confidence'], context).body).toBe('Upload: few samples.')
     expect(noticeView(EVERY['data-used'], context)).toMatchObject({ title: `Data used: 100${NB}GB`, body: `This run has passed 100${NB}GB. The next notice appears at 1${NB}TB.` })
+    // The finished result lists each threshold the run passed, naming no next one.
+    expect(noticeView(EVERY['data-used'], { ...context, result: resultFixture() }).body).toBe(`This run passed 100${NB}GB.`)
   })
 
   it('shows one test-extended notice naming both directions when both extended, in place of the first', () => {

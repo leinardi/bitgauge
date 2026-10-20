@@ -32,11 +32,12 @@ import StartButton from '@/components/test/StartButton.vue'
 import type { PhaseStep } from '@/components/test/steps'
 import type { LatencyPoint } from '@/composables/useRunState'
 import type { Direction, TestSettings } from '@/engine/messages'
+import { runPhases } from '@/lib/continuous'
 
 // The Test screen's instrument (ui/screens.md section 1): the phase indicator, the gauge or the
 // auto-start countdown with Start beneath it, and the chart of the current run, or of the last one
 // until the next starts: the latency samples chart during idle latency and after a run that ended
-// there, the throughput chart otherwise.
+// there, the throughput chart otherwise, a Continuous run's drawn from its tier rings.
 
 const props = defineProps<{
   view: RunView
@@ -81,7 +82,7 @@ const mode = computed(() => {
 })
 
 // The chart shows the current run, or the last one until the next starts; nothing between runs.
-const order = computed(() => (props.settings?.phases ?? PENDING_STEPS.map((step) => step.phase)).filter((phase): phase is Direction => phase !== 'idle'))
+const order = computed(() => (props.settings === null ? PENDING_STEPS.map((step) => step.phase) : runPhases(props.settings)).filter((phase): phase is Direction => phase !== 'idle'))
 const chartLive = computed(() => (props.state === 'idle' ? { download: null, upload: null } : props.view.live))
 const chartEvents = computed(() => ({ download: props.view.result?.download?.events ?? [], upload: props.view.result?.upload?.events ?? [] }))
 const chartState = computed(() => {
@@ -175,6 +176,7 @@ const latencyMark = computed(() => (props.state === 'cancelled' || props.state =
           :units="units"
           :events="chartEvents"
           :loaded="view.loaded"
+          :continuous="state === 'idle' ? null : (view.continuous ?? null)"
           :state="chartState"
           :durations="settings"
           :total-ms="view.result?.durationMs ?? null"

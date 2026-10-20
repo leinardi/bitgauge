@@ -20,6 +20,7 @@
 import { computed, onScopeDispose, type ShallowRef, shallowReadonly, shallowRef, watch } from 'vue'
 
 import { useInfo } from '@/composables/useInfo'
+import { useContinuousSeries } from '@/composables/useContinuousSeries'
 import { useLoadedSeries } from '@/composables/useLoadedSeries'
 import { createRunState } from '@/composables/useRunState'
 import { useWorker } from '@/composables/useWorker'
@@ -74,7 +75,8 @@ export function useRun(options: RunOptions = {}) {
   const { info } = useInfo()
   const bridge = useWorker()
   const state = createRunState()
-  const loaded = useLoadedSeries()
+  const continuous = useContinuousSeries()
+  const loaded = useLoadedSeries(continuous.ping)
   const connection = (navigator as Navigator & { connection?: Connection }).connection
   let connectionType = connection?.type
   let wakeLock: WakeLockSentinel | null = null
@@ -89,10 +91,12 @@ export function useRun(options: RunOptions = {}) {
   const settings = computed(() => (base.value === null ? null : (state.configured.value ?? base.value)))
 
   bridge.onEvent(state.apply)
-  // The live loaded latency of the run under way, kept once it ends until the next one starts.
+  // The live loaded latency and a Continuous run's tier rings, kept once the run ends until the
+  // next one starts; the pings first, so the tier rings publish with a sample's overlay points.
   bridge.onEvent((event) => {
     if (state.status.value === 'running') {
       loaded.apply(event)
+      continuous.apply(event)
     }
   })
   bridge.onError(state.crash)
@@ -186,6 +190,8 @@ export function useRun(options: RunOptions = {}) {
     ...state,
     /** Each direction's live loaded-latency pings on its chart axis. */
     loaded: loaded.series,
+    /** A Continuous run's tier and overlay rings; null for a bounded run. */
+    continuous: continuous.series,
     defaults,
     settings,
 
@@ -198,6 +204,7 @@ export function useRun(options: RunOptions = {}) {
         return
       }
       loaded.reset()
+      continuous.reset()
       if (!state.begin()) {
         return
       }

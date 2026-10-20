@@ -24,6 +24,8 @@ import MetaList, { type MetaRow } from '@/components/layout/MetaList.vue'
 import LoadCard from '@/components/result/LoadCard.vue'
 import QualityList from '@/components/result/QualityList.vue'
 import type { QualityView } from '@/components/result/qualityList'
+import type { ContinuousView as ContinuousViewModel } from '@/components/test/continuous/continuous'
+import ContinuousView from '@/components/test/continuous/ContinuousView.vue'
 import MetricTile from '@/components/test/MetricTile.vue'
 import NotMeasured from '@/components/test/NotMeasured.vue'
 import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
@@ -40,7 +42,8 @@ import { links } from '@/lib/links'
 // one, then the metric tiles, the load card with the grade, the loaded latency and the HTTP loaded
 // responsiveness, the quality list of a complete result (v0.3), and the facts beside them in one
 // column. Siblings in the page's column, as the screen lays them out; without a load card the facts
-// take the row in three columns, and without a quality list the half row beside the load card.
+// take the row in three columns, and without a quality list the half row beside the load card. A
+// Continuous run shows its live view in their place.
 
 const props = defineProps<{
   /** The ended run's result for the result bar; null while a run goes on or without one. */
@@ -53,6 +56,8 @@ const props = defineProps<{
   load: LoadView | null
   /** A complete result's quality scores; null on any other state or without them. */
   quality: QualityView | null
+  /** A Continuous run's live view, in place of the tiles; null for a bounded run. */
+  continuous?: ContinuousViewModel | null
 }>()
 /** The partial or error result was kept in history; the page's gauge and tiles read it too. */
 const kept = defineModel<boolean>('kept', { required: true })
@@ -82,7 +87,14 @@ const facts = computed<MetaRow[]>(() => {
     :result="result"
     :save="save"
   />
+  <ContinuousView
+    v-if="continuous"
+    :view="continuous"
+    :load="result?.status === 'complete' ? load : null"
+    :quality="quality"
+  />
   <section
+    v-else
     :aria-label="$t('test.results')"
     class="grid grid-cols-2 gap-(--layout-tile-gap-compact) desktop:grid-cols-4 desktop:gap-(--layout-tile-gap)"
   >

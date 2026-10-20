@@ -17,12 +17,12 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { type Direction, type EngineEvent, RING_LENGTHS, type SteadySoFar, type TestSettings } from '@/engine/messages'
+import { type ContinuousSoFar, type Direction, type EngineEvent, type Notice, RING_LENGTHS, type SteadySoFar, type TestSettings } from '@/engine/messages'
 import { FixedRing } from '@/lib/ring'
 
 // A direction's live samples (frontend.md sections 4 and 6): its buckets and, on upload, its
 // sending trace, each kept in a fixed ring allocated at the phase start, so the live view of a run
-// never grows with its length.
+// never grows with its length; a Continuous run's live figures, and the notices samples raise.
 
 const BUCKET_MS = 100
 const PING_MS = 300
@@ -47,8 +47,10 @@ export interface DirectionLive {
   gauge: number
   /** Upload only: the client's sending progress in bits per second. */
   sending: number | null
-  /** The steady-window average and peak so far; null while warming up. */
+  /** The steady-window average and peak so far; null while warming up, and in Continuous. */
   steady: SteadySoFar | null
+  /** Continuous only: the run's live figures, as the last sample carried them; null otherwise. */
+  continuous: ContinuousSoFar | null
   /** The bucket where warm-up ended, on the axis of `firstBucket`; null while warming up. */
   warmupEnd: number | null
   /** Upload only: P_start on the server grid, in cells; null before a request has confirmed. */
@@ -105,7 +107,7 @@ export function record(live: DirectionLive | null, rings: LiveRings, event: Extr
   if (event.sendingBucket !== undefined && event.sending !== undefined) {
     trace.push({ cell: event.sendingBucket, bitsPerSecond: event.sending })
   }
-  const buffer = live ?? { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 0, phaseMs: 0 }
+  const buffer = live ?? { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, continuous: null, warmupEnd: null, start: null, sendingTrace: [], streams: 0, phaseMs: 0 }
   buffer.firstBucket = buckets.firstIndex
   buffer.values = buckets.toArray()
   const evicted = buckets.evictedBefore
@@ -118,8 +120,22 @@ export function record(live: DirectionLive | null, rings: LiveRings, event: Extr
   buffer.phaseMs = event.phaseMs
   buffer.sending = event.sending ?? null
   buffer.steady = event.steady ?? null
+  buffer.continuous = event.continuous ?? buffer.continuous
   buffer.warmupEnd = event.warmupEndBucket ?? buffer.warmupEnd
   buffer.start = event.startBucket ?? buffer.start
   buffer.sendingTrace = trace.toArray()
   return buffer
+}
+
+/**
+ * The run's notices with those a sample raised: a later `data-used` notice replaces the earlier,
+ * so the live list holds only the latest, which names the next threshold (ui/flows.md section 7).
+ */
+export function withSampleNotices(notices: readonly Notice[], raised: readonly Notice[] | undefined): Notice[] {
+  if (raised === undefined || raised.length === 0) {
+    return [...notices]
+  }
+  const latest = [...raised].reverse().find((notice) => notice.code === 'data-used')
+  const kept = latest === undefined ? notices : notices.filter((notice) => notice.code !== 'data-used')
+  return [...kept, ...raised.filter((notice) => notice.code !== 'data-used'), ...(latest === undefined ? [] : [latest])]
 }

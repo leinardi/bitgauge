@@ -22,7 +22,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { type DirectionLive, liveCapacity, liveRings, record } from '@/composables/runLive'
+import { type DirectionLive, liveCapacity, liveRings, record, withSampleNotices } from '@/composables/runLive'
 import { type EngineEvent, RING_LENGTHS, type TestSettings } from '@/engine/messages'
 
 type Sample = Extract<EngineEvent, { type: 'sample' }>
@@ -78,5 +78,24 @@ describe('the live rings', () => {
     live = record(live, rings, sample({ direction: 'upload', fromBucket: 9004, values: [7] }))
     expect(live.firstBucket).toBe(9001)
     expect(live.values).toEqual([5, null, null, 7])
+  })
+})
+
+describe('a Continuous sample', () => {
+  it('keeps its live figures until a later sample brings new ones', () => {
+    const rings = liveRings(null, 'download')
+    const figures = { elapsedMs: 12_000, dataBytes: 9e6, avgBitsPerSecond: 6e8 }
+    let live = record(null, rings, sample({ continuous: figures }))
+    expect(live.continuous).toEqual(figures)
+    live = record(live, rings, sample({}))
+    expect(live.continuous).toEqual(figures)
+  })
+
+  it('lists the notices it raised, the latest data-used one alone', () => {
+    const lowered = { code: 'stream-limit', direction: 'download', streams: 3 } as const
+    const kept = withSampleNotices([lowered, { code: 'data-used', bytes: 1e9 }], [{ code: 'data-used', bytes: 1e10 }])
+    expect(kept).toEqual([lowered, { code: 'data-used', bytes: 1e10 }])
+    expect(withSampleNotices(kept, undefined)).toEqual(kept)
+    expect(withSampleNotices([], [{ code: 'data-used', bytes: 1e9 }, { code: 'data-used', bytes: 1e10 }])).toEqual([{ code: 'data-used', bytes: 1e10 }])
   })
 })

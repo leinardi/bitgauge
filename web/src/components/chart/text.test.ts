@@ -25,17 +25,19 @@
 import { describe, expect, it } from 'vitest'
 
 import { buildChart } from '@/components/chart/series'
-import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput } from '@/components/chart/text'
+import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, continuousStep, continuousTick } from '@/components/chart/text'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
+import { type ContinuousSeries, useContinuousSeries } from '@/composables/useContinuousSeries'
 import type { Direction, DirectionEvent } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
+import { continuousSettings } from '@/test/continuous'
 
 const wording: Wording = { t: createAppI18n('', ['en']).global.t as unknown as Wording['t'], locale: 'en' }
 const DURATIONS = { download: { minMs: 10_000, maxMs: 20_000 }, upload: { minMs: 15_000, maxMs: 25_000 } }
 
 function live(overrides: Partial<DirectionLive>): DirectionLive {
-  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, phaseMs: 0, ...overrides }
+  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, continuous: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, phaseMs: 0, ...overrides }
 }
 
 function input(
@@ -100,5 +102,36 @@ describe('the chart text', () => {
     expect(chartSummary(stopped, wording)).toBe('Throughput: Cancelled, stopped at 5.0 s; warm-up shaded; marked: Cancelled')
     const interrupted = input('done', { download }, { readout: 'Download 612 Mbit/s', totalMs: 21_000, events: { download: [{ code: 'error', atMs: 4000, notice: 'upload-interrupted' }] } })
     expect(chartSummary(interrupted, wording)).toBe('Throughput: Download 612 Mbit/s, 21.0 s total; warm-up shaded; marked: Request failed')
+  })
+})
+
+describe('a Continuous run’s chart text', () => {
+  function series(direction: Direction, elapsedMs: number): ContinuousSeries {
+    const continuous = useContinuousSeries()
+    continuous.apply({ type: 'settings', scope: 'run', settings: continuousSettings(direction) })
+    continuous.apply({ type: 'phase', phase: direction, state: 'started', notices: [] })
+    continuous.apply({ type: 'sample', direction, fromBucket: 0, values: [1000], gauge: 0, streams: 1, phaseMs: elapsedMs, dataUsedBytes: 0, continuous: { elapsedMs, dataBytes: 0 } })
+    return continuous.series.value as ContinuousSeries
+  }
+  const meta = (state: ChartState, direction: Direction, runLengthMs?: number, ended?: DirectionEvent) => {
+    const shown = live({ values: [1000], continuous: { elapsedMs: 2_538_000, dataBytes: 0, ...(runLengthMs === undefined ? {} : { runLengthMs }) } })
+    return chartMeta({ ...input(state, { [direction]: shown }, ended === undefined ? {} : { events: { [direction]: [ended] } }), continuous: series(direction, 2_538_000) }, wording)
+  }
+
+  it('reads the elapsed time against the run length, or alone, then how it ended; an upload’s unknown cells are gaps', () => {
+    expect(meta('running', 'download')).toBe('42:18 elapsed')
+    expect(meta('running', 'download', 7_200_000)).toBe('42:18 / 2:00:00')
+    expect(meta('running', 'upload')).toBe('42:18 elapsed · unknown cells as gaps')
+    expect(meta('done', 'download', undefined, { code: 'cancelled', atMs: 2_538_000 })).toBe('42:18 · stopped by you')
+    expect(meta('done', 'download', 7_200_000, { code: 'data-cap', atMs: 2_538_000 })).toBe('42:18 · data cap reached')
+    expect(meta('done', 'download', undefined, { code: 'error', atMs: 2_538_000, notice: 'requests-failed' })).toBe('stopped at 42:18')
+    // Its run length passed: the elapsed time alone.
+    expect(meta('done', 'download', 2_538_000)).toBe('42:18')
+    expect(meta('done', 'upload', undefined, { code: 'cancelled', atMs: 2_538_000 })).toBe('42:18 · stopped by you · unknown cells as gaps')
+  })
+
+  it('ticks its axis in seconds, minutes, hours or days, about six of them', () => {
+    expect([30, 600, 2700, 4 * 3600, 8 * 86_400].map(continuousStep)).toEqual([10, 120, 600, 3600, 86_400])
+    expect([30, 600, 7200, 86_400].map((seconds) => continuousTick(seconds, wording))).toEqual(['30s', '10m', '2h', '1d'])
   })
 })

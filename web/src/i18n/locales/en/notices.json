@@ -18,7 +18,8 @@
     },
     "dataUsed": {
       "title": "Data used: {data}",
-      "body": "This run has passed {data}. The next notice appears at {next}."
+      "body": "This run has passed {data}. The next notice appears at {next}.",
+      "passed": "This run passed {data}."
     },
     "streamLimit": {
       "title": "Server stream limit — {n} stream | Server stream limit — {n} streams",

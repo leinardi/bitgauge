@@ -27,8 +27,9 @@ import type { RunView } from '@/components/test/screen/states'
 // polite one announces the phase as it starts, a direction's headline once as it finishes, and the
 // rate at most every 5 s while running; never the gauge readout, which redraws several times a
 // second. The summary region reads the result once it is ready. Both are emptied as a run starts.
+// A Continuous run's direction is announced as running.
 
-const props = defineProps<{ run: RunView; units: 'bits' | 'bytes' }>()
+const props = withDefaults(defineProps<{ run: RunView; units: 'bits' | 'bytes'; continuous?: boolean }>(), { continuous: false })
 
 const RATE_MS = 5000
 
@@ -56,7 +57,7 @@ function announce(messages: string[]): void {
 
 watch(
   () => props.run.phases,
-  (after, before) => announce(phaseAnnouncements(before, after, props.units, wording.value)),
+  (after, before) => announce(phaseAnnouncements(before, after, props.units, wording.value, props.continuous)),
 )
 
 let timer: ReturnType<typeof setInterval> | null = null

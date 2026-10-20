@@ -45,7 +45,8 @@ export type LoadedSeries = Record<Direction, readonly LoadedPoint[]>
 
 const empty = (): LoadedSeries => ({ download: [], upload: [] })
 
-export function useLoadedSeries() {
+/** `onPoint` hears each ping as it is placed, as a Continuous run's overlay rings take it. */
+export function useLoadedSeries(onPoint?: (direction: Direction, point: LoadedPoint) => void) {
   const series = shallowRef<LoadedSeries>(empty())
   /** Upload pings answered before the offset was known. */
   let waiting: LoadedPing[] = []
@@ -58,7 +59,9 @@ export function useLoadedSeries() {
   function place(direction: Direction, pings: readonly LoadedPing[], offsetCells: number): void {
     const own = (rings[direction] ??= ring(direction))
     for (const ping of pings) {
-      own.push({ at: ping.atMs / BUCKET_MS + offsetCells, ms: ping.rttMs })
+      const point = { at: ping.atMs / BUCKET_MS + offsetCells, ms: ping.rttMs }
+      own.push(point)
+      onPoint?.(direction, point)
     }
     series.value = { ...series.value, [direction]: own.toArray() }
   }

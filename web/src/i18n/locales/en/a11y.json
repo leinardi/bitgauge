@@ -8,7 +8,9 @@
         "info": "Connecting to the server",
         "idle": "Measuring idle latency",
         "download": "Measuring download",
-        "upload": "Measuring upload"
+        "upload": "Measuring upload",
+        "continuousDownload": "Continuous download running.",
+        "continuousUpload": "Continuous upload running."
       },
       "rate": {
         "download": "Download, {rate}",
@@ -42,6 +44,16 @@
         "insufficient": "Upload: insufficient data.",
         "skipped": "Upload skipped.",
         "error": "Upload failed."
+      },
+      "continuous": {
+        "download": "Download average {rate}, run-wide minimum {min}, maximum {max}",
+        "downloadPeak": "Download average {rate}, run-wide minimum {min}, maximum {max}, peak {peak} p90, last hour",
+        "upload": "Upload average {rate}, run-wide minimum {min}, maximum {max}",
+        "uploadPeak": "Upload average {rate}, run-wide minimum {min}, maximum {max}, peak {peak} p90, last hour",
+        "sentence": "{figures}.",
+        "qualified": "{figures}, {qualifiers}.",
+        "downloadNotRun": "Download not run.",
+        "uploadNotRun": "Upload not run."
       },
       "partial": "partial, stopped early",
       "lowConfidence": "low confidence: {reasons}",

@@ -266,7 +266,7 @@ describe('useRun', () => {
     run.start()
     worker.emit({ type: 'sample', direction: 'download', fromBucket: 0, values: [1000, 2000], gauge: 120_000, streams: 1, phaseMs: 0, dataUsedBytes: 3000 })
     worker.emit({ type: 'sample', direction: 'download', fromBucket: 2, values: [null], gauge: 80_000, streams: 2, phaseMs: 0, steady: { avgBitsPerSecond: 90_000, peakBitsPerSecond: 150_000 }, dataUsedBytes: 3000 })
-    expect(run.live.value.download).toEqual({ firstBucket: 0, values: [1000, 2000, null], windowEnd: null, gauge: 80_000, sending: null, steady: { avgBitsPerSecond: 90_000, peakBitsPerSecond: 150_000 }, warmupEnd: null, start: null, sendingTrace: [], streams: 2, phaseMs: 0 })
+    expect(run.live.value.download).toEqual({ firstBucket: 0, values: [1000, 2000, null], windowEnd: null, gauge: 80_000, sending: null, steady: { avgBitsPerSecond: 90_000, peakBitsPerSecond: 150_000 }, continuous: null, warmupEnd: null, start: null, sendingTrace: [], streams: 2, phaseMs: 0 })
     expect(run.direction.value).toBe('download')
 
     // Upload cells arrive in batches on the server grid, far from 0; a hole between ranges is unknown.

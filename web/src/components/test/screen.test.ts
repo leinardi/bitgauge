@@ -31,6 +31,7 @@ import type { DirectionLive } from '@/composables/runLive'
 import type { PhaseView } from '@/composables/useRunState'
 import type { DirectionResult, PhaseName, Result, TestSettings } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
+import { continuousSettings } from '@/test/continuous'
 import { resultFixture } from '@/test/fixtures'
 
 const context: Wording = { t: createAppI18n('', ['en']).global.t as unknown as Wording['t'], locale: 'en' }
@@ -58,7 +59,7 @@ function present<T>(value: T | undefined): T {
 }
 
 function live(overrides: Partial<DirectionLive>): DirectionLive {
-  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, phaseMs: 0, ...overrides }
+  return { firstBucket: 0, values: [], windowEnd: null, gauge: 0, sending: null, steady: null, continuous: null, warmupEnd: null, start: null, sendingTrace: [], streams: 1, phaseMs: 0, ...overrides }
 }
 
 function phases(states: Partial<Record<PhaseName, PhaseView['state']>>): Record<PhaseName, PhaseView> {
@@ -147,6 +148,28 @@ describe('phaseSteps', () => {
   it('marks a phase still started after the run cancelled: a stop during idle latency', () => {
     const steps = phaseSteps(run({ status: 'ended', phases: phases({ idle: 'started', download: 'skipped', upload: 'skipped' }), error: { code: 'internal', phase: null, partial: false } }), SETTINGS, 'en')
     expect(steps[0]).toEqual({ phase: 'idle', state: 'cancelled' })
+  })
+})
+
+describe('a Continuous run', () => {
+  const figures = (elapsedMs: number) => live({ phaseMs: elapsedMs, continuous: { elapsedMs, dataBytes: 1e9 } })
+
+  it('runs idle latency and its one direction, with no countdown and no maximum: its elapsed time, against the run length when set', () => {
+    const view = run({ phases: phases({ idle: 'finished', download: 'started' }), live: { download: figures(2_538_000), upload: null } })
+    expect(phaseSteps(view, continuousSettings('download'), 'en')).toEqual([
+      { phase: 'idle', state: 'done' },
+      { phase: 'download', state: 'active', continuous: { elapsedMs: 2_538_000 } },
+    ])
+    expect(phaseSteps(view, continuousSettings('download', 7_200_000), 'en')[1]).toEqual({ phase: 'download', state: 'active', continuous: { elapsedMs: 2_538_000, runLengthMs: 7_200_000 }, progress: 2_538_000 / 7_200_000 })
+    const upload = run({ phases: phases({ idle: 'finished', upload: 'started' }), live: { download: null, upload: figures(60_000) } })
+    expect(phaseSteps(upload, continuousSettings('upload'), 'en').map((step) => step.phase)).toEqual(['idle', 'upload'])
+  })
+
+  it('shows the run-wide average and the p90 of the last hour on the gauge, a dash until they come', () => {
+    const early = gaugeInput(run({ phase: 'download', live: { download: live({ gauge: 5e8, warmupEnd: 60, continuous: { elapsedMs: 9000, dataBytes: 1e8 } }), upload: null } }), { ...context, units: 'bits', server: 'NAS' })
+    expect(early.note).toBe('avg so far — · peak —')
+    const later = gaugeInput(run({ phase: 'download', live: { download: live({ gauge: 5e8, warmupEnd: 60, continuous: { elapsedMs: 90_000, dataBytes: 1e9, avgBitsPerSecond: 9.21e8, peakLastHourBitsPerSecond: 9.36e8 } }), upload: null } }), { ...context, units: 'bits', server: 'NAS' })
+    expect([later.note, later.peak]).toEqual(['avg so far 921 · peak 936', 9.36e8])
   })
 })
 

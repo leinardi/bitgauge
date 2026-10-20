@@ -43,4 +43,6 @@ export interface PhaseStep {
   coveredMs?: number
   /** Failed: how long the phase ran before it was interrupted. */
   interruptedMs?: number
+  /** A Continuous direction: its elapsed time, against the run length when one is set. */
+  continuous?: { elapsedMs: number; runLengthMs?: number }
 }

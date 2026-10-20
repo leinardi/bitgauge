@@ -36,9 +36,9 @@ export interface MetaRow {
   value?: string | null
 }
 
-const props = defineProps<{ title: string; rows: MetaRow[]; columns?: 1 | 3 }>()
+const props = defineProps<{ title: string; rows: MetaRow[]; columns?: 1 | 3 | 4 }>()
 
-const COLUMNS = { 1: '', 3: 'desktop:grid-cols-3' } as const
+const COLUMNS = { 1: '', 3: 'desktop:grid-cols-3', 4: 'desktop:grid-cols-4' } as const
 
 const slots = useSlots()
 const node = (row: MetaRow) => slots[`value-${row.key}`] !== undefined

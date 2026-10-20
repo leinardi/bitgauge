@@ -22,17 +22,18 @@ import type uPlot from 'uplot'
 import type { ChartGeometry } from '@/components/chart/geometry'
 
 // The uPlot options both live charts share: no cursor, legend or axes of uPlot's own, the plot box
-// of the chart's geometry as padding, and scales fixed from 0 to the geometry's ends, so the series
-// land where the gridlines and the labels over the canvas put them.
+// of the chart's geometry as padding, and scales fixed from 0, or a Continuous tier's start, to
+// the geometry's ends, so the series land where the gridlines and the labels over the canvas put
+// them.
 
-export function frameOptions(size: { width: number; height: number }, geometry: () => ChartGeometry, ends: () => { xMax: number; yMax: number }): uPlot.Options {
+export function frameOptions(size: { width: number; height: number }, geometry: () => ChartGeometry, ends: () => { xMin?: number; xMax: number; yMax: number }): uPlot.Options {
   return {
     width: size.width,
     height: size.height,
     cursor: { show: false },
     legend: { show: false },
     padding: [() => geometry().top, () => geometry().width - geometry().right, () => geometry().height - geometry().bottom, () => geometry().left],
-    scales: { x: { time: false, range: () => [0, ends().xMax] }, y: { range: () => [0, ends().yMax] } },
+    scales: { x: { time: false, range: () => [ends().xMin ?? 0, ends().xMax] }, y: { range: () => [0, ends().yMax] } },
     axes: [{ show: false }, { show: false }],
     series: [{}],
   }

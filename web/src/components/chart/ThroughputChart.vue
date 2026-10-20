@@ -32,7 +32,7 @@ import { chartGeometry, latencyScale, valueMax } from '@/components/chart/geomet
 import { chartHeight, chartPalette, faded } from '@/components/chart/palette'
 import type { LineLabel } from '@/components/chart/placement'
 import { buildChart, type ChartData, type ChartInput } from '@/components/chart/series'
-import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, markLabel } from '@/components/chart/text'
+import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, continuousStep, continuousTick, markLabel } from '@/components/chart/text'
 import { useUplot } from '@/components/chart/useUplot'
 import { useTheme } from '@/composables/useTheme'
 import type { Direction, TestSettings } from '@/engine/messages'
@@ -46,7 +46,9 @@ import { rateAxisLabels } from '@/lib/format'
 // where the run stands. The canvas is decoration for assistive technology: the plot is an image
 // whose label summarizes what it shows, from the gauge's readout. A finished run draws what the
 // server received, without the sending line. The loaded latency is drawn dashed on its own scale,
-// labeled right of the plot, while its legend entry, the toggle, is pressed.
+// labeled right of the plot, while its legend entry, the toggle, is pressed. A Continuous run is
+// drawn from the tier its elapsed time picks, its axis from the oldest retained cell to now, with
+// ticks in seconds, minutes or hours.
 
 const props = withDefaults(
   defineProps<
@@ -95,17 +97,28 @@ const display = (bitsPerSecond: number) => (props.units === 'bits' ? bitsPerSeco
 // The time axis runs to the end of the phase under way at its minimum duration, or as far as the run
 // has gone: a run that stopped keeps the axis it had, so its mark sits where the phase stopped, and
 // a run that finished ends where it did. The value axis runs to a round number over the largest value.
-const ends = computed(() => {
+/** The narrowest Continuous axis, in seconds, so its first seconds are not stretched across the plot. */
+const CONTINUOUS_MIN_SPAN = 10
+
+const ends = computed<{ xMin?: number; xMax: number; yMax: number }>(() => {
   const minimum = (direction: Direction) => (props.durations?.[direction].minMs ?? 0) / 1000
+  const [, download, received, sending] = data.value
+  const largest = () => Math.max(0, ...[...download, ...received, ...sending].filter((value): value is number => value !== null))
+  if (!empty.value && props.continuous !== undefined && props.continuous !== null) {
+    const { start, end } = model.value
+    return { xMin: start, xMax: Math.max(end, start + CONTINUOUS_MIN_SPAN), yMax: valueMax(largest()) }
+  }
   if (empty.value) {
     const planned = props.durations === null ? EMPTY_SECONDS : props.order.reduce((sum, direction) => sum + minimum(direction), 0)
     return { xMax: planned, yMax: display(EMPTY_TOP_BPS) }
   }
   const current = shown.value.at(-1)
   const phaseEnd = props.state !== 'done' && current !== undefined ? (model.value.separators.at(-1) ?? 0) + minimum(current) : 0
-  const [, download, received, sending] = data.value
-  const largest = Math.max(0, ...[...download, ...received, ...sending].filter((value): value is number => value !== null))
-  return { xMax: Math.max(model.value.end, phaseEnd), yMax: valueMax(largest) }
+  return { xMax: Math.max(model.value.end, phaseEnd), yMax: valueMax(largest()) }
+})
+const continuousAxis = computed(() => {
+  const { xMin, xMax } = ends.value
+  return xMin === undefined ? null : { xMin, xStep: continuousStep(xMax - xMin) }
 })
 
 const height = computed(() => chartHeight(compact.value))
@@ -134,7 +147,8 @@ const geometry = computed(() =>
     height: height.value,
     ...ends.value,
     yLabels: rateAxisLabels(props.units === 'bits' ? ends.value.yMax : ends.value.yMax * 8, props.units, locale.value),
-    xLabel: seconds,
+    ...(continuousAxis.value ?? {}),
+    xLabel: continuousAxis.value === null ? seconds : (value: number) => continuousTick(value, wording.value),
     compact: compact.value,
     y2Labels: latency.value?.labels ?? [],
   }),
@@ -189,7 +203,7 @@ watch([applied, running, geometry, latency], () => {
 })
 watch(ends, (next) =>
   plot.value?.batch(() => {
-    plot.value?.setScale('x', { min: 0, max: next.xMax })
+    plot.value?.setScale('x', { min: next.xMin ?? 0, max: next.xMax })
     plot.value?.setScale('y', { min: 0, max: next.yMax })
   }),
 )

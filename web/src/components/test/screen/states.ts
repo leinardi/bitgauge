@@ -20,10 +20,12 @@
 import type { PhaseStep } from '@/components/test/steps'
 import { dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, packetLossTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
+import type { ContinuousSeries } from '@/composables/useContinuousSeries'
 import type { LoadedSeries } from '@/composables/useLoadedSeries'
 import type { DirectionLive } from '@/composables/runLive'
 import type { IdleLive, PhaseView, RunError, RunStatus } from '@/composables/useRunState'
 import type { Direction, DirectionResult, MeasuringPhase, PhaseName, Result, TestSettings } from '@/engine/messages'
+import { runPhases } from '@/lib/continuous'
 import { formatBytes, formatLatency, formatRate } from '@/lib/format'
 
 // The Test screen's states (ui/screens.md section 1), derived from the run's live view: which
@@ -45,6 +47,8 @@ export interface RunView {
   error: RunError | null
   /** Each direction's live loaded-latency pings; none before the first. */
   loaded?: LoadedSeries
+  /** A Continuous run's tier and overlay rings; null or absent for a bounded run. */
+  continuous?: ContinuousSeries | null
 }
 
 /** Idle latency sends a ping no sooner than this after the previous one (measurement.md section 10). */
@@ -79,9 +83,11 @@ function activeStep(phase: MeasuringPhase, run: RunView, settings: TestSettings)
   // The phase's own time, on the client clock as its duration rule runs; time left to the minimum,
   // and past it, while the phase extends, to the maximum.
   const { minMs, maxMs } = settings[phase]
-  // Continuous, which the app does not run yet, has no duration to count down.
+  // Continuous counts no time down: its elapsed time, against the run length when one is set.
   if (minMs === null || maxMs === null) {
-    return { phase, state: 'active' }
+    const runLengthMs = settings.runLengthMs
+    const elapsedMs = run.live[phase]?.continuous?.elapsedMs ?? elapsed
+    return { phase, state: 'active', continuous: { elapsedMs, ...(runLengthMs === undefined ? {} : { runLengthMs }) }, ...(runLengthMs === undefined ? {} : { progress: elapsedMs / runLengthMs }) }
   }
   const left = (elapsed < minMs ? minMs : maxMs) - elapsed
   return { phase, state: 'active', progress: elapsed / maxMs, ...(left > 0 ? { leftMs: left } : {}) }
@@ -134,7 +140,7 @@ export const PENDING_STEPS: PhaseStep[] = [
 
 /** The phase indicator's steps, in the run's order; between runs every step is pending. */
 export function phaseSteps(run: RunView, settings: TestSettings, locale: string): PhaseStep[] {
-  return settings.phases.map((phase): PhaseStep => {
+  return runPhases(settings).map((phase): PhaseStep => {
     const bounds = phase === 'idle' ? null : settings[phase]
     const estimate = bounds === null ? { aboutMs: settings.pingCount * PING_SPACING_MS } : bounds.minMs === null ? undefined : bounds
     const pending: PhaseStep = { phase, state: 'pending', estimate }
@@ -223,7 +229,7 @@ export function screenTiles(run: RunView, settings: TileSettings, context: Wordi
     // A finished direction shows its part of the result at once, before the run's result.
     const part = result?.[name] ?? (shown ? run.phases[name].result : undefined) ?? null
     const upNext = running && current >= 0 && order.indexOf(name) === current + 1 && run.phases[name].state === 'pending'
-    // Continuous, which the app does not run yet, has no maximum.
+    // Continuous has no maximum.
     const maxMs = settings[name]?.maxMs ?? null
     const tile = directionTile({ direction: name, units: settings.units, live, result: part, overheadPercent: settings.overheadCompensationPercent, upNext, ...(maxMs === null ? {} : { maxMs }) }, context)
     return shown && part === null && run.phases[name].state === 'skipped' ? { ...tile, lines: [{ text: context.t('test.tiles.skipped') }] } : tile

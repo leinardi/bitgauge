@@ -87,15 +87,25 @@ function isMeasuring(phase: PhaseName | null): phase is MeasuringPhase {
   return phase === 'idle' || phase === 'download' || phase === 'upload'
 }
 
-/** "avg so far 597 · peak 610" once warm-up has ended, "warming up" before. */
+/**
+ * "avg so far 597 · peak 610" once warm-up has ended, "warming up" before; a Continuous run's
+ * run-wide average and "p90, last hour", "—" until the engine sends them.
+ */
 function steadyNote(live: DirectionLive | null, { t, locale, units }: GaugeContext): string {
+  const number = (value: number | undefined) => (value === undefined ? t('test.tiles.empty') : rateParts(value, units, locale).number)
+  const continuous = live?.continuous ?? null
+  if (continuous !== null && live?.warmupEnd !== null) {
+    return t('test.tiles.soFar', { avg: number(continuous.avgBitsPerSecond), peak: number(continuous.peakLastHourBitsPerSecond) })
+  }
   const steady = live?.steady
   if (steady === null || steady === undefined) {
     return t('test.tiles.warmingUp')
   }
-  const number = (value: number) => rateParts(value, units, locale).number
   return t('test.tiles.soFar', { avg: number(steady.avgBitsPerSecond), peak: number(steady.peakBitsPerSecond) })
 }
+
+/** The gauge's peak tick: the steady peak so far, or a Continuous run's "p90, last hour". */
+const peakOf = (live: DirectionLive | null) => live?.steady?.peakBitsPerSecond ?? live?.continuous?.peakLastHourBitsPerSecond ?? null
 
 /** The ping counter, with the running median once there is one. */
 function idleNote(idle: IdleLive | null, { t, locale }: GaugeContext): string | null {
@@ -151,7 +161,7 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
         return { ...reading, mode: 'ms', value: run.idle?.rttMs ?? null, label: t('test.gauge.idle'), note: idleNote(run.idle, context) }
       case 'download': {
         const live = run.live.download
-        return { ...reading, direction: 'download', value: live?.gauge ?? null, peak: live?.steady?.peakBitsPerSecond ?? null, label: t('test.gauge.download'), at: elapsedMs('download', live), note: steadyNote(live, context) }
+        return { ...reading, direction: 'download', value: live?.gauge ?? null, peak: peakOf(live), label: t('test.gauge.download'), at: elapsedMs('download', live), note: steadyNote(live, context) }
       }
       case 'upload': {
         const live = run.live.upload

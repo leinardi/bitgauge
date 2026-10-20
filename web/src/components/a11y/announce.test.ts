@@ -24,9 +24,10 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { resultSummary } from '@/components/a11y/announce'
+import { phaseAnnouncements, resultSummary } from '@/components/a11y/announce'
 import type { Wording } from '@/components/test/wording'
 import { createAppI18n } from '@/i18n'
+import { continuousResultSettings } from '@/test/continuous'
 import { resultFixture } from '@/test/fixtures'
 
 const wording: Wording = { t: createAppI18n('', ['en']).global.t as unknown as Wording['t'], locale: 'en' }
@@ -109,5 +110,35 @@ describe('the result summary', () => {
     )
     // A partial result's summary leaves them out, as its Test screen state does.
     expect(resultSummary({ ...over('http/1.1'), status: 'partial' }, 'bits', wording)).not.toContain('responsiveness')
+  })
+})
+
+describe('a Continuous run', () => {
+  const pending = { state: 'pending' } as const
+  const phases = (download: 'pending' | 'started') => ({ info: { state: 'finished' as const }, idle: { state: 'finished' as const }, download: download === 'pending' ? pending : { state: 'started' as const }, upload: pending })
+
+  it('announces its direction as running', () => {
+    expect(phaseAnnouncements(phases('pending'), phases('started'), 'bits', wording, true)).toEqual(['Continuous download running.'])
+    expect(phaseAnnouncements(phases('pending'), phases('started'), 'bits', wording)).toEqual(['Measuring download'])
+  })
+
+  it('reads its one direction with the run-wide minimum, maximum and p90 of the last hour, and the other as not run', () => {
+    const base = resultFixture()
+    const result = resultFixture({
+      settings: continuousResultSettings('download'),
+      download: { ...base.download!, bitsPerSecond: 921e6, minBitsPerSecond: 702e6, maxBitsPerSecond: 941e6, peakBitsPerSecond: 936e6, confidence: { level: 'normal', reasons: [] } },
+      upload: { status: 'skipped', streams: 0, bytes: 0, events: [], confirmedRequests: 0 },
+    })
+    expect(resultSummary(result, 'bits', wording)).toContain(
+      'Download average 921 megabits per second, run-wide minimum 702 megabits per second, maximum 941 megabits per second, peak 936 megabits per second p90, last hour. Upload not run. Idle latency',
+    )
+    // Without a p90 of the last hour, and on upload with its qualifiers.
+    const upload = resultFixture({
+      settings: continuousResultSettings('upload'),
+      upload: { ...base.upload!, bitsPerSecond: 412e6, minBitsPerSecond: 318e6, maxBitsPerSecond: 437e6, peakBitsPerSecond: undefined, confidence: { level: 'low', reasons: ['unstable'] } },
+    })
+    expect(resultSummary(upload, 'bits', wording)).toContain(
+      'Download not run. Upload average 412 megabits per second, run-wide minimum 318 megabits per second, maximum 437 megabits per second, low confidence: unstable. Idle',
+    )
   })
 })

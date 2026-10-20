@@ -106,9 +106,11 @@ export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
     case 'data-cap-reached':
       return { tone: 'warn', icon: Gauge, title: t('notices.dataCapReached.title'), body: notice.direction === 'download' ? t('notices.dataCapReached.download') : t('notices.dataCapReached.upload'), actions: [] }
     case 'data-used': {
-      // A Continuous run passed 10⁹ × 10ᵏ bytes; the next notice comes at ten times as much.
+      // A Continuous run passed 10⁹ × 10ᵏ bytes; while it runs, the next notice comes at ten times
+      // as much, and the finished result lists each threshold it passed.
       const data = formatBytes(notice.bytes, locale)
-      return { tone: 'info', icon: Database, title: t('notices.dataUsed.title', { data }), body: t('notices.dataUsed.body', { data, next: formatBytes(notice.bytes * 10, locale) }), actions: [] }
+      const body = context.result === null || context.result === undefined ? t('notices.dataUsed.body', { data, next: formatBytes(notice.bytes * 10, locale) }) : t('notices.dataUsed.passed', { data })
+      return { tone: 'info', icon: Database, title: t('notices.dataUsed.title', { data }), body, actions: [] }
     }
     case 'stream-limit': {
       const n = notice.streams

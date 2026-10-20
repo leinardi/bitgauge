@@ -24,6 +24,7 @@ import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { PhaseView } from '@/composables/useRunState'
 import type { Bufferbloat, Direction, DirectionResult, Experience, PhaseName, Responsiveness, Result, ScoreBand } from '@/engine/messages'
+import { continuousDirection } from '@/lib/continuous'
 import { rpmNumber, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
 import { protocolLabel } from '@/lib/protocol'
 
@@ -35,16 +36,16 @@ type Units = 'bits' | 'bytes'
 
 const ORDER: readonly PhaseName[] = ['info', 'idle', 'download', 'upload']
 
-function phaseStarted(phase: PhaseName, { t }: Wording): string {
+function phaseStarted(phase: PhaseName, { t }: Wording, continuous: boolean): string {
   switch (phase) {
     case 'info':
       return t('a11y.live.phase.info')
     case 'idle':
       return t('a11y.live.phase.idle')
     case 'download':
-      return t('a11y.live.phase.download')
+      return continuous ? t('a11y.live.phase.continuousDownload') : t('a11y.live.phase.download')
     case 'upload':
-      return t('a11y.live.phase.upload')
+      return continuous ? t('a11y.live.phase.continuousUpload') : t('a11y.live.phase.upload')
   }
 }
 
@@ -59,12 +60,13 @@ function directionFinished(direction: Direction, view: PhaseView, units: Units, 
 
 /**
  * The announcements of a change in the phases: each finished direction's headline, then the phase
- * that started, so a headline is never cut off by the next phase.
+ * that started, so a headline is never cut off by the next phase; a Continuous run's direction is
+ * announced as running.
  */
-export function phaseAnnouncements(before: Record<PhaseName, PhaseView>, after: Record<PhaseName, PhaseView>, units: Units, wording: Wording): string[] {
+export function phaseAnnouncements(before: Record<PhaseName, PhaseView>, after: Record<PhaseName, PhaseView>, units: Units, wording: Wording, continuous = false): string[] {
   const changed = ORDER.filter((phase) => before[phase].state !== after[phase].state)
   const finished = changed.flatMap((phase) => (after[phase].state === 'finished' && (phase === 'download' || phase === 'upload') ? [directionFinished(phase, after[phase], units, wording)] : []))
-  const started = changed.flatMap((phase) => (after[phase].state === 'started' ? [phaseStarted(phase, wording)] : []))
+  const started = changed.flatMap((phase) => (after[phase].state === 'started' ? [phaseStarted(phase, wording, continuous)] : []))
   return [...finished, ...started]
 }
 
@@ -134,6 +136,45 @@ function uploadSentence(block: DirectionResult, units: Units, context: Wording):
   const rate = spokenRate(block.bitsPerSecond, units, locale)
   const list = qualifiers(block, context)
   return list.length === 0 ? t('a11y.summary.upload.measured', { rate }) : t('a11y.summary.upload.qualified', { rate, qualifiers: new Intl.ListFormat(locale, { type: 'unit' }).format(list) })
+}
+
+/**
+ * A Continuous direction measured: its run-wide average, minimum and maximum, and its "p90, last
+ * hour" when it has one, with the qualifiers; otherwise as a bounded direction is said.
+ */
+function continuousSentence(direction: Direction, block: DirectionResult, units: Units, context: Wording): string {
+  const { t, locale } = context
+  const { bitsPerSecond, minBitsPerSecond, maxBitsPerSecond, peakBitsPerSecond } = block
+  if (bitsPerSecond === undefined || minBitsPerSecond === undefined || maxBitsPerSecond === undefined) {
+    return direction === 'download' ? downloadSentence(block, units, context) : uploadSentence(block, units, context)
+  }
+  const values = { rate: spokenRate(bitsPerSecond, units, locale), min: spokenRate(minBitsPerSecond, units, locale), max: spokenRate(maxBitsPerSecond, units, locale) }
+  let figures: string
+  if (peakBitsPerSecond === undefined) {
+    figures = direction === 'download' ? t('a11y.summary.continuous.download', values) : t('a11y.summary.continuous.upload', values)
+  } else {
+    const peaked = { ...values, peak: spokenRate(peakBitsPerSecond, units, locale) }
+    figures = direction === 'download' ? t('a11y.summary.continuous.downloadPeak', peaked) : t('a11y.summary.continuous.uploadPeak', peaked)
+  }
+  const list = qualifiers(block, context)
+  return list.length === 0 ? t('a11y.summary.continuous.sentence', { figures }) : t('a11y.summary.continuous.qualified', { figures, qualifiers: new Intl.ListFormat(locale, { type: 'unit' }).format(list) })
+}
+
+/** The directions a result says: a Continuous one's own direction, then the other as not run. */
+function directionSentences(result: Result, units: Units, context: Wording): (string | null)[] {
+  const { t } = context
+  const continuous = continuousDirection(result.settings)
+  const phases = result.settings.phases
+  if (continuous === null) {
+    return [
+      phases.includes('download') && result.download !== undefined ? downloadSentence(result.download, units, context) : null,
+      phases.includes('upload') && result.upload !== undefined ? uploadSentence(result.upload, units, context) : null,
+    ]
+  }
+  const block = result[continuous]
+  const ran = block === undefined ? null : continuousSentence(continuous, block, units, context)
+  const other = continuous === 'download' ? t('a11y.summary.continuous.uploadNotRun') : t('a11y.summary.continuous.downloadNotRun')
+  return continuous === 'download' ? [ran, other] : [other, ran]
 }
 
 function latency(ms: number, resolutionMs: number, { t, locale }: Wording): string {
@@ -265,16 +306,15 @@ function qualitySentence(result: Result, context: Wording): string | null {
  * The result summary of section 2.7: the status, download and upload with their qualifiers, idle
  * latency and jitter, the grade with the loaded-latency increase it rests on, from v0.3 the HTTP
  * loaded responsiveness and the quality scores of a complete result, data used, and the notices by
- * title. A direction the settings left out is not mentioned.
+ * title. A direction the settings left out is not mentioned; a Continuous result says its one
+ * direction with its run-wide minimum, maximum and "p90, last hour", and the other as not run.
  */
 export function resultSummary(result: Result, units: Units, context: Wording): string {
   const { t, locale } = context
-  const phases = result.settings.phases
   const titles = result.notices.map((notice) => noticeView(notice, { ...context, result }).title)
   const sentences = [
     statusSentence(result, context),
-    phases.includes('download') && result.download !== undefined ? downloadSentence(result.download, units, context) : null,
-    phases.includes('upload') && result.upload !== undefined ? uploadSentence(result.upload, units, context) : null,
+    ...directionSentences(result, units, context),
     idleSentence(result, context),
     gradeSentence(result, context),
     // A complete result's alone, as the Test screen shows them on its Done state only.

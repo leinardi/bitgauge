@@ -78,4 +78,16 @@ describe('chartGeometry', () => {
       [625, 13.5, '100 ms'],
     ])
   })
+
+  it('starts a time axis past 0 at its first retained second, ticked from the first step after it', () => {
+    // A Continuous run of 8 days, whose long ring retains its last 7: 86 400 s to 777 600 s.
+    const evicted = chartGeometry({ width: 672, height: 300, xMin: 86_400, xMax: 777_600, xStep: 86_400, yMax: 8e8, yLabels: LABELS, xLabel: (s) => `${s / 86_400}d`, compact: false })
+    expect(evicted.x(86_400)).toBe(evicted.left)
+    expect(evicted.x(777_600)).toBe(evicted.right)
+    expect(evicted.x(432_000)).toBeCloseTo((evicted.left + evicted.right) / 2)
+    expect(evicted.ticks.map((tick) => tick.text)).toEqual(['1d', '2d', '3d', '4d', '5d', '6d', '7d', '8d', '9d'])
+    const offStep = chartGeometry({ width: 672, height: 300, xMin: 100_000, xMax: 400_000, xStep: 86_400, yMax: 8e8, yLabels: LABELS, xLabel: (s) => `${s / 86_400}d`, compact: false })
+    expect(offStep.ticks.map((tick) => tick.text)).toEqual(['2d', '3d', '4d'])
+    expect(offStep.ticks[0]?.x).toBeGreaterThan(offStep.left)
+  })
 })

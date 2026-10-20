@@ -29,6 +29,7 @@ import { stopWording } from '@/components/test/stop'
 import type { Wording } from '@/components/test/wording'
 import type { Direction, Result } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
+import { continuousResultSettings } from '@/test/continuous'
 import { resultFixture } from '@/test/fixtures'
 
 const wording: Wording = { t: createAppI18n('', ['en']).global.t as unknown as Wording['t'], locale: 'en' }
@@ -79,6 +80,15 @@ describe('the stop notice', () => {
       wording,
     )
     expect(shown.body.replace(/\u00a0/gu, ' ')).toBe('Upload stopped at 4.2 s, before a 3 s confirmed steady window, so it has no value. Download did not run.')
+  })
+
+  it('names no other direction as not run for a Continuous run, which runs one', () => {
+    const shown = words('download', 0, {
+      settings: continuousResultSettings('download'),
+      download: { status: 'insufficient-data', streams: 4, bytes: 6e6, events: [{ code: 'cancelled', atMs: 5000 }] },
+      upload: { ...SKIPPED, confirmedRequests: 0 },
+    })
+    expect(shown.body).toBe('Latency completed. Download stopped before a 3 s steady window, so it has no value.')
   })
 
   it('words a stop during idle latency from the pings sent, with no stopped-early notice in the result', () => {

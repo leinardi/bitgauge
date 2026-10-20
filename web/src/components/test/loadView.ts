@@ -74,11 +74,16 @@ function pingsRow(direction: Direction, pings: readonly { ms: number }[], idleMe
 
 /**
  * A result's row with what the kit's Test screen adds to it: "partial" on a direction stopped early,
- * and why a direction has no number when it failed, or when the upload stopped in its warm-up.
+ * "last hour" on a Continuous one, and why a direction has no number when it failed, or when the
+ * upload stopped in its warm-up.
  */
 function qualified(row: LoadRow, loaded: LoadedLatency, result: Result, { t }: Wording): LoadRow {
   const outcome = result[row.direction]
   if (!('status' in loaded)) {
+    // A Continuous direction's loaded latency is the last hour's (measurement.md section 15).
+    if (result.settings.preset === 'continuous') {
+      return { ...row, sub: t('test.load.lastHour', { sub: row.sub }) }
+    }
     return outcome?.status === 'partial' ? { ...row, sub: t('test.load.partial', { sub: row.sub }) } : row
   }
   if (outcome?.status === 'error') {

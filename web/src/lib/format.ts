@@ -149,6 +149,17 @@ export function formatLimit(ms: number, locale: string): string {
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(ms / 1000)}${NBSP}s`
 }
 
+/** An elapsed time as a clock reads it: 0:06, 42:18, 1:02:03, 50:00:00 past a day. */
+export function clockTime(ms: number, locale: string): string {
+  const total = Math.max(0, Math.floor(ms / 1000))
+  const two = new Intl.NumberFormat(locale, { minimumIntegerDigits: 2, useGrouping: false })
+  const hours = Math.floor(total / 3600)
+  const minutes = Math.floor((total % 3600) / 60)
+  const seconds = two.format(total % 60)
+  const whole = new Intl.NumberFormat(locale, { useGrouping: false })
+  return hours === 0 ? `${whole.format(minutes)}:${seconds}` : `${whole.format(hours)}:${two.format(minutes)}:${seconds}`
+}
+
 /** An HTTP loaded responsiveness in round trips per minute, a whole number: 1,420. */
 export function rpmNumber(rpm: number, locale: string): string {
   return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(rpm)

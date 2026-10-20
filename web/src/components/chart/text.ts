@@ -20,8 +20,9 @@
 import type { ChartModel, MarkCode } from '@/components/chart/series'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
+import type { ContinuousSeries } from '@/composables/useContinuousSeries'
 import type { Direction, TestSettings } from '@/engine/messages'
-import { secondsNumber } from '@/lib/format'
+import { clockTime, secondsNumber } from '@/lib/format'
 
 // What the live chart says in words (design_system/components/charts.md, Chart or table): its
 // title, its legend, the meta line of where the run stands, and the summary that labels it for
@@ -53,6 +54,8 @@ export interface ChartTextInput {
   readout: string | null
   /** The loaded latency is drawn on its second scale: the toggle is on and there are pings. */
   latencyShown?: boolean
+  /** A Continuous run's tier rings; its meta reads its elapsed time. */
+  continuous?: ContinuousSeries | null
 }
 
 const hasValue = (live: DirectionLive | null) => live !== null && live.values.some((value) => value !== null)
@@ -89,9 +92,38 @@ export function chartLegend({ state, order, live, model }: ChartTextInput, { t }
   return banded ? [...entries, latency, entry('warmup', t('test.chart.legend.warmup'), 'var(--chart-band)', false, true)] : [...entries, latency]
 }
 
+/**
+ * A Continuous run's place: the elapsed time against the run length, or alone without one, then
+ * how it ended, on its direction's clock: stopped by the user, at the data cap or on an error, or
+ * the elapsed time alone once its run length has passed. An upload's unknown cells are gaps.
+ */
+function continuousMeta({ state, live, model }: ChartTextInput, series: ContinuousSeries, { t, locale }: Wording): string {
+  const runLengthMs = live[series.direction]?.continuous?.runLengthMs
+  const elapsed = clockTime(series.elapsedMs, locale)
+  const ended = (code: MarkCode) => model.marks.some((mark) => mark.code === code)
+  let meta: string
+  if (state === 'running') {
+    meta = runLengthMs === undefined ? t('test.chart.continuousElapsed', { elapsed }) : t('test.chart.continuousOf', { elapsed, of: clockTime(runLengthMs, locale) })
+  } else if (ended('cancelled')) {
+    meta = t('test.chart.continuousByYou', { elapsed })
+  } else if (ended('data-cap')) {
+    meta = t('test.chart.continuousDataCap', { elapsed })
+  } else if (ended('error')) {
+    meta = t('test.chart.continuousStopped', { elapsed })
+  } else {
+    meta = elapsed
+  }
+  return series.direction === 'upload' ? t('test.chart.unknownGaps', { meta }) : meta
+}
+
 /** Where the run stands: elapsed over the current phase's minimum, the total, or where it stopped. */
-export function chartMeta({ state, order, live, model, durations, totalMs }: ChartTextInput, { t, locale }: Wording): string {
+export function chartMeta(input: ChartTextInput, wording: Wording): string {
+  const { state, order, live, model, durations, totalMs } = input
+  const { t, locale } = wording
   const seconds = (s: number) => secondsNumber(s * 1000, locale)
+  if (state !== 'empty' && input.continuous !== undefined && input.continuous !== null) {
+    return continuousMeta(input, input.continuous, wording)
+  }
   switch (state) {
     case 'empty':
       return ''
@@ -101,7 +133,6 @@ export function chartMeta({ state, order, live, model, durations, totalMs }: Cha
       return t('test.chart.stopped', { s: seconds(model.end) })
     case 'running': {
       const current = order.filter((direction) => live[direction] !== null).at(-1)
-      // Continuous, which the app does not run yet, plans no end.
       const minMs = current === undefined || durations === null ? null : durations[current].minMs
       if (minMs === null) {
         return ''
@@ -111,6 +142,25 @@ export function chartMeta({ state, order, live, model, durations, totalMs }: Cha
       return t('test.chart.elapsed', { s: seconds(model.end), of: planned })
     }
   }
+}
+
+/** The time ticks' spacing on a Continuous axis of `span` seconds: whole seconds, minutes or hours, about six ticks. */
+const CONTINUOUS_STEPS = [10, 30, 60, 120, 300, 600, 1200, 1800, 3600, 7200, 10800, 21600, 43200, 86400]
+
+export function continuousStep(span: number): number {
+  return CONTINUOUS_STEPS.find((step) => step * 6 >= span) ?? 86400
+}
+
+/** A Continuous axis's tick: 30s, 10m, 2h, 1d as the run's span asks. */
+export function continuousTick(seconds: number, { t, locale }: Wording): string {
+  const whole = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value)
+  if (seconds < 60) {
+    return t('test.chart.seconds', { n: whole(seconds) })
+  }
+  if (seconds < 3600 || seconds % 3600 !== 0) {
+    return t('test.chart.minutes', { n: whole(seconds / 60) })
+  }
+  return seconds % 86400 === 0 && seconds > 0 ? t('test.chart.days', { n: whole(seconds / 86400) }) : t('test.chart.hours', { n: whole(seconds / 3600) })
 }
 
 const MARK_LABELS: Record<MarkCode, (t: Wording['t']) => string> = {

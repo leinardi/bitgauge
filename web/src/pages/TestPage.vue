@@ -33,6 +33,7 @@ import ResultSection from '@/components/test/ResultSection.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
 import RunSection from '@/components/test/RunSection.vue'
 import { PENDING_STEPS, phaseSteps, screenTiles } from '@/components/test/screen/states'
+import { continuousView } from '@/components/test/continuous/continuous'
 import { loadView } from '@/components/test/loadView'
 import { gaugeInput, offlineGauge } from '@/components/test/screen/view'
 import { useContextLabel } from '@/composables/useContextLabel'
@@ -48,6 +49,7 @@ import { useTestKeys } from '@/composables/useTestKeys'
 import { useTestScreen } from '@/composables/useTestScreen'
 import { consumeAutoRun, urlOverride, useUrlParams } from '@/composables/useUrlParams'
 import type { Preset } from '@/engine/messages'
+import { continuousDirection, runPhases } from '@/lib/continuous'
 import { DEFAULT_AUTO_START } from '@/lib/settingsStorage'
 import { SECOND } from '@/lib/urlValues'
 
@@ -90,7 +92,7 @@ const load = computed(() =>
   loadView(
     {
       status: run.status.value,
-      phases: shownSettings.value?.phases ?? PENDING_STEPS.map((step) => step.phase),
+      phases: shownSettings.value === null ? PENDING_STEPS.map((step) => step.phase) : runPhases(shownSettings.value),
       states: { download: run.phases.value.download.state, upload: run.phases.value.upload.state },
       stoppedEarly: run.status.value === 'idle' && run.phases.value.idle.state !== 'pending',
       pings: run.loaded.value,
@@ -103,6 +105,31 @@ const load = computed(() =>
 )
 // The quality list shows on the Done state only, as the HTTP loaded responsiveness does.
 const quality = computed(() => (state.value === 'done' && run.result.value !== null ? qualityView(run.result.value, wording.value) : null))
+// A Continuous run's live view, in place of the tiles once its direction starts: idle latency runs
+// first with its own tiles (ui/screens.md section 1); then until the next run.
+const continuous = computed(() => {
+  const direction = continuousDirection(shownSettings.value)
+  const settings = shownSettings.value
+  if (direction === null || settings === null || state.value === 'idle' || run.phases.value[direction].state === 'pending') {
+    return null
+  }
+  const result = running.value ? null : run.result.value
+  return continuousView(
+    {
+      direction,
+      units: units.value,
+      live: run.live.value[direction],
+      result: result?.[direction] ?? null,
+      dataUsedBytes: result?.dataUsedBytes ?? run.dataUsedBytes.value,
+      ...(settings.runLengthMs === undefined ? {} : { runLengthMs: settings.runLengthMs }),
+      idleMedianMs: result?.idle?.medianMs ?? run.phases.value.idle.idle?.medianMs ?? null,
+      resolutionMs: result?.client.timerResolutionMs ?? 0,
+      overheadPercent: settings.overheadCompensationPercent,
+      nowMs: Date.now(),
+    },
+    wording.value,
+  )
+})
 const tiles = computed(() => screenTiles(view.value, shownSettings.value ?? { units: 'bits', overheadCompensationPercent: 0 }, wording.value, elapsed.value, kept.value))
 
 // The result's label: the link's for this page load, otherwise the one stored on the Settings screen.
@@ -214,6 +241,7 @@ watch(run.error, (error) => {
     <LiveRegions
       :run="view"
       :units="units"
+      :continuous="continuousDirection(shownSettings) !== null"
     />
     <OfflineNotice
       v-if="reachability === 'unreachable'"
@@ -283,6 +311,7 @@ watch(run.error, (error) => {
       :units="units"
       :load="load"
       :quality="quality"
+      :continuous="continuous"
     />
     <LastResult
       v-if="lastResult !== null"

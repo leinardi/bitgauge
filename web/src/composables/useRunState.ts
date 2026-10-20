@@ -32,7 +32,7 @@ import type {
   Result,
   TestSettings,
 } from '@/engine/messages'
-import { type DirectionLive, emptyLive, type LiveRings, liveRings, record } from '@/composables/runLive'
+import { type DirectionLive, emptyLive, type LiveRings, liveRings, record, withSampleNotices } from '@/composables/runLive'
 
 // The live view of a run (frontend.md section 4), fed by the engine's settings, phase, sample, idle,
 // result and error events. No event marks the end of a run: it is read from their order (architecture.md
@@ -159,6 +159,9 @@ export function createRunState() {
     live.value = { ...live.value, [event.direction]: { ...record(live.value[event.direction], own, event) } }
     direction.value = event.direction
     dataUsedBytes.value = event.dataUsedBytes
+    if (event.notices !== undefined && event.notices.length > 0) {
+      notices.value = withSampleNotices(notices.value, event.notices)
+    }
   }
 
   return {

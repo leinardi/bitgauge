@@ -83,7 +83,7 @@ export interface ChartGeometry {
   bottom: number
   /** One gridline per quarter of the value scale, bottom first; the label sits at its left. */
   grid: { y: number; label: Label }[]
-  /** The time ticks, from 0. */
+  /** The time ticks, from the axis's start. */
   ticks: Label[]
   /** A second value scale's labels right of the plot, bottom first, at 0, half and the whole of it. */
   grid2: Label[]
@@ -95,8 +95,12 @@ export interface ChartGeometry {
 export interface GeometryInput {
   width: number
   height: number
+  /** The time axis's start, in seconds: 0, or where a Continuous tier's oldest retained cell sits. */
+  xMin?: number
   /** The time axis's end, in seconds. */
   xMax: number
+  /** The time ticks' spacing in seconds, in place of the one picked from the axis's length. */
+  xStep?: number
   /** The value scale's top. */
   yMax: number
   /** The five value labels, at 0 and each quarter of yMax (rateAxisLabels, latencyAxisLabels). */
@@ -119,19 +123,20 @@ function tickStep(xMax: number, compact: boolean): number {
 
 const gutter = (labels: readonly string[], least: number) => Math.max(least, Math.ceil(Math.max(...labels.map((label) => label.length)) * LABEL_CHAR) + LABEL_PAD)
 
-export function chartGeometry({ width, height, xMax, yMax, yLabels, xLabel, compact, y2Labels = [] }: GeometryInput): ChartGeometry {
+export function chartGeometry({ width, height, xMin = 0, xMax, xStep, yMax, yLabels, xLabel, compact, y2Labels = [] }: GeometryInput): ChartGeometry {
   const left = gutter(yLabels, LEFT_MIN)
   const right = width - (y2Labels.length === 0 ? RIGHT : gutter(y2Labels, RIGHT_MIN))
   const bottom = height - BOTTOM
-  const x = (seconds: number) => left + ((right - left) * seconds) / xMax
+  const x = (seconds: number) => left + ((right - left) * (seconds - xMin)) / (xMax - xMin)
   const y = (value: number) => TOP + (bottom - TOP) * (1 - value / yMax)
   const grid = yLabels.map((text, index) => {
     const at = y((yMax * index) / (yLabels.length - 1))
     return { y: at, label: { x: left - LABEL_GAP, y: at + LABEL_DROP, text } }
   })
-  const step = tickStep(xMax, compact)
+  const step = xStep ?? tickStep(xMax, compact)
   const ticks: Label[] = []
-  for (let seconds = 0; seconds <= xMax + 1e-9; seconds += step) {
+  // The first tick at or after the start; `|| 0` turns the -0 of a start at 0 into 0.
+  for (let seconds = Math.ceil(xMin / step - 1e-9) * step || 0; seconds <= xMax + 1e-9; seconds += step) {
     ticks.push({ x: x(seconds), y: height - TICK_RISE, text: xLabel(Math.round(seconds * 10) / 10) })
   }
   const grid2 = y2Labels.map((text, index) => ({ x: right + LABEL_GAP, y: TOP + (bottom - TOP) * (1 - index / Math.max(1, y2Labels.length - 1)) + LABEL_DROP, text }))

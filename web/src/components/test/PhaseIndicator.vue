@@ -23,7 +23,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { PhaseStep, StepState } from '@/components/test/steps'
 import type { MeasuringPhase } from '@/engine/messages'
-import { formatDuration } from '@/lib/format'
+import { clockTime, formatDuration } from '@/lib/format'
 
 // The phase indicator (ui/screens.md section 1, design_system/components/phase-indicator.md): the
 // measuring phases in the configured order, each with its state carried by an icon and text, never
@@ -49,8 +49,10 @@ const STATE_ICON: Record<Exclude<StepState, 'active'>, { icon: Component; color:
   capped: { icon: TriangleAlert, color: 'var(--fg-subtle)' },
 }
 
-function name(phase: MeasuringPhase): string {
-  return phase === 'idle' ? t('test.phases.idle') : phase === 'download' ? t('test.phases.download') : t('test.phases.upload')
+function name(step: PhaseStep): string {
+  const phase = step.phase
+  const plain = phase === 'idle' ? t('test.phases.idle') : phase === 'download' ? t('test.phases.download') : t('test.phases.upload')
+  return step.continuous === undefined ? plain : t('test.phases.continuous', { name: plain })
 }
 
 const seconds = (ms: number) => formatDuration(ms, locale.value)
@@ -70,6 +72,11 @@ function meta(step: PhaseStep): string {
     case 'active':
       if (step.pings !== undefined) {
         return t('test.phases.activePings', step.pings)
+      }
+      if (step.continuous !== undefined) {
+        const elapsed = clockTime(step.continuous.elapsedMs, locale.value)
+        const { runLengthMs } = step.continuous
+        return runLengthMs === undefined ? t('test.phases.activeElapsed', { elapsed }) : t('test.phases.activeOf', { elapsed, of: clockTime(runLengthMs, locale.value) })
       }
       return step.leftMs === undefined ? t('test.phases.active') : t('test.phases.activeLeft', { left: seconds(step.leftMs) })
     case 'done':
@@ -119,7 +126,7 @@ const rows = computed(() =>
     const connecting = index === 0 && props.connecting
     const active = step.state === 'active' || connecting
     const marker = step.state === 'active' || connecting ? { icon: DIRECTION_ICON[step.phase], color: SERIES[step.phase] } : STATE_ICON[step.state]
-    const label = connecting ? t('test.phases.connecting') : name(step.phase)
+    const label = connecting ? t('test.phases.connecting') : name(step)
     return { key: step.phase, step, name: label, meta: connecting ? t('test.phases.connectingMeta') : meta(step), marker, bar: bar(step), active }
   }),
 )
