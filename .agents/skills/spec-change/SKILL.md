@@ -30,7 +30,7 @@ responsiveness probe) and the upload JSON shape: exactly `epoch`, `bucketMs`, `f
 
 Search the whole tree for the old value and its spellings (`120 s`, `120000`, `1200 cells`). A
 config key also needs its validation rule in configuration.md; a native route or field also goes
-through the `api-contract` skill. When a number moves, the code that states it moves in the same
+through the `wire-compat` skill. When a number moves, the code that states it moves in the same
 change. Prefer linking to the page or file that owns a fact over restating it.
 
 ## 2. decisions.md: each locked decision exactly once

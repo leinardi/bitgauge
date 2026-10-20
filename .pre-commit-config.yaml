@@ -9,7 +9,7 @@ default_stages: [pre-commit]
 # The Claude Design export under docs/design_system is copied in as exported and is never
 # hand-edited (docs/README.md, Provenance Rule), so it is excluded too, except features/: those are
 # the spec pages the symlinks in docs/features point at, linted like any spec page.
-exclude: '^(\.agents/skills/(create-adaptable-composable|fallow|vue-best-practices|vue-debug-guides|vue-router-best-practices|vue-testing-best-practices)/|docs/design_system/(?!features/))'
+exclude: '^(\.agents/skills/(fallow|vue-best-practices|vue-router-best-practices|vue-testing-best-practices)/|docs/design_system/(?!features/))'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks

@@ -1,12 +1,6 @@
 {
   "version": 1,
   "skills": {
-    "create-adaptable-composable": {
-      "source": "vuejs-ai/skills",
-      "sourceType": "github",
-      "skillPath": "skills/create-adaptable-composable/SKILL.md",
-      "computedHash": "2f215126499d29a733be980ef9ce8f4ffb5f25a8831aec965d86c0cd21b2c5d2"
-    },
     "fallow": {
       "source": "fallow-rs/fallow-skills",
       "sourceType": "github",
@@ -18,12 +12,6 @@
       "sourceType": "github",
       "skillPath": "skills/vue-best-practices/SKILL.md",
       "computedHash": "3df585ad31aec78fe55c56c1411262737e6b231677a3153dec512a882fde80cd"
-    },
-    "vue-debug-guides": {
-      "source": "vuejs-ai/skills",
-      "sourceType": "github",
-      "skillPath": "skills/vue-debug-guides/SKILL.md",
-      "computedHash": "fa7b31c32a6717ae47cd2ea208773e27536225ad053a564effe656bf927fe9ef"
     },
     "vue-router-best-practices": {
       "source": "vuejs-ai/skills",

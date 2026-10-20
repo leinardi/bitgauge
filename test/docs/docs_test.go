@@ -38,10 +38,8 @@ import (
 // skills-lock.json) and the design export (never hand-edited). The parts of the export that
 // docs/features symlinks to are still checked, under their docs/features path.
 var excludedTrees = []string{
-	".agents/skills/create-adaptable-composable/",
 	".agents/skills/fallow/",
 	".agents/skills/vue-best-practices/",
-	".agents/skills/vue-debug-guides/",
 	".agents/skills/vue-router-best-practices/",
 	".agents/skills/vue-testing-best-practices/",
 	"docs/design_system/",

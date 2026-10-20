@@ -70,14 +70,14 @@ it is how the audit notices the day it starts to exist.
 >
 > 1. **Stateless server**: any database, file write, volume, stored result, or state beyond the
 >    bounded in-memory counters for limits and metrics
->    (`docs/features/principles.md`, `.agents/skills/stateless-guard/SKILL.md`).
+>    (`docs/features/principles.md`, `.agents/skills/server-invariants/SKILL.md`).
 > 2. **No outbound calls**: any outbound network client, DNS lookup, telemetry, update check or
 >    external URL, including in dependencies reachable from `cmd/bitgauge`.
 > 3. **Handlers**: state held beyond the request; allocation per download request; an upload
 >    answered before its body is drained; a request body, header or WebSocket message logged.
 > 4. **Trust boundary**: client IP read from `X-Forwarded-For` other than through
 >    `server.trusted_proxies`, any read of `X-Real-IP` or a similar header, rate limits that a
->    client can step around; walk `.agents/skills/trust-boundary/SKILL.md` item by item.
+>    client can step around; walk `.agents/skills/server-invariants/SKILL.md` item by item.
 > 5. **Configuration**: keys read but not documented in `docs/features/configuration.md`, keys
 >    documented but not read, and validation that fails open rather than exiting with status 2.
 > 6. **Wire compatibility**: drift between `internal/compat/` and

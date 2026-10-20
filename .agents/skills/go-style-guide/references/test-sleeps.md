@@ -1,6 +1,6 @@
 # Time in tests — BitGauge
 
-Detail for §18 of [the Go style guide](../SKILL.md). Read it before writing code that depends on
+Detail for §12 of [the Go style guide](../SKILL.md). Read it before writing code that depends on
 time, a wait in a test, or a `time.Sleep` in a `_test.go` file.
 
 BitGauge measures time for a living, so its tests treat time as an input. The testing strategy is

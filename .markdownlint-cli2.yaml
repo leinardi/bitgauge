@@ -41,10 +41,8 @@ ignores:
   # The design export is never hand-edited (docs/README.md).
   - docs/design_system/**
   # Third-party skills tracked in skills-lock.json.
-  - .agents/skills/create-adaptable-composable/**
   - .agents/skills/fallow/**
   - .agents/skills/vue-best-practices/**
-  - .agents/skills/vue-debug-guides/**
   - .agents/skills/vue-router-best-practices/**
   - .agents/skills/vue-testing-best-practices/**
 

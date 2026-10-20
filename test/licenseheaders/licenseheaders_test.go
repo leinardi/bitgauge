@@ -138,7 +138,7 @@ func TestHeaderCases(t *testing.T) {
 			false,
 		},
 		"untracked file without a header": {map[string]string{untrackedPrefix + "scratch.go": "package x\n"}, true},
-		"bitgauge-authored skill script":  {map[string]string{".agents/skills/stateless-guard/x.sh": "echo\n"}, false},
+		"bitgauge-authored skill script":  {map[string]string{".agents/skills/server-invariants/x.sh": "echo\n"}, false},
 		"upstream make fragment":          {map[string]string{".mk/docker.mk": "x:\n", ".mk/help.mk": "y:\n"}, true},
 		"bootstrap script":                {map[string]string{"scripts/bootstrap-mk-common.sh": "#!/bin/sh\n"}, true},
 		"generated api types":             {map[string]string{"web/src/api/types.gen.ts": "export {}\n"}, true},

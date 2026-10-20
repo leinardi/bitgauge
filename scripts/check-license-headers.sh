@@ -61,10 +61,8 @@ REQUIRED_LINES=(
 
 # Path prefixes and exact paths that are not BitGauge's own source.
 EXEMPT_PREFIXES=(
-	".agents/skills/create-adaptable-composable/"
 	".agents/skills/fallow/"
 	".agents/skills/vue-best-practices/"
-	".agents/skills/vue-debug-guides/"
 	".agents/skills/vue-router-best-practices/"
 	".agents/skills/vue-testing-best-practices/"
 	"docs/design_system/"

@@ -1,6 +1,6 @@
 # Error envelope — BitGauge
 
-Detail for §17 of [the Go style guide](../SKILL.md). Read it before writing an error response, a
+Detail for §11 of [the Go style guide](../SKILL.md). Read it before writing an error response, a
 `429`, a panic-recovery path or a compatibility route's failure. The contract is
 [wire-protocol.md §7](../../../../docs/features/wire-protocol.md#7-error-envelope); this page
 quotes it and adds the coding rules around it. When the two disagree, the wire protocol wins.
