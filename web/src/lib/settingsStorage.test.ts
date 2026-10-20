@@ -45,6 +45,8 @@ describe('reading and writing', () => {
     const storage = memory({
       theme: 'dark',
       preset: 'continuous',
+      continuousDirection: 'sideways',
+      runLengthS: 59,
       phases: ['download', 'idle'],
       streams: { mode: 'fixed', fixed: 4 },
       download: { minMs: 5000, maxMs: 10_000 },
@@ -56,7 +58,14 @@ describe('reading and writing', () => {
       label: 'x'.repeat(65),
       future: 'kept',
     })
-    expect(readStored(storage)).toEqual({ theme: 'dark', streams: { mode: 'fixed', fixed: 4 }, download: { minMs: 5000, maxMs: 10_000 }, units: 'bytes', pingCount: 30 })
+    expect(readStored(storage)).toEqual({ theme: 'dark', preset: 'continuous', streams: { mode: 'fixed', fixed: 4 }, download: { minMs: 5000, maxMs: 10_000 }, units: 'bytes', pingCount: 30 })
+  })
+
+  it('reads the Continuous direction and a run length of whole seconds from 1 minute to 7 days', () => {
+    expect(readStored(memory({ continuousDirection: 'upload', runLengthS: 60 }))).toEqual({ continuousDirection: 'upload', runLengthS: 60 })
+    expect(readStored(memory({ runLengthS: 604_800 }))).toEqual({ runLengthS: 604_800 })
+    expect(readStored(memory({ runLengthS: 604_801 }))).toEqual({})
+    expect(readStored(memory({ runLengthS: 90.5 }))).toEqual({})
   })
 
   it('reads nothing from a malformed value', () => {
@@ -111,6 +120,33 @@ describe('the stored settings over the server defaults', () => {
     expect(storedOver(small, { streams: { mode: 'single', fixed: 5 } }).streams).toEqual({ mode: 'single', fixed: 2, max: 2 })
   })
 
+  it('runs Continuous with no bounds, whatever durations are stored, its direction download unless stored, and its run length', () => {
+    const stored = { preset: 'continuous' as const, download: { minMs: 7000, maxMs: 9000 }, runLengthS: 7200 }
+    expect(storedOver(DEFAULTS, stored)).toEqual({
+      ...DEFAULTS,
+      preset: 'continuous',
+      streams: { mode: 'auto', fixed: 3, max: 6 },
+      download: { minMs: null, maxMs: null },
+      upload: { minMs: null, maxMs: null },
+      pingCount: 20,
+      continuousDirection: 'download',
+      runLengthMs: 7_200_000,
+    })
+    expect(storedOver(DEFAULTS, { ...stored, continuousDirection: 'upload' }).continuousDirection).toBe('upload')
+    // Back on a bounded preset, the stored durations apply, and there is no direction or run length.
+    const bounded = storedOver(DEFAULTS, { ...stored, preset: 'standard', continuousDirection: 'upload' })
+    expect(bounded.download).toEqual({ minMs: 7000, maxMs: 9000 })
+    expect(bounded).not.toHaveProperty('continuousDirection')
+    expect(bounded).not.toHaveProperty('runLengthMs')
+  })
+
+  it('takes a bounded preset over a Continuous server default, with its bounds and none of its fields', () => {
+    const continuous = settingsFromDefaults({ ...infoFixture().defaults, preset: 'continuous' })
+    const standard = storedOver(continuous, { preset: 'standard' })
+    expect(standard.download).toEqual({ minMs: 10_000, maxMs: 20_000 })
+    expect(standard).not.toHaveProperty('continuousDirection')
+  })
+
   it('shares nothing with the defaults', () => {
     const settings = storedOver(DEFAULTS, {})
     settings.phases.push('idle')
@@ -138,5 +174,18 @@ describe('changed fields', () => {
     // The durations equal Extended's once the preset is Extended.
     expect(pruned(DEFAULTS, { preset: 'extended', download: { minMs: 20_000, maxMs: 40_000 } })).toEqual({ preset: 'extended' })
     expect(pruned(DEFAULTS, { autoStart: { enabled: false, countdownS: 3 } })).toEqual({})
+    // Continuous runs download by default.
+    expect(pruned(DEFAULTS, { preset: 'continuous', continuousDirection: 'download' })).toEqual({ preset: 'continuous' })
+  })
+
+  it('keeps, and counts as no change, a field the preset does not use', () => {
+    const custom = { minMs: 7000, maxMs: 9000 }
+    const continuous = { preset: 'continuous' as const, download: custom, continuousDirection: 'upload' as const, runLengthS: 3600 }
+    expect(changedKeys(DEFAULTS, continuous)).toEqual(['preset', 'continuousDirection', 'runLengthS'])
+    expect(pruned(DEFAULTS, continuous)).toEqual(continuous)
+    // Under Standard, the direction and the run length wait for Continuous; the durations count again.
+    const standard = { ...continuous, preset: 'standard' as const }
+    expect(changedKeys(DEFAULTS, standard)).toEqual(['download'])
+    expect(pruned(DEFAULTS, standard)).toEqual({ download: custom, continuousDirection: 'upload', runLengthS: 3600 })
   })
 })

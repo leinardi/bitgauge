@@ -8,12 +8,9 @@
     "changedMark": "changed",
     "custom": "custom",
     "loading": "Loading the server's defaults…",
-    "unsupported": "The server's default preset can't run in this version, so its settings can't be changed here.",
     "preset": {
       "title": "Test preset",
       "default": "Default",
-      "v03": "v0.3",
-      "arrives": "Arrives in v0.3",
       "names": {
         "quick": "Quick",
         "standard": "Standard",
@@ -26,7 +23,7 @@
       "split": "{download} down, {upload} up",
       "pings": "{n} ping | {n} pings",
       "line": "{streams} · {durations} · {pings}",
-      "continuous": "Auto streams, Standard ramp · one direction until stopped · 20 pings"
+      "continuous": "{streams}, Standard ramp · one direction until stopped · {pings}"
     },
     "phases": {
       "title": "Phases",
@@ -37,7 +34,25 @@
       "orderLabel": "Phase order",
       "downloadFirst": "Download first",
       "uploadFirst": "Upload first",
-      "help": "Idle latency runs first. Turn off a phase to test the others; at least one stays on."
+      "help": "Idle latency runs first. Turn off a phase to test the others; at least one stays on.",
+      "helpContinuous": "Continuous runs the one direction chosen above. Idle latency runs first when it is on."
+    },
+    "continuous": {
+      "direction": "Direction",
+      "directionCaption": "Continuous measures one direction until you stop it.",
+      "directionLabel": "Continuous direction",
+      "runLength": "Run length",
+      "runLengthCaption": "Optional. None by default. A whole number of minutes, hours or days, 1 minute to 7 days.",
+      "switch": "Stop after a set time",
+      "unit": "Run length unit",
+      "units": {
+        "minutes": "minutes",
+        "hours": "hours",
+        "days": "days"
+      },
+      "none": "none",
+      "noLimit": "No limit",
+      "noRunLength": "no run length"
     },
     "connections": {
       "title": "Connections and limits"
@@ -150,6 +165,8 @@
       "download": "Download duration",
       "upload": "Upload duration",
       "durations": "Per-direction durations",
+      "continuousDirection": "Continuous direction",
+      "runLengthS": "Run length",
       "dataCapBytes": "Data cap",
       "units": "Units",
       "theme": "Theme",
@@ -181,7 +198,14 @@
       "megabytes": "{n} MB",
       "autoStart": "{state} · {n} s",
       "fixedWarmup": "Fixed · {n} s",
-      "overhead": "+{n} %"
+      "overhead": "+{n} %",
+      "download": "Download",
+      "upload": "Upload",
+      "runLength": {
+        "minutes": "{n} min",
+        "hours": "{n} h",
+        "days": "{n} d"
+      }
     },
     "errors": {
       "duration": "Enter whole seconds from 5 s to 10 min (600 s).",
@@ -189,6 +213,7 @@
       "maxBelowMin": "Must be at least the minimum ({min} s).",
       "range": "Enter a whole number from {min} to {max}.",
       "label": "Use at most {max} characters.",
+      "runLength": "Run length must be 1 minute to 7 days.",
       "notSaved": "Not saved · Esc restores {value}."
     }
   }

@@ -49,6 +49,7 @@
       "allowed": {
         "count": "1–{max}",
         "duration": "5–600 s",
+        "runLength": "60–604800 s",
         "cap": "1 MiB or more, 0 or none",
         "label": "at most 64 characters"
       },
@@ -57,6 +58,9 @@
         "test": "Phases stay on {value}",
         "preset": "The preset stays on {value}",
         "duration": "Durations stay on the preset's",
+        "runLength": "The run length stays on {value}",
+        "noRunLength": "The run has no run length",
+        "direction": "The direction is {value}",
         "streams": "Streams stay on {value}",
         "cap": "The data cap stays on {value}",
         "units": "Units stay on {value}",
@@ -73,7 +77,13 @@
       "presets": {
         "quick": "Quick",
         "standard": "Standard",
-        "extended": "Extended"
+        "extended": "Extended",
+        "continuous": "Continuous"
+      },
+      "runLength": {
+        "minutes": "{n} min",
+        "hours": "{n} h",
+        "days": "{n} d"
       },
       "streams": {
         "auto": "Auto",

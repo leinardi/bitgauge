@@ -42,6 +42,8 @@ const props = defineProps<{
   inputmode?: 'numeric' | 'decimal' | 'text'
   /** The caller shows the error, under its own row of fields, with the id `<id>-error`. */
   detachedError?: boolean
+  /** What Escape restores, worded, when the saved value is not one to show: "no run length". */
+  restoreText?: string
 }>()
 const emit = defineEmits<{ commit: [text: string]; error: [message: string | null] }>()
 // The width and the rest of the caller's attributes go to the shell, not to the column around it.
@@ -52,7 +54,7 @@ const form = useSettingsForm()
 const draft = shallowRef<string | null>(null)
 const error = shallowRef<string | null>(null)
 const errorId = computed(() => `${props.id}-error`)
-const restores = computed(() => (props.suffix === undefined ? props.value : `${props.value} ${props.suffix}`))
+const restores = computed(() => props.restoreText ?? (props.suffix === undefined ? props.value : `${props.value} ${props.suffix}`))
 
 function show(message: string | null): void {
   error.value = message

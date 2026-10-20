@@ -18,32 +18,33 @@
  */
 
 import type { Info } from '@/api/info'
-import type { DurationBounds, TestSettings } from '@/engine/messages'
+import { type DurationBounds, type NoBounds, PRESETS, type TestSettings } from '@/engine/messages'
 
-// The server's test defaults (wire-protocol.md section 5) as the engine's settings. v0.1 applies
-// them with the URL parameters on top and stores none in the browser (ui/screens.md section 1).
+// The server's test defaults (wire-protocol.md section 5) as the engine's settings, which the
+// stored settings and the URL parameters apply over. They arrive resolved: a bounded preset's
+// bounds, and Continuous's none. Continuous runs download unless the stored settings or the URL
+// name its direction; its run length is chosen per run in the browser and is never a default.
 
-function bounds(range: Info['defaults']['download']): DurationBounds | null {
-  return range.minMs === null || range.maxMs === null ? null : { minMs: range.minMs, maxMs: range.maxMs }
+function bounds(range: Info['defaults']['download'], preset: DurationBounds): DurationBounds {
+  return { minMs: range.minMs ?? preset.minMs, maxMs: range.maxMs ?? preset.maxMs }
 }
 
-/** The defaults as engine settings, or null when they name what v0.1 cannot run (Continuous). */
-export function settingsFromDefaults(defaults: Info['defaults']): TestSettings | null {
-  const download = bounds(defaults.download)
-  const upload = bounds(defaults.upload)
-  if (defaults.preset === 'continuous' || download === null || upload === null) {
-    return null
-  }
-  return {
-    preset: defaults.preset,
+/** The defaults as engine settings. */
+export function settingsFromDefaults(defaults: Info['defaults']): TestSettings {
+  const shared = {
     phases: [...defaults.phases],
     streams: { ...defaults.streams },
-    download,
-    upload,
     dataCapBytes: defaults.dataCapBytes,
     units: defaults.units,
     warmup: defaults.warmup,
     pingCount: defaults.pingCount,
     overheadCompensationPercent: defaults.overheadCompensationPercent,
   }
+  if (defaults.preset === 'continuous') {
+    const none: NoBounds = { minMs: null, maxMs: null }
+    return { preset: 'continuous', ...shared, download: { ...none }, upload: { ...none }, continuousDirection: 'download' }
+  }
+  // The server sends an empty bound as the preset's value; a bound still missing is the preset's.
+  const table = PRESETS[defaults.preset]
+  return { preset: defaults.preset, ...shared, download: bounds(defaults.download, table.download), upload: bounds(defaults.upload, table.upload) }
 }

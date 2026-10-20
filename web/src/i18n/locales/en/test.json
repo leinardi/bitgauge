@@ -31,6 +31,7 @@
       "quick": "Quick",
       "standard": "Standard",
       "extended": "Extended",
+      "continuous": "Continuous",
       "presetLine": "{preset} preset",
       "streamsAuto": "Auto streams",
       "streamsSingle": "Single stream",
@@ -220,8 +221,7 @@
       "keyEnter": "Enter",
       "keyEscape": "Esc",
       "unreachable": "Server unreachable — use Retry first",
-      "waiting": "Waiting for the server's default settings.",
-      "unsupported": "The server's default preset can't run in this version."
+      "waiting": "Waiting for the server's default settings."
     },
     "export": {
       "download": "Download JSON",

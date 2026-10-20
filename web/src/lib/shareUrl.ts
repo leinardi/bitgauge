@@ -23,8 +23,9 @@ import { SECOND, type Test, testPhases } from '@/lib/urlValues'
 
 // The Settings screen's shareable URL (ui/url-params.md section 3): the parameters whose value
 // differs from what the link's server would apply, in the table order of section 2, `run=1` when
-// asked, `lang` and `theme` only when stored, `label` when set, each value percent-encoded. What no
-// parameter can carry is named instead, for the "Not in the link" line.
+// asked, `lang` and `theme` only when stored, `label` when set, each value percent-encoded. Under
+// Continuous, `test=upload` carries its direction and `duration` its run length. What no parameter
+// can carry is named instead, for the "Not in the link" line.
 
 /** A changed setting the link cannot carry, in the order the Settings screen shows them. */
 export type NotInLink = 'phases' | 'durations' | 'countdown' | 'warmup' | 'pingCount' | 'overhead'
@@ -59,10 +60,21 @@ export function buildSettingsUrl(base: string, current: TestSettings, defaults: 
   // What the link's server applies once the link's preset is resolved.
   const linked = storedOver(defaults, { preset: current.preset })
 
+  const continuous = current.preset === 'continuous'
+
   if (run) {
     parameters.push(['run', '1'])
   }
-  if (!same(current.phases, defaults.phases)) {
+  if (continuous) {
+    // `test` picks the direction, download unless it says upload. Of the phases only idle latency
+    // applies, which no parameter leaves out or adds.
+    if (current.continuousDirection === 'upload') {
+      parameters.push(['test', 'upload'])
+    }
+    if (current.phases.includes('idle') !== defaults.phases.includes('idle')) {
+      notInLink.push('phases')
+    }
+  } else if (!same(current.phases, defaults.phases)) {
     const test = TESTS.find((value) => same(testPhases(value, defaults.phases), current.phases))
     if (test === undefined) {
       notInLink.push('phases')
@@ -73,8 +85,11 @@ export function buildSettingsUrl(base: string, current: TestSettings, defaults: 
   if (current.preset !== defaults.preset) {
     parameters.push(['preset', current.preset])
   }
-  if (!same(current.download, linked.download) || !same(current.upload, linked.upload)) {
-    // Continuous, which the app does not run yet, has no duration to link.
+  if (continuous) {
+    if (current.runLengthMs !== undefined) {
+      parameters.push(['duration', String(current.runLengthMs / SECOND)])
+    }
+  } else if (!same(current.download, linked.download) || !same(current.upload, linked.upload)) {
     const durationMs = current.download.maxMs
     if (durationMs !== null && same(capped(linked.download, durationMs), current.download) && same(capped(linked.upload, durationMs), current.upload)) {
       parameters.push(['duration', String(durationMs / SECOND)])

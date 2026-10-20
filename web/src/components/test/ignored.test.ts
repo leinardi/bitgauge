@@ -43,7 +43,7 @@ describe('the ignored URL parameter notice', () => {
     ['streams', 'many', 'streams=many ignored, allowed auto, single, or 1–6. Streams stay on Auto'],
     ['run', 'yes', 'run=yes ignored, allowed 1, true, 0, or false. The test waits for Start'],
     ['test', 'both', 'test=both ignored, allowed all, download, upload, or latency. Phases stay on idle latency, download, and upload'],
-    ['preset', 'turbo', 'preset=turbo ignored, allowed quick, standard, or extended. The preset stays on Standard'],
+    ['preset', 'turbo', 'preset=turbo ignored, allowed quick, standard, extended, or continuous. The preset stays on Standard'],
     ['duration', '4', 'duration=4 ignored, allowed 5–600 s. Durations stay on the preset\'s'],
     ['cap', '2KiB', 'cap=2KiB ignored, allowed 1 MiB or more, 0 or none. The data cap stays on none'],
     ['units', 'nibbles', 'units=nibbles ignored, allowed bits or bytes. Units stay on bits'],
@@ -52,6 +52,14 @@ describe('the ignored URL parameter notice', () => {
     ['label', 'x', 'label=x ignored, allowed at most 64 characters. The label stays on the suggested one'],
   ])('words %s=%s', (parameter, value, words) => {
     expect(body(parameter, value)).toBe(words + TAIL)
+  })
+
+  it('words test and duration under Continuous: the direction, and the run length or none', () => {
+    const continuous: TestSettings = { ...SETTINGS, preset: 'continuous', download: { minMs: null, maxMs: null }, upload: { minMs: null, maxMs: null }, continuousDirection: 'download' }
+    expect(body('test', 'latency', continuous)).toBe('test=latency ignored, allowed all, download, or upload. The direction is download' + TAIL)
+    expect(body('duration', '30', continuous)).toBe('duration=30 ignored, allowed 60–604800 s. The run has no run length' + TAIL)
+    expect(body('duration', '30', { ...continuous, runLengthMs: 7_200_000 })).toBe('duration=30 ignored, allowed 60–604800 s. The run length stays on 2 h' + TAIL)
+    expect(body('preset', 'turbo', continuous)).toBe('preset=turbo ignored, allowed quick, standard, extended, or continuous. The preset stays on Continuous' + TAIL)
   })
 
   it('falls back to the default before the run has settings', () => {

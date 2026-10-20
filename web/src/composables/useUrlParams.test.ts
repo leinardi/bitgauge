@@ -69,15 +69,15 @@ describe('parseUrlParams', () => {
     ['latency', 'latency'],
     ['Ping', 'latency'],
   ])('reads test=%s as %s', (value, test) => {
-    expect(parseUrlParams(`?test=${value}`)).toEqual({ run: false, test, ignored: [] })
+    // The value as given stays for the notice, should the resolved preset ignore it.
+    expect(parseUrlParams(`?test=${value}`)).toEqual({ run: false, test, given: { test: value }, ignored: [] })
   })
 
   it.each([
     ['test', 'both'],
     ['preset', 'turbo'],
-    ['preset', 'continuous'],
     ['duration', '4'],
-    ['duration', '601'],
+    ['duration', '604801'],
     ['duration', '10.5'],
     ['duration', '30s'],
     ['streams', '0'],
@@ -94,14 +94,18 @@ describe('parseUrlParams', () => {
     ['theme', 'sepia'],
     ['label', 'x'.repeat(65)],
   ])('ignores %s=%s and names it with its value, cut to 64 characters', (name, value) => {
-    expect(parseUrlParams(`?${name}=${encodeURIComponent(value)}`)).toEqual({ run: false, ignored: [{ parameter: name, value: [...value].slice(0, 64).join('') }] })
+    const { given: _given, ...params } = parseUrlParams(`?${name}=${encodeURIComponent(value)}`)
+    expect(params).toEqual({ run: false, ignored: [{ parameter: name, value: [...value].slice(0, 64).join('') }] })
   })
 
   it.each([
     ['?preset=Quick', { preset: 'quick' }],
     ['?PRESET=extended', { preset: 'extended' }],
-    ['?duration=5', { durationMs: 5000 }],
-    ['?Duration=600', { durationMs: 600_000 }],
+    ['?preset=Continuous', { preset: 'continuous' }],
+    ['?duration=5', { durationMs: 5000, given: { duration: '5' } }],
+    ['?Duration=600', { durationMs: 600_000, given: { duration: '600' } }],
+    // Within the run length's range: the resolved preset decides (urlOverride).
+    ['?duration=604800', { durationMs: 604_800_000, given: { duration: '604800' } }],
     ['?streams=AUTO', { streams: { mode: 'auto' } }],
     ['?streams=single', { streams: { mode: 'single' } }],
     ['?streams=6', { streams: { mode: 'fixed', fixed: 6 } }],
@@ -145,6 +149,25 @@ describe('urlOverride', () => {
     expect(ignored).toEqual([])
     expect(urlOverride(parseUrlParams('?streams=single'), DEFAULTS).override.streams).toEqual({ mode: 'single', fixed: 3, max: 4 })
     expect(urlOverride(parseUrlParams(''), DEFAULTS)).toEqual({ override: {}, ignored: [] })
+  })
+
+  it('checks a duration against the resolved preset: 5–600 s bounded, 60–604800 s for Continuous', () => {
+    const CONTINUOUS: TestSettings = { ...DEFAULTS, preset: 'continuous', download: { minMs: null, maxMs: null }, upload: { minMs: null, maxMs: null }, continuousDirection: 'download' }
+    expect(urlOverride(parseUrlParams('?duration=601'), DEFAULTS)).toEqual({ override: {}, ignored: [{ parameter: 'duration', value: '601' }] })
+    expect(urlOverride(parseUrlParams('?duration=601&preset=continuous'), DEFAULTS).override).toEqual({ preset: 'continuous', durationMs: 601_000 })
+    // The stored preset resolves it when the link names none.
+    expect(urlOverride(parseUrlParams('?duration=604800'), CONTINUOUS)).toEqual({ override: { durationMs: 604_800_000 }, ignored: [] })
+    expect(urlOverride(parseUrlParams('?duration=30'), CONTINUOUS)).toEqual({ override: {}, ignored: [{ parameter: 'duration', value: '30' }] })
+    expect(urlOverride(parseUrlParams('?duration=3600&preset=standard'), CONTINUOUS)).toEqual({ override: { preset: 'standard' }, ignored: [{ parameter: 'duration', value: '3600' }] })
+  })
+
+  it('picks the Continuous direction with test: download for all, latency ignored and giving download, the phases left as stored', () => {
+    const direction = (search: string) => urlOverride(parseUrlParams(`?preset=continuous&${search}`), DEFAULTS)
+    expect(direction('test=upload')).toEqual({ override: { preset: 'continuous', continuousDirection: 'upload' }, ignored: [] })
+    expect(direction('test=Download')).toEqual({ override: { preset: 'continuous', continuousDirection: 'download' }, ignored: [] })
+    expect(direction('test=all')).toEqual({ override: { preset: 'continuous', continuousDirection: 'download' }, ignored: [] })
+    expect(direction('test=Ping')).toEqual({ override: { preset: 'continuous', continuousDirection: 'download' }, ignored: [{ parameter: 'test', value: 'Ping' }] })
+    expect(direction('test=upload&duration=3600').override).toEqual({ preset: 'continuous', continuousDirection: 'upload', durationMs: 3_600_000 })
   })
 
   it('ignores a fixed stream count above the server maximum', () => {

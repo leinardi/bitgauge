@@ -82,7 +82,7 @@ export function useRun(options: RunOptions = {}) {
   let wakeLock: WakeLockSentinel | null = null
   let requesting = false
 
-  /** The server's defaults as engine settings; null until known, or when v0.1 cannot run them. */
+  /** The server's defaults as engine settings; null until GET /info has answered. */
   const defaults = computed(() => (info.value === null ? null : settingsFromDefaults(info.value.defaults)))
   /** The settings the Worker is configured with: the stored settings over the defaults on the Test screen. */
   const base = computed(() => (defaults.value === null ? null : (options.base?.(defaults.value) ?? defaults.value)))

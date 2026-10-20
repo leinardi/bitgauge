@@ -41,15 +41,20 @@ describe('settingsFromDefaults', () => {
   it('carries every field over, copying the arrays and objects', () => {
     const settings = settingsFromDefaults(DEFAULTS)
     expect(settings).toEqual(DEFAULTS)
-    expect(settings?.phases).not.toBe(DEFAULTS.phases)
-    expect(settings?.streams).not.toBe(DEFAULTS.streams)
+    expect(settings.phases).not.toBe(DEFAULTS.phases)
+    expect(settings.streams).not.toBe(DEFAULTS.streams)
   })
 
-  it.each([
-    ['the Continuous preset', { ...DEFAULTS, preset: 'continuous' as const }],
-    ['a download range without a bound', { ...DEFAULTS, download: { minMs: null, maxMs: 20_000 } }],
-    ['an upload range without a bound', { ...DEFAULTS, upload: { minMs: 8000, maxMs: null } }],
-  ])('gives nothing for %s', (_name, defaults) => {
-    expect(settingsFromDefaults(defaults)).toBeNull()
+  it('gives Continuous its absent bounds and the download direction, with no run length', () => {
+    const settings = settingsFromDefaults({ ...DEFAULTS, preset: 'continuous', download: { minMs: null, maxMs: null }, upload: { minMs: null, maxMs: null }, pingCount: 20 })
+    expect(settings).toEqual({ ...DEFAULTS, preset: 'continuous', download: { minMs: null, maxMs: null }, upload: { minMs: null, maxMs: null }, pingCount: 20, continuousDirection: 'download' })
+    expect(settings).not.toHaveProperty('runLengthMs')
+    // Continuous has no bounds, whatever the duration keys would give.
+    expect(settingsFromDefaults({ ...DEFAULTS, preset: 'continuous' }).download).toEqual({ minMs: null, maxMs: null })
+  })
+
+  it('takes the preset’s bound for a bounded range the server left empty', () => {
+    expect(settingsFromDefaults({ ...DEFAULTS, download: { minMs: null, maxMs: 20_000 } }).download).toEqual({ minMs: 10_000, maxMs: 20_000 })
+    expect(settingsFromDefaults({ ...DEFAULTS, upload: { minMs: 8000, maxMs: null } }).upload).toEqual({ minMs: 8000, maxMs: 25_000 })
   })
 })

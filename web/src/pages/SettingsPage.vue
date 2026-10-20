@@ -45,7 +45,7 @@ import { changedKeys, defaultOf, storedOver, valueOf } from '@/lib/settingsStora
 // The Settings screen (ui/screens.md section 4, design_system kit Settings.jsx): every change is
 // saved in this browser as it is made and applies to the next test; a value that is not valid
 // stays in its field, is not saved, and is counted in the header. The fields need the server's
-// defaults, so they show once GET /info has answered with defaults this version can run.
+// defaults, so they show once GET /info has answered.
 
 const { t } = useI18n()
 const { info, reachability, refresh } = useInfo()
@@ -54,6 +54,8 @@ const host = window.location.host
 
 const serverDefaults = computed(() => (info.value === null ? null : settingsFromDefaults(info.value.defaults)))
 const invalid = shallowRef<ReadonlySet<string>>(new Set())
+// Continuous has no durations: its run length shows with the preset in their place.
+const continuous = computed(() => serverDefaults.value !== null && storedOver(serverDefaults.value, settings.stored.value).preset === 'continuous')
 
 function form(defaults: () => TestSettings): SettingsForm {
   return {
@@ -142,7 +144,7 @@ provide(
         v-if="serverDefaults === null"
         class="text-(length:--text-sm) text-muted-foreground"
       >
-        {{ info === null ? t('settings.loading') : t('settings.unsupported') }}
+        {{ t('settings.loading') }}
       </p>
       <template v-else>
         <SettingsCard
@@ -162,7 +164,7 @@ provide(
           :icon="Layers"
         >
           <StreamsField />
-          <DurationFields />
+          <DurationFields v-if="!continuous" />
           <DataCapField />
         </SettingsCard>
         <SettingsCard

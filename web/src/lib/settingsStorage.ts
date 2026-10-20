@@ -17,14 +17,16 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { type DurationBounds, type MeasuringPhase, type Preset, PRESETS, type TestSettings } from '@/engine/messages'
-import { MAX_DURATION_S, MAX_LABEL, MAX_STREAMS, MIN_DURATION_S, SECOND } from '@/lib/urlValues'
+import { type Direction, type DurationBounds, type MeasuringPhase, type Preset, PRESETS, type TestSettings } from '@/engine/messages'
+import { MAX_DURATION_S, MAX_LABEL, MAX_RUN_LENGTH_S, MAX_STREAMS, MIN_DURATION_S, MIN_RUN_LENGTH_S, SECOND } from '@/lib/urlValues'
 
 // The settings stored in this browser (frontend.md section 4, ui/screens.md section 4): one sparse
 // object under `bitgauge.settings.v1` holding only the fields the user set, in the engine's units.
 // A field that is missing or outside its range is not applied; a field this version does not know
 // is kept as it is, and every write leaves the other fields alone. Storage that is unreadable or
-// refuses a write leaves the defaults in effect for this page.
+// refuses a write leaves the defaults in effect for this page. A field the chosen preset does not use
+// (the durations under Continuous, its direction and run length under a bounded preset) stays
+// stored as it is, for when a preset that uses it is chosen again.
 
 export const SETTINGS_KEY = 'bitgauge.settings.v1'
 
@@ -39,6 +41,10 @@ export interface StoredSettings {
   streams?: { mode: TestSettings['streams']['mode']; fixed: number }
   download?: DurationBounds
   upload?: DurationBounds
+  /** Continuous only: the one direction it runs. */
+  continuousDirection?: Direction
+  /** Continuous only: the run length in whole seconds; absent means none. */
+  runLengthS?: number
   dataCapBytes?: number | null
   units?: TestSettings['units']
   autoStart?: { enabled: boolean; countdownS: number }
@@ -97,8 +103,7 @@ function phases(value: unknown): value is MeasuringPhase[] {
 const VALID: { readonly [K in StoredKey]-?: (value: unknown) => boolean } = {
   theme: (value) => value === 'light' || value === 'dark' || value === 'system',
   lang: (value) => typeof value === 'string' && /^[a-z]{2,3}(-[a-z0-9]{2,8})*$/i.test(value),
-  // Continuous is a v0.3 preset: a stored one is not applied before then.
-  preset: (value) => value === 'quick' || value === 'standard' || value === 'extended',
+  preset: (value) => value === 'quick' || value === 'standard' || value === 'extended' || value === 'continuous',
   phases,
   streams: (value) => {
     const streams = value as StoredSettings['streams']
@@ -106,6 +111,8 @@ const VALID: { readonly [K in StoredKey]-?: (value: unknown) => boolean } = {
   },
   download: bounds,
   upload: bounds,
+  continuousDirection: (value) => value === 'download' || value === 'upload',
+  runLengthS: (value) => integer(value, MIN_RUN_LENGTH_S, MAX_RUN_LENGTH_S),
   dataCapBytes: (value) => value === null || (typeof value === 'number' && value % MB === 0 && integer(value / MB, MIN_CAP_MB, MAX_CAP_MB)),
   units: (value) => value === 'bits' || value === 'bytes',
   autoStart: (value) => {
@@ -162,7 +169,10 @@ export function writeStored(storage: SettingsStorage, set: StoredSettings, remov
 /** The Auto-start a browser has before the user sets one: off, with a 3 s countdown. */
 export const DEFAULT_AUTO_START: NonNullable<StoredSettings['autoStart']> = { enabled: false, countdownS: 3 }
 
-/** The settings with a preset's stream mode, durations and ping count, as the engine resolves a preset. */
+/**
+ * The settings with a preset's stream mode, durations and ping count, as the engine resolves a
+ * preset: Continuous runs download unless the settings name its direction.
+ */
 function withPreset(defaults: TestSettings, preset: Preset): TestSettings {
   const table = PRESETS[preset]
   // A preset's fixed count stays within the server's maximum.
@@ -177,25 +187,34 @@ function withPreset(defaults: TestSettings, preset: Preset): TestSettings {
   }
 }
 
+/** Whether the preset leaves a stored field unused: the durations under Continuous, its fields under a bounded preset. */
+function unused(key: StoredKey, preset: Preset): boolean {
+  return preset === 'continuous' ? key === 'download' || key === 'upload' : key === 'continuousDirection' || key === 'runLengthS'
+}
+
 /**
  * The stored settings over the server defaults: a stored preset brings its values, the other
- * stored fields win over them. A fixed stream mode whose count is above the server's maximum is
- * not applied; another mode keeps its count within the maximum.
+ * stored fields win over them, those the preset does not use aside: Continuous keeps its absent
+ * bounds and a bounded preset has no direction or run length. A fixed stream mode whose count is
+ * above the server's maximum is not applied; another mode keeps its count within the maximum.
  */
 export function storedOver(defaults: TestSettings, stored: StoredSettings): TestSettings {
   const preset = stored.preset ?? defaults.preset
-  const base = preset === defaults.preset ? defaults : withPreset(defaults, preset)
+  const { continuousDirection, runLengthMs, ...base } = preset === defaults.preset ? defaults : withPreset(defaults, preset)
   const { max } = base.streams
   const streams =
     stored.streams === undefined || (stored.streams.mode === 'fixed' && stored.streams.fixed > max)
       ? base.streams
       : { mode: stored.streams.mode, fixed: Math.min(stored.streams.fixed, max), max }
+  const continuous = preset === 'continuous'
+  const runLength = stored.runLengthS === undefined ? runLengthMs : stored.runLengthS * SECOND
   return {
     ...base,
     phases: [...(stored.phases ?? base.phases)],
     streams: { ...streams },
-    download: { ...(stored.download ?? base.download) },
-    upload: { ...(stored.upload ?? base.upload) },
+    download: { ...(continuous ? base.download : (stored.download ?? base.download)) },
+    upload: { ...(continuous ? base.upload : (stored.upload ?? base.upload)) },
+    ...(continuous ? { continuousDirection: stored.continuousDirection ?? continuousDirection ?? 'download', ...(runLength === undefined ? {} : { runLengthMs: runLength }) } : {}),
     dataCapBytes: stored.dataCapBytes === undefined ? base.dataCapBytes : stored.dataCapBytes,
     units: stored.units ?? base.units,
     warmup: stored.warmup ?? base.warmup,
@@ -222,6 +241,12 @@ export function valueOf(key: StoredKey, defaults: TestSettings, stored: StoredSe
       return stored.label ?? ''
     case 'streams':
       return streamsShown(storedOver(defaults, stored).streams)
+    case 'continuousDirection':
+      return storedOver(defaults, stored).continuousDirection ?? null
+    case 'runLengthS': {
+      const ms = storedOver(defaults, stored).runLengthMs
+      return ms === undefined ? null : ms / SECOND
+    }
     default:
       return storedOver(defaults, stored)[key]
   }
@@ -247,21 +272,30 @@ export function same(a: unknown, b: unknown): boolean {
   return keys.length === Object.keys(b).length && keys.every((key) => same((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]))
 }
 
+/** The stored fields the chosen preset does not use, which stay stored and count as no change. */
+function unusedKeys(defaults: TestSettings, stored: StoredSettings): Set<StoredKey> {
+  const { preset } = storedOver(defaults, stored)
+  return new Set((Object.keys(stored) as StoredKey[]).filter((key) => unused(key, preset)))
+}
+
 /** The stored fields whose value differs from their default, in the order they are stored. */
 export function changedKeys(defaults: TestSettings, stored: StoredSettings): StoredKey[] {
-  return (Object.keys(stored) as StoredKey[]).filter((key) => !same(valueOf(key, defaults, stored), defaultOf(key, defaults, stored)))
+  const idle = unusedKeys(defaults, stored)
+  return (Object.keys(stored) as StoredKey[]).filter((key) => !idle.has(key) && !same(valueOf(key, defaults, stored), defaultOf(key, defaults, stored)))
 }
 
 /**
  * The stored settings without the fields that equal their default, one at a time, since a field's
- * default can follow another field: what the user set and still differs stays stored. A stored
- * language always differs, its default being the browser's.
+ * default can follow another field: what the user set and still differs stays stored, and so does
+ * a field the chosen preset does not use. A stored language always differs, its default being the
+ * browser's.
  */
 export function pruned(defaults: TestSettings, stored: StoredSettings): StoredSettings {
   let next = stored
   for (;;) {
     const changed = new Set(changedKeys(defaults, next))
-    const drop = (Object.keys(next) as StoredKey[]).find((key) => !changed.has(key))
+    const idle = unusedKeys(defaults, next)
+    const drop = (Object.keys(next) as StoredKey[]).find((key) => !changed.has(key) && !idle.has(key))
     if (drop === undefined) {
       return next
     }

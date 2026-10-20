@@ -19,7 +19,8 @@
 
 // @vitest-environment jsdom
 
-// The Settings screen (ui/screens.md section 4): presets with Continuous disabled, each valid change
+// The Settings screen (ui/screens.md section 4): the presets, Continuous with its direction and run
+// length, each valid change
 // saved as it is made, an invalid one kept in its field and not saved without moving the focus, the
 // changed list with its resets, Reset all after confirmation, and the shareable link.
 
@@ -64,16 +65,19 @@ afterEach(() => {
 })
 
 describe('the presets', () => {
-  it('describe each preset, mark the default, and keep Continuous disabled', async () => {
+  it('describe each preset and mark the default, Continuous a preset like the others', async () => {
     const page = await open()
     expect(page.get('[data-testid="preset-quick"]').text()).toContain('Fixed 3 streams · 5–10 s per direction · 10 pings')
     expect(page.get('[data-testid="preset-standard"]').text()).toContain('Default')
     expect(page.get('[data-testid="preset-standard"]').attributes('aria-checked')).toBe('true')
     const continuous = page.get('[data-testid="preset-continuous"]')
-    expect(continuous.attributes('disabled')).toBeDefined()
-    expect(continuous.text()).toContain('v0.3')
+    expect(continuous.attributes('disabled')).toBeUndefined()
+    expect(continuous.text()).toBe('ContinuousAuto streams, Standard ramp · one direction until stopped · 20 pings')
+    expect(page.find('[role="tooltip"]').exists()).toBe(false)
+    expect(page.find('[data-testid="continuous-fields"]').exists()).toBe(false)
     await continuous.trigger('click')
-    expect(stored()).toEqual({})
+    expect(stored()).toEqual({ preset: 'continuous' })
+    expect(continuous.attributes('aria-checked')).toBe('true')
     page.unmount()
   })
 
@@ -166,14 +170,15 @@ describe('the shareable link', () => {
   })
 })
 
-describe('defaults this version cannot run', () => {
-  it('say so instead of loading for good', async () => {
+describe('a Continuous server default', () => {
+  it('loads the fields with Continuous marked as the default and no durations', async () => {
     const info = infoFixture()
-    vi.mocked(getInfo).mockResolvedValueOnce({ ...info, defaults: { ...info.defaults, preset: 'continuous' } })
+    vi.mocked(getInfo).mockResolvedValueOnce({ ...info, defaults: { ...info.defaults, preset: 'continuous', download: { minMs: null, maxMs: null }, upload: { minMs: null, maxMs: null } } })
     await useInfo().refresh()
     const page = await open()
-    expect(page.text()).toContain("The server's default preset can't run in this version")
-    expect(page.find('[data-testid="preset-quick"]').exists()).toBe(false)
+    expect(page.get('[data-testid="preset-continuous"]').text()).toContain('Default')
+    expect(page.find('[data-testid="continuous-fields"]').exists()).toBe(true)
+    expect(page.find('#settings-download-min').exists()).toBe(false)
     page.unmount()
     await useInfo().refresh()
   })

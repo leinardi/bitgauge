@@ -20,12 +20,13 @@
 import type { ThemeChoice } from '@/composables/useTheme'
 import type { MeasuringPhase, Notice, Preset, TestSettings } from '@/engine/messages'
 import { formatBytes } from '@/lib/format'
+import { runLengthShown } from '@/lib/runLength'
 
 import type { Wording } from '@/components/test/wording'
 
 // The URL parameter ignored notice (ui/url-params.md section 2): the parameter with the value the
 // link gave, the values it allows, and what the setting stays on for the run, so the reader knows
-// what applied instead.
+// what applied instead. Under Continuous, `test` names the direction and `duration` the run length.
 
 type Ignored = Extract<Notice, { code: 'url-parameter-ignored' }>
 
@@ -40,15 +41,16 @@ const or = (items: string[], { locale }: Wording) => new Intl.ListFormat(locale,
 function allowed({ parameter, value }: Ignored, settings: TestSettings | null, wording: Wording): string {
   const { t } = wording
   const count = t('notices.urlParameterIgnored.allowed.count', { max: settings?.streams.max ?? 6 })
+  const continuous = settings?.preset === 'continuous'
   switch (parameter) {
     case 'run':
       return or(['1', 'true', '0', 'false'], wording)
     case 'test':
-      return or(['all', 'download', 'upload', 'latency'], wording)
+      return or(continuous ? ['all', 'download', 'upload'] : ['all', 'download', 'upload', 'latency'], wording)
     case 'preset':
-      return or(['quick', 'standard', 'extended'], wording)
+      return or(['quick', 'standard', 'extended', 'continuous'], wording)
     case 'duration':
-      return t('notices.urlParameterIgnored.allowed.duration')
+      return continuous ? t('notices.urlParameterIgnored.allowed.runLength') : t('notices.urlParameterIgnored.allowed.duration')
     case 'streams':
       return /^\d+$/u.test(value.trim()) ? count : or(['auto', 'single', count], wording)
     case 'cap':
@@ -69,7 +71,22 @@ function phaseName(phase: MeasuringPhase, { t }: Wording): string {
 }
 
 function presetName(preset: Preset, { t }: Wording): string {
-  return preset === 'quick' ? t('notices.urlParameterIgnored.presets.quick') : preset === 'standard' ? t('notices.urlParameterIgnored.presets.standard') : t('notices.urlParameterIgnored.presets.extended')
+  switch (preset) {
+    case 'quick':
+      return t('notices.urlParameterIgnored.presets.quick')
+    case 'standard':
+      return t('notices.urlParameterIgnored.presets.standard')
+    case 'extended':
+      return t('notices.urlParameterIgnored.presets.extended')
+    case 'continuous':
+      return t('notices.urlParameterIgnored.presets.continuous')
+  }
+}
+
+/** A run length in the unit the Settings screen shows it in. */
+function runLengthName(ms: number, { t }: Wording): string {
+  const { value, unit } = runLengthShown(ms / 1000)
+  return unit === 'days' ? t('notices.urlParameterIgnored.runLength.days', { n: value }) : unit === 'hours' ? t('notices.urlParameterIgnored.runLength.hours', { n: value }) : t('notices.urlParameterIgnored.runLength.minutes', { n: value })
 }
 
 function streamsMode(settings: TestSettings, { t }: Wording): string {
@@ -89,6 +106,9 @@ function stays({ parameter }: Ignored, context: Wording & IgnoredContext): strin
     case 'run':
       return t('notices.urlParameterIgnored.stays.run')
     case 'duration':
+      if (settings?.preset === 'continuous') {
+        return settings.runLengthMs === undefined ? t('notices.urlParameterIgnored.stays.noRunLength') : t('notices.urlParameterIgnored.stays.runLength', { value: runLengthName(settings.runLengthMs, context) })
+      }
       return t('notices.urlParameterIgnored.stays.duration')
     case 'label':
       return t('notices.urlParameterIgnored.stays.label')
@@ -104,6 +124,9 @@ function stays({ parameter }: Ignored, context: Wording & IgnoredContext): strin
   }
   switch (parameter) {
     case 'test':
+      if (settings.preset === 'continuous') {
+        return t('notices.urlParameterIgnored.stays.direction', { value: phaseName(settings.continuousDirection ?? 'download', context) })
+      }
       return t('notices.urlParameterIgnored.stays.test', { value: new Intl.ListFormat(locale, { type: 'conjunction' }).format(settings.phases.map((phase) => phaseName(phase, context))) })
     case 'preset':
       return t('notices.urlParameterIgnored.stays.preset', { value: presetName(settings.preset, context) })

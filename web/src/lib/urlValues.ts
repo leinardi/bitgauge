@@ -26,6 +26,9 @@ import type { MeasuringPhase, TestSettings } from '@/engine/messages'
 export const SECOND = 1000
 export const MIN_DURATION_S = 5
 export const MAX_DURATION_S = 600
+/** A Continuous run length: 1 minute to 7 days, the retention horizon (ui/url-params.md section 2). */
+export const MIN_RUN_LENGTH_S = 60
+export const MAX_RUN_LENGTH_S = 604_800
 export const MAX_STREAMS = 6
 /** The data cap's floor, 1 MiB (configuration.md section 2.3). */
 const MIN_DATA_CAP = 1024 * 1024

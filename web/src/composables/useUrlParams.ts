@@ -20,13 +20,15 @@
 import type { ThemeChoice } from '@/composables/useTheme'
 import type { ConfigureOverride, IgnoredParameter, Preset, TestSettings } from '@/engine/messages'
 import { isSupportedLocale } from '@/i18n'
-import { choose, dataCap, labelValue, MAX_DURATION_S, MIN_DURATION_S, runFlag, SECOND, streamsValue, type Test, testPhases, unitsValue, wholeNumber } from '@/lib/urlValues'
+import { choose, dataCap, labelValue, MAX_DURATION_S, MAX_RUN_LENGTH_S, MIN_DURATION_S, MIN_RUN_LENGTH_S, runFlag, SECOND, streamsValue, type Test, testPhases, unitsValue, wholeNumber } from '@/lib/urlValues'
 
 // The URL parameters of ui/url-params.md: names match case-insensitively, the first occurrence of
 // a name counts, enum values match case-insensitively, an invalid value is ignored and named so
 // the run can carry the `url-parameter-ignored` notice, and an unknown name is ignored silently.
 // They apply to the page load they appear on and are never stored; the values' parsers are shared
-// with the Settings screen (lib/urlValues.ts).
+// with the Settings screen (lib/urlValues.ts). Two of them read the resolved preset, the link's,
+// else the stored one, else the server's: under Continuous, `test` picks the direction and
+// `duration` is the run length, in its own range.
 
 export interface UrlParams {
   /** Whether the link asks for a test after the countdown. */
@@ -43,6 +45,8 @@ export interface UrlParams {
   lang?: string
   theme?: ThemeChoice
   label?: string
+  /** The values the link gave `test` and `duration`, which the resolved preset may still ignore. */
+  given?: { test?: string; duration?: string }
   /** The parameters whose values were invalid, in the order they appear, with their values. */
   ignored: IgnoredParameter[]
 }
@@ -69,15 +73,17 @@ function read(params: UrlParams, name: string, value: string): boolean {
     case 'test': {
       const test = choose(value, ['all', 'download', 'upload', 'latency', 'ping'] as const)
       params.test = test === 'ping' ? 'latency' : test
+      params.given = { ...params.given, test: value }
       return test !== undefined
     }
     case 'preset':
-      // Continuous is a v0.3 preset: v0.1 ignores it like any invalid value.
-      params.preset = choose(value, ['quick', 'standard', 'extended'] as const)
+      params.preset = choose(value, ['quick', 'standard', 'extended', 'continuous'] as const)
       return params.preset !== undefined
     case 'duration': {
-      const seconds = wholeNumber(value, MIN_DURATION_S, MAX_DURATION_S)
+      // Within either preset's range here; the resolved preset's range is checked with it.
+      const seconds = wholeNumber(value, MIN_DURATION_S, MAX_RUN_LENGTH_S)
       params.durationMs = seconds === undefined ? undefined : seconds * SECOND
+      params.given = { ...params.given, duration: value }
       return seconds !== undefined
     }
     case 'streams':
@@ -127,18 +133,38 @@ export function parseUrlParams(search: string): UrlParams {
   return params
 }
 
-/** The phases a `test` value runs: idle latency first, the directions in the configured order. */
+/**
+ * The parameters over `defaults`, the stored settings over the server's, as the override the
+ * engine resolves. A bounded preset runs the phases a `test` value names, idle latency first and
+ * the directions in the configured order, and takes a `duration` of 5–600 s. Continuous runs the
+ * direction `test` names, download for `all`, ignoring `latency`, with idle latency as the stored
+ * phases say, and takes a `duration` of 60–604800 s as its run length.
+ */
 export function urlOverride(params: UrlParams, defaults: TestSettings): { override: ConfigureOverride; ignored: IgnoredParameter[] } {
   const override: ConfigureOverride = {}
   const ignored = [...params.ignored]
+  const continuous = (params.preset ?? defaults.preset) === 'continuous'
   if (params.test !== undefined) {
-    override.phases = testPhases(params.test, defaults.phases)
+    if (!continuous) {
+      override.phases = testPhases(params.test, defaults.phases)
+    } else if (params.test === 'latency') {
+      ignored.push(ignoredParameter('test', params.given?.test ?? params.test))
+      override.continuousDirection = 'download'
+    } else {
+      override.continuousDirection = params.test === 'upload' ? 'upload' : 'download'
+    }
   }
   if (params.preset !== undefined) {
     override.preset = params.preset
   }
   if (params.durationMs !== undefined) {
-    override.durationMs = params.durationMs
+    const [least, most] = continuous ? [MIN_RUN_LENGTH_S, MAX_RUN_LENGTH_S] : [MIN_DURATION_S, MAX_DURATION_S]
+    const seconds = params.durationMs / SECOND
+    if (seconds >= least && seconds <= most) {
+      override.durationMs = params.durationMs
+    } else {
+      ignored.push(ignoredParameter('duration', params.given?.duration ?? String(seconds)))
+    }
   }
   if (params.streams !== undefined) {
     if (params.streams.mode === 'fixed' && params.streams.fixed > defaults.streams.max) {

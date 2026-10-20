@@ -44,7 +44,9 @@ function opened(url: string) {
   let settings = storedOver(DEFAULTS, { preset: fields.preset ?? DEFAULTS.preset })
   settings = { ...settings, ...fields }
   const { download, upload } = settings
-  if (durationMs !== undefined && download.minMs !== null && upload.minMs !== null) {
+  if (durationMs !== undefined && settings.preset === 'continuous') {
+    settings.runLengthMs = durationMs
+  } else if (durationMs !== undefined && download.minMs !== null && upload.minMs !== null) {
     settings.download = { minMs: Math.min(download.minMs, durationMs), maxMs: durationMs }
     settings.upload = { minMs: Math.min(upload.minMs, durationMs), maxMs: durationMs }
   }
@@ -96,6 +98,24 @@ describe('the shareable URL', () => {
       expect(params.label).toBe(stored.label)
       expect(settings).toEqual(storedOver(DEFAULTS, stored))
     }
+  })
+
+  it('carries a Continuous upload as test=upload and its run length as duration, and reads back to them', () => {
+    const stored: StoredSettings = { preset: 'continuous', continuousDirection: 'upload', runLengthS: 60 }
+    const { url, notInLink } = link(stored)
+    expect(url).toBe(`${BASE}?test=upload&preset=continuous&duration=60`)
+    expect(notInLink).toEqual([])
+    const { settings, ignored } = opened(url)
+    expect(ignored).toEqual([])
+    expect(settings).toEqual(storedOver(DEFAULTS, stored))
+    // A download with no run length is the preset alone.
+    expect(link({ preset: 'continuous' }).url).toBe(`${BASE}?preset=continuous`)
+    expect(link({ preset: 'continuous', runLengthS: 604_800 }).url).toBe(`${BASE}?preset=continuous&duration=604800`)
+  })
+
+  it('under Continuous, names only idle latency left out, and never the durations it does not use', () => {
+    expect(link({ preset: 'continuous', phases: ['download', 'upload'] }).notInLink).toEqual(['phases'])
+    expect(link({ preset: 'continuous', phases: ['idle', 'upload'], download: { minMs: 6000, maxMs: 30_000 } })).toEqual({ url: `${BASE}?preset=continuous`, notInLink: [] })
   })
 
   it('names what no parameter carries', () => {

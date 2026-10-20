@@ -24,12 +24,16 @@ import { useI18n } from 'vue-i18n'
 import ChangedMark from '@/components/settings/ChangedMark.vue'
 import { useSettingsForm } from '@/components/settings/form'
 import LabeledCheckbox from '@/components/settings/LabeledCheckbox.vue'
+import RunLengthField from '@/components/settings/RunLengthField.vue'
 import SegmentedControl from '@/components/settings/SegmentedControl.vue'
-import type { MeasuringPhase } from '@/engine/messages'
+import type { Direction, MeasuringPhase } from '@/engine/messages'
 
 // The phases of a run (ui/screens.md section 4, kit Settings.jsx): idle latency, download and
 // upload as toggles, at least one staying on, and the order of the two directions when both run.
-// Idle latency always runs first (measurement.md section 3).
+// Idle latency always runs first (measurement.md section 3). Continuous runs one direction: its
+// direction and run length show above the phases, as the kit's do, and of the phases only the
+// idle-latency toggle applies; the directions and their order keep their values for the bounded
+// presets.
 
 type Order = 'download' | 'upload'
 
@@ -37,6 +41,7 @@ const { t } = useI18n()
 const form = useSettingsForm()
 
 const phases = computed(() => form.current.value.phases)
+const continuous = computed(() => form.current.value.preset === 'continuous')
 /** Which direction runs first: the current order, else the defaults', else download. */
 const first = computed<Order>(() => {
   for (const list of [phases.value, form.defaults.value.phases]) {
@@ -62,7 +67,23 @@ function toggle(phase: MeasuringPhase, checked: boolean): void {
   }
   if (on.size > 0) {
     form.set({ phases: build(on, first.value) })
+  } else if (continuous.value) {
+    // Idle latency off with no direction listed: Continuous runs its direction alone.
+    form.set({ phases: [form.current.value.continuousDirection ?? 'download'] })
   }
+}
+
+const direction = computed({
+  get: () => form.current.value.continuousDirection ?? 'download',
+  set: (next: Direction) => form.set({ continuousDirection: next }),
+})
+const directions = computed(() => [
+  { value: 'download' as const, label: t('settings.phases.download'), icon: ArrowDown, color: 'var(--series-download)' },
+  { value: 'upload' as const, label: t('settings.phases.upload'), icon: ArrowUp, color: 'var(--series-upload)' },
+])
+/** A toggle that cannot change: the last phase on, or a direction under Continuous. */
+function fixed(phase: MeasuringPhase): boolean {
+  return continuous.value ? phase !== 'idle' : phases.value.length === 1 && phases.value.includes(phase)
 }
 
 const order = computed({
@@ -83,6 +104,27 @@ const orders = computed(() => [
 </script>
 
 <template>
+  <div
+    v-if="continuous"
+    class="flex flex-col rounded-(--radius-md) border border-(--border-subtle) bg-(--surface-1)"
+    data-testid="continuous-fields"
+  >
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2.5 border-b border-(--border-subtle) px-3.5 py-3">
+      <div class="flex flex-[1_1_200px] flex-col gap-0.75">
+        <span class="flex items-center gap-2 text-(length:--text-sm) font-semibold">
+          {{ t('settings.continuous.direction') }}
+          <ChangedMark v-if="form.changed.value.has('continuousDirection')" />
+        </span>
+        <span class="text-(length:--text-caption) leading-(--lh-compact) text-subtle-foreground">{{ t('settings.continuous.directionCaption') }}</span>
+      </div>
+      <SegmentedControl
+        v-model="direction"
+        :options="directions"
+        :label="t('settings.continuous.directionLabel')"
+      />
+    </div>
+    <RunLengthField />
+  </div>
   <div class="flex flex-wrap items-center gap-x-4 gap-y-2.5">
     <span
       id="settings-phases"
@@ -101,7 +143,7 @@ const orders = computed(() => [
         v-for="item in toggles"
         :key="item.phase"
         :model-value="phases.includes(item.phase)"
-        :disabled="phases.length === 1 && phases.includes(item.phase)"
+        :disabled="fixed(item.phase)"
         :icon="item.icon"
         :icon-color="item.color"
         class="text-(length:--text-sm) text-foreground"
@@ -110,7 +152,9 @@ const orders = computed(() => [
         {{ item.label }}
       </LabeledCheckbox>
     </div>
+    <!-- Continuous runs one direction, so it has no order. -->
     <div
+      v-if="!continuous"
       class="flex items-center gap-2 desktop:ml-auto"
       :class="bothDirections ? '' : 'opacity-45'"
     >
@@ -122,6 +166,6 @@ const orders = computed(() => [
         :disabled="!bothDirections"
       />
     </div>
-    <span class="basis-full text-(length:--text-micro) text-subtle-foreground">{{ t('settings.phases.help') }}</span>
+    <span class="basis-full text-(length:--text-micro) text-subtle-foreground">{{ continuous ? t('settings.phases.helpContinuous') : t('settings.phases.help') }}</span>
   </div>
 </template>

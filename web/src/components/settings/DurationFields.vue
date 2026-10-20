@@ -41,7 +41,7 @@ const errors = reactive<Record<string, string | null>>({})
 const { t } = useI18n()
 const form = useSettingsForm()
 
-/** The bound in seconds; null for Continuous, which has none and which the app does not run yet. */
+/** The bound in seconds; null for Continuous, which has none and shows no durations. */
 function seconds(direction: Direction, bound: Bound): number | null {
   const ms = form.current.value[direction][bound]
   return ms === null ? null : ms / SECOND

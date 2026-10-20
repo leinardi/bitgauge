@@ -37,7 +37,8 @@ const { t, locale } = useI18n()
 function text(part: SummaryPart, line: boolean): string {
   switch (part.kind) {
     case 'preset': {
-      const name = part.preset === 'quick' ? t('test.summary.quick') : part.preset === 'extended' ? t('test.summary.extended') : t('test.summary.standard')
+      const names = { quick: t('test.summary.quick'), standard: t('test.summary.standard'), extended: t('test.summary.extended'), continuous: t('test.summary.continuous') }
+      const name = names[part.preset]
       return line ? t('test.summary.presetLine', { preset: name }) : name
     }
     case 'streams':

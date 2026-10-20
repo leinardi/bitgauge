@@ -21,7 +21,8 @@
 // is stored at once, marked and listed with its default, and the Test screen's settings summary and
 // the Shareable URL follow it; an invalid value shows its error and is not stored, Escape restores
 // the valid one; edited durations stay custom when another preset is chosen (ui/screens.md section
-// 4); a single setting resets to its default, and Reset all asks first. The stored settings outlive
+// 4); Continuous takes its direction and run length, which the link carries; a single setting
+// resets to its default, and Reset all asks first. The stored settings outlive
 // a reload, and the next run uses them unless the URL of a page load overrides them for that load.
 // axe checks each state once its transitions have settled.
 
@@ -44,6 +45,35 @@ test('stores a change at once, which the Test screen and the shareable link foll
   await expect(page.getByTestId('settings-summary')).toContainText('Quick')
   await page.goto('/settings')
   await expect(page.getByTestId('changed-preset')).toContainText('default Standard')
+})
+
+test('chooses Continuous with upload and a 1-minute run length, which the shareable link carries', async ({ page }) => {
+  await page.goto('/settings')
+  await page.getByTestId('preset-continuous').click()
+  const fields = page.getByTestId('continuous-fields')
+  await expect(fields).toContainText('No limit')
+  await expect(page.locator('#settings-download-max')).toHaveCount(0)
+  await fields.getByRole('radio', { name: 'Upload' }).click()
+  await fields.getByRole('switch', { name: 'Stop after a set time' }).click()
+  await page.getByTestId('run-length-unit').click()
+  await page.getByRole('menuitemradio', { name: 'minutes' }).click()
+  const length = page.locator('#settings-run-length')
+  await length.fill('1')
+  await length.press('Enter')
+  await expect(page.getByTestId('changed-runLengthS')).toContainText('1 min')
+  await expect(page.getByTestId('changed-continuousDirection')).toContainText('Upload')
+  // url-params.md section 3 lists them in its table order: test, preset, duration.
+  const url = page.getByTestId('share-url')
+  await expect(url).toHaveValue(/\/\?test=upload&preset=continuous&duration=60$/)
+  const query = new URL(await url.inputValue()).searchParams
+  expect(Object.fromEntries(query)).toEqual({ preset: 'continuous', test: 'upload', duration: '60' })
+  await expectAccessible(page)
+
+  // Stored: a reload shows the same choice, the run length in minutes.
+  await page.reload()
+  await expect(length).toHaveValue('1')
+  await expect(page.getByTestId('run-length-unit')).toHaveText('minutes')
+  await expect(page.getByTestId('continuous-fields').getByRole('radio', { name: 'Upload' })).toHaveAttribute('aria-checked', 'true')
 })
 
 test('keeps an invalid value out, with its error, and Escape restores the valid one', async ({ page }) => {

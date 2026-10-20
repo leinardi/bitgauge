@@ -20,6 +20,7 @@
 import type { useI18n } from 'vue-i18n'
 
 import type { DurationBounds, MeasuringPhase, Preset } from '@/engine/messages'
+import { runLengthShown } from '@/lib/runLength'
 import { MB, type StoredKey } from '@/lib/settingsStorage'
 import type { NotInLink } from '@/lib/shareUrl'
 
@@ -29,7 +30,7 @@ import type { NotInLink } from '@/lib/shareUrl'
 type Translate = ReturnType<typeof useI18n>['t']
 
 /** The order the changed list shows the settings in, the screen's own. */
-export const SHOWN_ORDER: readonly StoredKey[] = ['preset', 'phases', 'streams', 'download', 'upload', 'dataCapBytes', 'units', 'theme', 'lang', 'autoStart', 'label', 'warmup', 'pingCount', 'overheadCompensationPercent']
+export const SHOWN_ORDER: readonly StoredKey[] = ['preset', 'continuousDirection', 'runLengthS', 'phases', 'streams', 'download', 'upload', 'dataCapBytes', 'units', 'theme', 'lang', 'autoStart', 'label', 'warmup', 'pingCount', 'overheadCompensationPercent']
 
 export function settingName(key: StoredKey | NotInLink, t: Translate): string {
   switch (key) {
@@ -45,6 +46,10 @@ export function settingName(key: StoredKey | NotInLink, t: Translate): string {
       return t('settings.names.upload')
     case 'durations':
       return t('settings.names.durations')
+    case 'continuousDirection':
+      return t('settings.names.continuousDirection')
+    case 'runLengthS':
+      return t('settings.names.runLengthS')
     case 'dataCapBytes':
       return t('settings.names.dataCapBytes')
     case 'units':
@@ -70,11 +75,26 @@ export function settingName(key: StoredKey | NotInLink, t: Translate): string {
 }
 
 export function presetName(preset: Preset, t: Translate): string {
-  return preset === 'quick' ? t('settings.preset.names.quick') : preset === 'extended' ? t('settings.preset.names.extended') : t('settings.preset.names.standard')
+  switch (preset) {
+    case 'quick':
+      return t('settings.preset.names.quick')
+    case 'standard':
+      return t('settings.preset.names.standard')
+    case 'extended':
+      return t('settings.preset.names.extended')
+    case 'continuous':
+      return t('settings.preset.names.continuous')
+  }
 }
 
 function phaseName(phase: MeasuringPhase, t: Translate): string {
   return phase === 'idle' ? t('settings.phases.idle') : phase === 'download' ? t('settings.phases.download') : t('settings.phases.upload')
+}
+
+/** A run length as the changed list shows it, in the unit the field shows it in. */
+function runLengthText(seconds: number, t: Translate): string {
+  const { value, unit } = runLengthShown(seconds)
+  return unit === 'days' ? t('settings.values.runLength.days', { n: value }) : unit === 'hours' ? t('settings.values.runLength.hours', { n: value }) : t('settings.values.runLength.minutes', { n: value })
 }
 
 function seconds(ms: number): number {
@@ -97,6 +117,10 @@ export function settingValue(key: StoredKey, value: unknown, t: Translate): stri
       const bounds = value as DurationBounds
       return t('settings.values.range', { min: seconds(bounds.minMs), max: seconds(bounds.maxMs) })
     }
+    case 'continuousDirection':
+      return value === 'upload' ? t('settings.values.upload') : t('settings.values.download')
+    case 'runLengthS':
+      return value === null ? t('settings.values.none') : runLengthText(value as number, t)
     case 'dataCapBytes':
       return value === null ? t('settings.values.none') : t('settings.values.megabytes', { n: Number(((value as number) / MB).toFixed(3)) })
     case 'units':

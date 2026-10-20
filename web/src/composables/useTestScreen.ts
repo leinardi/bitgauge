@@ -66,7 +66,7 @@ export function useTestScreen({ run, info: { info, reachability }, counting, ign
     ),
   )
 
-  // Start is disabled until GET /info answers with defaults this version can run (flows.md section 1).
+  // Start is disabled until GET /info answers (flows.md section 1).
   const disabledReason = computed(() => {
     if (running.value || counting.value) {
       return null
@@ -74,10 +74,7 @@ export function useTestScreen({ run, info: { info, reachability }, counting, ign
     if (reachability.value === 'unreachable') {
       return t('test.start.unreachable')
     }
-    if (info.value === null) {
-      return t('test.start.waiting')
-    }
-    return run.defaults.value === null ? t('test.start.unsupported') : null
+    return info.value === null ? t('test.start.waiting') : null
   })
 
   return { view, state, running, notices, dismiss, disabledReason }
