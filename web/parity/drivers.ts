@@ -31,7 +31,6 @@ import {
   type CompareB,
   type ContinuousLength,
   type HistoryVariant,
-  KIT_NEWEST_SCOPE,
   LOADED_CASES,
   type LoadedCase,
   type Responsiveness,
@@ -131,22 +130,19 @@ export const proto: Driver = {
   overlaySelector: OVERLAYS,
   toastSelector: '.toast',
   styleRegions: STYLE_REGIONS,
-  // Before the first load only, so a later choice survives a reload: the kit's newest scope,
-  // KIT_NEWEST_SCOPE, which has the screens and features the app has (History, Result detail,
-  // Settings, share, loaded latency, path B, Continuous and the compatibility layers; the panel's
-  // Scope segment defaults to an older one),
-  // Chrome as the browser, since the harness drives Chromium and the panel defaults to Firefox, and
-  // the theme on System, which is the product's default and the Vue demo's, where the prototype
-  // starts on Dark. With System both sides follow the project's emulated color scheme. The Vue demo
-  // is served over http, so the kit's page is too: its "Page served over http" switch is on from the
-  // first load (frontend.md §9), which only About reads.
+  // Before the first load only, so a later choice survives a reload: Chrome as the browser, since
+  // the harness drives Chromium and the panel defaults to Firefox, and the theme on System, which is
+  // the product's default and the Vue demo's, where the prototype starts on Dark. With System both
+  // sides follow the project's emulated color scheme. The Vue demo is served over http, so the kit's
+  // page is too: its "Page served over http" switch is on from the first load (frontend.md §9),
+  // which only About reads.
   prepare: async (context: BrowserContext) => {
     await context.addInitScript(
-      ({ demoKey, prefsKey, scope }) => {
-        if (localStorage.getItem(demoKey) === null) localStorage.setItem(demoKey, JSON.stringify({ scope, browser: 'Chrome', aboutInsecure: true }))
+      ({ demoKey, prefsKey }) => {
+        if (localStorage.getItem(demoKey) === null) localStorage.setItem(demoKey, JSON.stringify({ browser: 'Chrome', aboutInsecure: true }))
         if (localStorage.getItem(prefsKey) === null) localStorage.setItem(prefsKey, JSON.stringify({ theme: 'system' }))
       },
-      { demoKey: KIT_DEMO_KEY, prefsKey: KIT_PREFS_KEY, scope: KIT_NEWEST_SCOPE },
+      { demoKey: KIT_DEMO_KEY, prefsKey: KIT_PREFS_KEY },
     )
   },
   // A forced state wins over the run timeline (Prototype.jsx cur()), so it shows without a run.
@@ -202,8 +198,7 @@ async function applyAndWait(page: Page, action: () => Promise<unknown>): Promise
 // upload lost one request and carried on.
 export const VUE_RESULT_RUN = 'upload-gap'
 
-// The Vue demo's Continuous states (src/demo/scenarios.ts), which the kit shows only in the scope
-// KIT_NEWEST_SCOPE pins.
+// The Vue demo's Continuous states (src/demo/scenarios.ts).
 type ContinuousRun = 'continuous' | 'cont-upload' | 'cont-warmup' | 'cont-done'
 
 // A demo scenario the Vue driver forces: a Test screen state, a Continuous state, a loaded-latency

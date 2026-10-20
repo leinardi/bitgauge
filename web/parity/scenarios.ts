@@ -203,16 +203,14 @@ const runLength: Scenario[] = RUN_LENGTH_CASES.map((length) => ({
 // The share dialog the Test screen's save bar opens on a complete result.
 const share: Scenario[] = [{ id: 'share/complete', steps: [{ forceState: 'complete' }, { openShare: true }], regions: ALL }]
 
-// The Settings screen in each state its controls reach. The prototype's navigation has Settings in
-// the scope KIT_NEWEST_SCOPE pins, not in every scope.
+// The Settings screen in each state its controls reach.
 const settings: Scenario[] = SETTINGS_STATES.map((state) => ({
   id: state === 'defaults' ? 'settings' : `settings/${state}`,
   steps: [{ settings: state }],
   regions: ALL,
 }))
 
-// The History screen in each of the kit's variants. Like Settings, History is in the scope
-// KIT_NEWEST_SCOPE pins, not in every scope.
+// The History screen in each of the kit's variants.
 const history: Scenario[] = [
   ...HISTORY_VARIANTS.map((variant) => ({ id: `history/${variant}`, steps: [{ history: variant }], regions: ALL })),
   // Compare B over HTTP/2, path B measured.
@@ -249,10 +247,6 @@ const demo: Scenario[] = [
   { id: 'demo/open', steps: [{ openDemo: true }], regions: ['demo'] },
 ]
 
-// The prototype's scope the harness drives (drivers.ts prepare): the newest entry of the kit's
-// SCOPES (App.jsx:22), which has the screens and features the app has, pinned because the kit
-// defaults to an older one. coverage.test.ts holds it to the last entry of SCOPES.
-export const KIT_NEWEST_SCOPE = 'v0.3'
 
 /** Every scenario a run compares, which coverage.test.ts holds each screen and state to. */
 export const SCENARIOS: readonly Scenario[] = [...testStates, ...loaded, ...responsiveness, ...runLength, ...share, ...history, ...result, ...settings, ...about, ...demo]

@@ -75,11 +75,9 @@ panel itself. Steps name states and screens; how each side reaches them lives in
   `offline` scenario.
 
 Before reading anything, both pages are put in the same state: the wall clock fixed, UTC, en-US,
-reduced motion, the project's color scheme, the prototype's theme set to the product's default,
-System, and its Scope segment to the kit's newest scope, which turns History, Settings, share,
-loaded latency, path B, Continuous and the compatibility layers on, with its Demo panel's
-browser on Chrome, since the harness drives Chromium and the panel defaults to Firefox. Then the
-harness waits until the DOM has stopped changing.
+reduced motion, the project's color scheme, and the prototype's theme set to the product's default,
+System, with its Demo panel's browser on Chrome, since the harness drives Chromium and the panel
+defaults to Firefox. Then the harness waits until the DOM has stopped changing.
 
 | Layer | Reads | Produces |
 | --- | --- | --- |
@@ -330,15 +328,12 @@ What no scenario visits is invisible to it. `web/parity/coverage.test.ts`, run b
 `make verify-web`, closes the part of that gap that can be enumerated. It fails when:
 
 - a Vue page or a prototype screen has no row in its page table, or a row names one that is gone;
-- the routes Vue answers with the not-available page are not exactly the prototype screens the app
-  does not have (none today);
 - a state of the kit's `TEST_STATES` has no scenario, or a scenario names a state the kit dropped;
 - a kit History variant, Result detail state or Settings state has no scenario, or the scenario
   lists disagree with the kit's;
 - a panel choice of the kit (`RESP_OPTS`, the Continuous run length, Compare B, the Result
   detail's Kind and Continuous length, the About switches) has no scenario, or the kit has grown
   one the harness does not drive;
-- the harness drives a scope other than the last entry of the kit's `SCOPES`;
 - the Vue driver's list of states that start a run disagrees with the start flags of
   `DEMO_SCENARIOS`, or its list of states that hold their run disagrees with their holds.
 
