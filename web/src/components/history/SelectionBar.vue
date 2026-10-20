@@ -30,7 +30,8 @@ import type { TimedText } from '@/lib/timeText'
 // which removes the rows at once with an undo toast, and Compare, which opens the compare view for
 // exactly two. Compare stays in the tab order with any other count, marked unavailable and
 // described by the hint that says why. At the foot of the table on wider screens; on narrow ones
-// it floats over the cards, with touch-sized buttons and the hint kept out of sight, as the kit's.
+// it floats over the cards, with touch-sized buttons and the hint kept out of sight, as the kit's;
+// on both, the hint exists only while Compare is unavailable.
 
 const props = defineProps<{ count: number; summary?: TimedText; floating?: boolean }>()
 const emit = defineEmits<{ clear: []; remove: []; compare: [] }>()
@@ -78,6 +79,7 @@ function compare(): void {
       />
     </AppButton>
     <span
+      v-if="!comparable"
       :id="hintId"
       class="sr-only"
     >{{ t('history.selection.compareHint') }}</span>

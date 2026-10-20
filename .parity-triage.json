@@ -21428,18 +21428,18 @@
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/History.jsx (floating selection bar)",
-          "says": "no hint on the narrow bar"
+          "says": "the narrow bar's hint as visually hidden text that describes Compare, only while Compare is unavailable (selN !== 2)"
         },
         "vue": {
           "ref": "web/src/components/history/SelectionBar.vue",
-          "says": "the hint as visually hidden text that also describes Compare"
+          "says": "the narrow bar's hint as visually hidden text, there with exactly two selected too, where it describes nothing"
         }
       },
       "decision": {
         "kind": "verdict",
-        "winner": "spec",
-        "rationale": "The maintainer decided on 2026-10-18 that the spec wins: i18n-a11y.md section 2 holds the UI to WCAG 2.2 AA, and Vue's hidden hint describes Compare on narrow screens too.",
-        "on": "2026-10-18"
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, after the export added the narrow bar's hidden hint: like Vue's desktop bar, it keeps the hint only while Compare is unavailable, where Vue's narrow bar kept it with exactly two selected too, a hint that no longer holds. Earlier, on 2026-10-18, the spec won: the narrow bar keeps the hint as visually hidden text that describes Compare.",
+        "on": "2026-10-20"
       },
       "owned": {
         "history/daterange": {
@@ -21489,6 +21489,11 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the kit's narrow selection bar keeps Compare's \"Compare needs exactly 2…\" hint as visually hidden text that describes Compare.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "SelectionBar.vue: the floating bar's visually hidden hint exists only while Compare is unavailable, as the wide bar's.",
           "done": true
         }
       ],
