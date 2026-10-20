@@ -33,6 +33,18 @@ the export shows, and what it should show, with the reason; behavior comes from
   "6 auto". It should name the plateau the download reached before the failure, "6 auto · plateau:
   cap", as the strip gives the stream count with its plateau reason after a run ([screens.md
   §1](../features/ui/screens.md#1-test-home--)).
+- **`v03-test-scores-missing-inputs`**, the Good for card of a stopped or failed run
+  (`cancelled-latency`, `cancelled-download`, `error`): each experience names one missing input,
+  "Streaming needs download". It should name every input the scores report missing, "Streaming
+  needs loaded latency and download", as the quality scores name their missing inputs ([screens.md
+  §6](../features/ui/screens.md#6-result-metrics-units-and-precision)).
+- **`v03-test-path-b-pending-rows`**, the load card's HTTP loaded responsiveness rows of a standard
+  run before or without its result: they read "h2 — —". The protocol should be "not reported"
+  until the run's info phase records one, then written as HTTP/2; each direction icon should carry
+  its name, Download or Upload, for screen readers; and a stopped or failed run's direction without
+  enough samples should read "not enough samples" ([screens.md
+  §6](../features/ui/screens.md#6-result-metrics-units-and-precision), [i18n-a11y.md
+  §2](../features/ui/i18n-a11y.md#2-accessibility)).
 
 ### Result detail (`ui_kits/app/ResultDetail.jsx`)
 
