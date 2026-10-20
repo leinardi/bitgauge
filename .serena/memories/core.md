@@ -18,11 +18,11 @@ web/src/engine/           framework-free engine; app imports only engine/message
 web/src/demo/             demo build (VITE_DEMO=1): engine against a simulated link; never ships
 web/parity/               demo parity harness: design kit prototype vs Vue demo, ratcheted baseline
 web/src/api/types.gen.ts  GENERATED from api/openapi.yaml (make api-types); never edit
-deployments/examples/     compose, Traefik, Caddy, nginx; test/deployments keeps them = the doc
+deployments/examples/     compose, Traefik, Caddy, nginx; test/deployments checks their hardening
 web/harness/run.spec.ts   Playwright driver of the accuracy harness
 deployments/docker/       Dockerfile: web, build, runtime stages; dhi.io bases pinned by tag
 test/                     Go meta-tests: boundary, docs, dockerfiles, licenseheaders,
-                          packagemap, toolchain (pins, tool policy)
+                          toolchain (pins, tool policy)
 test/image/               //go:build image: the shipped image under netguard + strace (Docker)
 test/harness/             accuracy harness; runners behind //go:build harness (Docker)
 test/internal/            testenv (docker CLI envs, labels, sweep), netguard (nft egress counters),

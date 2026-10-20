@@ -22,8 +22,8 @@ linters enforce, §16–§18 are review rules.
 `test/` (meta-tests, the `image`-tagged image tests, the `harness`-tagged accuracy harness)
 ([architecture.md §9](../../../docs/features/architecture.md#9-planned-package-layout),
 [backend.md §1](../../../docs/features/technical-stack/backend.md#1-package-map)); product code
-implements the approved specification (AGENTS.md, "Project rules"). A new Go package needs a row
-in the backend.md package map, which `scripts/check-package-map.sh` checks.
+implements the approved specification (AGENTS.md, "Project rules"). A new Go package gets a row in
+the backend.md package map.
 
 golangci-lint is not on `PATH` in every environment; run it through pre-commit (see "Lint loop"),
 which pins the version. Never commit with `--no-verify`; fix the underlying issue instead.

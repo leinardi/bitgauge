@@ -114,8 +114,6 @@ var (
 type Profile struct {
 	// Name is the stable identifier HARNESS_PROFILES selects by.
 	Name string
-	// DocPhrase is how testing.md section 5 writes this profile, word for word.
-	DocPhrase string
 	// RateBitsPerSecond is the link rate. On an unshaped profile it is the nominal rate of the
 	// hardware, recorded but not applied.
 	RateBitsPerSecond int64
@@ -162,7 +160,6 @@ func Tiers() []TierSpec {
 			Profiles: []Profile{
 				{
 					Name:              "ci-500k-300ms",
-					DocPhrase:         "500 kbit/s + 300 ms",
 					RateBitsPerSecond: 500 * kbit,
 					RTT:               300 * time.Millisecond,
 					Preset:            PresetStandard,
@@ -170,14 +167,12 @@ func Tiers() []TierSpec {
 				},
 				{
 					Name:              "ci-10m",
-					DocPhrase:         "10 Mbit",
 					RateBitsPerSecond: 10 * mbit,
 					Preset:            PresetStandard,
 					Shaped:            true,
 				},
 				{
 					Name:              "ci-100m-50ms",
-					DocPhrase:         "100 Mbit + 50 ms",
 					RateBitsPerSecond: 100 * mbit,
 					RTT:               50 * time.Millisecond,
 					Preset:            PresetStandard,
@@ -185,14 +180,12 @@ func Tiers() []TierSpec {
 				},
 				{
 					Name:              "ci-1g",
-					DocPhrase:         "1 Gbit",
 					RateBitsPerSecond: gbit,
 					Preset:            PresetStandard,
 					Shaped:            true,
 				},
 				{
 					Name:              "ci-100m-50ms-traefik-h1",
-					DocPhrase:         "through Traefik (h1)",
 					RateBitsPerSecond: 100 * mbit,
 					RTT:               50 * time.Millisecond,
 					Proxy:             ProxyTraefik,
@@ -202,7 +195,6 @@ func Tiers() []TierSpec {
 				},
 				{
 					Name:              "ci-100m-50ms-caddy-h2",
-					DocPhrase:         "through Caddy (h2)",
 					RateBitsPerSecond: 100 * mbit,
 					RTT:               50 * time.Millisecond,
 					Proxy:             ProxyCaddy,
@@ -213,7 +205,6 @@ func Tiers() []TierSpec {
 				},
 				{
 					Name:              "ci-100m-50ms-traefik-h1-ws-blocked",
-					DocPhrase:         "with WebSocket upgrades blocked",
 					RateBitsPerSecond: 100 * mbit,
 					RTT:               50 * time.Millisecond,
 					Proxy:             ProxyTraefik,
@@ -230,7 +221,6 @@ func Tiers() []TierSpec {
 			Profiles: []Profile{
 				{
 					Name:              "floor-300k-300ms-1pct-loss",
-					DocPhrase:         "300 kbit/s + 300 ms + 1 % loss",
 					RateBitsPerSecond: 300 * kbit,
 					RTT:               300 * time.Millisecond,
 					LossPercent:       1,
@@ -239,7 +229,6 @@ func Tiers() []TierSpec {
 				},
 				{
 					Name:              "floor-300k-600ms-vpn",
-					DocPhrase:         "300 kbit/s + 600 ms (VPN over mobile)",
 					RateBitsPerSecond: 300 * kbit,
 					RTT:               600 * time.Millisecond,
 					// Extended for the 600 ms profile, which the shortfall rule otherwise covers.
@@ -258,13 +247,11 @@ func Tiers() []TierSpec {
 			Profiles: []Profile{
 				{
 					Name:              "ceiling-2.5g",
-					DocPhrase:         "2.5 Gbit",
 					RateBitsPerSecond: 2500 * mbit,
 					Preset:            PresetStandard,
 				},
 				{
 					Name:              "ceiling-10g",
-					DocPhrase:         "10 Gbit",
 					RateBitsPerSecond: 10 * gbit,
 					Preset:            PresetStandard,
 				},

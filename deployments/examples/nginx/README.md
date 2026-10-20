@@ -20,5 +20,5 @@ out, since the endpoint is off by default; the proxy already lets only the Prome
 
 `bitgauge.conf` is the file of
 [deployment-example.md §4](../../../docs/features/deployment-example.md#4-nginx), which explains each
-setting; `test/deployments` keeps the two identical. `compose.yaml` is the Traefik example's shape
+setting. `compose.yaml` is the Traefik example's shape
 with nginx in Traefik's place.

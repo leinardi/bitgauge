@@ -10,35 +10,7 @@ accurate numbers. Image tags, signing and platforms are described in
 ## 1. Compose, BitGauge Alone
 
 For a LAN-only test endpoint without a proxy (plain HTTP; the SPA works, networkQuality does not),
-shipped as [`deployments/examples/compose-alone/compose.yaml`](../../deployments/examples/compose-alone/compose.yaml):
-
-```yaml
-services:
-  bitgauge:
-    image: ghcr.io/leinardi/bitgauge:0
-    ports:
-      - "8080:8080"
-    read_only: true # BitGauge writes nothing
-    user: "65532:65532" # already the image default; stated for clarity
-    cap_drop: [ALL]
-    security_opt:
-      - no-new-privileges:true
-    environment:
-      BITGAUGE_SERVER__DISPLAY_NAME: home
-      # Uncomment to serve /metrics.
-      # With no proxy to restrict it, anyone who reaches port 8080 can read /metrics.
-      # BITGAUGE_METRICS__ENABLED: "true"
-    # Optional: full configuration as a read-only file
-    # volumes:
-    #   - ./bitgauge.yaml:/etc/bitgauge/config.yaml:ro
-    healthcheck:
-      test: ["CMD", "/bitgauge", "healthcheck"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-    restart: unless-stopped
-```
+shipped as [`deployments/examples/compose-alone/compose.yaml`](../../deployments/examples/compose-alone/compose.yaml).
 
 - **Read-only root filesystem** (`read_only: true`) and no volume: BitGauge never writes a file
   ([configuration.md §5](configuration.md#5-read-only-configuration-and-the-no-write-guarantee)).
@@ -49,10 +21,10 @@ services:
   `http://127.0.0.1:8080/speed/api/v1/ping` with `base_path: /speed`, with a 3 s timeout, and exits
   `0` on `204`, `1` otherwise ([technical-stack/backend.md
   §6](technical-stack/backend.md#6-healthcheck-subcommand)). The image has no shell or `curl`, so
-  the exec form above is required.
+  the shipped file's exec form is required.
 - Without a proxy, `trusted_proxies` stays empty and the client IP is the TCP peer.
 - **Metrics are opt-in.** The Prometheus endpoint is off by default, so its toggle is commented
-  out in the page and the examples alike; uncomment it to serve `/metrics`. The endpoint is
+  out in the examples; uncomment it to serve `/metrics`. The endpoint is
   unauthenticated
   ([configuration.md §2.6](configuration.md#26-metrics)): with no proxy in front, anyone who reaches
   port 8080 can read it, and BitGauge logs a warning at startup. The proxy examples below let only
@@ -61,86 +33,9 @@ services:
 ## 2. Compose With Traefik
 
 Traefik v3 terminating TLS, with BitGauge on a dedicated network so the trusted proxy address is
-known, shipped as [`deployments/examples/traefik/compose.yaml`](../../deployments/examples/traefik/compose.yaml):
-
-```yaml
-networks:
-  edge:
-    ipam:
-      config:
-        - subnet: 172.30.0.0/24
-
-services:
-  traefik:
-    image: traefik:v3
-    command:
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --providers.file.filename=/etc/traefik/dynamic.yaml
-      - --entrypoints.websecure.address=:443
-      - --entrypoints.websecure.http3=true
-      # The v3 default readTimeout of 60s would cut long uploads; stay above the 120 s lifetime.
-      - --entrypoints.websecure.transport.respondingTimeouts.readTimeout=180s
-    ports:
-      - "443:443/tcp"
-      - "443:443/udp"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik-dynamic.yaml:/etc/traefik/dynamic.yaml:ro
-    networks:
-      edge:
-        ipv4_address: 172.30.0.2
-
-  bitgauge:
-    image: ghcr.io/leinardi/bitgauge:0
-    read_only: true
-    cap_drop: [ALL]
-    security_opt:
-      - no-new-privileges:true
-    environment:
-      BITGAUGE_SERVER__DISPLAY_NAME: home
-      BITGAUGE_SERVER__PUBLIC_URL: https://speed.example.lan
-      BITGAUGE_SERVER__TRUSTED_PROXIES: 172.30.0.2/32
-      # Serves Apple's networkQuality client; it needs the https public_url above.
-      BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
-      # Uncomment to serve /metrics.
-      # The proxy lets only the Prometheus server read /metrics.
-      # BITGAUGE_METRICS__ENABLED: "true"
-    healthcheck:
-      test: ["CMD", "/bitgauge", "healthcheck"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-    networks: [edge]
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.bitgauge.rule: Host(`speed.example.lan`)
-      traefik.http.routers.bitgauge.entrypoints: websecure
-      traefik.http.routers.bitgauge.tls: "true"
-      # TLS 1.3 is only needed for the networkQuality layer; drop this line otherwise, and the
-      # metrics router's tls.options with it: both routers of a host take the same TLS options.
-      traefik.http.routers.bitgauge.tls.options: tls13@file
-      traefik.http.services.bitgauge.loadbalancer.server.port: "8080"
-      # Do NOT attach the buffering or compress middlewares to this router.
-      # /metrics only for the Prometheus server (192.168.1.20 here); anyone else gets a 403.
-      traefik.http.routers.bitgauge-metrics.rule: Host(`speed.example.lan`) && Path(`/metrics`)
-      traefik.http.routers.bitgauge-metrics.entrypoints: websecure
-      traefik.http.routers.bitgauge-metrics.tls: "true"
-      traefik.http.routers.bitgauge-metrics.tls.options: tls13@file
-      traefik.http.routers.bitgauge-metrics.service: bitgauge
-      traefik.http.routers.bitgauge-metrics.middlewares: bitgauge-metrics-allow
-      traefik.http.middlewares.bitgauge-metrics-allow.ipallowlist.sourcerange: 192.168.1.20/32
-```
-
-[`deployments/examples/traefik/traefik-dynamic.yaml`](../../deployments/examples/traefik/traefik-dynamic.yaml):
-
-```yaml
-tls:
-  options:
-    tls13:
-      minVersion: VersionTLS13
-```
+known, shipped as [`deployments/examples/traefik/compose.yaml`](../../deployments/examples/traefik/compose.yaml),
+with its TLS options in
+[`deployments/examples/traefik/traefik-dynamic.yaml`](../../deployments/examples/traefik/traefik-dynamic.yaml).
 
 - **Buffering off.** Traefik streams request and response bodies unless a `buffering` middleware is
   attached; do not attach one. If one is needed for other routes, keep it off this router.
@@ -163,34 +58,7 @@ tls:
 
 ## 3. Caddy
 
-[`deployments/examples/caddy/Caddyfile`](../../deployments/examples/caddy/Caddyfile):
-
-```text
-speed.example.lan {
-	# TLS 1.3 only; needed for the networkQuality layer, optional otherwise.
-	tls {
-		protocols tls1.3
-	}
-
-	# Let BitGauge enforce its own body caps (Caddy has no limit unless one is set).
-	# If a limit is required here, keep it above compat.networkquality.max_upload_bytes:
-	# request_body {
-	# 	max_size 2GB
-	# }
-
-	# /metrics only for the Prometheus server (192.168.1.20 here); anyone else gets a 403.
-	@metrics_others {
-		path /metrics
-		not remote_ip 192.168.1.20/32
-	}
-	respond @metrics_others 403
-
-	reverse_proxy bitgauge:8080 {
-		flush_interval -1      # stream responses immediately (no response buffering)
-	}
-	# Do not enable `encode` for this site.
-}
-```
+Shipped as [`deployments/examples/caddy/Caddyfile`](../../deployments/examples/caddy/Caddyfile).
 
 - Caddy streams request bodies by default (no request buffering) and proxies WebSockets
   automatically; it negotiates HTTP/2 and HTTP/3 by default.
@@ -204,61 +72,11 @@ speed.example.lan {
 
 ## 4. nginx
 
-[`deployments/examples/nginx/bitgauge.conf`](../../deployments/examples/nginx/bitgauge.conf):
-
-```nginx
-map $http_upgrade $connection_upgrade {
-    default upgrade;
-    ''      '';
-}
-
-# Refuse TLS for any name other than BitGauge's (also defeats DNS rebinding).
-server {
-    listen 443 ssl default_server;
-    ssl_reject_handshake on;
-}
-
-server {
-    listen 443 ssl;
-    http2 on;
-    server_name speed.example.lan;
-
-    ssl_certificate     /etc/nginx/certs/speed.example.lan.pem;
-    ssl_certificate_key /etc/nginx/certs/speed.example.lan-key.pem;
-    ssl_protocols TLSv1.3;              # TLSv1.2 TLSv1.3 if networkQuality is not used
-
-    client_max_body_size 0;             # BitGauge enforces its own caps
-    gzip off;                           # never compress BitGauge's responses
-
-    # /metrics only for the Prometheus server (192.168.1.20 here); anyone else gets a 403.
-    location = /metrics {
-        allow 192.168.1.20;
-        deny all;
-        proxy_pass http://bitgauge:8080;
-        proxy_http_version 1.1;
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location / {
-        proxy_pass http://bitgauge:8080;
-        proxy_http_version 1.1;
-        proxy_request_buffering off;    # upload bodies must stream to BitGauge
-        proxy_buffering off;            # download bodies must stream to the browser
-        proxy_read_timeout 180s;        # above the 120 s upload lifetime
-        proxy_send_timeout 180s;
-        proxy_set_header Host $http_host;         # keeps a non-default port for the Origin check
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
-    }
-}
-```
+Shipped as [`deployments/examples/nginx/bitgauge.conf`](../../deployments/examples/nginx/bitgauge.conf).
 
 nginx buffers request bodies by default, which is the most common cause of distorted upload
-numbers ([edge-cases.md §4](edge-cases.md#4-proxy-buffering-that-distorts-upload)).
+numbers ([edge-cases.md §4](edge-cases.md#4-proxy-buffering-that-distorts-upload)); the shipped
+file turns request and response buffering off.
 The exact `location = /metrics` takes precedence over `location /` and lets only the Prometheus
 server (`192.168.1.20` here; use yours) read the metrics; every other address gets `403`. The
 metrics toggle is commented out (§1).

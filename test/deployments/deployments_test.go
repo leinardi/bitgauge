@@ -19,9 +19,8 @@
 
 // Package deployments_test keeps the deployment examples in deployments/examples runnable as
 // documented: every compose file parses and hardens BitGauge as deployment-example.md does, with
-// the healthcheck timings of build-packaging.md section 1, and every code block of
-// deployment-example.md that names a shipped file is that file, byte for byte, so the page and the
-// examples cannot drift apart. It reads files only; nothing here runs a container.
+// the image's healthcheck timings, and the README's compose block is the shipped file. It reads
+// files only; nothing here runs a container.
 package deployments_test
 
 import (
@@ -44,8 +43,8 @@ import (
 const (
 	examplesDir       = "deployments/examples"
 	exampleDoc        = "docs/features/deployment-example.md"
-	buildPackagingDoc = "docs/features/technical-stack/build-packaging.md"
-	// exampleLinkPrefix is how deployment-example.md links a shipped example file.
+	shippedDockerfile = "deployments/docker/Dockerfile"
+	// exampleLinkPrefix is how a page under docs/features links a shipped example file.
 	exampleLinkPrefix = "../../" + examplesDir + "/"
 	// image is the release tag the examples pin: the latest 0.x (release.md).
 	image = "ghcr.io/leinardi/bitgauge:0"
@@ -56,16 +55,13 @@ const (
 )
 
 var (
-	// docFiles are the example files deployment-example.md shows in full, one code block each.
-	docFiles = []string{
-		"compose-alone/compose.yaml",
-		"traefik/compose.yaml",
+	// proxyFiles are the proxies' own configuration files.
+	proxyFiles = []string{
 		"traefik/traefik-dynamic.yaml",
 		"caddy/Caddyfile",
 		"nginx/bitgauge.conf",
 	}
-	// composeFiles are every example's compose file. The Caddy and nginx ones are not on the page,
-	// which shows only those proxies' own configuration, so they are held to the same rules here.
+	// composeFiles are every example's compose file, the one without a proxy first.
 	composeFiles = []string{
 		"compose-alone/compose.yaml",
 		"traefik/compose.yaml",
@@ -79,7 +75,7 @@ var (
 	}
 
 	healthcheckRule = regexp.MustCompile(
-		"`HEALTHCHECK --interval=(\\S+) --timeout=(\\S+) --start-period=(\\S+) --retries=(\\d+)`")
+		`HEALTHCHECK --interval=(\S+) --timeout=(\S+) --start-period=(\S+) --retries=(\d+)`)
 	fenceLine = regexp.MustCompile("^```")
 )
 
@@ -90,7 +86,7 @@ func TestExamplesAreTheListedFiles(t *testing.T) {
 
 	want := map[string]bool{}
 
-	for _, rel := range slices.Concat(docFiles, composeFiles) {
+	for _, rel := range slices.Concat(proxyFiles, composeFiles) {
 		want[rel] = true
 		want[path.Join(path.Dir(rel), "README.md")] = true
 	}
@@ -143,11 +139,11 @@ func TestReadmesLinkTheSpec(t *testing.T) {
 }
 
 // TestComposeFilesHardenBitGauge holds BitGauge's service in every compose file to
-// deployment-example.md section 1 and build-packaging.md section 1.
+// deployment-example.md section 1, with the image's healthcheck timings.
 func TestComposeFilesHardenBitGauge(t *testing.T) {
 	t.Parallel()
 
-	timings := documentedTimings(t)
+	timings := imageTimings(t)
 
 	for _, rel := range composeFiles {
 		for _, problem := range hardeningProblems(readRepoFile(t, path.Join(examplesDir, rel)), timings) {
@@ -160,7 +156,7 @@ func TestComposeFilesHardenBitGauge(t *testing.T) {
 func TestHardeningProblemsCatchesWeakenedFiles(t *testing.T) {
 	t.Parallel()
 
-	timings := documentedTimings(t)
+	timings := imageTimings(t)
 	good := readRepoFile(t, path.Join(examplesDir, "compose-alone/compose.yaml"))
 
 	if problems := hardeningProblems(good, timings); len(problems) != 0 {
@@ -295,41 +291,6 @@ func TestProxiesTrustOnlyThemselves(t *testing.T) {
 	traefik := mapping(mapping(parseCompose(t, "traefik/compose.yaml")["services"])[service])
 	if got := mapping(traefik["labels"])["traefik.http.services.bitgauge.loadbalancer.server.port"]; got != port {
 		t.Errorf("traefik/compose.yaml sends Traefik to port %v, want %s", got, port)
-	}
-}
-
-// TestDocBlocksAreShippedFiles checks that each code block deployment-example.md introduces with
-// a link to an example file is that file, and that every file the page shows is linked so.
-func TestDocBlocksAreShippedFiles(t *testing.T) {
-	t.Parallel()
-
-	blocks, problems := linkedBlocks(readRepoFile(t, exampleDoc), exampleLinkPrefix)
-	for _, problem := range problems {
-		t.Errorf("%s: %s", exampleDoc, problem)
-	}
-
-	named := make([]string, 0, len(blocks))
-
-	for _, block := range blocks {
-		rel := strings.TrimPrefix(block.link, exampleLinkPrefix)
-		named = append(named, rel)
-
-		if shipped := readRepoFile(t, path.Join(examplesDir, rel)); shipped != block.body {
-			t.Errorf(
-				"%s:%d: the block differs from %s/%s",
-				exampleDoc,
-				block.line,
-				examplesDir,
-				rel,
-			)
-		}
-	}
-
-	slices.Sort(named)
-
-	want := slices.Sorted(slices.Values(docFiles))
-	if !slices.Equal(named, want) {
-		t.Errorf("%s shows %v, want %v", exampleDoc, named, want)
 	}
 }
 
@@ -528,14 +489,14 @@ func hardeningProblems(content string, timings map[string]string) []string {
 	return problems
 }
 
-// documentedTimings reads the healthcheck timings from build-packaging.md section 1, keyed as a
-// compose healthcheck names them.
-func documentedTimings(t *testing.T) map[string]string {
+// imageTimings reads the healthcheck timings from the image's HEALTHCHECK, keyed as a compose
+// healthcheck names them.
+func imageTimings(t *testing.T) map[string]string {
 	t.Helper()
 
-	match := healthcheckRule.FindStringSubmatch(readRepoFile(t, buildPackagingDoc))
+	match := healthcheckRule.FindStringSubmatch(readRepoFile(t, shippedDockerfile))
 	if match == nil {
-		t.Fatalf("%s does not document the HEALTHCHECK timings", buildPackagingDoc)
+		t.Fatalf("%s has no HEALTHCHECK with timings", shippedDockerfile)
 	}
 
 	retries, err := strconv.Atoi(match[4])

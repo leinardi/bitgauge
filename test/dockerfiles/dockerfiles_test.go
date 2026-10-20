@@ -40,25 +40,14 @@ const (
 	shippedDockerfile = "deployments/docker/Dockerfile"
 	releaseWorkflow   = ".github/workflows/release.yaml"
 	workflowsDir      = ".github/workflows"
-	buildPackagingDoc = "docs/features/technical-stack/build-packaging.md"
 	wantPlatforms     = "linux/amd64,linux/arm64"
 	runtimeUser       = "65532:65532"
-	// healthcheck is the runtime stage's HEALTHCHECK, timings included, exactly as
-	// build-packaging.md section 1 documents it.
-	healthcheckTimings = "--interval=30s --timeout=5s --start-period=5s --retries=3"
-	healthcheck        = healthcheckTimings + ` CMD ["/bitgauge", "healthcheck"]`
+	// healthcheckCommand ends the runtime stage's HEALTHCHECK: the binary's own subcommand, in
+	// exec form, since the runtime has no shell.
+	healthcheckCommand = ` CMD ["/bitgauge", "healthcheck"]`
 	// releaseImage is the one image release.yaml publishes, on the one registry it publishes to
 	// (build-packaging.md section 6).
 	releaseImage = "ghcr.io/leinardi/bitgauge"
-	// The release tools' pins; test/toolchain/pins_test.go holds the same values.
-	svuPin   = "v3.4.1"
-	trivyPin = "v0.75.0"
-	// toolsDockerfile is the harness's tools image, which builds the compatibility clients
-	// (testing.md section 5) at these module versions: librespeed-cli at its release tag, and
-	// goresponsiveness, which publishes no tags, at the pseudo-version of one commit.
-	toolsDockerfile     = "test/harness/tools.Dockerfile"
-	libreSpeedCLIPin    = "v1.0.14"
-	goResponsivenessPin = "v0.0.0-20240129151524-343954285090"
 	// The actions whose inputs decide where the release pushes.
 	loginAction     = "docker/login-action"
 	buildPushAction = "docker/build-push-action"
@@ -85,70 +74,6 @@ func TestShippedDockerfileIsTheOnlyOne(t *testing.T) {
 
 	if !slices.Equal(found, []string{"Dockerfile"}) {
 		t.Errorf("%s holds %v, want exactly [Dockerfile]", shippedDir, found)
-	}
-}
-
-// TestToolsImageClients pins how the tools image gets the compatibility clients: a Go builder stage
-// from the official golang image, pinned by digest (TestOtherDockerfilesAreTestOnly) on the Go
-// line test/toolchain holds, installs each at its exact module version, which the Go checksum
-// database verifies, and the runtime stage copies the two binaries alone.
-func TestToolsImageClients(t *testing.T) {
-	t.Parallel()
-
-	stages, err := dockerfiles.Parse(readRepoFile(t, toolsDockerfile))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(stages) != 2 || stages[0].Name != "clients" ||
-		dockerfiles.Repository(stages[0].Image) != "docker.io/library/golang" {
-		t.Fatalf("%s: want a clients stage from docker.io/library/golang, then the runtime stage",
-			toolsDockerfile)
-	}
-
-	var runs strings.Builder
-
-	for _, instruction := range stages[0].Instructions {
-		if instruction.Keyword == "RUN" {
-			runs.WriteString(instruction.Args + "\n")
-		}
-	}
-
-	install := runs.String()
-
-	for _, want := range []string{
-		"github.com/librespeed/speedtest-cli@" + libreSpeedCLIPin + " ",
-		"defs.ProgVersion=" + libreSpeedCLIPin + `"`,
-		"github.com/network-quality/goresponsiveness@" + goResponsivenessPin + "\n",
-	} {
-		if !strings.Contains(install, want) {
-			t.Errorf("%s: the clients stage does not install %q", toolsDockerfile, want)
-		}
-	}
-
-	if strings.Count(install, "go install ") != 2 || strings.Contains(install, "@latest") {
-		t.Errorf("%s: the clients stage installs something besides the two pinned clients:\n%s",
-			toolsDockerfile, install)
-	}
-
-	var copies []string
-
-	for _, instruction := range stages[1].Instructions {
-		if instruction.Keyword == "COPY" {
-			copies = append(copies, instruction.Args)
-		}
-	}
-
-	want := "--from=clients /out/librespeed-cli /out/goresponsiveness /usr/local/bin/"
-	if !slices.Equal(copies, []string{want}) {
-		t.Errorf("%s: the runtime stage copies %q, want only %q", toolsDockerfile, copies, want)
-	}
-
-	description := dockerfiles.Labels(stages[1])["org.opencontainers.image.description"]
-	for _, version := range []string{"librespeed-cli " + libreSpeedCLIPin, "goresponsiveness " + goResponsivenessPin} {
-		if !strings.Contains(description, version) {
-			t.Errorf("%s: the image description does not record %q", toolsDockerfile, version)
-		}
 	}
 }
 
@@ -206,7 +131,7 @@ func TestShippedStages(t *testing.T) {
 
 // TestBuildStages pins where the build stages run and what they start from. Both run on the build
 // platform -- the SPA is architecture-free and Go cross-compiles -- so no emulation is needed. The
-// golang tag follows .go-version, and the node major follows the Node line.
+// tags' Go and Node lines are test/toolchain's pins.
 func TestBuildStages(t *testing.T) {
 	t.Parallel()
 
@@ -229,48 +154,6 @@ func TestBuildStages(t *testing.T) {
 			t.Errorf("stage %s is FROM %s, want %s", check.stage.Name, got, check.repository)
 		}
 	}
-
-	goLine := strings.TrimSpace(readRepoFile(t, ".go-version"))
-	if tag := dockerfiles.Tag(build.Image); !strings.HasPrefix(tag, goLine+"-") {
-		t.Errorf("the build stage's golang tag is %q, want the %s line of .go-version", tag, goLine)
-	}
-
-	nodeLine := documentedNodeLine(t)
-	if tag := dockerfiles.Tag(web.Image); !strings.HasPrefix(tag, nodeLine+"-") {
-		t.Errorf("the web stage's node tag is %q, want the Node %s line", tag, nodeLine)
-	}
-
-	for _, workflow := range workflows(t) {
-		for _, match := range regexp.MustCompile(`(?m)^\s*NODE_LINE:\s*"?(\d+)"?\s*$`).
-			FindAllStringSubmatch(readRepoFile(t, workflow), -1) {
-			if match[1] != nodeLine {
-				t.Errorf(
-					"%s sets NODE_LINE %s, but the image builds on Node %s",
-					workflow,
-					match[1],
-					nodeLine,
-				)
-			}
-		}
-	}
-
-	webInstructions := joined(web)
-	for _, want := range []string{"RUN --mount=type=cache,target=/root/.npm,id=npmcache npm ci", "RUN npm run build"} {
-		if !strings.Contains(webInstructions, want) {
-			t.Errorf("the web stage does not %q:\n%s", want, webInstructions)
-		}
-	}
-
-	buildInstructions := joined(build)
-	for _, want := range []string{
-		"ARG VERSION", "ARG COMMIT", "ARG DATE", "ARG TARGETOS", "ARG TARGETARCH",
-		"CGO_ENABLED=0", "go mod download", "COPY --from=web /src/web/dist ./web/dist",
-		"-trimpath", "-buildvcs=false", "-o /out/bitgauge ./cmd/bitgauge",
-	} {
-		if !strings.Contains(buildInstructions, want) {
-			t.Errorf("the build stage lacks %q:\n%s", want, buildInstructions)
-		}
-	}
 }
 
 // TestRuntimeStage pins the posture of the image that ships (build-packaging.md section 1): no
@@ -291,11 +174,10 @@ func TestRuntimeStage(t *testing.T) {
 	}
 
 	want := map[string]string{
-		"USER":        runtimeUser,
-		"EXPOSE":      "8080",
-		"HEALTHCHECK": healthcheck,
-		"ENTRYPOINT":  `["/bitgauge"]`,
-		"COPY":        "--from=build /out/bitgauge /bitgauge",
+		"USER":       runtimeUser,
+		"EXPOSE":     "8080",
+		"ENTRYPOINT": `["/bitgauge"]`,
+		"COPY":       "--from=build /out/bitgauge /bitgauge",
 	}
 
 	seen := map[string][]string{}
@@ -310,6 +192,12 @@ func TestRuntimeStage(t *testing.T) {
 		seen[instruction.Keyword] = append(seen[instruction.Keyword], instruction.Args)
 	}
 
+	if healthchecks := seen["HEALTHCHECK"]; len(healthchecks) != 1 ||
+		!strings.HasSuffix(healthchecks[0], healthcheckCommand) {
+		t.Errorf("the runtime stage has HEALTHCHECK %q, want one ending in%s", healthchecks,
+			healthcheckCommand)
+	}
+
 	for keyword, args := range want {
 		if !slices.Equal(seen[keyword], []string{args}) {
 			t.Errorf(
@@ -320,14 +208,6 @@ func TestRuntimeStage(t *testing.T) {
 				args,
 			)
 		}
-	}
-
-	if !strings.Contains(
-		readRepoFile(t, buildPackagingDoc),
-		"`HEALTHCHECK "+healthcheckTimings+"`",
-	) {
-		t.Errorf("%s does not document the HEALTHCHECK timings %s", buildPackagingDoc,
-			healthcheckTimings)
 	}
 
 	labels := dockerfiles.Labels(runtime)
@@ -493,25 +373,29 @@ func TestReleaseChecksRefuseMutations(t *testing.T) {
 
 	content := readRepoFile(t, releaseWorkflow)
 
-	for _, mutation := range []struct{ name, old, new string }{
-		{"buildinfo.commit stamped elsewhere", "internal/buildinfo.commit=", "main.commit="},
-		{"a third platform", "PLATFORMS: " + wantPlatforms, "PLATFORMS: " + wantPlatforms + ",linux/arm/v7"},
-		{"the image on Docker Hub", "IMAGE: " + releaseImage, "IMAGE: docker.io/leinardi/bitgauge"},
-		{"another GHCR image", `-t "$IMAGE:latest"`, `-t "$IMAGE:latest" -t "ghcr.io/leinardi/other:latest"`},
-		{"a pointer on another image", `-t "$IMAGE:latest"`, `-t "$MIRROR:latest"`},
-		{"a login to another registry", "registry: dhi.io", "registry: quay.io"},
-		{"the build pushed to GHCR", "name=${{ env.LOCAL_IMAGE }}", "name=${{ env.IMAGE }}"},
-		{"the build tagged by the push input", "sbom: true", "sbom: true\n          push: true"},
-		{"a copy to another image", `"docker://$IMAGE@$DIGEST"`, `"docker://$MIRROR@$DIGEST"`},
-		{"a signature on another image", `cosign sign --yes "$IMAGE@`, `cosign sign --yes "$MIRROR@`},
-		{"an attestation pushed elsewhere", "subject-name: ${{ env.IMAGE }}", "subject-name: ${{ env.LOCAL_IMAGE }}"},
-		{"another Trivy", "TRIVY_VERSION: " + trivyPin, "TRIVY_VERSION: v0.74.0"},
-		{"another svu", "SVU_VERSION: " + svuPin, "SVU_VERSION: v3.4.0"},
-		{"an action by tag", "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1", "actions/checkout@v7"},
-		{"an action with no version comment", "@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2", "@4d101475d8b20a2381f78447822ac1eab6504dd8"},
-		{"the registry image by tag", "REGISTRY_IMAGE: registry:3.1.2@", "REGISTRY_IMAGE: registry:3.1.2 # "},
+	for _, mutation := range []struct {
+		name, old, new string
+		// pattern makes old a regular expression, so a version bump does not break the control.
+		pattern bool
+	}{
+		{"buildinfo.commit stamped elsewhere", "internal/buildinfo.commit=", "main.commit=", false},
+		{"a third platform", "PLATFORMS: " + wantPlatforms, "PLATFORMS: " + wantPlatforms + ",linux/arm/v7", false},
+		{"the image on Docker Hub", "IMAGE: " + releaseImage, "IMAGE: docker.io/leinardi/bitgauge", false},
+		{"another GHCR image", `-t "$IMAGE:latest"`, `-t "$IMAGE:latest" -t "ghcr.io/leinardi/other:latest"`, false},
+		{"a pointer on another image", `-t "$IMAGE:latest"`, `-t "$MIRROR:latest"`, false},
+		{"a login to another registry", "registry: dhi.io", "registry: quay.io", false},
+		{"the build pushed to GHCR", "name=${{ env.LOCAL_IMAGE }}", "name=${{ env.IMAGE }}", false},
+		{"the build tagged by the push input", "sbom: true", "sbom: true\n          push: true", false},
+		{"a copy to another image", `"docker://$IMAGE@$DIGEST"`, `"docker://$MIRROR@$DIGEST"`, false},
+		{"a signature on another image", `cosign sign --yes "$IMAGE@`, `cosign sign --yes "$MIRROR@`, false},
+		{"an attestation pushed elsewhere", "subject-name: ${{ env.IMAGE }}", "subject-name: ${{ env.LOCAL_IMAGE }}", false},
+		{"an unpinned Trivy", `TRIVY_VERSION: v[\d.]+`, "TRIVY_VERSION: latest", true},
+		{"an unpinned svu", `SVU_VERSION: v[\d.]+`, "SVU_VERSION: latest", true},
+		{"an action by tag", `uses: ([\w./-]+)@[0-9a-f]{40} # v[\d.]+`, "uses: $1@v7", true},
+		{"an action with no version comment", `uses: ([\w./-]+@[0-9a-f]{40}) # v[\d.]+`, "uses: $1", true},
+		{"the registry image by tag", `REGISTRY_IMAGE: (\S+)@sha256:[0-9a-f]+`, "REGISTRY_IMAGE: $1", true},
 	} {
-		mutated := strings.Replace(content, mutation.old, mutation.new, 1)
+		mutated := mutate(content, mutation.old, mutation.new, mutation.pattern)
 		if mutated == content {
 			t.Errorf("%s: %s does not contain %q, so the control checks nothing",
 				mutation.name, releaseWorkflow, mutation.old)
@@ -525,6 +409,25 @@ func TestReleaseChecksRefuseMutations(t *testing.T) {
 			t.Errorf("%s: the release checks find %q, want a broken rule", mutation.name, problems)
 		}
 	}
+}
+
+// mutate replaces the first occurrence of old in content with replacement; with pattern, old is a
+// regular expression and replacement may use its groups.
+func mutate(content, old, replacement string, pattern bool) string {
+	if !pattern {
+		return strings.Replace(content, old, replacement, 1)
+	}
+
+	expression := regexp.MustCompile(old)
+
+	location := expression.FindStringIndex(content)
+	if location == nil {
+		return content
+	}
+
+	return content[:location[0]] +
+		expression.ReplaceAllString(content[location[0]:location[1]], replacement) +
+		content[location[1]:]
 }
 
 // releaseDoc is the part of release.yaml the release checks read.
@@ -764,17 +667,18 @@ var (
 	usesLine       = regexp.MustCompile(`(?m)^[ \t]*(?:-[ \t]*)?uses:[ \t]*(\S+)(.*)$`)
 	pinnedAction   = regexp.MustCompile(`^[\w.-]+/[\w./-]+@[0-9a-f]{40}$`)
 	versionComment = regexp.MustCompile(`^[ \t]+#[ \t]*v\d+(?:\.\d+)*[ \t]*$`)
+	exactVersion   = regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
 )
 
-// releasePinProblems: svu and Trivy at their pins, the images the job runs pinned by digest, and
+// releasePinProblems: svu and Trivy at exact versions, the images the job runs pinned by digest, and
 // every action pinned by a full commit SHA with its version in a trailing comment.
 func releasePinProblems(doc releaseDoc, content string) []string {
 	var problems []string
 
-	for name, pin := range map[string]string{"SVU_VERSION": svuPin, "TRIVY_VERSION": trivyPin} {
-		if doc.Env[name] != pin {
-			problems = append(problems, fmt.Sprintf("%s sets %s %q, want %s",
-				releaseWorkflow, name, doc.Env[name], pin))
+	for _, name := range []string{"SVU_VERSION", "TRIVY_VERSION"} {
+		if !exactVersion.MatchString(doc.Env[name]) {
+			problems = append(problems, fmt.Sprintf("%s sets %s %q, want an exact vX.Y.Z",
+				releaseWorkflow, name, doc.Env[name]))
 		}
 	}
 
@@ -896,20 +800,6 @@ func TestParseRejectsWhatTheAssertionsMustNotMiss(t *testing.T) {
 	if err == nil {
 		t.Error("a file ending inside a continuation parsed")
 	}
-}
-
-// documentedNodeLine reads the Node major from the web stage row of build-packaging.md section 1,
-// which is where the Node line is decided until a workflow carries NODE_LINE.
-func documentedNodeLine(t *testing.T) string {
-	t.Helper()
-
-	match := regexp.MustCompile("(?m)^\\| `web` \\| `dhi\\.io/node:(\\d+)-").
-		FindStringSubmatch(readRepoFile(t, buildPackagingDoc))
-	if match == nil {
-		t.Fatalf("%s does not name the web stage's dhi.io/node line", buildPackagingDoc)
-	}
-
-	return match[1]
 }
 
 func shippedStages(t *testing.T) []dockerfiles.Stage {

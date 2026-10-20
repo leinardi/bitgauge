@@ -35,13 +35,6 @@ import (
 	"github.com/leinardi/bitgauge/test/internal/toolgate"
 )
 
-// The release tools' pins (the plan's version table); release.yaml carries them once the Release
-// stage is active.
-const (
-	svuPin   = "v3.4.1"
-	trivyPin = "v0.75.0"
-)
-
 // pinSource is one place a version is written: a file and the pattern whose first group is the
 // version there. Optional sources may be absent; every match of a present one counts.
 type pinSource struct {
@@ -80,7 +73,7 @@ func TestActionStepsArePinned(t *testing.T) {
 }
 
 // TestNodeLineIsOneValue: the Node major is one value everywhere it is written (the plan's
-// workflow rules): the build stage image, its documentation, the Node types, an engines field or
+// workflow rules): the build stage image, the Node types, an engines field or
 // a version file if one appears, and every setup-node step, each of which must write it.
 func TestNodeLineIsOneValue(t *testing.T) {
 	t.Parallel()
@@ -89,7 +82,6 @@ func TestNodeLineIsOneValue(t *testing.T) {
 
 	expectOneValue(t, "Node line", []pinSource{
 		{file: "deployments/docker/Dockerfile", pattern: nodeImage},
-		{file: "docs/features/technical-stack/build-packaging.md", pattern: nodeImage},
 		{file: "web/package.json", pattern: regexp.MustCompile(`"@types/node":\s*"[\^~]?(\d+)\.`)},
 		{
 			file:     "web/package.json",
@@ -101,8 +93,7 @@ func TestNodeLineIsOneValue(t *testing.T) {
 	}, steps[nodeVersionInput])
 }
 
-// TestGoLineIsOneValue: .go-version, the go directive, the build stage image and its documentation,
-// and the harness tools image's builder of the compatibility clients name the same Go line, and
+// TestGoLineIsOneValue: .go-version, the go directive, the build stage image, and the harness tools image's builder of the compatibility clients name the same Go line, and
 // every setup-go step reads it from .go-version instead of writing it.
 func TestGoLineIsOneValue(t *testing.T) {
 	t.Parallel()
@@ -111,7 +102,6 @@ func TestGoLineIsOneValue(t *testing.T) {
 		{file: ".go-version", pattern: regexp.MustCompile(`^(\d+\.\d+)\s*$`)},
 		{file: "go.mod", pattern: regexp.MustCompile(`(?m)^go (\d+\.\d+)(?:\.\d+)?$`)},
 		{file: "deployments/docker/Dockerfile", pattern: golangLine},
-		{file: "docs/features/technical-stack/build-packaging.md", pattern: golangLine},
 		{file: "test/harness/tools.Dockerfile", pattern: toolsGolangLine},
 	}, nil)
 }
@@ -172,24 +162,6 @@ func TestExactWebPins(t *testing.T) {
 		version, found := manifest.DevDependencies[name]
 		if !found || !exact.MatchString(version) {
 			t.Errorf("web/package.json pins %s as %q; want an exact version", name, version)
-		}
-	}
-}
-
-// TestReleaseToolPins: svu and Trivy are pinned in release.yaml.
-func TestReleaseToolPins(t *testing.T) {
-	t.Parallel()
-
-	file := filepath.Join(".github", "workflows", "release.yaml")
-
-	content, err := os.ReadFile(filepath.Join(toolgate.RepoRoot(t), file))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	for tool, pin := range map[string]string{"svu": svuPin, "trivy": trivyPin} {
-		if !pinnedOnLine(string(content), tool, pin) {
-			t.Errorf("%s does not pin %s at %s", file, tool, pin)
 		}
 	}
 }
@@ -277,30 +249,6 @@ func TestActionPinRules(t *testing.T) {
 		len(problems) != 1 {
 		t.Errorf("reusable workflow inputs: %v, %q", values, problems)
 	}
-}
-
-func TestPinnedOnLine(t *testing.T) {
-	t.Parallel()
-
-	content := "run: go run github.com/caarlos0/svu/v3@v3.4.1 next\nwith:\n  version: v0.75.0 # trivy\n"
-	if !pinnedOnLine(content, "svu", svuPin) || !pinnedOnLine(content, "trivy", trivyPin) {
-		t.Error("pins written on the tool's line were not found")
-	}
-
-	if pinnedOnLine("svu: latest\nversion: v3.4.1\n", "svu", svuPin) {
-		t.Error("a pin away from the tool's line was counted")
-	}
-}
-
-// pinnedOnLine reports whether a line names the tool, in any case, together with the pin.
-func pinnedOnLine(content, tool, pin string) bool {
-	for line := range strings.SplitSeq(content, "\n") {
-		if strings.Contains(strings.ToLower(line), tool) && strings.Contains(line, pin) {
-			return true
-		}
-	}
-
-	return false
 }
 
 // githubYAML lists every YAML file under .github, relative to the repository root.

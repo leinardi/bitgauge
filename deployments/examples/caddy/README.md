@@ -21,5 +21,5 @@ before uncommenting it.
 
 `Caddyfile` is the file of
 [deployment-example.md §3](../../../docs/features/deployment-example.md#3-caddy), which explains each
-setting; `test/deployments` keeps the two identical. `compose.yaml` is the Traefik example's shape
+setting. `compose.yaml` is the Traefik example's shape
 with Caddy in Traefik's place.

@@ -19,8 +19,8 @@ image of each tag instead, and every release build is scanned before anything is
 
 | Stage | Base | Does |
 | --- | --- | --- |
-| `web` | `dhi.io/node:24-alpine…-dev`, pinned by tag, on the build platform | `npm ci` and `npm run build` in `web/` → `web/dist` (SPA, Worker chunk, precompressed assets). `npm run build` is `vite build` only; the type check is a separate gate. |
-| `build` | `dhi.io/golang:1.26-alpine…-dev`, pinned by tag, on the build platform | Copies `web/dist`, then `CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -trimpath -buildvcs=false -ldflags "-s -w -X …/internal/buildinfo.version=… -X …commit=… -X …date=…" ./cmd/bitgauge`. Cross-compiles; no emulation needed. |
+| `web` | `dhi.io/node:…-alpine…-dev`, pinned by tag in the Dockerfile, on the build platform | `npm ci` and `npm run build` in `web/` → `web/dist` (SPA, Worker chunk, precompressed assets). `npm run build` is `vite build` only; the type check is a separate gate. |
+| `build` | `dhi.io/golang:…-alpine…-dev`, the Go line of `.go-version`, pinned by tag in the Dockerfile, on the build platform | Copies `web/dist`, then `CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -trimpath -buildvcs=false -ldflags "-s -w -X …/internal/buildinfo.version=… -X …commit=… -X …date=…" ./cmd/bitgauge`. Cross-compiles; no emulation needed. |
 | `runtime` | `dhi.io/static`, pinned by tag | Copies the binary to `/bitgauge`; nothing else. |
 
 The file starts with a `# syntax=docker/dockerfile:1.7@sha256:…` parser directive, so the BuildKit
@@ -131,20 +131,9 @@ meta-test fails both when it is missing after that point and when it appears bef
 **Dist URL allowlist.** The `dist-urls` step (`scripts/check-dist-urls.sh`) reads every file of
 the built `web/dist`, binary files included, and fails on any `http://`, `https://`, `ws://` or
 `wss://` URL, its scheme in any case, that is not on the allowlist; a URL with characters outside
-ASCII fails as it is. The allowlist is exactly:
-
-- `http://www.w3.org/2000/svg` and `http://www.w3.org/1999/xlink`, the SVG namespaces;
-- `http://www.w3.org/1998/Math/MathML`, the MathML namespace, which Vue's DOM runtime passes to
-  `createElementNS`;
-- `http://www.gnu.org/licenses/`, from the license header;
-- `https://tailwindcss.com`, from the license comment that Tailwind writes at the top of the CSS;
-- `https://vuejs.org/error-reference` and any path under it: the reference link that Vue's
-  production runtime prints in a console warning, a string that is never fetched;
-- `https://github.com/leinardi/bitgauge` and any path under it: the About screen's source and
-  documentation links and the base-path error's link to the deployment guide.
-
-`.dist-url-allowlist` holds the same entries for the script, and a test keeps the two in step. A
-new entry is a change to this list first ([../security.md §3](../security.md#3-no-outbound-calls)).
+ASCII fails as it is. The allowlist, with the reason for each entry, is
+[`.dist-url-allowlist`](../../../.dist-url-allowlist); a new entry is argued in review
+([../security.md §3](../security.md#3-no-outbound-calls)).
 
 **Demo-free dist.** The `build` step runs `scripts/check-dist-demo-free.sh` on `web/dist` after
 `vite build`, inside the step, since a step of its own would belong to no gate. It fails when any

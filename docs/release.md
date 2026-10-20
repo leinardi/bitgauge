@@ -385,8 +385,8 @@ Dependabot's `docker` ecosystem updates only the stage images' tags, so the othe
 hand: resolve the new index digest with `docker buildx imagetools inspect <image>:<tag>` and
 replace the tag and the digest together. `svu`
 (`SVU_VERSION`) and Trivy (`TRIVY_VERSION`, in both `release.yaml` and `scheduled-scan.yaml`) are
-pinned as versions and bumped by hand for the same reason; `test/toolchain/pins_test.go` holds them
-to one value. Pinning Trivy does not pin what it knows: its vulnerability database is fetched at run
+pinned as exact versions and bumped by hand for the same reason; bump Trivy in both files together.
+Pinning Trivy does not pin what it knows: its vulnerability database is fetched at run
 time, which is the point of scanning at release time.
 
 **Workflow tokens are read-only by default.** Every workflow sets `permissions: contents: read` at

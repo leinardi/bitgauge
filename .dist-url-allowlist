@@ -1,10 +1,18 @@
-# The URLs the built SPA may contain (docs/features/technical-stack/build-packaging.md section 4),
-# read by scripts/check-dist-urls.sh. The doc's list is the source; test/disturls keeps the two in
-# step. An entry ending in /* allows the URL and anything under it.
+# The URLs the built SPA may contain, read by scripts/check-dist-urls.sh. An entry ending in /*
+# allows the URL and anything under it. A new entry is argued in review: the SPA calls nothing
+# outside its own origin (docs/features/security.md section 3).
+
+# The SVG namespaces.
 http://www.w3.org/2000/svg
 http://www.w3.org/1999/xlink
-http://www.gnu.org/licenses/
-https://github.com/leinardi/bitgauge/*
+# The MathML namespace, which Vue's DOM runtime passes to createElementNS.
 http://www.w3.org/1998/Math/MathML
+# The license header.
+http://www.gnu.org/licenses/
+# The license comment that Tailwind writes at the top of the CSS.
 https://tailwindcss.com
+# The reference link Vue's production runtime prints in a console warning; never fetched.
 https://vuejs.org/error-reference/*
+# The About screen's source and documentation links, and the base-path error's link to the
+# deployment guide.
+https://github.com/leinardi/bitgauge/*

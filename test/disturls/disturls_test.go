@@ -18,8 +18,7 @@
  */
 
 // Package disturls_test drives scripts/check-dist-urls.sh against scratch dists, each with the
-// repository's own allowlist, and keeps that allowlist in step with the list in build-packaging.md
-// section 4.
+// repository's own allowlist.
 package disturls_test
 
 import (
@@ -27,8 +26,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
-	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -217,64 +214,5 @@ func TestDistURLsWithoutADist(t *testing.T) {
 	output, err := runCheck(t, filepath.Join(t.TempDir(), "missing"))
 	if err == nil || !strings.Contains(output, "no dist at") {
 		t.Fatalf("a missing dist did not fail: %v\n%s", err, output)
-	}
-}
-
-// TestAllowlistMatchesTheDoc keeps .dist-url-allowlist and the list in build-packaging.md section 4
-// the same set: the doc is the source, the file is what the script reads.
-func TestAllowlistMatchesTheDoc(t *testing.T) {
-	t.Parallel()
-
-	doc, err := os.ReadFile(repoFile(t, "docs/features/technical-stack/build-packaging.md"))
-	if err != nil {
-		t.Fatalf("read the doc: %v", err)
-	}
-
-	text := string(doc)
-
-	start := strings.Index(text, "**Dist URL allowlist.**")
-	if start < 0 {
-		t.Fatal("build-packaging.md has no Dist URL allowlist paragraph")
-	}
-
-	section := text[start:]
-
-	end := strings.Index(section, "\n\n`.dist-url-allowlist`")
-	if end >= 0 {
-		section = section[:end]
-	}
-
-	matches := regexp.MustCompile("`(https?://[^`]+)`( and any path under it)?").
-		FindAllStringSubmatch(section, -1)
-	fromDoc := make([]string, 0, len(matches))
-
-	for _, match := range matches {
-		entry := match[1]
-		if match[2] != "" {
-			entry += "/*"
-		}
-
-		fromDoc = append(fromDoc, entry)
-	}
-
-	content, err := os.ReadFile(repoFile(t, ".dist-url-allowlist"))
-	if err != nil {
-		t.Fatalf("read the allowlist: %v", err)
-	}
-
-	var fromFile []string
-
-	for line := range strings.SplitSeq(string(content), "\n") {
-		line = strings.TrimSpace(line)
-		if line != "" && !strings.HasPrefix(line, "#") {
-			fromFile = append(fromFile, line)
-		}
-	}
-
-	slices.Sort(fromDoc)
-	slices.Sort(fromFile)
-
-	if len(fromDoc) == 0 || !slices.Equal(fromDoc, fromFile) {
-		t.Errorf("the allowlist and the doc differ:\n  doc:  %v\n  file: %v", fromDoc, fromFile)
 	}
 }

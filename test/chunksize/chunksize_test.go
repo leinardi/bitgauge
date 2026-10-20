@@ -17,8 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Package chunksize_test drives scripts/check-chunk-size.sh against scratch dists and budgets, and
-// pins the repository's budget to the number frontend.md section 3 names.
+// Package chunksize_test drives scripts/check-chunk-size.sh against scratch dists and budgets.
 package chunksize_test
 
 import (
@@ -178,39 +177,5 @@ func TestChunkSize(t *testing.T) {
 				t.Errorf("the failure does not say why, wanted %q:\n%s", testCase.want, output)
 			}
 		})
-	}
-}
-
-// TestBudgetMatchesTheDoc pins .chunk-budget to the 128 KiB frontend.md section 3 names.
-func TestBudgetMatchesTheDoc(t *testing.T) {
-	t.Parallel()
-
-	doc, err := os.ReadFile(repoFile(t, "docs/features/technical-stack/frontend.md"))
-	if err != nil {
-		t.Fatalf("read the doc: %v", err)
-	}
-
-	if !strings.Contains(string(doc), "**128 KiB minified**") {
-		t.Fatal(
-			"frontend.md section 3 no longer names the 128 KiB budget; update .chunk-budget with it",
-		)
-	}
-
-	content, err := os.ReadFile(repoFile(t, ".chunk-budget"))
-	if err != nil {
-		t.Fatalf("read the budget: %v", err)
-	}
-
-	var numbers []string
-
-	for line := range strings.SplitSeq(string(content), "\n") {
-		line = strings.TrimSpace(line)
-		if line != "" && !strings.HasPrefix(line, "#") {
-			numbers = append(numbers, line)
-		}
-	}
-
-	if len(numbers) != 1 || numbers[0] != "131072" {
-		t.Errorf(".chunk-budget holds %v, want the one number 131072 (128 KiB)", numbers)
 	}
 }

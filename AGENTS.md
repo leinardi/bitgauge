@@ -169,16 +169,15 @@ Run before considering an edit done. `make check` applies to every row.
 | `.parity-baseline` | never by hand: only `make demo-parity-update` or `make demo-parity-accept REASON=` after a complete full-matrix run ([demo-parity.md](docs/engineering/demo-parity.md#the-baseline)) |
 | a new `docs/design_system/` export, any UI change in `web/src/**` | `make demo-parity-full`; classify each new difference ([demo-parity.md](docs/engineering/demo-parity.md#classifying-a-difference)) |
 | `api/openapi.yaml` | spec first (`api-contract` skill); `make api-types`, `go test ./internal/handlers/` (the contract tests), then `make verify-web` |
-| `deployments/examples/**`, `docs/features/deployment-example.md` | `go test ./test/deployments/` (the compose files' hardening and healthcheck timings, and every file the page shows equal to its code block), `go test -count=1 ./test/docs/`; `docker compose -f deployments/examples/<example>/compose.yaml config` |
+| `deployments/examples/**`, `docs/features/deployment-example.md` | `go test ./test/deployments/` (the compose files' hardening and healthcheck timings, and the README's compose block), `go test -count=1 ./test/docs/`; `docker compose -f deployments/examples/<example>/compose.yaml config` |
 | `deployments/docker/Dockerfile`, `test/harness/tools.Dockerfile` | `go test ./test/dockerfiles/ ./test/toolchain/` (hadolint runs in `make check`); `make go-test-image` (Docker, `dhi.io`) |
 | `go.mod`, `go.sum`, `web/package.json`, `web/package-lock.json` | `make audit-deps` (network; the commit hooks run the same targets), `go test ./test/toolchain/` |
 | `web/eslint.config.ts`, `web/.npmrc`, `.fallowrc.json`, `.fallow-baseline.json`, `.fallow-regression-baseline.json`, `.mk/audit-deps.mk` | `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (needs `web/node_modules`) |
 | `.golangci.yaml` depguard and forbidigo boundary rules | `go test ./test/boundary/`, then `make go-lint` |
-| `scripts/check-package-map.sh`, the package map in [backend.md §1](docs/features/technical-stack/backend.md) | `go test ./test/packagemap/` |
 | `scripts/check-license-headers.sh` | `go test ./test/licenseheaders/` |
 | `scripts/check-dist-demo-free.sh` | `go test ./test/distdemo/`; shellcheck (in `make check`) |
-| `scripts/check-dist-urls.sh`, `.dist-url-allowlist` | `go test ./test/disturls/` (also keeps the allowlist in step with [build-packaging.md §4](docs/features/technical-stack/build-packaging.md#4-ci-workflows)); shellcheck (in `make check`) |
-| `scripts/check-chunk-size.sh`, `.chunk-budget` | `go test ./test/chunksize/` (also pins the budget to [frontend.md §3](docs/features/technical-stack/frontend.md#3-worker-bundling-with-vite)); shellcheck (in `make check`) |
+| `scripts/check-dist-urls.sh`, `.dist-url-allowlist` | `go test ./test/disturls/`; shellcheck (in `make check`) |
+| `scripts/check-chunk-size.sh`, `.chunk-budget` | `go test ./test/chunksize/`; shellcheck (in `make check`) |
 | `scripts/hooks/gofmt-on-edit.sh` | shellcheck (in `make check`); no test package: run it once by editing a `.go` file in Claude Code |
 | `scripts/bootstrap-mk-common.sh` | shellcheck (in `make check`); it comes from make-common, so a change is ported upstream; `make help` proves the snippets still load |
 | `scripts/idle-measure.sh`, `.mk/idle-measure.mk` | `shellcheck scripts/idle-measure.sh`, `make help`; no test package: it needs a running binary |

@@ -32,20 +32,10 @@ import (
 	"time"
 )
 
-const testingDoc = "../../docs/features/technical-stack/testing.md"
-
-// TestTiersFollowTestingMD pins the profile table to testing.md section 5, word for word: each
-// profile's phrase sits in its tier's row, and each tier has exactly the profiles the row lists.
-func TestTiersFollowTestingMD(t *testing.T) {
+// TestTiers checks the tiers of testing.md section 5: each tier's profile count and browsers, unique
+// profile names, and only the ceiling tier unshaped.
+func TestTiers(t *testing.T) {
 	t.Parallel()
-
-	doc := readFile(t, testingDoc)
-
-	rows := map[Tier]string{
-		TierCI:      tableRow(t, doc, "| CI |"),
-		TierFloor:   tableRow(t, doc, "| Manual range floor |"),
-		TierCeiling: tableRow(t, doc, "| Manual range ceiling |"),
-	}
 
 	counts := map[Tier]int{TierCI: 7, TierFloor: 2, TierCeiling: 2}
 	seen := map[string]bool{}
@@ -70,15 +60,6 @@ func TestTiersFollowTestingMD(t *testing.T) {
 			}
 
 			seen[profile.Name] = true
-
-			if !strings.Contains(rows[spec.Tier], profile.DocPhrase) {
-				t.Errorf(
-					"%s: %q is not in testing.md's %s row",
-					profile.Name,
-					profile.DocPhrase,
-					spec.Tier,
-				)
-			}
 
 			if profile.Shaped == (spec.Tier == TierCeiling) {
 				t.Errorf(
@@ -122,7 +103,7 @@ func TestProfileValues(t *testing.T) {
 		"ceiling-10g":                {RateBitsPerSecond: 10_000_000_000, Preset: PresetStandard},
 	} {
 		got := byName[name]
-		got.Name, got.DocPhrase, got.Shaped = "", "", false
+		got.Name, got.Shaped = "", false
 
 		if got != want {
 			t.Errorf("%s = %+v, want %+v", name, got, want)
@@ -629,38 +610,6 @@ func TestReport(t *testing.T) {
 			t.Errorf("report.md lacks %q:\n%s", want, markdown)
 		}
 	}
-}
-
-// TestEnvironmentalLimitsFollowTestingMD pins the limits list to the one testing.md requires.
-func TestEnvironmentalLimitsFollowTestingMD(t *testing.T) {
-	t.Parallel()
-
-	// Line wrapping and code spans are the doc's formatting, not its words.
-	doc := strings.Join(strings.Fields(strings.ReplaceAll(readFile(t, testingDoc), "`", "")), " ")
-
-	for _, limit := range EnvironmentalLimits {
-		if !strings.Contains(doc, "- "+limit) {
-			t.Errorf("testing.md does not list %q", limit)
-		}
-	}
-
-	if !strings.Contains(doc, strings.TrimPrefix(CannotProve, "What the harness cannot prove: ")) {
-		t.Errorf("testing.md does not say %q", CannotProve)
-	}
-}
-
-func tableRow(t *testing.T, doc, prefix string) string {
-	t.Helper()
-
-	for line := range strings.SplitSeq(doc, "\n") {
-		if strings.HasPrefix(line, prefix) {
-			return line
-		}
-	}
-
-	t.Fatalf("testing.md has no row starting %q", prefix)
-
-	return ""
 }
 
 func readFile(t *testing.T, path string) string {

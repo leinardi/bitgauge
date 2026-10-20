@@ -56,12 +56,6 @@ references to it. A config key also needs its validation rule and warning in con
 native route or field also goes through the `api-contract` skill (`api/openapi.yaml`, once it
 exists).
 
-Tests outside `test/docs/` pin spec text too, so a docs edit can fail them:
-
-| Edited | Pinned by | Run |
-| --- | --- | --- |
-| testing.md §5 tier table, environmental limits, closing statement | `test/harness/harness_unit_test.go`, word for word | `go test ./test/harness/` |
-
 When a number moves, the code that states it moves in the same change; when the code already
 disagrees with the docs, the docs are the fix target only if the docs are what is being changed
 deliberately.

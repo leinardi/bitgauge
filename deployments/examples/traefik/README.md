@@ -20,5 +20,5 @@ uncommenting it.
 
 `compose.yaml` and `traefik-dynamic.yaml` are the files of
 [deployment-example.md §2](../../../docs/features/deployment-example.md#2-compose-with-traefik),
-which explains each setting; `test/deployments` keeps them identical. A sub-path deployment is in
+which explains each setting. A sub-path deployment is in
 [§6](../../../docs/features/deployment-example.md#6-sub-path-deployment).

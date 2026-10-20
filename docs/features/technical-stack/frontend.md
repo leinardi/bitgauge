@@ -116,11 +116,10 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
   as a separate hashed chunk under `assets/`, same-origin, so the CSP's `worker-src 'self'` and
   COEP are satisfied.
 - Module Workers are supported by every target browser (current Chromium, Firefox and Safari).
-- The engine chunk has no dependency on Vue, Tailwind or component code. Its budget is
-  **128 KiB minified**, enforced by the `chunk-size` step of `web.yaml`
-  ([build-packaging.md §4](build-packaging.md#4-ci-workflows)); the number, in bytes, lives in
-  `.chunk-budget` and is lowered once the engine's real size is known. The path B prober, the
-  quality scores and the Continuous retention stay inside that budget.
+- The engine chunk has no dependency on Vue, Tailwind or component code. Its budget, in bytes
+  of minified output, lives in [`.chunk-budget`](../../../.chunk-budget) and is enforced by the
+  `chunk-size` step of `web.yaml` ([build-packaging.md §4](build-packaging.md#4-ci-workflows)).
+  The path B prober, the quality scores and the Continuous retention stay inside that budget.
 - The application's chunks take from the engine only `engine/messages.ts`'s runtime exports
   (`validateResult`, `PRESETS` and `RING_LENGTHS`, §2); the measurement logic itself ships only in
   the Worker chunk.

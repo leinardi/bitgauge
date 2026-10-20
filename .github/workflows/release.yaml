@@ -49,8 +49,7 @@ permissions:
   contents: read
 
 env:
-  # Pinned by hand: Dependabot does not track a `go install` argument. test/toolchain/pins_test.go
-  # holds it to one value.
+  # Pinned by hand: Dependabot does not track a `go install` argument.
   SVU_VERSION: v3.4.1
   # The one definition of a release tag: vMAJOR.MINOR.PATCH, strict SemVer core with no leading
   # zeros, no pre-release and no build metadata. Every lookup below filters the full tag list

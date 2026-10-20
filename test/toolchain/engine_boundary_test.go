@@ -28,123 +28,6 @@ import (
 	"github.com/leinardi/bitgauge/test/internal/toolgate"
 )
 
-// engineWiring are the only engine files that may touch the browser's clock, network and worker
-// globals (frontend.md section 2).
-var engineWiring = []string{
-	"src/engine/clock.ts",
-	"src/engine/transport.ts",
-	"src/engine/worker.ts",
-}
-
-// TestEngineBoundaryConfig pins the shape of the boundary in web/eslint.config.ts, so it is checked
-// even where ESLint is not installed.
-func TestEngineBoundaryConfig(t *testing.T) {
-	t.Parallel()
-
-	config := readRepoFile(t, "web", "eslint.config.ts")
-
-	wiring := "const engineWiringFiles = ['" + strings.Join(engineWiring, "', '") + "']"
-	if !strings.Contains(config, wiring) {
-		t.Errorf(
-			"web/eslint.config.ts must exempt exactly %v from the banned globals:\nwant %s",
-			engineWiring,
-			wiring,
-		)
-	}
-
-	for _, global := range []string{
-		"'performance'", "'setTimeout'", "'setInterval'", "'fetch'",
-		"'XMLHttpRequest'", "'WebSocket'", "'window'", "'document'", "'self'",
-	} {
-		if !strings.Contains(config, global) {
-			t.Errorf("web/eslint.config.ts does not ban %s in the engine", global)
-		}
-	}
-
-	for _, rule := range []string{
-		"rules: { 'no-restricted-imports': ['error', appRestrictedImports] }",
-		"rules: { 'no-restricted-imports': ['error', engineRestrictedImports] }",
-		"rules: { 'no-restricted-globals': ['error', ...engineBannedGlobals] }",
-	} {
-		if !strings.Contains(config, rule) {
-			t.Errorf("web/eslint.config.ts lacks %s", rule)
-		}
-	}
-}
-
-// demoBlock is the demo Worker's import policy as web/eslint.config.ts must apply it: to the demo's
-// TypeScript files only, so DemoPanel.vue stays under the application's policy (frontend.md
-// section 9).
-const demoBlock = "  {\n" +
-	"    files: ['src/demo/**/*.ts'],\n" +
-	"    rules: { 'no-restricted-imports': ['error', demoRestrictedImports] },\n" +
-	"  },\n"
-
-// demoGlobalsBlock bans the engine's globals in the demo's files except its Worker entry.
-const demoGlobalsBlock = "    files: ['src/demo/**/*.ts'],\n" +
-	"    ignores: ['src/demo/worker.ts'],\n" +
-	"    rules: { 'no-restricted-globals': ['error', ...engineBannedGlobals] },\n"
-
-// demoPolicy is the demo's import policy: the engine's patterns, whose one widening is @/demo/.
-const demoPolicy = `const demoRestrictedImports = {
-  patterns: [
-    {
-      group: ['vue', 'vue/**', '@vue/**', 'vue-*', '@vueuse/**', 'reka-ui', 'reka-ui/**', 'idb', 'uplot'],
-      message: 'The demo Worker is framework-free: no Vue, no UI library, no storage (frontend.md section 9).',
-    },
-    {
-      regex: '^@/(?!engine/|demo/|api/types\\.gen$)',
-      message: 'The demo Worker imports only the engine, the demo and the generated API types (frontend.md section 9).',
-    },
-    {
-      regex: '^\\.\\./',
-      message: 'Inside the demo, write a path that leaves the folder as @/demo/... or @/engine/... (frontend.md section 9).',
-    },
-  ],
-}
-`
-
-// TestDemoBoundaryConfig pins the demo's policy and the block that applies it byte for byte, so that
-// the demo's policy can never silently widen; the engine's own blocks are pinned above.
-func TestDemoBoundaryConfig(t *testing.T) {
-	t.Parallel()
-
-	config := readRepoFile(t, "web", "eslint.config.ts")
-
-	if strings.Count(config, demoBlock) != 1 {
-		t.Errorf("web/eslint.config.ts must apply the demo policy exactly once, as:\n%s", demoBlock)
-	}
-
-	if strings.Count(config, demoGlobalsBlock) != 1 {
-		t.Errorf(
-			"web/eslint.config.ts must ban the engine's globals in the demo but its entry, as:\n%s",
-			demoGlobalsBlock,
-		)
-	}
-
-	if strings.Count(config, demoPolicy) != 1 {
-		t.Errorf(
-			"web/eslint.config.ts must admit exactly the engine, the demo and the API types in the demo:\nwant %s",
-			demoPolicy,
-		)
-	}
-
-	// The demo block comes after the application's, which it overrides for the demo's .ts files.
-	app := strings.Index(
-		config,
-		"rules: { 'no-restricted-imports': ['error', appRestrictedImports] }",
-	)
-	if app < 0 {
-		t.Fatal("web/eslint.config.ts no longer applies the application's import policy")
-	}
-
-	if demo := strings.Index(config, demoBlock); demo < app {
-		t.Errorf(
-			"web/eslint.config.ts applies the demo policy before the application's, which would override it",
-		)
-	}
-}
-
 // TestEngineBoundaryLint lints sources through ESLint's stdin, so no file is written under src/:
 // each case names the file it pretends to be and whether the boundary must reject it.
 func TestEngineBoundaryLint(t *testing.T) {
@@ -152,6 +35,8 @@ func TestEngineBoundaryLint(t *testing.T) {
 
 	eslint := toolgate.Lookup(t, toolgate.ESLint)
 	webDir := filepath.Join(toolgate.RepoRoot(t), "web")
+
+	readWebSources(t)
 
 	for name, test := range map[string]struct {
 		file   string

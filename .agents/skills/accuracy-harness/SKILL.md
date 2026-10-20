@@ -46,8 +46,7 @@ commit.
 
 ## 2. Tiers and profiles
 
-`test/harness/profiles.go` holds the table; `TestTiersFollowTestingMD` pins each `DocPhrase` to its
-tier's row in testing.md §5 word for word, with exactly 7, 2 and 2 profiles.
+`test/harness/profiles.go` holds the table; `TestTiers` holds the tiers to 7, 2 and 2 profiles.
 
 | Tier | Profile name (`HARNESS_PROFILES`) | Link | Preset |
 | --- | --- | --- | --- |
@@ -94,7 +93,7 @@ ceiling are manual, before each release
 
 ## 2a. The Continuous memory check
 
-Beside the tiers and outside `Tiers()` (so `TestTiersFollowTestingMD` keeps its three rows),
+Beside the tiers and outside `Tiers()` (so `TestTiers` keeps its three tiers),
 testing.md §5 "Continuous memory (manual)" asks for one hour of a Continuous download on
 `ci-100m-50ms` in Chromium, before each release, recorded with the floor and ceiling tiers
 (section 8).
@@ -332,7 +331,7 @@ reference.
 
 ## 7. Environmental limits
 
-Every report carries them, pinned to testing.md by `TestEnvironmentalLimitsFollowTestingMD`:
+Every report carries them (`EnvironmentalLimits` in `test/harness`):
 
 - `tc` shaping jitter (tbf burst sizes, netem timer granularity).
 - Docker bridge overhead at high rates.

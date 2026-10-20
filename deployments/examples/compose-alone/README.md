@@ -10,4 +10,4 @@ docker compose up -d
 
 Then open `http://<host>:8080/`. `compose.yaml` is the file of
 [deployment-example.md §1](../../../docs/features/deployment-example.md#1-compose-bitgauge-alone),
-which explains each setting; `test/deployments` keeps the two identical.
+which explains each setting.

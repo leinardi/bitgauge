@@ -20,11 +20,11 @@
 # The dist URL allowlist (docs/features/technical-stack/build-packaging.md section 4).
 #
 # Reads every file of a built SPA, binary files included, and fails on any http://, https://,
-# ws:// or wss:// URL, the scheme in any case, that is not on the allowlist: the SPA calls nothing outside its own origin
-# (docs/features/security.md section 3), and a URL in the dist is the first sign that something
-# would. The allowlist lives in .dist-url-allowlist, which a test keeps in step with the doc. An
-# entry is an exact URL; an entry ending in /* allows the URL before it and anything under it
-# (a path, a query or a fragment), never a longer name such as a repository with a suffix.
+# ws:// or wss:// URL, the scheme in any case, that is not on the allowlist: the SPA calls nothing
+# outside its own origin (docs/features/security.md section 3), and a URL in the dist is the first
+# sign that something would. The allowlist lives in .dist-url-allowlist. An entry is an exact URL;
+# an entry ending in /* allows the URL before it and anything under it (a path, a query or a
+# fragment), never a longer name such as a repository with a suffix.
 #
 # A dist that is missing or empty fails: nothing passes on nothing.
 
@@ -115,6 +115,6 @@ done < <(find "$DIST" -type f -print0)
 
 ((files > 0)) || fail "the dist at $DIST holds no file"
 if ((problems > 0)); then
-	fail "$problems URL(s) outside the allowlist; a new entry is a docs change first (build-packaging.md section 4)"
+	fail "$problems URL(s) outside the allowlist; a new entry is argued in review (.dist-url-allowlist)"
 fi
 printf 'check-dist-urls: %d file(s), every URL on the allowlist\n' "$files"
