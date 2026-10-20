@@ -2,7 +2,8 @@
 name: accuracy-harness
 description: >
   How to run, change and read BitGauge's accuracy harness: the CI, floor and ceiling
-  tiers and their profiles, the make runners and their variables, the dormancy gate,
+  tiers and their profiles, the manual Continuous memory check, the make runners and
+  their variables, the dormancy gate,
   the shaper self-test, netguard's negative controls and the two no-egress layers,
   envid-scoped cleanup, report.json and report.md, the environmental limits, and how
   manual runs are recorded for a release. The rule that outranks a green run: never
@@ -108,6 +109,29 @@ The CI tier runs on every pull request through `harness.yaml` once the gate is a
 ceiling are manual, before each release
 ([testing.md §6](../../../docs/features/technical-stack/testing.md#6-ci-placement)).
 
+## 2a. The Continuous memory check
+
+Beside the tiers and outside `Tiers()` (so `TestTiersFollowTestingMD` keeps its three rows),
+testing.md §5 "Continuous memory (manual, v0.3)" asks for one hour of a Continuous download on
+`ci-100m-50ms` in Chromium, before each release, recorded with the floor and ceiling tiers
+(section 8).
+
+- **Runner.** `TestHarnessContinuous` (`test/harness/continuous_test.go`, `harness` tag): the
+  dormancy check first, then one topology with its shaper self-test and netguard, and the driver
+  run within `ContinuousBrowseLimit` (the minutes plus setup), not the tiers' 20 min.
+- **Driver.** `web/harness/continuous.spec.ts` opens the Continuous URL with a run length of the
+  minutes plus 30 s, takes the steady start from the gauge note leaving "warming up", and every
+  60 s forces `HeapProfiler.collectGarbage` and reads `Runtime.getHeapUsage` on the engine Worker.
+  Playwright cannot address a flattened Worker session, so the page's session auto-attaches
+  unflattened and talks through `Target.sendMessageToTarget`. Its timeout comes from the minutes.
+- **Evaluation.** `test/harness/continuous.go`, untagged, table-tested in
+  `continuous_eval_test.go`: every reading from minute 5 to the last within 2 MiB (2 097 152 bytes,
+  inclusive) of the minute-5 one. A missing, empty or short sample file, a reading out of order or
+  without a heap size, or a netguard counter that is missing or not zero fails; nothing skips. The
+  report goes to `dist/harness/continuous-<UTC>-<envid>/`.
+
+Never widen the 2 MiB bound, start the baseline later, or drop a reading to make a run pass.
+
 ## 3. Running it
 
 | Target | What it does |
@@ -115,16 +139,18 @@ ceiling are manual, before each release
 | `make harness-ci` | The CI tier |
 | `make harness-floor` | The floor tier |
 | `make harness-ceiling` | The ceiling tier, always with `HARNESS_SHAPE=none` |
+| `make harness-continuous` | The Continuous memory check (section 2a), `HARNESS_CONTINUOUS_MINUTES` (default 60, at least 6) |
 | `make harness-sweep` | The stale sweep (section 5), listing every environment kept and why |
 | `make harness-sweep-all CONFIRM=1` | Removes **every** harness environment, kept or live, anyone's; without `CONFIRM=1` it refuses |
 | `make go-vet-harness` | `go vet -tags=harness` over the harness and netguard |
 
-Optional inputs: `HARNESS_PROFILES` and `HARNESS_BROWSERS` (comma-separated; empty means all; a
-name the tier does not have is an error, never a silent no-op), `HARNESS_KEEP_ON_FAILURE=1` (keeps a
-failed run's containers, section 5), `HARNESS_SHAPE=none` (no shaper), `HARNESS_TIMEOUT` (default
-`120m`). A run with `HARNESS_SHAPE=none` on a `ci` or `floor` profile has no shaper and no
-self-test, and its report says `unshaped`: it is a debugging run, not a run of that profile, so
-it stays `recorded`, is not judged, and fails the tier.
+Optional inputs (the tiers; `harness-continuous` takes `HARNESS_CONTINUOUS_MINUTES` and
+`HARNESS_KEEP_ON_FAILURE` only): `HARNESS_PROFILES` and `HARNESS_BROWSERS` (comma-separated; empty
+means all; a name the tier does not have is an error, never a silent no-op),
+`HARNESS_KEEP_ON_FAILURE=1` (keeps a failed run's containers, section 5), `HARNESS_SHAPE=none` (no
+shaper), `HARNESS_TIMEOUT` (default `120m`). A run with `HARNESS_SHAPE=none` on a `ci` or `floor`
+profile has no shaper and no self-test, and its report says `unshaped`: it is a debugging run, not
+a run of that profile, so it stays `recorded`, is not judged, and fails the tier.
 
 Prerequisites (`.mk/harness.mk`): Linux, a Docker daemon with buildx, a `dhi.io` login, the `ifb`,
 `netem`, `tbf` and `fq_codel` kernel modules, cgroup v2 with `memory.peak` (Linux 5.19 or later),
@@ -337,13 +363,14 @@ report cannot support.
 
 ## 8. Recording manual runs for a release
 
-A release is blocked until the floor and ceiling tiers, and the real Safari and iOS checks, have
-passed for it ([release.md](../../../docs/release.md#how-to-release),
+A release is blocked until the floor and ceiling tiers, the Continuous memory check, and the real
+Safari and iOS checks, have passed for it ([release.md](../../../docs/release.md#how-to-release),
 [testing.md §5.1](../../../docs/features/technical-stack/testing.md#51-implementation)):
 
 - The maintainer commits the run's `report.md` as `docs/engineering/harness-runs/<version>.md`, one
-  file per release, holding the floor and ceiling results, the real Safari and iOS checks (the
-  report's "Manual runs this tier requires" list) and the environmental notes.
+  file per release, holding the floor and ceiling results, the Continuous memory check's readings
+  and verdict, the real Safari and iOS checks (the report's "Manual runs this tier requires" list)
+  and the environmental notes.
 - The directory exists, with a
   [`README.md`](../../../docs/engineering/harness-runs/README.md) saying what each file holds; no
   run is recorded yet, and the first file is `0.1.0.md`. The lab runbook is
@@ -357,9 +384,9 @@ passed for it ([release.md](../../../docs/release.md#how-to-release),
 - Profiles, tiers, the environmental limits and the closing statement are pinned to testing.md
   by `harness_unit_test.go`: change testing.md first, then `profiles.go` or `report.go`.
 - The pure logic (profiles, report, shaper commands, iperf3 and ping parsing, phase windows, the
-  loaded-latency rule, cgroup counters, testenv rules) is untagged and runs in every `go test
-  ./...`; the runners and netguard carry the `harness` build tag (netguard also `image`). Check both
-  with `make go-vet-harness`.
+  loaded-latency rule, the Continuous memory evaluation, cgroup counters, testenv rules) is
+  untagged and runs in every `go test ./...`; the runners and netguard carry the `harness` build
+  tag (netguard also `image`). Check both with `make go-vet-harness`.
 - The browser driver uses only what a user has: the URL parameters and the Download JSON button,
   and it reads the Test screen's phase steps as they change. No test-only hook in the SPA.
 - No outbound call from any container: the client gets no route out, and nothing installs at run
@@ -380,4 +407,5 @@ passed for it ([release.md](../../../docs/release.md#how-to-release),
 - [ ] Cleanup scoped to the run's own envid; kept and foreign environments untouched
 - [ ] Profiles, limits and closing statement still match testing.md §5
 - [ ] Harness gate prerequisites, CI job and workflow change together or not at all
+- [ ] The Continuous memory check's 2 MiB bound and minute-5 baseline untouched; a short file fails
 - [ ] Manual tiers recorded in `docs/engineering/harness-runs/<version>.md` before tagging

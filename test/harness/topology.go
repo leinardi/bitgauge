@@ -255,10 +255,42 @@ func (t *Topology) Browse(ctx context.Context, browser string) (ping string, err
 	return ping, nil
 }
 
+// Continuous runs the Continuous memory check's browser driver in Chromium for the minutes given:
+// web/harness/continuous.spec.ts samples the engine Worker's heap and writes ContinuousExport,
+// within ContinuousBrowseLimit rather than the tiers' browser limit.
+func (t *Topology) Continuous(ctx context.Context, minutes int) error {
+	exportDir := filepath.Dir(ContinuousExport())
+
+	err := t.playwrightWithin(
+		ctx,
+		ContinuousBrowseLimit(minutes),
+		"harness/continuous.spec.ts",
+		ContinuousBrowser,
+		"HARNESS_CONTINUOUS_MINUTES="+strconv.Itoa(minutes),
+		"HARNESS_EXPORT_DIR="+clientOut+"/"+filepath.ToSlash(exportDir),
+		"HARNESS_OUTPUT_DIR="+clientOut+"/playwright/"+t.profile.Name+"-continuous",
+	)
+	if err != nil {
+		return fmt.Errorf("the continuous run: %w", err)
+	}
+
+	return nil
+}
+
 // playwright runs one harness spec, selected by Playwright's file filter, in one browser in the
-// client, with the BitGauge URL and the variables given; the Caddy profile's browser accepts
-// Caddy's internal CA.
+// client, with the BitGauge URL and the variables given, within the tiers' browser limit; the
+// Caddy profile's browser accepts Caddy's internal CA.
 func (t *Topology) playwright(ctx context.Context, spec, browser string, env ...string) error {
+	return t.playwrightWithin(ctx, browserLimit, spec, browser, env...)
+}
+
+// playwrightWithin is playwright with its own limit.
+func (t *Topology) playwrightWithin(
+	ctx context.Context,
+	limit time.Duration,
+	spec, browser string,
+	env ...string,
+) error {
 	ignoreHTTPS := "0"
 	if t.profile.Proxy.HTTPS() {
 		ignoreHTTPS = "1"
@@ -282,7 +314,7 @@ func (t *Topology) playwright(ctx context.Context, spec, browser string, env ...
 
 	args = append(args, command...)
 
-	browseCtx, cancel := context.WithTimeout(ctx, browserLimit)
+	browseCtx, cancel := context.WithTimeout(ctx, limit)
 	defer cancel()
 
 	_, err := t.env.Docker(browseCtx, args...)

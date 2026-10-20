@@ -104,6 +104,7 @@ go test -tags=image -v -run 'Probe|Count|Blind' ./test/image/ ./test/internal/ne
 make harness-ci        # accuracy harness, CI tier (Docker, dhi.io, netem)
 make harness-floor     # accuracy harness, manual range floor (Docker)
 make harness-ceiling   # accuracy harness, manual range ceiling, unshaped (Docker)
+make harness-continuous # Continuous memory check, manual (Docker, dhi.io, netem)
 make harness-sweep     # remove stale harness environments, list the kept ones
 make harness-sweep-all # remove every harness environment (CONFIRM=1)
 make idle-measure      # idle CPU and memory of a running binary (IDLE_PIDS="bitgauge=PID")
@@ -120,7 +121,8 @@ make mk-common-update  # refresh the shared make-common snippets
 ```
 
 Harness inputs: `HARNESS_PROFILES`, `HARNESS_BROWSERS`, `HARNESS_KEEP_ON_FAILURE=1`,
-`HARNESS_SHAPE=none` ([runbook](docs/engineering/accuracy-harness.md)). `go test ./test/...` with
+`HARNESS_SHAPE=none`, and for `harness-continuous` `HARNESS_CONTINUOUS_MINUTES` (default 60, at
+least 6) ([runbook](docs/engineering/accuracy-harness.md)). `go test ./test/...` with
 `BITGAUGE_REQUIRE_TOOLS=1` turns a missing golangci-lint, ESLint or fallow into a failure instead
 of a skip, as CI's `repo-gates` job does. Demo parity is on demand, never CI: it fetches the
 export's scripts from `unpkg.com` on its first run ([runbook](docs/engineering/demo-parity.md)).

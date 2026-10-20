@@ -38,6 +38,7 @@ MK_LOCAL_HARNESS_INCLUDED := 1
 #   HARNESS_BROWSERS         comma-separated chromium, firefox, webkit (default: all three)
 #   HARNESS_KEEP_ON_FAILURE  1 keeps the containers of a run that errored or failed its tolerances
 #   HARNESS_SHAPE            none runs without the shaper (harness-ceiling sets it)
+#   HARNESS_CONTINUOUS_MINUTES  harness-continuous only: the minutes it samples (default 60, at least 6)
 
 HARNESS_TIMEOUT         ?= 120m
 HARNESS_PKG             := ./test/harness/
@@ -45,6 +46,9 @@ HARNESS_PROFILES        ?=
 HARNESS_BROWSERS        ?=
 HARNESS_KEEP_ON_FAILURE ?= 0
 HARNESS_SHAPE           ?=
+HARNESS_CONTINUOUS_MINUTES ?= 60
+# The image builds, the topology and the browser's setup around the sampled minutes.
+HARNESS_CONTINUOUS_SETUP_MINUTES := 30
 
 # harness_run runs one tier: $(1) is the tier, $(2) the shape setting.
 define harness_run
@@ -68,6 +72,17 @@ harness-floor: ## Run the manual range-floor harness tier (Docker)
 .PHONY: harness-ceiling
 harness-ceiling: ## Run the manual range-ceiling harness tier, unshaped (bare metal or veth)
 	$(call harness_run,ceiling,none)
+
+.PHONY: harness-continuous
+harness-continuous: ## Run the manual Continuous memory check, Chromium on ci-100m-50ms (Docker)
+	@case "$(HARNESS_CONTINUOUS_MINUTES)" in ''|*[!0-9]*) \
+	  echo "HARNESS_CONTINUOUS_MINUTES must be a whole number of at least 6, not '$(HARNESS_CONTINUOUS_MINUTES)'" >&2; exit 1;; \
+	esac
+	HARNESS_CHECK_ACTIVE=1 $(GO) test -count=1 -run '^TestHarnessActive$$' $(HARNESS_PKG)
+	HARNESS_CONTINUOUS_MINUTES="$(HARNESS_CONTINUOUS_MINUTES)" \
+	HARNESS_KEEP_ON_FAILURE="$(HARNESS_KEEP_ON_FAILURE)" \
+	$(GO) test -tags=harness -count=1 -run '^TestHarnessContinuous$$' \
+	  -timeout $$(( $(HARNESS_CONTINUOUS_MINUTES) + $(HARNESS_CONTINUOUS_SETUP_MINUTES) ))m -v $(HARNESS_PKG)
 
 .PHONY: harness-sweep
 harness-sweep: ## Remove stale harness environments and list the kept ones

@@ -88,6 +88,7 @@ make e2e               # Playwright on Chromium, Firefox, WebKit
 make harness-ci        # accuracy harness, CI tier profiles
 make harness-floor     # manual range-floor profiles
 make harness-ceiling   # manual range-ceiling profiles (bare metal)
+make harness-continuous # manual Continuous memory check (HARNESS_CONTINUOUS_MINUTES, default 60)
 make harness-sweep     # remove stale harness environments, list kept ones
 make harness-sweep-all # remove every harness environment (needs CONFIRM=1)
 make verify            # verify-go and verify-web

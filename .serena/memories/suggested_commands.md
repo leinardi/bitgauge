@@ -43,12 +43,14 @@ make e2e                   # Playwright, host-built binary
 make docker-build / docker-run      # docker-run binds 127.0.0.1 by default
 make go-test-image                  # image tests under netguard + strace
 make harness-ci / harness-floor / harness-ceiling   # CI tier, manual floor, manual ceiling
+make harness-continuous             # manual Continuous memory check (HARNESS_CONTINUOUS_MINUTES)
 make harness-sweep                  # remove stale harness environments
 make harness-sweep-all CONFIRM=1    # remove every harness environment
 ```
 
 Harness inputs: `HARNESS_PROFILES`, `HARNESS_BROWSERS`, `HARNESS_KEEP_ON_FAILURE=1`,
-`HARNESS_SHAPE=none`; stale sweep age `BITGAUGE_HARNESS_STALE_AFTER` (default 6h).
+`HARNESS_SHAPE=none`, `HARNESS_CONTINUOUS_MINUTES` (default 60, at least 6); stale sweep age
+`BITGAUGE_HARNESS_STALE_AFTER` (default 6h).
 
 ## Demo parity (on demand, never CI; Chromium)
 

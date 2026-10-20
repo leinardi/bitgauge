@@ -78,67 +78,15 @@ func run(m *testing.M) int {
 // against testing.md section 5 (re-running an inconclusive one once), and writes the report under
 // dist/harness. Any final run that failed, failed its tolerances or stayed inconclusive fails it.
 func TestHarness(t *testing.T) {
-	unmet, err := Unmet(repoRoot)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(unmet) > 0 {
-		t.Fatalf("the harness is dormant; unmet prerequisites:\n- %s", strings.Join(unmet, "\n- "))
-	}
+	requireActive(t)
 
 	spec := selectedTier(t)
-	ctx := t.Context()
-	runner := dockerCLI()
-
-	toolsImage, err := netguard.BuildToolsImage(ctx, runner, repoRoot)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	started := time.Now()
-	image := "bitgauge-harness:" + started.UTC().Format("20060102T150405")
-
-	_, err = runner.Run(ctx, "buildx", "build", "--load", "--tag", image,
-		"--file", filepath.Join(repoRoot, "deployments", "docker", "Dockerfile"), repoRoot)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Unlabeled, so no environment cleanup or sweep would ever take it.
-	t.Cleanup(func() {
-		cleanupCtx, cancel := context.WithTimeout(context.Background(), time.Minute)
-		defer cancel()
-
-		_, rmErr := runner.Run(cleanupCtx, "image", "rm", "--force", image)
-		if rmErr != nil {
-			t.Errorf("remove %s: %v", image, rmErr)
-		}
-	})
-
-	// The invocation's own identifier, naming the report directory; each run's environment has
-	// its own, recorded with the run.
-	reportEnv, err := testenv.GenerateEnvID()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	dir, err := filepath.Abs(
+	toolsImage, image, started := buildImages(t)
+	reportEnv := generateEnvID(t)
+	dir := reportDir(
+		t,
 		Dir(filepath.Join(repoRoot, "dist", "harness"), spec.Tier, started, reportEnv),
 	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Created now, as the user running the test: the client bind-mounts it and writes as that
-	// user, and a missing bind source would be created root-owned by the daemon.
-	for _, sub := range []string{"exports", "playwright"} {
-		err = os.MkdirAll(filepath.Join(dir, sub), dirMode)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
 	report := NewReport(&spec, reportEnv, started)
 
 	defer func() {
@@ -179,6 +127,90 @@ func TestHarness(t *testing.T) {
 			}
 		}
 	}
+}
+
+// requireActive fails the test, listing what is missing, while the harness is dormant.
+func requireActive(t *testing.T) {
+	t.Helper()
+
+	unmet, err := Unmet(repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(unmet) > 0 {
+		t.Fatalf("the harness is dormant; unmet prerequisites:\n- %s", strings.Join(unmet, "\n- "))
+	}
+}
+
+// buildImages builds netguard's tools image and the shipped image, which goes when the test ends,
+// and returns them with the instant the invocation started.
+func buildImages(t *testing.T) (toolsImage, image string, started time.Time) {
+	t.Helper()
+
+	ctx := t.Context()
+	runner := dockerCLI()
+
+	toolsImage, err := netguard.BuildToolsImage(ctx, runner, repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	started = time.Now()
+	image = "bitgauge-harness:" + started.UTC().Format("20060102T150405")
+
+	_, err = runner.Run(ctx, "buildx", "build", "--load", "--tag", image,
+		"--file", filepath.Join(repoRoot, "deployments", "docker", "Dockerfile"), repoRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Unlabeled, so no environment cleanup or sweep would ever take it.
+	t.Cleanup(func() {
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), time.Minute)
+		defer cancel()
+
+		_, rmErr := runner.Run(cleanupCtx, "image", "rm", "--force", image)
+		if rmErr != nil {
+			t.Errorf("remove %s: %v", image, rmErr)
+		}
+	})
+
+	return toolsImage, image, started
+}
+
+// generateEnvID is the invocation's own identifier, naming the report directory; each run's
+// environment has its own, recorded with the run.
+func generateEnvID(t *testing.T) string {
+	t.Helper()
+
+	envID, err := testenv.GenerateEnvID()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return envID
+}
+
+// reportDir makes the report directory absolute and creates its exports and playwright
+// directories now, as the user running the test: the client bind-mounts them and writes as that
+// user, and a missing bind source would be created root-owned by the daemon.
+func reportDir(t *testing.T, path string) string {
+	t.Helper()
+
+	dir, err := filepath.Abs(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, sub := range []string{"exports", "playwright"} {
+		err = os.MkdirAll(filepath.Join(dir, sub), dirMode)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	return dir
 }
 
 // runProfile measures and judges one profile in one browser on its own environment, which goes

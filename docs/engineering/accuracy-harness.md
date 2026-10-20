@@ -226,7 +226,7 @@ gaps, the phase continued), and `ci-20261016T212626Z-f09d157a` (Caddy, `requests
 
 ## 7. Run the Continuous Memory Check
 
-From v0.3, before each release. The target arrives with the v0.3 UI and does not exist before it.
+From v0.3, before each release.
 
 ```bash
 make harness-continuous
@@ -238,3 +238,18 @@ the Chrome DevTools Protocol and reads `Runtime.getHeapUsage`. The check passes 
 from minute 5 to minute 60 lies within 2 MiB of the minute-5 reading
 ([testing.md §5](../features/technical-stack/testing.md#5-accuracy-harness)). Record the readings
 and the verdict in the release's file (§5).
+
+- **Shorter runs.** `HARNESS_CONTINUOUS_MINUTES` sets the minutes sampled (default 60, at least 6,
+  so that a reading follows the minute-5 one). A shorter run checks the harness itself; the release
+  needs the hour.
+- **The run.** The driver, `web/harness/continuous.spec.ts`, opens
+  `/?run=1&preset=continuous&test=download&duration=<minutes × 60 + 30>&label=harness-continuous`,
+  so the download still runs at the last reading. Its steady start is the moment the download's
+  hint leaves "warming up". It reaches the Worker through the page's DevTools session
+  (`Target.setAutoAttach`, unflattened), picks the engine Worker by its script URL, and writes
+  `exports/ci-100m-50ms/continuous.json`. The `go test` timeout is the minutes plus 30 for the
+  image builds and the setup.
+- **The verdict.** `dist/harness/continuous-<UTC>-<envid>/report.json` and `report.md` hold every
+  reading, its distance from the minute-5 one, the shaper self-test and the netguard counters,
+  which must all be zero. A missing, empty or short sample file fails the check, and so does a
+  reading out of order or without a heap size; nothing skips (`test/harness/continuous.go`).

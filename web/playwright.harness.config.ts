@@ -21,8 +21,9 @@
 // start this inside the client container, one browser and one profile at a time, and read the
 // result JSON it downloads from HARNESS_EXPORT_DIR. Runs are serial: a second browser on the same
 // shaped link would measure the other one. Each invocation selects one spec with a file filter:
-// run.spec.ts measures BitGauge on every profile, and openspeedtest.spec.ts drives the
-// OpenSpeedTest UI on the profiles that run the compatibility clients, in Chromium only.
+// run.spec.ts measures BitGauge on every profile, openspeedtest.spec.ts drives the OpenSpeedTest
+// UI on the profiles that run the compatibility clients, in Chromium only, and continuous.spec.ts
+// is the Continuous memory check, in Chromium, with a timeout of its own.
 
 import { defineConfig, devices } from '@playwright/test'
 
@@ -30,7 +31,7 @@ const baseURL = process.env.BITGAUGE_HARNESS_URL ?? 'http://bitgauge:8080'
 
 export default defineConfig({
   testDir: './harness',
-  testMatch: ['run.spec.ts', 'openspeedtest.spec.ts'],
+  testMatch: ['run.spec.ts', 'openspeedtest.spec.ts', 'continuous.spec.ts'],
   outputDir: process.env.HARNESS_OUTPUT_DIR ?? './test-results/harness',
   retries: 0,
   forbidOnly: true,

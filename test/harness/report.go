@@ -281,24 +281,34 @@ func Dir(root string, tier Tier, started time.Time, envID string) string {
 
 // Write writes report.json and report.md into dir, creating it.
 func (r *Report) Write(dir string) error {
+	return writeReport(dir, r, r.Markdown())
+}
+
+// writeReport writes value as report.json and markdown as report.md into dir, creating it.
+func writeReport(dir string, value any, markdown string) error {
 	err := os.MkdirAll(dir, dirMode)
 	if err != nil {
 		return fmt.Errorf("create %s: %w", dir, err)
 	}
 
-	encoded, err := json.MarshalIndent(r, "", "  ")
+	encoded, err := json.MarshalIndent(value, "", "  ")
 	if err != nil {
 		return fmt.Errorf("encode the report: %w", err)
 	}
 
-	err = os.WriteFile(filepath.Join(dir, "report.json"), append(encoded, '\n'), fileMode)
-	if err != nil {
-		return fmt.Errorf("write report.json: %w", err)
+	files := []struct {
+		name    string
+		content []byte
+	}{
+		{"report.json", append(encoded, '\n')},
+		{"report.md", []byte(markdown)},
 	}
 
-	err = os.WriteFile(filepath.Join(dir, "report.md"), []byte(r.Markdown()), fileMode)
-	if err != nil {
-		return fmt.Errorf("write report.md: %w", err)
+	for _, file := range files {
+		err = os.WriteFile(filepath.Join(dir, file.name), file.content, fileMode)
+		if err != nil {
+			return fmt.Errorf("write %s: %w", file.name, err)
+		}
 	}
 
 	return nil
