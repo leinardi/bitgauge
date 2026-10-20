@@ -57,6 +57,11 @@ const RESULT_DETAIL = 'upload-gap'
 
 const NAMES = Object.keys(DEMO_SCENARIOS) as DemoScenarioName[]
 
+// The fast-forwarded Continuous scenarios play about 42 simulated minutes to the kit's hold point,
+// some 25 000 buckets: about 2 s of CPU alone, past vitest's 5 s default when other suites share
+// the machine. The bound is generous on purpose; the test asserts behavior, not speed.
+const PLAY_TIMEOUT_MS = 30_000
+
 describe('the demo scenarios', () => {
   it('cover exactly the kit states, its loaded-latency cases and its Result detail', () => {
     expect(kitLoadedCases()).toHaveLength(5)
@@ -90,7 +95,7 @@ describe('the demo scenarios', () => {
       expect(phases.at(-1)).toBe(scenario.hold.phase)
       expect(finished).toBe(false)
     }
-  })
+  }, PLAY_TIMEOUT_MS)
 })
 
 /** A complete LAN run with the panel's `responsiveness`, played to its result. */
