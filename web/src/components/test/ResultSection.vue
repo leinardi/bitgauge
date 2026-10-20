@@ -22,6 +22,8 @@ import { useI18n } from 'vue-i18n'
 
 import MetaList, { type MetaRow } from '@/components/layout/MetaList.vue'
 import LoadCard from '@/components/result/LoadCard.vue'
+import QualityList from '@/components/result/QualityList.vue'
+import type { QualityView } from '@/components/result/qualityList'
 import MetricTile from '@/components/test/MetricTile.vue'
 import NotMeasured from '@/components/test/NotMeasured.vue'
 import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
@@ -35,9 +37,10 @@ import { links } from '@/lib/links'
 
 // The Test screen's results (ui/screens.md sections 1 and 6): once a run has ended with a result,
 // the save bar for a complete one or the status bar with Keep in history for a partial or error
-// one, then the metric tiles, the load card with the grade and the loaded latency, and the facts
-// beside it in one column. Siblings in the page's column, as the screen lays them out; without a
-// load card the facts take the row in three columns.
+// one, then the metric tiles, the load card with the grade, the loaded latency and the HTTP loaded
+// responsiveness, the quality list of a complete result (v0.3), and the facts beside them in one
+// column. Siblings in the page's column, as the screen lays them out; without a load card the facts
+// take the row in three columns, and without a quality list the half row beside the load card.
 
 const props = defineProps<{
   /** The ended run's result for the result bar; null while a run goes on or without one. */
@@ -48,6 +51,8 @@ const props = defineProps<{
   units: 'bits' | 'bytes'
   /** The load card; null for a run with neither direction. */
   load: LoadView | null
+  /** A complete result's quality scores; null on any other state or without them. */
+  quality: QualityView | null
 }>()
 /** The partial or error result was kept in history; the page's gauge and tiles read it too. */
 const kept = defineModel<boolean>('kept', { required: true })
@@ -90,13 +95,19 @@ const facts = computed<MetaRow[]>(() => {
       v-if="load"
       :grade="load.grade"
       :rows="load.rows"
+      :responsiveness="load.responsiveness"
       class="col-span-2"
+    />
+    <QualityList
+      v-if="quality"
+      :view="quality"
+      class="col-span-2 desktop:col-span-1"
     />
     <MetaList
       :title="$t('test.tiles.meta')"
       :rows="facts"
       :columns="load ? 1 : 3"
-      :class="load ? 'col-span-2' : 'col-span-full'"
+      :class="load ? (quality ? 'col-span-2 desktop:col-span-1' : 'col-span-2') : 'col-span-full'"
     >
       <template #sub-packet-loss>
         <NotMeasuredWhy :href="links.packetLoss" />

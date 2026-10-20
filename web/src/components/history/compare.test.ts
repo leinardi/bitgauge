@@ -25,7 +25,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { compare, comparisonText, differences, gradeChange, latencyChange, pair, rateChange } from '@/components/history/compare'
+import { bandChange, compare, comparisonText, differences, gradeChange, latencyChange, pair, rateChange } from '@/components/history/compare'
+import type { Responsiveness, Result, Scores } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 import { resultFixture } from '@/test/fixtures'
 
@@ -58,6 +59,13 @@ describe('the thresholds', () => {
     expect(gradeChange('B', 'A+')).toBe('better')
     expect(gradeChange('A', 'F')).toBe('worse')
     expect(gradeChange(undefined, 'A')).toBe('not-comparable')
+  })
+
+  it('compares quality bands by their order, great best', () => {
+    expect(bandChange('good', 'good')).toBe('same')
+    expect(bandChange('average', 'great')).toBe('better')
+    expect(bandChange('poor', 'bad')).toBe('worse')
+    expect(bandChange('good', undefined)).toBe('not-comparable')
   })
 })
 
@@ -100,5 +108,51 @@ describe('the pair', () => {
     expect(text).toContain('Download: 612 Mbit/s → 612 Mbit/s (±0.0 %, same)')
     expect(text).toContain('Bufferbloat grade: — → — (not comparable)')
     expect(text).toContain('Data used: ')
+  })
+})
+
+describe('the v0.3 rows', () => {
+  const measured = (rpm: number): Responsiveness => ({ state: 'measured', protocol: 'h2', samples: 40, rpm, tm95Ms: 60000 / rpm, trimmed: 2, totalMedianMs: 60 })
+  const scores = (gaming: Scores['gaming']): Scores => ({ basis: 'download+upload', packetLoss: 'not-measured', streaming: { points: 80, band: 'good' }, gaming, rtc: { points: 50, band: 'average' } })
+  function withV03(id: string, startedAt: string, download: Responsiveness | undefined, upload: Responsiveness | undefined, score?: Scores): Result {
+    const base = resultFixture({ id, startedAt, ...(score === undefined ? {} : { scores: score }) })
+    return { ...base, download: { ...base.download!, responsiveness: download }, upload: { ...base.upload!, responsiveness: upload } }
+  }
+  const rows = (a: Result, b: Result) => compare(a, b, 'bits', 'en', t).metrics.filter((row) => row.key.startsWith('rpm-') || row.key.startsWith('quality-'))
+
+  it('compares each direction’s RPM when both are measured, higher better and within 2 % the same, after the grade', () => {
+    const a = withV03('a', '2026-09-26T16:20:00.000Z', measured(980), measured(610), scores({ points: 60, band: 'good' }))
+    const b = withV03('b', '2026-10-02T07:05:00.000Z', measured(995), measured(700), scores({ points: 40, band: 'average' }))
+    const keys = compare(a, b, 'bits', 'en', t).metrics.map((row) => row.key)
+    expect(keys.slice(keys.indexOf('grade'), keys.indexOf('grade') + 6)).toEqual(['grade', 'rpm-download', 'rpm-upload', 'quality-streaming', 'quality-gaming', 'quality-rtc'])
+    expect(rows(a, b)).toEqual([
+      { key: 'rpm-download', name: 'HTTP loaded responsiveness — connection sharing not verifiable · download', a: '980 RPM · measured · HTTP/2', b: '995 RPM · measured · HTTP/2', verdict: 'same', change: '+1.5\u00a0%' },
+      { key: 'rpm-upload', name: 'HTTP loaded responsiveness — connection sharing not verifiable · upload', a: '610 RPM · measured · HTTP/2', b: '700 RPM · measured · HTTP/2', verdict: 'better', change: '+14.8\u00a0%' },
+      { key: 'quality-streaming', name: 'Quality · Streaming', a: 'Good', b: 'Good', verdict: 'same' },
+      { key: 'quality-gaming', name: 'Quality · Gaming', a: 'Good', b: 'Average', verdict: 'worse' },
+      { key: 'quality-rtc', name: 'Quality · Video calls', a: 'Average', b: 'Average', verdict: 'same' },
+    ])
+  })
+
+  it('shows both states and reads not comparable unless both are measured, and an experience scored on one side', () => {
+    const a = withV03('a', '2026-09-26T16:20:00.000Z', measured(980), { state: 'uncertain', protocol: 'h2', samples: 20, rpm: 610, tm95Ms: 98, trimmed: 1, totalMedianMs: 100 }, scores({ points: 60, band: 'good' }))
+    const b = withV03('b', '2026-10-02T07:05:00.000Z', { state: 'unavailable_h1', protocol: 'http/1.1', samples: 0 }, measured(640), scores({ missing: ['loaded-latency'] }))
+    const [download, upload, , gaming] = rows(a, b)
+    expect(download).toMatchObject({ a: '980 RPM · measured · HTTP/2', b: 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', verdict: 'not-comparable' })
+    expect(download?.change).toBeUndefined()
+    expect(upload).toMatchObject({ a: '610 RPM · uncertain · HTTP/2', verdict: 'not-comparable' })
+    expect(gaming).toMatchObject({ a: 'Good', b: 'not scored', verdict: 'not-comparable' })
+  })
+
+  it('has no such rows between two results without them, and — on the side that lacks them', () => {
+    const plain = (id: string, startedAt: string) => resultFixture({ id, startedAt })
+    expect(rows(plain('a', '2026-09-26T16:20:00.000Z'), plain('b', '2026-10-02T07:05:00.000Z'))).toEqual([])
+    const both = rows(plain('a', '2026-09-26T16:20:00.000Z'), withV03('b', '2026-10-02T07:05:00.000Z', measured(900), undefined, scores({ points: 60, band: 'good' })))
+    expect(both.map((row) => [row.key, row.a, row.verdict])).toEqual([
+      ['rpm-download', '—', 'not-comparable'],
+      ['quality-streaming', 'not scored', 'not-comparable'],
+      ['quality-gaming', 'not scored', 'not-comparable'],
+      ['quality-rtc', 'not scored', 'not-comparable'],
+    ])
   })
 })

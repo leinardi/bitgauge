@@ -26,7 +26,7 @@ import { CSV_COLUMNS, toCsv } from '@/history/csv'
 import { resultFixture } from '@/test/fixtures'
 
 const HEADER =
-  'id,startedAt,label,contextLabel,note,status,preset,protocol,clientIp,browser,serverName,serverVersion,downloadBitsPerSecond,downloadPeakBitsPerSecond,downloadStatus,downloadConfidence,uploadBitsPerSecond,uploadPeakBitsPerSecond,uploadStatus,uploadConfidence,idleMedianMs,idleP90Ms,jitterMs,idleLossPercent,downloadLoadedMedianMs,uploadLoadedMedianMs,bufferbloatGrade,rpm,rpmState,streamingBand,gamingBand,rtcBand,overheadCompensationPercent,dataUsedBytes,durationMs'
+  'id,startedAt,label,contextLabel,note,status,preset,protocol,clientIp,browser,serverName,serverVersion,downloadBitsPerSecond,downloadPeakBitsPerSecond,downloadStatus,downloadConfidence,uploadBitsPerSecond,uploadPeakBitsPerSecond,uploadStatus,uploadConfidence,idleMedianMs,idleP90Ms,jitterMs,idleLossPercent,downloadLoadedMedianMs,uploadLoadedMedianMs,bufferbloatGrade,downloadRpm,downloadRpmState,uploadRpm,uploadRpmState,downloadMinBitsPerSecond,downloadMaxBitsPerSecond,uploadMinBitsPerSecond,uploadMaxBitsPerSecond,streamingBand,gamingBand,rtcBand,overheadCompensationPercent,dataUsedBytes,durationMs'
 
 function rows(csv: string): string[] {
   expect(csv.endsWith('\r\n')).toBe(true)
@@ -47,8 +47,26 @@ describe('the CSV export', () => {
     result.download = { ...result.download!, loadedLatency: loaded }
     const [, line] = rows(toCsv([result]))
     expect(line).toBe(
-      '0b6f2c1e-8a4d-4f3b-9c2a-1d2e3f4a5b6c,2026-10-08T12:02:11.000Z,VPN,LAN,,complete,standard,HTTP/2,192.168.1.42,Firefox 131 (Linux),Basement NAS,0.1.0,612000000,641000000,measured,normal,438000000,455000000,measured,normal,3.1,3.9,0.4,0,41.5,,B,,,,,,0,1300000000,28600',
+      '0b6f2c1e-8a4d-4f3b-9c2a-1d2e3f4a5b6c,2026-10-08T12:02:11.000Z,VPN,LAN,,complete,standard,HTTP/2,192.168.1.42,Firefox 131 (Linux),Basement NAS,0.1.0,612000000,641000000,measured,normal,438000000,455000000,measured,normal,3.1,3.9,0.4,0,41.5,,B,,,,,,,,,,,,0,1300000000,28600',
     )
+  })
+
+  it("writes each direction's RPM and state, the Continuous minimum and maximum, and the bands", () => {
+    const result = resultFixture({
+      scores: { basis: 'download', packetLoss: 'not-measured', streaming: { points: 80, band: 'good' }, gaming: { points: 30, band: 'poor' }, rtc: { missing: ['loaded-latency'] } },
+    })
+    result.download = {
+      ...result.download!,
+      minBitsPerSecond: 590_000_000,
+      maxBitsPerSecond: 630_000_000,
+      responsiveness: { state: 'measured', protocol: 'h2', samples: 40, rpm: 1420, tm95Ms: 42.3, trimmed: 2, totalMedianMs: 44 },
+    }
+    result.upload = { ...result.upload!, responsiveness: { state: 'unavailable_insufficient', protocol: 'h2', samples: 3 } }
+    const fields = rows(toCsv([result]))[1]?.split(',') ?? []
+    const at = (column: (typeof CSV_COLUMNS)[number]) => fields[CSV_COLUMNS.indexOf(column)]
+    expect([at('downloadRpm'), at('downloadRpmState'), at('uploadRpm'), at('uploadRpmState')]).toEqual(['1420', 'measured', '', 'unavailable_insufficient'])
+    expect([at('downloadMinBitsPerSecond'), at('downloadMaxBitsPerSecond'), at('uploadMinBitsPerSecond'), at('uploadMaxBitsPerSecond')]).toEqual(['590000000', '630000000', '', ''])
+    expect([at('streamingBand'), at('gamingBand'), at('rtcBand')]).toEqual(['good', 'poor', ''])
   })
 
   it('leaves a direction or idle latency that did not run empty', () => {

@@ -149,6 +149,11 @@ export function formatLimit(ms: number, locale: string): string {
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(ms / 1000)}${NBSP}s`
 }
 
+/** An HTTP loaded responsiveness in round trips per minute, a whole number: 1,420. */
+export function rpmNumber(rpm: number, locale: string): string {
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(rpm)
+}
+
 /** A percentage with one decimal: 2.5 %. */
 export function formatPercent(percent: number, locale: string): string {
   const number = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(percent)

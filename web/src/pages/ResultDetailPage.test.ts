@@ -118,6 +118,28 @@ describe('a stored result', () => {
     page.unmount()
   })
 
+  it('adds the HTTP loaded responsiveness with TM95 and the quality list to a v0.3 result, and neither to an older one', async () => {
+    const v03: Result = {
+      ...NEWEST,
+      download: { ...NEWEST.download!, responsiveness: { state: 'measured', protocol: 'h2', samples: 13, rpm: 1420, tm95Ms: 42.26, trimmed: 0, totalMedianMs: 45.6 } },
+      upload: { ...NEWEST.upload!, responsiveness: { state: 'unavailable_insufficient', protocol: 'h2', samples: 3 } },
+      scores: { basis: 'upload', packetLoss: 'not-measured', streaming: { points: 80, band: 'good' }, gaming: { points: 30, band: 'poor' }, rtc: { missing: ['jitter'] } },
+    }
+    const page = await open(v03.id, [v03, ...RESULTS.slice(1)])
+    expect(text(page, 'load-responsiveness')).toContain('HTTP loaded responsiveness — connection sharing not verifiable')
+    expect(text(page, 'load-responsiveness')).toContain('HTTP/2')
+    expect(page.findAll('[data-testid="load-rpm"]').map((row) => row.text())).toEqual(['Download1,420RPMTM95 42\u00a0ms · 13 samples · TM95 equals the plain mean', 'Uploadnot enough samples'])
+    expect(text(page, 'quality-basis')).toBe('upload only')
+    expect(page.findAll('[data-testid="quality-row"]').map((row) => row.text())).toEqual(['Streaming Good', 'Gaming Poor', 'Video callsneeds jitter'])
+    expect(text(page, 'quality-list')).toContain('Packet loss')
+    expect(text(page, 'quality-list')).toContain('Upper bound: packet loss is not measured')
+    page.unmount()
+    const older = await open(NEWEST.id)
+    expect(older.find('[data-testid="load-responsiveness"]').exists()).toBe(false)
+    expect(older.find('[data-testid="quality-list"]').exists()).toBe(false)
+    older.unmount()
+  })
+
   it('draws each direction and the idle latency, each with a table of its windows', async () => {
     const page = await open(NEWEST.id)
     expect(page.find('[data-testid="phase-chart-download"]').attributes('aria-label')).toMatch(/^Download chart: 15\.0\ss · 4 streams; warm-up excluded; latency under load on a second scale$/)

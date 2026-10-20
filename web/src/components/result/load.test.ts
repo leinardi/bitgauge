@@ -25,8 +25,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { gradeView, loadRows } from '@/components/result/load'
-import type { LoadedLatency, Result } from '@/engine/messages'
+import { gradeView, loadRows, responsivenessView } from '@/components/result/load'
+import type { LoadedLatency, Responsiveness, Result } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 import { resultFixture } from '@/test/fixtures'
 
@@ -87,5 +87,63 @@ describe('gradeView', () => {
 
   it('says what a grade needs when there is none', () => {
     expect(gradeView(result(undefined, undefined), wording)).toEqual({ grade: null, words: 'Not graded', basis: 'Needs idle latency and the latency under load of a direction' })
+  })
+})
+
+describe('responsivenessView', () => {
+  const block = (patch: Partial<Responsiveness> = {}): Responsiveness => ({ state: 'measured', protocol: 'h2', samples: 13, rpm: 1420, tm95Ms: 42.25, trimmed: 0, totalMedianMs: 45.6, ...patch }) as Responsiveness
+  function withRpm(download: Responsiveness | undefined, upload: Responsiveness | undefined): Result {
+    const base = resultFixture()
+    return { ...base, download: base.download && { ...base.download, responsiveness: download }, upload: base.upload && { ...base.upload, responsiveness: upload } }
+  }
+  const LABEL = 'HTTP loaded responsiveness — connection sharing not verifiable'
+
+  it('reads a whole RPM per direction under the protocol, and on the Result detail its TM95 and samples', () => {
+    const result = withRpm(block(), block({ rpm: 980.4, tm95Ms: 61.2, samples: 23, trimmed: 1 }))
+    expect(t('result.load.rpm.label')).toBe(LABEL)
+    expect(responsivenessView(result, wording)).toEqual({
+      protocol: 'HTTP/2',
+      note: 'round trips per minute, one per direction',
+      tag: null,
+      rows: [
+        { direction: 'download', value: '1,420', uncertain: false },
+        { direction: 'upload', value: '980', uncertain: false },
+      ],
+    })
+    expect(responsivenessView(result, wording, true)?.rows.map((row) => row.detail)).toEqual(['TM95 42\u00a0ms · 13 samples · TM95 equals the plain mean', 'TM95 61\u00a0ms · 23 samples · 1 trimmed'])
+  })
+
+  it('tags an uncertain direction, its RPM kept', () => {
+    const view = responsivenessView(withRpm(block({ state: 'uncertain' }), block()), wording)
+    expect(view?.tag).toBe('Uncertain')
+    expect(view?.note).toBe('round trips per minute · uncertain')
+    expect(view?.rows.map((row) => [row.value, row.uncertain])).toEqual([
+      ['1,420', true],
+      ['1,420', false],
+    ])
+  })
+
+  it('says why HTTP/1.1 has no number, and that an empty protocol is treated as HTTP/1.1', () => {
+    const h1 = (protocol: string) => block({ state: 'unavailable_h1', protocol, samples: 0 })
+    const needs = responsivenessView(withRpm(h1('http/1.1'), h1('http/1.1')), wording, true)
+    expect([needs?.protocol, needs?.note]).toEqual(['HTTP/1.1', 'needs HTTP/2 or HTTP/3 at the reverse proxy'])
+    expect(needs?.rows).toEqual([
+      { direction: 'download', value: null, uncertain: false, text: 'unavailable' },
+      { direction: 'upload', value: null, uncertain: false, text: 'unavailable' },
+    ])
+    const unreported = responsivenessView(withRpm(h1(''), h1('')), wording)
+    expect([unreported?.protocol, unreported?.note]).toEqual(['not reported', 'protocol not reported — treated as HTTP/1.1'])
+    expect(unreported?.rows.map((row) => row.text)).toEqual([undefined, undefined])
+  })
+
+  it('reads not enough samples, and names the one direction that ran', () => {
+    const view = responsivenessView(withRpm(undefined, block({ state: 'unavailable_insufficient', samples: 3 })), wording, true)
+    expect(view?.note).toBe('round trips per minute, upload only')
+    expect(view?.rows).toEqual([{ direction: 'upload', value: null, uncertain: false, text: 'not enough samples' }])
+    expect(responsivenessView(withRpm(block(), undefined), wording)?.note).toBe('round trips per minute, download only')
+  })
+
+  it('is absent from a result without it, a v0.1 or v0.2 record', () => {
+    expect(responsivenessView(withRpm(undefined, undefined), wording)).toBeNull()
   })
 })

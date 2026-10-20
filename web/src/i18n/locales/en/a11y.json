@@ -57,6 +57,33 @@
         "d": "high bufferbloat",
         "f": "severe bufferbloat"
       },
+      "responsiveness": "HTTP loaded responsiveness, connection sharing not verifiable, over {protocol}: {directions}.",
+      "responsivenessNotReported": "HTTP loaded responsiveness, connection sharing not verifiable, over a protocol not reported: {directions}.",
+      "rpm": {
+        "pair": "{first}; {second}",
+        "download": "download {state}",
+        "upload": "upload {state}",
+        "measured": "{rpm} round trips per minute, measured",
+        "uncertain": "{rpm} round trips per minute, uncertain",
+        "needsH2": "unavailable, needs HTTP/2 or HTTP/3 at the reverse proxy",
+        "treatedH1": "unavailable, protocol not reported, treated as HTTP/1.1",
+        "insufficient": "unavailable, not enough samples"
+      },
+      "quality": "Quality scores, an upper bound since packet loss is not measured: {experiences}.",
+      "qualityBasis": "Quality scores, {basis}, an upper bound since packet loss is not measured: {experiences}.",
+      "experience": "{name} {value}",
+      "experiences": {
+        "streaming": "streaming",
+        "gaming": "gaming",
+        "rtc": "video calls"
+      },
+      "bands": {
+        "great": "great",
+        "good": "good",
+        "average": "average",
+        "poor": "poor",
+        "bad": "bad"
+      },
       "data": "Data used {data}.",
       "notices": "Notice: {titles}. | Notices: {titles}."
     }

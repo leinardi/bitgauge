@@ -17,13 +17,15 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { EXPERIENCES, type ExperienceName, experienceText, scoreBasis } from '@/components/result/qualityList'
 import { noticeView } from '@/components/test/notices'
 import type { RunView } from '@/components/test/screen/states'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { PhaseView } from '@/composables/useRunState'
-import type { Bufferbloat, Direction, DirectionResult, PhaseName, Result } from '@/engine/messages'
-import { spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
+import type { Bufferbloat, Direction, DirectionResult, Experience, PhaseName, Responsiveness, Result, ScoreBand } from '@/engine/messages'
+import { rpmNumber, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
+import { protocolLabel } from '@/lib/protocol'
 
 // What the screen reader hears (ui/i18n-a11y.md sections 2.1 and 2.7): the phase as it starts, a
 // direction's headline once as it finishes, the rate the gauge shows, and the result summary. Each
@@ -181,10 +183,89 @@ function gradeSentence(result: Result, context: Wording): string | null {
   return context.t('a11y.summary.grade', { grade: bufferbloat.grade, words: spokenGradeWords(bufferbloat.grade, context), increase })
 }
 
+/** A direction's responsiveness state in words, with its RPM when it has one. */
+function rpmState(block: Responsiveness, { t, locale }: Wording): string {
+  switch (block.state) {
+    case 'measured':
+      return t('a11y.summary.rpm.measured', { rpm: rpmNumber(block.rpm, locale) })
+    case 'uncertain':
+      return t('a11y.summary.rpm.uncertain', { rpm: rpmNumber(block.rpm, locale) })
+    case 'unavailable_h1':
+      return protocolLabel(block.protocol) === null ? t('a11y.summary.rpm.treatedH1') : t('a11y.summary.rpm.needsH2')
+    case 'unavailable_insufficient':
+      return t('a11y.summary.rpm.insufficient')
+  }
+}
+
+/** The HTTP loaded responsiveness under its fixed label and protocol, a state per direction; null without it. */
+function responsivenessSentence(result: Result, context: Wording): string | null {
+  const { t } = context
+  const said = result.settings.phases.flatMap((phase) => {
+    const block = phase === 'idle' ? undefined : result[phase]?.responsiveness
+    if (block === undefined) {
+      return []
+    }
+    const state = rpmState(block, context)
+    return [{ protocol: block.protocol, text: phase === 'download' ? t('a11y.summary.rpm.download', { state }) : t('a11y.summary.rpm.upload', { state }) }]
+  })
+  const [first, second] = said
+  if (first === undefined) {
+    return null
+  }
+  const directions = second === undefined ? first.text : t('a11y.summary.rpm.pair', { first: first.text, second: second.text })
+  const protocol = protocolLabel(first.protocol)
+  return protocol === null ? t('a11y.summary.responsivenessNotReported', { directions }) : t('a11y.summary.responsiveness', { protocol, directions })
+}
+
+function spokenBand(band: ScoreBand, { t }: Wording): string {
+  switch (band) {
+    case 'great':
+      return t('a11y.summary.bands.great')
+    case 'good':
+      return t('a11y.summary.bands.good')
+    case 'average':
+      return t('a11y.summary.bands.average')
+    case 'poor':
+      return t('a11y.summary.bands.poor')
+    case 'bad':
+      return t('a11y.summary.bands.bad')
+  }
+}
+
+function spokenExperienceName(name: ExperienceName, { t }: Wording): string {
+  switch (name) {
+    case 'streaming':
+      return t('a11y.summary.experiences.streaming')
+    case 'gaming':
+      return t('a11y.summary.experiences.gaming')
+    case 'rtc':
+      return t('a11y.summary.experiences.rtc')
+  }
+}
+
+/** An experience mid-sentence: its band, or "needs" the inputs it misses. */
+function spokenExperience(name: ExperienceName, experience: Experience, context: Wording): string {
+  const value = 'band' in experience ? spokenBand(experience.band, context) : experienceText(experience, context)
+  return context.t('a11y.summary.experience', { name: spokenExperienceName(name, context), value })
+}
+
+/** Each quality-score experience with its band or the inputs it misses, and their basis; null without scores. */
+function qualitySentence(result: Result, context: Wording): string | null {
+  const scores = result.scores
+  if (scores === undefined) {
+    return null
+  }
+  const { t, locale } = context
+  const experiences = new Intl.ListFormat(locale, { type: 'unit' }).format(EXPERIENCES.map((name) => spokenExperience(name, scores[name], context)))
+  const basis = scoreBasis(scores, context)
+  return basis === null ? t('a11y.summary.quality', { experiences }) : t('a11y.summary.qualityBasis', { basis, experiences })
+}
+
 /**
- * The result summary of section 2.7, to the v0.2 metrics: the status, download and upload with
- * their qualifiers, idle latency and jitter, the grade with the loaded-latency increase it rests
- * on, data used, and the notices by title. A direction the settings left out is not mentioned.
+ * The result summary of section 2.7: the status, download and upload with their qualifiers, idle
+ * latency and jitter, the grade with the loaded-latency increase it rests on, from v0.3 the HTTP
+ * loaded responsiveness and the quality scores of a complete result, data used, and the notices by
+ * title. A direction the settings left out is not mentioned.
  */
 export function resultSummary(result: Result, units: Units, context: Wording): string {
   const { t, locale } = context
@@ -196,6 +277,9 @@ export function resultSummary(result: Result, units: Units, context: Wording): s
     phases.includes('upload') && result.upload !== undefined ? uploadSentence(result.upload, units, context) : null,
     idleSentence(result, context),
     gradeSentence(result, context),
+    // A complete result's alone, as the Test screen shows them on its Done state only.
+    result.status === 'complete' ? responsivenessSentence(result, context) : null,
+    result.status === 'complete' ? qualitySentence(result, context) : null,
     t('a11y.summary.data', { data: spokenBytes(result.dataUsedBytes, locale) }),
     titles.length === 0 ? null : t('a11y.summary.notices', { titles: new Intl.ListFormat(locale, { type: 'conjunction' }).format(titles) }, titles.length),
   ]

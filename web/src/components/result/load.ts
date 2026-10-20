@@ -19,14 +19,17 @@
 
 import { gradeWord } from '@/components/history/rows'
 import type { Wording } from '@/components/test/wording'
-import type { Bufferbloat, Direction, LoadedLatency, LoadedLatencyReason, LoadedSource, Result } from '@/engine/messages'
-import { latencyNumber } from '@/lib/format'
+import type { Bufferbloat, Direction, LoadedLatency, LoadedLatencyReason, LoadedSource, Responsiveness, Result } from '@/engine/messages'
+import { formatLatency, latencyNumber, rpmNumber } from '@/lib/format'
+import { protocolLabel } from '@/lib/protocol'
 
 // The load card's contents (ui/screens.md section 6, design_system/components/measurement
 // LoadCard.jsx): the bufferbloat grade in letter and words with its basis, and the loaded latency
 // of each direction that ran with a latency path, labeled with its source: the median with its p90
 // and the increase over idle, "vs idle over" the idle path when idle latency ran on the other one,
-// "no idle latency" without an idle median, or no number with the reason it has none.
+// "no idle latency" without an idle median, or no number with the reason it has none. From v0.3,
+// below the rows, the HTTP loaded responsiveness under its fixed label with the protocol, an RPM
+// per direction or the words in place of one (ui/screens.md section 6).
 
 export interface LoadRow {
   direction: Direction
@@ -44,6 +47,26 @@ export interface GradeView {
   basis: string
   /** No grade yet because the run has still to reach it. */
   pending?: boolean
+}
+
+export interface ResponsivenessRow {
+  direction: Direction
+  /** The whole RPM, or null without one. */
+  value: string | null
+  uncertain: boolean
+  /** The words in place of a number; "—" when absent. */
+  text?: string
+  /** The Result detail's TM95 and samples. */
+  detail?: string
+}
+
+export interface ResponsivenessView {
+  /** The protocol path B ran over, or "not reported". */
+  protocol: string
+  note: string
+  /** The warn tag of an uncertain direction. */
+  tag: string | null
+  rows: ResponsivenessRow[]
 }
 
 export function sourceName(source: LoadedSource, t: Wording['t']): string {
@@ -145,5 +168,61 @@ export function gradeView(result: Result, { t, locale }: Wording, brief = false)
         ? { grade: bufferbloat.grade, words, basis: t('result.load.basisBoth', { worse: name(worse), increase }) }
         : { grade: bufferbloat.grade, words, basis: t('result.load.basisBothOther', { worse: name(worse), increase, other: name(worse === 'upload' ? 'download' : 'upload'), otherIncrease: ms(other) }) }
     }
+  }
+}
+
+/** The note under the fixed label: why there is no number, or what the numbers are. */
+function responsivenessNote(blocks: readonly Responsiveness[], directions: readonly Direction[], { t }: Wording): string {
+  const h1 = blocks.find((block) => block.state === 'unavailable_h1')
+  if (h1 !== undefined) {
+    return protocolLabel(h1.protocol) === null ? t('result.load.rpm.treatedH1') : t('result.load.rpm.needsH2')
+  }
+  if (blocks.some((block) => block.state === 'uncertain')) {
+    return t('result.load.rpm.noteUncertain')
+  }
+  if (directions.length === 2) {
+    return t('result.load.rpm.noteBoth')
+  }
+  return directions[0] === 'upload' ? t('result.load.rpm.noteUpload') : t('result.load.rpm.noteDownload')
+}
+
+function responsivenessRow(direction: Direction, block: Responsiveness, resolutionMs: number, detailed: boolean, { t, locale }: Wording): ResponsivenessRow {
+  switch (block.state) {
+    case 'measured':
+    case 'uncertain': {
+      const values = { tm95: formatLatency(block.tm95Ms, locale, resolutionMs), samples: t('result.load.rpm.samples', { n: block.samples }, block.samples), trimmed: block.trimmed }
+      const detail = block.trimmed === 0 ? t('result.load.rpm.detailPlain', values) : t('result.load.rpm.detailTrimmed', values)
+      return { direction, value: rpmNumber(block.rpm, locale), uncertain: block.state === 'uncertain', ...(detailed ? { detail } : {}) }
+    }
+    case 'unavailable_h1':
+      // The Test screen leaves the note to say why; the Result detail names the state too.
+      return { direction, value: null, uncertain: false, ...(detailed ? { text: t('result.load.rpm.unavailable') } : {}) }
+    case 'unavailable_insufficient':
+      return { direction, value: null, uncertain: false, text: t('result.load.rpm.insufficient') }
+  }
+}
+
+/**
+ * The HTTP loaded responsiveness of each direction that ran, in the run's order, under one fixed
+ * label with the protocol and a note; `detailed`, as the Result detail shows it, adds each RPM's
+ * TM95 and samples. Null for a result without it: a v0.1 or v0.2 record, or no direction run.
+ */
+export function responsivenessView(result: Result, wording: Wording, detailed = false): ResponsivenessView | null {
+  const order = result.settings.phases.filter((phase): phase is Direction => phase !== 'idle')
+  const ran = order.flatMap((direction) => {
+    const block = result[direction]?.responsiveness
+    return block === undefined ? [] : [{ direction, block }]
+  })
+  const first = ran[0]
+  if (first === undefined) {
+    return null
+  }
+  const { t } = wording
+  const blocks = ran.map((entry) => entry.block)
+  return {
+    protocol: protocolLabel(first.block.protocol) ?? t('result.load.rpm.notReported'),
+    note: responsivenessNote(blocks, ran.map((entry) => entry.direction), wording),
+    tag: blocks.some((block) => block.state === 'uncertain') ? t('result.load.rpm.uncertain') : null,
+    rows: ran.map(({ direction, block }) => responsivenessRow(direction, block, result.client.timerResolutionMs, detailed, wording)),
   }
 }

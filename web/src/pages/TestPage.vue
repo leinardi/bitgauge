@@ -25,6 +25,7 @@ import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
 import { startK } from '@/components/gauge/window'
 import OfflineNotice from '@/components/OfflineNotice.vue'
+import { qualityView } from '@/components/result/qualityList'
 import AutoStartNotice from '@/components/test/AutoStartNotice.vue'
 import LastResult from '@/components/test/LastResult.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
@@ -100,6 +101,8 @@ const load = computed(() =>
     wording.value,
   ),
 )
+// The quality list shows on the Done state only, as the HTTP loaded responsiveness does.
+const quality = computed(() => (state.value === 'done' && run.result.value !== null ? qualityView(run.result.value, wording.value) : null))
 const tiles = computed(() => screenTiles(view.value, shownSettings.value ?? { units: 'bits', overheadCompensationPercent: 0 }, wording.value, elapsed.value, kept.value))
 
 // The result's label: the link's for this page load, otherwise the one stored on the Settings screen.
@@ -279,6 +282,7 @@ watch(run.error, (error) => {
       :tiles="tiles"
       :units="units"
       :load="load"
+      :quality="quality"
     />
     <LastResult
       v-if="lastResult !== null"

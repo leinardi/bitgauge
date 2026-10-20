@@ -17,13 +17,18 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @vitest-environment jsdom
+
 // What a share carries (ui/flows.md section 8): each number with its qualifiers, the label only when
 // included, and never the client IP, the note, the browser or a URL.
 
 import { describe, expect, it } from 'vitest'
 
+import type { Wording } from '@/components/test/wording'
 import type { Result } from '@/engine/messages'
+import { createAppI18n } from '@/i18n'
 import { shareContent } from '@/share/content'
+import { shareView } from '@/share/summary'
 import { resultFixture } from '@/test/fixtures'
 
 const loaded = (increaseMs: number, source: 'websocket' | 'http-h2' = 'websocket', idleSource?: 'websocket') => ({
@@ -98,5 +103,24 @@ describe('shareContent', () => {
       basis: 'download',
       loaded: { increaseMs: 12, direction: 'download', source: 'websocket', idleSource: null },
     })
+  })
+
+  it('carries neither the HTTP loaded responsiveness nor the quality scores, into the content or the copied summary', () => {
+    const base = graded()
+    const result: Result = {
+      ...base,
+      download: { ...base.download!, responsiveness: { state: 'measured', protocol: 'h2', samples: 40, rpm: 1420, tm95Ms: 42.3, trimmed: 2, totalMedianMs: 44 } },
+      upload: { ...base.upload!, responsiveness: { state: 'uncertain', protocol: 'h2', samples: 22, rpm: 980, tm95Ms: 61.2, trimmed: 1, totalMedianMs: 63 } },
+      scores: { basis: 'download+upload', packetLoss: 'not-measured', streaming: { points: 90, band: 'great' }, gaming: { points: 60, band: 'average' }, rtc: { points: 75, band: 'good' } },
+    }
+    const wording: Wording = { t: createAppI18n('', ['en']).global.t as unknown as Wording['t'], locale: 'en' }
+    for (const includeLabel of [false, true]) {
+      const content = shareContent(result, includeLabel)
+      expect(content).toEqual(shareContent(base, includeLabel))
+      const words = JSON.stringify(shareView(content, 'bits', wording))
+      for (const absent of ['RPM', 'responsiveness', '1,420', '1420', 'TM95', 'Streaming', 'Gaming', 'Video calls', 'Great', 'Average', 'quality']) {
+        expect(words).not.toContain(absent)
+      }
+    }
   })
 })

@@ -194,6 +194,28 @@ describe('history on the Test screen', () => {
     page.unmount()
   })
 
+  it('adds the result’s HTTP loaded responsiveness and quality list once the run ends, neither while it runs', async () => {
+    vi.stubGlobal('Worker', StubWorker)
+    const page = await mountApp(TestPage)
+    await settle()
+    await page.get('[data-testid="start-button"]').trigger('click')
+    const worker = StubWorker.started[0]
+    worker?.emit({ type: 'phase', phase: 'download', state: 'started', notices: [] })
+    await settle()
+    expect(page.find('[data-testid="load-responsiveness"]').exists()).toBe(false)
+    expect(page.find('[data-testid="quality-list"]').exists()).toBe(false)
+    const base = resultFixture()
+    const h1 = { state: 'unavailable_h1' as const, protocol: 'http/1.1', samples: 0 }
+    const scores = { basis: 'download' as const, packetLoss: 'not-measured' as const, streaming: { points: 90, band: 'great' as const }, gaming: { points: 60, band: 'good' as const }, rtc: { points: 50, band: 'average' as const } }
+    worker?.emit({ type: 'result', result: resultFixture({ id: 'a1b2c3d4-0000-4000-8000-000000000007', download: { ...base.download!, responsiveness: h1 }, upload: { ...base.upload!, responsiveness: h1 }, scores }) })
+    await settle()
+    expect(page.get('[data-testid="load-responsiveness"]').text()).toContain('needs HTTP/2 or HTTP/3 at the reverse proxy')
+    expect(page.findAll('[data-testid="load-rpm"]').map((row) => row.text())).toEqual(['Download—', 'Upload—'])
+    expect(page.get('[data-testid="quality-basis"]').text()).toBe('download only')
+    expect(page.findAll('[data-testid="quality-row"]').map((row) => row.text())).toEqual(['Streaming Great', 'Gaming Good', 'Video calls Average'])
+    page.unmount()
+  })
+
   it('reads no idle latency on the live load card when idle latency ended without a median', async () => {
     vi.stubGlobal('Worker', StubWorker)
     const page = await mountApp(TestPage)

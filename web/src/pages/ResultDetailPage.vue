@@ -25,13 +25,15 @@ import { toast } from 'vue-sonner'
 
 import { confidenceView } from '@/components/result/confidence'
 import ConfidenceCard from '@/components/result/ConfidenceCard.vue'
-import { gradeView, loadRows } from '@/components/result/load'
+import { gradeView, loadRows, responsivenessView } from '@/components/result/load'
 import LoadCard from '@/components/result/LoadCard.vue'
 import { metricTiles } from '@/components/result/metrics'
 import NoteField from '@/components/result/NoteField.vue'
 import { parameterGroups } from '@/components/result/parameters'
 import ParametersCard from '@/components/result/ParametersCard.vue'
 import PhaseCharts from '@/components/result/PhaseCharts.vue'
+import QualityList from '@/components/result/QualityList.vue'
+import { qualityView } from '@/components/result/qualityList'
 import ResultHeader from '@/components/result/ResultHeader.vue'
 import ResultMissing from '@/components/result/ResultMissing.vue'
 import SharePanel from '@/components/share/SharePanel.vue'
@@ -87,6 +89,8 @@ const wording = computed(() => ({ t, locale: locale.value }))
 const tiles = computed(() => (result.value === null ? [] : metricTiles(result.value, units.value, wording.value)))
 const grade = computed(() => (result.value === null ? null : gradeView(result.value, wording.value)))
 const rows = computed(() => (result.value === null ? [] : loadRows(result.value, wording.value)))
+const responsiveness = computed(() => (result.value === null ? null : responsivenessView(result.value, wording.value, true)))
+const quality = computed(() => (result.value === null ? null : qualityView(result.value, wording.value)))
 const confidence = computed(() => (result.value === null ? null : confidenceView(result.value, wording.value)))
 const parameters = computed(() => (result.value === null ? [] : parameterGroups(result.value, units.value, wording.value)))
 
@@ -177,11 +181,22 @@ function runAgain(): void {
               :tile="tile"
             />
           </section>
-          <LoadCard
-            v-if="grade"
-            :grade="grade"
-            :rows="rows"
-          />
+          <div
+            class="grid grid-cols-1 gap-3"
+            :class="{ 'desktop:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]': quality }"
+          >
+            <LoadCard
+              v-if="grade"
+              :grade="grade"
+              :rows="rows"
+              :responsiveness="responsiveness"
+            />
+            <QualityList
+              v-if="quality"
+              :view="quality"
+              packet-loss
+            />
+          </div>
           <ConfidenceCard
             v-if="confidence"
             :view="confidence"

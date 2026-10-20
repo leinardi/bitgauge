@@ -23,7 +23,9 @@
 // starts with an empty history; the populated one imports the demo's eight results, and one record
 // it rejects, and the Result detail shows the newest of them, with a chart and a table. The v0.2
 // screens' other states are here too: History with no match, the Compare dialog, the Result detail
-// not found, and Settings with a change and its Reset all confirmation.
+// not found, and Settings with a change and its Reset all confirmation. The Test screen's Done state
+// runs a quick test, so it shows its load card with the HTTP loaded responsiveness and the quality
+// list.
 
 import { expectAccessible } from './fixtures/axe'
 import { DEMO_RESULTS, historyExport, importHistory } from './fixtures/history'
@@ -40,6 +42,16 @@ for (const theme of ['light', 'dark'] as const) {
       await page.goto(`/?theme=${theme}`)
       await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
       await expect(page.getByRole('button', { name: 'Start test' })).toBeEnabled()
+      await expectAccessible(page)
+    })
+
+    test('the Test screen, done, with the load card and the quality list', async ({ page }) => {
+      test.setTimeout(120_000)
+      await page.goto(`/?theme=${theme}&preset=quick`)
+      await page.getByRole('button', { name: 'Start test' }).click()
+      await expect(page.getByTestId('result-bar')).toBeVisible({ timeout: 90_000 })
+      await expect(page.getByTestId('load-responsiveness')).toBeVisible()
+      await expect(page.getByTestId('quality-list')).toBeVisible()
       await expectAccessible(page)
     })
 

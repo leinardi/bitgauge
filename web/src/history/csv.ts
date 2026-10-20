@@ -17,13 +17,14 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { DirectionResult, Result } from '@/engine/messages'
+import type { DirectionResult, Experience, Result } from '@/engine/messages'
 
 // The CSV export (frontend.md section 5): one row per result under a header row, UTF-8 without a
 // byte order mark, every line ended by CRLF, fields quoted as RFC 4180 does. An absent value is an
 // empty field; a text field starting with `=`, `+`, `-`, `@`, a tab or CR gets a leading `'`, so a
-// spreadsheet does not read it as a formula. Series, samples and events are left out. The
-// responsiveness and quality-score columns stay empty until their v0.3 fields exist.
+// spreadsheet does not read it as a formula. Series, samples and events are left out. The RPM and
+// its state are per direction, as `responsiveness` is; the minimum and maximum are a Continuous
+// direction's, empty otherwise.
 
 export const CSV_COLUMNS = [
   'id',
@@ -53,8 +54,14 @@ export const CSV_COLUMNS = [
   'downloadLoadedMedianMs',
   'uploadLoadedMedianMs',
   'bufferbloatGrade',
-  'rpm',
-  'rpmState',
+  'downloadRpm',
+  'downloadRpmState',
+  'uploadRpm',
+  'uploadRpmState',
+  'downloadMinBitsPerSecond',
+  'downloadMaxBitsPerSecond',
+  'uploadMinBitsPerSecond',
+  'uploadMaxBitsPerSecond',
   'streamingBand',
   'gamingBand',
   'rtcBand',
@@ -81,6 +88,15 @@ function field(value: Value): string {
 function loadedMedian(direction: DirectionResult | undefined): number | undefined {
   const loaded = direction?.loadedLatency
   return loaded === undefined || 'status' in loaded ? undefined : loaded.medianMs
+}
+
+function rpm(direction: DirectionResult | undefined): number | undefined {
+  const responsiveness = direction?.responsiveness
+  return responsiveness === undefined || !('rpm' in responsiveness) ? undefined : responsiveness.rpm
+}
+
+function band(experience: Experience | undefined): string | undefined {
+  return experience === undefined || !('band' in experience) ? undefined : experience.band
 }
 
 function row(result: Result): Record<Column, Value> {
@@ -113,11 +129,17 @@ function row(result: Result): Record<Column, Value> {
     downloadLoadedMedianMs: loadedMedian(download),
     uploadLoadedMedianMs: loadedMedian(upload),
     bufferbloatGrade: result.bufferbloat?.grade,
-    rpm: undefined,
-    rpmState: undefined,
-    streamingBand: undefined,
-    gamingBand: undefined,
-    rtcBand: undefined,
+    downloadRpm: rpm(download),
+    downloadRpmState: download?.responsiveness?.state,
+    uploadRpm: rpm(upload),
+    uploadRpmState: upload?.responsiveness?.state,
+    downloadMinBitsPerSecond: download?.minBitsPerSecond,
+    downloadMaxBitsPerSecond: download?.maxBitsPerSecond,
+    uploadMinBitsPerSecond: upload?.minBitsPerSecond,
+    uploadMaxBitsPerSecond: upload?.maxBitsPerSecond,
+    streamingBand: band(result.scores?.streaming),
+    gamingBand: band(result.scores?.gaming),
+    rtcBand: band(result.scores?.rtc),
     overheadCompensationPercent: result.settings.overheadCompensationPercent,
     dataUsedBytes: result.dataUsedBytes,
     durationMs: result.durationMs,

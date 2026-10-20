@@ -18,7 +18,7 @@
  */
 
 import type { Direction, LoadedLatency, MeasuringPhase, PhaseState, Result } from '@/engine/messages'
-import { type GradeView, loadRow, type LoadRow, gradeView } from '@/components/result/load'
+import { type GradeView, loadRow, type LoadRow, gradeView, responsivenessView, type ResponsivenessView } from '@/components/result/load'
 import type { Wording } from '@/components/test/wording'
 import type { LoadedSeries } from '@/composables/useLoadedSeries'
 import type { RunStatus } from '@/composables/useRunState'
@@ -26,7 +26,8 @@ import { percentile } from '@/lib/percentile'
 import { latencyNumber } from '@/lib/format'
 
 // The Test screen's load card (ui/screens.md sections 1 and 6): the grade and a loaded-latency row
-// per direction, live from the pings so far, then the result's with its qualifiers.
+// per direction, live from the pings so far, then the result's with its qualifiers, and from v0.3
+// the HTTP loaded responsiveness of a complete result, which the Done state shows.
 
 /** What the Test screen's load card needs of the run (ui/screens.md sections 1 and 6). */
 export interface LoadInput {
@@ -52,6 +53,8 @@ export interface LoadView {
   /** Null when the run has no idle latency, so no grade (measurement.md section 11.3). */
   grade: GradeView | null
   rows: LoadRow[]
+  /** A complete result's HTTP loaded responsiveness; null before it, without it, or for a partial or error result. */
+  responsiveness: ResponsivenessView | null
 }
 
 /**
@@ -136,18 +139,19 @@ export function loadView(input: LoadInput, context: Wording): LoadView | null {
     }
     return { direction, label, sub: ended ? t('test.load.noResult') : t('test.load.none'), value: null }
   })
+  const responsiveness = result?.status === 'complete' ? responsivenessView(result, context) : null
   if (!input.phases.includes('idle')) {
-    return { grade: null, rows }
+    return { grade: null, rows, responsiveness }
   }
   if (result !== null) {
-    return { grade: result.bufferbloat === undefined ? ungraded(result, context) : gradeView(result, context, true), rows }
+    return { grade: result.bufferbloat === undefined ? ungraded(result, context) : gradeView(result, context, true), rows, responsiveness }
   }
   if (input.stoppedEarly === true) {
-    return { grade: { grade: null, words: t('test.load.noLoaded'), basis: '' }, rows }
+    return { grade: { grade: null, words: t('test.load.noLoaded'), basis: '' }, rows, responsiveness }
   }
   if (ended) {
-    return { grade: { grade: null, words: t('test.load.incomplete'), basis: '' }, rows }
+    return { grade: { grade: null, words: t('test.load.incomplete'), basis: '' }, rows, responsiveness }
   }
   const words = last === 'upload' ? t('test.load.afterUpload') : t('test.load.afterDownload')
-  return { grade: { grade: null, words, basis: '', pending: true }, rows }
+  return { grade: { grade: null, words, basis: '', pending: true }, rows, responsiveness }
 }

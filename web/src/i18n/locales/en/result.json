@@ -73,7 +73,50 @@
         "insufficientSamples": "fewer than 10 samples",
         "reservationBroken": "HTTP/1.1 reservation not held",
         "noProbePath": "no latency probe"
+      },
+      "rpm": {
+        "label": "HTTP loaded responsiveness — connection sharing not verifiable",
+        "unit": "RPM",
+        "download": "Download",
+        "upload": "Upload",
+        "notReported": "not reported",
+        "needsH2": "needs HTTP/2 or HTTP/3 at the reverse proxy",
+        "treatedH1": "protocol not reported — treated as HTTP/1.1",
+        "noteUncertain": "round trips per minute · uncertain",
+        "noteBoth": "round trips per minute, one per direction",
+        "noteDownload": "round trips per minute, download only",
+        "noteUpload": "round trips per minute, upload only",
+        "uncertain": "Uncertain",
+        "unavailable": "unavailable",
+        "insufficient": "not enough samples",
+        "samples": "{n} sample | {n} samples",
+        "detailPlain": "TM95 {tm95} · {samples} · TM95 equals the plain mean",
+        "detailTrimmed": "TM95 {tm95} · {samples} · {trimmed} trimmed"
       }
+    },
+    "quality": {
+      "title": "Good for",
+      "streaming": "Streaming",
+      "gaming": "Gaming",
+      "rtc": "Video calls",
+      "bands": {
+        "great": "Great",
+        "good": "Good",
+        "average": "Average",
+        "poor": "Poor",
+        "bad": "Bad"
+      },
+      "basisDownload": "download only",
+      "basisUpload": "upload only",
+      "needs": "needs {inputs}",
+      "inputs": {
+        "idleLatency": "idle latency",
+        "jitter": "jitter",
+        "loadedLatency": "loaded latency",
+        "download": "download"
+      },
+      "packetLoss": "Packet loss",
+      "upperBound": "Upper bound: packet loss is not measured"
     },
     "confidence": {
       "title": "Confidence and notices",

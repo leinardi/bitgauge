@@ -17,20 +17,23 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { ArrowDown, ArrowUp } from '@lucide/vue'
+import { ArrowDown, ArrowUp, Gauge } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { GradeView, LoadRow } from '@/components/result/load'
+import type { GradeView, LoadRow, ResponsivenessView } from '@/components/result/load'
+import StatusPill from '@/components/status/StatusPill.vue'
 
 // The load card (design_system/components/measurement LoadCard.jsx, measurement.css .load): the
 // bufferbloat grade as a letter in a box of its tone, the scale strip with it marked and its words,
 // never color alone, with the basis; beside it a row per direction with its loaded latency, its
 // source and qualifiers, and the median in ms or "—". The Test screen shows it too, with a live
 // reading in the primary text color while the run goes on, and without the grade when the run has
-// no idle latency to grade against.
+// no idle latency to grade against. Under the rows, from v0.3, the HTTP loaded responsiveness: its
+// fixed label with the note, the uncertain tag and the protocol, then an RPM per direction, muted
+// when uncertain, or the words in place of one, with the Result detail's TM95 and samples.
 
-const props = defineProps<{ grade: GradeView | null; rows: LoadRow[] }>()
+const props = defineProps<{ grade: GradeView | null; rows: LoadRow[]; responsiveness?: ResponsivenessView | null }>()
 
 const { t } = useI18n()
 const DASH = '—'
@@ -128,6 +131,62 @@ const name = computed(() => {
           v-if="row.value !== null"
           class="ml-1 font-mono text-(length:--text-caption) font-normal text-muted-foreground"
         >{{ t('result.load.ms') }}</span></span>
+      </div>
+      <div
+        v-if="responsiveness"
+        class="flex flex-col gap-2 pt-2.5"
+        data-testid="load-responsiveness"
+      >
+        <div class="flex items-start gap-2.5">
+          <Gauge
+            :size="14"
+            :stroke-width="2"
+            aria-hidden="true"
+            class="mt-0.5 flex-none text-subtle-foreground"
+          />
+          <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span class="text-(length:--text-sm) leading-(--lh-snug) text-pretty text-foreground">{{ t('result.load.rpm.label') }}</span>
+            <span class="text-(length:--text-micro) leading-(--lh-compact) text-subtle-foreground">{{ responsiveness.note }}</span>
+          </span>
+          <span class="flex flex-none items-center gap-1.5">
+            <StatusPill
+              v-if="responsiveness.tag"
+              tone="warn"
+            >{{ responsiveness.tag }}</StatusPill>
+            <span class="rounded-(--radius-xs) border border-(--border-default) px-1.5 py-px font-mono text-(length:--text-micro) whitespace-nowrap text-muted-foreground">{{ responsiveness.protocol }}</span>
+          </span>
+        </div>
+        <div class="flex flex-wrap gap-x-4.5 gap-y-1.5 pl-6">
+          <div
+            v-for="row in responsiveness.rows"
+            :key="row.direction"
+            class="flex min-w-0 items-center gap-1.5"
+            data-testid="load-rpm"
+          >
+            <component
+              :is="DIRECTIONS[row.direction].icon"
+              :size="12"
+              :stroke-width="2.25"
+              aria-hidden="true"
+              class="flex-none"
+              :style="{ color: DIRECTIONS[row.direction].color }"
+            />
+            <span class="sr-only">{{ row.direction === 'download' ? t('result.load.rpm.download') : t('result.load.rpm.upload') }}</span>
+            <span
+              v-if="row.value !== null"
+              class="font-mono text-(length:--text-lg) font-medium whitespace-nowrap"
+              :class="row.uncertain ? 'text-muted-foreground' : 'text-foreground'"
+            >{{ row.value }}<span class="ml-1 font-mono text-(length:--text-caption) font-normal text-muted-foreground">{{ t('result.load.rpm.unit') }}</span></span>
+            <span
+              v-else
+              class="text-(length:--text-caption) text-subtle-foreground"
+            >{{ row.text ?? DASH }}</span>
+            <span
+              v-if="row.detail"
+              class="text-(length:--text-micro) leading-(--lh-compact) text-subtle-foreground"
+            >{{ row.detail }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>

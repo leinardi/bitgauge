@@ -22,7 +22,8 @@
 // validates, and whose Result detail draws it and keeps its note. The spec runs a BitGauge of its
 // own: on the shared server the parallel runs from one address can exceed its four WebSockets per
 // client (wire-protocol.md section 9) and fall back to HTTP, and here the idle latency must come
-// over the WebSocket, which the CSP's connect-src has to allow.
+// over the WebSocket, which the CSP's connect-src has to allow. The server speaks plain HTTP/1.1,
+// so path B's HTTP loaded responsiveness is unavailable_h1 on the Done state and the Result detail.
 
 import { readFile } from 'node:fs/promises'
 
@@ -70,8 +71,16 @@ test('runs the server defaults to a complete result and downloads it', async ({ 
   expect(validateResult(result)).toEqual([])
   expect(result).toMatchObject({ status: 'complete', idle: { path: 'websocket' }, download: { status: 'measured' }, upload: { status: 'measured' } })
   expect(result?.notices.map((notice) => notice.code)).not.toContain('websocket-unavailable')
+  expect(result).toMatchObject({ download: { responsiveness: { state: 'unavailable_h1' } }, upload: { responsiveness: { state: 'unavailable_h1' } } })
 
-  // The done state, with its tiles and result bar, passes axe too.
+  // Path B needs HTTP/2 or HTTP/3, which this server does not speak: the label, the protocol and why.
+  const responsiveness = page.getByTestId('load-responsiveness')
+  await expect(responsiveness).toContainText('HTTP loaded responsiveness — connection sharing not verifiable')
+  await expect(responsiveness).toContainText('needs HTTP/2 or HTTP/3 at the reverse proxy')
+  await expect(responsiveness).toContainText('HTTP/1.1')
+  await expect(page.getByTestId('quality-list')).toBeVisible()
+
+  // The done state, with its tiles, load card, quality list and result bar, passes axe too.
   await expectAccessible(page)
 
   // Details opens its Result detail: both directions' charts with their loaded latency, and the parameters.
@@ -80,6 +89,8 @@ test('runs the server defaults to a complete result and downloads it', async ({ 
   await expect(page.getByTestId('phase-chart-download')).toBeVisible()
   await expect(page.getByTestId('phase-chart-upload')).toBeVisible()
   await expect(page.getByTestId('load-row')).toHaveCount(2)
+  await expect(page.getByTestId('load-responsiveness')).toContainText('needs HTTP/2 or HTTP/3 at the reverse proxy')
+  await expect(page.getByTestId('load-rpm')).toHaveText(['Downloadunavailable', 'Uploadunavailable'])
   await expect(page.getByTestId('parameter-ip')).toContainText('127.0.0.1')
 
   // The saved result is in History, and the Test screen's idle state links to it.

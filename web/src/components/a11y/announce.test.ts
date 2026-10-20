@@ -79,4 +79,35 @@ describe('the result summary', () => {
     const result = resultFixture({ client: { ...base.client, timerResolutionMs: 1 }, idle: { ...base.idle!, medianMs: 0.5, jitterMs: 0 } })
     expect(resultSummary(result, 'bits', wording)).toContain('Idle latency less than 1 millisecond, jitter less than 1 millisecond.')
   })
+
+  it('reads the HTTP loaded responsiveness and the quality scores after the grade, before data used', () => {
+    const base = resultFixture()
+    const result = resultFixture({
+      download: { ...base.download!, responsiveness: { state: 'measured', protocol: 'h2', samples: 40, rpm: 412, tm95Ms: 145.6, trimmed: 2, totalMedianMs: 150 } },
+      upload: { ...base.upload!, responsiveness: { state: 'unavailable_insufficient', protocol: 'h2', samples: 3 } },
+      bufferbloat: { grade: 'C', basis: 'download', increaseMs: 81.2 },
+      scores: { basis: 'download', packetLoss: 'not-measured', streaming: { points: 50, band: 'average' }, gaming: { points: 5, band: 'bad' }, rtc: { missing: ['loaded-latency'] } },
+    })
+    expect(resultSummary(result, 'bits', wording)).toBe(
+      'Test complete. Download 612 megabits per second. Upload 438 megabits per second. Idle latency 3.1 milliseconds, jitter 0.4 milliseconds. ' +
+        'Bufferbloat grade C, moderate bufferbloat, plus 81 milliseconds under load. ' +
+        'HTTP loaded responsiveness, connection sharing not verifiable, over HTTP/2: download 412 round trips per minute, measured; upload unavailable, not enough samples. ' +
+        'Quality scores, download only, an upper bound since packet loss is not measured: streaming average, gaming bad, video calls needs loaded latency. ' +
+        'Data used 1.3 gigabytes.',
+    )
+  })
+
+  it('reads an unavailable responsiveness in words, without a number', () => {
+    const base = resultFixture()
+    const h1 = (protocol: string) => ({ state: 'unavailable_h1' as const, protocol, samples: 0 })
+    const over = (protocol: string) => resultFixture({ download: { ...base.download!, responsiveness: h1(protocol) }, upload: { ...base.upload!, responsiveness: h1(protocol) } })
+    expect(resultSummary(over('http/1.1'), 'bits', wording)).toContain(
+      'HTTP loaded responsiveness, connection sharing not verifiable, over HTTP/1.1: download unavailable, needs HTTP/2 or HTTP/3 at the reverse proxy; upload unavailable, needs HTTP/2 or HTTP/3 at the reverse proxy.',
+    )
+    expect(resultSummary(over(''), 'bits', wording)).toContain(
+      'over a protocol not reported: download unavailable, protocol not reported, treated as HTTP/1.1; upload unavailable, protocol not reported, treated as HTTP/1.1.',
+    )
+    // A partial result's summary leaves them out, as its Test screen state does.
+    expect(resultSummary({ ...over('http/1.1'), status: 'partial' }, 'bits', wording)).not.toContain('responsiveness')
+  })
 })

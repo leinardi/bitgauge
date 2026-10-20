@@ -20,16 +20,20 @@
 import type { useI18n } from 'vue-i18n'
 
 import { gradeWord } from '@/components/history/rows'
+import { bandName, EXPERIENCES, experienceName } from '@/components/result/qualityList'
 import { presetName } from '@/components/settings/changes'
-import type { Bufferbloat, DirectionResult, Result } from '@/engine/messages'
-import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate } from '@/lib/format'
+import type { Bufferbloat, Direction, DirectionResult, Responsiveness, Result, ScoreBand } from '@/engine/messages'
+import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, rpmNumber } from '@/lib/format'
+import { protocolLabel } from '@/lib/protocol'
 
 // Compare two results (ui/screens.md section 3, ui/flows.md section 6, open-questions.md 51): the
 // older by start is A and the newer B, and each change is B's against A. A rate within ±2 % of A's
 // and a latency within 1 ms of A's read "same"; grades compare by their order, A+ best; any other
 // difference is better or worse. A metric absent on either side is not comparable. Probe timeouts,
 // data used and duration show both values without a judgment. The results are not directly
-// comparable when they differ in preset, protocol or label.
+// comparable when they differ in preset, protocol or label. From v0.3, the HTTP loaded
+// responsiveness of each direction compares its RPM as a rate is, only when both sides are
+// measured, and each quality-score experience compares by band order, great best.
 
 type Translate = ReturnType<typeof useI18n>['t']
 
@@ -75,6 +79,17 @@ export function gradeChange(a: Bufferbloat['grade'] | undefined, b: Bufferbloat[
   return order === 0 ? 'same' : order < 0 ? 'better' : 'worse'
 }
 
+const BANDS: readonly ScoreBand[] = ['bad', 'poor', 'average', 'good', 'great']
+
+/** A band change, by the bands' order. */
+export function bandChange(a: ScoreBand | undefined, b: ScoreBand | undefined): Verdict {
+  if (a === undefined || b === undefined) {
+    return 'not-comparable'
+  }
+  const order = BANDS.indexOf(b) - BANDS.indexOf(a)
+  return order === 0 ? 'same' : order > 0 ? 'better' : 'worse'
+}
+
 export type Difference = 'preset' | 'protocol' | 'label'
 
 /** What keeps the two from being directly comparable, in that order. */
@@ -112,6 +127,58 @@ const DASH = '—'
 function loaded(direction: DirectionResult | undefined): number | undefined {
   const latency = direction?.loadedLatency
   return latency !== undefined && !('status' in latency) ? latency.medianMs : undefined
+}
+
+function rpmStateWord(block: Responsiveness, t: Translate): string {
+  switch (block.state) {
+    case 'measured':
+      return t('history.compare.rpmStates.measured')
+    case 'uncertain':
+      return t('history.compare.rpmStates.uncertain')
+    case 'unavailable_h1':
+      return protocolLabel(block.protocol) === null ? t('history.compare.rpmStates.treatedH1') : t('history.compare.rpmStates.needsH2')
+    case 'unavailable_insufficient':
+      return t('history.compare.rpmStates.insufficient')
+  }
+}
+
+/**
+ * The v0.3 rows: a responsiveness row per direction either side has one for, the RPM compared when
+ * both are measured, and a row per experience when either side has scores.
+ */
+function v03Rows(a: Result, b: Result, locale: string, t: Translate): CompareRow[] {
+  const rpmText = (block: Responsiveness | undefined) => {
+    if (block === undefined) {
+      return DASH
+    }
+    const values = { state: rpmStateWord(block, t), protocol: protocolLabel(block.protocol) ?? t('result.load.rpm.notReported') }
+    return 'rpm' in block ? t('history.compare.rpmValue', { ...values, rpm: rpmNumber(block.rpm, locale) }) : t('history.compare.rpmState', values)
+  }
+  const measured = (block: Responsiveness | undefined) => (block?.state === 'measured' ? block.rpm : undefined)
+  const rpmRow = (direction: Direction): CompareRow[] => {
+    const [x, y] = [a[direction]?.responsiveness, b[direction]?.responsiveness]
+    if (x === undefined && y === undefined) {
+      return []
+    }
+    const change = rateChange(measured(x), measured(y))
+    const percent = change.percent === undefined ? {} : { change: `${change.percent > 0 ? '+' : change.percent < 0 ? '−' : '±'}${formatPercent(Math.abs(change.percent), locale)}` }
+    const name = direction === 'download' ? t('history.compare.rpmDownload') : t('history.compare.rpmUpload')
+    return [{ key: `rpm-${direction}`, name, a: rpmText(x), b: rpmText(y), verdict: change.verdict, ...percent }]
+  }
+  const scored = a.scores !== undefined || b.scores !== undefined
+  const band = (result: Result, experience: (typeof EXPERIENCES)[number]) => {
+    const score = result.scores?.[experience]
+    return score !== undefined && 'band' in score ? score.band : undefined
+  }
+  const wording = { t, locale }
+  const bands = scored
+    ? EXPERIENCES.map((experience): CompareRow => {
+        const [x, y] = [band(a, experience), band(b, experience)]
+        const text = (value: ScoreBand | undefined) => (value === undefined ? t('history.compare.notScored') : bandName(value, wording))
+        return { key: `quality-${experience}`, name: t('history.compare.quality', { name: experienceName(experience, wording) }), a: text(x), b: text(y), verdict: bandChange(x, y) }
+      })
+    : []
+  return [...rpmRow('download'), ...rpmRow('upload'), ...bands]
 }
 
 export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: string, t: Translate): Comparison {
@@ -170,6 +237,7 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
     latencyRow('loadedDownload', t('history.compare.loadedDownload'), (result) => loaded(result.download)),
     latencyRow('loadedUpload', t('history.compare.loadedUpload'), (result) => loaded(result.upload)),
     { key: 'grade', name: t('history.compare.grade'), a: gradeText(a), b: gradeText(b), verdict: gradeChange(grade(a), grade(b)) },
+    ...v03Rows(a, b, locale, t),
     { key: 'loss', name: t('history.compare.loss'), a: loss(a), b: loss(b), verdict: null },
     { key: 'data', name: t('history.compare.data'), a: formatBytes(a.dataUsedBytes, locale), b: formatBytes(b.dataUsedBytes, locale), verdict: null },
     { key: 'duration', name: t('history.compare.duration'), a: formatDuration(a.durationMs, locale), b: formatDuration(b.durationMs, locale), verdict: null },
