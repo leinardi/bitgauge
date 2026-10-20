@@ -13,6 +13,8 @@ http://www.gnu.org/licenses/
 https://tailwindcss.com
 # The reference link Vue's production runtime prints in a console warning; never fetched.
 https://vuejs.org/error-reference/*
+# The About screen's OpenSpeedTest snippet: a placeholder host the user replaces; never fetched.
+https://ost.example.lan/*
 # The About screen's source and documentation links, and the base-path error's link to the
 # deployment guide.
 https://github.com/leinardi/bitgauge/*
