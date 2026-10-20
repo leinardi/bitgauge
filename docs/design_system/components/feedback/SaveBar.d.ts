@@ -1,9 +1,9 @@
 /**
- * SaveBar — result status after a run (contract: components/save-bar.md). v0.2 with history.
+ * SaveBar — result status after a run (contract: components/save-bar.md).
  * - "saved": complete run, "Saved to history" + label field with suggested labels + Share / Download JSON / Details.
  * - "unsaved": partial or error run, "Partial results are not saved" + Keep in history / Download JSON.
  * - "kept": after Keep in history, "Saved as partial" / "Saved as error" + Download JSON / Details (Undo lives in the toast).
- * - "complete": v0.1 (no history) — "Test complete", not stored; Download JSON only.
+ * - "complete": a run not stored — "Test complete"; Download JSON only.
  * Label changes save as they are typed; there is no Save button.
  */
 export interface SaveBarProps {

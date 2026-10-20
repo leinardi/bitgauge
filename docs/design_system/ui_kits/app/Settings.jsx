@@ -5,6 +5,7 @@
  *   advanced: boolean  (default false)
  *   invalid: boolean  (default false)
  *   confirmReset: boolean  (default false)
+ *   streamsMax: number  (server's streams.max; default 6)
  */
 class Settings extends React.Component {
   state = this.initState();
@@ -19,7 +20,7 @@ class Settings extends React.Component {
   }
   on(v) { return !!v && v !== 'false' && v !== '0'; }
   defaults() {
-    return { preset: 'standard', dir: 'download', runLimit: false, runUnit: 'h', phases: { latency: true, download: true, upload: true }, order: 'down', ov: {}, v: { capMB: 500, countdown: 3, warmS: 2, runVal: null }, cap: false, units: 'bits', theme: 'system', autostart: false, warm: 'auto', overhead: '0', drafts: {}, err: {}, keepAsk: null };
+    return { preset: 'standard', dir: 'download', runLimit: false, runUnit: 'h', phases: { latency: true, download: true, upload: true }, order: 'down', ov: {}, v: { capMB: 500, countdown: 3, warmS: 2, runVal: null }, cap: false, label: '', nDraft: null, units: 'bits', theme: 'system', autostart: false, warm: 'auto', overhead: '0', drafts: {}, err: {}, keepAsk: null };
   }
   initState() {
     const p = this.props || {};
@@ -91,12 +92,13 @@ class Settings extends React.Component {
   resetOv(keys, extra) { this.setState(s => { const ov = Object.assign({}, s.ov), drafts = Object.assign({}, s.drafts), err = Object.assign({}, s.err); keys.forEach(k => { delete ov[k]; delete drafts[k]; delete err[k]; }); return Object.assign({ ov, drafts, err }, extra || {}); }); }
 
   renderVals() {
-    const s0 = this.state, m = this.on(this.props.mobile), PR = this.P(), D = this.defaults();
-    // Before v0.3 Continuous is shown but not selectable; a saved Continuous preset reads as Standard.
-    const Q = !this.props.caps || !!this.props.caps.quality;
-    const s = !Q && s0.preset === 'continuous' ? Object.assign({}, s0, { preset: 'standard' }) : s0, P = PR[s.preset];
+    const s = this.state, m = this.on(this.props.mobile), PR = this.P(), D = this.defaults();
+    const P = PR[s.preset];
     const isCont = s.preset === 'continuous', timed = !isCont;
     const set = o => this.setState(o);
+    // Fixed count runs 1 to the server's streams.max (GET /info); the fixture's server gives 6.
+    const nCap = Math.max(1, Number(this.props.streamsMax) || 6);
+    const setN = nv => this.setState(st => { const ov = Object.assign({}, st.ov), pn2 = this.P()[st.preset].n || 3; nv = Math.min(nCap, Math.max(1, nv)); if (nv === pn2) delete ov.n; else ov.n = nv; return { ov, nDraft: null }; });
     const sm = s.ov.streams || P.streams, pn = P.n || 3, n = s.ov.n != null ? s.ov.n : pn;
     const streamsLbl = (mode, k) => mode === 'auto' ? 'Auto' : mode === 'single' ? 'Single' : 'Fixed · ' + k;
     const dur = (a, b) => a + '–' + b + ' s';
@@ -104,13 +106,15 @@ class Settings extends React.Component {
     const dirName = s.dir === 'download' ? 'download' : 'upload';
     const runSet = s.runLimit && s.v.runVal != null;
     const runStr = runSet ? s.v.runVal + ({ m: ' min', h: ' h', d: ' d' })[s.runUnit] : '';
-    const phOn = s.phases, phAll = phOn.latency && phOn.download && phOn.upload;
+    // Continuous: the directions give way to its one direction; only idle latency stays a choice.
+    const phOn = isCont ? { latency: s.phases.latency, download: s.dir === 'download', upload: s.dir === 'upload' } : s.phases;
+    const phAll = isCont ? phOn.latency : phOn.latency && phOn.download && phOn.upload;
 
     const C = {
       streams: sm !== P.streams || (sm === 'fixed' && n !== pn),
       dl: timed && ('dlMin' in s.ov || 'dlMax' in s.ov), ul: timed && ('ulMin' in s.ov || 'ulMax' in s.ov),
       phases: !phAll, cap: s.cap, units: s.units !== 'bits', theme: s.theme !== 'system',
-      auto: s.autostart || s.v.countdown !== 3, warm: s.warm !== 'auto', pings: 'pings' in s.ov, overhead: s.overhead !== '0'
+      label: s.label.trim() !== '', auto: s.autostart || s.v.countdown !== 3, warm: s.warm !== 'auto', pings: 'pings' in s.ov, overhead: s.overhead !== '0'
     };
     const changed = [];
     const add = (k, d, v, reset) => changed.push({ k, d, v, reset, label: 'Reset ' + k.toLowerCase() });
@@ -118,9 +122,10 @@ class Settings extends React.Component {
     if (C.streams) add('Parallel streams', streamsLbl(P.streams, pn), streamsLbl(sm, n), () => this.resetOv(['streams', 'n']));
     if (C.dl) add('Download duration', dur(P.dl[0], P.dl[1]), dur(e('dlMin'), e('dlMax')), () => this.resetOv(['dlMin', 'dlMax']));
     if (C.ul) add('Upload duration', dur(P.ul[0], P.ul[1]), dur(e('ulMin'), e('ulMax')), () => this.resetOv(['ulMin', 'ulMax']));
-    if (C.phases) add('Phases', 'All three', ['latency', 'download', 'upload'].filter(k => phOn[k]).map(k => k[0].toUpperCase() + k.slice(1)).join(', '), () => set({ phases: D.phases }));
+    if (C.phases) add('Phases', 'All three', ['latency', 'download', 'upload'].filter(k => phOn[k]).map(k => k[0].toUpperCase() + k.slice(1)).join(', '), () => set({ phases: isCont ? Object.assign({}, s.phases, { latency: true }) : D.phases }));
     if (s.order === 'up') add('Phase order', 'Download first', 'Upload first', () => set({ order: 'down' }));
     if (C.cap) add('Data cap', 'Off', s.v.capMB + ' MB', () => set({ cap: false, v: Object.assign({}, s.v, { capMB: 500 }) }));
+    if (C.label) add('Result label', 'None', s.label.trim(), () => set({ label: '' }));
     if (C.units) add('Units', 'Bits', 'Bytes', () => set({ units: 'bits' }));
     if (C.theme) add('Theme', 'System', s.theme === 'light' ? 'Light' : 'Dark', () => set({ theme: 'system' }));
     if (C.auto) add('Auto-start', 'Off · 3 s', (s.autostart ? 'On' : 'Off') + ' · ' + s.v.countdown + ' s', () => set({ autostart: false, v: Object.assign({}, s.v, { countdown: 3 }) }));
@@ -132,7 +137,9 @@ class Settings extends React.Component {
     // url-params.md §2, in table order: run, test, preset, duration, streams, cap, units, lang, theme, label.
     const q = [];
     if (s.incRun) q.push('run=1');
+    // `test` always includes idle latency; a set without it is named in "Not in the link".
     const test = isCont ? (s.dir === 'upload' ? 'upload' : null) : phOn.download && phOn.upload ? null : phOn.download ? 'download' : phOn.upload ? 'upload' : 'latency';
+    const phLinked = phOn.latency;
     if (test) q.push('test=' + test);
     if (s.preset !== 'standard') q.push('preset=' + s.preset);
     if (isCont && runSet) q.push('duration=' + s.v.runVal * ({ m: 60, h: 3600, d: 86400 })[s.runUnit]);
@@ -140,18 +147,19 @@ class Settings extends React.Component {
     if (C.cap) q.push('cap=' + s.v.capMB + 'MB');
     if (C.units) q.push('units=' + s.units);
     if (C.theme) q.push('theme=' + s.theme);
-    const LINKED = ['Preset', 'Parallel streams', 'Phases', 'Data cap', 'Units', 'Theme'];
+    if (C.label) q.push('label=' + encodeURIComponent(s.label.trim()));
+    const LINKED = ['Preset', 'Parallel streams', 'Data cap', 'Result label', 'Units', 'Theme'].concat(phLinked ? ['Phases'] : []);
     const notInUrl = changed.filter(c => !LINKED.includes(c.k)).map(c => c.k);
     const url = 'https://speed.home.lan/' + (q.length ? '?' + q.join('&') : '');
 
     const presets = Object.keys(PR).map(k => {
-      const p = PR[k], sel = k === s.preset, off = !Q && k === 'continuous', pick = () => { if (sel || off) return; if (k !== 'continuous' && (C.dl || C.ul)) set({ keepAsk: k }); else set({ preset: k, drafts: {}, err: {} }); };
-      return { t: p.t, icon: p.icon, d: p.d, def: !!p.def, off, pick, key: ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } }, aria: sel ? 'true' : 'false', bd: sel ? 'var(--primary-border)' : 'var(--border-default)', bg: sel ? 'var(--primary-bg)' : 'var(--surface-1)', ic: sel ? 'var(--primary-text)' : 'var(--fg-subtle)', ring: sel ? '5px solid var(--primary)' : '1.5px solid var(--border-strong)', dot: sel ? 'var(--surface-2)' : 'transparent' };
+      const p = PR[k], sel = k === s.preset, pick = () => { if (sel) return; if (k !== 'continuous' && (C.dl || C.ul)) set({ keepAsk: k }); else set({ preset: k, drafts: {}, err: {} }); };
+      return { t: p.t, icon: p.icon, d: p.d, def: !!p.def, pick, key: ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } }, aria: sel ? 'true' : 'false', bd: sel ? 'var(--primary-border)' : 'var(--border-default)', bg: sel ? 'var(--primary-bg)' : 'var(--surface-1)', ic: sel ? 'var(--primary-text)' : 'var(--fg-subtle)', ring: sel ? '5px solid var(--primary)' : '1.5px solid var(--border-strong)', dot: sel ? 'var(--surface-2)' : 'transparent' };
     });
     const onCount = Object.values(phOn).filter(Boolean).length;
     const phases = [['latency', 'Latency', 'activity', 'var(--series-latency)'], ['download', 'Download', 'arrow-down', 'var(--series-download)'], ['upload', 'Upload', 'arrow-up', 'var(--series-upload)']].map(([k, t, icon, c]) => {
-      const v = phOn[k], dis = isCont || k === 'latency';
-      return { t, icon, c, on2: v, aria: v ? 'true' : 'false', dis, bg: v ? 'var(--primary)' : 'transparent', bd: v ? 'none' : '1.5px solid var(--border-strong)', on: () => { if (!dis) set({ phases: Object.assign({}, phOn, { [k]: !v }) }); } };
+      const v = phOn[k], dis = isCont ? k !== 'latency' : v && onCount === 1;
+      return { t, icon, c, on2: v, aria: v ? 'true' : 'false', dis, bg: v ? 'var(--primary)' : 'transparent', bd: v ? 'none' : '1.5px solid var(--border-strong)', on: () => { if (!dis) set({ phases: Object.assign({}, s.phases, { [k]: !v }) }); } };
     });
     const orderOk = timed && phOn.download && phOn.upload;
     const errKeys = Object.keys(s.err);
@@ -172,14 +180,18 @@ class Settings extends React.Component {
         theme: this.seg([['light', 'Light', 'sun'], ['dark', 'Dark', 'moon'], ['system', 'System', 'monitor']], s.theme, v => set({ theme: v })),
         warm: this.seg([['auto', 'Auto'], ['fixed', 'Fixed']], s.warm, v => set({ warm: v }))
       },
-      phasesOpacity: isCont ? '0.45' : '1', orderOpacity: orderOk ? '1' : '0.45', orderPe: orderOk ? 'auto' : 'none',
-      phasesHelp: isCont ? 'Continuous runs one direction. Phases apply to the timed presets.' : 'Idle latency always runs first. Turn off a direction to test the other one, or latency only.',
+      phasesOpacity: '1', orderOpacity: orderOk ? '1' : '0.45', orderPe: orderOk ? 'auto' : 'none',
+      phasesHelp: isCont ? 'Continuous runs the one direction chosen above. Idle latency runs first when it is on.' : 'Idle latency runs first. Turn off a phase to test the others; at least one stays on.',
       // Switched on, the field starts empty (no run length until a valid value is entered); switched off, it clears.
       runSw: this.sw(s.runLimit, () => set({ runLimit: !s.runLimit, v: Object.assign({}, s.v, { runVal: null }), drafts: this.drop(s.drafts, 'runVal'), err: this.drop(s.err, 'runVal') })), runLimit: s.runLimit, noRunLimit: !s.runLimit, runUnit: s.runUnit,
       setRunUnit: ev => { const u = ev.target.value, max = { m: 10080, h: 168, d: 7 }[u]; set({ runUnit: u, v: Object.assign({}, s.v, { runVal: s.v.runVal == null ? null : Math.min(s.v.runVal, max) }), drafts: this.drop(s.drafts, 'runVal'), err: this.drop(s.err, 'runVal') }); },
-      isFixed: sm === 'fixed', n, nMin: n <= 1, nMax: n >= 6,
-      nDec: () => this.setState(st => { const ov = Object.assign({}, st.ov), nv = Math.max(1, n - 1); if (nv === pn) delete ov.n; else ov.n = nv; return { ov }; }),
-      nInc: () => this.setState(st => { const ov = Object.assign({}, st.ov), nv = Math.min(6, n + 1); if (nv === pn) delete ov.n; else ov.n = nv; return { ov }; }),
+      isFixed: sm === 'fixed', n, nCap, nMin: n <= 1, nMax: n >= nCap, nShown: s.nDraft != null ? s.nDraft : String(n),
+      nDec: () => setN(n - 1), nInc: () => setN(n + 1),
+      // Spinbutton (NumberField): ↑/↓ step, Home/End jump to 1/6, typed digits commit on Enter or blur; out of range reverts.
+      nType: ev => set({ nDraft: ev.target.value.replace(/[^0-9]/g, '').slice(0, 2) }),
+      nCommit: () => { const d = s.nDraft; if (d == null) return; const nv = Number(d); if (d !== '' && nv >= 1 && nv <= nCap) setN(nv); else set({ nDraft: null }); },
+      nKey: ev => { const k = ev.key; if (k === 'ArrowUp' || k === 'ArrowDown' || k === 'Home' || k === 'End' || k === 'PageUp' || k === 'PageDown') { ev.preventDefault(); setN(k === 'Home' ? 1 : k === 'End' ? nCap : n + (k === 'ArrowUp' || k === 'PageUp' ? 1 : -1)); } else if (k === 'Enter') { ev.preventDefault(); ev.target.blur(); } else if (k === 'Escape') set({ nDraft: null }); },
+      label: s.label, setLabel: ev => set({ label: ev.target.value.slice(0, 64) }), labelCount: s.label.length + ' / 64',
       capSw: this.sw(s.cap, () => set({ cap: !s.cap })), capOff: !s.cap, capOpacity: s.cap ? '1' : '0.45',
       autoSw: this.sw(s.autostart, () => set({ autostart: !s.autostart })), autoOff: !s.autostart, autoOpacity: s.autostart ? '1' : '0.45',
       advOpen: s.advOpen, advAria: s.advOpen ? 'true' : 'false', advIcon: s.advOpen ? 'chevron-up' : 'chevron-down', toggleAdv: () => set({ advOpen: !s.advOpen }),
@@ -240,7 +252,7 @@ class Settings extends React.Component {
                 <div role="radiogroup" aria-labelledby="s-preset" style={{ display: "grid", gridTemplateColumns: v.L?.presetCols, gap: "var(--space-2-5)" }}>
                   {(v.presets || []).map((p, $index) => (
                     <React.Fragment key={$index}>
-                      <DS.ChoiceCard selected={p?.aria === 'true' || p?.aria === true} icon={p?.icon} title={p?.t} badge={p?.def ? <DS.StatusPill size="sm" dot={false}>Default</DS.StatusPill> : p?.off ? <DS.StatusPill size="sm" dot={false}>v0.3</DS.StatusPill> : null} disabledReason={p?.off ? 'Arrives in v0.3' : undefined} onSelect={p?.pick}>{p?.d}</DS.ChoiceCard>
+                      <DS.ChoiceCard selected={p?.aria === 'true' || p?.aria === true} icon={p?.icon} title={p?.t} badge={p?.def ? <DS.StatusPill size="sm" dot={false}>Default</DS.StatusPill> : null} onSelect={p?.pick}>{p?.d}</DS.ChoiceCard>
                     </React.Fragment>
                   ))}
                 </div>
@@ -283,8 +295,9 @@ class Settings extends React.Component {
                   </div>
                 ) : null}
                 <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-4)", opacity: v.phasesOpacity }}>
+                  <div role="group" aria-labelledby="s-phases" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-4)" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
-                    Phases
+                    <span id="s-phases">Phases</span>
                     {v.C?.phases ? (
                       <DS.ChangedMark />
                     ) : null}
@@ -294,6 +307,7 @@ class Settings extends React.Component {
                       <DS.Checkbox checked={ph?.aria === 'true' || ph?.aria === true} disabled={ph?.dis} onChange={ph?.on} icon={ph?.icon} iconColor={ph?.c}>{ph?.t}</DS.Checkbox>
                     </React.Fragment>
                   ))}
+                  </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginLeft: v.L?.orderMl, opacity: v.orderOpacity, pointerEvents: v.orderPe }}>
                     <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>Order</span>
                     <DS.Segmented ariaLabel="Phase order" {...seg(v.S?.order)} />
@@ -313,7 +327,7 @@ class Settings extends React.Component {
                       ) : null}
                     </span>
                     <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
-                      Auto ramps 1 → 2 → 4 → 6 streams and stops when adding streams no longer helps. Fixed runs 1–6. Single shows one connection.
+                      Auto ramps 1 → 2 → 4 → 6 streams and stops when adding streams no longer helps. {'Fixed runs 1–' + v.nCap + '.'} Single shows one connection.
                     </span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" }}>
@@ -321,7 +335,7 @@ class Settings extends React.Component {
                     {v.isFixed ? (
                       <div role="group" aria-label="Stream count" style={{ display: "flex", alignItems: "center", border: "1px solid var(--border-default)", borderRadius: "var(--radius-md)", height: "34px", overflow: "hidden", background: "var(--surface-1)" }}>
                         <DS.Button variant="ghost" size="sm" iconOnly icon="minus" aria-label="Fewer streams" disabled={v.nMin} onClick={v.nDec} style={{ height: "32px", width: "32px", borderRadius: "0" }}></DS.Button>
-                        <span aria-live="polite" style={{ width: "34px", textAlign: "center", fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)" }}>{v.n}</span>
+                        <input type="text" inputMode="numeric" role="spinbutton" aria-label="Streams" aria-valuemin={1} aria-valuemax={v.nCap} aria-valuenow={v.n} value={v.nShown} onChange={v.nType} onKeyDown={v.nKey} onBlur={v.nCommit} style={{ width: "34px", height: "32px", padding: "0", border: "none", outline: "none", background: "transparent", color: "var(--fg)", textAlign: "center", fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)" }} />
                         <DS.Button variant="ghost" size="sm" iconOnly icon="plus" aria-label="More streams" disabled={v.nMax} onClick={v.nInc} style={{ height: "32px", width: "32px", borderRadius: "0" }}></DS.Button>
                       </div>
                     ) : null}
@@ -409,8 +423,22 @@ class Settings extends React.Component {
                 </div>
               </div>
             </DS.Card>
-            <DS.Card as="section" labelledBy="s-disp" icon="monitor" title={<span id="s-disp">Display and behaviour</span>} padded={false}>
+            <DS.Card as="section" labelledBy="s-disp" icon="monitor" title={<span id="s-disp">Display and behavior</span>} padded={false}>
               <div style={{ display: "flex", flexDirection: "column" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderBottom: "1px solid var(--border-subtle)" }}>
+                  <div style={{ flex: "1 1 240px", display: "flex", flexDirection: "column", gap: "3px" }}>
+                    <label htmlFor="s-label" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>
+                      Result label
+                      {v.C?.label ? (
+                        <DS.ChangedMark />
+                      ) : null}
+                    </label>
+                    <span id="s-label-d" style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
+                      Optional, up to 64 characters. Pre-fills the label of every result in this browser.
+                    </span>
+                  </div>
+                  <DS.Input id="s-label" value={v.label} onChange={v.setLabel} maxLength={64} placeholder="None" aria-describedby="s-label-d" suffix={<span className="ds-mono-sm" aria-hidden="true">{v.labelCount}</span>} style={{ width: "200px" }} />
+                </div>
                 <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2-5) var(--space-5)", padding: "var(--space-3-5) var(--space-4)", borderBottom: "1px solid var(--border-subtle)" }}>
                   <div style={{ flex: "1 1 240px" }}>
                     <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)" }}>
@@ -514,13 +542,13 @@ class Settings extends React.Component {
             <DS.Card as="section" labelledBy="s-share" icon="link" title={<span id="s-share">Shareable link</span>}>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2-5)" }}>
                 <span style={{ fontSize: "var(--text-caption)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
-                  Opens BitGauge with the settings that differ from the defaults. Phase order, per-direction durations, ping count, warm-up and overhead compensation aren't link parameters.
+                  Opens BitGauge with the settings that differ from the defaults.
                 </span>
                 <div style={{ display: "flex", gap: "var(--space-1-5)" }}>
                   <DS.Input mono readOnly value={v.url} aria-label="Shareable URL" style={{ flex: "1", minWidth: "0" }} />
                   <DS.Button iconOnly icon={v.copyIcon} aria-label="Copy link" onClick={v.copyUrl} />
                 </div>
-                <DS.Checkbox size="sm" checked={v.incRunAria === 'true' || v.incRunAria === true} onChange={v.toggleIncRun}>{"Include "}<span className="ds-num">run=1</span>{" (start automatically)"}</DS.Checkbox>
+                <DS.Checkbox size="sm" checked={v.incRunAria === 'true' || v.incRunAria === true} onChange={v.toggleIncRun}>{"Include "}<code className="ds-num" style={{ fontSize: "inherit" }}>run=1</code>{" (start automatically)"}</DS.Checkbox>
                 {v.hasNotInUrl ? (
                   <span style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-1-5)", fontSize: "var(--text-micro)", color: "var(--fg-subtle)", lineHeight: "var(--lh-compact)" }}>
                     <span style={{ display: "flex", marginTop: "1px" }}><DS.Icon name="info" size={12} /></span>
@@ -531,20 +559,20 @@ class Settings extends React.Component {
             </DS.Card>
             <DS.Card as="section" labelledBy="s-changed" icon="sliders" title={<span id="s-changed">Changed from defaults</span>} actions={<span className="ds-mono-sm">{v.changedCount}</span>} padded={false}>
               {v.hasChanges ? (
-                <div style={{ padding: "var(--space-1) var(--space-4) var(--space-1)" }}>
+                <ul style={{ margin: "0", listStyle: "none", padding: "var(--space-1) var(--space-4) var(--space-1)" }}>
                   {(v.changed || []).map((c, $index) => (
                     <React.Fragment key={$index}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2-5)", padding: "var(--space-2) 0", borderBottom: "1px solid var(--border-subtle)" }}>
+                      <li style={{ display: "flex", alignItems: "center", gap: "var(--space-2-5)", padding: "var(--space-2) 0", borderBottom: "1px solid var(--border-subtle)" }}>
                         <span style={{ flex: "1", minWidth: "0", display: "flex", flexDirection: "column" }}>
                           <span style={{ fontSize: "var(--text-sm)" }}>{c?.k}</span>
                           <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-micro)", color: "var(--fg-subtle)" }}>{"default "}{c?.d}</span>
                         </span>
                         <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-caption)", color: "var(--primary-text)", textAlign: "right" }}>{c?.v}</span>
                         <DS.Button variant="ghost" size="sm" iconOnly icon="rotate-ccw" aria-label={c?.label} title={c?.label} onClick={c?.reset} style={{ width: "28px" }}></DS.Button>
-                      </div>
+                      </li>
                     </React.Fragment>
                   ))}
-                </div>
+                </ul>
               ) : null}
               {v.noChanges ? (
                 <div style={{ padding: "var(--space-3-5) var(--space-4) var(--space-0-5)", fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>Everything is at its default.</div>

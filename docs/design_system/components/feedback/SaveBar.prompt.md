@@ -1,4 +1,4 @@
-Result status bar under the Test screen's instrument card — saved / unsaved / kept / v0.1 complete.
+Result status bar under the Test screen's instrument card — saved / unsaved / kept / complete.
 
 ```jsx
 <SaveBar status="saved" title="Saved to history" time="14:02:11"

@@ -1,8 +1,8 @@
 /**
  * LoadCard — bufferbloat grade (letter + words + A+–F strip), loaded latency per direction with the change vs
- * idle, and (v0.3) HTTP loaded responsiveness (RPM) under its fixed, untranslatable-as-a-whole label
+ * idle, and HTTP loaded responsiveness (RPM) under its fixed, untranslatable-as-a-whole label
  * "HTTP loaded responsiveness — connection sharing not verifiable". Omit `responsiveness` to leave the RPM part
- * out entirely (v0.2). Contract: components/tiles.md.
+ * out entirely. Contract: components/tiles.md.
  * GradeBadge — the letter tile alone. The letter is the signal; colour follows --grade-*.
  */
 export interface LoadRow {
@@ -30,7 +30,7 @@ export interface LoadCardProps {
   /** Which directions the grade rests on, under the words: "Basis: download only". */
   basis?: string;
   rows: LoadRow[];
-  /** RPM part (v0.3). Absent = not rendered. */
+  /** RPM part. Absent = not rendered. */
   responsiveness?: { protocol?: string; note?: string; tag?: string; dirs: ResponsivenessDir[] };
   compact?: boolean;
   className?: string;

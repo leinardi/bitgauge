@@ -3,20 +3,23 @@
  *   variant: "populated" | "single" | "select3" | "deleted" | "compare" | "confirm" | "export" | "daterange" | "loading" | "nomatch" | "empty" | "unavailable" | "importing" | "importresult" | "importerror" | "safari"  (default "populated")
  *   mobile: boolean  (default false)
  *   whyOpen: boolean  (default false)
- *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM or quality-score rows in Compare)
- *   compareB: "h1" | "h2"  (default "h1") — v0.3 Compare demo: B over HTTP/1.1 (RPM not comparable) or HTTP/2 (measured)
+ *   compareB: "h1" | "h2"  (default "h1") — Compare demo: B over HTTP/1.1 (RPM not comparable) or HTTP/2 (measured)
  */
 // Row action menu (screens.md: open, delete).
 const HISTORY_ROW_ACTIONS = [{ value: 'open', label: 'Open', icon: 'chevron-right' }, { value: 'delete', label: 'Delete', icon: 'trash', danger: true }];
 class History extends React.Component {
-  state = { why: null };
+  state = { why: null, usage: null };
+  componentDidMount() {
+    // Header: the storage this origin uses, where the browser reports it (screens.md §3).
+    const s = navigator.storage;
+    if (s && s.estimate) s.estimate().then(e => { if (e && e.usage != null) this.setState({ usage: e.usage }); }).catch(() => {});
+  }
   renderVals() {
     const why = this.state.why ?? (this.props.whyOpen === true || this.props.whyOpen === 'true');
     const m = !!this.props.mobile && this.props.mobile !== 'false';
     const v = this.props.variant || 'populated';
     const is = k => v === k;
     const BG = window.BG;
-    const Q = !this.props.caps || !!this.props.caps.quality;
     const L = m ? { pad: 'var(--space-4) var(--space-4) var(--space-6)', gap: 'var(--space-3-5)', h1: 'var(--text-3xl)', chipWrap: 'nowrap', filterML: '0', filterW: '100%', searchFlex: '1 1 160px', searchW: 'auto', legendML: '0', cardPad: '14px', trendCols: 'minmax(0,1fr)', tw: 311, th: 120, thpx: '120px', tL: '12px', tR: '12px', tB: '76px', cfAlign: 'flex-end', cfTop: '0', cfW: '100%', cfRad: 'var(--radius-xl) var(--radius-xl) 0 0' }
       : { pad: 'var(--space-6) var(--space-10) var(--space-12)', gap: 'var(--space-4-5)', h1: 'var(--text-4xl)', chipWrap: 'wrap', filterML: 'auto', filterW: 'auto', searchFlex: '0 0 auto', searchW: '220px', legendML: 'auto', cardPad: '16px 20px', trendCols: 'repeat(3, minmax(0,1fr))', tw: 340, th: 130, thpx: '130px', tL: 'auto', tR: '24px', tB: '24px', cfAlign: 'flex-start', cfTop: '140px', cfW: '460px', cfRad: 'var(--radius-xl)' };
     const empty = is('empty'), unavail = is('unavailable'), loading = is('loading'), nomatch = is('nomatch'), deleted = is('deleted');
@@ -153,14 +156,14 @@ class History extends React.Component {
       ['Idle latency', '15 ms', '14 ms', '−1 ms', 'better'], ['Jitter', '2.2 ms', '1.9 ms', '−0.3 ms', 'better'], plain('Idle probe timeouts', '0.0\u00a0%', '0.5\u00a0%'),
       ['Loaded latency · download', '31 ms', '29 ms', '−2 ms', 'better'], ['Loaded latency · upload', '58 ms', '71 ms', '+13 ms', 'worse'],
       ['Bufferbloat grade', 'B · Mild', 'B · Mild', '', 'same', 'same · +43 ms vs +57 ms']
-    ].concat(Q ? [
-      // v0.3 (screens.md §3): one responsiveness row per direction, the RPM compared (higher better, ±2 % same) only
+    ].concat([
+      // screens.md §3: one responsiveness row per direction, the RPM compared (higher better, ±2 % same) only
       // when both sides are measured; otherwise both states and "not comparable". A runs over HTTP/2, B over HTTP/1.1.
       rpmRow('download', { state: 'measured', rpm: 980, proto: 'HTTP/2' }, B2 ? { state: 'measured', rpm: 1010, proto: 'HTTP/2' } : { state: 'unavailable_h1', proto: 'HTTP/1.1' }),
       rpmRow('upload', { state: 'uncertain', rpm: 610, proto: 'HTTP/2' }, B2 ? { state: 'measured', rpm: 640, proto: 'HTTP/2' } : { state: 'unavailable_h1', proto: 'HTTP/1.1' }),
       // One row per quality-score experience, compared by band order (great best, bad worst).
       bandRow('Streaming', 'good', 'good'), bandRow('Gaming', 'good', 'average'), bandRow('Video calls', 'average', 'good')
-    ] : []).concat([plain('Data used', '1.21 GB', '1.27 GB'), plain('Duration', '48 s', '47 s')])
+    ]).concat([plain('Data used', '1.21 GB', '1.27 GB'), plain('Duration', '48 s', '47 s')])
       .map(([k, a, b, d, w, dw]) => Object.assign({ k, a, b, nj: w === 'none' }, w === 'none' ? {} : ch(d, w, dw)));
     const cmpWarn = params.filter(p => p.crit).map(p => `different ${p.k.toLowerCase()} (${p.a} vs ${p.b})`).join('; ');
     const cmpGroups = [{ k: 'Parameters', rows: params }, { k: 'Results', rows: metrics }].map((g, gi, all) => ({ k: g.k, rows: g.rows.map((p, i) => Object.assign({ last: gi === all.length - 1 && i === g.rows.length - 1 }, p)) }));
@@ -174,16 +177,17 @@ class History extends React.Component {
     const selR = selIdx.map(i => R[i]), selD = selR.map(r => r[0]).sort();
     const selSummary = !BG || !selN ? '' : selN === 2 ? <>{selR[0][1] === selR[1][1] ? selR[0][1] + ' · ' : ''}{BG.timeList(selD, 'day')}</> : BG.timeRange(selD[0], selD[selD.length - 1], 'day');
     const rangeEl = custom && BG ? BG.timeRange(custom[0], custom[1], 'date') : null;
-    const countText = empty ? '0 results' : unavail ? 'Not saved in this window' : loading ? 'Loading…' : nomatch ? `0 of ${total} shown` : `${shownN} of ${total} shown`;
+    const used = this.state.usage != null && BG && BG.bytes ? ' · ' + BG.bytes(this.state.usage) + ' used' : '';
+    const countText = empty ? '0 results' : unavail ? 'Not saved in this window' : loading ? 'Loading…' : (nomatch ? `0 of ${total} shown` : `${shownN} of ${total} shown`) + used;
     const sk = (w, f) => ({ w, f });
     return {
       rootH: m && (is('compare') || is('confirm')) ? '100%' : 'auto', rootOv: m && (is('compare') || is('confirm')) ? 'hidden' : 'visible',
       mobile: m, desktop: !m, L, total, shownN, countText,
       isEmpty: empty, unavailable: unavail, loading, hasData, showFilters: hasData, noMatch: nomatch, showResults: hasData && !nomatch,
       showOrigin: !unavail, safari: is('safari'), importing: is('importing'), importResult: is('importresult'), importError: is('importerror'),
-      importDisabled: unavail || is('importing'), importLabel: is('importing') ? 'Importing…' : 'Import JSON',
+      importDisabled: unavail || loading || is('importing'), importLabel: is('importing') ? 'Importing…' : 'Import JSON',
       whyOpen: why, whyAria: why ? 'true' : 'false', toggleWhy: () => this.setState({ why: !why }),
-      // CSV (frontend.md §5, not in the export): one row per result; from v0.3 the RPM columns are per direction —
+      // CSV (frontend.md §5, not in the export): one row per result; the RPM columns are per direction —
       // downloadRpm, downloadRpmState, uploadRpm, uploadRpmState — with each Continuous direction's minimum and maximum.
       exportFormats: [{ t: 'Export JSON', s: 'Full samples · re-importable', icon: 'file-json' }, { t: 'Export CSV', s: 'One row per test · summary only', icon: 'file-text' }],
       rows: m ? rows.slice(0, 6) : rows, cols, chipGroups, trends, trendMeta: single || !list.length ? (single ? '1 result · today' : '') : <>{shownN + ' results · '}{BG ? BG.timeRange(list[list.length - 1].r[0], list[0].r[0], 'day') : null}</>,
@@ -240,7 +244,7 @@ class History extends React.Component {
                           </div>
                         </React.Fragment>
                       ))}
-                      <div className="pop-sep" />
+                      <div role="separator" className="pop-sep" />
                       <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-2)", padding: "var(--space-1-5) var(--space-2-5) var(--space-1)" }}>
                         <span style={{ color: "var(--warn)", display: "flex", marginTop: "1px" }}><DS.Icon name="triangle-alert" size={13} stroke={2} /></span>
                         <span style={{ fontSize: "var(--text-micro)", color: "var(--fg-muted)", lineHeight: "var(--lh-compact)" }}>
@@ -276,7 +280,7 @@ class History extends React.Component {
           {v.importResult ? (
             <DS.Notice tone="ok" title={<>{"Imported "}<span className="ds-num">bitgauge-2026-10-01.json</span></>}
               actions={<DS.Button variant="ghost" size="sm" iconOnly icon="x" aria-label="Dismiss" />}>
-              12 added, 3 skipped as duplicates, 1 rejected: schema version 3 is newer than this app
+              12 added, 3 skipped as duplicates, 1 rejected: result 16: schema version 3 is newer than this app
               <span style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-1-5)", marginTop: "var(--space-1-5)" }}>
                 <DS.StatusPill tone="ok" size="sm">12 added</DS.StatusPill><DS.StatusPill tone="neutral" size="sm" dot={false}>3 skipped</DS.StatusPill><DS.StatusPill tone="warn" size="sm">1 rejected</DS.StatusPill>
               </span>
@@ -300,7 +304,8 @@ class History extends React.Component {
             </DS.Card>
           ) : null}
           {v.loading ? (
-            <div aria-busy="true" aria-label="Loading history" style={{ display: "flex", flexDirection: "column", gap: v.L?.gap }}>
+            <div aria-busy="true" style={{ display: "flex", flexDirection: "column", gap: v.L?.gap }}>
+              <span role="status" className="sr-only">Loading history</span>
               <div style={{ display: "flex", gap: "var(--space-1-5)", overflow: "hidden" }}>
                 {(v.skChips || []).map((c, $index) => (
                   <React.Fragment key={$index}>
@@ -371,12 +376,12 @@ class History extends React.Component {
                     trigger={<DS.Button size="sm" icon="calendar" iconAfter="chevron-down" aria-haspopup="dialog" aria-expanded={v.dateAria}>{v.dateLabel}</DS.Button>}>
                       <DS.OptionRows label="Preset range" options={(v.ranges || []).map(rg => ({ value: rg.t, label: rg.t, meta: rg.n }))} selected={((v.ranges || []).find(rg => rg.on) || {}).t} />
                       <div className="pop-sep" />
-                      <span className="ds-eyebrow" style={{ padding: "var(--space-1) var(--space-2-5) var(--space-0-5)" }}>
+                      <span id="hist-range-h" className="ds-eyebrow" style={{ padding: "var(--space-1) var(--space-2-5) var(--space-0-5)" }}>
                         Custom range
                       </span>
-                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)", padding: "var(--space-1) var(--space-2-5) var(--space-2)" }}>
+                      <div role="group" aria-labelledby="hist-range-h" style={{ display: "flex", alignItems: "center", gap: "var(--space-1-5)", padding: "var(--space-1) var(--space-2-5) var(--space-2)" }}>
                         <DS.Input type="date" size="sm" mono style={{ flex: "1", minWidth: "0" }} value={v.fromDate} max={v.toDate} aria-label="From date" onChange={v.noop} />
-                        <span style={{ color: "var(--fg-subtle)" }}>–</span>
+                        <span aria-hidden="true" style={{ color: "var(--fg-subtle)" }}>–</span>
                         <DS.Input type="date" size="sm" mono style={{ flex: "1", minWidth: "0" }} value={v.toDate} min={v.fromDate} max="2026-10-08" aria-label="To date" onChange={v.noop} />
                       </div>
                       <div className="pop-foot">
@@ -384,7 +389,7 @@ class History extends React.Component {
                         <DS.Button variant="primary" size="sm">Apply</DS.Button>
                       </div>
                     </DS.Popover>
-                <DS.Input size="sm" icon="search" style={{ flex: v.L?.searchFlex, width: v.L?.searchW, minWidth: "0" }} placeholder="Search labels and notes" aria-label="Search" value={v.searchVal} onChange={v.noop} />
+                <DS.Input type="search" size="sm" icon="search" style={{ flex: v.L?.searchFlex, width: v.L?.searchW, minWidth: "0" }} placeholder="Search labels and notes" aria-label="Search" value={v.searchVal} onChange={v.noop} />
               </div>
             </div>
           ) : null}
@@ -626,7 +631,10 @@ class History extends React.Component {
                     <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", marginRight: "auto" }}>{v.selN}{" selected"}</span>
                     <DS.Button variant="ghost" iconOnly icon="x" aria-label="Clear selection" style={{ width: "44px", height: "44px" }}></DS.Button>
                     <DS.Button variant="ghost" iconOnly icon="trash" aria-label="Delete selected" style={{ width: "44px", height: "44px", color: "var(--danger-fg)" }}></DS.Button>
-                    <DS.Button variant="primary" icon="git-compare" disabled={v.cmpDisabled} style={{ height: "44px" }}>Compare</DS.Button>
+                    {v.cmpHint ? (
+                      <span id="cmp-hint" className="sr-only">Compare needs exactly 2</span>
+                    ) : null}
+                    <DS.Button variant="primary" icon="git-compare" disabled={v.cmpDisabled} aria-describedby={v.cmpHint ? "cmp-hint" : undefined} style={{ height: "44px" }}>Compare</DS.Button>
                   </div>
                 ) : null}
               </div>

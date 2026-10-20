@@ -37,7 +37,7 @@ Reduced motion: the number appears without fading.
 
 - **LoadCard** (component): bufferbloat grade letter (A+ Minimal, A Low, B Mild, C Moderate, D High,
   F Severe) with an A+–F scale strip in `--grade-*` and its basis (`basis`), loaded latency per direction
-  with change vs idle or the reason there is none, and (v0.3, optional `responsiveness`) RPM labelled
+  with change vs idle or the reason there is none, and (optional `responsiveness`) RPM labelled
   "HTTP loaded responsiveness — connection sharing not verifiable".
 - **QualityList** (component): Streaming, Gaming, Video calls → Great / Good / Average / Poor / Bad as
   StatusBadges (icon + band name); note "Upper bound: packet loss is not measured".

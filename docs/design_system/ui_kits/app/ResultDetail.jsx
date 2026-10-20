@@ -11,7 +11,6 @@
  *   overhead: "0" | "6" | "5.13" | "3.69" | "8.1"  (default "0") — overhead compensation preset (§9.3)
  *   browser: "Firefox" | "Chrome" | "Safari" | "Edge"  (default "Firefox") — browser family of the run
  *   uploadPauses: boolean  (default false) — the engine saw the browser pause between upload requests (idle share > 20 %)
- *   caps: version scope from the Prototype (caps.quality false before v0.3: no RPM, no quality scores, no Continuous)
  *   llGap: "none" | "no-steady-window" | "insufficient-samples" | "reservation-broken" | "no-probe-path"  (default "none") —
  *     the upload direction's loaded latency has no value for this reason (Standard only)
  *   probe: "auto" | "WebSocket" | "HTTP/2 probe" | "HTTP/3 probe" | "HTTP/1.1 reserved"  (default "auto") — one path for idle and loaded latency
@@ -19,7 +18,7 @@
  *     "cpu-bound"  (default "normal") — each direction's confidence (measurement §16); confUp is ignored without an upload
  *   wsClose: boolean  (default false) — the WebSocket closed after idle latency: idle stays WebSocket, loaded over the HTTP
  *     source from `probe`; on HTTP/1.1 download (running at the close) is unavailable, reason reservation-broken (Standard only)
- *   resp: "ok" | "uncertain" | "needs-h2" | "not-reported" | "few-samples"  (default "ok") — v0.3 responsiveness state:
+ *   resp: "ok" | "uncertain" | "needs-h2" | "not-reported" | "few-samples"  (default "ok") — responsiveness state:
  *     measured, uncertain, unavailable_h1 (HTTP/1.1 at the proxy / protocol not reported), unavailable_insufficient (upload)
  *   contLen: "2h" | "9d"  (default "2h") — Continuous only: a 2 h run with a run length, or a 9-day run without one,
  *     of which only the last 7 days were saved (measurement §15)
@@ -42,8 +41,7 @@ class ResultDetail extends React.Component {
   renderVals() {
     const BG = window.BG, on = v => this.on(v);
     const m = on(this.props.mobile), tv = on(this.props.tableView);
-    const caps = this.props.caps || { loaded: true, quality: true }, Q = !!caps.quality;
-    const UNS = { 'history-unavailable': 'History unavailable · nothing is saved in this window', 'not-saved-partial': 'Partial results are not saved', 'not-saved-missing': 'This result isn\u2019t in this browser\u2019s history' }, cont = Q && this.props.kind === 'continuous';
+    const UNS = { 'history-unavailable': 'History unavailable · nothing is saved in this window', 'not-saved-partial': 'Partial results are not saved', 'not-saved-missing': 'This result isn\u2019t in this browser\u2019s history' }, cont = this.props.kind === 'continuous';
     // Loaded latency without a value (measurement §11): reason → [JSON source, label source, samples].
     const LLR = { 'no-steady-window': 'no steady window', 'insufficient-samples': 'fewer than 10 samples', 'reservation-broken': 'HTTP/1.1 reservation not held', 'no-probe-path': 'no latency probe' };
     const UPSRC = { 'no-steady-window': ['websocket', 'WebSocket', 0], 'insufficient-samples': ['http-h2', 'HTTP/2 probe', 7], 'reservation-broken': ['http-h1-reserved', 'HTTP/1.1 reserved', 24], 'no-probe-path': ['none', null, 0] };
@@ -51,13 +49,13 @@ class ResultDetail extends React.Component {
     // after idle latency, so idle stays WebSocket and loaded samples come over HTTP.
     const SJ = { 'WebSocket': 'websocket', 'HTTP/2 probe': 'http-h2', 'HTTP/3 probe': 'http-h3', 'HTTP/1.1 reserved': 'http-h1-reserved' };
     const PRB = this.props.probe, httpSrc = PRB && PRB !== 'auto' && PRB !== 'WebSocket' ? PRB : 'HTTP/2 probe';
-    const wsClose = !!caps.loaded && !!this.props.wsClose;
+    const wsClose = !!this.props.wsClose;
     const src = wsClose ? httpSrc : (SJ[PRB] ? PRB : 'WebSocket'), idleSrc = wsClose ? 'WebSocket' : src;
     const dnGap = wsClose && !cont && src === 'HTTP/1.1 reserved' ? 'reservation-broken' : null;
     // not-saved-partial: only a partial result is "not saved" for that reason (screens.md §2), so it draws the run stopped
     // in the upload (no-steady-window) unless another stopped-run gap is chosen.
     const partSt = this.props.state === 'not-saved-partial', llG = this.props.llGap;
-    const gapK = cont || dnGap || !caps.loaded ? null : partSt && !['no-steady-window', 'no-probe-path'].includes(llG) ? 'no-steady-window' : LLR[llG] ? llG : null;
+    const gapK = cont || dnGap ? null : partSt && !['no-steady-window', 'no-probe-path'].includes(llG) ? 'no-steady-window' : LLR[llG] ? llG : null;
     // A complete result always has a steady window in each direction and no direction as short as the WebSocket's close
     // sequence (measurement §11.1, §11.4): these two reasons come from the run stopped in the upload, partial and not saved,
     // the same run as the Test screen. no-probe-path: the WebSocket closed 9.7 s into the download, its reopening never answered.
@@ -66,12 +64,12 @@ class ResultDetail extends React.Component {
     const gapSrc = k => k === 'no-probe-path' ? null : k === 'reservation-broken' ? 'HTTP/1.1 reserved' : src;
     // HTTP/1.1 probe reservation (measurement §4, §11.2): stream cap 5 while it is held. Closed-after-idle: it starts with
     // the next direction (upload), so download keeps 6.
-    const resv = !!caps.loaded && src === 'HTTP/1.1 reserved';
+    const resv = src === 'HTTP/1.1 reserved';
     const STR = { down: resv && !wsClose ? 5 : 6, up: resv ? 5 : 6 }, rsvOn = cont ? STR.down === 5 : STR.down === 5 || STR.up === 5;
     const pl = n => 'plateau: ' + (n === 5 ? 'HTTP/1.1 probe reservation' : 'cap');
     const vsIdle = ' ms vs idle' + (idleSrc !== src ? ' over ' + idleSrc : '');
     const delSt = this.state.del ?? (this.props.demo === 'deleted' ? 'pending' : 'none');
-    const notFound = st === 'not-found' || delSt === 'done';
+    const notFound = st === 'not-found' || delSt !== 'none';
     const inc = this.state.inc ?? on(this.props.includeLabel);
     const denied = this.denied();
     const L = m ? { pad: 'var(--space-3-5) var(--space-4) var(--space-6)', h1: 'var(--text-3xl)', cols: 'minmax(0,1fr)', tileCols: 'repeat(2, minmax(0,1fr))', tileGap: 'var(--space-2-5)', tileNum: '24px', midCols: 'minmax(0,1fr)', chartCols: 'minmax(0,1fr)', confCols: 'minmax(0,1fr)', nfMargin: '40px auto' }
@@ -177,12 +175,12 @@ class ResultDetail extends React.Component {
 
     // Quality scores: the same AIM function as the Test screen (fixtures.js). Standard: Good/Good/Good (55/25/35 points);
     // Continuous (download +15 ms): Great/Great/Great (60/30/40).
-    const SC = Q && BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
+    const SC = BG ? BG.aim(IDLE, JIT, D.down / OHF, D.worst[1]) : null;
     const tiles = [
       { label: cont ? 'Download · average' : 'Download', icon: 'arrow-down', ic: 'var(--series-download)', num: rn(D.down), unit: ru(D.down), nc: 'var(--fg)', sub: ohs(cont ? 'run-wide min ' + rn(cMin) + ' · max ' + rn(cMax) + ' · peak ' + rn(cP90) + ' · p90, last hour, 1 s cells · ' + STR.down + ' streams · ' + pl(STR.down) : 'peak ' + rn(641e6 * OHF) + ' · ' + STR.down + ' streams · ' + pl(STR.down)) },
       cont ? { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: '—', unit: '', nc: 'var(--fg-subtle)', state: 'skipped', sub: 'not run · Continuous runs one direction' }
         : stop ? { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: '—', unit: '', nc: 'var(--fg-subtle)', sub: 'insufficient data · stopped at ' + USTOP.toFixed(1) + ' s, in warm-up' + (BG ? ' · ' + BG.bytes(SUSED.up) + ' used' : '') }
-        : { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: rn(D.up), unit: ru(D.up), nc: 'var(--fg)', sub: ohs('peak ' + rn(455e6 * OHF) + ' · ' + STR.up + ' streams · ' + pl(STR.up) + ' · 6.1 of 6.5 s known') },
+        : { label: 'Upload', icon: 'arrow-up', ic: 'var(--series-upload)', num: rn(D.up), unit: ru(D.up), nc: 'var(--fg)', sub: ohs('peak ' + rn(455e6 * OHF) + ' · ' + STR.up + ' streams · ' + pl(STR.up)) },
       { label: 'Idle latency', icon: 'activity', ic: 'var(--series-latency)', num: BGF.ms(IDLE), unit: 'ms', nc: 'var(--fg)', sub: 'min 2.4 · p90 4.1 ms · ' + idleSrc + ' · 0.0 % probe timeouts' },
       { label: 'Jitter', icon: 'activity', ic: 'var(--series-latency)', num: jit(JIT), unit: 'ms', nc: 'var(--fg)', sub: 'mean of consecutive differences' }
     ];
@@ -202,7 +200,7 @@ class ResultDetail extends React.Component {
     };
     const RESP = (cont ? ['down'] : ['down', 'up']).map(respOf);
     const respP = {
-      protocol: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? 'not reported' : 'h2',
+      protocol: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? 'not reported' : 'HTTP/2',
       note: RS === 'needs-h2' ? 'needs HTTP/2 or HTTP/3 at the reverse proxy' : RS === 'not-reported' ? 'protocol not reported — treated as HTTP/1.1' : RS === 'uncertain' ? 'round trips per minute · uncertain' : cont ? 'round trips per minute, download only' : 'round trips per minute, one per direction',
       tag: RS === 'uncertain' ? 'Uncertain' : undefined,
       dirs: RESP.map(r => ({ dir: r.k === 'up' ? 'upload' : 'download', value: r.rpm != null ? r.rpm.toLocaleString('en-US') : null, uncertain: r.state === 'uncertain',
@@ -220,14 +218,14 @@ class ResultDetail extends React.Component {
       if (c.level === 'low') return it('warn', 'triangle-alert', dn + ' confidence: low — ' + c.reasons.map(r => RSN[r][0]).join(', '), wu + '; ' + c.reasons.map(r => RSN[r][1]).join('; ') + '.');
       return it('ok', 'circle-check', dn + ' confidence: normal', wu + ' and the steady window covered ' + c.win + '.');
     };
-    const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', Q ? 'Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.' : 'Browsers can’t see packet loss over TCP, so BitGauge doesn’t report it.');
+    const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', "Browsers can't see packet loss over TCP, so the quality scores are an upper bound.");
     // "Connection sharing not verifiable" is part of the responsiveness label (LoadCard), never a notice (screens.md §6).
     // Browser upload limit: any browser that paused between upload requests; always Firefox at ≥ 100 Mbit/s upload.
     const BUL = !cont && (PAUSES || (BRW.name === 'Firefox' && D.up >= 100e6));
     const N_BUL = BUL ? [it('info', 'globe', BRW.name + ' may limit the upload', 'On fast links ' + BRW.name + '’s own upload path, not the network, can bound the upload number; the measurement is the server’s and stands. Compare with another browser on this device to tell the two apart.', { label: 'Known browser limits', href: '#' })] : [];
     const N_OH = OH ? [it('neutral', 'sliders', OH, 'Throughput is multiplied by ' + OHF.toFixed(OHP % 1 ? 4 : 2).replace(/0+$/, '') + '. The uncompensated values are kept in the JSON.')] : [];
     // Same notice and sentences as the Test screen.
-    const N_FB = caps.loaded && src !== 'WebSocket' ? [it('info', 'info', 'WebSocket unavailable — HTTP latency fallback', wsClose ? 'The WebSocket closed after idle latency, so latency under load is measured with HTTP requests; the change vs idle compares the two paths.' : 'The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.')] : [];
+    const N_FB = src !== 'WebSocket' ? [it('info', 'info', 'WebSocket unavailable — HTTP latency fallback', wsClose ? 'The WebSocket closed after idle latency, so latency under load is measured with HTTP requests; the change vs idle compares the two paths.' : 'The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.')] : [];
     const N_RSV = rsvOn ? [it('info', 'layers', 'HTTP/1.1 probe reservation active — 5 streams', STR.down === 5 ? 'One HTTP/1.1 connection is kept free for the latency probe, so throughput uses at most 5 streams.' : 'From the upload on, one HTTP/1.1 connection is kept free for the latency probe, so the upload uses at most 5 streams.')] : [];
     // One confidence line per direction, then every notice (screens.md §7); one column, so the card's height follows its lines.
     const confGroups = cont ? [
@@ -264,9 +262,9 @@ class ResultDetail extends React.Component {
 
     const base = {
       mobile: m, desktop: !m, L, D, hu, histOff, unsavedWhy: UNS[st] || '', canEdit: !hu, found: !notFound, notFound,
-      nf: delSt === 'done' ? { icon: 'trash', title: 'Result deleted', body: 'It has been removed from history in this browser.' } : { icon: 'search', title: 'Result not found', body: 'This result isn’t in this browser’s history. It may have been deleted, or saved in a different browser.' },
-      dimOp: delSt === 'pending' ? '0.45' : '1',
-      tiles, loadRows, respP, Q, midCols: Q ? L.midCols : 'minmax(0,1fr)',
+      nf: delSt !== 'none' ? { icon: 'trash', title: 'Result deleted', body: 'It has been removed from history in this browser.' } : { icon: 'search', title: 'Result not found', body: "This result isn't in this browser's history. It may have been deleted, or saved in a different browser." },
+      dimOp: '1',
+      tiles, loadRows, respP, midCols: L.midCols,
       fit: SC ? [['Streaming', 'tv'], ['Gaming', 'gamepad'], ['Video calls', 'video']].map(([label, icon], i) => { const rating = SC.bands[i], Q = BG.QUALITY[rating]; return { label, icon, rating, cls: 'sbadge ' + Q.tone, ricon: Q.icon }; }) : [],
       conf, confGroups, params, summary, inc, denied,
       grade, gradeWords, gradeBasis, gShort: gT[1], gradeAria: 'Bufferbloat grade ' + grade + ', ' + gradeWords, gBd: 'var(--' + gT[0] + '-border)', gBg: 'var(--' + gT[0] + '-bg)', gFg: 'var(--' + gT[0] + '-fg)',
@@ -309,7 +307,7 @@ class ResultDetail extends React.Component {
         const latSer = a => (a || []).map(p => ({ atMs: Math.round(p[0] * 1000), rttMs: r1(p[1]) }));
         const scores = SC ? { streaming: { points: SC.points[0], band: SC.bands[0].toLowerCase() }, gaming: { points: SC.points[1], band: SC.bands[1].toLowerCase() }, rtc: { points: SC.points[2], band: SC.bands[2].toLowerCase() }, packetLoss: 'not-measured' } : null;
         // Loaded latency (§17): a value with its source (idleSource only when idle used another path), or the
-        // unavailable form with its reason. Responsiveness and scores are v0.3 keys.
+        // unavailable form with its reason.
         const llJ = o => {
           const idS = wsClose ? { idleSource: 'websocket' } : {};
           if (o.ll) return Object.assign({ source: SJ[src] }, idS, { samples: o.lat.length, skippedTicks: 0, lost: 0, medianMs: o.ll[0], p90Ms: o.ll[1], increaseMs: o.inc, series: o.lat });
@@ -319,7 +317,7 @@ class ResultDetail extends React.Component {
           status: 'measured', bitsPerSecond: Math.round(o.bps), peakBitsPerSecond: Math.round(o.peak), uncompensatedBitsPerSecond: Math.round(o.bps / OHF),
           windowMs: o.windowMs, streams: o.streams, plateau: 'cap', confidence: { level: o.conf.level, reasons: o.conf.reasons }, bytes: o.bytes,
           loadedLatency: llJ(o)
-        }, Q ? { responsiveness: respJ(o.k) } : {}, {
+        }, { responsiveness: respJ(o.k) }, {
           series: { bucketMs: o.bucketMs, firstCellMs: o.first != null ? o.first : o.wu, warmupEndMs: o.wu, endMs: o.end, values: o.values },
           events: o.events || []
         }, o.agg || {});
@@ -342,7 +340,6 @@ class ResultDetail extends React.Component {
           dataUsedBytes: cont ? cUsedB : SUSED.down + SUSED.up,
           notices: (cont ? DU.map(v => ({ code: 'data-used', bytes: v })) : []).concat(['down', 'up'].filter(k => DC[k] && DC[k].level === 'low').map(k => ({ code: 'low-confidence', direction: k === 'down' ? 'download' : 'upload', reasons: DC[k].reasons }))).concat(BUL ? [{ code: 'browser-upload-limit', browser: BRW.name }] : []).concat(rsvOn ? [{ code: 'probe-reservation', streams: 5 }] : []).concat(OHP ? [{ code: 'overhead-compensation', percent: OHP }] : [])
         };
-        if (!Q) delete result.scores;
         // History export format with one entry (ui/screens.md §1), so it re-imports as is.
         const obj = { format: 'bitgauge.history', formatVersion: 1, exportedAt: new Date().toISOString(), results: [result] };
         try { const u = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' })); const a = document.createElement('a'); a.href = u; a.download = D.file + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); } catch (e) {}
@@ -548,8 +545,8 @@ class ResultDetail extends React.Component {
                 <div style={{ display: "grid", gridTemplateColumns: v.midCols, gap: "var(--space-3)" }}>
                   <DS.LoadCard grade={v.grade} gradeText={v.gradeWords} basis={v.gradeBasis} compact={v.mobile}
                     rows={(v.loadRows || []).map(r => ({ dir: r.icon === 'arrow-up' ? 'upload' : 'download', label: r.label, sub: r.sub, value: r.num }))}
-                    responsiveness={v.Q ? v.respP : undefined} />
-                  {v.Q ? <DS.QualityList packetLoss compact={v.mobile} bands={(v.fit || []).map(f => f.rating || null)} /> : null}
+                    responsiveness={v.respP} />
+                  <DS.QualityList packetLoss compact={v.mobile} bands={(v.fit || []).map(f => f.rating || null)} />
                 </div>
                 <DS.Card as="section" labelledBy="conf-h" padded={false} icon="shield" title={<span id="conf-h">Confidence and notices</span>} actions={<><DS.StatusPill tone={v.conf?.tone}>{v.conf?.label}</DS.StatusPill></>}>
                   <div style={{ display: "grid", gridTemplateColumns: v.L?.confCols, gap: "0 var(--space-6)", padding: "var(--space-1) var(--space-4) var(--space-2)" }}>

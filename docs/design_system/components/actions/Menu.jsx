@@ -1,6 +1,7 @@
 import React from 'react';
 import { Icon } from '../brand/Icon.jsx';
 import { useModal } from '../dialog/Modal.jsx';
+import { useKeepInView } from './Popover.jsx';
 // Menu button + menu of single-choice (menuitemradio) or action (menuitem) rows. Modal while open
 // (i18n-a11y.md §2): page inert, focus in the menu; Escape, a choice or a click outside closes it.
 export function Menu({ label, value, icon, hint, options = [], selected, onSelect, open: openProp, onOpenChange, align = 'start', placement = 'bottom', footer, trigger, style }) {
@@ -9,6 +10,7 @@ export function Menu({ label, value, icon, hint, options = [], selected, onSelec
   const setOpen = o => { if (openProp == null) setOpenState(o); onOpenChange && onOpenChange(o); };
   const btn = React.useRef(null), wrap = React.useRef(null), menu = React.useRef(null);
   useModal(menu, open, { onOutside: () => setOpen(false) });
+  useKeepInView(menu, open);
   // After the menu unmounts and the page is no longer inert.
   const focusTrigger = () => setTimeout(() => { const b = btn.current || (wrap.current && wrap.current.querySelector('button, a[href]')); b && b.focus(); }, 0);
   const close = () => { setOpen(false); focusTrigger(); };

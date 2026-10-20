@@ -10,6 +10,15 @@
 .input input, .input select { flex: 1; min-width: 0; background: none; border: none; outline: none; color: var(--fg); font-family: var(--font-sans); font-size: var(--text-sm); }
 .input.select select { appearance: none; -webkit-appearance: none; cursor: pointer; }
 .input.select > svg:last-child { color: var(--fg-subtle); pointer-events: none; }
+.sel-wrap { position: relative; display: inline-flex; }
+.sel-wrap > .input.select { width: 100%; box-sizing: border-box; cursor: pointer; font-family: var(--font-sans); text-align: left; }
+.sel-wrap > .input.select.mono { font-family: var(--font-mono); }
+.sel-wrap > .input.select:disabled { opacity: var(--opacity-disabled); cursor: default; }
+.input.select .sel-v { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sel-list { width: 100%; min-width: max-content; margin: 0; list-style: none; max-height: 280px; overflow-y: auto; outline: none; }
+.sel-list .menu-item.act { background: var(--surface-3); }
+.sel-list .menu-item[aria-selected="true"] { color: var(--primary-text); }
+.sel-list .menu-item .ck { width: var(--space-3-5); }
 .input .ph, .input input::placeholder { color: var(--fg-subtle); }
 .input .sfx { color: var(--fg-subtle); flex: none; }
 .input.mono, .input.mono input { font-family: var(--font-mono); }

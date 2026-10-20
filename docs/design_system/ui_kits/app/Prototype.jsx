@@ -168,10 +168,6 @@ class Prototype extends React.Component {
     }
   }
   theme() { return this.state.theme || 'dark'; }
-  // Version scope (features/roadmap.md §1.2 / §1.3): one source for every screen and the nav.
-  // v0.2: history, Result detail, Settings + link, share, loaded latency + grade. v0.3 adds RPM, quality scores,
-  // Continuous (quality) and the other-client snippets (clients).
-  caps() { const s = this.props.scope || 'v0.2'; const v02 = s !== 'v0.1', v03 = s === 'v0.3'; return { scope: s, history: v02, settings: v02, share: v02, loaded: v02, clients: v03, quality: v03 }; }
   // The server's display name is known once GET /info has answered; it is unknown while /info fails.
   serverName() {
     const S = this.state.screen;
@@ -183,10 +179,9 @@ class Prototype extends React.Component {
     const m = (!!this.props.mobile && this.props.mobile !== 'false') || !!this.state.narrow;
     const th = this.theme();
     const sysDark = typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches;
-    const S = this.state.screen, caps = this.caps(), gated = { history: 'history', result: 'history', settings: 'settings' }[S];
+    const S = this.state.screen;
     return {
-      ts: this.state.ts, p: this.state.p, hv: this.state.hv, mobile: m, theme: th, srv: this.srvOf(), caps, server: this.serverName(),
-      notAvailable: !!gated && !caps[gated], notAvailableActive: S === 'result' ? 'history' : S,
+      ts: this.state.ts, p: this.state.p, hv: this.state.hv, mobile: m, theme: th, srv: this.srvOf(), server: this.serverName(),
       themeAttr: th === 'system' ? (sysDark ? 'dark' : 'light') : th,
       frameW: m && !this.state.narrow ? '390px' : 'none', frameBd: m && !this.state.narrow ? '1px solid var(--border-subtle)' : 'none',
       testExtra: Object.assign(this.prefs(), this.props.testExtra), saved: this.state.settings, onSettings: (st, ch) => this.onSettings(st, ch), historyExtra: this.props.historyExtra, resultExtra: this.props.resultExtra, settingsExtra: this.props.settingsExtra, aboutExtra: this.props.aboutExtra,
@@ -204,27 +199,24 @@ class Prototype extends React.Component {
   render() {
     const v = this.renderVals();
     return (
-      <BGPrefs.Provider value={{ theme: v.theme, caps: v.caps, server: v.server, host: BG.KIT.host }}>
+      <BGPrefs.Provider value={{ theme: v.theme, server: v.server, host: BG.KIT.host }}>
       <ThemeSync theme={v.themeAttr} />
       <div data-theme={v.themeAttr} onClickCapture={v.onClick} style={{ minHeight: "100vh", background: "var(--bg-base)", color: "var(--fg)", fontFamily: "var(--font-sans)", display: "flex", justifyContent: "center" }}>
         <div style={{ width: "100%", maxWidth: v.frameW, minHeight: "100vh", display: "flex", flexDirection: "column", borderLeft: v.frameBd, borderRight: v.frameBd }}>
           {v.isTest ? (
-            <TestScreen state={v.ts} progress={v.p} mobile={v.mobile} theme={v.theme} caps={v.caps} server={v.server} {...(v.testExtra || {})} />
+            <TestScreen state={v.ts} progress={v.p} mobile={v.mobile} theme={v.theme} server={v.server} {...(v.testExtra || {})} />
           ) : null}
-          {v.notAvailable ? (
-            <NotAvailable mobile={v.mobile} active={v.notAvailableActive} srvStatus={v.srv} scope={v.caps.scope} />
+          {v.isHistory ? (
+            <History variant={v.hv} onDismiss={v.dismissHistory} mobile={v.mobile} srvStatus={v.srv} {...(v.historyExtra || {})} />
           ) : null}
-          {v.isHistory && !v.notAvailable ? (
-            <History variant={v.hv} onDismiss={v.dismissHistory} mobile={v.mobile} srvStatus={v.srv} caps={v.caps} {...(v.historyExtra || {})} />
+          {v.isResult ? (
+            <ResultDetail mobile={v.mobile} srvStatus={v.srv} {...(v.resultExtra || {})} />
           ) : null}
-          {v.isResult && !v.notAvailable ? (
-            <ResultDetail mobile={v.mobile} srvStatus={v.srv} caps={v.caps} {...(v.resultExtra || {})} />
-          ) : null}
-          {v.isSettings && !v.notAvailable ? (
-            <Settings mobile={v.mobile} preset="standard" theme={v.theme} saved={v.saved} onSettings={v.onSettings} srvStatus={v.srv} caps={v.caps} {...(v.settingsExtra || {})} />
+          {v.isSettings ? (
+            <Settings mobile={v.mobile} preset="standard" theme={v.theme} saved={v.saved} onSettings={v.onSettings} srvStatus={v.srv} streamsMax={BG.KIT.server.streams.max} {...(v.settingsExtra || {})} />
           ) : null}
           {v.isAbout ? (
-            <About mobile={v.mobile} srvStatus={v.srv} caps={v.caps} server={v.server} {...(v.aboutExtra || {})} />
+            <About mobile={v.mobile} srvStatus={v.srv} server={v.server} {...(v.aboutExtra || {})} />
           ) : null}
         </div>
       </div>
@@ -233,18 +225,4 @@ class Prototype extends React.Component {
   }
 }
 
-// v0.1: /history, /settings and /result/{id} stay on the route list and render this page (screens.md "Before v0.2").
-function NotAvailable({ mobile, active, srvStatus, scope }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
-      <Nav variant={mobile ? "mobile-top" : "top"} active={active} status={srvStatus} />
-      <main className={"page" + (mobile ? " compact" : "")}>
-        <DS.EmptyState icon="circle-minus" headingLevel={1} title="Not available in this version" actions={<DS.Button variant="primary" size="sm" href="#">Test</DS.Button>}>
-          {"This page arrives in a later version of BitGauge. This server runs " + scope + "."}
-        </DS.EmptyState>
-      </main>
-      {mobile ? <div style={{ marginTop: "auto", height: "64px", flex: "none" }}><div style={{ position: "fixed", left: "0", right: "0", bottom: "0", zIndex: "var(--z-nav)" }}><Nav variant="mobile-bottom" active={active} status={srvStatus} /></div></div> : null}
-    </div>
-  );
-}
 window.Prototype = Prototype;

@@ -5,9 +5,8 @@
  *   custom: boolean  (default false)
  *   units: "bits" | "bytes"  (default "bits")
  *   theme: "light" | "dark" | "system"  (default "system")
- *   caps: { history, settings, share, loaded, clients, quality } — version scope from the Prototype (one source)
  *   llGap: "none" | "no-steady-window" | "insufficient-samples" | "reservation-broken" | "no-probe-path"  (default "none")
- *     — v0.2+: the upload direction's loaded latency has no value for this reason; the grade falls back to download
+ *     — the upload direction's loaded latency has no value for this reason; the grade falls back to download
  *   server: string | null — server.display_name, null while GET /info fails (the host is shown instead)
  *   kept: boolean  (default false)
  *   share: boolean  (default false)
@@ -16,7 +15,7 @@
  *   resp: "ok" | "uncertain" | "needs-h2" | "not-reported" | "few-samples"  (default "ok")
  *   probe: "auto" | "WebSocket" | "HTTP/2 probe" | "HTTP/3 probe" | "HTTP/1.1 reserved"  (default "auto") — the one
  *     probe path for idle and loaded latency (measurement §10, §11); ws-fallback forces an HTTP source
- *   wsClose: boolean  (default false) — v0.2+: the WebSocket closes after idle latency and cannot be reopened;
+ *   wsClose: boolean  (default false) — the WebSocket closes after idle latency and cannot be reopened;
  *     idle stays WebSocket, loaded samples come over the HTTP source from `probe`. On HTTP/1.1 the direction
  *     already running (download) has no value ("HTTP/1.1 reservation not held"); upload runs with the reservation.
  *   errKind: "requests" | "unreachable" | "restarted" | "network"  (default "requests") — the Error state's cause
@@ -26,7 +25,7 @@
  *   timerRes: number  (default 0.1) — the page's timer resolution in ms; latencies below it read "< 1 ms" etc.
  *   browser: "Firefox" | "Chrome" | "Safari" | "Edge"  (default "Firefox") — browser family, named by the browser upload limit notice
  *   uploadPauses: boolean  (default false) — the engine saw the browser pause between upload requests (idle share > 20 %)
- *   runLength: "none" | "2h"  (default "none") — v0.3 Continuous: no run length (elapsed time alone) or a 2 h run length
+ *   runLength: "none" | "2h"  (default "none") — Continuous: no run length (elapsed time alone) or a 2 h run length
  *     (elapsed against it, with the run's end time)
  */
 class TestScreen extends React.Component {
@@ -58,16 +57,15 @@ class TestScreen extends React.Component {
     const BG = window.BG;
     const on = v => !!v && v !== 'false';
     const m = on(this.props.mobile);
-    const caps = this.props.caps || { history: true, settings: true, share: true, loaded: true, clients: true, quality: true };
     // A complete result always has a steady window in each direction and no direction as short as the WebSocket's close
     // sequence (measurement §11.1, §11.4): these two gaps are drawn on a run stopped in the upload (partial, not saved).
-    const st0 = this.props.state || 'idle', LLSTOP = caps.loaded ? { 'no-steady-window': 3.1, 'no-probe-path': 0.8 }[this.props.llGap] : undefined;
+    const st0 = this.props.state || 'idle', LLSTOP = { 'no-steady-window': 3.1, 'no-probe-path': 0.8 }[this.props.llGap];
     const gapStop = LLSTOP != null && ['complete', 'cancelled', 'cancelled-late', 'slowdone', 'cancelled-slow-up'].includes(st0) ? this.props.llGap : null;
-    const st = gapStop ? (['slowdone', 'cancelled-slow-up'].includes(st0) ? 'cancelled-slow-up' : 'cancelled') : st0, bp = st === 'basepath', v01 = !caps.history, Q = !!caps.quality;
+    const st = gapStop ? (['slowdone', 'cancelled-slow-up'].includes(st0) ? 'cancelled-slow-up' : 'cancelled') : st0, bp = st === 'basepath';
     // Server name from GET /info; while it is unknown the page's host stands in. Never a hard-coded name.
     const SRV = this.props.server || BG.KIT.host;
     const eeDown = st === 'error-early' && !!this.state.eeDown, unreach = st === 'offline' || eeDown;
-    const base = { mobile: m, desktop: !m, srvStatus: unreach || (st === 'error' && this.props.errKind === 'unreachable') ? 'offline' : 'online', navMobile: m && !bp, navDesktop: !m && !bp, basePath: bp, v01, caps, theme: this.props.theme || 'system', liveMsg: this.state.ann || '' };
+    const base = { mobile: m, desktop: !m, srvStatus: unreach || (st === 'error' && this.props.errKind === 'unreachable') ? 'offline' : 'online', navMobile: m && !bp, navDesktop: !m && !bp, basePath: bp, theme: this.props.theme || 'system', liveMsg: this.state.ann || '' };
     if (!BG || bp) return { ...base, ready: false };
     const unit = this.props.units === 'bytes' ? 'bytes' : 'bits';
     const rs = v => BG.rateStr(v, unit), rn = v => BG.rate(v, unit).n;
@@ -87,7 +85,7 @@ class TestScreen extends React.Component {
       : { instCols: 'var(--layout-instrument) minmax(0,1fr)', gPad: 'var(--space-6)', cPad: 'var(--space-5) var(--space-6)', bl: '1px solid var(--border-subtle)', bt: 'none', stepPad: 'var(--space-4) var(--space-6)', resCols: 'repeat(4, minmax(0,1fr))', tileGap: 'var(--layout-tile-gap)', loadSpan: 'span 2', fitSpan: 'span 1', metaSpan: 'span 1' };
     const slow = ['slow', 'slowdone', 'cancelled-slow', 'cancelled-slow-up'].includes(st);
     // Plateau reason: shown for the reported direction once its ramp has ended ('cancelled' stops during upload warm-up).
-    const after = ['complete', 'cancelled-late', 'slowdone', 'upload-interrupted', 'cancelled-slow'].includes(st);
+    const after = ['complete', 'error', 'cancelled-late', 'slowdone', 'upload-interrupted', 'cancelled-slow'].includes(st);
     // No request has run yet: the protocol is read from a request. The auto stream count is known once the ramp starts.
     const preReq = ['idle', 'countdown', 'param-ignored', 'connecting'].includes(st);
     const preRamp = preReq || ['latency', 'cancelled-latency'].includes(st);
@@ -95,11 +93,11 @@ class TestScreen extends React.Component {
     // and loaded latency (measurement §10, §11). ws-fallback: the WebSocket never opens, both run over HTTP.
     // wsClose: the WebSocket closes after idle latency; idle stays WebSocket, loaded samples come over HTTP.
     const PRB = this.props.probe, httpSrc = PRB && PRB !== 'auto' && PRB !== 'WebSocket' ? PRB : 'HTTP/2 probe';
-    const wsClose = !!caps.loaded && !!this.props.wsClose && st !== 'ws-fallback';
+    const wsClose = !!this.props.wsClose && st !== 'ws-fallback';
     const src = st === 'ws-fallback' || wsClose ? httpSrc : (PRB && PRB !== 'auto' ? PRB : 'WebSocket');
     const idleSrc = wsClose ? 'WebSocket' : src;
     // HTTP/1.1 probe reservation (measurement §4, §11): one connection kept free, so the stream cap drops to 5.
-    const reserved = caps.loaded && src === 'HTTP/1.1 reserved';
+    const reserved = src === 'HTTP/1.1 reserved';
     const lowLink = slow || st === 'insufficient';
 
     // ---- connection strip (context pill is editable)
@@ -189,7 +187,7 @@ class TestScreen extends React.Component {
       };
       const has = typeof d === 'number' || typeof u === 'number';
       return {
-        proto: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' ? 'not reported' : 'h2',
+        proto: RS === 'needs-h2' ? 'HTTP/1.1' : RS === 'not-reported' || preReq || st === 'offline' ? 'not reported' : 'HTTP/2',
         note: RS === 'needs-h2' ? 'needs HTTP/2 or HTTP/3 at the reverse proxy' : RS === 'not-reported' ? 'protocol not reported — treated as HTTP/1.1' : RS === 'uncertain' && has ? 'round trips per minute · uncertain' : one ? 'round trips per minute, download only' : 'round trips per minute, one per direction',
         tag: RS === 'uncertain' && has ? 'Uncertain' : null, dirs: one ? [dir('down', d)] : [dir('down', d), dir('up', u)]
       };
@@ -351,8 +349,8 @@ class TestScreen extends React.Component {
         R: { textual: true, title: 'Connection lost', sub: 'Error during download', faint: 'last sample ' + rs(575e6), icon: 'wifi-off', ec: 'var(--danger)' },
         chart: { xMax: 10, series: [ser(ep, C.down)], lat: BG.lat(5, 3.1, 17, 6.4), bands: [{ t0: 0, t1: 6.4 }], marks: [{ t: 6.4, label: 'Connection lost' }], markColor: 'var(--danger)', title: 'Throughput', legend: [LG.d, LG.l], meta: 'stopped at 6.4 s', noEnd: true },
         prim: [T({ label: 'Download', icon: 'arrow-down', ic: C.down, state: 'error', sub: 'error · ' + EK[1] }), eUp('not run'), latT(), jitT()],
-        load: load(null, [lrow('down', null, { sub: 'no steady window · download failed' }), lrow('up', null, { sub: 'Not run' })], respB(null, null), 'Not graded — test incomplete'),
-        fit: fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']), meta: meta(BG.bytes(used(ep)), 'not saved', (PRE + 6.4).toFixed(1) + ' s', ''),
+        load: load(null, [lrow('down', null, { sub: 'no steady window · download failed' }), lrow('up', null, { sub: 'Not run' })], respB('few', null), 'Not graded — test incomplete'),
+        fit: fit(null, ['needs loaded latency and download', 'needs loaded latency', 'needs loaded latency']), meta: meta(BG.bytes(used(ep)), 'not saved', (PRE + 6.4).toFixed(1) + ' s', ''),
         notices: [N('danger', 'wifi-off', 'Connection to ' + SRV + ' lost — ' + EK[0], 'Download stopped at 6.4 s. Latency finished before the error.')].concat(CAUSE ? [N('neutral', CAUSE[0], CAUSE[1], CAUSE[2])] : []),
         btn: BTN.retry, partial: { kind: 'error', keep: true },
         ph: 'Download, ' + sayR(575e6), sum: { st: 'fail', down: 'Download failed', up: 'Upload skipped', n: CAUSE ? [CAUSE[1]] : [] }
@@ -408,7 +406,7 @@ class TestScreen extends React.Component {
         chart: { xMax: 2, ms: true, series: [ser(lp, C.lat)], marks: [{ t, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Latency samples', legend: [lg('Round-trip time', C.lat)], meta: 'stopped at ' + t.toFixed(1) + ' s', noEnd: true },
         prim: [eDown('not run'), eUp('not run'), latT(Object.assign({ sub: 'median of ' + k + ' pings · first of ' + n + ' discarded · ' + idleSrc }, PT)), jitT(PT)],
         load: load(null, [lrow('down', null, { sub: 'Not run' }), lrow('up', null, { sub: 'Not run' })], respB(null, null), 'Not graded — no loaded latency'),
-        fit: fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']), meta: meta('—', '', (t + 0.6).toFixed(1) + ' s', ''),
+        fit: fit(null, ['needs loaded latency and download', 'needs loaded latency', 'needs loaded latency']), meta: meta('—', '', (t + 0.6).toFixed(1) + ' s', ''),
         notices: [N('neutral', 'circle-minus', 'Test cancelled during latency', 'Stopped after ' + n + ' of 20 pings. The first is a warm-up sample, so idle latency and jitter come from the other ' + k + '; download and upload did not run.')],
         btn: BTN.again, partial: { kind: 'partial', keep: true },
         ph: 'Measuring idle latency', sum: { st: 'partial', down: 'Download skipped', up: 'Upload skipped', n: [] }
@@ -424,8 +422,8 @@ class TestScreen extends React.Component {
         R: { textual: true, title: 'Cancelled', sub: 'Partial results · not saved', icon: 'circle-minus', ec: 'var(--fg-subtle)' },
         chart: { xMax: 10, series: [ser(dp, C.down)], lat: lp, bands: [{ t0: 0, t1: Math.min(t, D.warm) }], wins: part ? [{ t0: D.warm, t1: t, label: 'Steady ' + win.toFixed(1) + ' s' }] : [], marks: [{ t, label: 'Cancelled' }], markColor: 'var(--fg-muted)', title: 'Throughput', legend: [LG.d, LG.l], meta: 'stopped at ' + t.toFixed(1) + ' s', noEnd: true },
         prim: [part ? rt('Download', 'arrow-down', C.down, sw.avg, { state: 'partial', tag: 'Partial — stopped early', sub: 'based on a ' + win.toFixed(1) + ' s steady window' }) : T({ label: 'Download', icon: 'arrow-down', ic: C.down, state: 'insufficient-data', sub: t < D.warm ? 'Insufficient data — stopped during warm-up' : 'Insufficient data — steady window shorter than 3 s', notes: [ub + ' used'] }), eUp('not run'), latT(), jitT()],
-        load: part ? load(g, [lrow('down', D.ll, { p90: Math.max(D.ll, latP90(lp)), partial: true }), lrow('up', null, { sub: 'Not run' })], respB(null, null), BG.GRADES[g].text + ' · download only') : load(null, [lrow('down', null, { sub: 'no steady window' }), lrow('up', null, { sub: 'Not run' })], respB(null, null), 'Not graded — no gradable direction'),
-        fit: part ? fit(aim(IDLE.v, IDLE.jit, sw.avg, inc)) : fit(null, ['needs download', 'needs loaded latency', 'needs loaded latency']), fitBasis: part ? 'download only' : '',
+        load: part ? load(g, [lrow('down', D.ll, { p90: Math.max(D.ll, latP90(lp)), partial: true }), lrow('up', null, { sub: 'Not run' })], respB('few', null), BG.GRADES[g].text + ' · download only') : load(null, [lrow('down', null, { sub: 'no steady window' }), lrow('up', null, { sub: 'Not run' })], respB('few', null), 'Not graded — no gradable direction'),
+        fit: part ? fit(aim(IDLE.v, IDLE.jit, sw.avg, inc)) : fit(null, ['needs loaded latency and download', 'needs loaded latency', 'needs loaded latency']), fitBasis: part ? 'download only' : '',
         meta: meta(ub, '', (t + PRE).toFixed(1) + ' s', ''),
         notices: [N('neutral', 'circle-minus', 'Test cancelled during download', part ? 'Latency completed. Download has a ' + win.toFixed(1) + ' s steady window, enough for a partial value. Upload did not run.' : 'Latency completed. Download stopped before a 3 s steady window, so it has no value. Upload did not run.')],
         btn: BTN.again, partial: { kind: 'partial', keep: true },
@@ -595,11 +593,11 @@ class TestScreen extends React.Component {
       } break;
     }
 
-    // ---- v0.2 loaded latency (screens.md §1, measurement §11): reasons, basis, fallback notices.
+    // ---- loaded latency (screens.md §1, measurement §11): reasons, basis, fallback notices.
     const LLR = { 'no-steady-window': 'no steady window', 'insufficient-samples': 'fewer than 10 samples', 'reservation-broken': 'HTTP/1.1 reservation not held', 'no-probe-path': 'no latency probe' };
     // no-steady-window and no-probe-path never reach a complete run; they are drawn on the stopped run above.
     const GAP = LLSTOP != null ? null : LLR[this.props.llGap];
-    if (caps.loaded && GAP && S.load && S.load.grade !== '—' && S.load.rows[1] && S.load.rows[1].v != null) {
+    if (GAP && S.load && S.load.grade !== '—' && S.load.rows[1] && S.load.rows[1].v != null) {
       // Demo: the upload direction ends without a loaded-latency value; the grade rests on download alone.
       const r0 = S.load.rows[0], di = r0.v - IDLE.v, g = gradeOf(di), gt = BG.GRADES[g].text, inc = '+' + fms(di);
       S.load = Object.assign(load(g, [r0, lrow('up', null, { sub: GAP })], S.load.resp, gt), { basisK: 'download' });
@@ -632,41 +630,31 @@ class TestScreen extends React.Component {
       S.load.basis = { 'download+upload': 'Basis: worse of download and upload', download: 'Basis: download only', upload: 'Basis: upload only' }[bk];
       S.load.inc = Math.max(...S.load.rows.filter(r => r.v != null).map(r => r.v - IDLE.v));
     }
-    if (caps.loaded && !preRamp && !unreach && st !== 'error-early') {
+    if (!preRamp && !unreach && st !== 'error-early') {
       const FB = 'WebSocket unavailable — HTTP latency fallback', add = [];
       if (src !== 'WebSocket' && !S.notices.some(n => n.title === FB)) add.push(N('info', 'info', FB, idleSrc === 'WebSocket' ? 'The WebSocket closed after idle latency, so latency under load is measured with HTTP requests; the change vs idle compares the two paths.' : 'The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.'));
       if (reserved && (!wsH1 || upOn)) add.push(N('info', 'layers', 'HTTP/1.1 probe reservation active — 5 streams', wsH1 ? 'From the upload on, one HTTP/1.1 connection is kept free for the latency probe, so the upload uses at most 5 streams.' : 'One HTTP/1.1 connection is kept free for the latency probe, so throughput uses at most 5 streams.'));
       S.notices = S.notices.concat(add);
     }
-    // Before v0.3: no RPM and no quality scores.
-    if (!Q) S.fit = null;
-    if (!Q && S.load && !S.metaTitle) S.metaSpan = 'span 2';
     const tipO = on(this.props.tips) ? '1' : '';
     const kept = this.state.kept ?? on(this.props.kept);
     const label = this.state.label ?? (this.props.label || (S.saved ? S.saved.label : ''));
-    const shareOpen = !!S.saved && !v01 && !!(this.state.share ?? on(this.props.share));
-    if (v01) {
-      S.load = null; S.fit = null; S.lastLine = false;
-      if (S.chart.legend) S.chart = Object.assign({}, S.chart, { lat: null, legend: S.chart.legend.filter(x => x !== LG.l) });
-      if (!S.metaTitle) { S.metaSpan = m ? 'span 2' : 'span 4'; S.metaCols = m ? 'minmax(0,1fr)' : 'repeat(3, minmax(0,1fr))'; }
-    }
+    const shareOpen = !!S.saved && !!(this.state.share ?? on(this.props.share));
     const A = (text, icon, cls, onClick, after) => ({ text, icon, cls, on: onClick || (() => {}), after: after || null, wrap: '', tip: null, tipO: '' });
     const JSONA = Object.assign(A('Download JSON', 'file-json', 'btn ghost sm'), { wrap: 'has-tip tip-end', tip: 'Contains your IP address and notes', tipO });
     const DET = A('Details', null, 'btn secondary sm', null, 'chevron-right');
     let bar = null;
     // Save-bar time from the result's instant, in the active locale (i18n-a11y.md §1.3).
     const barT = iso => BG.timeEl(iso, 'time');
-    if (S.saved) bar = v01
-      ? { icon: 'circle-check', ic: 'var(--ok)', title: 'Test complete', time: barT(S.saved.iso), sub: 'Not stored in this browser. Download the JSON to keep it.', labelled: false, actions: [Object.assign({}, JSONA, { cls: 'btn secondary sm' })] }
-      : { icon: 'circle-check', ic: 'var(--ok)', title: 'Saved to history', time: barT(S.saved.iso), sub: null, labelled: true, chips: S.saved.chips, actions: [A('Share', 'share-2', 'btn ghost sm', () => this.setState({ share: true })), JSONA, DET] };
+    if (S.saved) bar = { icon: 'circle-check', ic: 'var(--ok)', title: 'Saved to history', time: barT(S.saved.iso), sub: null, labelled: true, chips: S.saved.chips, actions: [A('Share', 'share-2', 'btn ghost sm', () => this.setState({ share: true })), JSONA, DET] };
     else if (S.partial) {
-      const canKeep = S.partial.keep && !v01;
+      const canKeep = S.partial.keep;
       if (canKeep && kept) {
         // Undo lives in the undo toast, not in the bar (save-bar.md).
       bar = { icon: 'circle-check', ic: 'var(--ok)', title: 'Saved as ' + S.partial.kind, time: barT('2026-10-12T12:06:52.000Z'), sub: null, labelled: false, actions: [JSONA, DET] };
         if (S.R.sub && S.R.sub.indexOf('not saved') >= 0) S.R = Object.assign({}, S.R, { sub: S.R.sub.replace('not saved', 'saved as ' + S.partial.kind) });
         if (S.meta && S.meta[0] && S.meta[0].sub === 'not saved') S.meta[0].sub = 'saved as ' + S.partial.kind;
-      } else bar = { icon: 'circle-minus', ic: 'var(--fg-subtle)', title: 'Partial results are not saved', time: '', sub: v01 ? 'Download the JSON to keep them.' : canKeep ? null : 'No phase finished, so there is nothing to keep in history.', labelled: false, actions: canKeep ? [A('Keep in history', 'history', 'btn secondary sm', () => { const kind = S.partial.kind; this.setState({ kept: true }); this._toast({ icon: 'history', t: 'Kept in history as ' + kind + '.', undo: true }); }), JSONA] : [JSONA] };
+      } else bar = { icon: 'circle-minus', ic: 'var(--fg-subtle)', title: 'Partial results are not saved', time: '', sub: canKeep ? null : 'No phase finished, so there is nothing to keep in history.', labelled: false, actions: canKeep ? [A('Keep in history', 'history', 'btn secondary sm', () => { const kind = S.partial.kind; this.setState({ kept: true }); this._toast({ icon: 'history', t: 'Kept in history as ' + kind + '.', undo: true }); }), JSONA, DET] : [JSONA] };
     }
     const SH = S.share, inc = !!label && !!this.state.inc, dateT = S.saved ? BG.date(S.saved.iso, 'dateTime') : '';
     // Share image props (share-panel.md "Share image layout"): result fields, worded by SharePreview. No foot strings.
@@ -705,29 +693,28 @@ class TestScreen extends React.Component {
     if (S.load && S.btn && S.btn.role === 'stop') S.load = Object.assign({}, S.load, { rows: S.load.rows.map(r => Object.assign({}, r, { label: r.label.split(' · ')[0] })) });
     const loadP = S.load ? { grade: S.load.grade === '—' ? null : S.load.grade, gradeText: S.load.gText, ended: !!S.partial || (!!S.btn && (S.btn.role === 'again' || S.btn.role === 'retry')), basis: S.load.basis, compact: m, style: { gridColumn: S.loadSpan || L.loadSpan },
       rows: S.load.rows.map(r => ({ dir: DIRK[r.icon], label: r.label, sub: r.sub, value: r.num === '—' ? null : r.num, live: r.nc === 'var(--primary-text)' })),
-      responsiveness: !Q ? undefined : { protocol: S.load.resp.proto, note: S.load.resp.note, tag: S.load.resp.tag || undefined, dirs: S.load.resp.dirs.map(d => ({ dir: DIRK[d.icon], value: d.num || null, text: d.text || undefined, uncertain: d.nc === 'var(--fg-muted)' })) } } : null;
+      responsiveness: { protocol: S.load.resp.proto, note: S.load.resp.note, tag: S.load.resp.tag || undefined, dirs: S.load.resp.dirs.map(d => ({ dir: DIRK[d.icon], value: d.num || null, text: d.text || undefined, uncertain: d.nc === 'var(--fg-muted)' })) } } : null;
     const fitP = S.fit ? { bands: S.fit.map(f => f.rating || null), missing: S.fit.map(f => f.none || '—'), basis: S.fitBasis || undefined, compact: m, style: { gridColumn: S.fitSpan || L.fitSpan } } : null;
     const mcols = S.metaCols ? +((S.metaCols.match(/repeat\((\d+)/) || [0, 1])[1]) : 1;
     const metaP = { title: S.metaTitle || 'Test', compact: m, columns: mcols, style: { gridColumn: S.metaSpan || L.metaSpan },
       rows: S.meta.map(r => r.na ? { icon: r.icon, label: r.label, sub: r.sub, node: 'NM' } : { icon: r.icon, label: r.label, sub: r.sub || undefined, value: r.value }) };
-    // v0.3 Continuous keeps its own sentences and rate.
+    // Continuous keeps its own sentences and rate.
     const PH = { continuous: 'Continuous download running.', 'cont-upload': 'Continuous upload running.', 'cont-warmup': 'Continuous run stopped during warm-up. Partial results were not saved.', 'cont-done': 'Continuous run stopped. Saved to history.' };
-    if (v01) Object.keys(PH).forEach(k => { PH[k] = PH[k].replace(' and saved to history', '').replace(' Saved to history.', ''); });
     const phMsg = PH[st] || S.ph || '';
     this._live = { st, key: st + '|' + (S.phKey || ''), ph: phMsg, rate: (st === 'continuous' || st === 'cont-upload') && R.numeric ? R.eyebrow + ' ' + R.num + ' ' + R.unit : S.live ? phMsg : null };
     const SUMST = { done: 'Test complete.', partial: 'Partial result: the test was stopped early.', fail: 'Test failed. The phases that finished before the error are kept.' };
     let sumMsg = '';
     if (S.sum) {
       const nt = S.sum.n || S.notices.map(n => n.title);
-      // From v0.2 the loaded-latency increase and the grade follow idle latency (i18n-a11y §2.7).
-      const LD = caps.loaded && S.load && S.load.grade !== '—' ? ['Bufferbloat grade ' + S.load.grade + ', ' + (S.load.gText || '').toLowerCase() + ', plus ' + sayMs(fms(S.load.inc)) + ' under load.'] : [];
-      // From v0.3 (i18n-a11y §2.7): HTTP loaded responsiveness per direction with its label, protocol and state (no number
+      // The loaded-latency increase and the grade follow idle latency (i18n-a11y §2.7).
+      const LD = S.load && S.load.grade !== '—' ? ['Bufferbloat grade ' + S.load.grade + ', ' + (S.load.gText || '').toLowerCase() + ', plus ' + sayMs(fms(S.load.inc)) + ' under load.'] : [];
+      // Next (i18n-a11y §2.7): HTTP loaded responsiveness per direction with its label, protocol and state (no number
       // where it has none), then each quality-score experience with its band or the inputs it is missing.
-      const RR = Q && S.load && S.load.resp, RD = RR ? RR.dirs.filter(x => x.state) : [];
+      const RR = S.load && S.load.resp, RD = RR ? RR.dirs.filter(x => x.state) : [];
       const RSW = { measured: 'measured', uncertain: 'uncertain', unavailable_h1: 'unavailable, ' + (RR ? RR.note : ''), unavailable_insufficient: 'unavailable, not enough samples' };
       const RP = RD.length ? ['HTTP loaded responsiveness, connection sharing not verifiable, over ' + (RR.proto === 'h2' ? 'HTTP/2' : RR.proto === 'not reported' ? 'a protocol not reported' : RR.proto) + ': '
         + RD.map(x => (x.icon === 'arrow-up' ? 'upload ' : 'download ') + (x.num ? x.num + ' round trips per minute, ' : '') + RSW[x.state]).join('; ') + '.'] : [];
-      const QF = Q && S.fit ? S.fit.filter(f => f.rating || (f.none && f.none !== '—')) : [];
+      const QF = S.fit ? S.fit.filter(f => f.rating || (f.none && f.none !== '—')) : [];
       const QS = QF.length ? ['Quality scores' + (S.fitBasis ? ', ' + S.fitBasis : '') + ', an upper bound since packet loss is not measured: ' + QF.map(f => f.label.toLowerCase() + ' ' + (f.rating ? String(f.rating).toLowerCase() : f.none)).join(', ') + '.'] : [];
       sumMsg = [SUMST[S.sum.st], S.sum.down + '.', S.sum.up + '.', 'Idle latency ' + sayMs(fms(IDLE.v)) + ', jitter ' + sayMs(fjit(IDLE.jit)) + '.'].concat(LD, RP, QS, ['Data used ' + sayB(S.sum.used || S.meta[0].value) + '.'])
         .concat(nt.length ? [(nt.length > 1 ? 'Notices: ' : 'Notice: ') + nt.join(', ') + '.'] : []).join(' ');
@@ -786,10 +773,10 @@ class TestScreen extends React.Component {
                 </DS.Stat>
                 {v.conn.map(c => <DS.Stat key={c.k} label={c.k} value={c.v} sub={c.s} />)}
               </div>
-              <div style={{ marginLeft: "auto", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-1-5)" }}>
-                {v.custom ? <><span className="ds-caption">{v.customCount}</span>{v.customChips.map(ch => <DS.Chip key={ch.t} size="sm" changed icon={ch.icon}>{ch.t}</DS.Chip>)}</> : v.preset ? <span className="ds-caption">Standard preset · Auto streams · No data cap</span> : null}
-                {v.caps.settings ? <DS.Link icon="sliders" href="#">Edit</DS.Link> : null}
-              </div>
+              {v.preset ? <div style={{ marginLeft: "auto", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-1-5)" }}>
+                {v.custom ? <><span className="ds-caption">{v.customCount}</span>{v.customChips.map(ch => <DS.Chip key={ch.t} size="sm" changed icon={ch.icon}>{ch.t}</DS.Chip>)}</> : <span className="ds-caption">Standard preset · Auto streams · No data cap</span>}
+                <DS.Link icon="sliders" href="#" aria-label="Edit settings">Edit</DS.Link>
+              </div> : null}
             </div>
             {v.notices.map((n, i) => <DS.Notice key={i} tone={n.tone} icon={n.icon} title={n.title} actions={n.actions.length ? n.actions.map(act) : null}>{n.body}</DS.Notice>)}
             <DS.Card as="section" label="Speed test" padded={false}>

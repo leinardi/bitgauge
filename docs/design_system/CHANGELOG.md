@@ -1,5 +1,20 @@
 # Changelog
 
+## App UI kit without version scope (2026-10-20)
+
+`ui_kits/app` (App, Prototype, Nav, TestScreen, ResultDetail, History, Settings, About, README), component docs
+and `.d.ts` comments; `features/` was not edited. The kit always draws the full product.
+
+- **Demo panel:** Scope segment and its notes removed; the Continuous Force states, scenario and every control
+  that was scope-gated (WebSocket close, upload loaded latency, Responsiveness, Continuous run length, Compare B,
+  Result-detail Kind and Continuous length, page served over http) are always shown and passed through as set.
+- **Prototype / Nav:** `caps()` and the "Not available in this version" page removed; the navigation is always
+  Test, History, Settings, About.
+- **Screens:** every scope branch dropped, keeping the full-product one. Settings' Continuous preset is a normal
+  preset (no badge, not disabled); About has no "Other clients arrive" notice.
+- **Copy:** version mentions removed from kit comments, the kit README (Scope section), `navigation.md`,
+  `save-bar.md`, `tiles.md`, `SaveBar`, `LoadCard`, `AppHeader` and the `ChoiceCard` `disabledReason` example.
+
 ## App UI kit to v0.3 (2026-10-19)
 
 `ui_kits/app` (TestScreen, ResultDetail, About, History, Settings, App), `Snippet`, `LoadCard`; `features/` was not edited.

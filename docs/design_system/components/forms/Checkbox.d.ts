@@ -11,5 +11,5 @@ export interface CheckboxProps {
 }
 export declare function Checkbox(props: CheckboxProps): JSX.Element;
 /** ChoiceCard — a card-style radio (preset picker): icon, title, optional badge, radio dot, mono description. Space / Enter select. */
-export interface ChoiceCardProps { selected?: boolean; icon?: string; title: React.ReactNode; badge?: React.ReactNode; children?: React.ReactNode; onSelect?: () => void; /** Shown but not selectable; the reason is its tooltip ("Arrives in v0.3"). */ disabledReason?: string; }
+export interface ChoiceCardProps { selected?: boolean; icon?: string; title: React.ReactNode; badge?: React.ReactNode; children?: React.ReactNode; onSelect?: () => void; /** Shown but not selectable; the reason is its tooltip ("Needs a server connection"). */ disabledReason?: string; }
 export declare function ChoiceCard(props: ChoiceCardProps): JSX.Element;

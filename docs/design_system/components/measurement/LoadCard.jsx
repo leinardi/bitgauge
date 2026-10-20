@@ -1,7 +1,7 @@
 import React from 'react';
 import { Icon } from '../brand/Icon.jsx';
 import { StatusPill } from '../status/StatusPill.jsx';
-// tiles.md LoadCard — grade letter + words (never colour alone) + basis, loaded latency per direction, RPM (v0.3, optional).
+// tiles.md LoadCard — grade letter + words (never colour alone) + basis, loaded latency per direction, RPM (optional).
 export const GRADES = {
   'A+': { tone: 'ok', text: 'Minimal bufferbloat' }, A: { tone: 'ok', text: 'Low bufferbloat' }, B: { tone: 'ok', text: 'Mild bufferbloat' },
   C: { tone: 'warn', text: 'Moderate bufferbloat' }, D: { tone: 'warn', text: 'High bufferbloat' }, F: { tone: 'danger', text: 'Severe bufferbloat' }
@@ -40,7 +40,7 @@ export function LoadCard({ grade, gradeText, ended = false, basis, rows = [], re
           <div className="tags">{r.tag ? <StatusPill size="sm" tone="warn">{r.tag}</StatusPill> : null}{r.protocol ? <span className="proto">{r.protocol}</span> : null}</div>
         </div>
         <div className="rpm-d">{(r.dirs || []).map((d, i) => <div key={i}>
-          <span className="ic" style={{ color: DIR[d.dir][1] }}><Icon name={DIR[d.dir][0]} size={12} stroke={2.25} /></span>
+          <span className="ic" role="img" aria-label={d.dir === 'upload' ? 'Upload' : 'Download'} style={{ color: DIR[d.dir][1] }}><Icon name={DIR[d.dir][0]} size={12} stroke={2.25} /></span>
           {d.value != null ? <NumU value={d.value} unit="RPM" uncertain={d.uncertain} /> : <span className="txt">{d.text || '—'}</span>}
           {d.detail ? <span className="sub">{d.detail}</span> : null}
         </div>)}</div>

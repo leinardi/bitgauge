@@ -2,7 +2,7 @@
 
 Components `AppHeader`, `TabBar` (`components/navigation/`), `Menu`, `Link` (`components/actions/`),
 `LiveRegion` (`components/feedback/`). Spec: `features/ui/README.md` (screen hierarchy),
-`features/ui/screens.md` §1 (server name, "Before v0.2"), `features/ui/i18n-a11y.md` §2.
+`features/ui/screens.md` §1 (server name), `features/ui/i18n-a11y.md` §2.
 
 ## AppHeader
 
@@ -17,8 +17,8 @@ The compact mark is `Logo decorative` (aria-hidden, no role or name): the visibl
 - `server` is `server.display_name` from `GET /info`. While `/info` fails it is unknown: pass `null` and
   the header shows the page's `host` with "Unreachable". It never shows a name it cannot know.
 - `host` is the page's own host, always known.
-- `items` is the navigation for the **version scope**, decided once by the app (not by the header, not by
-  each screen): v0.1 → Test, About; v0.2+ → Test, History, Settings, About. The same items feed the TabBar.
+- `items` is the navigation, decided once by the app (not by the header, not by each screen): Test,
+  History, Settings, About. The same items feed the TabBar.
 
 **Accessibility:** the status dot is `aria-hidden`, with visually hidden ", connected" / ", unreachable"
 after the name; a polite live region inside the header announces status **changes** only (mounting a
@@ -26,14 +26,7 @@ screen is silent). Current page: `aria-current="page"`.
 
 ## TabBar
 
-Fixed 64 px bottom bar (pinned to the viewport bottom, with a 64 px spacer in the page flow so the last content scrolls clear of it), `--surface-1`, one tab per scoped item, teal 2 px marker on the current tab.
-
-## Version scope
-
-One switch, applied everywhere from the app layer (`features/ui/screens.md` "Before v0.2", §5 "Before
-v0.3"): v0.1 hides History, Settings, share, loaded latency, grade, quality scores and RPM; the settings
-summary shows no Edit link; `/history`, `/settings`, `/result/{id}` render "Not available in this version";
-About says the other-client layers arrive in v0.3, shows no snippets, and summarises the v0.1 metrics only.
+Fixed 64 px bottom bar (pinned to the viewport bottom, with a 64 px spacer in the page flow so the last content scrolls clear of it), `--surface-1`, one tab per item, teal 2 px marker on the current tab.
 
 ## Menu
 

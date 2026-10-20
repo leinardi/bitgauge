@@ -1,8 +1,8 @@
 # Save bar
 
-Component `SaveBar` (`components/feedback/`; Card + Input + Chip). v0.2 (with history). Spec:
+Component `SaveBar` (`components/feedback/`; Card + Input + Chip). Spec:
 `features/ui/screens.md` §1, `features/ui/flows.md` §4. Statuses: `saved`, `unsaved` (partial / error,
-Keep in history offered), `kept` (after Keep in history), `complete` (v0.1: "Test complete", not stored,
+Keep in history offered), `kept` (after Keep in history), `complete` (a run not stored: "Test complete",
 Download JSON only). The Download JSON action carries the tooltip "Contains your IP address and notes".
 
 ## Complete run
@@ -32,6 +32,4 @@ dismissed, the result stays kept.
 ## Rules
 
 - Label changes save as they are typed; no Save button.
-- Before v0.2 there is no save bar: the only result action is Download JSON, and the layout must
-  read as complete without it.
 - Mobile: actions wrap below the field; targets ≥ 44 px.

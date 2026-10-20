@@ -5,7 +5,6 @@
  *   librespeed: boolean  (default true)
  *   networkquality: boolean  (default true)
  *   unreachable: boolean  (default false) — /api/v1/info failed: snippets come from the page's own origin, layer state unknown
- *   caps: version scope (caps.clients false before v0.3: no snippets, v0.1 methodology)
  *   server: string | null — server.display_name; null while /info fails
  *   insecure: boolean  (default false) — the page is served over http, not https: the networkQuality snippet notes that
  *     it needs HTTPS through the reverse proxy (or server.public_url)
@@ -23,8 +22,6 @@ class About extends React.Component {
     const insecure = !!this.props.insecure && this.props.insecure !== 'false';
     const host = insecure ? BG.KIT.origin.replace(/^https:/, 'http:') : BG.KIT.origin, hostName = BG.KIT.host;
     const srvName = this.props.server || hostName;
-    const caps = this.props.caps || { clients: true, history: true };
-    const v03 = !!caps.clients;
     // Build date: a calendar date, date medium in the active locale (i18n-a11y.md §1.3).
     const built = BG.timeEl(S0.buildDate, 'date');
     const on = un ? { ost: true, ls: true, nq: true } : { ost: flag('openspeedtest'), ls: flag('librespeed'), nq: flag('networkquality') };
@@ -51,16 +48,14 @@ class About extends React.Component {
     ].map(c => ({ ...c, hid: 'cl-' + c.k, on: on[c.k], off: !on[c.k], note: c.note || null, warn: c.warn || null, unk: un }));
     const S = BG.KIT.server;
     return {
-      mobile: m, un, host, clients, layers: !!caps.clients,
+      mobile: m, un, host, clients,
       L: m ? { cols: 'minmax(0,1fr)' } : { cols: 'minmax(0,1fr) var(--layout-rail)' },
       facts: (un ? [['Version', '— · server unreachable'], ['License', 'GPL-3.0-or-later'], ['Server name', '—']]
         : [['Version', <>{S.version + ' · ' + S.commit + ' · '}{built}</>], ['License', 'GPL-3.0-or-later'], ['Server name', srvName]]).map(([k, v]) => ({ label: k, value: v })),
-      intro: v03 ? 'This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.' : 'How to test against this server from other speed test clients, and what BitGauge is.',
-      unBody: v03 ? "The commands below are built from this page's address, " + host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers." : 'BitGauge could not reach the server at ' + hostName + ', so its version and name are unknown until it answers.',
-      privacy: caps.history ? 'No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.' : 'No accounts, no tracking, no ads. The server keeps no results: a result exists only in this browser.',
-      // Before v0.3 the methodology summary covers the v0.1 metrics only (screens.md §5).
-      method: caps.clients ? 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load — the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers.'
-        : 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Idle latency and jitter are measured over WebSocket (HTTP if unavailable). Each result also reports the data used and the test duration.'
+      intro: 'This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on.',
+      unBody: "The commands below are built from this page's address, " + host + ". BitGauge can't check which clients the operator enabled, or the server's name, until the server answers.",
+      privacy: 'No accounts, no tracking, no ads. The server keeps no results — history lives only in your browser.',
+      method: 'Download and upload run over one or more HTTP streams; the warm-up is discarded before the rate is computed. Latency is measured idle over WebSocket (HTTP if unavailable), then again under load — the increase sets the bufferbloat grade. Quality ratings for streaming, gaming and video calls are derived from those numbers.'
     };
   }
   render() {
@@ -81,11 +76,7 @@ class About extends React.Component {
                 {v.unBody}
               </DS.Notice>
             ) : null}
-            {!v.layers ? (
-              <DS.Notice tone="info" icon="layers" live={false} title="Other clients arrive in v0.3">
-                The LibreSpeed, OpenSpeedTest and networkQuality layers are not part of this version, so there are no snippets yet.
-              </DS.Notice>
-            ) : v.clients.map(c => (
+            {v.clients.map(c => (
               <DS.Card key={c.k} as="section" labelledBy={c.hid} padded={false}
                 title={<span id={c.hid}>{c.name}</span>} icon={c.icon}
                 actions={<>{pill(c.tag)}{c.off ? pill('Off', true) : null}{c.unk ? pill('Not confirmed', true) : null}</>}>
