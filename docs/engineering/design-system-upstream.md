@@ -126,3 +126,40 @@ the export shows, and what it should show, with the reason; behavior comes from
 - **`v02-a11y-changed-list`**, the Changed from defaults card: a `div` per setting. The settings
   should be a list, a `ul` with an `li` each ([i18n-a11y.md
   §2](../features/ui/i18n-a11y.md#2-accessibility)).
+
+### Version scope (`ui_kits/app/App.jsx`, `ui_kits/app/Prototype.jsx`)
+
+- **Version scope** (the `demo-parity` skill), the Demo panel's View section: a Scope segment
+  picks one of `SCOPES`, `['v0.1', 'v0.2', 'v0.3']` (`App.jsx:22`), `v0.2` by default, and the kit
+  draws only what that version has. The product is what the spec describes, with no version to
+  pick, so the kit should always draw all of it. What should go:
+  - `App.jsx`: the Scope segment, the note under it and the Force state section's "Version scope
+    applies to every screen and the navigation" note; `scope` in `DEMO_DEFAULTS`; `V03_STATES`,
+    which hides the Continuous Force-state entries; the version gating of the panel's controls
+    (the `continuous` scenario, "WebSocket closes after idle latency", "Upload loaded lat.", both
+    Responsiveness selects, "Continuous run length", "Compare B", the Result detail's Kind and
+    Continuous length, "Page served over http"); and the fallbacks that force their values outside
+    a scope: `resp` and `resultResp` to `ok`, `runLength` to `none`, `compareB` to `h1`,
+    `resultKind` to `standard`, `llGap` to `none`, `wsClose` and `aboutInsecure` to false, and the
+    `continuous` scenario to `normal`.
+  - `Prototype.jsx`: `caps()` and the `caps` it hands every screen and `BGPrefs`, which the
+    navigation filters its items by (`cap` in `Nav.jsx` `NAV_ITEMS`); the gating that sends
+    History, Result detail and Settings to `NotAvailable`; and the `NotAvailable` page itself, "Not
+    available in this version", "This page arrives in a later version of BitGauge".
+  - The screens' `caps` branches, so each draws the full product: `TestScreen.jsx`, `History.jsx`,
+    `ResultDetail.jsx`, `Settings.jsx` and `About.jsx`. In `Settings.jsx` the Continuous preset
+    card loses its "v0.3" badge, its "Arrives in v0.3" reason and its disabled state; in
+    `About.jsx` the "Other clients arrive in v0.3" Notice goes, with the intro, unreachable body
+    and methodology summary it picks when `caps.clients` is off.
+  - The version mentions in the export's own copy, each to describe the kit or component as it
+    stands: the kit's comments that date a feature ("v0.2+", "From v0.3", "Before v0.3"), the
+    Scope section of `ui_kits/app/README.md`, and the components' contracts, types and prompts
+    (`components/navigation.md`, `save-bar.md`, `tiles.md`, `SaveBar.d.ts`, `SaveBar.prompt.md`,
+    `LoadCard.d.ts`, `LoadCard.jsx`, `AppHeader.d.ts`, the `disabledReason` example in
+    `Checkbox.d.ts`), with `_ds_bundle.js` rebuilt from them. `CHANGELOG.md` is the export's
+    history and keeps its versions.
+
+  Once that export is imported, the parity harness's pin goes: `KIT_NEWEST_SCOPE` in
+  `web/parity/scenarios.ts`, which `drivers.ts` writes into the kit's panel state, the
+  coverage test that holds it to the last entry of `SCOPES`, and `KIT_NOT_AVAILABLE_SCREENS` in
+  `web/parity/coverage.test.ts`.

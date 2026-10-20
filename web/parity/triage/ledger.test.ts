@@ -186,7 +186,7 @@ describe('validateLedger: deferred', () => {
 
   it('accepts a deferral with no winner', () => {
     expect(problems(deferred())).toEqual([])
-    expect(problems(deferred({ decision: deferral({ revisit: 'v0.3' }) }))).toEqual([])
+    expect(problems(deferred({ decision: deferral({ revisit: 'when the export lands' }) }))).toEqual([])
   })
 
   it('refuses another decision, an empty rationale, or nothing owned', () => {

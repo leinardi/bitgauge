@@ -34,7 +34,7 @@ import {
   COMPARE_B_CASES,
   CONTINUOUS_LENGTHS,
   HISTORY_VARIANTS,
-  KIT_SCOPE,
+  KIT_NEWEST_SCOPE,
   LOADED_CASES,
   RESPONSIVENESS_CASES,
   RESULT_STATES,
@@ -72,7 +72,7 @@ const PAGES = [
 ]
 
 // Prototype screens the app does not have yet, each with the reason.
-const KIT_V02_SCREENS: Record<string, string> = {}
+const KIT_NOT_AVAILABLE_SCREENS: Record<string, string> = {}
 
 // Vue pages the prototype has no screen for, each with the reason.
 const VUE_ONLY_PAGES: Record<string, string> = {}
@@ -117,6 +117,8 @@ const kitLoadedCases = [
     .filter((reason) => reason !== 'none')
     .map((reason) => `ll-${reason}`),
 ]
+// The panel's Scope choices (SCOPES), oldest first.
+const kitScopes = captures(/const SCOPES = \[([^\]]*)\]/.exec(kitApp)?.[1] ?? '', /'([^']+)'/g, 'SCOPES in App.jsx').map(([scope]) => scope ?? '')
 
 describe('screens', () => {
   it('gives every Vue page a row, or a reason the prototype has no screen for it', () => {
@@ -128,15 +130,15 @@ describe('screens', () => {
   })
 
   it('gives every prototype screen a row, or a reason the app does not have it yet', () => {
-    const known = new Set([...PAGES.map((p) => p.kit), ...Object.keys(KIT_V02_SCREENS)])
+    const known = new Set([...PAGES.map((p) => p.kit), ...Object.keys(KIT_NOT_AVAILABLE_SCREENS)])
     expect(
       sorted(kitScreens).filter((screen) => !known.has(screen)),
-      'new prototype screen: add a scenario to scenarios.ts and a PAGES row here, or a KIT_V02_SCREENS reason',
+      'new prototype screen: add a scenario to scenarios.ts and a PAGES row here, or a KIT_NOT_AVAILABLE_SCREENS reason',
     ).toEqual([])
   })
 
-  it('answers exactly the prototype v0.2 screens with the not-available page', () => {
-    expect(sorted(vueRoutes.filter((route) => route.page === 'not-available').map((route) => route.name))).toEqual(sorted(Object.keys(KIT_V02_SCREENS)))
+  it('answers exactly the prototype screens the app does not have with the not-available page', () => {
+    expect(sorted(vueRoutes.filter((route) => route.page === 'not-available').map((route) => route.name))).toEqual(sorted(Object.keys(KIT_NOT_AVAILABLE_SCREENS)))
   })
 
   it('names no route, page or screen that is gone', () => {
@@ -145,7 +147,7 @@ describe('screens', () => {
     expect(PAGES.filter((p) => !pages.has(p.route)).map((p) => p.route)).toEqual([])
     expect(PAGES.filter((p) => !screens.has(p.kit)).map((p) => p.kit)).toEqual([])
     expect(Object.keys(VUE_ONLY_PAGES).filter((page) => !pages.has(page))).toEqual([])
-    expect(Object.keys(KIT_V02_SCREENS).filter((screen) => !screens.has(screen))).toEqual([])
+    expect(Object.keys(KIT_NOT_AVAILABLE_SCREENS).filter((screen) => !screens.has(screen))).toEqual([])
   })
 
   it.each(PAGES)('compares $route in at least one scenario', ({ scenarios }) => {
@@ -154,12 +156,13 @@ describe('screens', () => {
 })
 
 describe('the driven scope', () => {
-  it('drives the v0.3 scope, the screens and features the app has', () => {
-    expect(KIT_SCOPE).toBe('v0.3')
+  it('pins the kit to its newest scope', () => {
+    expect(kitScopes.length, 'SCOPES in App.jsx is empty').toBeGreaterThan(0)
+    expect(KIT_NEWEST_SCOPE, 'KIT_NEWEST_SCOPE in scenarios.ts is not the last of SCOPES').toBe(kitScopes.at(-1))
   })
 })
 
-describe('the v0.3 panel choices', () => {
+describe('the kit panel choices', () => {
   const ids = new Set(SCENARIOS.map((s) => s.id))
 
   it('drives every Responsiveness choice of the kit on the Test screen and the Result detail', () => {
@@ -189,7 +192,7 @@ describe('the v0.3 panel choices', () => {
   })
 })
 
-describe('the v0.2 screens', () => {
+describe('the History, Result detail, loaded-latency and Settings scenarios', () => {
   const ids = new Set(SCENARIOS.map((s) => s.id))
 
   it('has a History scenario for every variant of the kit', () => {

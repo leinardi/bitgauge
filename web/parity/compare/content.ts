@@ -32,8 +32,8 @@ export type Region = 'header' | 'main' | 'notices' | 'dialogs'
 export type RegionTrees = Record<Region, AriaNode[]>
 
 // The regions the style and layout layers read: the content layer's, and the demo panel. The panel's
-// controls differ on purpose (frontend.md section 9: Vue has the v0.1 part of the kit's), so what it
-// says is never compared, only how what both sides have looks and sits.
+// controls differ on purpose (frontend.md section 9: Vue has the kit's as far as the app goes), so
+// what it says is never compared, only how what both sides have looks and sits.
 export type LookRegion = Region | 'demo'
 
 export function isContentRegion(region: LookRegion): region is Region {

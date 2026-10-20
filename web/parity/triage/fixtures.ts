@@ -68,7 +68,7 @@ export const confirmation = (overrides: Partial<Decision> = {}): Decision => ({
 
 export const deferral = (overrides: Partial<Decision> = {}): Decision => ({
   kind: 'deferral',
-  rationale: 'after v0.2',
+  rationale: 'after the release',
   revisit: null,
   on: DAY,
   ...overrides,

@@ -62476,7 +62476,7 @@
     },
     {
       "id": "v03-about-geometry",
-      "title": "About screen with the compatibility layers: the rest of the v0.3 page geometry (layers-none, layers-openspeedtest, layers-librespeed, layers-networkquality, layers-all)",
+      "title": "About screen with the compatibility layers: the rest of the page geometry (layers-none, layers-openspeedtest, layers-librespeed, layers-networkquality, layers-all)",
       "match": {
         "scenarios": [
           "about/layers-none",
@@ -62642,7 +62642,7 @@
     },
     {
       "id": "v03-demo-panel-geometry",
-      "title": "Open demo panel: geometry of the v0.3 panel controls",
+      "title": "Open demo panel: geometry of the panel controls",
       "match": {
         "scenarios": [
           "demo/open"
@@ -62714,7 +62714,7 @@
     },
     {
       "id": "v03-history-compare-h2-geometry",
-      "title": "History compare with B over HTTP/2: the rest of the v0.3 page geometry",
+      "title": "History compare with B over HTTP/2: the rest of the page geometry",
       "match": {
         "scenarios": [
           "history/compare-h2"
@@ -62968,7 +62968,7 @@
     },
     {
       "id": "v03-result-continuous-geometry",
-      "title": "Result detail of the 2 h and 9 d Continuous results: the rest of the v0.3 page geometry",
+      "title": "Result detail of the 2 h and 9 d Continuous results: the rest of the page geometry",
       "match": {
         "scenarios": [
           "result/continuous-2h",
@@ -63271,7 +63271,7 @@
     },
     {
       "id": "v03-result-resp-geometry",
-      "title": "Result detail in each Responsiveness case: the rest of the v0.3 page geometry",
+      "title": "Result detail in each Responsiveness case: the rest of the page geometry",
       "match": {
         "scenarios": [
           "result/resp-uncertain",
@@ -63881,7 +63881,7 @@
     },
     {
       "id": "v03-test-continuous-geometry",
-      "title": "Test screen, Continuous states: the rest of the v0.3 page geometry",
+      "title": "Test screen, Continuous states: the rest of the page geometry",
       "match": {
         "scenarios": [
           "test/continuous",
@@ -64161,7 +64161,7 @@
     },
     {
       "id": "v03-test-geometry",
-      "title": "Test screen states: the rest of the v0.3 page geometry (latency, basepath, insufficient)",
+      "title": "Test screen states: the rest of the page geometry (latency, basepath, insufficient)",
       "match": {
         "scenarios": [
           "test/latency",
@@ -64199,7 +64199,7 @@
     },
     {
       "id": "v03-test-geometry-2",
-      "title": "Test screen states: the rest of the v0.3 page geometry (idle, countdown, connecting, upload, complete, upload-interrupted, …)",
+      "title": "Test screen states: the rest of the page geometry (idle, countdown, connecting, upload, complete, upload-interrupted, …)",
       "match": {
         "scenarios": [
           "test/idle",
@@ -64250,7 +64250,7 @@
     },
     {
       "id": "v03-test-geometry-3",
-      "title": "Test screen states: the rest of the v0.3 page geometry (offline)",
+      "title": "Test screen states: the rest of the page geometry (offline)",
       "match": {
         "scenarios": [
           "test/offline"
@@ -64702,7 +64702,7 @@
     },
     {
       "id": "v03-test-resp-geometry",
-      "title": "Test screen, complete run in each Responsiveness case: the rest of the v0.3 page geometry",
+      "title": "Test screen, complete run in each Responsiveness case: the rest of the page geometry",
       "match": {
         "scenarios": [
           "responsiveness/uncertain",
