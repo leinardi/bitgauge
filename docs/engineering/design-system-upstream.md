@@ -45,9 +45,21 @@ the export shows, and what it should show, with the reason; behavior comes from
   enough samples should read "not enough samples" ([screens.md
   §6](../features/ui/screens.md#6-result-metrics-units-and-precision), [i18n-a11y.md
   §2](../features/ui/i18n-a11y.md#2-accessibility)).
+- **`v03-test-resp-path-b`** and **`v03-test-continuous-path-b`**, the load card's HTTP loaded
+  responsiveness rows in the Responsiveness cases and the Continuous states: the protocol reads the
+  raw "h2" and the direction icons have no name. The protocol should be written "HTTP/2", and each
+  direction icon should carry its name, Download or Upload, for screen readers, as in the standard
+  run's rows ([screens.md §6](../features/ui/screens.md#6-result-metrics-units-and-precision),
+  [i18n-a11y.md §2](../features/ui/i18n-a11y.md#2-accessibility)).
 
 ### Result detail (`ui_kits/app/ResultDetail.jsx`)
 
+- **`v03-result-resp-path-b`** and **`v03-result-continuous-path-b`**, the load card's HTTP loaded
+  responsiveness rows in the Responsiveness cases and of the 2 h and 9-day Continuous results: the
+  protocol reads the raw "h2" and the direction icons have no name. As on the Test screen, the
+  protocol should be written "HTTP/2" and each direction icon named Download or Upload, with TM95,
+  the samples and "TM95 equals the plain mean" as they are ([screens.md
+  §6](../features/ui/screens.md#6-result-metrics-units-and-precision)).
 - **`v02-result-delete`**, the state after Delete (`deleted`): the page keeps the result under the
   undo toast. Delete removes the result from history at once, so the page should show the deleted
   state, "Result deleted" with a link to History, under the toast, whose Undo puts the result back
