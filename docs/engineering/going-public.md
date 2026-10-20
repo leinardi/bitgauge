@@ -51,9 +51,9 @@ The rulesets live in `leinardi/gh-leinardi-iac` (`stacks/github-repos/repos.tf`,
       restricted to `main` ([release.md, one-time setup](../release.md#one-time-setup)).
 
 `pre-commit-all` already runs every hook on every pull request and every push to `main`, so a check
-that exists only on a contributor's machine is the exception: `go-test-repo-mod` is skipped there
-because `go-test` runs the same tests, and the commit-message hook is replaced by the
-`conventional-commits` job.
+that exists only on a contributor's machine is the exception: `go-test-product` and `meta-tests`
+are skipped there because `go-test` and `repo-gates` run the same tests, and the commit-message
+hook is replaced by the `conventional-commits` job.
 
 ## 3. Restore the Scheduled Scan
 

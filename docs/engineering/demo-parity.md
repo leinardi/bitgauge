@@ -325,7 +325,8 @@ The harness gates what it already visits. A change to anything a scenario compar
   decision.
 
 What no scenario visits is invisible to it. `web/parity/coverage.test.ts`, run by
-`make verify-web`, closes the part of that gap that can be enumerated. It fails when:
+`make demo-parity` (through `npm run test:parity`), closes the part of that gap that can be
+enumerated. It fails when:
 
 - a Vue page or a prototype screen has no row in its page table, or a row names one that is gone;
 - a state of the kit's `TEST_STATES` has no scenario, or a scenario names a state the kit dropped;
@@ -353,6 +354,7 @@ Dialogs, menus and error states cannot be enumerated, so for every new or change
   cluster was closed under; give such rules the scenarios they were decided about.
 - **A new step that cannot reach its target on one side** is a harness error, by design. Keep only
   targets both sides have; the content layer still reports what one side lacks.
-- **The unit tests** (`web/parity/**/*.test.ts`, run by `make verify-web`) cover the parser, the
-  comparisons, the normalization, the selection, the baseline rules, the capture and settle steps
-  over fakes, and the scenario coverage. They need no browser.
+- **The unit tests** (`web/parity/**/*.test.ts`, run by `make demo-parity` before the browsers
+  start, or alone with `npm --prefix web run test:parity`) cover the parser, the comparisons, the
+  normalization, the selection, the baseline rules, the capture and settle steps over fakes, and
+  the scenario coverage. They need no browser.

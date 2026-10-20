@@ -5,9 +5,10 @@ description: >
   (VITE_DEMO=1) and place each difference: run make demo-parity, read the coverage line and the
   findings, reproduce one on both sides, decide whether it belongs to the demo's link or scenario,
   the Vue app, the spec or the export, then fix it or record it. The export is never edited here.
-  Use when the user asks to find or fix differences between the prototype and the demo, when
-  editing web/src/demo/**, web/parity/** or reading docs/design_system/ui_kits/app/**, when adding
-  or changing a UI feature, or when a demo-parity run or web/parity/coverage.test.ts fails.
+  Runs are on demand. Use when the user asks to find or fix differences between the prototype and
+  the demo, when editing web/src/demo/**, web/parity/** or reading
+  docs/design_system/ui_kits/app/**, or when a demo-parity run or web/parity/coverage.test.ts
+  fails.
 ---
 
 # Demo parity: the design kit vs the Vue demo
@@ -98,14 +99,16 @@ decided, per cluster, from a complete full-matrix run. Pending differences keep 
   qualifiers never are.
 - **A new page or state**: `web/parity/coverage.test.ts` fails until it has a scenario and a row.
   A kit panel choice needs a scenario too.
-- After editing `web/parity/**`, run `make verify-web` (unit tests, lint, typecheck), then
-  `make demo-parity`. If the change could alter findings, run `make demo-parity-full` too.
+- After editing `web/parity/**`, run `make verify-web` (lint, typecheck), then `make demo-parity`
+  (the parity unit tests, then the browsers). If the change could alter findings, run
+  `make demo-parity-full` too.
 - After editing `web/src/demo/**`, also run `make verify-web`; the demo is production source and
   holds to the same ceiling.
 
 ## 6. When a feature changes
 
-The harness sees only what a scenario visits. For every new or changed feature:
+The harness sees only what a scenario visits. When the user wants a new or changed feature under
+parity:
 
 1. A demo scenario first (`web/src/demo/scenarios.ts`), so the Vue demo can reach the new state at
    all; the driver's starting and held states follow its start flags and holds, which

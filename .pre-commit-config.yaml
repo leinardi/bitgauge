@@ -1,4 +1,7 @@
 default_install_hook_types: [pre-commit, commit-msg]
+# Hooks run at the pre-commit stage unless they say otherwise; only the commit-message check runs at
+# commit-msg.
+default_stages: [pre-commit]
 
 # The upstream skills are vendored byte for byte: skills-lock.json records the hash of each folder
 # as upstream ships it, so no hook may rewrite them (whitespace, end of file, markdown fixes). The
@@ -8,9 +11,6 @@ default_install_hook_types: [pre-commit, commit-msg]
 # the spec pages the symlinks in docs/features point at, linted like any spec page.
 exclude: '^(\.agents/skills/(create-adaptable-composable|fallow|vue-best-practices|vue-debug-guides|vue-router-best-practices|vue-testing-best-practices)/|docs/design_system/(?!features/))'
 
-# Hooks for gates whose inputs do not exist yet (the API types, the frontend lint, typecheck and
-# test hooks) are deliberately absent: each one lands in the commit that adds its inputs, and
-# test/toolchain fails both when one is missing after that point and when one appears before.
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -180,7 +180,7 @@ repos:
         language: system
         pass_filenames: false
         require_serial: true
-        files: ^web/(src/.*\.(vue|ts|tsx)|parity/.*\.ts|vite\.config\.ts|package(-lock)?\.json)$
+        files: ^web/(src/.*\.(vue|ts|tsx)|vite\.config\.ts|package(-lock)?\.json)$
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.38.0
     hooks:
@@ -202,10 +202,25 @@ repos:
       - id: golangci-lint-full
         types: [file]
         files: '(\.go$|^go\.(mod|sum)$|^\.golangci\.(yml|yaml|toml|json)$)'
-  - repo: https://github.com/tekwizely/pre-commit-golang
-    rev: v1.0.0-rc.4
+  - repo: local
     hooks:
-      - id: go-test-repo-mod
+      # The product's packages, on a Go change. make go-test adds -race over the whole module.
+      - id: go-test-product
+        name: go test (product)
+        entry: go test ./cmd/... ./internal/... ./web/...
+        language: system
+        pass_filenames: false
+        files: '(\.go$|^go\.(mod|sum)$)'
+      # The repository meta-tests read dotfiles, workflows, Dockerfiles, deployments, docs and the web
+      # configuration, and a commit that only deletes a file passes no file at all, so no file filter
+      # would catch every input. They take a few seconds, so they run on every commit.
+      - id: meta-tests
+        name: go test (meta-tests)
+        entry: go test ./test/...
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.4.0
     hooks:

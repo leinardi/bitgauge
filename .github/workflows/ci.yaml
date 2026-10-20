@@ -18,8 +18,9 @@ permissions:
   contents: read
 
 jobs:
-  # The authoritative lint gate: every pre-commit hook over every file. go-test-repo-mod is skipped
-  # because the go-test job below is the authoritative Go test run, with -race.
+  # The authoritative lint gate: every pre-commit hook over every file. The Go test hooks are skipped
+  # because the go-test job below runs the product tests with -race, and repo-gates the meta-tests
+  # with every tool installed.
   pre-commit-all:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -65,7 +66,7 @@ jobs:
 
       - name: Run every pre-commit hook on every file
         env:
-          SKIP: go-test-repo-mod
+          SKIP: go-test-product,meta-tests
         run: pre-commit run --all-files --show-diff-on-failure
 
       # pre-commit fails a hook that modifies a tracked file, which covers the auto-fixing hooks

@@ -134,7 +134,9 @@ export default defineConfig({
     format: 'es',
   },
   test: {
-    include: ['src/**/*.test.ts', 'parity/**/*.test.ts'],
+    // The parity harness's unit tests run with the harness (npm run test:parity, chained in front of
+    // npm run parity), not on every commit.
+    include: process.env.BITGAUGE_PARITY_UNIT === '1' ? ['parity/**/*.test.ts'] : ['src/**/*.test.ts'],
     setupFiles: ['src/test/setup.ts'],
     maxWorkers: testWorkers,
   },

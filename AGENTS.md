@@ -164,10 +164,9 @@ Run before considering an edit done. `make check` applies to every row.
 | --- | --- |
 | `**/*.go` | `make verify-go`, then `make check-stage` |
 | `web/src/**` | `make verify-web` |
-| `web/src/demo/**`, the demo gates in `useWorker.ts`, `api/info.ts`, `App.vue` | the `web/src/**` row; `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (the demo's ESLint blocks); `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`; `make web-build-demo`, on which the same check must fail; `make demo-parity-full` |
-| `web/parity/**`, `web/playwright.parity.config.ts`, `PARITY_PROTOTYPE_PAGE` in `Makefile` | `make verify-web` (the parity unit tests and `coverage.test.ts`), `make help`; `make demo-parity-full` on demand (Chromium) |
+| `web/src/demo/**`, the demo gates in `useWorker.ts`, `api/info.ts`, `App.vue` | the `web/src/**` row; `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (the demo's ESLint blocks); `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`; `make web-build-demo`, on which the same check must fail |
+| `web/parity/**`, `web/playwright.parity.config.ts`, `PARITY_PROTOTYPE_PAGE` in `Makefile` | `make verify-web` (lint, typecheck), `npm --prefix web run test:parity` (the parity unit tests and `coverage.test.ts`), `make help` |
 | `.parity-baseline` | never by hand: only `make demo-parity-update` or `make demo-parity-accept REASON=` after a complete full-matrix run ([demo-parity.md](docs/engineering/demo-parity.md#the-baseline)) |
-| a new `docs/design_system/` export, any UI change in `web/src/**` | `make demo-parity-full`; classify each new difference ([demo-parity.md](docs/engineering/demo-parity.md#classifying-a-difference)) |
 | `api/openapi.yaml` | spec first (`api-contract` skill); `make api-types`, `go test ./internal/handlers/` (the contract tests), then `make verify-web` |
 | `deployments/examples/**`, `docs/features/deployment-example.md` | `go test ./test/deployments/` (the compose files' hardening and healthcheck timings, and the README's compose block), `go test -count=1 ./test/docs/`; `docker compose -f deployments/examples/<example>/compose.yaml config` |
 | `deployments/docker/Dockerfile`, `test/harness/tools.Dockerfile` | `go test ./test/dockerfiles/ ./test/toolchain/` (hadolint runs in `make check`); `make go-test-image` (Docker, `dhi.io`) |
@@ -223,7 +222,7 @@ Read the matching skill in `.agents/skills/` before editing:
 - `design-system-guard`: anything under `web/src/**` that renders; the tokens, the design export's
   app kit and `docs/features/ui/` it is built from.
 - `demo-parity`: `web/src/demo/**`, `web/parity/**`, reading `docs/design_system/ui_kits/app/**`, a
-  failing parity run or coverage test, a new or changed UI feature.
+  failing parity run or coverage test; parity runs are on demand.
 - `parity-triage`: working through parity differences as clusters in `.parity-triage.json`; the
   user decides every conflict.
 - `adversarial-review`: reviewing any set of changes.
