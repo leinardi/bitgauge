@@ -23,7 +23,7 @@ import type { Result } from '@/engine/messages'
 // A GET /api/v1/info answer (wire-protocol.md section 5), typed against the generated schema so a
 // contract change breaks the tests that use it at compile time.
 
-export function infoFixture(overrides: { client?: Partial<Info['client']>; server?: Partial<Info['server']> } = {}): Info {
+export function infoFixture(overrides: { client?: Partial<Info['client']>; server?: Partial<Info['server']>; compat?: Partial<Info['compat']> } = {}): Info {
   return {
     server: { name: 'Basement NAS', version: '0.1.0', commit: 'a1b2c3d', buildDate: '2026-09-30T12:00:00Z', epoch: 'k3V9qW2rT0aY', basePath: '/', ...overrides.server },
     client: { ip: '192.168.1.42', ipVersion: 4, addressClass: 'private', suggestedLabel: 'LAN', ...overrides.client },
@@ -40,7 +40,7 @@ export function infoFixture(overrides: { client?: Partial<Info['client']>; serve
       pingCount: 20,
       overheadCompensationPercent: 0,
     },
-    compat: { openspeedtest: false, librespeed: false, networkquality: false },
+    compat: { openspeedtest: false, librespeed: false, networkquality: false, ...overrides.compat },
   }
 }
 

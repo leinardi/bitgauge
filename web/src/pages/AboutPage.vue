@@ -17,26 +17,46 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { ExternalLink, Layers } from '@lucide/vue'
+import { ExternalLink } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import ClientCard from '@/components/about/ClientCard.vue'
+import { baseUrl, type Layer, needsHttpsNote } from '@/components/about/snippets'
 import BrandLogo from '@/components/brand/BrandLogo.vue'
 import OfflineNotice from '@/components/OfflineNotice.vue'
 import AppButton from '@/components/actions/AppButton.vue'
 import AppLink from '@/components/actions/AppLink.vue'
 import GithubIcon from '@/components/brand/GithubIcon.vue'
-import NoticeBox from '@/components/test/NoticeBox.vue'
 import { useInfo } from '@/composables/useInfo'
 import { links } from '@/lib/links'
+import { readBasePath } from '@/router/base'
 
-// The About screen (ui/screens.md section 5, design_system kit About.jsx), as v0.1 has it: the
-// layers for other clients arrive in v0.3, so there are no snippets; what BitGauge is, its build,
-// license, source, privacy and a methodology summary of the v0.1 metrics.
+// The About screen (ui/screens.md section 5, design_system kit About.jsx): a card per layer for
+// other clients, with its snippets when GET /info says the layer is on and the note that the
+// operator can enable it when it is off; while the server is unreachable every layer shows its
+// snippets, built from this page's own origin, as not confirmed. Then what BitGauge is, its build,
+// license, source, privacy and a methodology summary.
+
+const LAYERS: readonly Layer[] = ['openspeedtest', 'librespeed', 'networkquality']
 
 const { t, locale } = useI18n()
 const { info, reachability, refresh } = useInfo()
 const host = window.location.host
+const origin = window.location.origin
+const base = baseUrl(origin, readBasePath(document))
+const insecure = needsHttpsNote(window.location.protocol)
+
+// Each layer's state; none until GET /info first answers or fails.
+const layers = computed(() => {
+  if (reachability.value === 'unreachable') {
+    return LAYERS.map((layer) => ({ layer, state: 'unknown' as const }))
+  }
+  const compat = info.value?.compat
+  return compat === undefined ? [] : LAYERS.map((layer) => ({ layer, state: compat[layer] ? ('on' as const) : ('off' as const) }))
+})
+// The server list's name: server.display_name, or this page's host while the server is unreachable.
+const serverName = computed(() => (reachability.value === 'unreachable' ? undefined : info.value?.server.name) ?? host)
 
 function buildDate(value: string): string {
   const date = new Date(value)
@@ -67,7 +87,7 @@ const facts = computed(() => {
     tabindex="-1"
     class="focus:outline-none mx-auto grid w-full max-w-(--layout-max) flex-1 grid-cols-1 content-start gap-6 px-(--layout-gutter-compact) pt-4 pb-6 desktop:grid-cols-[minmax(0,1fr)_var(--layout-rail)] desktop:px-(--layout-gutter) desktop:pt-6 desktop:pb-10"
   >
-    <div class="flex flex-col gap-4">
+    <div class="flex min-w-0 flex-col gap-4">
       <header class="flex flex-col gap-1.5">
         <h1 class="text-(length:--text-3xl) leading-(--lh-snug) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl) desktop:leading-(--lh-tight)">
           {{ t('about.clients.title') }}
@@ -79,15 +99,17 @@ const facts = computed(() => {
       <OfflineNotice
         v-if="reachability === 'unreachable'"
         :host="host"
-        :body="t('about.unreachable', { host })"
+        :body="t('about.unreachable', { origin })"
         @retry="refresh"
       />
-      <NoticeBox
-        tone="info"
-        :icon="Layers"
-        :title="t('about.clients.v03Title')"
-        :body="t('about.clients.v03Body')"
-        :live="false"
+      <ClientCard
+        v-for="item in layers"
+        :key="item.layer"
+        :layer="item.layer"
+        :state="item.state"
+        :base="base"
+        :name="serverName"
+        :insecure="insecure"
       />
     </div>
     <aside class="flex min-w-0 flex-col gap-4">

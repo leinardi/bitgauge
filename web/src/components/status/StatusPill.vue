@@ -21,11 +21,12 @@
 // tone's surface, border and text, with the tone's dot unless `dot` is false; small unless `size`
 // is md, as the Result detail's confidence pill is. Inside a tinted surface (a notice, a selected
 // card: any `.tinted` ancestor) a toned pill lays its tint over opaque --surface-2 rather than over
-// the surface's own tint, which would stack the two under 4.5:1 in the light theme.
+// the surface's own tint, which would stack the two under 4.5:1 in the light theme. A dashed pill
+// (status.css `.pill.dashed.neutral`) is transparent with a dashed strong border, as About's Off is.
 
 type PillTone = 'ok' | 'warn' | 'danger' | 'info' | 'neutral'
 
-withDefaults(defineProps<{ tone?: PillTone; dot?: boolean; size?: 'sm' | 'md' }>(), { tone: 'neutral', dot: true, size: 'sm' })
+withDefaults(defineProps<{ tone?: PillTone; dot?: boolean; size?: 'sm' | 'md'; dashed?: boolean }>(), { tone: 'neutral', dot: true, size: 'sm', dashed: false })
 
 const SIZES = {
   sm: { pill: 'h-(--pill-h-sm) gap-1 text-(length:--text-nano)', dot: 'pr-2 pl-1.5', plain: 'px-2' },
@@ -39,12 +40,14 @@ const TONES: Record<PillTone, { pill: string; dot: string }> = {
   info: { pill: 'border-(--info-border) bg-(--info-bg) text-(--info-fg) in-[.tinted]:bg-(--surface-2) in-[.tinted]:bg-linear-to-b in-[.tinted]:from-(--info-bg) in-[.tinted]:to-(--info-bg)', dot: 'bg-(--info)' },
   neutral: { pill: 'border-(--border-default) bg-(--surface-3) text-muted-foreground', dot: 'bg-(--fg-faint)' },
 }
+
+const DASHED = 'border-dashed border-(--border-strong) bg-transparent text-muted-foreground'
 </script>
 
 <template>
   <span
     class="inline-flex items-center rounded-full border font-(family-name:--font-cond) leading-none font-semibold tracking-(--tracking-caps-tight) whitespace-nowrap uppercase"
-    :class="[SIZES[size].pill, TONES[tone].pill, dot ? SIZES[size].dot : SIZES[size].plain]"
+    :class="[SIZES[size].pill, dashed ? DASHED : TONES[tone].pill, dot ? SIZES[size].dot : SIZES[size].plain]"
   >
     <span
       v-if="dot"
