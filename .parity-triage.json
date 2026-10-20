@@ -66985,10 +66985,25 @@
         },
         "notes": "1 difference / 4 entries in 1 scenario: about/unreachable. The harness cuts the excerpt 24 characters before the first differing character, which is the apostrophe of \"page's\". The same question as v02-curly-apostrophes, whose decision (spec wins: straight apostrophes) names the older scenarios only; whether it extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on content (docs/README.md precedence), which here means the Vue string changes; the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins, as for v02-curly-apostrophes: the copy uses straight apostrophes.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "about/unreachable": {
+          "ece444c7ee7a": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/i18n/locales/en/about.json: the unreachable alert writes \"page's\", \"can't\" and \"server's\" with straight apostrophes.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67069,10 +67084,34 @@
         },
         "notes": "4 differences / 16 entries in 4 scenarios: about, about/layers-all, about/layers-librespeed, about/unreachable. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage. Context conflict: the kit compresses the JSON the spec writes out in full."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: the bitgauge.json server list is written one key per line, as compatibility.md section 2.3 writes it.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "about": {
+          "86da6b9044de": "*"
+        },
+        "about/layers-all": {
+          "86da6b9044de": "*"
+        },
+        "about/layers-librespeed": {
+          "86da6b9044de": "*"
+        },
+        "about/unreachable": {
+          "308bb2d599ad": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the About screen's librespeed-cli server list writes the JSON one key per line, as compatibility.md section 2.3, not compressed to four lines.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67111,10 +67150,34 @@
         },
         "notes": "4 differences / 16 entries in 4 scenarios: about, about/layers-all, about/layers-networkquality, about/unreachable. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage. Context conflict: the kit names the verbose line by a caption, the spec by a comment on the command line."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: the verbose line carries the comment \"# verbose, per-flow detail\", as compatibility.md writes it.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "about": {
+          "53a5e3813281": "*"
+        },
+        "about/layers-all": {
+          "53a5e3813281": "*"
+        },
+        "about/layers-networkquality": {
+          "53a5e3813281": "*"
+        },
+        "about/unreachable": {
+          "53a5e3813281": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the About screen's verbose networkQuality line ends with the comment \"# verbose, per-flow detail\", as compatibility.md, in place of the \"Verbose\" caption.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67157,6 +67220,383 @@
       "owned": {},
       "actions": [],
       "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-cont-chart-meta",
+      "title": "Test screen, Continuous states: the chart's caption, the kit's \"avg 921\" and the done state's \"Average · session average\" vs Vue's \"avg so far #\" and \"Download\"",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")(?=main > region \"Speed test\"$)",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?=text \"[^\"]*(?:avg \\d+|session average))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1 and the format table",
+          "says": "rates with units, 3 significant digits"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "\"Download # Mbit/s avg 921 · peak #\", done \"Average # Mbit/s peak # · p90, last hour … session average\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/continuous/",
+          "says": "\"Download # Mbit/s avg so far # · peak #\", done \"Download # Mbit/s …\""
+        },
+        "notes": "Split on 2026-10-20 from v03-test-continuous-wording by the maintainer. Recommendation, not a decision: Spec wins on content."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-cont-chart-title",
+      "title": "Test screen, Continuous states: the chart's title, the kit's \"Throughput · session\" vs Vue's \"Throughput\"",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?=.*Throughput · session)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "silent on the chart's title"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "\"Throughput · session Download\", img \"Throughput · session: …\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/continuous/",
+          "says": "\"Throughput Download\", img \"Throughput: …; warm-up shaded; …\""
+        },
+        "notes": "Split on 2026-10-20 from v03-test-continuous-wording by the maintainer. Recommendation, not a decision: Kit wins, the spec being silent."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins: the Continuous chart is titled \"Throughput · session\"; the spec is silent. Vue's \"warm-up shaded\" in the chart's label stays and goes upstream.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "continuous/run-length-2h": {
+          "21b8caf4fc9c": "*",
+          "4c8ea62f711a": "*"
+        },
+        "test/cont-done": {
+          "21b8caf4fc9c": "*",
+          "7b1be89ef5d0": "*"
+        },
+        "test/cont-upload": {
+          "082e1c86e70c": "*",
+          "76c8af0035da": "*"
+        },
+        "test/cont-warmup": {
+          "21b8caf4fc9c": "*",
+          "ef1bd8289e3d": "*"
+        },
+        "test/continuous": {
+          "21b8caf4fc9c": "*",
+          "fe3d0aa5ead1": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/components/test/continuous/: the Continuous chart's title and its img label start \"Throughput · session\".",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Continuous chart's label says \"warm-up shaded\" when the warm-up band shows, as Vue's does.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "v03-cont-phase-list",
+      "title": "Test screen, Continuous states: the phase list's wording, the kit's \"continuous active\" and \"continuous done · stopped at #:#\" vs Vue's \"continuous #:# elapsed\" and \"done · # Mbit/s\"",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")(?=.*list \"Test phases\")",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "silent on the Continuous phase list's words"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "\"Download · continuous active · #:# elapsed\", \"Download · continuous done · stopped at #:#\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/continuous/",
+          "says": "\"Download · continuous #:# elapsed\", \"Download done · # Mbit/s\""
+        },
+        "notes": "Split on 2026-10-20 from v03-test-continuous-wording by the maintainer. Recommendation, not a decision: Kit wins, the spec being silent."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins: the Continuous phase list reads \"continuous active · #:# elapsed\" and \"continuous done · stopped at #:#\"; the spec is silent.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "continuous/run-length-2h": {
+          "1b1e050361b5": "*"
+        },
+        "test/cont-done": {
+          "da0ed2a98351": "*"
+        },
+        "test/cont-upload": {
+          "aa802ea481aa": "*"
+        },
+        "test/continuous": {
+          "91b96cb4d290": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/components/test/continuous/ and test.json: the phase list reads \"Download · continuous active · #:# elapsed\" (\"of #:#:#\" with a run length) and \"Download · continuous done · stopped at #:#\".",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "v03-cont-results-terms",
+      "title": "Test screen, Continuous states: the Results list, the kit's \"Duration stopped by you\", \"max # Mbit/s\" and \"ends #:#\" vs Vue's \"Duration run until stopped\", \"max 909\" without its unit and \"ends #:# #M\"",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")(?=main > region \"Results\"(?: > term)?$)",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?!text \"\\d+ / # Mbit/s\")"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md format table",
+          "says": "every rate with its unit; times in the locale's format"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "\"Duration stopped by you\", \"max # Mbit/s\", \"ends #:#\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/continuous/",
+          "says": "\"Duration run until stopped\", \"max 909\", \"ends #:# #M\""
+        },
+        "notes": "Split on 2026-10-20 from v03-test-continuous-wording by the maintainer. \"max 909\" without its unit looks like a Vue defect. Recommendation, not a decision: Spec wins on content."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-cont-stopped-in-warmup",
+      "title": "Test screen, a Continuous run stopped in its warm-up: the kit's \"Stopped · During warm-up · not saved\" state vs Vue's \"Cancelled · Partial results\"",
+      "match": {
+        "scenarios": [
+          "test/cont-warmup"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?!.*Throughput · session)"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1, flows.md",
+          "says": "a Continuous run stopped before its warm-up ends saves nothing"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "\"Stopped During warm-up · not saved\", \"Warm-up stopped at # s\", phase \"continuous cancelled · in warm-up\", Results \"— starts after warm-up\", \"Elapsed stopped during warm-up\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/continuous/",
+          "says": "\"Cancelled Partial results · not saved\", \"Warm-up #:# · stopped by you\", phase \"Download done · insufficient data\", \"Duration run until stopped\""
+        },
+        "notes": "Split on 2026-10-20 from v03-test-continuous-wording by the maintainer. Recommendation, not a decision: Spec wins on behavior; the spec's wording is checked at fix time."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: a Continuous run stopped in its warm-up is partial with the direction insufficient-data and gets the Cancelled state's Keep in history and Download JSON (screens.md Done: Continuous, flows.md), as Vue shows it.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "test/cont-warmup": {
+          "162b40e396ea": "*",
+          "31de65e15d09": "*",
+          "3f41c5832857": "*",
+          "5522e80a32fd": "*",
+          "7d93149055ab": "*",
+          "806814de834f": "*",
+          "8dce668032fb": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: a Continuous run stopped in its warm-up shows the Cancelled state (\"Cancelled · Partial results · not saved\", \"Download done · insufficient data\", \"Duration run until stopped\"), not a separate Stopped state.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "v03-cont-tile-values",
+      "title": "Test screen, Continuous states: the Results tiles' current values, the kit's mock 702 and 318 vs the demo's own 887 to 890 and 394 to 395",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")(?=.*> definition$)",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?=text \"\\d+ / # Mbit/s\" → \"\\d+ / # Mbit/s\"$)"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's values are its own measurement"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "\"702 / # Mbit/s\", \"318 / # Mbit/s\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/continuous/",
+          "says": "\"887 / # Mbit/s\", \"394 / # Mbit/s\""
+        },
+        "notes": "Split on 2026-10-20 from v03-test-continuous-wording by the maintainer. Recommendation, not a decision: confirm as fixture."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-cont-warmup-label",
+      "title": "Test screen, Continuous states: Vue's gauge clock keeps its \"Warm-up\" prefix after the warm-up (\"Warm-up #:# elapsed\", \"Warm-up #:# · stopped by you\"); the kit's drops it",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")(?=main > region \"Speed test\"$)",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?=text \"#:#[^\"]*\" → \"Warm-up )"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "the elapsed time against the run length"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "\"#:# elapsed\", \"#:# / #:#:#\", \"#:# · stopped by you\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/continuous/",
+          "says": "\"Warm-up #:# elapsed\" on every Continuous state"
+        },
+        "notes": "Split on 2026-10-20 from v03-test-continuous-wording by the maintainer. Looks like a Vue defect: the prefix should end with the warm-up. Recommendation, not a decision: Kit wins."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins: the gauge clock's \"Warm-up\" prefix shows only during the warm-up.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "continuous/run-length-2h": {
+          "86fd101d575c": "*"
+        },
+        "test/cont-done": {
+          "06cb688ac0d0": "*"
+        },
+        "test/cont-upload": {
+          "0e168494e14c": "*"
+        },
+        "test/continuous": {
+          "e2b00d120473": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/components/test/continuous/: the elapsed clock drops its \"Warm-up\" prefix once the warm-up ends.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67225,10 +67665,144 @@
         },
         "notes": "30 differences / 60 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins, as for v02-compare-rows and v02-compare-table-headers on history/compare: the compare table holds screens.md section 3's rows in Vue's wording.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "history/compare-h2": {
+          "067533b686ec": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "0bc68756dcee": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "0ca8a1a11754": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "17270c74e946": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "17441056ee06": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "24c44d93a250": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "35e032979c06": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5100938e9ec7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "53d9bd003f8b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "58894b9c7c2d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5ab3568993d6": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5b6bb7f37163": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "70eee1d5e315": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "73a64a8e3e32": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7b31619c421f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8fe8f45bbc23": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b07f24e5a120": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b0a924218f5a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b97df0330092": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c09088893e89": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c09c86ca44c7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c30971206d8e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c5ac6677a356": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ca96cb85d0fc": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ce1b131a9b9e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "dd668c77286e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e1cb7dc81be9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f00cd4645616": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f4ff460b0b1b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f71f97f3cd16": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the compare table with B over HTTP/2 takes the rows and wording v02-compare-rows and v02-compare-table-headers ask of history/compare (section header rows, the metric rows, \"None\" for no data cap, \"Auto, up to 6\").",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67297,10 +67871,119 @@
         },
         "notes": "29 differences / 72 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as ui/i18n-a11y.md wins over the export; the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins, as for v02-modal-inert-page: the page under the focus-trapped compare dialog leaves the accessibility tree.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "history/compare-h2": {
+          "09335efe34a3": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0b4607c431bb": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "19b590ec6c84": "*",
+          "1a280a566ebc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2178bb5942f3": "*",
+          "235f71faa12e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2b40ba4a7242": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2f3edd4f2285": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "37020a4b13e2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "4c468ffac75c": "*",
+          "4d9980d66ed7": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "555969673e3a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5a45000e99c0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5de4532598e5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "62767d0ecf74": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "78a5e3e45664": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "78c63ef005d1": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7973ef68d180": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7be87e6dbc20": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "81d4a72eeda0": "*",
+          "9a9c9d3ad6a4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a2e6014f5882": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a60cf1a33c47": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b48f5afb7a3a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b8af806f4f21": "*",
+          "eaf965d37cf3": "*",
+          "f0119d77f103": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f669e869a42b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "fcf88795b3ca": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: as v02-modal-inert-page, the page under the compare dialog with B over HTTP/2 is inert.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67441,10 +68124,30 @@
         },
         "notes": "Recommendation, not a decision: Spec wins on behavior; the spec is silent, so the decision says which day starts \"last 30 days\"."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins: the last N days are the N calendar days ending today, so the last 30 days of Oct 8 start on Sep 9. The spec is silent and gains the rule.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "history/daterange": {
+          "43f416f62638": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "docs/features/ui/screens.md section 3: the date range's last 7, 30 or 90 days are that many calendar days ending today, in the browser's time zone.",
+          "done": false
+        },
+        {
+          "target": "vue",
+          "what": "web/src/history/filters.ts and DateRangePicker.vue: the last N days start at the local midnight N − 1 days before today, so the From date reads Sep 9 for Oct 8.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67477,10 +68180,26 @@
         },
         "notes": "Recommendation, not a decision: Spec wins, as i18n-a11y.md wins over the export on a11y; both announce it, the kit as text content."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins: the loading status holds the visually hidden text \"Loading history\", since a live region announces its content, not its name.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "history/loading": {
+          "36096df08c30": "*",
+          "f448574291ce": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/components/history/HistoryLoading.vue: the role=status element holds the visually hidden text \"Loading history\" in place of the aria-label.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67554,10 +68273,211 @@
         },
         "notes": "The bb8f04a note left the direction names as an icon's label to the maintainer's triage. Recommendation, not a decision: Spec wins, as i18n-a11y.md wins over the export on a11y."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-20 that Vue wins, as for the HTTP loaded responsiveness wording: each direction is named in the row's text and its icon is decorative.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "loaded/ll-insufficient-samples": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "loaded/ll-no-probe-path": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "loaded/ll-no-steady-window": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "loaded/ll-reservation-broken": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "loaded/ws-close": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "responsiveness/few-samples": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "responsiveness/needs-h2": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "responsiveness/not-reported": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "responsiveness/uncertain": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "result": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/clipboard-denied": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/continuous-2h": {
+          "8a12fc262847": "*"
+        },
+        "result/continuous-9d": {
+          "8a12fc262847": "*"
+        },
+        "result/history-unavailable": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/ll-insufficient-samples": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/ll-no-probe-path": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/ll-no-steady-window": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/ll-reservation-broken": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/not-saved-missing": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/not-saved-partial": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/resp-few-samples": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/resp-needs-h2": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/resp-not-reported": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/resp-uncertain": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "result/ws-close": {
+          "8a12fc262847": "*",
+          "902f1256fd3d": "*"
+        },
+        "test/cancelled": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/cancelled-download": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/cancelled-late": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/cancelled-latency": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/cancelled-slow": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/cancelled-slow-up": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/complete": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/connecting": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/cont-done": {
+          "f92ac561d89b": "*"
+        },
+        "test/countdown": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/download": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/error": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/error-early": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/idle": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/insufficient": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/latency": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/offline": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/param-ignored": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/slow": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/slowdone": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/upload": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/upload-interrupted": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        },
+        "test/ws-fallback": {
+          "bcb121f450c1": "*",
+          "f92ac561d89b": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the HTTP loaded responsiveness rows' direction icons are decorative (aria-hidden), the row's text names the direction.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67645,10 +68565,207 @@
         },
         "notes": "The same wording the Responsiveness and Continuous scenarios settled as Vue wins on 2026-10-20 (v03-test-resp-path-b, v03-result-resp-path-b), here on the standard run's states. Recommendation, not a decision: Vue wins, as those."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-20 that Vue wins, as for v03-test-resp-path-b and v03-result-resp-path-b: the HTTP loaded responsiveness row is one text per direction, writing the protocol as the spec does and naming each direction.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "loaded/ll-insufficient-samples": {
+          "05a0aa350659": "*",
+          "84592892d184": "*",
+          "acf44f643bf8": "*"
+        },
+        "loaded/ll-no-probe-path": {
+          "1123fa3bea4c": "*"
+        },
+        "loaded/ll-no-steady-window": {
+          "30a579dd9843": "*"
+        },
+        "loaded/ll-reservation-broken": {
+          "05a0aa350659": "*",
+          "a79f1aa2cb04": "*",
+          "acf44f643bf8": "*"
+        },
+        "loaded/ws-close": {
+          "05a0aa350659": "*",
+          "acf44f643bf8": "*",
+          "bc70dad4f222": "*"
+        },
+        "responsiveness/few-samples": {
+          "c733e5e52a08": "*"
+        },
+        "responsiveness/needs-h2": {
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "responsiveness/not-reported": {
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "result": {
+          "23ed1e8de56a": "*",
+          "6a3db88ccf2c": "*",
+          "fc9ebcf5f10e": "*"
+        },
+        "result/clipboard-denied": {
+          "23ed1e8de56a": "*",
+          "6a3db88ccf2c": "*",
+          "fc9ebcf5f10e": "*"
+        },
+        "result/history-unavailable": {
+          "23ed1e8de56a": "*",
+          "6a3db88ccf2c": "*",
+          "fc9ebcf5f10e": "*"
+        },
+        "result/ll-insufficient-samples": {
+          "23ed1e8de56a": "*",
+          "d6ece9f7fca7": "*",
+          "fc9ebcf5f10e": "*"
+        },
+        "result/ll-no-probe-path": {
+          "061970c53dfc": "*"
+        },
+        "result/ll-no-steady-window": {
+          "0fe9548f5b1a": "*"
+        },
+        "result/ll-reservation-broken": {
+          "1fc86c163842": "*",
+          "23ed1e8de56a": "*",
+          "fc9ebcf5f10e": "*"
+        },
+        "result/not-saved-missing": {
+          "23ed1e8de56a": "*",
+          "6a3db88ccf2c": "*",
+          "fc9ebcf5f10e": "*"
+        },
+        "result/not-saved-partial": {
+          "0fe9548f5b1a": "*"
+        },
+        "result/resp-few-samples": {
+          "f6553e5702e8": "*"
+        },
+        "result/resp-needs-h2": {
+          "8c2a80b2307b": "*",
+          "b1b7eddf084e": "*"
+        },
+        "result/resp-not-reported": {
+          "8c2a80b2307b": "*",
+          "b1b7eddf084e": "*"
+        },
+        "result/ws-close": {
+          "1de0bd2b0bcd": "*",
+          "23ed1e8de56a": "*",
+          "fc9ebcf5f10e": "*"
+        },
+        "test/cancelled": {
+          "05a0aa350659": "*",
+          "c733e5e52a08": "*"
+        },
+        "test/cancelled-download": {
+          "25becd83316c": "*",
+          "c733e5e52a08": "*",
+          "e168710a5d6e": "*"
+        },
+        "test/cancelled-late": {
+          "05a0aa350659": "*",
+          "a12f52127088": "*"
+        },
+        "test/cancelled-latency": {
+          "c599dbb98ff0": "*",
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/cancelled-slow": {
+          "c733e5e52a08": "*",
+          "e168710a5d6e": "*"
+        },
+        "test/cancelled-slow-up": {
+          "54bacb314cf7": "*",
+          "c733e5e52a08": "*"
+        },
+        "test/complete": {
+          "05a0aa350659": "*",
+          "acf44f643bf8": "*"
+        },
+        "test/connecting": {
+          "c06bacb310d2": "*",
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/countdown": {
+          "c06bacb310d2": "*",
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/download": {
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/error": {
+          "25becd83316c": "*",
+          "c733e5e52a08": "*",
+          "e168710a5d6e": "*"
+        },
+        "test/error-early": {
+          "c599dbb98ff0": "*",
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/idle": {
+          "c06bacb310d2": "*",
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/insufficient": {
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/latency": {
+          "c599dbb98ff0": "*",
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/offline": {
+          "c06bacb310d2": "*",
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/param-ignored": {
+          "c06bacb310d2": "*",
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        },
+        "test/slow": {
+          "54bacb314cf7": "*",
+          "e168710a5d6e": "*"
+        },
+        "test/slowdone": {
+          "54bacb314cf7": "*",
+          "c733e5e52a08": "*"
+        },
+        "test/upload": {
+          "05a0aa350659": "*",
+          "e168710a5d6e": "*"
+        },
+        "test/upload-interrupted": {
+          "05a0aa350659": "*",
+          "f34d5572623b": "*"
+        },
+        "test/ws-fallback": {
+          "e168710a5d6e": "*",
+          "e7d4ae25160c": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: on the standard run's states, as on the Responsiveness ones, the HTTP loaded responsiveness row names each direction in text with its RPM or state (\"Download —\", \"Download 1,420 RPM\").",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67682,10 +68799,41 @@
         },
         "notes": "12 differences / 48 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: data used is written with 3 significant digits (\"1.00 TB\") and durations in seconds with one decimal (screens.md's format table); the notice's sentence, which the spec does not word, stays Vue's.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/continuous-2h": {
+          "420d5c846949": "*",
+          "7567f58eb751": "*",
+          "8c269fca5605": "*",
+          "dae9a344d74a": "*"
+        },
+        "result/continuous-9d": {
+          "0adeb0f30aa7": "*",
+          "420d5c846949": "*",
+          "7567f58eb751": "*",
+          "8c269fca5605": "*",
+          "e8307387acfa": "*",
+          "edea04c7d14f": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/components/result/confidence.ts and notices.json: the data-used notices write the data with 3 significant digits (\"1.00 TB\").",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Continuous results' notices write durations in seconds with one decimal (\"steady window covered # s\") and the data-used notice as \"This run passed 1.00 TB.\".",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67865,10 +69013,28 @@
         },
         "notes": "2 differences / 8 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: a Continuous result measures one direction, so its quality scores read \"download only\" (screens.md section 6), as Vue does.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/continuous-2h": {
+          "687740b22229": "*"
+        },
+        "result/continuous-9d": {
+          "687740b22229": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the 2 h and 9 d Continuous results' quality scores read \"Good for download only\".",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67939,10 +69105,28 @@
         },
         "notes": "2 differences / 8 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-20 that Vue wins, as for v03-result-share-image.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/continuous-2h": {
+          "baa754fc70f7": "*"
+        },
+        "result/continuous-9d": {
+          "baa754fc70f7": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: covered by v03-result-share-image's note on the direction labels.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -67976,10 +69160,82 @@
         },
         "notes": "14 differences / 28 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: the Test parameters card lists screens.md section 2's rows (the data cap with the data used, no stored-cells or ramp-name row), as Vue does; the browser is the fixture's own.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/continuous-2h": {
+          "40afe58b59c2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "44d32304d6fa": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "47f25ee14075": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7dd523b693bc": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b01887cffaf5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b5fbb1b05844": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "bbe48d306ad5": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/continuous-9d": {
+          "40afe58b59c2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "44d32304d6fa": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "47f25ee14075": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7dd523b693bc": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b01887cffaf5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "bbe48d306ad5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f4d8cf4850e0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Continuous results' Test parameters list the data cap with the data used, drop the Stored cells row and the \"Standard ramp\" name, and give the direction an ended stream count belongs to (\"ended at # s (download)\").",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68000,8 +69256,8 @@
       "aspect": "content",
       "evidence": {
         "spec": {
-          "ref": "docs/features/ui/screens.md §7",
-          "says": "silent on the warm-up band's time format"
+          "ref": "docs/features/ui/screens.md (format table, Duration)",
+          "says": "s, one decimal"
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:430",
@@ -68011,12 +69267,27 @@
           "ref": "web/src/components/result/",
           "says": "\"0–6.5 s\", as on a standard run"
         },
-        "notes": "Split on 2026-10-20 from v03-result-continuous-fixture by the maintainer. Recommendation, not a decision: Kit wins, since the spec is silent and the kit writes the range in the axis' own units."
+        "notes": "Split on 2026-10-20 from v03-result-continuous-fixture by the maintainer."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: durations are written in seconds with one decimal (screens.md's format table), as Vue's \"0–6.5 s\".",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/continuous-2h": {
+          "a63a23b8bf82": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Continuous chart's warm-up band reads \"Warm-up · not stored (0–6.5 s)\", in seconds as on a standard run.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68087,10 +69358,61 @@
         },
         "notes": "Recommendation, not a decision: Spec wins on content; the spec gives the reason and the upper-bound note, which the kit's sentence joins."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins: the packet-loss notice ends \"so the quality scores are an upper bound.\", tying the reason to the scores' upper-bound note; the spec is silent on this sentence.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result": {
+          "f40de1313784": "*"
+        },
+        "result/clipboard-denied": {
+          "f40de1313784": "*"
+        },
+        "result/continuous-2h": {
+          "922d9994444a": "*"
+        },
+        "result/continuous-9d": {
+          "7d7a7ebe0317": "*"
+        },
+        "result/history-unavailable": {
+          "f40de1313784": "*"
+        },
+        "result/ll-insufficient-samples": {
+          "f40de1313784": "*"
+        },
+        "result/ll-reservation-broken": {
+          "f40de1313784": "*"
+        },
+        "result/not-saved-missing": {
+          "f40de1313784": "*"
+        },
+        "result/resp-few-samples": {
+          "f40de1313784": "*"
+        },
+        "result/resp-needs-h2": {
+          "f40de1313784": "*"
+        },
+        "result/resp-not-reported": {
+          "f40de1313784": "*"
+        },
+        "result/resp-uncertain": {
+          "f40de1313784": "*"
+        },
+        "result/ws-close": {
+          "f40de1313784": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/i18n/locales/en/result.json: the packet-loss notice reads \"Browsers can't see packet loss over TCP, so the quality scores are an upper bound.\"",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68420,10 +69742,33 @@
         },
         "notes": "6 differences / 24 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: the quality scores name their basis (\"download only\", screens.md section 6); the bands follow the run, so what remains once v03-result-resp-run's adapter fix lands is checked again.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/resp-needs-h2": {
+          "c2ff2f2617ba": "*"
+        },
+        "result/resp-not-reported": {
+          "c2ff2f2617ba": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: as v03-result-scores, the quality scores name their basis when only one direction has a loaded-latency increase.",
+          "done": false
+        },
+        {
+          "target": "adapter",
+          "what": "Re-check after v03-result-resp-run's adapter fix: the bands should then match the kit's run.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68498,10 +69843,43 @@
         },
         "notes": "8 differences / 32 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-20 that Vue wins, as for v03-result-share-image; the run's values follow v03-result-resp-run's adapter fix.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/resp-few-samples": {
+          "8aa8e6934020": "*"
+        },
+        "result/resp-needs-h2": {
+          "e3846c651ba1": "*",
+          "ede48f88ceb4": "*",
+          "eed6835d0450": "*"
+        },
+        "result/resp-not-reported": {
+          "e3846c651ba1": "*",
+          "ede48f88ceb4": "*",
+          "eed6835d0450": "*"
+        },
+        "result/resp-uncertain": {
+          "8aa8e6934020": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: covered by v03-result-share-image's note on the direction labels.",
+          "done": false
+        },
+        {
+          "target": "adapter",
+          "what": "Re-check after v03-result-resp-run's adapter fix: the run's values in the image and the summary should then match.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68537,10 +69915,71 @@
         },
         "notes": "9 differences / 18 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: a protocol not reported reads \"not reported\" (screens.md), the browser reads as the result records it, never \"unknown 0\", and the isolation follows the run v03-result-resp-run's adapter fix plays.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/resp-few-samples": {
+          "4616c3d72e69": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/resp-needs-h2": {
+          "4616c3d72e69": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/resp-not-reported": {
+          "4616c3d72e69": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "bf4212f7ee1e": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/resp-uncertain": {
+          "4616c3d72e69": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/components/result/parameters.ts: a protocol not reported reads \"not reported\", as screens.md, not \"Unknown\"; a browser without a version never reads \"unknown 0\".",
+          "done": false
+        },
+        {
+          "target": "adapter",
+          "what": "web/src/demo: the resp-* results record the demo browser (name and version), so their Test parameters show it; re-check the cross-origin isolation after v03-result-resp-run's fix.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68574,10 +70013,28 @@
         },
         "notes": "2 differences / 8 entries in 2 scenarios: result/ll-insufficient-samples, result/ll-reservation-broken. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: the quality scores name their basis when only one direction has a loaded-latency increase (\"download only\", screens.md section 6), as Vue does.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/ll-insufficient-samples": {
+          "687740b22229": "*"
+        },
+        "result/ll-reservation-broken": {
+          "687740b22229": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Result detail's quality scores of a run whose upload has no loaded-latency increase read \"Good for download only\".",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68662,10 +70119,43 @@
         },
         "notes": "7 differences / 28 entries in 7 scenarios: result, result/clipboard-denied, result/history-unavailable, result/ll-insufficient-samples, result/ll-reservation-broken, result/not-saved-missing, result/ws-close. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-20 that Vue wins: the share image's direction labels are sentence-case text set in capitals by CSS, so they look the same and screen readers do not spell them out.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result": {
+          "8aa8e6934020": "*"
+        },
+        "result/clipboard-denied": {
+          "8aa8e6934020": "*"
+        },
+        "result/history-unavailable": {
+          "8aa8e6934020": "*"
+        },
+        "result/ll-insufficient-samples": {
+          "5a4da430a4d3": "*"
+        },
+        "result/ll-reservation-broken": {
+          "5a4da430a4d3": "*"
+        },
+        "result/not-saved-missing": {
+          "8aa8e6934020": "*"
+        },
+        "result/ws-close": {
+          "8aa8e6934020": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the share image's direction labels are \"Download\" and \"Upload\" in capitals by text-transform, not literal \"DOWNLOAD\" and \"UPLOAD\".",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68699,10 +70189,38 @@
         },
         "notes": "Recommendation, not a decision: Spec wins, as i18n-a11y.md wins over the export on a11y."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins: the Phases text is the legend inside its group, the native way to name it; both name the group Phases.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "settings": {
+          "c1ac6f548ea3": "*",
+          "ff1ea72a4f81": "*"
+        },
+        "settings/advanced": {
+          "c1ac6f548ea3": "*",
+          "ff1ea72a4f81": "*"
+        },
+        "settings/changed": {
+          "c1ac6f548ea3": "*",
+          "ff1ea72a4f81": "*"
+        },
+        "settings/invalid": {
+          "c1ac6f548ea3": "*",
+          "ff1ea72a4f81": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/pages/settings/: the Phases label is the group's legend, inside its fieldset.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68736,10 +70254,631 @@
         },
         "notes": "Covers the row's content and every box it moves. Recommendation, not a decision: Spec wins on content, kit on the place."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: the Result label row comes first in Display and behavior, in the spec's order and the kit's place, and its caption carries both facts screens.md gives, the 64-character limit and the label link parameter.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "settings": {
+          "2395207658bd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "28fb3537d943": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "31fc1c4777f5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b14de1e8ca4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b27dc3653c9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4b5e8f87d0c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5a4b081b1c92": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5cc5a6858890": "*",
+          "60bfb519e835": "*",
+          "6b59550c1e7c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb1351aeb2b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6f91105ffd1f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7fd4ffe74b87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "815faa1e5d03": "*",
+          "8bb381dd4108": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8bde70172b6b": "*",
+          "8dba2c16c762": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9303cf5b1785": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "963bbfd001fc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a89c5f8d0864": "*",
+          "ac8d0cc6f7e8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af217c11e5e2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b76ae11b77c5": "*",
+          "b95b5d6a2f0f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "baedaf1253b5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c2943f4024b9": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d105fed16c05": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d6041f52564c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e240222bd2a1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e2eae9e6de87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e76f5c85677e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ed3cc48e9843": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f69043e6a200": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f7755a214a9e": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "settings/advanced": {
+          "2395207658bd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "28fb3537d943": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "2f0af366310b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "31fc1c4777f5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b14de1e8ca4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b27dc3653c9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4b5e8f87d0c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "50452c7c0081": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5a4b081b1c92": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5cc5a6858890": "*",
+          "60bfb519e835": "*",
+          "6b59550c1e7c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6f91105ffd1f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7fd4ffe74b87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "815faa1e5d03": "*",
+          "8bb381dd4108": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8bde70172b6b": "*",
+          "8dba2c16c762": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9303cf5b1785": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "963bbfd001fc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a89c5f8d0864": "*",
+          "ac8d0cc6f7e8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af217c11e5e2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b76ae11b77c5": "*",
+          "b95b5d6a2f0f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "baedaf1253b5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bcafaac93aba": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c2943f4024b9": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d105fed16c05": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d6041f52564c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e240222bd2a1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e2eae9e6de87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e76f5c85677e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ed3cc48e9843": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f69043e6a200": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f7755a214a9e": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "settings/changed": {
+          "2395207658bd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "28fb3537d943": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "31fc1c4777f5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b14de1e8ca4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b27dc3653c9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4b5e8f87d0c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5a4b081b1c92": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5cc5a6858890": "*",
+          "60bfb519e835": "*",
+          "6b59550c1e7c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb1351aeb2b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6f91105ffd1f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7fd4ffe74b87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "815faa1e5d03": "*",
+          "8bb381dd4108": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8bde70172b6b": "*",
+          "8dba2c16c762": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9303cf5b1785": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "963bbfd001fc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a89c5f8d0864": "*",
+          "ac8d0cc6f7e8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af217c11e5e2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b76ae11b77c5": "*",
+          "b95b5d6a2f0f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "baedaf1253b5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c2943f4024b9": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d105fed16c05": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d6041f52564c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e240222bd2a1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e2eae9e6de87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e76f5c85677e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ed3cc48e9843": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f69043e6a200": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f7755a214a9e": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "settings/confirm-reset": {
+          "2395207658bd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "28fb3537d943": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "31fc1c4777f5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b14de1e8ca4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b27dc3653c9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4b5e8f87d0c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5a4b081b1c92": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5cc5a6858890": "*",
+          "6b59550c1e7c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6cb1351aeb2b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "6f91105ffd1f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7fd4ffe74b87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8bb381dd4108": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8dba2c16c762": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9303cf5b1785": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "963bbfd001fc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ac8d0cc6f7e8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af217c11e5e2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b76ae11b77c5": "*",
+          "b95b5d6a2f0f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "baedaf1253b5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c2943f4024b9": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d105fed16c05": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d6041f52564c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e240222bd2a1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e2eae9e6de87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e76f5c85677e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ed3cc48e9843": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f69043e6a200": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f7755a214a9e": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "settings/invalid": {
+          "2395207658bd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "28fb3537d943": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "31fc1c4777f5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b14de1e8ca4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3b27dc3653c9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4b5e8f87d0c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5a4b081b1c92": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5cc5a6858890": "*",
+          "60bfb519e835": "*",
+          "6f91105ffd1f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7fd4ffe74b87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "815faa1e5d03": "*",
+          "85107977b7ae": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8bb381dd4108": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8bde70172b6b": "*",
+          "8dba2c16c762": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9303cf5b1785": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "963bbfd001fc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a89c5f8d0864": "*",
+          "ac8d0cc6f7e8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af217c11e5e2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b76ae11b77c5": "*",
+          "b95b5d6a2f0f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "baedaf1253b5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c2943f4024b9": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d105fed16c05": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d6041f52564c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e240222bd2a1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e2eae9e6de87": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e76f5c85677e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "eb083198d94e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ed3cc48e9843": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f69043e6a200": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f7755a214a9e": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/pages/SettingsPage.vue and settings.json: the Result label row comes first in Display and behavior, captioned \"Optional, up to 64 characters. Pre-fills the label of every result in this browser, as the label link parameter does for one page load.\"",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Result label caption adds \", as the label link parameter does for one page load\".",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68809,10 +70948,25 @@
         },
         "notes": "Recommendation, not a decision: Spec wins, as i18n-a11y.md wins over the export on a11y."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins: the spinbutton is named \"Streams\", the spec's setting name, inside the \"Stream count\" group, so the name is not heard twice.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "settings/changed": {
+          "69dd2cc40f49": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/pages/SettingsPage.vue: the stream count spinbutton's accessible name is \"Streams\".",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68956,10 +71110,96 @@
         },
         "notes": "14 differences / 40 entries in 10 scenarios: loaded/ll-insufficient-samples, loaded/ll-reservation-broken, loaded/ws-close, share/complete, test/cancelled, test/cancelled-latency, test/cancelled-slow-up, test/complete, …. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as ui/i18n-a11y.md wins over the export; the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-20 that the kit wins: the summary of every ended run, stopped and failed ones included, carries the HTTP loaded responsiveness sentence, as v03-test-path-b puts the block on every state. The RPM numbers stay the demo's own measurement.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "loaded/ll-insufficient-samples": {
+          "fd71d5fd524f": "*"
+        },
+        "loaded/ll-no-probe-path": {
+          "771c95a705b0": "*"
+        },
+        "loaded/ll-no-steady-window": {
+          "771c95a705b0": "*"
+        },
+        "loaded/ll-reservation-broken": {
+          "4753d5bb5602": "*"
+        },
+        "loaded/ws-close": {
+          "f089e0dbece8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f72e00d9fc0e": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "share/complete": {
+          "42dc4925232f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f72e00d9fc0e": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "test/cancelled": {
+          "771c95a705b0": "*"
+        },
+        "test/cancelled-download": {
+          "238a2c643d8e": "*"
+        },
+        "test/cancelled-late": {
+          "771c95a705b0": "*"
+        },
+        "test/cancelled-latency": {
+          "913af5b92d83": "*"
+        },
+        "test/cancelled-slow": {
+          "f432351db6a6": "*"
+        },
+        "test/cancelled-slow-up": {
+          "d50e5a672667": "*"
+        },
+        "test/complete": {
+          "42dc4925232f": [
+            "dark-desktop"
+          ],
+          "f72e00d9fc0e": [
+            "dark-narrow",
+            "light-desktop",
+            "light-narrow"
+          ]
+        },
+        "test/error": {
+          "238a2c643d8e": "*"
+        },
+        "test/slowdone": {
+          "a26e059b2262": "*"
+        },
+        "test/upload-interrupted": {
+          "6cf4e09f8482": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/components/a11y/announce.ts: the responsiveness sentence is announced for every ended run that has the block, not only a complete one.",
+          "done": false
+        },
+        {
+          "target": "fixture",
+          "what": "After the Vue fix, the RPM numbers that remain (the kit's 1,420 and 980 vs the demo's) are the demo's own values: split them into an accepted fixture cluster with the maintainer's confirmation.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68996,10 +71236,47 @@
         },
         "notes": "10 differences / 40 entries in 5 scenarios: continuous/run-length-2h, test/cont-done, test/cont-upload, test/cont-warmup, test/continuous. Recommendation, not a decision: Spec wins, as ui/i18n-a11y.md wins over the export; the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: the live region announces the phase on change and the result summary when the run ends (i18n-a11y.md), with data in 3 significant digits (\"1.00 TB\").",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "continuous/run-length-2h": {
+          "102e6a8e7e96": "*",
+          "5ff4c6eb7350": "*"
+        },
+        "test/cont-done": {
+          "253eebf4b9f2": "*",
+          "cdc87d6b65d1": "*"
+        },
+        "test/cont-upload": {
+          "102e6a8e7e96": "*",
+          "87f3c2f4e0c4": "*"
+        },
+        "test/cont-warmup": {
+          "a45021b634e9": "*",
+          "f0b28a54f7c6": "*"
+        },
+        "test/continuous": {
+          "102e6a8e7e96": "*",
+          "5ff4c6eb7350": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/components/a11y/announce.ts and the notices: the data-used threshold reads with 3 significant digits (\"1.00 TB\").",
+          "done": false
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Continuous states announce the phase as the standard run does (\"Download, # megabits per second\") and, at the end, the result summary without a separate \"Continuous run stopped. Saved to history.\" message.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -69212,10 +71489,37 @@
         },
         "notes": "5 differences / 20 entries in 5 scenarios: continuous/run-length-2h, test/cont-done, test/cont-upload, test/cont-warmup, test/continuous. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: the settings summary shows the settings that differ from the server defaults, one chip each (screens.md section 1), as Vue does.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "continuous/run-length-2h": {
+          "8aab0e751230": "*"
+        },
+        "test/cont-done": {
+          "13d17637578e": "*"
+        },
+        "test/cont-upload": {
+          "8aab0e751230": "*"
+        },
+        "test/cont-warmup": {
+          "8aab0e751230": "*"
+        },
+        "test/continuous": {
+          "8aab0e751230": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: on the Continuous states the settings summary shows what differs from the server defaults (\"1 changed: Continuous\"), not every setting.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -69266,46 +71570,6 @@
       },
       "actions": [],
       "status": "accepted",
-      "resolution": null
-    },
-    {
-      "id": "v03-test-continuous-wording",
-      "title": "Test screen, Continuous states: the Continuous wording of the gauge, chart, phases and tiles",
-      "match": {
-        "scenarios": [
-          "test/continuous",
-          "test/cont-upload",
-          "test/cont-warmup",
-          "test/cont-done",
-          "continuous/run-length-2h"
-        ],
-        "projects": null,
-        "layer": "content",
-        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
-        "kind": null,
-        "detail": "^(?!img \"(?:Download|Upload)\"$)(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
-      },
-      "type": "conflict",
-      "aspect": "content",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/screens.md §1",
-          "says": "Continuous: the elapsed time against the run length, \"The rates read \\\"—\\\" until the run has 3 fully known 1 s cells\"; \"The grade, the HTTP loaded responsiveness and the quality scores appear only in the finished result\""
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
-          "says": "main > region \"Speed test\": text \"Throughput · session Download\""
-        },
-        "vue": {
-          "ref": "web/src/components/test/continuous/",
-          "says": "main > region \"Speed test\": \"Throughput Download\""
-        },
-        "notes": "54 differences / 160 entries in 5 scenarios: continuous/run-length-2h, test/cont-done, test/cont-upload, test/cont-warmup, test/continuous. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage. Context conflict, not a parity difference the harness drives: the prototype's Escape and Enter guard (docs/design_system/ui_kits/app/Prototype.jsx:58 and :63) names only the \"continuous\" state, so during cont-upload Escape does not stop the run and Enter is not held back; screens.md §1 gives Continuous one Stop for the whole run, upload included, as the Vue Test screen does. The guard is a behavior of its own, not part of this cluster's wording: a decision here does not settle it, and it needs its own decision in triage."
-      },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
       "resolution": null
     },
     {
@@ -69872,10 +72136,36 @@
         },
         "notes": "3 differences / 12 entries in 3 scenarios: responsiveness/few-samples, responsiveness/not-reported, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as ui/i18n-a11y.md wins over the export; the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-20 that the spec wins: a protocol not reported reads \"not reported — treated as HTTP/1.1\" (measurement.md section 12), as the kit says it. The RPM numbers stay the demo's own.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "responsiveness/few-samples": {
+          "50b521b5bf68": "*"
+        },
+        "responsiveness/not-reported": {
+          "d4a39a952c0e": "*"
+        },
+        "responsiveness/uncertain": {
+          "221ea35e609f": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "vue",
+          "what": "web/src/i18n/locales/en/a11y.json: treatedH1 reads \"unavailable, protocol not reported — treated as HTTP/1.1\".",
+          "done": false
+        },
+        {
+          "target": "fixture",
+          "what": "After the Vue fix, the RPM numbers that remain are the demo's own values: split them into an accepted fixture cluster with the maintainer's confirmation.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
