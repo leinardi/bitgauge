@@ -26571,7 +26571,7 @@
         "layer": "content",
         "path": "^(main > group \"Filter by (context )?label\"|dialogs > alertdialog \"Clear all history\\?\"|dialogs > menu \"Export\" > group \"Export (CSV|JSON)\"|dialogs > dialog \"Date range\" > radiogroup \"Preset range\"|main)$",
         "kind": null,
-        "detail": "^((button|menuitem|radio) \"|text \"(This removes 48 results|… matches “airport”\\. All 48 results))"
+        "detail": "^((button|menuitem|radio) \"|text \"\\d+ of \\d+ shown · # B used\" → |text \"(This removes 48 results|… matches “airport”\\. All 48 results))"
       },
       "type": "fixture",
       "aspect": null,
@@ -26637,6 +26637,7 @@
           "41aaefa7c222": "*"
         },
         "history/daterange": {
+          "2378602fa611": "*",
           "51cee8f1e031": "*",
           "aa5770cbf59f": "*",
           "e43d04a475b7": "*",
@@ -26645,6 +26646,7 @@
         "history/deleted": {
           "029d7b0159a8": "*",
           "51cee8f1e031": "*",
+          "5c0e3962abbc": "*",
           "e43d04a475b7": "*",
           "f481cee6f502": "*"
         },
@@ -26653,12 +26655,14 @@
           "e1317b58d466": "*"
         },
         "history/importerror": {
+          "2378602fa611": "*",
           "51cee8f1e031": "*",
           "aa5770cbf59f": "*",
           "e43d04a475b7": "*",
           "f481cee6f502": "*"
         },
         "history/importing": {
+          "2378602fa611": "*",
           "51cee8f1e031": "*",
           "aa5770cbf59f": "*",
           "e43d04a475b7": "*",
@@ -26667,6 +26671,7 @@
         "history/importresult": {
           "0aca0bb5422d": "*",
           "10d9c723948a": "*",
+          "1b3ed39d6143": "*",
           "20aa5968498c": "*",
           "3ae202692341": "*",
           "bcce8b5dc032": "*",
@@ -26677,6 +26682,7 @@
           "f481cee6f502": "*"
         },
         "history/nomatch": {
+          "3314dc9ee83b": "*",
           "51cee8f1e031": "*",
           "a0125180ca27": "*",
           "aa5770cbf59f": "*",
@@ -26684,18 +26690,21 @@
           "f481cee6f502": "*"
         },
         "history/populated": {
+          "2378602fa611": "*",
           "51cee8f1e031": "*",
           "aa5770cbf59f": "*",
           "e43d04a475b7": "*",
           "f481cee6f502": "*"
         },
         "history/safari": {
+          "2378602fa611": "*",
           "51cee8f1e031": "*",
           "aa5770cbf59f": "*",
           "e43d04a475b7": "*",
           "f481cee6f502": "*"
         },
         "history/select3": {
+          "2378602fa611": "*",
           "51cee8f1e031": "*",
           "aa5770cbf59f": "*",
           "e43d04a475b7": "*",
@@ -66984,9 +66993,11 @@
     },
     {
       "id": "v03-about-geometry",
-      "title": "About screen with the compatibility layers: the rest of the page geometry (layers-none, layers-openspeedtest, layers-librespeed, layers-networkquality, layers-all)",
+      "title": "About screen: the page geometry around the compatibility layers (about, unreachable, layers-none, layers-openspeedtest, layers-librespeed, layers-networkquality, layers-all)",
       "match": {
         "scenarios": [
+          "about",
+          "about/unreachable",
           "about/layers-none",
           "about/layers-openspeedtest",
           "about/layers-librespeed",
@@ -67401,6 +67412,155 @@
       "resolution": null
     },
     {
+      "id": "v03-history-date-range-from",
+      "title": "Date range's From date: the kit's 2026-09-09 vs Vue's 2026-09-08 for the last 30 days",
+      "match": {
+        "scenarios": [
+          "history/daterange"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "textbox \"From date\"$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §3",
+          "says": "silent on the default range's first day"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:199",
+          "says": "fromDay for 'Last 30 days' with the To date 2026-10-08"
+        },
+        "vue": {
+          "ref": "web/src/components/history/",
+          "says": "Vue's first day of the last 30 days"
+        },
+        "notes": "Recommendation, not a decision: Spec wins on behavior; the spec is silent, so the decision says which day starts \"last 30 days\"."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-history-loading-status",
+      "title": "History loading: the kit's sr-only role=status \"Loading history\" vs Vue's status named by aria-label",
+      "match": {
+        "scenarios": [
+          "history/loading"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": null,
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md",
+          "says": "status changes are announced through a live region"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:308",
+          "says": "<span role=\"status\" className=\"sr-only\">Loading history</span>"
+        },
+        "vue": {
+          "ref": "web/src/components/history/HistoryLoading.vue:34",
+          "says": "aria-label \"Loading history\" on the status"
+        },
+        "notes": "Recommendation, not a decision: Spec wins, as i18n-a11y.md wins over the export on a11y; both announce it, the kit as text content."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-history-popover-margin",
+      "title": "Narrow screens: the export now keeps the Date range popover and the Export menu 16 px from the screen's edge; Vue's sit at its edge",
+      "match": {
+        "scenarios": [
+          "history/daterange",
+          "history/export"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^dialogs > (dialog \"Date range\"|menu \"Export\")$",
+        "kind": "^x$",
+        "detail": "^16px → 0px$"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §3",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": ".pop 16 px from the edge"
+        },
+        "vue": {
+          "ref": "web/src/components/history/",
+          "says": "Reka's collision padding 0"
+        },
+        "notes": "v02-history-popover-edge (Vue wins on staying on screen) no longer covers it: both stay on screen now. Recommendation, not a decision: Kit wins, as the export wins on visuals."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-path-b-direction-icons",
+      "title": "HTTP loaded responsiveness rows: the kit names each direction with an icon labeled Download or Upload; Vue names it in the row's text",
+      "match": {
+        "scenarios": [
+          "test/*",
+          "loaded/*",
+          "result",
+          "result/*",
+          "responsiveness/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "region \"Bufferbloat\"$",
+        "kind": "^missing$",
+        "detail": "^img \"(?:Download|Upload)\"$"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md",
+          "says": "icons are decorative unless they carry meaning, which then needs a text alternative"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "img \"Download\" and img \"Upload\" before each row's value"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "the direction written in the row's text, the icon hidden"
+        },
+        "notes": "The bb8f04a note left the direction names as an icon's label to the maintainer's triage. Recommendation, not a decision: Spec wins, as i18n-a11y.md wins over the export on a11y."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
       "id": "v03-path-b-knock-on-geometry",
       "title": "Under the load card's HTTP loaded responsiveness block: Vue's heading wraps to two lines, so the load card is about 49 px taller and the Results card, the page and the Result detail's columns below it move or grow",
       "match": {
@@ -67452,6 +67612,46 @@
       "resolution": null
     },
     {
+      "id": "v03-path-b-standard-wording",
+      "title": "Standard run's Test and Result states: the HTTP loaded responsiveness rows' wording and structure (the kit's separate RPM, — and not enough samples texts vs Vue's single row text)",
+      "match": {
+        "scenarios": [
+          "test/*",
+          "loaded/*",
+          "result",
+          "result/*",
+          "responsiveness/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "region \"Bufferbloat\"$",
+        "kind": null,
+        "detail": "^(?:text \"(?:[\\d,]+RPM[^\"]*|—|not enough samples|unavailable)\"(?: \\(#\\d+\\))?$|text \"[^\"]*(?:HTTP loaded respons|direction not reported|per direction))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "the row \"HTTP loaded responsiveness — connection sharing not verifiable\" with the protocol and each direction's RPM and state"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "\"1,420RPM\", \"—\", \"not enough samples\" as separate texts per direction"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "\"Download — Upload —\" and the RPM in one row text"
+        },
+        "notes": "The same wording the Responsiveness and Continuous scenarios settled as Vue wins on 2026-10-20 (v03-test-resp-path-b, v03-result-resp-path-b), here on the standard run's states. Recommendation, not a decision: Vue wins, as those."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
       "id": "v03-result-continuous-data-used-notices",
       "title": "Result detail of the 2 h and 9 d Continuous results: the data-used notices",
       "match": {
@@ -67463,7 +67663,7 @@
         "layer": "content",
         "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
         "kind": null,
-        "detail": "^(?=.*(?:Data used: |steady window covered))"
+        "detail": "^(?!.*acket loss over TCP, so the quality scores are an upper bound)(?=.*(?:Data used: |steady window covered))"
       },
       "type": "conflict",
       "aspect": "content",
@@ -67500,7 +67700,7 @@
         "layer": "content",
         "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
         "kind": null,
-        "detail": "^(?!.*(?:Data used: |steady window covered))(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+        "detail": "^(?!.*Warm-up · not stored)(?!img \"(?:Download|Upload)\"$)(?!.*(?:Data used: |steady window covered))(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
       },
       "type": "fixture",
       "aspect": null,
@@ -67519,10 +67719,23 @@
         },
         "notes": "4 differences / 16 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: confirm as fixture; the maintainer confirms it in triage."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer confirmed on 2026-10-20 that it is a fixture difference and kept it: the 2 h and 9 d results are demo fixtures built to pass validateResult (frontend.md §9), so their maxima and events are their own. The warm-up's format was split out into v03-result-continuous-warmup-format.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/continuous-2h": {
+          "f3a5e88feeaf": "*"
+        },
+        "result/continuous-9d": {
+          "7ef0366547a1": "*",
+          "fa97934b4e27": "*"
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -67770,6 +67983,117 @@
       "resolution": null
     },
     {
+      "id": "v03-result-continuous-warmup-format",
+      "title": "Result detail of the 2 h Continuous result: the warm-up band's range, the kit's \"0–0:07\" (m:ss) vs Vue's \"0–6.5 s\"",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": null,
+        "kind": null,
+        "detail": "Warm-up · not stored"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §7",
+          "says": "silent on the warm-up band's time format"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:430",
+          "says": "wuText '0–0:07' on the Continuous chart's m:ss axis"
+        },
+        "vue": {
+          "ref": "web/src/components/result/",
+          "says": "\"0–6.5 s\", as on a standard run"
+        },
+        "notes": "Split on 2026-10-20 from v03-result-continuous-fixture by the maintainer. Recommendation, not a decision: Kit wins, since the spec is silent and the kit writes the range in the axis' own units."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-gone-card-height",
+      "title": "Result deleted and Result not found: the kit's status card is 487 px tall, Vue's 180 px, so the page is shorter",
+      "match": {
+        "scenarios": [
+          "result/deleted",
+          "result/not-found"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > (status \"Result (deleted|not found)|main \"\"$)",
+        "kind": "^height$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §7",
+          "says": "silent on geometry"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "the status card 487 px tall"
+        },
+        "vue": {
+          "ref": "web/src/pages/ResultPage.vue",
+          "says": "180 px"
+        },
+        "notes": "Recommendation, not a decision: Kit wins, as the export wins on visuals."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-packet-loss-wording",
+      "title": "Result detail's Confidence and notices: the packet-loss item's sentence (\"so the quality scores are an upper bound\" vs \"so BitGauge doesn't report it\")",
+      "match": {
+        "scenarios": [
+          "result",
+          "result/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "region \"Confidence and notices\" > list > listitem$",
+        "kind": null,
+        "detail": "acket loss over TCP, so the quality scores are an upper bound\\.\" → "
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6 (Packet loss row)",
+          "says": "\"browsers can't see packet loss over TCP\"; the quality scores carry the note \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:221",
+          "says": "\"Browsers can't see packet loss over TCP, so the quality scores are an upper bound.\""
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/result.json:159",
+          "says": "\"Browsers can't see packet loss over TCP, so BitGauge doesn't report it.\""
+        },
+        "notes": "Recommendation, not a decision: Spec wins on content; the spec gives the reason and the upper-bound note, which the kit's sentence joins."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
       "id": "v03-result-path-b-geometry",
       "title": "Result detail states: geometry of the HTTP loaded responsiveness rows (ws-close, ll-insufficient-samples, ll-reservation-broken, result, not-found, history-unavailable, …)",
       "match": {
@@ -67965,7 +68289,7 @@
         "layer": "content",
         "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
         "kind": null,
-        "detail": "^(?!.*(?:Data used: |steady window covered))(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+        "detail": "^(?!img \"(?:Download|Upload)\"$)(?!text \"(?:—|not enough samples|unavailable)\"(?: \\(#\\d+\\))?$)(?!.*(?:Data used: |steady window covered))(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
       },
       "type": "adapter",
       "aspect": null,
@@ -67984,10 +68308,83 @@
         },
         "notes": "33 differences / 120 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: confirm as adapter; the maintainer confirms it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "The maintainer confirmed on 2026-10-20 that the demo plays the wrong run for the Result detail of resp-needs-h2 and resp-not-reported: its upload is insufficient and its grade A, where the kit shows a complete standard run graded B. The pings and warm-up ends that remain are the demo's own values, kept as v02-fixture-result-run.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/resp-few-samples": {
+          "054d41a823f5": [
+            "dark-narrow",
+            "light-desktop",
+            "light-narrow"
+          ],
+          "71cbf3647d15": [
+            "dark-desktop"
+          ],
+          "ceab04c09c3d": "*",
+          "e94985b75879": "*"
+        },
+        "result/resp-needs-h2": {
+          "2cd6da0b498c": [
+            "dark-desktop",
+            "dark-narrow",
+            "light-desktop"
+          ],
+          "329fe039101b": "*",
+          "38bdd63fffdd": "*",
+          "5fe193f89896": "*",
+          "62f290bcb8ae": "*",
+          "6a8a134d2a79": [
+            "light-narrow"
+          ],
+          "bc6b43f6fee5": "*",
+          "c43b50d7c182": "*",
+          "ceab04c09c3d": "*",
+          "cf8dfa027930": "*",
+          "da9f2fbfe39d": "*",
+          "e94985b75879": "*"
+        },
+        "result/resp-not-reported": {
+          "2cd6da0b498c": [
+            "dark-narrow",
+            "light-desktop",
+            "light-narrow"
+          ],
+          "329fe039101b": "*",
+          "38bdd63fffdd": "*",
+          "5fe193f89896": "*",
+          "62f290bcb8ae": "*",
+          "6a8a134d2a79": [
+            "dark-desktop"
+          ],
+          "bc6b43f6fee5": "*",
+          "c43b50d7c182": "*",
+          "ceab04c09c3d": "*",
+          "cf8dfa027930": "*",
+          "da9f2fbfe39d": "*",
+          "e94985b75879": "*"
+        },
+        "result/resp-uncertain": {
+          "71cbf3647d15": "*",
+          "ceab04c09c3d": "*",
+          "e94985b75879": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "adapter",
+          "what": "web/src/demo: the Result detail of result/resp-needs-h2 and result/resp-not-reported plays a complete standard run (upload measured, grade B), as the kit's.",
+          "done": false
+        },
+        {
+          "target": "fixture",
+          "what": "Once the run is fixed, what remains (19 vs 20 pings, warm-up ends, failed request span) goes to v02-fixture-result-run with the maintainer's confirmation.",
+          "done": false
+        }
+      ],
+      "status": "decided",
       "resolution": null
     },
     {
@@ -68004,7 +68401,7 @@
         "layer": "content",
         "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
         "kind": null,
-        "detail": "^(?!.*(?:Data used: |steady window covered))(?=.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))"
+        "detail": "^(?!.*acket loss over TCP, so the quality scores are an upper bound)(?!.*(?:Data used: |steady window covered))(?=.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))"
       },
       "type": "conflict",
       "aspect": "content",
@@ -68272,6 +68669,236 @@
       "resolution": null
     },
     {
+      "id": "v03-settings-phases-legend",
+      "title": "Settings, Test preset: the kit's \"Phases\" text inside the Phases group, Vue's outside it",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Test preset\"",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md",
+          "says": "groups are named by their legend"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "the legend inside the group"
+        },
+        "vue": {
+          "ref": "web/src/pages/settings/",
+          "says": "the label before the group"
+        },
+        "notes": "Recommendation, not a decision: Spec wins, as i18n-a11y.md wins over the export on a11y."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-settings-result-label",
+      "title": "Settings, Display and behavior: the kit's Result label row first with \"Optional, up to 64 characters. …\"; Vue's after Auto-start, with the label link parameter in its caption, so the whole section and page move",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^(?!main > region \"Test preset\")(?!main > region \"Connections and limits\")",
+        "kind": "^(?!padding-(?:top|bottom)$)",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §4",
+          "says": "the Result label setting"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "Result label first, \"Optional, up to 64 characters. Pre-fills the label of every result in this browser.\""
+        },
+        "vue": {
+          "ref": "web/src/pages/SettingsPage.vue",
+          "says": "Result label after Auto-start, \"Pre-fills the label of every result in this browser, as the label link parameter does for one page load.\""
+        },
+        "notes": "Covers the row's content and every box it moves. Recommendation, not a decision: Spec wins on content, kit on the place."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-settings-select-padding",
+      "title": "Settings selects (Language, Overhead compensation): the kit's 0 px vertical padding vs Vue's 8 px",
+      "match": {
+        "scenarios": [
+          "settings",
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "style",
+        "path": "^main > combobox ",
+        "kind": "^padding-(top|bottom)$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §4",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "DS.Select, padding 0"
+        },
+        "vue": {
+          "ref": "web/src/components/ui/select",
+          "says": "shadcn-vue select, padding 8 px"
+        },
+        "notes": "Recommendation, not a decision: Kit wins, as the export wins on visuals."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-settings-stream-count-name",
+      "title": "Settings, Advanced: the stream count field's accessible name, the kit's \"Streams\" vs Vue's \"Stream count\"",
+      "match": {
+        "scenarios": [
+          "settings/*"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "group \"Stream count\"$",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §4",
+          "says": "Stream count"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/Settings.jsx",
+          "says": "spinbutton \"Streams\""
+        },
+        "vue": {
+          "ref": "web/src/pages/SettingsPage.vue",
+          "says": "spinbutton \"Stream count\""
+        },
+        "notes": "Recommendation, not a decision: Spec wins, as i18n-a11y.md wins over the export on a11y."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-share-date-fixture",
+      "title": "Share dialog: the kit's saved run of Oct 12 vs the demo's run of Oct 8 in the image and the text summary",
+      "match": {
+        "scenarios": [
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^dialogs > dialog \"Share result\" > region \"(Share image|Text summary)\"",
+        "kind": null,
+        "detail": "Oct 12, 2026"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's results are its own"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:328",
+          "says": "saved iso 2026-10-12"
+        },
+        "vue": {
+          "ref": "web/src/demo/",
+          "says": "the run's own date, Oct 8"
+        },
+        "notes": "Recommendation, not a decision: confirm as fixture, as content-result-time."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer confirmed on 2026-10-20 that it is a fixture difference and kept it: the date is the demo run's own, as content-result-time; the kit's Oct 12 is a mock.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "share/complete": {
+          "0d2960d7a30a": "*",
+          "4a3dd18d7ef5": "*",
+          "ff46229b7b28": "*"
+        }
+      },
+      "actions": [],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "v03-share-dialog-geometry",
+      "title": "Share dialog on the Test screen: its text summary 47 px shorter in Vue, the dialog and its buttons with it, and the share image's wordmark and grade boxes a few px apart",
+      "match": {
+        "scenarios": [
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^dialogs > ",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §5",
+          "says": "silent on geometry"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "Text summary 264 px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/SharePanel.vue",
+          "says": "217 px"
+        },
+        "notes": "Recommendation, not a decision: Kit wins, as the export wins on visuals."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
       "id": "v03-test-announcement",
       "title": "Test screen states: the live announcement (idle, countdown, connecting, latency, download, upload, …)",
       "match": {
@@ -68302,7 +68929,9 @@
           "test/cancelled-download",
           "test/cancelled-late",
           "test/cancelled-slow",
-          "test/error"
+          "test/error",
+          "loaded/ll-no-probe-path",
+          "loaded/ll-no-steady-window"
         ],
         "projects": null,
         "layer": "content",
@@ -68623,10 +69252,20 @@
         },
         "notes": "2 differences / 8 entries in 1 scenarios: test/cont-done. Recommendation, not a decision: confirm as fixture; the maintainer confirms it in triage."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer confirmed on 2026-10-20 that it is a fixture difference and kept it: the suggestions are the demo history's own labels (frontend.md §9), as v02-fixture-label-suggestions.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "test/cont-done": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -68644,7 +69283,7 @@
         "layer": "content",
         "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
         "kind": null,
-        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+        "detail": "^(?!img \"(?:Download|Upload)\"$)(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
       },
       "type": "conflict",
       "aspect": "content",
@@ -69416,10 +70055,32 @@
         },
         "notes": "8 differences / 32 entries in 4 scenarios: responsiveness/few-samples, responsiveness/needs-h2, responsiveness/not-reported, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: confirm as fixture; the maintainer confirms it in triage."
       },
-      "decision": null,
-      "owned": {},
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer confirmed on 2026-10-20 that it is a fixture difference and kept it: the suggestions are the demo history's own labels (frontend.md §9), as v02-fixture-label-suggestions.",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "responsiveness/few-samples": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        },
+        "responsiveness/needs-h2": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        },
+        "responsiveness/not-reported": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        },
+        "responsiveness/uncertain": {
+          "3a7f086cafb5": "*",
+          "58c5a79b09a0": "*"
+        }
+      },
       "actions": [],
-      "status": "open",
+      "status": "accepted",
       "resolution": null
     },
     {
