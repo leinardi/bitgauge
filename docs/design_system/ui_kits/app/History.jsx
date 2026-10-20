@@ -178,7 +178,7 @@ class History extends React.Component {
     const selSummary = !BG || !selN ? '' : selN === 2 ? <>{selR[0][1] === selR[1][1] ? selR[0][1] + ' · ' : ''}{BG.timeList(selD, 'day')}</> : BG.timeRange(selD[0], selD[selD.length - 1], 'day');
     const rangeEl = custom && BG ? BG.timeRange(custom[0], custom[1], 'date') : null;
     const used = this.state.usage != null && BG && BG.bytes ? ' · ' + BG.bytes(this.state.usage) + ' used' : '';
-    const countText = empty ? '0 results' : unavail ? 'Not saved in this window' : loading ? 'Loading…' : (nomatch ? `0 of ${total} shown` : `${shownN} of ${total} shown`) + used;
+    const countText = empty ? '0 results' + used : unavail ? 'Not saved in this window' : loading ? 'Loading…' : (nomatch ? `0 of ${total} shown` : `${shownN} of ${total} shown`) + used;
     const sk = (w, f) => ({ w, f });
     return {
       rootH: m && (is('compare') || is('confirm')) ? '100%' : 'auto', rootOv: m && (is('compare') || is('confirm')) ? 'hidden' : 'visible',

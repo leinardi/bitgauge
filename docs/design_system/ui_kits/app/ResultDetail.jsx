@@ -41,7 +41,7 @@ class ResultDetail extends React.Component {
   renderVals() {
     const BG = window.BG, on = v => this.on(v);
     const m = on(this.props.mobile), tv = on(this.props.tableView);
-    const UNS = { 'history-unavailable': 'History unavailable · nothing is saved in this window', 'not-saved-partial': 'Partial results are not saved', 'not-saved-missing': 'This result isn\u2019t in this browser\u2019s history' }, cont = this.props.kind === 'continuous';
+    const UNS = { 'history-unavailable': 'History unavailable · nothing is saved in this window', 'not-saved-partial': 'Partial results are not saved', 'not-saved-missing': "This result isn't in this browser's history" }, cont = this.props.kind === 'continuous';
     // Loaded latency without a value (measurement §11): reason → [JSON source, label source, samples].
     const LLR = { 'no-steady-window': 'no steady window', 'insufficient-samples': 'fewer than 10 samples', 'reservation-broken': 'HTTP/1.1 reservation not held', 'no-probe-path': 'no latency probe' };
     const UPSRC = { 'no-steady-window': ['websocket', 'WebSocket', 0], 'insufficient-samples': ['http-h2', 'HTTP/2 probe', 7], 'reservation-broken': ['http-h1-reserved', 'HTTP/1.1 reserved', 24], 'no-probe-path': ['none', null, 0] };
