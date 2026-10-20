@@ -2,9 +2,9 @@
 
 > A self-hosted, browser-based network speed test for LAN, homelab and VPN links.
 >
-> **Status: v0.1 and v0.2 implemented, not yet released.** The specification was approved on
-> 2026-10-12 and both are built against it; the first release waits for its manual accuracy runs
-> and release setup ([docs/release.md](docs/release.md)). Status per feature area:
+> **Status: v0.1, v0.2 and v0.3 implemented, not yet released.** The specification was approved
+> on 2026-10-12 and all three are built against it; the first release waits for its manual accuracy
+> runs and release setup ([docs/release.md](docs/release.md)). Status per feature area:
 > [docs/STATUS.md](docs/STATUS.md).
 
 BitGauge measures the link between a browser and a server you run yourself: a NAS on the LAN, a

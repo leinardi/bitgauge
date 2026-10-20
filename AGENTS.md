@@ -7,18 +7,18 @@ well under 1 Mbit/s to multi-Gbit. One stateless Go binary with an embedded Vue 
 measurement engine runs in the browser. Optional compatibility layers for OpenSpeedTest,
 LibreSpeed and Apple `networkQuality` clients.
 
-**Status: v0.1 and v0.2 implemented, not yet released; specification approved by the maintainer
-on 2026-10-12.** The product, the engineering scaffold (build files, linters, CI, release scripts,
-test harnesses, agent skills) and the demo build are in place, and every gate is active (see
-[Dormant gates and activation](#dormant-gates-and-activation)). The release waits for the manual
-steps of [`docs/release.md`](docs/release.md#how-to-release). Full spec:
+**Status: v0.1, v0.2 and v0.3 implemented, not yet released; specification approved by the
+maintainer on 2026-10-12.** The product, the engineering scaffold (build files, linters, CI, release
+scripts, test harnesses, agent skills) and the demo build are in place, and every gate is active
+(see [Dormant gates and activation](#dormant-gates-and-activation)). The release waits for the
+manual steps of [`docs/release.md`](docs/release.md#how-to-release). Full spec:
 [`docs/features/`](docs/features/README.md). Per-feature implementation status:
 [`docs/STATUS.md`](docs/STATUS.md); check it before assuming a feature exists or not.
 
 ## Components
 
-The product exists: v0.1 and v0.2 are in the tree, and [`docs/STATUS.md`](docs/STATUS.md) gives
-the status per feature area, v0.3 included. Package details:
+The product exists: v0.1, v0.2 and v0.3 are in the tree, and [`docs/STATUS.md`](docs/STATUS.md)
+gives the status per feature area. Package details:
 [`docs/features/architecture.md` §9](docs/features/architecture.md#9-planned-package-layout).
 
 - **`cmd/bitgauge/`**: the binary; `serve` (default) and `healthcheck` subcommands.

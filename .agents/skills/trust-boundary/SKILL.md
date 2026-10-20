@@ -21,7 +21,7 @@ hostile, or simply large.
 
 BitGauge has no authentication, sessions or secrets: its boundaries are about identity for limits,
 bytes, and what leaves the process. The Go packages named here exist since v0.1, except
-`internal/metrics` (since v0.2) and `internal/compat/` (v0.3, not built yet); the image tests
+`internal/metrics` (since v0.2) and `internal/compat/` (since v0.3); the image tests
 exist.
 
 How to use it, before writing the change:

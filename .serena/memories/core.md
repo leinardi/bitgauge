@@ -1,9 +1,9 @@
 # bitgauge — Core
 
 Self-hosted browser speed test: one stateless Go binary embedding a Vue SPA; the measurement engine
-runs in the browser (Web Worker). **Specification approved 2026-10-12; v0.1 and v0.2 implemented,
-not yet released.** The product, tooling, meta-tests, CI, the harness and the demo build exist.
-Per-feature status: `docs/STATUS.md` (check it before assuming a feature exists).
+runs in the browser (Web Worker). **Specification approved 2026-10-12; v0.1, v0.2 and v0.3
+implemented, not yet released.** The product, tooling, meta-tests, CI, the harness and the demo
+build exist. Per-feature status: `docs/STATUS.md` (check it before assuming a feature exists).
 
 ## Source map
 
@@ -11,7 +11,7 @@ Per-feature status: `docs/STATUS.md` (check it before assuming a feature exists)
 cmd/bitgauge/             serve (default) + healthcheck subcommands
 internal/                 buildinfo, config (koanf), logger (slog), server (chi, middleware),
                           handlers (native API), clientip (+ server.labels), ratelimit, metrics
-                          (v0.2); not built yet: compat/{openspeedtest,librespeed,nq} (v0.3)
+                          (v0.2), compat/{openspeedtest,librespeed,nq} (v0.3)
 api/openapi.yaml          native API contract under /api/v1
 web/                      the Vue SPA (web/src), embed.go, tooling (package.json, eslint/vite/playwright)
 web/src/engine/           framework-free engine; app imports only engine/messages.ts

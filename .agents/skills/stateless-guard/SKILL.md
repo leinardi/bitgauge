@@ -20,7 +20,7 @@ except the in-memory state listed in §1, and nothing leaves the process except 
 accepted connections. Lint guards part of that, the image test another part, review the rest.
 
 `cmd/bitgauge` and the `internal/` packages named here exist since v0.1, except
-`internal/metrics` (since v0.2) and `internal/compat/` (v0.3, not built yet). The guards exist:
+`internal/metrics` (since v0.2) and `internal/compat/` (since v0.3). The guards exist:
 `.golangci.yaml` with `test/boundary`, `test/internal/netguard`, `test/internal/syscalltrace`,
 `test/image` and `test/dockerfiles`.
 

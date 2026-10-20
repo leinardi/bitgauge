@@ -17,9 +17,9 @@ Rules derived from [`.golangci.yaml`](../../../.golangci.yaml) (golangci-lint v2
 linters enforce, §16–§18 are review rules.
 
 **Spec first.** The Go code is the product, `cmd/bitgauge` and the `internal/` packages
-`buildinfo`, `clientip`, `config`, `handlers`, `logger`, `metrics` (since v0.2), `ratelimit` and
-`server`, plus tooling under `test/` (meta-tests, the `image`-tagged image tests, the
-`harness`-tagged accuracy harness). `internal/compat/` (v0.3) is not built yet
+`buildinfo`, `clientip`, `config`, `handlers`, `logger`, `metrics` (since v0.2), `ratelimit`,
+`server` and `compat/` (`openspeedtest`, `librespeed`, `nq`, since v0.3), plus tooling under
+`test/` (meta-tests, the `image`-tagged image tests, the `harness`-tagged accuracy harness)
 ([architecture.md §9](../../../docs/features/architecture.md#9-planned-package-layout),
 [backend.md §1](../../../docs/features/technical-stack/backend.md#1-package-map)); product code
 implements the approved specification (AGENTS.md, "Project rules"). A new Go package needs a row

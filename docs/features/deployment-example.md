@@ -103,8 +103,8 @@ services:
       BITGAUGE_SERVER__DISPLAY_NAME: home
       BITGAUGE_SERVER__PUBLIC_URL: https://speed.example.lan
       BITGAUGE_SERVER__TRUSTED_PROXIES: 172.30.0.2/32
-      # From v0.3, which ships the networkQuality layer; v0.1 rejects the toggle and exits 2.
-      # BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
+      # From v0.3, which ships the networkQuality layer; an earlier release rejects it and exits 2.
+      BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
       # From v0.2, which ships the Prometheus endpoint; v0.1 rejects the toggle and exits 2.
       # The proxy lets only the Prometheus server read /metrics.
       # BITGAUGE_METRICS__ENABLED: "true"
@@ -154,10 +154,10 @@ tls:
   headers from anything else are ignored ([security.md
   §4](security.md#4-client-ip-and-trusted-proxies)).
 - **networkQuality from v0.3.** The layer ships in v0.3 ([roadmap.md
-  §1.3](roadmap.md#13-version-03-compatibility-responsiveness-and-long-runs)); until then its
-  toggle stays commented out, because a release without the layer rejects it and exits with status
-  2 ([configuration.md §4](configuration.md#4-fail-closed-validation)). The TLS 1.3 option and
-  `public_url` do no harm before then.
+  §1.3](roadmap.md#13-version-03-compatibility-responsiveness-and-long-runs)), and its toggle is
+  on: it builds its `https` URLs from `public_url`, which the example sets, and needs the TLS 1.3
+  option. A release before v0.3 rejects the toggle and exits with status 2 ([configuration.md
+  §4](configuration.md#4-fail-closed-validation)), so drop the line to run one.
 - **Metrics for the scraper only.** A second router takes `/metrics` on the same host, its rule
   longer and so of higher priority than the first, and its `ipAllowList` middleware answers `403`
   to every address but the Prometheus server's (`192.168.1.20` here; use yours). It carries the

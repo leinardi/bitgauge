@@ -89,7 +89,7 @@ happened.
 
 ## Compatibility layers keep their upstream wire formats
 
-The routes under `internal/compat` (v0.3, not built yet) mirror third-party contracts and are not
+The routes under `internal/compat` (since v0.3) mirror third-party contracts and are not
 part of the OpenAPI document. They answer with the statuses and bodies
 [compatibility.md](../../../../docs/features/compatibility.md) specifies for each client, not with
 the native envelope:

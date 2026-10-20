@@ -442,8 +442,9 @@ carries a recommendation; where the specification already relies on an answer, i
     with status 2. Current answer: **the toggle is shown commented out, with the release that
     brings it, in the page and in the shipped files alike; every shipped compose file's BitGauge
     environment must load and validate with no problem, which `test/deployments` checks against the
-    configuration package itself.** At v0.3 the line is uncommented in the page and the examples
-    together. Recommendation: keep it. See
+    configuration package itself.** v0.3 uncommented the networkQuality line in the page and the
+    Traefik, Caddy and nginx examples together, each of which sets an `https` `public_url`.
+    Recommendation: keep it. See
     [deployment-example.md §2](deployment-example.md#2-compose-with-traefik).
 45. How does the Prometheus endpoint behave, and what does it count? Current answer: **a counter
     `bitgauge_http_aborts_total{group,direction}` records the transfers a client abandoned before

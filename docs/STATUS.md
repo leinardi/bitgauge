@@ -2,12 +2,12 @@
 
 Per-feature-area implementation status with code pointers. Version-level milestones live in
 [`features/roadmap.md`](features/roadmap.md). The specification was approved by the maintainer on
-2026-10-12, and every v0.1 and v0.2 row is implemented, the harness's loaded-latency evaluation
-included, the v0.2 evidence of [testing.md
-§5](features/technical-stack/testing.md#5-accuracy-harness). Neither version has been released yet,
-since the release waits for the manual harness tiers and the one-time setup of
-[release.md](release.md#how-to-release). A row leaves `Spec'd` only in the change that completes it,
-and a partly built row reads `Spec'd (vX.Y), in progress: …` with code pointers.
+2026-10-12, and every v0.1, v0.2 and v0.3 row is implemented, the harness's checks included: the
+v0.2 loaded-latency evaluation and the v0.3 path B, compatibility-client and Continuous memory
+checks of [testing.md §5](features/technical-stack/testing.md#5-accuracy-harness). None of these
+versions has been released yet, since the release waits for the manual harness tiers and the
+one-time setup of [release.md](release.md#how-to-release). A row leaves `Spec'd` only in the change
+that completes it, and a partly built row reads `Spec'd (vX.Y), in progress: …` with code pointers.
 
 > **Keep this honest:** update the table in the same PR that changes a feature's status.
 > Stale status claims in instruction files are worse than no claims.

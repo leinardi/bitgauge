@@ -8,9 +8,9 @@ linking back to the same product constraints. Terms used across all pages are de
 [glossary](glossary.md).
 
 Implementation progress per feature area is tracked in [`../STATUS.md`](../STATUS.md). The
-specification was approved by the maintainer on 2026-10-12 and v0.1 and v0.2 are implemented, not
-yet released: the approved specification is the contract, and a behavior change still starts as a
-docs change.
+specification was approved by the maintainer on 2026-10-12 and v0.1, v0.2 and v0.3 are implemented,
+not yet released: the approved specification is the contract, and a behavior change still starts as
+a docs change.
 
 ## Start Here
 

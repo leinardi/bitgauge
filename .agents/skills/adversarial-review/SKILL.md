@@ -68,8 +68,8 @@ site agrees.
 
 For each changed path, load the matching pages **before** judging that file — they are the source of
 truth, and a violation there is a finding even when lint is green. Load only what the diff touches.
-v0.1 and v0.2 are implemented; paths marked **not built yet** belong to a later milestone, so a diff
-that creates one is also subject to the spec-first check in §3.
+v0.1, v0.2 and v0.3 are implemented; a diff that creates a path a later milestone brings is also
+subject to the spec-first check in §3.
 
 | Changed path | Load | Check |
 | --- | --- | --- |
@@ -77,7 +77,7 @@ that creates one is also subject to the spec-first check in §3.
 | `internal/config/` | `trust-boundary`, `go-style-guide`; `configuration.md`, `technical-stack/configuration-security.md` | fail-closed validation of every key, read once, never written; §5 (e) |
 | `internal/server/`, `internal/clientip/`, `internal/ratelimit/` | `trust-boundary`, `go-style-guide`; `security.md` §2, §4, §5, `architecture.md` §6 | middleware order, security headers and CSP, `X-Forwarded-For` only through `server.trusted_proxies` (never `X-Real-IP`), a bounded rate-limit table |
 | `internal/handlers/` | `api-contract`, `trust-boundary`, `go-style-guide`; `wire-protocol.md`, `measurement.md`, `technical-stack/backend.md` | no state beyond the request; download allocates nothing per request; upload drains before responding and counts on the 100 ms server grid |
-| `internal/compat/{openspeedtest,librespeed,nq}/` (not built yet, v0.3) | `trust-boundary`, `go-style-guide`; `compatibility.md`, `security.md` §6 | off by default, one toggle each; depends on the native building blocks, never the reverse; no copied code |
+| `internal/compat/{openspeedtest,librespeed,nq}/` (since v0.3) | `trust-boundary`, `go-style-guide`; `compatibility.md`, `security.md` §6 | off by default, one toggle each; depends on the native building blocks, never the reverse; no copied code |
 | `internal/metrics/` (since v0.2), `internal/logger/`, `internal/buildinfo/` | `go-style-guide`; `decisions.md` §6, §7 | metrics off by default, no per-client labels; never log bodies, headers or WebSocket messages |
 | any `**/*.go` | `go-style-guide`; `.golangci.yaml` | golangci-lint v2, all linters; the depguard and forbidigo boundary rules that `test/boundary` pins |
 | `api/openapi.yaml` | `api-contract`; `wire-protocol.md` | native API under `/api/v1`; spec and handler agree; `make api-types` regenerated in the same commit |
