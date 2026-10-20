@@ -38,9 +38,19 @@ const fail = (error: unknown) => self.reportError(error)
 const PRESS_STOP: DemoPressStop = { type: 'demo-press-stop' }
 const pressStop = () => self.postMessage(PRESS_STOP)
 
+// A fast-forward's clock runs each due timer in a task of its own: a message on a channel, which
+// the browser does not clamp as it clamps a nested zero timer.
+const channel = new MessageChannel()
+const tasks: (() => void)[] = []
+channel.port1.onmessage = () => clock.task(() => tasks.shift()?.())
+const nextTask = (fn: () => void) => {
+  tasks.push(fn)
+  channel.port2.postMessage(null)
+}
+
 function sessionFor(command: DemoCommand): DemoSession {
   const scenario: DemoScenario = DEMO_SCENARIOS[command.scenario]
-  return new DemoSession({ base: clock, command, scenario, profile: DEMO_LINKS[scenario.link], info: scenarioInfo(command), browser, emit, fail, pressStop })
+  return new DemoSession({ base: clock, command, scenario, profile: DEMO_LINKS[scenario.link], info: scenarioInfo(command), browser, emit, fail, pressStop, nextTask })
 }
 
 let session = sessionFor(FIRST)

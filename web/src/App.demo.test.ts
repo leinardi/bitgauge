@@ -26,6 +26,7 @@
 
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { routerKey } from 'vue-router'
 
 import { attachWorker } from '@/demo/control'
 import DemoPanel from '@/demo/DemoPanel.vue'
@@ -221,8 +222,53 @@ describe('the demo panel', () => {
     expect(navigate).toHaveBeenCalledTimes(13)
   })
 
+  it('loads a Continuous scenario with its preset and direction, and the 2 h run length when chosen', async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ open: true }))
+    const navigate = vi.fn()
+    const wrapper = mount(DemoPanel, { props: { navigate } })
+    await wrapper.get('[data-testid="demo-scenario"]').setValue('cont-upload')
+    expect(navigate).toHaveBeenLastCalledWith('/?preset=continuous&test=upload')
+    await wrapper.get('[data-testid="demo-run-length-2h"]').trigger('click')
+    expect(navigate).toHaveBeenLastCalledWith('/?preset=continuous&test=upload&duration=7200')
+    // A scenario that is not Continuous keeps its own parameters, whatever the run length.
+    await wrapper.get('[data-testid="demo-scenario"]').setValue('countdown')
+    expect(navigate).toHaveBeenLastCalledWith('/?run=1')
+    wrapper.unmount()
+  })
+
+  it('opens the Continuous result the Result detail’s Kind and length choose, once the page has it', async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ open: true }))
+    const wrapper = mount(DemoPanel, { props: { navigate: vi.fn() } })
+    expect(wrapper.find('[data-testid="demo-result-length-9d"]').exists()).toBe(false)
+    await wrapper.get('[data-testid="demo-result-kind-continuous"]').trigger('click')
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ resultKind: 'continuous', openResult: true })
+    await wrapper.get('[data-testid="demo-result-length-9d"]').trigger('click')
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ resultLength: '9d', openResult: true })
+    wrapper.unmount()
+    // The next page load routes to that result and clears the request.
+    const push = vi.fn()
+    const reloaded = mount(DemoPanel, { props: { navigate: vi.fn() }, global: { provide: { [routerKey as symbol]: { push } } } })
+    expect(push).toHaveBeenCalledWith({ name: 'result', params: { id: 'd0000000-0000-4000-8000-0000000000c9' } })
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ openResult: false })
+    reloaded.unmount()
+  })
+
+  it('loads a screen again where it is, and the app’s root from a Result detail, whose assets resolve below it', async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ open: true }))
+    const navigate = vi.fn()
+    const wrapper = mount(DemoPanel, { props: { navigate } })
+    window.history.replaceState(null, '', '/history')
+    await wrapper.get('[data-testid="demo-scenario"]').setValue('countdown')
+    expect(navigate).toHaveBeenLastCalledWith('/history?run=1')
+    window.history.replaceState(null, '', '/result/d0000000-0000-4000-8000-0000000000c9')
+    await wrapper.get('[data-testid="demo-result-kind-continuous"]').trigger('click')
+    await wrapper.get('[data-testid="demo-result-length-9d"]').trigger('click')
+    expect(navigate).toHaveBeenLastCalledWith('/?run=1')
+    wrapper.unmount()
+  })
+
   it('restores only what it knows: an unknown stored value falls back to its default', async () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ open: true, scenario: 'continuous', speed: 3, errorKind: 'meteor', timerResolutionMs: 0, uploadConfidence: 'low:lucky' }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ open: true, scenario: 'cont-later', speed: 3, errorKind: 'meteor', timerResolutionMs: 0, uploadConfidence: 'low:lucky' }))
     const wrapper = mount(DemoPanel, { props: { navigate: vi.fn() } })
     await flushPromises()
     expect((wrapper.get('[data-testid="demo-scenario"]').element as HTMLSelectElement).value).toBe('idle')
@@ -234,12 +280,12 @@ describe('the demo panel', () => {
 })
 
 describe('the demo history', () => {
-  async function bootWith(history: string) {
+  async function bootWith(history: string, more: object = {}) {
     freshIndexedDB()
     const db = await openHistoryDB()
     await db.put('results', resultFixture())
     db.close()
-    const page = await boot({ history })
+    const page = await boot({ history, ...more })
     const { useHistory } = await import('@/composables/useHistory')
     // The seed writes eight full results, series and samples included, before the list is read.
     await vi.waitFor(() => expect(useHistory().status.value).not.toBe('loading'), { timeout: 4000 })
@@ -255,6 +301,19 @@ describe('the demo history', () => {
     const { page, history } = await bootWith(variant)
     expect(history.status.value).toBe('available')
     expect(history.results.value).toHaveLength(count)
+    page.unmount()
+  })
+
+  it.each([
+    ['populated', 9, false],
+    ['empty', 1, false],
+    ['', 2, true],
+  ])('adds the Continuous result the Result detail opens to the %s variant, keeping what was stored only for the browser history', async (variant, count, kept) => {
+    const { page, history } = await bootWith(variant, { resultKind: 'continuous', resultLength: '9d' })
+    const ids = history.results.value.map((result) => result.id)
+    expect(ids).toHaveLength(count)
+    expect(ids).toContain('d0000000-0000-4000-8000-0000000000c9')
+    expect(ids.includes(resultFixture().id)).toBe(kept)
     page.unmount()
   })
 

@@ -425,7 +425,12 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
     own, on top of the panel's speed, so a run the kit shows after tens of minutes reaches that
     state in about a minute; the rate is a property of the scenario and changes no rule of the
     engine. The fast-forward's own load is not the device's: a fast-forwarded scenario reports a
-    busy share of 0 unless the panel's CPU-bound is on, so it never raises `cpu-bound`.
+    busy share of 0 unless the panel's CPU-bound is on, so it never raises `cpu-bound`. At that
+    rate the browser's clamp of a nested timer to a few milliseconds would stretch each short wait
+    by a quarter of a second of demo time, so the clock runs each due timer in a task of its own,
+    at its instant; it slows to the panel's speed for the last 2 s before a scripted stop or hold,
+    which then lands on its instant; and the page takes the Worker's messages, about a thousand a
+    second, once per animation frame, so it renders once per batch.
   - **Link fixture.** A LAN link at 921 Mbit/s over HTTP/2, the kit's Continuous fixture
     (`TestScreen.jsx`), with the LAN's loaded delays.
   - **Test screen controls.** "Responsiveness" with the kit's five options (`RESP_OPTS`), each

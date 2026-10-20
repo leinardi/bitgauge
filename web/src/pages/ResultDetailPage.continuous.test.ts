@@ -28,6 +28,7 @@ import { flushPromises, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { shallowRef } from 'vue'
 
+import { continuousFixture } from '@/demo/continuousResults'
 import { type Result, validateResult } from '@/engine/messages'
 import { openHistoryDB } from '@/history/db'
 import { continuousResult } from '@/test/continuous'
@@ -129,6 +130,16 @@ describe('a Continuous result', () => {
     expect(foot).toContain('One row per stored 10 min cell. This 9 d 4 h 12 min run is longer than the 7-day long ring, so only its last 7 days were saved (from 52:10:06)')
     // The table starts past the warm-up end, so the foot does not say it starts there.
     expect(foot).not.toContain('warm-up end')
+    page.unmount()
+  })
+})
+
+describe('the demo’s Continuous results', () => {
+  it('say on the 9-day run’s Result detail that only its last 7 days were saved', async () => {
+    expect(validateResult(continuousFixture('9d'))).toEqual([])
+    const page = await open(continuousFixture('9d'))
+    const card = page.get('[data-testid="chart-card-download"]')
+    expect(card.text().replace(/\u00a0/gu, ' ')).toContain('9 d 4 h 12 min · last 7 days saved · 10 min cells · 6 streams')
     page.unmount()
   })
 })

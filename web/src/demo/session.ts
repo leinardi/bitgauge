@@ -31,11 +31,17 @@ import type { BrowserIdentity, Clock, Info } from '@/engine/types'
 // One demo scenario in the demo Worker (frontend.md section 9): the engine's own message loop and
 // Run, on the demo clock, against a fresh simulated link for each run. The scenario's script acts
 // at its instants, measured from the start of a phase as the run's own events report it: a user
-// stop, a failure of the selected kind, a WebSocket a proxy drops, or a hold that keeps the screen
-// in one state.
+// stop, a failure of the selected kind, a failed upload request, a WebSocket a proxy drops, or a
+// hold that keeps the screen in one state. A fast-forwarded scenario plays at its rate times the
+// panel's speed, and at the panel's speed for the last seconds before a stop or a hold.
 
 /** The busy share a CPU-bound demo reports, above measurement.md section 16's threshold. */
 const CPU_BOUND_BUSY = 0.95
+/**
+ * How long before a scripted instant a fast-forwarded scenario slows to the panel's speed: at the
+ * fast rate a timer fires seconds of demo time late, so the stop or hold would land past it.
+ */
+const SLOW_BEFORE_MS = 2000
 
 export interface SessionOptions {
   /** The real-time clock the demo clock runs on. */
@@ -52,6 +58,8 @@ export interface SessionOptions {
   fail: (error: unknown) => void
   /** Asks the page to press Stop, at a scripted stop: the page, not the session, stops the run. */
   pressStop: () => void
+  /** Runs a task of its own, unclamped, for a fast-forward's clock; absent, a zero timer of `base`. */
+  nextTask?: (fn: () => void) => void
 }
 
 export class DemoSession {
@@ -69,10 +77,13 @@ export class DemoSession {
     this.options = options
     this.command = command
     this.scenario = options.scenario
+    // A fast-forward's own load is not the device's: it reports no busy time unless CPU-bound is chosen.
+    const fastForward = this.scenario.fastForward
     this.clock = new DemoClock(options.base, {
-      speed: command.speed,
+      speed: command.speed * (fastForward ?? 1),
       resolutionMs: command.timerResolutionMs,
-      busyFraction: command.cpuBound ? CPU_BOUND_BUSY : null,
+      busyFraction: command.cpuBound ? CPU_BOUND_BUSY : fastForward === undefined ? null : 0,
+      nextTask: fastForward === undefined ? null : (options.nextTask ?? ((fn) => options.base.setTimer(0, fn))),
     })
     const emit = (event: EngineEvent) => {
       if (this.ended) {
@@ -120,16 +131,24 @@ export class DemoSession {
 
   /** Schedules what the script does once `phase` has started. */
   private script(phase: PhaseName): void {
-    const { stop, fault, hold, webSocketCloses } = this.scenario
+    const { stop, fault, hold, webSocketCloses, gaps = [], fastForward } = this.scenario
     const after = (point: ScriptPoint | undefined, action: () => void) => {
       if (point?.phase === phase) {
         this.clock.setTimer(point.afterMs, action)
       }
     }
+    const slowBefore = (point: ScriptPoint | undefined) => {
+      if (fastForward !== undefined && point !== undefined) {
+        after({ ...point, afterMs: Math.max(0, point.afterMs - SLOW_BEFORE_MS) }, () => this.clock.setSpeed(this.command.speed))
+      }
+    }
+    slowBefore(stop)
     after(stop, () => this.options.pressStop())
     after(fault, () => this.fault(fault?.kind ?? this.command.errorKind, fault?.uploads))
+    gaps.forEach((gap) => after(gap, () => this.link?.failUploads(this.clock.now(), 1)))
     after(webSocketCloses, () => this.link?.closeWebSocket(this.clock.now(), webSocketCloses?.reopen))
     if (this.command.hold) {
+      slowBefore(hold)
       after(hold, () => this.clock.hold())
     }
   }

@@ -23,11 +23,11 @@ import type { DemoResponsiveness } from '@/demo/responsiveness'
 import type { Direction, PhaseName } from '@/engine/messages'
 import type { Info } from '@/engine/types'
 
-// The demo's scenarios (frontend.md section 9): one per state of the UI kit's Test screen that v0.1
-// and v0.2 have (the kit's TEST_STATES without continuous, cont-upload, cont-warmup and cont-done),
-// one per loaded-latency case of its v0.2 panel (the WebSocket closing after idle latency, and each
-// reason the upload's loaded latency can be unavailable for), and the run its Result detail shows,
-// each a link and a script that the real engine plays out. The instants follow the kit's own
+// The demo's scenarios (frontend.md section 9): one per state of the UI kit's Test screen (its
+// TEST_STATES, the four Continuous ones included), one per loaded-latency case of its v0.2 panel
+// (the WebSocket closing after idle latency, and each reason the upload's loaded latency can be
+// unavailable for), and the run its Result detail shows, each a link and a script that the real
+// engine plays out. The instants follow the kit's own
 // defaults: its `cancelled` stops 3.1 s into upload, its `download` shows 7.5 s into download, and
 // so on.
 
@@ -70,9 +70,21 @@ export interface DemoScenario {
   webSocketCloses?: ScriptPoint & { reopen?: 'refused' | 'unanswered' }
   /** The server's base path, which the page's own path does not match. */
   basePath?: string
+  /**
+   * How many times faster than the panel's speed the scenario plays, so a Continuous state the kit
+   * shows after tens of minutes is reached in about a minute (frontend.md section 9).
+   */
+  fastForward?: number
+  /** The Continuous direction the page's URL parameters ask for: preset=continuous&test=<direction>. */
+  continuous?: Direction
+  /** Instants at which one upload request fails, which over HTTP/2 leaves its time unknown, a gap. */
+  gaps?: readonly ScriptPoint[]
 }
 
 const at = (phase: PhaseName, afterMs: number): ScriptPoint => ({ phase, afterMs })
+
+/** The kit's Continuous elapsed time, 42:18, half a second in so the screen reads it whole. */
+const CONTINUOUS_AT_MS = 2_538_500
 
 export const DEMO_SCENARIOS = {
   idle: { link: 'lan', start: false },
@@ -126,6 +138,14 @@ export const DEMO_SCENARIOS = {
   // download ends at its 10 s minimum).
   'll-no-steady-window': { link: 'lan', start: true, stop: at('upload', 3100) },
   'll-no-probe-path': { link: 'lan', start: true, webSocketCloses: { ...at('download', 9700), reopen: 'unanswered' }, stop: at('upload', 800) },
+  // The kit's Continuous states (TestScreen.jsx) on its 921 Mbit/s LAN: a download and an upload
+  // running at 42:18, the upload with the two gaps of two failed requests over HTTP/2; a download
+  // stopped 6.2 s in, during its warm-up; and a download stopped by the page at 42:18. The long
+  // ones play 60 times faster, so 42:18 comes in about 42 s.
+  continuous: { link: 'lan-921', start: true, fastForward: 60, continuous: 'download', hold: at('download', CONTINUOUS_AT_MS) },
+  'cont-upload': { link: 'lan-921', start: true, fastForward: 60, continuous: 'upload', gaps: [at('upload', 1_210_000), at('upload', 2_100_000)], hold: at('upload', CONTINUOUS_AT_MS) },
+  'cont-warmup': { link: 'lan-921', start: true, continuous: 'download', stop: at('download', 6200) },
+  'cont-done': { link: 'lan-921', start: true, fastForward: 60, continuous: 'download', stop: at('download', CONTINUOUS_AT_MS) },
 } as const satisfies Record<string, DemoScenario>
 
 export type DemoScenarioName = keyof typeof DEMO_SCENARIOS

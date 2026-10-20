@@ -24,15 +24,15 @@ import type { Info } from '@/engine/types'
 // The demo's servers and links, named as in the design export's UI kit (ui_kits/app/TestScreen.jsx):
 // "Basement NAS" reached over the LAN at 612 Mbit/s down and 438 Mbit/s up with 3.1 ms of idle
 // latency over HTTP/2, or the same LAN over HTTP/1.1 and its six connections for the
-// upload-interrupted and ws-fallback states; over a VPN at 640 kbit/s and 210 kbit/s with 48 ms;
-// and the 20 kbit/s link of its insufficient-data state. Under load the LAN's queue adds 15 ms on
+// upload-interrupted and ws-fallback states, or at the 921 Mbit/s of its Continuous states; over a
+// VPN at 640 kbit/s and 210 kbit/s with 48 ms; and the 20 kbit/s link of its insufficient-data state. Under load the LAN's queue adds 15 ms on
 // download and 39 ms on upload, the VPN's 114 ms and 262 ms, each within about a second: the kit's
 // loaded-latency numbers. A VPN queue filling more slowly would leave a run stopped in its download
 // or upload near grade B's bound, where the kit's grades C. The GET /info answers are what the
 // server would send to that client with its default configuration (configuration.md section 1),
 // with the compatibility layers the demo panel turns on.
 
-export type DemoLinkName = 'lan' | 'lan-http1' | 'vpn' | 'insufficient'
+export type DemoLinkName = 'lan' | 'lan-http1' | 'lan-921' | 'vpn' | 'insufficient'
 
 const MIB = 1024 * 1024
 
@@ -88,6 +88,18 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
     protocol: 'http/1.1',
     loaded: LAN_LOADED,
     connections: 6,
+  },
+  // The kit's Continuous fixture (TestScreen.jsx): the LAN at 921 Mbit/s down over HTTP/2, and
+  // its Continuous upload's 412 Mbit/s, with the LAN's loaded delays; six streams fill it, as on
+  // the LAN.
+  'lan-921': {
+    downloadBitsPerSecond: 921e6,
+    uploadBitsPerSecond: 412e6,
+    perRequestBitsPerSecond: { download: 165e6, upload: 75e6 },
+    rttMs: 3.1,
+    jitterMs: 0.8,
+    protocol: 'h2',
+    loaded: LAN_LOADED,
   },
   vpn: {
     downloadBitsPerSecond: 640e3,

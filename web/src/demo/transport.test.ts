@@ -66,6 +66,61 @@ describe('the demo clock', () => {
     expect(fired).toBe(false)
   })
 
+  it('runs a fast-forward’s timers each at its own instant, in a task of its own, never reading past the next', async () => {
+    const base = new FakeClock()
+    const clock = new DemoClock(base, { speed: 60, nextTask: (fn) => base.setTimer(0, fn) })
+    const fired: [number, number][] = []
+    for (const ms of [3, 10, 1]) {
+      clock.setTimer(ms, () => fired.push([ms, clock.now()]))
+    }
+    // A long real stretch: every timer reads its own instant, not the late one it ran at.
+    await base.advance(50)
+    expect(fired).toEqual([[1, 1], [3, 3], [10, 10]])
+    expect(clock.now()).toBe(3000)
+    // The reading waits at the next timer still to run.
+    clock.setTimer(100, () => fired.push([100, clock.now()]))
+    base.pause(10)
+    expect(clock.now()).toBe(3100)
+  })
+
+  it('runs a fast-forward’s next timer when one before it throws', async () => {
+    const base = new FakeClock()
+    const thrown: unknown[] = []
+    const clock = new DemoClock(base, {
+      speed: 60,
+      nextTask: (fn) =>
+        base.setTimer(0, () => {
+          try {
+            fn()
+          } catch (error) {
+            thrown.push(error)
+          }
+        }),
+    })
+    const fired: number[] = []
+    clock.setTimer(1, () => {
+      throw new Error('a failing timer')
+    })
+    clock.setTimer(2, () => fired.push(clock.now()))
+    await base.advance(50)
+    expect(thrown).toHaveLength(1)
+    expect(fired).toEqual([2])
+  })
+
+  it('changes its speed on the way, demo time carrying on, and a timer armed before keeps its instant', async () => {
+    const base = new FakeClock()
+    const clock = new DemoClock(base, { speed: 10 })
+    let at = 0
+    clock.setTimer(1000, () => (at = clock.now()))
+    await base.advance(50)
+    expect(clock.now()).toBe(500)
+    clock.setSpeed(1)
+    await base.advance(400)
+    expect(at).toBe(0)
+    await base.advance(100)
+    expect(at).toBe(1000)
+  })
+
   it('refuses a speed or a timer resolution that is not positive', () => {
     expect(() => new DemoClock(new FakeClock(), { speed: 0 })).toThrow(RangeError)
     expect(() => new DemoClock(new FakeClock(), { speed: 1, resolutionMs: 0 })).toThrow(RangeError)

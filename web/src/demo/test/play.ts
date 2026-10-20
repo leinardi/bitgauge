@@ -21,11 +21,11 @@ import { DEMO_LINKS, infoFor } from '@/demo/fixtures'
 import type { LinkProfile } from '@/demo/link'
 import { DEMO_SCENARIOS, type DemoCommand, type DemoScenario, type DemoScenarioName } from '@/demo/scenarios'
 import { DemoSession } from '@/demo/session'
-import type { EngineEvent, TestSettings } from '@/engine/messages'
+import type { Direction, EngineEvent, TestSettings } from '@/engine/messages'
 import { FakeClock } from '@/engine/test/fakeClock'
 
 // A demo session for the tests, as the demo Worker builds one, on a fake base clock that only the
-// test moves.
+// test moves; the session plays a scenario's fast-forward itself.
 
 /** Standard with the server defaults, as the fixture's GET /info offers them. */
 const SETTINGS: TestSettings = {
@@ -76,10 +76,20 @@ export function demoSession(
   return { events, failures, session, base, stopsPressed }
 }
 
-/** Configures the session with SETTINGS and starts a run, as the page does. */
-export function start(played: Played): void {
-  played.session.receive({ type: 'configure', settings: SETTINGS, basePath: '/' })
+/**
+ * Configures the session and starts a run, as the page does: with SETTINGS, or for a Continuous
+ * scenario with the Continuous preset in its direction, as its URL parameters ask the page to.
+ */
+export function start(played: Played, scenario?: DemoScenario): void {
+  const continuous = scenario?.continuous
+  const settings: TestSettings = continuous === undefined ? SETTINGS : { ...SETTINGS, preset: 'continuous', download: { minMs: null, maxMs: null }, upload: { minMs: null, maxMs: null }, continuousDirection: continuous }
+  played.session.receive({ type: 'configure', settings, basePath: '/' })
   played.session.receive({ type: 'start', visible: true })
+}
+
+/** Whether a Continuous run's one direction ended: finished, failed or stopped. */
+export function continuousEnded(events: readonly EngineEvent[], direction: Direction): boolean {
+  return events.some((event) => event.type === 'phase' && event.phase === direction && event.state !== 'started')
 }
 
 /** Whether the run reached its last phase and left it: finished, failed or skipped. */

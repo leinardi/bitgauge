@@ -18,10 +18,12 @@
 -->
 <script setup lang="ts">
 import { ChevronDown, ChevronUp, SlidersHorizontal } from '@lucide/vue'
-import { shallowRef, useId } from 'vue'
+import { inject, shallowRef, useId } from 'vue'
+import { routerKey } from 'vue-router'
 
 import AppButton from '@/components/actions/AppButton.vue'
-import { type Choice, commandOf, DEFAULTS, NAMES, restore, save, SPEEDS } from '@/demo/choice'
+import { type Choice, commandOf, DEFAULTS, NAMES, queryOf, restore, save, SPEEDS } from '@/demo/choice'
+import { continuousFixtureId } from '@/demo/continuousResults'
 import { chooseHistory, chooseScenario, onScriptedStop } from '@/demo/control'
 import { inputClass, rowClass, segmentClass, segmentGroupClass, selectClass } from '@/demo/panel/classes'
 import AboutControls from '@/demo/panel/AboutControls.vue'
@@ -29,6 +31,7 @@ import HistoryControls from '@/demo/panel/HistoryControls.vue'
 import ResultControls from '@/demo/panel/ResultControls.vue'
 import TestControls from '@/demo/panel/TestControls.vue'
 import { DEMO_SCENARIOS, isScenarioName } from '@/demo/scenarios'
+import { readBasePath } from '@/router/base'
 
 // The demo panel (frontend.md section 9), the UI kit's Demo state panel as far as the app goes: the
 // scenario and the speed here, then the Test screen, History, Result detail and About sections
@@ -59,11 +62,25 @@ const TEXT = {
   startNote: 'Start with the button or Enter; Escape stops.',
 }
 
+// The app's router; none where the panel is mounted on its own, as in its tests.
+const router = inject(routerKey, null)
 const choice = shallowRef(restore(localStorage))
 const command = commandOf(choice.value)
 const current = DEMO_SCENARIOS[command.scenario]
 chooseScenario(command)
-chooseHistory({ variant: choice.value.history, compareB: choice.value.compareB })
+chooseHistory({
+  variant: choice.value.history,
+  compareB: choice.value.compareB,
+  ...(choice.value.resultKind === 'continuous' ? { continuous: { length: choice.value.resultLength, responsiveness: choice.value.resultResponsiveness } } : {}),
+})
+// The Result detail's Continuous choice opens its result once the page has loaded with it in the
+// history, through the router: the build's assets are relative to the page, so loading /result/
+// itself would ask for them there.
+if (choice.value.openResult) {
+  choice.value = { ...choice.value, openResult: false }
+  save(localStorage, choice.value)
+  void router?.push({ name: 'result', params: { id: continuousFixtureId(choice.value.resultLength) } })
+}
 const ids = { scenario: useId() }
 
 /**
@@ -86,14 +103,23 @@ if (current.start) {
 // A scripted stop presses the same button, which a run shows as Stop, as the user would.
 onScriptedStop(() => document.querySelector<HTMLButtonElement>('[data-testid="start-button"]')?.click())
 
+/**
+ * The page to load again: this one, or the app's root from a page below one of its screens, such
+ * as /result/<id>, where the build's relative assets would resolve below that page.
+ */
+function reloadPath(): string {
+  const base = readBasePath(document)
+  const path = window.location.pathname
+  return path.startsWith(base) && !path.slice(base.length).includes('/') ? path : base
+}
+
 /** Keeps a new choice and loads the page again with its scenario's URL parameters. */
 function apply(patch: Partial<Choice>): void {
   const next = { ...choice.value, ...patch }
   choice.value = next
   save(localStorage, next)
-  const scenario = DEMO_SCENARIOS[commandOf(next).scenario]
-  const query = 'query' in scenario ? `?${scenario.query}` : ''
-  props.navigate(`${window.location.pathname}${query}`)
+  const query = queryOf(next)
+  props.navigate(`${reloadPath()}${query === '' ? '' : `?${query}`}`)
 }
 
 function toggle(): void {

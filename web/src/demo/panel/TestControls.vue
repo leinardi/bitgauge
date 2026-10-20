@@ -20,12 +20,13 @@
 import { useId } from 'vue'
 
 import { type Choice, DEFAULTS, ERROR_KINDS, NAMES, RESOLUTIONS } from '@/demo/choice'
-import { inputClass, rowClass, selectClass } from '@/demo/panel/classes'
+import { inputClass, rowClass, segmentClass, segmentGroupClass, selectClass } from '@/demo/panel/classes'
 import { DEMO_RESPONSIVENESS, isDemoResponsiveness } from '@/demo/responsiveness'
 import { isScenarioName } from '@/demo/scenarios'
 
 // The demo panel's Test screen section (frontend.md section 9, kit App.jsx): a forced state, a
-// CPU-bound Worker, the error kind, the responsiveness case and the timer resolution.
+// CPU-bound Worker, the error kind, the responsiveness case, the Continuous scenarios' run length
+// and the timer resolution.
 
 defineProps<{ choice: Choice }>()
 const emit = defineEmits<{ apply: [patch: Partial<Choice>] }>()
@@ -37,8 +38,16 @@ const TEXT = {
   cpuBound: 'CPU-bound',
   errorKind: 'Error kind',
   responsiveness: 'Responsiveness',
+  runLength: 'Continuous run length',
+  continuousNote: 'Continuous states: continuous (download), cont-upload, cont-warmup, cont-done.',
   timerResolution: 'Timer resolution',
 }
+
+/** The kit's run length options and their words. */
+const RUN_LENGTH_OPTIONS = [
+  ['none', 'None'],
+  ['2h', '2 h'],
+] as const
 
 const ids = { forceState: useId(), errorKind: useId(), responsiveness: useId(), timer: useId() }
 
@@ -145,6 +154,27 @@ function onTimer(event: Event): void {
         </select>
       </span>
     </div>
+    <div :class="rowClass">
+      <span>{{ TEXT.runLength }}</span>
+      <div
+        role="group"
+        :aria-label="TEXT.runLength"
+        :class="segmentGroupClass"
+      >
+        <button
+          v-for="[value, words] in RUN_LENGTH_OPTIONS"
+          :key="value"
+          type="button"
+          :aria-pressed="choice.runLength === value"
+          :class="[segmentClass, choice.runLength === value ? 'bg-(--primary-bg) text-primary-text' : 'text-muted-foreground']"
+          :data-testid="`demo-run-length-${value}`"
+          @click="apply({ runLength: value })"
+        >
+          {{ words }}
+        </button>
+      </div>
+    </div>
+    <span class="text-(length:--text-caption) leading-(--lh-compact) text-subtle-foreground">{{ TEXT.continuousNote }}</span>
     <div :class="rowClass">
       <label :for="ids.timer">{{ TEXT.timerResolution }}</label>
       <span :class="inputClass">

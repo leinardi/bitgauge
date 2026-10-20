@@ -135,7 +135,8 @@ export function createHistory(open: () => Promise<HistoryDB | null> = openIfAvai
 
 /**
  * The demo build's history (frontend.md section 9): unavailable, or the browser's database with
- * its contents replaced by the demo panel's History variant, or left as they are.
+ * its contents replaced by the demo panel's History variant, or left as they are, and the
+ * Continuous result the panel's Result detail opens added to them.
  */
 async function openDemo(): Promise<HistoryDB | null> {
   const { demoHistory } = await import('@/demo/control')
@@ -144,10 +145,12 @@ async function openDemo(): Promise<HistoryDB | null> {
     return null
   }
   const db = await openIfAvailable()
-  if (db !== null && seed !== null) {
+  if (db !== null && (seed.replace || seed.results.length > 0)) {
     const transaction = db.transaction('results', 'readwrite')
-    await transaction.store.clear()
-    await Promise.all(seed.map((result) => transaction.store.put(result)))
+    if (seed.replace) {
+      await transaction.store.clear()
+    }
+    await Promise.all(seed.results.map((result) => transaction.store.put(result)))
     await transaction.done
   }
   return db

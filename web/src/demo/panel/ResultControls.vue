@@ -21,27 +21,47 @@ import { useId } from 'vue'
 
 import { type Choice, DEFAULTS } from '@/demo/choice'
 import { DEMO_CONFIDENCES, isDemoConfidence } from '@/demo/confidence'
-import { inputClass, rowClass, selectClass } from '@/demo/panel/classes'
+import type { ContinuousLength } from '@/demo/continuousResults'
+import { inputClass, rowClass, segmentClass, segmentGroupClass, selectClass } from '@/demo/panel/classes'
 import { DEMO_RESPONSIVENESS, isDemoResponsiveness } from '@/demo/responsiveness'
 
-// The demo panel's Result detail section (frontend.md section 9, kit App.jsx): the responsiveness
-// case of the run the Result detail shows, and the confidence per direction.
+// The demo panel's Result detail section (frontend.md section 9, kit App.jsx): the kind, standard
+// or Continuous, with the Continuous result's length, which opens that result's Result detail; the
+// responsiveness case of the run the Result detail shows; and the confidence per direction.
 
-defineProps<{ choice: Choice }>()
+const props = defineProps<{ choice: Choice }>()
 const emit = defineEmits<{ apply: [patch: Partial<Choice>] }>()
 
 const TEXT = {
   result: 'Result detail',
+  kind: 'Kind',
+  length: 'Continuous length',
   responsiveness: 'Responsiveness',
   downloadConfidence: 'Download confidence',
   uploadConfidence: 'Upload confidence',
+}
+
+/** The kit's Kind and Continuous length options and their words. */
+const KINDS = [
+  ['standard', 'Standard'],
+  ['continuous', 'Continuous'],
+] as const
+const LENGTHS: readonly (readonly [ContinuousLength, string])[] = [
+  ['2h', '2 h'],
+  ['9d', '9 days'],
+]
+
+/** A Continuous choice opens its result's Result detail once the page has loaded with it. */
+function onKind(patch: Pick<Choice, 'resultKind'> | Pick<Choice, 'resultLength'>): void {
+  const next = { ...props.choice, ...patch }
+  emit('apply', { ...patch, openResult: next.resultKind === 'continuous' })
 }
 
 const ids = { responsiveness: useId(), downloadConfidence: useId(), uploadConfidence: useId() }
 
 function onResponsiveness(event: Event): void {
   const value = (event.target as HTMLSelectElement).value
-  emit('apply', { resultResponsiveness: isDemoResponsiveness(value) ? value : DEFAULTS.resultResponsiveness })
+  emit('apply', { resultResponsiveness: isDemoResponsiveness(value) ? value : DEFAULTS.resultResponsiveness, openResult: props.choice.resultKind === 'continuous' })
 }
 
 function onConfidence(event: Event, key: 'downloadConfidence' | 'uploadConfidence'): void {
@@ -53,6 +73,49 @@ function onConfidence(event: Event, key: 'downloadConfidence' | 'uploadConfidenc
 <template>
   <section class="flex flex-col gap-2 border-t border-border pt-3">
     <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.result }}</span>
+    <div :class="rowClass">
+      <span>{{ TEXT.kind }}</span>
+      <div
+        role="group"
+        :aria-label="TEXT.kind"
+        :class="segmentGroupClass"
+      >
+        <button
+          v-for="[value, words] in KINDS"
+          :key="value"
+          type="button"
+          :aria-pressed="choice.resultKind === value"
+          :class="[segmentClass, choice.resultKind === value ? 'bg-(--primary-bg) text-primary-text' : 'text-muted-foreground']"
+          :data-testid="`demo-result-kind-${value}`"
+          @click="onKind({ resultKind: value })"
+        >
+          {{ words }}
+        </button>
+      </div>
+    </div>
+    <div
+      v-if="choice.resultKind === 'continuous'"
+      :class="rowClass"
+    >
+      <span>{{ TEXT.length }}</span>
+      <div
+        role="group"
+        :aria-label="TEXT.length"
+        :class="segmentGroupClass"
+      >
+        <button
+          v-for="[value, words] in LENGTHS"
+          :key="value"
+          type="button"
+          :aria-pressed="choice.resultLength === value"
+          :class="[segmentClass, choice.resultLength === value ? 'bg-(--primary-bg) text-primary-text' : 'text-muted-foreground']"
+          :data-testid="`demo-result-length-${value}`"
+          @click="onKind({ resultLength: value })"
+        >
+          {{ words }}
+        </button>
+      </div>
+    </div>
     <div :class="rowClass">
       <label :for="ids.responsiveness">{{ TEXT.responsiveness }}</label>
       <span :class="inputClass">

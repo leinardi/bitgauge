@@ -18,8 +18,7 @@
  */
 
 // The scenario table against the UI kit: one scenario per Test-screen state the kit's App.jsx
-// lists, except the Continuous preset's, which arrive in v0.3, one per loaded-latency case of its
-// panel, and the run its Result detail shows; and each scripted scenario plays out in the real engine without an engine failure.
+// lists, the Continuous preset's included, one per loaded-latency case of its panel, and the run its Result detail shows; and each scripted scenario plays out in the real engine without an engine failure.
 // The panel's Responsiveness cases each give their path B state on a played LAN run, and its
 // compatibility layers reach GET /info.
 
@@ -30,12 +29,9 @@ import { commandOf, DEFAULTS, restore } from '@/demo/choice'
 import { chooseScenario, demoInfo } from '@/demo/control'
 import { scenarioInfo } from '@/demo/fixtures'
 import { DEMO_RESPONSIVENESS, type DemoResponsiveness } from '@/demo/responsiveness'
-import { DEMO_SCENARIOS, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
-import { demoSession, ended, start } from '@/demo/test/play'
+import { DEMO_SCENARIOS, type DemoScenario, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
+import { continuousEnded, demoSession, ended, start } from '@/demo/test/play'
 import type { Result } from '@/engine/messages'
-
-/** The kit's states of the Continuous preset (v0.3). */
-const LATER = ['continuous', 'cont-upload', 'cont-warmup', 'cont-done']
 
 /** The names in the kit's `const TEST_STATES = [...]`. */
 function kitStates(): string[] {
@@ -62,37 +58,37 @@ const RESULT_DETAIL = 'upload-gap'
 const NAMES = Object.keys(DEMO_SCENARIOS) as DemoScenarioName[]
 
 describe('the demo scenarios', () => {
-  it('cover exactly the kit states v0.1 and v0.2 have, its loaded-latency cases and its Result detail', () => {
-    const states = kitStates()
-    expect(states).toEqual(expect.arrayContaining(LATER))
+  it('cover exactly the kit states, its loaded-latency cases and its Result detail', () => {
     expect(kitLoadedCases()).toHaveLength(5)
-    expect([...NAMES].sort()).toEqual([...states.filter((state) => !LATER.includes(state)), ...kitLoadedCases(), RESULT_DETAIL].sort())
+    expect([...NAMES].sort()).toEqual([...kitStates(), ...kitLoadedCases(), RESULT_DETAIL].sort())
   })
 
   it('accept only their own names', () => {
     expect(isScenarioName('complete')).toBe(true)
-    expect(isScenarioName('continuous')).toBe(false)
+    expect(isScenarioName('continuous')).toBe(true)
+    expect(isScenarioName('cont-later')).toBe(false)
     expect(isScenarioName('toString')).toBe(false)
   })
 
   it.each(NAMES.filter((name) => DEMO_SCENARIOS[name].start))('%s plays out without an engine failure', async (name) => {
     const played = demoSession(name)
     const { events, failures, session, base } = played
-    const scenario = DEMO_SCENARIOS[name]
-    start(played)
+    const scenario: DemoScenario = DEMO_SCENARIOS[name]
+    start(played, scenario)
     await base.advance(90_000)
     expect(failures).toEqual([])
     const phases = events.flatMap((event) => (event.type === 'phase' && event.state === 'started' ? [event.phase] : []))
-    if (!('hold' in scenario)) {
-      // The run's last phase was reached, finished or skipped.
-      expect(ended(events)).toBe(true)
+    const finished = scenario.continuous === undefined ? ended(events) : continuousEnded(events, scenario.continuous)
+    if (scenario.hold === undefined) {
+      // The run's last phase was reached, finished or skipped; a Continuous run's one direction ended.
+      expect(finished).toBe(true)
     } else {
       // Held in the scripted phase: started, never left.
       const heldAt = session.clock.now()
       await base.advance(1000)
       expect(session.clock.now()).toBe(heldAt)
       expect(phases.at(-1)).toBe(scenario.hold.phase)
-      expect(ended(events)).toBe(false)
+      expect(finished).toBe(false)
     }
   })
 })
@@ -152,5 +148,62 @@ describe('the compatibility layers', () => {
     expect(scenarioInfo(command)).toMatchObject({ compat: flags, server: { basePath: '/speed' } })
     chooseScenario(command)
     expect((await demoInfo()).compat).toEqual(flags)
+  })
+})
+
+/** Plays a Continuous scenario until its direction ends or its hold, at most `limitMs` of real time; the real time it took. */
+async function playContinuous(name: DemoScenarioName, limitMs = 90_000) {
+  const played = demoSession(name)
+  const scenario: DemoScenario = DEMO_SCENARIOS[name]
+  start(played, scenario)
+  let realMs = 0
+  let last = -1
+  for (; realMs < limitMs; realMs += 250) {
+    await played.base.advance(250)
+    const now = played.session.clock.now()
+    if ((scenario.continuous !== undefined && continuousEnded(played.events, scenario.continuous)) || now === last) {
+      break
+    }
+    last = now
+  }
+  const samples = played.events.flatMap((event) => (event.type === 'sample' ? [event] : []))
+  const result = played.events.find((event) => event.type === 'result')
+  return { played, realMs, samples, result: result?.type === 'result' ? result.result : undefined }
+}
+
+describe('the Continuous scenarios', () => {
+  it('hold a Continuous download at the kit’s 42:18, reached in under a minute, with no busy time', async () => {
+    const { played, realMs, samples } = await playContinuous('continuous')
+    expect(played.failures).toEqual([])
+    expect(realMs).toBeLessThan(60_000)
+    expect(played.session.clock.now()).toBeGreaterThan(0)
+    const elapsedMs = samples.at(-1)?.continuous?.elapsedMs ?? 0
+    expect(Math.floor(elapsedMs / 1000)).toBe(2538)
+    expect(played.session.clock.busyMs()).toBe(0)
+  })
+
+  it('hold a Continuous upload at 42:18 with the two gaps of its two failed requests', async () => {
+    const { played, samples } = await playContinuous('cont-upload')
+    expect(played.failures).toEqual([])
+    expect(samples.every((sample) => sample.direction === 'upload')).toBe(true)
+    expect(Math.floor((samples.at(-1)?.continuous?.elapsedMs ?? 0) / 1000)).toBe(2538)
+    // The unknown buckets come in two runs, one after each failure.
+    const unknownAtS = samples.flatMap((sample) => sample.values.flatMap((value, index) => (value === null ? [Math.floor((sample.fromBucket + index - (samples[0]?.fromBucket ?? 0)) / 10)] : [])))
+    const runs = unknownAtS.filter((second, index) => index === 0 || second - (unknownAtS[index - 1] ?? 0) > 60)
+    expect(runs.length).toBe(2)
+    expect(runs[0]).toBeGreaterThanOrEqual(1210)
+    expect(runs[1]).toBeGreaterThanOrEqual(2100)
+  })
+
+  it('stop a Continuous download during its warm-up, partial, and another at 42:18 through the page', async () => {
+    const warmup = await playContinuous('cont-warmup')
+    expect(warmup.result?.status).toBe('partial')
+    expect(warmup.result?.download?.status).toBe('insufficient-data')
+    expect(warmup.played.stopsPressed).toHaveLength(1)
+    const done = await playContinuous('cont-done')
+    expect(done.realMs).toBeLessThan(60_000)
+    expect(done.result?.settings).toMatchObject({ preset: 'continuous', continuousDirection: 'download' })
+    expect(done.result?.download?.status).toBe('measured')
+    expect(Math.floor((done.result?.download?.series?.endMs ?? 0) / 1000)).toBe(2538)
   })
 })

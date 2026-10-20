@@ -20,7 +20,8 @@
 import { type DemoConfidence, isDemoConfidence } from '@/demo/confidence'
 import { COMPARE_B, type DemoCompareB, type DemoHistory, isDemoHistory } from '@/demo/history'
 import { type DemoResponsiveness, isDemoResponsiveness } from '@/demo/responsiveness'
-import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoErrorKind, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
+import { CONTINUOUS_LENGTHS, type ContinuousLength } from '@/demo/continuousResults'
+import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoErrorKind, type DemoScenario, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
 
 // The demo panel's choice (frontend.md section 9): kept in the page's localStorage under
 // `bitgauge-demo`, each field checked as it is read back, anything unknown falling back to its
@@ -31,6 +32,10 @@ export const SPEEDS = [1, 2, 4] as const
 export const ERROR_KINDS: readonly DemoErrorKind[] = ['requests', 'unreachable', 'restarted', 'network']
 export const RESOLUTIONS = [0.1, 1] as const
 export const NAMES = Object.keys(DEMO_SCENARIOS) as DemoScenarioName[]
+const RUN_LENGTHS = ['none', '2h'] as const
+const RESULT_KINDS = ['standard', 'continuous'] as const
+/** The run length the panel's 2 h sets, in the duration parameter's seconds. */
+const TWO_HOURS_S = 7200
 
 export interface Choice {
   open: boolean
@@ -55,6 +60,13 @@ export interface Choice {
   openspeedtest: boolean
   librespeed: boolean
   networkquality: boolean
+  /** The Continuous scenarios' run length: none, or 2 h through duration=7200. */
+  runLength: (typeof RUN_LENGTHS)[number]
+  /** The Result detail's kind, and which Continuous fixture result it shows. */
+  resultKind: (typeof RESULT_KINDS)[number]
+  resultLength: ContinuousLength
+  /** Whether the page, once loaded, opens the Continuous fixture's Result detail. */
+  openResult: boolean
 }
 
 export const DEFAULTS: Choice = {
@@ -74,6 +86,10 @@ export const DEFAULTS: Choice = {
   openspeedtest: true,
   librespeed: true,
   networkquality: true,
+  runLength: 'none',
+  resultKind: 'standard',
+  resultLength: '2h',
+  openResult: false,
 }
 
 /** The scenario whose run the Result detail shows (ResultDetail.jsx), which takes the Result detail's Responsiveness. */
@@ -108,6 +124,10 @@ export function restore(storage: ChoiceStorage): Choice {
     openspeedtest: stored.openspeedtest !== false,
     librespeed: stored.librespeed !== false,
     networkquality: stored.networkquality !== false,
+    runLength: pick(stored.runLength, RUN_LENGTHS, DEFAULTS.runLength),
+    resultKind: pick(stored.resultKind, RESULT_KINDS, DEFAULTS.resultKind),
+    resultLength: pick(stored.resultLength, CONTINUOUS_LENGTHS, DEFAULTS.resultLength),
+    openResult: stored.openResult === true,
   }
 }
 
@@ -134,4 +154,16 @@ export function commandOf(choice: Choice): DemoCommand {
     responsiveness: scenario === RESULT_RUN ? choice.resultResponsiveness : choice.responsiveness,
     compat: { openspeedtest: choice.openspeedtest, librespeed: choice.librespeed, networkquality: choice.networkquality },
   }
+}
+
+/**
+ * The URL parameters the page loads with for a choice's scenario: its own, or for a Continuous one
+ * the preset and direction, with the panel's run length.
+ */
+export function queryOf(choice: Choice): string {
+  const scenario: DemoScenario = DEMO_SCENARIOS[commandOf(choice).scenario]
+  if (scenario.continuous === undefined) {
+    return scenario.query ?? ''
+  }
+  return `preset=continuous&test=${scenario.continuous}${choice.runLength === '2h' ? `&duration=${TWO_HOURS_S}` : ''}`
 }

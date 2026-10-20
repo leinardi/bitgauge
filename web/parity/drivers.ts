@@ -162,9 +162,13 @@ async function applyAndWait(page: Page, action: () => Promise<unknown>): Promise
 // upload lost one request and carried on.
 export const VUE_RESULT_RUN = 'upload-gap'
 
-// A demo scenario the Vue driver forces: a Test screen state, a loaded-latency case, or the Result
-// detail's run.
-type VueRun = TestState | LoadedCase | typeof VUE_RESULT_RUN
+// The Vue demo's Continuous states (src/demo/scenarios.ts), which the parity scenarios compare from
+// the v0.3 scope on.
+type ContinuousRun = 'continuous' | 'cont-upload' | 'cont-warmup' | 'cont-done'
+
+// A demo scenario the Vue driver forces: a Test screen state, a Continuous state, a loaded-latency
+// case, or the Result detail's run.
+type VueRun = TestState | ContinuousRun | LoadedCase | typeof VUE_RESULT_RUN
 
 // The Vue demo's states that start a run (src/demo/scenarios.ts, where coverage.test.ts holds this
 // list to the start flags). Until the demo panel has pressed Start, such a page sits quiet while it
@@ -190,11 +194,15 @@ export const VUE_STARTING_STATES: ReadonlySet<VueRun> = new Set<VueRun>([
   'slow',
   'slowdone',
   'insufficient',
+  'continuous',
+  'cont-upload',
+  'cont-warmup',
+  'cont-done',
 ])
 
 // The starting states whose scenario holds the run in its state (a hold in src/demo/scenarios.ts);
 // every other starting state ends its run, by a scripted stop, a failure or completion.
-export const VUE_HELD_STATES: ReadonlySet<VueRun> = new Set<VueRun>(['connecting', 'latency', 'download', 'ws-fallback', 'upload', 'slow', 'insufficient'])
+export const VUE_HELD_STATES: ReadonlySet<VueRun> = new Set<VueRun>(['connecting', 'latency', 'download', 'ws-fallback', 'upload', 'slow', 'insufficient', 'continuous', 'cont-upload'])
 
 // Mid-run, the longest pause between two changes to the page measured about 200 ms with 32 demo
 // pages running at once; a held or finished run never changes it again.

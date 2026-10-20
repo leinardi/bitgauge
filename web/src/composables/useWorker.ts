@@ -83,10 +83,26 @@ export interface WorkerBridge {
   dispose(): void
 }
 
+/** How often a hidden page, which gets no animation frames, still takes a demo's paced updates. */
+const HIDDEN_FRAME_MS = 100
+
+/** Runs `update` at the next animation frame, or after HIDDEN_FRAME_MS when none comes. */
+function nextFrame(update: () => void): void {
+  let done = false
+  const run = () => {
+    if (!done) {
+      done = true
+      update()
+    }
+  }
+  requestAnimationFrame(run)
+  setTimeout(run, HIDDEN_FRAME_MS)
+}
+
 /** Starts the engine's Worker; inside a component it ends with the component. */
 export function useWorker(): WorkerBridge {
   const worker: EngineWorker = import.meta.env.VITE_DEMO
-    ? loadingWorker(import('@/demo/start').then(({ startDemoWorker }) => startDemoWorker()))
+    ? loadingWorker(import('@/demo/start').then(({ startDemoWorker }) => startDemoWorker(nextFrame)))
     : new Worker(new URL('../engine/worker.ts', import.meta.url), { type: 'module' })
   const handlers = new Set<(event: EngineEvent) => void>()
   const failures = new Set<() => void>()
