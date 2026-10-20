@@ -264,7 +264,7 @@ No fudge factors, no hidden smoothing, no number without the qualifiers the meth
   ([architecture.md §7](../../../docs/features/architecture.md#7-history-storage-in-the-browser)).
 - No copied code from OpenSpeedTest, LibreSpeed or any other speed test; their documented behavior
   is for ideas and wire compatibility only.
-- Engine `.ts` files count against the `.file-budgets` 400-line ceiling like the rest of `web/src`
+- Engine `.ts` files count against the 400-line ceiling like the rest of `web/src`
   (vue-page-patterns §2); a growing phase module splits into plain modules.
 
 ## Checklist

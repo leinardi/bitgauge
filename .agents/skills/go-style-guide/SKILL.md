@@ -2,7 +2,7 @@
 name: go-style-guide
 description: >
   Go coding rules for BitGauge. Covers the golangci-lint v2 (`default: all`) rules that bite:
-  import groups, sentinel errors wrapped with %w, nolint directives and the suppression ratchet,
+  import groups, sentinel errors wrapped with %w, nolint directives,
   complexity limits, mnd, varnamelen, and the depguard and forbidigo rules that keep the server
   stateless and silent (no storage, no outbound calls, no file writes). Also covers review rules:
   comments carry rationale, the native API error envelope, and injected clocks instead of
@@ -170,7 +170,7 @@ exempt from `errcheck` on `CloseNow` (coder/websocket's close without a handshak
 
 ---
 
-## 3. `nolint` directives and the suppression ratchet
+## 3. `nolint` directives
 
 `nolintlint` enforces three things:
 
@@ -187,14 +187,8 @@ comma-separated with no spaces; `gocyclo`, `cyclop` and `gocognit` usually fire 
 //nolint:cyclop,gocyclo // one branch per fail-closed rule: size scales with the rule list, not with logic
 ```
 
-**Suppressions are ratcheted.** [`.suppressions-baseline`](../../../.suppressions-baseline) holds
-one count per rule (`nolint/<linter>`, plus the eslint, fallow, shellcheck and hadolint
-families). `scripts/check-suppressions.sh` runs as the `check-suppressions` pre-commit hook and
-refuses a count above its baseline, a rule the baseline does not know, a count below its baseline
-(the file must describe the tree), and a staged diff that adds a suppression line without also
-changing the baseline. Every new, moved or removed suppression therefore needs
-`scripts/check-suppressions.sh --update`, committed with the change that earned it. Raising a count
-needs a reviewer's agreement; the baseline file is what they read.
+`nolintlint` rejects a `//nolint` that names no linter or gives no reason. Prefer fixing the
+finding; a suppression is argued in review.
 
 ---
 
@@ -434,8 +428,7 @@ before writing time-dependent code, a wait in a test, or a `time.Sleep` anywhere
 - [ ] No `errors.New` or `%w`-less `fmt.Errorf` in a function body: wrap a package-level sentinel
 - [ ] `any` not `interface{}`; `new(expr)`, not a pointer-boxing helper
 - [ ] Numbers other than 0–3 extracted to named constants (non-test code)
-- [ ] Each `//nolint` names specific linters, explains why the fix does not apply, and is
-  committed with `scripts/check-suppressions.sh --update`
+- [ ] Each `//nolint` names specific linters and explains why the fix does not apply
 - [ ] No `FIXME` comments
 - [ ] Function statement count ≤ 50 (non-test code)
 - [ ] No shadowed variables
@@ -455,5 +448,4 @@ before writing time-dependent code, a wait in a test, or a `time.Sleep` anywhere
 3. `make verify-go` (build once a binary exists, `go test -race`, vet of the untagged, `image` and
    `harness` packages, lint). Fix and re-run until green.
 4. `git status`: the `golangci-lint-fmt` formatters may have rewritten files; review and keep those
-   changes. If you added or removed a suppression, run `scripts/check-suppressions.sh --update` and
-   stage `.suppressions-baseline`.
+   changes.

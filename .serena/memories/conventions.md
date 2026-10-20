@@ -16,7 +16,7 @@ Full Go rules: `.claude/skills/go-style-guide`. Review routing: `.claude/skills/
 - funlen 50 statements; cyclop/gocyclo 15; gocognit 35; funcorder (exported methods first)
 - gocritic: pass big structs by pointer (hugeParam), index loops (rangeValCopy), name results
 - misspell US locale; tagliatelle camelCase JSON (foreign keys need a nolint or a map)
-- `//nolint:<linter> // reason` only, then `scripts/check-suppressions.sh --update`
+- `//nolint:<linter> // reason` only
 - Test files exempt from dupl, funlen, gocognit, goconst, gocyclo, lll, maintidx, mnd,
   paralleltest, testpackage, varnamelen; forbidigo off in tests and `test/`
 - Docker-dependent tests sit behind `//go:build image` or `harness`; untagged tests never

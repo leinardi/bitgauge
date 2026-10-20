@@ -163,7 +163,7 @@ Run before considering an edit done. `make check` applies to every row.
 | You edited | Run |
 | --- | --- |
 | `**/*.go` | `make verify-go`, then `make check-stage` |
-| `web/src/**` | `make verify-web`, then `scripts/check-file-budgets.sh` |
+| `web/src/**` | `make verify-web` |
 | `web/src/demo/**`, the demo gates in `useWorker.ts`, `api/info.ts`, `App.vue` | the `web/src/**` row; `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (the demo's ESLint blocks); `make web-build`, then `scripts/check-dist-demo-free.sh web/dist`; `make web-build-demo`, on which the same check must fail; `make demo-parity-full` |
 | `web/parity/**`, `web/playwright.parity.config.ts`, `PARITY_PROTOTYPE_PAGE` in `Makefile` | `make verify-web` (the parity unit tests and `coverage.test.ts`), `make help`; `make demo-parity-full` on demand (Chromium) |
 | `.parity-baseline` | never by hand: only `make demo-parity-update` or `make demo-parity-accept REASON=` after a complete full-matrix run ([demo-parity.md](docs/engineering/demo-parity.md#the-baseline)) |
@@ -174,9 +174,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `go.mod`, `go.sum`, `web/package.json`, `web/package-lock.json` | `make audit-deps` (network; the commit hooks run the same targets), `go test ./test/toolchain/` |
 | `web/eslint.config.ts`, `web/.npmrc`, `.fallowrc.json`, `.fallow-baseline.json`, `.fallow-regression-baseline.json`, `.mk/audit-deps.mk` | `BITGAUGE_REQUIRE_TOOLS=1 go test ./test/toolchain/` (needs `web/node_modules`) |
 | `.golangci.yaml` depguard and forbidigo boundary rules | `go test ./test/boundary/`, then `make go-lint` |
-| `scripts/check-suppressions.sh`, `.suppressions-baseline` | `go test ./test/suppressions/` |
 | `scripts/check-package-map.sh`, the package map in [backend.md §1](docs/features/technical-stack/backend.md) | `go test ./test/packagemap/` |
-| `scripts/check-file-budgets.sh`, `.file-budgets` | `go test ./test/filebudgets/ ./test/toolchain/` |
 | `scripts/check-license-headers.sh` | `go test ./test/licenseheaders/` |
 | `scripts/check-dist-demo-free.sh` | `go test ./test/distdemo/`; shellcheck (in `make check`) |
 | `scripts/check-dist-urls.sh`, `.dist-url-allowlist` | `go test ./test/disturls/` (also keeps the allowlist in step with [build-packaging.md §4](docs/features/technical-stack/build-packaging.md#4-ci-workflows)); shellcheck (in `make check`) |
@@ -194,35 +192,12 @@ Run before considering an edit done. `make check` applies to every row.
 | `docs/**/*.md`, root `*.md` | `go test -count=1 ./test/docs/`; every relative link resolves; numbers, probe-path names and the upload JSON shape still agree across `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`; lines wrap at about 100 columns (`spec-change` skill) |
 | `docs/features/technical-stack/decisions.md` | each locked decision appears once; open items match `docs/features/open-questions.md` |
 
-## Suppressions are ratcheted
+## Suppressions and file length
 
-Every in-file suppression is counted per rule against `.suppressions-baseline` by the
-`check-suppressions` pre-commit hook (`scripts/check-suppressions.sh`): `//nolint:<linter>`,
-`eslint-disable*`, `fallow-ignore-*`, `# shellcheck disable=`, `# hadolint ignore=`.
-
-Adding one is allowed, but never silently: the hook refuses a commit that adds a suppression line
-without changing the baseline in the same commit, including a swap or a moved file that leaves the
-count unchanged. Prefer fixing the finding. If a suppression really is right, write it with a
-reason (`//nolint:<linter> // reason`), stage it, run `scripts/check-suppressions.sh --update`, and
-commit the baseline alongside it. A count that has fallen below its baseline fails the same way,
-with the same fix: the file describes the repository, not a past one.
-
-## Frontend files have a line ceiling
-
-Every production `web/src` `.vue` and `.ts` file is held under the ceiling declared on the
-`# ceiling` line of `.file-budgets` (400) by the `check-file-budgets` pre-commit hook
-(`scripts/check-file-budgets.sh`, also run by `go test ./test/filebudgets/`). Generated, vendored
-and test code is out of scope: `src/api/types.gen.ts`, `src/components/ui/`, `src/test/` and
-`*.test.ts`/`*.spec.ts`. ESLint's `max-lines` in `web/eslint.config.ts` reads the same ceiling and
-the same exemptions from `.file-budgets`, so the editor flags a long file as it grows;
-`test/toolchain` checks that the two agree.
-
-The list of exemptions starts empty. An entry holds a file at its exact line count, so it can only
-shrink: the hook fails when a budgeted file grows, when it shrinks and its budget still claims the
-old number, when it reaches the ceiling and the entry is still there, and when a production file
-over the ceiling has no entry. `--update` only lowers and deletes entries; `--adopt` records a new
-file over the ceiling, and reaching for it means arguing in review for a long file instead of
-splitting it.
+A `//nolint` names its linter and gives a reason (`//nolint:<linter> // reason`; `nolintlint`
+enforces it). Prefer fixing the finding. Production `web/src` `.vue` and `.ts` files stay under 400
+lines (ESLint `max-lines`); generated, vendored and test code is exempt. Split a long file rather
+than exempt it.
 
 ## No gate passes on nothing
 

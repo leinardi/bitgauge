@@ -2,8 +2,8 @@
 name: vue-page-patterns
 description: >
   Frontend page and test patterns for BitGauge. Tests mock the @/api fetch helper,
-  never fetch itself; production .vue/.ts files stay under the .file-budgets line
-  ceiling (scripts/check-file-budgets.sh); pages are thin and composable-first; the
+  never fetch itself; production .vue/.ts files stay under 400 lines (ESLint
+  max-lines); pages are thin and composable-first; the
   app imports only web/src/engine/messages.ts from the engine. Composition API with
   <script setup>, shadcn-vue defaults, no external URLs. Use when writing or editing
   anything under web/src/pages/, web/src/composables/ or web/src/components/, or a
@@ -16,7 +16,7 @@ Four rules for the SPA. The generic Vue skills cover technique; this one covers 
 does differently and why. `web/src/` holds the app, the engine, the pages, components and
 composables, laid out as
 [frontend.md §1](../../../docs/features/technical-stack/frontend.md#1-spa-layout) says, and the
-rules are enforced by `web/eslint.config.ts` and `scripts/check-file-budgets.sh`.
+rules are enforced by `web/eslint.config.ts`.
 
 ---
 
@@ -50,18 +50,9 @@ not `vi.mock`.
 
 ## 2. A file has a line budget
 
-`scripts/check-file-budgets.sh` (pre-commit hook `check-file-budgets`) holds every `.vue` and `.ts`
-file under `web/src` to the `# ceiling` line of `.file-budgets`, currently **400**. Out of scope:
-`web/src/api/types.gen.ts`, `web/src/components/ui/` (shadcn-vue, copied by its CLI),
-`web/src/test/`, and every `*.test.ts` and `*.spec.ts`. ESLint's `max-lines` reads the same
-ceiling and exemptions from `.file-budgets` (`web/eslint.config.ts`), so `make web-lint` and the
-editor report a long file too; never set a second number there.
-
-The exemption list starts empty. An entry holds a file at its exact length, so it may shrink and
-never grow, and shrinking fails until the entry is lowered in the same commit
-(`scripts/check-file-budgets.sh --update`, which only lowers or deletes). `--adopt` records a new
-file over the ceiling; the bar for that is an argument in review that it cannot be split, and the
-usual answer is to split it.
+ESLint's `max-lines` (`web/eslint.config.ts`) holds every `.vue` and `.ts` file under `web/src`
+to **400** lines. Out of scope: `web/src/api/types.gen.ts`, `web/src/components/ui/` (shadcn-vue,
+copied by its CLI), `web/src/test/`, and every `*.test.ts` and `*.spec.ts`.
 
 When a page will not fit, that is the design telling you which of §3's pieces it is hiding.
 
@@ -115,10 +106,9 @@ talks to the server; `engine/` measures, and nothing else does
 ## Checklist
 
 - [ ] Tests mock the `@/api` request function with the real module spread; no `fetch` stub
-- [ ] Every production file under the 400-line ceiling, or an existing budgeted file that got
-      no longer (`--update` after shrinking)
+- [ ] Every production file under the 400-line ceiling
 - [ ] Page holds route, layout and sections; logic lives in composables
 - [ ] Searched for an existing composable before adding one
 - [ ] App imports only `@/engine/messages` from the engine
 - [ ] `<script setup>`, shadcn-vue defaults, no external URL
-- [ ] `make verify-web` and `scripts/check-file-budgets.sh` clean; fix and re-run until both are
+- [ ] `make verify-web` clean; fix and re-run until it is

@@ -100,8 +100,8 @@ decided, per cluster, from a complete full-matrix run. Pending differences keep 
   A kit panel choice needs a scenario too.
 - After editing `web/parity/**`, run `make verify-web` (unit tests, lint, typecheck), then
   `make demo-parity`. If the change could alter findings, run `make demo-parity-full` too.
-- After editing `web/src/demo/**`, also run `make verify-web` and `scripts/check-file-budgets.sh`;
-  the demo is production source and holds to the same ceiling.
+- After editing `web/src/demo/**`, also run `make verify-web`; the demo is production source and
+  holds to the same ceiling.
 
 ## 6. When a feature changes
 

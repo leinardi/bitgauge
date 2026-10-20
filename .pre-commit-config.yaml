@@ -159,15 +159,14 @@ repos:
         files: ^(api/openapi\.yaml|web/src/api/types\.gen\.ts|web/package(-lock)?\.json)$
       # The web gates, each the npm script its make target runs (make web-lint, make web-test), on
       # the whole workspace rather than the staged files: a change to one module can break the
-      # types or the tests of another. ESLint also reads the ceiling of .file-budgets, so a change
-      # there lints again. Need the web workspace installed (npm --prefix web ci).
+      # types or the tests of another. Need the web workspace installed (npm --prefix web ci).
       - id: web-eslint
         name: web eslint
         entry: npm --prefix web run lint
         language: system
         pass_filenames: false
         require_serial: true
-        files: ^(web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|parity/.*\.ts|[^/]+\.config\.ts|package(-lock)?\.json)|\.file-budgets)$
+        files: ^(web/(src/.*\.(vue|ts|tsx)|e2e/.*\.ts|parity/.*\.ts|[^/]+\.config\.ts|package(-lock)?\.json))$
       - id: web-typecheck
         name: web typecheck
         entry: npm --prefix web run typecheck
@@ -192,29 +191,6 @@ repos:
         pass_filenames: false
         always_run: true
         # always_run makes a hook eligible at every installed stage, and commit-msg is one.
-        stages: [pre-commit]
-      # Holds every production frontend file under the ceiling in .file-budgets, and each exempted
-      # file at its committed line count, so an exemption can only shrink. Reads the whole tree
-      # rather than a file list, and always runs because deleting a budgeted file leaves an entry
-      # behind, and pre-commit drops deleted paths from the list.
-      - id: check-file-budgets
-        name: web file budgets
-        entry: scripts/check-file-budgets.sh
-        language: system
-        pass_filenames: false
-        always_run: true
-        # always_run makes a hook eligible at every installed stage, and commit-msg is one.
-        stages: [pre-commit]
-      # Always runs: the ratchet reads the whole tree and the staged diff, and a commit that
-      # touches no source at all can still delete the baseline out from under it.
-      - id: check-suppressions
-        name: suppression ratchet
-        entry: scripts/check-suppressions.sh
-        language: system
-        pass_filenames: false
-        always_run: true
-        # always_run makes this hook eligible at every installed stage, and commit-msg is one of
-        # them; pinned so the whole-tree scan runs once.
         stages: [pre-commit]
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.38.0

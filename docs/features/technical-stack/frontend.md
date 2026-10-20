@@ -413,7 +413,7 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   run in the page under the same policy, `choice.ts` reading and writing the storage the panel
   hands it. `DemoPanel.vue` and the section components of `demo/panel/` follow the application's
   policy. Every demo file
-  obeys the production file ceiling of `.file-budgets`.
+  obeys the production file ceiling (ESLint `max-lines`).
 - **Continuous, responsiveness and About.** The kit's Continuous states play on the real engine,
   and the panel takes the kit's Continuous, responsiveness and About controls (`App.jsx`):
   - **Continuous scenarios.** The kit's four Continuous states, `continuous` (a Continuous

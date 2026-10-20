@@ -141,29 +141,28 @@ find web/src \( -name '*.vue' -o -name '*.ts' \) \
   | grep -vE '(/components/ui/|/test/|types\.gen\.ts|\.(test|spec)\.ts)' \
   | xargs wc -l | grep -v ' total$' | sort -rn | head -20
 
-# Per-rule suppression counts, and what moved since the previous milestone.
-cat .suppressions-baseline
-git diff "$PREVIOUS"..HEAD -- .suppressions-baseline
+# Suppressions added since the previous milestone.
+git diff "$PREVIOUS"..HEAD | grep -E '^\+.*(nolint|eslint-disable|fallow-ignore|shellcheck disable|hadolint ignore)'
 
-# File budgets and the fallow baselines: how many entries are left, and whether any grew.
-git diff "$PREVIOUS"..HEAD -- .file-budgets .fallow-baseline.json .fallow-regression-baseline.json
+# The fallow baselines: how many entries are left, and whether any grew.
+git diff "$PREVIOUS"..HEAD -- .fallow-baseline.json .fallow-regression-baseline.json
 
 # Fix-per-file hotspots: which files keep needing repair.
 git log "$PREVIOUS"..HEAD --format='%H' --grep='^fix' --name-only \
   | grep -vE '^([0-9a-f]{40})?$' | sort | uniq -c | sort -rn | head -20
 ```
 
-The frontend filter is the file-budget ceiling's own scope (`scripts/check-file-budgets.sh`):
-generated, vendored and test code is excluded, so the list is the files the ceiling holds.
+The frontend filter is the line ceiling's own scope (ESLint `max-lines`): generated, vendored and
+test code is excluded, so the list is the files the ceiling holds.
 
 What each one is for:
 
-- **Largest files**: the ceiling catches new files; it cannot catch a budgeted file that was
-  always too big. This is where a component or a handler that should have been split shows up.
-- **Per-rule suppression counts**: a count that only ever rises is a linter being switched off one
+- **Largest files**: the ceiling catches a file over 400 lines; it cannot catch one just under
+  it. This is where a component or a handler that should have been split shows up.
+- **Suppressions added**: a count that only ever rises is a linter being switched off one
   line at a time. A rule whose count grew this milestone deserves the question of why.
-- **File budgets and fallow baselines**: entries should disappear over time. A milestone in which
-  none did is one where no long file got shorter and no dead export was removed.
+- **Fallow baselines**: entries should disappear over time. A milestone in which none did is one
+  where no dead export was removed.
 - **Fix-per-file hotspots**: a file that takes several `fix` commits per milestone is not unlucky.
   It is the file whose design is wrong, and it is worth more than its line count says.
 

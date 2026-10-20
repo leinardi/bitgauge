@@ -182,7 +182,7 @@ Design-system change:
 5. **Implement with existing tokens and components** (§3, §4, §5). When something new is needed,
    say which existing option was evaluated and why it was not enough.
 6. **Validate.** Run every row of the validation matrix in `AGENTS.md` that matches the changed
-   paths; for `web/src/**` that is `make verify-web`, then `scripts/check-file-budgets.sh`. Then
+   paths; for `web/src/**` that is `make verify-web`. Then
    check both themes and both the desktop and the narrow layout (`make web-dev`, or `make web-demo`
    for every state without a server).
 7. **Parity.** `make demo-parity SCENARIO=...` for the states the change touches, and

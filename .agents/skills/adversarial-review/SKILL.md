@@ -90,7 +90,7 @@ also subject to the spec-first check in §3.
 | `deployments/docker/Dockerfile` | `trust-boundary`; `decisions.md` §26, `security.md` §9 | `dhi.io` stages pinned by an explicit tag, never `latest` and not by digest (dhi.io republishes tags with security fixes), the `# syntax=` frontend by digest, `dhi.io/static` runtime, `USER 65532:65532`, read-only and volume-free |
 | `.github/workflows/*`, `.github/scripts/*` | `docs/release.md`, `technical-stack/build-packaging.md` §4 | §3 release hardening |
 | `scripts/check-*.sh` | the header comment of the script, its driver under `test/` | the check still fails on what it exists to stop |
-| `.golangci.yaml`, `.pre-commit-config.yaml`, `.suppressions-baseline` | `test/boundary`, `test/toolchain`, `scripts/check-suppressions.sh` | no linter disabled or narrowed; §5 (c) |
+| `.golangci.yaml`, `.pre-commit-config.yaml` | `test/boundary`, `test/toolchain` | no linter disabled or narrowed; §5 (c) |
 | `docs/features/**`, `docs/STATUS.md` | `AGENTS.md` validation matrix | numbers, probe paths and the upload JSON shape agree across pages; `decisions.md` matches `open-questions.md` |
 
 Paths above are relative to `docs/features/` unless they start with a repo directory. If the
@@ -212,10 +212,8 @@ that line retires and no more?
 
 Any new `//nolint:`, `eslint-disable`, `@ts-ignore`/`@ts-expect-error`, `fallow-ignore-*`,
 `# shellcheck disable=` or `# hadolint ignore=` is a standing decision to let a linter stay
-silent. A `//nolint` needs the form `//nolint:<linter> // reason`, and every new suppression needs
-`.suppressions-baseline` updated in the same commit with `scripts/check-suppressions.sh --update`.
-Counts only go down without review. The ratchet proves only that the baseline moved deliberately;
-it cannot tell whether the finding was unfixable or merely inconvenient.
+silent. A `//nolint` needs the form `//nolint:<linter> // reason` (`nolintlint` enforces it), but
+the reason alone cannot tell whether the finding was unfixable or merely inconvenient.
 
 So demand the attempt: for a complexity or length rule, was the obvious extraction tried and what
 broke? For `wrapcheck`, why is wrapping wrong here? For `varnamelen`, why does the name have to be
