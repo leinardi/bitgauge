@@ -31,9 +31,9 @@ import { protocolLabel } from '@/lib/protocol'
 // and a latency within 1 ms of A's read "same"; grades compare by their order, A+ best; any other
 // difference is better or worse. A metric absent on either side is not comparable. Probe timeouts,
 // data used and duration show both values without a judgment. The results are not directly
-// comparable when they differ in preset, protocol or label. From v0.3, the HTTP loaded
-// responsiveness of each direction compares its RPM as a rate is, only when both sides are
-// measured, and each quality-score experience compares by band order, great best.
+// comparable when they differ in preset, protocol or label. The HTTP loaded responsiveness of each
+// direction compares its RPM as a rate is, only when both sides are measured, and each
+// quality-score experience compares by band order, great best.
 
 type Translate = ReturnType<typeof useI18n>['t']
 
@@ -143,10 +143,10 @@ function rpmStateWord(block: Responsiveness, t: Translate): string {
 }
 
 /**
- * The v0.3 rows: a responsiveness row per direction either side has one for, the RPM compared when
- * both are measured, and a row per experience when either side has scores.
+ * The loaded-quality rows: a responsiveness row per direction either side has one for, the RPM
+ * compared when both are measured, and a row per experience when either side has scores.
  */
-function v03Rows(a: Result, b: Result, locale: string, t: Translate): CompareRow[] {
+function loadedQualityRows(a: Result, b: Result, locale: string, t: Translate): CompareRow[] {
   const rpmText = (block: Responsiveness | undefined) => {
     if (block === undefined) {
       return DASH
@@ -237,7 +237,7 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
     latencyRow('loadedDownload', t('history.compare.loadedDownload'), (result) => loaded(result.download)),
     latencyRow('loadedUpload', t('history.compare.loadedUpload'), (result) => loaded(result.upload)),
     { key: 'grade', name: t('history.compare.grade'), a: gradeText(a), b: gradeText(b), verdict: gradeChange(grade(a), grade(b)) },
-    ...v03Rows(a, b, locale, t),
+    ...loadedQualityRows(a, b, locale, t),
     { key: 'loss', name: t('history.compare.loss'), a: loss(a), b: loss(b), verdict: null },
     { key: 'data', name: t('history.compare.data'), a: formatBytes(a.dataUsedBytes, locale), b: formatBytes(b.dataUsedBytes, locale), verdict: null },
     { key: 'duration', name: t('history.compare.duration'), a: formatDuration(a.durationMs, locale), b: formatDuration(b.durationMs, locale), verdict: null },

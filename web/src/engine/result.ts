@@ -27,9 +27,9 @@ import type { BrowserIdentity, Clock } from '@/engine/types'
 import type { UploadOutcome } from '@/engine/upload/outcome'
 import { IDLE_SHARE } from '@/engine/upload/streams'
 
-// The versioned result object of measurement.md section 17, v0.3 field set so far: what a run
-// reports, with the client's timer resolution and cross-origin isolation (edge-cases.md section 9).
-// The fields of later versions are absent, never null-filled.
+// The versioned result object of measurement.md section 17: what a run reports, with the client's
+// timer resolution and cross-origin isolation (edge-cases.md section 9). A field with nothing to
+// report is absent, never null-filled.
 
 export interface ResultContext {
   report: RunReport

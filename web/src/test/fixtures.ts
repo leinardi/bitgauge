@@ -44,7 +44,7 @@ export function infoFixture(overrides: { client?: Partial<Info['client']>; serve
   }
 }
 
-/** A complete v0.1 result (measurement.md section 17) that passes validateResult; `overrides` replaces top-level fields. */
+/** A complete result without the optional fields (measurement.md section 17) that passes validateResult; `overrides` replaces top-level fields. */
 export function resultFixture(overrides: Partial<Result> = {}): Result {
   return {
     schema: 'bitgauge.result',

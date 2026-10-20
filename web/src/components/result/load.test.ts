@@ -143,7 +143,7 @@ describe('responsivenessView', () => {
     expect(responsivenessView(withRpm(block(), undefined), wording)?.note).toBe('round trips per minute, download only')
   })
 
-  it('is absent from a result without it, a v0.1 or v0.2 record', () => {
+  it('is absent from a result without it, a record that predates it', () => {
     expect(responsivenessView(withRpm(undefined, undefined), wording)).toBeNull()
   })
 })

@@ -83,18 +83,18 @@ function changed(change: (result: Record<string, unknown> & Result) => void): un
 }
 
 describe('the result validator', () => {
-  it('accepts a v0.1 result', () => {
+  it('accepts a result without the optional fields', () => {
     expect(validateResult(VALID)).toEqual([])
   })
 
-  it('rejects a field of a later version, wherever it is', () => {
+  it('rejects a field this schema version does not define, wherever it is', () => {
     expect(validateResult(changed((result) => Object.assign(result.settings, { liveTiers: 4 })))).toEqual(['result.settings.liveTiers: not a field of this schema version'])
     expect(validateResult(changed((result) => Object.assign(result.download ?? {}, { medianBitsPerSecond: 1 })))).toEqual([
       'result.download.medianBitsPerSecond: not a field of this schema version',
     ])
   })
 
-  it('accepts the v0.3 Continuous fields, and a result without them', () => {
+  it('accepts the Continuous fields, and a result without them', () => {
     const continuous = changed((result) => {
       Object.assign(result.settings, { preset: 'continuous', continuousDirection: 'download', runLengthMs: 3_600_000, download: { minMs: null, maxMs: null }, upload: { minMs: null, maxMs: null } })
       Object.assign(result.download ?? {}, { minBitsPerSecond: 80_000_000, maxBitsPerSecond: 97_000_000 })
@@ -112,7 +112,7 @@ describe('the result validator', () => {
     expect(validateResult(changed((result) => result.notices.push({ code: 'data-used' } as Notice)))).toEqual(['result.notices[2].bytes: missing'])
   })
 
-  it('accepts the v0.2 loaded latency and bufferbloat, and a result without them', () => {
+  it('accepts the loaded latency and bufferbloat, and a result without them', () => {
     const measured = {
       source: 'websocket',
       samples: 31,
@@ -133,7 +133,7 @@ describe('the result validator', () => {
     expect(validateResult(VALID)).toEqual([])
   })
 
-  it('accepts the v0.3 responsiveness in each of its states, and a result without it', () => {
+  it('accepts the responsiveness in each of its states, and a result without it', () => {
     const measured = { state: 'measured', protocol: 'h2', samples: 31, rpm: 1765, tm95Ms: 34, trimmed: 0, totalMedianMs: 36.5 }
     const withPathB = changed((result) => {
       Object.assign(result.download ?? {}, { responsiveness: measured })
@@ -157,7 +157,7 @@ describe('the result validator', () => {
     expect(validateResult(unknownState)).not.toEqual([])
   })
 
-  it('accepts the v0.3 scores, scored or naming what they miss, and a result without them', () => {
+  it('accepts the scores, scored or naming what they miss, and a result without them', () => {
     const scored = {
       basis: 'download+upload',
       packetLoss: 'not-measured',
@@ -183,7 +183,7 @@ describe('the result validator', () => {
     expect(validateResult(withScores(withoutRtc))).toEqual(['result.scores.rtc: missing'])
   })
 
-  it('accepts the v0.2 duration bounds in the settings, and a result without them', () => {
+  it('accepts the duration bounds in the settings, and a result without them', () => {
     const withBounds = changed((result) => Object.assign(result.settings, { download: { minMs: 10_000, maxMs: 20_000 }, upload: { minMs: 15_000, maxMs: 25_000 } }))
     expect(validateResult(withBounds)).toEqual([])
     expect(validateResult(changed((result) => Object.assign(result.settings, { download: { minMs: 10_000 } })))).toEqual(['result.settings.download.maxMs: missing'])

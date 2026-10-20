@@ -18,7 +18,7 @@
  */
 
 // The result object of full synthetic runs (measurement.md sections 9.3, 16 and 17, edge-cases.md
-// sections 9 and 10): the v0.1 field set, the shapes of partial and error runs, the series, the
+// sections 9 and 10): the field set, the shapes of partial and error runs, the series, the
 // cpu-bound confidence and overhead compensation. Every emitted result validates.
 
 import { describe, expect, it } from 'vitest'
@@ -52,9 +52,9 @@ const STANDARD: RunSettings = {
   overheadCompensationPercent: 0,
 }
 
-// Fields the engine never writes: the history's note, and those of later versions (measurement.md
-// section 17).
-const LATER = ['note', 'minBitsPerSecond', 'maxBitsPerSecond', 'knownMs']
+// Fields a bounded run never writes: the history's note, which the engine never emits, and the
+// Continuous-only ones (measurement.md section 17).
+const NOT_WRITTEN = ['note', 'minBitsPerSecond', 'maxBitsPerSecond', 'knownMs']
 
 interface Options {
   settings?: Partial<RunSettings>
@@ -106,7 +106,7 @@ function keys(value: unknown): string[] {
 }
 
 describe('a fast LAN Standard run', () => {
-  it('is complete, with every engine field present and typed and no field of a later version', async () => {
+  it('is complete, with every engine field present and typed and none it does not write', async () => {
     const emitted = await result({ scenario: LAN })
     expect(emitted).toMatchObject({
       schema: 'bitgauge.result',
@@ -147,7 +147,7 @@ describe('a fast LAN Standard run', () => {
       rtc: { points: 50, band: 'great' },
     })
     expect(emitted.dataUsedBytes).toBe((emitted.download?.bytes ?? 0) + (emitted.upload?.bytes ?? 0))
-    expect(keys(emitted).filter((key) => LATER.includes(key))).toEqual([])
+    expect(keys(emitted).filter((key) => NOT_WRITTEN.includes(key))).toEqual([])
   })
 
   it('reports the latencies no finer than the timer resolution', async () => {

@@ -28,9 +28,9 @@ import { protocolLabel } from '@/lib/protocol'
 // LoadCard.jsx): the bufferbloat grade in letter and words with its basis, and the loaded latency
 // of each direction that ran with a latency path, labeled with its source: the median with its p90
 // and the increase over idle, "vs idle over" the idle path when idle latency ran on the other one,
-// "no idle latency" without an idle median, or no number with the reason it has none. From v0.3,
-// below the rows, the HTTP loaded responsiveness under its fixed label with the protocol, an RPM
-// per direction or the words in place of one (ui/screens.md section 6).
+// "no idle latency" without an idle median, or no number with the reason it has none. Below the
+// rows, the HTTP loaded responsiveness under its fixed label with the protocol, an RPM per
+// direction or the words in place of one (ui/screens.md section 6).
 
 export interface LoadRow {
   direction: Direction
@@ -217,7 +217,7 @@ function responsivenessRow(direction: Direction, block: Responsiveness, resoluti
 /**
  * The HTTP loaded responsiveness of each direction that ran, in the run's order, under one fixed
  * label with the protocol and a note; `detailed`, as the Result detail shows it, adds each RPM's
- * TM95 and samples. Null for a result without it: a v0.1 or v0.2 record, or no direction run.
+ * TM95 and samples. Null for a result without it: a record that predates it, or no direction run.
  */
 export function responsivenessView(result: Result, wording: Wording, detailed = false): ResponsivenessView | null {
   const order = result.settings.phases.filter((phase): phase is Direction => phase !== 'idle')

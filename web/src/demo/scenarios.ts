@@ -24,7 +24,7 @@ import type { Direction, PhaseName } from '@/engine/messages'
 import type { Info } from '@/engine/types'
 
 // The demo's scenarios (frontend.md section 9): one per state of the UI kit's Test screen (its
-// TEST_STATES, the four Continuous ones included), one per loaded-latency case of its v0.2 panel
+// TEST_STATES, the four Continuous ones included), one per loaded-latency case of its panel
 // (the WebSocket closing after idle latency, and each reason the upload's loaded latency can be
 // unavailable for), and the run its Result detail shows, each a link and a script that the real
 // engine plays out. The instants follow the kit's own

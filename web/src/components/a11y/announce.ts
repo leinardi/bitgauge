@@ -304,8 +304,8 @@ function qualitySentence(result: Result, context: Wording): string | null {
 
 /**
  * The result summary of section 2.7: the status, download and upload with their qualifiers, idle
- * latency and jitter, the grade with the loaded-latency increase it rests on, from v0.3 the HTTP
- * loaded responsiveness and the quality scores of a complete result, data used, and the notices by
+ * latency and jitter, the grade with the loaded-latency increase it rests on, the HTTP loaded
+ * responsiveness and the quality scores of a complete result, data used, and the notices by
  * title. A direction the settings left out is not mentioned; a Continuous result says its one
  * direction with its run-wide minimum, maximum and "p90, last hour", and the other as not run.
  */

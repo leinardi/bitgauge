@@ -18,8 +18,8 @@
  */
 
 // A structural check of the result object (measurement.md section 17): every required field
-// present with its type, nothing unknown, so a field of a later version fails. The v0.2 and v0.3
-// additions are optional, so a v0.1 or v0.2 result stays valid.
+// present with its type, nothing unknown, so a field the schema does not define fails. The
+// optional fields may be absent, so a result without them stays valid.
 // The tests run it on every emitted result; the application runs it before Download JSON.
 
 /** Appends a problem, `path: what is wrong`, for each way the value differs. */
@@ -179,7 +179,7 @@ const event = byCode({
   'failure-gap': object({ code: literal('failure-gap'), startMs: amount, endMs: amount }),
 })
 
-/** A direction's saved series; `knownMs` only in Continuous (v0.3, section 15). */
+/** A direction's saved series; `knownMs` only in Continuous (section 15). */
 const series = object(
   {
     bucketMs: number(100, true),
@@ -203,14 +203,14 @@ const loadedLatency = either(
   object({ status: literal('unavailable'), reason: literal('no-steady-window', 'insufficient-samples', 'reservation-broken', 'no-probe-path'), ...probes }, { source }),
 )
 
-/** A direction's HTTP loaded responsiveness (v0.3, section 12.6): its numbers only when measured or uncertain. */
+/** A direction's HTTP loaded responsiveness (section 12.6): its numbers only when measured or uncertain. */
 const pathB = { protocol: string, samples: count }
 const responsiveness = either(
   object({ state: literal('measured', 'uncertain'), ...pathB, rpm: count, tm95Ms: amount, trimmed: count, totalMedianMs: amount }),
   object({ state: literal('unavailable_h1', 'unavailable_insufficient'), ...pathB }),
 )
 
-/** One quality-score experience (v0.3, section 13.5): its points and band, or what it misses. */
+/** One quality-score experience (section 13.5): its points and band, or what it misses. */
 const experience = either(
   object({ points: count, band: literal('bad', 'poor', 'average', 'good', 'great') }),
   object({ missing: list(literal('idle-latency', 'jitter', 'loaded-latency', 'download')) }),
@@ -223,7 +223,7 @@ const scores = object({
   rtc: experience,
 })
 
-/** A direction's resolved duration bounds (v0.2), both null in Continuous (v0.3). */
+/** A direction's resolved duration bounds, both null in Continuous. */
 const numericBounds = object({ minMs: count, maxMs: count })
 const noBounds = object({ minMs: literal(null), maxMs: literal(null) })
 const bounds: Check = (value, path, problems) => (isObject(value) && value['minMs'] === null ? noBounds : numericBounds)(value, path, problems)

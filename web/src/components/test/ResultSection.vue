@@ -40,7 +40,7 @@ import { links } from '@/lib/links'
 // The Test screen's results (ui/screens.md sections 1 and 6): once a run has ended with a result,
 // the save bar for a complete one or the status bar with Keep in history for a partial or error
 // one, then the metric tiles, the load card with the grade, the loaded latency and the HTTP loaded
-// responsiveness, the quality list (v0.3), and the facts beside them in one
+// responsiveness, the quality list, and the facts beside them in one
 // column. Siblings in the page's column, as the screen lays them out; without a load card the facts
 // take the row in three columns, and without a quality list the half row beside the load card. A
 // Continuous run shows its live view in their place.

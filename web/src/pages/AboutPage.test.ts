@@ -128,7 +128,7 @@ describe('the About screen', () => {
     page.unmount()
   })
 
-  it('links the source, the license and the methodology, and summarizes the v0.3 metrics', async () => {
+  it('links the source, the license and the methodology, and summarizes the metrics', async () => {
     const page = await answered()
     const hrefs = page.findAll('a').map((link) => link.attributes('href'))
     expect(hrefs).toEqual(expect.arrayContaining([links.source, links.license, links.methodology]))

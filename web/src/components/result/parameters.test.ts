@@ -64,7 +64,7 @@ describe('parameterGroups', () => {
     expect(Object.keys(shown)).not.toContain('Data used')
   })
 
-  it('gives the duration alone for a result that records no bounds, as before v0.2', () => {
+  it('gives the duration alone for a result that records no bounds', () => {
     expect(rows(resultFixture())['Download']).toBe('10.0\u00a0s')
   })
 })

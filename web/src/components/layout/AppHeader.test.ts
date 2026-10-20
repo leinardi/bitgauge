@@ -20,7 +20,7 @@
 // @vitest-environment jsdom
 
 // The persistent header: the server's name and host with the reachability text, the theme control
-// and the v0.1 navigation (ui/screens.md section 1).
+// and the navigation (ui/screens.md section 1).
 
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'

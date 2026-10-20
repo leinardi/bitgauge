@@ -75,7 +75,7 @@ function streams(result: Result, wording: Wording): string {
   return t('result.parameters.streamsValue', { mode: name, streams: each.join(t('result.parameters.streamsJoin')) })
 }
 
-/** A direction's duration with its configured bounds in seconds, when the result records them (v0.2). */
+/** A direction's duration with its configured bounds in seconds, when the result records them. */
 function duration(result: Result, direction: Direction, { t, locale }: Wording): string | null {
   const series = result[direction]?.series
   if (series === undefined) {

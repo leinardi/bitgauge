@@ -20,9 +20,10 @@
 import type { Confidence, Notice, NoticeCode } from '@/engine/messages/notices'
 import type { Direction, DurationBounds, MeasuringPhase, NoBounds, Preset, StreamMode } from '@/engine/messages/settings'
 
-// Result object (measurement.md section 17): the fields of later versions are absent, never
-// null-filled, and the v0.2 and v0.3 additions are optional, so a v0.1 or v0.2 result stays valid.
-// The Continuous fields are absent from a bounded run's result.
+// Result object (measurement.md section 17): a field with nothing to report is absent, never
+// null-filled. The note, the duration bounds, the loaded latency, the bufferbloat grade, the
+// responsiveness, the scores and the Continuous fields are optional, so a result without them stays
+// valid. The Continuous fields are absent from a bounded run's result.
 
 export type DirectionStatus = 'measured' | 'insufficient-data' | 'partial' | 'skipped' | 'error'
 
@@ -42,7 +43,7 @@ export interface ResultSeries {
   endMs: number
   /** Bytes per bucket; `null` is an unknown cell. */
   values: (number | null)[]
-  /** Continuous only: each point's known time, so a rate over points is Σ bytes ÷ Σ known time (v0.3). */
+  /** Continuous only: each point's known time, so a rate over points is Σ bytes ÷ Σ known time. */
   knownMs?: number[]
 }
 
@@ -130,7 +131,7 @@ export interface DirectionResult {
   bitsPerSecond?: number
   peakBitsPerSecond?: number
   uncompensatedBitsPerSecond?: number
-  /** Continuous only (v0.3): the lowest and highest fully known 1 s cell since the steady start. */
+  /** Continuous only: the lowest and highest fully known 1 s cell since the steady start. */
   minBitsPerSecond?: number
   maxBitsPerSecond?: number
   windowMs?: number
@@ -140,9 +141,9 @@ export interface DirectionResult {
   bytes: number
   series?: ResultSeries
   events: DirectionEvent[]
-  /** Present when the direction ran while a loaded-latency path existed (v0.2). */
+  /** Present when the direction ran while a loaded-latency path existed. */
   loadedLatency?: LoadedLatency
-  /** Present on every direction that ran, from v0.3. */
+  /** Present on every direction that ran; absent on a record that predates it. */
   responsiveness?: Responsiveness
 }
 
@@ -171,7 +172,7 @@ export interface Result {
   durationMs: number
   status: ResultStatus
   label: string
-  /** The user's note, written by the history (v0.2); the engine never emits it. */
+  /** The user's note, written by the history; the engine never emits it. */
   note?: string
   server: { name: string; version: string; epoch: string }
   client: {
@@ -187,10 +188,10 @@ export interface Result {
     preset: Preset
     phases: MeasuringPhase[]
     streams: { mode: StreamMode; max: number }
-    /** Each direction's resolved duration bounds (v0.2), null in Continuous; absent on an older result. */
+    /** Each direction's resolved duration bounds, null in Continuous; absent on a record that predates them. */
     download?: DurationBounds | NoBounds
     upload?: DurationBounds | NoBounds
-    /** Continuous only (v0.3): the direction it runs, and its run length when it has one. */
+    /** Continuous only: the direction it runs, and its run length when it has one. */
     continuousDirection?: Direction
     runLengthMs?: number
     dataCapBytes: number | null
@@ -201,9 +202,9 @@ export interface Result {
   idle?: IdleResult
   download?: DirectionResult
   upload?: UploadResult
-  /** Absent without idle latency or a gradable direction (v0.2). */
+  /** Absent without idle latency or a gradable direction. */
   bufferbloat?: Bufferbloat
-  /** Present on every result from v0.3, even when no experience is scored. */
+  /** Present on every result, even when no experience is scored; absent on a record that predates it. */
   scores?: Scores
   dataUsedBytes: number
   notices: Notice[]

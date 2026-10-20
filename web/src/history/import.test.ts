@@ -79,10 +79,10 @@ describe('the import', () => {
     })
   })
 
-  it('accepts a v0.1 record without a note', async () => {
-    const v01 = resultFixture()
-    expect('note' in v01).toBe(false)
-    expect(await parse(file([v01]))).toEqual({ ok: true, results: [v01], rejected: [] })
+  it('accepts a record without a note', async () => {
+    const bare = resultFixture()
+    expect('note' in bare).toBe(false)
+    expect(await parse(file([bare]))).toEqual({ ok: true, results: [bare], rejected: [] })
   })
 
   it('counts the records as it checks them, and a cancel stops it with nothing to write', async () => {

@@ -29,9 +29,9 @@ import StatusPill from '@/components/status/StatusPill.vue'
 // never color alone, with the basis; beside it a row per direction with its loaded latency, its
 // source and qualifiers, and the median in ms or "—". The Test screen shows it too, with a live
 // reading in the primary text color while the run goes on, and without the grade when the run has
-// no idle latency to grade against. Under the rows, from v0.3, the HTTP loaded responsiveness: its
-// fixed label with the note, the uncertain tag and the protocol, then an RPM per direction, muted
-// when uncertain, or the words in place of one, with the Result detail's TM95 and samples.
+// no idle latency to grade against. Under the rows, the HTTP loaded responsiveness: its fixed label
+// with the note, the uncertain tag and the protocol, then an RPM per direction, muted when
+// uncertain, or the words in place of one, with the Result detail's TM95 and samples.
 
 const props = defineProps<{ grade: GradeView | null; rows: LoadRow[]; responsiveness?: ResponsivenessView | null }>()
 

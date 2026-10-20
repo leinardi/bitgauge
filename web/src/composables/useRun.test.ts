@@ -173,7 +173,7 @@ describe('useRun', () => {
   it('takes the settings the engine resolved: the configured ones, then each run\'s', () => {
     const { run, worker, scope } = started()
     if (SETTINGS === null) {
-      throw new Error('the fixture defaults run in v0.1')
+      throw new Error('the fixture defaults resolve to settings')
     }
     expect(run.settings.value).toEqual(SETTINGS)
     const quick = { ...SETTINGS, preset: 'quick' as const, pingCount: 10 }

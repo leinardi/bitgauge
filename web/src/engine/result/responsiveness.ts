@@ -20,7 +20,7 @@
 import type { DirectionResult, Responsiveness } from '@/engine/messages'
 
 // HTTP loaded responsiveness in the result object (measurement.md sections 12.6 and 17): the block
-// each direction that ran settled as it finished, already quantized, on its direction (v0.3).
+// each direction that ran settled as it finished, already quantized, on its direction.
 
 /** The direction with its responsiveness block; one that did not run, or a result without the block, is unchanged. */
 export function withResponsiveness<T extends DirectionResult>(block: T, responsiveness: Responsiveness | null): T {

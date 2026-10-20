@@ -21,7 +21,7 @@
 // section 4, ui/i18n-a11y.md section 2.6). The theme comes from the documented URL parameter
 // (ui/url-params.md section 1), which overrides the stored choice for the page load. Each test
 // starts with an empty history; the populated one imports the demo's eight results, and one record
-// it rejects, and the Result detail shows the newest of them, with a chart and a table. The v0.2
+// it rejects, and the Result detail shows the newest of them, with a chart and a table. The
 // screens' other states are here too: History with no match, the Compare dialog, the Result detail
 // not found, and Settings with a change and its Reset all confirmation. The Test screen's Done state
 // runs a quick test, so it shows its load card with the HTTP loaded responsiveness and the quality

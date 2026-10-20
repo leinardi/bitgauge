@@ -26,8 +26,8 @@ import { percentile } from '@/lib/percentile'
 import { latencyNumber } from '@/lib/format'
 
 // The Test screen's load card (ui/screens.md sections 1 and 6): the grade and a loaded-latency row
-// per direction, live from the pings so far, then the result's with its qualifiers, and from v0.3
-// the HTTP loaded responsiveness: on every state of a standard run, as the kit's Test screen shows
+// per direction, live from the pings so far, then the result's with its qualifiers, and the HTTP
+// loaded responsiveness: on every state of a standard run, as the kit's Test screen shows
 // it, and only in a Continuous run's finished result (ui/screens.md section 1).
 
 /** What the Test screen's load card needs of the run (ui/screens.md sections 1 and 6). */

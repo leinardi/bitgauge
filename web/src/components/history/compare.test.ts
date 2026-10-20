@@ -112,18 +112,18 @@ describe('the pair', () => {
   })
 })
 
-describe('the v0.3 rows', () => {
+describe('the loaded-quality rows', () => {
   const measured = (rpm: number): Responsiveness => ({ state: 'measured', protocol: 'h2', samples: 40, rpm, tm95Ms: 60000 / rpm, trimmed: 2, totalMedianMs: 60 })
   const scores = (gaming: Scores['gaming']): Scores => ({ basis: 'download+upload', packetLoss: 'not-measured', streaming: { points: 80, band: 'good' }, gaming, rtc: { points: 50, band: 'average' } })
-  function withV03(id: string, startedAt: string, download: Responsiveness | undefined, upload: Responsiveness | undefined, score?: Scores): Result {
+  function withLoadedQuality(id: string, startedAt: string, download: Responsiveness | undefined, upload: Responsiveness | undefined, score?: Scores): Result {
     const base = resultFixture({ id, startedAt, ...(score === undefined ? {} : { scores: score }) })
     return { ...base, download: { ...base.download!, responsiveness: download }, upload: { ...base.upload!, responsiveness: upload } }
   }
   const rows = (a: Result, b: Result) => compare(a, b, 'bits', 'en', t).metrics.filter((row) => row.key.startsWith('rpm-') || row.key.startsWith('quality-'))
 
   it('compares each direction’s RPM when both are measured, higher better and within 2 % the same, after the grade', () => {
-    const a = withV03('a', '2026-09-26T16:20:00.000Z', measured(980), measured(610), scores({ points: 60, band: 'good' }))
-    const b = withV03('b', '2026-10-02T07:05:00.000Z', measured(995), measured(700), scores({ points: 40, band: 'average' }))
+    const a = withLoadedQuality('a', '2026-09-26T16:20:00.000Z', measured(980), measured(610), scores({ points: 60, band: 'good' }))
+    const b = withLoadedQuality('b', '2026-10-02T07:05:00.000Z', measured(995), measured(700), scores({ points: 40, band: 'average' }))
     const keys = compare(a, b, 'bits', 'en', t).metrics.map((row) => row.key)
     expect(keys.slice(keys.indexOf('grade'), keys.indexOf('grade') + 6)).toEqual(['grade', 'rpm-download', 'rpm-upload', 'quality-streaming', 'quality-gaming', 'quality-rtc'])
     expect(rows(a, b)).toEqual([
@@ -136,8 +136,8 @@ describe('the v0.3 rows', () => {
   })
 
   it('shows both states and reads not comparable unless both are measured, and an experience scored on one side', () => {
-    const a = withV03('a', '2026-09-26T16:20:00.000Z', measured(980), { state: 'uncertain', protocol: 'h2', samples: 20, rpm: 610, tm95Ms: 98, trimmed: 1, totalMedianMs: 100 }, scores({ points: 60, band: 'good' }))
-    const b = withV03('b', '2026-10-02T07:05:00.000Z', { state: 'unavailable_h1', protocol: 'http/1.1', samples: 0 }, measured(640), scores({ missing: ['loaded-latency'] }))
+    const a = withLoadedQuality('a', '2026-09-26T16:20:00.000Z', measured(980), { state: 'uncertain', protocol: 'h2', samples: 20, rpm: 610, tm95Ms: 98, trimmed: 1, totalMedianMs: 100 }, scores({ points: 60, band: 'good' }))
+    const b = withLoadedQuality('b', '2026-10-02T07:05:00.000Z', { state: 'unavailable_h1', protocol: 'http/1.1', samples: 0 }, measured(640), scores({ missing: ['loaded-latency'] }))
     const [download, upload, , gaming] = rows(a, b)
     expect(download).toMatchObject({ a: '980 RPM · measured · HTTP/2', b: 'needs HTTP/2 or HTTP/3 at the reverse proxy · HTTP/1.1', verdict: 'not-comparable' })
     expect(download?.change).toBeUndefined()
@@ -148,7 +148,7 @@ describe('the v0.3 rows', () => {
   it('has no such rows between two results without them, and — on the side that lacks them', () => {
     const plain = (id: string, startedAt: string) => resultFixture({ id, startedAt })
     expect(rows(plain('a', '2026-09-26T16:20:00.000Z'), plain('b', '2026-10-02T07:05:00.000Z'))).toEqual([])
-    const both = rows(plain('a', '2026-09-26T16:20:00.000Z'), withV03('b', '2026-10-02T07:05:00.000Z', measured(900), undefined, scores({ points: 60, band: 'good' })))
+    const both = rows(plain('a', '2026-09-26T16:20:00.000Z'), withLoadedQuality('b', '2026-10-02T07:05:00.000Z', measured(900), undefined, scores({ points: 60, band: 'good' })))
     expect(both.map((row) => [row.key, row.a, row.verdict])).toEqual([
       ['rpm-download', '—', 'not-comparable'],
       ['quality-streaming', 'not scored', 'not-comparable'],

@@ -30,7 +30,7 @@ export type PhaseState = 'started' | 'finished' | 'skipped' | 'failed'
 
 export type Direction = 'download' | 'upload'
 
-/** The presets of measurement.md section 8.5; Continuous from v0.3. */
+/** The presets of measurement.md section 8.5. */
 export type Preset = 'quick' | 'standard' | 'extended' | 'continuous'
 
 /** The presets with a minimum and a maximum duration. */
@@ -69,9 +69,9 @@ export interface TestSettings {
   warmup: 'auto' | number
   pingCount: number
   overheadCompensationPercent: number
-  /** Continuous only: the one direction it runs (v0.3). */
+  /** Continuous only: the one direction it runs. */
   continuousDirection?: Direction
-  /** Continuous only: how long its direction runs, absent for a run that lasts until stopped (v0.3). */
+  /** Continuous only: how long its direction runs, absent for a run that lasts until stopped. */
   runLengthMs?: number
 }
 

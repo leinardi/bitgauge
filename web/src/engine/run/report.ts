@@ -54,7 +54,7 @@ export interface RunReport {
   upload: UploadOutcome | null
   /** Each direction's loaded latency; null for a direction the pinger did not run for. */
   loaded: Record<'download' | 'upload', LoadedDirection | null>
-  /** Each direction's HTTP loaded responsiveness, settled as it finished; null for one that did not run (v0.3). */
+  /** Each direction's HTTP loaded responsiveness, settled as it finished; null for one that did not run. */
   responsiveness: Record<'download' | 'upload', Responsiveness | null>
   /** The measuring phases that did not run: left out by the settings, or after a stop, an error or the data cap. */
   skipped: MeasuringPhase[]

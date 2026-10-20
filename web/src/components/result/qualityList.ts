@@ -97,7 +97,7 @@ export function scoreBasis(scores: Scores, { t }: Wording): string | null {
   return scores.basis === 'download' ? t('result.quality.basisDownload') : scores.basis === 'upload' ? t('result.quality.basisUpload') : null
 }
 
-/** The quality list of a result with scores; null without them (a v0.1 or v0.2 record). */
+/** The quality list of a result with scores; null without them (a record that predates them). */
 export function qualityView(result: Result, wording: Wording): QualityView | null {
   const scores = result.scores
   if (scores === undefined) {

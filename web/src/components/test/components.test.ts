@@ -19,7 +19,7 @@
 
 // @vitest-environment jsdom
 
-// The Test screen's components: the notices for every v0.1 code with their tones and actions, the
+// The Test screen's components: the notices for every code with their tones and actions, the
 // metric tile, the Test list with its packet-loss slot, the phase indicator's states, and the start control.
 
 import { mount } from '@vue/test-utils'
@@ -51,7 +51,7 @@ function mountWith<T extends Component>(component: T, props: Record<string, unkn
   return mount(component, { props, global: { plugins: [i18n()] } } as never)
 }
 
-// Every v0.1 code once; the record type makes a missing code a compile error.
+// Every notice code once; the record type makes a missing code a compile error.
 const EVERY: Record<NoticeCode, Notice> = {
   'slow-link-extended': { code: 'slow-link-extended', direction: 'download' },
   'low-confidence': { code: 'low-confidence', direction: 'upload', reasons: ['insufficient-samples'] },

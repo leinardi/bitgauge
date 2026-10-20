@@ -87,11 +87,11 @@ describe('the store', () => {
     expect(await history.edit('none', { note: 'x' })).toBeUndefined()
   })
 
-  it('reads a v0.1 record without a note, and keeps out of the list one it cannot read', async () => {
+  it('reads a record without a note, and keeps out of the list one it cannot read', async () => {
     const { db, store: history } = await store()
-    const v01 = { ...OLD }
-    Reflect.deleteProperty(v01, 'note')
-    await db.put('results', v01)
+    const withoutNote = { ...OLD }
+    Reflect.deleteProperty(withoutNote, 'note')
+    await db.put('results', withoutNote)
     await db.put('results', { ...NEW, schemaVersion: 2 as 1 })
     await db.put('results', { ...MID, status: 'great' as 'complete' })
     expect((await history.list()).map((result) => result.id)).toEqual(['old'])

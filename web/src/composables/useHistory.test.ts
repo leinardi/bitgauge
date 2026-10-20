@@ -96,10 +96,10 @@ describe('the history', () => {
     expect(await history.save(resultFixture())).toBe(false)
   })
 
-  it('round-trips an edited label and note through the JSON export and import, beside a v0.1 record', async () => {
+  it('round-trips an edited label and note through the JSON export and import, beside a record without a note', async () => {
     const history = await opened()
-    const v01 = resultFixture({ id: 'v01', startedAt: '2026-09-01T00:00:00.000Z' })
-    await history.save(v01)
+    const bare = resultFixture({ id: 'bare', startedAt: '2026-09-01T00:00:00.000Z' })
+    await history.save(bare)
     await history.save(resultFixture({ id: 'edited' }))
     await history.edit('edited', { label: 'Kitchen', note: 'after the router swap' })
     const file = historyExport(history.results.value, new Date())
@@ -109,7 +109,7 @@ describe('the history', () => {
     expect(await other.importText(file?.json ?? '')).toEqual({ ok: true, added: 2, skipped: 0, rejected: [] })
     expect(other.results.value).toEqual(history.results.value)
     expect(other.results.value.find((r) => r.id === 'edited')).toMatchObject({ label: 'Kitchen', note: 'after the router swap' })
-    expect('note' in (other.results.value.find((r) => r.id === 'v01') ?? {})).toBe(false)
+    expect('note' in (other.results.value.find((r) => r.id === 'bare') ?? {})).toBe(false)
     // The same file again only skips.
     expect(await other.importText(file?.json ?? '')).toEqual({ ok: true, added: 0, skipped: 2, rejected: [] })
   })

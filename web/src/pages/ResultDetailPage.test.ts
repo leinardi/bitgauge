@@ -118,14 +118,14 @@ describe('a stored result', () => {
     page.unmount()
   })
 
-  it('adds the HTTP loaded responsiveness with TM95 and the quality list to a v0.3 result, and neither to an older one', async () => {
-    const v03: Result = {
+  it('adds the HTTP loaded responsiveness with TM95 and the quality list to a result with them, and neither to one without', async () => {
+    const withScores: Result = {
       ...NEWEST,
       download: { ...NEWEST.download!, responsiveness: { state: 'measured', protocol: 'h2', samples: 13, rpm: 1420, tm95Ms: 42.26, trimmed: 0, totalMedianMs: 45.6 } },
       upload: { ...NEWEST.upload!, responsiveness: { state: 'unavailable_insufficient', protocol: 'h2', samples: 3 } },
       scores: { basis: 'upload', packetLoss: 'not-measured', streaming: { points: 80, band: 'good' }, gaming: { points: 30, band: 'poor' }, rtc: { missing: ['jitter'] } },
     }
-    const page = await open(v03.id, [v03, ...RESULTS.slice(1)])
+    const page = await open(withScores.id, [withScores, ...RESULTS.slice(1)])
     expect(text(page, 'load-responsiveness')).toContain('HTTP loaded responsiveness — connection sharing not verifiable')
     expect(text(page, 'load-responsiveness')).toContain('HTTP/2')
     expect(page.findAll('[data-testid="load-rpm"]').map((row) => row.text())).toEqual(['Download1,420RPMTM95 42\u00a0ms · 13 samples · TM95 equals the plain mean', 'Uploadnot enough samples'])
@@ -134,14 +134,15 @@ describe('a stored result', () => {
     expect(text(page, 'quality-list')).toContain('Packet loss')
     expect(text(page, 'quality-list')).toContain('Upper bound: packet loss is not measured')
     page.unmount()
-    // A v0.2 result has neither block (the demo's results are v0.3 ones).
-    const { scores: _scores, ...v02 } = NEWEST
+    // A result without the responsiveness and the scores has neither block (the demo's results
+    // carry them).
+    const { scores: _scores, ...bare } = NEWEST
     const { responsiveness: _down, ...download } = NEWEST.download!
     const { responsiveness: _up, ...upload } = NEWEST.upload!
-    const older = await open(NEWEST.id, [{ ...v02, download, upload }, ...RESULTS.slice(1)])
-    expect(older.find('[data-testid="load-responsiveness"]').exists()).toBe(false)
-    expect(older.find('[data-testid="quality-list"]').exists()).toBe(false)
-    older.unmount()
+    const bareView = await open(NEWEST.id, [{ ...bare, download, upload }, ...RESULTS.slice(1)])
+    expect(bareView.find('[data-testid="load-responsiveness"]').exists()).toBe(false)
+    expect(bareView.find('[data-testid="quality-list"]').exists()).toBe(false)
+    bareView.unmount()
   })
 
   it('draws each direction and the idle latency, each with a table of its windows', async () => {
