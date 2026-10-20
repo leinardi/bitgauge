@@ -31,8 +31,8 @@ import (
 	"github.com/leinardi/bitgauge/test/internal/toolgate"
 )
 
-// vacuousFlags turn a gate with nothing to check, or a failing one, into a pass. A dormant gate
-// must fail loudly or be absent (AGENTS.md); none of these may appear where gates are defined.
+// vacuousFlags turn a gate with nothing to check, or a failing one, into a pass; none of these may
+// appear where gates are defined.
 var vacuousFlags = []struct {
 	name    string
 	pattern *regexp.Regexp

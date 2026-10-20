@@ -24,10 +24,6 @@ MK_LOCAL_HARNESS_INCLUDED := 1
 # The accuracy harness (testing.md section 5): Go runners behind the harness build tag drive the
 # topology over the docker CLI and write dist/harness/<tier>-<UTC>-<envid>/report.{json,md}.
 #
-# Held to the image prerequisites, the engine's result object, the Test screen and its Download
-# JSON extraction path (the accuracy harness gate of test/toolchain/gates.go): without any of them
-# the runners fail, naming what is missing, before any container starts.
-#
 # Prerequisites: Linux, a running Docker daemon with buildx, a dhi.io login, the ifb, netem, tbf and
 # fq_codel kernel modules loadable, cgroup v2 with memory.peak (Linux 5.19 or later), and npm --prefix web
 # ci on the host (the client mounts web/ with its node_modules; it has no route out to install
@@ -52,7 +48,6 @@ HARNESS_CONTINUOUS_SETUP_MINUTES := 30
 
 # harness_run runs one tier: $(1) is the tier, $(2) the shape setting.
 define harness_run
-	HARNESS_CHECK_ACTIVE=1 $(GO) test -count=1 -run '^TestHarnessActive$$' $(HARNESS_PKG)
 	HARNESS_TIER=$(1) \
 	HARNESS_PROFILES="$(HARNESS_PROFILES)" \
 	HARNESS_BROWSERS="$(HARNESS_BROWSERS)" \
@@ -78,7 +73,6 @@ harness-continuous: ## Run the manual Continuous memory check, Chromium on ci-10
 	@case "$(HARNESS_CONTINUOUS_MINUTES)" in ''|*[!0-9]*) \
 	  echo "HARNESS_CONTINUOUS_MINUTES must be a whole number of at least 6, not '$(HARNESS_CONTINUOUS_MINUTES)'" >&2; exit 1;; \
 	esac
-	HARNESS_CHECK_ACTIVE=1 $(GO) test -count=1 -run '^TestHarnessActive$$' $(HARNESS_PKG)
 	HARNESS_CONTINUOUS_MINUTES="$(HARNESS_CONTINUOUS_MINUTES)" \
 	HARNESS_KEEP_ON_FAILURE="$(HARNESS_KEEP_ON_FAILURE)" \
 	$(GO) test -tags=harness -count=1 -run '^TestHarnessContinuous$$' \

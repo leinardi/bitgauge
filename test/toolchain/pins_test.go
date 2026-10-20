@@ -33,7 +33,6 @@ import (
 	"go.yaml.in/yaml/v3"
 
 	"github.com/leinardi/bitgauge/test/internal/toolgate"
-	"github.com/leinardi/bitgauge/test/toolchain"
 )
 
 // The release tools' pins (the plan's version table); release.yaml carries them once the Release
@@ -177,40 +176,20 @@ func TestExactWebPins(t *testing.T) {
 	}
 }
 
-// TestReleaseToolPins: svu and Trivy are pinned in release.yaml once the Release stage is active;
-// before it, the file is absent.
+// TestReleaseToolPins: svu and Trivy are pinned in release.yaml.
 func TestReleaseToolPins(t *testing.T) {
 	t.Parallel()
 
-	root := toolgate.RepoRoot(t)
+	file := filepath.Join(".github", "workflows", "release.yaml")
 
-	active, err := toolchain.Active(root, toolchain.GateRelease)
+	content, err := os.ReadFile(filepath.Join(toolgate.RepoRoot(t), file))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	for _, name := range []string{"release.yaml"} {
-		file := filepath.Join(".github", "workflows", name)
-
-		content, readErr := os.ReadFile(filepath.Join(root, file))
-		if !active {
-			if readErr == nil {
-				t.Errorf("%s exists before the Release stage is active", file)
-			}
-
-			continue
-		}
-
-		if readErr != nil {
-			t.Errorf("the Release stage is active but %s cannot be read: %v", file, readErr)
-
-			continue
-		}
-
-		for tool, pin := range map[string]string{"svu": svuPin, "trivy": trivyPin} {
-			if !pinnedOnLine(string(content), tool, pin) {
-				t.Errorf("%s does not pin %s at %s", file, tool, pin)
-			}
+	for tool, pin := range map[string]string{"svu": svuPin, "trivy": trivyPin} {
+		if !pinnedOnLine(string(content), tool, pin) {
+			t.Errorf("%s does not pin %s at %s", file, tool, pin)
 		}
 	}
 }

@@ -3,7 +3,7 @@ name: accuracy-harness
 description: >
   How to run, change and read BitGauge's accuracy harness: the CI, floor and ceiling
   tiers and their profiles, the manual Continuous memory check, the make runners and
-  their variables, the dormancy gate,
+  their variables,
   the shaper self-test, netguard's negative controls and the two no-egress layers,
   envid-scoped cleanup, report.json and report.md, the environmental limits, and how
   manual runs are recorded for a release. The rule that outranks a green run: never
@@ -36,30 +36,13 @@ How to use it:
 
 ---
 
-## 1. The harness gate: active
+## 1. What the harness depends on
 
-The gate is met and the harness active; this section is what keeps it so. The
-runners refuse to start while any prerequisite of the **accuracy harness** gate in
-`test/toolchain/gates.go` is unmet. `test/harness/dormancy.go` reads the same registry, and
-`.mk/harness.mk` runs `TestHarnessActive` with `HARNESS_CHECK_ACTIVE=1` before any runner, so a
-dormant harness fails there, listing what is missing, before a container exists.
-
-The gate is met when all of these hold, its `After` gates' included:
-
-- **Image gate** (and its own `After`: binary build, web build): `cmd/bitgauge/main.go`,
-  `web/index.html`, `web/src/main.ts` and `web/embed.go` exist, and the `docs/STATUS.md` rows
-  starting "Single binary, embedded SPA" and "Native API:" no longer read `Spec'd`.
-- **Harness gate:** the rows starting "Engine: headline, peak, confidence and notices, result
-  object" and "UI: Test screen" no longer read `Spec'd`, and `docs/features/ui/screens.md` still
-  holds the text `**Download JSON** of the finished result`, the extraction path that
-  `web/harness/run.spec.ts` clicks
-  ([decisions.md §36](../../../docs/features/technical-stack/decisions.md#36-harness-extraction--download-json-on-the-test-screen)).
-
-Activation is all-or-nothing. Once the gate is met, `ci.yaml` needs the `harness` job, `ci-result`
-needs it, and `.github/workflows/harness.yaml` exists; while dormant, none of them may exist. The
-meta-tests in `test/toolchain/` fail in both directions. Never add a harness job early, and never
-reword the screens.md sentence or a STATUS row without checking the gate: a gate that can no longer
-be met keeps the harness dormant forever without anyone noticing.
+The driver, `web/harness/run.spec.ts`, extracts each result through the Test screen's **Download
+JSON** button
+([decisions.md §36](../../../docs/features/technical-stack/decisions.md#36-harness-extraction--download-json-on-the-test-screen)).
+A change to that button, or to the result object it downloads, changes the driver in the same
+commit.
 
 ## 2. Tiers and profiles
 
@@ -116,9 +99,9 @@ testing.md §5 "Continuous memory (manual)" asks for one hour of a Continuous do
 `ci-100m-50ms` in Chromium, before each release, recorded with the floor and ceiling tiers
 (section 8).
 
-- **Runner.** `TestHarnessContinuous` (`test/harness/continuous_test.go`, `harness` tag): the
-  dormancy check first, then one topology with its shaper self-test and netguard, and the driver
-  run within `ContinuousBrowseLimit` (the minutes plus setup), not the tiers' 20 min.
+- **Runner.** `TestHarnessContinuous` (`test/harness/continuous_test.go`, `harness` tag): one
+  topology with its shaper self-test and netguard, and the driver run within
+  `ContinuousBrowseLimit` (the minutes plus setup), not the tiers' 20 min.
 - **Driver.** `web/harness/continuous.spec.ts` opens the Continuous URL with a run length of the
   minutes plus 30 s, takes the steady start from the gauge note leaving "warming up", and every
   60 s forces `HeapProfiler.collectGarbage` and reads `Runtime.getHeapUsage` on the engine Worker.
@@ -308,7 +291,7 @@ is the invocation's own, distinct from each run's) holding `report.json`, `repor
 step summary), `exports/<profile>/<browser>.json` (the downloaded result) with
 `<browser>.phases.json` (the phase transitions) and `<browser>.ping.txt` (the ping's output) beside
 it, and `playwright/<profile>-<browser>/`. Once the images are built, the report is written even
-when runs fail; a dormant gate or a failed image build stops the test before any report exists.
+when runs fail; a failed image build stops the test before any report exists.
 
 Read each run in this order; stop at the first that fails:
 

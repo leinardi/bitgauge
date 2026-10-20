@@ -9,8 +9,7 @@ LibreSpeed and Apple `networkQuality` clients.
 
 **Status: implemented, not yet released; specification approved by the maintainer on
 2026-10-12.** The product, the engineering scaffold (build files, linters, CI, release
-scripts, test harnesses, agent skills) and the demo build are in place, and every gate is active
-(see [Dormant gates and activation](#dormant-gates-and-activation)). The release waits for the
+scripts, test harnesses, agent skills) and the demo build are in place. The release waits for the
 manual steps of [`docs/release.md`](docs/release.md#how-to-release). Full spec:
 [`docs/features/`](docs/features/README.md). Per-feature implementation status:
 [`docs/STATUS.md`](docs/STATUS.md); check it before assuming a feature exists or not.
@@ -34,7 +33,7 @@ The tooling **exists**:
 - **`Makefile`, `.mk/`**: shared snippets from `leinardi/make-common@v1` (`docker.mk`, `help.mk`,
   `go.mk`, `pre-commit.mk`, `web.mk`, `parity.mk`) plus repo-local ones; never add recipes to
   `Makefile` itself.
-- **`test/`**: meta-tests, all real Go packages. `test/toolchain` (gate registry `gates.go`, pins,
+- **`test/`**: meta-tests, all real Go packages. `test/toolchain` (pins,
   vacuous flags, untagged-test rules, engine boundary, fallow and install-scripts gates),
   `test/docs` (links, anchors, doc facts), `test/boundary` (the `.golangci.yaml` stateless rules),
   `test/dockerfiles`, `test/deployments` (the deployment examples), one package per
@@ -67,9 +66,7 @@ The tooling **exists**:
 
 ## Common commands
 
-`make help` lists every target. No target is dormant; a gate added later starts dormant, and its
-target fails loudly, naming what is missing, until its inputs exist
-([Dormant gates and activation](#dormant-gates-and-activation)).
+`make help` lists every target.
 
 ```bash
 make check             # pre-commit on all files: the authoritative local gate, same as CI
@@ -188,9 +185,8 @@ Run before considering an edit done. `make check` applies to every row.
 | `scripts/bootstrap-mk-common.sh` | shellcheck (in `make check`); it comes from make-common, so a change is ported upstream; `make help` proves the snippets still load |
 | `scripts/idle-measure.sh`, `.mk/idle-measure.mk` | `shellcheck scripts/idle-measure.sh`, `make help`; no test package: it needs a running binary |
 | `.github/scripts/binary-attestation-status.sh` | `bash .github/scripts/binary-attestation-status.test.sh` (also the `release-scripts` CI job) |
-| `.github/workflows/**`, `.github/actions/**` | `pre-commit run actionlint --all-files`, `go test ./test/toolchain/` (pins, gate registry, vacuous flags) |
+| `.github/workflows/**`, `.github/actions/**` | `pre-commit run actionlint --all-files`, `go test ./test/toolchain/` (pins, vacuous flags) |
 | `.pre-commit-config.yaml`, `Makefile`, `.mk/**` | `make check`, `go test ./test/toolchain/`, `make help` |
-| `test/toolchain/gates.go`, `docs/STATUS.md` rows a gate reads | `go test ./test/toolchain/` |
 | `web/e2e/**`, `web/playwright.config.ts`, `.mk/e2e.mk` | `make e2e` on all three browsers (WebKit needs its system libraries: `npm --prefix web exec -- playwright install --with-deps webkit`), `make verify-web` (ESLint and the `tsconfig.e2e.json` typecheck cover `web/e2e/`) |
 | `test/harness/**`, `web/harness/**` | `go test ./test/harness/`, `make go-vet-harness`; a runner change, `make harness-ci` (Docker, `dhi.io`, netem), or one profile and browser with `HARNESS_PROFILES` and `HARNESS_BROWSERS` |
 | `test/image/**`, `test/internal/netguard/**`, `test/internal/syscalltrace/**` | `go test ./test/internal/...` (untagged), `make go-vet-image`, and (Docker, `dhi.io`) `make go-test-image`; without `dhi.io`, the probe and netguard tests alone: `go test -tags=image -v -run 'Probe\|Count\|Blind' ./test/image/ ./test/internal/netguard/` |
@@ -228,38 +224,12 @@ over the ceiling has no entry. `--update` only lowers and deletes entries; `--ad
 file over the ceiling, and reaching for it means arguing in review for a long file instead of
 splitting it.
 
-## Dormant gates and activation
+## No gate passes on nothing
 
-**Every gate below is active.** The table stays as the contract the registry enforces, for these
-gates and for any added later.
-
-The registry is `test/toolchain/gates.go`. `go test ./test/toolchain/` fails when a gate's
-prerequisites are met but its hooks, CI jobs, steps or workflows are missing, and when any of them
-exists before its prerequisites are met: removing an input fails the test, and so does dropping a
-hook or a job that an input still requires. A gate added later starts **dormant**: its make target
-fails loudly on the missing input, and it has **no pre-commit hook and no CI job** until its
-activation commit, one commit that adds its inputs and everything the table requires. Nothing
-passes on nothing: no `--passWithNoTests`, `|| true`, `continue-on-error` or `if: false`
-(`test/toolchain/vacuous_flags_test.go`).
-
-| Gate | Prerequisite | Requires |
-| --- | --- | --- |
-| API types | `api/openapi.yaml` | `api-types-generate` hook; `web.yaml` step `types-drift` |
-| Frontend lint and typecheck | any hand-written `web/src/**/*.{ts,vue}` (not `src/api/types.gen.ts` or `src/components/ui/**`) | `web-eslint`, `web-typecheck` hooks; `web.yaml` steps `lint`, `typecheck`; fallow `ignoreDependencies` empty |
-| Frontend unit tests | any `web/src/**/*.test.ts` | `web-test` hook; `web.yaml` step `unit-test` |
-| Web build | `web/index.html` and `web/src/main.ts` | `web.yaml` steps `build`, `dist-urls`, `chunk-size` |
-| Binary build | `cmd/bitgauge/main.go` | `ci.yaml` step `go-build` |
-| Image and image tests | binary build, web build, `web/embed.go`, STATUS rows "Single binary, embedded SPA…" and "Native API…" not Spec'd | `ci.yaml` jobs `credentials` and `image` (running `make go-test-image`), both needed by `ci-result` |
-| E2E | image prerequisites and any `web/e2e/**/*.spec.ts` | `ci.yaml` job `e2e`, needed by `ci-result` |
-| Accuracy harness | image prerequisites, STATUS rows "Engine: headline… result object" and "UI: Test screen…" not Spec'd, the Download JSON extraction path in `ui/screens.md` | `harness.yaml`; `ci.yaml` job `harness`, needed by `ci-result` |
-| Release | image and web build gates active | `release.yaml`, the `scheduled-scan.yaml` `image` job |
-
-`web.yaml` is created by whichever web gate activates first, with the setup steps `setup`,
-`cache-restore` and `cache-save`, and grows by step ID; `web-cache-warmup` lands with it. Untagged
-tests never need Docker: Docker-dependent tests sit behind `//go:build image` or `harness`.
-`idle-measure` and `idle-bench` are not gates: they run on demand against a running binary, as
-demo parity runs on demand against the demo build. The [STATUS row](docs/STATUS.md) says the
-same.
+No `--passWithNoTests`, `|| true`, `continue-on-error` or `if: false`
+(`test/toolchain/vacuous_flags_test.go`). Untagged tests never need Docker: Docker-dependent tests
+sit behind `//go:build image` or `harness`. `idle-measure`, `idle-bench` and demo parity run on
+demand.
 
 ## Project skills
 

@@ -22,7 +22,7 @@ deployments/examples/     compose, Traefik, Caddy, nginx; test/deployments keeps
 web/harness/run.spec.ts   Playwright driver of the accuracy harness
 deployments/docker/       Dockerfile: web, build, runtime stages; dhi.io bases pinned by tag
 test/                     Go meta-tests: boundary, docs, dockerfiles, filebudgets, licenseheaders,
-                          packagemap, suppressions, toolchain (gates.go registry, pins)
+                          packagemap, suppressions, toolchain (pins, tool policy)
 test/image/               //go:build image: the shipped image under netguard + strace (Docker)
 test/harness/             accuracy harness; runners behind //go:build harness (Docker)
 test/internal/            testenv (docker CLI envs, labels, sweep), netguard (nft egress counters),
@@ -42,8 +42,6 @@ test/internal/            testenv (docker CLI envs, labels, sweep), netguard (nf
 - Engine purity: no DOM, Vue or app imports in `web/src/engine/`.
 - Honest numbers: no fudge factors or hidden smoothing; every number keeps its qualifiers.
 - No copied code from OpenSpeedTest, LibreSpeed or other speed tests.
-- Every gate is active; a dormant gate is absent, not filtered:
-  `test/toolchain/gates.go` fails a premature or a missing hook/job/step.
 
 ## Docs
 

@@ -61,7 +61,6 @@ Tests outside `test/docs/` pin spec text too, so a docs edit can fail them:
 | Edited | Pinned by | Run |
 | --- | --- | --- |
 | testing.md §5 tier table, environmental limits, closing statement | `test/harness/harness_unit_test.go`, word for word | `go test ./test/harness/` |
-| `docs/STATUS.md` feature cells and statuses; ui/screens.md `**Download JSON** of the finished result` | the gate registry, `test/toolchain/gates.go` | `go test ./test/toolchain/` |
 
 When a number moves, the code that states it moves in the same change; when the code already
 disagrees with the docs, the docs are the fix target only if the docs are what is being changed
@@ -107,18 +106,9 @@ relies on one, the "Current answer".
 status; a stale claim is worse than none. Its rows say `Spec'd`, `Implemented` or `Open
 (unscheduled)`, with code pointers once code exists.
 
-The gate registry reads it: a gate's prerequisites include STATUS rows, matched by the **start of
-their feature cell**, that must no longer read `Spec'd`.
-
-- Moving a row off `Spec'd` can activate a gate, and an active gate needs all of its hooks, CI jobs
-  and workflows in the same change, as a dormant one must have none (`test/toolchain/gates.go`;
-  [build-packaging.md §4](../../../docs/features/technical-stack/build-packaging.md#4-ci-workflows)).
-- Renaming the start of a feature cell a gate names makes `go test ./test/toolchain/` fail with "no
-  row for a gate prerequisite". Rename the gate's entry with it, or keep the start.
-- When the product's status changes (it is implemented and not yet released), the status
-  statements change with it: STATUS.md's intro,
-  [docs/features/README.md](../../../docs/features/README.md), the status lines of AGENTS.md,
-  README.md and CONTRIBUTING.md, and the Serena core memory.
+When the product's status changes (it is implemented and not yet released), the status statements
+change with it: STATUS.md's intro, [docs/features/README.md](../../../docs/features/README.md),
+the status lines of AGENTS.md, README.md and CONTRIBUTING.md, and the Serena core memory.
 
 ## 5. Run the docs test, and know what it does not catch
 

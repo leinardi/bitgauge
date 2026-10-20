@@ -41,8 +41,6 @@ const envContinuousMinutes = "HARNESS_CONTINUOUS_MINUTES"
 // topology, whose Worker heap samples are judged by JudgeHeap and written to the report under
 // dist/harness. A run that fails, or could not complete, fails it.
 func TestHarnessContinuous(t *testing.T) {
-	requireActive(t)
-
 	minutes, err := ContinuousMinutes(os.Getenv(envContinuousMinutes))
 	if err != nil {
 		t.Fatal(err)

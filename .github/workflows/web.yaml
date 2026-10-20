@@ -4,8 +4,8 @@ name: Web checks
 # on main (restore and save). GitHub only lets a pull request read caches saved on its own ref or
 # on the default branch, so main is where the shared cache has to come from.
 #
-# It grows by step ID as the web gates activate (test/toolchain/gates.go): the API type drift
-# check, ESLint, vue-tsc, vitest, the build, the dist URL allowlist and the engine chunk size.
+# The steps: the API type drift check, ESLint, vue-tsc, vitest, the build, the dist URL allowlist
+# and the engine chunk size.
 on:
   workflow_call:
     inputs:

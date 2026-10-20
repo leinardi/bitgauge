@@ -1,8 +1,7 @@
 name: CI
 
 # The authoritative checks run on every pull request and every push to main; the reviewdog jobs only
-# annotate pull requests. A gate's jobs are added in its activation commit, as
-# test/toolchain/gates.go requires.
+# annotate pull requests.
 on:
   pull_request:
   push:
@@ -293,7 +292,7 @@ jobs:
       contents: read
 
   # Defined in web.yaml so web-cache-warmup runs the identical job on main and saves the cache that
-  # pull requests restore. It grows with the web gates (test/toolchain/gates.go).
+  # pull requests restore.
   web:
     uses: ./.github/workflows/web.yaml
     permissions:

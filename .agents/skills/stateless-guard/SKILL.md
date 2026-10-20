@@ -182,15 +182,12 @@ page's own origin ([security.md §3](../../../docs/features/security.md#3-no-out
 - **No external URL** in `web/`: no CDN, external font, icon set, analytics or `<link>` off the
   host ([decisions.md](../../../docs/features/technical-stack/decisions.md), "Stack Decisions to
   Avoid").
-- **Dist URL allowlist** (`scripts/check-dist-urls.sh`, tested by `test/disturls`): the web
-  build gate in `test/toolchain/gates.go` requires a `dist-urls` step in `web.yaml` right after
-  the build: every `http(s)://` and `ws(s)://` URL in any file of `web/dist`, binary files
-  included, must be on the allowlist of
+- **Dist URL allowlist** (`scripts/check-dist-urls.sh`, tested by `test/disturls`, run by the
+  `dist-urls` step in `web.yaml` right after the build): every `http(s)://` and `ws(s)://` URL in
+  any file of `web/dist`, binary files included, must be on the allowlist of
   [build-packaging.md §4](../../../docs/features/technical-stack/build-packaging.md#4-ci-workflows)
   (the SVG namespaces, the GNU licenses URL and the project repository with its paths), which
-  `.dist-url-allowlist` mirrors. A new entry is a docs change first. The gate activates once both
-  `web/index.html` and `web/src/main.ts` exist; before that the step must not exist, after it the
-  step must.
+  `.dist-url-allowlist` mirrors. A new entry is a docs change first.
 - The only call-out the docs accept is outside BitGauge: a third-party client of a compatibility
   layer contacting its own vendor (OpenSpeedTest's results link).
 

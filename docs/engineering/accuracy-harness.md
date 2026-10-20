@@ -6,11 +6,6 @@ harness itself, its profiles, tolerances and no-egress layers are specified in
 [testing.md §5](../features/technical-stack/testing.md#5-accuracy-harness); this note is only the
 procedure. The CI tier needs no runbook: `harness.yaml` runs it.
 
-**The harness is active.** Its gate in `test/toolchain/gates.go` holds it to the image
-prerequisites, the engine's result object, the Test screen and its JSON download: should any of
-them go missing, `make harness-ci`, `make harness-floor` and `make harness-ceiling` fail before any
-container starts and name what is missing.
-
 ---
 
 ## 1. Prepare the Host

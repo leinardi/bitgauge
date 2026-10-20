@@ -106,19 +106,17 @@ it is how the audit notices the day it starts to exist.
 > 5. **Types, i18n and size**: `any`, `@ts-ignore`, strings outside the vue-i18n catalog, the
 >    largest components and the `fallow` findings, and tests that mock what they should exercise.
 
-### Prompt C: Guardrails, Docs and Dormant Gates
+### Prompt C: Guardrails and Docs
 
 > Audit what guards this repository and what it claims about itself:
 >
 > 1. **Guardrails**: every pre-commit hook and CI job: is it pinned, does it actually fail, does it
 >    run on the commits it needs to run on (including commits that only delete files)? What is not
 >    checked at all?
-> 2. **Dormant gates**: for each gate in `test/toolchain/gates.go`, is it still dormant, and if its
->    prerequisites now exist, did its activation commit land with every hook, CI job and docs row?
-> 3. **Docs**: does `docs/features/**` describe the software that exists: configuration keys that
+> 2. **Docs**: does `docs/features/**` describe the software that exists: configuration keys that
 >    are read, endpoints that are served, screens that are rendered? Is `docs/STATUS.md` accurate?
 >    Does `AGENTS.md` describe the current tree?
-> 4. **Accuracy evidence**: does `docs/engineering/harness-runs/` hold a floor and ceiling run for
+> 3. **Accuracy evidence**: does `docs/engineering/harness-runs/` hold a floor and ceiling run for
 >    every release, and do the CI-tier reports of the last month show a profile drifting towards
 >    its tolerance?
 

@@ -28,7 +28,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 	"testing"
 	"time"
 
@@ -78,8 +77,6 @@ func run(m *testing.M) int {
 // against testing.md section 5 (re-running an inconclusive one once), and writes the report under
 // dist/harness. Any final run that failed, failed its tolerances or stayed inconclusive fails it.
 func TestHarness(t *testing.T) {
-	requireActive(t)
-
 	spec := selectedTier(t)
 	toolsImage, image, started := buildImages(t)
 	reportEnv := generateEnvID(t)
@@ -126,20 +123,6 @@ func TestHarness(t *testing.T) {
 				break
 			}
 		}
-	}
-}
-
-// requireActive fails the test, listing what is missing, while the harness is dormant.
-func requireActive(t *testing.T) {
-	t.Helper()
-
-	unmet, err := Unmet(repoRoot)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(unmet) > 0 {
-		t.Fatalf("the harness is dormant; unmet prerequisites:\n- %s", strings.Join(unmet, "\n- "))
 	}
 }
 
