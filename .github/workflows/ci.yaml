@@ -408,17 +408,8 @@ jobs:
       - name: Test the image
         run: make go-test-image
 
-  # Defined in harness.yaml, which can also be dispatched by hand: the accuracy harness's CI tier on
-  # the image built from this commit (testing.md section 5). It pulls dhi.io like the image job.
-  harness:
-    needs: credentials
-    if: needs.credentials.outputs.pull == 'true'
-    uses: ./.github/workflows/harness.yaml
-    permissions:
-      contents: read
-    secrets:
-      DHI_USERNAME: ${{ secrets.DHI_USERNAME }}
-      DHI_TOKEN: ${{ secrets.DHI_TOKEN }}
+  # The accuracy harness is not part of CI: it takes up to two hours, so it runs by hand
+  # (harness.yaml, workflow_dispatch, or make harness-ci) and before a release.
 
   # Playwright end to end (testing.md section 4): the flows on Chromium, Firefox and WebKit
   # against the binary built on the runner, so no image and no dhi.io. The browsers are cached per
@@ -495,7 +486,6 @@ jobs:
       - web
       - credentials
       - image
-      - harness
       - e2e
     runs-on: ubuntu-latest
     timeout-minutes: 5

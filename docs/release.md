@@ -39,11 +39,12 @@ shaped that way.
 
 ## How to Release
 
-1. Make sure `main` is green and that the manual floor and ceiling tiers of the accuracy harness,
-   and the real Safari and iOS checks, have passed for this commit and are recorded in
+1. Make sure `main` is green, the accuracy harness's CI tier passes when dispatched by hand
+   (`harness.yaml`), and its manual floor and ceiling tiers and the real Safari and iOS checks have
+   passed for this commit and are recorded in
    [`engineering/harness-runs/<version>.md`](engineering/harness-runs/README.md), the first being
-   `0.1.0.md`. A release is blocked until they have
-   ([features/technical-stack/testing.md §6](features/technical-stack/testing.md#6-ci-placement)).
+   `0.1.0.md`. A release is blocked until they have ([features/technical-stack/testing.md
+   §6](features/technical-stack/testing.md#6-ci-placement)).
 2. Run the **Release** workflow (`release.yaml`) from the Actions tab, or
    `gh workflow run release.yaml`, on `main`. It is `workflow_dispatch` only and takes two inputs:
    - `version`: optional, `X.Y.Z` or `vX.Y.Z`. Left empty, the version is derived from the
@@ -424,15 +425,13 @@ module of `stacks/github-repos/repos.tf`, never by hand or with `gh api`: the ru
 (pull requests only, no force push, no deletion) and the immutable `v*` tag ruleset. A change to
 either is a pull request there.
 
-The one required check is `ci-result`, set there as
-`default_branch_required_checks = ["ci-result"]`. It needs every other job of `ci.yaml`
-(`pre-commit-all`, `conventional-commits`, `repo-gates`, `release-scripts`, `go-test`, `web`,
-`audit`, `credentials` and `image`, and the E2E and harness jobs once their gates activate) and
-fails unless each one
-succeeded, so a new job becomes required by joining `ci-result`'s `needs`, not the ruleset. GitHub
-counts a skipped required job as passing, which is why the jobs themselves are not listed. The
-reviewdog annotation jobs are not needed by `ci-result`; they duplicate `pre-commit-all` as inline
-comments.
+The one required check is `ci-result`, set there as `default_branch_required_checks =
+["ci-result"]`. It needs every other job of `ci.yaml` (`pre-commit-all`, `conventional-commits`,
+`repo-gates`, `release-scripts`, `go-test`, `web`, `audit`, `credentials`, `image` and `e2e`; the
+accuracy harness is dispatched by hand) and fails unless each one succeeded, so a new job becomes
+required by joining `ci-result`'s `needs`, not the ruleset. GitHub counts a skipped required job as
+passing, which is why the jobs themselves are not listed. The reviewdog annotation jobs are not
+needed by `ci-result`; they duplicate `pre-commit-all` as inline comments.
 
 Once the ruleset is applied, open one pull request and confirm the required check reports under
 exactly the name `ci-result`. A required check that never reports blocks every merge.

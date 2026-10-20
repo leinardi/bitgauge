@@ -1,8 +1,8 @@
 name: Accuracy harness
 
 # The accuracy harness's CI tier (testing.md section 5): every CI profile on Chromium, Firefox and
-# WebKit, judged against the iperf3 reference, behind netguard. Reusable: CI calls it on every pull
-# request and push. It can also be dispatched by hand, for a subset of the profiles or browsers.
+# WebKit, judged against the iperf3 reference, behind netguard. Dispatched by hand, for every
+# profile or a subset of the profiles or browsers; reusable, so a workflow can call it again.
 #
 # No schedule for now: this repository is private and its Actions minutes are limited. Once it is
 # public, add the nightly run back (a going-public item); with empty inputs it runs the whole tier:
