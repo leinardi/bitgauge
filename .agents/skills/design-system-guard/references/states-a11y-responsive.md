@@ -15,7 +15,7 @@ What each state contains, says and offers is in
 | --- | --- |
 | Numbers | No number without its qualifiers: unit, phase, confidence. "Insufficient data" shows no number ([`measurement.md`](../../../../docs/features/measurement.md)) |
 | Series colors | Download teal, upload violet, latency blue and dashed, each with that one meaning (`tokens.md`) |
-| Run states | Every v0.1 state of the kit's `TEST_STATES` (idle, countdown, connecting, each phase, complete, error, cancelled and the rest; `V01_TEST_STATES` in `web/parity/scenarios.ts`) is reachable in the demo and compared by parity |
+| Run states | Every state of the kit's `TEST_STATES` (idle, countdown, connecting, each phase, complete, error, cancelled, the Continuous states and the rest; `TEST_STATES` in `web/parity/scenarios.ts`) is reachable in the demo and compared by parity |
 | Notices | Their tone, wording and order come from the spec; a notice never stands in for a number's qualifier |
 | `focus-visible` | Visible ring via `var(--focus-ring)` (`--ring`); do not hide it |
 

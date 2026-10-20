@@ -3,7 +3,7 @@
 The design export's app kit (`docs/design_system/ui_kits/app/`) is a clickable prototype of every
 screen and state; the Vue app in demo mode (`VITE_DEMO=1`,
 [frontend.md §9](../features/technical-stack/frontend.md#9-demo-build)) runs the real engine against
-a simulated link. The harness drives both into the same v0.2 states, compares what they show, and
+a simulated link. The harness drives both into the same v0.3 states, compares what they show, and
 holds the known differences in a committed baseline (`.parity-baseline`) that may only shrink. It
 finds two kinds of drift: the Vue app moving away from the export, and gaps in the demo (its links,
 fixtures and scenarios in `web/src/demo/`) that keep it from reaching the state the kit shows.
@@ -75,8 +75,9 @@ panel itself. Steps name states and screens; how each side reaches them lives in
   `offline` scenario.
 
 Before reading anything, both pages are put in the same state: the wall clock fixed, UTC, en-US,
-reduced motion, the project's color scheme, and the prototype's theme and v0.2 scope set to the
-product's defaults (System; History, Settings, share and loaded latency on), with its Demo panel's
+reduced motion, the project's color scheme, and the prototype's theme and v0.3 scope set to the
+product's defaults (System; History, Settings, share, loaded latency, path B, Continuous and the
+compatibility layers on), with its Demo panel's
 browser on Chrome, since the harness drives Chromium and the panel defaults to Firefox. Then the
 harness waits until the DOM has stopped changing.
 
@@ -268,6 +269,11 @@ clusters; two rules may overlap only on entries one of them owns.
 matches), on scope growth, and on problems: validation problems, rule overlaps on unowned entries,
 hash collisions.
 
+A new scenario under a prefix a `done` cluster's rule names (`test/*` when the kit's Continuous
+states joined) makes that cluster's closing run fall short of its required scenarios. Its rule then
+names the scenarios it was closed under, item by item, so its decision keeps the scope it was made
+on, and what the new scenarios show is clustered on its own.
+
 ### One Acceptance Policy
 
 Nothing enters the baseline without a decision. A difference the baseline does not list stays
@@ -326,11 +332,13 @@ What no scenario visits is invisible to it. `web/parity/coverage.test.ts`, run b
 - a Vue page or a prototype screen has no row in its page table, or a row names one that is gone;
 - the routes Vue answers with the not-available page are not exactly the prototype screens the app
   does not have yet (none since the Result detail landed in v0.2);
-- a state of the kit's `TEST_STATES` the app has has no scenario, or a scenario names a state the
-  kit dropped or a v0.3 one;
+- a state of the kit's `TEST_STATES` has no scenario, or a scenario names a state the kit dropped;
 - a kit History variant, Result detail state or Settings state has no scenario, or the scenario
   lists disagree with the kit's;
-- the harness drives a scope other than v0.2;
+- a v0.3 panel choice of the kit (`RESP_OPTS`, the Continuous run length, Compare B, the Result
+  detail's Kind and Continuous length, the About switches) has no scenario, or the kit has grown
+  one the harness does not drive;
+- the harness drives a scope other than v0.3;
 - the Vue driver's list of states that start a run disagrees with the start flags of
   `DEMO_SCENARIOS`, or its list of states that hold their run disagrees with their holds.
 

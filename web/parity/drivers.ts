@@ -25,7 +25,22 @@ import { readFile } from 'node:fs/promises'
 
 import type { BrowserContext, Page } from '@playwright/test'
 
-import { type HistoryVariant, KIT_SCOPE, LOADED_CASES, type LoadedCase, type ResultState, type Screen, type SettingsState, type TestState } from './scenarios.ts'
+import {
+  ABOUT_LAYERS,
+  type AboutLayer,
+  type CompareB,
+  type ContinuousLength,
+  type HistoryVariant,
+  KIT_SCOPE,
+  LOADED_CASES,
+  type LoadedCase,
+  type Responsiveness,
+  type ResultState,
+  type RunLength,
+  type Screen,
+  type SettingsState,
+  type TestState,
+} from './scenarios.ts'
 import { waitForSettled } from './settle.ts'
 import { PROTO_ORIGIN, VUE_ORIGIN, type SideDriver } from './side.ts'
 
@@ -44,6 +59,16 @@ export interface Driver extends SideDriver {
   showHistory: (page: Page, variant: HistoryVariant) => Promise<void>
   // Shows the Result detail in one of the kit's states, the same way.
   showResult: (page: Page, state: ResultState) => Promise<void>
+  // Chooses the panel's Responsiveness for the Test screen's run or the Result detail's.
+  setResponsiveness: (page: Page, resp: Responsiveness, on: 'test' | 'result') => Promise<void>
+  // Chooses the panel's Continuous run length.
+  setRunLength: (page: Page, length: RunLength) => Promise<void>
+  // Chooses the protocol the History screen's compared B result ran over.
+  setCompareB: (page: Page, compareB: CompareB) => Promise<void>
+  // Shows the Result detail of the panel's Continuous result of that length.
+  showContinuousResult: (page: Page, contLen: ContinuousLength) => Promise<void>
+  // Turns each compatibility layer of the About screen on or off.
+  setAboutLayers: (page: Page, layers: Record<AboutLayer, boolean>) => Promise<void>
 }
 
 // Dialogs and menus, wherever a side puts them: the Vue demo portals them to the body, and the
@@ -106,16 +131,18 @@ export const proto: Driver = {
   overlaySelector: OVERLAYS,
   toastSelector: '.toast',
   styleRegions: STYLE_REGIONS,
-  // Before the first load only, so a later choice survives a reload: the scope of KIT_SCOPE, v0.2,
-  // the screens and features the app has (History, Result detail, Settings, share, loaded latency;
-  // the panel's Scope select, which also defaults to v0.2), Chrome as the browser, since the harness
-  // drives Chromium and the panel defaults to Firefox,
-  // and the theme on System, which is the product's default and the Vue demo's, where the prototype
-  // starts on Dark. With System both sides follow the project's emulated color scheme.
+  // Before the first load only, so a later choice survives a reload: the scope of KIT_SCOPE, v0.3,
+  // the screens and features the app has (History, Result detail, Settings, share, loaded latency,
+  // path B, Continuous and the compatibility layers; the panel's Scope select defaults to v0.2),
+  // Chrome as the browser, since the harness drives Chromium and the panel defaults to Firefox, and
+  // the theme on System, which is the product's default and the Vue demo's, where the prototype
+  // starts on Dark. With System both sides follow the project's emulated color scheme. The Vue demo
+  // is served over http, so the kit's page is too: its "Page served over http" switch is on from the
+  // first load (frontend.md §9), which only About reads.
   prepare: async (context: BrowserContext) => {
     await context.addInitScript(
       ({ demoKey, prefsKey, scope }) => {
-        if (localStorage.getItem(demoKey) === null) localStorage.setItem(demoKey, JSON.stringify({ scope, browser: 'Chrome' }))
+        if (localStorage.getItem(demoKey) === null) localStorage.setItem(demoKey, JSON.stringify({ scope, browser: 'Chrome', aboutInsecure: true }))
         if (localStorage.getItem(prefsKey) === null) localStorage.setItem(prefsKey, JSON.stringify({ theme: 'system' }))
       },
       { demoKey: KIT_DEMO_KEY, prefsKey: KIT_PREFS_KEY, scope: KIT_SCOPE },
@@ -144,6 +171,18 @@ export const proto: Driver = {
     await page.getByRole('button', { name: 'Expand demo panel', exact: true }).click()
     await parkPointer(page)
   },
+  setResponsiveness: (page, resp, on) => storeAndReload(page, KIT_DEMO_KEY, on === 'test' ? { resp } : { resultResp: resp }),
+  setRunLength: (page, runLength) => storeAndReload(page, KIT_DEMO_KEY, { runLength }),
+  setCompareB: (page, compareB) => storeAndReload(page, KIT_DEMO_KEY, { compareB }),
+  // The panel's Result detail Kind and Continuous length; the History list opens it, as for every
+  // other state of the Result detail.
+  showContinuousResult: async (page, resultContLen) => {
+    await storeAndReload(page, KIT_DEMO_KEY, { resultState: 'result', resultDemo: 'none', resultKind: 'continuous', resultContLen })
+    await goto(page, 'History')
+    await page.locator('main a').first().click()
+    await page.getByRole('navigation', { name: 'Breadcrumb' }).waitFor()
+  },
+  setAboutLayers: (page, layers) => storeAndReload(page, KIT_DEMO_KEY, layers),
 }
 
 // A click leaves the pointer over whatever the panel puts beneath it once open (Reset, on one side),
@@ -209,6 +248,12 @@ export const VUE_HELD_STATES: ReadonlySet<VueRun> = new Set<VueRun>(['connecting
 const RUN_ARRIVED_QUIET_MS = 1500
 // The demo's longest run at real speed, a complete Standard test on the LAN, takes about 28 s.
 const RUN_END_TIMEOUT_MS = 60_000
+// A Continuous scenario fast-forwards to the kit's 42:18 in about 45 s on an idle machine, longer
+// with every other parity page running; it changes the page every frame until it holds or stops.
+const CONTINUOUS_TIMEOUT_MS = 240_000
+const CONTINUOUS_RUNS: ReadonlySet<VueRun> = new Set<VueRun>(['continuous', 'cont-upload', 'cont-done'])
+// The held Continuous runs stand at the kit's elapsed time (src/demo/scenarios.ts).
+const CONTINUOUS_HELD_AT = '42:18'
 
 async function openPanel(page: Page): Promise<void> {
   const toggle = page.getByTestId('demo-toggle')
@@ -264,7 +309,11 @@ async function forceVue(page: Page, state: VueRun): Promise<void> {
   if (VUE_STARTING_STATES.has(state)) {
     const stop = page.getByRole('button', { name: 'Stop test', exact: true })
     await stop.waitFor()
-    if (!VUE_HELD_STATES.has(state)) await stop.waitFor({ state: 'detached', timeout: RUN_END_TIMEOUT_MS })
+    const continuous = CONTINUOUS_RUNS.has(state)
+    // A fast-forwarded run never quiets down before it holds, so the page is read once it shows the
+    // instant it holds at.
+    if (continuous && VUE_HELD_STATES.has(state)) await page.getByTestId('phase-indicator').getByText(CONTINUOUS_HELD_AT).waitFor({ timeout: CONTINUOUS_TIMEOUT_MS })
+    if (!VUE_HELD_STATES.has(state)) await stop.waitFor({ state: 'detached', timeout: continuous ? CONTINUOUS_TIMEOUT_MS : RUN_END_TIMEOUT_MS })
     await waitForSettled(page, RUN_ARRIVED_QUIET_MS)
   }
   await closePanel(page)
@@ -298,6 +347,33 @@ export const vue: Driver = {
   openDemo: async (page) => {
     await openPanel(page)
     await parkPointer(page)
+  },
+  setResponsiveness: async (page, resp, on) => {
+    await openPanel(page)
+    await applyAndWait(page, () => page.getByTestId(on === 'test' ? 'demo-responsiveness' : 'demo-result-responsiveness').selectOption(resp))
+    await closePanel(page)
+  },
+  setRunLength: (page, length) => applyPanelButton(page, `demo-run-length-${length}`),
+  setCompareB: (page, compareB) => applyPanelButton(page, `demo-compare-b-${compareB}`),
+  // The panel's Kind opens the 2 h Continuous result once the page has loaded with it in the
+  // history (DemoPanel.vue), and its Continuous length the other one.
+  showContinuousResult: async (page, contLen) => {
+    await openPanel(page)
+    await applyAndWait(page, () => page.getByTestId('demo-result-kind-continuous').click())
+    if (contLen !== '2h') {
+      await openPanel(page)
+      await applyAndWait(page, () => page.getByTestId(`demo-result-length-${contLen}`).click())
+    }
+    await page.getByRole('navigation', { name: 'Breadcrumb' }).waitFor()
+    await closePanel(page)
+  },
+  setAboutLayers: async (page, layers) => {
+    for (const layer of ABOUT_LAYERS) {
+      await openPanel(page)
+      const box = page.getByTestId(`demo-layer-${layer}`)
+      if ((await box.isChecked()) !== layers[layer]) await applyAndWait(page, () => box.click())
+    }
+    await closePanel(page)
   },
   showHistory: async (page, variant) => {
     // Safari is recognized by Apple's navigator.vendor (lib/safari.ts), from the next load on.
@@ -371,6 +447,13 @@ export const vue: Driver = {
     await page.evaluate(() => window.scrollTo(0, 0))
     await parkPointer(page)
   },
+}
+
+// Presses a demo panel button that loads the page again with the new choice.
+async function applyPanelButton(page: Page, testId: string): Promise<void> {
+  await openPanel(page)
+  await applyAndWait(page, () => page.getByTestId(testId).click())
+  await closePanel(page)
 }
 
 type HistorySeed = 'populated' | 'single' | 'empty' | 'unavailable' | 'loading'

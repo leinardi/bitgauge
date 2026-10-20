@@ -63,6 +63,11 @@ async function runStep(driver: drivers.Driver, page: Page, step: Step): Promise<
   else if ('result' in step) await driver.showResult(page, step.result)
   else if ('settings' in step) await drivers.settingsState(page, step.settings)
   else if ('openShare' in step) await drivers.openShare(page)
+  else if ('resp' in step) await driver.setResponsiveness(page, step.resp, step.on)
+  else if ('runLength' in step) await driver.setRunLength(page, step.runLength)
+  else if ('compareB' in step) await driver.setCompareB(page, step.compareB)
+  else if ('resultKind' in step) await driver.showContinuousResult(page, step.contLen)
+  else if ('about' in step) await driver.setAboutLayers(page, step.about)
   else await drivers.goto(page, step.goto)
 }
 
@@ -113,6 +118,7 @@ function verdictMessage(unexpected: readonly Finding[], stale: readonly Baseline
 
 for (const scenario of selection.scenarios) {
   test(scenario.id, async ({ browser, project }, testInfo) => {
+    if (scenario.timeoutMs !== undefined) testInfo.setTimeout(scenario.timeoutMs)
     const pair = { project: project.name, scenario: scenario.id }
     const runId = process.env['PARITY_RUN_ID'] ?? ''
     let status: RecordStatus = 'harness-error'

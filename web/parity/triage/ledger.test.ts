@@ -229,8 +229,8 @@ describe('validateLedger: done', () => {
   })
 
   it('fails when resolution.run lacks a required scenario', () => {
-    const rule = done({ match: match({ scenarios: ['test/idle', 'about/*'] }) })
-    expect(problems(rule)[0]).toContain('does not cover required scenarios: about/unreachable')
+    const rule = done({ match: match({ scenarios: ['test/idle', 'demo/*'] }) })
+    expect(problems(rule)[0]).toContain('does not cover required scenarios: demo/closed, demo/open')
     const ownedElsewhere = done({ owned: ownedOf(everywhere({ scenario: 'about' })) })
     expect(problems(ownedElsewhere)).toEqual(['start-button-weight: resolution.run does not cover required scenarios: about'])
   })
@@ -279,7 +279,7 @@ describe('validateLedger: across clusters', () => {
 describe('ruleScenarios', () => {
   it('is every scenario for a rule that names none, and the union of its items otherwise', () => {
     expect(ruleScenarios(match()).size).toBe(SCENARIOS.length)
-    expect([...ruleScenarios(match({ scenarios: ['about/*', 'test/idle', 'about'] }))].sort()).toEqual(['about', 'about/unreachable', 'test/idle'])
+    expect([...ruleScenarios(match({ scenarios: ['demo/*', 'test/idle', 'about'] }))].sort()).toEqual(['about', 'demo/closed', 'demo/open', 'test/idle'])
   })
 })
 
@@ -297,8 +297,8 @@ describe('OWNING_STATUSES', () => {
 
 describe('requiredScenarios', () => {
   it('is the owned scenarios and the rule scenarios together', () => {
-    const c = decided(everywhere({ scenario: 'test/idle' }), { match: match({ scenarios: ['about/*'] }) })
-    expect([...requiredScenarios(c)].sort()).toEqual(['about/unreachable', 'test/idle'])
+    const c = decided(everywhere({ scenario: 'test/idle' }), { match: match({ scenarios: ['demo/*'] }) })
+    expect([...requiredScenarios(c)].sort()).toEqual(['demo/closed', 'demo/open', 'test/idle'])
   })
 })
 

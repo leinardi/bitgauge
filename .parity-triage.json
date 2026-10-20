@@ -6,7 +6,29 @@
       "title": "Header brand: the kit's logo is an img named BitGauge, Vue's is not exposed",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -626,7 +648,29 @@
       "title": "Live status: the kit's one region with per-state sentences vs Vue's phase and summary regions in the spec's wording",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -2766,7 +2810,29 @@
       "title": "Empty Results: Vue's \"No test has run yet.\" vs the kit's empty tiles",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -2971,7 +3037,29 @@
       "title": "Gauge readout per state: gauge.md's title, message, note, detail, inner label and scale caption vs Vue's Ready fallback",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -3631,7 +3719,29 @@
       "title": "Results tiles per state: finished tiles mid-run, the tile states and pills, their explanations and number format",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -3639,7 +3749,7 @@
         "layer": "content",
         "path": "^main > region \"Results\"$",
         "kind": "^changed$",
-        "detail": "^text (?!.*· HTTP/1\\.1 probe · )(?!\"(.*Bufferbloat\" → |(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis|Graded after upload During|Not graded — ))(?!\"[^\"]*plateau: no-gain low confidence)"
+        "detail": "^text (?!\"Good for )(?!.*· HTTP/1\\.1 probe · )(?!\"(.*Bufferbloat\" → |(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis|Graded after upload During|Not graded — ))(?!\"[^\"]*plateau: no-gain low confidence)"
       },
       "type": "conflict",
       "aspect": "content",
@@ -3804,7 +3914,29 @@
       "title": "Test card: the kit's so far / elapsed / not saved qualifiers, live elapsed duration and — before the first byte vs Vue's plain labels",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -4158,17 +4290,17 @@
       "evidence": {
         "spec": {
           "ref": "docs/features/technical-stack/frontend.md §9",
-          "says": "the Vue demo panel holds the v0.1 part of the kit's controls"
+          "says": "v0.3 additions: \"its panel takes the kit's v0.3 controls (App.jsx)\": Responsiveness on the Test and Result sections, Run length, Compare B, the Continuous Result kind and length, and the three compatibility layers"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/App.jsx:66-120",
-          "says": "Frame, Version scope, History, Result and more"
+          "ref": "docs/design_system/ui_kits/app/App.jsx:66-131",
+          "says": "Run, Frame, Version scope, Test screen (Force state, CPU-bound, Error kind, Latency probe, WebSocket close, Upload loaded latency, Responsiveness, Continuous run length, Timer resolution, Browser, Upload pauses), History (Force variant, Compare B), Result detail (State, Kind, Continuous length, Responsiveness, Demo, Overhead, confidences) and About (Server unreachable, the three layers, Page served over http)"
         },
         "vue": {
           "ref": "web/src/demo/DemoPanel.vue",
-          "says": "Run and Test screen sections only"
+          "says": "Run (Scenario, Speed), Test screen (Force state, CPU-bound, Error kind, Responsiveness, Continuous run length, Timer resolution), History (Force variant, Compare B), Result detail (Kind, Continuous length, Responsiveness, Download and Upload confidence) and About (the three layers), in panel/TestControls.vue, HistoryControls.vue, ResultControls.vue and AboutControls.vue; no Frame, Scope, Latency probe, WebSocket close, Upload loaded latency, Browser, Upload pauses, or the Result detail State, Demo and Overhead controls"
         },
-        "notes": "880 px against 365 px open."
+        "notes": "880 px against 365 px open, measured under the v0.1 panel. The recorded verdict of 2026-10-16 kept the panel to the v0.1 controls of frontend.md §9; the v0.3 change to that section has since given the panel the kit's v0.3 controls, so the spec this verdict rests on no longer says what its rationale quotes. Recommendation, not a decision: revisit this cluster in triage against the v0.3 panel; the decision and status stay as the maintainer recorded them."
       },
       "decision": {
         "kind": "verdict",
@@ -5528,7 +5660,29 @@
       "title": "Page host in the header: the kit's speed.home.lan vs the demo's own origin",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -5702,7 +5856,29 @@
       "title": "Fully rounded radius: 9999px vs 3.35544e+07px, and the chip width it sits with",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -5810,7 +5986,7 @@
         "layer": "content",
         "path": "^main > (region \"Results\"|status)$",
         "kind": "^changed$",
-        "detail": "^text (?!.*· HTTP/1\\.1 probe · )\"(?!…-up\\), so)(?!Test )(?!Partial result)(?!(Upload|Download) result)(?!.*Bufferbloat\" → )(?!(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis)(?!Graded after upload During)(?!Not graded — )(?![^\"]*plateau: no-gain low confidence)(?!…onds\\. Bufferbloat grade)"
+        "detail": "^text (?!.*· HTTP/1\\.1 probe · )\"(?!Good for )(?!…-up\\), so)(?!Test )(?!Partial result)(?!(Upload|Download) result)(?!.*Bufferbloat\" → )(?!(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis)(?!Graded after upload During)(?!Not graded — )(?![^\"]*plateau: no-gain low confidence)(?!…onds\\. Bufferbloat grade)"
       },
       "type": "harness",
       "aspect": null,
@@ -5952,7 +6128,29 @@
       "title": "Border colour of a 1px transparent border compared with a 0-width border",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -6440,7 +6638,29 @@
       "title": "Packet-loss row: the kit's Why? link ends the reason line in the term, Vue's sits beside the badge in the value",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -6668,7 +6888,7 @@
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^(?!main > (img \"Throughput: no data yet\"|region \"(Results|Speed test)\"|text \"(0\\.25|0\\.50|0\\.75|0|# Gbit/s|#s|Download|Upload|3\\.0|3\\.1|View|Throughput over time appears here[^\"]*|Nothing to measure yet[^\"]*)\"( #\\d+)?)$)",
+        "path": "^(?!main > (text|term) \"(Data used|Duration|so far|elapsed|Duration elapsed|Data used so far)\"$)(?!main > (img \"Throughput: no data yet\"|region \"(Results|Speed test)\"|text \"(0\\.25|0\\.50|0\\.75|0|# Gbit/s|#s|Download|Upload|3\\.0|3\\.1|View|Throughput over time appears here[^\"]*|Nothing to measure yet[^\"]*)\"( #\\d+)?)$)",
         "kind": null,
         "detail": null
       },
@@ -14372,7 +14592,29 @@
       "title": "About: Source repository and LICENSE stacked full width (kit) vs in a row (Vue)",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -14499,7 +14741,29 @@
       "title": "Base path heading: kit 22px / 26px vs Vue --text-3xl",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -14616,7 +14880,29 @@
       "title": "Header brand link: kit weight 600",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -14852,7 +15138,29 @@
       "title": "Kit bug: the Callout .block class leaks onto Button block (amber border on LICENSE, extra padding on Source repository)",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -14996,7 +15304,29 @@
       "title": "Button anatomy and variants: kit .btn sizes, weight 600, secondary fill vs shadcn sizes and unmapped tokens",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -15354,7 +15684,29 @@
       "title": "Context chip anatomy: kit tokens (padding 8/6, gap 4) vs Vue literals (9/7, gap 5)",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -15448,7 +15800,29 @@
       "title": "Test screen's visually hidden h1: the kit's browser-default heading type vs Vue's inherited body type",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -15650,7 +16024,29 @@
       "title": "Line heights: the kit's line-height tokens (1.15 controls, 1.5 body, headings) vs Tailwind's 1.5 and text-* leading",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -16333,7 +16729,29 @@
       "title": "Methodology link weight: kit 600",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -16430,7 +16848,29 @@
       "title": "Notice box: kit 14px text, 14px side padding, and the heights that follow",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -16547,7 +16987,29 @@
       "title": "Theme radio: selected colour --primary-text (kit) vs --primary (Vue)",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -16759,7 +17221,29 @@
       "title": "Theme radios' and narrow theme button's text styles on icon-only boxes",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "about",
           "about/unreachable"
         ],
@@ -17911,7 +18395,29 @@
       "title": "Test screen chart summary: Vue says the loaded latency is drawn on a second scale; the kit's summary leaves it out",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "loaded/ws-close",
           "loaded/ll-insufficient-samples",
           "loaded/ll-reservation-broken"
@@ -18567,7 +19073,29 @@
       "title": "Test screen load card: Vue makes the card a region named Bufferbloat, so its grade and rows sit inside it; the kit's card is a plain section",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "loaded/ws-close",
           "loaded/ll-insufficient-samples",
           "loaded/ll-reservation-broken"
@@ -18798,7 +19326,29 @@
       "title": "Test screen and loaded-latency cases: the results text without the load card, which Vue's Bufferbloat region holds apart (follows v02-a11y-load-card-region)",
       "match": {
         "scenarios": [
-          "test/*",
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
           "loaded/ws-close",
           "loaded/ll-insufficient-samples",
           "loaded/ll-reservation-broken"
@@ -26165,7 +26715,22 @@
       "title": "Origin: the kit mocks https://speed.home.lan; the demo is served over http on 127.0.0.1",
       "match": {
         "scenarios": [
-          "history/*",
+          "history/populated",
+          "history/single",
+          "history/select3",
+          "history/deleted",
+          "history/compare",
+          "history/confirm",
+          "history/export",
+          "history/daterange",
+          "history/loading",
+          "history/nomatch",
+          "history/empty",
+          "history/unavailable",
+          "history/importing",
+          "history/importresult",
+          "history/importerror",
+          "history/safari",
           "settings",
           "settings/*"
         ],
@@ -30706,7 +31271,22 @@
       "title": "History rows: the kit's table checkboxes have no name; Vue names each \"Select <label>, <date>\"",
       "match": {
         "scenarios": [
-          "history/*"
+          "history/populated",
+          "history/single",
+          "history/select3",
+          "history/deleted",
+          "history/compare",
+          "history/confirm",
+          "history/export",
+          "history/daterange",
+          "history/loading",
+          "history/nomatch",
+          "history/empty",
+          "history/unavailable",
+          "history/importing",
+          "history/importresult",
+          "history/importerror",
+          "history/safari"
         ],
         "projects": null,
         "layer": "content",
@@ -60459,7 +61039,29 @@
       "title": "Bufferbloat grade of a run that ended without one: the kit still names it \"pending\"; Vue \"not graded\"",
       "match": {
         "scenarios": [
-          "test/*"
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored"
         ],
         "projects": null,
         "layer": "content",
@@ -61530,7 +62132,29 @@
       "title": "Test screen load card rows: the kit names the source on the finished download's row while the upload runs; Vue gives it with the run's result",
       "match": {
         "scenarios": [
-          "test/*"
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored"
         ],
         "projects": null,
         "layer": "content",
@@ -61791,6 +62415,2361 @@
       },
       "actions": [],
       "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "v03-about-content",
+      "title": "About screen, server unreachable: the alert's apostrophes, straight in the kit and typographic in Vue",
+      "match": {
+        "scenarios": [
+          "about",
+          "about/unreachable",
+          "about/layers-none",
+          "about/layers-openspeedtest",
+          "about/layers-librespeed",
+          "about/layers-networkquality",
+          "about/layers-all"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"librespeed-cli\")",
+        "kind": null,
+        "detail": "^(?!.*Verbose networkQuality)(?!.*not served over HTTPS)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/ (all copy)",
+          "says": "the spec's strings use straight apostrophes (\"can't\", \"isn't\"); screens.md §5: server unreachable, \"snippets built from the page's own origin\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/About.jsx:59",
+          "says": "\"The commands below are built from this page's address, … BitGauge can't check which clients the operator enabled, or the server's name, until the server answers.\" with straight apostrophes"
+        },
+        "vue": {
+          "ref": "web/src/i18n/locales/en/about.json:8",
+          "says": "\"The commands below are built from this page’s address, {origin}. BitGauge can’t check which clients the operator enabled, or the server’s name, until the server answers.\" with typographic apostrophes"
+        },
+        "notes": "1 difference / 4 entries in 1 scenario: about/unreachable. The harness cuts the excerpt 24 characters before the first differing character, which is the apostrophe of \"page's\". The same question as v02-curly-apostrophes, whose decision (spec wins: straight apostrophes) names the older scenarios only; whether it extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on content (docs/README.md precedence), which here means the Vue string changes; the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-about-geometry",
+      "title": "About screen with the compatibility layers: the rest of the v0.3 page geometry (layers-none, layers-openspeedtest, layers-librespeed, layers-networkquality, layers-all)",
+      "match": {
+        "scenarios": [
+          "about/layers-none",
+          "about/layers-openspeedtest",
+          "about/layers-librespeed",
+          "about/layers-networkquality",
+          "about/layers-all"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": null,
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/About.jsx",
+          "says": "main > text \"librespeed-cli --local-json bitgauge.json --ser…\" height 20px"
+        },
+        "vue": {
+          "ref": "web/src/pages/AboutPage.vue",
+          "says": "main > text \"librespeed-cli --local-json bitgauge.json --ser…\" height 15px"
+        },
+        "notes": "57 differences / 118 entries in 3 scenarios: about/layers-all, about/layers-librespeed, about/layers-networkquality. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-about-librespeed-json",
+      "title": "About screen with the compatibility layers: the librespeed-cli server list snippet",
+      "match": {
+        "scenarios": [
+          "about",
+          "about/unreachable",
+          "about/layers-none",
+          "about/layers-openspeedtest",
+          "about/layers-librespeed",
+          "about/layers-networkquality",
+          "about/layers-all"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?=.*region \"librespeed-cli\")",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/compatibility.md §2.3",
+          "says": "the bitgauge.json server list as a multi-line block, one key per line: [ { \"id\": 1, \"name\": \"BitGauge home\", \"server\": \"https://speed.example.lan/\", \"dlURL\": \"garbage\", \"ulURL\": \"empty\", \"pingURL\": \"empty\", \"getIpURL\": \"getIP\" } ]"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/About.jsx:41",
+          "says": "compressed to four lines: [{ \"id\": 1, \"name\": …, / \"server\": …, / \"dlURL\": \"garbage\", \"ulURL\": \"empty\", / \"pingURL\": \"empty\", \"getIpURL\": \"getIP\" }]"
+        },
+        "vue": {
+          "ref": "web/src/components/about/snippets.ts:55-64",
+          "says": "one key per line, as compatibility.md §2.3 writes it"
+        },
+        "notes": "4 differences / 16 entries in 4 scenarios: about, about/layers-all, about/layers-librespeed, about/unreachable. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage. Context conflict: the kit compresses the JSON the spec writes out in full."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-about-networkquality-verbose",
+      "title": "About screen with the compatibility layers: the verbose networkQuality snippet",
+      "match": {
+        "scenarios": [
+          "about",
+          "about/unreachable",
+          "about/layers-none",
+          "about/layers-openspeedtest",
+          "about/layers-librespeed",
+          "about/layers-networkquality",
+          "about/layers-all"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"librespeed-cli\")",
+        "kind": null,
+        "detail": "^(?=.*Verbose networkQuality)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/compatibility.md:340",
+          "says": "networkQuality -C https://speed.example.lan/nq/config -v      # verbose, per-flow detail"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/About.jsx:48",
+          "says": "a block captioned \"Verbose\" holding networkQuality -C <host>/nq/config -v, with no trailing comment"
+        },
+        "vue": {
+          "ref": "web/src/components/about/snippets.ts:82",
+          "says": "networkQuality -C <base>/nq/config -v followed by the comment \"      # verbose, per-flow detail\", as compatibility.md writes it"
+        },
+        "notes": "4 differences / 16 entries in 4 scenarios: about, about/layers-all, about/layers-networkquality, about/unreachable. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage. Context conflict: the kit names the verbose line by a caption, the spec by a comment on the command line."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-about-style",
+      "title": "About screen with the compatibility layers: computed styles",
+      "match": {
+        "scenarios": [
+          "about",
+          "about/unreachable",
+          "about/layers-none",
+          "about/layers-openspeedtest",
+          "about/layers-librespeed",
+          "about/layers-networkquality",
+          "about/layers-all"
+        ],
+        "projects": null,
+        "layer": "style",
+        "path": null,
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/About.jsx",
+          "says": "main > button \"Copy bitgauge.json\" color rgba(81, 86, 94, 255)"
+        },
+        "vue": {
+          "ref": "web/src/pages/AboutPage.vue",
+          "says": "main > button \"Copy bitgauge.json\" color rgba(178, 182, 188, 255)"
+        },
+        "notes": "26 differences / 52 entries in 6 scenarios: about, about/layers-all, about/layers-librespeed, about/layers-networkquality, about/layers-openspeedtest, about/unreachable. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-demo-panel-geometry",
+      "title": "Open demo panel: geometry of the v0.3 panel controls",
+      "match": {
+        "scenarios": [
+          "demo/open"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:demo > text \"Force variant\"|demo > text \"History\"|demo > text \"Timer resolution\")$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "v0.3 additions: \"its panel takes the kit's v0.3 controls (App.jsx)\"; silent on the panel's geometry"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/App.jsx",
+          "says": "demo > button \"2 h\" y 689px"
+        },
+        "vue": {
+          "ref": "web/src/demo/DemoPanel.vue",
+          "says": "demo > button \"2 h\" y 361px"
+        },
+        "notes": "25 differences / 76 entries in 1 scenarios: demo/open. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-history-compare-h2-compare-table",
+      "title": "History compare with B over HTTP/2: the compare table rows",
+      "match": {
+        "scenarios": [
+          "history/compare-h2"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!(?:main|header|header > banner)$)(?=dialogs > dialog \"Compare results\")",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §3",
+          "says": "\"one HTTP loaded responsiveness row per direction: the RPM is compared, higher being better\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "dialogs > dialog \"Compare results\" > table: rowgroup"
+        },
+        "vue": {
+          "ref": "web/src/components/history/compare.ts",
+          "says": "dialogs > dialog \"Compare results\" > table: no rowgroup"
+        },
+        "notes": "30 differences / 60 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-history-compare-h2-geometry",
+      "title": "History compare with B over HTTP/2: the rest of the v0.3 page geometry",
+      "match": {
+        "scenarios": [
+          "history/compare-h2"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main > button \"VPN 8\"|main > cell \"\" #10|main > cell \"\" #12|main > cell \"\" #14|main > cell \"\" #16|main > cell \"\" #2|main > cell \"\" #4|main > cell \"\" #6|main > cell \"\" #8|main > cell \"B\"|main > cell \"B\" #2|main > cell \"C\"|main > cell \"C\" #2|main > cell \"COMPLETE\"|main > cell \"COMPLETE\" #2|main > cell \"COMPLETE\" #3|main > cell \"COMPLETE\" #4|main > cell \"COMPLETE\" #5|main > cell \"COMPLETE\" #6|main > cell \"D\"|main > cell \"D\" #2|main > cell \"ERROR\"|main > cell \"F\"|main > cell \"HTTP\\/2\" #3|main > cell \"HTTP\\/2\" #4|main > cell \"HTTP\\/2\" #5|main > cell \"HTTP\\/2\" #6|main > cell \"PARTIAL\"|main > cell \"—\"|main > cell \"—\" #2|main > cell \"—\" #3|main > cell \"—\" #4|main > columnheader \"\"|main > columnheader \"DOWNLOAD\"|main > columnheader \"GRADE\"|main > columnheader \"JITTER\"|main > columnheader \"LATENCY\"|main > columnheader \"STATUS\"|main > columnheader \"UPLOAD\"|main > img \"Download trend, 7 results, 1 partial or error\"|main > main \"\"|main > region \"Results\"|main > row \"\"|main > row \"\" #2|main > row \"\" #3|main > row \"\" #4|main > row \"\" #5|main > row \"\" #6|main > row \"\" #7|main > row \"\" #8|main > row \"\" #9|main > table \"\"|main > text \"48\"|main > text \"8\"|main > text \"8\" #2|main > text \"Error\"|main > text \"Mbit\\/s\"|main > text \"Mbit\\/s\" #2|main > text \"Mbit\\/s\" #3|main > text \"Mbit\\/s\" #4|main > text \"Mbit\\/s\" #7|main > text \"Partial\"|main > text \"VPN via 5G\" #3|main > text \"· HTTP\\/2\" #3|main > text \"· HTTP\\/2\" #4|main > toolbar \"Selection\")$)(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "dialogs > button \"Close\" x 717px"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ComparePanel.vue",
+          "says": "dialogs > button \"Close\" x 711px"
+        },
+        "notes": "216 differences / 432 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-history-compare-h2-page-behind-dialog",
+      "title": "History compare with B over HTTP/2: the page behind the modal dialog",
+      "match": {
+        "scenarios": [
+          "history/compare-h2"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?=(?:main|header|header > banner)$)",
+        "kind": null,
+        "detail": "^(?!(?:button \"Actions for VPN via 5G\"|button \"Actions for VPN via 5G\" \\(#2\\)|button \"Actions for VPN via 5G\" \\(#3\\)|button \"Actions for VPN · hotel Wi-Fi\"|button \"Actions for VPN · office\"|button \"Actions for VPN · office\" \\(#2\\)|button \"Clear all\"|button \"Export\"|button \"Import JSON\"|button \"Last 30 days\"|button \"Sort\"|button \"Why\\?\")$)"
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md",
+          "says": "silent beyond the modal dialog; the decision on history/compare is v02-modal-inert-page"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "main: group \"Filter by context label\""
+        },
+        "vue": {
+          "ref": "web/src/components/history/ComparePanel.vue",
+          "says": "main: no group \"Filter by context label\""
+        },
+        "notes": "29 differences / 72 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as ui/i18n-a11y.md wins over the export; the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-history-compare-h2-path-b-geometry",
+      "title": "History compare with B over HTTP/2: geometry of the HTTP loaded responsiveness rows",
+      "match": {
+        "scenarios": [
+          "history/compare-h2"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?=(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for the row \"HTTP loaded responsiveness — connection sharing not verifiable\" with the protocol and the state"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "dialogs > text \"HTTP loaded responsiveness — connection sharing…\" y 717px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "dialogs > text \"HTTP loaded responsiveness — connection sharing…\" y 686px"
+        },
+        "notes": "4 differences / 8 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-history-compare-h2-scores-geometry",
+      "title": "History compare with B over HTTP/2: geometry of the quality scores",
+      "match": {
+        "scenarios": [
+          "history/compare-h2"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?=(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for a band per experience: streaming, gaming, video calls, with the note \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "dialogs > text \"Average\" y 933px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/QualityList.vue",
+          "says": "dialogs > text \"Average\" y 902px"
+        },
+        "notes": "6 differences / 12 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-history-compare-h2-style",
+      "title": "History compare with B over HTTP/2: computed styles",
+      "match": {
+        "scenarios": [
+          "history/compare-h2"
+        ],
+        "projects": null,
+        "layer": "style",
+        "path": null,
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx",
+          "says": "dialogs > columnheader \"Bufferbloat grade\" height 61.0px"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ComparePanel.vue",
+          "says": "dialogs > columnheader \"Bufferbloat grade\" height 46.0px"
+        },
+        "notes": "6 differences / 12 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-continuous-data-used-notices",
+      "title": "Result detail of the 2 h and 9 d Continuous results: the data-used notices",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
+        "kind": null,
+        "detail": "^(?=.*(?:Data used: |steady window covered))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6 and §7",
+          "says": "Data used: \"decimal kB, MB, GB, 3 significant digits\"; the notice \"data used: N GB\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > region \"Confidence and notices\" > list > listitem: text \"Data used: # B Passed at #:#:# into the run.\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/confidence.ts",
+          "says": "main > region \"Confidence and notices\" > list > listitem: \"Data used: # B This run passed # B.\""
+        },
+        "notes": "12 differences / 48 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-continuous-fixture",
+      "title": "Result detail of the 2 h and 9 d Continuous results: the Continuous fixture's numbers",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
+        "kind": null,
+        "detail": "^(?!.*(?:Data used: |steady window covered))(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "\"The 2 h and 9-day Continuous results are demo fixtures built to pass validateResult and scored with the engine's own result/scores.ts, not played runs\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > region \"Download\": text \"Warm-up · not stored (0–#:#)\""
+        },
+        "vue": {
+          "ref": "web/src/demo/continuousResults.ts",
+          "says": "main > region \"Download\": \"Warm-up · not stored (0–6.5 s)\""
+        },
+        "notes": "4 differences / 16 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: confirm as fixture; the maintainer confirms it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-continuous-geometry",
+      "title": "Result detail of the 2 h and 9 d Continuous results: the rest of the v0.3 page geometry",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > text \"0\" x 84px"
+        },
+        "vue": {
+          "ref": "web/src/pages/ResultDetailPage.vue",
+          "says": "main > text \"0\" x 91px"
+        },
+        "notes": "129 differences / 270 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-continuous-path-b",
+      "title": "Result detail of the 2 h and 9 d Continuous results: the HTTP loaded responsiveness wording",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
+        "kind": null,
+        "detail": "^(?!.*(?:Data used: |steady window covered))(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?=.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "\"always labeled \\\"HTTP loaded responsiveness — connection sharing not verifiable\\\" with the protocol; ... the Result detail adds TM95 and the samples, and states \\\"TM95 equals the plain mean\\\" when trimmed is 0\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > region \"Bufferbloat\": text \"…r minute, download only h2 1,420RPM TM95 # ms · 13 samples · TM95 equals t…\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/load.ts",
+          "says": "main > region \"Bufferbloat\": \"…r minute, download only HTTP/2 Download 1,379RPM TM95 # ms · 23950 samp…"
+        },
+        "notes": "2 differences / 8 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage. Context conflict, recorded here although no parity difference is likely to show it: the kit's TM95 fixture (docs/design_system/ui_kits/app/ResultDetail.jsx:194, 201, 212) takes a fixed window of about 13 samples, so trimmed is floor(0.05 × 13) = 0 and \"TM95 equals the plain mean\", while the same Continuous result reports samples: 23950. measurement.md §15 (Path B in Continuous) makes the pair consistent: TM95 is taken over the probes of the last 4 s, as §12.5, and samples counts every valid probe since the warm-up end. What stays open is whether a Result detail reading 23950 samples next to \"nothing trimmed\" needs the window named, which screens.md §6 does not say. web/src/demo/continuousResults.ts:47 and :67 copy the kit (PROBES = 23_950, trimmed: Math.floor(0.05 * 13))."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-continuous-path-b-geometry",
+      "title": "Result detail of the 2 h and 9 d Continuous results: geometry of the HTTP loaded responsiveness rows",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?=(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for the row \"HTTP loaded responsiveness — connection sharing not verifiable\" with the protocol and the state"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" width 327px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" width 299px"
+        },
+        "notes": "8 differences / 16 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-continuous-scores",
+      "title": "Result detail of the 2 h and 9 d Continuous results: the quality scores",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
+        "kind": null,
+        "detail": "^(?!.*(?:Data used: |steady window covered))(?=.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1 and §6",
+          "says": "\"The grade, the HTTP loaded responsiveness and the quality scores appear only in the finished result\"; a band per experience with \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main: text \"Good for Streaming Great Gaming G…\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/qualityList.ts",
+          "says": "main: \"Good for download only Streaming Great Gaming G…\""
+        },
+        "notes": "2 differences / 8 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-continuous-scores-geometry",
+      "title": "Result detail of the 2 h and 9 d Continuous results: geometry of the quality scores",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?=(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for a band per experience: streaming, gaming, video calls, with the note \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > text \"download only\" height 9px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/QualityList.vue",
+          "says": "main > text \"download only\" height 20px"
+        },
+        "notes": "56 differences / 128 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-continuous-share-image",
+      "title": "Result detail of the 2 h and 9 d Continuous results: the share image and the copied summary",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?=.*region \"(?:Share image|Text summary)\")",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §2",
+          "says": "\"The HTTP loaded responsiveness and the quality scores stay off the share image and the copied summary\"; the share panel as the export draws it"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > complementary > region \"Share image\" > img \"Share image: BitGauge, Oct 7, 2026, #:# #M, Dow…\": text \"BitGauge ↓ DOWNLOAD # Mbit/s A Low bufferbl…\""
+        },
+        "vue": {
+          "ref": "web/src/components/share/SharePreview.vue",
+          "says": "main > complementary > region \"Share image\" > img \"Share image: BitGauge, Oct 7, 2026, #:# #M, Dow…\": \"BitGauge ↓ Download # Mbit/s A Low bufferbl…\""
+        },
+        "notes": "2 differences / 8 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-continuous-test-parameters",
+      "title": "Result detail of the 2 h and 9 d Continuous results: the Test parameters card",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?=.*region \"Test parameters\")",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §2",
+          "says": "\"Test parameters: preset, phases and order, stream mode, count and plateau reason, ... data cap with the data used, ... browser\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > complementary > region \"Test parameters\": definition"
+        },
+        "vue": {
+          "ref": "web/src/components/result/parameters.ts",
+          "says": "main > complementary > region \"Test parameters\": no definition"
+        },
+        "notes": "14 differences / 28 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-path-b-geometry",
+      "title": "Result detail states: geometry of the HTTP loaded responsiveness rows (ws-close, ll-insufficient-samples, ll-reservation-broken, result, not-found, history-unavailable, …)",
+      "match": {
+        "scenarios": [
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken",
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/not-saved-missing",
+          "result/deleted",
+          "result/clipboard-denied"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?=(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for the row \"HTTP loaded responsiveness — connection sharing not verifiable\" with the protocol and the state"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > text \"RPM\" #2 x 95px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "main > text \"RPM\" #2 x 115px"
+        },
+        "notes": "61 differences / 89 entries in 7 scenarios: result, result/clipboard-denied, result/history-unavailable, result/ll-insufficient-samples, result/ll-reservation-broken, result/not-saved-missing, result/ws-close. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-resp-geometry",
+      "title": "Result detail in each Responsiveness case: the rest of the v0.3 page geometry",
+      "match": {
+        "scenarios": [
+          "result/resp-uncertain",
+          "result/resp-needs-h2",
+          "result/resp-not-reported",
+          "result/resp-few-samples"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > text \"Include label\" x 36px"
+        },
+        "vue": {
+          "ref": "web/src/pages/ResultDetailPage.vue",
+          "says": "main > text \"Include label\" x 39px"
+        },
+        "notes": "212 differences / 467 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-resp-path-b",
+      "title": "Result detail in each Responsiveness case: the HTTP loaded responsiveness wording",
+      "match": {
+        "scenarios": [
+          "result/resp-uncertain",
+          "result/resp-needs-h2",
+          "result/resp-not-reported",
+          "result/resp-few-samples"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
+        "kind": null,
+        "detail": "^(?!.*(?:Data used: |steady window covered))(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?=.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "\"always labeled \\\"HTTP loaded responsiveness — connection sharing not verifiable\\\" with the protocol; ... the Result detail adds TM95 and the samples, and states \\\"TM95 equals the plain mean\\\" when trimmed is 0\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > region \"Bufferbloat\": no text \"…ownload · WebSocket p90 24 · +# ms vs idle #ms During upload · WebSocket p90 55 · +# ms vs idle #ms HTTP loaded responsiveness — connection sharing not …"
+        },
+        "vue": {
+          "ref": "web/src/components/result/load.ts",
+          "says": "main > region \"Bufferbloat\": text \"…ownload · WebSocket p90 24 · +# ms vs idle #ms During upload · WebSocket p90 55 · +# ms vs idle #ms HTTP loaded responsiveness — connection sharing not …"
+        },
+        "notes": "2 differences / 8 entries in 2 scenarios: result/resp-few-samples, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-resp-path-b-geometry",
+      "title": "Result detail in each Responsiveness case: geometry of the HTTP loaded responsiveness rows",
+      "match": {
+        "scenarios": [
+          "result/resp-uncertain",
+          "result/resp-needs-h2",
+          "result/resp-not-reported",
+          "result/resp-few-samples"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?=(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for the row \"HTTP loaded responsiveness — connection sharing not verifiable\" with the protocol and the state"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > region \"Bufferbloat\" y 326px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "main > region \"Bufferbloat\" y 337px"
+        },
+        "notes": "24 differences / 48 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-resp-run",
+      "title": "Result detail in each Responsiveness case: the run the demo plays for the Result detail",
+      "match": {
+        "scenarios": [
+          "result/resp-uncertain",
+          "result/resp-needs-h2",
+          "result/resp-not-reported",
+          "result/resp-few-samples"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
+        "kind": null,
+        "detail": "^(?!.*(?:Data used: |steady window covered))(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+      },
+      "type": "adapter",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "\"Responsiveness\" (the same five options, applied to the run its Result detail shows)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > region \"Idle latency\": img \"Idle latency chart: 20 pings · median # ms\""
+        },
+        "vue": {
+          "ref": "web/src/demo/session.ts",
+          "says": "main > region \"Idle latency\": \"Idle latency chart: 19 pings · median # ms\""
+        },
+        "notes": "34 differences / 120 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: confirm as adapter; the maintainer confirms it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-resp-scores",
+      "title": "Result detail in each Responsiveness case: the quality scores",
+      "match": {
+        "scenarios": [
+          "result/resp-uncertain",
+          "result/resp-needs-h2",
+          "result/resp-not-reported",
+          "result/resp-few-samples"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
+        "kind": null,
+        "detail": "^(?!.*(?:Data used: |steady window covered))(?=.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1 and §6",
+          "says": "\"The grade, the HTTP loaded responsiveness and the quality scores appear only in the finished result\"; a band per experience with \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > region \"Confidence and notices\" > list > listitem: text \"…ot measured Browsers can’t see packet loss over TCP, so the quality scores are an upper bound.\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/qualityList.ts",
+          "says": "main > region \"Confidence and notices\" > list > listitem: \"…ot measured Browsers can't see packet loss over TCP,…"
+        },
+        "notes": "6 differences / 24 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-resp-scores-geometry",
+      "title": "Result detail in each Responsiveness case: geometry of the quality scores",
+      "match": {
+        "scenarios": [
+          "result/resp-uncertain",
+          "result/resp-needs-h2",
+          "result/resp-not-reported",
+          "result/resp-few-samples"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?=(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for a band per experience: streaming, gaming, video calls, with the note \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > text \"Good for\" height 14px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/QualityList.vue",
+          "says": "main > text \"Good for\" height 20px"
+        },
+        "notes": "68 differences / 140 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-resp-share-image",
+      "title": "Result detail in each Responsiveness case: the share image and the copied summary",
+      "match": {
+        "scenarios": [
+          "result/resp-uncertain",
+          "result/resp-needs-h2",
+          "result/resp-not-reported",
+          "result/resp-few-samples"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?=.*region \"(?:Share image|Text summary)\")",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §2",
+          "says": "\"The HTTP loaded responsiveness and the quality scores stay off the share image and the copied summary\"; the share panel as the export draws it"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > complementary > region \"Share image\" > img \"Share image: BitGauge, Oct 8, 2026, #:# #M, Dow…\": text \"BitGauge ↓ DOWNLOAD # Mbit/s ↑ UPLOAD # Mbit/s B Mild bufferb…\""
+        },
+        "vue": {
+          "ref": "web/src/components/share/SharePreview.vue",
+          "says": "main > complementary > region \"Share image\" > img \"Share image: BitGauge, Oct 8, 2026, #:# #M, Dow…\": \"BitGauge ↓ Download # Mbit/s ↑ Upload # Mbit/s B Mild bufferb…\""
+        },
+        "notes": "8 differences / 32 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-resp-test-parameters",
+      "title": "Result detail in each Responsiveness case: the Test parameters card",
+      "match": {
+        "scenarios": [
+          "result/resp-uncertain",
+          "result/resp-needs-h2",
+          "result/resp-not-reported",
+          "result/resp-few-samples"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?=.*region \"Test parameters\")",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §2",
+          "says": "\"Test parameters: preset, phases and order, stream mode, count and plateau reason, ... data cap with the data used, ... browser\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > complementary > region \"Test parameters\" > definition: text \"Chrome 130 · Linux\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/parameters.ts",
+          "says": "main > complementary > region \"Test parameters\" > definition: \"unknown 0 · Linux\""
+        },
+        "notes": "9 differences / 18 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-scores",
+      "title": "Result detail states: the quality scores (ll-insufficient-samples, ll-reservation-broken)",
+      "match": {
+        "scenarios": [
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!(?:main > region \"Confidence and notices\" > list > listitem)$)(?!.*region \"(?:Share image|Text summary)\")(?!.*region \"Test parameters\")",
+        "kind": null,
+        "detail": "^(?!.*(?:Data used: |steady window covered))(?=.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1 and §6",
+          "says": "\"The grade, the HTTP loaded responsiveness and the quality scores appear only in the finished result\"; a band per experience with \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main: text \"Good for Streaming Great Gaming G…\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/qualityList.ts",
+          "says": "main: \"Good for download only Streaming Great Gaming G…\""
+        },
+        "notes": "2 differences / 8 entries in 2 scenarios: result/ll-insufficient-samples, result/ll-reservation-broken. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-scores-geometry",
+      "title": "Result detail states: geometry of the quality scores (ws-close, ll-insufficient-samples, ll-reservation-broken, result, not-found, history-unavailable, …)",
+      "match": {
+        "scenarios": [
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken",
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/not-saved-missing",
+          "result/deleted",
+          "result/clipboard-denied"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?=(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for a band per experience: streaming, gaming, video calls, with the note \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > text \"download only\" height 9px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/QualityList.vue",
+          "says": "main > text \"download only\" height 20px"
+        },
+        "notes": "145 differences / 234 entries in 7 scenarios: result, result/clipboard-denied, result/history-unavailable, result/ll-insufficient-samples, result/ll-reservation-broken, result/not-saved-missing, result/ws-close. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-result-share-image",
+      "title": "Result detail states: the share image and the copied summary (ws-close, ll-insufficient-samples, ll-reservation-broken, result, not-found, history-unavailable, …)",
+      "match": {
+        "scenarios": [
+          "result/ws-close",
+          "result/ll-insufficient-samples",
+          "result/ll-reservation-broken",
+          "result",
+          "result/not-found",
+          "result/history-unavailable",
+          "result/not-saved-missing",
+          "result/deleted",
+          "result/clipboard-denied"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?=.*region \"(?:Share image|Text summary)\")",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §2",
+          "says": "\"The HTTP loaded responsiveness and the quality scores stay off the share image and the copied summary\"; the share panel as the export draws it"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > complementary > region \"Share image\" > img \"Share image: BitGauge, Oct 8, 2026, #:# #M, Dow…\": text \"BitGauge ↓ DOWNLOAD # Mbit/s ↑ UPLOAD # Mbit/s B Mild bufferb…\""
+        },
+        "vue": {
+          "ref": "web/src/components/share/SharePreview.vue",
+          "says": "main > complementary > region \"Share image\" > img \"Share image: BitGauge, Oct 8, 2026, #:# #M, Dow…\": \"BitGauge ↓ Download # Mbit/s ↑ Upload # Mbit/s B Mild bufferb…\""
+        },
+        "notes": "7 differences / 28 entries in 7 scenarios: result, result/clipboard-denied, result/history-unavailable, result/ll-insufficient-samples, result/ll-reservation-broken, result/not-saved-missing, result/ws-close. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-announcement",
+      "title": "Test screen states: the live announcement (idle, countdown, connecting, latency, download, upload, …)",
+      "match": {
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-latency",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken",
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?=main > status$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md",
+          "says": "\"A separate, visually hidden polite live region announces the current phase on change\"; \"When a run ends ... the result summary is announced\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > status: text \"…, over HTTP/2: download 1,420 round trips per minute, measured; upload 980 round trips per minute, measured. Quality scores, an upp…\""
+        },
+        "vue": {
+          "ref": "web/src/components/a11y/announce.ts",
+          "says": "main > status: \"…, over HTTP/2:…"
+        },
+        "notes": "13 differences / 40 entries in 10 scenarios: loaded/ll-insufficient-samples, loaded/ll-reservation-broken, loaded/ws-close, share/complete, test/cancelled, test/cancelled-latency, test/cancelled-slow-up, test/complete, …. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as ui/i18n-a11y.md wins over the export; the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-announcement",
+      "title": "Test screen, Continuous states: the live announcement",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?=main > status$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md",
+          "says": "\"A separate, visually hidden polite live region announces the current phase on change\"; \"When a run ends ... the result summary is announced\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > status: text \"…next notice appears at 1.00 TB.\""
+        },
+        "vue": {
+          "ref": "web/src/components/a11y/announce.ts",
+          "says": "main > status: \"…next notice appears at 1 TB.\""
+        },
+        "notes": "10 differences / 40 entries in 5 scenarios: continuous/run-length-2h, test/cont-done, test/cont-upload, test/cont-warmup, test/continuous. Recommendation, not a decision: Spec wins, as ui/i18n-a11y.md wins over the export; the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-edit-link",
+      "title": "Test screen, Continuous states: the settings summary's Edit link name (run-length-2h)",
+      "match": {
+        "scenarios": [
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?=(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "\"an Edit link to Settings. It summarizes against the server's settings\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main: link \"Edit\""
+        },
+        "vue": {
+          "ref": "web/src/components/connection/SettingsSummary.vue",
+          "says": "main: \"Edit settings\""
+        },
+        "notes": "2 differences / 8 entries in 1 scenarios: continuous/run-length-2h. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-edit-link-2",
+      "title": "Test screen, Continuous states: the settings summary's Edit link name (continuous, cont-upload, cont-warmup, cont-done)",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!(?:main > link \"Edit\")$)(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?=(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "\"an Edit link to Settings. It summarizes against the server's settings\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main: link \"Edit\""
+        },
+        "vue": {
+          "ref": "web/src/components/connection/SettingsSummary.vue",
+          "says": "main: \"Edit settings\""
+        },
+        "notes": "4 differences / 16 entries in 4 scenarios: test/cont-done, test/cont-upload, test/cont-warmup, test/continuous. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-geometry",
+      "title": "Test screen, Continuous states: the rest of the v0.3 page geometry",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > button \"Latency under load\" x 665px"
+        },
+        "vue": {
+          "ref": "web/src/components/test/continuous/",
+          "says": "main > button \"Latency under load\" x 605px"
+        },
+        "notes": "206 differences / 425 entries in 5 scenarios: continuous/run-length-2h, test/cont-done, test/cont-upload, test/cont-warmup, test/continuous. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-path-b",
+      "title": "Test screen, Continuous states: the HTTP loaded responsiveness wording",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?=.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "\"always labeled \\\"HTTP loaded responsiveness — connection sharing not verifiable\\\" with the protocol; ... the Result detail adds TM95 and the samples, and states \\\"TM95 equals the plain mean\\\" when trimmed is 0\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > region \"Results\" > region \"Bufferbloat\": no text \"…ownload · WebSocket p90 27 · +# ms vs idle · last hour #ms HTTP loaded responsiveness — connection sharing not verifiable round trips per minute, downlo…"
+        },
+        "vue": {
+          "ref": "web/src/components/result/load.ts",
+          "says": "main > region \"Results\" > region \"Bufferbloat\": text \"…ownload · WebSocket p90 27 · +# ms vs idle · last hour #ms HTTP loaded responsiveness — connection sharing not verifiable round trips per minute, downlo…"
+        },
+        "notes": "1 differences / 4 entries in 1 scenarios: test/cont-done. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-path-b-geometry",
+      "title": "Test screen, Continuous states: geometry of the HTTP loaded responsiveness rows",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?=(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for the row \"HTTP loaded responsiveness — connection sharing not verifiable\" with the protocol and the state"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" height 17px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" height 34px"
+        },
+        "notes": "8 differences / 16 entries in 1 scenarios: test/cont-done. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-scores-geometry",
+      "title": "Test screen, Continuous states: geometry of the quality scores",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?=(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for a band per experience: streaming, gaming, video calls, with the note \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > text \"Average\" height 18px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/QualityList.vue",
+          "says": "main > text \"Average\" height 14px"
+        },
+        "notes": "16 differences / 36 entries in 2 scenarios: test/cont-done, test/cont-warmup. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-settings-summary",
+      "title": "Test screen, Continuous states: the settings summary of a changed preset",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?=.*preset · Auto streams · No data cap\" → )"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "the settings summary \"summarizes against the server's settings\", with \"an Edit link to Settings\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main: text \"…l HTTP/2 Streams # auto Standard preset · Auto streams · No data cap\""
+        },
+        "vue": {
+          "ref": "web/src/components/connection/SettingsSummary.vue",
+          "says": "main: \"…l HTTP/2 Streams # auto 1 changed: Continuous\""
+        },
+        "notes": "5 differences / 20 entries in 5 scenarios: continuous/run-length-2h, test/cont-done, test/cont-upload, test/cont-warmup, test/continuous. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-suggested-labels",
+      "title": "Test screen, Continuous states: suggested labels the kit shows and the demo history lacks",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?=.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "\"field with suggested labels (the context label and the 5 most recent distinct labels from\" the history)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > region \"Result status\" > group \"Suggested labels\": button \"Home Wi-Fi\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/SaveBar.vue",
+          "says": "main > region \"Result status\" > group \"Suggested labels\": no button \"Home Wi-Fi\""
+        },
+        "notes": "2 differences / 8 entries in 1 scenarios: test/cont-done. Recommendation, not a decision: confirm as fixture; the maintainer confirms it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-continuous-wording",
+      "title": "Test screen, Continuous states: the Continuous wording of the gauge, chart, phases and tiles",
+      "match": {
+        "scenarios": [
+          "test/continuous",
+          "test/cont-upload",
+          "test/cont-warmup",
+          "test/cont-done",
+          "continuous/run-length-2h"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "Continuous: the elapsed time against the run length, \"The rates read \\\"—\\\" until the run has 3 fully known 1 s cells\"; \"The grade, the HTTP loaded responsiveness and the quality scores appear only in the finished result\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > region \"Speed test\": text \"Throughput · session Download\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/continuous/",
+          "says": "main > region \"Speed test\": \"Throughput Download\""
+        },
+        "notes": "50 differences / 160 entries in 5 scenarios: continuous/run-length-2h, test/cont-done, test/cont-upload, test/cont-warmup, test/continuous. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage. Context conflict, not a parity difference the harness drives: the prototype's Escape and Enter guard (docs/design_system/ui_kits/app/Prototype.jsx:58 and :63) names only the \"continuous\" state, so during cont-upload Escape does not stop the run and Enter is not held back; screens.md §1 gives Continuous one Stop for the whole run, upload included, as the Vue Test screen does. The guard is a behavior of its own, not part of this cluster's wording: a decision here does not settle it, and it needs its own decision in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-geometry",
+      "title": "Test screen states: the rest of the v0.3 page geometry (idle, countdown, connecting, latency, complete, upload-interrupted, …)",
+      "match": {
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/param-ignored",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken",
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:dialogs > button \"Copy summary\"|dialogs > button \"Download image\"|dialogs > dialog \"Share result\"|dialogs > region \"Text summary\"|dialogs > text \"# ms idle\"|dialogs > text \"# ms jitter\"|dialogs > text \"\\+# ms under load \\(upload\\)\"|dialogs > text \"B\"|dialogs > text \"Basement NAS\"|dialogs > text \"Bit\"|dialogs > text \"Gauge\"|dialogs > text \"Mbit\\/s\"|dialogs > text \"Mbit\\/s\" #2|dialogs > text \"Mild\"|dialogs > text \"bufferbloat\"|main > definition \"—\"|main > definition \"—\" #2|main > main \"\"|main > term \"Data used\"|main > term \"Duration elapsed\"|main > term \"Duration\"|main > text \"3\\.0\"|main > text \"3\\.1\"|main > text \"600\"|main > text \"Data used\"|main > text \"Duration\"|main > text \"elapsed\")$)(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": "^(?!(?:1001px → 995px|144px → 128px|145px → 129px|230px → 514px|373px → 383px|373px → 423px|745px → 457px|766px → 478px|798px → 510px|819px → 531px|871px → 587px|907px → 619px|907px → 620px|985px → 1035px|991px → 1040px|991px → 985px)$)"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > region \"Results\" height 350px"
+        },
+        "vue": {
+          "ref": "web/src/components/test/ResultSection.vue",
+          "says": "main > region \"Results\" height 314px"
+        },
+        "notes": "22 differences / 42 entries in 11 scenarios: loaded/ll-insufficient-samples, loaded/ll-reservation-broken, loaded/ws-close, share/complete, test/complete, test/connecting, test/countdown, test/idle, …. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-geometry-2",
+      "title": "Test screen states: the rest of the v0.3 page geometry (download, upload, error, error-early, cancelled, cancelled-late, …)",
+      "match": {
+        "scenarios": [
+          "test/download",
+          "test/upload",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/offline",
+          "test/insufficient"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main > term \"Data used so far\"|main > term \"Data used\"|main > term \"Duration elapsed\"|main > term \"Duration\"|main > text \"Data used\"|main > text \"Duration\"|main > text \"elapsed\"|main > text \"so far\")$)(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": "^(?!(?:1005px → 711px|1017px → 729px|1021px → 727px|1077px → 1041px|1081px → 781px|1176px → 1140px|1229px → 1170px|1900px → 1579px|2098px → 1777px|2118px → 1862px|2152px → 1891px|2160px → 1904px|2165px → 1909px|2251px → 1989px|2311px → 2026px|350px → 314px|367px → 331px|411px → 369px|907px → 619px|963px → 675px|979px → 691px|980px → 692px)$)"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > list \"\" width 230px"
+        },
+        "vue": {
+          "ref": "web/src/components/test/ResultSection.vue",
+          "says": "main > list \"\" width 514px"
+        },
+        "notes": "128 differences / 258 entries in 13 scenarios: test/cancelled, test/cancelled-download, test/cancelled-late, test/cancelled-latency, test/cancelled-slow, test/cancelled-slow-up, test/download, test/error, …. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-geometry-3",
+      "title": "Test screen states: the rest of the v0.3 page geometry (ws-fallback)",
+      "match": {
+        "scenarios": [
+          "test/ws-fallback"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main > main \"\"|main > region \"Results\"|main > term \"Data used so far\"|main > term \"Duration elapsed\"|main > text \"Data used\"|main > text \"Duration\"|main > text \"elapsed\"|main > text \"so far\")$)(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > list \"\" height 145px"
+        },
+        "vue": {
+          "ref": "web/src/components/test/ResultSection.vue",
+          "says": "main > list \"\" height 129px"
+        },
+        "notes": "7 differences / 14 entries in 1 scenarios: test/ws-fallback. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-path-b",
+      "title": "Test screen states: the HTTP loaded responsiveness wording (idle, countdown, connecting, latency, error, error-early, …)",
+      "match": {
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/error",
+          "test/error-early",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/offline",
+          "test/basepath",
+          "test/param-ignored",
+          "loaded/ws-close",
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?=.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "\"always labeled \\\"HTTP loaded responsiveness — connection sharing not verifiable\\\" with the protocol; ... the Result detail adds TM95 and the samples, and states \\\"TM95 equals the plain mean\\\" when trimmed is 0\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > region \"Results\" > region \"Bufferbloat\": text \"… During upload Pending — HTTP loaded responsiveness — connection sharing not verifiable round trips per minute, one per direction h2 — —\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/load.ts",
+          "says": "main > region \"Results\" > region \"Bufferbloat\": \"… During up…"
+        },
+        "notes": "11 differences / 44 entries in 11 scenarios: test/cancelled-download, test/cancelled-latency, test/cancelled-slow, test/connecting, test/countdown, test/error, test/error-early, test/idle, …. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-path-b-geometry",
+      "title": "Test screen states: geometry of the HTTP loaded responsiveness rows (download, upload, complete, upload-interrupted, error, error-early, …)",
+      "match": {
+        "scenarios": [
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken",
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?=(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for the row \"HTTP loaded responsiveness — connection sharing not verifiable\" with the protocol and the state"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" height 34px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" height 68px"
+        },
+        "notes": "91 differences / 169 entries in 21 scenarios: loaded/ll-insufficient-samples, loaded/ll-reservation-broken, loaded/ws-close, share/complete, test/cancelled, test/cancelled-download, test/cancelled-late, test/cancelled-latency, …. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-resp-announcement",
+      "title": "Test screen, complete run in each Responsiveness case: the live announcement",
+      "match": {
+        "scenarios": [
+          "responsiveness/uncertain",
+          "responsiveness/needs-h2",
+          "responsiveness/not-reported",
+          "responsiveness/few-samples"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?=main > status$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "a11y",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/i18n-a11y.md",
+          "says": "\"A separate, visually hidden polite live region announces the current phase on change\"; \"When a run ends ... the result summary is announced\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > status: text \"…, over HTTP/2: download 1,420 round trips per minute,…\""
+        },
+        "vue": {
+          "ref": "web/src/components/a11y/announce.ts",
+          "says": "main > status: \"…, over HTTP/2: download 3,297 round trips per minute,…\""
+        },
+        "notes": "3 differences / 12 entries in 3 scenarios: responsiveness/few-samples, responsiveness/not-reported, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as ui/i18n-a11y.md wins over the export; the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-resp-edit-link",
+      "title": "Test screen, complete run in each Responsiveness case: the settings summary's Edit link name",
+      "match": {
+        "scenarios": [
+          "responsiveness/uncertain",
+          "responsiveness/needs-h2",
+          "responsiveness/not-reported",
+          "responsiveness/few-samples"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?=(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "\"an Edit link to Settings. It summarizes against the server's settings\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main: link \"Edit\""
+        },
+        "vue": {
+          "ref": "web/src/components/connection/SettingsSummary.vue",
+          "says": "main: \"Edit settings\""
+        },
+        "notes": "8 differences / 32 entries in 4 scenarios: responsiveness/few-samples, responsiveness/needs-h2, responsiveness/not-reported, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-resp-geometry",
+      "title": "Test screen, complete run in each Responsiveness case: the rest of the v0.3 page geometry",
+      "match": {
+        "scenarios": [
+          "responsiveness/uncertain",
+          "responsiveness/needs-h2",
+          "responsiveness/not-reported",
+          "responsiveness/few-samples"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > group \"Suggested labels\" width 200px"
+        },
+        "vue": {
+          "ref": "web/src/components/test/ResultSection.vue",
+          "says": "main > group \"Suggested labels\" width 45px"
+        },
+        "notes": "57 differences / 114 entries in 4 scenarios: responsiveness/few-samples, responsiveness/needs-h2, responsiveness/not-reported, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-resp-path-b",
+      "title": "Test screen, complete run in each Responsiveness case: the HTTP loaded responsiveness wording",
+      "match": {
+        "scenarios": [
+          "responsiveness/uncertain",
+          "responsiveness/needs-h2",
+          "responsiveness/not-reported",
+          "responsiveness/few-samples"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?=.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "\"always labeled \\\"HTTP loaded responsiveness — connection sharing not verifiable\\\" with the protocol; ... the Result detail adds TM95 and the samples, and states \\\"TM95 equals the plain mean\\\" when trimmed is 0\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > region \"Results\" > region \"Bufferbloat\": no text \"…ownload · WebSocket p90 24 · +# ms vs idle #ms During upload · WebSocket p90 55 · +# ms vs idle #ms HTTP loaded responsiveness — connection sharing not …"
+        },
+        "vue": {
+          "ref": "web/src/components/result/load.ts",
+          "says": "main > region \"Results\" > region \"Bufferbloat\": text \"…ownload · WebSocket p90 24 · +# ms vs idle #ms During upload · WebSocket p90 55 · +# ms vs idle #ms HTTP loaded responsiveness — connection sharing not …"
+        },
+        "notes": "4 differences / 16 entries in 4 scenarios: responsiveness/few-samples, responsiveness/needs-h2, responsiveness/not-reported, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-resp-path-b-geometry",
+      "title": "Test screen, complete run in each Responsiveness case: geometry of the HTTP loaded responsiveness rows",
+      "match": {
+        "scenarios": [
+          "responsiveness/uncertain",
+          "responsiveness/needs-h2",
+          "responsiveness/not-reported",
+          "responsiveness/few-samples"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?=(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for the row \"HTTP loaded responsiveness — connection sharing not verifiable\" with the protocol and the state"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" height 51px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" height 68px"
+        },
+        "notes": "22 differences / 48 entries in 2 scenarios: responsiveness/few-samples, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-resp-scores-geometry",
+      "title": "Test screen, complete run in each Responsiveness case: geometry of the quality scores",
+      "match": {
+        "scenarios": [
+          "responsiveness/uncertain",
+          "responsiveness/needs-h2",
+          "responsiveness/not-reported",
+          "responsiveness/few-samples"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?=(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for a band per experience: streaming, gaming, video calls, with the note \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > text \"Gaming\" y 710px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/QualityList.vue",
+          "says": "main > text \"Gaming\" y 743px"
+        },
+        "notes": "8 differences / 16 entries in 1 scenarios: responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-resp-suggested-labels",
+      "title": "Test screen, complete run in each Responsiveness case: suggested labels the kit shows and the demo history lacks",
+      "match": {
+        "scenarios": [
+          "responsiveness/uncertain",
+          "responsiveness/needs-h2",
+          "responsiveness/not-reported",
+          "responsiveness/few-samples"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?=.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "\"field with suggested labels (the context label and the 5 most recent distinct labels from\" the history)"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > region \"Result status\" > group \"Suggested labels\": button \"Home Wi-Fi\""
+        },
+        "vue": {
+          "ref": "web/src/components/test/SaveBar.vue",
+          "says": "main > region \"Result status\" > group \"Suggested labels\": no button \"Home Wi-Fi\""
+        },
+        "notes": "8 differences / 32 entries in 4 scenarios: responsiveness/few-samples, responsiveness/needs-h2, responsiveness/not-reported, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: confirm as fixture; the maintainer confirms it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-scores",
+      "title": "Test screen states: the quality scores (idle, countdown, connecting, latency, download, upload, …)",
+      "match": {
+        "scenarios": [
+          "test/idle",
+          "test/countdown",
+          "test/connecting",
+          "test/latency",
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "test/param-ignored",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken",
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
+        "kind": null,
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?=.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1 and §6",
+          "says": "\"The grade, the HTTP loaded responsiveness and the quality scores appear only in the finished result\"; a band per experience with \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > region \"Results\": text \"Good for Streaming — Gaming — Video calls — Upper bound: packet loss is not measured Test\""
+        },
+        "vue": {
+          "ref": "web/src/components/result/qualityList.ts",
+          "says": "main > region \"Results\": \"Test\""
+        },
+        "notes": "19 differences / 76 entries in 19 scenarios: test/cancelled, test/cancelled-download, test/cancelled-late, test/cancelled-latency, test/cancelled-slow, test/cancelled-slow-up, test/connecting, test/countdown, …. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-scores-geometry",
+      "title": "Test screen states: geometry of the quality scores (download, upload, complete, upload-interrupted, error, error-early, …)",
+      "match": {
+        "scenarios": [
+          "test/download",
+          "test/upload",
+          "test/complete",
+          "test/upload-interrupted",
+          "test/error",
+          "test/error-early",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-latency",
+          "test/cancelled-download",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/slow",
+          "test/slowdone",
+          "test/offline",
+          "test/basepath",
+          "test/ws-fallback",
+          "test/insufficient",
+          "loaded/ws-close",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken",
+          "share/complete"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?=(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "kind": null,
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry; it asks for a band per experience: streaming, gaming, video calls, with the note \"upper bound: packet loss is not measured\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "main > button \"Why packet loss is not measured: Browsers can't…\" x 24px"
+        },
+        "vue": {
+          "ref": "web/src/components/result/QualityList.vue",
+          "says": "main > button \"Why packet loss is not measured: Browsers can't…\" x 203px"
+        },
+        "notes": "140 differences / 272 entries in 21 scenarios: loaded/ll-insufficient-samples, loaded/ll-reservation-broken, loaded/ws-close, share/complete, test/cancelled, test/cancelled-download, test/cancelled-late, test/cancelled-latency, …. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": null,
+      "owned": {},
+      "actions": [],
+      "status": "open",
       "resolution": null
     }
   ]
