@@ -177,7 +177,7 @@ exempt from `errcheck` on `CloseNow` (coder/websocket's close without a handshak
 - **Explanation required**: every directive needs `// reason`
 - **No unused**: remove directives when the code no longer triggers that linter
 
-The form is `//nolint:<linter> // reason` (AGENTS.md, "Go / backend constraints"). The explanation
+The form is `//nolint:<linter> // reason` (AGENTS.md, "Project rules"). The explanation
 says why the fix does not apply here, not which rule fired (§16). Put the directive on the same
 line for a statement, on the preceding line for a func or type. Name every linter that fires,
 comma-separated with no spaces; `gocyclo`, `cyclop` and `gocognit` usually fire together:

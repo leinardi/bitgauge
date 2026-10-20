@@ -114,7 +114,7 @@ One cluster per commit.
    `spec-change` for the spec, `demo-parity` for the harness and the demo), and mark each action
    `done`. An `upstream` action is done when its note is written; the difference it covers stays
    until an export that carries the change is imported.
-3. Run the validation matrix in `AGENTS.md` for what changed, then
+3. Run what the "Validation" section of `AGENTS.md` lists for what changed, then
    `make demo-parity-update MATRIX=full SCENARIO=<required scenarios>`: every scenario the cluster
    owns an entry in, plus every scenario its rule names.
 4. `close <id>`; it refuses until no owned entry is present and nothing new matches. A cluster

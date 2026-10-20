@@ -70,7 +70,7 @@ repos:
         additional_dependencies: ["prettier@3.9.9"]
         files: \.(yml|yaml)$
         args: ["--write"]
-      # The offline documentation check (AGENTS.md validation matrix): relative links and their
+      # The offline documentation check: relative links and their
       # fragments resolve, and the wire facts several pages state agree.
       # -count=1 because the file list comes from git ls-files, which the test cache cannot see;
       # always_run because deleting a linked page passes no file to the hook at all.

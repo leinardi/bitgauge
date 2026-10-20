@@ -181,10 +181,9 @@ Design-system change:
 4. **Resolve mismatches** (§2) before writing code.
 5. **Implement with existing tokens and components** (§3, §4, §5). When something new is needed,
    say which existing option was evaluated and why it was not enough.
-6. **Validate.** Run every row of the validation matrix in `AGENTS.md` that matches the changed
-   paths; for `web/src/**` that is `make verify-web`. Then
-   check both themes and both the desktop and the narrow layout (`make web-dev`, or `make web-demo`
-   for every state without a server).
+6. **Validate.** Run what the "Validation" section of `AGENTS.md` lists for the changed paths; for
+   `web/src/**` that is `make verify-web`. Then check both themes and both the desktop and the
+   narrow layout (`make web-dev`, or `make web-demo` for every state without a server).
 7. **Parity, on demand.** When the user asks, or after importing a new design export:
    `make demo-parity SCENARIO=...` for the touched states, `make demo-parity-full` after a token,
    theme or layout change (`demo-parity` skill).

@@ -21,7 +21,7 @@ Any HTML comment will be stripped when the markdown is rendered, so you don't ne
 - [ ] **Stateless, no outbound calls:** the server stores no result and writes no file, and nothing
   calls out (no telemetry, update check, CDN, external font or lookup)
 - [ ] **Honest numbers:** no fudge factor or hidden smoothing, and every number keeps its qualifiers
-- [ ] I ran the validation commands for every area touched (see the AGENTS.md validation matrix)
+- [ ] I ran the validation commands for every area touched (see "Validation" in AGENTS.md)
 
 ## Type of changes
 

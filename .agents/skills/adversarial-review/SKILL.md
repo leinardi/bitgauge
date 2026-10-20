@@ -248,9 +248,8 @@ Three contracts in this repository are written down more than once and can disag
 
 ## 6. Verify before you trust (don't hand-wave the gates)
 
-Static reading misses things. Run every row of the validation matrix in `AGENTS.md` that matches
-the changed paths, and treat a failure as a confirmed finding with the output attached. The
-matrix covers docs only until code exists; for other paths use the make targets that exist:
+Static reading misses things. Run what the "Validation" section of `AGENTS.md` lists for the
+changed paths, and treat a failure as a confirmed finding with the output attached:
 
 - `make check` (pre-commit on all files) for anything; it runs golangci-lint at the pinned
   version, so use it, or `make go-lint`, when golangci-lint is not on `PATH`.

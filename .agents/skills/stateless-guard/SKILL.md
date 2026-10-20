@@ -13,7 +13,7 @@ description: >
 
 # Stateless Guard — BitGauge
 
-**The server never stores a result and never calls out** (AGENTS.md, "Core constraint";
+**The server never stores a result and never calls out** (AGENTS.md, "Project rules";
 [principles.md §2.2](../../../docs/features/principles.md#22-stateless-server) and
 [§2.4](../../../docs/features/principles.md#24-no-outbound-calls)). Nothing outlives a request
 except the in-memory state listed in §1, and nothing leaves the process except responses on
