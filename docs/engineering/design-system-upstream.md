@@ -14,4 +14,16 @@ the export shows, and what it should show, with the reason; behavior comes from
 
 ## Notes
 
-None pending: the export imported on 2026-10-20 carries every note written so far.
+### MetaList facts: a long value covers its label
+
+From the `design-system-guard` skill. Kit file `components/layout/layout.css`, the `.mrow` rules
+of `MetaList` with `facts`, seen on the About card's Version row (`ui_kits/app/About.jsx`).
+
+The export gives the label `.lb` `flex: 1; min-width: 0` and the value `.val`
+`white-space: nowrap`. When a value is wider than the row, the label shrinks to zero width and the
+value draws over it. The kit's fixtures fit, so the prototype never shows it, but real values
+need not: `server.display_name` takes up to 64 characters (configuration.md §2.1), and a build
+line with a long version does not fit in the About rail either. It should keep the label at its
+natural width (drop `min-width: 0` from `.lb`) and let the value wrap, right-aligned (`.val`:
+`min-width: 0; text-align: right; overflow-wrap: break-word`, without `nowrap`), with the build
+date kept on one line. The Vue About page already does this.

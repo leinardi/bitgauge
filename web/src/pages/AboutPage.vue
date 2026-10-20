@@ -131,11 +131,11 @@ const facts = computed(() => {
               class="flex items-center justify-between gap-2.5 border-b border-border py-2"
               :data-testid="`about-${fact.key}`"
             >
-              <dt class="flex min-w-0 flex-1 flex-col text-(length:--text-sm) text-foreground">
+              <dt class="flex flex-1 flex-col text-(length:--text-sm) text-foreground">
                 <span>{{ fact.label }}</span>
               </dt>
               <dd
-                class="m-0 font-mono text-(length:--text-sm) whitespace-nowrap"
+                class="m-0 min-w-0 text-right font-mono text-(length:--text-sm) wrap-break-word"
                 :class="fact.value === t('about.facts.unknown') ? 'text-subtle-foreground' : 'text-foreground'"
               >
                 <i18n-t
@@ -150,7 +150,10 @@ const facts = computed(() => {
                     {{ fact.build.commit }}
                   </template>
                   <template #date>
-                    <time :datetime="fact.build.iso">{{ fact.build.date }}</time>
+                    <time
+                      :datetime="fact.build.iso"
+                      class="whitespace-nowrap"
+                    >{{ fact.build.date }}</time>
                   </template>
                 </i18n-t>
                 <template v-else>

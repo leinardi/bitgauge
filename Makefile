@@ -48,6 +48,14 @@ DIST_DIR ?= dist
 GO_PKG   ?= ./...
 GO_CMD   ?= ./cmd/bitgauge
 
+# Stamped the way release.yaml stamps a release, overriding go.mk's git describe defaults: the
+# version is the tag without its v only when HEAD is exactly a tag and the tree is clean, and
+# otherwise dev, what an unstamped binary reports (internal/buildinfo); the commit is a fixed
+# 7-character prefix. A local build's About screen then reads "dev · 34c88f5 · <date>" instead of
+# repeating the commit in the version.
+GIT_VERSION ?= $(or $(patsubst v%,%,$(filter-out %-dirty,$(shell git describe --tags --exact-match --dirty 2>/dev/null))),dev)
+GIT_COMMIT  ?= $(or $(shell git rev-parse HEAD 2>/dev/null | cut -c1-7),none)
+
 # The binary reads its build from internal/buildinfo, not from package main, so the version is
 # stamped there. Recursive (=) because GIT_VERSION and friends are defined by go.mk, included below.
 GO_LDFLAGS = -s -w \
