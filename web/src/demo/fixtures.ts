@@ -18,6 +18,7 @@
  */
 
 import type { LinkProfile, LoadedDelay } from '@/demo/link'
+import { DEMO_SCENARIOS, type DemoCommand, type DemoScenario } from '@/demo/scenarios'
 import type { Info } from '@/engine/types'
 
 // The demo's servers and links, named as in the design export's UI kit (ui_kits/app/TestScreen.jsx):
@@ -28,7 +29,8 @@ import type { Info } from '@/engine/types'
 // download and 39 ms on upload, the VPN's 114 ms and 262 ms, each within about a second: the kit's
 // loaded-latency numbers. A VPN queue filling more slowly would leave a run stopped in its download
 // or upload near grade B's bound, where the kit's grades C. The GET /info answers are what the
-// server would send to that client with its default configuration (configuration.md section 1).
+// server would send to that client with its default configuration (configuration.md section 1),
+// with the compatibility layers the demo panel turns on.
 
 export type DemoLinkName = 'lan' | 'lan-http1' | 'vpn' | 'insufficient'
 
@@ -38,7 +40,10 @@ const MIB = 1024 * 1024
 const LAN_LOADED: LoadedDelay = { downloadMs: 15, uploadMs: 39, tauMs: 1000 }
 const VPN_LOADED: LoadedDelay = { downloadMs: 114, uploadMs: 262, tauMs: 1000 }
 
-function info(client: Info['client'], basePath: string): Info {
+/** The compatibility layers the demo server has on: all of them unless the panel turns one off, as the kit's are. */
+const ALL_LAYERS: Info['compat'] = { openspeedtest: true, librespeed: true, networkquality: true }
+
+function info(client: Info['client'], basePath: string, compat: Info['compat']): Info {
   return {
     server: { name: 'Basement NAS', version: '1.4.0', commit: 'a1b2c3d', buildDate: '2026-09-30', epoch: '2026-09-30T08:12:44.000Z', basePath },
     client,
@@ -55,7 +60,7 @@ function info(client: Info['client'], basePath: string): Info {
       pingCount: 20,
       overheadCompensationPercent: 0,
     },
-    compat: { openspeedtest: false, librespeed: false, networkquality: false },
+    compat: { ...compat },
   }
 }
 
@@ -106,7 +111,16 @@ export const DEMO_LINKS: Readonly<Record<DemoLinkName, LinkProfile>> = {
 const LAN_CLIENT: Info['client'] = { ip: '192.168.1.42', ipVersion: 4, addressClass: 'private', suggestedLabel: 'LAN' }
 const VPN_CLIENT: Info['client'] = { ip: '100.101.4.17', ipVersion: 4, addressClass: 'cgnat', suggestedLabel: 'VPN' }
 
-/** The GET /info answer the link's client sees: the kit's 100.101.4.17 behind the VPN, 192.168.1.42 otherwise. */
-export function infoFor(link: DemoLinkName, basePath = '/'): Info {
-  return info(link === 'vpn' ? VPN_CLIENT : LAN_CLIENT, basePath)
+/**
+ * The GET /info answer the link's client sees: the kit's 100.101.4.17 behind the VPN, 192.168.1.42
+ * otherwise, with the layers the panel left on.
+ */
+export function infoFor(link: DemoLinkName, basePath = '/', compat: Info['compat'] = ALL_LAYERS): Info {
+  return info(link === 'vpn' ? VPN_CLIENT : LAN_CLIENT, basePath, compat)
+}
+
+/** GET /info as the scenario of `command` answers it, on the Worker's side and the page's alike. */
+export function scenarioInfo(command: Pick<DemoCommand, 'scenario' | 'compat'>): Info {
+  const scenario: DemoScenario = DEMO_SCENARIOS[command.scenario]
+  return infoFor(scenario.link, scenario.basePath, command.compat)
 }

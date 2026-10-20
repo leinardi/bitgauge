@@ -106,7 +106,7 @@ describe('the demo panel', () => {
       { timeout: 5000 },
     )
     expect(worker?.url).toMatch(/\/demo\/worker\.ts\b/)
-    expect(worker?.worker.posted).toContainEqual({ type: 'demo', scenario, speed: 2, cpuBound: false, timerResolutionMs: 0.1, errorKind: 'requests', hold: false, confidence: { download: 'normal', upload: 'normal' }, wallClockMs: expect.any(Number) })
+    expect(worker?.worker.posted).toContainEqual({ type: 'demo', scenario, speed: 2, cpuBound: false, timerResolutionMs: 0.1, errorKind: 'requests', hold: false, confidence: { download: 'normal', upload: 'normal' }, responsiveness: 'ok', compat: { openspeedtest: true, librespeed: true, networkquality: true }, wallClockMs: expect.any(Number) })
     // The configure carries the scenario's server defaults, from the page's own GET /info, which
     // the scenario's server answered.
     expect(worker?.worker.posted).toContainEqual({ type: 'configure', settings: settingsFromDefaults(infoFor(link).defaults), basePath: '/' })
@@ -182,6 +182,14 @@ describe('the demo panel', () => {
     for (const key of ['downloadConfidence', 'uploadConfidence']) {
       expect(options(wrapper.get(`[data-testid="demo-${key}"]`).element)).toEqual(['normal', 'low:ramp-unsettled', 'low:unstable', 'low:ramp-unsettled,unstable', 'low:insufficient-samples,unstable', 'cpu-bound'])
     }
+    for (const key of ['responsiveness', 'result-responsiveness']) {
+      expect(options(wrapper.get(`[data-testid="demo-${key}"]`).element)).toEqual(['ok', 'uncertain', 'needs-h2', 'not-reported', 'few-samples'])
+    }
+    expect(wrapper.get('[data-testid="demo-compare-b-h1"]').attributes('aria-pressed')).toBe('true')
+    // The compatibility layers start on, as the kit's do.
+    for (const layer of ['openspeedtest', 'librespeed', 'networkquality']) {
+      expect((wrapper.get(`[data-testid="demo-layer-${layer}"]`).element as HTMLInputElement).checked).toBe(true)
+    }
   })
 
   it('keeps a choice and loads the page again with its scenario parameters', async () => {
@@ -205,7 +213,12 @@ describe('the demo panel', () => {
     await wrapper.get('[data-testid="demo-downloadConfidence"]').setValue('low:unstable')
     await wrapper.get('[data-testid="demo-uploadConfidence"]').setValue('cpu-bound')
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ downloadConfidence: 'low:unstable', uploadConfidence: 'cpu-bound' })
-    expect(navigate).toHaveBeenCalledTimes(9)
+    await wrapper.get('[data-testid="demo-responsiveness"]').setValue('few-samples')
+    await wrapper.get('[data-testid="demo-result-responsiveness"]').setValue('needs-h2')
+    await wrapper.get('[data-testid="demo-compare-b-h2"]').trigger('click')
+    await wrapper.get('[data-testid="demo-layer-librespeed"]').setValue(false)
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')).toMatchObject({ responsiveness: 'few-samples', resultResponsiveness: 'needs-h2', compareB: 'h2', openspeedtest: true, librespeed: false, networkquality: true })
+    expect(navigate).toHaveBeenCalledTimes(13)
   })
 
   it('restores only what it knows: an unknown stored value falls back to its default', async () => {

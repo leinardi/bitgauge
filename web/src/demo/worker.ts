@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { DEMO_LINKS, infoFor } from '@/demo/fixtures'
+import { DEMO_LINKS, scenarioInfo } from '@/demo/fixtures'
 import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoPressStop, type DemoScenario, isScenarioName } from '@/demo/scenarios'
 import { DemoSession } from '@/demo/session'
 import { BrowserClock } from '@/engine/clock'
@@ -40,8 +40,7 @@ const pressStop = () => self.postMessage(PRESS_STOP)
 
 function sessionFor(command: DemoCommand): DemoSession {
   const scenario: DemoScenario = DEMO_SCENARIOS[command.scenario]
-  const info = infoFor(scenario.link, scenario.basePath)
-  return new DemoSession({ base: clock, command, scenario, profile: DEMO_LINKS[scenario.link], info, browser, emit, fail, pressStop })
+  return new DemoSession({ base: clock, command, scenario, profile: DEMO_LINKS[scenario.link], info: scenarioInfo(command), browser, emit, fail, pressStop })
 }
 
 let session = sessionFor(FIRST)

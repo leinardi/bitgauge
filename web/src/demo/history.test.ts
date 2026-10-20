@@ -19,15 +19,18 @@
 
 // The demo's History variants (frontend.md section 9): the kit's eight results, each a valid
 // result the History import would accept, newest first, with the kit's statuses and grades, which
-// the engine's grading of their loaded latency gives.
+// the engine's grading of their loaded latency gives, the engine's quality scores, and path B as
+// the kit's Compare shows it, Compare B over HTTP/1.1 or HTTP/2.
 
 import { describe, expect, it } from 'vitest'
 
 import { restore } from '@/demo/choice'
 import { chooseHistory, demoHistory } from '@/demo/control'
 import { DEMO_HISTORY_VARIANTS, demoHistoryResults, isDemoHistory } from '@/demo/history'
+import type { Result } from '@/engine/messages'
 import { bufferbloat } from '@/engine/latency/grade'
 import { validateResult } from '@/engine/messages'
+import { scores } from '@/engine/result/scores'
 
 describe('the demo history', () => {
   it('holds the kit rows as valid results, newest first', () => {
@@ -75,6 +78,32 @@ describe('the demo history', () => {
     }
   })
 
+  it('scores each result as the engine scores it, and gives each direction that ran its path B', () => {
+    for (const compareB of ['h1', 'h2'] as const) {
+      const results = demoHistoryResults('populated', new Date(), compareB)
+      expect(results.flatMap((result) => validateResult(result))).toEqual([])
+      for (const result of results) {
+        expect(result.scores).toEqual(scores({ idle: result.idle, bufferbloat: result.bufferbloat, download: result.download }))
+        for (const part of [result.download, result.upload]) {
+          // Over HTTP/1.1 path B does not run; over HTTP/2 a direction without a window has too few samples.
+          const expected = result.client.protocol === 'HTTP/1.1' ? 'unavailable_h1' : part?.status === 'measured' ? expect.stringMatching(/^(measured|uncertain)$/u) : 'unavailable_insufficient'
+          expect(part?.responsiveness?.state).toEqual(expected)
+        }
+      }
+    }
+  })
+
+  it('compares the office runs as the kit does: B over HTTP/1.1, or over HTTP/2 and measured', () => {
+    const rpm = (result: Result | undefined) => [result?.download?.responsiveness, result?.upload?.responsiveness].map((block) => (block === undefined ? null : [block.state, 'rpm' in block ? block.rpm : null]))
+    const h1 = demoHistoryResults('populated', new Date(), 'h1')
+    const h2 = demoHistoryResults('populated', new Date(), 'h2')
+    // A, the 26 Sep office run, is the same in both.
+    expect(rpm(h1[5])).toEqual([['measured', 980], ['uncertain', 610]])
+    expect(rpm(h2[5])).toEqual(rpm(h1[5]))
+    expect([h1[3]?.client.protocol, rpm(h1[3])]).toEqual(['HTTP/1.1', [['unavailable_h1', null], ['unavailable_h1', null]]])
+    expect([h2[3]?.client.protocol, rpm(h2[3])]).toEqual(['HTTP/2', [['measured', 1010], ['measured', 640]]])
+  })
+
   it('knows its variants, and the panel reads an unknown one back as the browser history', () => {
     expect(DEMO_HISTORY_VARIANTS.every(isDemoHistory)).toBe(true)
     expect(isDemoHistory('select3')).toBe(false)
@@ -84,7 +113,7 @@ describe('the demo history', () => {
   })
 
   it('never opens the history for the loading variant, so the screen stays loading', async () => {
-    chooseHistory('loading')
+    chooseHistory({ variant: 'loading', compareB: 'h1' })
     let settled = false
     void demoHistory().then(() => {
       settled = true

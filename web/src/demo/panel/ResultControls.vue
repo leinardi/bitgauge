@@ -22,20 +22,27 @@ import { useId } from 'vue'
 import { type Choice, DEFAULTS } from '@/demo/choice'
 import { DEMO_CONFIDENCES, isDemoConfidence } from '@/demo/confidence'
 import { inputClass, rowClass, selectClass } from '@/demo/panel/classes'
+import { DEMO_RESPONSIVENESS, isDemoResponsiveness } from '@/demo/responsiveness'
 
-// The demo panel's Result detail section (frontend.md section 9, kit App.jsx): the confidence per
-// direction.
+// The demo panel's Result detail section (frontend.md section 9, kit App.jsx): the responsiveness
+// case of the run the Result detail shows, and the confidence per direction.
 
 defineProps<{ choice: Choice }>()
 const emit = defineEmits<{ apply: [patch: Partial<Choice>] }>()
 
 const TEXT = {
   result: 'Result detail',
+  responsiveness: 'Responsiveness',
   downloadConfidence: 'Download confidence',
   uploadConfidence: 'Upload confidence',
 }
 
-const ids = { downloadConfidence: useId(), uploadConfidence: useId() }
+const ids = { responsiveness: useId(), downloadConfidence: useId(), uploadConfidence: useId() }
+
+function onResponsiveness(event: Event): void {
+  const value = (event.target as HTMLSelectElement).value
+  emit('apply', { resultResponsiveness: isDemoResponsiveness(value) ? value : DEFAULTS.resultResponsiveness })
+}
 
 function onConfidence(event: Event, key: 'downloadConfidence' | 'uploadConfidence'): void {
   const value = (event.target as HTMLSelectElement).value
@@ -46,6 +53,26 @@ function onConfidence(event: Event, key: 'downloadConfidence' | 'uploadConfidenc
 <template>
   <section class="flex flex-col gap-2 border-t border-border pt-3">
     <span class="text-(length:--text-caption) font-semibold text-muted-foreground">{{ TEXT.result }}</span>
+    <div :class="rowClass">
+      <label :for="ids.responsiveness">{{ TEXT.responsiveness }}</label>
+      <span :class="inputClass">
+        <select
+          :id="ids.responsiveness"
+          :class="selectClass"
+          :value="choice.resultResponsiveness"
+          data-testid="demo-result-responsiveness"
+          @change="onResponsiveness"
+        >
+          <option
+            v-for="[value, words] in DEMO_RESPONSIVENESS"
+            :key="value"
+            :value="value"
+          >
+            {{ words }}
+          </option>
+        </select>
+      </span>
+    </div>
     <div
       v-for="key in ['downloadConfidence', 'uploadConfidence'] as const"
       :key="key"

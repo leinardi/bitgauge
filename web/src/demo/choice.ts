@@ -18,7 +18,8 @@
  */
 
 import { type DemoConfidence, isDemoConfidence } from '@/demo/confidence'
-import { type DemoHistory, isDemoHistory } from '@/demo/history'
+import { COMPARE_B, type DemoCompareB, type DemoHistory, isDemoHistory } from '@/demo/history'
+import { type DemoResponsiveness, isDemoResponsiveness } from '@/demo/responsiveness'
 import { DEFAULT_SCENARIO, DEMO_SCENARIOS, type DemoCommand, type DemoErrorKind, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
 
 // The demo panel's choice (frontend.md section 9): kept in the page's localStorage under
@@ -45,9 +46,38 @@ export interface Choice {
   /** Each direction's confidence on the run's result; 'normal' leaves the engine's. */
   downloadConfidence: DemoConfidence
   uploadConfidence: DemoConfidence
+  /** The path B case of the Test screen's runs, and of the run the Result detail shows. */
+  responsiveness: DemoResponsiveness
+  resultResponsiveness: DemoResponsiveness
+  /** The protocol the second compared History result ran over. */
+  compareB: DemoCompareB
+  /** The compatibility layers GET /info reports on. */
+  openspeedtest: boolean
+  librespeed: boolean
+  networkquality: boolean
 }
 
-export const DEFAULTS: Choice = { open: false, scenario: DEFAULT_SCENARIO, speed: 1, forceState: '', cpuBound: false, errorKind: 'requests', timerResolutionMs: 0.1, history: '', downloadConfidence: 'normal', uploadConfidence: 'normal' }
+export const DEFAULTS: Choice = {
+  open: false,
+  scenario: DEFAULT_SCENARIO,
+  speed: 1,
+  forceState: '',
+  cpuBound: false,
+  errorKind: 'requests',
+  timerResolutionMs: 0.1,
+  history: '',
+  downloadConfidence: 'normal',
+  uploadConfidence: 'normal',
+  responsiveness: 'ok',
+  resultResponsiveness: 'ok',
+  compareB: 'h1',
+  openspeedtest: true,
+  librespeed: true,
+  networkquality: true,
+}
+
+/** The scenario whose run the Result detail shows (ResultDetail.jsx), which takes the Result detail's Responsiveness. */
+const RESULT_RUN: DemoScenarioName = 'upload-gap'
 
 type ChoiceStorage = Pick<Storage, 'getItem' | 'setItem'>
 
@@ -72,6 +102,12 @@ export function restore(storage: ChoiceStorage): Choice {
     history: isDemoHistory(stored.history) ? stored.history : DEFAULTS.history,
     downloadConfidence: isDemoConfidence(stored.downloadConfidence) ? stored.downloadConfidence : DEFAULTS.downloadConfidence,
     uploadConfidence: isDemoConfidence(stored.uploadConfidence) ? stored.uploadConfidence : DEFAULTS.uploadConfidence,
+    responsiveness: isDemoResponsiveness(stored.responsiveness) ? stored.responsiveness : DEFAULTS.responsiveness,
+    resultResponsiveness: isDemoResponsiveness(stored.resultResponsiveness) ? stored.resultResponsiveness : DEFAULTS.resultResponsiveness,
+    compareB: pick(stored.compareB, COMPARE_B, DEFAULTS.compareB),
+    openspeedtest: stored.openspeedtest !== false,
+    librespeed: stored.librespeed !== false,
+    networkquality: stored.networkquality !== false,
   }
 }
 
@@ -85,14 +121,17 @@ export function save(storage: ChoiceStorage, choice: Choice): void {
 
 /** The demo Worker's command for a choice: a forced state is that state's scenario, held. */
 export function commandOf(choice: Choice): DemoCommand {
+  const scenario = choice.forceState === '' ? choice.scenario : choice.forceState
   return {
     type: 'demo',
-    scenario: choice.forceState === '' ? choice.scenario : choice.forceState,
+    scenario,
     speed: choice.speed,
     cpuBound: choice.cpuBound,
     timerResolutionMs: choice.timerResolutionMs,
     errorKind: choice.errorKind,
     hold: choice.forceState !== '',
     confidence: { download: choice.downloadConfidence, upload: choice.uploadConfidence },
+    responsiveness: scenario === RESULT_RUN ? choice.resultResponsiveness : choice.responsiveness,
+    compat: { openspeedtest: choice.openspeedtest, librespeed: choice.librespeed, networkquality: choice.networkquality },
   }
 }

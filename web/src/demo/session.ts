@@ -20,6 +20,7 @@
 import { DemoClock } from '@/demo/clock'
 import { withConfidence } from '@/demo/confidence'
 import { Link, type LinkProfile } from '@/demo/link'
+import { withResponsiveness } from '@/demo/responsiveness'
 import type { DemoCommand, DemoErrorKind, DemoScenario, ScriptPoint } from '@/demo/scenarios'
 import { DemoTransport } from '@/demo/transport'
 import { messageLoop } from '@/engine/loop'
@@ -106,9 +107,9 @@ export class DemoSession {
     this.clock.hold()
   }
 
-  /** Each run meets the link as the scenario describes it, with its own draws. */
+  /** Each run meets the link as the scenario describes it, with the panel's path B case and its own draws. */
   private newLink(): Link {
-    const profile = { ...this.options.profile, ...(this.scenario.webSocket === false ? { webSocket: false } : {}) }
+    const profile = withResponsiveness({ ...this.options.profile, ...(this.scenario.webSocket === false ? { webSocket: false } : {}) }, this.command.responsiveness ?? 'ok')
     const link = new Link(profile, this.options.info.server.epoch, ++this.runs)
     if (this.scenario.offline === true) {
       link.unreachable(Number.NEGATIVE_INFINITY)

@@ -23,16 +23,18 @@ import { shallowRef, useId } from 'vue'
 import AppButton from '@/components/actions/AppButton.vue'
 import { type Choice, commandOf, DEFAULTS, NAMES, restore, save, SPEEDS } from '@/demo/choice'
 import { chooseHistory, chooseScenario, onScriptedStop } from '@/demo/control'
-import { inputClass, rowClass, selectClass } from '@/demo/panel/classes'
+import { inputClass, rowClass, segmentClass, segmentGroupClass, selectClass } from '@/demo/panel/classes'
+import AboutControls from '@/demo/panel/AboutControls.vue'
 import HistoryControls from '@/demo/panel/HistoryControls.vue'
 import ResultControls from '@/demo/panel/ResultControls.vue'
 import TestControls from '@/demo/panel/TestControls.vue'
 import { DEMO_SCENARIOS, isScenarioName } from '@/demo/scenarios'
 
 // The demo panel (frontend.md section 9), the UI kit's Demo state panel as far as the app goes: the
-// scenario and the speed here, then the Test screen, History and Result detail sections
-// (demo/panel/): a forced state, a CPU-bound Worker, the error kind, the timer resolution, the
-// History variant and the Result detail's confidence per direction. It exists in demo builds only,
+// scenario and the speed here, then the Test screen, History, Result detail and About sections
+// (demo/panel/): a forced state, a CPU-bound Worker, the error kind, the responsiveness case, the
+// timer resolution, the History variant and Compare B, the Result detail's responsiveness and
+// confidence per direction, and the compatibility layers. It exists in demo builds only,
 // so its words are the kit's, not translated. The choice is kept in localStorage (demo/choice.ts)
 // and applied by loading the page again with the scenario's URL parameters, so every scenario
 // starts from a fresh page; one that starts does so through the Start button, as a user would.
@@ -61,7 +63,7 @@ const choice = shallowRef(restore(localStorage))
 const command = commandOf(choice.value)
 const current = DEMO_SCENARIOS[command.scenario]
 chooseScenario(command)
-chooseHistory(choice.value.history)
+chooseHistory({ variant: choice.value.history, compareB: choice.value.compareB })
 const ids = { scenario: useId() }
 
 /**
@@ -198,15 +200,14 @@ const CLOSED_CLASS = 'w-auto rounded-full border border-(--primary-border) max-d
           <div
             role="group"
             :aria-label="TEXT.speed"
-            class="inline-flex max-w-full flex-wrap overflow-hidden rounded-(--radius-md) border border-input bg-card"
+            :class="segmentGroupClass"
           >
             <button
               v-for="speed in SPEEDS"
               :key="speed"
               type="button"
               :aria-pressed="choice.speed === speed"
-              class="inline-flex h-(--control-h-sm) flex-none items-center gap-1.5 border-r border-border px-2 text-(length:--text-caption) font-semibold whitespace-nowrap last:border-r-0"
-              :class="choice.speed === speed ? 'bg-(--primary-bg) text-primary-text' : 'text-muted-foreground'"
+              :class="[segmentClass, choice.speed === speed ? 'bg-(--primary-bg) text-primary-text' : 'text-muted-foreground']"
               :data-testid="`demo-speed-${speed}`"
               @click="apply({ speed })"
             >
@@ -225,6 +226,10 @@ const CLOSED_CLASS = 'w-auto rounded-full border border-(--primary-border) max-d
         @apply="apply"
       />
       <ResultControls
+        :choice="choice"
+        @apply="apply"
+      />
+      <AboutControls
         :choice="choice"
         @apply="apply"
       />

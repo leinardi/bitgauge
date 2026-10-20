@@ -17,9 +17,11 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { DemoLinkName } from '@/demo/fixtures'
 import type { DemoConfidence } from '@/demo/confidence'
+import type { DemoLinkName } from '@/demo/fixtures'
+import type { DemoResponsiveness } from '@/demo/responsiveness'
 import type { Direction, PhaseName } from '@/engine/messages'
+import type { Info } from '@/engine/types'
 
 // The demo's scenarios (frontend.md section 9): one per state of the UI kit's Test screen that v0.1
 // and v0.2 have (the kit's TEST_STATES without continuous, cont-upload, cont-warmup and cont-done),
@@ -158,6 +160,10 @@ export interface DemoCommand {
   hold: boolean
   /** Each direction's confidence on the run's result (demo/confidence.ts); absent leaves the engine's. */
   confidence?: Record<Direction, DemoConfidence>
+  /** The path B case the link plays (demo/responsiveness.ts); absent, `ok`. */
+  responsiveness?: DemoResponsiveness
+  /** The compatibility layers the scenario's GET /info reports on; absent, all of them. */
+  compat?: Info['compat']
   /**
    * The page's wall clock when it sent the command, which the Worker's runs are dated from, so a
    * page whose clock is fixed dates them from it; the Worker's own first command has none.

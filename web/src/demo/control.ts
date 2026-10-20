@@ -17,8 +17,8 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { infoFor } from '@/demo/fixtures'
-import { type DemoHistory, demoHistoryResults } from '@/demo/history'
+import { scenarioInfo } from '@/demo/fixtures'
+import { type DemoCompareB, type DemoHistory, demoHistoryResults } from '@/demo/history'
 import { DEMO_SCENARIOS, type DemoCommand, type DemoScenario } from '@/demo/scenarios'
 import type { Result } from '@/engine/messages'
 import type { Info } from '@/engine/types'
@@ -73,21 +73,28 @@ export function attachWorker(worker: Pick<Worker, 'postMessage' | 'addEventListe
 
 /** GET /info as the chosen scenario's server answers it: unreachable for the offline one, and once a run ended on its unreachable fault. */
 export async function demoInfo(): Promise<Info> {
-  const scenario: DemoScenario = DEMO_SCENARIOS[(await chosen).scenario]
+  const command = await chosen
+  const scenario: DemoScenario = DEMO_SCENARIOS[command.scenario]
   if (scenario.offline === true || gone) {
     throw new TypeError('the demo server is unreachable')
   }
-  return infoFor(scenario.link, scenario.basePath)
+  return scenarioInfo(command)
 }
 
-let chooseVariant: (variant: DemoHistory) => void = () => undefined
-const variantChosen = new Promise<DemoHistory>((resolve) => {
+/** The panel's History choice: the variant, and the protocol the compared B result ran over. */
+export interface HistoryChoice {
+  variant: DemoHistory
+  compareB: DemoCompareB
+}
+
+let chooseVariant: (choice: HistoryChoice) => void = () => undefined
+const variantChosen = new Promise<HistoryChoice>((resolve) => {
   chooseVariant = resolve
 })
 
-/** The panel's History variant for this page load; a later call changes nothing. */
-export function chooseHistory(variant: DemoHistory): void {
-  chooseVariant(variant)
+/** The panel's History choice for this page load; a later call changes nothing. */
+export function chooseHistory(choice: HistoryChoice): void {
+  chooseVariant(choice)
 }
 
 /**
@@ -96,9 +103,9 @@ export function chooseHistory(variant: DemoHistory): void {
  * loading for the page load.
  */
 export async function demoHistory(): Promise<'unavailable' | Result[] | null> {
-  const variant = await variantChosen
+  const { variant, compareB } = await variantChosen
   if (variant === 'loading') {
     return new Promise<never>(() => undefined)
   }
-  return variant === 'unavailable' ? 'unavailable' : variant === '' ? null : demoHistoryResults(variant)
+  return variant === 'unavailable' ? 'unavailable' : variant === '' ? null : demoHistoryResults(variant, new Date(), compareB)
 }

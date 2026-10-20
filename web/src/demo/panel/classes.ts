@@ -26,3 +26,6 @@ export const rowClass = 'flex items-center justify-between gap-2 text-(length:--
 export const inputClass =
   'flex h-(--control-h-sm) min-w-0 flex-[0_1_var(--demo-row-basis)] items-center gap-2 rounded-(--radius-md) border border-input bg-(--surface-1) px-2.5 text-(length:--text-caption) text-foreground focus-within:border-primary focus-within:outline-(length:--focus-width) focus-within:outline-offset-(--focus-offset) focus-within:outline-(--focus-ring)'
 export const selectClass = 'min-w-0 flex-1 border-none bg-transparent font-sans text-(length:--text-sm) text-foreground outline-none'
+// A segmented choice (kit.css .demo .seg), as the panel's Speed is.
+export const segmentGroupClass = 'inline-flex max-w-full flex-wrap overflow-hidden rounded-(--radius-md) border border-input bg-card'
+export const segmentClass = 'inline-flex h-(--control-h-sm) flex-none items-center gap-1.5 border-r border-border px-2 text-(length:--text-caption) font-semibold whitespace-nowrap last:border-r-0'

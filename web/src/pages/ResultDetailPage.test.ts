@@ -134,7 +134,11 @@ describe('a stored result', () => {
     expect(text(page, 'quality-list')).toContain('Packet loss')
     expect(text(page, 'quality-list')).toContain('Upper bound: packet loss is not measured')
     page.unmount()
-    const older = await open(NEWEST.id)
+    // A v0.2 result has neither block (the demo's results are v0.3 ones).
+    const { scores: _scores, ...v02 } = NEWEST
+    const { responsiveness: _down, ...download } = NEWEST.download!
+    const { responsiveness: _up, ...upload } = NEWEST.upload!
+    const older = await open(NEWEST.id, [{ ...v02, download, upload }, ...RESULTS.slice(1)])
     expect(older.find('[data-testid="load-responsiveness"]').exists()).toBe(false)
     expect(older.find('[data-testid="quality-list"]').exists()).toBe(false)
     older.unmount()

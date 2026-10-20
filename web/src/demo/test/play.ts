@@ -63,7 +63,7 @@ export function demoSession(
     command: { type: 'demo', scenario: name, speed: 1, cpuBound: false, timerResolutionMs: null, errorKind: 'requests', hold: true, ...command },
     scenario,
     profile,
-    info: infoFor(scenario.link, scenario.basePath),
+    info: infoFor(scenario.link, scenario.basePath, command.compat),
     browser: { name: 'Firefox', major: 131, os: 'Linux' },
     emit: (event) => events.push(event),
     fail: (error) => failures.push(error),

@@ -20,12 +20,19 @@
 // The scenario table against the UI kit: one scenario per Test-screen state the kit's App.jsx
 // lists, except the Continuous preset's, which arrive in v0.3, one per loaded-latency case of its
 // panel, and the run its Result detail shows; and each scripted scenario plays out in the real engine without an engine failure.
+// The panel's Responsiveness cases each give their path B state on a played LAN run, and its
+// compatibility layers reach GET /info.
 
 import kitApp from '@design/ui_kits/app/App.jsx?raw'
 import { describe, expect, it } from 'vitest'
 
+import { commandOf, DEFAULTS, restore } from '@/demo/choice'
+import { chooseScenario, demoInfo } from '@/demo/control'
+import { scenarioInfo } from '@/demo/fixtures'
+import { DEMO_RESPONSIVENESS, type DemoResponsiveness } from '@/demo/responsiveness'
 import { DEMO_SCENARIOS, type DemoScenarioName, isScenarioName } from '@/demo/scenarios'
 import { demoSession, ended, start } from '@/demo/test/play'
+import type { Result } from '@/engine/messages'
 
 /** The kit's states of the Continuous preset (v0.3). */
 const LATER = ['continuous', 'cont-upload', 'cont-warmup', 'cont-done']
@@ -87,5 +94,63 @@ describe('the demo scenarios', () => {
       expect(phases.at(-1)).toBe(scenario.hold.phase)
       expect(ended(events)).toBe(false)
     }
+  })
+})
+
+/** A complete LAN run with the panel's `responsiveness`, played to its result. */
+async function result(responsiveness: DemoResponsiveness): Promise<Result> {
+  const played = demoSession('complete', { responsiveness })
+  start(played)
+  for (let elapsed = 0; elapsed < 90_000 && !ended(played.events); elapsed += 250) {
+    await played.base.advance(250)
+  }
+  const event = played.events.find((candidate) => candidate.type === 'result')
+  if (event?.type !== 'result') {
+    throw new Error('the run ended without a result')
+  }
+  return event.result
+}
+
+describe('the Responsiveness cases', () => {
+  it('offer the kit’s five options, in its order and words', () => {
+    const options = /const RESP_OPTS = \[(.*)\];/.exec(kitApp)?.[1] ?? ''
+    expect([...options.matchAll(/\['([^']+)', '([^']+)'\]/g)].map((match) => [match[1], match[2]])).toEqual(DEMO_RESPONSIVENESS.map(([value, words]) => [value, words]))
+  })
+
+  it.each([
+    ['ok', { state: 'measured', protocol: 'h2' }, { state: 'measured', protocol: 'h2' }],
+    ['uncertain', { state: 'uncertain', protocol: 'h2' }, { state: 'uncertain', protocol: 'h2' }],
+    ['needs-h2', { state: 'unavailable_h1', protocol: 'http/1.1' }, { state: 'unavailable_h1', protocol: 'http/1.1' }],
+    ['not-reported', { state: 'unavailable_h1', protocol: '' }, { state: 'unavailable_h1', protocol: '' }],
+    ['few-samples', { state: 'measured', protocol: 'h2' }, { state: 'unavailable_insufficient', protocol: 'h2' }],
+  ] as const)('%s gives its path B state on a played LAN run', async (option, download, upload) => {
+    const played = await result(option)
+    expect(played.download?.responsiveness).toMatchObject(download)
+    expect(played.upload?.responsiveness).toMatchObject(upload)
+  })
+
+  it('apply the Result detail’s case to the run it shows, and the Test screen’s to every other', () => {
+    const choice = { ...DEFAULTS, responsiveness: 'uncertain' as const, resultResponsiveness: 'needs-h2' as const }
+    expect(commandOf({ ...choice, scenario: 'upload-gap' }).responsiveness).toBe('needs-h2')
+    expect(commandOf({ ...choice, scenario: 'complete' }).responsiveness).toBe('uncertain')
+    expect(commandOf({ ...choice, scenario: 'idle', forceState: 'upload-gap' }).responsiveness).toBe('needs-h2')
+  })
+})
+
+describe('the compatibility layers', () => {
+  it('are all on by default, as in the kit, and read back as stored', () => {
+    const storage = (value: object) => ({ getItem: () => JSON.stringify(value), setItem: () => undefined })
+    expect(commandOf(DEFAULTS).compat).toEqual({ openspeedtest: true, librespeed: true, networkquality: true })
+    expect(restore(storage({ librespeed: false, networkquality: 'off' }))).toMatchObject({ openspeedtest: true, librespeed: false, networkquality: true })
+  })
+
+  it('reach GET /info, on the Worker’s side and the page’s', async () => {
+    const command = commandOf({ ...DEFAULTS, scenario: 'basepath', openspeedtest: false, networkquality: false })
+    const flags = { openspeedtest: false, librespeed: true, networkquality: false }
+    expect(command.compat).toEqual(flags)
+    // The demo Worker's session answers with scenarioInfo, as the page's GET /info does.
+    expect(scenarioInfo(command)).toMatchObject({ compat: flags, server: { basePath: '/speed' } })
+    chooseScenario(command)
+    expect((await demoInfo()).compat).toEqual(flags)
   })
 })

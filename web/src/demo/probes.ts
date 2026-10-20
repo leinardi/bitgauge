@@ -21,8 +21,9 @@ import type { Link } from '@/demo/link'
 import type { BrowserIdentity, Clock, Info, InfoResult, ProbeTiming, ResourceTiming } from '@/engine/types'
 
 // The demo transport's small requests (frontend.md section 9): the probes, answered one jittered
-// round trip later and stamped with that simulated arrival, GET /info with the fixture and the
-// link's current epoch, and the Resource Timing entry every request reports.
+// round trip later and stamped with that simulated arrival, with the fetch start and connection
+// setup path B reads (measurement.md section 12.3); GET /info with the fixture and the link's
+// current epoch; and the Resource Timing entry every request reports.
 
 export function abortError(): DOMException {
   return new DOMException('The request was aborted.', 'AbortError')
@@ -55,12 +56,17 @@ export function probe(host: ProbeHost, path: string, signal?: AbortSignal): Prom
   const sentAt = clock.now()
   return host.connected(signal, (release) => {
     // A probe that waited for a connection starts when it has one, as Resource Timing's
-    // requestStart does.
-    const requestStart = clock.now()
+    // connectStart does. It reuses that connection, connectStart equal to connectEnd, unless the
+    // link sets up a new one first, which takes a round trip before its requestStart.
+    const connectStart = clock.now()
+    if (path.endsWith('/small') && link.profile.starveSmallDuringUpload === true && link.uploading()) {
+      return starved(signal, release)
+    }
+    const requestStart = link.profile.newConnections === true ? host.stamp(connectStart + link.roundTrip(connectStart)) : connectStart
     const lost = host.failed(requestStart)
     const rtt = link.roundTrip(requestStart)
     return new Promise<ProbeTiming>((resolve, reject) => {
-      const timer = clock.setTimer(rtt, () => {
+      const timer = clock.setTimer(requestStart - connectStart + rtt, () => {
         release()
         if (lost) {
           reject(networkError())
@@ -69,13 +75,24 @@ export function probe(host: ProbeHost, path: string, signal?: AbortSignal): Prom
         // Stamped with the simulated answer, as the echo is.
         const doneAt = host.stamp(requestStart + rtt)
         const status = path.endsWith('/ping') ? 204 : path.endsWith('/small') ? 200 : 404
-        resolve({ status, sentAt, doneAt, timing: timingEntry(link, requestStart, doneAt, doneAt) })
+        const entry = timingEntry(link, requestStart, doneAt, doneAt)
+        resolve({ status, sentAt, doneAt, timing: entry === null ? null : { ...entry, fetchStart: sentAt, connectStart, connectEnd: requestStart } })
       })
       signal?.addEventListener('abort', () => {
         clock.clearTimer(timer)
         release()
         reject(abortError())
       })
+    })
+  })
+}
+
+/** A probe the server never answers: it waits until it is aborted. */
+function starved(signal: AbortSignal | undefined, release: () => void): Promise<ProbeTiming> {
+  return new Promise<ProbeTiming>((_resolve, reject) => {
+    signal?.addEventListener('abort', () => {
+      release()
+      reject(abortError())
     })
   })
 }

@@ -20,10 +20,11 @@
 import { useId } from 'vue'
 
 import { type Choice, DEFAULTS } from '@/demo/choice'
-import { DEMO_HISTORY_VARIANTS, isDemoHistory } from '@/demo/history'
-import { inputClass, rowClass, selectClass } from '@/demo/panel/classes'
+import { type DemoCompareB, DEMO_HISTORY_VARIANTS, isDemoHistory } from '@/demo/history'
+import { inputClass, rowClass, segmentClass, segmentGroupClass, selectClass } from '@/demo/panel/classes'
 
-// The demo panel's History section (frontend.md section 9, kit App.jsx): the History variant.
+// The demo panel's History section (frontend.md section 9, kit App.jsx): the History variant, and
+// Compare B, the protocol the second compared result ran over.
 
 defineProps<{ choice: Choice }>()
 const emit = defineEmits<{ apply: [patch: Partial<Choice>] }>()
@@ -32,7 +33,14 @@ const TEXT = {
   history: 'History',
   historyVariant: 'Force variant',
   historyStored: 'stored',
+  compareB: 'Compare B',
 }
+
+/** The kit's Compare B options and their words. */
+const COMPARE_B_OPTIONS: readonly (readonly [DemoCompareB, string])[] = [
+  ['h1', 'HTTP/1.1'],
+  ['h2', 'HTTP/2 · measured'],
+]
 
 const ids = { history: useId() }
 
@@ -64,6 +72,26 @@ function onHistory(event: Event): void {
           </option>
         </select>
       </span>
+    </div>
+    <div :class="rowClass">
+      <span>{{ TEXT.compareB }}</span>
+      <div
+        role="group"
+        :aria-label="TEXT.compareB"
+        :class="segmentGroupClass"
+      >
+        <button
+          v-for="[value, words] in COMPARE_B_OPTIONS"
+          :key="value"
+          type="button"
+          :aria-pressed="choice.compareB === value"
+          :class="[segmentClass, choice.compareB === value ? 'bg-(--primary-bg) text-primary-text' : 'text-muted-foreground']"
+          :data-testid="`demo-compare-b-${value}`"
+          @click="emit('apply', { compareB: value })"
+        >
+          {{ words }}
+        </button>
+      </div>
     </div>
   </section>
 </template>

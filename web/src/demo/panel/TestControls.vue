@@ -21,10 +21,11 @@ import { useId } from 'vue'
 
 import { type Choice, DEFAULTS, ERROR_KINDS, NAMES, RESOLUTIONS } from '@/demo/choice'
 import { inputClass, rowClass, selectClass } from '@/demo/panel/classes'
+import { DEMO_RESPONSIVENESS, isDemoResponsiveness } from '@/demo/responsiveness'
 import { isScenarioName } from '@/demo/scenarios'
 
 // The demo panel's Test screen section (frontend.md section 9, kit App.jsx): a forced state, a
-// CPU-bound Worker, the error kind and the timer resolution.
+// CPU-bound Worker, the error kind, the responsiveness case and the timer resolution.
 
 defineProps<{ choice: Choice }>()
 const emit = defineEmits<{ apply: [patch: Partial<Choice>] }>()
@@ -35,10 +36,11 @@ const TEXT = {
   followRun: 'follow run',
   cpuBound: 'CPU-bound',
   errorKind: 'Error kind',
+  responsiveness: 'Responsiveness',
   timerResolution: 'Timer resolution',
 }
 
-const ids = { forceState: useId(), errorKind: useId(), timer: useId() }
+const ids = { forceState: useId(), errorKind: useId(), responsiveness: useId(), timer: useId() }
 
 function apply(patch: Partial<Choice>): void {
   emit('apply', patch)
@@ -56,6 +58,11 @@ function onForceState(event: Event): void {
 function onErrorKind(event: Event): void {
   const value = selected(event)
   apply({ errorKind: ERROR_KINDS.find((kind) => kind === value) ?? DEFAULTS.errorKind })
+}
+
+function onResponsiveness(event: Event): void {
+  const value = selected(event)
+  apply({ responsiveness: isDemoResponsiveness(value) ? value : DEFAULTS.responsiveness })
 }
 
 function onTimer(event: Event): void {
@@ -114,6 +121,26 @@ function onTimer(event: Event): void {
             :value="kind"
           >
             {{ kind }}
+          </option>
+        </select>
+      </span>
+    </div>
+    <div :class="rowClass">
+      <label :for="ids.responsiveness">{{ TEXT.responsiveness }}</label>
+      <span :class="inputClass">
+        <select
+          :id="ids.responsiveness"
+          :class="selectClass"
+          :value="choice.responsiveness"
+          data-testid="demo-responsiveness"
+          @change="onResponsiveness"
+        >
+          <option
+            v-for="[value, words] in DEMO_RESPONSIVENESS"
+            :key="value"
+            :value="value"
+          >
+            {{ words }}
           </option>
         </select>
       </span>

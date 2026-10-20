@@ -164,6 +164,56 @@ describe('the demo link under load', () => {
   })
 })
 
+describe('the demo probes', () => {
+  const steady = { ...DEMO_LINKS.lan, jitterMs: 0 }
+
+  it('report their fetch start and a reused connection, connectStart equal to connectEnd', async () => {
+    const clock = new FakeClock()
+    await clock.advance(100)
+    const demo = new DemoTransport(clock, new Link(steady, 'epoch-1'), infoFor('lan'), BROWSER)
+    const answer = demo.probe('/api/v1/small')
+    await clock.advance(10)
+    const { timing, sentAt } = await answer
+    expect(timing).toMatchObject({ nextHopProtocol: 'h2', fetchStart: sentAt, connectStart: 100, connectEnd: 100, requestStart: 100 })
+    expect(timing?.responseStart).toBeCloseTo(103.1)
+  })
+
+  it('set up a new connection first on a link that opens one per probe, a round trip before the request', async () => {
+    const clock = new FakeClock()
+    const demo = new DemoTransport(clock, new Link({ ...steady, newConnections: true }, 'epoch-1'), infoFor('lan'), BROWSER)
+    const answer = demo.probe('/api/v1/small')
+    await clock.advance(10)
+    const { timing } = await answer
+    expect(timing?.connectStart).toBe(0)
+    expect(timing?.connectEnd).toBeCloseTo(3.1)
+    expect(timing?.requestStart).toBe(timing?.connectEnd)
+    expect(timing?.responseStart).toBeCloseTo(6.2)
+  })
+
+  it('leave /small unanswered while an upload is in flight on a starving link, until aborted', async () => {
+    const clock = new FakeClock()
+    const link = new Link({ ...steady, starveSmallDuringUpload: true }, 'epoch-1')
+    const demo = new DemoTransport(clock, link, infoFor('lan'), BROWSER)
+    // Idle, and during download, it answers.
+    await expect(Promise.all([demo.probe('/api/v1/small'), clock.advance(10)])).resolves.toBeDefined()
+    link.load('upload', clock.now())
+    const aborted = new AbortController()
+    let settled: string | null = null
+    demo.probe('/api/v1/small', aborted.signal).then(
+      () => (settled = 'answered'),
+      (error: unknown) => (settled = error instanceof DOMException ? error.name : 'failed'),
+    )
+    // The ping path stays answered.
+    const ping = demo.probe('/api/v1/ping')
+    await clock.advance(5000)
+    expect((await ping).status).toBe(204)
+    expect(settled).toBeNull()
+    aborted.abort()
+    await clock.advance(1)
+    expect(settled).toBe('AbortError')
+  })
+})
+
 describe('the HTTP/1.1 link', () => {
   it('holds six connections: a request or probe beyond them waits, first come first served', async () => {
     const clock = new FakeClock()

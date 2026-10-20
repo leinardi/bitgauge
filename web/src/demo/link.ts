@@ -51,6 +51,10 @@ export interface LinkProfile {
   loaded?: LoadedDelay
   /** The browser's connections per origin, as on HTTP/1.1; absent, a request never waits for one. */
   connections?: number
+  /** Whether each probe sets up a new connection first, which its timing entry shows; absent, probes reuse one. */
+  newConnections?: boolean
+  /** Whether GET /small goes unanswered while an upload request is in flight. */
+  starveSmallDuringUpload?: boolean
 }
 
 /** The change a link announces at its instant, so the transport can end what was in flight. */
@@ -136,6 +140,11 @@ export class Link {
     if (this.inFlight[direction]++ === 0) {
       this.loadedSince[direction] = at
     }
+  }
+
+  /** Whether an upload request is in flight. */
+  uploading(): boolean {
+    return this.inFlight.upload > 0
   }
 
   /** A request of `direction` ended; the queue empties with the last one. */
