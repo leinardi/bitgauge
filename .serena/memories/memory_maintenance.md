@@ -36,7 +36,7 @@ line-level details; behavior likely to change soon.
 ## Staleness rule
 
 After any structural milestone (new top-level package, new make target/workflow, newly locked
-technical decision, feature area moving status in `docs/STATUS.md`), update `mem:core` (and
+technical decision), update `mem:core` (and
 `mem:tech_stack` / `mem:suggested_commands` if affected) in the same PR. Stale memories are
 worse than missing ones — they get trusted.
 

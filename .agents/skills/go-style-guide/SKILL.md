@@ -20,8 +20,7 @@ linters enforce, §16–§18 are review rules.
 `buildinfo`, `clientip`, `config`, `handlers`, `logger`, `metrics`, `ratelimit`, `server` and
 `compat/` (`openspeedtest`, `librespeed`, `nq`), plus tooling under
 `test/` (meta-tests, the `image`-tagged image tests, the `harness`-tagged accuracy harness)
-([architecture.md §9](../../../docs/features/architecture.md#9-planned-package-layout),
-[backend.md §1](../../../docs/features/technical-stack/backend.md#1-package-map)); product code
+([backend.md §1](../../../docs/features/technical-stack/backend.md#1-package-map)); product code
 implements the approved specification (AGENTS.md, "Project rules"). A new Go package gets a row in
 the backend.md package map.
 

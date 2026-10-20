@@ -9,7 +9,7 @@ assignees: []
 
 - [ ] I have checked the existing issues to confirm this feature has not already been requested.
 - [ ] I have checked [`docs/features/`](https://github.com/leinardi/bitgauge/tree/main/docs/features),
-  including the roadmap and the open questions, and it is not already planned or ruled out.
+  including its later and open items, and it is not already planned or ruled out.
 - [ ] This feature fits BitGauge's principles: a stateless server that stores no result and never
   calls out, and honest numbers.
 

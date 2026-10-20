@@ -164,10 +164,9 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 
 ## 7. Continuous Mode
 
-1. The user selects the Continuous preset in Settings, choosing the one direction it runs
-   (download by default; one direction per run is the current answer to an item in
-   [../open-questions.md](../open-questions.md)) and an optional run length, or opens
-   `?preset=continuous&test=upload&duration=3600` ([url-params.md §2](url-params.md#2-parameters)).
+1. The user selects the Continuous preset in Settings, choosing the one direction it runs (download
+   by default) and an optional run length, or opens `?preset=continuous&test=upload&duration=3600`
+   ([url-params.md §2](url-params.md#2-parameters)).
 2. The user starts the run. Idle latency runs first unless the phases leave it out, then the chosen
    direction with the Standard ramp and no maximum.
 3. Warm-up ends at the latest after 10 s of confirmed series. The screen then shows the
@@ -230,8 +229,7 @@ rules behind each step are in [../measurement.md](../measurement.md) and
      previous valid value stays in effect.
    - **Branch: preset changed.** Duration fields take the preset's values unless they were
      edited: edited durations are kept as they are, marked "custom", with no question, and their
-     reset in the changed list returns them to the preset's
-     ([../open-questions.md](../open-questions.md), current answer).
+     reset in the changed list returns them to the preset's.
 3. The settings summary on the Test screen and the Shareable URL update as fields change.
 4. The user may reset any single setting to its default.
    - **Branch: Reset all to defaults.** After confirmation, stored settings are removed and the

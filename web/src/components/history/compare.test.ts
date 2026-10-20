@@ -19,7 +19,7 @@
 
 // @vitest-environment jsdom
 
-// Compare's wording (ui/screens.md section 3, open-questions.md 51): A is the older result, rates
+// Compare's wording (ui/screens.md section 3): A is the older result, rates
 // within ±2 % of A's and latencies within 1 ms read same, grades compare by order, an absent value is
 // not comparable, and the warning names a different preset, protocol or label.
 

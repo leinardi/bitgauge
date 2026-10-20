@@ -1,27 +1,24 @@
 # Contributing
 
-> Implementation status per feature area: [`docs/STATUS.md`](docs/STATUS.md).
-
 ## Code and Specification Contributions
 
 The maintainer approved the specification in [`docs/`](docs/README.md) on 2026-10-12, and the
-product is implemented against it. Code contributions are now welcome: a fix to the binary, the
-web app or the tooling, or a feature the specification already describes
-([`docs/STATUS.md`](docs/STATUS.md) lists what is built and what is only specified). The
-specification is the contract, and changes to it stay welcome too:
+product is implemented against it. Code contributions are now welcome: a fix to the binary, the web
+app or the tooling, or a feature the specification already describes. The specification is the
+contract, and changes to it stay welcome too:
 
 - **Issues** for anything unclear, inconsistent, wrong or missing in the specification: a number
   that differs between two pages, a measurement rule that fails on some link, an edge case not
   covered. Quote the page and section.
-- **Open questions** are listed in
-  [`docs/features/open-questions.md`](docs/features/open-questions.md), each with a recommendation;
-  discussion on those is welcome.
+- **Open items** are listed in
+  [`docs/features/README.md`](docs/features/README.md#later-and-open-items); discussion on those is
+  welcome.
 - **Pull requests** that change the specification: one topic per pull request, with every page the
   change touches updated together (the measurement page, the wire protocol, configuration, the UI
   pages and the glossary must keep agreeing).
 
 Product code (`cmd/`, the `internal/` packages of
-[architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`,
+[backend.md §1](docs/features/technical-stack/backend.md#1-package-map), `web/src/`,
 `api/openapi.yaml`) implements what the docs specify and nothing else. Tooling (build files,
 linters and their configuration, CI and release workflows, test harnesses and meta-tests, agent
 skills, editor configuration) must not encode product behavior that the docs do not specify
@@ -37,8 +34,7 @@ deliberately. Technical choices are locked in
 one needs a pull request to that file with the reason.
 
 The build, test and lint commands are listed by `make help`, and with what each change has to run
-in [AGENTS.md](AGENTS.md#common-commands) (its validation matrix); their design is in
-[build-packaging.md §3](docs/features/technical-stack/build-packaging.md#3-planned-make-targets).
+in [AGENTS.md](AGENTS.md#common-commands).
 
 `make docker-build`, `make go-test-image` and the accuracy harness targets pull the `dhi.io` base
 images, which need a `dhi.io` account: run `docker login dhi.io` first, or leave those targets to

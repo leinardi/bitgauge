@@ -83,7 +83,7 @@ lookup, DNS-based service discovery, NTP, CDN, or webhook. The SPA's Content Sec
 fonts, icons and scripts are embedded in the binary.
 
 - **Enforced in review:** a change that adds a network client to the server or an external URL to
-  the SPA is rejected ([technical-stack/ai-guidelines.md](technical-stack/ai-guidelines.md)).
+  the SPA is rejected ([AGENTS.md](../../AGENTS.md)).
 - **Verifiable in two layers**
   ([technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness)): the accuracy
   harness and the image test run BitGauge on a Docker network with no route out and prove

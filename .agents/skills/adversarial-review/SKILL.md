@@ -73,7 +73,7 @@ also subject to the spec-first check in §3.
 
 | Changed path | Load | Check |
 | --- | --- | --- |
-| `cmd/bitgauge/` | `architecture.md` §9, `technical-stack/backend.md` | `serve` (default) and `healthcheck` only; exit status 2 on bad config |
+| `cmd/bitgauge/` | `technical-stack/backend.md` | `serve` (default) and `healthcheck` only; exit status 2 on bad config |
 | `internal/config/` | `trust-boundary`, `go-style-guide`; `configuration.md`, `technical-stack/configuration-security.md` | fail-closed validation of every key, read once, never written; §5 (e) |
 | `internal/server/`, `internal/clientip/`, `internal/ratelimit/` | `trust-boundary`, `go-style-guide`; `security.md` §2, §4, §5, `architecture.md` §6 | middleware order, security headers and CSP, `X-Forwarded-For` only through `server.trusted_proxies` (never `X-Real-IP`), a bounded rate-limit table |
 | `internal/handlers/` | `api-contract`, `trust-boundary`, `go-style-guide`; `wire-protocol.md`, `measurement.md`, `technical-stack/backend.md` | no state beyond the request; download allocates nothing per request; upload drains before responding and counts on the 100 ms server grid |
@@ -91,14 +91,14 @@ also subject to the spec-first check in §3.
 | `.github/workflows/*`, `.github/scripts/*` | `docs/release.md`, `technical-stack/build-packaging.md` §4 | §3 release hardening |
 | `scripts/check-*.sh` | the header comment of the script, its driver under `test/` | the check still fails on what it exists to stop |
 | `.golangci.yaml`, `.pre-commit-config.yaml` | `test/boundary`, `test/toolchain` | no linter disabled or narrowed; §5 (c) |
-| `docs/features/**`, `docs/STATUS.md` | `AGENTS.md` validation matrix | numbers, probe paths and the upload JSON shape agree across pages; `decisions.md` matches `open-questions.md` |
+| `docs/features/**` | `spec-change` | numbers, probe paths and the upload JSON shape agree across pages |
 
 Paths above are relative to `docs/features/` unless they start with a repo directory. If the
 diff touches JS/TS at scale (dead code, cycles, duplication, complexity), the `fallow` skill can
 surface structural risk on the changed set — use it as evidence, not as the review.
 
 A meta-test under `test/` guards a claim the product cannot yet check for itself: the boundary
-lint rules, image and action pins, the gates registry, the no-egress layers (`test/internal/netguard`,
+lint rules, image and action pins, the no-egress layers (`test/internal/netguard`,
 `test/internal/syscalltrace`), the Docker test environments (`test/internal/testenv`). Try to
 make the guarded thing go wrong and see whether the test still notices. A test that passes
 because its input is empty, its rule never ran or its tool was skipped is a false pass.
@@ -109,15 +109,14 @@ review.
 
 ## 3. Repo invariants — check these on every review, whatever changed
 
-These are the ways this codebase breaks that generic reviewers miss. `AGENTS.md` and
-`docs/features/technical-stack/ai-guidelines.md` hold the full statements.
+These are the ways this codebase breaks that generic reviewers miss. `AGENTS.md` holds the full
+statements.
 
 - **Spec first.** The specification was approved on 2026-10-12 and is the contract: product code
-  (`cmd/`, the `internal/` packages of `architecture.md` §9, `web/src/`, `api/openapi.yaml`)
+  (`cmd/`, the `internal/` packages of `backend.md` §1, `web/src/`, `api/openapi.yaml`)
   implements what the docs specify and nothing else, and tooling must not encode behavior the docs
   do not specify either. A behavior change starts as a `docs/features/` change; when code and docs
-  disagree, the docs win, and `decisions.md` wins on technical choices. A diff that changes a
-  feature's status updates `docs/STATUS.md` in the same PR.
+  disagree, the docs win, and `decisions.md` wins on technical choices.
 - **Stateless server.** No database, no file writes, no volume, no stored results, no
   cross-request correlation. In-memory state is only what `architecture.md` §6 lists: the random
   buffer, the epoch, the SPA, the configuration, the bounded rate-limit table, Prometheus counters

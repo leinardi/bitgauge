@@ -10,8 +10,7 @@ prior art behind the design:
 | [`engineering/`](engineering/README.md) | How the project is run rather than what it does: harness runbooks, checklists, audits | Working notes, not a contract. Nothing here constrains the product. |
 | [`research/`](research/README.md) | How other speed tests work and which ideas BitGauge takes | Background, ideas only. Where it disagrees with `features/`, `features/` wins. |
 
-Implementation progress per feature area: [`STATUS.md`](STATUS.md). How releases are made:
-[`release.md`](release.md).
+How releases are made: [`release.md`](release.md).
 
 ## Design Export
 
@@ -73,15 +72,13 @@ Editing via either path edits the same file. Windows checkouts need
 
 ## Reading Order
 
-1. [`features/summary.md`](features/summary.md): the TL;DR.
-2. [`features/product.md`](features/product.md): what BitGauge is, and is not.
-3. [`features/principles.md`](features/principles.md): guiding principles, including the core
+1. [`features/product.md`](features/product.md): what BitGauge is, and is not.
+2. [`features/principles.md`](features/principles.md): guiding principles, including the core
    invariant: the server never stores a result and never calls out.
-4. [`features/glossary.md`](features/glossary.md): the terms every other page uses.
-5. [`features/measurement.md`](features/measurement.md): how every number is produced.
-6. [`features/architecture.md`](features/architecture.md): the single binary, the Worker engine and
+3. [`features/glossary.md`](features/glossary.md): the terms every other page uses.
+4. [`features/measurement.md`](features/measurement.md): how every number is produced.
+5. [`features/architecture.md`](features/architecture.md): the single binary, the Worker engine and
    the data flow.
-7. [`features/technical-stack/decisions.md`](features/technical-stack/decisions.md): locked
+6. [`features/technical-stack/decisions.md`](features/technical-stack/decisions.md): locked
    technical decisions.
-8. [`STATUS.md`](STATUS.md): what is built and what is only specified.
-9. [`design_system/README.md`](design_system/README.md): visual language, when touching UI.
+7. [`design_system/README.md`](design_system/README.md): visual language, when touching UI.

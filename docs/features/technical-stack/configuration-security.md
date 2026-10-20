@@ -2,8 +2,8 @@
 
 [Feature index](../README.md) / [Technical Stack](README.md) / Configuration and Security
 
-How the planned `internal/config`, security-header, `internal/clientip` and `internal/ratelimit`
-packages implement [../configuration.md](../configuration.md) and [../security.md](../security.md).
+How the `internal/config`, security-header, `internal/clientip` and `internal/ratelimit` packages
+implement [../configuration.md](../configuration.md) and [../security.md](../security.md).
 
 ## 1. Loading Order
 

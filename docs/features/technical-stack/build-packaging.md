@@ -61,54 +61,12 @@ Runtime image properties:
   64-bit OS. armv7 is a possible later addition via `gcr.io/distroless/static-debian12` for that
   platform only ([decisions.md](decisions.md)).
 
-## 3. Planned Make Targets
+## 3. Make Targets
 
-As in Runhold, shared targets come from `leinardi/make-common` snippets and project targets from
-local snippets. A target whose inputs do not exist yet fails loudly rather than passing on nothing.
-Planned:
-
-```text
-make build             # web-build, then go-build
-make go-build          # build ./dist/bitgauge for the host platform (embeds web/dist)
-make go-run            # build and run the binary locally
-make go-test           # go test -race ./...
-make go-vet
-make go-lint           # golangci-lint v2, all linters
-make go-tidy           # go mod tidy + go mod verify
-make go-test-image     # image tests (Docker, -tags=image)
-make go-vet-image      # go vet -tags=image
-make go-vet-harness    # go vet -tags=harness
-make web-install       # npm ci in web/
-make web-dev           # Vite dev server
-make web-build         # install the dependencies when needed, then npm run build in web/
-make web-test          # vitest (unit, component, engine)
-make web-lint          # eslint + vue-tsc
-make api-types         # regenerate the SPA's API types from api/openapi.yaml
-make e2e               # Playwright on Chromium, Firefox, WebKit
-make harness-ci        # accuracy harness, CI tier profiles
-make harness-floor     # manual range-floor profiles
-make harness-ceiling   # manual range-ceiling profiles (bare metal)
-make harness-continuous # manual Continuous memory check (HARNESS_CONTINUOUS_MINUTES, default 60)
-make harness-sweep     # remove stale harness environments, list kept ones
-make harness-sweep-all # remove every harness environment (needs CONFIRM=1)
-make verify            # verify-go and verify-web
-make verify-go         # Go vet (untagged, image, harness), lint and tests
-make verify-web        # web lint, typecheck and tests
-make audit-deps        # audit-deps-go and audit-deps-web
-make audit-deps-go     # govulncheck
-make audit-deps-web    # npm audit in web/
-make idle-measure      # idle CPU and memory footprint of a running binary
-make idle-bench        # per-request server cost of the lightweight endpoints
-make check             # pre-commit on all files
-make docker-build      # local multi-stage image for the host platform
-make docker-run        # run the image read-only on 127.0.0.1:8080
-make mk-common-update  # refresh shared Make snippets
-```
-
-`docker-run` publishes the port on `127.0.0.1` by default, so a local run is not reachable from
-the network; set `DOCKER_RUN_BIND=0.0.0.0` to expose it.
-
-`AGENTS.md` will hold the authoritative list once the targets exist.
+Shared targets come from `leinardi/make-common` snippets and project targets from local snippets;
+`make help` lists them. A target whose inputs do not exist fails loudly rather than passing on
+nothing. `docker-run` publishes the port on `127.0.0.1` by default, so a local run is not reachable
+from the network; set `DOCKER_RUN_BIND=0.0.0.0` to expose it.
 
 ## 4. CI Workflows
 

@@ -11,14 +11,11 @@ LibreSpeed and Apple `networkQuality` clients.
 2026-10-12.** The product, the engineering scaffold (build files, linters, CI, release
 scripts, test harnesses, agent skills) and the demo build are in place. The release waits for the
 manual steps of [`docs/release.md`](docs/release.md#how-to-release). Full spec:
-[`docs/features/`](docs/features/README.md). Per-feature implementation status:
-[`docs/STATUS.md`](docs/STATUS.md); check it before assuming a feature exists or not.
+[`docs/features/`](docs/features/README.md).
 
 ## Components
 
-The product exists, and [`docs/STATUS.md`](docs/STATUS.md) gives the status per feature area.
-Package details: [`docs/features/architecture.md`
-§9](docs/features/architecture.md#9-planned-package-layout).
+Package details: [backend.md §1](docs/features/technical-stack/backend.md#1-package-map).
 
 - **`cmd/bitgauge/`**: the binary; `serve` (default) and `healthcheck` subcommands.
 - **`internal/`**: `buildinfo`, `config` (koanf), `logger` (slog), `server` (router, middleware,
@@ -188,7 +185,7 @@ Run before considering an edit done. `make check` applies to every row.
 | `test/image/**`, `test/internal/netguard/**`, `test/internal/syscalltrace/**` | `go test ./test/internal/...` (untagged), `make go-vet-image`, and (Docker, `dhi.io`) `make go-test-image`; without `dhi.io`, the probe and netguard tests alone: `go test -tags=image -v -run 'Probe\|Count\|Blind' ./test/image/ ./test/internal/netguard/` |
 | `.agents/skills/**` | own skills: the `docs/**` row, and every command, path and anchor a skill names still exists (`make help`); vendored skills are never edited (`skills-lock.json` hashes them) |
 | `docs/**/*.md`, root `*.md` | `go test -count=1 ./test/docs/`; every relative link resolves; numbers, probe-path names and the upload JSON shape still agree across `measurement.md`, `wire-protocol.md`, `configuration.md`, `ui/` and `glossary.md`; lines wrap at about 100 columns (`spec-change` skill) |
-| `docs/features/technical-stack/decisions.md` | each locked decision appears once; open items match `docs/features/open-questions.md` |
+| `docs/features/technical-stack/decisions.md` | each locked decision appears once |
 
 ## Suppressions and file length
 
@@ -208,7 +205,7 @@ demand.
 
 Read the matching skill in `.agents/skills/` before editing:
 
-- `spec-change`: any `docs/**` change, `docs/STATUS.md`, `decisions.md`, open questions.
+- `spec-change`: any `docs/**` change, `decisions.md`, the open items.
 - `go-style-guide`: any `.go` file, `.golangci.yaml`.
 - `stateless-guard`: anything that could store, write or call out; `internal/**`, the CSP, the
   dist URL allowlist.
@@ -235,7 +232,7 @@ The vendored upstream skills (`vue-best-practices`, `vue-debug-guides`,
 
 - **Spec first.** The approved specification is the contract; a behavior change still starts as
   a docs change, and code follows the docs. Product code (`cmd/`, the `internal/` packages of
-  [architecture §9](docs/features/architecture.md#9-planned-package-layout), `web/src/`,
+  [backend.md §1](docs/features/technical-stack/backend.md#1-package-map), `web/src/`,
   `api/openapi.yaml`) implements what the docs specify and nothing else; tooling must not encode
   product behavior that the docs do not specify either.
 - **Docs are the source of truth.** When code and docs disagree, the docs win until changed
@@ -248,8 +245,6 @@ The vendored upstream skills (`vue-best-practices`, `vue-debug-guides`,
 - **Engine stays framework-free**: no DOM, no Vue, no app imports in `web/src/engine/`.
 - **golangci-lint v2 with all linters** must pass.
 - **Honest numbers.** No fudge factors, no hidden smoothing, no number without its qualifiers.
-
-The full rules list: [`ai-guidelines.md`](docs/features/technical-stack/ai-guidelines.md).
 
 ## Architecture
 

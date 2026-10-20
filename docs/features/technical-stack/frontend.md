@@ -5,7 +5,6 @@
 The frontend is a Vue 3 SPA built by Vite and embedded in the Go binary, plus a framework-free
 measurement engine that runs in a Web Worker. Screens and flows are specified in
 [../ui/README.md](../ui/README.md); the engine's rules in [../measurement.md](../measurement.md).
-Everything here is planned.
 
 ## 1. SPA Layout
 
@@ -456,4 +455,3 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
 - [Measurement methodology](../measurement.md)
 - [UI structure](../ui/README.md)
 - [Testing](testing.md)
-- [Recommended stack](stack.md)

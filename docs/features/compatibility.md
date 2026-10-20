@@ -277,7 +277,7 @@ Apple's default paths would collide with BitGauge's `/api/v1`.
   `Content-Length` above the limit is answered `413` without reading; a body without
   `Content-Length` (streamed) that exceeds the limit is read up to it, then answered `413` and the
   connection closed. The 120 s request lifetime
-  applies. The default drain limit is tracked in [open-questions.md](open-questions.md).
+  applies. The default drain limit is still open ([README.md](README.md#later-and-open-items)).
 - `/nq/upload` accepts a body without `Content-Length`, the one networkQuality route that drains.
 - `/nq/large` and `/nq/upload` count against `compat.networkquality.max_flows_per_client`
   (default 32), not against the native stream limit, because `networkQuality` opens many parallel

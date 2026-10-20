@@ -4,7 +4,7 @@
 
 BitGauge's product is its methodology, so most of the testing effort goes into proving the numbers:
 deterministic engine tests with synthetic timelines, and an accuracy harness that compares real
-browser runs with iperf3 over shaped links. Everything here is planned.
+browser runs with iperf3 over shaped links.
 
 ## 1. Go Handler Tests
 

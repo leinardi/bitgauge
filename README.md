@@ -4,8 +4,7 @@
 >
 > **Status: implemented, not yet released.** The specification was approved on 2026-10-12 and the
 > product is built against it; the first release waits for its manual accuracy runs and release
-> setup ([docs/release.md](docs/release.md)). Status per feature area:
-> [docs/STATUS.md](docs/STATUS.md).
+> setup ([docs/release.md](docs/release.md)).
 
 BitGauge measures the link between a browser and a server you run yourself: a NAS on the LAN, a
 homelab box behind Wi-Fi, or your home server reached over a VPN from a phone. It is built to give
@@ -91,10 +90,9 @@ in [SECURITY.md](SECURITY.md#verifying-a-release).
 ## Documentation
 
 - [Documentation index](docs/README.md): how the doc trees fit together.
-- [Summary](docs/features/summary.md): the TL;DR.
 - [Feature specification](docs/features/README.md): product, measurement, protocol, architecture.
 - [Measurement methodology](docs/features/measurement.md): how every number is produced.
-- [Roadmap](docs/features/roadmap.md) and [implementation status](docs/STATUS.md).
+- [Later and open items](docs/features/README.md#later-and-open-items).
 - [Contributing](CONTRIBUTING.md) and [security policy](SECURITY.md).
 
 ## Credits

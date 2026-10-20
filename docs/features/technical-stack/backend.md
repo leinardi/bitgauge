@@ -3,8 +3,8 @@
 [Feature index](../README.md) / [Technical Stack](README.md) / Backend
 
 The backend is one Go binary that serves the SPA, the native API and the optional compatibility
-layers. It is planned, not written; this page fixes the package boundaries and the rules every
-handler follows. Endpoint contracts are in [wire-protocol.md](../wire-protocol.md) and
+layers. This page fixes the package boundaries and the rules every handler follows. Endpoint
+contracts are in [wire-protocol.md](../wire-protocol.md) and
 [compatibility.md](../compatibility.md).
 
 ## 1. Package Map

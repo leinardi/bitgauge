@@ -1,6 +1,6 @@
 # Periodic Health Audit
 
-Rerun this at the end of every milestone, before the milestone is called done.
+An optional checklist for before a release, or whenever the repository feels like it has drifted.
 
 Most commits in this repository are written by an agent, guarded by pre-commit hooks, CI and a
 review loop. Those guards catch what they were pointed at; what they were never pointed at
@@ -9,15 +9,12 @@ with a CVE disclosed after the last time anyone looked, a harness image nobody h
 audit looks at what nothing is watching, and compares this milestone's numbers with the last
 one's: a single measurement says nothing, two say which way it is going.
 
-Four required steps. None is optional; a milestone that skips one has not been audited.
+Pick the steps that are useful this time.
 
 ## Where the Audit Is Written Down
 
-One committed file per milestone: **`docs/engineering/health-audits/<version>.md`**, where
-`<version>` is the release tag the milestone produced (`v0.1.0`). Step 3 is a comparison, so a run
-whose numbers were never committed leaves the next one with nothing to compare against.
-
-Its shape, in this order:
+If the readings are worth comparing next time, commit them as
+**`docs/engineering/health-audits/<version>.md`**, in this order:
 
 1. **Header**: the version, the date, and the commit range audited.
 2. **Dependency triage**: one row per finding from step 1: advisory ID, package, and the answer
@@ -45,8 +42,7 @@ The scheduled scan does, once its schedule is restored
 ([going-public.md §3](going-public.md#3-restore-the-scheduled-scan)); this run is the one a person
 reads.
 
-**Every finding is triaged before the milestone closes.** Triage means one of three answers,
-written into the audit file's dependency-triage table:
+**Triage every finding.** Triage means one of three answers:
 
 - upgraded, with the commit;
 - no fix published, recorded with the advisory ID and what the exposure actually is;
@@ -114,8 +110,8 @@ it is how the audit notices the day it starts to exist.
 >    run on the commits it needs to run on (including commits that only delete files)? What is not
 >    checked at all?
 > 2. **Docs**: does `docs/features/**` describe the software that exists: configuration keys that
->    are read, endpoints that are served, screens that are rendered? Is `docs/STATUS.md` accurate?
->    Does `AGENTS.md` describe the current tree?
+>    are read, endpoints that are served, screens that are rendered? Does `AGENTS.md` describe
+>    the current tree?
 > 3. **Accuracy evidence**: does `docs/engineering/harness-runs/` hold a floor and ceiling run for
 >    every release, and do the CI-tier reports of the last month show a profile drifting towards
 >    its tolerance?

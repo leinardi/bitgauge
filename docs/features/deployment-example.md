@@ -139,7 +139,7 @@ labels:
 
 - The image is published for linux/amd64 and linux/arm64. On a Raspberry Pi, use a **64-bit OS**;
   arm64 covers Raspberry Pi 3, 3B+, 4, 5 and Zero 2 W. 32-bit (armv7) images are not published; a
-  later armv7 build is on the roadmap ([roadmap.md](roadmap.md)).
+  later armv7 build is listed under [Later](README.md#later-and-open-items).
 - The Pi itself can be the bottleneck. The Pi 3B has 100 Mbit/s Ethernet; the Pi 3B+ has Gigabit
   Ethernet behind USB 2.0 (roughly 300 Mbit/s in practice); the Zero 2 W has only Wi-Fi; the Pi 4
   and 5 have full Gigabit Ethernet. A test against a Pi measures the path to the Pi, including its

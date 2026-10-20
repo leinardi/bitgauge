@@ -21,8 +21,7 @@ exactly, from its documented behavior, and never bends the native API or the eng
 Every layer is off by default, has exactly one toggle, and answers the plain `404` of an unmatched
 path when disabled.
 
-`internal/handlers` and the three packages under `internal/compat/` exist
-([STATUS.md](../../../docs/STATUS.md)).
+`internal/handlers` and the three packages under `internal/compat/` exist.
 
 This skill owns what is specific to the wire. It links instead of repeating:
 

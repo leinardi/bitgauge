@@ -76,7 +76,7 @@ excerpt:
 - **spec**: `docs/features/`, `ui/` above all (`says: "silent"` when it says nothing);
 - **kit**: `docs/design_system/ui_kits/app/`, and the export's tokens and component contracts;
 - **vue**: `web/src/`;
-- for a `feature` conflict, `docs/STATUS.md`, which says whether Vue has the feature at all.
+- for a `feature` conflict, the spec and `web/src/`, which say whether Vue has the feature at all.
 
 ## Decide
 

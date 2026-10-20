@@ -103,8 +103,7 @@ runs taken just before and just after the browser run on a stable profile
 
 ## Related
 
-- [Summary](summary.md)
 - [Guiding principles](principles.md)
 - [Measurement methodology](measurement.md)
 - [Prior-art summary](../research/prior-art-summary.md)
-- [Roadmap](roadmap.md)
+- [Later and open items](README.md#later-and-open-items)

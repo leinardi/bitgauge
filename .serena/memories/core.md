@@ -3,7 +3,7 @@
 Self-hosted browser speed test: one stateless Go binary embedding a Vue SPA; the measurement engine
 runs in the browser (Web Worker). **Specification approved 2026-10-12; implemented, not yet
 released.** The product, tooling, meta-tests, CI, the harness and the demo
-build exist. Per-feature status: `docs/STATUS.md` (check it before assuming a feature exists).
+build exist.
 
 ## Source map
 
@@ -47,8 +47,8 @@ test/internal/            testenv (docker CLI envs, labels, sweep), netguard (nf
 
 `docs/features/` is the contract. Key files: `measurement.md` (engine rules), `wire-protocol.md`
 (native API, error envelope, upload JSON), `compatibility.md`, `configuration.md`, `security.md`,
-`architecture.md`, `technical-stack/{decisions,testing,build-packaging,frontend,backend}.md`,
-`open-questions.md`, `roadmap.md`. `docs/release.md` covers releases.
+`architecture.md`, `technical-stack/{decisions,testing,build-packaging,frontend,backend}.md`; open
+items in `docs/features/README.md`. `docs/release.md` covers releases.
 `docs/features/{product.md,principles.md,measurement.md,ui/}` are SYMLINKS into
 `docs/design_system/features/` (rules: docs/README.md "Design Export"); never hand-edit the rest of
 the export.

@@ -10,7 +10,7 @@ contract, and nothing here constrains the product.
 | [`design-system-upstream.md`](design-system-upstream.md) | The notes to paste into the Claude Design project for changes the parity triage decided the design export needs, since the export is never edited here |
 | [`going-public.md`](going-public.md) | The checklist for the day the repository stops being private: revising the release model, required checks and rulesets, the scheduled scan's schedule, fork pull requests and the `dhi.io` images, and the license check |
 | [`harness-runs/`](harness-runs/README.md) | One file per release, `<version>.md`, holding that release's floor and ceiling results (the harness's `report.md` from `dist/harness/`, committed by the maintainer), the real Safari and iOS checks, and the environmental notes, as required before tagging ([testing.md §5.1](../features/technical-stack/testing.md#51-implementation), [accuracy-harness.md §5](accuracy-harness.md#5-record-the-results)); the first is `0.1.0.md` |
-| [`health-audit.md`](health-audit.md) | Rerun every milestone: the dependency scan and its triage, the review prompts, the metrics that only mean something compared with the previous run, and the refresh of the harness image digests |
+| [`health-audit.md`](health-audit.md) | Optional, before a release: the dependency scan and its triage, the review prompts, the metrics that only mean something compared with the previous run, and the refresh of the harness image digests |
 
 ## Planned Notes
 

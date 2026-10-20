@@ -250,14 +250,12 @@ effective settings are the URL parameters over the stored settings over the serv
   the others.
 - **Phases:** toggles for idle latency, download, upload (at least one stays on), and the order of
   download and upload; for Continuous, the idle-latency toggle and the one direction it runs,
-  download by default (current answer to an item in [../open-questions.md](../open-questions.md)),
-  stored as `continuousDirection` only when the user picks upload or picks download over another
-  stored value.
+  download by default, stored as `continuousDirection` only when the user picks upload or picks
+  download over another stored value.
 - **Streams:** auto, fixed (1–6), single.
 - **Duration:** minimum and maximum per direction in whole seconds, 5–600 s, the minimum at most
   the maximum (defaults from the preset; "custom" when edited, and kept with no question when
-  another preset is chosen, current answer to an item in
-  [../open-questions.md](../open-questions.md)); for Continuous, in place of the durations, an
+  another preset is chosen); for Continuous, in place of the durations, an
   optional **run length**, as the design export's kit draws it: a switch, then a number and a
   minutes, hours or days select. Off by default, meaning none; switched on, the number starts empty
   and the select at hours, and a value is a whole number of its unit from 1 minute to 7 days.

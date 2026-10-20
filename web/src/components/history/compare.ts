@@ -26,7 +26,7 @@ import type { Bufferbloat, Direction, DirectionResult, Responsiveness, Result, S
 import { formatBytes, formatDuration, formatLatency, formatPercent, formatRate, rpmNumber } from '@/lib/format'
 import { protocolLabel } from '@/lib/protocol'
 
-// Compare two results (ui/screens.md section 3, ui/flows.md section 6, open-questions.md 51): the
+// Compare two results (ui/screens.md section 3, ui/flows.md section 6): the
 // older by start is A and the newer B, and each change is B's against A. A rate within ±2 % of A's
 // and a latency within 1 ms of A's read "same"; grades compare by their order, A+ best; any other
 // difference is better or worse. A metric absent on either side is not comparable. Probe timeouts,

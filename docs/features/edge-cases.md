@@ -49,8 +49,7 @@ speaks HTTP/1.1 to the proxy.
 records it. On HTTP/1.1 with the WebSocket unavailable, the HTTP latency fallback reserves one
 connection and caps streams at 5; path B (HTTP loaded responsiveness) is `unavailable_h1`. On HTTP/2
 and HTTP/3, path B runs and transient upload failures leave failure gaps instead of ending the phase
-(the current answer to an item in [open-questions.md](open-questions.md);
-[measurement.md §7.5](measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark)).
+([measurement.md §7.5](measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark)).
 
 **User sees.** The protocol in the connection info and in every result; "needs HTTP/2 or HTTP/3 at
 the reverse proxy" where path B is unavailable. How the protocol changes throughput is §12.

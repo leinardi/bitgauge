@@ -59,8 +59,7 @@ When a page will not fit, that is the design telling you which of §3's pieces i
 ## 3. Pages are thin, composables first
 
 Pages orchestrate data and layout; components render; composables hold stateful UI logic; `api/`
-talks to the server; `engine/` measures, and nothing else does
-([ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md#conventions)).
+talks to the server; `engine/` measures, and nothing else does.
 
 | Concern | Where it goes | Examples |
 | --- | --- | --- |

@@ -5,10 +5,9 @@
 BitGauge is one Go binary that serves an embedded Vue SPA and a small HTTP API. All measuring
 happens in the browser, in a framework-free engine running in a Web Worker; the server streams,
 drains, echoes and describes itself. This page shows how the pieces fit. The stack is in
-[technical-stack/stack.md](technical-stack/stack.md); endpoint contracts are in
+[technical-stack/](technical-stack/README.md); endpoint contracts are in
 [wire-protocol.md](wire-protocol.md); the methodology is in [measurement.md](measurement.md). The
-packages and paths named here exist; [`../STATUS.md`](../STATUS.md) gives the status per feature
-area.
+package map is [technical-stack/backend.md §1](technical-stack/backend.md#1-package-map).
 
 ## 1. One Binary
 
@@ -337,7 +336,7 @@ to stdout, never to a file).
 ## 7. History Storage in the Browser
 
 - History lives in IndexedDB, through the `idb` wrapper, in one database per origin
-  (`bitgauge`, planned object store `results` keyed by result `id`, indexed by `startedAt` and
+  (`bitgauge`, object store `results` keyed by result `id`, indexed by `startedAt` and
   `label`).
 - Records are the versioned result object; the schema version is stored per record and migrated
   forward on read or import ([measurement.md §17](measurement.md#17-result-object)).
@@ -365,38 +364,6 @@ router (base_path)
  └─ metrics.Handler()       if metrics.enabled, at metrics.path
 ```
 
-## 9. Planned Package Layout
-
-The Go side follows Runhold's conventions: one command, everything else under `internal/`, small
-packages with one job each. The SPA lives in `web/`, whose Go file embeds the build output. Details
-per package are in [technical-stack/backend.md](technical-stack/backend.md) and
-[technical-stack/frontend.md](technical-stack/frontend.md).
-
-```text
-cmd/bitgauge/                 main: serve (default) and healthcheck subcommands
-internal/
-  buildinfo/                  version, commit, build date (ldflags)
-  config/                     koanf loading, defaults, fail-closed validation
-  logger/                     small slog wrapper (text/json, level)
-  server/                     http.Server, middleware chain, router assembly, graceful shutdown
-  handlers/                   native API: download, upload (grid counting), ping, small, ws, info
-  clientip/                   trusted-proxy client IP derivation
-  ratelimit/                  bounded per-IP limiter
-  metrics/                    Prometheus collectors
-  compat/
-    openspeedtest/            /downloading, /upload
-    librespeed/               /garbage, /empty, /getIP, variants, server list
-    nq/                       /nq/*, /.well-known/nq
-api/
-  openapi.yaml                native API contract
-web/
-  embed.go                    //go:embed of dist/, index.html templating
-  src/
-    engine/                   framework-free measurement engine (Worker)
-    api/                      generated OpenAPI types, fetch helpers
-    components/  components/ui/  composables/  pages/  router/  i18n/  history/  styles/
-```
-
 ## Related
 
 - [Measurement methodology](measurement.md)
@@ -404,5 +371,5 @@ web/
 - [Compatibility layers](compatibility.md)
 - [Security model](security.md)
 - [Technical stack](technical-stack/README.md)
-- [Backend design](technical-stack/backend.md)
+- [Backend design and package map](technical-stack/backend.md)
 - [Frontend design](technical-stack/frontend.md)

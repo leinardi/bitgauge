@@ -104,7 +104,7 @@ wall-clock time (`ping -D`).
   `protocol` `h2` and an RPM (which of the two is recorded, not judged: a Standard download window
   there holds fewer than 10 probes, each taking about 300 to 340 ms on the loaded connection), on
   `ci-100m-50ms-traefik-h1` `unavailable_h1`; every other profile records it unjudged
-  (testing.md §5, open question 63).
+  (testing.md §5).
 - **Compatibility clients** (`ci-100m-50ms-caddy-h2` only): `librespeed-cli`,
   `goresponsiveness` and the OpenSpeedTest UI, each with its download and upload (and the RPM for
   `goresponsiveness`). Each must finish without an error with non-zero numbers, which follow the

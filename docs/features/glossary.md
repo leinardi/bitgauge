@@ -76,10 +76,8 @@ open for good (and ends the phase, §7.5). Open requests bound the confirmed wat
 
 **Failure gap.** The bounded server-timeline range `[lb(u), ub(u))` in which an ended, unconfirmed
 upload request may have delivered bytes, known once a request sent after it has been confirmed.
-Failure gaps exist only on HTTP/2 and HTTP/3; on HTTP/1.1 no upper bound is defined (the current
-answer to an open question, [open-questions.md](open-questions.md)).
-Cells overlapping a failure gap are excluded from every statistic; the series continues after it
-(§7.5).
+Failure gaps exist only on HTTP/2 and HTTP/3; on HTTP/1.1 no upper bound is defined. Cells
+overlapping a failure gap are excluded from every statistic; the series continues after it (§7.5).
 
 **Window end.** `W_end = min(C, M_end_so_far)`: the end of the confirmed prefix of the upload
 series. Every cell ending at or before `W_end` that overlaps no failure gap is confirmed. After the
@@ -208,4 +206,3 @@ default and enabled by one toggle (see [compatibility.md](compatibility.md)).
 - [Measurement methodology](measurement.md)
 - [Wire protocol](wire-protocol.md)
 - [Compatibility layers](compatibility.md)
-- [Summary](summary.md)

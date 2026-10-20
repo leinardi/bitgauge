@@ -36,8 +36,7 @@ decision is
 
 The approved specification is the contract the engine implements, and a change in behavior starts
 as a docs change; code follows the docs, and when they disagree the docs win
-([AGENTS.md](../../../AGENTS.md), "Project rules";
-[ai-guidelines.md](../../../docs/features/technical-stack/ai-guidelines.md)). For the engine that
+([AGENTS.md](../../../AGENTS.md), "Project rules"). For the engine that
 means:
 
 1. Change the rule in measurement.md first, including the defaults table at its top when a default
@@ -46,12 +45,9 @@ means:
    decisions.md wins on technical choices.
 2. Run the docs validation from AGENTS.md: numbers, probe-path names and the upload JSON shape
    still agree across measurement.md, wire-protocol.md, configuration.md, `ui/` and glossary.md.
-3. Some rules are "the current answer to an item tracked in open-questions.md" (Continuous running
-   one direction, §8.5 and §15); changing one means revisiting that item in
-   [open-questions.md](../../../docs/features/open-questions.md). Info not being skippable (§1) is
-   locked as decisions.md §34. The upload grace (§5), the failure gaps and the HTTP/1.1 rule (§7.5)
-   were confirmed with harness evidence on 2026-10-16 and sit under its "Resolved and removed";
-   changing one reopens it as a new question with new evidence.
+3. Info not being skippable (§1) is locked as decisions.md §34. The upload grace (§5), the failure
+   gaps and the HTTP/1.1 rule (§7.5) were confirmed with harness evidence on 2026-10-16; changing
+   one needs new evidence.
 4. [testing.md §2](../../../docs/features/technical-stack/testing.md#2-engine-tests-with-synthetic-timelines)
    quotes the worked examples' numbers and the §19.1 budget tables; a change that moves them updates
    those scenarios.
@@ -269,7 +265,7 @@ No fudge factors, no hidden smoothing, no number without the qualifiers the meth
 
 ## Checklist
 
-- [ ] The rule changed in measurement.md first; cross-page numbers, open questions and testing.md §2
+- [ ] The rule changed in measurement.md first; cross-page numbers and testing.md §2
       updated with it
 - [ ] Engine imports only `@/engine/...` and `@/api/types.gen`; no `../`
 - [ ] No banned global outside `clock.ts`, `transport.ts` and `worker.ts`; time and I/O through

@@ -768,8 +768,7 @@ requests per stream have confirmed, and the window condition holds at ≈ 7–8 
 follow-up requests confirm. Quick then reports an upload number with `confidence: low`
 (`insufficient-samples`); the UI suggests Standard for links this slow. Continuous runs one
 throughput direction until stopped, until the data cap is reached or until an optional run length
-elapses (§15), with a 10 s absolute warm-up cap (§8.3, §15); running a single direction is the
-current answer to an item tracked in [open-questions.md](open-questions.md).
+elapses (§15), with a 10 s absolute warm-up cap (§8.3, §15).
 
 **Continuous settings.** A Continuous run resolves to one direction, `continuousDirection`
 (`download` by default, or `upload`), and an optional `runLengthMs` from 60 s to 7 days
@@ -1127,9 +1126,8 @@ the HTTP/2 connection that carries the load.
 `measured` still carries the "not verifiable" qualifier; it only says the observable preconditions
 held.
 
-The state names keep the snake_case spelling above, an explicit exception to the kebab-case codes
-of [open-questions.md](open-questions.md) item 11: they are states of a result field, not notice
-codes, and no notice carries them.
+The state names keep the snake_case spelling above, an explicit exception to the kebab-case notice
+codes: they are states of a result field, not notice codes, and no notice carries them.
 
 ### 12.5 Formula
 
@@ -1292,12 +1290,11 @@ Every result carries `scores: {basis, packetLoss: "not-measured", streaming, gam
 
 ## 15. Continuous Mode
 
-Continuous mode runs one throughput direction, `continuousDirection` (the current answer to an item
-tracked in [open-questions.md](open-questions.md); settings in §8.5), with the Standard ramp, no
-maximum and a 10 s absolute warm-up cap, until the user stops it, the data cap is reached, or an
-optional run length (the `duration` URL parameter or the Settings run-length field,
-[ui/url-params.md](ui/url-params.md)) elapses. A run without a run length may go on past 7 days.
-It shows live min, average and max.
+Continuous mode runs one throughput direction, `continuousDirection` (settings in §8.5), with the
+Standard ramp, no maximum and a 10 s absolute warm-up cap, until the user stops it, the data cap is
+reached, or an optional run length (the `duration` URL parameter or the Settings run-length field,
+[ui/url-params.md](ui/url-params.md)) elapses. A run without a run length may go on past 7 days. It
+shows live min, average and max.
 
 **Run length.** The run length counts from the direction's phase start on the client clock, the
 same instant `continuous.elapsedMs` counts from, so idle latency is not part of it. When it
@@ -1662,8 +1659,8 @@ server (Cloudflare's approach).
 It is deferred because it needs UDP ports and a TURN server: a second network surface beside the
 reverse proxy, which breaks the single-binary, proxy-only-TLS deployment model. Until then the
 result reserves a "packet loss — not measured" slot, the AIM scores fix loss at 0 points (§13.4),
-and the probe-timeout percentage of §10 is never presented as packet loss. The roadmap lists it
-under Later ([roadmap.md](roadmap.md)).
+and the probe-timeout percentage of §10 is never presented as packet loss. It is listed under
+[Later](README.md#later-and-open-items).
 
 ## 19. Worked Timelines
 

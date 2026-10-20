@@ -65,7 +65,7 @@ compat:                           # all layers are off by default
     enabled: false
   networkquality:
     enabled: false
-    max_upload_bytes: 1GiB        # separate drain limit for /nq/upload (open question)
+    max_upload_bytes: 1GiB        # separate drain limit for /nq/upload
     max_flows_per_client: 32      # concurrent /nq/large + /nq/upload per client IP
 
 log:
@@ -111,7 +111,7 @@ Only variables containing `__` are read as configuration; other `BITGAUGE_*` var
 | `limits.max_streams_per_client` | `BITGAUGE_LIMITS__MAX_STREAMS_PER_CLIENT` | `8` | 1–64. Concurrent throughput requests per client IP. |
 | `limits.requests_per_minute` | `BITGAUGE_LIMITS__REQUESTS_PER_MINUTE` | `1200` | 60–100000. New throughput requests per client IP per minute. |
 | `limits.tracked_clients` | `BITGAUGE_LIMITS__TRACKED_CLIENTS` | `4096` | 16–1000000. Size of the rate-limit table; the least recently seen idle entry is evicted, and a new client is refused with `429` when every entry is active ([technical-stack/configuration-security.md](technical-stack/configuration-security.md)). |
-| `compat.networkquality.max_upload_bytes` | `BITGAUGE_COMPAT__NETWORKQUALITY__MAX_UPLOAD_BYTES` | `1GiB` | 1 MiB–64 GiB. Drain limit for `/nq/upload`; the default is an open question ([open-questions.md](open-questions.md)). |
+| `compat.networkquality.max_upload_bytes` | `BITGAUGE_COMPAT__NETWORKQUALITY__MAX_UPLOAD_BYTES` | `1GiB` | 1 MiB–64 GiB. Drain limit for `/nq/upload`; the default is still open ([README.md](README.md#later-and-open-items)). |
 | `compat.networkquality.max_flows_per_client` | `BITGAUGE_COMPAT__NETWORKQUALITY__MAX_FLOWS_PER_CLIENT` | `32` | 1–256. Concurrent `/nq/large` and `/nq/upload` per client IP. |
 
 The WebSocket limit (4 per client IP) and the 120 s upload lifetime are fixed, not configurable
