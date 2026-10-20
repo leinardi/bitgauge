@@ -12,12 +12,11 @@ change Traefik's `ipv4_address` and `BITGAUGE_SERVER__TRUSTED_PROXIES` to match 
 
 Before starting it, replace `speed.example.lan` in `compose.yaml` with the name the clients use, and
 give Traefik a certificate for it (a certificate resolver, or a certificate in
-`traefik-dynamic.yaml`). The `networkQuality` toggle is on: v0.3 ships the layer, which builds its
-`https` URLs from `public_url`; a release before v0.3 rejects the toggle at startup, so drop it
-there. Without that layer the two `tls.options` labels are optional, dropped together. The metrics
-toggle stays commented out until v0.2 is released, because v0.1 rejects it at startup; the proxy
-already lets only the Prometheus server, `192.168.1.20` here, read `/metrics`, so change that
-address to yours.
+`traefik-dynamic.yaml`). The `networkQuality` toggle is on: the layer builds its `https` URLs from
+`public_url`. Without that layer the two `tls.options` labels are optional, dropped together. The
+metrics toggle is commented out, since the endpoint is off by default; the proxy already lets only
+the Prometheus server, `192.168.1.20` here, read `/metrics`, so change that address to yours before
+uncommenting it.
 
 `compose.yaml` and `traefik-dynamic.yaml` are the files of
 [deployment-example.md §2](../../../docs/features/deployment-example.md#2-compose-with-traefik),

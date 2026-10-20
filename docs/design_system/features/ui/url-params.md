@@ -10,10 +10,8 @@ apply to the page load they appear on; they are not stored unless the user saves
 - **Precedence:** URL parameters > settings stored in this browser > server defaults from
   `GET /api/v1/info` ([../configuration.md §2.3](../configuration.md#23-test-defaults)). The
   stored settings are the ones the user set on the Settings screen, kept under
-  `bitgauge.settings.v1` ([screens.md §4](screens.md#4-settings--settings)); v0.1 stores no test
-  settings, so there the URL parameters apply over the server defaults
-  ([screens.md §1](screens.md#1-test-home--)). A stored Auto-start that is on counts as `run=1` on
-  every load; `run=0` in the URL wins for that load.
+  `bitgauge.settings.v1` ([screens.md §4](screens.md#4-settings--settings)). A stored Auto-start
+  that is on counts as `run=1` on every load; `run=0` in the URL wins for that load.
 - Parameter names are matched case-insensitively (`Run=1` works); canonical names are lowercase.
   Values are case-insensitive for enums and for the units of `cap`. When a name appears more than
   once, its first occurrence counts.
@@ -26,9 +24,8 @@ apply to the page load they appear on; they are not stored unless the user saves
   A value is invalid when it is outside the table below or outside the ranges of
   [../configuration.md §2.3](../configuration.md#23-test-defaults): a `cap` below 1 MiB, or a
   fixed `streams` count above the server's `streams.max`. `run` accepts only the values its row
-  lists. Before v0.3, `preset=continuous` is invalid, since Continuous is a v0.3 preset. From v0.3,
-  `duration` is checked against the range of the **resolved** preset, the URL's `preset`, else the
-  stored one, else the server's: 5–600 s for a bounded preset, 60–604800 s for Continuous.
+  lists. `duration` is checked against the range of the **resolved** preset, the URL's `preset`,
+  else the stored one, else the server's: 5–600 s for a bounded preset, 60–604800 s for Continuous.
 - The page hands the settings parameters to the engine with its configuration, so every run of
   the page load uses them, and the engine resolves a `preset` there with its durations, ping count
   and stream mode ([../architecture.md §4](../architecture.md#4-engine--ui-message-contract)).

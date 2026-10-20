@@ -28,9 +28,9 @@ services:
       BITGAUGE_SERVER__DISPLAY_NAME: home
       BITGAUGE_SERVER__PUBLIC_URL: https://speed.example.lan
       BITGAUGE_SERVER__TRUSTED_PROXIES: 172.30.0.2/32
-      # From v0.3, which ships the networkQuality layer; an earlier release rejects it and exits 2.
+      # Serves Apple's networkQuality client; it needs the https public_url above.
       BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
-      # From v0.2, which ships the Prometheus endpoint; v0.1 rejects the toggle and exits 2.
+      # Uncomment to serve /metrics.
       # The proxy lets only the Prometheus server read /metrics.
       # BITGAUGE_METRICS__ENABLED: "true"
     healthcheck:

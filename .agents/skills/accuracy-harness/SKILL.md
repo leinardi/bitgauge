@@ -53,7 +53,7 @@ The gate is met when all of these hold, its `After` gates' included:
   object" and "UI: Test screen" no longer read `Spec'd`, and `docs/features/ui/screens.md` still
   holds the text `**Download JSON** of the finished result`, the extraction path that
   `web/harness/run.spec.ts` clicks
-  ([decisions.md §36](../../../docs/features/technical-stack/decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen)).
+  ([decisions.md §36](../../../docs/features/technical-stack/decisions.md#36-harness-extraction--download-json-on-the-test-screen)).
 
 Activation is all-or-nothing. Once the gate is met, `ci.yaml` needs the `harness` job, `ci-result`
 needs it, and `.github/workflows/harness.yaml` exists; while dormant, none of them may exist. The

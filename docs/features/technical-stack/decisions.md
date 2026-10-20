@@ -17,7 +17,7 @@
 
 ## Locked Technical Decisions
 
-Decided before v0.1 implementation starts.
+Decided before the implementation started.
 
 ### 1. Delivery — One Go 1.26 binary with the SPA embedded
 
@@ -301,88 +301,89 @@ specification on 2026-10-12; the loss term added by the maintainer on 2026-10-16
 
 **Not chosen:** iperf3 concurrently with the browser (the two would split the link).
 
-### 36. v0.1 harness extraction — Download JSON on the Test screen
+### 36. Harness extraction — Download JSON on the Test screen
 
-The accuracy harness reads a v0.1 result through the Test screen's single-result Download JSON
+The accuracy harness reads a result through the Test screen's single-result Download JSON
 action, a real user path, with no test-only hook
 ([ui/screens.md §1](../ui/screens.md#1-test-home--)). Decided by the maintainer's approval of the
 specification on 2026-10-12.
 
 **Not chosen:** a machine-readable result element on the Test screen (a test-only surface);
-deferring the harness CI tier to v0.2 (v0.1 would ship without automated accuracy evidence).
+deferring the harness CI tier to a later release (the first one would ship without automated
+accuracy evidence).
 
 ## Open Technical Decisions
 
 Each item is tracked, with a recommendation, in [open-questions.md](../open-questions.md).
 
-| # | Decision | Milestone |
-| --- | --- | --- |
-| 1 | Default drain limit for `/nq/upload` (`compat.networkquality.max_upload_bytes`, currently 1 GiB) | v0.3 |
-| 2 | Configurable subnet-to-label mapping for the LAN/VPN context label, as `server.labels` | v0.2 |
-| 3 | Continuous mode runs a single direction | v0.3 |
-| 4 | Unshipped-feature toggles rejected with their milestone, none left in v0.3; empty duration bounds checked as the preset's value | v0.1 |
-| 5 | `too_many_streams` as the `429` code of the WebSocket and networkQuality flow limits | v0.1 |
-| 6 | A fixed warm-up in `GET /info` as whole milliseconds | v0.1 |
-| 7 | Download allocates only the `Content-Length` header value and its slice per request | v0.1 |
-| 8 | `bytes_out_of_range` for a zero or negative download `bytes` | v0.1 |
-| 9 | An empty upload body answers `200` with empty telemetry timed at handler entry | v0.1 |
-| 10 | Linear-interpolation percentiles and a population coefficient of variation over known buckets | v0.1 |
-| 11 | Kebab-case notice codes and the five engine error codes | v0.1 |
-| 12 | An upload request counts toward the three-request minimum only when all its cells are in the window | v0.1 |
-| 13 | Ramp intervals in whole buckets, the upload trial anchored at the added streams' first bytes | v0.1 |
-| 14 | Slow-link budgets recomputed on a shared link with per-request RTT gaps | v0.1 |
-| 15 | Warm-up conditions read bucket by bucket on known buckets, measured from the series start | v0.1 |
-| 16 | Settings overrides and preset switches resolved in the engine; idle-latency warm-up and fallback edge cases | v0.1 |
-| 17 | The `stream-limit` notice for a `429`; failure counting, the data-cap budget and end instant, the reported protocol, late chunks; §19.2 at its goodput and §19.3 recomputed | v0.1 |
-| 18 | Upload bounds on the client clock, the grace without a known rate, immediate aborts, telemetry checks; §19.4 recomputed with a per-request ceiling | v0.1 |
-| 19 | The `network` command, the browser identity from the transport, and the run sequence's skips, samples, pauses and run-imposed errors | v0.1 |
-| 20 | The v0.1 result field set with later fields absent, the timer resolution and isolation in `client`, `validateResult` as the one runtime function of `engine/messages.ts` | v0.1 |
-| 21 | The Worker's message loop with one run at a time; busy time, timer resolution, timing-entry lookup and user-agent table of the browser wiring | v0.1 |
-| 22 | The dist URL allowlist: the SVG, XLink and MathML namespaces, the GNU licenses URL, the Tailwind license comment, Vue's console error reference and the project repository; clicked links are not calls | v0.1 |
-| 23 | The engine Worker chunk budget, 128 KiB minified, in `.chunk-budget` | v0.1 |
-| 24 | v0.1 without a Settings screen: Test and About navigation, placeholder pages, server defaults plus URL parameters, the About screen before v0.3 | v0.1 |
-| 25 | The design export's root assets served from the base path as an explicit file list | v0.1 |
-| 26 | The v0.1 SPA shell: per-screen locale files, the header's reachability and theme button, the Worker configured from the server defaults, the engine type-checked on its own | v0.1 |
-| 27 | Before a run: info on load and on Retry, the connection info's placeholders and label choices, the settings summary's line and chips, the base-path check before rendering, the About screen's repository links and no credits | v0.1 |
-| 28 | `index.html` rendered once with absolute asset URLs under the base path; an incomplete embedded SPA exits 1 after configuration and route checks | v0.1 |
-| 29 | A release recovery selects the recorded toolchains in a script after the setup actions; a tag without recorded versions warns; a dry run rehearses a fresh release only | v0.1 |
-| 30 | The UI reads a run's end from the event order; an engine defect ends the run as `test failed`; the wake lock is requested again when the page becomes visible | v0.1 |
-| 31 | Rates keep three significant digits with their trailing zeros; the gauge caption's round scale ends drop them | v0.1 |
-| 32 | Upload `sample`s carry P_start and their own instant on the server grid, and every `sample` the warm-up end, for the live chart | v0.1 |
-| 33 | Rates scale to the largest unit whose number is at least 1, from kbit/s up to Gbit/s; every v0.1 notice has a tone | v0.1 |
-| 34 | The Download JSON file is named after the result's local start time, `exportedAt` is the download moment, and an invalid result is never exported | v0.1 |
-| 35 | An `idle` event per ping feeds the idle-latency gauge, counter and median; a stopped direction names its window end, the notice its steady window; errors are worded by `errors.<code>` | v0.1 |
-| 36 | URL parameters go to the engine with `configure`, resolved and answered with a `settings` event; ignored ones travel with each `start` as notices; the countdown waits for the answer | v0.1 |
-| 37 | The harness evaluator judges each run pass, fail or inconclusive; a pass needs a complete result with both headlines; untabled rates fail; only a pass lets the tier pass, an unshaped debugging run included | v0.1 |
-| 38 | A finished direction's `phase` event carries its headline for the live region; spoken numbers use the visual scale with long unit names; the v0.1 result summary and a skip link | v0.1 |
-| 39 | The ramp's `I_m` spans a request cycle over 10 ms of RTT and is 100 RTT below it, at least 500 ms and 2 RTT | v0.1 |
-| 40 | The harness's iperf3 runs settle, then take the receiver's median interval; the shaper queue is an 80 ms fq_codel; a failing verdict keeps its environment | v0.1 |
-| 41 | E2E runs in parallel against one binary with a per-client stream limit of 64, own binaries for the base path and a stopped server, axe WCAG 2.2 AA after transitions | v0.1 |
-| 42 | The demo build runs the engine through its own Worker entry against a seeded simulated link, one scenario per v0.1 kit state; its Worker-side files follow the engine's import policy plus `@/demo/` | v0.1 |
-| 43 | The demo panel reloads the page to apply a scenario; the page reaches the demo only through dynamic imports behind `VITE_DEMO`, the demo Worker's constructor in a demo module, and the build step fails a dist holding a demo sentinel | v0.1 |
-| 44 | The deployment examples show a setting of a later release commented out with that release, and every shipped compose file's BitGauge environment loads and validates with no problem | v0.1 |
-| 45 | Prometheus endpoint details: an aborts counter, the route owner as `group`, `GET` only with plain `405` and `404`, promhttp negotiation without compression, a registry of its own, buckets up to 120 s, instrumentation always on | v0.2 |
-| 46 | `server.labels` as `{cidr, label}` entries, `cidr=label` items in the environment, masked unique CIDRs, the `display_name` label rule, longest prefix first, `suggestedLabel` up to 64 characters or `null` | v0.2 |
-| 47 | Loaded-latency shapes, reasons and sample minimum; the increase and grade only with an idle median; the series on the direction's timeline; no statistic over two sources; the reservation from the Info phase's protocol; the `probe-reservation` notice once | v0.2 |
-| 48 | The demo link's loaded delay per direction, rising with τ while requests are in flight, and its six-connection HTTP/1.1 link | v0.2 |
-| 49 | Sparse stored settings under `bitgauge.settings.v1` with the kit's ranges and a 2 MB cap floor; the shareable URL's order, `run`, `label`, `theme` and `lang`, and its "Not in the link" line; stored Auto-start as `run=1`; the preset table re-exported from `engine/messages.ts` | v0.2 |
-| 50 | RFC 4180 CSV with a formula guard; whole-file and per-record import rejection with a summary; immediate delete with an 8 s undo; no retention limit; filters in the query string; recent labels; list sort and keys; the Safari hint in the page; the export file names | v0.2 |
-| 51 | The unsaved in-memory result on the Result detail; loaded latency on each throughput chart's second axis and the table; Compare's ±2 %, 1 ms and grade-order wording; the Test screen's share dialog | v0.2 |
-| 52 | The 1200 × 630 dark-theme PNG share image with its qualifiers, fonts loaded first, and the copied summary as the same translated lines | v0.2 |
-| 53 | The harness judges each `websocket` or `http-h1-reserved` direction's increase against the ICMP ping increase within ±20 % or 5 ms and the grade against the larger ping increase of its basis, within one adjacent letter at a threshold; a missing loaded latency or grade fails; `http-h2` and `http-h3` are recorded unjudged; the ws-blocked profile is held to `http-h1-reserved` | v0.2 |
-| 54 | Edited durations are kept as "custom", with no question, when another preset is chosen | v0.2 |
-| 55 | An idle ping waits 50 ms after the previous answer as well as 100 ms after the previous send | v0.2 |
-| 56 | Compatibility wire details: the native envelope for every layer error, `405` with `Allow`, the `ckSize` rule, `/getIP` and `cors=true` edges, one absolute-URL builder over trusted forwarding headers, empty-body headers, length-less bodies up to the cap, the classifier group and the startup field | v0.3 |
-| 57 | Path B: state precedence with snake_case states, the sampling window from warm-up end, connect-field evidence, the result block, quantized `http_l`, a whole-number RPM | v0.3 |
-| 58 | Quality scores: `basis`, `{points, band}` or named missing inputs, inputs from the result's own numbers, present on every v0.3 result | v0.3 |
-| 59 | Continuous: one `continuousDirection` with an optional run length and `null` bounds, `measured` from 3 fully known 1 s cells else `insufficient-data` under `partial`, run-wide numbers from running sums, last-hour loaded latency, the last 64 path B probes | v0.3 |
-| 60 | Continuous `sample` fields `continuous`, `cells` and `notices`, exported ring lengths, the live chart's tier by elapsed time, the `data-used` notice | v0.3 |
-| 61 | The v0.3 demo: the Continuous scenarios with a fast-forward rate, a 921 Mbit/s fixture, path B controls and About layer switches | v0.3 |
-| 62 | v0.3 UI: Continuous settings and URL mapping, About snippets per layer, the summary's responsiveness and scores, the Result detail's TM95, 7-day and skipped lines, Compare rows, per-direction CSV columns, the share image, the Continuous live view and endings | v0.3 |
-| 63 | v0.3 harness rules: path B over h2 with an RPM (`measured` or `uncertain`, recorded) on the Caddy profile and `unavailable_h1` on the Traefik profile, the three compatibility clients on the Caddy profile, a manual one-hour Continuous heap check within 2 MiB | v0.3 |
-| 64 | v0.3 UI details after the export: the kit's run length control, the latest data-used notice live, the scores' basis in the summary, the Continuous chart's overlay rings, clipping and re-binning, bounded live rings, the demo panel's v0.3 controls | v0.3 |
-| 65 | Where a path B probe waits on a loaded HTTP/2 connection through Caddy | Unscheduled |
-| 66 | An upload's path B starts at the learned warm-up end, so a short probing span can leave Firefox too few samples | v0.3 |
+| # | Decision |
+| --- | --- |
+| 1 | Default drain limit for `/nq/upload` (`compat.networkquality.max_upload_bytes`, currently 1 GiB) |
+| 2 | Configurable subnet-to-label mapping for the LAN/VPN context label, as `server.labels` |
+| 3 | Continuous mode runs a single direction |
+| 4 | Toggles of features a release does not include rejected, naming the release that brings them; empty duration bounds checked as the preset's value |
+| 5 | `too_many_streams` as the `429` code of the WebSocket and networkQuality flow limits |
+| 6 | A fixed warm-up in `GET /info` as whole milliseconds |
+| 7 | Download allocates only the `Content-Length` header value and its slice per request |
+| 8 | `bytes_out_of_range` for a zero or negative download `bytes` |
+| 9 | An empty upload body answers `200` with empty telemetry timed at handler entry |
+| 10 | Linear-interpolation percentiles and a population coefficient of variation over known buckets |
+| 11 | Kebab-case notice codes and the five engine error codes |
+| 12 | An upload request counts toward the three-request minimum only when all its cells are in the window |
+| 13 | Ramp intervals in whole buckets, the upload trial anchored at the added streams' first bytes |
+| 14 | Slow-link budgets recomputed on a shared link with per-request RTT gaps |
+| 15 | Warm-up conditions read bucket by bucket on known buckets, measured from the series start |
+| 16 | Settings overrides and preset switches resolved in the engine; idle-latency warm-up and fallback edge cases |
+| 17 | The `stream-limit` notice for a `429`; failure counting, the data-cap budget and end instant, the reported protocol, late chunks; §19.2 at its goodput and §19.3 recomputed |
+| 18 | Upload bounds on the client clock, the grace without a known rate, immediate aborts, telemetry checks; §19.4 recomputed with a per-request ceiling |
+| 19 | The `network` command, the browser identity from the transport, and the run sequence's skips, samples, pauses and run-imposed errors |
+| 20 | The result field set with its optional fields absent rather than `null`, the timer resolution and isolation in `client`, `validateResult` as the one runtime function of `engine/messages.ts` |
+| 21 | The Worker's message loop with one run at a time; busy time, timer resolution, timing-entry lookup and user-agent table of the browser wiring |
+| 22 | The dist URL allowlist: the SVG, XLink and MathML namespaces, the GNU licenses URL, the Tailwind license comment, Vue's console error reference and the project repository; clicked links are not calls |
+| 23 | The engine Worker chunk budget, 128 KiB minified, in `.chunk-budget` |
+| 24 | Withdrawn |
+| 25 | The design export's root assets served from the base path as an explicit file list |
+| 26 | The SPA shell: per-screen locale files, the header's reachability and theme button, the Worker configured from the server defaults, the engine type-checked on its own |
+| 27 | Before a run: info on load and on Retry, the connection info's placeholders and label choices, the settings summary's line and chips, the base-path check before rendering, the About screen's repository links and no credits |
+| 28 | `index.html` rendered once with absolute asset URLs under the base path; an incomplete embedded SPA exits 1 after configuration and route checks |
+| 29 | A release recovery selects the recorded toolchains in a script after the setup actions; a tag without recorded versions warns; a dry run rehearses a fresh release only |
+| 30 | The UI reads a run's end from the event order; an engine defect ends the run as `test failed`; the wake lock is requested again when the page becomes visible |
+| 31 | Rates keep three significant digits with their trailing zeros; the gauge caption's round scale ends drop them |
+| 32 | Upload `sample`s carry P_start and their own instant on the server grid, and every `sample` the warm-up end, for the live chart |
+| 33 | Rates scale to the largest unit whose number is at least 1, from kbit/s up to Gbit/s; every notice has a tone |
+| 34 | The Download JSON file is named after the result's local start time, `exportedAt` is the download moment, and an invalid result is never exported |
+| 35 | An `idle` event per ping feeds the idle-latency gauge, counter and median; a stopped direction names its window end, the notice its steady window; errors are worded by `errors.<code>` |
+| 36 | URL parameters go to the engine with `configure`, resolved and answered with a `settings` event; ignored ones travel with each `start` as notices; the countdown waits for the answer |
+| 37 | The harness evaluator judges each run pass, fail or inconclusive; a pass needs a complete result with both headlines; untabled rates fail; only a pass lets the tier pass, an unshaped debugging run included |
+| 38 | A finished direction's `phase` event carries its headline for the live region; spoken numbers use the visual scale with long unit names; the result summary and a skip link |
+| 39 | The ramp's `I_m` spans a request cycle over 10 ms of RTT and is 100 RTT below it, at least 500 ms and 2 RTT |
+| 40 | The harness's iperf3 runs settle, then take the receiver's median interval; the shaper queue is an 80 ms fq_codel; a failing verdict keeps its environment |
+| 41 | E2E runs in parallel against one binary with a per-client stream limit of 64, own binaries for the base path and a stopped server, axe WCAG 2.2 AA after transitions |
+| 42 | The demo build runs the engine through its own Worker entry against a seeded simulated link, one scenario per kit state; its Worker-side files follow the engine's import policy plus `@/demo/` |
+| 43 | The demo panel reloads the page to apply a scenario; the page reaches the demo only through dynamic imports behind `VITE_DEMO`, the demo Worker's constructor in a demo module, and the build step fails a dist holding a demo sentinel |
+| 44 | The deployment examples show an opt-in setting commented out, and every shipped compose file's BitGauge environment loads and validates with no problem |
+| 45 | Prometheus endpoint details: an aborts counter, the route owner as `group`, `GET` only with plain `405` and `404`, promhttp negotiation without compression, a registry of its own, buckets up to 120 s, instrumentation always on |
+| 46 | `server.labels` as `{cidr, label}` entries, `cidr=label` items in the environment, masked unique CIDRs, the `display_name` label rule, longest prefix first, `suggestedLabel` up to 64 characters or `null` |
+| 47 | Loaded-latency shapes, reasons and sample minimum; the increase and grade only with an idle median; the series on the direction's timeline; no statistic over two sources; the reservation from the Info phase's protocol; the `probe-reservation` notice once |
+| 48 | The demo link's loaded delay per direction, rising with τ while requests are in flight, and its six-connection HTTP/1.1 link |
+| 49 | Sparse stored settings under `bitgauge.settings.v1` with the kit's ranges and a 2 MB cap floor; the shareable URL's order, `run`, `label`, `theme` and `lang`, and its "Not in the link" line; stored Auto-start as `run=1`; the preset table re-exported from `engine/messages.ts` |
+| 50 | RFC 4180 CSV with a formula guard; whole-file and per-record import rejection with a summary; immediate delete with an 8 s undo; no retention limit; filters in the query string; recent labels; list sort and keys; the Safari hint in the page; the export file names |
+| 51 | The unsaved in-memory result on the Result detail; loaded latency on each throughput chart's second axis and the table; Compare's ±2 %, 1 ms and grade-order wording; the Test screen's share dialog |
+| 52 | The 1200 × 630 dark-theme PNG share image with its qualifiers, fonts loaded first, and the copied summary as the same translated lines |
+| 53 | The harness judges each `websocket` or `http-h1-reserved` direction's increase against the ICMP ping increase within ±20 % or 5 ms and the grade against the larger ping increase of its basis, within one adjacent letter at a threshold; a missing loaded latency or grade fails; `http-h2` and `http-h3` are recorded unjudged; the ws-blocked profile is held to `http-h1-reserved` |
+| 54 | Edited durations are kept as "custom", with no question, when another preset is chosen |
+| 55 | An idle ping waits 50 ms after the previous answer as well as 100 ms after the previous send |
+| 56 | Compatibility wire details: the native envelope for every layer error, `405` with `Allow`, the `ckSize` rule, `/getIP` and `cors=true` edges, one absolute-URL builder over trusted forwarding headers, empty-body headers, length-less bodies up to the cap, the classifier group and the startup field |
+| 57 | Path B: state precedence with snake_case states, the sampling window from warm-up end, connect-field evidence, the result block, quantized `http_l`, a whole-number RPM |
+| 58 | Quality scores: `basis`, `{points, band}` or named missing inputs, inputs from the result's own numbers, present on every result |
+| 59 | Continuous: one `continuousDirection` with an optional run length and `null` bounds, `measured` from 3 fully known 1 s cells else `insufficient-data` under `partial`, run-wide numbers from running sums, last-hour loaded latency, the last 64 path B probes |
+| 60 | Continuous `sample` fields `continuous`, `cells` and `notices`, exported ring lengths, the live chart's tier by elapsed time, the `data-used` notice |
+| 61 | The demo's Continuous scenarios with a fast-forward rate, a 921 Mbit/s fixture, path B controls and About layer switches |
+| 62 | The UI's Continuous settings and URL mapping, About snippets per layer, the summary's responsiveness and scores, the Result detail's TM95, 7-day and skipped lines, Compare rows, per-direction CSV columns, the share image, the Continuous live view and endings |
+| 63 | Harness rules: path B over h2 with an RPM (`measured` or `uncertain`, recorded) on the Caddy profile and `unavailable_h1` on the Traefik profile, the three compatibility clients on the Caddy profile, a manual one-hour Continuous heap check within 2 MiB |
+| 64 | UI details after the export: the kit's run length control, the latest data-used notice live, the scores' basis in the summary, the Continuous chart's overlay rings, clipping and re-binning, bounded live rings, the demo panel's Continuous, responsiveness and About controls |
+| 65 | Where a path B probe waits on a loaded HTTP/2 connection through Caddy (unscheduled) |
+| 66 | An upload's path B starts at the learned warm-up end, so a short probing span can leave Firefox too few samples |
 
 ## Related
 

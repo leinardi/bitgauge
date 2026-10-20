@@ -53,11 +53,11 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
   rule lives in plain modules. Besides the types, `engine/messages.ts` has two runtime exports:
   `validateResult`, re-exported from `engine/result/validate.ts`, the structural check of the
   result object ([../measurement.md §17](../measurement.md#17-result-object)), so the application
-  validates a result before exporting it without importing engine internals; from v0.2
+  validates a result before exporting it without importing engine internals;
   `PRESETS`, re-exported from `engine/presets.ts`, the preset table of
   [../measurement.md §8.5](../measurement.md#85-presets), so the Settings screen states a preset's
   streams, durations and ping count and applies a stored preset as the engine resolves one; and
-  from v0.3 `RING_LENGTHS`, the Continuous retention rings' lengths (`native` 6000, `hour` 3600,
+  `RING_LENGTHS`, the Continuous retention rings' lengths (`native` 6000, `hour` 3600,
   `day` 1440, `long` 1008) of [../measurement.md §15](../measurement.md#15-continuous-mode), so
   the live chart keeps fixed rings of the same lengths.
 - **Synthetic clock injection.** The engine never calls `performance.now()`, `setTimeout`,
@@ -119,8 +119,8 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
 - The engine chunk has no dependency on Vue, Tailwind or component code. Its budget is
   **128 KiB minified**, enforced by the `chunk-size` step of `web.yaml`
   ([build-packaging.md §4](build-packaging.md#4-ci-workflows)); the number, in bytes, lives in
-  `.chunk-budget` and is lowered once the engine's real size is known. The v0.3 additions, the
-  path B prober, the quality scores and the Continuous retention, stay inside that budget.
+  `.chunk-budget` and is lowered once the engine's real size is known. The path B prober, the
+  quality scores and the Continuous retention stay inside that budget.
 - The application's chunks take from the engine only `engine/messages.ts`'s runtime exports
   (`validateResult`, `PRESETS` and `RING_LENGTHS`, §2); the measurement logic itself ships only in
   the Worker chunk.
@@ -131,7 +131,7 @@ Pages orchestrate, components render, composables hold state, `api/` talks to th
 | --- | --- | --- |
 | A running test (phases, buckets, streams, watermark, samples) | the engine | Worker memory, gone after `result` |
 | Live view of a run (gauge, chart series, notices, the Continuous live figures) | `useRun` | component memory, fed by `sample` and `phase` events; fixed-length rings, so a Continuous run's view does not grow with its length |
-| User settings | `useSettings` | `localStorage` key `bitgauge.settings.v1`: a sparse object holding only the fields the user set: `theme` and `lang`; `preset`, `phases`, `download` and `upload` (`{minMs, maxMs}`), `dataCapBytes`, `units`, `warmup` (`auto` or milliseconds), `pingCount` and `overheadCompensationPercent`, as the engine's settings hold them; from v0.3 `continuousDirection` (`download` or `upload`) and `runLengthS` (whole seconds, 60–604800; absent means no run length), which the URL's `test` and `duration` map onto under Continuous; `streams` as `{mode, fixed}` only, its maximum always the server's from `GET /info`; `autoStart` as `{enabled, countdownS}`; and `label`, the Settings screen's result label. A reset removes its field, and fields it does not know are kept as they are. The effective settings are the URL parameters over the stored fields over the server defaults ([../ui/url-params.md](../ui/url-params.md)). `useTheme` keeps writing `theme` there, as it did in v0.1, which had no Settings screen |
+| User settings | `useSettings` | `localStorage` key `bitgauge.settings.v1`: a sparse object holding only the fields the user set: `theme` and `lang`; `preset`, `phases`, `download` and `upload` (`{minMs, maxMs}`), `dataCapBytes`, `units`, `warmup` (`auto` or milliseconds), `pingCount` and `overheadCompensationPercent`, as the engine's settings hold them; `continuousDirection` (`download` or `upload`) and `runLengthS` (whole seconds, 60–604800; absent means no run length), which the URL's `test` and `duration` map onto under Continuous; `streams` as `{mode, fixed}` only, its maximum always the server's from `GET /info`; `autoStart` as `{enabled, countdownS}`; and `label`, the Settings screen's result label. A reset removes its field, and fields it does not know are kept as they are. The effective settings are the URL parameters over the stored fields over the server defaults ([../ui/url-params.md](../ui/url-params.md)). `useTheme` writes `theme` there as well |
 | Server defaults and info for display | `useInfo` | memory; `GET /info` fetched by the UI once for display and again on Retry, and by the engine at each start |
 | Result history | `useHistory` and `history/` | IndexedDB (§5) |
 
@@ -154,9 +154,9 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
   the same records back. Clear all has no undo.
 - **Export formats.**
   - JSON: `{ "format": "bitgauge.history", "formatVersion": 1, "exportedAt": "…", "results":
-    [ …result objects… ] }`, including series, client IPs and notes. The v0.1 Test screen's
-    single-result Download JSON uses the same format with one entry, so its serializer ships in
-    v0.1 without IndexedDB ([../ui/screens.md §1](../ui/screens.md#1-test-home--)).
+    [ …result objects… ] }`, including series, client IPs and notes. The Test screen's
+    single-result Download JSON uses the same format with one entry, and its serializer needs no
+    IndexedDB ([../ui/screens.md §1](../ui/screens.md#1-test-home--)).
   - CSV: one row per result, UTF-8 without a byte order mark, a header row, lines ended by CRLF and
     fields quoted as RFC 4180 does (a field holding a comma, a quote, CR or LF is quoted, its quotes
     doubled); an absent value is an empty field. A text field that starts with `=`, `+`, `-`, `@`, a
@@ -166,8 +166,7 @@ screens, and TanStack Query is not used ([decisions.md](decisions.md)).
     `downloadBitsPerSecond`, `downloadPeakBitsPerSecond`, `downloadStatus`, `downloadConfidence`,
     `uploadBitsPerSecond`, `uploadPeakBitsPerSecond`, `uploadStatus`, `uploadConfidence`,
     `idleMedianMs`, `idleP90Ms`, `jitterMs`, `idleLossPercent`, `downloadLoadedMedianMs`,
-    `uploadLoadedMedianMs`, `bufferbloatGrade`, and from v0.3 (in place of v0.2's `rpm` and
-    `rpmState`, never filled before v0.3) `downloadRpm`, `downloadRpmState`, `uploadRpm`,
+    `uploadLoadedMedianMs`, `bufferbloatGrade`, `downloadRpm`, `downloadRpmState`, `uploadRpm`,
     `uploadRpmState`, `downloadMinBitsPerSecond`, `downloadMaxBitsPerSecond`,
     `uploadMinBitsPerSecond`, `uploadMaxBitsPerSecond`, then `streamingBand`, `gamingBand`,
     `rtcBand`, `overheadCompensationPercent`, `dataUsedBytes`, `durationMs`. The RPM and its state
@@ -340,7 +339,7 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   the session.
 - **Scenarios** (`demo/scenarios.ts`, `demo/fixtures.ts`, played by `demo/session.ts`). The scenario
   names are the UI kit's `TEST_STATES`, the four Continuous states (`continuous`, `cont-upload`,
-  `cont-warmup` and `cont-done`) from v0.3 on, and its panel's loaded-latency cases: `ws-close`
+  `cont-warmup` and `cont-done`), and its panel's loaded-latency cases: `ws-close`
   (the WebSocket closing after idle latency) and `ll-<reason>` for each reason of its `LL_GAPS`,
   which a test reads from `App.jsx`, and `upload-gap`, the run its Result detail shows
   (`ResultDetail.jsx`). Each is a link, whether the run starts at once, the URL parameters the
@@ -415,8 +414,8 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   hands it. `DemoPanel.vue` and the section components of `demo/panel/` follow the application's
   policy. Every demo file
   obeys the production file ceiling of `.file-budgets`.
-- **v0.3 additions.** The demo grows with the v0.3 features, so the kit's v0.3 states play on the
-  real engine, and its panel takes the kit's v0.3 controls (`App.jsx`):
+- **Continuous, responsiveness and About.** The kit's Continuous states play on the real engine,
+  and the panel takes the kit's Continuous, responsiveness and About controls (`App.jsx`):
   - **Continuous scenarios.** The kit's four Continuous states, `continuous` (a Continuous
     download running), `cont-upload` (a Continuous upload running, with failure gaps),
     `cont-warmup` (a Continuous run stopped during its warm-up, `partial`) and `cont-done` (a

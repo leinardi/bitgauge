@@ -3,8 +3,8 @@
 [Feature index](../README.md) / Technical Stack
 
 This section defines the implementation stack for BitGauge. It is grouped separately because the
-technical decisions can evolve independently from the product specification. Everything here is
-planned until v0.1 implements it; [`../../STATUS.md`](../../STATUS.md) says what exists.
+technical decisions can evolve independently from the product specification.
+[`../../STATUS.md`](../../STATUS.md) says what exists.
 
 ## Sections
 

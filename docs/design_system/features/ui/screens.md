@@ -55,7 +55,7 @@ from the design export; this page fixes content and behavior only. Terms follow 
   qualified "elapsed", until the result gives it. After an error, data used is qualified "not
   saved".
 - **Notices** area (§7).
-- **Save bar** after a `complete` run (v0.2, with history): "Saved to history", an inline label
+- **Save bar** after a `complete` run: "Saved to history", an inline label
   field with suggested labels (the context label and the 5 most recent distinct labels from
   history), Share and Details. Share opens the share panel of §2 as a focus-trapped dialog
   ([flows.md §8](flows.md#8-sharing)).
@@ -67,14 +67,14 @@ from the design export; this page fixes content and behavior only. Terms follow 
   of [../technical-stack/frontend.md §5](../technical-stack/frontend.md#5-history-module-idb)
   (`results` with one entry), with the same "contains client IPs and notes" warning as the History
   export. It works without history, for `complete`, `partial` and `error` results, and it is the
-  accuracy harness's extraction path from v0.1
-  ([decisions.md §36](../technical-stack/decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen)).
+  accuracy harness's extraction path
+  ([decisions.md §36](../technical-stack/decisions.md#36-harness-extraction--download-json-on-the-test-screen)).
   The file is named `bitgauge-<YYYY-MM-DD>-<HHMM>.json` after the result's start in the browser's
   local time, as the design export's kit names it, and its `exportedAt` is the moment of the
   download as an ISO 8601 timestamp.
 - **Last result line** in the idle state: when, headline numbers and label of the latest saved
   result, linking to its detail.
-- **Continuous live view** (v0.3), in place of the direction's tile while a Continuous run runs
+- **Continuous live view**, in place of the direction's tile while a Continuous run runs
   ([flows.md §7](flows.md#7-continuous-mode)): the run-wide minimum, average and maximum; the
   "p90, last hour"; the loaded latency of the last minute; data used with its rate; and the elapsed
   time against the run length with the run's end time, or the elapsed time alone without a run
@@ -93,7 +93,7 @@ from the design export; this page fixes content and behavior only. Terms follow 
 | Running: info | "Connecting…" on the first phase step and in the gauge readout; Start becomes Stop. |
 | Running: idle latency | Gauge in milliseconds, ping counter, live median, latency samples chart. |
 | Running: download / upload | Gauge, chart, stream count, protocol, data used; per-direction "measuring" or "warming up" hint; loaded latency live. |
-| Done | Result metrics, notices, save bar (v0.2), Details link, Download JSON, Run again. |
+| Done | Result metrics, notices, save bar, Details link, Download JSON, Run again. |
 | Running: Continuous | Idle latency first unless the phases leave it out, then the Continuous live view; Stop ends the run. |
 | Done: Continuous | With at least 3 fully known 1 s cells since the steady start, `complete`: the Done state, saved automatically, the direction's run-wide numbers and its "p90, last hour", with no `partial — stopped early`. With fewer, a stop right after warm-up included, `partial` with the direction `insufficient-data`: the Cancelled state's Keep in history and Download JSON ([../measurement.md §15](../measurement.md#15-continuous-mode)). |
 | Cancelled | Partial result with `partial — stopped early` and what was covered ([../measurement.md §7.8](../measurement.md#78-worked-example-b--cancellation-mid-request)); an interrupted direction shows a number only when its confirmed steady window meets the minimum ([../measurement.md §7.6](../measurement.md#76-headline-peak-and-minimum-window)), otherwise "insufficient data". Not saved; Keep in history and Download JSON offered. |
@@ -101,25 +101,10 @@ from the design export; this page fixes content and behavior only. Terms follow 
 | Offline / retry | `GET /info` fails, or every idle-latency ping is lost ([../measurement.md §10](../measurement.md#10-idle-latency)): "Server unreachable" with Retry and the time to the next automatic check ([flows.md §1](flows.md#1-first-run)); Start disabled until `/info` succeeds; the phases and the metrics stay, pending and empty; no settings summary. A WebSocket that cannot be opened is **not** offline: the test runs with the HTTP latency fallback and the notice `WebSocket unavailable — HTTP latency fallback`. |
 | Auto-start countdown | When `run` is set, or the stored Auto-start is on: a cancellable countdown (3 s, or the Auto-start setting's length) before the test starts ([flows.md §2](flows.md#2-auto-run-from-url)). |
 
-**Before v0.2.** The v0.1 Test screen has no history, Result detail, share, loaded latency, grade,
-quality scores or HTTP loaded responsiveness ([../roadmap.md](../roadmap.md)): its only result
-action is Download JSON, and its metrics are download, upload, idle latency, jitter, data used,
-duration and the packet loss slot. The layout must read as complete without the later cards.
-v0.1 also has no Settings screen:
-
-- Navigation, the desktop header and the narrow-screen tab bar alike, shows Test and About.
-- `/history`, `/settings` and `/result/{id}` stay on the server's fixed route list and render a
-  "not available in this version" page.
-- The test settings are the server defaults with the URL parameters on top
-  ([url-params.md §1](url-params.md#1-rules)); nothing of them is stored in the browser. The
-  theme chosen in the header is the only persisted setting.
-- The settings summary shows the effective values without an Edit link.
-
 **Responsive notes.** On narrow screens the gauge and Start stay above the fold, with Start full
 width; the chart collapses below the metrics; connection info collapses into a single line with a
 disclosure. Navigation becomes a compact header plus a bottom tab bar (Test, History, Settings,
-About; Test and About in v0.1). The page must work in portrait on a phone without horizontal
-scrolling.
+About). The page must work in portrait on a phone without horizontal scrolling.
 
 ## 2. Result Detail — `/result/{id}`
 
@@ -215,7 +200,7 @@ parameters collapse into a disclosure.
   within 1 ms of A's read "same"; grades compare by their order, A+ best; any other difference in
   those metrics is better or worse. A metric absent on either side (a direction without a number,
   no grade) reads "not comparable". The other rows (probe timeouts, data used, duration) show both
-  values without a judgment. From v0.3 the comparison adds:
+  values without a judgment. The comparison also has:
   - one HTTP loaded responsiveness row per direction: the RPM is compared, higher being better and
     within ±2 % "same", only when both sides are `measured`; otherwise the row shows both states and
     reads "not comparable";
@@ -261,8 +246,8 @@ effective settings are the URL parameters over the stored settings over the serv
 
 - **Preset:** Quick, Standard, Extended, Continuous, as cards with a one-line description each
   stating streams, durations and ping count
-  ([../measurement.md §8.5](../measurement.md#85-presets)). Before v0.3 the Continuous card is
-  disabled, with a "v0.3" badge; from v0.3 it is a preset like the others.
+  ([../measurement.md §8.5](../measurement.md#85-presets)). The Continuous card is a preset like
+  the others.
 - **Phases:** toggles for idle latency, download, upload (at least one stays on), and the order of
   download and upload; for Continuous, the idle-latency toggle and the one direction it runs,
   download by default (current answer to an item in [../open-questions.md](../open-questions.md)),
@@ -333,8 +318,8 @@ field, value not saved; focus is not moved, and Tab leaves the field as usual); 
     §3.3](../compatibility.md#33-absolute-url-construction)).
 - **About BitGauge:** server name, **version** (`server.version`) with build commit and date
   (`server.commit`, `server.buildDate`), **license** (GPL-3.0-or-later), **source link**.
-- **Privacy:** no accounts, no tracking; the server keeps no results, which exist only in this
-  browser (from v0.2, so does the history).
+- **Privacy:** no accounts, no tracking; the server keeps no results: they and the history exist
+  only in this browser.
 - Short methodology summary linking to the published docs.
 
 The screen has no credits: the projects BitGauge learns from, and the trademark notes, are
@@ -342,10 +327,6 @@ credited in the README and the docs ([../technical-stack/decisions.md
 §33](../technical-stack/decisions.md#33-third-party-code--ideas-and-protocol-compatibility-only)).
 
 **States:** layers enabled or not; server unreachable (snippets built from the page's own origin).
-
-**Before v0.3.** The v0.1 About screen says that the layers for other clients arrive in v0.3 and
-shows no snippets ([../roadmap.md](../roadmap.md)); its methodology summary covers the v0.1
-metrics only: download, upload, idle latency and jitter, with data used and duration.
 
 **Responsive notes.** Snippets never wrap: a long line scrolls horizontally inside its code block,
 and the page itself never scrolls sideways.

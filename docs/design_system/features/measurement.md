@@ -1233,7 +1233,7 @@ bound with respect to loss, and the UI notes this next to them.
 
 ### 13.5 Result Shape
 
-Every v0.3 result carries `scores: {basis, packetLoss: "not-measured", streaming, gaming, rtc}`:
+Every result carries `scores: {basis, packetLoss: "not-measured", streaming, gaming, rtc}`:
 
 - `basis` is `bufferbloat.basis` (`download+upload`, `download` or `upload`), or `none` when the
   result has no `bufferbloat`, so the scores' direction label reads as the grade's;
@@ -1554,24 +1554,22 @@ CSV export flattens the same fields, one row per result.
 }
 ```
 
-- **Fields by version.** A field of a feature not yet shipped is absent, never `null`-filled. The
-  v0.1 result has `schema`, `schemaVersion`, `id` (a random version 4 UUID), `startedAt`,
-  `durationMs`, `status`, `label` (empty without one), `server`, `client` (`ip`, `contextLabel`,
-  `protocol`, `browser`, `timerResolutionMs`, `crossOriginIsolated`), `settings`, `idle`,
-  `download`, `upload`, `dataUsedBytes` and `notices`. Each direction has `status`, `streams`,
-  `bytes`, `events`, `plateau` once the ramp stopped, `windowMs`, `confidence` and `series` once
-  warm-up ended, and `bitsPerSecond`, `peakBitsPerSecond` and `uncompensatedBitsPerSecond` when it
-  reports a number; upload adds `confirmedRequests`. v0.2 adds `note` (history), each direction's
-  `loadedLatency`, the result's `bufferbloat`, and `settings.download` and `settings.upload`, each
-  direction's resolved duration bounds `{minMs, maxMs}` (shown with its duration among the test
-  parameters), all optional, so a v0.1 result stays valid.
-  Absent through v0.2: `responsiveness`, `scores`, `minBitsPerSecond`, `maxBitsPerSecond` and
-  `series.knownMs`. v0.3 adds `responsiveness` on every direction that is not `skipped` (§12.6)
-  and `scores` on every result (§13.5), and for Continuous (§15) the `continuous` preset,
+- **Optional fields.** A field the run did not produce is absent, never `null`-filled. Every
+  result has `schema`, `schemaVersion`, `id` (a random version 4 UUID), `startedAt`, `durationMs`,
+  `status`, `label` (empty without one), `server`, `client` (`ip`, `contextLabel`, `protocol`,
+  `browser`, `timerResolutionMs`, `crossOriginIsolated`), `settings`, `idle`, `download`, `upload`,
+  `dataUsedBytes` and `notices`. Each direction has `status`, `streams`, `bytes`, `events`,
+  `plateau` once the ramp stopped, `windowMs`, `confidence` and `series` once warm-up ended, and
+  `bitsPerSecond`, `peakBitsPerSecond` and `uncompensatedBitsPerSecond` when it reports a number;
+  upload adds `confirmedRequests`. The other fields are optional, so a result without them stays
+  valid, as a stored record that predates one does: `note` (history), each direction's
+  `loadedLatency`, the result's `bufferbloat`, `settings.download` and `settings.upload` (each
+  direction's resolved duration bounds `{minMs, maxMs}`, shown with its duration among the test
+  parameters), `responsiveness`, which the engine writes on every direction that is not `skipped`
+  (§12.6), `scores`, which it writes on every result (§13.5), and for Continuous (§15)
   `settings.continuousDirection`, `settings.runLengthMs`, `minBitsPerSecond`, `maxBitsPerSecond`
-  and `series.knownMs`, all optional so a v0.1 or v0.2 result stays valid; a Continuous direction
-  that is `insufficient-data` has no `confidence`, even after its warm-up. `schemaVersion` stays 1:
-  these are additions.
+  and `series.knownMs`. A Continuous direction that is `insufficient-data` has no `confidence`,
+  even after its warm-up. `schemaVersion` stays 1: an optional field does not change it.
 - `idle` is absent when idle latency did not run. A direction that did not run, left out by the
   settings or not reached, is `{status: "skipped", streams: 0, bytes: 0, events: []}` (upload with
   `confirmedRequests: 0`). `client.contextLabel` is the `start` override's, else the label `GET

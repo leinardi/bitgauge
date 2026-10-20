@@ -2,9 +2,9 @@
 
 > A self-hosted, browser-based network speed test for LAN, homelab and VPN links.
 >
-> **Status: v0.1, v0.2 and v0.3 implemented, not yet released.** The specification was approved
-> on 2026-10-12 and all three are built against it; the first release waits for its manual accuracy
-> runs and release setup ([docs/release.md](docs/release.md)). Status per feature area:
+> **Status: implemented, not yet released.** The specification was approved on 2026-10-12 and the
+> product is built against it; the first release waits for its manual accuracy runs and release
+> setup ([docs/release.md](docs/release.md)). Status per feature area:
 > [docs/STATUS.md](docs/STATUS.md).
 
 BitGauge measures the link between a browser and a server you run yourself: a NAS on the LAN, a
@@ -19,8 +19,6 @@ link, and upload is timed where the bytes arrive
 
 ## Features
 
-v0.1, the honest throughput core:
-
 - **Adaptive request size and streams.** Requests are sized to take about 1 s at the observed
   rate, and the stream count ramps only while it gains throughput.
 - **Server-timed upload.** The server counts the bytes it receives on a 100 ms grid, so upload is
@@ -29,27 +27,21 @@ v0.1, the honest throughput core:
   hidden overhead factor; every number with its confidence and notices.
 - **Idle latency** with jitter, and **Quick, Standard and Extended** presets.
 - **One-result JSON download** from the Test screen; nothing is stored on the server.
-- **Small and hardened:** non-root static image, read-only root filesystem, no shell, signed
-  releases with SBOM and provenance, linux/amd64 and linux/arm64.
-
-v0.2, latency under load and the browser's history:
-
 - **Loaded latency** during download and upload, with a **bufferbloat grade** (A+ to F).
 - **History in your browser only** (IndexedDB) with a Result detail, compare, and JSON and CSV
   export and import.
 - **Settings** stored in the browser, with a shareable settings link; a **share image** and a
   copied text summary.
 - **Prometheus metrics** (off by default) and operator **subnet-to-label** mapping.
-
-Planned ([roadmap](docs/features/roadmap.md)):
-
-- **v0.3:** the compatibility layers below, **HTTP loaded responsiveness** (RPM), honestly labeled
-  where the browser cannot verify it, **quality scores** for streaming, gaming and video calls, and
-  **continuous mode** for long runs in constant memory.
+- **HTTP loaded responsiveness** (RPM), honestly labeled where the browser cannot verify it.
+- **Quality scores** for streaming, gaming and video calls.
+- **Continuous mode** for long runs in constant memory.
+- **Small and hardened:** non-root static image, read-only root filesystem, no shell, signed
+  releases with SBOM and provenance, linux/amd64 and linux/arm64.
 
 ## Compatibility
 
-From v0.3, optional layers, each off by default, let existing clients test against BitGauge
+Optional layers, each off by default, let existing clients test against BitGauge
 ([details](docs/features/compatibility.md)):
 
 - the **OpenSpeedTest** web UI, through its `?Host=` parameter;
@@ -74,7 +66,7 @@ services:
       - no-new-privileges:true
     environment:
       BITGAUGE_SERVER__DISPLAY_NAME: home
-      # From v0.2, which ships the Prometheus endpoint; v0.1 rejects the toggle and exits 2.
+      # Uncomment to serve /metrics.
       # With no proxy to restrict it, anyone who reaches port 8080 can read /metrics.
       # BITGAUGE_METRICS__ENABLED: "true"
     # Optional: full configuration as a read-only file

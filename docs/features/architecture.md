@@ -6,9 +6,9 @@ BitGauge is one Go binary that serves an embedded Vue SPA and a small HTTP API. 
 happens in the browser, in a framework-free engine running in a Web Worker; the server streams,
 drains, echoes and describes itself. This page shows how the pieces fit. The stack is in
 [technical-stack/stack.md](technical-stack/stack.md); endpoint contracts are in
-[wire-protocol.md](wire-protocol.md); the methodology is in [measurement.md](measurement.md). All
-packages and paths named here are **planned** until v0.1 implements them;
-[`../STATUS.md`](../STATUS.md) says what exists.
+[wire-protocol.md](wire-protocol.md); the methodology is in [measurement.md](measurement.md). The
+packages and paths named here exist; [`../STATUS.md`](../STATUS.md) gives the status per feature
+area.
 
 ## 1. One Binary
 

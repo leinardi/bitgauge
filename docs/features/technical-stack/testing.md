@@ -152,29 +152,28 @@ behavior are re-checked manually on real Safari (macOS) and iOS Safari before ea
   own starts `dist/bitgauge` on a free loopback port (`web/e2e/fixtures/server.ts`): the first run,
   which checks that idle latency came over the WebSocket, a server configured for a base path, one
   stopped mid-run, and the Test screen's share dialog after a run.
-- **v0.1 coverage.** Flows 1, 2, 4 and 5, with the base path deployment and the mismatch screen.
-  The slow mobile VPN run is the accuracy harness's 500 kbit/s profile (§5); history, continuous
-  mode, sharing and settings arrive with the versions that ship them. A server killed mid-run
+- **Run flows.** Flows 1, 2, 4 and 5, with the base path deployment and the mismatch screen. The
+  slow mobile VPN run is the accuracy harness's 500 kbit/s profile (§5). A server killed mid-run
   closes the WebSocket, and the run ends with `network changed`
   ([../edge-cases.md §6](../edge-cases.md#6-network-change-mid-test), step 3) or, when three
   download requests fail first, with `requests-failed`; the spec accepts either.
-- **v0.3 coverage** (built with the v0.3 UI). Flow 7, Continuous mode, short: `continuous.spec.ts`
+- **History, share and settings.** Flows 6, 8 and 9 (`history`, `share` and `settings` specs) and
+  the Result detail (`result-detail`). Their history comes from the demo's eight results, imported
+  through History's own Import JSON (`web/e2e/fixtures/history.ts`); runs are left to what needs
+  one: the Test screen's share dialog, Run again with a result's settings, and flow 9's next run
+  with the stored settings and with a URL override. Copy summary and Copy comparison are checked
+  against the clipboard on Chromium, which grants the permission; elsewhere either outcome passes,
+  the copy or the manual-copy fallback, and a stubbed clipboard that refuses forces Copy summary's
+  fallback on every browser.
+  The base-path spec also loads History under the base path and downloads a share image there,
+  and the CSP spec loads History and downloads a share image under the policy.
+- **Continuous and About.** Flow 7, Continuous mode, short: `continuous.spec.ts`
   starts a Continuous download with the shortest run length, 60 s, waits for the `complete` result
   and finds it saved in History, then starts another and stops it right after warm-up, expecting
   `partial` with `insufficient-data` and Keep in history offered. `about.spec.ts` starts servers
   with each compatibility toggle (`BITGAUGE_COMPAT__*`) and checks that each snippet shows only for
   its enabled layer. A run on the plain-HTTP/1.1 E2E server reports path B `unavailable_h1`. axe
-  scans the new states: the Continuous live view and its two endings, and About with the snippets.
-- **v0.2 coverage.** Flows 6, 8 and 9 (`history`, `share` and `settings` specs) and the Result
-  detail (`result-detail`). Their history comes from the demo's eight results, imported through
-  History's own Import JSON (`web/e2e/fixtures/history.ts`); runs are left to what needs one: the
-  Test screen's share dialog, Run again with a result's settings, and flow 9's next run with the
-  stored settings and with a URL override. Copy summary and Copy comparison are checked against
-  the clipboard on Chromium, which grants the permission; elsewhere either outcome passes, the copy
-  or the manual-copy fallback, and a stubbed clipboard that refuses forces Copy summary's fallback
-  on every browser.
-  The base-path spec also loads History under the base path and downloads a share image there,
-  and the CSP spec loads History and downloads a share image under the policy.
+  scans the Continuous live view and its two endings, and About with the snippets.
 - **CSP.** Every test listens for `securitypolicyviolation` in the page, before its own scripts run,
   and in each Worker it starts, where the engine's requests and WebSocket run, and fails on any; a
   negative control proves both listeners report a blocked request.
@@ -203,8 +202,8 @@ harness has three tiers:
 **Method.** For each profile, a Playwright-driven browser runs a Standard test (Extended for the
 600 ms floor profile, which the shortfall rule otherwise covers), and iperf3 measures the same
 shaped path as the reference. The harness records the headline, the steady window, data used and
-the result's notices, read from the result's JSON download (the v0.1 extraction path,
-[decisions.md §36](decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen)).
+the result's notices, read from the result's JSON download (the extraction path of
+[decisions.md §36](decisions.md#36-harness-extraction--download-json-on-the-test-screen)).
 
 **Reference measurement**
 ([decisions.md §35](decisions.md#35-accuracy-harness-reference--iperf3-before-and-after-the-browser-run)).
@@ -291,7 +290,7 @@ The harness report says which layer each result comes from.
   Safari.
 - Mobile power management: device runs happen with the screen on.
 
-**Path B (v0.3).** On `ci-100m-50ms-caddy-h2` path B must run over HTTP/2 in each measured
+**Path B.** On `ci-100m-50ms-caddy-h2` path B must run over HTTP/2 in each measured
 direction: `responsiveness.state` `measured` or `uncertain`, with `protocol` `h2` and an RPM. On
 `ci-100m-50ms-traefik-h1` it must be `unavailable_h1`. Any other state, or a missing
 `responsiveness` on a measured direction, fails the run on those two profiles. Which of `measured`
@@ -303,7 +302,7 @@ samples `measured` needs. Every other profile records the state, with the RPM wh
 and does not judge it: neither the protocol nor the connection sharing it rests on is under the
 profile's control.
 
-**Compatibility clients (v0.3).** On `ci-100m-50ms-caddy-h2`, the one CI profile with HTTPS, which
+**Compatibility clients.** On `ci-100m-50ms-caddy-h2`, the one CI profile with HTTPS, which
 networkQuality needs, BitGauge runs with the three compatibility toggles on and
 `server.trusted_proxies` set to the proxy network, so the absolute URLs are built from Caddy's
 forwarding headers. After the browser runs:
@@ -321,7 +320,7 @@ throughput, and `goresponsiveness` an RPM. Its numbers follow the client's own m
 missing or unreadable output fails the profile; it is never a skip. The no-egress layers stay on
 for the whole profile, and the OpenSpeedTest UI's results link is never followed.
 
-**Continuous memory (manual, v0.3).** Beside the three tiers, `make harness-continuous` runs one
+**Continuous memory (manual).** Beside the three tiers, `make harness-continuous` runs one
 hour of a Continuous download on the `ci-100m-50ms` profile in Chromium. Every 60 s from the
 steady start the browser driver forces a garbage collection on the Worker's target and reads its
 `Runtime.getHeapUsage` through the Chrome DevTools Protocol. The run passes when every sample from

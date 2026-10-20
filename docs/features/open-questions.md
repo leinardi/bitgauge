@@ -2,19 +2,20 @@
 
 [Feature index](README.md) / Open Questions
 
-These surfaced while writing the specification and should be decided before or during the milestone
-named in [technical-stack/decisions.md](technical-stack/decisions.md#open-technical-decisions). Each
-carries a recommendation; where the specification already relies on an answer, it is marked
-"Current answer" and stays open until confirmed.
+These surfaced while writing and implementing the specification, and the
+[Open Technical Decisions](technical-stack/decisions.md#open-technical-decisions) table of
+technical-stack/decisions.md tracks them under the same numbers. Each carries a recommendation;
+where the specification already relies on an answer, it is marked "Current answer" and stays open
+until confirmed.
 
 1. What should the default drain limit for `/nq/upload` be
    (`compat.networkquality.max_upload_bytes`)? Apple's reference nginx configuration allows 250 MB
    bodies, while `networkQuality` keeps posting for the duration of its test and a fast LAN moves
    more than that in a few seconds. Current answer: **1 GiB**, configurable from 1 MiB to 64 GiB.
    Recommendation: keep 1 GiB and confirm it against `networkQuality` and `goresponsiveness` on a
-   10 Gbit LAN during v0.3. See [compatibility.md §3.1](compatibility.md#31-routes).
+   10 Gbit LAN. See [compatibility.md §3.1](compatibility.md#31-routes).
 2. Should operators be able to map subnets to context labels (for example a WireGuard range in RFC
-   1918 space labeled `VPN`)? Current answer: **yes, in v0.2, as `server.labels`**, an optional
+   1918 space labeled `VPN`)? Current answer: **yes, as `server.labels`**, an optional
    list of `{cidr, label}` entries evaluated before the address-class rule and validated
    fail-closed; its form and rules are question 46. Recommendation: keep it. See
    [edge-cases.md §16](edge-cases.md#16-ipv6-vs-ipv4-and-the-lanvpn-label) and
@@ -25,12 +26,12 @@ carries a recommendation; where the specification already relies on an answer, i
    two sessions. See [measurement.md §15](measurement.md#15-continuous-mode).
 4. How does a release validate the configuration keys of features it does not ship yet, and an
    empty duration bound? Current answer: **a toggle for an unshipped feature is rejected, naming
-   its milestone**, while its other keys are parsed and validated. No toggle remains unshipped in
-   v0.3: the three `compat.*.enabled` toggles and `test_defaults.preset: continuous`, rejected
-   before it, are accepted, and the compatibility conflict rules apply whenever a layer is on. A
-   duration pair is checked with an empty bound counting as the preset's value. Recommendation:
-   keep it, since accepting a toggle that does nothing would be a silent default. See
-   [configuration.md §4](configuration.md#4-fail-closed-validation).
+   the release that brings it**, while its other keys are parsed and validated. Every toggle of
+   configuration.md §2 is included, so none is rejected this way today, and the compatibility
+   conflict rules apply whenever a layer is on. A duration pair is checked with an empty bound
+   counting as the preset's value. Recommendation: keep it, since accepting a toggle that does
+   nothing would be a silent default. See [configuration.md
+   §4](configuration.md#4-fail-closed-validation).
 5. Which `429` code do the WebSocket and networkQuality flow limits answer with? Current answer:
    **`too_many_streams`**, since both are concurrency limits like the throughput-stream limit;
    `rate_limited` stays with the per-minute limit and `table_full` with a full table.
@@ -174,23 +175,23 @@ carries a recommendation; where the specification already relies on an answer, i
     either path, leaves the current direction with nothing measured. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [edge-cases.md §5, §6](edge-cases.md#5-tab-hidden-mid-test).
-20. What does a v0.1 result object hold, and how does the application check one? Current answer:
-    **the v0.1 field set of measurement.md §17, with the fields of later versions absent rather
-    than `null`**; `client.timerResolutionMs` and `client.crossOriginIsolated` join `client`, as
-    edge-cases.md §9 shows them in the result detail; a direction that did not run is a `skipped`
-    block, and one whose warm-up never ended has no window, series or confidence; `cpu-bound`
-    takes precedence over `low` and keeps the reasons; the idle statistics are rounded to the
-    timer resolution, or left as measured when no resolution was detected; a `cpu-bound`
-    direction has no `low-confidence` notice; downsampling sums consecutive buckets and leaves a
-    point with an unknown bucket unknown; the download window holds only full buckets, so an end
-    between two ticks drops the partial one from the headline, the series, the window condition
-    and the covered time alike. `engine/messages.ts` re-exports one runtime function, `validateResult`
-    from `engine/result/validate.ts`, so the application checks a result before Download JSON
-    without importing engine internals, and the `Clock` reports the busy time, the resolution and
+20. What does a result object hold, and how does the application check one? Current answer:
+    **the field set of measurement.md §17, with its optional fields absent rather than `null`**;
+    `client.timerResolutionMs` and `client.crossOriginIsolated` join `client`, as edge-cases.md §9
+    shows them in the result detail; a direction that did not run is a `skipped` block, and one
+    whose warm-up never ended has no window, series or confidence; `cpu-bound` takes precedence over
+    `low` and keeps the reasons; the idle statistics are rounded to the timer resolution, or left as
+    measured when no resolution was detected; a `cpu-bound` direction has no `low-confidence`
+    notice; downsampling sums consecutive buckets and leaves a point with an unknown bucket unknown;
+    the download window holds only full buckets, so an end between two ticks drops the partial one
+    from the headline, the series, the window condition and the covered time alike.
+    `engine/messages.ts` re-exports one runtime function, `validateResult` from
+    `engine/result/validate.ts`, so the application checks a result before Download JSON without
+    importing engine internals, and the `Clock` reports the busy time, the resolution and
     cross-origin isolation. A download phase whose bucket ticks fall on fractional instants closes
     each bucket on its own tick and ends at the bucket end exactly. Recommendation: keep it. See
-    [measurement.md §16, §17](measurement.md#17-result-object) and
-    [technical-stack/frontend.md §2](technical-stack/frontend.md#2-engine-package-rules).
+    [measurement.md §16, §17](measurement.md#17-result-object) and [technical-stack/frontend.md
+    §2](technical-stack/frontend.md#2-engine-package-rules).
 21. How does the Worker wire the browser in, and what does its message loop do with commands out
     of order? Current answer: **one run at a time; a `start` meanwhile is ignored, a `start`
     before a valid `configure` and an invalid `configure` answer `invalid-settings`, and the last
@@ -221,15 +222,7 @@ carries a recommendation; where the specification already relies on an answer, i
     `.chunk-budget` and enforced by the `chunk-size` step, which also fails when the dist has no
     Worker chunk; the number is lowered once the real size is known. Recommendation: keep it. See
     [technical-stack/frontend.md §3](technical-stack/frontend.md#3-worker-bundling-with-vite).
-24. What replaces the Settings screen in v0.1? Current answer: **nothing: navigation shows Test
-    and About, `/history`, `/settings` and `/result/{id}` render a "not available in this
-    version" page from the fixed route list, the test settings are the server defaults with the
-    URL parameters on top, the header's theme is the only persisted setting, the settings summary
-    has no Edit link, and the stored-language step of locale detection is empty**. The v0.1
-    About screen says the other-client layers arrive in v0.3, shows no snippets, and summarizes
-    the v0.1 metrics only. Recommendation: keep it. See
-    [ui/screens.md §1](ui/screens.md#1-test-home--), [§5](ui/screens.md#5-other-clients--about--about)
-    and [ui/i18n-a11y.md §1.2](ui/i18n-a11y.md#12-locale-detection).
+24. _Withdrawn: it settled a screen set the product no longer has._
 25. Where are the favicons, app icons and web manifest served? Current answer: **from the base
     path itself, as an explicit list of eight files in the SPA group's routes** (`favicon.svg`,
     `favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`,
@@ -237,7 +230,7 @@ carries a recommendation; where the specification already relies on an answer, i
     `Cache-Control: public, max-age=86400` because their names are not content-hashed.
     Recommendation: keep it. See [architecture.md §3](architecture.md#3-spa-embedding-and-base-path)
     and [compatibility.md §5](compatibility.md#5-route-table).
-26. How is the v0.1 SPA shell put together? Current answer: **the locale catalog is one directory
+26. How is the SPA shell put together? Current answer: **the locale catalog is one directory
     per language with one JSON file per screen namespace; the header shows the server's name and
     reachability only once `GET /info` has answered, announces later changes only, and on narrow
     screens cycles the theme through light, dark and system with one button; the Test screen
@@ -316,7 +309,7 @@ carries a recommendation; where the specification already relies on an answer, i
     answer: **the largest unit, from kbit/s (kB/s) up to Gbit/s (GB/s), whose number is at least
     1, as the kit's formatter scales, so 472,000 bit/s reads 472 kbit/s; measurement.md §14's
     precision example said 0.472 Mbit/s and now says 472 kbit/s. The notices take the tones of
-    ui/screens.md §7, which extends `notices.md`'s examples to every v0.1 code.**
+    ui/screens.md §7, which extends `notices.md`'s examples to every code.**
     Recommendation: keep it. See [measurement.md §14](measurement.md#14-units-and-gauge) and
     [ui/screens.md §7](ui/screens.md#7-notices).
 34. What is the Download JSON file called, and what is its `exportedAt`? Current answer:
@@ -341,9 +334,9 @@ carries a recommendation; where the specification already relies on an answer, i
     run starts); the parameters whose values were ignored travel in each `start` override as
     `ignoredParameters`, each with its value, so the run carries a `url-parameter-ignored` notice
     for each up to the result. A value outside the table or the configuration ranges is invalid:
-    a `cap` below 1 MiB, a fixed `streams` above the server's maximum, `preset=continuous` before
-    v0.3; from v0.3 `duration` is checked against the resolved preset's range (5–600 s, or
-    60–604800 s for Continuous), and under Continuous `test=latency` is ignored and gives download.
+    a `cap` below 1 MiB, a fixed `streams` above the server's maximum, and a `duration` outside the
+    resolved preset's range (5–600 s, or 60–604800 s for Continuous); under Continuous
+    `test=latency` is ignored and gives download.
     The first occurrence of a repeated name counts. The countdown waits for the engine's
     `settings` answer.
     Enter's "interactive control" is a link, a form control, editable text, an element with an
@@ -359,16 +352,16 @@ carries a recommendation; where the specification already relies on an answer, i
     the confidence but not the busy fraction; the re-run of an inconclusive profile is a second
     attempt in the report, the first kept and marked superseded; an unshaped run of a shaped
     profile is a debugging run, recorded and not judged, and like every final run that is not a
-    pass it fails the tier; and the loaded-latency rule, not applicable in v0.1, which measures
-    none, is judged from v0.2 as question 53 settles.** Recommendation: keep it. See
-    [technical-stack/testing.md §5.1](technical-stack/testing.md#51-implementation).
-38. How does the v0.1 screen reader output get its numbers and words, when the engine sends a
+    pass it fails the tier; and the loaded-latency rule is judged as question 53 settles.**
+    Recommendation: keep it. See [technical-stack/testing.md
+    §5.1](technical-stack/testing.md#51-implementation).
+38. How does the screen reader output get its numbers and words, when the engine sends a
     direction's headline only in the result? Current answer: **a `finished` download or upload
     `phase` event carries its headline, computed by the same code as the result's, so the live
     region announces it once as the direction finishes; spoken numbers keep the visual scale and
     digits with the locale's long unit names; the rate announced is the one the gauge shows, the
     upload's sending progress named as such; the announcements of one change are read as one
-    message, headline first; the result summary holds the v0.1 metrics in the order of §2.7; a
+    message, headline first; the result summary holds the metrics in the order of §2.7; a
     skip link opens every screen.** Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract) and
     [ui/i18n-a11y.md §2](ui/i18n-a11y.md#2-accessibility).
@@ -397,13 +390,13 @@ carries a recommendation; where the specification already relies on an answer, i
     profile passes on Chromium, Firefox and WebKit. Recommendation: keep it. See
     [technical-stack/testing.md §5.1](technical-stack/testing.md#51-implementation) and the
     [harness runbook](../engineering/accuracy-harness.md).
-41. How does the v0.1 end-to-end suite run, and what does it check? Current answer: **in parallel
+41. How does the end-to-end suite run, and what does it check? Current answer: **in parallel
     against one host-built binary whose per-client stream limit is raised to 64, because every spec
     reaches it from one address; a spec that needs a base path, a server it stops or the WebSocket
     path, which that server's four WebSockets per client cannot promise, starts a binary of its own;
     a CSP listener runs in the page and in its Workers; it covers flows 1, 2, 4 and 5 and the base
     path, accepts either cause a server killed mid-run may end with, `network changed` or
-    `requests-failed`, and runs axe's WCAG 2.2 AA rules once transitions settle, on every v0.1
+    `requests-failed`, and runs axe's WCAG 2.2 AA rules once transitions settle, on every
     screen.** Its first runs found two defects, now fixed: the router's history rewrote the address
     under the base path before the base-path check read it, so a page served at another path loaded
     instead of showing the mismatch screen; and the start button's key hint, at the export's reduced
@@ -412,7 +405,7 @@ carries a recommendation; where the specification already relies on an answer, i
     §5](ui/flows.md#5-error-mid-test) and [ui/i18n-a11y.md §2.6](ui/i18n-a11y.md#26-contrast).
 42. How does the demo build stand in for a server? Current answer: **a demo Worker entry runs the
     real engine through its message loop against a simulated link on a sped-up clock, one scenario
-    per v0.1 state of the UI kit, each a link and a scripted stop, failure or hold.** Writing it
+    per state of the UI kit, each a link and a scripted stop, failure or hold.** Writing it
     settled three points. The kit's VPN, 640 kbit/s with 48 ms, finds its steady window before the 10
     s minimum and is not extended, as the kit's own notes say and the engine agrees; the slow-link
     extension shows on the kit's 20 kbit/s insufficient-data link instead. And a simulated restart
@@ -436,16 +429,14 @@ carries a recommendation; where the specification already relies on an answer, i
     taken over by the next scenario's session. Recommendation: keep it. See
     [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build) and
     [technical-stack/build-packaging.md §4](technical-stack/build-packaging.md#4-ci-workflows).
-44. How do the deployment examples show a setting the running release does not have yet? The
-    Traefik shape enabled the networkQuality layer, which v0.1 rejects at startup
-    ([configuration.md §4](configuration.md#4-fail-closed-validation)), so a copy of it exited
-    with status 2. Current answer: **the toggle is shown commented out, with the release that
-    brings it, in the page and in the shipped files alike; every shipped compose file's BitGauge
-    environment must load and validate with no problem, which `test/deployments` checks against the
-    configuration package itself.** v0.3 uncommented the networkQuality line in the page and the
-    Traefik, Caddy and nginx examples together, each of which sets an `https` `public_url`.
-    Recommendation: keep it. See
-    [deployment-example.md §2](deployment-example.md#2-compose-with-traefik).
+44. How do the deployment examples stay valid when copied as they are? Current answer: **an
+    opt-in setting, such as the metrics toggle, is shown commented out in the page and in the
+    shipped files alike, and every shipped compose file's BitGauge environment must load and
+    validate with no problem, which `test/deployments` checks against the configuration package
+    itself.** The networkQuality toggle is on in the Traefik, Caddy and nginx examples, each of
+    which sets the `https` `public_url` the layer needs
+    ([configuration.md §4](configuration.md#4-fail-closed-validation)). Recommendation: keep it.
+    See [deployment-example.md §2](deployment-example.md#2-compose-with-traefik).
 45. How does the Prometheus endpoint behave, and what does it count? Current answer: **a counter
     `bitgauge_http_aborts_total{group,direction}` records the transfers a client abandoned before
     the body ended, the only record of them; `group` is the owner of the matched route
@@ -515,17 +506,16 @@ carries a recommendation; where the specification already relies on an answer, i
     answer: **`localStorage` key `bitgauge.settings.v1` holds a sparse object of the fields the
     user set (`theme`, `lang`, `preset`, `phases`, `streams`, `download`, `upload`,
     `dataCapBytes`, `units`, `autoStart: {enabled, countdownS}`, `warmup`, `pingCount`,
-    `overheadCompensationPercent`, `label`, and from v0.3 `continuousDirection` and `runLengthS`,
+    `overheadCompensationPercent`, `label`, `continuousDirection` and `runLengthS`,
     absent meaning download and no run length), `streams` holding `{mode, fixed}` with the maximum
     always the server's, `label` the screen's result label that pre-fills every result, keeps
     fields it does not know, and is where
     `useTheme` keeps writing `theme`; the URL wins over the stored fields, which win over the server
     defaults; the fields take the kit's ranges, durations 5–600 s, countdown 1–30 s, pings 6–200,
     warm-up 1–60 s, and a data cap of 2–100000 MB, where the kit's 1 MB would fall below the 1 MiB
-    floor; the Continuous card is disabled with a v0.3 badge before v0.3 and enabled from it, with
-    its direction and its 60 s–7 day run length; the shareable URL carries the
-    parameters that differ from the server defaults in table order, `run=1` when ticked, `label`
-    when set, `theme` and `lang` only when stored, and a "Not in the link" line names the
+    floor; the Continuous card offers its direction and its 60 s–7 day run length; the shareable URL
+    carries the parameters that differ from the server defaults in table order, `run=1` when ticked,
+    `label` when set, `theme` and `lang` only when stored, and a "Not in the link" line names the
     changed settings it cannot carry; a stored Auto-start counts as `run=1` on each load, a URL
     `run=0` winning for that load; a stored preset brings its stream mode, durations and ping
     count, from the preset table `engine/messages.ts` re-exports, under the other stored fields; a
@@ -684,7 +674,7 @@ carries a recommendation; where the specification already relies on an answer, i
     `idle-latency`, `jitter`, `loaded-latency` and `download`. `basis` is `bufferbloat.basis`, or
     `none` without an increase. The latency inputs are the quantized idle median and jitter, the
     increase is `bufferbloat.increaseMs`, and download is the direction's `bitsPerSecond` headline;
-    upload is listed by §13.1 but used by no experience. `scores` is present on every v0.3 result,
+    upload is listed by §13.1 but used by no experience. `scores` is present on every result,
     and `schemaVersion` stays 1. Recommendation: keep it. See
     [measurement.md §13](measurement.md#13-quality-scores).
 59. What are a Continuous run's settings, outcomes and numbers, where measurement.md §15 left them
@@ -730,14 +720,15 @@ carries a recommendation; where the specification already relies on an answer, i
     rings of its own, and the live chart picks its tier by elapsed time: native up to 10 min, hour
     up to 60 min, day up to 24 h, long beyond. Recommendation: keep it. See
     [architecture.md §4](architecture.md#4-engine--ui-message-contract).
-61. How does the demo build show v0.3? Current answer: **as more scenarios and panel controls
-    over the real engine**: the kit's four Continuous states as scenarios, a demo clock
-    fast-forward rate per Continuous scenario, a 921 Mbit/s HTTP/2 LAN fixture, path B controls
-    (the protocol, a new-connection toggle, a `/small` starvation for few samples), offered as the
-    kit's Responsiveness control (question 64), and switches for the About screen's layers.
-    Recommendation: keep it. See
+61. How does the demo build show Continuous, path B and the compatibility layers? Current answer:
+    **as more scenarios and panel controls over the real engine**: the kit's four Continuous states
+    as scenarios, a demo clock fast-forward rate per Continuous scenario, a 921 Mbit/s HTTP/2 LAN
+    fixture, path B controls (the protocol, a new-connection toggle, a `/small` starvation for few
+    samples), offered as the kit's Responsiveness control (question 64), and switches for the About
+    screen's layers. Recommendation: keep it. See
     [technical-stack/frontend.md §9](technical-stack/frontend.md#9-demo-build).
-62. What do the v0.3 screens show, where screens.md, flows.md and url-params.md left it open?
+62. What do the screens show of Continuous, responsiveness, the scores and the compatibility
+    layers, where screens.md, flows.md and url-params.md left it open?
     Current answer: **the spec's numbers, each with its qualifier, and nothing the live run cannot
     know yet.**
     - Settings store sparse `continuousDirection` and `runLengthS`, which the URL's `test=upload`
@@ -767,22 +758,22 @@ carries a recommendation; where the specification already relies on an answer, i
 
     Recommendation: keep it. See [ui/screens.md](ui/screens.md) and
     [ui/flows.md §7](ui/flows.md#7-continuous-mode).
-63. How does the harness judge v0.3? Current answer: **path B and the compatibility clients on
-    the CI tier, Continuous memory by hand.** On `ci-100m-50ms-caddy-h2` each measured direction's
-    path B must run over HTTP/2: `responsiveness.state` `measured` or `uncertain`, with `protocol`
-    `h2` and an RPM, which of the two being recorded and not judged; on `ci-100m-50ms-traefik-h1`
-    it must be `unavailable_h1`; other profiles record it unjudged. Amended by the maintainer on
-    2026-10-19 from "must be `measured`" on the Caddy profile, after the first CI runs read
-    `uncertain` there in every browser for reasons §12.4 defines and the profile does not
-    control: 5 to 9 download samples in a 3 to 4.7 s window, each probe on the loaded HTTP/2
-    connection taking about 300 to 340 ms (no WebSocket queue, and unchanged by a low
-    `tcp_notsent_lowat` on Caddy), and upload warm-ups that sometimes end at their cap. Every probe
-    reused the loaded connection, so the engine's evidence holds. Two leads stay open for the
-    engine: where in the HTTP/2 path the probe waits (question 65), and Firefox's few upload
-    samples (6 in an 8 s steady window in run `eec847e0`), investigated in the timing-entry change
-    of 2026-10-19. That change gave probes a patience of their own
-    ([measurement.md §11.6](measurement.md#116-probe-bookkeeping)), so a late upload entry no
-    longer stops probes being waited for, but it is not what Firefox lacked: 13 instrumented
+63. How does the harness judge path B, the compatibility clients and Continuous? Current answer:
+    **path B and the compatibility clients on the CI tier, Continuous memory by hand.** On
+    `ci-100m-50ms-caddy-h2` each measured direction's path B must run over HTTP/2:
+    `responsiveness.state` `measured` or `uncertain`, with `protocol` `h2` and an RPM, which of the
+    two being recorded and not judged; on `ci-100m-50ms-traefik-h1` it must be `unavailable_h1`;
+    other profiles record it unjudged. Amended by the maintainer on 2026-10-19 from "must be
+    `measured`" on the Caddy profile, after the first CI runs read `uncertain` there in every
+    browser for reasons §12.4 defines and the profile does not control: 5 to 9 download samples in a
+    3 to 4.7 s window, each probe on the loaded HTTP/2 connection taking about 300 to 340 ms (no
+    WebSocket queue, and unchanged by a low `tcp_notsent_lowat` on Caddy), and upload warm-ups that
+    sometimes end at their cap. Every probe reused the loaded connection, so the engine's evidence
+    holds. Two leads stay open for the engine: where in the HTTP/2 path the probe waits (question
+    65), and Firefox's few upload samples (6 in an 8 s steady window in run `eec847e0`),
+    investigated in the timing-entry change of 2026-10-19. That change gave probes a patience of
+    their own ([measurement.md §11.6](measurement.md#116-probe-bookkeeping)), so a late upload entry
+    no longer stops probes being waited for, but it is not what Firefox lacked: 13 instrumented
     Firefox runs on the Caddy profile, with the shared waiter and with the split alike, found every
     upload probe's entry at once. The samples are few because the upload's sampling window is
     short: probing starts when the engine learns the warm-up end, which the server timeline places
@@ -806,7 +797,8 @@ carries a recommendation; where the specification already relies on an answer, i
     minute 5 to 60 lies within 2 MiB of the minute-5 sample, and is recorded per release in
     `docs/engineering/harness-runs/`. Recommendation: keep it. See
     [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness).
-64. What do the v0.3 screens show where the design export's v0.3 kit and the spec left it open?
+64. What do the screens of question 62 show where the design export's kit and the spec left it
+    open?
     Current answer: **the kit's drawing where the spec is silent, written into the spec**; behavior
     stays the spec's, visuals the kit's.
     - The Continuous run length is the kit's control: a switch, a number and a minutes, hours or
@@ -823,12 +815,12 @@ carries a recommendation; where the specification already relies on an answer, i
       at most 2000 points by summed bytes and known time; bounded runs are not re-binned.
     - A bounded run's live rings are allocated at phase start: `ceil((maxMs + 5000) / 100)`
       buckets, the upload `sendingTrace` the same, `ceil((maxMs + 5000) / 300)` pings.
-    - The demo panel takes the kit's v0.3 controls: the four Continuous states, Responsiveness
-      (five options mapped onto the link, `h3` dropped), Continuous run length, Compare B, the
-      Result detail's Kind, Continuous length and Responsiveness, and the About layer switches.
-      Its Continuous Result-detail results are fixtures scored by the engine, its About always
-      shows the HTTPS note, and a fast-forwarded scenario reports a busy share of 0 unless
-      CPU-bound is on.
+    - The demo panel takes the kit's Continuous, responsiveness and About controls: the four
+      Continuous states, Responsiveness (five options mapped onto the link, `h3` dropped),
+      Continuous run length, Compare B, the Result detail's Kind, Continuous length and
+      Responsiveness, and the About layer switches. Its Continuous Result-detail results are
+      fixtures scored by the engine, its About always shows the HTTPS note, and a fast-forwarded
+      scenario reports a busy share of 0 unless CPU-bound is on.
 
     Recommendation: keep it. See [ui/screens.md](ui/screens.md),
     [measurement.md §15](measurement.md#15-continuous-mode) and
@@ -836,22 +828,22 @@ carries a recommendation; where the specification already relies on an answer, i
     and [§9](technical-stack/frontend.md#9-demo-build).
 65. Where does a path B probe wait on a loaded HTTP/2 connection through Caddy? On
     `ci-100m-50ms-caddy-h2` each probe takes about 300 to 340 ms while the WebSocket echo, on its
-    own connection, does not. Current answer: **not investigated for v0.3; the value is reported
-    as measured**, because path B measures the loaded connection's own queue, which is what its
+    own connection, does not. Current answer: **not investigated; the value is reported as
+    measured**, because path B measures the loaded connection's own queue, which is what its
     label and [measurement.md §12.3](measurement.md#123-path-b-procedure) describe. Finding where
     Caddy or the kernel queues it is server-side tuning research. Recommendation: investigate it
-    after v0.3 with the harness's Caddy profile. See question 63.
+    with the harness's Caddy profile, unscheduled. See question 63.
 66. Should an upload's path B start before the engine learns the warm-up end? On upload, probing
     starts at the client instant the engine learns the warm-up end
     ([measurement.md §12.3](measurement.md#123-path-b-procedure)), which the server timeline places
     seconds earlier, and the end condition often holds soon after. In 13 instrumented Firefox runs
     on `ci-100m-50ms-caddy-h2` the upload's probing span ran from 1.3 s to 15 s (4 to 52 samples),
     and one full CI run on 2026-10-19 gave Firefox 0 upload samples in a 10.1 s steady window,
-    `unavailable_insufficient`, which fails question 63's Caddy rule. Current answer: **no, not in
-    v0.3: probing starts at the learned warm-up end**, so every sample is known to fall after the
+    `unavailable_insufficient`, which fails question 63's Caddy rule. Current answer: **no: probing
+    starts at the learned warm-up end**, so every sample is known to fall after the
     warm-up under full load, and a run whose upload learns its warm-up end at or just before its
     end instant has few samples or none and fails that rule; the harness tolerance is not widened.
-    Recommendation: decide before the v0.3 release whether to probe an upload from its first
+    Recommendation: decide before the first release whether to probe an upload from its first
     request and keep, once the warm-up end is learned, only the probes sent after it on the client
     clock (which needs a server-to-client mapping of that instant that §7.4 keeps display-only), or
     to keep §12.3 as it is and accept the failure mode. See question 63.
@@ -860,8 +852,7 @@ Resolved and removed:
 
 - _Which format should the share image use?_ **PNG** from a `<canvas>`, which every chat app and
   photo viewer accepts; SVG would be smaller but depends on fonts on the receiving side and is
-  refused by several sharing targets. Resolved by the maintainer in the v0.2 implementation plan
-  on 2026-10-16. See
+  refused by several sharing targets. Resolved by the maintainer on 2026-10-16. See
   [technical-stack/frontend.md §6](technical-stack/frontend.md#6-charts-gauge-and-share-image).
 
 - _Should the upload grace after the end decision depend on the in-flight request's expected
@@ -892,11 +883,11 @@ Resolved and removed:
   2026-10-12. See [technical-stack/testing.md §5](technical-stack/testing.md#5-accuracy-harness)
   and
   [decisions.md §35](technical-stack/decisions.md#35-accuracy-harness-reference--iperf3-before-and-after-the-browser-run).
-- _How does the harness read a v0.1 result?_ **A single-result "Download JSON" action on the v0.1
-  Test screen**, so the harness uses a real user path and no test-only hook. Resolved by the
+- _How does the harness read a result?_ **A single-result "Download JSON" action on the Test
+  screen**, so the harness uses a real user path and no test-only hook. Resolved by the
   maintainer's approval of the specification on 2026-10-12. See
   [ui/screens.md §1](ui/screens.md#1-test-home--) and
-  [decisions.md §36](technical-stack/decisions.md#36-v01-harness-extraction--download-json-on-the-test-screen).
+  [decisions.md §36](technical-stack/decisions.md#36-harness-extraction--download-json-on-the-test-screen).
 - _Which license variant: GPL-3.0-only or GPL-3.0-or-later?_ **GPL-3.0-or-later**, used
   consistently in the README, the image label and source headers. Resolved by the user on
   2026-10-08. See [technical-stack/decisions.md](technical-stack/decisions.md).

@@ -25,7 +25,7 @@ services:
       - no-new-privileges:true
     environment:
       BITGAUGE_SERVER__DISPLAY_NAME: home
-      # From v0.2, which ships the Prometheus endpoint; v0.1 rejects the toggle and exits 2.
+      # Uncomment to serve /metrics.
       # With no proxy to restrict it, anyone who reaches port 8080 can read /metrics.
       # BITGAUGE_METRICS__ENABLED: "true"
     # Optional: full configuration as a read-only file
@@ -51,11 +51,9 @@ services:
   §6](technical-stack/backend.md#6-healthcheck-subcommand)). The image has no shell or `curl`, so
   the exec form above is required.
 - Without a proxy, `trusted_proxies` stays empty and the client IP is the TCP peer.
-- **Metrics from v0.2.** The Prometheus endpoint ships in v0.2
-  ([roadmap.md §1.2](roadmap.md#12-version-02-latency-under-load-and-the-browsers-history)); its
-  toggle stays commented out until v0.2 is released, because v0.1 rejects it and exits with status
-  2 ([configuration.md §4](configuration.md#4-fail-closed-validation)), and is uncommented in the
-  page and the examples together then. The endpoint is unauthenticated
+- **Metrics are opt-in.** The Prometheus endpoint is off by default, so its toggle is commented
+  out in the page and the examples alike; uncomment it to serve `/metrics`. The endpoint is
+  unauthenticated
   ([configuration.md §2.6](configuration.md#26-metrics)): with no proxy in front, anyone who reaches
   port 8080 can read it, and BitGauge logs a warning at startup. The proxy examples below let only
   the Prometheus server read it.
@@ -103,9 +101,9 @@ services:
       BITGAUGE_SERVER__DISPLAY_NAME: home
       BITGAUGE_SERVER__PUBLIC_URL: https://speed.example.lan
       BITGAUGE_SERVER__TRUSTED_PROXIES: 172.30.0.2/32
-      # From v0.3, which ships the networkQuality layer; an earlier release rejects it and exits 2.
+      # Serves Apple's networkQuality client; it needs the https public_url above.
       BITGAUGE_COMPAT__NETWORKQUALITY__ENABLED: "true"
-      # From v0.2, which ships the Prometheus endpoint; v0.1 rejects the toggle and exits 2.
+      # Uncomment to serve /metrics.
       # The proxy lets only the Prometheus server read /metrics.
       # BITGAUGE_METRICS__ENABLED: "true"
     healthcheck:
@@ -153,18 +151,15 @@ tls:
 - **Trusted proxy.** The fixed Traefik address is the only entry in `trusted_proxies`, so forwarding
   headers from anything else are ignored ([security.md
   §4](security.md#4-client-ip-and-trusted-proxies)).
-- **networkQuality from v0.3.** The layer ships in v0.3 ([roadmap.md
-  §1.3](roadmap.md#13-version-03-compatibility-responsiveness-and-long-runs)), and its toggle is
-  on: it builds its `https` URLs from `public_url`, which the example sets, and needs the TLS 1.3
-  option. A release before v0.3 rejects the toggle and exits with status 2 ([configuration.md
-  §4](configuration.md#4-fail-closed-validation)), so drop the line to run one.
+- **networkQuality.** The layer's toggle is on: it builds its `https` URLs from `public_url`,
+  which the example sets, and needs the TLS 1.3 option.
 - **Metrics for the scraper only.** A second router takes `/metrics` on the same host, its rule
   longer and so of higher priority than the first, and its `ipAllowList` middleware answers `403`
   to every address but the Prometheus server's (`192.168.1.20` here; use yours). It carries the
   same TLS options as the first router: Traefik serves a host whose routers disagree on them with
   its default options instead, which would drop the TLS 1.3 minimum. The metrics toggle itself
-  stays commented out until v0.2 is released (§1); until then the Prometheus server gets
-  BitGauge's `404` there and everyone else the `403`.
+  is commented out (§1); until it is uncommented, the Prometheus server gets BitGauge's `404`
+  there and everyone else the `403`.
 
 ## 3. Caddy
 
@@ -203,7 +198,7 @@ speed.example.lan {
   enabled.
 - The `@metrics_others` matcher answers `403` to `/metrics` for every address but the Prometheus
   server's (`192.168.1.20` here; use yours); `respond` runs before `reverse_proxy` in Caddy's
-  directive order. The metrics toggle stays commented out until v0.2 is released (§1).
+  directive order. The metrics toggle is commented out (§1).
 - The shipped compose file runs it with BitGauge in the shape of §2:
   [`deployments/examples/caddy/compose.yaml`](../../deployments/examples/caddy/compose.yaml).
 
@@ -266,7 +261,7 @@ nginx buffers request bodies by default, which is the most common cause of disto
 numbers ([edge-cases.md §4](edge-cases.md#4-proxy-buffering-that-distorts-upload)).
 The exact `location = /metrics` takes precedence over `location /` and lets only the Prometheus
 server (`192.168.1.20` here; use yours) read the metrics; every other address gets `403`. The
-metrics toggle stays commented out until v0.2 is released (§1).
+metrics toggle is commented out (§1).
 The shipped compose file runs it with BitGauge in the shape of §2:
 [`deployments/examples/nginx/compose.yaml`](../../deployments/examples/nginx/compose.yaml).
 
