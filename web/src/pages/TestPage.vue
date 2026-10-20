@@ -25,7 +25,7 @@ import ConnectionStrip from '@/components/connection/ConnectionStrip.vue'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
 import { startK } from '@/components/gauge/window'
 import OfflineNotice from '@/components/OfflineNotice.vue'
-import { qualityView } from '@/components/result/qualityList'
+import { pendingQualityView, qualityView } from '@/components/result/qualityList'
 import AutoStartNotice from '@/components/test/AutoStartNotice.vue'
 import LastResult from '@/components/test/LastResult.vue'
 import NoticeList from '@/components/test/NoticeList.vue'
@@ -99,12 +99,23 @@ const load = computed(() =>
       // The finished idle phase's median alone: the progress median exists from the first ping.
       idleMedianMs: run.phases.value.idle.idle?.medianMs ?? null,
       result: run.result.value,
+      protocol: state.value === 'idle' ? null : run.protocol.value,
+      continuous: continuousDirection(shownSettings.value) !== null,
     },
     wording.value,
   ),
 )
-// The quality list shows on the Done state only, as the HTTP loaded responsiveness does.
-const quality = computed(() => (state.value === 'done' && run.result.value !== null ? qualityView(run.result.value, wording.value) : null))
+// The quality list: on every state of a standard run, as the kit's Test screen shows it, "—" until
+// an ended run's result scores it, "needs a full test" when it ended without one; a Continuous
+// run's only in its finished result (ui/screens.md section 1).
+const quality = computed(() => {
+  const result = state.value !== 'idle' && !running.value ? run.result.value : null
+  if (continuousDirection(shownSettings.value) !== null) {
+    return state.value === 'done' && result !== null ? qualityView(result, wording.value) : null
+  }
+  const ended = state.value === 'error' || state.value === 'cancelled'
+  return (result === null ? null : qualityView(result, wording.value)) ?? pendingQualityView(wording.value, ended && result === null)
+})
 // A Continuous run's live view, in place of the tiles once its direction starts: idle latency runs
 // first with its own tiles (ui/screens.md section 1); then until the next run.
 const continuous = computed(() => {

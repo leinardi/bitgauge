@@ -238,3 +238,29 @@ export function responsivenessView(result: Result, wording: Wording, detailed = 
     rows: ran.map(({ direction, block }) => responsivenessRow(direction, block, result.client.timerResolutionMs, detailed, wording)),
   }
 }
+
+/**
+ * The Test screen's block of a standard run (the kit's TestScreen.jsx): a row per direction the run
+ * plans, in its order, the result's where it has one and "—" where it has none yet or did not run,
+ * under the protocol the info phase recorded until a result names its own.
+ */
+export function plannedResponsivenessView(result: Result | null, directions: readonly Direction[], protocol: string | null, wording: Wording): ResponsivenessView | null {
+  if (directions.length === 0) {
+    return null
+  }
+  const { t } = wording
+  const blocks = directions.flatMap((direction) => {
+    const block = result?.[direction]?.responsiveness
+    return block === undefined ? [] : [block]
+  })
+  const first = blocks[0]
+  return {
+    protocol: protocolLabel(first === undefined ? protocol : first.protocol) ?? t('result.load.rpm.notReported'),
+    note: responsivenessNote(blocks, directions, wording),
+    tag: blocks.some((block) => block.state === 'uncertain') ? t('result.load.rpm.uncertain') : null,
+    rows: directions.map((direction): ResponsivenessRow => {
+      const block = result?.[direction]?.responsiveness
+      return result === null || block === undefined ? { direction, value: null, uncertain: false } : responsivenessRow(direction, block, result.client.timerResolutionMs, false, wording)
+    }),
+  }
+}

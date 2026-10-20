@@ -111,3 +111,12 @@ export function qualityView(result: Result, wording: Wording): QualityView | nul
     }),
   }
 }
+
+/**
+ * The Test screen's list without a result to score (the kit's TestScreen.jsx): every experience "—"
+ * before a run ends, or "needs a full test" when it ended without a result.
+ */
+export function pendingQualityView(wording: Wording, ended = false): QualityView {
+  const text = ended ? wording.t('result.quality.needsFullTest') : '—'
+  return { basis: null, rows: EXPERIENCES.map((experience) => ({ experience, name: experienceName(experience, wording), band: null, text })) }
+}

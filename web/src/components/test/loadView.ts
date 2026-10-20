@@ -18,7 +18,7 @@
  */
 
 import type { Direction, LoadedLatency, MeasuringPhase, PhaseState, Result } from '@/engine/messages'
-import { type GradeView, loadRow, type LoadRow, gradeView, responsivenessView, type ResponsivenessView } from '@/components/result/load'
+import { type GradeView, loadRow, type LoadRow, gradeView, plannedResponsivenessView, responsivenessView, type ResponsivenessView } from '@/components/result/load'
 import type { Wording } from '@/components/test/wording'
 import type { LoadedSeries } from '@/composables/useLoadedSeries'
 import type { RunStatus } from '@/composables/useRunState'
@@ -27,7 +27,8 @@ import { latencyNumber } from '@/lib/format'
 
 // The Test screen's load card (ui/screens.md sections 1 and 6): the grade and a loaded-latency row
 // per direction, live from the pings so far, then the result's with its qualifiers, and from v0.3
-// the HTTP loaded responsiveness of a complete result, which the Done state shows.
+// the HTTP loaded responsiveness: on every state of a standard run, as the kit's Test screen shows
+// it, and only in a Continuous run's finished result (ui/screens.md section 1).
 
 /** What the Test screen's load card needs of the run (ui/screens.md sections 1 and 6). */
 export interface LoadInput {
@@ -47,13 +48,17 @@ export interface LoadInput {
    */
   idleMedianMs: number | null
   result: Result | null
+  /** The protocol the info phase recorded, path B's capability check; null before it. */
+  protocol?: string | null
+  /** A Continuous run, whose HTTP loaded responsiveness waits for its finished result. */
+  continuous?: boolean
 }
 
 export interface LoadView {
   /** Null when the run has no idle latency, so no grade (measurement.md section 11.3). */
   grade: GradeView | null
   rows: LoadRow[]
-  /** A complete result's HTTP loaded responsiveness; null before it, without it, or for a partial or error result. */
+  /** The HTTP loaded responsiveness; a Continuous run's only once complete, null before. */
   responsiveness: ResponsivenessView | null
 }
 
@@ -144,7 +149,12 @@ export function loadView(input: LoadInput, context: Wording): LoadView | null {
     }
     return { direction, label, sub: ended ? t('test.load.noResult') : t('test.load.none'), value: null }
   })
-  const responsiveness = result?.status === 'complete' ? responsivenessView(result, context) : null
+  const responsiveness =
+    input.continuous === true
+      ? result?.status === 'complete'
+        ? responsivenessView(result, context)
+        : null
+      : plannedResponsivenessView(result, order, input.protocol ?? null, context)
   if (!input.phases.includes('idle')) {
     return { grade: null, rows, responsiveness }
   }

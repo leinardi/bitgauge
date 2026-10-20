@@ -115,24 +115,31 @@ describe('the load card of the Test screen', () => {
     expect(view?.grade).toEqual({ grade: 'B', words: 'Mild bufferbloat', basis: 'Basis: worse of download and upload' })
   })
 
-  it('adds a complete result’s HTTP loaded responsiveness, without the Result detail’s TM95, and none before it', () => {
+  it('adds the HTTP loaded responsiveness on every state of a standard run, a Continuous run’s once complete', () => {
     const base = graded(measured(), measured(), { grade: 'B', basis: 'download+upload', increaseMs: 15 })
     const h1 = { state: 'unavailable_h1' as const, protocol: 'http/1.1', samples: 0 }
     const result = { ...base, download: { ...base.download!, responsiveness: h1 }, upload: { ...base.upload!, responsiveness: h1 } }
+    const dashes = [
+      { direction: 'download', value: null, uncertain: false },
+      { direction: 'upload', value: null, uncertain: false },
+    ]
     const view = loadView(input({ status: 'ended', states: { download: 'finished', upload: 'finished' }, result }), context)
-    expect(view?.responsiveness).toEqual({
-      protocol: 'HTTP/1.1',
-      note: 'needs HTTP/2 or HTTP/3 at the reverse proxy',
+    expect(view?.responsiveness).toEqual({ protocol: 'HTTP/1.1', note: 'needs HTTP/2 or HTTP/3 at the reverse proxy', tag: null, rows: dashes })
+    // Before a result, a row per planned direction with "—", under the protocol the info phase recorded.
+    expect(loadView(input({ status: 'idle', states: { download: 'pending', upload: 'pending' } }), context)?.responsiveness).toEqual({
+      protocol: 'not reported',
+      note: 'round trips per minute, one per direction',
       tag: null,
-      rows: [
-        { direction: 'download', value: null, uncertain: false },
-        { direction: 'upload', value: null, uncertain: false },
-      ],
+      rows: dashes,
     })
-    expect(loadView(input({ status: 'ended', states: { download: 'finished', upload: 'finished' }, result: base }), context)?.responsiveness).toBeNull()
-    // The Done state's alone: a partial result keeps the card without it.
-    expect(loadView(input({ status: 'ended', states: { download: 'finished', upload: 'finished' }, result: { ...result, status: 'partial' } }), context)?.responsiveness).toBeNull()
-    expect(loadView(input({ status: 'running', states: { download: 'started', upload: 'pending' } }), context)?.responsiveness).toBeNull()
+    expect(loadView(input({ status: 'running', states: { download: 'started', upload: 'pending' }, protocol: 'h2' }), context)?.responsiveness?.protocol).toBe('HTTP/2')
+    // A partial result keeps what ran; a direction without a block reads "—".
+    const partial = { ...result, status: 'partial' as const, upload: { ...base.upload!, responsiveness: undefined } }
+    expect(loadView(input({ status: 'ended', states: { download: 'finished', upload: 'finished' }, result: partial }), context)?.responsiveness?.rows).toEqual(dashes)
+    // A Continuous run's waits for its finished result (ui/screens.md section 1).
+    expect(loadView(input({ status: 'running', states: { download: 'started', upload: 'pending' }, continuous: true }), context)?.responsiveness).toBeNull()
+    expect(loadView(input({ status: 'ended', states: { download: 'finished', upload: 'finished' }, result: partial, continuous: true }), context)?.responsiveness).toBeNull()
+    expect(loadView(input({ status: 'ended', states: { download: 'finished', upload: 'finished' }, result, continuous: true }), context)?.responsiveness?.rows).toEqual(dashes)
   })
 
   it('says why a direction has no loaded latency, and that the increase needs idle latency', () => {

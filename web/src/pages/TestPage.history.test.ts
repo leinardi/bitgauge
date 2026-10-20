@@ -194,7 +194,7 @@ describe('history on the Test screen', () => {
     page.unmount()
   })
 
-  it('adds the result’s HTTP loaded responsiveness and quality list once the run ends, neither while it runs', async () => {
+  it('shows the HTTP loaded responsiveness and quality list while a standard run goes on, then the result’s', async () => {
     vi.stubGlobal('Worker', StubWorker)
     const page = await mountApp(TestPage)
     await settle()
@@ -202,8 +202,9 @@ describe('history on the Test screen', () => {
     const worker = StubWorker.started[0]
     worker?.emit({ type: 'phase', phase: 'download', state: 'started', notices: [] })
     await settle()
-    expect(page.find('[data-testid="load-responsiveness"]').exists()).toBe(false)
-    expect(page.find('[data-testid="quality-list"]').exists()).toBe(false)
+    // Pending, as the kit's Test screen shows them: "—" until the result.
+    expect(page.findAll('[data-testid="load-rpm"]').map((row) => row.text())).toEqual(['Download—', 'Upload—'])
+    expect(page.findAll('[data-testid="quality-row"]').map((row) => row.text())).toEqual(['Streaming—', 'Gaming—', 'Video calls—'])
     const base = resultFixture()
     const h1 = { state: 'unavailable_h1' as const, protocol: 'http/1.1', samples: 0 }
     const scores = { basis: 'download' as const, packetLoss: 'not-measured' as const, streaming: { points: 90, band: 'great' as const }, gaming: { points: 60, band: 'good' as const }, rtc: { points: 50, band: 'average' as const } }

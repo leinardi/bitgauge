@@ -24,7 +24,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { qualityView } from '@/components/result/qualityList'
+import { pendingQualityView, qualityView } from '@/components/result/qualityList'
 import type { Wording } from '@/components/test/wording'
 import type { Scores } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
@@ -67,5 +67,18 @@ describe('qualityView', () => {
 
   it('is absent without scores', () => {
     expect(qualityView(resultFixture(), wording)).toBeNull()
+  })
+})
+
+describe('pendingQualityView', () => {
+  it('reads "—" before a run ends and "needs a full test" when it ended without a result, as the kit does', () => {
+    const texts = (ended: boolean) => pendingQualityView(wording, ended).rows.map((row) => [row.name, row.band, row.text])
+    expect(texts(false)).toEqual([
+      ['Streaming', null, '—'],
+      ['Gaming', null, '—'],
+      ['Video calls', null, '—'],
+    ])
+    expect(texts(true).map(([, , text]) => text)).toEqual(['needs a full test', 'needs a full test', 'needs a full test'])
+    expect(pendingQualityView(wording).basis).toBeNull()
   })
 })

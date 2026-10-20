@@ -118,6 +118,7 @@
       "basisDownload": "download only",
       "basisUpload": "upload only",
       "needs": "needs {inputs}",
+      "needsFullTest": "needs a full test",
       "inputs": {
         "idleLatency": "idle latency",
         "jitter": "jitter",
