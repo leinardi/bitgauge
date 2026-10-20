@@ -1,9 +1,8 @@
 # Accuracy Harness Runbook
 
 How to run the two manual tiers of the accuracy harness, the range floor and the range ceiling,
-and from v0.3 the manual Continuous memory check, before each release, and where their results
-go. The harness itself, its profiles, tolerances and
-no-egress layers are specified in
+and the manual Continuous memory check, before each release, and where their results go. The
+harness itself, its profiles, tolerances and no-egress layers are specified in
 [testing.md §5](../features/technical-stack/testing.md#5-accuracy-harness); this note is only the
 procedure. The CI tier needs no runbook: `harness.yaml` runs it.
 
@@ -92,7 +91,7 @@ wall-clock time (`ping -D`).
   them. A profile that breaks either condition of the instability rule of testing.md §5 (before
   and after more than 5 % apart, or either more than 5 % off the configured goodput) has no
   reference; it is re-run once, and if it is still unstable it is **inconclusive**, never a pass.
-- **Loaded latency** (v0.2): per direction the engine's increase over idle and its source, the
+- **Loaded latency**: per direction the engine's increase over idle and its source, the
   ping's idle median and each direction's increase, and the grade with its basis. The evaluator
   places each ping by its send time (arrival less round trip) in the phase windows of
   `phases.json`: idle latency's whole window, and each direction's after its first `I_s`,
@@ -105,13 +104,13 @@ wall-clock time (`ping -D`).
   the window fails the run. `ci-100m-50ms-traefik-h1-ws-blocked` must report `http-h1-reserved`
   with at least 10 samples in each direction, at most 5 streams and the `probe-reservation` notice
   (testing.md §5).
-- **HTTP loaded responsiveness** (v0.3): each direction's path B state, with its RPM when it has
+- **HTTP loaded responsiveness**: each direction's path B state, with its RPM when it has
   one. On `ci-100m-50ms-caddy-h2` a measured direction must read `measured` or `uncertain` with
   `protocol` `h2` and an RPM (which of the two is recorded, not judged: a Standard download window
   there holds fewer than 10 probes, each taking about 300 to 340 ms on the loaded connection), on
   `ci-100m-50ms-traefik-h1` `unavailable_h1`; every other profile records it unjudged
   (testing.md §5, open question 63).
-- **Compatibility clients** (v0.3, `ci-100m-50ms-caddy-h2` only): `librespeed-cli`,
+- **Compatibility clients** (`ci-100m-50ms-caddy-h2` only): `librespeed-cli`,
   `goresponsiveness` and the OpenSpeedTest UI, each with its download and upload (and the RPM for
   `goresponsiveness`). Each must finish without an error with non-zero numbers, which follow the
   client's own method and are not held to the tolerances; a missing or unreadable output fails the
@@ -142,7 +141,7 @@ before tagging. It holds, in this order:
 2. the ceiling tier's `report.md`, as written, and the hand verdict;
 3. the manual runs: device, OS and browser versions, the VPN and network used, the headline and
    its qualifiers from the downloaded JSON;
-4. from v0.3, the Continuous memory check (§7): the browser version, the minute-by-minute heap
+4. the Continuous memory check (§7): the browser version, the minute-by-minute heap
    readings and the verdict;
 5. the environmental notes: the host (CPU, cores, kernel, Docker version), anything that differed
    from this runbook, and anything that looked wrong even if it passed.
@@ -226,7 +225,7 @@ gaps, the phase continued), and `ci-20261016T212626Z-f09d157a` (Caddy, `requests
 
 ## 7. Run the Continuous Memory Check
 
-From v0.3, before each release.
+Before each release.
 
 ```bash
 make harness-continuous

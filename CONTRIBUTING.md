@@ -4,8 +4,8 @@
 
 ## Code and Specification Contributions
 
-The maintainer approved the specification in [`docs/`](docs/README.md) on 2026-10-12, and v0.1, v0.2
-and v0.3 are implemented against it. Code contributions are now welcome: a fix to the binary, the
+The maintainer approved the specification in [`docs/`](docs/README.md) on 2026-10-12, and the
+product is implemented against it. Code contributions are now welcome: a fix to the binary, the
 web app or the tooling, or a feature the specification already describes
 ([`docs/STATUS.md`](docs/STATUS.md) lists what is built and what is only specified). The
 specification is the contract, and changes to it stay welcome too:

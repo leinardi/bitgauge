@@ -7,8 +7,8 @@ well under 1 Mbit/s to multi-Gbit. One stateless Go binary with an embedded Vue 
 measurement engine runs in the browser. Optional compatibility layers for OpenSpeedTest,
 LibreSpeed and Apple `networkQuality` clients.
 
-**Status: v0.1, v0.2 and v0.3 implemented, not yet released; specification approved by the
-maintainer on 2026-10-12.** The product, the engineering scaffold (build files, linters, CI, release
+**Status: implemented, not yet released; specification approved by the maintainer on
+2026-10-12.** The product, the engineering scaffold (build files, linters, CI, release
 scripts, test harnesses, agent skills) and the demo build are in place, and every gate is active
 (see [Dormant gates and activation](#dormant-gates-and-activation)). The release waits for the
 manual steps of [`docs/release.md`](docs/release.md#how-to-release). Full spec:
@@ -17,9 +17,9 @@ manual steps of [`docs/release.md`](docs/release.md#how-to-release). Full spec:
 
 ## Components
 
-The product exists: v0.1, v0.2 and v0.3 are in the tree, and [`docs/STATUS.md`](docs/STATUS.md)
-gives the status per feature area. Package details:
-[`docs/features/architecture.md` §9](docs/features/architecture.md#9-planned-package-layout).
+The product exists, and [`docs/STATUS.md`](docs/STATUS.md) gives the status per feature area.
+Package details: [`docs/features/architecture.md`
+§9](docs/features/architecture.md#9-planned-package-layout).
 
 - **`cmd/bitgauge/`**: the binary; `serve` (default) and `healthcheck` subcommands.
 - **`internal/`**: `buildinfo`, `config` (koanf), `logger` (slog), `server` (router, middleware,
@@ -67,8 +67,8 @@ The tooling **exists**:
 
 ## Common commands
 
-`make help` lists every target. No target is dormant since v0.1; a gate added later starts
-dormant, and its target fails loudly, naming what is missing, until its inputs exist
+`make help` lists every target. No target is dormant; a gate added later starts dormant, and its
+target fails loudly, naming what is missing, until its inputs exist
 ([Dormant gates and activation](#dormant-gates-and-activation)).
 
 ```bash
@@ -230,8 +230,8 @@ splitting it.
 
 ## Dormant gates and activation
 
-**Every gate below has been active since v0.1.** The table stays as the contract the registry
-enforces, for these gates and for any added later.
+**Every gate below is active.** The table stays as the contract the registry enforces, for these
+gates and for any added later.
 
 The registry is `test/toolchain/gates.go`. `go test ./test/toolchain/` fails when a gate's
 prerequisites are met but its hooks, CI jobs, steps or workflows are missing, and when any of them

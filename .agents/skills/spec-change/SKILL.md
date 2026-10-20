@@ -85,15 +85,18 @@ decisions table. It wins over any summary elsewhere, so it must never contradict
 
 [open-questions.md](../../../docs/features/open-questions.md) and the
 [Open Technical Decisions](../../../docs/features/technical-stack/decisions.md#open-technical-decisions)
-table of decisions.md list the same items under the same numbers, one row per question, each with
-its milestone. The open-questions entry carries the recommendation and, where the spec already
+table of decisions.md list the same items under the same numbers, one row per question. The
+open-questions entry carries the recommendation and, where the spec already
 relies on one, the "Current answer".
 
-- **New question:** add it to both, same number, with a recommendation, the milestone and a link
-  to the page that relies on it.
+- **New question:** add it to both, same number, with a recommendation and a link to the page
+  that relies on it.
 - **Resolved:** remove it from both; in open-questions.md, add it under "Resolved and removed" with
   the answer, who resolved it and the date, and a link. If it becomes a locked decision, it gets
   exactly one entry (section 2), and every page that said "current answer" now states it plainly.
+- **Withdrawn:** a question that only settled a state the product no longer has keeps its number
+  as a one-line `_Withdrawn: …_` item, and its decisions.md row reads `Withdrawn`, so the other
+  numbers and their citations stay.
 - **Renumbered:** text cites questions by number (`open question 3` in roadmap.md, `item 39`
   inside open-questions.md, and comments under `test/`); search for `open question`, `item` and
   `question` followed by a number across `docs/` and `test/` and fix every citation.
@@ -101,8 +104,8 @@ relies on one, the "Current answer".
 ## 4. docs/STATUS.md moves with the feature
 
 [STATUS.md](../../../docs/STATUS.md) is updated in the same change that changes a feature's
-status; a stale claim is worse than none. Its rows say `Spec'd (vX.Y)` or `Open (unscheduled)`,
-with code pointers once code exists.
+status; a stale claim is worse than none. Its rows say `Spec'd`, `Implemented` or `Open
+(unscheduled)`, with code pointers once code exists.
 
 The gate registry reads it: a gate's prerequisites include STATUS rows, matched by the **start of
 their feature cell**, that must no longer read `Spec'd`.
@@ -112,8 +115,8 @@ their feature cell**, that must no longer read `Spec'd`.
   [build-packaging.md §4](../../../docs/features/technical-stack/build-packaging.md#4-ci-workflows)).
 - Renaming the start of a feature cell a gate names makes `go test ./test/toolchain/` fail with "no
   row for a gate prerequisite". Rename the gate's entry with it, or keep the start.
-- When a milestone's status changes (v0.1, v0.2 and v0.3 are implemented and not yet released),
-  the status statements change with it: STATUS.md's intro,
+- When the product's status changes (it is implemented and not yet released), the status
+  statements change with it: STATUS.md's intro,
   [docs/features/README.md](../../../docs/features/README.md), the status lines of AGENTS.md,
   README.md and CONTRIBUTING.md, and the Serena core memory.
 

@@ -101,7 +101,7 @@ func newFixture(t *testing.T) *fixture {
 	t.Helper()
 
 	f := &fixture{t: t, root: t.TempDir()}
-	f.status("Spec'd (v0.1)")
+	f.status("Spec'd")
 	f.write(".pre-commit-config.yaml", fixtureHooks)
 	f.write(".fallowrc.json", `{"rules": {}}`)
 	f.write("docs/features/ui/screens.md", "- **Download JSON** of the finished result.\n")
@@ -292,7 +292,7 @@ func TestImageWaitsForStatus(t *testing.T) {
 	}
 
 	// The rows alone do not do it: the image's web stage needs a runnable SPA.
-	f.status("Implemented (v0.1)")
+	f.status("Implemented")
 	f.expect()
 
 	unmet, err := toolchain.Unmet(f.root, toolchain.GateHarness)

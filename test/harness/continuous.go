@@ -29,7 +29,7 @@ import (
 	"time"
 )
 
-// The manual Continuous memory check (testing.md section 5, "Continuous memory (manual, v0.3)"),
+// The manual Continuous memory check (testing.md section 5, "Continuous memory (manual)"),
 // beside the three tiers and outside Tiers(): a Continuous download on one profile in Chromium,
 // whose browser driver forces a garbage collection on the engine Worker every 60 s from the steady
 // start and reads its heap. Every sample from minute 5 to the last must lie within 2 MiB of the

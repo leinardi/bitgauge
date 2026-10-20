@@ -15,8 +15,8 @@ description: >
 
 `api/openapi.yaml` (OpenAPI 3.1) is the native API's contract;
 [wire-protocol.md](../../../docs/features/wire-protocol.md) is its prose source and wins when they
-disagree. Plain HTTP and JSON under `/api/v1`, chi on `net/http`. Every code path below exists
-since v0.1, except the root `/metrics` handler (`internal/metrics`), which exists since v0.2.
+disagree. Plain HTTP and JSON under `/api/v1`, chi on `net/http`. Every code path below exists,
+the root `/metrics` handler (`internal/metrics`) included.
 
 ---
 

@@ -20,9 +20,8 @@ that translation fails open: it grants more than intended when the input is empt
 hostile, or simply large.
 
 BitGauge has no authentication, sessions or secrets: its boundaries are about identity for limits,
-bytes, and what leaves the process. The Go packages named here exist since v0.1, except
-`internal/metrics` (since v0.2) and `internal/compat/` (since v0.3); the image tests
-exist.
+bytes, and what leaves the process. The Go packages named here exist, `internal/metrics`
+and `internal/compat/` included, and so do the image tests.
 
 How to use it, before writing the change:
 

@@ -3,7 +3,7 @@
 The design export's app kit (`docs/design_system/ui_kits/app/`) is a clickable prototype of every
 screen and state; the Vue app in demo mode (`VITE_DEMO=1`,
 [frontend.md §9](../features/technical-stack/frontend.md#9-demo-build)) runs the real engine against
-a simulated link. The harness drives both into the same v0.3 states, compares what they show, and
+a simulated link. The harness drives both into the same states, compares what they show, and
 holds the known differences in a committed baseline (`.parity-baseline`) that may only shrink. It
 finds two kinds of drift: the Vue app moving away from the export, and gaps in the demo (its links,
 fixtures and scenarios in `web/src/demo/`) that keep it from reaching the state the kit shows.
@@ -38,7 +38,7 @@ time, the longest a complete Standard test of about 28 s.
 ## What It Compares
 
 Each scenario (`web/parity/scenarios.ts`) runs its steps on both sides: one per Test screen state
-(`test/<state>`, the kit's `TEST_STATES` without the continuous ones, which are v0.3), the share
+(`test/<state>`, the kit's `TEST_STATES` and its four Continuous states), the share
 dialog of a complete result (`share/complete`), one per kit History variant (`history/<variant>`,
 the kit's `HISTORY_VARIANTS`), the Result detail in each of the kit's states (`result`,
 `result/<state>`), Settings at its defaults and in each state its controls reach (`settings`,
@@ -75,9 +75,9 @@ panel itself. Steps name states and screens; how each side reaches them lives in
   `offline` scenario.
 
 Before reading anything, both pages are put in the same state: the wall clock fixed, UTC, en-US,
-reduced motion, the project's color scheme, and the prototype's theme and v0.3 scope set to the
-product's defaults (System; History, Settings, share, loaded latency, path B, Continuous and the
-compatibility layers on), with its Demo panel's
+reduced motion, the project's color scheme, the prototype's theme set to the product's default,
+System, and its Scope segment to the kit's newest scope, which turns History, Settings, share,
+loaded latency, path B, Continuous and the compatibility layers on, with its Demo panel's
 browser on Chrome, since the harness drives Chromium and the panel defaults to Firefox. Then the
 harness waits until the DOM has stopped changing.
 
@@ -331,14 +331,14 @@ What no scenario visits is invisible to it. `web/parity/coverage.test.ts`, run b
 
 - a Vue page or a prototype screen has no row in its page table, or a row names one that is gone;
 - the routes Vue answers with the not-available page are not exactly the prototype screens the app
-  does not have yet (none since the Result detail landed in v0.2);
+  does not have (none today);
 - a state of the kit's `TEST_STATES` has no scenario, or a scenario names a state the kit dropped;
 - a kit History variant, Result detail state or Settings state has no scenario, or the scenario
   lists disagree with the kit's;
-- a v0.3 panel choice of the kit (`RESP_OPTS`, the Continuous run length, Compare B, the Result
+- a panel choice of the kit (`RESP_OPTS`, the Continuous run length, Compare B, the Result
   detail's Kind and Continuous length, the About switches) has no scenario, or the kit has grown
   one the harness does not drive;
-- the harness drives a scope other than v0.3;
+- the harness drives a scope other than the last entry of the kit's `SCOPES`;
 - the Vue driver's list of states that start a run disagrees with the start flags of
   `DEMO_SCENARIOS`, or its list of states that hold their run disagrees with their holds.
 

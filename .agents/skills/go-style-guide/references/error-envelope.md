@@ -79,7 +79,7 @@ first.
 The envelope has one writer, `handlers.WriteError` in `internal/handlers/errors.go` (and
 `handlers.ErrorWriter`, the same writer as a value for packages that take it as an interface, such
 as `ratelimit.Middleware`). The native handlers, the middleware (panic recovery, the limiter, the
-`/api/v1` not-found handler) and, from v0.3, `internal/compat/nq` all use it; never write a second
+`/api/v1` not-found handler) and `internal/compat/nq` all use it; never write a second
 one. Compat packages may depend on
 the native building blocks but never the reverse
 ([backend.md §1](../../../../docs/features/technical-stack/backend.md#1-package-map)), so the
@@ -89,7 +89,7 @@ happened.
 
 ## Compatibility layers keep their upstream wire formats
 
-The routes under `internal/compat` (since v0.3) mirror third-party contracts and are not
+The routes under `internal/compat` mirror third-party contracts and are not
 part of the OpenAPI document. They answer with the statuses and bodies
 [compatibility.md](../../../../docs/features/compatibility.md) specifies for each client, not with
 the native envelope:

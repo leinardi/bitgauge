@@ -420,7 +420,7 @@ jobs:
       DHI_USERNAME: ${{ secrets.DHI_USERNAME }}
       DHI_TOKEN: ${{ secrets.DHI_TOKEN }}
 
-  # Playwright end to end (testing.md section 4): the v0.1 flows on Chromium, Firefox and WebKit
+  # Playwright end to end (testing.md section 4): the flows on Chromium, Firefox and WebKit
   # against the binary built on the runner, so no image and no dhi.io. The browsers are cached per
   # lockfile and saved from main, where pull requests can restore them.
   e2e:

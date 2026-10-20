@@ -20,7 +20,7 @@ documented computation in
 skill covers how the engine is shaped and tested; the methodology itself stays in measurement.md
 and is cited by section, never restated as a new rule.
 
-`web/src/engine/` holds the v0.1 engine (the message contract and loop, the injected interfaces,
+`web/src/engine/` holds the engine (the message contract and loop, the injected interfaces,
 the phases, the statistics and the result) in the layout of
 [frontend.md §1](../../../docs/features/technical-stack/frontend.md#1-spa-layout), the package rules
 are [frontend.md §2](../../../docs/features/technical-stack/frontend.md#2-engine-package-rules), the

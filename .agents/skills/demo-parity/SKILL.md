@@ -53,8 +53,8 @@ snapshots and `findings.json`.
    (`PARITY_PROTO_PORT` and `PARITY_DEMO_PORT` move them).
 2. Reproduce it on both sides, in a browser or with
    `npm --prefix web exec --no -- playwright open <url>`. Reach the state through each side's demo
-   panel: the kit's **Force state** (with its v0.3 scope on), the Vue demo's **Force state** or the
-   scenario that starts the run. The harness's own steps for each scenario are in
+   panel: the kit's **Force state** (with its newest scope on), the Vue demo's **Force state** or
+   the scenario that starts the run. The harness's own steps for each scenario are in
    `web/parity/drivers.ts`.
 3. Place it, in this order:
    1. **Adapter**: the demo's link or scenario (`web/src/demo/`) does not reach the state the kit
@@ -98,7 +98,7 @@ decided, per cluster, from a complete full-matrix run. Pending differences keep 
   qualifiers never are.
 - **A new page or state**: `web/parity/coverage.test.ts` fails until it has a scenario and a row.
   The routes Vue answers with the not-available page must stay exactly the prototype screens the
-  app does not have yet, none since v0.2. A kit panel choice of the v0.3 scope needs a scenario too.
+  app does not have, none today. A kit panel choice needs a scenario too.
 - After editing `web/parity/**`, run `make verify-web` (unit tests, lint, typecheck), then
   `make demo-parity`. If the change could alter findings, run `make demo-parity-full` too.
 - After editing `web/src/demo/**`, also run `make verify-web` and `scripts/check-file-budgets.sh`;

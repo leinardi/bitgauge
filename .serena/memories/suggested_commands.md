@@ -1,7 +1,7 @@
 # bitgauge — Suggested Commands
 
-`make help` lists every target. Every gate is active since v0.1; a gate added later starts
-dormant, and its target fails loudly until its inputs exist.
+`make help` lists every target. Every gate is active; a gate added later starts dormant, and its
+target fails loudly until its inputs exist.
 
 ## Lint / format / meta-tests
 

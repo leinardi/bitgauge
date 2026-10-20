@@ -36,9 +36,9 @@ How to use it:
 
 ---
 
-## 1. The harness gate: active since v0.1
+## 1. The harness gate: active
 
-The gate has been met, and the harness active, since v0.1; this section is what keeps it so. The
+The gate is met and the harness active; this section is what keeps it so. The
 runners refuse to start while any prerequisite of the **accuracy harness** gate in
 `test/toolchain/gates.go` is unmet. `test/harness/dormancy.go` reads the same registry, and
 `.mk/harness.mk` runs `TestHarnessActive` with `HARNESS_CHECK_ACTIVE=1` before any runner, so a
@@ -80,11 +80,11 @@ tier's row in testing.md §5 word for word, with exactly 7, 2 and 2 profiles.
 | `ceiling` | `ceiling-2.5g` | 2.5 Gbit, unshaped (bare metal or veth) | Standard |
 | `ceiling` | `ceiling-10g` | 10 Gbit, unshaped | Standard |
 
-Two profiles carry v0.3 rules (testing.md §5). `PathB` holds `ci-100m-50ms-caddy-h2` to path B
-running over HTTP/2 with an RPM in each measured direction (`measured` or `uncertain`, the choice
-recorded and not judged, as the maintainer amended it on 2026-10-19: a Standard download window
-there holds fewer than 10 probes) and `ci-100m-50ms-traefik-h1` to `unavailable_h1`. `Compat` is set
-on the Caddy profile alone (`TestCompatProfile`), and only on an HTTPS proxy
+Two profiles carry rules of their own (testing.md §5). `PathB` holds `ci-100m-50ms-caddy-h2` to
+path B running over HTTP/2 with an RPM in each measured direction (`measured` or `uncertain`, the
+choice recorded and not judged, as the maintainer amended it on 2026-10-19: a Standard download
+window there holds fewer than 10 probes) and `ci-100m-50ms-traefik-h1` to `unavailable_h1`. `Compat`
+is set on the Caddy profile alone (`TestCompatProfile`), and only on an HTTPS proxy
 (`TestCompatNeedsHTTPS`): BitGauge starts there with the three compatibility toggles and
 `server.trusted_proxies` set to the network's subnets (`Profile.BitGaugeEnv`), the OpenSpeedTest UI
 container joins the network, and Caddy's internal root is appended to the shaper's trust store.
@@ -112,7 +112,7 @@ ceiling are manual, before each release
 ## 2a. The Continuous memory check
 
 Beside the tiers and outside `Tiers()` (so `TestTiersFollowTestingMD` keeps its three rows),
-testing.md §5 "Continuous memory (manual, v0.3)" asks for one hour of a Continuous download on
+testing.md §5 "Continuous memory (manual)" asks for one hour of a Continuous download on
 `ci-100m-50ms` in Chromium, before each release, recorded with the floor and ceiling tiers
 (section 8).
 
@@ -191,7 +191,7 @@ reference (`mean(before, after)`, only when stable), its findings and a one-line
 any run. A pass needs a `complete` result with a headline in both directions, each within the
 tolerance of the profile's rate; a rate between the table's rows has no tolerance and fails. At
 2.5 Gbit and above, a headline outside ±20 % without `confidence: cpu-bound` is a finding of its
-own. From v0.2 the loaded-latency rule of testing.md §5 is judged per direction measured with
+own. The loaded-latency rule of testing.md §5 is judged per direction measured with
 `websocket` or `http-h1-reserved`, against the ping's increase over the phase windows the browser
 driver records; an `http-h2` or `http-h3` direction is recorded with the ping figures, never
 judged, the grade is judged against the larger ping increase of its basis, a missing loaded

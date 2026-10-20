@@ -1,8 +1,8 @@
 # bitgauge — Core
 
 Self-hosted browser speed test: one stateless Go binary embedding a Vue SPA; the measurement engine
-runs in the browser (Web Worker). **Specification approved 2026-10-12; v0.1, v0.2 and v0.3
-implemented, not yet released.** The product, tooling, meta-tests, CI, the harness and the demo
+runs in the browser (Web Worker). **Specification approved 2026-10-12; implemented, not yet
+released.** The product, tooling, meta-tests, CI, the harness and the demo
 build exist. Per-feature status: `docs/STATUS.md` (check it before assuming a feature exists).
 
 ## Source map
@@ -10,8 +10,8 @@ build exist. Per-feature status: `docs/STATUS.md` (check it before assuming a fe
 ```
 cmd/bitgauge/             serve (default) + healthcheck subcommands
 internal/                 buildinfo, config (koanf), logger (slog), server (chi, middleware),
-                          handlers (native API), clientip (+ server.labels), ratelimit, metrics
-                          (v0.2), compat/{openspeedtest,librespeed,nq} (v0.3)
+                          handlers (native API), clientip (+ server.labels), ratelimit, metrics,
+                          compat/{openspeedtest,librespeed,nq}
 api/openapi.yaml          native API contract under /api/v1
 web/                      the Vue SPA (web/src), embed.go, tooling (package.json, eslint/vite/playwright)
 web/src/engine/           framework-free engine; app imports only engine/messages.ts
@@ -42,7 +42,7 @@ test/internal/            testenv (docker CLI envs, labels, sweep), netguard (nf
 - Engine purity: no DOM, Vue or app imports in `web/src/engine/`.
 - Honest numbers: no fudge factors or hidden smoothing; every number keeps its qualifiers.
 - No copied code from OpenSpeedTest, LibreSpeed or other speed tests.
-- Every gate is active since v0.1; a dormant gate is absent, not filtered:
+- Every gate is active; a dormant gate is absent, not filtered:
   `test/toolchain/gates.go` fails a premature or a missing hook/job/step.
 
 ## Docs

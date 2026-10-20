@@ -19,7 +19,7 @@ make go-vet-image && make go-vet-harness   # when tagged packages changed
 After a docs change: `go test -count=1 ./test/docs/` and the AGENTS.md validation matrix.
 
 After image, netguard or harness changes (Docker): `make go-test-image`, and `make harness-ci` for
-a runner change (the harness gate is active since v0.1, `test/toolchain/gates.go`).
+a runner change (the harness gate is active, `test/toolchain/gates.go`).
 
 After workflow changes: `pre-commit run actionlint --all-files`; the release helpers'
 `.github/scripts/*.test.sh`.
