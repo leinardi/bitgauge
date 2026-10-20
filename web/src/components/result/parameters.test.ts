@@ -28,6 +28,7 @@ import { describe, expect, it } from 'vitest'
 import { parameterGroups } from '@/components/result/parameters'
 import type { Result } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
+import { continuousResult } from '@/test/continuous'
 import { resultFixture } from '@/test/fixtures'
 
 const t = createAppI18n('', ['en']).global.t as unknown as Parameters<typeof parameterGroups>[2]['t']
@@ -65,5 +66,19 @@ describe('parameterGroups', () => {
 
   it('gives the duration alone for a result that records no bounds, as before v0.2', () => {
     expect(rows(resultFixture())['Download']).toBe('10.0\u00a0s')
+  })
+})
+
+describe('a Continuous result', () => {
+  const HOUR = 3_600_000
+
+  it('lists its one direction and its run length: none and how long it ran, or the length it reached', () => {
+    const none = continuousResult({ endMs: 26 * HOUR + 60_000, bucketMs: 600_000 })
+    expect(rows(none)).toMatchObject({ 'Phases and order': 'Idle latency → Download (continuous)', 'Run length': 'None · ran 1\u00a0d 2\u00a0h 1\u00a0min' })
+    expect(rows(continuousResult({ endMs: 2 * HOUR, bucketMs: 60_000, runLengthMs: 2 * HOUR }))['Run length']).toBe('2\u00a0h')
+    // Stopped before its run length: the length, and how long it ran.
+    expect(rows(continuousResult({ endMs: 90 * 60_000, bucketMs: 60_000, runLengthMs: 2 * HOUR }))['Run length']).toBe('2\u00a0h · ran 1\u00a0h 30\u00a0min')
+    expect(rows(continuousResult({ direction: 'upload', endMs: 45_000, bucketMs: 100 }))).toMatchObject({ 'Phases and order': 'Idle latency → Upload (continuous)', 'Run length': 'None · ran 45\u00a0s' })
+    expect(Object.keys(rows(none))).not.toContain('Download')
   })
 })

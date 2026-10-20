@@ -18,13 +18,20 @@
  */
 
 import type { Direction, Result } from '@/engine/messages'
+import { continuousDirection } from '@/lib/continuous'
 
 // Whether a partial or error result can be kept in history (ui/screens.md section 1, save-bar.md,
 // flows.md section 4): it needs at least one finished phase, or the partial idle latency a stop
 // during it kept, so idle latency counts whenever the result has it. A direction finished when it
-// ended on its own, with or without a number, and not when the stop or the error ended it.
+// ended on its own, with or without a number, and not when the stop or the error ended it. A
+// Continuous run stopped before 3 fully known 1 s cells, in its warm-up included, can always be kept
+// (flows.md section 7, step 5).
 
 export function canKeep(result: Result): boolean {
+  const ran = continuousDirection(result.settings)
+  if (ran !== null && result[ran]?.status === 'insufficient-data') {
+    return true
+  }
   const stopped = new Set(result.notices.flatMap((notice) => (notice.code === 'stopped-early' ? [notice.direction] : [])))
   const finished = (direction: Direction) => {
     const status = result[direction]?.status

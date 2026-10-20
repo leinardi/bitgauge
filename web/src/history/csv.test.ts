@@ -23,6 +23,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { CSV_COLUMNS, toCsv } from '@/history/csv'
+import { continuousResult } from '@/test/continuous'
 import { resultFixture } from '@/test/fixtures'
 
 const HEADER =
@@ -67,6 +68,13 @@ describe('the CSV export', () => {
     expect([at('downloadRpm'), at('downloadRpmState'), at('uploadRpm'), at('uploadRpmState')]).toEqual(['1420', 'measured', '', 'unavailable_insufficient'])
     expect([at('downloadMinBitsPerSecond'), at('downloadMaxBitsPerSecond'), at('uploadMinBitsPerSecond'), at('uploadMaxBitsPerSecond')]).toEqual(['590000000', '630000000', '', ''])
     expect([at('streamingBand'), at('gamingBand'), at('rtcBand')]).toEqual(['good', 'poor', ''])
+  })
+
+  it('writes a Continuous result as its preset, the direction it ran with its run-wide minimum and maximum', () => {
+    const fields = rows(toCsv([continuousResult({ direction: 'upload', endMs: 7_200_000, bucketMs: 60_000 })]))[1]?.split(',') ?? []
+    const at = (column: (typeof CSV_COLUMNS)[number]) => fields[CSV_COLUMNS.indexOf(column)]
+    expect([at('preset'), at('downloadStatus'), at('downloadBitsPerSecond'), at('uploadStatus'), at('uploadBitsPerSecond')]).toEqual(['continuous', 'skipped', '', 'measured', '921000000'])
+    expect([at('downloadMinBitsPerSecond'), at('downloadMaxBitsPerSecond'), at('uploadMinBitsPerSecond'), at('uploadMaxBitsPerSecond')]).toEqual(['', '', '702000000', '941000000'])
   })
 
   it('leaves a direction or idle latency that did not run empty', () => {

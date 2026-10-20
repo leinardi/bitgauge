@@ -204,7 +204,9 @@ smaller of the minimum and it. The resolved settings are checked against the ran
 parameter (5–600 s for the bounded presets), the 64-character `label` and the parameter names of
 the URL parameters' table, each at most once. With Continuous, `durationMs` sets `runLengthMs`
 instead, in the 60 s–7 days range of the URL parameter, and the bounds stay `null`
-([measurement.md §8.5](measurement.md#85-presets)). Any invalid value fails the `configure` or
+([measurement.md §8.5](measurement.md#85-presets)); an override's `runLengthMs` of `null` removes
+the configured run length, so Run again of a Continuous result that had none runs without one
+whatever the stored settings or the link set. Any invalid value fails the `configure` or
 `start` with `invalid-settings`. The `settings` event gives the UI the
 outcome, which it shows rather than resolving presets itself: after a valid `configure` with
 scope `configured`, and as a run starts with scope `run`, without the labels.

@@ -20,7 +20,8 @@
 import { presetName } from '@/components/settings/changes'
 import type { Wording } from '@/components/test/wording'
 import type { Direction, Result } from '@/engine/messages'
-import { formatBytes, formatDuration, formatPercent, rateParts } from '@/lib/format'
+import { runPhases } from '@/lib/continuous'
+import { formatBytes, formatDuration, formatPercent, formatSpan, rateParts } from '@/lib/format'
 import { protocolLabel } from '@/lib/protocol'
 
 // The Result detail's test parameters (ui/screens.md section 2, kit ResultDetail.jsx): the preset,
@@ -28,7 +29,7 @@ import { protocolLabel } from '@/lib/protocol'
 // row, each direction's duration with its configured bounds, the data cap with the data used, the
 // units the page shows, the warm-up mode with where it ended, the ping count, overhead compensation
 // and protocol, then the server, the browser, the client IP, the timer resolution and whether the
-// page was cross-origin isolated.
+// page was cross-origin isolated. A Continuous run lists its one direction and its run length.
 
 export interface ParameterRow {
   key: string
@@ -44,8 +45,9 @@ export interface ParameterGroup {
 
 const row = (key: string, label: string, value: string): ParameterRow => ({ key, label, value })
 
+/** The directions the run included: a Continuous run's one. */
 function directions(result: Result): Direction[] {
-  return result.settings.phases.filter((phase): phase is Direction => phase !== 'idle' && result[phase] !== undefined)
+  return runPhases(result.settings).filter((phase): phase is Direction => phase !== 'idle' && result[phase] !== undefined)
 }
 
 function directionName(direction: Direction, { t }: Wording): string {
@@ -89,6 +91,19 @@ function duration(result: Result, direction: Direction, { t, locale }: Wording):
   return t('result.parameters.duration', { duration: value, min: seconds.format(bounds.minMs / 1000), max: seconds.format(bounds.maxMs / 1000) })
 }
 
+/** A Continuous run's length, or none, then how long its direction ran when that differs. */
+function runLength(result: Result, wording: Wording): string {
+  const { t, locale } = wording
+  const ran = directions(result).map((direction) => result[direction]?.series?.endMs).find((ms) => ms !== undefined)
+  const length = result.settings.runLengthMs
+  if (length === undefined) {
+    return ran === undefined ? t('result.parameters.runLengthNone') : t('result.parameters.runLengthNoneRan', { ran: formatSpan(ran, locale) })
+  }
+  const value = formatSpan(length, locale)
+  // A run that reached its run length ran it; one stopped or ended sooner says how long it ran.
+  return ran === undefined || ran >= length ? value : t('result.parameters.runLengthRan', { length: value, ran: formatSpan(ran, locale) })
+}
+
 function warmup(result: Result, wording: Wording): string {
   const { t, locale } = wording
   const mode = result.settings.warmup === 'auto' ? t('result.parameters.warmupAuto') : t('result.parameters.warmupFixed', { s: formatDuration(result.settings.warmup, locale) })
@@ -102,11 +117,20 @@ function warmup(result: Result, wording: Wording): string {
 export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording: Wording): ParameterGroup[] {
   const { t, locale } = wording
   const { settings, client, server } = result
-  const phases = settings.phases.map((phase) => (phase === 'idle' ? t('result.parameters.idle') : directionName(phase, wording)))
-  const durations = directions(result).flatMap((direction) => {
-    const value = duration(result, direction, wording)
-    return value === null ? [] : [row(`duration-${direction}`, directionName(direction, wording), value)]
+  const continuous = settings.preset === 'continuous'
+  const phases = runPhases(settings).map((phase) => {
+    if (phase === 'idle') {
+      return t('result.parameters.idle')
+    }
+    return continuous ? t('result.parameters.continuousPhase', { direction: directionName(phase, wording) }) : directionName(phase, wording)
   })
+  // A Continuous run has a run length in place of the durations.
+  const durations = continuous
+    ? [row('run-length', t('result.parameters.runLength'), runLength(result, wording))]
+    : directions(result).flatMap((direction) => {
+        const value = duration(result, direction, wording)
+        return value === null ? [] : [row(`duration-${direction}`, directionName(direction, wording), value)]
+      })
   const cap = settings.dataCapBytes === null ? t('result.parameters.capOff') : formatBytes(settings.dataCapBytes, locale)
   const unit = rateParts(1e6, units, locale).unit
   const protocol = protocolLabel(client.protocol) ?? t('result.parameters.unknown')

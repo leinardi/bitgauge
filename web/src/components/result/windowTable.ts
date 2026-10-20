@@ -25,7 +25,9 @@ import { percentile } from '@/lib/percentile'
 // its throughput as bytes over that known time and the median loaded latency of the samples in it.
 // A row with no known time has no throughput, and a row without samples no latency; the last row
 // keeps its real, shorter span. When the stored cells are coarser than 2 s, one row per cell. A
-// cell counts in the window its start falls in. The idle latency's table groups its pings by five.
+// cell counts in the window its start falls in, with its stored known time when the series has one
+// (a Continuous upload's coarse cells), else all of it or none. The idle latency's table groups its
+// pings by five.
 
 const WINDOW_MS = 2000
 const IDLE_GROUP = 5
@@ -50,18 +52,31 @@ export function median(values: readonly number[]): number | null {
   return percentile(values, 50)
 }
 
-/** The series' cells: each one's span on the timeline and its bytes, null when unknown; the last ends at endMs. */
-export function seriesCells(series: ResultSeries): { fromMs: number; toMs: number; bytes: number | null }[] {
-  return series.values.flatMap((bytes, index) => {
+export interface SeriesCell {
+  fromMs: number
+  toMs: number
+  /** The cell's bytes; null when none of it is known. */
+  bytes: number | null
+  /** How much of the cell is known. */
+  knownMs: number
+}
+
+/** The series' cells: each one's span on the timeline, its bytes and its known time; the last ends at endMs. */
+export function seriesCells(series: ResultSeries): SeriesCell[] {
+  return series.values.flatMap((value, index) => {
     const fromMs = series.firstCellMs + index * series.bucketMs
     const toMs = Math.min(fromMs + series.bucketMs, series.endMs)
-    return toMs > fromMs ? [{ fromMs, toMs, bytes }] : []
+    if (toMs <= fromMs) {
+      return []
+    }
+    const knownMs = value === null ? 0 : Math.min(toMs - fromMs, series.knownMs?.[index] ?? toMs - fromMs)
+    return [{ fromMs, toMs, bytes: knownMs > 0 ? value : null, knownMs }]
   })
 }
 
-function row(fromMs: number, toMs: number, cells: { fromMs: number; toMs: number; bytes: number | null }[], latency: readonly LoadedPing[], last: boolean): WindowRow {
+function row(fromMs: number, toMs: number, cells: SeriesCell[], latency: readonly LoadedPing[], last: boolean): WindowRow {
   const known = cells.filter((cell) => cell.bytes !== null)
-  const knownMs = known.reduce((sum, cell) => sum + cell.toMs - cell.fromMs, 0)
+  const knownMs = known.reduce((sum, cell) => sum + cell.knownMs, 0)
   const bytes = known.reduce((sum, cell) => sum + (cell.bytes ?? 0), 0)
   const inside = latency.filter((ping) => ping.atMs >= fromMs && (ping.atMs < toMs || (last && ping.atMs === toMs)))
   return { fromMs, toMs, knownMs, bitsPerSecond: knownMs > 0 ? (bytes * 8 * 1000) / knownMs : null, latencyMs: median(inside.map((ping) => ping.rttMs)) }

@@ -29,6 +29,7 @@ import type { Result } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
 import { shareContent } from '@/share/content'
 import { shareView } from '@/share/summary'
+import { continuousResult } from '@/test/continuous'
 import { resultFixture } from '@/test/fixtures'
 
 const loaded = (increaseMs: number, source: 'websocket' | 'http-h2' = 'websocket', idleSource?: 'websocket') => ({
@@ -122,5 +123,17 @@ describe('shareContent', () => {
         expect(words).not.toContain(absent)
       }
     }
+  })
+})
+
+describe('a Continuous result', () => {
+  it('is one block, the direction it ran, its headline with no peak', () => {
+    const content = shareContent(continuousResult({ direction: 'upload', endMs: 7_200_000, bucketMs: 60_000 }), false)
+    expect(content.download).toBeNull()
+    expect(content.upload).toEqual({ status: 'measured', bitsPerSecond: 921e6, confidence: null })
+    const wording: Wording = { t: createAppI18n('', ['en']).global.t as unknown as Wording['t'], locale: 'en' }
+    const view = shareView(content, 'bits', wording)
+    expect(view.blocks.map((block) => [block.label, block.value, block.unit])).toEqual([['↑ Upload', '921', 'Mbit/s']])
+    expect(view.lines.join('\n')).not.toMatch(/Download|peak/i)
   })
 })

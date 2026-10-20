@@ -23,19 +23,24 @@ import type { Result } from '@/engine/messages'
 // Run again from the Result detail (ui/screens.md section 2): the Test screen starts a run with the
 // result's settings and label, as soon as it can start one. The result records its preset, phases,
 // streams, data cap, overhead compensation, warm-up and ping count; durations come from the preset,
-// which the result does not record apart from it, and the context label from this browser.
+// which the result does not record apart from it, and the context label from this browser. A
+// Continuous result also records the one direction it ran and its run length, which run again; a
+// result without one runs again without one.
 
 let pending: StartOptions | null = null
 
 /** The start options that run `result`'s settings again. */
 function runAgainOptions(result: Result): StartOptions {
-  const { preset, phases, streams, dataCapBytes, overheadCompensationPercent, warmup, pingCount } = result.settings
+  const { preset, phases, streams, dataCapBytes, overheadCompensationPercent, warmup, pingCount, continuousDirection, runLengthMs } = result.settings
   // A fixed stream count is the count a direction ran with; auto and single keep the count unused.
-  const ran = result.download?.streams ?? result.upload?.streams ?? 1
+  const direction = [result.download, result.upload].find((part) => part !== undefined && part.status !== 'skipped')
+  const ran = direction?.streams ?? 1
   const fixed = streams.mode === 'fixed' ? Math.min(Math.max(1, ran), streams.max) : 1
+  // A Continuous result without a run length ran until stopped, whatever is configured now: null says none.
+  const continuous = preset === 'continuous' ? { continuousDirection: continuousDirection ?? 'download', runLengthMs: runLengthMs ?? null } : {}
   return {
     ...(result.label === '' ? {} : { label: result.label }),
-    settings: { preset, phases: [...phases], streams: { mode: streams.mode, max: streams.max, fixed }, dataCapBytes, overheadCompensationPercent, warmup, pingCount },
+    settings: { preset, phases: [...phases], streams: { mode: streams.mode, max: streams.max, fixed }, dataCapBytes, overheadCompensationPercent, warmup, pingCount, ...continuous },
   }
 }
 

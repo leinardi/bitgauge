@@ -20,6 +20,7 @@
 import { gradeWord } from '@/components/history/rows'
 import type { Wording } from '@/components/test/wording'
 import type { Bufferbloat, Direction, LoadedLatency, LoadedLatencyReason, LoadedSource, Responsiveness, Result } from '@/engine/messages'
+import { continuousDirection } from '@/lib/continuous'
 import { formatLatency, latencyNumber, rpmNumber } from '@/lib/format'
 import { protocolLabel } from '@/lib/protocol'
 
@@ -115,12 +116,19 @@ export function loadRow(direction: Direction, loaded: LoadedLatency, resolutionM
   return { direction, label, sub, value: ms(loaded.medianMs) }
 }
 
-/** A row per direction that measured loaded latency or says why it has none, in the run's order. */
+/**
+ * A row per direction that measured loaded latency or says why it has none, in the run's order. A
+ * Continuous direction's is the last hour's (measurement.md section 15).
+ */
 export function loadRows(result: Result, wording: Wording): LoadRow[] {
   const order = result.settings.phases.filter((phase): phase is Direction => phase !== 'idle')
   return order.flatMap((direction) => {
     const loaded = result[direction]?.loadedLatency
-    return loaded === undefined ? [] : [loadRow(direction, loaded, result.client.timerResolutionMs, wording)]
+    if (loaded === undefined) {
+      return []
+    }
+    const row = loadRow(direction, loaded, result.client.timerResolutionMs, wording)
+    return [result.settings.preset === 'continuous' && !('status' in loaded) ? { ...row, sub: wording.t('result.load.lastHour', { sub: row.sub }) } : row]
   })
 }
 
@@ -146,7 +154,11 @@ export function gradeView(result: Result, { t, locale }: Wording, brief = false)
     return { grade: bufferbloat.grade, words, basis }
   }
   // A one-direction basis says why the other direction is not in it, as the kit's Result detail does.
+  const ran = continuousDirection(result.settings)
   const without = (basis: string, other: Direction) => {
+    if (ran !== null && other !== ran) {
+      return t('result.load.basisNotRun', { basis, direction: other === 'download' ? t('result.load.download') : t('result.load.upload') })
+    }
     const loaded = result[other]?.loadedLatency
     if (loaded === undefined || !('status' in loaded)) {
       return basis

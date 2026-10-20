@@ -18,11 +18,12 @@
  */
 
 // Keep in history's condition (ui/screens.md section 1): a partial or error result with at least one
-// finished phase, or with the partial idle latency a stop during it kept.
+// finished phase, or with the partial idle latency a stop during it kept; a short Continuous run.
 
 import { describe, expect, it } from 'vitest'
 
 import { canKeep } from '@/components/test/keep'
+import { continuousResultSettings } from '@/test/continuous'
 import { resultFixture } from '@/test/fixtures'
 
 const base = resultFixture()
@@ -46,5 +47,18 @@ describe('canKeep', () => {
   it('does not count a direction that ended with an error', () => {
     const { idle: _idle, ...withoutIdle } = base
     expect(canKeep({ ...withoutIdle, status: 'error', download: { ...base.download!, status: 'error' }, upload: undefined })).toBe(false)
+  })
+
+  it('keeps a Continuous run stopped before 3 fully known cells, its warm-up included, with no idle latency', () => {
+    const { idle: _idle, ...withoutIdle } = base
+    const stopped = {
+      ...withoutIdle,
+      status: 'partial' as const,
+      settings: continuousResultSettings('download'),
+      download: { status: 'insufficient-data' as const, streams: 4, bytes: 6e6, events: [{ code: 'cancelled' as const, atMs: 5000 }] },
+      upload: { status: 'skipped' as const, streams: 0, bytes: 0, events: [], confirmedRequests: 0 },
+      notices: [{ code: 'stopped-early' as const, direction: 'download' as const, coveredMs: 0 }],
+    }
+    expect(canKeep(stopped)).toBe(true)
   })
 })

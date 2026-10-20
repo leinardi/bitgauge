@@ -21,15 +21,17 @@ import { Activity, ArrowDown, ArrowUp } from '@lucide/vue'
 import type { Component } from 'vue'
 
 import { markLabel } from '@/components/chart/text'
-import { directionModel, idleModel, type PhaseModel } from '@/components/result/phase'
+import { cutSeries, directionModel, idleModel, type PhaseModel } from '@/components/result/phase'
 import { pingGroups, windowTable } from '@/components/result/windowTable'
 import type { Wording } from '@/components/test/wording'
 import type { Direction, DirectionResult, IdleResult, Result } from '@/engine/messages'
-import { formatDuration, formatLatency, formatLimit, formatPercent, formatRate, secondsNumber } from '@/lib/format'
+import { clockTime, formatDuration, formatLatency, formatLimit, formatPercent, formatRate, formatSpan, secondsNumber } from '@/lib/format'
 
 // The Result detail's per-phase charts (ui/screens.md section 2): one card per direction that
 // stored a series, in the run's order, and one for the idle latency samples, each with its meta
 // line, its summary for assistive technology, its key and the table that is its text alternative.
+// A Continuous run's names how long it ran, its stored cells, and that only its last 7 days were
+// saved when it ran longer (measurement.md section 15).
 
 const DASH = '—'
 
@@ -73,20 +75,34 @@ function gapLegend(part: DirectionResult, model: PhaseModel, wording: Wording): 
   return model.gaps.length === 0 ? null : t('result.charts.gap')
 }
 
+/**
+ * A Continuous direction's meta: how long it ran, that only its last 7 days were saved when it ran
+ * longer, the size of its stored cells when coarser than the 2 s windows, and its streams.
+ */
+function continuousMeta(part: DirectionResult, endMs: number, size: string | null, { t, locale }: Wording): string {
+  const parts = [formatSpan(endMs, locale), ...(cutSeries(part) ? [t('result.charts.lastSevenDays')] : []), ...(size === null ? [] : [t('result.charts.cells', { size })]), t('result.charts.streams', { n: part.streams }, part.streams)]
+  return parts.join(' · ')
+}
+
 function directionCard(direction: Direction, part: DirectionResult, result: Result, units: 'bits' | 'bytes', wording: Wording): ChartCard | null {
   const { t, locale } = wording
-  const model = directionModel(part, units)
+  const continuous = result.settings.preset === 'continuous'
+  const model = directionModel(part, units, continuous)
   if (model === null || part.series === undefined) {
     return null
   }
   const series = part.series
   const title = direction === 'download' ? t('result.charts.download') : t('result.charts.upload')
-  const meta = t('result.charts.meta', { duration: formatDuration(series.endMs, locale), n: part.streams }, part.streams)
   const loaded = part.loadedLatency
   const table = windowTable(series, loaded !== undefined && 'series' in loaded ? loaded.series : [])
+  // A Continuous run's cells are minutes or longer, their spans on its clock.
+  const size = table.cellMs === null ? null : continuous ? formatSpan(table.cellMs, locale) : formatLimit(table.cellMs, locale)
+  const meta = continuous ? continuousMeta(part, series.endMs, size, wording) : t('result.charts.meta', { duration: formatDuration(series.endMs, locale), n: part.streams }, part.streams)
   const resolution = result.client.timerResolutionMs
+  const span = (fromMs: number, toMs: number) =>
+    continuous && table.cellMs !== null ? t('result.charts.clockSpan', { from: clockTime(fromMs, locale), to: clockTime(toMs, locale) }) : t('result.charts.span', { from: secondsNumber(fromMs, locale), to: secondsNumber(toMs, locale) })
   const rows = table.rows.map((row) => [
-    t('result.charts.span', { from: secondsNumber(row.fromMs, locale), to: secondsNumber(row.toMs, locale) }),
+    span(row.fromMs, row.toMs),
     formatDuration(row.knownMs, locale),
     row.bitsPerSecond === null ? DASH : formatRate(row.bitsPerSecond, units, locale),
     row.latencyMs === null ? DASH : formatLatency(row.latencyMs, locale, resolution),
@@ -94,7 +110,9 @@ function directionCard(direction: Direction, part: DirectionResult, result: Resu
   const at = secondsNumber(series.warmupEndMs, locale)
   const overhead = result.settings.overheadCompensationPercent
   const notes = overhead > 0 ? ` ${t('result.charts.overhead', { percent: formatPercent(overhead, locale) })}` : ''
-  const size = table.cellMs === null ? null : formatLimit(table.cellMs, locale)
+  // A cut series starts past the warm-up end: its foot names the 7 days it kept instead (ResultDetail.jsx).
+  const cut = continuous && size !== null && cutSeries(part)
+  const foot = size === null ? t('result.charts.foot', { at }) : cut ? t('result.charts.cutFoot', { size, span: formatSpan(series.endMs, locale), from: clockTime(series.firstCellMs, locale) }) : t('result.charts.cellsFoot', { size, at })
   return {
     key: direction,
     title,
@@ -109,7 +127,7 @@ function directionCard(direction: Direction, part: DirectionResult, result: Resu
       label: title,
       columns: [size === null ? t('result.charts.columns.windows') : t('result.charts.columns.cells', { size }), t('result.charts.columns.known'), t('result.charts.columns.throughput'), t('result.charts.columns.latency')],
       rows,
-      foot: (size === null ? t('result.charts.foot', { at }) : t('result.charts.cellsFoot', { size, at })) + notes,
+      foot: foot + notes,
     },
   }
 }

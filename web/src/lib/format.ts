@@ -149,6 +149,20 @@ export function formatLimit(ms: number, locale: string): string {
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(ms / 1000)}${NBSP}s`
 }
 
+/** A long span in its units: 45 s, 1 min 30 s, 2 h, 9 d 4 h 12 min; seconds only under an hour. */
+export function formatSpan(ms: number, locale: string): string {
+  const total = Math.max(0, Math.round(ms / 1000))
+  const number = new Intl.NumberFormat(locale)
+  const parts: [number, string][] = [
+    [Math.floor(total / 86_400), 'd'],
+    [Math.floor((total % 86_400) / 3600), 'h'],
+    [Math.floor((total % 3600) / 60), 'min'],
+    [total < 3600 ? total % 60 : 0, 's'],
+  ]
+  const shown = parts.filter(([value]) => value > 0)
+  return shown.length === 0 ? `0${NBSP}s` : shown.map(([value, unit]) => `${number.format(value)}${NBSP}${unit}`).join(' ')
+}
+
 /** An elapsed time as a clock reads it: 0:06, 42:18, 1:02:03, 50:00:00 past a day. */
 export function clockTime(ms: number, locale: string): string {
   const total = Math.max(0, Math.floor(ms / 1000))

@@ -28,6 +28,7 @@ import { describe, expect, it } from 'vitest'
 import { bandChange, compare, comparisonText, differences, gradeChange, latencyChange, pair, rateChange } from '@/components/history/compare'
 import type { Responsiveness, Result, Scores } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
+import { continuousResult } from '@/test/continuous'
 import { resultFixture } from '@/test/fixtures'
 
 const t = createAppI18n('', ['en']).global.t as unknown as Parameters<typeof compare>[4]
@@ -154,5 +155,18 @@ describe('the v0.3 rows', () => {
       ['quality-gaming', 'not scored', 'not-comparable'],
       ['quality-rtc', 'not scored', 'not-comparable'],
     ])
+  })
+})
+
+describe('a Continuous result', () => {
+  it('names its preset Continuous, and its direction by its headline, the one it did not run not comparable', () => {
+    const older = resultFixture({ id: 'a', startedAt: '2026-09-26T16:20:00.000Z' })
+    const continuous = { ...continuousResult({ endMs: 7_200_000, bucketMs: 60_000 }), startedAt: '2026-10-02T07:05:00.000Z' }
+    const comparison = compare(older, continuous, 'bits', 'en', t)
+    expect(comparison.warning).toContain('different preset (Standard vs Continuous)')
+    expect(comparison.parameters.find((row) => row.key === 'preset')).toMatchObject({ a: 'Standard', b: 'Continuous' })
+    const download = comparison.metrics.find((row) => row.key === 'download')
+    expect([download?.b.replace(/\u00a0/gu, ' '), download?.verdict]).toEqual(['921 Mbit/s', 'better'])
+    expect(comparison.metrics.find((row) => row.key === 'upload')?.verdict).toBe('not-comparable')
   })
 })

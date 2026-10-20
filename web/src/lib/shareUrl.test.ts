@@ -40,9 +40,9 @@ function link(stored: StoredSettings, run = false) {
 function opened(url: string) {
   const params = parseUrlParams(new URL(url).search)
   const { override, ignored } = urlOverride(params, DEFAULTS)
-  const { durationMs, ...fields } = override
+  const { durationMs, runLengthMs, ...fields } = override
   let settings = storedOver(DEFAULTS, { preset: fields.preset ?? DEFAULTS.preset })
-  settings = { ...settings, ...fields }
+  settings = { ...settings, ...fields, ...(runLengthMs == null ? {} : { runLengthMs }) }
   const { download, upload } = settings
   if (durationMs !== undefined && settings.preset === 'continuous') {
     settings.runLengthMs = durationMs

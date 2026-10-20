@@ -18,6 +18,7 @@
  */
 
 import type { Bufferbloat, Confidence, Direction, DirectionStatus, IdleResult, LoadedSource, Result } from '@/engine/messages'
+import { runPhases } from '@/lib/continuous'
 
 // What a share carries (ui/flows.md section 8, security.md section 7): download, upload, idle
 // latency, jitter, the loaded-latency increase, the grade, the date and time and the server's
@@ -58,9 +59,10 @@ export interface ShareContent {
   basis: Direction | null
 }
 
+/** A direction's block, or null when the run did not include it: a Continuous run includes one. */
 function rate(result: Result, direction: Direction): ShareRate | null {
   const part = result[direction]
-  if (part === undefined || !result.settings.phases.includes(direction)) {
+  if (part === undefined || !runPhases(result.settings).includes(direction)) {
     return null
   }
   const confidence = part.confidence

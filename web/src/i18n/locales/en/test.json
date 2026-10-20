@@ -230,7 +230,8 @@
     },
     "lastResult": {
       "when": "Last test {when}",
-      "view": "View"
+      "view": "View",
+      "continuous": "Continuous"
     },
     "bar": {
       "label": "Result status",

@@ -31,6 +31,13 @@
       "deletedBody": "It has been removed from history in this browser.",
       "history": "Go to History"
     },
+    "metrics": {
+      "downloadAverage": "Download · average",
+      "uploadAverage": "Upload · average",
+      "runWide": "run-wide min {min} · max {max}",
+      "lastHour": "peak {peak} · p90, last hour, 1 s cells",
+      "notRun": "not run · Continuous runs one direction"
+    },
     "load": {
       "title": "Bufferbloat",
       "words": "{word} bufferbloat",
@@ -46,6 +53,8 @@
       "basisDownload": "Basis: download only — +{increase} ms vs idle",
       "basisUpload": "Basis: upload only — +{increase} ms vs idle",
       "basisWithout": "{basis}; {direction}: {reason}",
+      "basisNotRun": "{basis}; {direction} not run · Continuous runs one direction",
+      "lastHour": "{sub} · last hour",
       "noBasis": "Needs idle latency and the latency under load of a direction",
       "download": "download",
       "upload": "upload",
@@ -162,6 +171,10 @@
       "failedGap": "No known data · failed request ({spans})",
       "gapSpan": "{from}–{to} s",
       "meta": "{duration} · {n} stream | {duration} · {n} streams",
+      "streams": "{n} stream | {n} streams",
+      "cells": "{size} cells",
+      "lastSevenDays": "last 7 days saved",
+      "clockSpan": "{from}–{to}",
       "idleMeta": "{n} ping · median {median} | {n} pings · median {median}",
       "idleCount": "{n} ping | {n} pings",
       "summary": "{title} chart: {meta}",
@@ -183,6 +196,7 @@
       "pingSpan": "{first}–{last}",
       "foot": "From warm-up end ({at} s). Throughput = bytes ÷ known time; “—” = no known time in that window. Full samples are in the JSON export.",
       "cellsFoot": "One row per stored {size} cell, from warm-up end ({at} s). Throughput = bytes ÷ known time; “—” = no known time in that cell. Full samples are in the JSON export.",
+      "cutFoot": "One row per stored {size} cell. This {span} run is longer than the 7-day long ring, so only its last 7 days were saved (from {from}); the chart and this table show those 7 days. Throughput = bytes ÷ known time; “—” = no known time in that cell. Full samples are in the JSON export.",
       "overhead": "Throughput as measured, without the {percent} overhead compensation of the headline.",
       "idleFoot": "Groups of 5 pings in send order. No warm-up for latency."
     },
@@ -213,6 +227,11 @@
       "streamCount": "{n} · plateau: {plateau}",
       "duration": "{duration} · min {min} · max {max}",
       "durationOnly": "{duration}",
+      "continuousPhase": "{direction} (continuous)",
+      "runLength": "Run length",
+      "runLengthNone": "None",
+      "runLengthNoneRan": "None · ran {ran}",
+      "runLengthRan": "{length} · ran {ran}",
       "dataCap": "Data cap",
       "dataCapValue": "{cap} · {used} used",
       "capOff": "Off",

@@ -29,7 +29,7 @@ import { drawGrid, drawLatency, drawRule, holdLinear } from '@/components/chart/
 import { frameOptions } from '@/components/chart/frame'
 import { chartGeometry, latencyScale, valueMax } from '@/components/chart/geometry'
 import { chartPalette, faded } from '@/components/chart/palette'
-import { markLabel } from '@/components/chart/text'
+import { continuousStep, continuousTick, markLabel } from '@/components/chart/text'
 import { useUplot } from '@/components/chart/useUplot'
 import type { PhaseModel } from '@/components/result/phase'
 import { useTheme } from '@/composables/useTheme'
@@ -87,8 +87,10 @@ const geometry = computed(() =>
     width: width.value,
     height: height.value,
     ...ends.value,
+    // A Continuous run's axis ticks in seconds, minutes, hours or days, as its live chart does.
+    ...(props.model.continuous === true ? { xStep: continuousStep(ends.value.xMax) } : {}),
     yLabels: props.kind === 'rate' ? rateAxisLabels(props.units === 'bits' ? ends.value.yMax : ends.value.yMax * 8, props.units, locale.value) : latencyAxisLabels(ends.value.yMax, locale.value),
-    xLabel: (value) => (props.kind === 'rate' ? t('test.chart.seconds', { n: new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(value) }) : String(value)),
+    xLabel: (value) => (props.model.continuous === true ? continuousTick(value, { t, locale: locale.value }) : props.kind === 'rate' ? t('test.chart.seconds', { n: new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(value) }) : String(value)),
     compact: compact.value,
     y2Labels: latency.value?.labels ?? [],
   }),

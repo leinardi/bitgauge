@@ -77,9 +77,11 @@ export interface TestSettings {
 
 /**
  * The URL parameters' settings (ui/url-params.md section 2), which `configure` resolves over the
- * settings it carries: any field of the settings, and the `duration` parameter as `durationMs`.
+ * settings it carries: any field of the settings, and the `duration` parameter as `durationMs`. A
+ * `runLengthMs` of null removes the configured run length (architecture.md section 4).
  */
-export type ConfigureOverride = Partial<TestSettings> & {
+export type ConfigureOverride = Partial<Omit<TestSettings, 'runLengthMs'>> & {
+  runLengthMs?: number | null
   durationMs?: number
 }
 

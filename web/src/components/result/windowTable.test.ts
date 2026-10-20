@@ -100,3 +100,17 @@ describe('pingGroups', () => {
     ])
   })
 })
+
+describe('a Continuous series with known time per cell', () => {
+  it('rates each 1 min cell by its bytes over its known time, a cell with none known as a gap', () => {
+    // 1 min cells of 100 Mbit/s over the known part: all, 20 s of it, and none.
+    const known = series([750_000_000, 250_000_000, 0], { bucketMs: 60_000, endMs: 6500 + 180_000, knownMs: [60_000, 20_000, 0] })
+    const table = windowTable(known)
+    expect(table.cellMs).toBe(60_000)
+    expect(table.rows.map((row) => [row.knownMs, row.bitsPerSecond])).toEqual([
+      [60_000, 100_000_000],
+      [20_000, 100_000_000],
+      [0, null],
+    ])
+  })
+})

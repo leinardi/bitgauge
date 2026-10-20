@@ -25,11 +25,13 @@ import { RouterLink } from 'vue-router'
 
 import { rowView } from '@/components/history/rows'
 import type { Result } from '@/engine/messages'
+import { continuousDirection } from '@/lib/continuous'
 import { formatAgo } from '@/lib/format'
 
 // The last result line in the idle state (ui/screens.md section 1; design_system/components
 // measurement LastResult): when the latest saved result ran, its headline numbers and its label,
-// linking to its detail. One unit follows both rates when they share it.
+// linking to its detail. One unit follows both rates when they share it; a Continuous result shows
+// the direction it ran.
 
 const props = defineProps<{ result: Result; units: 'bits' | 'bytes' }>()
 
@@ -42,10 +44,17 @@ const now = useNow({ scheduler: (tick) => useIntervalFn(tick, 60_000) })
 const when = computed(() => formatAgo(Date.parse(props.result.startedAt), now.value.getTime(), locale.value))
 const values = computed(() => {
   const row = rowView(props.result, props.units, locale.value)
+  const latency = row.latency === null ? [] : [`${row.latency} ms`]
+  // A Continuous result ran one direction: its run-wide average alone, named as Continuous.
+  const ran = continuousDirection(props.result.settings)
+  if (ran !== null) {
+    const rate = row[ran]
+    return [`${ran === 'download' ? '↓' : '↑'} ${rate === null ? '—' : `${rate.number} ${rate.unit}`}`, t('test.lastResult.continuous'), ...latency].join(SEPARATOR)
+  }
   const shared = row.download !== null && row.upload !== null && row.download.unit === row.upload.unit
   const down = row.download === null ? '—' : shared ? row.download.number : `${row.download.number} ${row.download.unit}`
   const up = row.upload === null ? '—' : `${row.upload.number} ${row.upload.unit}`
-  return [`↓ ${down}`, `↑ ${up}`, ...(row.latency === null ? [] : [`${row.latency} ms`])].join(SEPARATOR)
+  return [`↓ ${down}`, `↑ ${up}`, ...latency].join(SEPARATOR)
 })
 const label = computed(() => (props.result.label === '' ? '' : `${SEPARATOR}${props.result.label}`))
 </script>

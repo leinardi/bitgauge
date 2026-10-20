@@ -109,7 +109,7 @@ function capped(bounds: DurationBounds | NoBounds, durationMs: number): Duration
 
 /** Resolves the settings of a run: `override` on top of `configured`, then validated. */
 export function resolveSettings(configured: TestSettings, override: SettingsOverride = {}): Resolution {
-  const { durationMs, label, contextLabel, ignoredParameters, ...fields } = override
+  const { durationMs, label, contextLabel, ignoredParameters, runLengthMs, ...fields } = override
   const preset = fields.preset ?? configured.preset
   if (!Object.hasOwn(PRESETS, preset)) {
     return { ok: false, code: 'invalid-settings', field: 'preset' }
@@ -127,6 +127,12 @@ export function resolveSettings(configured: TestSettings, override: SettingsOver
   if (settings.preset === 'continuous') {
     // Continuous runs download unless its direction is named (measurement.md section 8.5).
     settings.continuousDirection ??= 'download'
+  }
+  // A run length of null removes the configured one: the run lasts until stopped (architecture.md section 4).
+  if (runLengthMs === null) {
+    Reflect.deleteProperty(settings, 'runLengthMs')
+  } else if (runLengthMs !== undefined) {
+    settings.runLengthMs = runLengthMs
   }
 
   if (durationMs !== undefined) {

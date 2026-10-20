@@ -175,6 +175,15 @@ describe('Continuous', () => {
     expect(settings({ preset: 'continuous', durationMs: 604_800_000 })).toMatchObject({ runLengthMs: 604_800_000, download: { minMs: null, maxMs: null } })
   })
 
+  it('runs without a run length when the override clears it, as Run again of a result that had none does', () => {
+    const configured = settings({ preset: 'continuous', durationMs: 7_200_000 })
+    expect(configured.runLengthMs).toBe(7_200_000)
+    const resolution = resolveSettings(configured, { preset: 'continuous', continuousDirection: 'upload', runLengthMs: null })
+    expect(resolution.ok && resolution.settings).not.toHaveProperty('runLengthMs')
+    const kept = resolveSettings(configured, { runLengthMs: 3_600_000 })
+    expect(kept.ok && kept.settings.runLengthMs).toBe(3_600_000)
+  })
+
   it('drops its fields on a switch back to a bounded preset', () => {
     const continuous = settings({ preset: 'continuous', durationMs: 120_000 })
     const resolution = resolveSettings(continuous, { preset: 'quick' })
