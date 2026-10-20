@@ -63034,10 +63034,28 @@
         },
         "notes": "2 differences / 8 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage. Context conflict, recorded here although no parity difference is likely to show it: the kit's TM95 fixture (docs/design_system/ui_kits/app/ResultDetail.jsx:194, 201, 212) takes a fixed window of about 13 samples, so trimmed is floor(0.05 × 13) = 0 and \"TM95 equals the plain mean\", while the same Continuous result reports samples: 23950. measurement.md §15 (Path B in Continuous) makes the pair consistent: TM95 is taken over the probes of the last 4 s, as §12.5, and samples counts every valid probe since the warm-up end. What stays open is whether a Result detail reading 23950 samples next to \"nothing trimmed\" needs the window named, which screens.md §6 does not say. web/src/demo/continuousResults.ts:47 and :67 copy the kit (PROBES = 23_950, trimmed: Math.floor(0.05 * 13))."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-20 that Vue wins, as for v03-test-path-b-pending-rows: it writes the protocol as the spec does (HTTP/2, never the raw \"h2\") and names each direction for screen readers (screens.md section 6, i18n-a11y.md section 2).",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/continuous-2h": {
+          "fada2fc4f7cb": "*"
+        },
+        "result/continuous-9d": {
+          "fada2fc4f7cb": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Result detail's path B row of the Continuous results writes the raw \"h2\" and has no direction name.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -63341,10 +63359,28 @@
         },
         "notes": "2 differences / 8 entries in 2 scenarios: result/resp-few-samples, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-20 that Vue wins, as for v03-test-path-b-pending-rows: it writes the protocol as the spec does (HTTP/2, never the raw \"h2\") and names each direction for screen readers (screens.md section 6, i18n-a11y.md section 2).",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "result/resp-few-samples": {
+          "6a3db88ccf2c": "*"
+        },
+        "result/resp-uncertain": {
+          "6a3db88ccf2c": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Result detail's path B rows in the Responsiveness cases write the raw \"h2\" and have no direction names.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -63953,10 +63989,25 @@
         },
         "notes": "1 differences / 4 entries in 1 scenarios: test/cont-done. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-20 that Vue wins, as for v03-test-path-b-pending-rows: it writes the protocol as the spec does (HTTP/2, never the raw \"h2\") and names each direction for screen readers (screens.md section 6, i18n-a11y.md section 2).",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "test/cont-done": {
+          "640240b8e380": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Test screen's path B row in the Continuous states writes the raw \"h2\" and has no direction name.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -64772,10 +64823,34 @@
         },
         "notes": "4 differences / 16 entries in 4 scenarios: responsiveness/few-samples, responsiveness/needs-h2, responsiveness/not-reported, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-20 that Vue wins, as for v03-test-path-b-pending-rows: it writes the protocol as the spec does (HTTP/2, never the raw \"h2\") and names each direction for screen readers (screens.md section 6, i18n-a11y.md section 2).",
+        "on": "2026-10-20"
+      },
+      "owned": {
+        "responsiveness/few-samples": {
+          "300727e2ae1c": "*"
+        },
+        "responsiveness/needs-h2": {
+          "300727e2ae1c": "*"
+        },
+        "responsiveness/not-reported": {
+          "300727e2ae1c": "*"
+        },
+        "responsiveness/uncertain": {
+          "300727e2ae1c": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Test screen's path B rows in the Responsiveness cases write the raw \"h2\" and have no direction names.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
       "resolution": null
     },
     {
