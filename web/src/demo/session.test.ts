@@ -177,6 +177,16 @@ describe('the demo session', () => {
     expect(result.upload?.status).toBe('measured')
   })
 
+  it('plays the same complete run without its gap when the panel turns the link to HTTP/1.1', async () => {
+    // Over HTTP/1.1 the failed request would end the upload; the kit's run is complete either way.
+    for (const responsiveness of ['needs-h2', 'not-reported'] as const) {
+      const result = resultOf((await play('upload-gap', { responsiveness })).events)
+      expect(result.status).toBe('complete')
+      expect(result.upload?.status).toBe('measured')
+      expect((result.upload?.events ?? []).filter((event) => event.code === 'failure-gap')).toEqual([])
+    }
+  })
+
   it('ends with requests-failed when the server stops answering mid-download', async () => {
     // Every request in flight fails at once, three in a row before the WebSocket's close sequence
     // decides (ui/flows.md section 5).

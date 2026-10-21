@@ -77,7 +77,11 @@ export interface DemoScenario {
   fastForward?: number
   /** The Continuous direction the page's URL parameters ask for: preset=continuous&test=<direction>. */
   continuous?: Direction
-  /** Instants at which one upload request fails, which over HTTP/2 leaves its time unknown, a gap. */
+  /**
+   * Instants at which one upload request fails, which over HTTP/2 leaves its time unknown, a gap.
+   * A link the panel's Responsiveness turns to HTTP/1.1 skips them: there the failure would end the
+   * upload (measurement.md section 7.5), so the run stays the complete one the kit shows.
+   */
   gaps?: readonly ScriptPoint[]
 }
 
@@ -110,7 +114,7 @@ export const DEMO_SCENARIOS = {
   'upload-interrupted': { link: 'lan-http1', start: true, fault: { ...at('upload', 12_000), kind: 'requests' } },
   // The kit's Result detail (ResultDetail.jsx): a complete LAN run whose upload lost one request
   // 10.4 s in and, over HTTP/2, carried on, with that request's time left out as unknown.
-  'upload-gap': { link: 'lan', start: true, fault: { ...at('upload', 10_400), kind: 'requests', uploads: 1 } },
+  'upload-gap': { link: 'lan', start: true, gaps: [at('upload', 10_400)] },
   cancelled: { link: 'lan', start: true, stop: at('upload', 3100) },
   'cancelled-late': { link: 'lan', start: true, stop: at('upload', 14_000) },
   // The kit's stop after 12 of 20 pings at 1.2 s, between two pings as for the latency state.

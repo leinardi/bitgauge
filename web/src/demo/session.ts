@@ -145,7 +145,9 @@ export class DemoSession {
     slowBefore(stop)
     after(stop, () => this.options.pressStop())
     after(fault, () => this.fault(fault?.kind ?? this.command.errorKind, fault?.uploads))
-    gaps.forEach((gap) => after(gap, () => this.link?.failUploads(this.clock.now(), 1)))
+    if (this.link?.profile.protocol === 'h2') {
+      gaps.forEach((gap) => after(gap, () => this.link?.failUploads(this.clock.now(), 1)))
+    }
     after(webSocketCloses, () => this.link?.closeWebSocket(this.clock.now(), webSocketCloses?.reopen))
     if (this.command.hold) {
       slowBefore(hold)
