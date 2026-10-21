@@ -181,7 +181,9 @@ parameters collapse into a disclosure.
   default, the sorted column header carrying `aria-sort`; a row action menu (open, delete). On a
   focused row, Space toggles its selection and Enter opens it.
 - **Filters:** chips by label and by context label, each with its count; a date range (last 7,
-  30 or 90 days, all time, or a custom range of two date fields); a search over labels and notes.
+  30 or 90 days, each that many calendar days ending today in the browser's time zone, so the last
+  30 days of Oct 8 start on Sep 9; all time; or a custom range of two date fields); a search over
+  labels and notes.
   The filter lives in the query string, so Back and a reload keep it: `labels` and `contexts`
   (one occurrence per selected chip), `range` (`7d`, `30d`, `90d`, `all` by default, or a custom
   `<from>..<to>` of local dates as `YYYY-MM-DD`, both inclusive) and `q`. None of them is a name
