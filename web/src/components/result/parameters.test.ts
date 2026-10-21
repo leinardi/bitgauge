@@ -76,6 +76,11 @@ describe('parameterGroups', () => {
     expect(shown['Warm-up']).toBe('Auto · ended at 6.5\u00a0s (download); upload stopped in warm-up')
   })
 
+  it('reads a protocol the browser did not report as not reported', () => {
+    const base = resultFixture()
+    expect(rows({ ...base, client: { ...base.client, protocol: '' } })['Protocol']).toBe('not reported')
+  })
+
   it('gives the duration alone for a result that records no bounds', () => {
     expect(rows(resultFixture())['Download']).toBe('10.0\u00a0s')
   })

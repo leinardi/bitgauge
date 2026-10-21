@@ -258,7 +258,7 @@
       "isolated": "Cross-origin isolated",
       "yes": "Yes",
       "no": "No",
-      "unknown": "Unknown"
+      "protocolNotReported": "not reported"
     }
   }
 }

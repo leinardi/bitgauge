@@ -151,7 +151,7 @@ export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording
       })
   const cap = settings.dataCapBytes === null ? t('result.parameters.capOff') : formatBytes(settings.dataCapBytes, locale)
   const unit = rateParts(1e6, units, locale).unit
-  const protocol = protocolLabel(client.protocol) ?? t('result.parameters.unknown')
+  const protocol = protocolLabel(client.protocol) ?? t('result.parameters.protocolNotReported')
   const isolated = client.crossOriginIsolated ? t('result.parameters.yes') : t('result.parameters.no')
   return [
     {
