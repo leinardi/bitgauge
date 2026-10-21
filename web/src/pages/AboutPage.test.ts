@@ -73,7 +73,7 @@ describe('the About screen', () => {
     expect(page.get('[data-testid="about-license"]').text()).toContain('GPL-3.0-or-later')
     const alert = page.get('[role="alert"]')
     expect(alert.text()).toContain('Server unreachable')
-    expect(alert.text()).toContain(`The commands below are built from this page’s address, ${ORIGIN}.`)
+    expect(alert.text()).toContain(`The commands below are built from this page's address, ${ORIGIN}.`)
     for (const layer of LAYERS) {
       expect(card(page, layer).text()).toContain('Not confirmed')
       expect(card(page, layer).text()).not.toContain(OFF)
@@ -100,9 +100,9 @@ describe('the About screen', () => {
       expect(card(page, layer).text()).toContain('Off')
       expect(card(page, layer).text()).not.toContain('Not confirmed')
     }
-    expect(card(page, 'openspeedtest').text()).toContain('so an OpenSpeedTest UI can’t test against this server.')
-    expect(card(page, 'librespeed').text()).toContain('so librespeed-cli can’t test against this server.')
-    expect(card(page, 'networkquality').text()).toContain('so networkQuality -C can’t use this server.')
+    expect(card(page, 'openspeedtest').text()).toContain("so an OpenSpeedTest UI can't test against this server.")
+    expect(card(page, 'librespeed').text()).toContain("so librespeed-cli can't test against this server.")
+    expect(card(page, 'networkquality').text()).toContain("so networkQuality -C can't use this server.")
     expect(page.find('pre').exists()).toBe(false)
     page.unmount()
   })

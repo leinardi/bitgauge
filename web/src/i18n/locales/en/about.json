@@ -5,7 +5,7 @@
       "title": "Use with other clients",
       "intro": "This server can answer the LibreSpeed and OpenSpeedTest protocols and serve an Apple networkQuality config, so you can test against it from a terminal or another UI. The operator chooses which are on."
     },
-    "unreachable": "The commands below are built from this page’s address, {origin}. BitGauge can’t check which clients the operator enabled, or the server’s name, until the server answers.",
+    "unreachable": "The commands below are built from this page's address, {origin}. BitGauge can't check which clients the operator enabled, or the server's name, until the server answers.",
     "layers": {
       "off": "Off",
       "notConfirmed": "Not confirmed",
@@ -14,22 +14,22 @@
         "name": "OpenSpeedTest™ web UI",
         "tag": "Web UI",
         "desc": "Open your own self-hosted OpenSpeedTest UI and point it at this server with the Host parameter.",
-        "offWhat": "The OpenSpeedTest protocol endpoints are switched off, so an OpenSpeedTest UI can’t test against this server.",
+        "offWhat": "The OpenSpeedTest protocol endpoints are switched off, so an OpenSpeedTest UI can't test against this server.",
         "note": "The results link in the OpenSpeedTest UI contacts OpenSpeedTest, not this server."
       },
       "librespeed": {
         "name": "librespeed-cli",
         "tag": "CLI",
         "desc": "Save this server to a local list, then run the CLI against it.",
-        "offWhat": "The LibreSpeed protocol endpoints are switched off, so librespeed-cli can’t test against this server."
+        "offWhat": "The LibreSpeed protocol endpoints are switched off, so librespeed-cli can't test against this server."
       },
       "networkquality": {
         "name": "macOS networkQuality",
         "tag": "macOS 12+",
-        "desc": "Apple’s built-in tool reports throughput and responsiveness (RPM). Point it at this server’s config.",
-        "offWhat": "The networkQuality config isn’t served, so networkQuality -C can’t use this server.",
+        "desc": "Apple's built-in tool reports throughput and responsiveness (RPM). Point it at this server's config.",
+        "offWhat": "The networkQuality config isn't served, so networkQuality -C can't use this server.",
         "https": "This page is not served over HTTPS. networkQuality needs HTTPS through the reverse proxy (or server.public_url), so the URL shown may not be the one to use.",
-        "note": "networkQuality needs TLS 1.3 and HTTP/2 at the reverse proxy. Over HTTP/1.1 or plain HTTP it won’t run."
+        "note": "networkQuality needs TLS 1.3 and HTTP/2 at the reverse proxy. Over HTTP/1.1 or plain HTTP it won't run."
       }
     },
     "snippets": {

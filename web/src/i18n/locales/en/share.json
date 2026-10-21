@@ -57,7 +57,7 @@
       "skipped": "skipped",
       "error": "error",
       "lowConfidence": "low confidence",
-      "cpuBound": "limited by this device’s CPU",
+      "cpuBound": "limited by this device's CPU",
       "lowConfidenceReasons": "low confidence: {reasons}",
       "reasons": {
         "rampUnsettled": "ramp unsettled",

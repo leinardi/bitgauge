@@ -85,7 +85,7 @@ const facts = computed(() => {
   <main
     id="main"
     tabindex="-1"
-    class="focus:outline-none mx-auto grid w-full max-w-(--layout-max) flex-1 grid-cols-1 content-start gap-6 px-(--layout-gutter-compact) pt-4 pb-6 desktop:grid-cols-[minmax(0,1fr)_var(--layout-rail)] desktop:px-(--layout-gutter) desktop:pt-6 desktop:pb-10"
+    class="focus:outline-none mx-auto grid w-full max-w-(--layout-max) flex-1 grid-cols-1 content-start items-start gap-6 px-(--layout-gutter-compact) pt-4 pb-6 desktop:grid-cols-[minmax(0,1fr)_var(--layout-rail)] desktop:px-(--layout-gutter) desktop:pt-6 desktop:pb-10"
   >
     <div class="flex min-w-0 flex-col gap-4">
       <header class="flex flex-col gap-1.5">

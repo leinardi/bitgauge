@@ -106,7 +106,7 @@ describe('shareView', () => {
 
   it('words a CPU-bound rate, an error and a skipped direction in their tones', () => {
     const cpu = shareView(content({ download: { status: 'measured', bitsPerSecond: 612_000_000, confidence: { level: 'cpu-bound', reasons: [] } }, upload: { status: 'error', bitsPerSecond: null, confidence: null } }), 'bits', wording)
-    expect(qualifiers(cpu)).toEqual([['warn: limited by this device’s CPU'], ['danger: error']])
+    expect(qualifiers(cpu)).toEqual([["warn: limited by this device's CPU"], ['danger: error']])
     const skipped = shareView(content({ upload: { status: 'skipped', bitsPerSecond: null, confidence: null } }), 'bits', wording)
     expect(qualifiers(skipped)).toEqual([[], ['muted: skipped']])
   })
