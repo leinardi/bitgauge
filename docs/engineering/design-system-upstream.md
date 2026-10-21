@@ -274,3 +274,18 @@ From triage clusters `v03-stopped-upload-tile`, `v03-stopped-confidence-card`,
   names each direction: "Auto · download 6 · plateau: cap; upload 2".
 
 The Vue Test screen and Result detail already do all of this.
+
+### Upload interrupted: the responsiveness of an HTTP/1.1 run
+
+From triage cluster `v03-upload-interrupted-responsiveness`. Kit file `ui_kits/app/TestScreen.jsx`,
+the `upload-interrupted` state's load card and live announcement.
+
+Only HTTP/1.1 ends an upload at its first failed request; over HTTP/2 the request becomes a gap
+and the upload carries on ([measurement.md](../features/measurement.md#5-adaptive-duration) §5,
+"Timeouts and failures"). The kit's own
+connection strip gives this state Protocol HTTP/1.1, but its load card (`respB(1420, 960)`) and
+its announcement read "over HTTP/2: download 1,420 round trips per minute, measured; upload 960
+round trips per minute, measured". Over HTTP/1.1 the HTTP loaded responsiveness is unavailable:
+both should read "over HTTP/1.1: download unavailable, needs HTTP/2 or HTTP/3 at the reverse
+proxy; upload unavailable, needs HTTP/2 or HTTP/3 at the reverse proxy", as the Vue Test screen
+does.
