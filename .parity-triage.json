@@ -66034,8 +66034,8 @@
         "kind": "^(y|height)$",
         "detail": "^(?:1001px → 1051px|1005px → 1061px|1039px → 1088px|1049px → 1072px|1049px → 1124px|1059px → 1109px|1060px → 1110px|1081px → 1131px|1094px → 1176px|1100px → 1149px|1100px → 1182px|1100px → 1192px|1100px → 1232px|1120px → 1074px|1120px → 1170px|1160px → 1114px|1160px → 1166px|1160px → 1210px|1160px → 1215px|1174px → 1224px|1182px → 1192px|1182px → 1232px|1187px → 1236px|1204px → 1254px|1229px → 1262px|1294px → 1317px|1294px → 1369px|1351px → 1374px|1351px → 1426px|1389px → 1369px|1427px → 1473px|1446px → 1426px|1519px → 1569px|1542px → 1588px|1542px → 1591px|1542px → 1639px|1542px → 1689px|1569px → 1618px|1634px → 1683px|1709px → 1755px|1801px → 1851px|1824px → 1870px|1824px → 1873px|1824px → 1921px|1824px → 1971px|1851px → 1900px|1916px → 1965px|1971px → 2065px|1986px → 2012px|1992px → 2085px|1px → 995px|2101px → 2126px|2101px → 2178px|2101px → 2228px|2104px → 2133px|2122px → 2088px|2122px → 2138px|2126px → 2176px|2128px → 2199px|2128px → 2205px|2128px → 2255px|2143px → 2159px|2149px → 2220px|2149px → 2275px|2153px → 2203px|2164px → 2220px|2184px → 2240px|2204px → 2229px|2218px → 2247px|2233px → 2249px|2254px → 2220px|2263px → 2312px|2273px → 2288px|2280px → 2240px|2293px → 2309px|2301px → 2261px|2318px → 2344px|2318px → 2395px|2318px → 2445px|2321px → 2350px|2323px → 2355px|2343px → 2375px|2344px → 2393px|2371px → 2420px|2436px → 2465px|3101px → 3126px|3206px → 3256px|3215px → 3241px|3215px → 3292px|3215px → 3342px|3218px → 3247px|3223px → 3272px|3297px → 3347px|3333px → 3362px|373px → 383px|373px → 423px|395px → 445px|411px → 461px|739px → 688px|823px → 873px|844px → 893px|860px → 909px|880px → 930px|897px → 947px|918px → 967px|965px → 1014px|970px → 1020px|970px → 964px|981px → 975px|985px → 1035px|985px → 1040px|991px → 1040px|991px → 985px|992px → 1015px|992px → 1067px)$"
       },
-      "type": "conflict",
-      "aspect": "style",
+      "type": "fixture",
+      "aspect": null,
       "evidence": {
         "spec": {
           "ref": "docs/features/ui/screens.md §6",
@@ -66049,13 +66049,13 @@
           "ref": "web/src/components/result/LoadCard.vue",
           "says": "the same heading on two lines (height 68px, width 143px), the load card about 49 px taller"
         },
-        "notes": "Split on 2026-10-20 from the scope growth of v02-save-bar-geometry, v02-ws-fallback-geometry, v02-fixture-slowdone-geometry, v02-partial-details-height, layout-stop-notice-v02-height, v02-result-column-geometry, v02-result-confidence-geometry, v02-result-side-geometry and v02-result-page-height, whose rules now leave these entries out: the maintainer decided they are a new cluster, not those clusters' decisions. Some heights also carry the other differences above them. Follows v03-test-path-b-geometry and v03-result-path-b-geometry, the heading's own geometry. Recommendation, not a decision: Kit wins, as the export wins on visuals."
+        "notes": "Re-checked 2026-10-21 by screenshots of test/slowdone and test/upload: the kit's mock is measured at 1,420 and 980 RPM over HTTP/2; the demo's run is its own."
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: The boxes under the HTTP loaded responsiveness block return to the kit's places once its heading stays on one line; what remains takes the kit's geometry.",
-        "on": "2026-10-20"
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-20 verdict, to keep it as fixture: the HTTP loaded responsiveness block is laid out alike on both sides; its geometry follows the demo run's own state (the Uncertain pill that wraps the heading on the slow runs), numbers (the RPM digits) and protocol (HTTP/1.1 on ws-fallback, ll-reservation-broken and upload-interrupted), and the boxes below follow.",
+        "on": "2026-10-21"
       },
       "owned": {
         "loaded/ll-insufficient-samples": {
@@ -66619,14 +66619,8 @@
           ]
         }
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "The boxes under the HTTP loaded responsiveness block return to the kit's places once its heading stays on one line; what remains takes the kit's geometry.",
-          "done": false
-        }
-      ],
-      "status": "decided",
+      "actions": [],
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -68276,8 +68270,8 @@
         "kind": null,
         "detail": null
       },
-      "type": "conflict",
-      "aspect": "style",
+      "type": "fixture",
+      "aspect": null,
       "evidence": {
         "spec": {
           "ref": "docs/features/ui/screens.md §6",
@@ -68291,13 +68285,13 @@
           "ref": "web/src/components/result/LoadCard.vue",
           "says": "main > text \"RPM\" #2 x 115px"
         },
-        "notes": "65 differences / 99 entries in 7 scenarios: result, result/clipboard-denied, result/history-unavailable, result/ll-insufficient-samples, result/ll-reservation-broken, result/not-saved-missing, result/ws-close. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+        "notes": "Re-checked 2026-10-21 by screenshots of test/slowdone and test/upload: the kit's mock is measured at 1,420 and 980 RPM over HTTP/2; the demo's run is its own."
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: On the Result detail states the HTTP loaded responsiveness rows take the kit's geometry.",
-        "on": "2026-10-20"
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-20 verdict, to keep it as fixture: the HTTP loaded responsiveness block is laid out alike on both sides; its geometry follows the demo run's own state (the Uncertain pill that wraps the heading on the slow runs), numbers (the RPM digits) and protocol (HTTP/1.1 on ws-fallback, ll-reservation-broken and upload-interrupted), and the boxes below follow.",
+        "on": "2026-10-21"
       },
       "owned": {
         "result": {
@@ -68522,14 +68516,8 @@
           ]
         }
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "On the Result detail states the HTTP loaded responsiveness rows take the kit's geometry.",
-          "done": false
-        }
-      ],
-      "status": "decided",
+      "actions": [],
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -69656,8 +69644,8 @@
         "kind": null,
         "detail": null
       },
-      "type": "conflict",
-      "aspect": "style",
+      "type": "fixture",
+      "aspect": null,
       "evidence": {
         "spec": {
           "ref": "docs/features/ui/screens.md §6",
@@ -69671,13 +69659,13 @@
           "ref": "web/src/components/result/LoadCard.vue",
           "says": "main > region \"Bufferbloat\" y 337px"
         },
-        "notes": "24 differences / 48 entries in 4 scenarios: result/resp-few-samples, result/resp-needs-h2, result/resp-not-reported, result/resp-uncertain. The same screen as result (the v02 Result detail clusters), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+        "notes": "Re-checked 2026-10-21 by screenshots of test/slowdone and test/upload: the kit's mock is measured at 1,420 and 980 RPM over HTTP/2; the demo's run is its own."
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: On the Responsiveness Result details the HTTP loaded responsiveness rows take the kit's geometry.",
-        "on": "2026-10-20"
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-20 verdict, to keep it as fixture: the HTTP loaded responsiveness block is laid out alike on both sides; its geometry follows the demo run's own state (the Uncertain pill that wraps the heading on the slow runs), numbers (the RPM digits) and protocol (HTTP/1.1 on ws-fallback, ll-reservation-broken and upload-interrupted), and the boxes below follow.",
+        "on": "2026-10-21"
       },
       "owned": {
         "result/resp-needs-h2": {
@@ -69711,14 +69699,8 @@
           ]
         }
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "On the Responsiveness Result details the HTTP loaded responsiveness rows take the kit's geometry.",
-          "done": false
-        }
-      ],
-      "status": "decided",
+      "actions": [],
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -75117,6 +75099,79 @@
       "resolution": null
     },
     {
+      "id": "v03-test-live-rpm",
+      "title": "Test screen, upload under way: the kit's load card shows the finished download's RPM as soon as the download ends; Vue shows it only with the result",
+      "match": {
+        "scenarios": [
+          "test/upload",
+          "test/slow"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > region \"Bufferbloat\"$",
+        "kind": "^height$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-21 that the kit wins: the engine reports each direction's HTTP loaded responsiveness when the direction ends, and the Test screen's load card shows it live.",
+        "on": "2026-10-21"
+      },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "docs/features: a direction's HTTP loaded responsiveness is known when the direction ends, and the Test screen shows it from then on.",
+          "done": false
+        },
+        {
+          "target": "vue",
+          "what": "web/src/engine and web/src/components/test/loadView.ts: post each direction's responsiveness at its end and show it in the live load card.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "owned": {
+        "test/slow": {
+          "1911e95f389f": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "40e4f6181d27": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "test/upload": {
+          "1911e95f389f": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "40e4f6181d27": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "resolution": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "silent on a standard run's live states; a Continuous run's RPM appears only in the finished result"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx respB(K.rpm[0], …) on the upload state",
+          "says": "\"↓ 1,420 RPM ↑ —\" during the upload"
+        },
+        "vue": {
+          "ref": "web/src/components/result/load.ts plannedResponsivenessView",
+          "says": "a row's value comes from the result only; \"↓ — ↑ —\" until it arrives"
+        }
+      }
+    },
+    {
       "id": "v03-test-path-b",
       "title": "Test screen states: the HTTP loaded responsiveness wording (idle, countdown, connecting, latency, error, error-early, …)",
       "match": {
@@ -75316,7 +75371,6 @@
       "match": {
         "scenarios": [
           "test/download",
-          "test/upload",
           "test/complete",
           "test/upload-interrupted",
           "test/error",
@@ -75327,7 +75381,6 @@
           "test/cancelled-download",
           "test/cancelled-slow",
           "test/cancelled-slow-up",
-          "test/slow",
           "test/slowdone",
           "test/offline",
           "test/basepath",
@@ -75344,8 +75397,8 @@
         "kind": null,
         "detail": null
       },
-      "type": "conflict",
-      "aspect": "style",
+      "type": "fixture",
+      "aspect": null,
       "evidence": {
         "spec": {
           "ref": "docs/features/ui/screens.md §6",
@@ -75359,13 +75412,13 @@
           "ref": "web/src/components/result/LoadCard.vue",
           "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" width 230px"
         },
-        "notes": "137 differences / 251 entries in 21 scenarios: loaded/ll-insufficient-samples, loaded/ll-reservation-broken, loaded/ws-close, share/complete, test/cancelled, test/cancelled-download, test/cancelled-late, test/cancelled-latency, …. Split from its siblings so its rule leaves out entries another cluster's rule already matches. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+        "notes": "Re-checked 2026-10-21 by screenshots of test/slowdone and test/upload: the kit's mock is measured at 1,420 and 980 RPM over HTTP/2; the demo's run is its own."
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: On the Test states the HTTP loaded responsiveness block takes the kit's geometry, its heading on one line at the kit's width.",
-        "on": "2026-10-20"
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-20 verdict, to keep it as fixture: the HTTP loaded responsiveness block is laid out alike on both sides; its geometry follows the demo run's own state (the Uncertain pill that wraps the heading on the slow runs), numbers (the RPM digits) and protocol (HTTP/1.1 on ws-fallback, ll-reservation-broken and upload-interrupted), and the boxes below follow.",
+        "on": "2026-10-21"
       },
       "owned": {
         "loaded/ll-insufficient-samples": {
@@ -75647,16 +75700,6 @@
             "light-desktop"
           ]
         },
-        "test/slow": {
-          "1911e95f389f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "40e4f6181d27": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        },
         "test/slowdone": {
           "83552c80c2ea": "*",
           "c5389a2fcf50": [
@@ -75680,16 +75723,6 @@
             "light-desktop"
           ],
           "e596ec2da4fe": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        },
-        "test/upload": {
-          "1911e95f389f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "40e4f6181d27": [
             "dark-desktop",
             "light-desktop"
           ]
@@ -75731,14 +75764,8 @@
           ]
         }
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "On the Test states the HTTP loaded responsiveness block takes the kit's geometry, its heading on one line at the kit's width.",
-          "done": false
-        }
-      ],
-      "status": "decided",
+      "actions": [],
+      "status": "accepted",
       "resolution": null
     },
     {
@@ -76494,8 +76521,8 @@
         "kind": null,
         "detail": null
       },
-      "type": "conflict",
-      "aspect": "style",
+      "type": "fixture",
+      "aspect": null,
       "evidence": {
         "spec": {
           "ref": "docs/features/ui/screens.md §6",
@@ -76509,13 +76536,13 @@
           "ref": "web/src/components/result/LoadCard.vue",
           "says": "main > text \"HTTP loaded responsiveness — connection sharing…\" height 68px"
         },
-        "notes": "22 differences / 48 entries in 2 scenarios: responsiveness/few-samples, responsiveness/uncertain. The same screen as test/complete, whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+        "notes": "Re-checked 2026-10-21 by screenshots of test/slowdone and test/upload: the kit's mock is measured at 1,420 and 980 RPM over HTTP/2; the demo's run is its own."
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: On the Responsiveness Test states the HTTP loaded responsiveness block takes the kit's geometry.",
-        "on": "2026-10-20"
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-20 verdict, to keep it as fixture: the HTTP loaded responsiveness block is laid out alike on both sides; its geometry follows the demo run's own state (the Uncertain pill that wraps the heading on the slow runs), numbers (the RPM digits) and protocol (HTTP/1.1 on ws-fallback, ll-reservation-broken and upload-interrupted), and the boxes below follow.",
+        "on": "2026-10-21"
       },
       "owned": {
         "responsiveness/uncertain": {
@@ -76529,14 +76556,8 @@
           ]
         }
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "On the Responsiveness Test states the HTTP loaded responsiveness block takes the kit's geometry.",
-          "done": false
-        }
-      ],
-      "status": "decided",
+      "actions": [],
+      "status": "accepted",
       "resolution": null
     },
     {
