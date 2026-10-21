@@ -129,14 +129,15 @@ only the kit has is left unpaired.
 
 ### Why the Runs Repeat
 
-The demo measures its simulated link in real time, so a run is only as repeatable as the harness
-makes it:
+The demo's clock runs in event time and its link draws from a seeded generator
+([frontend.md §9](../features/technical-stack/frontend.md#9-demo-build)), so a scenario gives the
+same numbers, and the same layout, on every run. A difference that comes and goes between two runs
+of the same code is a harness fault to find, never one to baseline twice:
 
-- Measured values change a little from run to run, so the comparison reads their units, labels and
-  qualifiers and not their numbers. Whether a number is right is the engine's and the demo's tests'
-  business, not parity's.
-- The Vue demo plays at 1x. A faster demo moves its link in coarser timer ticks, and its noisier
-  throughput samples then mark a LAN result unstable in some runs and not in others.
+- The comparison still reads units, labels and qualifiers rather than measured numbers: the demo's
+  numbers are its own measurement, not the kit's mock. Whether a number is right is the engine's
+  and the demo's tests' business, not parity's.
+- The Vue demo plays at 1x.
 - For a state that starts a run, the driver waits for Start to turn into Stop: before Start the
   page sits quiet while it loads, and a read then would show Idle. A run its scenario ends (a
   scripted stop, a failure, completion) has arrived once Stop is gone again; a page still showing
