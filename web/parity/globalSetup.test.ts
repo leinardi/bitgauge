@@ -28,6 +28,8 @@ vi.mock('./records.ts', () => ({ startRun: vi.fn() }))
 
 describe('globalSetup', () => {
   it('fails a run with nothing to compare instead of starting it', () => {
+    // Unfiltered, whatever SCENARIO= the make run that runs this test was given.
+    vi.stubEnv('PARITY_SCENARIOS', '')
     expect(() => globalSetup()).toThrow('demo parity: the selection names no scenario to compare')
     expect(startRun).not.toHaveBeenCalled()
   })
