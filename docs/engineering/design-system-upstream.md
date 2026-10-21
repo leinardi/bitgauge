@@ -289,3 +289,12 @@ round trips per minute, measured". Over HTTP/1.1 the HTTP loaded responsiveness 
 both should read "over HTTP/1.1: download unavailable, needs HTTP/2 or HTTP/3 at the reverse
 proxy; upload unavailable, needs HTTP/2 or HTTP/3 at the reverse proxy", as the Vue Test screen
 does.
+
+### Result detail: a protocol not reported reads "not reported"
+
+From triage cluster `v03-result-resp-test-parameters`. Kit file `ui_kits/app/ResultDetail.jsx`,
+the Test parameters' Protocol row of the `not-reported` Responsiveness case (`PROTO`).
+
+The kit reads "— · not reported". A protocol the browser did not report reads "not reported"
+([ui/screens.md](../features/ui/screens.md#1-test-home--) §1): the row should read "not reported"
+alone, as the Vue Result detail does.
