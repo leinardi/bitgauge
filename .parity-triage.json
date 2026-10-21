@@ -68847,31 +68847,34 @@
       },
       "owned": {
         "continuous/run-length-2h": {
-          "94df9d21fa49": "*"
+          "94df9d21fa49": "*",
+          "b846b9912573": "*"
         },
         "test/cont-done": {
           "d2c566523ea9": "*"
         },
         "test/cont-upload": {
+          "26af73aa8881": "*",
           "b22c46920245": "*"
         },
         "test/continuous": {
-          "94df9d21fa49": "*"
+          "94df9d21fa49": "*",
+          "b846b9912573": "*"
         }
       },
       "actions": [
         {
           "target": "vue",
           "what": "web/src/components/test/continuous/: the done chart's caption reads \"Average # Mbit/s peak # · p90, last hour … session average\".",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the live Continuous chart caption writes the average with its unit (\"avg so far # Mbit/s\").",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -68889,7 +68892,7 @@
         "layer": "content",
         "path": "^(?!main > status$)(?!.*group \"Suggested labels\")",
         "kind": null,
-        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?=.*Throughput · session)"
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?=.*(?:Throughput · session|warm-up shaded))"
       },
       "type": "conflict",
       "aspect": "content",
@@ -68917,22 +68920,27 @@
       "owned": {
         "continuous/run-length-2h": {
           "21b8caf4fc9c": "*",
+          "469c04cb9c2f": "*",
           "4c8ea62f711a": "*"
         },
         "test/cont-done": {
           "21b8caf4fc9c": "*",
-          "7b1be89ef5d0": "*"
+          "7b1be89ef5d0": "*",
+          "92a3d7c8ea84": "*"
         },
         "test/cont-upload": {
           "082e1c86e70c": "*",
-          "76c8af0035da": "*"
+          "76c8af0035da": "*",
+          "97c49536cd9c": "*"
         },
         "test/cont-warmup": {
           "21b8caf4fc9c": "*",
+          "285af1698a71": "*",
           "ef1bd8289e3d": "*"
         },
         "test/continuous": {
           "21b8caf4fc9c": "*",
+          "aa7558890103": "*",
           "fe3d0aa5ead1": "*"
         }
       },
@@ -68940,15 +68948,15 @@
         {
           "target": "vue",
           "what": "web/src/components/test/continuous/: the Continuous chart's title and its img label start \"Throughput · session\".",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the Continuous chart's label says \"warm-up shaded\" when the warm-up band shows, as Vue's does.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -69008,11 +69016,35 @@
         {
           "target": "vue",
           "what": "web/src/components/test/continuous/ and test.json: the phase list reads \"Download · continuous active · #:# elapsed\" (\"of #:#:#\" with a run length) and \"Download · continuous done · stopped at #:#\".",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-21",
+        "run": {
+          "runId": "7e6d33ff-79f6-40ae-bcd5-19dcfe4c60c6",
+          "finishedAt": "2026-10-21T19:35:43.828Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/continuous",
+            "test/cont-upload",
+            "test/cont-warmup",
+            "test/cont-done",
+            "continuous/run-length-2h",
+            "result/continuous-2h",
+            "result/continuous-9d"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-cont-results-terms",
@@ -69028,7 +69060,7 @@
         "layer": "content",
         "path": "^(?!main > status$)(?!.*group \"Suggested labels\")(?=main > region \"Results\"(?: > term)?$)",
         "kind": null,
-        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?!text \"\\d+ / # Mbit/s\")"
+        "detail": "^(?!.*GB/min)(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?!text \"\\d+ / # Mbit/s\")"
       },
       "type": "conflict",
       "aspect": "content",
@@ -69117,15 +69149,15 @@
         {
           "target": "vue",
           "what": "web/src/components/test/continuous/: the Results list writes \"max # Mbit/s\" with its unit and the Duration term \"stopped by you\".",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the Continuous Results list writes the end time in the locale's format (\"ends 2:15 PM\" in en-US).",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -69172,17 +69204,18 @@
           "5522e80a32fd": "*",
           "7d93149055ab": "*",
           "806814de834f": "*",
-          "8dce668032fb": "*"
+          "8dce668032fb": "*",
+          "fdf99cec9568": "*"
         }
       },
       "actions": [
         {
           "target": "upstream",
-          "what": "design-system-upstream.md: a Continuous run stopped in its warm-up shows the Cancelled state (\"Cancelled · Partial results · not saved\", \"Download done · insufficient data\", \"Duration run until stopped\"), not a separate Stopped state.",
-          "done": false
+          "what": "design-system-upstream.md: a Continuous run stopped in its warm-up shows the Cancelled state (\"Cancelled · Partial results · not saved\", \"Download done · insufficient data\", \"Duration stopped by you\"), not a separate Stopped state.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -69197,9 +69230,9 @@
         ],
         "projects": null,
         "layer": "content",
-        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")(?=.*> definition$)",
+        "path": "^(?!main > status$)(?!.*group \"Suggested labels\")(?=.*> definition$|main > region \"Results\"$)",
         "kind": null,
-        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?=text \"\\d+ / # Mbit/s\" → \"\\d+ / # Mbit/s\"$)"
+        "detail": "^(?!(?:link \"Edit\" → \"Edit settings\"|text \"Edit\")$)(?!.*preset · Auto streams · No data cap\" → )(?!.*(?:Good for|[Qq]uality scores|packet loss over TCP|Packet loss not measured))(?!.*(?:HTTP loaded responsiveness|round trips per minute|RPM|TM95))(?!img \"(?:Download|Upload)\"$)(?=text \"\\d+ / # Mbit/s\" → \"\\d+ / # Mbit/s\"$|.*≈ [0-9.]+ GB/min)"
       },
       "type": "fixture",
       "aspect": null,
@@ -69226,6 +69259,7 @@
       },
       "owned": {
         "continuous/run-length-2h": {
+          "1083583e56d3": "*",
           "6d1ebf676cca": "*",
           "859c86655c5a": [
             "dark-narrow",
@@ -69237,6 +69271,7 @@
           ]
         },
         "test/cont-done": {
+          "4e9b1a39be87": "*",
           "6d1ebf676cca": "*",
           "859c86655c5a": [
             "dark-narrow",
@@ -69249,6 +69284,7 @@
           ]
         },
         "test/cont-upload": {
+          "34bd82d135cc": "*",
           "81a841794308": [
             "dark-narrow",
             "light-desktop"
@@ -69271,6 +69307,7 @@
           ]
         },
         "test/continuous": {
+          "1083583e56d3": "*",
           "6d1ebf676cca": [
             "dark-narrow",
             "light-desktop",
@@ -69341,11 +69378,35 @@
         {
           "target": "vue",
           "what": "web/src/components/test/continuous/: the elapsed clock drops its \"Warm-up\" prefix once the warm-up ends.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-21",
+        "run": {
+          "runId": "7e6d33ff-79f6-40ae-bcd5-19dcfe4c60c6",
+          "finishedAt": "2026-10-21T19:35:43.828Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/continuous",
+            "test/cont-upload",
+            "test/cont-warmup",
+            "test/cont-done",
+            "continuous/run-length-2h",
+            "result/continuous-2h",
+            "result/continuous-9d"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-demo-panel-geometry",
@@ -72233,9 +72294,11 @@
         "result/continuous-9d": {
           "077e218c75c8": "*",
           "0adeb0f30aa7": "*",
+          "2a77c8842d23": "*",
           "30f08ef076a9": "*",
           "420d5c846949": "*",
           "7567f58eb751": "*",
+          "7b1c74552d44": "*",
           "8c269fca5605": "*",
           "c487c9dba4b9": "*",
           "e8307387acfa": "*",
@@ -72246,15 +72309,15 @@
         {
           "target": "vue",
           "what": "web/src/components/result/confidence.ts and notices.json: the data-used notices write the data with 3 significant digits (\"1.00 TB\").",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the Continuous results' notices write durations in seconds with one decimal (\"steady window covered # s\") and the data-used notice as \"This run passed 1.00 TB.\".",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -78026,15 +78089,15 @@
         {
           "target": "vue",
           "what": "web/src/components/a11y/announce.ts and the notices: the data-used threshold reads with 3 significant digits (\"1.00 TB\").",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the Continuous states announce the phase as the standard run does (\"Download, # megabits per second\") and, at the end, the result summary without a separate \"Continuous run stopped. Saved to history.\" message.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -78159,6 +78222,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "73dfa183063b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "788a68cc2964": [
             "dark-narrow",
             "light-narrow"
@@ -78240,6 +78307,10 @@
             "light-desktop"
           ],
           "d97c78be099a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "defa4db044f5": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -78357,6 +78428,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "6e9775bf09da": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "74c6d9cb1095": [
             "dark-narrow",
             "light-narrow"
@@ -78402,6 +78477,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "a3c667087a1d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "a557eb67ce50": [
             "dark-narrow",
             "light-narrow"
@@ -78419,6 +78498,10 @@
             "light-narrow"
           ],
           "a9d2737e5373": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ac34898af391": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -78564,6 +78647,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "405a3ba45ff1": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "4892f19767e3": [
             "dark-desktop",
             "light-desktop"
@@ -78657,6 +78744,10 @@
           "0b5fb538a30a": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "0c81d9167566": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "0e25ab823a78": [
             "dark-desktop",
@@ -78946,6 +79037,14 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "dbbccffa2032": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "de63f87e5344": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "e20fb8cb518a": [
             "dark-narrow",
             "light-narrow"
@@ -79106,12 +79205,36 @@
       "actions": [
         {
           "target": "vue",
-          "what": "On the Continuous Test states the HTTP loaded responsiveness heading takes the kit's geometry.",
-          "done": false
+          "what": "On the Continuous Test states the HTTP loaded responsiveness heading takes the kit's geometry. [Nothing left once the Continuous gauge, chart and phase list follow the kit (this change): the heading takes the kit geometry.]",
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-21",
+        "run": {
+          "runId": "7e6d33ff-79f6-40ae-bcd5-19dcfe4c60c6",
+          "finishedAt": "2026-10-21T19:35:43.828Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/continuous",
+            "test/cont-upload",
+            "test/cont-warmup",
+            "test/cont-done",
+            "continuous/run-length-2h",
+            "result/continuous-2h",
+            "result/continuous-9d"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-test-continuous-scores-geometry",
@@ -79288,10 +79411,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: on the Continuous states the settings summary shows what differs from the server defaults (\"1 changed: Continuous\"), not every setting.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
