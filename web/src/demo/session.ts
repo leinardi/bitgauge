@@ -79,12 +79,13 @@ export class DemoSession {
     this.options = options
     this.command = command
     this.scenario = options.scenario
-    // A fast-forward's own load is not the device's: it reports no busy time unless CPU-bound is chosen.
+    // The simulation's own load is not the device's, and real busy time run `speed` times faster
+    // would grow with the speed: a session reports no busy time unless CPU-bound is chosen.
     const fastForward = this.scenario.fastForward
     this.clock = new DemoClock(options.base, {
       speed: command.speed * (fastForward ?? 1),
       resolutionMs: command.timerResolutionMs,
-      busyFraction: command.cpuBound ? CPU_BOUND_BUSY : fastForward === undefined ? null : 0,
+      busyFraction: command.cpuBound ? CPU_BOUND_BUSY : 0,
       // Every session's clock is scheduled, so a run reads event time and plays the same way each
       // time, whatever the browser's timers do (frontend.md section 9).
       nextTask: options.nextTask ?? ((fn) => options.base.setTimer(0, fn)),
