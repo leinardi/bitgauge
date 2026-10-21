@@ -195,3 +195,13 @@ From triage clusters `v03-about-librespeed-json` and `v03-about-networkquality-v
   caption.
 
 The Vue About page already does both.
+
+### Settings: the Result label caption names the link parameter
+
+From triage cluster `v03-settings-result-label`. Kit file `ui_kits/app/Settings.jsx`, the Result
+label row of Display and behavior.
+
+The kit's caption reads "Optional, up to 64 characters. Pre-fills the label of every result in
+this browser." The setting does for every result what the `label` link parameter does for one page
+load ([ui/screens.md](../features/ui/screens.md#4-settings--settings)), so the caption should add
+", as the label link parameter does for one page load", as the Vue Settings page does.
