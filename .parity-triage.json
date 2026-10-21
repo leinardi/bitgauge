@@ -4646,11 +4646,12 @@
     },
     {
       "id": "feature-stop-notice-v02",
-      "title": "Stop notice for an upload with no number: the kit's v0.2 clause on loaded latency and the grade, and the notice height it adds",
+      "title": "Stop notice for an upload with no number: the kit's clause on loaded latency and the grade, and the notice height it adds",
       "match": {
         "scenarios": [
           "test/cancelled",
-          "test/cancelled-slow-up"
+          "test/cancelled-slow-up",
+          "loaded/ll-no-steady-window"
         ],
         "projects": null,
         "layer": null,
@@ -4662,8 +4663,8 @@
       "aspect": "feature",
       "evidence": {
         "spec": {
-          "ref": "docs/STATUS.md (Loaded latency and bufferbloat grade: Spec'd, v0.2); ui/flows.md §4",
-          "says": "v0.1 has no loaded latency and no grade, so the stop notice cannot name them"
+          "ref": "docs/features/ui/flows.md §4",
+          "says": "\"Upload stopped at …, before a 3 s confirmed steady window, so it has no value.\": no clause on loaded latency or the grade"
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:335",
@@ -4676,11 +4677,23 @@
         "notes": "Surfaced when content-cancel-notice took the kit's wording; the height differences are the one line the clause adds."
       },
       "decision": {
-        "kind": "deferral",
-        "rationale": "Loaded latency and the grade ship in v0.2; the stop notice adds the kit's clause then.",
-        "on": "2026-10-16"
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-16 deferral, that the spec wins: the stop notice ends as ui/flows.md section 4 writes it, \"…before a 3 s confirmed steady window (still in warm-up), so it has no value.\"; the quality scores name their basis and the load card says there is no loaded latency.",
+        "on": "2026-10-21"
       },
       "owned": {
+        "loaded/ll-no-steady-window": {
+          "24f08ff48de7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "bdce09a45853": "*",
+          "e3968867ab39": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
         "test/cancelled": {
           "24f08ff48de7": [
             "dark-desktop",
@@ -4704,8 +4717,14 @@
           ]
         }
       },
-      "actions": [],
-      "status": "deferred",
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: Run stopped in the upload. The kit's stop notice drops \"and no loaded latency. The grade and quality scores use download only.\"",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -4729,7 +4748,9 @@
           "test/slow",
           "test/slowdone",
           "test/ws-fallback",
-          "test/insufficient"
+          "test/insufficient",
+          "loaded/ll-no-probe-path",
+          "loaded/ll-no-steady-window"
         ],
         "projects": null,
         "layer": "layout",
@@ -4758,6 +4779,50 @@
         "on": "2026-10-16"
       },
       "owned": {
+        "loaded/ll-no-probe-path": {
+          "2ad0f1348b28": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "528b4ac06f23": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "986950234942": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "dcb9e71421cd": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "loaded/ll-no-steady-window": {
+          "70d06d438882": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "986cb4d36c17": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a46e35539597": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b6953ae8bf4d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e5089d998868": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f583054b6fa9": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
         "test/cancelled": {
           "1c7c792bd508": [
             "dark-narrow",
@@ -14168,11 +14233,12 @@
     },
     {
       "id": "layout-stop-notice-v02-height",
-      "title": "Cancel notice for an upload with no number: one line shorter without the v0.2 clause, and everything under it moves up",
+      "title": "Cancel notice for an upload with no number: one line shorter without the kit's clause, and everything under it moves up",
       "match": {
         "scenarios": [
           "test/cancelled",
-          "test/cancelled-slow-up"
+          "test/cancelled-slow-up",
+          "loaded/ll-no-steady-window"
         ],
         "projects": null,
         "layer": "layout",
@@ -14184,8 +14250,8 @@
       "aspect": "feature",
       "evidence": {
         "spec": {
-          "ref": "docs/STATUS.md (Loaded latency and bufferbloat grade: v0.2)",
-          "says": "v0.1 has no loaded latency and no grade"
+          "ref": "docs/features/ui/flows.md §4",
+          "says": "the notice body ends \"…so it has no value.\""
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:335",
@@ -14198,11 +14264,62 @@
         "notes": "A knock-on of feature-stop-notice-v02."
       },
       "decision": {
-        "kind": "deferral",
-        "rationale": "The maintainer decided on 2026-10-16 that it shares feature-stop-notice-v02: the clause, and the height it adds, ship with loaded latency in v0.2.",
-        "on": "2026-10-16"
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-16 deferral, that the spec wins: the stop notice ends as ui/flows.md section 4 writes it, \"…before a 3 s confirmed steady window (still in warm-up), so it has no value.\"; the quality scores name their basis and the load card says there is no loaded latency.",
+        "on": "2026-10-21"
       },
       "owned": {
+        "loaded/ll-no-steady-window": {
+          "0262e4735fbd": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "26b839457d52": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2ccee322c220": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "64423e4949e8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "691b7a010a2a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "69902e36956d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "982a87dd1aff": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b4c009b557d8": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c63e08daaac2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c657231b827b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ca04c8f33069": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f6be605af3db": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
         "test/cancelled": {
           "01046887b2d7": [
             "dark-narrow",
@@ -14423,8 +14540,14 @@
           ]
         }
       },
-      "actions": [],
-      "status": "deferred",
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: Run stopped in the upload. The kit's stop notice drops \"and no loaded latency. The grade and quality scores use download only.\"",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -27044,7 +27167,10 @@
           "result/ws-close",
           "result/ll-insufficient-samples",
           "result/ll-reservation-broken",
-          "result/not-saved-missing"
+          "result/not-saved-missing",
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
         ],
         "projects": null,
         "layer": "content",
@@ -27115,6 +27241,18 @@
             "light-desktop"
           ]
         },
+        "result/ll-no-probe-path": {
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/ll-no-steady-window": {
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
         "result/ll-reservation-broken": {
           "024f65d4920c": [
             "dark-desktop",
@@ -27134,6 +27272,12 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/not-saved-partial": {
           "6577749debb0": [
             "dark-desktop",
             "light-desktop"
@@ -27173,7 +27317,10 @@
           "result/resp-uncertain",
           "result/resp-needs-h2",
           "result/resp-not-reported",
-          "result/resp-few-samples"
+          "result/resp-few-samples",
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
         ],
         "projects": null,
         "layer": "content",
@@ -27255,6 +27402,14 @@
           "ceab04c09c3d": "*",
           "e94985b75879": "*"
         },
+        "result/ll-no-probe-path": {
+          "ceab04c09c3d": "*",
+          "e94985b75879": "*"
+        },
+        "result/ll-no-steady-window": {
+          "ceab04c09c3d": "*",
+          "e94985b75879": "*"
+        },
         "result/ll-reservation-broken": {
           "0acc7ee4d5ed": "*",
           "2cd6da0b498c": "*",
@@ -27272,6 +27427,10 @@
           "054d41a823f5": "*",
           "71cbf3647d15": "*",
           "87319a23a9a2": "*",
+          "ceab04c09c3d": "*",
+          "e94985b75879": "*"
+        },
+        "result/not-saved-partial": {
           "ceab04c09c3d": "*",
           "e94985b75879": "*"
         },
@@ -28612,7 +28771,10 @@
           "result/ll-reservation-broken",
           "result/not-saved-missing",
           "result/continuous-2h",
-          "result/continuous-9d"
+          "result/continuous-9d",
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
         ],
         "projects": null,
         "layer": "layout",
@@ -28710,6 +28872,28 @@
             "light-desktop"
           ]
         },
+        "result/ll-no-probe-path": {
+          "4acfa7a846fa": "*",
+          "a29bd7ad041a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a3954c60d730": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/ll-no-steady-window": {
+          "4acfa7a846fa": "*",
+          "a29bd7ad041a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a3954c60d730": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
         "result/ll-reservation-broken": {
           "4acfa7a846fa": "*",
           "a29bd7ad041a": [
@@ -28722,6 +28906,17 @@
           ]
         },
         "result/not-saved-missing": {
+          "4acfa7a846fa": "*",
+          "a29bd7ad041a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a3954c60d730": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/not-saved-partial": {
           "4acfa7a846fa": "*",
           "a29bd7ad041a": [
             "dark-narrow",
@@ -49581,4514 +49776,6 @@
       }
     },
     {
-      "id": "v02-loaded-stopped-cases",
-      "title": "Loaded latency \"no steady window\" and \"no latency probe\" for the upload: the kit draws them on a complete run; the engine reaches them only on a run stopped in the upload, so Vue's are partial and not saved",
-      "match": {
-        "scenarios": [
-          "loaded/ll-no-steady-window",
-          "loaded/ll-no-probe-path",
-          "result/ll-no-steady-window",
-          "result/ll-no-probe-path"
-        ],
-        "projects": null,
-        "layer": null,
-        "path": null,
-        "kind": null,
-        "detail": "^(?!.*HTTP loaded responsiveness, connection sharing)(?!img \"(?:Download|Upload)\"$)(?!text \"[^\"]*HTTP loaded responsiveness — )(?!text \"[\\d,]+RPM)"
-      },
-      "type": "conflict",
-      "aspect": "behavior",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/measurement.md §11.4, §8",
-          "says": "a direction's loaded latency is unavailable with no-steady-window when the direction has no steady window, which a complete result never lacks; no-probe-path when no probe path exists during the direction"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/App.jsx (LL_GAPS); TestScreen.jsx, ResultDetail.jsx",
-          "says": "the complete LAN run, saved, with the upload's loaded latency marked \"no steady window\" or \"no latency probe\""
-        },
-        "vue": {
-          "ref": "web/src/demo/scenarios.ts:120-125",
-          "says": "ll-no-steady-window stops 3.1 s into the upload; ll-no-probe-path closes the WebSocket unanswered in the download and stops 0.8 s into the upload: partial results, held in memory"
-        },
-        "notes": "Holds these four scenarios whole, every layer: what follows from the stop (the upload insufficient, the not-saved bar, the disabled label and Delete, the shorter charts) dominates them. The screen-wide conflicts (dates, headings, parameters, confidence wording) show here too and are decided in their own clusters."
-      },
-      "decision": {
-        "kind": "verdict",
-        "winner": "spec",
-        "rationale": "The maintainer decided on 2026-10-18 that the spec wins: measurement.md section 11 makes no-steady-window and no-probe-path unreachable on a complete result, so the demo reaches them on a run stopped in the upload, partial and not saved.",
-        "on": "2026-10-18"
-      },
-      "owned": {
-        "loaded/ll-no-probe-path": {
-          "0262e4735fbd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0268390f15a2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "039570efd4a3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "05a0aa350659": "*",
-          "06a15df18bca": [
-            "light-desktop"
-          ],
-          "086893c1f269": "*",
-          "092a8265ab7a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "09cc28393dd1": "*",
-          "0a17ba11e72a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0b28df49e718": [
-            "light-narrow"
-          ],
-          "0e7b2949c0ea": "*",
-          "0fc8f9be0a1d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "126b18562934": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "12a97fb80436": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "12fac85017f7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "13346372a453": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "15e71195fa82": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1617bc732c8c": [
-            "light-desktop"
-          ],
-          "16bd58eb6de5": [
-            "dark-narrow"
-          ],
-          "16d6360ed059": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1722adfbd67f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1847ad2701f4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1aacac037f84": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1b8832d89d52": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1c2f464b0bda": "*",
-          "1c4de4777903": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1c744d1c9c4e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1e4f213f336d": [
-            "light-desktop"
-          ],
-          "1f1d47188e9a": "*",
-          "218aace84587": "*",
-          "223666a8b800": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "231a1cdc35b7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "232b836c849d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "24f08ff48de7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "251bf870d69f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2725e19d1a6a": "*",
-          "27267738e476": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "27db7cfda5d1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2ad0f1348b28": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2bd2e70c20bb": [
-            "dark-narrow"
-          ],
-          "2c8f1bb3625e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2dcc674228d3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2edee155c720": "*",
-          "31470c74fb82": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "318abd89ab62": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "31f4e48fe023": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "33fac755281b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "345ce6960368": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "36eb735ad5e1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "37c1c2f4095e": [
-            "light-desktop"
-          ],
-          "37d348f1220d": [
-            "light-desktop"
-          ],
-          "37e23076bbe6": [
-            "dark-desktop"
-          ],
-          "39a3a72ac86d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3a6ea6808745": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3fca3a88ead3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "45413c36261e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4718175bcb72": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "474a22a16d6c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4b796a4c1c89": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4c59db9809c1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4deb25625d8e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "50785759605b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "522b4ebf7ee6": [
-            "light-desktop"
-          ],
-          "528b4ac06f23": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5484e165f549": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "54c10d2d3968": "*",
-          "552831943d1c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5792065b3f75": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5ab8a5ad02af": [
-            "light-desktop"
-          ],
-          "5b14db004f18": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5b44eb8ffef4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5b5eb07c8acf": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5cddf47fc238": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5e8cc603f973": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5f8094376f8f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "626892b1c0f0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6747f3d99049": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "691b7a010a2a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "694bf78a236c": "*",
-          "6a8a44df5f0b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "74642dacfb77": "*",
-          "7533725e984d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "770a20ffe82e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "774ce96bd575": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7752db4b2978": "*",
-          "7957850c9446": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7a2fbd3de215": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7ae0e3cae1f1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7bedcd081dd5": "*",
-          "7c7b24f5746e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7cad935c2c7d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7e653c5d118a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8123d0f578d0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "847582cb824b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "858b3069a7ec": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "86d9f63fb4f6": "*",
-          "8700836324bd": [
-            "dark-narrow",
-            "light-desktop"
-          ],
-          "87530d2d3746": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "87c9e0841641": "*",
-          "8a9a71effe86": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8abc8790d37f": "*",
-          "8b45b8dd8ac0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8b76ec62c4d6": "*",
-          "8b79b9b4b29d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8b8974bc7075": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8d9f979b86b4": "*",
-          "8dce668032fb": "*",
-          "8eaa08049b22": "*",
-          "8ed12e1af68b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "937081b82a35": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "96059f97d564": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "976aefc5c69e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "986950234942": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "996069723167": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9a3448e10d32": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9c0dbbc2652f": "*",
-          "9d0e91a5b4e6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9d1fbfb18cd7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9f4c56891a61": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a21599dbb97c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a2990a5edb06": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a300636010f1": "*",
-          "a34927272ddd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a3f97f4239e5": "*",
-          "a52d114ac8de": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a5af13567540": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a6a0da03405c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a6e54eb171e2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a724c18ce46c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a787cea81c5f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a7938ea93b5f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "acdadac68b6a": "*",
-          "ad6e73213bd0": "*",
-          "adf406e10b83": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "aef846599f5d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "af0204320357": "*",
-          "af0b27fa791d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "af4668f90eac": [
-            "light-narrow"
-          ],
-          "b0e2bceed0a4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b2ff0421a437": "*",
-          "b3528d214cad": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b4c009b557d8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b4c4a9ec48d6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b56fe6b51aaa": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b5a8a280f4ea": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b5d559dd7361": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b6039b3b9b45": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b6d8dd8bbfcc": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b72b2e071196": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b82b8051c6bf": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "bb7e18ba551f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "bbd7211af133": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "bd4875cc9d10": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "be0a2f1f4c0d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "becff8be0b13": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c028c2c894f2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c0b4de881bce": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c0e3f8b4f8e3": "*",
-          "c733e5e52a08": "*",
-          "c925692ff9ec": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c998351aca45": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ca04c8f33069": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cadb3e07cc16": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cbc648af1a94": "*",
-          "ce14a354db73": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d1b13aa1352b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d1b1f2de5b2c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d406f889025e": "*",
-          "d54901fe892d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d62df99d2cd0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d6909b5d95b8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d7c8a47422be": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "da4e30d12edb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "db9d916f8122": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dbbd67031cf0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dcb758b0b6af": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dcb9e71421cd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dd201207b69f": [
-            "light-desktop"
-          ],
-          "de875514dbf4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dfd858ec168d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dff0f48b3e85": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e4d6433fde85": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e5089d998868": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e51431df6f7d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e64ce554e6b8": "*",
-          "e6e046f1af59": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e74ab2c51b20": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e944facf759f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ea4e26ba3333": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ea9eacd43e7a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "eb463c68f8ea": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ebad0e97375c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ec5a102c80de": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ecc83366bf77": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f07816d26708": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f1d2882d143f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f1eff08238de": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f2edb5e52497": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f583054b6fa9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f6be605af3db": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f7307e6e7e34": [
-            "dark-narrow",
-            "light-desktop",
-            "light-narrow"
-          ],
-          "f78550fa1b10": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f928c10a661e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "fb45a7324520": [
-            "dark-narrow"
-          ],
-          "fbdb0a40754f": "*",
-          "fc33e93f1400": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fdd671820500": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fe294b152f8c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ff6aa1e5c822": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ffebc94f1ea1": "*"
-        },
-        "loaded/ll-no-steady-window": {
-          "01046887b2d7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0262e4735fbd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "039570efd4a3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "05a0aa350659": "*",
-          "086893c1f269": "*",
-          "09cc28393dd1": "*",
-          "0a17ba11e72a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0e7b2949c0ea": "*",
-          "0fc8f9be0a1d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "126b18562934": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "12a97fb80436": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "12fac85017f7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "13346372a453": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "16d6360ed059": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1722adfbd67f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1847ad2701f4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1aacac037f84": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1b8832d89d52": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1c2f464b0bda": "*",
-          "1c744d1c9c4e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1c7c792bd508": [
-            "light-narrow"
-          ],
-          "1f1d47188e9a": "*",
-          "1f2052a7ea30": "*",
-          "218aace84587": "*",
-          "223666a8b800": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "231a1cdc35b7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "232b836c849d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "24f08ff48de7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "251bf870d69f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "26b839457d52": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2c8f1bb3625e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2ccee322c220": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2dcc674228d3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2edee155c720": "*",
-          "30ede7e01bcc": "*",
-          "31470c74fb82": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "318abd89ab62": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "31f4e48fe023": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "33fac755281b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "341d23e2a26b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "39a3a72ac86d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3a6ea6808745": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "45413c36261e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4718175bcb72": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "474a22a16d6c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4b796a4c1c89": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4deb25625d8e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "50785759605b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5484e165f549": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "54c10d2d3968": "*",
-          "552831943d1c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5792065b3f75": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5b14db004f18": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5b44eb8ffef4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5b5eb07c8acf": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5cddf47fc238": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5e8cc603f973": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5f8094376f8f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "626892b1c0f0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "64423e4949e8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6747f3d99049": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "691b7a010a2a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "694bf78a236c": "*",
-          "69902e36956d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6a8a44df5f0b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "70d06d438882": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "74642dacfb77": "*",
-          "7533725e984d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "770a20ffe82e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "774ce96bd575": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7752db4b2978": "*",
-          "7957850c9446": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7a2fbd3de215": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7ae0e3cae1f1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7bedcd081dd5": "*",
-          "7cad935c2c7d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7e653c5d118a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8123d0f578d0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "847582cb824b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "86d9f63fb4f6": "*",
-          "87530d2d3746": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8a9a71effe86": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8abc8790d37f": "*",
-          "8b45b8dd8ac0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8b76ec62c4d6": "*",
-          "8b79b9b4b29d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8b8974bc7075": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8d9f979b86b4": "*",
-          "8dce668032fb": "*",
-          "8eaa08049b22": "*",
-          "8ed12e1af68b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "937081b82a35": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "976aefc5c69e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "982a87dd1aff": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "986cb4d36c17": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "996069723167": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "99c52bc1d5af": [
-            "dark-desktop",
-            "dark-narrow"
-          ],
-          "9a3448e10d32": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9c0dbbc2652f": "*",
-          "9c1be9e9e5e0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9d0e91a5b4e6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9f4c56891a61": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a21599dbb97c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a2990a5edb06": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a300636010f1": "*",
-          "a34927272ddd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a3f97f4239e5": "*",
-          "a46e35539597": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a52d114ac8de": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a54962747f6e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a6a0da03405c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a6e54eb171e2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a787cea81c5f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a7938ea93b5f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a84f509a2330": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a99e9e6b3e5c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "acdadac68b6a": "*",
-          "adf406e10b83": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "aef846599f5d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "af0204320357": "*",
-          "af0b27fa791d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b0e2bceed0a4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b2ff0421a437": "*",
-          "b4c009b557d8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b56fe6b51aaa": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b5a8a280f4ea": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b5d559dd7361": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b6039b3b9b45": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b6953ae8bf4d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b6d8dd8bbfcc": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b72b2e071196": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b82b8051c6bf": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "bbd7211af133": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "bd4875cc9d10": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "bdce09a45853": "*",
-          "c028c2c894f2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c0b4de881bce": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c0e3f8b4f8e3": "*",
-          "c63e08daaac2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c657231b827b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c733e5e52a08": "*",
-          "c925692ff9ec": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c998351aca45": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ca04c8f33069": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cadb3e07cc16": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cbc648af1a94": "*",
-          "ce14a354db73": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d1b13aa1352b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d1b1f2de5b2c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d406f889025e": "*",
-          "d54901fe892d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d62df99d2cd0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d6909b5d95b8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d7c8a47422be": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d98d2a27be36": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "da4e30d12edb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "db9d916f8122": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dbbd67031cf0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dcb758b0b6af": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "de875514dbf4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dfd858ec168d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dff0f48b3e85": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e3968867ab39": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e4d6433fde85": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e5089d998868": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e51431df6f7d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e64ce554e6b8": "*",
-          "e6e046f1af59": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e74ab2c51b20": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e944facf759f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ea4e26ba3333": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ea9eacd43e7a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ebad0e97375c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ec5a102c80de": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f07816d26708": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f1d2882d143f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f1eff08238de": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f583054b6fa9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f6be605af3db": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f78550fa1b10": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f928c10a661e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "fbdb0a40754f": "*",
-          "fc33e93f1400": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fdd671820500": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ff6aa1e5c822": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ffebc94f1ea1": "*"
-        },
-        "result/ll-no-probe-path": {
-          "00736ac29053": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0088ce7813de": "*",
-          "01a9f758ef66": [
-            "dark-narrow"
-          ],
-          "021be4526649": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "029a29b8ee53": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "02c335c931e2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "02d5dff0030d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "032134bbf1e2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "03453ec8e9bb": "*",
-          "03554022974f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "038c81d1acae": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "039734eb33c9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "03cc689fd8ad": [
-            "dark-narrow"
-          ],
-          "044261ba365f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "052d4452247f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "06229f7ffcf1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "066e41d9973e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "06ee31b02a8a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0753dfacb470": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "07840a7e2d08": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "07a78430f392": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0970a4561423": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0996b022126f": "*",
-          "0a897bfdb87f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0acc7ee4d5ed": "*",
-          "0b777c264d03": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0ca756a59c68": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0cf57058d22c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0d36368fc735": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0d366b25a470": "*",
-          "0ddc3cd22a80": "*",
-          "0de897a202cc": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0e87d0e6acea": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0eba3e1afc7d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0f32ce78919d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1072eae4584e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "10e80cb541a5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "11711116ec8a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "135a9259d01e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "13bae1dc6655": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "146735ef6f18": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "14a2843eaa9b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1583f0530ddb": "*",
-          "1964eba9c5d1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "19be875cf4e7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1a66efa4cebc": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1bcbf2939f5f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1bd2fdad68c2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1be3d5ddf601": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1e0b2e3c2709": "*",
-          "1efcdb3e6640": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1f1baf75e1a0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1fec39974935": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2062240df44a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "23ed1e8de56a": "*",
-          "246884670561": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "24b237d18075": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "24c49d51da31": [
-            "dark-narrow"
-          ],
-          "2504535a1874": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "256b186e776d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "25bbd8b55a71": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "25c89aa56ac9": "*",
-          "25e078ee6daf": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "27305db9dcf1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "29a67aca4508": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "29c512eda177": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2b550410554e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2bbd5300af81": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2bd22035b3df": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2bfd4f00b352": "*",
-          "2c43d968e972": "*",
-          "2c5ccbcff872": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2d05ecc36e32": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2d186b9b7941": [
-            "dark-narrow"
-          ],
-          "2d801fa770c7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2d889feee443": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2db2500913eb": [
-            "dark-narrow"
-          ],
-          "2dd477346d3f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2df7477c336e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2e0038a9a400": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2ebd007de63c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2ede95e1ca74": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2f5cfda3ffd1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "308b9ea66fef": "*",
-          "30f4fe0e55ee": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "31f4210b5752": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "32f8ae8721ab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "331673e953e3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "332d3e50b977": "*",
-          "33401b1aca41": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3394cde8ebe3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "34bb890e6f00": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "34d4683b2674": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "35091c9fa9f2": "*",
-          "369b87cacda7": "*",
-          "380959a13976": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "388a5d9450fc": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "38b0263555a8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "38f61ad961ec": [
-            "dark-narrow"
-          ],
-          "3a43e5680fd4": [
-            "dark-narrow"
-          ],
-          "3ad776fa5a43": [
-            "dark-narrow"
-          ],
-          "3b1a1a460622": "*",
-          "3c6908774cc5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3c6e62c3b1b5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3cb5fdfc05cf": [
-            "dark-narrow"
-          ],
-          "3cdaf131ccd4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3d57e76aaa1c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "40afe58b59c2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "40b6c5b57c62": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "41e3a3e68271": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "422d21af6a20": [
-            "dark-narrow"
-          ],
-          "42ccf673f0fb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "44488cfc5eb6": [
-            "dark-desktop"
-          ],
-          "44fa95f807d1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4616c3d72e69": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4667e9109463": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "466f30bc91e2": [
-            "dark-narrow"
-          ],
-          "4680017dacf0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "46e33930100a": "*",
-          "472fc5e0d2da": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4799c7346346": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "47e641a592a3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "48584517e814": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "487d7f5adc19": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4889e18ab8ef": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4949ea5c6482": "*",
-          "49cd206a478b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4acfa7a846fa": "*",
-          "4b54430b85ab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4d566e45f238": "*",
-          "4ef1068eb570": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4f937cb4c442": "*",
-          "502410e21774": "*",
-          "538a3114b61f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5395ef2d137e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "53ac12125d2c": "*",
-          "53bdd3c7c115": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5451b49343e0": "*",
-          "5484e165f549": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "549a25be1385": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5528bdb47b89": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "553871a3c17c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "558186168a05": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "55de4c88f8ef": "*",
-          "56b0fb99a1a0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "56c4b84f1a28": "*",
-          "575c3d05776d": [
-            "dark-desktop"
-          ],
-          "57ac72e08bf5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "587edc4552e3": "*",
-          "5a820f32da97": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5a8fed79455b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5a9fd4faa6d5": [
-            "dark-narrow"
-          ],
-          "5ab2a0f9382a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5b1e7ca5904e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5b30b2c35dde": [
-            "dark-narrow"
-          ],
-          "5b9b63bc0edf": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5c999051907f": [
-            "dark-narrow"
-          ],
-          "5d0506ce388c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5d36ae9217a6": "*",
-          "5dbdebe005e0": "*",
-          "5e9b86890bbb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5ecd54d1a2d0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5fb7435292f4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5fff92871da4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "60516b461f7f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "60ce01d70045": [
-            "dark-narrow"
-          ],
-          "618ecffd2cf5": "*",
-          "61c9b22beef2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "61e692359399": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "61fae58fe48d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "620c99ac8c4f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "624a8de0570f": "*",
-          "625767dffed7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "626c8b5e0870": "*",
-          "6391282af3f1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "63d0531f638c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "640706402a09": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6577749debb0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "66447603a8a8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "664dceabec2a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "675d8315daf1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "677cf17dc67e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "687740b22229": "*",
-          "6972164cf76f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6986e3e1b55e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6a19550d1555": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6a58625df5f3": "*",
-          "6a769176c783": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6a863e3b4ea3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6a967fe27dbd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6b40a666724b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6b60806c5a09": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6b6569a7a129": [
-            "dark-narrow"
-          ],
-          "6cc1fb12f4ae": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6d62f8c2b940": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6ea889ddaad6": [
-            "dark-narrow"
-          ],
-          "6f0094a86ce3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6f51658d0ff6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6ff09fe05b58": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "700e590f3dba": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "70efcf6da0ec": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "714a84e2a963": "*",
-          "717dd520af01": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7249a26eca63": "*",
-          "7294dc000e66": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "72a32853b87c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "72b3b242cbc4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7414c1258eea": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7464f3c874c3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7491c86c2ed0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "749e5b15f4c7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "74c6e3d1b44a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7565119bc537": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "758c41c6b393": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "772a7fc83f36": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7735f6eebc39": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7752046adfd5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7795e1a6565c": "*",
-          "79095ff70682": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7942697dd37d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "794760b7c6b8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7986b27e58b7": "*",
-          "798b8291933c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7a576d65bc3e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7b2acbb3541a": "*",
-          "7b4e23b07e79": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7bf3595bd696": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7c5e6e8757a7": [
-            "dark-desktop",
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7d49d620d734": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7da50c9595ac": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7dad9da5516e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7dd523b693bc": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7e4f9674e8f0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7e5573ba9ed0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7ebf968ce2aa": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7f1f111ebdc8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "801f79b40417": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8021983d12a3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "80c29bf2df08": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "819adf58a746": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "81fe721d233b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "83127f508093": "*",
-          "84682897ec1f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8504acf19c9e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "85f3a9f862e2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "872f0bc28d30": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "87de3ec25fb1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "880ca18ad71c": "*",
-          "883cb2011c73": "*",
-          "884de5d4a56a": "*",
-          "88627ee1c446": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "88e88933514e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "894b0840ad02": [
-            "dark-narrow"
-          ],
-          "89a4e18d656f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "89ecc0ca7d95": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "89fb90a3f302": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8a34e5c40fa0": "*",
-          "8a3f9790b755": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8a577a1e3c30": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8a63f3b240de": "*",
-          "8a71559a542e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8b8974bc7075": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8c2a652166fe": "*",
-          "8d8b5d3acf57": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8da2cbe025bc": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8dba8de8c517": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8e94b6a3dea7": "*",
-          "8eaeb6732091": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8f934cde3ece": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8fdea63450c6": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "90a47589a06c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "918f4ec91da8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9196e84b7f76": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "91a2fab4d1ff": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "91d8465d6a5d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "92283b2a1201": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "936a43f6ebfb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9396d006e62b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "93a91bf40afa": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9420068f2537": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9529778d0275": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "955402062ab5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "969b1f1d16e7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9751bb6b3ee6": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "982859abcc8a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9975e3422ae5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "998396859ae5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9a037265850b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9a86477f1967": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9acc43795a7a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9b1640b257c0": "*",
-          "9c6e0db5696f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9ca78a55f600": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9d43faaa7878": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9da298c65764": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9db649e66792": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9ef5de7c0e66": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9f6b70fa2bab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9ffa107b5a3e": "*",
-          "a090576f51b9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a1b75bc2ecd6": "*",
-          "a2198980a9d7": [
-            "dark-narrow"
-          ],
-          "a29bd7ad041a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a300a48bd6bd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a31534f8af17": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a31bcedc5d05": "*",
-          "a344818c2e08": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a34ce5e3197c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a3954c60d730": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a45bb9c626a3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a46bcc99dc67": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a47a6b259fe8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a4e150421b5f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a50e5e4eef12": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a521014a0c7c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a55ca7d28482": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a77b617abc83": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a8781773049c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a8cc7ae8f891": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a962e59cbf31": "*",
-          "a9d29fcb6458": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a9e1d75a756e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a9efd056f602": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "aa1b3d31e09c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "aa75abeec7c2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "aa89ed9c17f0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ab8377d93495": "*",
-          "ac4edd9fd00f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ac633f7bbc8c": "*",
-          "ad276dd91ca9": "*",
-          "ad6eef88750d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "adce1506c804": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ae0d675023ad": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "af467462c7eb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "af525d28d1e4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b01441b44b8a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b06045884925": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b09e5295b0b7": "*",
-          "b20e1fb60b98": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b2599a4b0bc2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b47a357d2de8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b5c7f9d12710": "*",
-          "b67ff6423f5e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b7586a16ff55": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b80742a4179a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b92759e43581": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b929dcd2a682": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b9bfb81bfcde": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b9ded4c3f4ec": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ba084e4d9fbd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ba53ac0651fc": "*",
-          "be9d73ed6089": [
-            "dark-desktop"
-          ],
-          "bf1b1cfd5846": [
-            "dark-narrow"
-          ],
-          "bfc68c2dfedd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c05ab4e64072": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c12d3cdeeb39": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c135948b85b6": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c1970ff1b97c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c1b15bad9b84": "*",
-          "c1ff8b1912a7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c20617373c9e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c24f65dc0282": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c42318c8d734": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c43b50d7c182": "*",
-          "c4bee2b9aec0": [
-            "dark-narrow"
-          ],
-          "c5433b2b2db5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c546ca5bb16c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c55de7d600f3": "*",
-          "c5cc5e438ac2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c7011d477aec": [
-            "dark-narrow"
-          ],
-          "c7488cc6f9bc": [
-            "dark-narrow"
-          ],
-          "c79c8b971f25": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c86e46f46c2f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c8d6d2d48dc3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c9e0e9a923c1": "*",
-          "cab067eba1ba": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cab22d5379ff": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "cad76e82f5a6": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cbb82af76366": "*",
-          "cc9c22b67785": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "cd4216680193": "*",
-          "cded4f6cd3d1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ce8746b8be94": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ceab04c09c3d": "*",
-          "cf2e6c9450e8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cf32c777214d": "*",
-          "cf5314acfd58": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cfef53f1fd81": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d034cc24fb2e": [
-            "dark-narrow"
-          ],
-          "d06e27d90ca2": [
-            "dark-narrow"
-          ],
-          "d0f9f6f60558": "*",
-          "d11007f6c717": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d2d587c1a98e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d3352074b89e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d465930714ff": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d53404c7b3ac": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d5c99d35a762": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d663c621c746": [
-            "dark-narrow"
-          ],
-          "d6aacd711ea9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d731edc9a398": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d7ef7db49557": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d87be846cb4e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d972c40e2764": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "da64ccbaf33b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "da9f2fbfe39d": [
-            "dark-narrow"
-          ],
-          "db128d75edce": "*",
-          "db5a4212c390": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "db9d916f8122": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dbeefa62b7e5": "*",
-          "dc097528c4eb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dcf7a9eb4e4d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ddb28265fce4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "de1df931bb30": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "de36690a91e5": [
-            "dark-narrow"
-          ],
-          "dec38a53e56c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e07333da27cd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e12e27ff79d8": "*",
-          "e1c90272d0e7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e2641bcda1e4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e292b2e7821e": "*",
-          "e30e184811d7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e41987556e6e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e73ee0c550c5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e783f4d23ef2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e80f4bec8bfb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e94985b75879": "*",
-          "e9892f42ee18": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e9e12f771be1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e9ea2f5225b8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ec52e24aeabc": "*",
-          "ec6a593c2422": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "eccad73d5c9b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ee02a95fe384": "*",
-          "ee2fc2af6c15": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ee785498199f": "*",
-          "ee7ebcf09ba9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ef31922798d3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "efaec84a2380": [
-            "dark-desktop"
-          ],
-          "efcfa029a40b": [
-            "dark-narrow"
-          ],
-          "f102278a9b91": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f10b09491bde": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f1a74e45e49c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f1aff604a51a": [
-            "dark-narrow"
-          ],
-          "f1b063e92df0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f276783d6bac": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f31751d35959": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f46cdf598a6f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f59d02222cfa": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f5c31471856f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f5e415b2609e": "*",
-          "f5eb3ab1ec60": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f7742a230995": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f7a1b056ff77": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f8b2b00a5c19": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f8b5a566ff9d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f928c10a661e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f987dcd45bc9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f98deab7a07a": [
-            "dark-narrow"
-          ],
-          "fc9ebcf5f10e": "*",
-          "fdb0fdac1d55": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fe07b6a47727": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fea22b78210b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fed202600451": [
-            "dark-narrow"
-          ],
-          "feda85fa9bf6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ff6033ecb561": "*",
-          "ff8a29e2faaf": "*",
-          "ffb9f23f71a6": [
-            "dark-narrow",
-            "light-narrow"
-          ]
-        },
-        "result/ll-no-steady-window": {
-          "00736ac29053": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0088ce7813de": "*",
-          "021be4526649": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "02c335c931e2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "02d5dff0030d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "032134bbf1e2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "03453ec8e9bb": "*",
-          "03554022974f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0389176e95a2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "038c81d1acae": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "039734eb33c9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "052d4452247f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "06229f7ffcf1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "066e41d9973e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "06ee31b02a8a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0753dfacb470": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "07840a7e2d08": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "07a78430f392": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "08326b43ce9b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0970a4561423": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0996b022126f": "*",
-          "0a897bfdb87f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0acc7ee4d5ed": "*",
-          "0ca756a59c68": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0cf57058d22c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0d366b25a470": "*",
-          "0d6ed13d7e35": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0ddc3cd22a80": "*",
-          "0de897a202cc": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0e87d0e6acea": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0eba3e1afc7d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0f1c6e12a838": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0f32ce78919d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1072eae4584e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "10e80cb541a5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "11711116ec8a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "135a9259d01e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "13bae1dc6655": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "146735ef6f18": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "14a2843eaa9b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1583f0530ddb": "*",
-          "15ef8a03229d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1964eba9c5d1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "19be875cf4e7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1a66efa4cebc": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1bcbf2939f5f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1bd112aabad8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1bd2fdad68c2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1be3d5ddf601": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1e0b2e3c2709": "*",
-          "1e8ea4581b3f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1f1baf75e1a0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1fec39974935": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2062240df44a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "23546f6a653f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "23ed1e8de56a": "*",
-          "246884670561": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "24b237d18075": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2504535a1874": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "256b186e776d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "25bbd8b55a71": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "25c89aa56ac9": "*",
-          "25e078ee6daf": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "27305db9dcf1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "29a67aca4508": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "29c512eda177": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2b550410554e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2bbd5300af81": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2bd22035b3df": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2bfd4f00b352": "*",
-          "2c43d968e972": "*",
-          "2c5ccbcff872": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2d05ecc36e32": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2d801fa770c7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2d889feee443": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2dd477346d3f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2df7477c336e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2e0038a9a400": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2ebd007de63c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2ede95e1ca74": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2f5cfda3ffd1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "308b9ea66fef": "*",
-          "30f4fe0e55ee": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "32f8ae8721ab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "331673e953e3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "332d3e50b977": "*",
-          "33401b1aca41": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3394cde8ebe3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "343918e6e668": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "345db0b01684": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "34bb890e6f00": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "34d4683b2674": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "35091c9fa9f2": "*",
-          "369b87cacda7": "*",
-          "380959a13976": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "388a5d9450fc": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "38b0263555a8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3b1a1a460622": "*",
-          "3c6908774cc5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3c6e62c3b1b5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3cdaf131ccd4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3d57e76aaa1c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "40afe58b59c2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "40b6c5b57c62": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "41e3a3e68271": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "42ccf673f0fb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "44fa95f807d1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4616c3d72e69": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4680017dacf0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "46e33930100a": "*",
-          "4799c7346346": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "47e641a592a3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "48584517e814": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "487d7f5adc19": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4949ea5c6482": "*",
-          "4acfa7a846fa": "*",
-          "4b54430b85ab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4d566e45f238": "*",
-          "4ef1068eb570": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4f937cb4c442": "*",
-          "502410e21774": "*",
-          "5353d854b315": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "538a3114b61f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "53ac12125d2c": "*",
-          "53bdd3c7c115": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5451b49343e0": "*",
-          "5484e165f549": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "549a25be1385": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5528bdb47b89": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "554b5e3fd318": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "55de4c88f8ef": "*",
-          "56b0fb99a1a0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "56c4b84f1a28": "*",
-          "57ac72e08bf5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "587edc4552e3": "*",
-          "5985d4a6ece9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5a820f32da97": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5ab2a0f9382a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5b1e7ca5904e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5b9b63bc0edf": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5cfc2d02fe1e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5d0506ce388c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5dbdebe005e0": "*",
-          "5e9b86890bbb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5ecd54d1a2d0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5fb7435292f4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5fff92871da4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "60516b461f7f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "618ecffd2cf5": "*",
-          "61c9b22beef2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "61e692359399": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "61fae58fe48d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "620c99ac8c4f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "624a8de0570f": "*",
-          "625767dffed7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6258ae085255": [
-            "light-desktop"
-          ],
-          "626c8b5e0870": "*",
-          "6391282af3f1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "63d0531f638c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "63eeda36bf3a": "*",
-          "640706402a09": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6577749debb0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "66447603a8a8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "664dceabec2a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "66dde5cc0ea7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "675d8315daf1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "677cf17dc67e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "687740b22229": "*",
-          "6972164cf76f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6986e3e1b55e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6a19550d1555": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6a58625df5f3": "*",
-          "6a769176c783": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6a863e3b4ea3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6adb636cf34f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6b40a666724b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6b60806c5a09": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6cc1fb12f4ae": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6f0094a86ce3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6f2724cf1e97": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6f51658d0ff6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6ff09fe05b58": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "700e590f3dba": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "70efcf6da0ec": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "711bb135cf20": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "714a84e2a963": "*",
-          "717dd520af01": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7249a26eca63": "*",
-          "7294dc000e66": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "72a32853b87c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "72b3b242cbc4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7414c1258eea": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "742076f48c23": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7464f3c874c3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7491c86c2ed0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "749e5b15f4c7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "74c6e3d1b44a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7565119bc537": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "758c41c6b393": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "772a7fc83f36": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7735f6eebc39": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7752046adfd5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7795e1a6565c": "*",
-          "7942697dd37d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "794760b7c6b8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7986b27e58b7": "*",
-          "798b8291933c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7a576d65bc3e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7b2acbb3541a": "*",
-          "7b4e23b07e79": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7bf3595bd696": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7c5e6e8757a7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7d49d620d734": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7da50c9595ac": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7dad9da5516e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7dd523b693bc": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7e4f9674e8f0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7e5573ba9ed0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7ebf968ce2aa": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7f1f111ebdc8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "801f79b40417": [
-            "light-desktop"
-          ],
-          "8021983d12a3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "80c29bf2df08": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "829308a369fe": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "83127f508093": "*",
-          "84682897ec1f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "84c117f37c31": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8504acf19c9e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "856d482eba33": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "872f0bc28d30": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "87de3ec25fb1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "883cb2011c73": "*",
-          "884de5d4a56a": "*",
-          "88627ee1c446": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "88e88933514e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "89ecc0ca7d95": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "89fb90a3f302": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8a34e5c40fa0": "*",
-          "8a3f9790b755": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8a577a1e3c30": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8a63f3b240de": "*",
-          "8a71559a542e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8b8974bc7075": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8c2a652166fe": "*",
-          "8d2c82d5e265": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8d8b5d3acf57": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8da2cbe025bc": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8dba8de8c517": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8e94b6a3dea7": "*",
-          "8eaeb6732091": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8f934cde3ece": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "90a47589a06c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "918f4ec91da8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9196e84b7f76": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "91a2fab4d1ff": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "91d8465d6a5d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "92283b2a1201": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "936a43f6ebfb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9396d006e62b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "93a91bf40afa": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9420068f2537": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9529778d0275": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "955402062ab5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "969b1f1d16e7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9751bb6b3ee6": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "982859abcc8a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9975e3422ae5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "998396859ae5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9a037265850b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9a86477f1967": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9acc43795a7a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9b1640b257c0": "*",
-          "9c6e0db5696f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9ca78a55f600": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9d43faaa7878": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9da298c65764": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9db649e66792": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9ef5de7c0e66": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9f6b70fa2bab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9ffa107b5a3e": "*",
-          "a090576f51b9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a1b75bc2ecd6": "*",
-          "a29bd7ad041a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a300a48bd6bd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a31534f8af17": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a31bcedc5d05": "*",
-          "a344818c2e08": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a34ce5e3197c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a3954c60d730": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a45bb9c626a3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a46bcc99dc67": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a47a6b259fe8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a50e5e4eef12": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a55ca7d28482": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a77b617abc83": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a8781773049c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a8cc7ae8f891": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a962e59cbf31": "*",
-          "a9d29fcb6458": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a9e1d75a756e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a9efd056f602": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a9fa2d1b86fe": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "aa1b3d31e09c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "aa75abeec7c2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "aa89ed9c17f0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ab8377d93495": "*",
-          "ac4edd9fd00f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ac633f7bbc8c": "*",
-          "ad276dd91ca9": "*",
-          "adce1506c804": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ae0d675023ad": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b01441b44b8a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b0502c50482f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b06045884925": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b09e5295b0b7": "*",
-          "b20e1fb60b98": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b2599a4b0bc2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b38c9b4b54a1": [
-            "dark-desktop"
-          ],
-          "b47a357d2de8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b5c7f9d12710": "*",
-          "b67ff6423f5e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b7586a16ff55": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b77fd2fdd37f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b7802893ef2d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b80742a4179a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b92759e43581": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b929dcd2a682": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b9bfb81bfcde": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b9ded4c3f4ec": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ba084e4d9fbd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ba53ac0651fc": "*",
-          "bed2497373c3": [
-            "dark-desktop",
-            "dark-narrow"
-          ],
-          "bfc68c2dfedd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c05ab4e64072": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c0ecdfe9b70a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c135948b85b6": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c1970ff1b97c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c1b15bad9b84": "*",
-          "c1ff8b1912a7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c20617373c9e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c24f65dc0282": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c2d16ff122a7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c42318c8d734": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c43b50d7c182": "*",
-          "c5433b2b2db5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c55de7d600f3": "*",
-          "c5cc5e438ac2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c79c8b971f25": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c8cbd09f8d8d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c8d6d2d48dc3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cab067eba1ba": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cad76e82f5a6": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cbb82af76366": "*",
-          "cc6fa170f994": "*",
-          "cc9c22b67785": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "cd4216680193": "*",
-          "cd96f3414b38": "*",
-          "cded4f6cd3d1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ce8746b8be94": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ceab04c09c3d": "*",
-          "cf2e6c9450e8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cf32c777214d": "*",
-          "cf5314acfd58": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d0f9f6f60558": "*",
-          "d11007f6c717": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d2d587c1a98e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d3352074b89e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d465930714ff": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d5c99d35a762": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d5cc9de05695": [
-            "dark-desktop"
-          ],
-          "d6aacd711ea9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d731edc9a398": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d7ef7db49557": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d87be846cb4e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d972c40e2764": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "da64ccbaf33b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "db128d75edce": "*",
-          "db5a4212c390": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "db9d916f8122": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dbda6fc3b725": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dbeefa62b7e5": "*",
-          "dc097528c4eb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dcf7a9eb4e4d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dd65f4ad3f7a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ddb28265fce4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "de1df931bb30": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dec38a53e56c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e07333da27cd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e12e27ff79d8": "*",
-          "e1c90272d0e7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e2641bcda1e4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e292b2e7821e": "*",
-          "e30e184811d7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e41987556e6e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e783f4d23ef2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e80f4bec8bfb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e94985b75879": "*",
-          "e9892f42ee18": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e9cc9c8b1500": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e9e12f771be1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e9ea2f5225b8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ec52e24aeabc": "*",
-          "ec6a593c2422": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "eccad73d5c9b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ecccf973e216": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ee02a95fe384": "*",
-          "ee2fc2af6c15": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ee785498199f": "*",
-          "ee7ebcf09ba9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ef31922798d3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f0fdbf5da252": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f10b09491bde": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f1a74e45e49c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f276783d6bac": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f31751d35959": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f46cdf598a6f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f5c31471856f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f5e415b2609e": "*",
-          "f5eb3ab1ec60": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f7742a230995": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f7a1b056ff77": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f7e1acafb856": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f84dfd8a2f8f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f8b2b00a5c19": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f8b5a566ff9d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f928c10a661e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f987dcd45bc9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "fc9ebcf5f10e": "*",
-          "fdb0fdac1d55": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fe07b6a47727": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fea22b78210b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "feda85fa9bf6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ff6033ecb561": "*",
-          "ff8a29e2faaf": "*",
-          "ffb9f23f71a6": [
-            "dark-narrow",
-            "light-narrow"
-          ]
-        }
-      },
-      "actions": [
-        {
-          "target": "upstream",
-          "what": "design-system-upstream.md: the kit draws ll-no-steady-window and ll-no-probe-path on a run stopped in the upload (partial, not saved, Keep in history), since a complete result always has a steady window and a direction longer than the close sequence (measurement.md sections 11.1, 11.4).",
-          "done": true
-        }
-      ],
-      "status": "in-progress",
-      "resolution": null
-    },
-    {
       "id": "v02-modal-inert-page",
       "title": "An open dialog or menu hides the page behind it from assistive technology in Vue; the kit's page stays in the tree",
       "match": {
@@ -59403,1045 +55090,6 @@
           "complete": true
         }
       }
-    },
-    {
-      "id": "v02-result-not-saved-partial-run",
-      "title": "Result detail, not-saved-partial: the kit drew the complete LAN run with the partial reason; Vue opens a run stopped in the upload. The export now draws that run, so what remains is v02-loaded-stopped-cases' run, which it closes with",
-      "match": {
-        "scenarios": [
-          "result/not-saved-partial"
-        ],
-        "projects": null,
-        "layer": null,
-        "path": null,
-        "kind": null,
-        "detail": "^(?!.*HTTP loaded responsiveness, connection sharing)(?!img \"(?:Download|Upload)\"$)(?!text \"[^\"]*HTTP loaded responsiveness — )(?!text \"[\\d,]+RPM)"
-      },
-      "type": "conflict",
-      "aspect": "content",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/screens.md §2",
-          "says": "a partial result not kept shows Not saved with \"Partial results are not saved\""
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx state not-saved-partial",
-          "says": "the complete run (B, two directions, both confidence lines) with the partial reason"
-        },
-        "vue": {
-          "ref": "web/parity/drivers.ts showResult",
-          "says": "the demo run stopped in the upload (download-only grade, upload insufficient data)"
-        },
-        "notes": "Owns every difference of the scenario until the export draws the stopped run; what is left then goes back to the clusters it belongs to."
-      },
-      "decision": {
-        "kind": "verdict",
-        "winner": "spec",
-        "rationale": "The maintainer decided on 2026-10-18 that the spec wins: only a partial result gives that reason, so the kit should draw the run stopped in the upload, as its ll-no-steady-window case does.",
-        "on": "2026-10-18"
-      },
-      "owned": {
-        "result/not-saved-partial": {
-          "00736ac29053": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "008d25e559e1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "021be4526649": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "02d5dff0030d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0302209a6b76": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0389176e95a2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "050fc5cdafd9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "052d4452247f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "066dd26a0f3e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0753dfacb470": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0970a4561423": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0996b022126f": "*",
-          "0a897bfdb87f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0d6ed13d7e35": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0e87d0e6acea": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0f1c6e12a838": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0f52681d0ab3": "*",
-          "134f3e8880eb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "135a9259d01e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "145f7b0984e3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1583f0530ddb": "*",
-          "15ef8a03229d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1964eba9c5d1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1a66efa4cebc": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1bd112aabad8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1e8ea4581b3f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1e9c1d73c8e7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1fd0d165ad29": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2062240df44a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "20ebb5d6bbdf": "*",
-          "23546f6a653f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "23a46fdeb469": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "23ed1e8de56a": "*",
-          "242493e90eab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "256b186e776d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "25ae55231e1d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "25bbd8b55a71": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "25c89aa56ac9": "*",
-          "25e078ee6daf": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "27f2a48d43d5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "296d334a881c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "29a67aca4508": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2b550410554e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2d05ecc36e32": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2dd477346d3f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2f5cfda3ffd1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2f6cd8ba636d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2fa660724c9e": "*",
-          "306a12368454": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "30c1c516deae": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "335015bb6886": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3394cde8ebe3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "343918e6e668": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "345b64b241c2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "345db0b01684": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "34bb890e6f00": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "35091c9fa9f2": "*",
-          "38b0263555a8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "38bdd63fffdd": "*",
-          "3c6e62c3b1b5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3d7d021b6b95": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "40afe58b59c2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "44be0b1d631e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "45593026c6ed": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4616c3d72e69": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "466851b9269d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4680017dacf0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "47e641a592a3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "487d7f5adc19": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "48f2da8ef4e3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4949ea5c6482": "*",
-          "4acfa7a846fa": "*",
-          "4b54430b85ab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4be54f74479e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4d566915297d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4d566e45f238": "*",
-          "5282ef45150c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "53ac12125d2c": "*",
-          "53bdd3c7c115": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5528bdb47b89": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "554b5e3fd318": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "56b0fb99a1a0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "57ac72e08bf5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "587edc4552e3": "*",
-          "58c6753c266f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5985d4a6ece9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5a2ee324ecbf": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5a49d882db1d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5a820f32da97": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5b26cb961364": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5cfc2d02fe1e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5d0506ce388c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "5dbdebe005e0": "*",
-          "5e734e542ad0": [
-            "dark-narrow"
-          ],
-          "5f63e7127a70": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "618ecffd2cf5": "*",
-          "61c9b22beef2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "624a8de0570f": "*",
-          "626c8b5e0870": "*",
-          "63eeda36bf3a": "*",
-          "651c8a65f765": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6577749debb0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "66dde5cc0ea7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "677cf17dc67e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "679753aca244": "*",
-          "687740b22229": "*",
-          "69f50687dd61": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6a58625df5f3": "*",
-          "6adb636cf34f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "711bb135cf20": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "714a84e2a963": "*",
-          "717dd520af01": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "72023b1b5af2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "72376879e6e3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7294dc000e66": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "729e1d4766c1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "742076f48c23": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7464f3c874c3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "752897c77053": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7565119bc537": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "758c41c6b393": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "765b2009f160": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7752046adfd5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7823829ecb97": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "78a1cb261950": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7942697dd37d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "794760b7c6b8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7986b27e58b7": "*",
-          "7a576d65bc3e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7b4e23b07e79": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7c5e6e8757a7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7cf8ece17e8e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7dad9da5516e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7dd523b693bc": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7ea44a5e58ff": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8021983d12a3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8085dcf0d09e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "829308a369fe": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "84682897ec1f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "84c117f37c31": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8504acf19c9e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "856d482eba33": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "872f0bc28d30": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "87de3ec25fb1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "884de5d4a56a": "*",
-          "8a2fd3a63238": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8a3f9790b755": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8a63f3b240de": "*",
-          "8abb379d11ac": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8b58e5675ec1": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8d2c82d5e265": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8da2cbe025bc": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8e037aa16104": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8f307eeaa2a4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "91a2fab4d1ff": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "91d8465d6a5d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "92283b2a1201": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9306ad608404": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "93a91bf40afa": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9529778d0275": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "955402062ab5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "969b1f1d16e7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9751bb6b3ee6": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "982859abcc8a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9975e3422ae5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "998396859ae5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9a037265850b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9bb0b71f6013": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9d43faaa7878": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9da298c65764": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9db649e66792": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9ded317b22de": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9f6b70fa2bab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9ffa107b5a3e": "*",
-          "a090576f51b9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a1b75bc2ecd6": "*",
-          "a29bd7ad041a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a31534f8af17": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a31bcedc5d05": "*",
-          "a38750dc8d03": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a3954c60d730": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a55ca7d28482": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a6a5f6e3737d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a808cffa0e86": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a8781773049c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a8c1f89e4a94": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a8cc7ae8f891": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a9e1d75a756e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a9fa2d1b86fe": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "aa1b3d31e09c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "aa89ed9c17f0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ab8377d93495": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ada7b25380da": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ae0d675023ad": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "af94bf025582": [
-            "light-narrow"
-          ],
-          "afdcdfabe555": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b0502c50482f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b06045884925": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b47a357d2de8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b5878f5536c2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b587dd8fe1f7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b5a55be556f5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b74b84c13020": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b7802893ef2d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b8f9ab996024": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b9ded4c3f4ec": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ba084e4d9fbd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ba53ac0651fc": "*",
-          "bc6b43f6fee5": "*",
-          "bed2497373c3": [
-            "light-desktop"
-          ],
-          "bf35b39b5419": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "bf382ef5dc56": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c05ab4e64072": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c0ecdfe9b70a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c289709d1905": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c2d16ff122a7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c43b50d7c182": "*",
-          "c55de7d600f3": "*",
-          "c5cc5e438ac2": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c7db8787345a": [
-            "dark-desktop"
-          ],
-          "c8cbd09f8d8d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c8d6d2d48dc3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ca2c5552e23b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cab067eba1ba": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cb826b952596": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cc6fa170f994": "*",
-          "cc9c22b67785": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ceab04c09c3d": "*",
-          "cf2e6c9450e8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cf32c777214d": "*",
-          "cf5314acfd58": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cf8dfa027930": "*",
-          "d1d0d3237a53": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d217af2c8442": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "d3352074b89e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d465930714ff": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d5c99d35a762": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d5cc9de05695": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d705de9a9430": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d7ef7db49557": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dbda6fc3b725": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dc097528c4eb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dcf7a9eb4e4d": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dd1edb241f9e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "dd65f4ad3f7a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dec38a53e56c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e0983dd02d15": "*",
-          "e12e27ff79d8": "*",
-          "e2641bcda1e4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e28e0906277c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e292b2e7821e": "*",
-          "e3969a1ef020": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e3adc405f88a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e4c83f3d5aee": [
-            "dark-desktop"
-          ],
-          "e80f4bec8bfb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e9133d92f92a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e94985b75879": "*",
-          "e9cc9c8b1500": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e9ea2f5225b8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ec6a593c2422": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ecccf973e216": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ee2fc2af6c15": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ee7ebcf09ba9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ef31bfadd1d2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f0fdbf5da252": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f10b09491bde": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f276783d6bac": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f57b31b7e4e4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f5eb3ab1ec60": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f7e1acafb856": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f841c545f367": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f84b2d6c4828": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f84dfd8a2f8f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f987dcd45bc9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "fc9ebcf5f10e": "*",
-          "fdb0fdac1d55": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "fe129705af9f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "fea22b78210b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ff18603b5fad": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ffb9f23f71a6": [
-            "dark-narrow",
-            "light-narrow"
-          ]
-        }
-      },
-      "actions": [
-        {
-          "target": "upstream",
-          "what": "docs/engineering/design-system-upstream.md: v02-result-not-saved-partial-run.",
-          "done": true
-        }
-      ],
-      "status": "in-progress",
-      "resolution": null
     },
     {
       "id": "v02-result-page-height",
@@ -71920,10 +66568,14 @@
           "acf44f643bf8": "*"
         },
         "loaded/ll-no-probe-path": {
-          "1123fa3bea4c": "*"
+          "05a0aa350659": "*",
+          "1123fa3bea4c": "*",
+          "c733e5e52a08": "*"
         },
         "loaded/ll-no-steady-window": {
-          "30a579dd9843": "*"
+          "05a0aa350659": "*",
+          "30a579dd9843": "*",
+          "c733e5e52a08": "*"
         },
         "loaded/ll-reservation-broken": {
           "05a0aa350659": "*",
@@ -71967,10 +66619,14 @@
           "fc9ebcf5f10e": "*"
         },
         "result/ll-no-probe-path": {
-          "061970c53dfc": "*"
+          "061970c53dfc": "*",
+          "23ed1e8de56a": "*",
+          "fc9ebcf5f10e": "*"
         },
         "result/ll-no-steady-window": {
-          "0fe9548f5b1a": "*"
+          "0fe9548f5b1a": "*",
+          "23ed1e8de56a": "*",
+          "fc9ebcf5f10e": "*"
         },
         "result/ll-reservation-broken": {
           "1fc86c163842": "*",
@@ -71983,7 +66639,9 @@
           "fc9ebcf5f10e": "*"
         },
         "result/not-saved-partial": {
-          "0fe9548f5b1a": "*"
+          "0fe9548f5b1a": "*",
+          "23ed1e8de56a": "*",
+          "fc9ebcf5f10e": "*"
         },
         "result/resp-few-samples": {
           "f6553e5702e8": "*"
@@ -72104,6 +66762,11 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: on the standard run's states, as on the Responsiveness ones, the HTTP loaded responsiveness row names each direction in text with its RPM or state (\"Download —\", \"Download 1,420 RPM\").",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md (Run stopped in the upload): the maintainer decided on 2026-10-21 that the spec wins on the stopped upload's HTTP loaded responsiveness; the kit's Result detail should read \"not enough samples\", not the complete run's 980 RPM. The difference sits in this cluster's RPM texts of the stopped runs.",
           "done": true
         }
       ],
@@ -75639,7 +70302,10 @@
       "match": {
         "scenarios": [
           "result/ll-insufficient-samples",
-          "result/ll-reservation-broken"
+          "result/ll-reservation-broken",
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
         ],
         "projects": null,
         "layer": "content",
@@ -75674,7 +70340,16 @@
         "result/ll-insufficient-samples": {
           "687740b22229": "*"
         },
+        "result/ll-no-probe-path": {
+          "687740b22229": "*"
+        },
+        "result/ll-no-steady-window": {
+          "687740b22229": "*"
+        },
         "result/ll-reservation-broken": {
+          "687740b22229": "*"
+        },
+        "result/not-saved-partial": {
           "687740b22229": "*"
         }
       },
@@ -75701,7 +70376,10 @@
           "result/history-unavailable",
           "result/not-saved-missing",
           "result/deleted",
-          "result/clipboard-denied"
+          "result/clipboard-denied",
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
         ],
         "projects": null,
         "layer": "layout",
@@ -76018,6 +70696,176 @@
             "light-narrow"
           ]
         },
+        "result/ll-no-probe-path": {
+          "00736ac29053": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "0753dfacb470": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0e87d0e6acea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "4680017dacf0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "53bdd3c7c115": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5528bdb47b89": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "61c9b22beef2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "714a84e2a963": "*",
+          "7b4e23b07e79": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "819adf58a746": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8504acf19c9e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "982859abcc8a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a1b75bc2ecd6": "*",
+          "a8cc7ae8f891": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a9e1d75a756e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c05ab4e64072": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c8d6d2d48dc3": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cab067eba1ba": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cf32c777214d": "*",
+          "d465930714ff": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e2641bcda1e4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ec6a593c2422": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ee7ebcf09ba9": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/ll-no-steady-window": {
+          "00736ac29053": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "0753dfacb470": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0e87d0e6acea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "4680017dacf0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "53bdd3c7c115": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5528bdb47b89": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "61c9b22beef2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "714a84e2a963": "*",
+          "7b4e23b07e79": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8504acf19c9e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8d2c82d5e265": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "982859abcc8a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a1b75bc2ecd6": "*",
+          "a8cc7ae8f891": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a9e1d75a756e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c05ab4e64072": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c8d6d2d48dc3": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cab067eba1ba": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cf32c777214d": "*",
+          "d465930714ff": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e2641bcda1e4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ec6a593c2422": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ee7ebcf09ba9": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
         "result/ll-reservation-broken": {
           "0872689cea06": [
             "dark-narrow",
@@ -76185,6 +71033,91 @@
             "light-narrow"
           ]
         },
+        "result/not-saved-partial": {
+          "00736ac29053": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "0753dfacb470": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0e87d0e6acea": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "4680017dacf0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "53bdd3c7c115": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5528bdb47b89": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "61c9b22beef2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "714a84e2a963": "*",
+          "7b4e23b07e79": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8504acf19c9e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8d2c82d5e265": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "982859abcc8a": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a1b75bc2ecd6": "*",
+          "a8cc7ae8f891": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a9e1d75a756e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c05ab4e64072": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c8d6d2d48dc3": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cab067eba1ba": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cf32c777214d": "*",
+          "d465930714ff": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e2641bcda1e4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ec6a593c2422": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ee7ebcf09ba9": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
         "result/ws-close": {
           "1684928c3f38": [
             "dark-narrow",
@@ -76259,7 +71192,10 @@
           "result/history-unavailable",
           "result/not-saved-missing",
           "result/deleted",
-          "result/clipboard-denied"
+          "result/clipboard-denied",
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
         ],
         "projects": null,
         "layer": "content",
@@ -76303,11 +71239,20 @@
         "result/ll-insufficient-samples": {
           "5a4da430a4d3": "*"
         },
+        "result/ll-no-probe-path": {
+          "50367ebc2d25": "*"
+        },
+        "result/ll-no-steady-window": {
+          "50367ebc2d25": "*"
+        },
         "result/ll-reservation-broken": {
           "5a4da430a4d3": "*"
         },
         "result/not-saved-missing": {
           "8aa8e6934020": "*"
+        },
+        "result/not-saved-partial": {
+          "50367ebc2d25": "*"
         },
         "result/ws-close": {
           "8aa8e6934020": "*"
@@ -78110,6 +73055,881 @@
       "resolution": null
     },
     {
+      "id": "v03-stopped-confidence-card",
+      "title": "Result detail of a run stopped in the upload: the kit's \"Upload: insufficient data\" confidence line and its stop notice ending \"so the grade and quality scores use download only\", and the card geometry they change",
+      "match": {
+        "scenarios": [
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > (?:region \"Confidence and notices\" > list(?: > listitem)?|list \"\"(?: #2)?|heading \"NOTICES\"|listitem \"Test cancelled during upload.*|text \"Latency and download completed\\. Upload stopped.*)$",
+        "kind": null,
+        "detail": "^(?!text \"[^\"]*The WebSocket closed)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-21 that the spec wins: a confidence line belongs to a measured direction (measurement.md section 16), and the stop notice ends as ui/flows.md section 4 writes it; the deferred stop-notice clusters are decided the same way.",
+        "on": "2026-10-21"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: Run stopped in the upload. Confidence and Stop notice.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
+      "owned": {
+        "result/ll-no-probe-path": {
+          "1a66efa4cebc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "969b1f1d16e7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a55ca7d28482": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ba53ac0651fc": "*",
+          "cc9c22b67785": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ee2fc2af6c15": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f5eb3ab1ec60": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "result/ll-no-steady-window": {
+          "1a66efa4cebc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "554b5e3fd318": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "63eeda36bf3a": "*",
+          "969b1f1d16e7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a55ca7d28482": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ba53ac0651fc": "*",
+          "c2d16ff122a7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c8cbd09f8d8d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cc9c22b67785": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ee2fc2af6c15": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f5eb3ab1ec60": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "result/not-saved-partial": {
+          "1a66efa4cebc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "554b5e3fd318": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "63eeda36bf3a": "*",
+          "969b1f1d16e7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a55ca7d28482": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "ba53ac0651fc": "*",
+          "c2d16ff122a7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c8cbd09f8d8d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cc9c22b67785": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ee2fc2af6c15": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f5eb3ab1ec60": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
+      "resolution": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/measurement.md §16; docs/features/ui/flows.md §4",
+          "says": "confidence is normal, low or cpu-bound for a measured direction; the notice ends \"…before a 3 s confirmed steady window, so it has no value\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:235-236",
+          "says": "'Upload: insufficient data' confidence line; notice ending 'Upload stopped at ' + USTOP + ' s, so the grade and quality scores use download only.'"
+        },
+        "vue": {
+          "ref": "web/src/components/test/stop.ts",
+          "says": "no confidence line for the stopped upload; the notice from stopWording"
+        }
+      }
+    },
+    {
+      "id": "v03-stopped-knock-on-geometry",
+      "title": "Run stopped in the upload: geometry with mixed causes (page and column heights, the cards below the tiles), the sum of the upload tile, the confidence card, the stop-notice clause, the probe sentence's time and the scores basis",
+      "match": {
+        "scenarios": [
+          "loaded/ll-no-probe-path",
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > (?:main \"\"|complementary \"\"|region \"(?:Bufferbloat|Confidence and notices|Download|Idle latency|Result status|Results|Speed test)\"|status \"Test cancelled during upload.*|text \"Latency and download completed\\. The WebSocket c.*|list \"\" #3)$",
+        "kind": "^(?:height|y)$",
+        "detail": "^(?!(?:164|293)px → (?:222|351)px$)"
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-21 that this geometry follows its causes' decisions (v03-stopped-upload-tile, v03-stopped-confidence-card, v03-stopped-probe-sentence, feature-stop-notice-v02, v03-result-scores), as v03-path-b-knock-on-geometry does; it closes when they do.",
+        "on": "2026-10-21"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "Covered by the causes' notes: design-system-upstream.md: Run stopped in the upload.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
+      "owned": {
+        "loaded/ll-no-probe-path": {
+          "13308b650245": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "17c8d43f828f": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "6b8b78dfccd6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7bee813f6690": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "87bd088c4c31": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b00be4fb0905": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ccc1cde60351": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "result/ll-no-probe-path": {
+          "0970a4561423": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "25bbd8b55a71": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2f5cfda3ffd1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "383c8f04a8af": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "60c510c70290": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "6834ee8ec1c4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8419f08404b8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8a3f9790b755": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8fdea63450c6": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "91d8465d6a5d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9751bb6b3ee6": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "af467462c7eb": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b8a6f85d3e54": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e2768493fad4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e73ee0c550c5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e80f4bec8bfb": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "fbb809f29383": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "result/ll-no-steady-window": {
+          "0389176e95a2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0970a4561423": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "0d6ed13d7e35": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "1e8ea4581b3f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "25bbd8b55a71": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2f5cfda3ffd1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "343918e6e668": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "84c117f37c31": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8a3f9790b755": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91d8465d6a5d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9751bb6b3ee6": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b7802893ef2d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b8a6f85d3e54": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c0ecdfe9b70a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e2768493fad4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e80f4bec8bfb": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f7e1acafb856": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        },
+        "result/not-saved-partial": {
+          "0389176e95a2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0970a4561423": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "0d6ed13d7e35": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "1e8ea4581b3f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "25bbd8b55a71": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "2f5cfda3ffd1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "343918e6e668": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "84c117f37c31": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8a3f9790b755": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "91d8465d6a5d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "9751bb6b3ee6": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b7802893ef2d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b8a6f85d3e54": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c0ecdfe9b70a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e2768493fad4": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e80f4bec8bfb": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f7e1acafb856": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
+      "resolution": null,
+      "evidence": {
+        "spec": {
+          "ref": "the causes' clusters",
+          "says": "each cause is decided on its own"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx; docs/design_system/ui_kits/app/TestScreen.jsx",
+          "says": "the stopped run's cards at the kit's sizes"
+        },
+        "vue": {
+          "ref": "web/src/components/result, web/src/components/test",
+          "says": "the same cards at Vue's sizes"
+        }
+      }
+    },
+    {
+      "id": "v03-stopped-probe-sentence",
+      "title": "Run stopped in the upload after the WebSocket closed (ll-no-probe-path): the stop notice's lost-probe sentence, which the kit times (\"closed 9.7 s into the download\") and Vue cannot",
+      "match": {
+        "scenarios": [
+          "loaded/ll-no-probe-path",
+          "result/ll-no-probe-path"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > (?:status|region \"Confidence and notices\" > list > listitem)$",
+        "kind": "^changed$",
+        "detail": "The WebSocket closed # s into the download and its reopening was never answered"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "decision": {
+        "kind": "verdict",
+        "winner": "kit",
+        "rationale": "The maintainer decided on 2026-10-21 that the kit wins: the stop notice says why the upload has no latency probe. On the residue, also on 2026-10-21: Vue's sentence stays without the time, since the result does not record when the WebSocket closed, and the kit drops it.",
+        "on": "2026-10-21"
+      },
+      "actions": [
+        {
+          "target": "spec",
+          "what": "docs/features/ui/flows.md §4: the lost-probe sentence.",
+          "done": true
+        },
+        {
+          "target": "vue",
+          "what": "web/src/components/test/stop.ts: the sentence for a no-probe-path loaded latency.",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: Run stopped in the upload. Lost probe path: the kit drops the time.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
+      "owned": {
+        "loaded/ll-no-probe-path": {
+          "54c6c4544bc1": "*"
+        },
+        "result/ll-no-probe-path": {
+          "ee95537e301e": "*"
+        }
+      },
+      "resolution": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md §4",
+          "says": "silent before the change: the body names the phases completed, where the direction stopped and why it has or has no value"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:396; docs/design_system/ui_kits/app/ResultDetail.jsx:236",
+          "says": "' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.'"
+        },
+        "vue": {
+          "ref": "web/src/components/test/stop.ts",
+          "says": "no sentence; the load card's \"During upload: no latency probe\""
+        }
+      }
+    },
+    {
+      "id": "v03-stopped-streams-row",
+      "title": "Result detail of a run stopped in the upload: the Streams row, the kit's one count for the run vs Vue's per-direction counts, and the Test parameters geometry its wrap adds",
+      "match": {
+        "scenarios": [
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > (?:complementary > region \"Test parameters\" > definition|region \"Test parameters\"|heading \"(?:LIMITS|MEASUREMENT|ENVIRONMENT)\"|list \"\" #[456]|term \"Streams\")$",
+        "kind": null,
+        "detail": "^(?:text \"Auto · 6 · plateau: cap\" → \"Auto · download 6 · plateau: cap; upload \\d\"|\\d+px → \\d+px)$"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-21 that Vue wins: the row names each direction when their counts or plateaus differ (spec: stream count and plateau reason); the upload's count is the demo ramp's own.",
+        "on": "2026-10-21"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: Run stopped in the upload. Streams row.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
+      "owned": {
+        "result/ll-no-probe-path": {
+          "0a897bfdb87f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3ef692f649fa": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "758c41c6b393": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "85f3a9f862e2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9e82892ab0f5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a066568368c9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c7cf4e898c67": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "dcf7a9eb4e4d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e4caedef648f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/ll-no-steady-window": {
+          "0a897bfdb87f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "15ef8a03229d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3ef692f649fa": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "758c41c6b393": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9e82892ab0f5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a066568368c9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c7cf4e898c67": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "dcf7a9eb4e4d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e4caedef648f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/not-saved-partial": {
+          "0a897bfdb87f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "15ef8a03229d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "3ef692f649fa": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "758c41c6b393": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9e82892ab0f5": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a066568368c9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "c7cf4e898c67": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "dcf7a9eb4e4d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e4caedef648f": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "resolution": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §2",
+          "says": "Test parameters: stream mode, count and plateau reason"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:249",
+          "says": "\"Auto · 6 · plateau: cap\", though its JSON gives the stopped upload plateau null"
+        },
+        "vue": {
+          "ref": "web/src/components/result/parameters.ts streams()",
+          "says": "\"Auto · download 6 · plateau: cap; upload 2\""
+        }
+      }
+    },
+    {
+      "id": "v03-stopped-upload-tile",
+      "title": "Result detail of a run stopped in the upload's warm-up: the upload tile, the kit's \"— insufficient data · stopped at 3.1 s, in warm-up\" vs Vue's Insufficient data pill and sentence, and the Results card it makes taller",
+      "match": {
+        "scenarios": [
+          "result/ll-no-probe-path",
+          "result/ll-no-steady-window",
+          "result/not-saved-partial"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > (?:region \"Results\"|text \"(?:Upload|—|Idle latency|Jitter|ms|mean of consecutive differences|min # · p90 # ms · WebSocket · # % probe timeou…)\"(?: #2)?)$",
+        "kind": "^(?:changed|height|y)$",
+        "detail": "^(?:text \"…s · plateau: cap Upload — insufficient data · stopped at|\\d+px → \\d+px$)"
+      },
+      "type": "conflict",
+      "aspect": "content",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-21 that the spec wins: the tile reads as ui/flows.md section 4 and the kit's own Test screen word it, \"Insufficient data — confirmed steady window shorter than 3 s (stopped in warm-up)\", with its pill.",
+        "on": "2026-10-21"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: Run stopped in the upload. Results tile.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
+      "owned": {
+        "result/ll-no-probe-path": {
+          "02d5dff0030d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0996b022126f": "*",
+          "2062240df44a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "256b186e776d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "2dd477346d3f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "487d7f5adc19": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "56b0fb99a1a0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7294dc000e66": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "aa89ed9c17f0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b06045884925": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "dc097528c4eb": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e9ea2f5225b8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f276783d6bac": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/ll-no-steady-window": {
+          "02d5dff0030d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0996b022126f": "*",
+          "2062240df44a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "256b186e776d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "2dd477346d3f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "487d7f5adc19": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "56b0fb99a1a0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7294dc000e66": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "aa89ed9c17f0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b06045884925": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "dc097528c4eb": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e9ea2f5225b8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f276783d6bac": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/not-saved-partial": {
+          "02d5dff0030d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "0996b022126f": "*",
+          "2062240df44a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "256b186e776d": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "2dd477346d3f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "487d7f5adc19": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "56b0fb99a1a0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7294dc000e66": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "aa89ed9c17f0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "b06045884925": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "dc097528c4eb": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "e9ea2f5225b8": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f276783d6bac": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "resolution": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/flows.md §4",
+          "says": "a stop before warm-up ends gives \"insufficient data — confirmed steady window shorter than 3 s\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:182",
+          "says": "'insufficient data · stopped at ' + USTOP + ' s, in warm-up' + ' · ' + bytes used, no pill"
+        },
+        "vue": {
+          "ref": "web/src/components/test/tiles.ts, test.json insufficientConfirmedWarmup",
+          "says": "an Insufficient data pill and \"Insufficient data — confirmed steady window shorter than 3 s (stopped in warm-up)\""
+        }
+      }
+    },
+    {
       "id": "v03-test-announcement",
       "title": "Test screen states: the live announcement (idle, countdown, connecting, latency, download, upload, …)",
       "match": {
@@ -78148,7 +73968,7 @@
         "layer": "content",
         "path": "^(?=main > status$)",
         "kind": null,
-        "detail": null
+        "detail": "^(?!text \"…[^\"]*(?:so it has no value|reopening was never answered))"
       },
       "type": "conflict",
       "aspect": "a11y",
