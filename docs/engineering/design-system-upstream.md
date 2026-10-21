@@ -205,3 +205,27 @@ The kit's caption reads "Optional, up to 64 characters. Pre-fills the label of e
 this browser." The setting does for every result what the `label` link parameter does for one page
 load ([ui/screens.md](../features/ui/screens.md#4-settings--settings)), so the caption should add
 ", as the label link parameter does for one page load", as the Vue Settings page does.
+
+### Snippet copy button: the terminal's muted color
+
+From triage cluster `v03-about-style`. Kit file `components/layout/Snippet.jsx` and
+`components/layout/layout.css`, the copy button of each snippet on the About screen
+(`ui_kits/app/About.jsx`).
+
+The button carries both `.btn.ghost` and `.snip-copy`. `.btn.ghost` sets `color: var(--fg-muted)`
+and, being more specific, wins over `.snip-copy`'s `color: var(--term-muted)`. In the light theme
+that draws a dark gray icon on the terminal box, which is dark in both themes: about 2.6:1, below
+the 3:1 an icon needs ([ui/i18n-a11y.md](../features/ui/i18n-a11y.md#2-accessibility)). The copy
+button should take `--term-muted` in both themes, for example with `.snip-box .snip-copy`, as the
+Vue About page does.
+
+### Copy: straight apostrophes in the remaining strings
+
+From triage cluster `v03-about-content`, as `v02-curly-apostrophes` decided for the rest of the
+copy. Kit files `ui_kits/app/About.jsx` (the client cards' "can’t", "Apple’s", "server’s",
+"isn’t" and "won’t"), `ui_kits/app/ResultDetail.jsx` and `components/measurement/SharePreview.jsx`
+("limited by this device’s CPU"), and `ui_kits/app/TestScreen.jsx` and `ResultDetail.jsx` (the
+browser upload notice's "’s own upload path").
+
+The copy uses straight apostrophes everywhere, as the export's other strings and the About
+screen's unreachable alert already do. These strings should use them too, as the Vue app does.
