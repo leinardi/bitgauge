@@ -83,7 +83,7 @@ const modes = computed(() => [
             class="static flex size-8 translate-y-0 items-center justify-center p-0 text-(length:--text-caption) leading-(--lh-tight) text-muted-foreground hover:bg-(--surface-3) hover:text-foreground"
           />
           <NumberFieldInput
-            :aria-label="t('settings.streams.count')"
+            :aria-label="t('settings.streams.countInput')"
             class="h-8 w-8.5 rounded-none border-none bg-transparent p-0! font-mono text-(length:--text-sm) shadow-none focus-visible:ring-0"
           />
           <NumberFieldIncrement

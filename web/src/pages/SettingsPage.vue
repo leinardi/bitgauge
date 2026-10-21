@@ -172,10 +172,10 @@ provide(
           :title="t('settings.display.title')"
           :icon="Monitor"
         >
+          <LabelField />
           <UnitsField />
           <ThemeLanguageField />
           <AutoStartField />
-          <LabelField />
         </SettingsCard>
         <AdvancedSection />
       </template>

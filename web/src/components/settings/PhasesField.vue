@@ -126,19 +126,16 @@ const orders = computed(() => [
     <RunLengthField />
   </div>
   <div class="flex flex-wrap items-center gap-x-4 gap-y-2.5">
-    <span
-      id="settings-phases"
-      class="flex items-center gap-2 text-(length:--text-sm) text-muted-foreground"
-    >
-      {{ t('settings.phases.title') }}
-      <ChangedMark v-if="form.changed.value.has('phases')" />
-    </span>
-    <!-- A group for assistive technology only: the checkboxes lay out in the row itself. -->
+    <!-- A group for assistive technology only: its name and checkboxes lay out in the row itself. -->
     <div
       role="group"
       aria-labelledby="settings-phases"
       class="contents"
     >
+      <span class="flex items-center gap-2 text-(length:--text-sm) text-muted-foreground">
+        <span id="settings-phases">{{ t('settings.phases.title') }}</span>
+        <ChangedMark v-if="form.changed.value.has('phases')" />
+      </span>
       <LabeledCheckbox
         v-for="item in toggles"
         :key="item.phase"

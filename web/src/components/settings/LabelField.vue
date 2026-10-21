@@ -38,7 +38,7 @@ function validate(text: string): string | null {
 <template>
   <SettingRow
     :title="t('settings.label.title')"
-    :caption="t('settings.label.caption')"
+    :caption="t('settings.label.caption', { max: MAX_LABEL })"
     :changed="form.changed.value.has('label')"
   >
     <SettingInput
@@ -48,7 +48,7 @@ function validate(text: string): string | null {
       :placeholder="t('settings.label.placeholder')"
       :validate="validate"
       inputmode="text"
-      class="w-60"
+      class="w-50"
       @commit="form.set({ label: $event })"
     />
   </SettingRow>

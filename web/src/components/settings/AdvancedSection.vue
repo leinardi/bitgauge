@@ -160,7 +160,7 @@ function overhead(value: unknown): void {
         >
           <SelectTrigger
             :aria-label="t('settings.overhead.title')"
-            class="h-(--input-h)! w-60 rounded-(--radius-md) border-(--border-default) bg-(--surface-1)! px-3 text-(length:--text-sm) text-foreground shadow-none"
+            class="h-(--input-h)! w-60 rounded-(--radius-md) border-(--border-default) bg-(--surface-1)! px-3 py-0 text-(length:--text-sm) text-foreground shadow-none [&_svg]:size-3.5"
           >
             <SelectValue class="flex-1 text-left" />
           </SelectTrigger>
