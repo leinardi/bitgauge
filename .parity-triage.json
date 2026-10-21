@@ -72109,10 +72109,42 @@
         },
         "notes": "Appeared once the parity capture read inert subtrees as hidden (assistive technology does not reach them). Recommendation, not a decision."
       },
-      "decision": null,
-      "owned": {},
-      "actions": [],
-      "status": "open",
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-21 that Vue wins: behind a modal dialog the live regions keep announcing (a server going offline is still heard), as Reka's hideOthers leaves aria-live regions exposed; the kit's useModal should leave them out of inert.",
+        "on": "2026-10-21"
+      },
+      "owned": {
+        "history/compare": {
+          "bba6cd61a594": "*"
+        },
+        "history/compare-h2": {
+          "bba6cd61a594": "*"
+        },
+        "history/confirm": {
+          "bba6cd61a594": "*"
+        },
+        "history/export": {
+          "bba6cd61a594": "*"
+        },
+        "settings/confirm-reset": {
+          "bba6cd61a594": "*"
+        },
+        "share/complete": {
+          "8dce668032fb": "*",
+          "bba6cd61a594": "*",
+          "f7307e6e7e34": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's useModal leaves aria-live regions (the header's server status, the page's announcements) out of inert.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
       "resolution": null
     },
     {
