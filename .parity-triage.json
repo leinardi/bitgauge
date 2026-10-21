@@ -71640,16 +71640,50 @@
         {
           "target": "spec",
           "what": "docs/features/ui/screens.md section 3: the date range's last 7, 30 or 90 days are that many calendar days ending today, in the browser's time zone.",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
           "what": "web/src/history/filters.ts and DateRangePicker.vue: the last N days start at the local midnight N − 1 days before today, so the From date reads Sep 9 for Oct 8.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-21",
+        "run": {
+          "runId": "f99570c4-271d-4673-85a3-a7affb8a5fc8",
+          "finishedAt": "2026-10-21T20:36:33.996Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "history/compare-h2"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-history-loading-status",
@@ -71697,11 +71731,45 @@
         {
           "target": "vue",
           "what": "web/src/components/history/HistoryLoading.vue: the role=status element holds the visually hidden text \"Loading history\" in place of the aria-label.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-21",
+        "run": {
+          "runId": "f99570c4-271d-4673-85a3-a7affb8a5fc8",
+          "finishedAt": "2026-10-21T20:36:33.996Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "history/compare-h2"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-history-popover-margin",
@@ -71758,11 +71826,45 @@
         {
           "target": "vue",
           "what": "web/src/components/history/DateRangePicker.vue and ExportMenu.vue: Reka's collision padding is 16 px.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": null,
+        "on": "2026-10-21",
+        "run": {
+          "runId": "f99570c4-271d-4673-85a3-a7affb8a5fc8",
+          "finishedAt": "2026-10-21T20:36:33.996Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "history/compare-h2"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-path-b-direction-icons",
