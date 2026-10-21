@@ -84,7 +84,14 @@ describe('settle', () => {
     const prepared: unknown[] = []
     await openSide(browser, { ...driver, prepare: (context) => Promise.resolve(void prepared.push(context)) }, project)
     expect(prepared).toHaveLength(1)
-    expect(options).toEqual({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', reducedMotion: 'reduce', timezoneId: 'UTC', locale: 'en-US' })
+    expect(options).toEqual({
+      viewport: { width: 390, height: 844 },
+      colorScheme: 'dark',
+      reducedMotion: 'reduce',
+      timezoneId: 'UTC',
+      locale: 'en-US',
+      userAgent: expect.stringMatching(/ Chrome\/130\./) as unknown,
+    })
     expect(routes).toEqual(['**/*'])
     expect(fixed.map((time) => time.toISOString())).toEqual(['2026-09-30T08:20:00.000Z'])
     expect(visited).toEqual([driver.startUrl])

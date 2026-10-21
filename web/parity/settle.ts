@@ -33,6 +33,11 @@ const FIXED_NOW = '2026-09-30T08:20:00.000Z'
 // A page is settled once its DOM has not changed for this long. Long enough to outlast a framework's
 // follow-up render, short enough that a one-second countdown cannot keep it unsettled.
 const QUIET_MS = 300
+
+// Both sides name the browser on the Test and Session cards. The kit is seeded with Chrome
+// (drivers.ts), and headless Chromium's own agent says HeadlessChrome, which the demo's parser does
+// not recognize, so both pages read this desktop Chrome instead.
+const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 // Long enough for the demo's longest run at real speed, a complete Standard test on the LAN (about
 // 28 s), to finish and go quiet.
 const SETTLE_TIMEOUT_MS = 60_000
@@ -44,6 +49,7 @@ export async function openSide(browser: Browser, driver: SideDriver, project: Pa
     reducedMotion: 'reduce',
     timezoneId: 'UTC',
     locale: 'en-US',
+    userAgent: USER_AGENT,
   })
   await routeThroughCdnCache(context)
   // Fixed, not installed: Date reads the fixed instant, while timers still run, so the prototype's
