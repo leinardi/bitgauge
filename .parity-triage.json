@@ -6118,7 +6118,7 @@
         "layer": "content",
         "path": "^main > (region \"Results\"|status)$",
         "kind": "^changed$",
-        "detail": "^(?!.*HTTP loaded responsiveness, connection sharing)text (?!.*Upper bound: packet los)(?!.*· HTTP/1\\.1 probe · )\"(?!(?:Good|…ood) for )(?!…-up\\), so)(?!Test )(?!Partial result)(?!(Upload|Download) result)(?!.*Bufferbloat\" → )(?!(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis)(?!Graded after upload During)(?!Not graded — )(?![^\"]*plateau: no-gain low confidence)(?!…onds\\. Bufferbloat grade)"
+        "detail": "^(?!.*(?:round trips per minute|not enough samples))(?!.*HTTP loaded responsiveness, connection sharing)text (?!.*Upper bound: packet los)(?!.*· HTTP/1\\.1 probe · )\"(?!(?:Good|…ood) for )(?!…-up\\), so)(?!Test )(?!Partial result)(?!(Upload|Download) result)(?!.*Bufferbloat\" → )(?!(Minimal|Low|Mild|Moderate|High|Severe) bufferbloat Basis)(?!Graded after upload During)(?!Not graded — )(?![^\"]*plateau: no-gain low confidence)(?!…onds\\. Bufferbloat grade)"
       },
       "type": "harness",
       "aspect": null,
@@ -62570,6 +62570,98 @@
       "resolution": null
     },
     {
+      "id": "v03-announcement-run-values",
+      "title": "The live announcement of an ended run: the HTTP loaded responsiveness numbers and states are the demo engine's own measurement of the simulated link, not the kit's mock (1,420 and 980 RPM, 240 on the slow link)",
+      "match": {
+        "scenarios": [
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken",
+          "loaded/ws-close",
+          "loaded/ll-no-probe-path",
+          "loaded/ll-no-steady-window",
+          "test/complete",
+          "test/slowdone",
+          "test/cancelled",
+          "test/cancelled-late",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "responsiveness/few-samples",
+          "responsiveness/uncertain"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": "^changed$",
+        "detail": "(?:round trips per minute|not enough samples)"
+      },
+      "type": "fixture",
+      "aspect": null,
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-21 to keep it, as for fixture-chart-run-timing and v02-fixture-result-run: the RPM numbers and their states are the demo engine's own measurement of the simulated link.",
+        "on": "2026-10-21"
+      },
+      "actions": [],
+      "status": "accepted",
+      "owned": {
+        "loaded/ll-insufficient-samples": {
+          "fd71d5fd524f": "*"
+        },
+        "loaded/ll-no-probe-path": {
+          "50b521b5bf68": "*"
+        },
+        "loaded/ll-no-steady-window": {
+          "50b521b5bf68": "*"
+        },
+        "loaded/ll-reservation-broken": {
+          "4753d5bb5602": "*"
+        },
+        "loaded/ws-close": {
+          "f089e0dbece8": "*"
+        },
+        "responsiveness/few-samples": {
+          "50b521b5bf68": "*"
+        },
+        "responsiveness/uncertain": {
+          "221ea35e609f": "*"
+        },
+        "test/cancelled": {
+          "50b521b5bf68": "*"
+        },
+        "test/cancelled-late": {
+          "3e514ebbf3d4": "*"
+        },
+        "test/cancelled-slow": {
+          "5420fa9867ff": "*"
+        },
+        "test/cancelled-slow-up": {
+          "b6726cf9249b": "*"
+        },
+        "test/complete": {
+          "42dc4925232f": "*"
+        },
+        "test/slowdone": {
+          "a26e059b2262": "*"
+        }
+      },
+      "resolution": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/technical-stack/frontend.md §9",
+          "says": "the demo's runs are the engine's own against the simulated link"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx respB",
+          "says": "fixed mock RPM: 1,420 and 980 (240 on the slow link)"
+        },
+        "vue": {
+          "ref": "web/src/components/a11y/announce.ts responsivenessSentence",
+          "says": "the result's own RPM and state per direction"
+        }
+      }
+    },
+    {
       "id": "v03-cont-chart-meta",
       "title": "Test screen, Continuous states: the chart's caption, the kit's \"avg 921\" and the done state's \"Average · session average\" vs Vue's \"avg so far #\" and \"Download\"",
       "match": {
@@ -73968,7 +74060,7 @@
         "layer": "content",
         "path": "^(?=main > status$)",
         "kind": null,
-        "detail": "^(?!text \"…[^\"]*(?:so it has no value|reopening was never answered))"
+        "detail": "^(?!text \"…[^\"]*(?:so it has no value|reopening was never answered))(?!.*(?:round trips per minute|not enough samples))"
       },
       "type": "conflict",
       "aspect": "a11y",
@@ -73994,25 +74086,11 @@
         "on": "2026-10-20"
       },
       "owned": {
-        "loaded/ll-insufficient-samples": {
-          "fd71d5fd524f": "*"
-        },
         "loaded/ll-no-probe-path": {
           "771c95a705b0": "*"
         },
         "loaded/ll-no-steady-window": {
           "771c95a705b0": "*"
-        },
-        "loaded/ll-reservation-broken": {
-          "4753d5bb5602": "*"
-        },
-        "loaded/ws-close": {
-          "f089e0dbece8": "*",
-          "f72e00d9fc0e": [
-            "dark-desktop",
-            "light-desktop",
-            "light-narrow"
-          ]
         },
         "share/complete": {
           "42dc4925232f": "*",
@@ -74036,37 +74114,128 @@
         "test/cancelled-slow-up": {
           "d50e5a672667": "*"
         },
-        "test/complete": {
-          "42dc4925232f": "*",
-          "89b3deeda425": [
-            "light-desktop"
-          ],
-          "f72e00d9fc0e": "*"
-        },
         "test/error": {
           "238a2c643d8e": "*"
-        },
-        "test/slowdone": {
-          "a26e059b2262": "*"
-        },
-        "test/upload-interrupted": {
-          "6cf4e09f8482": "*"
         }
       },
       "actions": [
         {
           "target": "vue",
           "what": "web/src/components/a11y/announce.ts: the responsiveness sentence is announced for every ended run that has the block, not only a complete one.",
-          "done": false
+          "done": true
         },
         {
           "target": "fixture",
-          "what": "After the Vue fix, the RPM numbers that remain (the kit's 1,420 and 980 vs the demo's) are the demo's own values: split them into an accepted fixture cluster with the maintainer's confirmation.",
-          "done": false
+          "what": "After the Vue fix, the RPM numbers that remain (the kit's 1,420 and 980 vs the demo's) are the demo's own values: split them into an accepted fixture cluster with the maintainer's confirmation. Done: v03-announcement-run-values (and v03-upload-interrupted-responsiveness for the upload-interrupted state).",
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "Every ended run's announcement carries the responsiveness and quality sentences; the run's values went to v03-announcement-run-values and the upload-interrupted state to v03-upload-interrupted-responsiveness.",
+        "on": "2026-10-21",
+        "run": {
+          "runId": "fa38d543-5243-49bb-ba08-284f719a6174",
+          "finishedAt": "2026-10-21T21:30:53.904Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/continuous",
+            "test/cont-upload",
+            "test/cont-warmup",
+            "test/cont-done",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "responsiveness/uncertain",
+            "result/resp-uncertain",
+            "responsiveness/needs-h2",
+            "result/resp-needs-h2",
+            "responsiveness/not-reported",
+            "result/resp-not-reported",
+            "responsiveness/few-samples",
+            "result/resp-few-samples",
+            "continuous/run-length-2h",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "history/compare-h2",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "result/continuous-2h",
+            "result/continuous-9d",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "about/layers-none",
+            "about/layers-openspeedtest",
+            "about/layers-librespeed",
+            "about/layers-networkquality",
+            "about/layers-all",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-test-continuous-announcement",
@@ -75782,7 +75951,7 @@
         "layer": "content",
         "path": "^(?=main > status$)",
         "kind": null,
-        "detail": null
+        "detail": "^(?!.*round trips per minute)"
       },
       "type": "conflict",
       "aspect": "a11y",
@@ -75808,33 +75977,128 @@
         "on": "2026-10-20"
       },
       "owned": {
-        "responsiveness/few-samples": {
-          "2ccd02afcb09": [
-            "light-desktop"
-          ],
-          "50b521b5bf68": "*"
-        },
         "responsiveness/not-reported": {
           "d4a39a952c0e": "*"
-        },
-        "responsiveness/uncertain": {
-          "221ea35e609f": "*"
         }
       },
       "actions": [
         {
           "target": "vue",
           "what": "web/src/i18n/locales/en/a11y.json: treatedH1 reads \"unavailable, protocol not reported — treated as HTTP/1.1\".",
-          "done": false
+          "done": true
         },
         {
           "target": "fixture",
-          "what": "After the Vue fix, the RPM numbers that remain are the demo's own values: split them into an accepted fixture cluster with the maintainer's confirmation.",
-          "done": false
+          "what": "After the Vue fix, the RPM numbers that remain are the demo's own values: split them into an accepted fixture cluster with the maintainer's confirmation. Done: v03-announcement-run-values.",
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "The protocol not reported reads \"— treated as HTTP/1.1\"; the RPM values went to v03-announcement-run-values.",
+        "on": "2026-10-21",
+        "run": {
+          "runId": "fa38d543-5243-49bb-ba08-284f719a6174",
+          "finishedAt": "2026-10-21T21:30:53.904Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/continuous",
+            "test/cont-upload",
+            "test/cont-warmup",
+            "test/cont-done",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "responsiveness/uncertain",
+            "result/resp-uncertain",
+            "responsiveness/needs-h2",
+            "result/resp-needs-h2",
+            "responsiveness/not-reported",
+            "result/resp-not-reported",
+            "responsiveness/few-samples",
+            "result/resp-few-samples",
+            "continuous/run-length-2h",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "history/compare-h2",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "result/continuous-2h",
+            "result/continuous-9d",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "about/layers-none",
+            "about/layers-openspeedtest",
+            "about/layers-librespeed",
+            "about/layers-networkquality",
+            "about/layers-all",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-test-resp-geometry",
@@ -77253,6 +77517,56 @@
       "actions": [],
       "status": "accepted",
       "resolution": null
+    },
+    {
+      "id": "v03-upload-interrupted-responsiveness",
+      "title": "Upload interrupted: the kit announces HTTP/2 RPM for a state only HTTP/1.1 reaches; Vue announces the HTTP/1.1 run's unavailable responsiveness",
+      "match": {
+        "scenarios": [
+          "test/upload-interrupted"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > status$",
+        "kind": "^changed$",
+        "detail": "over HTTP/2: download 1,420 round trips per minute, measured; upload 960 round trips per minute"
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-21 that the spec wins: only HTTP/1.1 ends an upload at its first failed request (measurement.md section 5), so the demo plays the state over HTTP/1.1, where the HTTP loaded responsiveness is unavailable.",
+        "on": "2026-10-21"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: Upload interrupted: the responsiveness of an HTTP/1.1 run.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
+      "owned": {
+        "test/upload-interrupted": {
+          "6cf4e09f8482": "*"
+        }
+      },
+      "resolution": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/measurement.md §5 Timeouts and failures",
+          "says": "Upload over HTTP/1.1 or an unreported protocol: the first failure ends the phase … upload interrupted by a failed request"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:120, :341",
+          "says": "connection strip Protocol HTTP/1.1, but respB(1420, 960) over HTTP/2"
+        },
+        "vue": {
+          "ref": "web/src/demo/scenarios.ts upload-interrupted (lan-http1)",
+          "says": "over HTTP/1.1: download unavailable, needs HTTP/2 or HTTP/3 at the reverse proxy; upload unavailable, …"
+        }
+      }
     },
     {
       "id": "v04-harness-browser-ua",
