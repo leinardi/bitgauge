@@ -104,11 +104,11 @@ reads "avg so far 597 · peak 610" (`liveSub`). The run-wide average is still mo
 goes on, so it should read "avg so far 921 · peak 936", the numbers sharing the unit of the
 reading above them, as the Vue Test screen does.
 
-### History Compare dialog: its rows, its section headers and the page behind it
+### History Compare dialog: its rows and its section headers
 
-From triage clusters `v02-compare-rows`, `v02-compare-table-headers` and `v02-modal-inert-page`,
-and `v03-history-compare-h2-compare-table`, `v03-history-compare-h2-page-behind-dialog`,
-`v03-history-compare-h2-geometry` and `v03-history-compare-h2-scores-geometry` for B over HTTP/2.
+From triage clusters `v02-compare-rows` and `v02-compare-table-headers`, and
+`v03-history-compare-h2-compare-table`, `v03-history-compare-h2-geometry` and
+`v03-history-compare-h2-scores-geometry` for B over HTTP/2.
 Kit file `ui_kits/app/History.jsx`, the Compare results dialog (`DS.Dialog`, `cmpGroups`), with B
 over HTTP/1.1 and over HTTP/2 alike.
 
@@ -119,9 +119,6 @@ over HTTP/1.1 and over HTTP/2 alike.
 - The parameters read "Off" for no data cap and "Auto" for the stream mode. They should read
   "None" and "Auto, up to 6", and the results row "Idle probe timeouts" should read
   "Probe timeouts", the rows of [ui/screens.md](../features/ui/screens.md#3-history--history).
-- The page under the dialog stays in the accessibility tree: the header, the filters and the
-  history list are still reachable. The dialog is focus-trapped, so the page behind it should be
-  inert while it is open.
 - The dialog's rows, cells and score bands then sit where those rows put them.
 
 The Vue Compare dialog already does all of this.
