@@ -75,20 +75,31 @@ function streams(result: Result, wording: Wording): string {
   return t('result.parameters.streamsValue', { mode: name, streams: each.join(t('result.parameters.streamsJoin')) })
 }
 
-/** A direction's duration with its configured bounds in seconds, when the result records them. */
+/** When the user stopped the direction, on its phase timeline; undefined when it was not stopped. */
+function stoppedAt(result: Result, direction: Direction): number | undefined {
+  const stop = result[direction]?.events.find((event) => event.code === 'cancelled')
+  return stop?.code === 'cancelled' ? stop.atMs : undefined
+}
+
+/**
+ * A direction's duration with its configured bounds in seconds, when the result records them: its
+ * series' end, or, for a direction stopped in warm-up, the stop.
+ */
 function duration(result: Result, direction: Direction, { t, locale }: Wording): string | null {
-  const series = result[direction]?.series
-  if (series === undefined) {
+  const stopped = stoppedAt(result, direction)
+  const endMs = result[direction]?.series?.endMs ?? stopped
+  if (endMs === undefined) {
     return null
   }
-  const value = formatDuration(series.endMs, locale)
+  const value = formatDuration(endMs, locale)
   const bounds = result.settings[direction]
   // A Continuous result's bounds are null: it has a duration and no bounds.
   if (bounds === undefined || bounds.minMs === null) {
-    return t('result.parameters.durationOnly', { duration: value })
+    return stopped === undefined ? t('result.parameters.durationOnly', { duration: value }) : t('result.parameters.durationOnlyStopped', { duration: value })
   }
   const seconds = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 })
-  return t('result.parameters.duration', { duration: value, min: seconds.format(bounds.minMs / 1000), max: seconds.format(bounds.maxMs / 1000) })
+  const limits = { duration: value, min: seconds.format(bounds.minMs / 1000), max: seconds.format(bounds.maxMs / 1000) }
+  return stopped === undefined ? t('result.parameters.duration', limits) : t('result.parameters.durationStopped', limits)
 }
 
 /** A Continuous run's length, or none, then how long its direction ran when that differs. */
@@ -107,11 +118,18 @@ function runLength(result: Result, wording: Wording): string {
 function warmup(result: Result, wording: Wording): string {
   const { t, locale } = wording
   const mode = result.settings.warmup === 'auto' ? t('result.parameters.warmupAuto') : t('result.parameters.warmupFixed', { s: formatDuration(result.settings.warmup, locale) })
+  const name = (direction: Direction): string => directionName(direction, wording).toLocaleLowerCase(locale)
   const ends = directions(result).flatMap((direction) => {
     const series = result[direction]?.series
-    return series === undefined ? [] : [t('result.parameters.warmupEnd', { at: formatDuration(series.warmupEndMs, locale), direction: directionName(direction, wording).toLocaleLowerCase(locale) })]
+    return series === undefined ? [] : [t('result.parameters.warmupEnd', { at: formatDuration(series.warmupEndMs, locale), direction: name(direction) })]
   })
-  return ends.length === 0 ? mode : t('result.parameters.warmupEnded', { mode, ends: new Intl.ListFormat(locale, { type: 'unit', style: 'short' }).format(ends) })
+  // A direction without a series never ended its warm-up; one the user stopped says so.
+  const stopped = directions(result).flatMap((direction) => (result[direction]?.series === undefined && stoppedAt(result, direction) !== undefined ? [t('result.parameters.warmupStopped', { direction: name(direction) })] : []))
+  const list = (items: string[]): string => new Intl.ListFormat(locale, { type: 'unit', style: 'short' }).format(items)
+  if (ends.length === 0) {
+    return stopped.length === 0 ? mode : t('result.parameters.warmupStoppedOnly', { mode, stopped: list(stopped) })
+  }
+  return stopped.length === 0 ? t('result.parameters.warmupEnded', { mode, ends: list(ends) }) : t('result.parameters.warmupEndedStopped', { mode, ends: list(ends), stopped: list(stopped) })
 }
 
 export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording: Wording): ParameterGroup[] {

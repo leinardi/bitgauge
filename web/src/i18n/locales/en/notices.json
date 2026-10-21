@@ -106,6 +106,7 @@
       },
       "completed": "{phases} completed.",
       "notRun": "{phases} did not run.",
+      "noProbe": "The WebSocket closed and its reopening was never answered, so no latency probe could be sent during the {phase}.",
       "downloadNone": "Download stopped before a 3 s steady window, so it has no value.",
       "downloadPartial": "Download has a {covered} steady window, enough for a partial value.",
       "uploadNone": "Upload stopped at {at}, before a 3 s confirmed steady window, so it has no value.",

@@ -52,6 +52,14 @@ describe('the stop notice', () => {
     })
   })
 
+  it('says why an upload stopped without a probe path has no loaded latency', () => {
+    const { bitsPerSecond: _b, peakBitsPerSecond: _p, windowMs: _w, series: _s, ...cut } = upload
+    const loadedLatency = { status: 'unavailable' as const, reason: 'no-probe-path' as const, samples: 0, skippedTicks: 0, lost: 0 }
+    expect(words('upload', 0, { upload: { ...cut, status: 'partial', loadedLatency, events: [{ code: 'cancelled', atMs: 800 }] } }).body).toBe(
+      'Latency and download completed. The WebSocket closed and its reopening was never answered, so no latency probe could be sent during the upload. Upload stopped at 0.8 s, before a 3 s confirmed steady window (still in warm-up), so it has no value.',
+    )
+  })
+
   it('words an upload stopped late enough for a number: its window, its confirmed requests and their end', () => {
     const series = { bucketMs: 100, firstCellMs: 9500, warmupEndMs: 9500, endMs: 13_100, values: [1] }
     expect(words('upload', 3600, { upload: { ...upload, status: 'partial', windowMs: 3600, confirmedRequests: 21, series, events: [{ code: 'cancelled', atMs: 14_000 }] } })).toEqual({

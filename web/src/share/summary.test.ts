@@ -111,6 +111,11 @@ describe('shareView', () => {
     expect(qualifiers(skipped)).toEqual([[], ['muted: skipped']])
   })
 
+  it('words a partial direction without a number as insufficient data', () => {
+    const stopped = shareView(content({ upload: { status: 'partial', bitsPerSecond: null, confidence: null } }), 'bits', wording)
+    expect(qualifiers(stopped)).toEqual([[], ['warn: insufficient data']])
+  })
+
   it('follows the increase with its direction, a source other than the WebSocket and the other idle path, and the grade with its basis', () => {
     const view = shareView(content({ loaded: { increaseMs: 31, direction: 'upload', source: 'http-h2', idleSource: 'websocket' }, grade: 'C', basis: 'upload' }), 'bits', wording)
     expect(view.foot).toContain('+31 ms under load (upload, HTTP/2 probe, vs idle over WebSocket)')

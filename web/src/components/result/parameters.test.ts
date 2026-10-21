@@ -64,6 +64,18 @@ describe('parameterGroups', () => {
     expect(Object.keys(shown)).not.toContain('Data used')
   })
 
+  it('says the user stopped a direction, and when, for one stopped in warm-up', () => {
+    const base = resultFixture()
+    const upload = base.upload
+    if (upload === undefined) {
+      throw new Error('the fixture has an upload')
+    }
+    const { series: _series, windowMs: _window, ...warming } = upload
+    const shown = rows({ ...base, settings: { ...base.settings, ...BOUNDS }, upload: { ...warming, status: 'partial', events: [{ code: 'cancelled', atMs: 3_100 }] } })
+    expect(shown['Upload']).toBe('3.1\u00a0s · stopped by you · min 15 · max 25')
+    expect(shown['Warm-up']).toBe('Auto · ended at 6.5\u00a0s (download); upload stopped in warm-up')
+  })
+
   it('gives the duration alone for a result that records no bounds', () => {
     expect(rows(resultFixture())['Download']).toBe('10.0\u00a0s')
   })

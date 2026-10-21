@@ -25,9 +25,10 @@ import type { Wording } from '@/components/test/wording'
 
 // The stop notice (ui/flows.md section 4): what a stop left, worded from the stopped-early notice and
 // the result it belongs to: the phases that completed, where the stopped direction stopped and why
-// it has or has no value, and the phases that did not run. The upload's times are on its phase
-// timeline from P_start, as its chart and events are. A Continuous run runs one direction, so the
-// other is never among the phases that did not run.
+// it has or has no value (and, without a probe path, why it has no loaded latency), and the phases
+// that did not run. The upload's times are on its phase timeline from P_start, as its chart and
+// events are. A Continuous run runs one direction, so the other is never among the phases that did
+// not run.
 
 type StoppedEarly = Extract<Notice, { code: 'stopped-early' }>
 
@@ -67,8 +68,12 @@ export function stopWording(notice: StoppedEarly, result: Result | null, wording
   } else {
     stop = part?.windowMs === undefined ? t('notices.stoppedEarly.uploadNoneWarmup', { at }) : t('notices.stoppedEarly.uploadNone', { at })
   }
+  // Without a probe path the stopped direction has no loaded latency, and the notice says why.
+  const loaded = part?.loadedLatency
+  const noProbe = loaded !== undefined && 'reason' in loaded && loaded.reason === 'no-probe-path'
   const sentences = [
     ...(completed.length === 0 ? [] : [t('notices.stoppedEarly.completed', { phases: phaseList(completed, wording) })]),
+    ...(noProbe ? [t('notices.stoppedEarly.noProbe', { phase: phaseName(direction, wording) })] : []),
     stop,
     ...(notRun.length === 0 ? [] : [t('notices.stoppedEarly.notRun', { phases: phaseList(notRun, wording) })]),
   ]

@@ -78,8 +78,9 @@ function reasonWord(reason: Confidence['reasons'][number], { t }: Wording): stri
 
 function statusQualifier(rate: ShareRate, { t }: Wording): ShareQualifier | null {
   switch (rate.status) {
+    // A partial direction without a number, stopped before a confirmed steady window, has insufficient data.
     case 'partial':
-      return { text: t('share.qualifiers.partial'), tone: 'muted' }
+      return rate.bitsPerSecond === null ? { text: t('share.qualifiers.insufficient'), tone: 'warn' } : { text: t('share.qualifiers.partial'), tone: 'muted' }
     case 'insufficient-data':
       return { text: t('share.qualifiers.insufficient'), tone: 'warn' }
     case 'skipped':
