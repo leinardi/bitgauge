@@ -120,7 +120,7 @@ describe('the notices', () => {
     expect(noticeView(EVERY['stopped-early'], context).title).toBe('Test cancelled during upload')
     expect(noticeView(EVERY['url-parameter-ignored'], context).body).toContain('streams')
     expect(noticeView(EVERY['low-confidence'], context).body).toBe('Upload: few samples.')
-    expect(noticeView(EVERY['data-used'], context)).toMatchObject({ title: `Data used: 100${NB}GB`, body: `This run has passed 100${NB}GB. The next notice appears at 1${NB}TB.` })
+    expect(noticeView(EVERY['data-used'], context)).toMatchObject({ title: `Data used: 100${NB}GB`, body: `This run has passed 100${NB}GB. The next notice appears at 1.00${NB}TB.` })
     // The finished result lists each threshold the run passed, naming no next one.
     expect(noticeView(EVERY['data-used'], { ...context, result: resultFixture() }).body).toBe(`This run passed 100${NB}GB.`)
   })

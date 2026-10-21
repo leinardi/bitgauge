@@ -83,6 +83,12 @@ function meta(step: PhaseStep): string {
       if (step.insufficient === true) {
         return t('test.phases.doneInsufficient')
       }
+      if (step.continuous !== undefined) {
+        // Past its run length a Continuous run ended by itself; before it, it was stopped.
+        const { elapsedMs, runLengthMs } = step.continuous
+        const elapsed = clockTime(elapsedMs, locale.value)
+        return runLengthMs !== undefined && elapsedMs >= runLengthMs ? t('test.phases.doneWith', { value: elapsed }) : t('test.phases.doneStopped', { elapsed })
+      }
       return step.value === undefined ? t('test.phases.done') : t('test.phases.doneWith', { value: step.value })
     case 'failed':
       return step.interruptedMs === undefined ? t('test.phases.failed') : t('test.phases.failedAt', { at: seconds(step.interruptedMs) })

@@ -95,7 +95,7 @@ describe('a Continuous result', () => {
     // No notice says the upload did not run; every data-used notice is listed.
     const notices = text(page, 'confidence-notices')
     expect(notices).not.toContain('did not run')
-    expect(notices).toContain('This run passed 1 GB.')
+    expect(notices).toContain('This run passed 1.00 GB.')
     expect(notices).toContain('This run passed 100 GB.')
     page.unmount()
   })

@@ -67,6 +67,8 @@ export interface GaugeInput {
   innerLabel: string | null
   /** A textual state in place of the reading; the dial then shows no needle. */
   text: GaugeText | null
+  /** What the reading is, after the scale under the dial: a Continuous run's "session average", its tick or "sending". */
+  basis?: string | null
 }
 
 /** What the gauge words its readings with besides the run: the display units and the server's name. */
@@ -161,12 +163,15 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
         return { ...reading, mode: 'ms', value: run.idle?.rttMs ?? null, label: t('test.gauge.idle'), note: idleNote(run.idle, context) }
       case 'download': {
         const live = run.live.download
-        return { ...reading, direction: 'download', value: live?.gauge ?? null, peak: peakOf(live), label: t('test.gauge.download'), at: elapsedMs('download', live), note: steadyNote(live, context) }
+        // A Continuous run's tick is the p90 of the last hour, which the caption names.
+        const basis = live?.continuous == null ? {} : { basis: t('test.gauge.tickLastHour') }
+        return { ...reading, direction: 'download', value: live?.gauge ?? null, peak: peakOf(live), label: t('test.gauge.download'), at: elapsedMs('download', live), note: steadyNote(live, context), ...basis }
       }
       case 'upload': {
         const live = run.live.upload
         const sent = live?.sendingTrace.at(-1)
-        return { ...reading, direction: 'upload', value: live?.sending ?? null, label: t('test.gauge.sending'), at: sent === undefined ? null : sent.cell * BUCKET_MS, note: steadyNote(live, context) }
+        const basis = live?.continuous == null ? {} : { basis: t('test.gauge.sendingBasis') }
+        return { ...reading, direction: 'upload', value: live?.sending ?? null, label: t('test.gauge.sending'), at: sent === undefined ? null : sent.cell * BUCKET_MS, note: steadyNote(live, context), ...basis }
       }
       default:
         return textual({ title: t('test.gauge.connecting'), message: t('test.gauge.reading', { server: context.server }) })
@@ -192,6 +197,14 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
       return { ...reading, mode: 'ms', value: result.idle?.medianMs ?? null, text }
     }
     return { ...reading, direction: 'download', value: download, inner: upload, text }
+  }
+  if (result.settings.preset === 'continuous') {
+    // The run-wide average with its "p90, last hour" (ui/screens.md, Done: Continuous).
+    const direction = result.settings.continuousDirection ?? 'download'
+    const part = result[direction]
+    const p90 = part?.peakBitsPerSecond
+    const note = p90 === undefined ? null : t('test.gauge.peakLastHour', { peak: rateParts(p90, units, locale).number })
+    return { ...reading, direction, value: part?.bitsPerSecond ?? null, peak: p90 ?? null, label: t('test.gauge.average'), note, basis: t('test.gauge.sessionAverage') }
   }
   const download = result.download?.bitsPerSecond ?? null
   if (download === null && upload !== null) {

@@ -24,7 +24,7 @@ import { browserRow, confidenceReasons, type TileLine, type TileView } from '@/c
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
 import type { BrowserIdentity, ContinuousSoFar, Direction, DirectionResult } from '@/engine/messages'
-import { bytesParts, clockTime, formatBytes, formatLatency, formatPercent, latencyNumber, rateParts } from '@/lib/format'
+import { bytesParts, clockTime, formatBytes, formatLatency, formatPercent, formatRate, latencyNumber, rateParts } from '@/lib/format'
 
 // The Continuous live view (ui/screens.md section 1, ui/flows.md section 7, kit TestScreen.jsx
 // states continuous, cont-upload, cont-warmup and cont-done), in place of the direction's tile:
@@ -118,6 +118,11 @@ function qualifiers(input: ContinuousInput, context: Wording): TileLine[] {
   return lines
 }
 
+/** How a run without a run length ended: at the data cap, or stopped by the user. */
+function endedBy(result: DirectionResult, { t }: Wording): string {
+  return result.events.some((event) => event.code === 'data-cap') ? t('test.continuous.dataCap') : t('test.continuous.byYou')
+}
+
 export function continuousView(input: ContinuousInput, context: Wording): ContinuousView {
   const { t, locale } = context
   const { direction, live, result, units } = input
@@ -130,7 +135,7 @@ export function continuousView(input: ContinuousInput, context: Wording): Contin
   const dash = warming ? t('test.continuous.warmup') : t('test.continuous.known')
   const rate = { units, locale }
   const max = values.maxBitsPerSecond
-  const peakLines = max === undefined ? [] : [{ text: t('test.continuous.peakSub', { max: rateParts(max, units, locale).number }) }]
+  const peakLines = max === undefined ? [] : [{ text: t('test.continuous.peakSub', { max: formatRate(max, units, locale) }) }]
   const average = rateTile(t('test.continuous.average'), icon, color, values.avgBitsPerSecond, [{ text: t('test.continuous.averageSub') }, ...(ended ? qualifiers(input, context) : [])], dash, rate)
   const peak = rateTile(t('test.continuous.peak'), TrendingUp, color, values.peakLastHourBitsPerSecond, peakLines, dash, rate)
 
@@ -159,7 +164,7 @@ export function continuousView(input: ContinuousInput, context: Wording): Contin
   const end = length === undefined ? null : new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(new Date(input.nowMs - elapsedMs + length))
   const time = clockTime(elapsedMs, locale)
   const elapsedRow: MetaRow = ended
-    ? { key: 'elapsed', icon: Timer, label: t('test.continuous.duration'), sub: length === undefined ? t('test.continuous.ran') : t('test.continuous.planned', { length: clockTime(length, locale) }), value: time }
+    ? { key: 'elapsed', icon: Timer, label: t('test.continuous.duration'), sub: length === undefined ? endedBy(result, context) : t('test.continuous.planned', { length: clockTime(length, locale) }), value: time }
     : { key: 'elapsed', icon: Timer, label: t('test.continuous.elapsed'), sub: length === undefined || end === null ? t('test.continuous.noRunLength') : t('test.continuous.runLength', { length: clockTime(length, locale), end }), value: time }
   const directionWord = direction === 'download' ? t('test.continuous.download') : t('test.continuous.upload')
   const session: MetaRow[] = [

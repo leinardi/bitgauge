@@ -131,6 +131,17 @@ function finishedStep(phase: MeasuringPhase, run: RunView, units: 'bits' | 'byte
   return direction.bitsPerSecond === undefined ? { phase, state: 'done' } : { phase, state: 'done', value: formatRate(direction.bitsPerSecond, units, locale) }
 }
 
+/** A Continuous direction that is done keeps its name and reads where it stopped, not its value. */
+function continuousDone(step: PhaseStep, run: RunView, settings: TestSettings): PhaseStep {
+  const phase = step.phase
+  if (phase === 'idle' || step.state !== 'done' || step.insufficient === true || settings[phase].minMs !== null) {
+    return step
+  }
+  const elapsedMs = run.live[phase]?.continuous?.elapsedMs ?? run.live[phase]?.phaseMs ?? 0
+  const { runLengthMs } = settings
+  return { phase, state: 'done', continuous: { elapsedMs, ...(runLengthMs === undefined ? {} : { runLengthMs }) } }
+}
+
 /** The steps before the server's settings are known: each phase pending, with no estimate. */
 export const PENDING_STEPS: PhaseStep[] = [
   { phase: 'idle', state: 'pending' },
@@ -155,7 +166,7 @@ export function phaseSteps(run: RunView, settings: TestSettings, locale: string)
         // A phase still started once the run is over was interrupted: a stop during idle latency.
         return run.status === 'running' ? activeStep(phase, run, settings) : { phase, state: 'cancelled' }
       case 'finished':
-        return finishedStep(phase, run, settings.units, locale)
+        return continuousDone(finishedStep(phase, run, settings.units, locale), run, settings)
       case 'failed': {
         const ranMs = run.phases[phase].ranMs
         return { phase, state: 'failed', progress: 1, ...(ranMs === undefined ? {} : { interruptedMs: ranMs }) }

@@ -60,12 +60,18 @@ export interface ChartTextInput {
 
 const hasValue = (live: DirectionLive | null) => live !== null && live.values.some((value) => value !== null)
 
+/** The chart's title: a Continuous run's names the session it shows. */
+export function chartTitle({ state, continuous }: Pick<ChartTextInput, 'state' | 'continuous'>, { t }: Wording): string {
+  return state !== 'empty' && continuous !== undefined && continuous !== null ? t('test.chart.sessionTitle') : t('test.chart.title')
+}
+
 /**
  * The series drawn and the warm-up band; an empty chart names the two directions it will draw. The
  * loaded latency's entry is its toggle, listed in every state, before its first ping too
- * (ui/screens.md section 1).
+ * (ui/screens.md section 1). A Continuous run lists its warm-up only while it is in it, or
+ * stopped there: past it, the band is a sliver of the session.
  */
-export function chartLegend({ state, order, live, model }: ChartTextInput, { t }: Wording): LegendEntry[] {
+export function chartLegend({ state, order, live, model, continuous }: ChartTextInput, { t }: Wording): LegendEntry[] {
   const entry = (key: LegendEntry['key'], label: string, color: string, faint = false, band = false): LegendEntry => ({ key, label, color, faint, band })
   const download = entry('download', t('test.chart.legend.download'), 'var(--series-download)')
   const upload = entry('upload', t('test.chart.legend.upload'), 'var(--series-upload)')
@@ -88,7 +94,8 @@ export function chartLegend({ state, order, live, model }: ChartTextInput, { t }
     const received = hasValue(shown) ? [entry('received', t('test.chart.legend.received'), 'var(--series-upload)')] : []
     return [...received, entry('sending', t('test.chart.legend.sending'), 'var(--sending)', true)]
   })
-  const banded = model.warmup.some((span) => span.to > span.from)
+  const pastWarmup = continuous !== undefined && continuous !== null && live[continuous.direction]?.warmupEnd !== null
+  const banded = model.warmup.some((span) => span.to > span.from) && !pastWarmup
   return banded ? [...entries, latency, entry('warmup', t('test.chart.legend.warmup'), 'var(--chart-band)', false, true)] : [...entries, latency]
 }
 
@@ -178,7 +185,7 @@ export function markLabel(mark: ChartModel['marks'][number], { t }: Wording): st
 /** The chart's accessible name: what it shows, its warm-up and its marks (charts.md). */
 export function chartSummary(input: ChartTextInput, wording: Wording): string {
   const { t } = wording
-  const title = t('test.chart.title')
+  const title = chartTitle(input, wording)
   if (input.state === 'empty') {
     return t('test.chart.empty', { title })
   }

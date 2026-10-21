@@ -60,7 +60,7 @@ describe('continuousView', () => {
     expect(numbers(view)).toEqual([
       ['Current', '934', 'Mbit/s', 'last 0.5 s'],
       ['Average', '921', 'Mbit/s', 'run-wide, since warm-up ended'],
-      ['Peak · p90, last hour', '936', 'Mbit/s', '1 s cells · max 941'],
+      ['Peak · p90, last hour', '936', 'Mbit/s', '1 s cells · max 941\u00a0Mbit/s'],
       ['Loaded latency', '21', 'ms', 'last-minute median'],
       ['Data used', '290', 'GB', '≈ 6.86\u00a0GB/min'],
     ])
@@ -102,7 +102,7 @@ describe('continuousView', () => {
     const view = continuousView(input({ result, runLengthMs: 2 * 60 * MINUTE }), wording)
     expect(numbers(view)).toEqual([
       ['Average', '921', 'Mbit/s', 'run-wide, since warm-up ended | low confidence · unstable'],
-      ['Peak · p90, last hour', '936', 'Mbit/s', '1 s cells · max 941'],
+      ['Peak · p90, last hour', '936', 'Mbit/s', '1 s cells · max 941\u00a0Mbit/s'],
       ['Minimum', '702', 'Mbit/s', 'run-wide, 1 s cells'],
       ['Loaded latency', '21', 'ms', 'median, last hour'],
       ['Data used', '290', 'GB', '≈ 6.86\u00a0GB/min'],

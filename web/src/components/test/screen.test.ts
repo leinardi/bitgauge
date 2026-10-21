@@ -169,7 +169,16 @@ describe('a Continuous run', () => {
     const early = gaugeInput(run({ phase: 'download', live: { download: live({ gauge: 5e8, warmupEnd: 60, continuous: { elapsedMs: 9000, dataBytes: 1e8 } }), upload: null } }), { ...context, units: 'bits', server: 'NAS' })
     expect(early.note).toBe('avg so far — · peak —')
     const later = gaugeInput(run({ phase: 'download', live: { download: live({ gauge: 5e8, warmupEnd: 60, continuous: { elapsedMs: 90_000, dataBytes: 1e9, avgBitsPerSecond: 9.21e8, peakLastHourBitsPerSecond: 9.36e8 } }), upload: null } }), { ...context, units: 'bits', server: 'NAS' })
-    expect([later.note, later.peak]).toEqual(['avg so far 921 · peak 936', 9.36e8])
+    expect([later.note, later.peak, later.basis]).toEqual(['avg so far 921 · peak 936', 9.36e8, 'tick p90, last hour'])
+  })
+
+  it('reads a done run where it stopped, and its gauge the session average with the p90 of the last hour', () => {
+    const fixture = resultFixture()
+    const result: Result = { ...fixture, settings: continuousSettings('download'), download: { ...fixture.download!, bitsPerSecond: 9.21e8, peakBitsPerSecond: 9.36e8 } }
+    const view = run({ status: 'ended', phases: phases({ idle: 'finished', download: 'finished' }), live: { download: figures(2_538_000), upload: null }, result })
+    expect(phaseSteps(view, continuousSettings('download'), 'en')[1]).toEqual({ phase: 'download', state: 'done', continuous: { elapsedMs: 2_538_000 } })
+    const gauge = gaugeInput(view, { ...context, units: 'bits', server: 'NAS' })
+    expect([gauge.label, gauge.value, gauge.note, gauge.basis]).toEqual(['Average', 9.21e8, 'peak 936 · p90, last hour', 'session average'])
   })
 })
 

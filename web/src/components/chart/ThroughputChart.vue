@@ -32,7 +32,7 @@ import { chartGeometry, latencyScale, valueMax } from '@/components/chart/geomet
 import { chartHeight, chartPalette, faded } from '@/components/chart/palette'
 import type { LineLabel } from '@/components/chart/placement'
 import { buildChart, type ChartData, type ChartInput } from '@/components/chart/series'
-import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, continuousStep, continuousTick, markLabel } from '@/components/chart/text'
+import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, chartTitle, continuousStep, continuousTick, markLabel } from '@/components/chart/text'
 import { useUplot } from '@/components/chart/useUplot'
 import { useTheme } from '@/composables/useTheme'
 import type { Direction, TestSettings } from '@/engine/messages'
@@ -227,7 +227,7 @@ watch(
 <template>
   <div class="flex min-w-0 flex-col gap-3">
     <ChartHeader
-      :title="t('test.chart.title')"
+      :title="chartTitle(textInput, wording)"
       :legend="legend"
       :meta="meta"
       :latency-shown="latencyOn"

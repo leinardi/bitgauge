@@ -134,6 +134,7 @@ const latencyMark = computed(() => (props.state === 'cancelled' || props.state =
           :label="gauge.label"
           :at="gauge.at"
           :note="gauge.note"
+          :basis="gauge.basis ?? null"
           :inner-label="gauge.innerLabel"
           :text="gauge.text"
         >

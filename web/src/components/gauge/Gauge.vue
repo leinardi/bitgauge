@@ -66,8 +66,10 @@ const props = withDefaults(
     innerLabel?: string | null
     /** A textual state in place of the reading. */
     text?: GaugeText | null
+    /** What the reading is, after the scale's caption, such as "session average". */
+    basis?: string | null
   }>(),
-  { direction: null, peak: null, inner: null, at: null, note: null, innerLabel: null, text: null },
+  { direction: null, peak: null, inner: null, at: null, note: null, innerLabel: null, text: null, basis: null },
 )
 
 // A textual state's icon: cancelled in the subtle color, a lost run and an unreachable server in danger.
@@ -309,6 +311,6 @@ const caption = computed(() => windowCaption(props.mode === 'ms' ? null : window
     <span
       class="font-mono text-(length:--text-caption) whitespace-nowrap text-subtle-foreground"
       data-testid="gauge-caption"
-    >{{ caption }}</span>
+    >{{ basis === null ? caption : t('test.gauge.withBasis', { caption, basis }) }}</span>
   </div>
 </template>

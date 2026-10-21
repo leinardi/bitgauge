@@ -36,16 +36,19 @@ function scaled(value: number, units: number): { value: number; scale: number } 
   return { value, scale }
 }
 
-/** A byte count's number and decimal unit: 500 and MB, 1.5 and GB, 999 and B. */
-export function bytesParts(bytes: number, locale: string): { number: string; unit: string } {
+/**
+ * A byte count's number and decimal unit: 500 and MB, 1.5 and GB, 999 and B; `fixed` keeps three
+ * significant digits with their trailing zeros (1.00 TB), for a threshold.
+ */
+export function bytesParts(bytes: number, locale: string, fixed = false): { number: string; unit: string } {
   const { value, scale } = scaled(bytes, BYTE_UNITS.length)
-  const number = new Intl.NumberFormat(locale, { maximumSignificantDigits: 3 }).format(value)
+  const number = new Intl.NumberFormat(locale, { minimumSignificantDigits: fixed ? 3 : 1, maximumSignificantDigits: 3 }).format(value)
   return { number, unit: BYTE_UNITS[scale] ?? 'B' }
 }
 
 /** A byte count in decimal units: 500 MB, 1.5 GB, 999 B. */
-export function formatBytes(bytes: number, locale: string): string {
-  const { number, unit } = bytesParts(bytes, locale)
+export function formatBytes(bytes: number, locale: string, fixed = false): string {
+  const { number, unit } = bytesParts(bytes, locale, fixed)
   return `${number}${NBSP}${unit}`
 }
 

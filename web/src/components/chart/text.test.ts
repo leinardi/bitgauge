@@ -25,7 +25,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { buildChart } from '@/components/chart/series'
-import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, continuousStep, continuousTick } from '@/components/chart/text'
+import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, chartTitle, continuousStep, continuousTick } from '@/components/chart/text'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
 import { type ContinuousSeries, useContinuousSeries } from '@/composables/useContinuousSeries'
@@ -128,6 +128,14 @@ describe('a Continuous run’s chart text', () => {
     // Its run length passed: the elapsed time alone.
     expect(meta('done', 'download', 2_538_000)).toBe('42:18')
     expect(meta('done', 'upload', undefined, { code: 'cancelled', atMs: 2_538_000 })).toBe('42:18 · stopped by you · unknown cells as gaps')
+  })
+
+  it('titles the session, and past the warm-up drops its legend entry while the band stays shaded', () => {
+    const past = { ...input('running', { download }, { readout: 'Download 934 Mbit/s' }), continuous: series('download', 2_538_000) }
+    expect(chartTitle(past, wording)).toBe('Throughput · session')
+    expect(labels(past)).toEqual(['Download', 'Latency under load'])
+    expect(chartSummary(past, wording)).toBe('Throughput · session: Download 934 Mbit/s, 42:18 elapsed; warm-up shaded')
+    expect(chartTitle(input('running', { download }), wording)).toBe('Throughput')
   })
 
   it('ticks its axis in seconds, minutes, hours or days, about six of them', () => {
