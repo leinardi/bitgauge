@@ -68060,7 +68060,7 @@
     },
     {
       "id": "v03-about-content",
-      "title": "About screen, server unreachable: the alert's apostrophes, straight in the kit and typographic in Vue",
+      "title": "About screen: the copy's apostrophes, straight per the spec, typographic in the kit's client cards",
       "match": {
         "scenarios": [
           "about",
@@ -68073,9 +68073,9 @@
         ],
         "projects": null,
         "layer": "content",
-        "path": "^(?!.*region \"librespeed-cli\")",
+        "path": null,
         "kind": null,
-        "detail": "^(?!.*Verbose networkQuality)(?!.*not served over HTTPS)"
+        "detail": "^(?!.*Verbose networkQuality)(?!.*not served over HTTPS)(?=.*’)"
       },
       "type": "conflict",
       "aspect": "content",
@@ -68101,7 +68101,36 @@
         "on": "2026-10-20"
       },
       "owned": {
+        "about": {
+          "3d47711cc7e2": "*",
+          "55df5217dcac": "*"
+        },
+        "about/layers-all": {
+          "3d47711cc7e2": "*",
+          "55df5217dcac": "*"
+        },
+        "about/layers-librespeed": {
+          "103eec034966": "*",
+          "b1eeb53f6761": "*"
+        },
+        "about/layers-networkquality": {
+          "103eec034966": "*",
+          "3d47711cc7e2": "*",
+          "51a1f39fbc54": "*",
+          "55df5217dcac": "*"
+        },
+        "about/layers-none": {
+          "103eec034966": "*",
+          "51a1f39fbc54": "*",
+          "b1eeb53f6761": "*"
+        },
+        "about/layers-openspeedtest": {
+          "51a1f39fbc54": "*",
+          "b1eeb53f6761": "*"
+        },
         "about/unreachable": {
+          "55df5217dcac": "*",
+          "5719320a7885": "*",
           "ece444c7ee7a": "*"
         }
       },
@@ -68109,10 +68138,15 @@
         {
           "target": "vue",
           "what": "web/src/i18n/locales/en/about.json: the unreachable alert writes \"page's\", \"can't\" and \"server's\" with straight apostrophes.",
-          "done": false
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the kit's remaining typographic apostrophes (the About cards, the cpu-bound qualifier, the browser upload notice) become straight.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -68621,7 +68655,7 @@
         {
           "target": "vue",
           "what": "web/src/pages/AboutPage.vue and web/src/components/about/: the About page takes the kit's geometry (headings, snippet blocks, copy buttons) where the content agrees.",
-          "done": false
+          "done": true
         },
         {
           "target": "upstream",
@@ -68629,7 +68663,7 @@
           "done": false
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -68649,7 +68683,7 @@
         "layer": "content",
         "path": "^(?=.*region \"librespeed-cli\")",
         "kind": null,
-        "detail": null
+        "detail": "^(?!.*’)"
       },
       "type": "conflict",
       "aspect": "content",
@@ -68802,9 +68836,9 @@
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: the About page's copy buttons and snippets take the kit's computed styles.",
-        "on": "2026-10-20"
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-20 kit verdict, that Vue wins: the kit's copy icon takes .btn.ghost's --fg-muted over the Snippet contract's --term-muted, about 2.6:1 on the dark terminal box in the light theme; Vue keeps --term-muted, as the contract sets it.",
+        "on": "2026-10-21"
       },
       "owned": {
         "about": {
@@ -68926,12 +68960,12 @@
       },
       "actions": [
         {
-          "target": "vue",
-          "what": "web/src/components/about/: the copy buttons and snippets take the kit's computed styles (the \"Copy bitgauge.json\" button's color, among others).",
-          "done": false
+          "target": "upstream",
+          "what": "design-system-upstream.md: the snippet copy button takes --term-muted in both themes, over .btn.ghost's color.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
