@@ -226,3 +226,14 @@ browser upload notice's "’s own upload path").
 
 The copy uses straight apostrophes everywhere, as the export's other strings and the About
 screen's unreachable alert already do. These strings should use them too, as the Vue app does.
+
+### Modal dialogs: the live regions behind them keep announcing
+
+From triage cluster `v03-modal-live-regions`. Kit file `components/dialog/Modal.jsx` (`useModal`),
+used by the Compare, Clear all, Export, Reset all and share dialogs.
+
+`useModal` makes every sibling of an open dialog `inert`, live regions included, so while a dialog
+is open the header's server status and the page's announcements (the Test screen's live region,
+the save status) are silenced. A server that goes offline while the share dialog is open, for
+example, is never heard. The page behind the dialog should stay inert except for its `aria-live`
+regions, which keep announcing, as the Vue app does (Reka's `hideOthers` leaves them exposed).
