@@ -237,3 +237,40 @@ is open the header's server status and the page's announcements (the Test screen
 the save status) are silenced. A server that goes offline while the share dialog is open, for
 example, is never heard. The page behind the dialog should stay inert except for its `aria-live`
 regions, which keep announcing, as the Vue app does (Reka's `hideOthers` leaves them exposed).
+
+### Run stopped in the upload: the Result detail and the stop notice
+
+From triage clusters `v03-stopped-upload-tile`, `v03-stopped-confidence-card`,
+`v03-stopped-probe-sentence`, `v03-stopped-streams-row`, `feature-stop-notice-v02` and
+`v03-path-b-standard-wording`. Kit files `ui_kits/app/ResultDetail.jsx` and
+`ui_kits/app/TestScreen.jsx`, the run stopped in the upload's warm-up (`not-saved-partial`,
+`ll-no-steady-window`, `ll-no-probe-path`) and the Test screen's Cancelled state.
+
+- **Results tile.** The Result detail's upload tile reads "— insufficient data · stopped at 3.1 s,
+  in warm-up · 4.2 MB used" with no pill. It should read as the kit's own Test screen and
+  [ui/flows.md](../features/ui/flows.md#4-cancel-mid-test) §4 word it: an "Insufficient
+  data" pill and "Insufficient data — confirmed steady window shorter than 3 s (stopped in
+  warm-up)".
+- **HTTP loaded responsiveness.** `respOf` ignores the stop, so the stopped upload keeps the
+  complete run's "980 RPM · 13 samples". A direction without a steady window has no number
+  ([measurement.md](../features/measurement.md#124-states) §12.4, `unavailable_insufficient`):
+  it should read "not enough samples", as the kit's own Test screen does.
+- **Confidence.** The confidence card adds "Upload: insufficient data — Stopped at 3.1 s, still in
+  warm-up…". A confidence line belongs to a measured direction (normal, low or cpu-bound,
+  [measurement.md](../features/measurement.md#16-confidence-and-notices) §16); the stopped upload
+  should have none.
+- **Stop notice.** The Test screen's notice (the Cancelled state and the stopped cases) ends "…so
+  it has no value and no loaded latency. The grade and quality scores use download only.", and the
+  Result detail's ends "Upload stopped at 3.1 s, so the grade and quality scores use download
+  only." Both should end as flows.md §4 writes it: "Upload stopped at 3.1 s, before a 3 s confirmed
+  steady window (still in warm-up), so it has no value." The quality scores already name their
+  basis, and the load card says there is no loaded latency.
+- **Lost probe path.** The notice's sentence names the time: "The WebSocket closed 9.7 s into the
+  download…". The result does not record when the WebSocket closed, so the sentence should read
+  "The WebSocket closed and its reopening was never answered, so no latency probe could be sent
+  during the upload.", as flows.md §4 writes it.
+- **Streams row.** Test parameters reads "Auto · 6 · plateau: cap", although the kit's own JSON
+  gives the stopped upload no plateau. When the directions' counts or plateaus differ, the row
+  names each direction: "Auto · download 6 · plateau: cap; upload 2".
+
+The Vue Test screen and Result detail already do all of this.
