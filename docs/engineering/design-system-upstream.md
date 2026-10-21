@@ -103,3 +103,95 @@ The kit's live line under a Continuous reading is "avg 921 · peak 936", where t
 reads "avg so far 597 · peak 610" (`liveSub`). The run-wide average is still moving while the run
 goes on, so it should read "avg so far 921 · peak 936", the numbers sharing the unit of the
 reading above them, as the Vue Test screen does.
+
+### History Compare dialog: its rows, its section headers and the page behind it
+
+From triage clusters `v02-compare-rows`, `v02-compare-table-headers` and `v02-modal-inert-page`,
+and `v03-history-compare-h2-compare-table`, `v03-history-compare-h2-page-behind-dialog`,
+`v03-history-compare-h2-geometry` and `v03-history-compare-h2-scores-geometry` for B over HTTP/2.
+Kit file `ui_kits/app/History.jsx`, the Compare results dialog (`DS.Dialog`, `cmpGroups`), with B
+over HTTP/1.1 and over HTTP/2 alike.
+
+- The kit puts Parameters and Results in a row group each, headed by a `th scope="rowgroup"`, so
+  they read as row headers. Both should sit in one table body, each section row's cell a column
+  header spanning the table, and each metric name a row header (`th scope="row"`)
+  ([ui/i18n-a11y.md](../features/ui/i18n-a11y.md#2-accessibility)).
+- The parameters read "Off" for no data cap and "Auto" for the stream mode. They should read
+  "None" and "Auto, up to 6", and the results row "Idle probe timeouts" should read
+  "Probe timeouts", the rows of [ui/screens.md](../features/ui/screens.md#3-history--history).
+- The page under the dialog stays in the accessibility tree: the header, the filters and the
+  history list are still reachable. The dialog is focus-trapped, so the page behind it should be
+  inert while it is open.
+- The dialog's rows, cells and score bands then sit where those rows put them.
+
+The Vue Compare dialog already does all of this.
+
+### HTTP loaded responsiveness rows: each direction named in text
+
+From triage clusters `v03-path-b-standard-wording` and `v03-path-b-direction-icons`. Kit file
+`ui_kits/app/TestScreen.jsx` and `ResultDetail.jsx`, the HTTP loaded responsiveness block of the
+load card on the standard run's Test states and Result detail.
+
+The kit draws each direction as an icon labeled "Download" or "Upload" followed by separate texts:
+"1,420RPM", "—" or "not enough samples". The direction icons should be decorative
+(`aria-hidden`), and each direction's row should name it in text before its RPM or state, so it
+reads "Download 1,420 RPM TM95 # ms · 13 samples" or "Download —", as on the Responsiveness and
+Continuous states. The Vue load card already does this.
+
+### Result detail: the quality scores name their basis
+
+From triage clusters `v03-result-scores` and `v03-result-continuous-scores`. Kit file
+`ui_kits/app/ResultDetail.jsx`, the Good for list of a run whose upload has no loaded-latency
+increase (`ll-insufficient-samples`, `ll-reservation-broken`) and of the 2 h and 9 d Continuous
+results, which measure the download only.
+
+The kit's heading reads "Good for" alone. When only one direction has a loaded-latency increase,
+the scores name their basis ([ui/screens.md](../features/ui/screens.md#6-result-metrics-units-and-precision)):
+it should read "Good for download only". The Vue Result detail already does this.
+
+### Share image: the direction labels in sentence case
+
+From triage clusters `v03-result-share-image` and `v03-result-continuous-share-image`. Kit file
+`ui_kits/app/ResultDetail.jsx`, the share image's direction labels.
+
+The kit writes "DOWNLOAD" and "UPLOAD" as literal capitals, which a screen reader can spell out
+letter by letter. They should be "Download" and "Upload", set in capitals by
+`text-transform: uppercase`, so they look the same. The Vue share image already does this.
+
+### Continuous result: the Test parameters rows
+
+From triage cluster `v03-result-continuous-test-parameters`. Kit file
+`ui_kits/app/ResultDetail.jsx`, the Test parameters card of the 2 h and 9 d Continuous results.
+
+The kit lists a Stored cells row ("1 min · runs over 1 h, up to 24 h"), names the ramp in the
+streams row ("Auto · Standard ramp · 6 · plateau: cap") and writes the ended stream count as
+"Auto · ended at # s". The card lists
+[ui/screens.md](../features/ui/screens.md#2-result-detail--resultid)'s rows: it should drop the
+Stored cells row and the ramp's name, add the data cap with the data used ("Off · 91.3 TB used"),
+and name the direction the ended count belongs to ("Auto · ended at # s (download)"). The Vue
+Result detail already does this.
+
+### Continuous result chart: the warm-up band in seconds
+
+From triage cluster `v03-result-continuous-warmup-format`. Kit file
+`ui_kits/app/ResultDetail.jsx`, the 2 h Continuous result's chart (`wuText`).
+
+The kit writes the warm-up band as "Warm-up · not stored (0–0:07)", on the chart's m:ss axis.
+Durations are written in seconds with one decimal
+([ui/screens.md](../features/ui/screens.md#6-result-metrics-units-and-precision)): it should read
+"Warm-up · not stored (0–6.5 s)", as on a standard run. The Vue Result detail already does this.
+
+### About screen: the client snippets as the compatibility spec writes them
+
+From triage clusters `v03-about-librespeed-json` and `v03-about-networkquality-verbose`. Kit file
+`ui_kits/app/About.jsx`, the LibreSpeed and networkQuality client snippets.
+
+- The kit compresses the librespeed-cli server list to four lines. It should write the JSON one key
+  per line, as [compatibility.md](../features/compatibility.md#23-librespeed-cli-server-list)
+  does.
+- The kit captions the verbose networkQuality line "Verbose". The line should end with the comment
+  "# verbose, per-flow detail", as
+  [compatibility.md](../features/compatibility.md#35-client-usage) writes it, in place of the
+  caption.
+
+The Vue About page already does both.
