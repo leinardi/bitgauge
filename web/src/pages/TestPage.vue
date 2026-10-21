@@ -48,7 +48,7 @@ import { effectiveSettings, useSettings } from '@/composables/useSettings'
 import { useTestKeys } from '@/composables/useTestKeys'
 import { useTestScreen } from '@/composables/useTestScreen'
 import { consumeAutoRun, urlOverride, useUrlParams } from '@/composables/useUrlParams'
-import type { Preset } from '@/engine/messages'
+import { browserIdentity, type Preset } from '@/engine/messages'
 import { continuousDirection, runPhases } from '@/lib/continuous'
 import { DEFAULT_AUTO_START } from '@/lib/settingsStorage'
 import { SECOND } from '@/lib/urlValues'
@@ -76,6 +76,8 @@ const counting = computed(() => countdown.remainingMs.value !== null)
 const ignored = computed(() => (defaults.value === null ? url.ignored : effectiveSettings(url, defaults.value, stored.value).ignored))
 const { view, state, running, notices, dismiss, disabledReason } = useTestScreen({ run, info: { info, reachability }, counting, ignored })
 const wording = computed(() => ({ t, locale: locale.value }))
+// This page's browser, which the Test and Session cards name until a result records its own.
+const browser = browserIdentity(navigator.userAgent)
 // A run shows the settings it runs with; between runs, those the next one starts from.
 const shownSettings = computed(() => (state.value === 'idle' ? null : run.runSettings.value) ?? settings.value)
 const units = computed(() => shownSettings.value?.units ?? 'bits')
@@ -137,6 +139,7 @@ const continuous = computed(() => {
       resolutionMs: result?.client.timerResolutionMs ?? 0,
       overheadPercent: settings.overheadCompensationPercent,
       nowMs: Date.now(),
+      browser: result?.client.browser ?? browser,
     },
     wording.value,
   )
@@ -319,6 +322,7 @@ watch(run.error, (error) => {
       :result="endedResult"
       :save="saveState"
       :tiles="tiles"
+      :browser="endedResult?.client.browser ?? browser"
       :units="units"
       :load="load"
       :quality="quality"

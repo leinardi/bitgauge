@@ -17,10 +17,11 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Activity, ArrowDown, ArrowUp, Database, Signal, Timer } from '@lucide/vue'
+import { Activity, ArrowDown, ArrowUp, Database, Globe, Timer } from '@lucide/vue'
 import type { Component } from 'vue'
 
-import type { ConfidenceReason, Direction, DirectionResult, IdleResult, SteadySoFar } from '@/engine/messages'
+import type { MetaRow } from '@/components/layout/MetaList.vue'
+import type { BrowserIdentity, ConfidenceReason, Direction, DirectionResult, IdleResult, SteadySoFar } from '@/engine/messages'
 import type { Wording } from '@/components/test/wording'
 import { bytesParts, formatBytes, formatDuration, formatLimit, formatPercent, latencyNumber, rateParts, secondsNumber } from '@/lib/format'
 import { protocolLabel } from '@/lib/protocol'
@@ -252,7 +253,8 @@ export function durationTile(ms: number | null, context: Wording): TileView {
   return ms === null ? tile : { ...tile, number: secondsNumber(ms, context.locale), unit: 's' }
 }
 
-/** The packet-loss slot: never a number, since a browser cannot see packet loss over TCP. */
-export function packetLossTile(context: Wording): TileView {
-  return { ...blank(context.t('test.tiles.packetLoss'), Signal, SERIES.neutral), lines: [{ text: context.t('test.tiles.notMeasured') }] }
+/** The browser row of the Test and Session cards: family, major version and operating system, a dash when unrecognized. */
+export function browserRow(browser: BrowserIdentity, context: Wording): MetaRow {
+  const value = browser.name === 'unknown' ? null : context.t('test.tiles.browserValue', { name: browser.name, major: browser.major, os: browser.os })
+  return { key: 'browser', icon: Globe, label: context.t('test.tiles.browser'), value }
 }

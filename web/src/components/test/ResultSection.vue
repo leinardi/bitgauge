@@ -27,15 +27,12 @@ import type { QualityView } from '@/components/result/qualityList'
 import type { ContinuousView as ContinuousViewModel } from '@/components/test/continuous/continuous'
 import ContinuousView from '@/components/test/continuous/ContinuousView.vue'
 import MetricTile from '@/components/test/MetricTile.vue'
-import NotMeasured from '@/components/test/NotMeasured.vue'
-import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import SaveBar from '@/components/test/SaveBar.vue'
 import type { LoadView } from '@/components/test/loadView'
-import type { TileView } from '@/components/test/tiles'
+import { browserRow, type TileView } from '@/components/test/tiles'
 import type { SaveState } from '@/composables/useResultSave'
-import type { Result } from '@/engine/messages'
-import { links } from '@/lib/links'
+import type { BrowserIdentity, Result } from '@/engine/messages'
 
 // The Test screen's results (ui/screens.md sections 1 and 6): once a run has ended with a result,
 // the save bar for a complete one or the status bar with Keep in history for a partial or error
@@ -50,7 +47,9 @@ const props = defineProps<{
   result: Result | null
   /** What became of the result's save to history. */
   save: SaveState | null
-  tiles: { main: TileView[]; more: TileView[]; packetLoss: TileView }
+  tiles: { main: TileView[]; more: TileView[] }
+  /** The browser the facts name: the result's, or this page's before a result exists. */
+  browser: BrowserIdentity
   units: 'bits' | 'bytes'
   /** The load card; null for a run with neither direction. */
   load: LoadView | null
@@ -62,16 +61,13 @@ const props = defineProps<{
 /** The partial or error result was kept in history; the page's gauge and tiles read it too. */
 const kept = defineModel<boolean>('kept', { required: true })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
-// Data used, duration and the packet-loss slot, whose reason stays in view (ui/screens.md section 6).
-const facts = computed<MetaRow[]>(() => {
-  const { more, packetLoss } = props.tiles
-  return [
-    ...more.map((tile) => ({ key: tile.label, icon: tile.icon, label: tile.label, sub: tile.lines[0]?.text, value: tile.number === null ? null : `${tile.number} ${tile.unit}` })),
-    { key: 'packet-loss', icon: packetLoss.icon, label: packetLoss.label, sub: t('test.tiles.whyNot') },
-  ]
-})
+// Data used, duration and the browser (ui/screens.md sections 1 and 6).
+const facts = computed<MetaRow[]>(() => [
+  ...props.tiles.more.map((tile) => ({ key: tile.label, icon: tile.icon, label: tile.label, sub: tile.lines[0]?.text, value: tile.number === null ? null : `${tile.number} ${tile.unit}` })),
+  browserRow(props.browser, { t, locale: locale.value }),
+])
 </script>
 
 <template>
@@ -120,13 +116,6 @@ const facts = computed<MetaRow[]>(() => {
       :rows="facts"
       :columns="load ? 1 : 3"
       :class="load ? (quality ? 'col-span-2 desktop:col-span-1' : 'col-span-2') : 'col-span-full'"
-    >
-      <template #sub-packet-loss>
-        <NotMeasuredWhy :href="links.packetLoss" />
-      </template>
-      <template #value-packet-loss>
-        <NotMeasured />
-      </template>
-    </MetaList>
+    />
   </section>
 </template>

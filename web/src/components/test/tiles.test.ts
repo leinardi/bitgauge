@@ -20,11 +20,11 @@
 // @vitest-environment jsdom
 
 // The tiles' contents for every direction status and confidence level, live and done, and the
-// latency, data, duration and packet-loss tiles (ui/screens.md section 6, tiles.md).
+// latency, data and duration tiles and the browser row (ui/screens.md section 6, tiles.md).
 
 import { describe, expect, it } from 'vitest'
 
-import { dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, packetLossTile, type TileView } from '@/components/test/tiles'
+import { browserRow, dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionResult, IdleResult, UploadResult } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
@@ -164,7 +164,8 @@ describe('the other tiles', () => {
     expect(durationTile(12_345, context)).toMatchObject({ label: 'Duration', number: '12.3', unit: 's' })
   })
 
-  it('keeps the packet-loss slot without a number', () => {
-    expect(packetLossTile(context)).toMatchObject({ label: 'Packet loss', number: null, lines: [{ text: 'Not measured' }] })
+  it('names the browser by family, major version and operating system', () => {
+    expect(browserRow({ name: 'Safari', major: 18, os: 'macOS' }, context)).toMatchObject({ key: 'browser', label: 'Browser', value: 'Safari 18 · macOS' })
+    expect(browserRow({ name: 'unknown', major: 0, os: 'Linux' }, context).value).toBeNull()
   })
 })

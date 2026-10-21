@@ -125,7 +125,6 @@
         "loadedLatency": "loaded latency",
         "download": "download"
       },
-      "packetLoss": "Packet loss",
       "upperBound": "Upper bound: packet loss is not measured"
     },
     "confidence": {
@@ -153,11 +152,7 @@
         "upload": "Upload confidence: CPU-bound",
         "body": "The number may be limited by this device's CPU, not the network."
       },
-      "none": "No direction has a number to rate.",
-      "packetLoss": {
-        "title": "Packet loss not measured",
-        "body": "Browsers can't see packet loss over TCP, so BitGauge doesn't report it."
-      }
+      "none": "No direction has a number to rate."
     },
     "charts": {
       "download": "Download",
@@ -193,7 +188,7 @@
         "min": "Min",
         "max": "Max"
       },
-      "span": "{from}–{to}\u00a0s",
+      "span": "{from}–{to} s",
       "pingSpan": "{first}–{last}",
       "foot": "From warm-up end ({at} s). Throughput = bytes ÷ known time; “—” = no known time in that window. Full samples are in the JSON export.",
       "cellsFoot": "One row per stored {size} cell, from warm-up end ({at} s). Throughput = bytes ÷ known time; “—” = no known time in that cell. Full samples are in the JSON export.",

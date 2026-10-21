@@ -28,7 +28,6 @@ export const links = {
   source: REPOSITORY,
   license: `${REPOSITORY}/blob/main/LICENSE`,
   methodology: `${DOCS}/measurement.md`,
-  packetLoss: `${DOCS}/measurement.md#18-future-packet-loss-via-webrtcturn`,
   deployment: `${DOCS}/deployment-example.md`,
   subPathGuide: `${DOCS}/deployment-example.md#6-sub-path-deployment`,
   browserUploadLimits: `${RESEARCH}/browser-upload-limits.md`,

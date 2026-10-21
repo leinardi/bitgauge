@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { CircleCheck, CircleDashed, Cpu, TriangleAlert } from '@lucide/vue'
+import { CircleCheck, Cpu, TriangleAlert } from '@lucide/vue'
 import type { Component } from 'vue'
 
 import { noticeViews, type Tone } from '@/components/test/notices'
@@ -27,7 +27,7 @@ import type { Confidence, Direction, Result } from '@/engine/messages'
 import { formatDuration } from '@/lib/format'
 
 // The confidence and notices card (ui/screens.md section 2, kit ResultDetail.jsx): each measured
-// direction's confidence with its reasons, then the packet-loss slot and every notice the result
+// direction's confidence with its reasons, then every notice the result
 // carries, worded as the Test screen words it; each with an icon and text, and a notice's docs link.
 // The card's pill is the lowest confidence of the directions.
 
@@ -69,7 +69,6 @@ function directionItem(direction: Direction, result: Result, wording: Wording): 
 }
 
 export function confidenceView(result: Result, wording: Wording): ConfidenceView {
-  const { t } = wording
   const directions = result.settings.phases.filter((phase): phase is Direction => phase !== 'idle')
   const confidence = directions.flatMap((direction) => directionItem(direction, result, wording) ?? [])
   const levels = directions.flatMap((direction) => result[direction]?.confidence?.level ?? [])
@@ -78,6 +77,5 @@ export function confidenceView(result: Result, wording: Wording): ConfidenceView
     const link = view.actions.find((action) => action.kind === 'link')
     return { tone: view.tone, icon: view.icon, title: view.title, body: view.body, link: link?.kind === 'link' ? { href: link.href, label: link.label } : null }
   })
-  const packetLoss: ConfidenceItem = { tone: 'neutral', icon: CircleDashed, title: t('result.confidence.packetLoss.title'), body: t('result.confidence.packetLoss.body'), link: null }
-  return { level, confidence, notices: [packetLoss, ...notices] }
+  return { level, confidence, notices }
 }

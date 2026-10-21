@@ -194,7 +194,6 @@ function runAgain(): void {
             <QualityList
               v-if="quality"
               :view="quality"
-              packet-loss
             />
           </div>
           <ConfidenceCard

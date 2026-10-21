@@ -17,13 +17,13 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Activity, ArrowDown, ArrowUp, ArrowUpDown, Database, Signal, Timer, TrendingUp } from '@lucide/vue'
+import { Activity, ArrowDown, ArrowUp, ArrowUpDown, Database, Timer, TrendingUp } from '@lucide/vue'
 
 import type { MetaRow } from '@/components/layout/MetaList.vue'
-import { confidenceReasons, type TileLine, type TileView } from '@/components/test/tiles'
+import { browserRow, confidenceReasons, type TileLine, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
-import type { ContinuousSoFar, Direction, DirectionResult } from '@/engine/messages'
+import type { BrowserIdentity, ContinuousSoFar, Direction, DirectionResult } from '@/engine/messages'
 import { bytesParts, clockTime, formatBytes, formatLatency, formatPercent, latencyNumber, rateParts } from '@/lib/format'
 
 // The Continuous live view (ui/screens.md section 1, ui/flows.md section 7, kit TestScreen.jsx
@@ -31,7 +31,7 @@ import { bytesParts, clockTime, formatBytes, formatLatency, formatPercent, laten
 // the current rate, the run-wide average, the "p90, last hour" with the run-wide maximum, the
 // loaded latency of the last minute, and data used with its rate; then the session: the elapsed
 // time against the run length with its end time, or alone without one, the run-wide minimum and
-// maximum, and idle latency. The rates read "—" until the engine sends them, after three fully
+// maximum, idle latency and the browser. The rates read "—" until the engine sends them, after three fully
 // known 1 s cells, never 0. Once the run has ended, the result's run-wide numbers, its
 // minimum, and the loaded latency of the last hour. Nothing here is a number of its own.
 
@@ -55,6 +55,7 @@ export interface ContinuousInput {
   overheadPercent: number
   /** The clock now, for the run's end time. */
   nowMs: number
+  browser: BrowserIdentity
 }
 
 export interface ContinuousView {
@@ -165,7 +166,7 @@ export function continuousView(input: ContinuousInput, context: Wording): Contin
     elapsedRow,
     { key: 'min-max', icon: ArrowUpDown, label: t('test.continuous.minMax'), sub: t('test.continuous.minMaxSub', { direction: directionWord }), value: minMax(values.minBitsPerSecond, values.maxBitsPerSecond, units, locale) },
     { key: 'idle', icon: Activity, label: t('test.continuous.idle'), sub: t('test.continuous.idleSub'), value: input.idleMedianMs === null ? null : formatLatency(input.idleMedianMs, locale, input.resolutionMs) },
-    { key: 'packet-loss', icon: Signal, label: t('test.tiles.packetLoss'), sub: t('test.tiles.whyNot') },
+    browserRow(input.browser, context),
   ]
   return { tiles, session }
 }

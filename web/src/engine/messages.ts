@@ -33,5 +33,9 @@ export { validateResult } from '@/engine/result/validate'
 /** The preset table the engine resolves a preset with; the Settings screen states and applies it. */
 export { type PresetDefinition, PRESETS } from '@/engine/presets'
 
+/** The browser identity the result records; the Test screen shows the current one before a result exists. */
+export { browserIdentity } from '@/engine/wiring'
+export type { BrowserIdentity } from '@/engine/types'
+
 /** The Continuous rings' lengths, which the live chart's own rings follow (measurement.md section 15). */
 export { RING_LENGTHS } from '@/engine/continuous/retention'

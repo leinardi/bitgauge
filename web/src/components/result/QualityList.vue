@@ -17,21 +17,18 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { Check, CircleAlert, CircleCheck, CircleMinus, CircleX, Gamepad, Info, Signal, Tv, Video } from '@lucide/vue'
+import { Check, CircleAlert, CircleCheck, CircleMinus, CircleX, Gamepad, Info, Tv, Video } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ExperienceName, QualityView } from '@/components/result/qualityList'
-import NotMeasured from '@/components/test/NotMeasured.vue'
-import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
 import type { ScoreBand } from '@/engine/messages'
-import { links } from '@/lib/links'
 
 // The quality list (design_system/components/measurement QualityList.jsx, measurement.css .qlist):
 // "Good for" with the basis chip when the scores rest on one direction, a row per experience with
 // its band as a badge of its tone, icon and name, never color alone, or the inputs it is missing
-// in the subtle color, and the upper-bound note. The Result detail adds the packet-loss row.
+// in the subtle color, and the upper-bound note.
 
-defineProps<{ view: QualityView; packetLoss?: boolean }>()
+defineProps<{ view: QualityView }>()
 
 const { t } = useI18n()
 
@@ -92,22 +89,6 @@ const BANDS: Record<ScoreBand, { icon: typeof Tv; tone: string }> = {
         v-else
         class="text-(length:--text-caption) text-subtle-foreground"
       >{{ row.text }}</span>
-    </div>
-    <div
-      v-if="packetLoss"
-      class="flex min-h-(--list-row-h) items-center gap-2.5 border-b border-(--border-subtle)"
-    >
-      <span
-        class="inline-flex text-subtle-foreground"
-        aria-hidden="true"
-      >
-        <Signal :size="16" />
-      </span>
-      <span class="flex-1 text-(length:--text-sm) text-foreground">{{ t('result.quality.packetLoss') }}</span>
-      <span class="inline-flex flex-none items-center gap-2 text-(length:--text-caption)">
-        <NotMeasured />
-        <NotMeasuredWhy :href="links.packetLoss" />
-      </span>
     </div>
     <span class="mt-1.5 flex items-center gap-1.5 text-(length:--text-micro) leading-(--lh-compact) text-subtle-foreground">
       <Info

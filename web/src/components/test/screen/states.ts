@@ -18,7 +18,7 @@
  */
 
 import type { PhaseStep } from '@/components/test/steps'
-import { dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, packetLossTile, type TileView } from '@/components/test/tiles'
+import { dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { ContinuousSeries } from '@/composables/useContinuousSeries'
 import type { LoadedSeries } from '@/composables/useLoadedSeries'
@@ -215,8 +215,8 @@ function idleInput(run: RunView, result: Result | null): IdleInput | null {
   return { idle, resolutionMs, protocol, live: false, stopped }
 }
 
-/** The metric tiles: the four main ones, then data used and duration, and the packet-loss slot. */
-export function screenTiles(run: RunView, settings: TileSettings, context: Wording, elapsedMs: number | null = null, kept = false): { main: TileView[]; more: TileView[]; packetLoss: TileView } {
+/** The metric tiles: the four main ones, then data used and duration. */
+export function screenTiles(run: RunView, settings: TileSettings, context: Wording, elapsedMs: number | null = null, kept = false): { main: TileView[]; more: TileView[] } {
   const shown = run.status !== 'idle'
   const result = shown ? run.result : null
   // Live numbers only while the run is going: a run that ended without a result has none to show.
@@ -239,6 +239,5 @@ export function screenTiles(run: RunView, settings: TileSettings, context: Wordi
   return {
     main: [direction('download'), direction('upload'), idleFailed && run.idle !== null ? idleErrorTile(run.idle, context) : idleTile(idle, context), jitterTile(idle, context)],
     more: [dataUsed(run, context, kept), duration(run, elapsedMs, context)],
-    packetLoss: packetLossTile(context),
   }
 }

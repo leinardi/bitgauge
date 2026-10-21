@@ -39,7 +39,7 @@ function live(patch: Partial<DirectionLive> = {}): DirectionLive {
   return { firstBucket: 0, values: [], windowEnd: null, gauge: 934e6, sending: null, steady: null, continuous: { elapsedMs: 42 * MINUTE + 18_000, dataBytes: 290e9 }, warmupEnd: 62, start: null, sendingTrace: [], streams: 6, phaseMs: 0, ...patch }
 }
 
-const input = (patch: Partial<ContinuousInput> = {}): ContinuousInput => ({ direction: 'download', units: 'bits', live: live(), result: null, dataUsedBytes: 290e9, idleMedianMs: 3.1, resolutionMs: 0.1, overheadPercent: 0, nowMs: Date.parse('2026-10-12T14:44:00Z'), ...patch })
+const input = (patch: Partial<ContinuousInput> = {}): ContinuousInput => ({ direction: 'download', units: 'bits', live: live(), result: null, dataUsedBytes: 290e9, idleMedianMs: 3.1, resolutionMs: 0.1, overheadPercent: 0, nowMs: Date.parse('2026-10-12T14:44:00Z'), browser: { name: 'Firefox', major: 131, os: 'Linux' }, ...patch })
 const numbers = (view: ReturnType<typeof continuousView>) => view.tiles.map((tile) => [tile.label, tile.number, tile.unit, tile.lines.map((line) => line.text).join(' | ')])
 
 describe('continuousView', () => {
@@ -69,7 +69,7 @@ describe('continuousView', () => {
       ['Elapsed', 'no run length set', '42:18'],
       ['Min / max', 'download, run-wide, fully known 1 s cells', '702 / 941 Mbit/s'],
       ['Idle latency', 'measured at start', '3.1\u00a0ms'],
-      ['Packet loss', "Browsers can't see packet loss over TCP", undefined],
+      ['Browser', undefined, 'Firefox 131 · Linux'],
     ])
   })
 

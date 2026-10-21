@@ -113,7 +113,7 @@ describe('a stored result', () => {
     expect(rows[0]).toMatch(/^During download · WebSocketp90 \d+ · \+\d+ ms vs idle\d+ms$/)
     expect(text(page, 'confidence-level')).toBe('Confidence: low')
     expect(text(page, 'confidence-confidence')).toContain('Download confidence: low')
-    expect(text(page, 'confidence-notices')).toContain('Packet loss not measured')
+    expect(text(page, 'confidence-notices')).not.toContain('Packet loss')
     expect(page.find('[data-testid="not-saved"]').exists()).toBe(false)
     page.unmount()
   })
@@ -131,7 +131,7 @@ describe('a stored result', () => {
     expect(page.findAll('[data-testid="load-rpm"]').map((row) => row.text())).toEqual(['Download1,420RPMTM95 42\u00a0ms · 13 samples · TM95 equals the plain mean', 'Uploadnot enough samples'])
     expect(text(page, 'quality-basis')).toBe('upload only')
     expect(page.findAll('[data-testid="quality-row"]').map((row) => row.text())).toEqual(['Streaming Good', 'Gaming Poor', 'Video callsneeds jitter'])
-    expect(text(page, 'quality-list')).toContain('Packet loss')
+    expect(text(page, 'quality-list')).not.toContain('Packet loss')
     expect(text(page, 'quality-list')).toContain('Upper bound: packet loss is not measured')
     page.unmount()
     // A result without the responsiveness and the scores has neither block (the demo's results

@@ -24,14 +24,11 @@ import type { QualityView } from '@/components/result/qualityList'
 import type { ContinuousView } from '@/components/test/continuous/continuous'
 import type { LoadView } from '@/components/test/loadView'
 import MetricTile from '@/components/test/MetricTile.vue'
-import NotMeasured from '@/components/test/NotMeasured.vue'
-import NotMeasuredWhy from '@/components/test/NotMeasuredWhy.vue'
-import { links } from '@/lib/links'
 
 // The Continuous live view (ui/screens.md section 1, kit TestScreen.jsx continuous and cont-done):
 // five tiles in a row, current or minimum, average, "p90, last hour", loaded latency and data used,
 // then, once the run is done, its load card and quality list, and the session's facts in one row:
-// elapsed or duration, minimum and maximum, idle latency and the packet-loss slot.
+// elapsed or duration, minimum and maximum, idle latency and the browser.
 
 defineProps<{
   view: ContinuousView
@@ -70,13 +67,6 @@ defineProps<{
       :rows="view.session"
       :columns="4"
       class="col-span-2 desktop:col-span-5"
-    >
-      <template #sub-packet-loss>
-        <NotMeasuredWhy :href="links.packetLoss" />
-      </template>
-      <template #value-packet-loss>
-        <NotMeasured />
-      </template>
-    </MetaList>
+    />
   </section>
 </template>
