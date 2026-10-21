@@ -70305,15 +70305,15 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: covered by v03-result-share-image's note on the direction labels.",
-          "done": false
+          "done": true
         },
         {
           "target": "adapter",
-          "what": "Re-check after v03-result-resp-run's adapter fix: the run's values in the image and the summary should then match.",
-          "done": false
+          "what": "Re-check after v03-result-resp-run's adapter fix: the run's values in the image and the summary should then match. Done: the run values match; only the direction labels remain, waiting on the export.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
