@@ -68564,10 +68564,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the About screen's librespeed-cli server list writes the JSON one key per line, as compatibility.md section 2.3, not compressed to four lines.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -68630,10 +68630,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the About screen's verbose networkQuality line ends with the comment \"# verbose, per-flow detail\", as compatibility.md, in place of the \"Verbose\" caption.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -70154,10 +70154,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the compare table with B over HTTP/2 takes the rows and wording v02-compare-rows and v02-compare-table-headers ask of history/compare (section header rows, the metric rows, \"None\" for no data cap, \"Auto, up to 6\").",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -71068,10 +71068,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: covered by v03-history-compare-h2-compare-table's note; the dialog's geometry follows its rows.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -71213,10 +71213,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: as v02-modal-inert-page, the page under the compare dialog with B over HTTP/2 is inert.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -71353,10 +71353,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: covered by v03-history-compare-h2-compare-table's note.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -71837,10 +71837,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the HTTP loaded responsiveness rows' direction icons are decorative (aria-hidden), the row's text names the direction.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -72710,10 +72710,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: on the standard run's states, as on the Responsiveness ones, the HTTP loaded responsiveness row names each direction in text with its RPM or state (\"Download —\", \"Download 1,420 RPM\").",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -73590,10 +73590,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the 2 h and 9 d Continuous results' quality scores read \"Good for download only\".",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -73920,10 +73920,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: covered by v03-result-share-image's note on the direction labels.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -74029,10 +74029,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the Continuous results' Test parameters list the data cap with the data used, drop the Stored cells row and the \"Standard ramp\" name, and give the direction an ended stream count belongs to (\"ended at # s (download)\").",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -74081,10 +74081,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the Continuous chart's warm-up band reads \"Warm-up · not stored (0–6.5 s)\", in seconds as on a standard run.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -76582,10 +76582,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the Result detail's quality scores of a run whose upload has no loaded-latency increase read \"Good for download only\".",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -77217,10 +77217,10 @@
         {
           "target": "upstream",
           "what": "design-system-upstream.md: the share image's direction labels are \"Download\" and \"Upload\" in capitals by text-transform, not literal \"DOWNLOAD\" and \"UPLOAD\".",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
