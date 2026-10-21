@@ -25,6 +25,7 @@ import AppButton from '@/components/actions/AppButton.vue'
 import { saveCsv, saveJson } from '@/components/history/exporting'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import type { Result } from '@/engine/messages'
+import { tokenPx } from '@/lib/tokenPx'
 
 // The Export menu (ui/screens.md section 3; kit History.jsx): JSON or CSV, each for all results or
 // the current filter, with the warning that the files hold client IPs, labels and notes. JSON keeps
@@ -34,6 +35,8 @@ const props = defineProps<{ all: readonly Result[]; filtered: readonly Result[] 
 const emit = defineEmits<{ invalid: [] }>()
 
 const { t } = useI18n()
+// Kept a --space-4 inside the screen's edges, as the kit's floating panels are.
+const edge = tokenPx('--space-4')
 
 function json(results: readonly Result[]): void {
   if (!saveJson(results)) {
@@ -68,6 +71,7 @@ const FORMATS = [
     <DropdownMenuContent
       align="end"
       :side-offset="6"
+      :collision-padding="edge"
       class="flex w-80 flex-col gap-0.5 rounded-(--radius-lg) border-(--border-default) bg-(--surface-2) p-1.5 shadow-(--shadow-pop)"
     >
       <DropdownMenuGroup

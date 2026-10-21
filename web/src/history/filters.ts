@@ -38,7 +38,6 @@ export type Query = Record<string, string | null | (string | null)[] | undefined
 
 export const NO_FILTER: HistoryFilter = { labels: [], contexts: [], range: { kind: 'all' }, q: '' }
 
-const DAY_MS = 86_400_000
 const LOCAL_DATE = /^(\d{4})-(\d{2})-(\d{2})$/
 
 function values(value: Query[string]): string[] {
@@ -97,12 +96,17 @@ export function queryFromFilter(filter: HistoryFilter): Record<string, string | 
   return query
 }
 
+/** The first day of the last `days` days: that many calendar days ending today, from its local midnight. */
+export function firstDay(days: number, now: Date): Date {
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - (days - 1))
+}
+
 function inRange(startedAt: number, range: DateRange, now: Date): boolean {
   switch (range.kind) {
     case 'all':
       return true
     case 'days':
-      return startedAt >= now.getTime() - range.days * DAY_MS
+      return startedAt >= firstDay(range.days, now).getTime()
     case 'custom': {
       const from = localDay(range.from)
       const to = localDay(range.to)

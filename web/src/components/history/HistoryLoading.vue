@@ -31,11 +31,12 @@ const BLOCK = 'animate-pulse rounded-(--radius-sm) bg-(--surface-3) motion-reduc
 <template>
   <div
     aria-busy="true"
-    :aria-label="t('history.loading')"
     role="status"
     class="flex flex-col gap-3.5 tablet:gap-4.5"
     data-testid="history-loading"
   >
+    <!-- A live region announces its content, not its name. -->
+    <span class="sr-only">{{ t('history.loading') }}</span>
     <div class="flex gap-1.5 overflow-hidden">
       <span
         v-for="(width, index) in CHIPS"

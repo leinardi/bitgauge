@@ -26,8 +26,9 @@ import TimeText from '@/components/a11y/TimeText.vue'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import type { Result } from '@/engine/messages'
-import { type DateRange, filterResults, NO_FILTER } from '@/history/filters'
+import { type DateRange, filterResults, firstDay, NO_FILTER } from '@/history/filters'
 import { type TimedText, timeRange } from '@/lib/timeText'
+import { tokenPx } from '@/lib/tokenPx'
 
 // The date-range filter (ui/screens.md section 3; kit History.jsx, Popover and OptionRows in
 // design_system/components/actions): the last 7, 30 or 90 days or all time, applied at once with
@@ -39,6 +40,8 @@ const props = defineProps<{ range: DateRange; results: readonly Result[]; now: D
 const emit = defineEmits<{ 'update:range': [DateRange] }>()
 
 const { t, locale } = useI18n()
+// Kept a --space-4 inside the screen's edges, as the kit's floating panels are.
+const edge = tokenPx('--space-4')
 const open = shallowRef(false)
 const from = shallowRef('')
 const to = shallowRef('')
@@ -101,9 +104,7 @@ watch(open, (opened) => {
     from.value = props.range.from
     to.value = props.range.to
   } else if (props.range.kind === 'days') {
-    const start = new Date(props.now)
-    start.setDate(start.getDate() - props.range.days)
-    from.value = isoDay(start)
+    from.value = isoDay(firstDay(props.range.days, props.now))
     to.value = isoDay(props.now)
   } else {
     from.value = ''
@@ -151,6 +152,7 @@ function apply(): void {
     <PopoverContent
       align="end"
       :side-offset="6"
+      :collision-padding="edge"
       :aria-label="t('history.filters.range.label')"
       class="flex w-75 flex-col gap-0.5 rounded-(--radius-lg) border-(--border-default) bg-(--surface-2) p-1.5 text-left shadow-(--shadow-pop)"
       @interact-outside="outside"

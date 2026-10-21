@@ -22,7 +22,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { Result } from '@/engine/messages'
-import { chips, DEFAULT_SORT, filterFromQuery, filterResults, NO_FILTER, queryFromFilter, recentLabels, sortResults } from '@/history/filters'
+import { chips, DEFAULT_SORT, filterFromQuery, filterResults, firstDay, NO_FILTER, queryFromFilter, recentLabels, sortResults } from '@/history/filters'
 import { resultFixture } from '@/test/fixtures'
 
 const NOW = new Date(2026, 9, 17, 12, 0)
@@ -72,6 +72,11 @@ describe('filtering', () => {
     expect(filterResults(ALL, { ...NO_FILTER, range: { kind: 'custom', from: '2026-06-01', to: '2026-10-01' } }, NOW).map((r) => r.id)).toEqual(['vpn', 'old'])
     const lastMoment = at('late', [2026, 10, 1, 23])
     expect(filterResults([lastMoment], { ...NO_FILTER, range: { kind: 'custom', from: '2026-10-01', to: '2026-10-01' } }, NOW)).toHaveLength(1)
+  })
+
+  it('counts the last days as calendar days ending today', () => {
+    expect(firstDay(30, new Date(2026, 9, 8, 15, 30))).toEqual(new Date(2026, 8, 9))
+    expect(firstDay(7, new Date(2026, 9, 8, 0, 5))).toEqual(new Date(2026, 9, 2))
   })
 
   it('searches the labels and notes, ignoring case', () => {
