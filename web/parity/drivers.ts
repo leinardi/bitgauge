@@ -248,6 +248,11 @@ const RUN_END_TIMEOUT_MS = 60_000
 // with every other parity page running; it changes the page every frame until it holds or stops.
 const CONTINUOUS_TIMEOUT_MS = 240_000
 const CONTINUOUS_RUNS: ReadonlySet<VueRun> = new Set<VueRun>(['continuous', 'cont-upload', 'cont-done'])
+// The Vue demo panel's fastest Speed, and the runs played at it (forceVue).
+const PARITY_SPEED = 4
+const VUE_FAST_STATES: ReadonlySet<VueRun> = new Set<VueRun>(
+  [...VUE_STARTING_STATES].filter((state) => (!VUE_HELD_STATES.has(state) || CONTINUOUS_RUNS.has(state)) && state !== 'error'),
+)
 // The held Continuous runs stand at the kit's elapsed time (src/demo/scenarios.ts).
 const CONTINUOUS_HELD_AT = '42:18'
 
@@ -268,9 +273,12 @@ async function closePanel(page: Page): Promise<void> {
 }
 
 // A forced state, or a loaded-latency case, plays the scenario of that name and holds it at the
-// kit's instant. At the panel's default speed, 1x: a faster demo moves its simulated link in fewer,
-// coarser timer ticks, and the noisier throughput samples then mark a LAN result as unstable in some
-// runs and not in others.
+// kit's instant. A run the demo plays to its end does so at the panel's fastest speed: the demo's
+// clock runs in event time (src/demo/clock.ts), so the run reads the same instants at any speed and
+// only spends less of it waiting; so does a held Continuous run. The other held runs, and the
+// early error, stay at 1x: the page's own timers count real time (the live region's rate
+// announcement every 5 s, the Duration row's elapsed time) and have to have run by the instant the
+// kit shows.
 async function forceVue(page: Page, state: VueRun): Promise<void> {
   // The auto-start countdown runs in the page, not in the engine, so the demo's hold cannot stop
   // it. It pauses while the page is hidden (ui/flows.md section 2), so from the next load on the
@@ -296,6 +304,10 @@ async function forceVue(page: Page, state: VueRun): Promise<void> {
     await page.addInitScript(() => Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }))
   }
   await openPanel(page)
+  if (VUE_FAST_STATES.has(state)) {
+    await applyAndWait(page, () => page.getByTestId(`demo-speed-${PARITY_SPEED}`).click())
+    await openPanel(page)
+  }
   await applyAndWait(page, () => page.getByTestId('demo-force-state').selectOption(state))
   // The run has begun once Start has turned into Stop. A run that ends has arrived once Stop is
   // gone again: a page still showing it is a run the page never saw end, which is the harness's

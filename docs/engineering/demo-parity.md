@@ -137,7 +137,11 @@ of the same code is a harness fault to find, never one to baseline twice:
 - The comparison still reads units, labels and qualifiers rather than measured numbers: the demo's
   numbers are its own measurement, not the kit's mock. Whether a number is right is the engine's
   and the demo's tests' business, not parity's.
-- The Vue demo plays at 1x.
+- A run the Vue demo plays to its end (completion, a scripted stop, a failure) plays at the panel's
+  4x, and so does a held Continuous run: in event time it reads the same instants at any speed.
+  The other held runs, and the early error, play at 1x, because the page's own timers count real
+  time (the 5 s live-region rate, the Duration row's elapsed time) and have to have run by the
+  instant the kit shows.
 - For a state that starts a run, the driver waits for Start to turn into Stop: before Start the
   page sits quiet while it loads, and a read then would show Idle. A run its scenario ends (a
   scripted stop, a failure, completion) has arrived once Stop is gone again; a page still showing
