@@ -73312,7 +73312,7 @@
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?=(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "path": "^(?:(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?=(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)|main > region \"(?:Confidence and notices|Download|Idle latency)\"$)",
         "kind": null,
         "detail": null
       },
@@ -73335,17 +73335,25 @@
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: On the Continuous Result details the quality scores take the kit's geometry.",
-        "on": "2026-10-20"
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-20 verdict whose evidence took the share image's \"download only\" for the list's, that this geometry follows v03-result-continuous-scores (spec wins): Vue draws the basis as the export's QualityList contract does, a .chip.sm in the eyebrow, so \"Good for\" is 20 px tall and the rows sit lower; it goes once the export shows the basis.",
+        "on": "2026-10-21"
       },
       "owned": {
         "result/continuous-2h": {
+          "0041c9976455": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "05112e71aba0": [
             "dark-narrow",
             "light-narrow"
           ],
           "07b54d608e3d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1459bfe37d9c": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -73389,6 +73397,10 @@
           "71e5c4698efc": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "8b696ee3f6b4": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "95f397dc8451": [
             "dark-narrow",
@@ -73454,6 +73466,10 @@
           ]
         },
         "result/continuous-9d": {
+          "0041c9976455": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "05112e71aba0": [
             "dark-narrow",
             "light-narrow"
@@ -73511,6 +73527,10 @@
             "dark-desktop",
             "light-desktop"
           ],
+          "9505a71f3dfd": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "95f397dc8451": [
             "dark-narrow",
             "light-narrow"
@@ -73520,6 +73540,10 @@
             "light-narrow"
           ],
           "a1b75bc2ecd6": "*",
+          "a1f3bf866556": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "a3c6a4a9f0ee": [
             "dark-desktop",
             "light-desktop"
@@ -73569,12 +73593,12 @@
       },
       "actions": [
         {
-          "target": "vue",
-          "what": "On the Continuous Result details the quality scores take the kit's geometry.",
-          "done": false
+          "target": "upstream",
+          "what": "Covered by v03-result-continuous-scores's note in design-system-upstream.md (the quality scores name their basis); the list's geometry follows the chip.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
@@ -76334,9 +76358,9 @@
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: On the Result detail states the quality scores take the kit's geometry, the basis note in the kit's caption style.",
-        "on": "2026-10-20"
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-21, replacing the 2026-10-20 verdict whose evidence took the share image's \"download only\" for the list's, that this geometry follows v03-result-scores (spec wins): Vue draws the basis as the export's QualityList contract does, a .chip.sm in the eyebrow, so \"Good for\" is 20 px tall and the rows sit lower; it goes once the export shows the basis.",
+        "on": "2026-10-21"
       },
       "owned": {
         "result": {
@@ -76844,12 +76868,12 @@
       },
       "actions": [
         {
-          "target": "vue",
-          "what": "On the Result detail states the quality scores take the kit's geometry, the basis note in the kit's caption style.",
-          "done": false
+          "target": "upstream",
+          "what": "Covered by v03-result-scores's note in design-system-upstream.md (the quality scores name their basis); the list's geometry follows the chip.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
