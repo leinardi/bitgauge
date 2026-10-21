@@ -21,9 +21,10 @@ import type { Component } from 'vue'
 
 // The kit's Card (design_system/components/layout Card.jsx, layout.css `.card`) as the Settings
 // screen and the Result detail use it: a section labeled by its header's title, with the header's
-// icon and actions, and a padded body or rows that bring their own padding.
+// icon and actions, and a padded body or rows that bring their own padding. Its title is an h2, or an
+// h3 inside a dialog, whose own title is the h2 (Card.jsx headingLevel).
 
-defineProps<{ id: string; title: string; icon: Component; padded?: boolean }>()
+withDefaults(defineProps<{ id: string; title: string; icon: Component; padded?: boolean; level?: 2 | 3 }>(), { level: 2 })
 </script>
 
 <template>
@@ -38,12 +39,13 @@ defineProps<{ id: string; title: string; icon: Component; padded?: boolean }>()
         class="text-subtle-foreground"
         aria-hidden="true"
       />
-      <h2
+      <component
+        :is="level === 3 ? 'h3' : 'h2'"
         :id="id"
         class="text-(length:--text-base) font-semibold"
       >
         {{ title }}
-      </h2>
+      </component>
       <span
         v-if="$slots.actions"
         class="ml-auto flex items-center gap-2"

@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { Copy, Download, FileText, Image, Share } from '@lucide/vue'
-import { nextTick, useId, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, useId, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
@@ -48,7 +48,11 @@ const { includeLabel, hasLabel, view, denied, busy, canShare, download, copy, sh
   () => props.units,
 )
 const summary = useTemplateRef<HTMLPreElement>('summary')
+const includeNote = computed(() => (hasLabel.value ? t('share.include.note', { label: props.result.label }) : t('share.include.none')))
 const LINE_BREAK = '\n'
+// In the dialog, the kit's small mono (ds-mono-sm) and its summary as a Snippet in a padded card.
+const MONO_SMALL = 'font-mono text-(length:--text-caption) tracking-(--tracking-tight) text-muted-foreground'
+const SNIPPET = 'overflow-x-auto overscroll-x-contain rounded-(--radius-md) border border-(--border-subtle) px-3.5 py-3 text-(length:--text-caption) whitespace-pre'
 
 watch(denied, async (denied) => {
   if (!denied) {
@@ -78,13 +82,35 @@ watch(denied, async (denied) => {
         :id="imageId"
         :title="t('share.image.title')"
         :icon="Image"
+        :level="inDialog ? 3 : 2"
       >
         <template #actions>
-          <span>{{ t('share.image.size') }}</span>
+          <span :class="inDialog ? MONO_SMALL : undefined">{{ t('share.image.size') }}</span>
         </template>
-        <div class="flex flex-col gap-3 p-3.5">
+        <div
+          class="flex flex-col gap-3"
+          :class="inDialog ? 'p-4' : 'p-3.5'"
+        >
           <SharePreview :view="view" />
-          <div class="flex items-start gap-2">
+          <!-- In the dialog the label holds its box and reads on one line, its note in the small mono,
+               as the kit's share dialog; on the Result detail the note goes under it. -->
+          <label
+            v-if="inDialog"
+            class="flex items-center gap-2 text-(length:--text-sm)"
+            :class="hasLabel ? 'cursor-pointer' : 'text-subtle-foreground'"
+          >
+            <Checkbox
+              v-model="includeLabel"
+              :disabled="!hasLabel"
+              data-testid="include-label"
+            />
+            {{ t('share.include.label') }}
+            <span :class="MONO_SMALL">{{ includeNote }}</span>
+          </label>
+          <div
+            v-else
+            class="flex items-start gap-2"
+          >
             <Checkbox
               :id="includeId"
               v-model="includeLabel"
@@ -98,7 +124,7 @@ watch(denied, async (denied) => {
               :class="hasLabel ? 'cursor-pointer' : 'text-subtle-foreground'"
             >
               {{ t('share.include.label') }}
-              <span class="text-(length:--text-micro) text-subtle-foreground">{{ hasLabel ? t('share.include.note', { label: result.label }) : t('share.include.none') }}</span>
+              <span class="text-(length:--text-micro) text-subtle-foreground">{{ includeNote }}</span>
             </label>
           </div>
           <div
@@ -139,6 +165,8 @@ watch(denied, async (denied) => {
         :id="textId"
         :title="t('share.text.heading')"
         :icon="FileText"
+        :level="inDialog ? 3 : 2"
+        :padded="inDialog"
       >
         <template
           v-if="!inDialog"
@@ -171,8 +199,8 @@ watch(denied, async (denied) => {
           ref="summary"
           tabindex="0"
           :aria-label="t('share.text.heading')"
-          class="m-0 bg-(--term-bg) px-4 py-3 font-mono text-(length:--text-micro) leading-(--lh-relaxed) whitespace-pre-wrap text-(--term-fg) select-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
-          :class="denied ? 'outline-2 -outline-offset-2 outline-ring' : ''"
+          class="m-0 bg-(--term-bg) font-mono leading-(--lh-relaxed) text-(--term-fg) select-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+          :class="[denied ? 'outline-2 -outline-offset-2 outline-ring' : '', inDialog ? SNIPPET : 'px-4 py-3 text-(length:--text-micro) whitespace-pre-wrap']"
           data-testid="share-summary"
         >{{ view.lines.join(LINE_BREAK) }}</pre>
       </SettingsCard>
