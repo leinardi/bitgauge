@@ -99,6 +99,7 @@
       "seconds": "{n}s",
       "minutes": "{n}m",
       "hours": "{n}h",
+      "hoursMinutes": "{h}h{m}",
       "days": "{n}d",
       "continuousElapsed": "{elapsed} elapsed",
       "continuousOf": "{elapsed} / {of}",

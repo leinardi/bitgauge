@@ -170,6 +170,18 @@ export function continuousTick(seconds: number, { t, locale }: Wording): string 
   return seconds % 86400 === 0 && seconds > 0 ? t('test.chart.days', { n: whole(seconds / 86400) }) : t('test.chart.hours', { n: whole(seconds / 3600) })
 }
 
+/** A Continuous result's tick, as the kit's Result detail writes it: 0, 20m, 1h, 1h20, 1d. */
+export function continuousResultTick(seconds: number, wording: Wording): string {
+  const minutes = Math.round((seconds % 3600) / 60)
+  if (seconds === 0) {
+    return new Intl.NumberFormat(wording.locale).format(0)
+  }
+  if (seconds < 3600 || seconds % 86400 === 0 || minutes === 0) {
+    return continuousTick(seconds, wording)
+  }
+  return wording.t('test.chart.hoursMinutes', { h: Math.floor(seconds / 3600), m: String(minutes).padStart(2, '0') })
+}
+
 const MARK_LABELS: Record<MarkCode, (t: Wording['t']) => string> = {
   extended: (t) => t('test.chart.marks.extended'),
   'data-cap': (t) => t('test.chart.marks.dataCap'),

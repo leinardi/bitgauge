@@ -25,7 +25,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { buildChart } from '@/components/chart/series'
-import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, chartTitle, continuousStep, continuousTick } from '@/components/chart/text'
+import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, chartTitle, continuousResultTick, continuousStep, continuousTick } from '@/components/chart/text'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
 import { type ContinuousSeries, useContinuousSeries } from '@/composables/useContinuousSeries'
@@ -141,5 +141,9 @@ describe('a Continuous run’s chart text', () => {
   it('ticks its axis in seconds, minutes, hours or days, about six of them', () => {
     expect([30, 600, 2700, 4 * 3600, 8 * 86_400].map(continuousStep)).toEqual([10, 120, 600, 3600, 86_400])
     expect([30, 600, 7200, 86_400].map((seconds) => continuousTick(seconds, wording))).toEqual(['30s', '10m', '2h', '1d'])
+  })
+
+  it('ticks a Continuous result as the kit does: 0, minutes, then hours with their minutes', () => {
+    expect([0, 1200, 3600, 4800, 6000, 86_400].map((seconds) => continuousResultTick(seconds, wording))).toEqual(['0', '20m', '1h', '1h20', '1h40', '1d'])
   })
 })

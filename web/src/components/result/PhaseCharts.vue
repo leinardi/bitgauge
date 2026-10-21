@@ -66,6 +66,7 @@ const views = reactive<Record<string, 'chart' | 'table'>>({})
           :color="card.key === 'idle' ? 'latency' : card.key"
           :summary="card.summary"
           :short="card.key === 'idle'"
+          :wide="card.key === 'idle' || directions === 1"
         />
       </template>
       <template #table>

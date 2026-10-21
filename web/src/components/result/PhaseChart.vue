@@ -29,7 +29,7 @@ import { drawGrid, drawLatency, drawRule, holdLinear } from '@/components/chart/
 import { frameOptions } from '@/components/chart/frame'
 import { chartGeometry, latencyScale, valueMax } from '@/components/chart/geometry'
 import { chartPalette, faded } from '@/components/chart/palette'
-import { continuousStep, continuousTick, markLabel } from '@/components/chart/text'
+import { continuousResultTick, continuousStep, markLabel } from '@/components/chart/text'
 import { useUplot } from '@/components/chart/useUplot'
 import type { PhaseModel } from '@/components/result/phase'
 import { useTheme } from '@/composables/useTheme'
@@ -41,8 +41,9 @@ import { latencyAxisLabels, rateAxisLabels } from '@/lib/format'
 // over the series the event marks and the loaded latency, dashed on a second scale in ms whose
 // labels sit right of the plot. The warm-up is a hatched, excluded interval and each gap is edged,
 // both over the canvas. The canvas is decoration for assistive technology: the plot is an image
-// labeled with its summary. The plot is at most as wide as the kit's: 320 px, the idle one 690 px,
-// and 309 px on a narrow screen (ResultDetail.jsx cw and wide).
+// labeled with its summary. The plot is at most as wide as the kit's: 320 px, 690 px across both
+// columns (the idle one, a lone direction's), and 309 px on a narrow screen (ResultDetail.jsx cw
+// and wide); a Continuous run's is 190 px tall on a wide screen.
 
 const props = defineProps<{
   model: PhaseModel
@@ -52,6 +53,8 @@ const props = defineProps<{
   summary: string
   /** The idle chart is shorter. */
   short?: boolean
+  /** Across both columns: the idle chart, or the only direction. */
+  wide?: boolean
 }>()
 
 const { t, locale } = useI18n()
@@ -59,7 +62,7 @@ const { applied } = useTheme()
 const host = useTemplateRef<HTMLDivElement>('host')
 const compact = useMediaQuery('(max-width: 1139.98px)')
 
-const height = computed(() => (props.short ? (compact.value ? 100 : 120) : compact.value ? 150 : 170))
+const height = computed(() => (props.short ? (compact.value ? 100 : 120) : compact.value ? 150 : props.model.continuous === true ? 190 : 170))
 const ends = computed(() => {
   const largest = Math.max(0, ...props.model.y.filter((value): value is number => value !== null))
   return { xMax: props.model.xMax, yMax: valueMax(largest) }
@@ -90,7 +93,7 @@ const geometry = computed(() =>
     // A Continuous run's axis ticks in seconds, minutes, hours or days, as its live chart does.
     ...(props.model.continuous === true ? { xStep: continuousStep(ends.value.xMax) } : {}),
     yLabels: props.kind === 'rate' ? rateAxisLabels(props.units === 'bits' ? ends.value.yMax : ends.value.yMax * 8, props.units, locale.value) : latencyAxisLabels(ends.value.yMax, locale.value),
-    xLabel: (value) => (props.model.continuous === true ? continuousTick(value, { t, locale: locale.value }) : props.kind === 'rate' ? t('test.chart.seconds', { n: new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(value) }) : String(value)),
+    xLabel: (value) => (props.model.continuous === true ? continuousResultTick(value, { t, locale: locale.value }) : props.kind === 'rate' ? t('test.chart.seconds', { n: new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(value) }) : String(value)),
     compact: compact.value,
     y2Labels: latency.value?.labels ?? [],
   }),
@@ -136,7 +139,7 @@ watch(ends, (next) =>
 <template>
   <div
     class="relative max-w-[309px]"
-    :class="short ? 'desktop:max-w-172.5' : 'desktop:max-w-80'"
+    :class="wide ? 'desktop:max-w-172.5' : 'desktop:max-w-80'"
   >
     <div
       ref="host"
