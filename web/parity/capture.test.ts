@@ -104,4 +104,24 @@ describe('capture', () => {
     expect(raw.notices).toBe('')
     expect(trees.notices).toEqual([])
   })
+
+  it('reads an inert subtree as hidden, as assistive technology does, and gives it back after', async () => {
+    const main = el('main', '- main', { inert: '' })
+    document.body.append(main)
+    let hiddenWhileRead: string | null = null
+    const base = page()
+    const spy = {
+      ...base,
+      locator: (selector: string) => {
+        const real = base.locator(selector)
+        if (selector !== 'main') return real
+        return { ...real, first: () => ({ ariaSnapshot: () => Promise.resolve(((hiddenWhileRead = main.getAttribute('aria-hidden')), '- main')) }) }
+      },
+    } as unknown as Page
+    await capture(driver, spy)
+    expect(hiddenWhileRead).toBe('true')
+    expect(main.hasAttribute('aria-hidden')).toBe(false)
+    expect(main.hasAttribute('inert')).toBe(true)
+  })
+
 })

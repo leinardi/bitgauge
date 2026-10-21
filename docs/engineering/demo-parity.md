@@ -81,7 +81,7 @@ defaults to Firefox. Then the harness waits until the DOM has stopped changing.
 
 | Layer | Reads | Produces |
 | --- | --- | --- |
-| Content | The accessibility tree of each region: the header (the top bar, and on a narrow window the tab bar), the page itself, notices (alerts and statuses outside every landmark), open dialogs | `missing` (only in the prototype), `extra` (only in Vue), `changed` (same element, different name or text), `attrs` (different state such as `disabled` or `level`) |
+| Content | The accessibility tree of each region: the header (the top bar, and on a narrow window the tab bar), the page itself, notices (alerts and statuses outside every landmark), open dialogs; an `inert` subtree is read as hidden, as assistive technology reads it, though Playwright's snapshot leaves out only `aria-hidden` ones | `missing` (only in the prototype), `extra` (only in Vue), `changed` (same element, different name or text), `attrs` (different state such as `disabled` or `level`) |
 | Style | A bounded set of elements (headings, buttons, links, tabs, radios, column headers and statuses), paired by region, role, name and occurrence | One finding per computed property that differs: font, color, padding, gap, radius, border, size. Lengths within 1px are equal |
 | Layout | Every drawn element with text of its own, every landmark, list, group, figure, image and canvas, and each region's root, paired as the style layer pairs | One finding per box edge that differs: `x`, `y`, `width`, `height`. Lengths within 1px are equal |
 | Visual | Full-page screenshots of both sides and a heatmap | Report attachments only, never a finding |

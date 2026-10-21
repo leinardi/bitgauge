@@ -82,14 +82,43 @@ function contents(yaml: string): AriaNode[] {
   return nodes.length === 1 && nodes[0] !== undefined ? nodes[0].children : nodes
 }
 
+// The accessibility snapshot leaves out an aria-hidden subtree but not an inert one, which assistive
+// technology does not reach either: the kit makes the page behind a modal dialog inert where Vue
+// hides it. Inert subtrees are marked hidden for the snapshots only, then given back as they were.
+const INERT_MARK = 'data-parity-inert'
+
+async function hideInert(page: Page): Promise<void> {
+  await page.evaluate((mark) => {
+    for (const el of document.querySelectorAll('[inert]:not([aria-hidden="true"])')) {
+      el.setAttribute(mark, '')
+      el.setAttribute('aria-hidden', 'true')
+    }
+  }, INERT_MARK)
+}
+
+async function restoreInert(page: Page): Promise<void> {
+  await page.evaluate((mark) => {
+    for (const el of document.querySelectorAll(`[${mark}]`)) {
+      el.removeAttribute('aria-hidden')
+      el.removeAttribute(mark)
+    }
+  }, INERT_MARK)
+}
+
 export async function capture(driver: SideDriver, page: Page): Promise<Capture> {
   // A selector that matches nothing, for a side without toasts.
   const toasts = driver.toastSelector ?? ':not(*)'
-  const raw: Record<Region, string> = {
-    header: await snapshotAll(page, HEADER, `main, ${driver.overlaySelector}`),
-    main: await snapshot(page.locator('main')),
-    notices: await snapshotAll(page, NOTICES, `${REGION_ROOTS}, ${toasts}`),
-    dialogs: await snapshotAll(page, driver.overlaySelector, toasts),
+  await hideInert(page)
+  let raw: Record<Region, string>
+  try {
+    raw = {
+      header: await snapshotAll(page, HEADER, `main, ${driver.overlaySelector}`),
+      main: await snapshot(page.locator('main')),
+      notices: await snapshotAll(page, NOTICES, `${REGION_ROOTS}, ${toasts}`),
+      dialogs: await snapshotAll(page, driver.overlaySelector, toasts),
+    }
+  } finally {
+    await restoreInert(page)
   }
   const trees: RegionTrees = {
     header: normalizeTree(parseAriaSnapshot(raw.header), driver.pageHost),
