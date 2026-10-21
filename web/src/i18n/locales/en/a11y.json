@@ -78,7 +78,7 @@
         "measured": "{rpm} round trips per minute, measured",
         "uncertain": "{rpm} round trips per minute, uncertain",
         "needsH2": "unavailable, needs HTTP/2 or HTTP/3 at the reverse proxy",
-        "treatedH1": "unavailable, protocol not reported, treated as HTTP/1.1",
+        "treatedH1": "unavailable, protocol not reported — treated as HTTP/1.1",
         "insufficient": "unavailable, not enough samples"
       },
       "quality": "Quality scores, an upper bound since packet loss is not measured: {experiences}.",

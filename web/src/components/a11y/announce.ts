@@ -305,7 +305,7 @@ function qualitySentence(result: Result, context: Wording): string | null {
 /**
  * The result summary of section 2.7: the status, download and upload with their qualifiers, idle
  * latency and jitter, the grade with the loaded-latency increase it rests on, the HTTP loaded
- * responsiveness and the quality scores of a complete result, data used, and the notices by
+ * responsiveness and the quality scores of every ended run, data used, and the notices by
  * title. A direction the settings left out is not mentioned; a Continuous result says its one
  * direction with its run-wide minimum, maximum and "p90, last hour", and the other as not run.
  */
@@ -317,9 +317,8 @@ export function resultSummary(result: Result, units: Units, context: Wording): s
     ...directionSentences(result, units, context),
     idleSentence(result, context),
     gradeSentence(result, context),
-    // A complete result's alone, as the Test screen shows them on its Done state only.
-    result.status === 'complete' ? responsivenessSentence(result, context) : null,
-    result.status === 'complete' ? qualitySentence(result, context) : null,
+    responsivenessSentence(result, context),
+    qualitySentence(result, context),
     t('a11y.summary.data', { data: spokenBytes(result.dataUsedBytes, locale) }),
     titles.length === 0 ? null : t('a11y.summary.notices', { titles: new Intl.ListFormat(locale, { type: 'conjunction' }).format(titles) }, titles.length),
   ]

@@ -106,10 +106,10 @@ describe('the result summary', () => {
       'HTTP loaded responsiveness, connection sharing not verifiable, over HTTP/1.1: download unavailable, needs HTTP/2 or HTTP/3 at the reverse proxy; upload unavailable, needs HTTP/2 or HTTP/3 at the reverse proxy.',
     )
     expect(resultSummary(over(''), 'bits', wording)).toContain(
-      'over a protocol not reported: download unavailable, protocol not reported, treated as HTTP/1.1; upload unavailable, protocol not reported, treated as HTTP/1.1.',
+      'over a protocol not reported: download unavailable, protocol not reported — treated as HTTP/1.1; upload unavailable, protocol not reported — treated as HTTP/1.1.',
     )
-    // A partial result's summary leaves them out, as its Test screen state does.
-    expect(resultSummary({ ...over('http/1.1'), status: 'partial' }, 'bits', wording)).not.toContain('responsiveness')
+    // A stopped run's summary reads them too, as its Test screen state shows them.
+    expect(resultSummary({ ...over('http/1.1'), status: 'partial' }, 'bits', wording)).toContain('HTTP loaded responsiveness, connection sharing not verifiable, over HTTP/1.1')
   })
 })
 
