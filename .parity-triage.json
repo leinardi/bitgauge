@@ -79816,6 +79816,179 @@
       "actions": [],
       "status": "accepted",
       "resolution": null
+    },
+    {
+      "id": "v04-harness-browser-ua",
+      "title": "Parity runs headless Chromium, whose HeadlessChrome user agent Vue does not recognize, so the Browser row reads a dash where the kit shows Chrome 130 · Linux",
+      "match": {
+        "scenarios": [
+          "continuous/run-length-2h",
+          "loaded/ll-insufficient-samples",
+          "loaded/ll-reservation-broken",
+          "loaded/ws-close",
+          "responsiveness/few-samples",
+          "responsiveness/needs-h2",
+          "responsiveness/not-reported",
+          "responsiveness/uncertain",
+          "test/cancelled",
+          "test/cancelled-download",
+          "test/cancelled-late",
+          "test/cancelled-slow",
+          "test/cancelled-slow-up",
+          "test/complete",
+          "test/connecting",
+          "test/cont-done",
+          "test/cont-upload",
+          "test/continuous",
+          "test/countdown",
+          "test/download",
+          "test/error",
+          "test/error-early",
+          "test/idle",
+          "test/insufficient",
+          "test/latency",
+          "test/offline",
+          "test/param-ignored",
+          "test/slow",
+          "test/slowdone",
+          "test/upload",
+          "test/upload-interrupted",
+          "test/ws-fallback"
+        ],
+        "projects": null,
+        "layer": "content",
+        "path": "^main > region \"Results\" > definition$",
+        "kind": null,
+        "detail": "^text \"Chrome 130 · Linux\" → \"—\"$"
+      },
+      "type": "harness",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md (Test card Browser row)",
+          "says": "the browser family and OS, a dash when the family is not recognized"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:86; web/parity/drivers.ts:142",
+          "says": "harness seeds the Demo panel browser to Chrome: \"Chrome 130 · Linux\""
+        },
+        "vue": {
+          "ref": "web/src/engine/wiring.ts:198; web/parity/settle.ts:41",
+          "says": "parity Chromium UA is \"… HeadlessChrome/156.0.8078.4 …\"; /\\bChrom(?:e|ium)\\// does not match it, so browserIdentity gives unknown and the row shows —"
+        }
+      },
+      "decision": {
+        "kind": "confirmation",
+        "rationale": "Parity drives headless Chromium, whose HeadlessChrome user agent the browser parser does not recognize; the kit is seeded with Chrome, so the harness pins a Chrome 130 Linux user agent.",
+        "on": "2026-10-21"
+      },
+      "owned": {
+        "continuous/run-length-2h": {
+          "426c6b1c6c7b": "*"
+        },
+        "loaded/ll-insufficient-samples": {
+          "426c6b1c6c7b": "*"
+        },
+        "loaded/ll-reservation-broken": {
+          "426c6b1c6c7b": "*"
+        },
+        "loaded/ws-close": {
+          "426c6b1c6c7b": "*"
+        },
+        "responsiveness/few-samples": {
+          "426c6b1c6c7b": "*"
+        },
+        "responsiveness/needs-h2": {
+          "426c6b1c6c7b": "*"
+        },
+        "responsiveness/not-reported": {
+          "426c6b1c6c7b": "*"
+        },
+        "responsiveness/uncertain": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/cancelled": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/cancelled-download": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/cancelled-late": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/cancelled-slow": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/cancelled-slow-up": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/complete": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/connecting": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/cont-done": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/cont-upload": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/continuous": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/countdown": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/download": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/error": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/error-early": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/idle": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/insufficient": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/latency": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/offline": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/param-ignored": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/slow": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/slowdone": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/upload": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/upload-interrupted": {
+          "426c6b1c6c7b": "*"
+        },
+        "test/ws-fallback": {
+          "426c6b1c6c7b": "*"
+        }
+      },
+      "actions": [
+        {
+          "target": "harness",
+          "what": "web/parity/settle.ts: give the parity browser context a fixed Chrome 130 Linux userAgent, matching the kit's seeded Chrome.",
+          "done": false
+        }
+      ],
+      "status": "decided",
+      "resolution": null
     }
   ]
 }
