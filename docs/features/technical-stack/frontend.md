@@ -331,8 +331,9 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   so a scenario plays the same way each time.
 - **Demo clock** (`demo/clock.ts`): the wiring's clock run `speed` times faster; optionally a
   coarser timer, to whose multiples every reading is floored and which is reported as the
-  resolution, not cross-origin isolated; optionally a busy share of 95 %, above the CPU-bound
-  threshold of [../measurement.md §16](../measurement.md#16-confidence-and-notices). It can hold:
+  resolution, not cross-origin isolated; a busy share of 0, since the simulation's own load is not
+  the device's, or with the panel's CPU-bound one of 95 %, above the CPU-bound threshold of
+  [../measurement.md §16](../measurement.md#16-confidence-and-notices). It can hold:
   time stops and no timer fires, so a screen stays in one state until the next scenario replaces
   the session. Its time is event time: it runs each due timer in a task of its own, reading the
   timer's instant, and stays at that instant while the work the timer started goes on, so a run
@@ -427,12 +428,10 @@ Details: [../ui/i18n-a11y.md](../ui/i18n-a11y.md).
   - **Fast-forward.** A Continuous scenario runs the demo clock at a fast-forward rate of its
     own, on top of the panel's speed, so a run the kit shows after tens of minutes reaches that
     state in about a minute; the rate is a property of the scenario and changes no rule of the
-    engine. The fast-forward's own load is not the device's: a fast-forwarded scenario reports a
-    busy share of 0 unless the panel's CPU-bound is on, so it never raises `cpu-bound`. The
-    clock's own tasks are unclamped, so the browser's few milliseconds for a nested timer do not
-    stretch its waits; it slows to the panel's speed for the last 2 s before a scripted stop or
-    hold; and the page takes the Worker's messages, about a thousand a second, once per animation
-    frame, so it renders once per batch.
+    engine. The clock's own tasks are unclamped, so the browser's few milliseconds for a nested
+    timer do not stretch its waits; it slows to the panel's speed for the last 2 s before a
+    scripted stop or hold; and the page takes the Worker's messages, about a thousand a second,
+    once per animation frame, so it renders once per batch.
   - **Link fixture.** A LAN link at 921 Mbit/s over HTTP/2, the kit's Continuous fixture
     (`TestScreen.jsx`), with the LAN's loaded delays.
   - **Test screen controls.** "Responsiveness" with the kit's five options (`RESP_OPTS`), each
