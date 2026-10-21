@@ -27170,7 +27170,11 @@
           "result/not-saved-missing",
           "result/ll-no-probe-path",
           "result/ll-no-steady-window",
-          "result/not-saved-partial"
+          "result/not-saved-partial",
+          "result/resp-uncertain",
+          "result/resp-needs-h2",
+          "result/resp-not-reported",
+          "result/resp-few-samples"
         ],
         "projects": null,
         "layer": "content",
@@ -27278,6 +27282,30 @@
           ]
         },
         "result/not-saved-partial": {
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/resp-few-samples": {
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/resp-needs-h2": {
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/resp-not-reported": {
+          "6577749debb0": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/resp-uncertain": {
           "6577749debb0": [
             "dark-desktop",
             "light-desktop"
@@ -70290,7 +70318,7 @@
     },
     {
       "id": "v03-result-resp-test-parameters",
-      "title": "Result detail in each Responsiveness case: the Test parameters card",
+      "title": "Result detail, protocol not reported: the Test parameters' Protocol row, the kit's \"— · not reported\" vs the spec's \"not reported\"",
       "match": {
         "scenarios": [
           "result/resp-uncertain",
@@ -70300,9 +70328,9 @@
         ],
         "projects": null,
         "layer": "content",
-        "path": "^(?!.*region \"(?:Share image|Text summary)\")(?=.*region \"Test parameters\")",
+        "path": "^main > complementary > region \"Test parameters\" > definition$",
         "kind": null,
-        "detail": null
+        "detail": "^text \"— · not reported\" → "
       },
       "type": "conflict",
       "aspect": "content",
@@ -70328,46 +70356,8 @@
         "on": "2026-10-20"
       },
       "owned": {
-        "result/resp-few-samples": {
-          "4616c3d72e69": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6577749debb0": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        },
-        "result/resp-needs-h2": {
-          "4616c3d72e69": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6577749debb0": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        },
         "result/resp-not-reported": {
-          "4616c3d72e69": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6577749debb0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "bf4212f7ee1e": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        },
-        "result/resp-uncertain": {
-          "4616c3d72e69": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6577749debb0": [
+          "d8ac25ab862e": [
             "dark-desktop",
             "light-desktop"
           ]
@@ -70377,15 +70367,20 @@
         {
           "target": "vue",
           "what": "web/src/components/result/parameters.ts: a protocol not reported reads \"not reported\", as screens.md, not \"Unknown\"; a browser without a version never reads \"unknown 0\".",
-          "done": false
+          "done": true
         },
         {
           "target": "adapter",
-          "what": "web/src/demo: the resp-* results record the demo browser (name and version), so their Test parameters show it; re-check the cross-origin isolation after v03-result-resp-run's fix.",
-          "done": false
+          "what": "web/src/demo: the resp-* results record the demo browser (name and version), so their Test parameters show it; re-check the cross-origin isolation after v03-result-resp-run's fix. Done: the browser is the demo's; the isolation is the preview server's, kept in v02-fixture-result-environment (the maintainer, 2026-10-21).",
+          "done": true
+        },
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: Result detail: a protocol not reported reads \"not reported\".",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
