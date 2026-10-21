@@ -28595,7 +28595,9 @@
           "result/ws-close",
           "result/ll-insufficient-samples",
           "result/ll-reservation-broken",
-          "result/not-saved-missing"
+          "result/not-saved-missing",
+          "result/continuous-2h",
+          "result/continuous-9d"
         ],
         "projects": null,
         "layer": "layout",
@@ -28639,6 +28641,28 @@
           ]
         },
         "result/clipboard-denied": {
+          "4acfa7a846fa": "*",
+          "a29bd7ad041a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a3954c60d730": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/continuous-2h": {
+          "4acfa7a846fa": "*",
+          "a29bd7ad041a": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a3954c60d730": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/continuous-9d": {
           "4acfa7a846fa": "*",
           "a29bd7ad041a": [
             "dark-narrow",
@@ -72717,6 +72741,153 @@
       "resolution": null
     },
     {
+      "id": "v03-result-continuous-axis-fixture",
+      "title": "Result detail of the 2 h and 9 d Continuous results: the chart's axis labels sit a few px right, after the demo run's wider rate scale",
+      "match": {
+        "scenarios": [
+          "result/continuous-2h",
+          "result/continuous-9d"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"(?:0|\\d+[mhd]|\\d+h\\d\\d)\"(?: #\\d+)?$",
+        "kind": "^x$",
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md",
+          "says": "silent"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
+          "says": "main > text \"0\" x 84px"
+        },
+        "vue": {
+          "ref": "web/src/pages/ResultDetailPage.vue",
+          "says": "main > text \"0\" x 91px"
+        },
+        "notes": "129 differences / 270 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer confirmed on 2026-10-21 that it is a fixture difference and kept it: the demo's run averages 921 Mbit/s, so its rate scale reads 1.20 Gbit/s, wider than the kit's 500 Mbit/s, and the plot starts further right (as fixture-chart-run-timing).",
+        "on": "2026-10-21"
+      },
+      "owned": {
+        "result/continuous-2h": {
+          "071b72956095": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3ddf4604a72c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "44979bbdaa59": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5291cae50125": "*",
+          "59372be9a1b9": "*",
+          "5cc2f18f4e6b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "623969c2f296": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "819dae765f71": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "d0368451c2d2": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "d4b5b762af13": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "dbe759b378fc": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e476e787b56a": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        },
+        "result/continuous-9d": {
+          "26a4c1e74859": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "365a0f0681fb": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "49012f95348f": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5291cae50125": "*",
+          "59372be9a1b9": "*",
+          "5dfc3e1f8608": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "6df8282a4a42": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "81861dd996aa": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "84629b51638f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "8ebb0f961f67": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ad7aa02ebdac": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "b7b10eb99765": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "bba18d3bae41": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "da14810b6efe": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f3c830bbc9b9": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f63096ab2f29": [
+            "dark-desktop",
+            "light-desktop"
+          ]
+        }
+      },
+      "actions": [],
+      "status": "accepted",
+      "resolution": null
+    },
+    {
       "id": "v03-result-continuous-data-used-notices",
       "title": "Result detail of the 2 h and 9 d Continuous results: the data-used notices",
       "match": {
@@ -72841,8 +73012,8 @@
       "resolution": null
     },
     {
-      "id": "v03-result-continuous-geometry",
-      "title": "Result detail of the 2 h and 9 d Continuous results: the rest of the page geometry",
+      "id": "v03-result-continuous-parameters-geometry",
+      "title": "Result detail of the 2 h and 9 d Continuous results: what moves with the Test parameters rows (the kit's Stored cells row and longer Streams value)",
       "match": {
         "scenarios": [
           "result/continuous-2h",
@@ -72850,56 +73021,36 @@
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "path": "^main > (?:list \"\"(?: #\\d+)?|region \"Test parameters\"|definition \"[^\"]*\"|term \"[^\"]*\"|heading \"[A-Z]+\"|main \"\"|complementary \"\")$",
         "kind": null,
         "detail": null
       },
       "type": "conflict",
-      "aspect": "style",
+      "aspect": "content",
       "evidence": {
         "spec": {
-          "ref": "docs/features/ui/screens.md",
-          "says": "silent"
+          "ref": "docs/features/ui/screens.md §2",
+          "says": "\"Test parameters: preset, phases and order, stream mode, count and plateau reason, ... data cap with the data used, ... browser\""
         },
         "kit": {
           "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx",
-          "says": "main > text \"0\" x 84px"
+          "says": "main > complementary > region \"Test parameters\": definition"
         },
         "vue": {
-          "ref": "web/src/pages/ResultDetailPage.vue",
-          "says": "main > text \"0\" x 91px"
+          "ref": "web/src/components/result/parameters.ts",
+          "says": "main > complementary > region \"Test parameters\": no definition"
         },
-        "notes": "129 differences / 270 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
+        "notes": "14 differences / 28 entries in 2 scenarios: result/continuous-2h, result/continuous-9d. Recommendation, not a decision: Spec wins, as the spec wins on behavior (docs/README.md precedence); the maintainer decides it in triage."
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals; what follows the fixture's own values is confirmed as fixture at fix time.",
-        "on": "2026-10-20"
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-21 that this geometry follows v03-result-continuous-test-parameters (spec wins: screens.md section 2's rows); it goes once the export carries that note.",
+        "on": "2026-10-21"
       },
       "owned": {
         "result/continuous-2h": {
-          "0041c9976455": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "0106ac55745a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "071b72956095": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "07c69e40296c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0c7d53718649": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0dccae6424bc": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -72907,98 +73058,23 @@
             "dark-desktop",
             "light-desktop"
           ],
-          "1459bfe37d9c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "1964eba9c5d1": [
             "dark-desktop",
             "light-desktop"
-          ],
-          "1f33c18e2da1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "20dd9e511678": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "27ef51746244": [
-            "dark-narrow",
-            "light-narrow"
           ],
           "287563ed6c02": [
             "dark-desktop",
             "light-desktop"
           ],
-          "2f33da0605b0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2f6cb1896c16": "*",
-          "325307777a67": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "36f56af94215": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "381810264f45": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3ddf4604a72c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "42d63c132a83": [
             "dark-desktop",
             "light-desktop"
           ],
-          "476b23d83909": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4acfa7a846fa": "*",
           "508f1abede92": [
             "dark-desktop",
             "light-desktop"
           ],
-          "5291cae50125": "*",
-          "5eca4f2a6930": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5f1da5bf219d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "60b0bca45ed4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6fc505f9df5f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "716616680517": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "7d41efabb494": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8133d1361890": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "87bb04db4a74": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8a02972223bd": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -73006,33 +73082,13 @@
             "dark-desktop",
             "light-desktop"
           ],
-          "8b696ee3f6b4": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8fbb4a13dd8f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "93a91bf40afa": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "99571b90c150": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9e14a4baec3c": [
             "dark-desktop",
             "light-desktop"
           ],
           "9e26e5d85d42": [
             "dark-desktop",
             "light-desktop"
-          ],
-          "9eb8732778e0": [
-            "dark-narrow",
-            "light-narrow"
           ],
           "9f6b70fa2bab": [
             "dark-desktop",
@@ -73042,63 +73098,7 @@
             "dark-narrow",
             "light-narrow"
           ],
-          "a0934e818692": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a29bd7ad041a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a3954c60d730": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a3c317d66b57": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "af95c1496338": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b0aa3a774185": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b301c974c1ac": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b7e6645cabe8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c287f1569524": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c78c880758b1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c89f23b52774": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "cbac8a6c3a9c": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cc92746d4e5b": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "cf4632d598c4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "d4b5b762af13": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -73106,127 +73106,25 @@
             "dark-desktop",
             "light-desktop"
           ],
-          "db514cd8ac31": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dec8cc20dfc0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e22f1bcce182": "*",
-          "e624a1c61fbb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "eb82c31a6480": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "f682f26193e7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f73ca11d03e4": [
             "dark-desktop",
             "light-desktop"
           ],
           "fafa0ee70ee6": [
             "dark-desktop",
             "light-desktop"
-          ],
-          "ff8a0846f30a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ffb827a88cf6": [
-            "dark-desktop",
-            "light-desktop"
           ]
         },
         "result/continuous-9d": {
-          "0041c9976455": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "0106ac55745a": [
             "dark-desktop",
             "light-desktop"
-          ],
-          "033fcfac9466": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "03df3384d34e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0c7d53718649": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0e8c9d8690d9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0ed6d57f04b9": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "1134e3fc3b96": [
-            "dark-narrow",
-            "light-narrow"
           ],
           "132bee29522b": [
             "dark-desktop",
             "light-desktop"
           ],
-          "16c09b69d5e8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "20860b3892a0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "220fb0d1c240": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "22fe3dc7c8eb": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "24b0c635a9bd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "287563ed6c02": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "2f6cb1896c16": "*",
-          "3112a7228dae": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "323dcc5818b0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "325307777a67": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "33605b38b245": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "365a0f0681fb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4053cdb4099b": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -73238,36 +73136,9 @@
             "dark-desktop",
             "light-desktop"
           ],
-          "4470d592ebbd": "*",
-          "49012f95348f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4acfa7a846fa": "*",
-          "4d25e4ed9f10": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4d260bdca44b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "508f1abede92": [
             "dark-desktop",
             "light-desktop"
-          ],
-          "51eb2d23eb25": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5291cae50125": "*",
-          "5dfc3e1f8608": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5eca4f2a6930": [
-            "dark-narrow",
-            "light-narrow"
           ],
           "60b0bca45ed4": [
             "dark-desktop",
@@ -73277,139 +73148,19 @@
             "dark-narrow",
             "light-narrow"
           ],
-          "6927d04d25aa": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6a58d05ea857": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "6df8282a4a42": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8ab773e45eea": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "8b3d53945021": [
             "dark-desktop",
             "light-desktop"
-          ],
-          "8e8ad8358e56": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8ebb0f961f67": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "8fbb4a13dd8f": [
-            "dark-narrow",
-            "light-narrow"
           ],
           "93a91bf40afa": [
             "dark-desktop",
             "light-desktop"
           ],
-          "93c372279b62": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "9505a71f3dfd": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "96d0144e93ae": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "9e26e5d85d42": [
             "dark-desktop",
             "light-desktop"
           ],
-          "9eb8732778e0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "9f6b70fa2bab": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a074003a72d0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a1f3bf866556": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a29bd7ad041a": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a325a43421e8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a3954c60d730": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a39b99088ed0": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "a3c317d66b57": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "aac22ad073d3": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ad9ab217f242": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b7e6645cabe8": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "b9aeb30c3328": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "bb9eb5c4298b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "bba18d3bae41": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c2f26d9f73cd": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c38c67dcc904": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c6d605a252ae": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c78c880758b1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "c89f23b52774": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "cbac8a6c3a9c": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -73417,47 +73168,7 @@
             "dark-desktop",
             "light-desktop"
           ],
-          "d9cf1a9e6a0a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "da14810b6efe": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "db514cd8ac31": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "de84fb4d5ecd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "df527e55d65a": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "e2f5b36f7d76": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e624a1c61fbb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e78d2d31c43e": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "ec9e6cda6709": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "f682f26193e7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "f73ca11d03e4": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -73469,17 +73180,12 @@
       },
       "actions": [
         {
-          "target": "vue",
-          "what": "web/src/pages/ResultPage.vue and web/src/components/result/: the Continuous Result detail takes the kit's geometry.",
-          "done": false
-        },
-        {
-          "target": "fixture",
-          "what": "At fix time, what follows the Continuous fixtures' own values (chart axes) is split into an accepted fixture cluster with the maintainer's confirmation.",
-          "done": false
+          "target": "upstream",
+          "what": "Covered by v03-result-continuous-test-parameters's note in design-system-upstream.md: the card's geometry follows its rows.",
+          "done": true
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "resolution": null
     },
     {
