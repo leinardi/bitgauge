@@ -93,8 +93,12 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    stopped direction stopped and why it has or has no value, and the phases that did not run:
    "Latency and download completed. Upload stopped at 14.0 s; in-flight requests were aborted,
    and the 21 requests confirmed by 13.1 s give the partial value.", "Latency completed. Download
-   stopped before a 3 s steady window, so it has no value. Upload did not run." The upload's
-   times are on its phase timeline from P_start, as its chart and events are. A stop during idle
+   stopped before a 3 s steady window, so it has no value. Upload did not run." When the stopped
+   direction had no latency probe, because the WebSocket closed and its reopening was never
+   answered (its loaded latency is `no-probe-path`), the body says so before where it stopped: "The
+   WebSocket closed and its reopening was never answered, so no latency probe could be sent during
+   the upload." The upload's times are on its phase timeline from P_start, as its chart and events
+   are. A stop during idle
    latency that keeps its samples gets the stop notice too, though no direction stopped and the
    result carries no `stopped-early` notice for it: titled "Test cancelled during latency", its
    body counts the pings sent and the warm-up ping and names the phases that did not run:
