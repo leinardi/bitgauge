@@ -38,8 +38,8 @@ const fail = (error: unknown) => self.reportError(error)
 const PRESS_STOP: DemoPressStop = { type: 'demo-press-stop' }
 const pressStop = () => self.postMessage(PRESS_STOP)
 
-// A fast-forward's clock runs each due timer in a task of its own: a message on a channel, which
-// the browser does not clamp as it clamps a nested zero timer.
+// A session's clock runs each due timer in a task of its own: a message on a channel, which the
+// browser does not clamp as it clamps a nested zero timer.
 const channel = new MessageChannel()
 const tasks: (() => void)[] = []
 channel.port1.onmessage = () => clock.task(() => tasks.shift()?.())

@@ -42,6 +42,8 @@ const CPU_BOUND_BUSY = 0.95
  * fast rate a timer fires seconds of demo time late, so the stop or hold would land past it.
  */
 const SLOW_BEFORE_MS = 2000
+/** How long, in real time, a scripted stop waits for the page to press Stop before the run goes on. */
+const PRESS_STOP_WAIT_MS = 1000
 
 export interface SessionOptions {
   /** The real-time clock the demo clock runs on. */
@@ -58,7 +60,7 @@ export interface SessionOptions {
   fail: (error: unknown) => void
   /** Asks the page to press Stop, at a scripted stop: the page, not the session, stops the run. */
   pressStop: () => void
-  /** Runs a task of its own, unclamped, for a fast-forward's clock; absent, a zero timer of `base`. */
+  /** Runs a task of its own, unclamped, for the session's scheduled clock; absent, a zero timer of `base`. */
   nextTask?: (fn: () => void) => void
 }
 
@@ -83,7 +85,9 @@ export class DemoSession {
       speed: command.speed * (fastForward ?? 1),
       resolutionMs: command.timerResolutionMs,
       busyFraction: command.cpuBound ? CPU_BOUND_BUSY : fastForward === undefined ? null : 0,
-      nextTask: fastForward === undefined ? null : (options.nextTask ?? ((fn) => options.base.setTimer(0, fn))),
+      // Every session's clock is scheduled, so a run reads event time and plays the same way each
+      // time, whatever the browser's timers do (frontend.md section 9).
+      nextTask: options.nextTask ?? ((fn) => options.base.setTimer(0, fn)),
     })
     const emit = (event: EngineEvent) => {
       if (this.ended) {
@@ -109,7 +113,12 @@ export class DemoSession {
 
   /** An engine command from the page. */
   receive(command: EngineCommand): void {
+    // The page's message arrives in real time; a scripted stop's answer lands on the stop's instant.
+    this.clock.sync()
     this.handle(command)
+    if (command.type === 'stop') {
+      this.clock.resume()
+    }
   }
 
   /** Ends the session for good: its clock holds, so a run in progress goes quiet where it is. */
@@ -143,7 +152,13 @@ export class DemoSession {
       }
     }
     slowBefore(stop)
-    after(stop, () => this.options.pressStop())
+    after(stop, () => {
+      // The run waits at the stop's instant for the page to press Stop, so the stop lands there
+      // however long the page takes; a page that never answers lets it go on after a second.
+      this.clock.pause()
+      this.options.base.setTimer(PRESS_STOP_WAIT_MS, () => this.clock.resume())
+      this.options.pressStop()
+    })
     after(fault, () => this.fault(fault?.kind ?? this.command.errorKind, fault?.uploads))
     if (this.link?.profile.protocol === 'h2') {
       gaps.forEach((gap) => after(gap, () => this.link?.failUploads(this.clock.now(), 1)))

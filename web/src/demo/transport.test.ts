@@ -66,7 +66,7 @@ describe('the demo clock', () => {
     expect(fired).toBe(false)
   })
 
-  it('runs a fast-forward’s timers each at its own instant, in a task of its own, never reading past the next', async () => {
+  it('runs a scheduled clock’s timers each at its own instant, in a task of its own, in event time', async () => {
     const base = new FakeClock()
     const clock = new DemoClock(base, { speed: 60, nextTask: (fn) => base.setTimer(0, fn) })
     const fired: [number, number][] = []
@@ -76,11 +76,35 @@ describe('the demo clock', () => {
     // A long real stretch: every timer reads its own instant, not the late one it ran at.
     await base.advance(50)
     expect(fired).toEqual([[1, 1], [3, 3], [10, 10]])
+    // The reading stays at the last timer's instant, however much real time has passed.
+    expect(clock.now()).toBe(10)
+    // A message from outside moves it on to real time, never past the next timer still to run.
+    clock.sync()
     expect(clock.now()).toBe(3000)
-    // The reading waits at the next timer still to run.
     clock.setTimer(100, () => fired.push([100, clock.now()]))
     base.pause(10)
+    clock.sync()
     expect(clock.now()).toBe(3100)
+  })
+
+  it('pauses a scheduled clock where it is until resumed, as if no real time had passed meanwhile', async () => {
+    const base = new FakeClock()
+    const clock = new DemoClock(base, { speed: 1, nextTask: (fn) => base.setTimer(0, fn) })
+    const fired: number[] = []
+    clock.setTimer(10, () => {
+      clock.pause()
+      fired.push(clock.now())
+    })
+    clock.setTimer(20, () => fired.push(clock.now()))
+    await base.advance(500)
+    expect(fired).toEqual([10])
+    clock.sync()
+    expect(clock.now()).toBe(10)
+    clock.resume()
+    await base.advance(5)
+    expect(fired).toEqual([10])
+    await base.advance(5)
+    expect(fired).toEqual([10, 20])
   })
 
   it('runs a fast-forward’s next timer when one before it throws', async () => {

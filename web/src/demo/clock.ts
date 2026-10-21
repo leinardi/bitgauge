@@ -21,11 +21,16 @@ import type { Clock, TimerId } from '@/engine/types'
 
 // The demo's Clock (frontend.md section 9): the wiring's real-time clock, run `speed` times faster,
 // so a scenario of half a minute plays in a few seconds. It can stand in for a slow timer or a busy
-// Worker, and hold still so that a screen stays in one state. A fast-forwarded scenario's clock
-// schedules its own timers: at sixty times real time the browser's clamp of a nested timer to a
-// few milliseconds would stretch every short wait by a quarter of a second of demo time, so each
-// due timer runs in a task of its own, in order of its instant, reading that instant, and the
-// reading never passes the next timer still to run. It can change its speed on the way.
+// Worker, and hold still so that a screen stays in one state. A scheduled clock runs its own
+// timers: each due timer runs in a task of its own, in order of its instant, reading that instant,
+// unclamped by the browser's few milliseconds for a nested timer. Its time is event time: it
+// moves from one timer's instant to the next, and stays there while the work that timer started
+// goes on, so a run reads the same instants however late the browser runs its tasks. Real time
+// only paces it, and only an outside message (sync) moves it on between timers. It can change its
+// speed on the way, and pause where it is until the page answers.
+
+/** The grid a scheduled clock's sync lands on, a whole multiple of every grid the demo counts on. */
+const SYNC_GRID_MS = 1000
 
 export interface DemoClockOptions {
   /** How many demo milliseconds pass per real one. */
@@ -35,8 +40,8 @@ export interface DemoClockOptions {
   /** The busy share of the elapsed time to report, instead of the real Worker's. */
   busyFraction?: number | null
   /**
-   * Runs `fn` in a task of its own, soon and unclamped, for the scheduled clock of a
-   * fast-forward; absent, the clock fires its timers on the base clock's.
+   * Runs `fn` in a task of its own, soon and unclamped, for a scheduled clock; absent, the clock
+   * fires its timers on the base clock's and reads real time.
    */
   nextTask?: ((fn: () => void) => void) | null
 }
@@ -58,6 +63,10 @@ export class DemoClock implements Clock {
   private readonly quantum: number | null
   private readonly busyFraction: number | null
   private heldAt: number | null = null
+  /** A scheduled clock's paused instant: it reads this and fires nothing until resumed. */
+  private pausedAt: number | null = null
+  /** A scheduled clock's event time: the instant of the last timer it ran, or of the last sync. */
+  private last = 0
   private nextTimer = 1
   /** Each timer's base timer, which a timer armed before a speed change replaces. */
   private readonly timers = new Map<TimerId, TimerId>()
@@ -89,6 +98,9 @@ export class DemoClock implements Clock {
   now(): number {
     if (this.heldAt !== null) {
       return this.heldAt
+    }
+    if (this.pausedAt !== null) {
+      return this.pausedAt
     }
     const reading = this.reading()
     return this.quantum === null ? reading : Math.floor(reading / this.quantum) * this.quantum
@@ -150,14 +162,47 @@ export class DemoClock implements Clock {
     if (!(speed > 0)) {
       throw new RangeError('the demo speed must be positive')
     }
-    this.offset = this.elapsed()
-    this.origin = this.base.now()
+    const at = this.nextTask === null ? this.elapsed() : this.reading()
     this.speed = speed
-    if (this.waiting !== null) {
-      this.base.clearTimer(this.waiting)
-      this.waiting = null
+    this.rebase(at)
+  }
+
+  /**
+   * Moves a scheduled clock's event time on to real time, never past its next timer: for a message
+   * from outside, which arrives in real time. It lands on a whole second, so a run started by it
+   * meets the same instants of everything the demo counts on a fixed grid (the transport's
+   * buckets, the link's ticks), wherever in the second the message arrived. A paused clock stays
+   * where it is.
+   */
+  sync(): void {
+    if (this.nextTask === null || this.firing !== null || this.pausedAt !== null) {
+      return
     }
-    this.wake()
+    const real = Math.ceil(this.elapsed() / SYNC_GRID_MS) * SYNC_GRID_MS
+    const next = this.queue[0]
+    this.last = Math.max(this.last, next === undefined ? real : Math.min(real, next.due))
+    // Ahead of real time, it paces on from there rather than waiting for real time to catch up.
+    if (this.last > this.elapsed()) {
+      this.rebase(this.last)
+    }
+  }
+
+  /** Stops a scheduled clock where it is until `resume`: it reads this instant and fires nothing. */
+  pause(): void {
+    if (this.nextTask !== null) {
+      this.pausedAt ??= this.reading()
+    }
+  }
+
+  /** Carries a paused clock on from its paused instant, as if no real time had passed meanwhile. */
+  resume(): void {
+    const at = this.pausedAt
+    if (at === null) {
+      return
+    }
+    this.pausedAt = null
+    this.last = at
+    this.rebase(at)
   }
 
   /** Stops time for good: every reading from now on is this instant, and no timer fires. */
@@ -165,24 +210,34 @@ export class DemoClock implements Clock {
     this.heldAt ??= this.now()
   }
 
+  /** Paces the clock from `at`, demo time, at the current speed from now on. */
+  private rebase(at: number): void {
+    this.offset = at
+    this.origin = this.base.now()
+    if (this.waiting !== null) {
+      this.base.clearTimer(this.waiting)
+      this.waiting = null
+    }
+    this.wake()
+  }
+
   /** The demo milliseconds since the clock started, unquantized. */
   private elapsed(): number {
     return this.offset + (this.base.now() - this.origin) * this.speed
   }
 
-  /** The unquantized reading: a scheduled clock's never passes its next timer still to run. */
+  /** The unquantized reading: real time, or a scheduled clock's event time. */
   private reading(): number {
-    if (this.firing !== null) {
-      return this.firing
+    if (this.nextTask === null) {
+      return this.elapsed()
     }
-    const next = this.queue[0]
-    return next === undefined ? this.elapsed() : Math.min(this.elapsed(), next.due)
+    return this.firing ?? this.last
   }
 
   /** Runs the next scheduled timer in a task of its own once it is due, or waits on the base clock until it is. */
   private wake(): void {
     const next = this.queue[0]
-    if (this.heldAt !== null || this.posted || next === undefined) {
+    if (this.heldAt !== null || this.pausedAt !== null || this.posted || next === undefined) {
       return
     }
     const left = next.due - this.elapsed()
@@ -205,12 +260,13 @@ export class DemoClock implements Clock {
 
   private fire(): void {
     const next = this.queue[0]
-    if (this.heldAt !== null || next === undefined) {
+    if (this.heldAt !== null || this.pausedAt !== null || next === undefined) {
       return
     }
     if (next.due <= this.elapsed()) {
       this.queue.shift()
       this.firing = next.due
+      this.last = next.due
       try {
         next.fn()
       } finally {
