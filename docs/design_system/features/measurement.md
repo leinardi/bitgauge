@@ -865,7 +865,7 @@ the Resource Timing `transferSize`, falling back to a +0.5 % header estimate
 - **Loss percentage** = lost pings ÷ the pings that ended with a sample or a loss, the warm-up
   excluded; a ping without timing and a ping still outstanding when the phase stops count in
   neither. This is a probe-timeout rate over TCP, not packet loss: TCP retransmits hide packet
-  loss from the browser, so it never feeds the packet-loss slot (§13, §18).
+  loss from the browser, so it is never reported as packet loss (§13, §18).
 - **Limits.** The phase stops after 30 s even if the count is not reached. With fewer than 5
   successful samples idle latency is `unavailable`; with all pings lost the test shows the
   `server unreachable` notice with retry.
@@ -1225,9 +1225,9 @@ with no number).
 
 ### 13.4 Packet-Loss Handling
 
-Packet loss is fixed at 0 points in every experience and displayed as "packet loss — not measured"
-in its reserved slot. Because a measured loss could only lower the points, the scores are an upper
-bound with respect to loss, and the UI notes this next to them.
+Packet loss is fixed at 0 points in every experience; the UI shows no packet-loss value (§18).
+Because a measured loss could only lower the points, the scores are an upper bound with respect to
+loss, and the UI notes this next to them.
 
 ### 13.5 Result Shape
 
@@ -1649,18 +1649,23 @@ CSV export flattens the same fields, one row per result.
 - The result contains the client IP and the user's label and note; export and share warnings are
   specified in [security.md](security.md).
 
-## 18. Future: Packet Loss via WebRTC/TURN
+## 18. Packet Loss
 
-Real packet loss needs unreliable datagrams. HTTP and WebSocket run over TCP (or QUIC with its own
+BitGauge does not measure packet loss, and the UI shows no packet-loss value or placeholder. Real
+packet loss needs unreliable datagrams. HTTP and WebSocket run over TCP (or QUIC with its own
 retransmission), which recovers lost packets and turns loss into latency, so the browser cannot see
-it. The only browser route is a WebRTC data channel in unreliable mode, relayed through a TURN
-server (Cloudflare's approach).
+it. The AIM scores fix loss at 0 points and are labeled an upper bound (§13.4), the result keeps
+`scores.packetLoss: "not-measured"` (§13.5), and the probe-timeout percentage of §10 is never
+presented as packet loss.
 
-It is deferred because it needs UDP ports and a TURN server: a second network surface beside the
-reverse proxy, which breaks the single-binary, proxy-only-TLS deployment model. Until then the
-result reserves a "packet loss — not measured" slot, the AIM scores fix loss at 0 points (§13.4),
-and the probe-timeout percentage of §10 is never presented as packet loss. It is listed under
-[Later](README.md#later-and-open-items).
+A browser reaches unreliable datagrams through a WebRTC data channel in unreliable mode or through
+WebTransport datagrams. Either needs a UDP port on the server beside the reverse proxy, which the
+single-port deployment with TLS at the proxy
+([technical-stack/decisions.md §25](technical-stack/decisions.md#25-tls--at-the-reverse-proxy-only))
+does not have, and replies sent from that port to the client's address, which the image's
+no-egress test rejects today; WebTransport also needs TLS in the binary. No TURN relay is needed on
+the LAN, homelab and VPN links BitGauge targets: the server can answer the data channel itself. That
+route, behind an opt-in UDP port, is listed under [Later](README.md#later-and-open-items).
 
 ## 19. Worked Timelines
 

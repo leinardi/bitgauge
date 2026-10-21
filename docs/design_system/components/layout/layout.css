@@ -65,15 +65,6 @@
 .mrow .val { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--fg); white-space: nowrap; margin: 0; }
 .mrow .val.empty { color: var(--fg-subtle); }
 .mrow .val.danger { color: var(--danger-fg); }
-/* A component value (e.g. NotMeasured): label and value share the first line; the sub line runs the full width
-   under them (icon column excepted), so a long reason never squeezes into a narrow column. */
-.mrow.node { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; column-gap: var(--space-2-5); row-gap: var(--space-0-5); padding: var(--space-2) 0; }
-.mrow.node .lb { display: contents; }
-.mrow.node .lb > span:first-child { grid-column: 2; grid-row: 1; align-self: center; }
-.mrow.node .ic { grid-column: 1; grid-row: 1; }
-.mrow.node .val { grid-column: 3; grid-row: 1; }
-.mrow.node .sub { grid-column: 2 / -1; grid-row: 2; text-wrap: pretty; }
-.mrow.node .sub .link { margin-left: var(--space-1); }
 .mlist.facts .mrow { justify-content: space-between; min-height: 0; padding: var(--space-2) 0; }
 
 .stat { display: flex; flex-direction: column; gap: var(--space-1-5); min-width: 0; }

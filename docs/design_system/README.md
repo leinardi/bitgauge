@@ -58,7 +58,7 @@ the server.
 - **dialog/** — `Dialog`, `Modal` (modal behaviour for custom dialogs: inert page, focus trap)
 - **charts/** — `Chart`, `PhaseChart`, `Format` (number formatting)
 - **gauge/** — `Gauge`
-- **measurement/** — `MetricTile`, `PhaseStep`, `PhaseIndicator`, `LoadCard`, `GradeBadge`, `QualityList`, `NotMeasured`, `SharePreview`, `LastResult`
+- **measurement/** — `MetricTile`, `PhaseStep`, `PhaseIndicator`, `LoadCard`, `GradeBadge`, `QualityList`, `SharePreview`, `LastResult`
 - **navigation/** — `AppHeader`, `TabBar`
 
 ### Intentional additions
@@ -80,7 +80,7 @@ Calm, exact, never breathless. BitGauge measures and reports; it never overclaim
 - **Second person, implied.** The UI addresses the user without "I" or "we": "Check the VPN, then retry."
 - **Verb-first actions:** "Start test", "Run again", "Retry test", "Download JSON", "Copy summary", "Import JSON".
 - **Every number carries its qualifier:** `low confidence`, `partial`, `insufficient data`. A direction without enough data shows no number.
-- **Say what can't be verified:** "HTTP loaded responsiveness — connection sharing not verifiable". Packet loss is "Not measured", never zero.
+- **Say what can't be verified:** "HTTP loaded responsiveness — connection sharing not verifiable".
 - **Toasts are short sentences with a period:** "Summary copied.", "Result deleted."
 - **Notices:** state the fact, then the reason: "Low confidence — upload: insufficient samples".
 - **Destructive confirms name the count and irreversibility:** "This removes 47 results from this browser. It can't be undone."

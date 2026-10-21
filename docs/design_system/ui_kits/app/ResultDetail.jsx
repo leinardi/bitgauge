@@ -218,7 +218,6 @@ class ResultDetail extends React.Component {
       if (c.level === 'low') return it('warn', 'triangle-alert', dn + ' confidence: low — ' + c.reasons.map(r => RSN[r][0]).join(', '), wu + '; ' + c.reasons.map(r => RSN[r][1]).join('; ') + '.');
       return it('ok', 'circle-check', dn + ' confidence: normal', wu + ' and the steady window covered ' + c.win + '.');
     };
-    const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', "Browsers can't see packet loss over TCP, so the quality scores are an upper bound.");
     // "Connection sharing not verifiable" is part of the responsiveness label (LoadCard), never a notice (screens.md §6).
     // Browser upload limit: any browser that paused between upload requests; always Firefox at ≥ 100 Mbit/s upload.
     const BUL = !cont && (PAUSES || (BRW.name === 'Firefox' && D.up >= 100e6));
@@ -231,10 +230,10 @@ class ResultDetail extends React.Component {
     const confGroups = cont ? [
       { h: 'Confidence', items: [confLine('down')] },
       { h: 'Notices', items: DU.map(v => it('info', 'database', 'Data used: ' + fmtB(v), 'Passed at ' + hms(CWU + v / (cAvg / OHF / 8)) + ' into the run.'))
-        .concat([N_LOSS], N_FB, N_RSV, N_OH) }
+        .concat(N_FB, N_RSV, N_OH) }
     ] : [
       { h: 'Confidence', items: [confLine('down'), stop ? it('warn', 'triangle-alert', 'Upload: insufficient data', 'Stopped at ' + USTOP.toFixed(1) + ' s, still in warm-up, before a 3 s confirmed steady window: no value and no loaded latency.') : confLine('up')] },
-      { h: 'Notices', items: (stop ? [it('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed.' + (npp ? ' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.' : '') + ' Upload stopped at ' + USTOP.toFixed(1) + ' s, so the grade and quality scores use download only.')] : []).concat(N_BUL,[N_LOSS], N_FB, N_RSV, N_OH) }
+      { h: 'Notices', items: (stop ? [it('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed.' + (npp ? ' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.' : '') + ' Upload stopped at ' + USTOP.toFixed(1) + ' s, so the grade and quality scores use download only.')] : []).concat(N_BUL, N_FB, N_RSV, N_OH) }
     ];
 
     const OHV = OH ? '+' + OHP + ' %' : 'None · 0 %';
@@ -546,7 +545,7 @@ class ResultDetail extends React.Component {
                   <DS.LoadCard grade={v.grade} gradeText={v.gradeWords} basis={v.gradeBasis} compact={v.mobile}
                     rows={(v.loadRows || []).map(r => ({ dir: r.icon === 'arrow-up' ? 'upload' : 'download', label: r.label, sub: r.sub, value: r.num }))}
                     responsiveness={v.respP} />
-                  <DS.QualityList packetLoss compact={v.mobile} bands={(v.fit || []).map(f => f.rating || null)} />
+                  <DS.QualityList compact={v.mobile} bands={(v.fit || []).map(f => f.rating || null)} />
                 </div>
                 <DS.Card as="section" labelledBy="conf-h" padded={false} icon="shield" title={<span id="conf-h">Confidence and notices</span>} actions={<><DS.StatusPill tone={v.conf?.tone}>{v.conf?.label}</DS.StatusPill></>}>
                   <div style={{ display: "grid", gridTemplateColumns: v.L?.confCols, gap: "0 var(--space-6)", padding: "var(--space-1) var(--space-4) var(--space-2)" }}>

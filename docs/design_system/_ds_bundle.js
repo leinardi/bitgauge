@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"Modal","sourcePath":"components/dialog/Modal.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"NOT_MEASURED_REASON","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasured","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"NotMeasuredWhy","sourcePath":"components/measurement/NotMeasured.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"ShareFormat","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"e8baf669ea0e","components/actions/Popover.jsx":"e2a614bde323","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"1af5604f8da1","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"8c64b796dbea","components/dialog/Dialog.jsx":"d768c4c46975","components/dialog/Modal.jsx":"6e5aa13fff4b","components/feedback/EmptyState.jsx":"e038cf24992f","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"66fa1ae08856","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"142490c65469","components/layout/MetaList.jsx":"13bccfd8f16e","components/layout/Snippet.jsx":"f97ccb08ea5c","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"28f15c708907","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/NotMeasured.jsx":"ba887db042f2","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"f0090c122a36","components/measurement/SharePreview.jsx":"7e1878e48e87","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"8b54ff1a11ae","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"0ae22280716b","ui_kits/app/App.jsx":"7f2dbfdb71a5","ui_kits/app/History.jsx":"3112ce1eb173","ui_kits/app/Nav.jsx":"a166adf577c2","ui_kits/app/Prototype.jsx":"9aeba164b758","ui_kits/app/ResultDetail.jsx":"3e236be5c849","ui_kits/app/Settings.jsx":"4124e21566a7","ui_kits/app/TestScreen.jsx":"66de4a0ca586","ui_kits/app/ds.js":"a055a6aa17f5","ui_kits/app/fixtures.js":"0b8698ad2f66"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"shareHasNumber","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"shareLoaded","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"shareQualifiers","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"shareSummary","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"useDismiss","sourcePath":"components/dialog/Modal.jsx"},{"name":"useKeepInView","sourcePath":"components/actions/Popover.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"},{"name":"useModal","sourcePath":"components/dialog/Modal.jsx"}]} */
+/* @ds-bundle: {"format":4,"namespace":"BitGaugeDesignSystem_1ab699","components":[{"name":"Button","sourcePath":"components/actions/Button.jsx"},{"name":"Link","sourcePath":"components/actions/Link.jsx"},{"name":"Menu","sourcePath":"components/actions/Menu.jsx"},{"name":"Popover","sourcePath":"components/actions/Popover.jsx"},{"name":"OptionRows","sourcePath":"components/actions/Popover.jsx"},{"name":"START_ROLES","sourcePath":"components/actions/StartButton.jsx"},{"name":"StartButton","sourcePath":"components/actions/StartButton.jsx"},{"name":"Tooltip","sourcePath":"components/actions/Tooltip.jsx"},{"name":"ICON_NAMES","sourcePath":"components/brand/Icon.jsx"},{"name":"Icon","sourcePath":"components/brand/Icon.jsx"},{"name":"Logo","sourcePath":"components/brand/Logo.jsx"},{"name":"Chart","sourcePath":"components/charts/Chart.jsx"},{"name":"Format","sourcePath":"components/charts/Format.jsx"},{"name":"PhaseChart","sourcePath":"components/charts/PhaseChart.jsx"},{"name":"Dialog","sourcePath":"components/dialog/Dialog.jsx"},{"name":"Modal","sourcePath":"components/dialog/Modal.jsx"},{"name":"EmptyState","sourcePath":"components/feedback/EmptyState.jsx"},{"name":"FullScreenError","sourcePath":"components/feedback/FullScreenError.jsx"},{"name":"LiveRegion","sourcePath":"components/feedback/LiveRegion.jsx"},{"name":"Notice","sourcePath":"components/feedback/Notice.jsx"},{"name":"SaveBar","sourcePath":"components/feedback/SaveBar.jsx"},{"name":"Skeleton","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"SkeletonRows","sourcePath":"components/feedback/Skeleton.jsx"},{"name":"Toast","sourcePath":"components/feedback/Toast.jsx"},{"name":"ToastRegion","sourcePath":"components/feedback/Toast.jsx"},{"name":"Checkbox","sourcePath":"components/forms/Checkbox.jsx"},{"name":"ChoiceCard","sourcePath":"components/forms/Checkbox.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"},{"name":"FieldError","sourcePath":"components/forms/Input.jsx"},{"name":"Segmented","sourcePath":"components/forms/Segmented.jsx"},{"name":"Select","sourcePath":"components/forms/Select.jsx"},{"name":"Switch","sourcePath":"components/forms/Switch.jsx"},{"name":"Toggle","sourcePath":"components/forms/Toggle.jsx"},{"name":"Gauge","sourcePath":"components/gauge/Gauge.jsx"},{"name":"Card","sourcePath":"components/layout/Card.jsx"},{"name":"MetaList","sourcePath":"components/layout/MetaList.jsx"},{"name":"Stat","sourcePath":"components/layout/MetaList.jsx"},{"name":"Snippet","sourcePath":"components/layout/Snippet.jsx"},{"name":"Table","sourcePath":"components/layout/Table.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"GRADES","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"GradeBadge","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"LoadCard","sourcePath":"components/measurement/LoadCard.jsx"},{"name":"MetricTile","sourcePath":"components/measurement/MetricTile.jsx"},{"name":"PhaseStep","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"PhaseIndicator","sourcePath":"components/measurement/PhaseStep.jsx"},{"name":"QUALITY","sourcePath":"components/measurement/QualityList.jsx"},{"name":"QualityList","sourcePath":"components/measurement/QualityList.jsx"},{"name":"ShareFormat","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"SharePreview","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"LastResult","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"AppHeader","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"TabBar","sourcePath":"components/navigation/AppHeader.jsx"},{"name":"Chip","sourcePath":"components/status/Chip.jsx"},{"name":"ChangedMark","sourcePath":"components/status/Chip.jsx"},{"name":"StatusBadge","sourcePath":"components/status/StatusBadge.jsx"},{"name":"StatusPill","sourcePath":"components/status/StatusPill.jsx"}],"sourceHashes":{"components/actions/Button.jsx":"f7a49350c080","components/actions/Link.jsx":"2633fcb90896","components/actions/Menu.jsx":"e8baf669ea0e","components/actions/Popover.jsx":"e2a614bde323","components/actions/StartButton.jsx":"1356c59ca200","components/actions/Tooltip.jsx":"0bc60894a915","components/brand/Icon.jsx":"029223402d1f","components/brand/Logo.jsx":"d4aac5c5df39","components/charts/Chart.jsx":"1af5604f8da1","components/charts/Format.jsx":"5c8483e78462","components/charts/PhaseChart.jsx":"8c64b796dbea","components/dialog/Dialog.jsx":"d768c4c46975","components/dialog/Modal.jsx":"6e5aa13fff4b","components/feedback/EmptyState.jsx":"e038cf24992f","components/feedback/FullScreenError.jsx":"0b1999d95cf0","components/feedback/LiveRegion.jsx":"3cdb76b971ab","components/feedback/Notice.jsx":"5cf3342e6d4c","components/feedback/SaveBar.jsx":"ee5a6b66e9a4","components/feedback/Skeleton.jsx":"55d36fb5b863","components/feedback/Toast.jsx":"626cb82bbc31","components/forms/Checkbox.jsx":"dc5d82edf5a2","components/forms/Input.jsx":"a77ea86374cf","components/forms/Segmented.jsx":"412eda6836d1","components/forms/Select.jsx":"66fa1ae08856","components/forms/Switch.jsx":"ce1b5ae90a90","components/forms/Toggle.jsx":"85f15c6fd4bf","components/gauge/Gauge.jsx":"890b7975f4bc","components/layout/Card.jsx":"142490c65469","components/layout/MetaList.jsx":"c8a0c11689b3","components/layout/Snippet.jsx":"f97ccb08ea5c","components/layout/Table.jsx":"8ef4e1d9f2b6","components/layout/Tabs.jsx":"48a81a6e8ddf","components/measurement/LoadCard.jsx":"28f15c708907","components/measurement/MetricTile.jsx":"6ec0152f0464","components/measurement/PhaseStep.jsx":"187e6a530359","components/measurement/QualityList.jsx":"29155c415f6e","components/measurement/SharePreview.jsx":"7e1878e48e87","components/navigation/AppHeader.jsx":"343a8bd0dee7","components/status/Chip.jsx":"07fe04e63110","components/status/StatusBadge.jsx":"eed007bc9c6c","components/status/StatusPill.jsx":"83950619d33c","ui_kits/app/About.jsx":"0ae22280716b","ui_kits/app/App.jsx":"7f2dbfdb71a5","ui_kits/app/History.jsx":"3112ce1eb173","ui_kits/app/Nav.jsx":"a166adf577c2","ui_kits/app/Prototype.jsx":"9aeba164b758","ui_kits/app/ResultDetail.jsx":"c52557989751","ui_kits/app/Settings.jsx":"4124e21566a7","ui_kits/app/TestScreen.jsx":"78afdf915735","ui_kits/app/ds.js":"2d8374bd3e49","ui_kits/app/fixtures.js":"0b8698ad2f66"},"inlinedExternals":[],"unexposedExports":[{"name":"chartGeometry","sourcePath":"components/charts/Chart.jsx"},{"name":"placeTopLabels","sourcePath":"components/charts/Chart.jsx"},{"name":"shareHasNumber","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"shareLoaded","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"shareQualifiers","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"shareSummary","sourcePath":"components/measurement/SharePreview.jsx"},{"name":"useDismiss","sourcePath":"components/dialog/Modal.jsx"},{"name":"useKeepInView","sourcePath":"components/actions/Popover.jsx"},{"name":"useLabelMetrics","sourcePath":"components/charts/Chart.jsx"},{"name":"useModal","sourcePath":"components/dialog/Modal.jsx"}]} */
 
 (() => {
 
@@ -2621,7 +2621,7 @@ function MetaList({
       gridTemplateColumns: 'repeat(' + columns + ', minmax(0, 1fr))'
     } : undefined
   }, rows.map((r, i) => /*#__PURE__*/React.createElement("div", {
-    className: 'mrow' + (r.node ? ' node' : ''),
+    className: "mrow",
     key: r.key || i
   }, r.icon ? /*#__PURE__*/React.createElement("span", {
     className: "ic",
@@ -2633,9 +2633,7 @@ function MetaList({
     className: "lb"
   }, /*#__PURE__*/React.createElement("span", null, r.label), r.sub ? /*#__PURE__*/React.createElement("span", {
     className: "sub"
-  }, r.sub) : null), r.node ? /*#__PURE__*/React.createElement("dd", {
-    className: "val"
-  }, r.node) : /*#__PURE__*/React.createElement("dd", {
+  }, r.sub) : null), /*#__PURE__*/React.createElement("dd", {
     className: 'val' + (r.value == null || r.value === '—' ? ' empty' : '') + (r.tone === 'danger' ? ' danger' : '')
   }, r.value ?? '—'))));
   if (!title) return list;
@@ -3153,13 +3151,12 @@ const DEF = {
 function StatusBadge({
   tone = 'neutral',
   icon,
-  dashed = false,
   size = 'md',
   children,
   ...rest
 }) {
   return /*#__PURE__*/React.createElement("span", _extends({
-    className: 'sbadge ' + tone + (dashed ? ' dashed' : '') + (size === 'sm' ? ' sm' : '')
+    className: 'sbadge ' + tone + (size === 'sm' ? ' sm' : '')
   }, rest), /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: icon || DEF[tone],
     size: size === 'sm' ? 12 : 13,
@@ -3168,41 +3165,6 @@ function StatusBadge({
 }
 Object.assign(__ds_scope, { StatusBadge });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/status/StatusBadge.jsx", error: String((e && e.message) || e) }); }
-
-// components/measurement/NotMeasured.jsx
-try { (() => {
-// The reason is also shown as visible text by the slot (MetaList row `sub`): a tooltip is not seen on touch.
-const NOT_MEASURED_REASON = "Browsers can't see packet loss over TCP";
-function NotMeasured({
-  href = '#',
-  reason = NOT_MEASURED_REASON,
-  link = true
-}) {
-  return /*#__PURE__*/React.createElement("span", {
-    className: "notmeasured"
-  }, /*#__PURE__*/React.createElement(__ds_scope.StatusBadge, {
-    tone: "neutral",
-    dashed: true,
-    size: "sm",
-    title: reason
-  }, "Not measured"), link ? /*#__PURE__*/React.createElement(NotMeasuredWhy, {
-    href: href,
-    reason: reason
-  }) : null);
-}
-// The "Why?" link alone, to sit after the visible reason line (MetaList row `sub`).
-function NotMeasuredWhy({
-  href = '#',
-  reason = NOT_MEASURED_REASON
-}) {
-  return /*#__PURE__*/React.createElement(__ds_scope.Link, {
-    href: href,
-    title: reason,
-    "aria-label": 'Why packet loss is not measured: ' + reason
-  }, "Why?");
-}
-Object.assign(__ds_scope, { NOT_MEASURED_REASON, NotMeasured, NotMeasuredWhy });
-})(); } catch (e) { __ds_ns.__errors.push({ path: "components/measurement/NotMeasured.jsx", error: String((e && e.message) || e) }); }
 
 // components/measurement/QualityList.jsx
 try { (() => {
@@ -3234,7 +3196,6 @@ function QualityList({
   bands = [],
   missing = [],
   basis,
-  packetLoss = false,
   compact = false,
   className,
   style
@@ -3265,16 +3226,7 @@ function QualityList({
     }, b) : /*#__PURE__*/React.createElement("span", {
       className: "none"
     }, (Array.isArray(missing) ? missing[i] : missing) || '—'));
-  }), packetLoss ? /*#__PURE__*/React.createElement("div", {
-    className: "qrow"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "ic"
-  }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
-    name: "signal",
-    size: 16
-  })), /*#__PURE__*/React.createElement("span", {
-    className: "lb"
-  }, "Packet loss"), /*#__PURE__*/React.createElement(__ds_scope.NotMeasured, null)) : null, /*#__PURE__*/React.createElement("span", {
+  }), /*#__PURE__*/React.createElement("span", {
     className: "foot"
   }, /*#__PURE__*/React.createElement(__ds_scope.Icon, {
     name: "info",
@@ -8299,7 +8251,6 @@ class ResultDetail extends React.Component {
       if (c.level === 'low') return it('warn', 'triangle-alert', dn + ' confidence: low — ' + c.reasons.map(r => RSN[r][0]).join(', '), wu + '; ' + c.reasons.map(r => RSN[r][1]).join('; ') + '.');
       return it('ok', 'circle-check', dn + ' confidence: normal', wu + ' and the steady window covered ' + c.win + '.');
     };
-    const N_LOSS = it('neutral', 'circle-dashed', 'Packet loss not measured', "Browsers can't see packet loss over TCP, so the quality scores are an upper bound.");
     // "Connection sharing not verifiable" is part of the responsiveness label (LoadCard), never a notice (screens.md §6).
     // Browser upload limit: any browser that paused between upload requests; always Firefox at ≥ 100 Mbit/s upload.
     const BUL = !cont && (PAUSES || BRW.name === 'Firefox' && D.up >= 100e6);
@@ -8317,13 +8268,13 @@ class ResultDetail extends React.Component {
       items: [confLine('down')]
     }, {
       h: 'Notices',
-      items: DU.map(v => it('info', 'database', 'Data used: ' + fmtB(v), 'Passed at ' + hms(CWU + v / (cAvg / OHF / 8)) + ' into the run.')).concat([N_LOSS], N_FB, N_RSV, N_OH)
+      items: DU.map(v => it('info', 'database', 'Data used: ' + fmtB(v), 'Passed at ' + hms(CWU + v / (cAvg / OHF / 8)) + ' into the run.')).concat(N_FB, N_RSV, N_OH)
     }] : [{
       h: 'Confidence',
       items: [confLine('down'), stop ? it('warn', 'triangle-alert', 'Upload: insufficient data', 'Stopped at ' + USTOP.toFixed(1) + ' s, still in warm-up, before a 3 s confirmed steady window: no value and no loaded latency.') : confLine('up')]
     }, {
       h: 'Notices',
-      items: (stop ? [it('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed.' + (npp ? ' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.' : '') + ' Upload stopped at ' + USTOP.toFixed(1) + ' s, so the grade and quality scores use download only.')] : []).concat(N_BUL, [N_LOSS], N_FB, N_RSV, N_OH)
+      items: (stop ? [it('neutral', 'circle-minus', 'Test cancelled during upload', 'Latency and download completed.' + (npp ? ' The WebSocket closed ' + WSL + ' s into the download and its reopening was never answered, so no latency probe could be sent during the upload.' : '') + ' Upload stopped at ' + USTOP.toFixed(1) + ' s, so the grade and quality scores use download only.')] : []).concat(N_BUL, N_FB, N_RSV, N_OH)
     }];
     const OHV = OH ? '+' + OHP + ' %' : 'None · 0 %';
     const P = (h, rows) => ({
@@ -9439,7 +9390,6 @@ class ResultDetail extends React.Component {
       })),
       responsiveness: v.respP
     }), /*#__PURE__*/React.createElement(DS.QualityList, {
-      packetLoss: true,
       compact: v.mobile,
       bands: (v.fit || []).map(f => f.rating || null)
     })), /*#__PURE__*/React.createElement(DS.Card, {
@@ -12539,12 +12489,34 @@ class TestScreen extends React.Component {
         none: null
       };
     });
-    // Packet loss slot (screens.md §6): the reason is a visible sub line, not only a tooltip (not seen on touch).
-    const PL = {
-      icon: 'signal',
-      label: 'Packet loss',
-      sub: DS.NOT_MEASURED_REASON,
-      na: true
+    // Browser row: "<name> <major> · <os>". Known at page load, so it shows in every state; a shown result uses its own client.browser.
+    const CLIENT = {
+      browser: {
+        Chrome: {
+          name: 'Chrome',
+          major: 130,
+          os: 'Linux'
+        },
+        Safari: {
+          name: 'Safari',
+          major: 18,
+          os: 'macOS'
+        },
+        Edge: {
+          name: 'Edge',
+          major: 130,
+          os: 'Windows'
+        }
+      }[this.props.browser] || {
+        name: 'Firefox',
+        major: 131,
+        os: 'Linux'
+      }
+    };
+    const BR = {
+      icon: 'globe',
+      label: 'Browser',
+      browser: true
     };
     const meta = (data, dataSub, dur, durSub) => [{
       icon: 'database',
@@ -12558,7 +12530,7 @@ class TestScreen extends React.Component {
       sub: durSub,
       value: dur,
       vc: dur === '—' ? 'var(--fg-subtle)' : 'var(--fg)'
-    }, PL];
+    }, BR];
     // Notice props (notices.md): the tone decides surface and role (danger → alert); screens pass nothing else.
     const N = (tone, icon, title, body, actions) => ({
       tone,
@@ -14051,7 +14023,7 @@ class TestScreen extends React.Component {
               sub: 'measured at start',
               value: LATD,
               vc: 'var(--fg)'
-            }, PL],
+            }, BR],
             notices: [N('neutral', 'circle-minus', 'Continuous run stopped during warm-up', 'Stopped at 6.2 s, before warm-up ended (at the latest 10 s). Warm-up samples are left out of averages, so the run has no steady value.')],
             btn: BTN.again,
             partial: {
@@ -14212,7 +14184,7 @@ class TestScreen extends React.Component {
                 sub: RL ? 'stopped by you · planned ' + rlS : 'stopped by you',
                 value: elS,
                 vc: 'var(--fg)'
-              }, mm, idleM, PL],
+              }, mm, idleM, BR],
               notices: DUv.map(DUN),
               btn: BTN.again,
               saved: {
@@ -14276,7 +14248,7 @@ class TestScreen extends React.Component {
               sub: RL ? 'of ' + rlS + ' · ends 16:44' : 'no run length set',
               value: elS,
               vc: 'var(--fg)'
-            }, mm, idleM, PL],
+            }, mm, idleM, BR],
             notices: [DUN(DUv[DUv.length - 1])],
             btn: BTN.stop,
             cont: true
@@ -14657,11 +14629,10 @@ class TestScreen extends React.Component {
       style: {
         gridColumn: S.metaSpan || L.metaSpan
       },
-      rows: S.meta.map(r => r.na ? {
+      rows: S.meta.map(r => r.browser ? {
         icon: r.icon,
         label: r.label,
-        sub: r.sub,
-        node: 'NM'
+        value: (S.client || CLIENT).browser.name + ' ' + (S.client || CLIENT).browser.major + ' · ' + (S.client || CLIENT).browser.os
       } : {
         icon: r.icon,
         label: r.label,
@@ -15029,14 +15000,7 @@ class TestScreen extends React.Component {
       }
     }, v.tiles.map((t, i) => /*#__PURE__*/React.createElement(DS.MetricTile, _extends({
       key: i
-    }, t))), v.load ? /*#__PURE__*/React.createElement(DS.LoadCard, v.load) : null, v.fit ? /*#__PURE__*/React.createElement(DS.QualityList, v.fit) : null, /*#__PURE__*/React.createElement(DS.MetaList, _extends({}, v.meta, {
-      rows: v.meta.rows.map(r => r.node === 'NM' ? Object.assign({}, r, {
-        node: /*#__PURE__*/React.createElement(DS.NotMeasured, {
-          link: false
-        }),
-        sub: /*#__PURE__*/React.createElement(React.Fragment, null, r.sub, /*#__PURE__*/React.createElement(DS.NotMeasuredWhy, null))
-      }) : r)
-    }))), v.lastLine ? /*#__PURE__*/React.createElement(DS.LastResult, {
+    }, t))), v.load ? /*#__PURE__*/React.createElement(DS.LoadCard, v.load) : null, v.fit ? /*#__PURE__*/React.createElement(DS.QualityList, v.fit) : null, /*#__PURE__*/React.createElement(DS.MetaList, v.meta)), v.lastLine ? /*#__PURE__*/React.createElement(DS.LastResult, {
       when: "2 h ago",
       values: "\u2193 612 \xB7 \u2191 438 Mbit/s \xB7 3.1 ms",
       label: "Home Wi-Fi"
@@ -15147,8 +15111,8 @@ try { (() => {
   if (!me || !me.hasAttribute('data-kit')) return;
   const NS = 'BitGaugeDesignSystem_1ab699';
   const ROOT = me.getAttribute('data-root') || '../../';
-  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'NotMeasured', 'NotMeasuredWhy', 'NOT_MEASURED_REASON', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'ShareFormat', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart', 'Modal'];
-  const FILES = ['brand/Icon', 'brand/Logo', 'status/StatusPill', 'status/StatusBadge', 'status/Chip', 'actions/Link', 'actions/Tooltip', 'actions/Button', 'actions/StartButton', 'dialog/Modal', 'actions/Menu', 'actions/Popover', 'forms/Input', 'forms/Select', 'forms/Segmented', 'forms/Switch', 'forms/Toggle', 'forms/Checkbox', 'layout/Card', 'layout/Tabs', 'layout/Table', 'layout/MetaList', 'layout/Snippet', 'feedback/Notice', 'feedback/Toast', 'feedback/EmptyState', 'feedback/Skeleton', 'feedback/LiveRegion', 'feedback/SaveBar', 'feedback/FullScreenError', 'dialog/Dialog', 'charts/Format', 'charts/Chart', 'charts/PhaseChart', 'gauge/Gauge', 'measurement/MetricTile', 'measurement/PhaseStep', 'measurement/LoadCard', 'measurement/NotMeasured', 'measurement/QualityList', 'measurement/SharePreview', 'navigation/AppHeader'];
+  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'ShareFormat', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart', 'Modal'];
+  const FILES = ['brand/Icon', 'brand/Logo', 'status/StatusPill', 'status/StatusBadge', 'status/Chip', 'actions/Link', 'actions/Tooltip', 'actions/Button', 'actions/StartButton', 'dialog/Modal', 'actions/Menu', 'actions/Popover', 'forms/Input', 'forms/Select', 'forms/Segmented', 'forms/Switch', 'forms/Toggle', 'forms/Checkbox', 'layout/Card', 'layout/Tabs', 'layout/Table', 'layout/MetaList', 'layout/Snippet', 'feedback/Notice', 'feedback/Toast', 'feedback/EmptyState', 'feedback/Skeleton', 'feedback/LiveRegion', 'feedback/SaveBar', 'feedback/FullScreenError', 'dialog/Dialog', 'charts/Format', 'charts/Chart', 'charts/PhaseChart', 'gauge/Gauge', 'measurement/MetricTile', 'measurement/PhaseStep', 'measurement/LoadCard', 'measurement/QualityList', 'measurement/SharePreview', 'navigation/AppHeader'];
   window.DS_READY = (async () => {
     const ns = window[NS];
     if (ns && NEED.every(k => ns[k])) {
@@ -15610,12 +15574,6 @@ __ds_ns.GradeBadge = __ds_scope.GradeBadge;
 __ds_ns.LoadCard = __ds_scope.LoadCard;
 
 __ds_ns.MetricTile = __ds_scope.MetricTile;
-
-__ds_ns.NOT_MEASURED_REASON = __ds_scope.NOT_MEASURED_REASON;
-
-__ds_ns.NotMeasured = __ds_scope.NotMeasured;
-
-__ds_ns.NotMeasuredWhy = __ds_scope.NotMeasuredWhy;
 
 __ds_ns.PhaseStep = __ds_scope.PhaseStep;
 

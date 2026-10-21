@@ -202,12 +202,13 @@ class TestScreen extends React.Component {
       if (!q || q[i] == null) return { label, icon, rating: null, none: nn || '—' };
       const Q = BG.QUALITY[q[i]]; return { label, icon, rating: q[i], cls: 'sbadge ' + Q.tone, ricon: Q.icon, none: null };
     });
-    // Packet loss slot (screens.md §6): the reason is a visible sub line, not only a tooltip (not seen on touch).
-    const PL = { icon: 'signal', label: 'Packet loss', sub: DS.NOT_MEASURED_REASON, na: true };
+    // Browser row: "<name> <major> · <os>". Known at page load, so it shows in every state; a shown result uses its own client.browser.
+    const CLIENT = { browser: { Chrome: { name: 'Chrome', major: 130, os: 'Linux' }, Safari: { name: 'Safari', major: 18, os: 'macOS' }, Edge: { name: 'Edge', major: 130, os: 'Windows' } }[this.props.browser] || { name: 'Firefox', major: 131, os: 'Linux' } };
+    const BR = { icon: 'globe', label: 'Browser', browser: true };
     const meta = (data, dataSub, dur, durSub) => [
       { icon: 'database', label: 'Data used', sub: dataSub, value: data, vc: data === '—' ? 'var(--fg-subtle)' : 'var(--fg)' },
       { icon: 'timer', label: 'Duration', sub: durSub, value: dur, vc: dur === '—' ? 'var(--fg-subtle)' : 'var(--fg)' },
-      PL
+      BR
     ];
     // Notice props (notices.md): the tone decides surface and role (danger → alert); screens pass nothing else.
     const N = (tone, icon, title, body, actions) => ({ tone, icon, title, body, actions: actions || [] });
@@ -519,7 +520,7 @@ class TestScreen extends React.Component {
           { icon: 'timer', label: 'Elapsed', sub: 'stopped during warm-up', value: '0:06', vc: 'var(--fg)' },
           { icon: 'arrow-up-down', label: 'Min / max', sub: 'download, 1 s cells', value: '—', vc: 'var(--fg-subtle)' },
           { icon: 'activity', label: 'Idle latency', sub: 'measured at start', value: LATD, vc: 'var(--fg)' },
-          PL
+          BR
         ],
         notices: [N('neutral', 'circle-minus', 'Continuous run stopped during warm-up', 'Stopped at 6.2 s, before warm-up ended (at the latest 10 s). Warm-up samples are left out of averages, so the run has no steady value.')],
         btn: BTN.again, partial: { kind: 'partial', keep: true }
@@ -569,7 +570,7 @@ class TestScreen extends React.Component {
             load: load(g, [lrow('down', K.ll, { p90: 27, tail: 'last hour' })], respB(1380, null, true), BG.GRADES[g].text),
             fit: fit(aim(IDLE.v, IDLE.jit, K.av, inc)), fitBasis: 'download only', dl: K.av,
             loadSpan: m ? 'span 2' : 'span 3', fitSpan: m ? 'span 2' : 'span 2',
-            meta: [{ icon: 'timer', label: 'Duration', sub: RL ? 'stopped by you · planned ' + rlS : 'stopped by you', value: elS, vc: 'var(--fg)' }, mm, idleM, PL],
+            meta: [{ icon: 'timer', label: 'Duration', sub: RL ? 'stopped by you · planned ' + rlS : 'stopped by you', value: elS, vc: 'var(--fg)' }, mm, idleM, BR],
             notices: DUv.map(DUN), btn: BTN.again, saved: { iso: '2026-10-12T13:26:40.000Z', label: '', chips: ['LAN', 'Home Wi-Fi', 'Office'] },
             share: { blocks: [{ dir: 'download', bps: K.av }], loaded: { inc: '+' + fms(inc) + ' ms', dir: 'download' } },
             sum: { st: 'done', down: 'Download average ' + sayR(K.av) + ', run-wide minimum ' + sayR(K.mn) + ', maximum ' + sayR(K.mx) + ', peak ' + sayR(K.p90) + ' p90, last hour', up: 'Upload not run', used: BG.bytes(CU) }
@@ -586,7 +587,7 @@ class TestScreen extends React.Component {
             msT('Loaded latency', 'activity', K.ll, 'last-minute median'),
             dataT
           ],
-          meta: [{ icon: 'timer', label: 'Elapsed', sub: RL ? 'of ' + rlS + ' · ends 16:44' : 'no run length set', value: elS, vc: 'var(--fg)' }, mm, idleM, PL],
+          meta: [{ icon: 'timer', label: 'Elapsed', sub: RL ? 'of ' + rlS + ' · ends 16:44' : 'no run length set', value: elS, vc: 'var(--fg)' }, mm, idleM, BR],
           notices: [DUN(DUv[DUv.length - 1])], btn: BTN.stop, cont: true
         });
         S.cont = true;
@@ -697,7 +698,7 @@ class TestScreen extends React.Component {
     const fitP = S.fit ? { bands: S.fit.map(f => f.rating || null), missing: S.fit.map(f => f.none || '—'), basis: S.fitBasis || undefined, compact: m, style: { gridColumn: S.fitSpan || L.fitSpan } } : null;
     const mcols = S.metaCols ? +((S.metaCols.match(/repeat\((\d+)/) || [0, 1])[1]) : 1;
     const metaP = { title: S.metaTitle || 'Test', compact: m, columns: mcols, style: { gridColumn: S.metaSpan || L.metaSpan },
-      rows: S.meta.map(r => r.na ? { icon: r.icon, label: r.label, sub: r.sub, node: 'NM' } : { icon: r.icon, label: r.label, sub: r.sub || undefined, value: r.value }) };
+      rows: S.meta.map(r => r.browser ? { icon: r.icon, label: r.label, value: ((S.client || CLIENT).browser).name + ' ' + ((S.client || CLIENT).browser).major + ' · ' + ((S.client || CLIENT).browser).os } : { icon: r.icon, label: r.label, sub: r.sub || undefined, value: r.value }) };
     // Continuous keeps its own sentences and rate.
     const PH = { continuous: 'Continuous download running.', 'cont-upload': 'Continuous upload running.', 'cont-warmup': 'Continuous run stopped during warm-up. Partial results were not saved.', 'cont-done': 'Continuous run stopped. Saved to history.' };
     const phMsg = PH[st] || S.ph || '';
@@ -796,7 +797,7 @@ class TestScreen extends React.Component {
               {v.tiles.map((t, i) => <DS.MetricTile key={i} {...t} />)}
               {v.load ? <DS.LoadCard {...v.load} /> : null}
               {v.fit ? <DS.QualityList {...v.fit} /> : null}
-              <DS.MetaList {...v.meta} rows={v.meta.rows.map(r => r.node === 'NM' ? Object.assign({}, r, { node: <DS.NotMeasured link={false} />, sub: <React.Fragment>{r.sub}<DS.NotMeasuredWhy /></React.Fragment> }) : r)} />
+              <DS.MetaList {...v.meta} />
             </section>
             {v.lastLine ? <DS.LastResult when="2 h ago" values="↓ 612 · ↑ 438 Mbit/s · 3.1 ms" label="Home Wi-Fi" /> : null}
           </main>

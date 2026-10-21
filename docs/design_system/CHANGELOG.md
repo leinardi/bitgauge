@@ -1,5 +1,20 @@
 # Changelog
 
+## Packet loss removed (2026-10-21)
+
+BitGauge does not measure packet loss, so the reserved "packet loss — not measured" slot is gone; `features/` was not edited.
+
+- **Removed:** `NotMeasured`, `NotMeasuredWhy`, `NOT_MEASURED_REASON` (jsx, d.ts, prompt, `.notmeasured` CSS), their `ds.js`
+  entries and README listings; `QualityList`'s `packetLoss` prop and row; the "Packet loss not measured" notice on
+  Result detail; `StatusBadge`'s `dashed` variant (`StatusPill` keeps its own); the `.mrow.node` layout in `layout.css`.
+- **Test / Session MetaList:** the Packet loss row is now **Browser** (`globe`), "<name> <major> · <os>" from the
+  result's `client.browser` (e.g. "Firefox 131 · Linux"), shown in every state (idle, running, Continuous, done); a shown past result uses its own `client.browser`.
+- **MetaList:** row `node` prop and its `node` class removed; no screen, card or example passed a component value.
+- **Kept:** the QualityList note "Upper bound: packet loss is not measured", the matching screen-reader phrase, and
+  the AIM math (packet loss fixed at 0 points).
+- **Docs:** packet-loss and "Not measured" examples dropped from MetaList, Link, Tooltip, StatusBadge, the
+  measurement and status cards, `tiles.md` and both READMEs.
+
 ## App UI kit without version scope (2026-10-20)
 
 `ui_kits/app` (App, Prototype, Nav, TestScreen, ResultDetail, History, Settings, About, README), component docs

@@ -105,7 +105,7 @@ measured".
   replies, and reports the fraction not returned as packet loss.
 - This needs a TURN server and a credentials service; BitGauge would have to embed or require one.
   It is deferred ([../features/measurement.md
-  §18](../features/measurement.md#18-future-packet-loss-via-webrtcturn)).
+  §18](../features/measurement.md#18-packet-loss)).
 
 ## 9. What BitGauge Takes and What It Changes
 

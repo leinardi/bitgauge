@@ -9,11 +9,11 @@
   if (!me || !me.hasAttribute('data-kit')) return;
   const NS = 'BitGaugeDesignSystem_1ab699';
   const ROOT = me.getAttribute('data-root') || '../../';
-  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'NotMeasured', 'NotMeasuredWhy', 'NOT_MEASURED_REASON', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'ShareFormat', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart', 'Modal'];
+  const NEED = ['StartButton', 'AppHeader', 'TabBar', 'Chart', 'Format', 'PhaseIndicator', 'LoadCard', 'QualityList', 'MetaList', 'Snippet', 'SaveBar', 'LiveRegion', 'Menu', 'Link', 'ToastRegion', 'Stat', 'FullScreenError', 'SharePreview', 'ShareFormat', 'LastResult', 'Select', 'FieldError', 'ChangedMark', 'Checkbox', 'ChoiceCard', 'Popover', 'OptionRows', 'PhaseChart', 'Modal'];
   const FILES = ['brand/Icon', 'brand/Logo', 'status/StatusPill', 'status/StatusBadge', 'status/Chip', 'actions/Link', 'actions/Tooltip', 'actions/Button', 'actions/StartButton', 'dialog/Modal', 'actions/Menu', 'actions/Popover',
     'forms/Input', 'forms/Select', 'forms/Segmented', 'forms/Switch', 'forms/Toggle', 'forms/Checkbox', 'layout/Card', 'layout/Tabs', 'layout/Table', 'layout/MetaList', 'layout/Snippet',
     'feedback/Notice', 'feedback/Toast', 'feedback/EmptyState', 'feedback/Skeleton', 'feedback/LiveRegion', 'feedback/SaveBar', 'feedback/FullScreenError', 'dialog/Dialog',
-    'charts/Format', 'charts/Chart', 'charts/PhaseChart', 'gauge/Gauge', 'measurement/MetricTile', 'measurement/PhaseStep', 'measurement/LoadCard', 'measurement/NotMeasured', 'measurement/QualityList', 'measurement/SharePreview', 'navigation/AppHeader'];
+    'charts/Format', 'charts/Chart', 'charts/PhaseChart', 'gauge/Gauge', 'measurement/MetricTile', 'measurement/PhaseStep', 'measurement/LoadCard', 'measurement/QualityList', 'measurement/SharePreview', 'navigation/AppHeader'];
   window.DS_READY = (async () => {
     const ns = window[NS];
     if (ns && NEED.every(k => ns[k])) { window.DS = ns; return ns; }

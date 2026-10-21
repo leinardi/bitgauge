@@ -48,12 +48,15 @@ from the design export; this page fixes content and behavior only. Terms follow 
   "Connection lost", with the time it stopped at.
 - **Result metrics** (§6), each with its qualifiers. While a direction runs, its tile shows
   "warming up" until warm-up ends, then the steady-window average and peak so far.
-- **Packet loss slot** reading "packet loss — not measured" (§6).
 - **Data used** and **duration**: data used live during the run, "—" until the first byte and
   qualified "so far" (while upload runs after a download that ended without a number, "so far ·
   download" with the download's own bytes); the duration counts up from the run's start,
   qualified "elapsed", until the result gives it. After an error, data used is qualified "not
   saved".
+- **Browser**: the browser's family, major version and operating system ("Firefox 131 · Linux"),
+  as the result records them ([../measurement.md §17](../measurement.md#17-result-object)), shown
+  in every state from page load: idle, during a run, Continuous included, and after it; "—" when
+  the browser family is not recognized.
 - **Notices** area (§7).
 - **Save bar** after a `complete` run: "Saved to history", an inline label
   field with suggested labels (the context label and the 5 most recent distinct labels from
@@ -342,10 +345,10 @@ and the page itself never scrolls sideways.
 | Loaded latency (per direction) | ms; median and p90; increase over idle | Continuous: "last hour"; label "Loaded latency (WebSocket)" or the fallback source `http-h1-reserved` / `http-h2` / `http-h3`; "vs idle over WebSocket" (or HTTP) when idle latency ran on the other path; "no idle latency" in place of the increase when idle latency has no median; `unavailable` with reason (no steady window, fewer than 10 samples, HTTP/1.1 reservation not held, no latency probe) |
 | Bufferbloat grade | letter plus words: A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe bufferbloat | basis (`download+upload` or one direction) |
 | HTTP loaded responsiveness | RPM, integer | always labeled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples"); the Result detail adds TM95 and the samples, and states "TM95 equals the plain mean" when `trimmed` is 0 |
-| Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great), each band with an icon and its name | missing input named; basis when only one direction has a loaded-latency increase ("download only"); note "upper bound: packet loss is not measured" |
-| Packet loss | reserved slot: "packet loss — not measured" | "browsers can't see packet loss over TCP", link to why ([../measurement.md §18](../measurement.md#18-future-packet-loss-via-webrtcturn)); no promise of a release |
+| Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great), each band with an icon and its name | missing input named; basis when only one direction has a loaded-latency increase ("download only"); note "upper bound: packet loss is not measured" ([../measurement.md §18](../measurement.md#18-packet-loss)) |
 | Data used | decimal kB, MB, GB, 3 significant digits | — |
 | Duration | s, one decimal | — |
+| Browser | "<name> <major> · <os>"; "—" when the family is not recognized | — |
 | Protocol, streams | `HTTP/1.1`, `HTTP/2`, `HTTP/3`; stream count and plateau reason | — |
 
 Definitions: [../measurement.md §9–§17](../measurement.md#9-final-value).

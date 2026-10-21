@@ -3,10 +3,10 @@ import { Icon } from '../brand/Icon.jsx';
 // Label / value rows. Values are mono; "—" renders in --fg-subtle.
 export function MetaList({ rows = [], columns = 1, title, compact = false, facts = false, className, style }) {
   const list = <dl className={'mlist' + (facts ? ' facts' : '')} style={columns > 1 ? { gridTemplateColumns: 'repeat(' + columns + ', minmax(0, 1fr))' } : undefined}>
-    {rows.map((r, i) => <div className={'mrow' + (r.node ? ' node' : '')} key={r.key || i}>
+    {rows.map((r, i) => <div className="mrow" key={r.key || i}>
       {r.icon ? <span className="ic" aria-hidden="true"><Icon name={r.icon} size={15} /></span> : null}
       <dt className="lb"><span>{r.label}</span>{r.sub ? <span className="sub">{r.sub}</span> : null}</dt>
-      {r.node ? <dd className="val">{r.node}</dd> : <dd className={'val' + (r.value == null || r.value === '—' ? ' empty' : '') + (r.tone === 'danger' ? ' danger' : '')}>{r.value ?? '—'}</dd>}
+      <dd className={'val' + (r.value == null || r.value === '—' ? ' empty' : '') + (r.tone === 'danger' ? ' danger' : '')}>{r.value ?? '—'}</dd>
     </div>)}
   </dl>;
   if (!title) return list;

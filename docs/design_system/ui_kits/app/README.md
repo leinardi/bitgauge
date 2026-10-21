@@ -44,7 +44,7 @@ states and About's compatibility layers. Its values persist in `localStorage`.
 The kit draws the whole product as `features/` describes it: every screen and the navigation (Test, History,
 Settings, About) are always present, with loaded latency and the bufferbloat grade, HTTP loaded responsiveness
 (RPM), quality scores, the Continuous preset and its states (`continuous`, `cont-upload`, `cont-warmup`,
-`cont-done`), share, and the other-client snippets on About. The packet-loss "not measured" slot is on every result.
+`cont-done`), share, and the other-client snippets on About.
 
 ## Files
 
@@ -78,8 +78,7 @@ components: `renderVals()` computes the props, `render()` composes components ov
 | ThroughputChart | uPlot | Throughput series, optional latency-under-load on a second y-axis, null gaps for unknown upload cells, a now line, and phase separators and event marks (lost, cancelled, cap, extended) drawn via hooks. |
 | MetricTile | Card | States: empty (—), live, done, partial, incomplete, low confidence. |
 | LoadCard | Card + GradeBadge | Bufferbloat grade (A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe) with an A+–F scale strip and its basis, loaded latency for down/up with change vs idle (or the reason there is none), and RPM. |
-| QualityList | Badge | Streaming, Gaming, Video calls → Great, Good, Average, Poor or Bad (AIM point tables, measurement §13: Streaming = latency, packet loss, download, loaded-latency increase; Gaming = latency, packet loss, loaded-latency increase; Video calls = latency, jitter, packet loss, loaded-latency increase). Upload is not an input. Each rating has an icon and text. |
-| NotMeasured | Badge (outline, dashed) | Placeholder for packet loss; the tooltip explains it is not measured (fixed at 0 points in the quality scores). |
+| QualityList | Badge | Streaming, Gaming, Video calls → Great, Good, Average, Poor or Bad (AIM point tables, measurement §13: Streaming = latency, download, loaded-latency increase; Gaming = latency, loaded-latency increase; Video calls = latency, jitter, loaded-latency increase). Upload is not an input. The scores are an upper bound because packet loss is not an input. Each rating has an icon and text. |
 | Notice | Alert | info, warn, danger or neutral, with up to two actions. Danger uses role="alert". |
 | SaveBar | Card + Input + ToggleGroup | Confirms “Saved to history” and offers a label field with suggested label chips, Share, Download JSON and Details. Partial and error results offer Keep in history and Download JSON; once kept, the bar says “Saved as partial / error” and Undo is in an undo toast. |
 | ResultHeader | Input (inline edit) | Editable label, context, timestamp (absolute on hover), plus the actions. |

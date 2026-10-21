@@ -177,7 +177,7 @@ A+ < 5 ms, A < 30, B < 60, C < 200, D < 400, F ≥ 400 ms of added latency, wors
 
 ### 21. Quality scores — Cloudflare AIM point tables
 
-Packet loss fixed at 0 points and labeled "not measured"
+Packet loss fixed at 0 points, the scores labeled an upper bound, and no packet-loss value shown
 ([measurement.md §13](../measurement.md#13-quality-scores)).
 
 ### 22. Presets — Quick, Standard, Extended, Continuous

@@ -91,7 +91,7 @@ Scenarios:
 - **Server epoch change:** an upload response with a new epoch, and the WebSocket-close sequence
   finding a new epoch, both aborting with `server restarted`.
 - **Loss:** idle-ping timeouts counted as loss percentage, never as packet loss; loaded pings lost
-  after 30 s; the packet-loss slot staying "not measured".
+  after 30 s; `scores.packetLoss` staying `not-measured`.
 - **Latency paths and grades:** WebSocket echo with up to 4 outstanding, skipped ticks, HTTP
   fallback single-outstanding with recorded gaps, Waveform grade boundaries, TM95 trimming and the
   four path B states.
@@ -118,7 +118,7 @@ Scenarios:
 vitest with `@vue/test-utils` and jsdom:
 
 - Gauge mapping (log scale, edge pinning, readout precision), reduced-motion behavior.
-- Result cards for every direction status and confidence level; notices; the packet-loss slot.
+- Result cards for every direction status and confidence level; notices; the Test card's browser.
 - Settings and URL-parameter parsing, defaults from `/info`, shareable URL round-trip.
 - History module against `fake-indexeddb`: save, migrate, export JSON/CSV, import validation,
   deduplication, unavailable storage.

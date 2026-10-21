@@ -1,5 +1,5 @@
 /**
- * MetaList — label / value rows (`<dl>`): Test meta (data used, duration, packet loss), About facts,
+ * MetaList — label / value rows (`<dl>`): Test meta (data used, duration, browser), About facts,
  * base-path facts. Optional row icon and sub-label; values in mono; a missing value renders "—" in --fg-subtle.
  * With `title` it renders as a tile card with an eyebrow ("Test", "Session"). `columns` lays rows out in a grid.
  * Stat — one labelled value for horizontal strips (connection info: Client IP, Protocol, Streams).
@@ -12,8 +12,6 @@ export interface MetaRow {
   /** Mono value. null/undefined/"—" renders the empty dash. */
   value?: React.ReactNode;
   tone?: 'danger';
-  /** Custom value cell (e.g. <NotMeasured />). */
-  node?: React.ReactNode;
 }
 export interface MetaListProps {
   rows: MetaRow[];

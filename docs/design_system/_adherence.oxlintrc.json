@@ -185,8 +185,8 @@
         "message": "<MenuOption> doesn't accept that prop. Declared props: value, label, icon, danger, keepOpen."
       },
       {
-        "selector": "JSXOpeningElement[name.name='MetaRow'] > JSXAttribute > JSXIdentifier[name!=/^(?:key|icon|label|sub|value|tone|node|key|ref|className|style|children)$/]",
-        "message": "<MetaRow> doesn't accept that prop. Declared props: key, icon, label, sub, value, tone, node."
+        "selector": "JSXOpeningElement[name.name='MetaRow'] > JSXAttribute > JSXIdentifier[name!=/^(?:key|icon|label|sub|value|tone|key|ref|className|style|children)$/]",
+        "message": "<MetaRow> doesn't accept that prop. Declared props: key, icon, label, sub, value, tone."
       },
       {
         "selector": "JSXOpeningElement[name.name='MetaRow'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:danger)$/]",
@@ -211,10 +211,6 @@
       {
         "selector": "JSXOpeningElement[name.name='Notice'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:info|warn|danger|neutral|ok)$/]",
         "message": "<Notice> tone must be one of 'info' | 'warn' | 'danger' | 'neutral' | 'ok'."
-      },
-      {
-        "selector": "JSXOpeningElement[name.name='NotMeasured'] > JSXAttribute > JSXIdentifier[name!=/^(?:href|reason|link|key|ref|className|style|children)$/]",
-        "message": "<NotMeasured> doesn't accept that prop. Declared props: href, reason, link."
       },
       {
         "selector": "JSXOpeningElement[name.name='PhaseChartMark'] > JSXAttribute > JSXIdentifier[name!=/^(?:t|label|icon|c|bd|fg|key|ref|className|style|children)$/]",
@@ -245,8 +241,8 @@
         "message": "<Popover> align must be one of 'start' | 'end'."
       },
       {
-        "selector": "JSXOpeningElement[name.name='QualityList'] > JSXAttribute > JSXIdentifier[name!=/^(?:bands|missing|basis|packetLoss|compact|className|style|key|ref|className|style|children)$/]",
-        "message": "<QualityList> doesn't accept that prop. Declared props: bands, missing, basis, packetLoss, compact, className, style."
+        "selector": "JSXOpeningElement[name.name='QualityList'] > JSXAttribute > JSXIdentifier[name!=/^(?:bands|missing|basis|compact|className|style|key|ref|className|style|children)$/]",
+        "message": "<QualityList> doesn't accept that prop. Declared props: bands, missing, basis, compact, className, style."
       },
       {
         "selector": "JSXOpeningElement[name.name='SaveBar'] > JSXAttribute > JSXIdentifier[name!=/^(?:status|title|time|message|label|actions|key|ref|className|style|children)$/]",
@@ -293,8 +289,8 @@
         "message": "<StartButton> role must be one of 'start' | 'stop' | 'again' | 'retry' | 'now'."
       },
       {
-        "selector": "JSXOpeningElement[name.name='StatusBadge'] > JSXAttribute > JSXIdentifier[name!=/^(?:tone|icon|dashed|size|title|children|key|ref|className|style|children)$/]",
-        "message": "<StatusBadge> doesn't accept that prop. Declared props: tone, icon, dashed, size, title, children."
+        "selector": "JSXOpeningElement[name.name='StatusBadge'] > JSXAttribute > JSXIdentifier[name!=/^(?:tone|icon|size|title|children|key|ref|className|style|children)$/]",
+        "message": "<StatusBadge> doesn't accept that prop. Declared props: tone, icon, size, title, children."
       },
       {
         "selector": "JSXOpeningElement[name.name='StatusBadge'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:ok|warn|danger|info|neutral)$/]",
@@ -426,9 +422,6 @@
         "replaces": []
       },
       "Notice": {
-        "replaces": []
-      },
-      "NotMeasured": {
         "replaces": []
       },
       "PhaseChartMark": {

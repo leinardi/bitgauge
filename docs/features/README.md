@@ -51,8 +51,8 @@ invariant is out of scope, however convenient.
 
 **Later**, unscheduled:
 
-- Packet loss through WebRTC and a TURN relay, filling the reserved slot
-  ([measurement.md §18](measurement.md#18-future-packet-loss-via-webrtcturn)).
+- Packet loss through a WebRTC data channel answered by the server itself, behind an opt-in UDP
+  port ([measurement.md §18](measurement.md#18-packet-loss)).
 - A headless CLI client of the native API for scheduled tests, as an exception to the native
   clients non-goal ([product.md §1.6](product.md#16-non-goals)).
 - linux/arm/v7 images for 32-bit Raspberry Pi systems, built on

@@ -1,5 +1,5 @@
 /* Measurement — MetricTile (.tile), PhaseStep/PhaseIndicator (.phases/.ph), GradeBadge (.grade),
-   LoadCard (.load), QualityList (.qlist), NotMeasured (.notmeasured). See tiles.md, phase-indicator.md. */
+   LoadCard (.load), QualityList (.qlist). See tiles.md, phase-indicator.md. */
 .tile { min-width: 0; display: flex; flex-direction: column; gap: var(--space-1-5); padding: var(--space-4) var(--space-4-5); }
 .tile.compact { padding: var(--space-3) var(--space-3-5); }
 .tile-h { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1-5); min-height: var(--pill-h-sm); }
@@ -77,8 +77,6 @@
 .qrow .lb { flex: 1; font-size: var(--text-sm); }
 .qrow .none { font-size: var(--text-caption); color: var(--fg-subtle); }
 .qlist .foot { display: flex; align-items: center; gap: var(--space-1-5); margin-top: var(--space-1-5); font-size: var(--text-micro); color: var(--fg-subtle); line-height: var(--lh-compact); }
-
-.notmeasured { display: inline-flex; align-items: center; gap: var(--space-2); flex: none; font-size: var(--text-caption); }
 
 /* SharePreview (share-panel.md "Share image layout"): the image is laid out on a fixed 480 × 252 box (--share-w/-h) and
    scaled to the frame, so the card preview and the 1200 × 630 PNG (2.5×) have the same geometry. Header on top, foot on

@@ -10,8 +10,6 @@ export interface QualityListProps {
   missing?: string | string[];
   /** Basis tag when only one direction has a loaded-latency increase: "download only". */
   basis?: string;
-  /** Add the packet-loss row (NotMeasured) under the bands (Result detail). */
-  packetLoss?: boolean;
   compact?: boolean;
   className?: string;
   style?: React.CSSProperties;

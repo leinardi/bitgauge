@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" viewport="700x760" name="Measurement · Tiles, phases, load, quality" subtitle="Phase indicator, metric tile states, load card, quality list, meta list with packet-loss slot" -->
+<!-- @dsCard group="Components" viewport="700x760" name="Measurement · Tiles, phases, load, quality" subtitle="Phase indicator, metric tile states, load card, quality list, meta list" -->
 <!doctype html><html data-theme="dark"><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../styles.css">
 <link rel="stylesheet" href="../../preview/card.css">
@@ -10,7 +10,7 @@
 </head><body><div id="root"></div>
 <script type="text/babel">
 const NS = window.BitGaugeDesignSystem_1ab699;
-const { MetricTile, PhaseIndicator, LoadCard, QualityList, MetaList, NotMeasured } = NS;
+const { MetricTile, PhaseIndicator, LoadCard, QualityList, MetaList } = NS;
 function Demo(){ return <div className="col gap-3">
 <PhaseIndicator steps={[{ phase: 'latency', state: 'done', detail: '3.1 ms' }, { phase: 'download', state: 'active', progress: 0.62, detail: '4.6 s left' }, { phase: 'upload', state: 'pending', detail: '~15–25 s' }]} />
 <div style={{display:'grid',gridTemplateColumns:'repeat(3, minmax(0,1fr))',gap:'var(--space-3)'}}>
@@ -25,7 +25,7 @@ function Demo(){ return <div className="col gap-3">
 <LoadCard grade="B" rows={[{ dir: 'download', label: 'During download · WebSocket', sub: 'p90 24 · +15 ms vs idle', value: '18' }, { dir: 'upload', label: 'During upload · WebSocket', sub: 'p90 55 · +39 ms vs idle', value: '42' }]} responsiveness={{ protocol: 'h2', note: 'round trips per minute, one per direction', dirs: [{ dir: 'download', value: '1,420' }, { dir: 'upload', value: '980' }] }} />
 <QualityList bands={['Great', 'Great', 'Good']} />
 </div>
-<MetaList title="Test" rows={[{ icon: 'database', label: 'Data used', value: '1.23 GB' }, { icon: 'timer', label: 'Duration', value: '28.6 s' }, { icon: 'signal', label: 'Packet loss', node: <NotMeasured /> }]} />
+<MetaList title="Test" rows={[{ icon: 'database', label: 'Data used', value: '1.23 GB' }, { icon: 'timer', label: 'Duration', value: '28.6 s' }, { icon: 'globe', label: 'Browser', value: 'Firefox 131 · Linux' }]} />
 </div>; }
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
 </script></body></html>

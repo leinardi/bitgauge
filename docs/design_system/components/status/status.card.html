@@ -13,7 +13,7 @@ const NS = window.BitGaugeDesignSystem_1ab699;
 const { StatusPill, StatusBadge, Chip } = NS;
 function Demo(){ const [sel,setSel]=React.useState('VPN'); return <div className="col gap-3">
 <div className="row wrap gap-2"><StatusPill tone="ok">Connected</StatusPill><StatusPill tone="offline">Unreachable</StatusPill><StatusPill tone="info">Live</StatusPill><StatusPill tone="warn">Partial</StatusPill><StatusPill>Skipped</StatusPill></div>
-<div className="row wrap gap-2"><StatusBadge tone="ok">Complete</StatusBadge><StatusBadge tone="warn">Low confidence</StatusBadge><StatusBadge tone="danger">Error</StatusBadge><StatusBadge dashed>Not measured</StatusBadge></div>
+<div className="row wrap gap-2"><StatusBadge tone="ok">Complete</StatusBadge><StatusBadge tone="warn">Low confidence</StatusBadge><StatusBadge tone="danger">Error</StatusBadge></div>
 <div className="row wrap gap-2"><Chip icon="timer">Extended · 60 s</Chip><Chip icon="layers">4 streams</Chip>{[['VPN',12],['LAN',31],['Kitchen Wi-Fi',4]].map(([l,n]) => <Chip key={l} count={n} selected={sel===l} onClick={()=>setSel(l)}>{l}</Chip>)}</div>
 </div>; }
 ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);

@@ -21,7 +21,7 @@ Waveform only from their public methodology descriptions.
 | Bufferbloat grade thresholds | Waveform | [measurement §11.3](../features/measurement.md#113-bufferbloat-grade) |
 | RPM from a 95 % trimmed mean of self probes | networkQuality and the IETF draft | [measurement §12](../features/measurement.md#12-http-loaded-responsiveness) |
 | Quality scores per experience | Cloudflare AIM | [measurement §13](../features/measurement.md#13-quality-scores) |
-| Packet loss via WebRTC and TURN (deferred) | Cloudflare | [measurement §18](../features/measurement.md#18-future-packet-loss-via-webrtcturn) |
+| Packet loss via WebRTC and TURN (deferred) | Cloudflare | [measurement §18](../features/measurement.md#18-packet-loss) |
 | Overhead factor presets, off by default | LibreSpeed | [measurement §9.3](../features/measurement.md#93-overhead-compensation) |
 | Self-hosted single container, compatibility with existing clients | OpenSpeedTest and LibreSpeed | [compatibility](../features/compatibility.md) |
 
