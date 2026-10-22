@@ -241,16 +241,24 @@ export function responsivenessView(result: Result, wording: Wording, detailed = 
 
 /**
  * The Test screen's block of a standard run (the kit's TestScreen.jsx): a row per direction the run
- * plans, in its order, the result's where it has one and "—" where it has none yet or did not run,
- * under the protocol the info phase recorded until a result names its own.
+ * plans, in its order, the result's where it has one, else the one its phase carried as it ended
+ * (ui/screens.md section 1), and "—" where it has none yet or did not run, under the protocol the
+ * info phase recorded until a block names its own.
  */
-export function plannedResponsivenessView(result: Result | null, directions: readonly Direction[], protocol: string | null, wording: Wording): ResponsivenessView | null {
+export function plannedResponsivenessView(
+  result: Result | null,
+  directions: readonly Direction[],
+  protocol: string | null,
+  wording: Wording,
+  ended: Partial<Record<Direction, Responsiveness>> = {},
+): ResponsivenessView | null {
   if (directions.length === 0) {
     return null
   }
   const { t } = wording
+  const blockOf = (direction: Direction) => (result === null ? ended[direction] : result[direction]?.responsiveness)
   const blocks = directions.flatMap((direction) => {
-    const block = result?.[direction]?.responsiveness
+    const block = blockOf(direction)
     return block === undefined ? [] : [block]
   })
   const first = blocks[0]
@@ -259,8 +267,9 @@ export function plannedResponsivenessView(result: Result | null, directions: rea
     note: responsivenessNote(blocks, directions, wording),
     tag: blocks.some((block) => block.state === 'uncertain') ? t('result.load.rpm.uncertain') : null,
     rows: directions.map((direction): ResponsivenessRow => {
-      const block = result?.[direction]?.responsiveness
-      return result === null || block === undefined ? { direction, value: null, uncertain: false } : responsivenessRow(direction, block, result.client.timerResolutionMs, false, wording)
+      const block = blockOf(direction)
+      // Without detail a row needs no timer resolution, which only the result carries.
+      return block === undefined ? { direction, value: null, uncertain: false } : responsivenessRow(direction, block, result?.client.timerResolutionMs ?? 0, false, wording)
     }),
   }
 }

@@ -133,6 +133,12 @@ describe('the load card of the Test screen', () => {
       rows: dashes,
     })
     expect(loadView(input({ status: 'running', states: { download: 'started', upload: 'pending' }, protocol: 'h2' }), context)?.responsiveness?.protocol).toBe('HTTP/2')
+    // A direction's shows from its end, as its phase carried it, while the next one runs.
+    const download = { state: 'measured' as const, protocol: 'h2', samples: 30, rpm: 1420, tm95Ms: 42.3, trimmed: 2, totalMedianMs: 44 }
+    const upload = loadView(input({ status: 'running', states: { download: 'finished', upload: 'started' }, protocol: 'h2', responsiveness: { download } }), context)?.responsiveness
+    expect(upload?.rows).toEqual([{ direction: 'download', value: '1,420', uncertain: false }, dashes[1]])
+    expect(upload?.protocol).toBe('HTTP/2')
+    expect(loadView(input({ status: 'idle', responsiveness: { download } }), context)?.responsiveness?.rows).toEqual(dashes)
     // A partial result keeps what ran; a direction without a block reads "—".
     const partial = { ...result, status: 'partial' as const, upload: { ...base.upload!, responsiveness: undefined } }
     expect(loadView(input({ status: 'ended', states: { download: 'finished', upload: 'finished' }, result: partial }), context)?.responsiveness?.rows).toEqual(dashes)

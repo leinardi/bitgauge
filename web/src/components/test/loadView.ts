@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Direction, LoadedLatency, MeasuringPhase, PhaseState, Result } from '@/engine/messages'
+import type { Direction, LoadedLatency, MeasuringPhase, PhaseState, Responsiveness, Result } from '@/engine/messages'
 import { type GradeView, loadRow, type LoadRow, gradeView, plannedResponsivenessView, responsivenessView, type ResponsivenessView } from '@/components/result/load'
 import type { Wording } from '@/components/test/wording'
 import type { LoadedSeries } from '@/composables/useLoadedSeries'
@@ -27,8 +27,9 @@ import { latencyNumber } from '@/lib/format'
 
 // The Test screen's load card (ui/screens.md sections 1 and 6): the grade and a loaded-latency row
 // per direction, live from the pings so far, then the result's with its qualifiers, and the HTTP
-// loaded responsiveness: on every state of a standard run, as the kit's Test screen shows
-// it, and only in a Continuous run's finished result (ui/screens.md section 1).
+// loaded responsiveness: on every state of a standard run, each direction's from its end, as the
+// kit's Test screen shows it, and only in a Continuous run's finished result (ui/screens.md
+// section 1).
 
 /** What the Test screen's load card needs of the run (ui/screens.md sections 1 and 6). */
 export interface LoadInput {
@@ -37,6 +38,8 @@ export interface LoadInput {
   phases: readonly MeasuringPhase[]
   /** Each direction's phase state in the run shown. */
   states: Record<Direction, PhaseState | 'pending'>
+  /** Each ended direction's HTTP loaded responsiveness, as its finished or failed phase carried it. */
+  responsiveness?: Partial<Record<Direction, Responsiveness>>
   /** A run stopped during idle latency that returned to idle: its directions never ran. */
   stoppedEarly?: boolean
   /** Each direction's live loaded-latency pings. */
@@ -154,7 +157,7 @@ export function loadView(input: LoadInput, context: Wording): LoadView | null {
       ? result?.status === 'complete'
         ? responsivenessView(result, context)
         : null
-      : plannedResponsivenessView(result, order, input.protocol ?? null, context)
+      : plannedResponsivenessView(result, order, input.protocol ?? null, context, status === 'idle' ? {} : input.responsiveness)
   if (!input.phases.includes('idle')) {
     return { grade: null, rows, responsiveness }
   }
