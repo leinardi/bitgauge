@@ -17,12 +17,12 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { Database } from '@lucide/vue'
+import { Database, Trash2 } from '@lucide/vue'
 import { computed, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { toast } from 'vue-sonner'
 
+import { notify } from '@/components/feedback/notify'
 import { confidenceView } from '@/components/result/confidence'
 import ConfidenceCard from '@/components/result/ConfidenceCard.vue'
 import { gradeView, loadRows, responsivenessView } from '@/components/result/load'
@@ -52,7 +52,6 @@ import { useSettings } from '@/composables/useSettings'
 // saved with the result as they change; Delete removes it with an undo toast; Run again starts its
 // settings on the Test screen. The share panel sits in the rail between the note and the parameters.
 
-const UNDO_MS = 8000
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -111,13 +110,17 @@ async function remove(): Promise<void> {
     return
   }
   deleted.value = true
-  toast(t('history.deleted.title', { n: removed.length }, removed.length), {
-    duration: UNDO_MS,
-    action: {
+  notify({
+    tone: 'info',
+    icon: Trash2,
+    title: t('history.deleted.title', { n: removed.length }, removed.length),
+    undo: {
       label: t('history.deleted.undo'),
+      countdown: true,
       onClick: () => {
         void history.restore(removed).then(() => {
           deleted.value = false
+          notify({ tone: 'ok', title: t('history.deleted.restored') })
         })
       },
     },

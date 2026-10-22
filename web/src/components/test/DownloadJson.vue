@@ -19,8 +19,10 @@
 <script setup lang="ts">
 import { CircleAlert, FileJson, TriangleAlert } from '@lucide/vue'
 import { shallowRef, useId, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import { notify } from '@/components/feedback/notify'
 import type { Result } from '@/engine/messages'
 import { serializeResult } from '@/export/serialize'
 import { saveFile } from '@/lib/saveFile'
@@ -29,11 +31,13 @@ import { saveFile } from '@/lib/saveFile'
 // in memory, never sent anywhere. Its tooltip warns that the file holds the client
 // IP and notes (security.md section 7) and also describes the button; where the page states the
 // warning beside it, `describedBy` names that text instead and there is no tooltip, as on the
-// kit's Result detail. A result that fails validation is not exported: the button turns to its
-// error state and says why.
+// kit's Result detail, which also confirms the download with a toast (`confirm`, ui/screens.md
+// section 8). A result that fails validation is not exported: the button turns to its error state
+// and says why.
 
-const props = defineProps<{ result: Result; variant?: 'secondary' | 'ghost'; size?: 'sm' | 'md'; describedBy?: string }>()
+const props = defineProps<{ result: Result; variant?: 'secondary' | 'ghost'; size?: 'sm' | 'md'; describedBy?: string; confirm?: boolean }>()
 
+const { t } = useI18n()
 const tipId = useId()
 const errorId = useId()
 const failed = shallowRef(false)
@@ -53,6 +57,9 @@ function download(): void {
     return
   }
   saveFile(file.filename, file.json, 'application/json')
+  if (props.confirm === true) {
+    notify({ tone: 'ok', title: t('test.export.downloaded'), message: t('test.export.downloadedFile', { file: file.filename }) })
+  }
 }
 </script>
 

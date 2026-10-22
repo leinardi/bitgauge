@@ -17,12 +17,12 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { History } from '@lucide/vue'
+import { CircleCheck, History } from '@lucide/vue'
 import { shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { toast } from 'vue-sonner'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import { notify } from '@/components/feedback/notify'
 import { useHistory } from '@/composables/useHistory'
 import type { Result } from '@/engine/messages'
 
@@ -35,8 +35,6 @@ import type { Result } from '@/engine/messages'
 const props = defineProps<{ result: Result }>()
 const kept = defineModel<boolean>('kept', { required: true })
 
-const UNDO_MS = 8000
-
 const { t } = useI18n()
 const history = useHistory()
 const busy = shallowRef(false)
@@ -48,7 +46,7 @@ async function undo(id: string): Promise<void> {
   if (props.result.id === id) {
     kept.value = false
   }
-  toast(t('test.bar.removed'))
+  notify({ tone: 'info', icon: CircleCheck, title: t('test.bar.removed') })
 }
 
 async function keep(): Promise<void> {
@@ -57,13 +55,13 @@ async function keep(): Promise<void> {
   const saved = await history.save(result)
   busy.value = false
   if (!saved) {
-    toast.error(t('test.bar.keepFailed'))
+    notify({ tone: 'danger', title: t('test.bar.keepFailed') })
     return
   }
   if (props.result.id === result.id) {
     kept.value = true
   }
-  toast(t('test.bar.keptToast', { kind: kind(result) }), { duration: UNDO_MS, action: { label: t('test.bar.undo'), onClick: () => void undo(result.id) } })
+  notify({ tone: 'info', icon: History, title: t('test.bar.keptToast', { kind: kind(result) }), undo: { label: t('test.bar.undo'), onClick: () => void undo(result.id) } })
 }
 </script>
 

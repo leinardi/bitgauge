@@ -232,7 +232,9 @@
     "export": {
       "download": "Download JSON",
       "tip": "Contains your IP address and notes",
-      "invalid": "This result failed validation, so it can't be exported."
+      "invalid": "This result failed validation, so it can't be exported.",
+      "downloaded": "JSON downloaded.",
+      "downloadedFile": "{file} · contains client IP and notes"
     },
     "lastResult": {
       "when": "Last test {when}",

@@ -183,8 +183,9 @@
       "compareHint": "Compare needs exactly 2"
     },
     "deleted": {
-      "title": "{n} result deleted. | {n} results deleted.",
-      "undo": "Undo"
+      "title": "Result deleted. | {n} results deleted.",
+      "undo": "Undo",
+      "restored": "Result restored."
     },
     "compare": {
       "title": "Compare results",

@@ -61,9 +61,10 @@ test('mounts the toaster with its stylesheet and style bindings under the policy
     const style = getComputedStyle(element)
     return { position: style.position, width: style.getPropertyValue('--width'), background: style.getPropertyValue('--normal-bg'), radius: style.getPropertyValue('--border-radius') }
   })
-  // position: fixed comes from the stylesheet, --width from vue-sonner's binding, --normal-bg and
-  // --border-radius from the primitive's, resolved through the theme's variables.
-  expect(styled).toMatchObject({ position: 'fixed', width: '356px' })
+  // position: fixed comes from the stylesheet, --width from the app's binding of the kit's toast
+  // width, --normal-bg and --border-radius from the primitive's, resolved through the theme's
+  // variables.
+  expect(styled).toMatchObject({ position: 'fixed', width: '380px' })
   expect(styled.background).not.toBe('')
   expect(styled.radius).not.toBe('')
   // vue-sonner's own theme rules follow the page's applied theme.

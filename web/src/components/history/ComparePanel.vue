@@ -22,9 +22,9 @@ import { DialogClose, DialogContent, DialogOverlay, DialogPortal } from 'reka-ui
 import { computed, nextTick, shallowRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
-import { toast } from 'vue-sonner'
 
 import AppButton from '@/components/actions/AppButton.vue'
+import { notify } from '@/components/feedback/notify'
 import CompareCards from '@/components/history/CompareCards.vue'
 import CompareChange from '@/components/history/CompareChange.vue'
 import { compare, type CompareRow, comparisonText } from '@/components/history/compare'
@@ -67,7 +67,7 @@ async function copy(): Promise<void> {
     // No clipboard on an insecure origin: writeText is then missing, and the call throws.
     await navigator.clipboard.writeText(text)
     manual.value = null
-    toast.success(t('history.compare.copied'))
+    notify({ tone: 'ok', title: t('history.compare.copied') })
   } catch {
     manual.value = text
     await nextTick()

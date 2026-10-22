@@ -31,7 +31,8 @@ import { useTheme } from '@/composables/useTheme'
 
 // The application frame: the skip link to the page's main content (ui/i18n-a11y.md section 2.3), the
 // header on every screen, the route's page, the tab bar on narrow screens (ui/README.md) and the
-// toaster for the toasts an action confirms with (vue-sonner through the vendored primitive). A
+// toaster for the toasts an action confirms with (the kit's Toast inside vue-sonner, through the
+// vendored primitive). A
 // base-path mismatch replaces all of it with its error screen (edge-cases.md section 20). The
 // page's own path, as it was before the router started, is checked before anything renders, so a
 // page that fails it starts nothing. A demo build adds its panel over every screen (frontend.md
@@ -44,6 +45,9 @@ const { applied } = useTheme()
 const router = useRouter()
 const { load, mismatch } = useInfo()
 void load(props.pagePath, (path) => router.resolve(path).matched.length > 0)
+// The kit's ToastRegion: bottom right, the page's own inset from its edges, above the tab bar where
+// the layout has one (design_system/components/feedback feedback.css .toast-region).
+const TOAST_OFFSET = { bottom: 'var(--toast-bottom)', right: 'var(--space-4)', left: 'var(--space-4)' }
 const DemoPanel = import.meta.env.VITE_DEMO ? defineAsyncComponent(() => import('@/demo/DemoPanel.vue')) : null
 </script>
 
@@ -67,6 +71,10 @@ const DemoPanel = import.meta.env.VITE_DEMO ? defineAsyncComponent(() => import(
     <Toaster
       :theme="applied"
       :container-aria-label="$t('a11y.notifications')"
+      :style="{ '--width': 'var(--toast-w)' }"
+      :offset="TOAST_OFFSET"
+      :mobile-offset="TOAST_OFFSET"
+      class="[--toast-bottom:calc(var(--tabbar-h)+var(--space-3))] desktop:[--toast-bottom:var(--space-4)]"
     />
   </div>
   <component

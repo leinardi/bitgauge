@@ -208,6 +208,7 @@ async function finish(save: boolean): Promise<void> {
         variant="secondary"
         size="md"
         :described-by="warningId"
+        confirm
       />
       <AppButton
         variant="primary"

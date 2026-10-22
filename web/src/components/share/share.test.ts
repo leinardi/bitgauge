@@ -25,8 +25,8 @@
 
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { toast } from 'vue-sonner'
 
+import { notify } from '@/components/feedback/notify'
 import ShareDialog from '@/components/share/ShareDialog.vue'
 import SharePanel from '@/components/share/SharePanel.vue'
 import { createAppI18n } from '@/i18n'
@@ -34,7 +34,7 @@ import { saveFile } from '@/lib/saveFile'
 import { renderShareImage } from '@/share/render'
 import { resultFixture } from '@/test/fixtures'
 
-vi.mock('vue-sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }) }))
+vi.mock('@/components/feedback/notify', () => ({ notify: vi.fn() }))
 vi.mock('@/lib/saveFile', () => ({ saveFile: vi.fn() }))
 vi.mock('@/share/render', () => ({ renderShareImage: vi.fn() }))
 
@@ -93,7 +93,7 @@ describe('the share panel', () => {
     const [view] = vi.mocked(renderShareImage).mock.lastCall ?? []
     expect(view?.lines.join('\n')).toBe(panel.get('[data-testid="share-summary"]').text())
     expect(saveFile).toHaveBeenCalledWith(expect.stringMatching(/^bitgauge-\d{4}-\d{2}-\d{2}-\d{4}\.png$/), PNG, 'image/png')
-    expect(toast.success).toHaveBeenCalledWith('Image downloaded.')
+    expect(notify).toHaveBeenCalledWith({ tone: 'ok', title: 'Image downloaded.', message: expect.stringMatching(/^bitgauge-\d{4}-\d{2}-\d{2}-\d{4}\.png$/) })
   })
 
   it('says so when the browser cannot make the image', async () => {
@@ -103,7 +103,7 @@ describe('the share panel', () => {
     await panel.get('[data-testid="download-image"]').trigger('click')
     await flushPromises()
     expect(saveFile).not.toHaveBeenCalled()
-    expect(toast.error).toHaveBeenCalledWith("The browser couldn't make the image.")
+    expect(notify).toHaveBeenCalledWith({ tone: 'danger', title: "The browser couldn't make the image." })
   })
 
   it('copies the summary as previewed, and confirms', async () => {
@@ -113,7 +113,7 @@ describe('the share panel', () => {
     await panel.get('[data-testid="copy-summary"]').trigger('click')
     await flushPromises()
     expect(writeText).toHaveBeenCalledWith(panel.get('[data-testid="share-summary"]').text())
-    expect(toast.success).toHaveBeenCalledWith('Summary copied.')
+    expect(notify).toHaveBeenCalledWith({ tone: 'ok', title: 'Summary copied.' })
     expect(panel.find('[data-testid="copy-denied"]').exists()).toBe(false)
   })
 
@@ -122,7 +122,7 @@ describe('the share panel', () => {
     const panel = mountPanel()
     await panel.get('[data-testid="copy-summary"]').trigger('click')
     await flushPromises()
-    expect(toast.success).not.toHaveBeenCalled()
+    expect(notify).not.toHaveBeenCalled()
     expect(panel.get('[data-testid="copy-denied"]').text()).toContain('Clipboard access was denied')
     const summary = panel.get('[data-testid="share-summary"]').element
     expect(document.activeElement).toBe(summary)

@@ -45,6 +45,10 @@
       "hint": "Set server.base_path (BITGAUGE_SERVER__BASE_PATH) to the path prefix the reverse proxy forwards, keep the prefix on forwarded requests instead of stripping it, and restart BitGauge.",
       "reload": "Reload",
       "docs": "Deployment docs"
+    },
+    "toast": {
+      "dismiss": "Dismiss",
+      "undoWithin": "Undo within {n} s."
     }
   }
 }

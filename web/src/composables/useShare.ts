@@ -19,10 +19,10 @@
 
 import { computed, type MaybeRefOrGetter, shallowRef, toValue } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { toast } from 'vue-sonner'
 
+import { notify } from '@/components/feedback/notify'
 import type { Result } from '@/engine/messages'
-import { canShareFiles, copySummary, downloadImage, shareImage } from '@/share/actions'
+import { canShareFiles, copySummary, downloadImage, imageFilename, shareImage } from '@/share/actions'
 import { shareContent } from '@/share/content'
 import { renderShareImage } from '@/share/render'
 import { shareView } from '@/share/summary'
@@ -49,7 +49,7 @@ export function useShare(result: MaybeRefOrGetter<Result>, units: MaybeRefOrGett
     try {
       const blob = await renderShareImage(view.value, words())
       if (blob === null) {
-        toast.error(t('share.image.failed'))
+        notify({ tone: 'danger', title: t('share.image.failed') })
       }
       return blob
     } finally {
@@ -61,14 +61,14 @@ export function useShare(result: MaybeRefOrGetter<Result>, units: MaybeRefOrGett
     const blob = await image()
     if (blob !== null) {
       downloadImage(blob, toValue(result).startedAt)
-      toast.success(t('share.image.saved'))
+      notify({ tone: 'ok', title: t('share.image.saved'), message: imageFilename(toValue(result).startedAt) })
     }
   }
 
   async function copy(): Promise<void> {
     denied.value = !(await copySummary(text.value))
     if (!denied.value) {
-      toast.success(t('share.text.copied'))
+      notify({ tone: 'ok', title: t('share.text.copied') })
     }
   }
 

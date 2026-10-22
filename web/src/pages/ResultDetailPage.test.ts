@@ -28,15 +28,15 @@
 import { flushPromises, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { shallowRef } from 'vue'
-import { toast } from 'vue-sonner'
 
+import { notify } from '@/components/feedback/notify'
 import { demoHistoryResults } from '@/demo/history'
 import type { Result } from '@/engine/messages'
 import { openHistoryDB } from '@/history/db'
 import { resultFixture } from '@/test/fixtures'
 import { freshIndexedDB } from '@/test/idb'
 
-vi.mock('vue-sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }) }))
+vi.mock('@/components/feedback/notify', () => ({ notify: vi.fn() }))
 
 const RESULTS = demoHistoryResults('populated')
 const NEWEST = RESULTS[0] as Result
@@ -90,7 +90,7 @@ beforeAll(async () => {
 beforeEach(() => {
   freshIndexedDB()
   localStorage.clear()
-  vi.mocked(toast).mockClear()
+  vi.mocked(notify).mockClear()
 })
 
 afterEach(() => {
@@ -222,10 +222,11 @@ describe('Delete and Run again', () => {
     await page.get('[data-testid="delete-result"]').trigger('click')
     await vi.waitFor(() => expect(text(page, 'result-missing')).toContain('Result deleted'))
     expect(await stored(NEWEST.id)).toBeUndefined()
-    const [title, options] = vi.mocked(toast).mock.calls[0] ?? []
-    expect(title).toBe('1 result deleted.')
-    ;(options as { action: { onClick: () => void } }).action.onClick()
+    const [notice] = vi.mocked(notify).mock.calls[0] ?? []
+    expect(notice).toMatchObject({ tone: 'info', title: 'Result deleted.', undo: { label: 'Undo', countdown: true } })
+    notice?.undo?.onClick()
     await vi.waitFor(() => expect(text(page, 'result-label')).toBe('VPN via 5G'))
+    expect(notify).toHaveBeenLastCalledWith({ tone: 'ok', title: 'Result restored.' })
     page.unmount()
   })
 

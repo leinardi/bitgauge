@@ -27,8 +27,8 @@
 import { flushPromises, mount, RouterLinkStub } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type Component, shallowRef } from 'vue'
-import { toast } from 'vue-sonner'
 
+import { notify } from '@/components/feedback/notify'
 import DownloadJson from '@/components/test/DownloadJson.vue'
 import ResultBar from '@/components/test/ResultBar.vue'
 import RunFailure from '@/components/test/RunFailure.vue'
@@ -46,7 +46,7 @@ const history = vi.hoisted(() => ({
 }))
 
 vi.mock('@/composables/useHistory', () => ({ useHistory: () => history }))
-vi.mock('vue-sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }) }))
+vi.mock('@/components/feedback/notify', () => ({ notify: vi.fn() }))
 
 beforeEach(() => {
   history.results = shallowRef<Result[]>([])
@@ -219,12 +219,12 @@ describe('the status bar of a partial or error result', () => {
     expect(history.save).toHaveBeenCalledWith(result)
     expect(wrapper.get('[role="status"]').text()).toBe(`Saved as ${status}`)
     expect(wrapper.find('[data-testid="keep-in-history"]').exists()).toBe(false)
-    expect(toast).toHaveBeenCalledWith(`Kept in history as ${status}.`, expect.objectContaining({ action: expect.objectContaining({ label: 'Undo' }) }))
-    const options = vi.mocked(toast).mock.lastCall?.[1] as { action: { onClick: () => void } }
-    options.action.onClick()
+    const [notice] = vi.mocked(notify).mock.lastCall ?? []
+    expect(notice).toMatchObject({ tone: 'info', title: `Kept in history as ${status}.`, undo: { label: 'Undo' } })
+    notice?.undo?.onClick()
     await flushPromises()
     expect(history.remove).toHaveBeenCalledWith([result.id])
-    expect(toast).toHaveBeenLastCalledWith('Removed from history.')
+    expect(notify).toHaveBeenLastCalledWith(expect.objectContaining({ tone: 'info', title: 'Removed from history.' }))
     expect(wrapper.get('[role="status"]').text()).toBe('Partial results are not saved')
     expect(wrapper.find('[data-testid="keep-in-history"]').exists()).toBe(true)
   })
@@ -234,7 +234,7 @@ describe('the status bar of a partial or error result', () => {
     const wrapper = mountBar({ result: partial(), save: null })
     await wrapper.get('[data-testid="keep-in-history"]').trigger('click')
     await flushPromises()
-    expect(toast.error).toHaveBeenCalledWith('The browser refused to store the result.')
+    expect(notify).toHaveBeenCalledWith({ tone: 'danger', title: 'The browser refused to store the result.' })
     expect(wrapper.find('[data-testid="keep-in-history"]').exists()).toBe(true)
   })
 })

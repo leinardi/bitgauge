@@ -165,7 +165,7 @@ test('deletes a row, then the selected rows, each with an undo, and clears all a
   await page.getByTestId('history-row').first().getByTestId('row-actions').click()
   await page.getByTestId('row-delete').click()
   await expect(count).toContainText('7 of 7 shown')
-  await undo('1 result deleted.')
+  await undo('Result deleted.')
   await expect(count).toContainText('8 of 8 shown')
 
   const table = page.getByTestId('history-table')

@@ -17,11 +17,12 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { Trash2 } from '@lucide/vue'
 import { computed, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { toast } from 'vue-sonner'
 
+import { notify } from '@/components/feedback/notify'
 import type { History } from '@/composables/useHistory'
 import { DEFAULT_SORT, filterFromQuery, filterResults, type HistoryFilter, queryFromFilter, type SortDirection, type SortKey, sortResults } from '@/history/filters'
 
@@ -30,7 +31,6 @@ import { DEFAULT_SORT, filterFromQuery, filterResults, type HistoryFilter, query
 // and deletion, at once with an undo toast for 8 s. Date ranges count back from the moment the page
 // opened.
 
-const UNDO_MS = 8000
 const FILTER_KEYS: readonly string[] = ['labels', 'contexts', 'range', 'q']
 
 /** The direction a column sorts in when first chosen: newest, fastest and best first, text A to Z. */
@@ -95,9 +95,11 @@ export function useHistoryList(history: History) {
     if (removed.length === 0) {
       return
     }
-    toast(t('history.deleted.title', { n: removed.length }, removed.length), {
-      duration: UNDO_MS,
-      action: { label: t('history.deleted.undo'), onClick: () => void history.restore(removed) },
+    notify({
+      tone: 'info',
+      icon: Trash2,
+      title: t('history.deleted.title', { n: removed.length }, removed.length),
+      undo: { label: t('history.deleted.undo'), countdown: true, onClick: () => void history.restore(removed) },
     })
   }
 

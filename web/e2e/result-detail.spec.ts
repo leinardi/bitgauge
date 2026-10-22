@@ -66,9 +66,10 @@ test('deletes the result with an undo, and runs its settings again on the Test s
   await openNewest(page)
   await page.getByTestId('delete-result').click()
   await expect(page.getByTestId('result-missing')).toContainText('Result deleted')
-  const toast = page.locator('[data-sonner-toast]').filter({ hasText: '1 result deleted.' })
+  const toast = page.locator('[data-sonner-toast]').filter({ hasText: 'Result deleted.' })
   await toast.getByRole('button', { name: 'Undo' }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('VPN via 5G')
+  await expect(page.locator('[data-sonner-toast]').filter({ hasText: 'Result restored.' })).toBeVisible()
 
   // Run again starts the result's settings on the Test screen, not the stored ones (the Standard
   // preset and 20 pings): its result records the Quick preset and 12 pings. Escape stops it.

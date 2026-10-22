@@ -26,14 +26,14 @@
 
 import { DOMWrapper, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { toast } from 'vue-sonner'
 
+import { notify } from '@/components/feedback/notify'
 import { demoHistoryResults } from '@/demo/history'
 import type { Result } from '@/engine/messages'
 import { openHistoryDB } from '@/history/db'
 import { freshIndexedDB } from '@/test/idb'
 
-vi.mock('vue-sonner', () => ({ toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }) }))
+vi.mock('@/components/feedback/notify', () => ({ notify: vi.fn() }))
 
 const RESULTS = demoHistoryResults('populated')
 const EXPORT = (results: Result[]) => JSON.stringify({ format: 'bitgauge.history', formatVersion: 1, exportedAt: '2026-10-08T12:00:00.000Z', results })
@@ -95,7 +95,7 @@ beforeAll(async () => {
 beforeEach(() => {
   freshIndexedDB()
   localStorage.clear()
-  vi.mocked(toast).mockClear()
+  vi.mocked(notify).mockClear()
 })
 
 afterEach(() => {
@@ -256,10 +256,9 @@ describe('the list', () => {
     await page.get('[data-testid="delete-selected"]').trigger('click')
     await settled(() => expect(rows(page)).toHaveLength(6))
     expect(page.find('[data-testid="selection-bar"]').exists()).toBe(false)
-    const [title, options] = vi.mocked(toast).mock.calls[0] ?? []
-    expect(title).toBe('2 results deleted.')
-    expect(options).toMatchObject({ duration: 8000, action: { label: 'Undo' } })
-    ;(options as { action: { onClick: () => void } }).action.onClick()
+    const [notice] = vi.mocked(notify).mock.calls[0] ?? []
+    expect(notice).toMatchObject({ tone: 'info', title: '2 results deleted.', undo: { label: 'Undo', countdown: true } })
+    notice?.undo?.onClick()
     await settled(() => expect(rows(page)).toHaveLength(8))
     page.unmount()
   })
@@ -309,7 +308,7 @@ describe('Compare', () => {
     await settle()
     expect(writeText).toHaveBeenCalledOnce()
     expect(String(writeText.mock.calls[0]?.[0 as never])).toContain('Protocol: HTTP/2 → HTTP/1.1')
-    expect(toast.success).toHaveBeenCalledWith('Comparison copied.')
+    expect(notify).toHaveBeenCalledWith({ tone: 'ok', title: 'Comparison copied.' })
     page.unmount()
   })
 

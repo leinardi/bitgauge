@@ -21,10 +21,10 @@ import { HardDrive, History as HistoryIcon, Play, Search, Upload, X } from '@luc
 import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
-import { toast } from 'vue-sonner'
 
 import AppButton from '@/components/actions/AppButton.vue'
 import EmptyState from '@/components/feedback/EmptyState.vue'
+import { notify } from '@/components/feedback/notify'
 import ClearAllDialog from '@/components/history/ClearAllDialog.vue'
 import ComparePanel from '@/components/history/ComparePanel.vue'
 import ExportMenu from '@/components/history/ExportMenu.vue'
@@ -118,7 +118,7 @@ function exportAll(): void {
 }
 
 function invalidExport(): void {
-  toast.error(t('history.export.invalid'))
+  notify({ tone: 'danger', title: t('history.export.invalid') })
 }
 
 async function clearAll(): Promise<void> {
