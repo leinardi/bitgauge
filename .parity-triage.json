@@ -64048,6 +64048,59 @@
       "resolution": null
     },
     {
+      "id": "v03-history-compare-card-link-shrink",
+      "title": "History compare on a narrow window: the kit's result card link is 44 px, flex-shrunk 2 px below its 46 px content in the height-limited card; Vue's is 46 px",
+      "match": {
+        "scenarios": [
+          "history/compare-h2"
+        ],
+        "projects": null,
+        "layer": "style",
+        "path": "^dialogs > button \"B",
+        "kind": "^height$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §3",
+          "says": "silent on geometry"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/History.jsx:741",
+          "says": "<a> with min-height 44px and padding-bottom var(--space-2-5) in a column card of limited height: 44 px, its 36 px content plus padding shrunk by 2 px"
+        },
+        "vue": {
+          "ref": "web/src/components/history/ComparePanel.vue",
+          "says": "the same link, 36 px content plus 10 px padding: 46 px"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer decided on 2026-10-22 to keep it: the kit's link is shrunk below its content by flex in a card too short for it, a kit artifact, noted upstream.",
+        "on": "2026-10-22"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the narrow compare card's link shrinks below its content.",
+          "done": true
+        }
+      ],
+      "status": "accepted",
+      "owned": {
+        "history/compare-h2": {
+          "4062af0452d5": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
+      "resolution": null
+    },
+    {
       "id": "v03-history-compare-h2-compare-table",
       "title": "History compare with B over HTTP/2: the compare table rows",
       "match": {
@@ -64225,7 +64278,7 @@
           "history/compare-h2"
         ],
         "projects": null,
-        "layer": "layout",
+        "layer": null,
         "path": "^(?!(?:main > button \"VPN 8\"|main > cell \"\" #10|main > cell \"\" #12|main > cell \"\" #14|main > cell \"\" #16|main > cell \"\" #2|main > cell \"\" #4|main > cell \"\" #6|main > cell \"\" #8|main > cell \"B\"|main > cell \"B\" #2|main > cell \"C\"|main > cell \"C\" #2|main > cell \"COMPLETE\"|main > cell \"COMPLETE\" #2|main > cell \"COMPLETE\" #3|main > cell \"COMPLETE\" #4|main > cell \"COMPLETE\" #5|main > cell \"COMPLETE\" #6|main > cell \"D\"|main > cell \"D\" #2|main > cell \"ERROR\"|main > cell \"F\"|main > cell \"HTTP\\/2\" #3|main > cell \"HTTP\\/2\" #4|main > cell \"HTTP\\/2\" #5|main > cell \"HTTP\\/2\" #6|main > cell \"PARTIAL\"|main > cell \"—\"|main > cell \"—\" #2|main > cell \"—\" #3|main > cell \"—\" #4|main > columnheader \"\"|main > columnheader \"DOWNLOAD\"|main > columnheader \"GRADE\"|main > columnheader \"JITTER\"|main > columnheader \"LATENCY\"|main > columnheader \"STATUS\"|main > columnheader \"UPLOAD\"|main > img \"Download trend, 7 results, 1 partial or error\"|main > main \"\"|main > region \"Results\"|main > row \"\"|main > row \"\" #2|main > row \"\" #3|main > row \"\" #4|main > row \"\" #5|main > row \"\" #6|main > row \"\" #7|main > row \"\" #8|main > row \"\" #9|main > table \"\"|main > text \"48\"|main > text \"8\"|main > text \"8\" #2|main > text \"Error\"|main > text \"Mbit\\/s\"|main > text \"Mbit\\/s\" #2|main > text \"Mbit\\/s\" #3|main > text \"Mbit\\/s\" #4|main > text \"Mbit\\/s\" #7|main > text \"Partial\"|main > text \"VPN via 5G\" #3|main > text \"· HTTP\\/2\" #3|main > text \"· HTTP\\/2\" #4|main > toolbar \"Selection\")$)(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
         "kind": null,
         "detail": null
@@ -64556,6 +64609,10 @@
             "light-desktop"
           ],
           "56c531fb5a9c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "57c79b6fb497": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -65518,80 +65575,6 @@
         }
       ],
       "status": "in-progress",
-      "resolution": null
-    },
-    {
-      "id": "v03-history-compare-h2-style",
-      "title": "History compare with B over HTTP/2: computed styles",
-      "match": {
-        "scenarios": [
-          "history/compare-h2"
-        ],
-        "projects": null,
-        "layer": "style",
-        "path": null,
-        "kind": null,
-        "detail": null
-      },
-      "type": "conflict",
-      "aspect": "style",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/screens.md",
-          "says": "silent"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/History.jsx",
-          "says": "dialogs > columnheader \"Bufferbloat grade\" height 61.0px"
-        },
-        "vue": {
-          "ref": "web/src/components/history/ComparePanel.vue",
-          "says": "dialogs > columnheader \"Bufferbloat grade\" height 46.0px"
-        },
-        "notes": "6 differences / 12 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
-      },
-      "decision": {
-        "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: the compare table's header cells take the kit's computed styles.",
-        "on": "2026-10-20"
-      },
-      "owned": {
-        "history/compare-h2": {
-          "4062af0452d5": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "46efdb963590": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "485930f84363": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "4b4755c85498": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "57c79b6fb497": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "dde41e1a8354": [
-            "dark-desktop",
-            "light-desktop"
-          ]
-        }
-      },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "web/src/components/history/: the compare table's header cells (\"Bufferbloat grade\" and its row) take the kit's height and styles.",
-          "done": false
-        }
-      ],
-      "status": "decided",
       "resolution": null
     },
     {

@@ -90,7 +90,7 @@ const CELL = 'border-b border-(--border-subtle) px-3.5 py-(--density-cell-paddin
         class="fixed inset-0 z-(--z-overlay) flex flex-col overflow-hidden bg-background text-foreground tablet:inset-auto tablet:top-16 tablet:left-1/2 tablet:max-h-[calc(100vh-var(--space-20))] tablet:w-(--modal-w-xl) tablet:max-w-(--modal-max-w) tablet:-translate-x-1/2 tablet:rounded-(--radius-xl) tablet:border tablet:border-(--border-default) tablet:bg-(--surface-2) tablet:shadow-(--shadow-pop)"
         data-testid="compare-panel"
       >
-        <div class="flex items-start gap-3.5 border-b border-(--border-subtle) py-1.5 pr-2 pl-4 tablet:border-b-0 tablet:px-5 tablet:pt-4.5 tablet:pb-3.5">
+        <div class="flex items-center gap-2 border-b border-(--border-subtle) py-1.5 pr-2 pl-4 tablet:items-start tablet:gap-3.5 tablet:border-b-0 tablet:px-5 tablet:pt-4.5 tablet:pb-3.5">
           <span class="hidden size-(--modal-icon) shrink-0 items-center justify-center rounded-(--radius-md) border border-(--primary-border) bg-(--primary-bg) text-primary tablet:flex">
             <GitCompare
               :size="18"
@@ -98,10 +98,10 @@ const CELL = 'border-b border-(--border-subtle) px-3.5 py-(--density-cell-paddin
             />
           </span>
           <div class="min-w-0 flex-1">
-            <DialogTitle class="text-(length:--text-lg) leading-(--lh-snug) font-semibold">
+            <DialogTitle class="text-(length:--text-lg) leading-(--lh-normal) font-semibold tablet:leading-(--lh-snug)">
               {{ t('history.compare.title') }}
             </DialogTitle>
-            <DialogDescription class="mt-0.5 text-(length:--text-caption) leading-(--lh-prose) text-subtle-foreground tablet:mt-1 tablet:text-(length:--text-sm) tablet:text-muted-foreground">
+            <DialogDescription class="text-(length:--text-caption) leading-(--lh-prose) text-subtle-foreground tablet:mt-1 tablet:text-(length:--text-sm) tablet:text-muted-foreground">
               <span class="tablet:hidden">{{ t('history.compare.descriptionPaged') }}</span>
               <span class="hidden tablet:inline">{{ t('history.compare.description') }}</span>
             </DialogDescription>
@@ -110,7 +110,7 @@ const CELL = 'border-b border-(--border-subtle) px-3.5 py-(--density-cell-paddin
             <AppButton
               variant="ghost"
               size="sm"
-              class="size-11 justify-center px-0 text-(length:--text-sm) leading-(--lh-tight) tablet:size-(--control-h-sm) tablet:text-(length:--text-caption)"
+              class="size-11 justify-center px-0 text-(length:--text-sm) leading-(--lh-tight) tablet:-mt-1 tablet:-mr-1.5 tablet:size-(--control-h-sm) tablet:text-(length:--text-caption)"
               :aria-label="t('history.compare.close')"
             >
               <X
