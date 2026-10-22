@@ -310,3 +310,22 @@ upload and slow states already do (`respB(1420, null)`, `respB(240, null)`). On 
 state the download has ended, yet the kit reads "Download —". It should show the download's own
 state: "Download not enough samples" when its path B has fewer than 10 samples, as the Vue Test
 screen does.
+
+### Toasts: float over the page, and say what the undo time is for
+
+From triage cluster `v03-result-deleted-toast-space`. Kit files `ui_kits/app/ResultDetail.jsx`
+(its own toast block, `position: sticky` with `padding: var(--space-4)`) and `History.jsx`, the
+delete toasts.
+
+The Result detail draws its toast in a sticky block at the end of the page column, which takes
+about 97 px from the page: after Delete the "Result deleted" page is that much shorter than without
+the toast. A toast floats over the page and takes no room in it
+([ui/screens.md](../features/ui/screens.md#8-toasts) §8): it should use the export's own
+`ToastRegion` (`components/feedback`), or any fixed placement, at the bottom right and above the
+tab bar on a narrow window, as the Test screen does.
+
+The delete toasts' line "Removed from history in 8 s." says the removal is still to come, but
+Delete removes the result at once and the 8 s are the time Undo has
+([frontend.md](../features/technical-stack/frontend.md#5-history-module-idb) §5). The line should
+read "Undo within 8 s.", counting down each second, on the Result detail and on History, as the Vue
+toasts do.
