@@ -156,7 +156,7 @@ About). The page must work in portrait on a phone without horizontal scrolling.
   ([share-panel.md](../../design_system/components/share-panel.md)). The HTTP loaded
   responsiveness and the quality scores stay off the share image and the copied summary.
 - **Download JSON**, **Delete** and **Run again** (same settings). Delete removes the result from
-  history at once and shows an undo toast for 8 s, as on History; the page then shows "Result
+  history at once and shows an undo toast for 8 s (§8), as on History; the page then shows "Result
   deleted" with a link to History in place of the result, and the toast's Undo puts the result
   back and shows it again.
 
@@ -400,6 +400,26 @@ ignored, proxy buffering suspected, response compression detected and timer thro
 **neutral** for partial — stopped early, server restarted, network changed and page was hidden.
 The Error state's message (what failed and in which phase) is not a notice, but takes the same
 **danger** tone with `role="alert"`.
+
+## 8. Toasts
+
+A toast confirms an action the user just took, or says that it failed. It floats at the bottom
+right over the page, taking no room in it, above the narrow layout's tab bar. Each has a tone with
+its icon, a title that is one short sentence ending in a period, an optional message line, an
+optional action and a Dismiss button; it is announced politely, once, when it appears.
+
+- **Undo toasts**, info tone, shown for 8 s with Undo:
+  - Delete on History and on the Result detail: "Result deleted." or "N results deleted.", with
+    the trash icon and the line "Undo within N s.", which counts the 8 s down each second; the
+    countdown is not announced again as it changes. The Result detail's Undo then confirms
+    "Result restored." in the ok tone.
+  - Keep in history on the Test screen: "Kept in history as partial." (or "as error."), with the
+    history icon; its Undo confirms "Removed from history.".
+- **Done**, ok tone: "Summary copied.", "Comparison copied.", "Image downloaded." with the file
+  name, and, on the Result detail, "JSON downloaded." with the file name and "contains client IP
+  and notes".
+- **Failed**, danger tone: the browser refused to store a kept result, could not make the share
+  image, or a stored result failed validation so the History export was not created.
 
 ## Related
 
