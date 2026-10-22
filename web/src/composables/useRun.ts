@@ -190,6 +190,8 @@ export function useRun(options: RunOptions = {}) {
     ...state,
     /** Each direction's live loaded-latency pings on its chart axis. */
     loaded: loaded.series,
+    /** Each direction's answered pings for the load card, placed on the chart or not yet. */
+    answered: loaded.answered,
     /** A Continuous run's tier and overlay rings; null for a bounded run. */
     continuous: continuous.series,
     defaults,

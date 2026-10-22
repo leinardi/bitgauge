@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { type Ref, shallowRef } from 'vue'
+import { computed, type Ref, shallowRef } from 'vue'
 
 import { liveCapacity } from '@/composables/runLive'
 import type { Direction, EngineEvent, LoadedPing, TestSettings } from '@/engine/messages'
@@ -28,7 +28,9 @@ import { FixedRing } from '@/lib/ring'
 // its direction's chart axis: download from its phase start, in buckets; upload on the server grid,
 // in cells, by the display-only offset the engine gives the sending line (measurement.md section
 // 7.4), so the latency lines up with the received series as the sending line does. Pings that come
-// before the upload's first confirmed request wait for the offset. Each direction's pings are a
+// before the upload's first confirmed request wait for the offset; their round-trip times are
+// answered already, so `answered` gives the load card every ping's time at once, placed or not.
+// Each direction's pings are a
 // fixed ring allocated at its phase start (frontend.md section 6). Display only: the result's
 // loaded latency comes from the engine.
 
@@ -43,13 +45,16 @@ export interface LoadedPoint {
 
 export type LoadedSeries = Record<Direction, readonly LoadedPoint[]>
 
+/** Each direction's answered pings, their round-trip times only, in the order they came. */
+export type AnsweredPings = Record<Direction, readonly { ms: number }[]>
+
 const empty = (): LoadedSeries => ({ download: [], upload: [] })
 
 /** `onPoint` hears each ping as it is placed, as a Continuous run's overlay rings take it. */
 export function useLoadedSeries(onPoint?: (direction: Direction, point: LoadedPoint) => void) {
   const series = shallowRef<LoadedSeries>(empty())
   /** Upload pings answered before the offset was known. */
-  let waiting: LoadedPing[] = []
+  const waiting = shallowRef<readonly LoadedPing[]>([])
   /** The run's settings, which size the rings; null until the run's settings event. */
   let settings: TestSettings | null = null
   let rings: Partial<Record<Direction, FixedRing<LoadedPoint>>> = {}
@@ -68,11 +73,13 @@ export function useLoadedSeries(onPoint?: (direction: Direction, point: LoadedPo
 
   return {
     series: series as Readonly<Ref<LoadedSeries>>,
+    /** Every answered ping's time, the upload's still waiting for the offset included. */
+    answered: computed<AnsweredPings>(() => ({ download: series.value.download, upload: [...series.value.upload, ...waiting.value.map((ping) => ({ ms: ping.rttMs }))] })),
 
     /** Clears the last run's pings for a new run. */
     reset(): void {
       series.value = empty()
-      waiting = []
+      waiting.value = []
       settings = null
       rings = {}
     },
@@ -98,13 +105,15 @@ export function useLoadedSeries(onPoint?: (direction: Direction, point: LoadedPo
         return
       }
       if (event.sendingBucket === undefined) {
-        waiting.push(...pings)
+        if (pings.length > 0) {
+          waiting.value = [...waiting.value, ...pings]
+        }
         return
       }
       // The sample's instant on the server grid, less its time from the phase start: where the
       // phase start falls on the grid, by the same offset as the sending line.
-      const pending = [...waiting, ...pings]
-      waiting = []
+      const pending = [...waiting.value, ...pings]
+      waiting.value = []
       if (pending.length > 0) {
         place('upload', pending, event.sendingBucket - event.phaseMs / BUCKET_MS)
       }

@@ -28682,7 +28682,15 @@
             "light-desktop"
           ],
           "360766247914": "*",
+          "4eb129d17b3d": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "54c932ff68cb": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a33a1760bf4b": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -73752,8 +73760,7 @@
       "match": {
         "scenarios": [
           "test/latency",
-          "test/basepath",
-          "test/insufficient"
+          "test/basepath"
         ],
         "projects": null,
         "layer": "layout",
@@ -73849,11 +73856,115 @@
         {
           "target": "vue",
           "what": "On the latency, basepath and insufficient states the \"—\" placeholders and the boxes around them take the kit's geometry.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "The load card shows the upload's answered pings at once, before the chart can place them; the dashes it no longer draws moved the rest to v03-test-insufficient-ended-rpm.",
+        "on": "2026-10-22",
+        "run": {
+          "runId": "76a71b43-343e-4e46-9abb-86ddcef5ab5a",
+          "finishedAt": "2026-10-22T16:24:59.050Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/continuous",
+            "test/cont-upload",
+            "test/cont-warmup",
+            "test/cont-done",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "responsiveness/uncertain",
+            "result/resp-uncertain",
+            "responsiveness/needs-h2",
+            "result/resp-needs-h2",
+            "responsiveness/not-reported",
+            "result/resp-not-reported",
+            "responsiveness/few-samples",
+            "result/resp-few-samples",
+            "continuous/run-length-2h",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "history/compare-h2",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "result/continuous-2h",
+            "result/continuous-9d",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "about/layers-none",
+            "about/layers-openspeedtest",
+            "about/layers-librespeed",
+            "about/layers-networkquality",
+            "about/layers-all",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-test-geometry-2",
@@ -74213,15 +74324,15 @@
     },
     {
       "id": "v03-test-insufficient-ended-rpm",
-      "title": "Test screen, insufficient run during the upload: the ended download's HTTP loaded responsiveness, \"not enough samples\" in Vue and \"—\" in the kit",
+      "title": "Test screen, insufficient run during the upload: the ended download's HTTP loaded responsiveness, \"not enough samples\" in Vue and \"—\" in the kit, and the later \"—\" texts the harness pairs one off because of it",
       "match": {
         "scenarios": [
           "test/insufficient"
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^main > text \"—\" #3$",
-        "kind": "^x$",
+        "path": "^main > text \"—\" #[2-5]$",
+        "kind": "^[xy]$",
         "detail": null
       },
       "type": "conflict",
@@ -74256,13 +74367,53 @@
       "status": "in-progress",
       "owned": {
         "test/insufficient": {
+          "33fc54c12754": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a48caba87cc": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4fdb63d8704f": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "526b193612b1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "6951e2c0c185": [
             "dark-desktop",
             "light-desktop"
           ],
+          "6ff39c4e672c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "7305be3684db": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "9e6782c3c2a1": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "af14201d9de9": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c35df1cc5ab6": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "ceae366385d4": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "f088d01a091d": [
+            "dark-desktop",
+            "light-desktop"
           ]
         }
       },

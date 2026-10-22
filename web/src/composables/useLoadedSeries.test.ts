@@ -46,10 +46,16 @@ describe('useLoadedSeries', () => {
     const loaded = useLoadedSeries()
     loaded.apply(sample({ direction: 'upload', phaseMs: 400, loadedLatency: [{ atMs: 300, rttMs: 40 }] }))
     expect(loaded.series.value.upload).toEqual([])
+    // The load card has its time already, before the chart can place it.
+    expect(loaded.answered.value.upload).toEqual([{ ms: 40 }])
     // At 1 s from the phase start, this sample sits at cell 9010.5 of the server grid: the phase
     // start falls at cell 9000.5.
     loaded.apply(sample({ direction: 'upload', phaseMs: 1000, sendingBucket: 9010.5, loadedLatency: [{ atMs: 900, rttMs: 44 }] }))
     expect(loaded.series.value.upload).toEqual([
+      { at: 9003.5, ms: 40 },
+      { at: 9009.5, ms: 44 },
+    ])
+    expect(loaded.answered.value.upload).toEqual([
       { at: 9003.5, ms: 40 },
       { at: 9009.5, ms: 44 },
     ])

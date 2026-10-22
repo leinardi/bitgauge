@@ -20,7 +20,7 @@
 import type { Direction, LoadedLatency, MeasuringPhase, PhaseState, Responsiveness, Result } from '@/engine/messages'
 import { type GradeView, loadRow, type LoadRow, gradeView, plannedResponsivenessView, responsivenessView, type ResponsivenessView } from '@/components/result/load'
 import type { Wording } from '@/components/test/wording'
-import type { LoadedSeries } from '@/composables/useLoadedSeries'
+import type { AnsweredPings } from '@/composables/useLoadedSeries'
 import type { RunStatus } from '@/composables/useRunState'
 import { percentile } from '@/lib/percentile'
 import { latencyNumber } from '@/lib/format'
@@ -42,8 +42,8 @@ export interface LoadInput {
   responsiveness?: Partial<Record<Direction, Responsiveness>>
   /** A run stopped during idle latency that returned to idle: its directions never ran. */
   stoppedEarly?: boolean
-  /** Each direction's live loaded-latency pings. */
-  pings: LoadedSeries | undefined
+  /** Each direction's answered loaded-latency pings, whether or not the chart has placed them. */
+  pings: AnsweredPings | undefined
   /**
    * Idle latency's median as its finished phase reports it, the baseline of the live increase;
    * null while there is none, or when idle latency ended without one (fewer than 5 samples), as
