@@ -329,3 +329,17 @@ Delete removes the result at once and the 8 s are the time Undo has
 ([frontend.md](../features/technical-stack/frontend.md#5-history-module-idb) §5). The line should
 read "Undo within 8 s.", counting down each second, on the Result detail and on History, as the Vue
 toasts do.
+
+### Dialog description class: it also styles the wordmark
+
+From triage cluster `v03-share-wordmark-kit-class`. Kit file `components/dialog/dialog.css`, the
+rule `.modal .md` for the dialog's description, seen on the Test screen's Share dialog
+(`ui_kits/app/TestScreen.jsx`).
+
+`.modal .md` sets `line-height: var(--lh-prose)`, `margin-top: var(--space-1)`, `font-size:
+var(--text-sm)` and `color: var(--fg-muted)`. Inside a dialog it also matches the wordmark of the
+share image preview, whose size class is `wm md` (`Logo size={20} wordmark`): the "BitGauge" line
+there is 23.25 px tall instead of the Logo contract's 17.25 px (`.wm`, `line-height:
+var(--lh-tight)`), and sits lower. The description should take a class no other component uses
+(for example `.modal .desc`), so the wordmark in a dialog looks as it does everywhere else, as in
+the Vue share dialog.
