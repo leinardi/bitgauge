@@ -16,4 +16,5 @@ contract, and nothing here constrains the product.
 
 | Document | What it will be for |
 | --- | --- |
+| `qa/<date>-<name>.md` | One file per exploratory QA round: its setup, the findings with their IDs and status, the decisions it needed and the suggested split into fix plans; the method is the `qa-round` skill in `.agents/skills/` |
 | `health-audits/<version>.md` | One file per milestone, holding that milestone's audit in the shape [health-audit.md](health-audit.md#where-the-audit-is-written-down) prescribes |
