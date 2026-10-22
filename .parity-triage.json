@@ -74671,7 +74671,7 @@
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "path": "^(?!main > text \"—\" #3$)(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
         "kind": null,
         "detail": null
       },
@@ -75020,6 +75020,63 @@
         }
       ],
       "status": "decided",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-insufficient-ended-rpm",
+      "title": "Test screen, insufficient run during the upload: the ended download's HTTP loaded responsiveness, \"not enough samples\" in Vue and \"—\" in the kit",
+      "match": {
+        "scenarios": [
+          "test/insufficient"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": "^main > text \"—\" #3$",
+        "kind": "^x$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "behavior",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §1",
+          "says": "\"A direction's HTTP loaded responsiveness is settled when the direction ends … so a standard run shows it from then on: the download's while upload runs, \\\"—\\\" for a direction still to run.\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:487",
+          "says": "respB(null, null) on the insufficient state's upload: \"↓ — ↑ —\"; yet respB(1420, null) on the upload state and respB(240, null) on the slow one"
+        },
+        "vue": {
+          "ref": "web/src/components/test/loadView.ts",
+          "says": "\"Download not enough samples\", \"Upload —\" from the download's end"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "spec",
+        "rationale": "The maintainer decided on 2026-10-22 that the spec wins: the ended download's HTTP loaded responsiveness shows from its end, \"not enough samples\" on the insufficient run as on the others.",
+        "on": "2026-10-22"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the insufficient state's load card shows the ended download's HTTP loaded responsiveness, \"not enough samples\".",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
+      "owned": {
+        "test/insufficient": {
+          "6951e2c0c185": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "7305be3684db": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
       "resolution": null
     },
     {

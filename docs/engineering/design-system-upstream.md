@@ -298,3 +298,15 @@ the Test parameters' Protocol row of the `not-reported` Responsiveness case (`PR
 The kit reads "— · not reported". A protocol the browser did not report reads "not reported"
 ([ui/screens.md](../features/ui/screens.md#1-test-home--) §1): the row should read "not reported"
 alone, as the Vue Result detail does.
+
+### Insufficient run: the ended download's HTTP loaded responsiveness
+
+From triage cluster `v03-test-insufficient-ended-rpm`. Kit file `ui_kits/app/TestScreen.jsx`, the
+`insufficient` state's load card while the upload runs (`respB(null, null)`).
+
+A direction's HTTP loaded responsiveness is settled when the direction ends, and the Test screen
+shows it from then on ([ui/screens.md](../features/ui/screens.md#1-test-home--) §1), as the kit's
+upload and slow states already do (`respB(1420, null)`, `respB(240, null)`). On the insufficient
+state the download has ended, yet the kit reads "Download —". It should show the download's own
+state: "Download not enough samples" when its path B has fewer than 10 samples, as the Vue Test
+screen does.
