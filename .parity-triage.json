@@ -64287,7 +64287,7 @@
         ],
         "projects": null,
         "layer": null,
-        "path": "^(?!(?:main > button \"VPN 8\"|main > cell \"\" #10|main > cell \"\" #12|main > cell \"\" #14|main > cell \"\" #16|main > cell \"\" #2|main > cell \"\" #4|main > cell \"\" #6|main > cell \"\" #8|main > cell \"B\"|main > cell \"B\" #2|main > cell \"C\"|main > cell \"C\" #2|main > cell \"COMPLETE\"|main > cell \"COMPLETE\" #2|main > cell \"COMPLETE\" #3|main > cell \"COMPLETE\" #4|main > cell \"COMPLETE\" #5|main > cell \"COMPLETE\" #6|main > cell \"D\"|main > cell \"D\" #2|main > cell \"ERROR\"|main > cell \"F\"|main > cell \"HTTP\\/2\" #3|main > cell \"HTTP\\/2\" #4|main > cell \"HTTP\\/2\" #5|main > cell \"HTTP\\/2\" #6|main > cell \"PARTIAL\"|main > cell \"—\"|main > cell \"—\" #2|main > cell \"—\" #3|main > cell \"—\" #4|main > columnheader \"\"|main > columnheader \"DOWNLOAD\"|main > columnheader \"GRADE\"|main > columnheader \"JITTER\"|main > columnheader \"LATENCY\"|main > columnheader \"STATUS\"|main > columnheader \"UPLOAD\"|main > img \"Download trend, 7 results, 1 partial or error\"|main > main \"\"|main > region \"Results\"|main > row \"\"|main > row \"\" #2|main > row \"\" #3|main > row \"\" #4|main > row \"\" #5|main > row \"\" #6|main > row \"\" #7|main > row \"\" #8|main > row \"\" #9|main > table \"\"|main > text \"48\"|main > text \"8\"|main > text \"8\" #2|main > text \"Error\"|main > text \"Mbit\\/s\"|main > text \"Mbit\\/s\" #2|main > text \"Mbit\\/s\" #3|main > text \"Mbit\\/s\" #4|main > text \"Mbit\\/s\" #7|main > text \"Partial\"|main > text \"VPN via 5G\" #3|main > text \"· HTTP\\/2\" #3|main > text \"· HTTP\\/2\" #4|main > toolbar \"Selection\")$)(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "path": "^(?!(?:main > button \"VPN 8\"|main > cell \"\" #10|main > cell \"\" #12|main > cell \"\" #14|main > cell \"\" #16|main > cell \"\" #2|main > cell \"\" #4|main > cell \"\" #6|main > cell \"\" #8|main > cell \"B\"|main > cell \"B\" #2|main > cell \"C\"|main > cell \"C\" #2|main > cell \"COMPLETE\"|main > cell \"COMPLETE\" #2|main > cell \"COMPLETE\" #3|main > cell \"COMPLETE\" #4|main > cell \"COMPLETE\" #5|main > cell \"COMPLETE\" #6|main > cell \"D\"|main > cell \"D\" #2|main > cell \"ERROR\"|main > cell \"F\"|main > cell \"HTTP\\/2\" #3|main > cell \"HTTP\\/2\" #4|main > cell \"HTTP\\/2\" #5|main > cell \"HTTP\\/2\" #6|main > cell \"PARTIAL\"|main > cell \"—\"|main > cell \"—\" #2|main > cell \"—\" #3|main > cell \"—\" #4|main > columnheader \"\"|main > columnheader \"DOWNLOAD\"|main > columnheader \"GRADE\"|main > columnheader \"JITTER\"|main > columnheader \"LATENCY\"|main > columnheader \"STATUS\"|main > columnheader \"UPLOAD\"|main > img \"Download trend, 7 results, 1 partial or error\"|main > main \"\"|main > region \"Results\"|main > row \"\"|main > row \"\" #2|main > row \"\" #3|main > row \"\" #4|main > row \"\" #5|main > row \"\" #6|main > row \"\" #7|main > row \"\" #8|main > row \"\" #9|main > table \"\"|main > text \"48\"|main > text \"8\"|main > text \"8\" #2|main > text \"Error\"|main > text \"Mbit\\/s\"|main > text \"Mbit\\/s\" #2|main > text \"Mbit\\/s\" #3|main > text \"Mbit\\/s\" #4|main > text \"Mbit\\/s\" #7|main > text \"Partial\"|main > text \"VPN via 5G\" #3|main > text \"· HTTP\\/2\" #3|main > text \"· HTTP\\/2\" #4|main > toolbar \"Selection\")$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
         "kind": null,
         "detail": null
       },
@@ -64439,6 +64439,10 @@
           "20cedabb70f5": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "216ec3f1f7a0": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "2187eaf4be14": [
             "dark-narrow",
@@ -64672,6 +64676,10 @@
             "dark-narrow",
             "light-narrow"
           ],
+          "69dcfdbd9182": [
+            "dark-narrow",
+            "light-narrow"
+          ],
           "6a6617f13967": [
             "dark-desktop",
             "light-desktop"
@@ -64695,6 +64703,10 @@
           "6ece02d6bb43": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "6f60245a2483": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "6f912a6f1282": [
             "dark-narrow",
@@ -64971,6 +64983,10 @@
           "b7622aceb206": [
             "dark-desktop",
             "light-desktop"
+          ],
+          "b80235f2031c": [
+            "dark-narrow",
+            "light-narrow"
           ],
           "bcafe67cd4c5": [
             "dark-narrow",
@@ -65444,72 +65460,6 @@
           "complete": true
         }
       }
-    },
-    {
-      "id": "v03-history-compare-h2-path-b-geometry",
-      "title": "History compare with B over HTTP/2: geometry of the HTTP loaded responsiveness rows",
-      "match": {
-        "scenarios": [
-          "history/compare-h2"
-        ],
-        "projects": null,
-        "layer": "layout",
-        "path": "^(?=(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)",
-        "kind": null,
-        "detail": null
-      },
-      "type": "conflict",
-      "aspect": "style",
-      "evidence": {
-        "spec": {
-          "ref": "docs/features/ui/screens.md §6",
-          "says": "silent on geometry; it asks for the row \"HTTP loaded responsiveness — connection sharing not verifiable\" with the protocol and the state"
-        },
-        "kit": {
-          "ref": "docs/design_system/ui_kits/app/History.jsx",
-          "says": "dialogs > text \"HTTP loaded responsiveness — connection sharing…\" y 717px"
-        },
-        "vue": {
-          "ref": "web/src/components/result/LoadCard.vue",
-          "says": "dialogs > text \"HTTP loaded responsiveness — connection sharing…\" y 686px"
-        },
-        "notes": "4 differences / 8 entries in 1 scenarios: history/compare-h2. The same screen as history/compare (v02-compare-geometry, v02-compare-rows, v02-compare-table-headers, v02-modal-inert-page), whose decisions name the older scenarios only; whether one extends here is the maintainer's call. Recommendation, not a decision: Kit wins, as the export wins on visuals (docs/README.md precedence); the maintainer decides it in triage."
-      },
-      "decision": {
-        "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: In the compare dialog with B over HTTP/2 the HTTP loaded responsiveness rows take the kit's geometry.",
-        "on": "2026-10-20"
-      },
-      "owned": {
-        "history/compare-h2": {
-          "216ec3f1f7a0": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "69dcfdbd9182": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6f60245a2483": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b80235f2031c": [
-            "dark-narrow",
-            "light-narrow"
-          ]
-        }
-      },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "In the compare dialog with B over HTTP/2 the HTTP loaded responsiveness rows take the kit's geometry.",
-          "done": false
-        }
-      ],
-      "status": "decided",
-      "resolution": null
     },
     {
       "id": "v03-history-compare-h2-scores-geometry",
