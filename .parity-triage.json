@@ -28806,11 +28806,12 @@
           "result/resp-uncertain",
           "result/resp-needs-h2",
           "result/resp-not-reported",
-          "result/resp-few-samples"
+          "result/resp-few-samples",
+          "share/complete"
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^main > text \"Include label\"$",
+        "path": "^(?:main|dialogs) > text \"(?:Include label|no label set)\"$",
         "kind": "^(x|width)$",
         "detail": null
       },
@@ -29013,6 +29014,9 @@
             "dark-desktop",
             "light-desktop"
           ]
+        },
+        "share/complete": {
+          "38b528e802b4": "*"
         }
       },
       "actions": [],
@@ -72110,10 +72114,10 @@
           "share/complete"
         ],
         "projects": null,
-        "layer": "content",
-        "path": "^dialogs > dialog \"Share result\" > region \"(Share image|Text summary)\"",
+        "layer": null,
+        "path": "^dialogs > (?:dialog \"Share result\" > region \"(?:Share image|Text summary)\"|text \"Basement NAS\"$)",
         "kind": null,
-        "detail": "Oct 12, 2026"
+        "detail": "Oct 12, 2026|^(?:251px → 257px|159px → 163px)$"
       },
       "type": "fixture",
       "aspect": null,
@@ -72141,6 +72145,14 @@
       "owned": {
         "share/complete": {
           "0d2960d7a30a": "*",
+          "28d9d9b6474e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "3f13c7f469ff": [
+            "dark-desktop",
+            "light-desktop"
+          ],
           "4a3dd18d7ef5": "*",
           "ff46229b7b28": "*"
         }
@@ -72150,105 +72162,51 @@
       "resolution": null
     },
     {
-      "id": "v03-share-dialog-geometry",
-      "title": "Share dialog on the Test screen: its text summary 47 px shorter in Vue, the dialog and its buttons with it, and the share image's wordmark and grade boxes a few px apart",
+      "id": "v03-share-wordmark-kit-class",
+      "title": "Share dialog, share image preview: the kit's dialog description rule (.modal .md) also styles the wordmark, whose size class is md, so its \"Bit\" line is taller and lower than the Logo contract draws it",
       "match": {
         "scenarios": [
           "share/complete"
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^dialogs > ",
-        "kind": null,
+        "path": "^dialogs > text \"(?:Bit|Gauge)\"$",
+        "kind": "^(?:height|y)$",
         "detail": null
       },
       "type": "conflict",
       "aspect": "style",
       "evidence": {
         "spec": {
-          "ref": "docs/features/ui/screens.md §5",
+          "ref": "docs/features/ui/screens.md §2",
           "says": "silent on geometry"
         },
         "kit": {
-          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx",
-          "says": "Text summary 264 px"
+          "ref": "docs/design_system/components/dialog/dialog.css:23",
+          "says": ".modal .md { line-height: var(--lh-prose); margin-top: var(--space-1); color: var(--fg-muted) } matches the wordmark span.wm.md: line-height 23.25 px"
         },
         "vue": {
-          "ref": "web/src/components/result/SharePanel.vue",
-          "says": "217 px"
-        },
-        "notes": "Recommendation, not a decision: Kit wins, as the export wins on visuals."
+          "ref": "web/src/components/share/SharePreview.vue",
+          "says": "the Logo contract's .wm.md: text-md, line-height var(--lh-tight), 17.25 px"
+        }
       },
       "decision": {
         "kind": "verdict",
-        "winner": "kit",
-        "rationale": "The maintainer decided on 2026-10-20 that the kit wins, as the export wins on visuals: The Test screen's Share dialog takes the kit's geometry: its text summary, buttons and the share image's wordmark and grade boxes.",
-        "on": "2026-10-20"
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-22 that Vue wins: the kit's wordmark in the share dialog is restyled by the dialog description's class by accident, a kit fault; the Logo contract stands.",
+        "on": "2026-10-22"
       },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the dialog description's .md class collides with the wordmark's md size class.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
       "owned": {
         "share/complete": {
-          "02d20230d517": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0563e02137fa": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "0dc13a416393": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "0f004415a42e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1733f36af1fa": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1bdb361504ea": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "1da6b61053e8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "240f69806ea8": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "28d9d9b6474e": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "2969af761f19": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "35959d7d8e65": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "37ee72be8df2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "38b528e802b4": "*",
           "3b361cf2eb56": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3c3d3e854def": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3df08f96eb63": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "3f13c7f469ff": [
             "dark-desktop",
             "light-desktop"
           ],
@@ -72256,149 +72214,16 @@
             "dark-narrow",
             "light-narrow"
           ],
-          "43a1d4611da9": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "46bb5ffc50b7": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "46f7faa735ea": [
-            "dark-desktop",
-            "light-desktop"
-          ],
           "4a701dd18f94": [
             "dark-desktop",
             "light-desktop"
           ],
-          "52507f02445b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "560ce796abde": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5645ced2dde2": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "5ec1133df74f": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "67af0dc93c2c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6d5496e915c3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
           "722541eb748c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "742d9d18c134": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "7b0a464025c1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "821c20a04ee4": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "839fa88015d1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "85c9c8812cbe": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8ebc062296ac": "*",
-          "9a4094e6c2bc": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "9d24d1b6610d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a26550e06df6": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a780e749ec36": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a88055dfefa7": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ac659ec62747": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "ae7d479c6c88": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "b690e84473eb": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c5e7f018329c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "c7fdc8ce9930": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "cf06c3475fc3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e091ec205e9c": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e1081ef89c94": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "e2adab11098d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "eb91047f9de5": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "eed543f67ac3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "f4c9d0efb065": [
             "dark-narrow",
             "light-narrow"
           ]
         }
       },
-      "actions": [
-        {
-          "target": "vue",
-          "what": "The Test screen's Share dialog takes the kit's geometry: its text summary, buttons and the share image's wordmark and grade boxes.",
-          "done": false
-        }
-      ],
-      "status": "decided",
       "resolution": null
     },
     {
