@@ -74782,7 +74782,6 @@
           "test/error",
           "test/cancelled-late",
           "test/cancelled-download",
-          "test/slow",
           "test/param-ignored",
           "loaded/ll-insufficient-samples",
           "share/complete"
@@ -75084,8 +75083,7 @@
       "title": "Test screen, upload under way: the kit's load card shows the finished download's RPM as soon as the download ends; Vue shows it only with the result",
       "match": {
         "scenarios": [
-          "test/upload",
-          "test/slow"
+          "test/upload"
         ],
         "projects": null,
         "layer": "layout",
@@ -76858,7 +76856,6 @@
           "test/cancelled-late",
           "test/cancelled-latency",
           "test/cancelled-download",
-          "test/slow",
           "test/offline",
           "test/basepath",
           "test/ws-fallback",
@@ -77618,6 +77615,139 @@
       },
       "actions": [],
       "status": "accepted",
+      "resolution": null
+    },
+    {
+      "id": "v03-test-slow-path-b-geometry",
+      "title": "Test screen, slow run during the upload: the ended download's uncertain HTTP loaded responsiveness wraps the block's heading, so the block is about 50 px taller and the boxes below move",
+      "match": {
+        "scenarios": [
+          "test/slow"
+        ],
+        "projects": null,
+        "layer": "layout",
+        "path": null,
+        "kind": null,
+        "detail": null
+      },
+      "type": "fixture",
+      "aspect": null,
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §6",
+          "says": "silent on geometry"
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/TestScreen.jsx:452",
+          "says": "respB(240, null): main > text \"HTTP loaded responsiveness — connection sharing…\" on one line (238 x 34 px narrow)"
+        },
+        "vue": {
+          "ref": "web/src/components/result/LoadCard.vue",
+          "says": "the demo run's download uncertain, its pill wraps the heading (151 x 68 px narrow); region \"Bufferbloat\" 357 px vs 307 px"
+        },
+        "notes": "Appeared on 2026-10-22 when v03-test-live-rpm's fix showed the ended download's responsiveness during the upload; the slowdone state has the same wrap (v03-path-b-knock-on-geometry)."
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "keep",
+        "rationale": "The maintainer confirmed on 2026-10-22 that it shares the 2026-10-21 decision of v03-path-b-knock-on-geometry: the HTTP loaded responsiveness block's geometry follows the demo run's own state (the Uncertain pill that wraps the heading on the slow runs), and the boxes below follow.",
+        "on": "2026-10-22"
+      },
+      "actions": [],
+      "status": "accepted",
+      "owned": {
+        "test/slow": {
+          "0447eaa43a1c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "1b10a8e311b5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "23fb5e1a5d86": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "525f36a8a46b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5ded6ce91954": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7f386031988c": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "7fc8c8b50f8b": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "83552c80c2ea": "*",
+          "864a4d0b9ade": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "86e396f47a59": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8f73ae3f742e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "9db9558ced1f": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "a107b728d28e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "bf56e17a7385": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c00fb8a9a865": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c0b78f0be5a5": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "c4296f2633a7": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "cd75583cfedc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "dbaf89afd75e": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "df6a6de79895": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e58e3d87793e": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "e596ec2da4fe": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "f51c61bfe7c7": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
       "resolution": null
     },
     {
