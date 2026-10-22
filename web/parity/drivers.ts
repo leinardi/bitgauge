@@ -427,6 +427,9 @@ export const vue: Driver = {
       await page.getByRole('checkbox', { name: new RegExp(`^Select ${KIT_RESULT.label},`) }).filter({ visible: true }).first().click()
       await page.getByRole('button', { name: 'Delete selected', exact: true }).filter({ visible: true }).first().click()
       await page.locator('[data-sonner-toast]').first().waitFor()
+      // The toast comes up where the narrow layout's selection bar was, under the pointer, and a
+      // hovered toast keeps its time paused.
+      await parkPointer(page)
       await page.evaluate((to) => {
         history.pushState(null, '', to)
         dispatchEvent(new PopStateEvent('popstate'))
