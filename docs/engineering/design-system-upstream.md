@@ -343,3 +343,12 @@ there is 23.25 px tall instead of the Logo contract's 17.25 px (`.wm`, `line-hei
 var(--lh-tight)`), and sits lower. The description should take a class no other component uses
 (for example `.modal .desc`), so the wordmark in a dialog looks as it does everywhere else, as in
 the Vue share dialog.
+
+### Compare on a narrow window: the result card's link shrinks below its content
+
+From triage cluster `v03-history-compare-card-link-shrink`. Kit file `ui_kits/app/History.jsx`, the
+full-window compare's result card (`section` with the `a` that opens the result).
+
+The link has `min-height: 44px` and `padding-bottom: var(--space-2-5)` around 36 px of content, and
+sits in a column card of limited height, so flex shrinks it to 44 px, 2 px less than its content
+and padding. It should not shrink (`flex: none`), so it keeps its 46 px as the Vue card does.
