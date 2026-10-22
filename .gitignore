@@ -45,6 +45,9 @@ web/parity/.cache/
 web/parity/.run/
 web/playwright-report/
 
+# playwright-cli session output (snapshots, console logs, downloads), wherever it is run from
+.playwright-cli/
+
 # Claude Code: the shared settings and the skills symlink are tracked; local settings
 # (settings.local.json) and session state never are.
 .claude/*
