@@ -63453,7 +63453,7 @@
         ],
         "projects": null,
         "layer": "layout",
-        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Average|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
+        "path": "^(?!(?:main|dialogs) > (?:text \"(?:RPM|HTTP loaded responsiveness[^\"]*|round trips per minute[^\"]*|Uncertain|Measured|Unavailable[^\"]*|Not enough samples[^\"]*)\"|region \"Bufferbloat\")(?: #\\d+)?$)(?!(?:main|dialogs) > (?:text \"(?:Good for|Streaming|Gaming|Video calls|Upper bound: packet loss is not measured|Packet loss|Packet loss not measured|Not measured|Browsers can\\'t see packet loss over TCP|Great|Good|Poor|Bad|download only)\"|definition \"NOT MEASURED\"|button \"Why packet loss is not measured[^\"]*\")(?: #\\d+)?$)",
         "kind": null,
         "detail": null
       },
@@ -63509,6 +63509,10 @@
           "0f3234a7d817": [
             "dark-narrow",
             "light-narrow"
+          ],
+          "106770d1fd0f": [
+            "dark-desktop",
+            "light-desktop"
           ],
           "1238fa302139": [
             "dark-narrow",
@@ -63575,6 +63579,10 @@
             "light-narrow"
           ],
           "7fe31dcfc4f0": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8233212ee72c": [
             "dark-narrow",
             "light-narrow"
           ],
@@ -73480,7 +73488,6 @@
         "scenarios": [
           "test/continuous",
           "test/cont-upload",
-          "test/cont-warmup",
           "test/cont-done",
           "continuous/run-length-2h"
         ],
@@ -73565,27 +73572,121 @@
             "dark-desktop",
             "light-desktop"
           ]
-        },
-        "test/cont-warmup": {
-          "106770d1fd0f": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "8233212ee72c": [
-            "dark-narrow",
-            "light-narrow"
-          ]
         }
       },
       "actions": [
         {
           "target": "vue",
           "what": "On the Continuous Test states the quality scores take the kit's geometry.",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "The Continuous scores take the kit's geometry; test/cont-warmup's \"Average\" was the tile label and follows the Cancelled state (v03-cont-stopped-in-warmup-geometry).",
+        "on": "2026-10-22",
+        "run": {
+          "runId": "76a71b43-343e-4e46-9abb-86ddcef5ab5a",
+          "finishedAt": "2026-10-22T16:24:59.050Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/continuous",
+            "test/cont-upload",
+            "test/cont-warmup",
+            "test/cont-done",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "responsiveness/uncertain",
+            "result/resp-uncertain",
+            "responsiveness/needs-h2",
+            "result/resp-needs-h2",
+            "responsiveness/not-reported",
+            "result/resp-not-reported",
+            "responsiveness/few-samples",
+            "result/resp-few-samples",
+            "continuous/run-length-2h",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "history/compare-h2",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "result/continuous-2h",
+            "result/continuous-9d",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "about/layers-none",
+            "about/layers-openspeedtest",
+            "about/layers-librespeed",
+            "about/layers-networkquality",
+            "about/layers-all",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-test-continuous-settings-summary",
