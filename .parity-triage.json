@@ -68135,11 +68135,83 @@
       "resolution": null
     },
     {
+      "id": "v03-result-deleted-toast-space",
+      "title": "Result deleted: the kit's undo toast sits in the page flow and takes 97 px from it, so the page and its status box are shorter than Vue's, whose toast floats over the page",
+      "match": {
+        "scenarios": [
+          "result/deleted"
+        ],
+        "projects": null,
+        "layer": null,
+        "path": "^main > (status \"Result deleted|main \"\"$)",
+        "kind": "^height$",
+        "detail": null
+      },
+      "type": "conflict",
+      "aspect": "style",
+      "evidence": {
+        "spec": {
+          "ref": "docs/features/ui/screens.md §8",
+          "says": "\"It floats at the bottom right over the page, taking no room in it, above the narrow layout's tab bar.\""
+        },
+        "kit": {
+          "ref": "docs/design_system/ui_kits/app/ResultDetail.jsx:711",
+          "says": "the toast in a position: sticky div with padding var(--space-4) at the end of the page column: main 747 px, the status box 487 px (desktop)"
+        },
+        "vue": {
+          "ref": "web/src/App.vue Toaster",
+          "says": "vue-sonner's fixed toaster over the page: main 844 px, the status box 584 px (desktop)"
+        }
+      },
+      "decision": {
+        "kind": "verdict",
+        "winner": "vue",
+        "rationale": "The maintainer decided on 2026-10-22 that Vue wins on placement: a toast floats above the page and takes no room in it; the kit is to implement a real floating toast. Vue's toast takes the kit's look (ui/screens.md section 8).",
+        "on": "2026-10-22"
+      },
+      "actions": [
+        {
+          "target": "upstream",
+          "what": "design-system-upstream.md: the Result detail's undo toast floats over the page, as the export's ToastRegion intends, instead of a sticky block that takes room from the page.",
+          "done": true
+        }
+      ],
+      "status": "in-progress",
+      "owned": {
+        "result/deleted": {
+          "4632a69401b1": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "4a765c3d115c": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "5aaef9d047bc": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "5cb2411245d2": [
+            "dark-narrow",
+            "light-narrow"
+          ],
+          "8f86c9f19d0b": [
+            "dark-desktop",
+            "light-desktop"
+          ],
+          "a3a729c525cb": [
+            "dark-narrow",
+            "light-narrow"
+          ]
+        }
+      },
+      "resolution": null
+    },
+    {
       "id": "v03-result-gone-card-height",
       "title": "Result deleted and Result not found: the kit's status card is 487 px tall, Vue's 180 px, so the page is shorter",
       "match": {
         "scenarios": [
-          "result/deleted",
           "result/not-found"
         ],
         "projects": null,
@@ -68172,32 +68244,6 @@
         "on": "2026-10-20"
       },
       "owned": {
-        "result/deleted": {
-          "1fddb75c68fd": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "3f0b513be40b": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4632a69401b1": [
-            "dark-desktop",
-            "light-desktop"
-          ],
-          "4a699d83e47d": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "6dd978d370d3": [
-            "dark-narrow",
-            "light-narrow"
-          ],
-          "a3a729c525cb": [
-            "dark-narrow",
-            "light-narrow"
-          ]
-        },
         "result/not-found": {
           "231d7cfb2278": [
             "dark-desktop",
@@ -68221,11 +68267,115 @@
         {
           "target": "vue",
           "what": "web/src/pages/ResultPage.vue: the deleted and not-found status cards take the kit's height (487 px on desktop).",
-          "done": false
+          "done": true
         }
       ],
-      "status": "decided",
-      "resolution": null
+      "status": "done",
+      "resolution": {
+        "note": "The status box fills the page below its margins, as the kit's stretched one does; result/deleted's remaining height follows the kit's in-flow toast (v03-result-deleted-toast-space).",
+        "on": "2026-10-22",
+        "run": {
+          "runId": "c46e81c7-9239-4e8a-840c-55a751a4581f",
+          "finishedAt": "2026-10-22T14:42:03.530Z",
+          "matrix": "full",
+          "projects": [
+            "light-desktop",
+            "light-narrow",
+            "dark-desktop",
+            "dark-narrow"
+          ],
+          "scenarios": [
+            "test/idle",
+            "test/countdown",
+            "test/connecting",
+            "test/latency",
+            "test/download",
+            "test/upload",
+            "test/complete",
+            "test/upload-interrupted",
+            "test/error",
+            "test/error-early",
+            "test/cancelled",
+            "test/cancelled-late",
+            "test/cancelled-latency",
+            "test/cancelled-download",
+            "test/cancelled-slow",
+            "test/cancelled-slow-up",
+            "test/slow",
+            "test/slowdone",
+            "test/continuous",
+            "test/cont-upload",
+            "test/cont-warmup",
+            "test/cont-done",
+            "test/offline",
+            "test/basepath",
+            "test/ws-fallback",
+            "test/insufficient",
+            "test/param-ignored",
+            "loaded/ws-close",
+            "result/ws-close",
+            "loaded/ll-no-steady-window",
+            "result/ll-no-steady-window",
+            "loaded/ll-insufficient-samples",
+            "result/ll-insufficient-samples",
+            "loaded/ll-reservation-broken",
+            "result/ll-reservation-broken",
+            "loaded/ll-no-probe-path",
+            "result/ll-no-probe-path",
+            "responsiveness/uncertain",
+            "result/resp-uncertain",
+            "responsiveness/needs-h2",
+            "result/resp-needs-h2",
+            "responsiveness/not-reported",
+            "result/resp-not-reported",
+            "responsiveness/few-samples",
+            "result/resp-few-samples",
+            "continuous/run-length-2h",
+            "share/complete",
+            "history/populated",
+            "history/single",
+            "history/select3",
+            "history/deleted",
+            "history/compare",
+            "history/confirm",
+            "history/export",
+            "history/daterange",
+            "history/loading",
+            "history/nomatch",
+            "history/empty",
+            "history/unavailable",
+            "history/importing",
+            "history/importresult",
+            "history/importerror",
+            "history/safari",
+            "history/compare-h2",
+            "result",
+            "result/not-found",
+            "result/history-unavailable",
+            "result/not-saved-partial",
+            "result/not-saved-missing",
+            "result/deleted",
+            "result/clipboard-denied",
+            "result/continuous-2h",
+            "result/continuous-9d",
+            "settings",
+            "settings/advanced",
+            "settings/changed",
+            "settings/invalid",
+            "settings/confirm-reset",
+            "about",
+            "about/unreachable",
+            "about/layers-none",
+            "about/layers-openspeedtest",
+            "about/layers-librespeed",
+            "about/layers-networkquality",
+            "about/layers-all",
+            "demo/closed",
+            "demo/open"
+          ],
+          "complete": true
+        }
+      }
     },
     {
       "id": "v03-result-packet-loss-wording",

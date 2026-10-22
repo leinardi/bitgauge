@@ -25,7 +25,7 @@ import AppButton from '@/components/actions/AppButton.vue'
 
 // A Result detail with no result to show (ui/screens.md section 2, kit ResultDetail.jsx): not found,
 // for an id that is in neither history nor memory, or deleted, just after Delete; both link to
-// History.
+// History. It fills the page below its margins, as the kit's stretched status box does.
 
 defineProps<{ deleted: boolean }>()
 
@@ -35,7 +35,7 @@ const { t } = useI18n()
 <template>
   <div
     role="status"
-    class="mx-auto my-10 flex max-w-110 flex-col items-center gap-3 text-center desktop:my-24"
+    class="mx-auto my-10 flex max-w-110 flex-1 flex-col items-center gap-3 text-center desktop:my-24"
     data-testid="result-missing"
   >
     <span class="flex size-12 items-center justify-center rounded-(--radius-lg) border border-(--border-default) bg-(--surface-2) text-subtle-foreground">
