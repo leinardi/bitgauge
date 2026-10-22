@@ -47,7 +47,10 @@ from the design export; this page fixes content and behavior only. Terms follow 
   ("1.4 s / ~2 s"). A run that stops or fails during idle latency keeps it, marked "Cancelled" or
   "Connection lost", with the time it stopped at.
 - **Result metrics** (§6), each with its qualifiers. While a direction runs, its tile shows
-  "warming up" until warm-up ends, then the steady-window average and peak so far.
+  "warming up" until warm-up ends, then the steady-window average and peak so far. A direction's
+  HTTP loaded responsiveness is settled when the direction ends
+  ([../measurement.md §12.3](../measurement.md#123-path-b-procedure)), so a standard run shows it
+  from then on: the download's while upload runs, "—" for a direction still to run.
 - **Data used** and **duration**: data used live during the run, "—" until the first byte and
   qualified "so far" (while upload runs after a download that ended without a number, "so far ·
   download" with the download's own bytes); the duration counts up from the run's start,

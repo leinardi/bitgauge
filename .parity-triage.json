@@ -75048,7 +75048,7 @@
         {
           "target": "spec",
           "what": "docs/features: a direction's HTTP loaded responsiveness is known when the direction ends, and the Test screen shows it from then on.",
-          "done": false
+          "done": true
         },
         {
           "target": "vue",
@@ -75056,7 +75056,7 @@
           "done": false
         }
       ],
-      "status": "decided",
+      "status": "in-progress",
       "owned": {
         "test/slow": {
           "1911e95f389f": [
