@@ -23,8 +23,8 @@ import { formatBytes, formatLimit } from '@/lib/format'
 import type { Wording } from '@/components/test/wording'
 
 // The insufficient-data notice (ui/screens.md section 7): titled by its direction, its body names
-// the maximum the direction reached, the data it used, the direction still running while the run
-// goes on, and what the offered preset allows.
+// the maximum the direction reached, or the data cap that ended it, the data it used, the direction
+// still running while the run goes on, and what the offered preset allows.
 
 type InsufficientData = Extract<Notice, { code: 'insufficient-data' }>
 
@@ -48,13 +48,18 @@ export function insufficientWording(notice: InsufficientData, context: Wording &
   const { direction } = notice
   const download = direction === 'download'
   const maxMs = context.settings?.[direction].maxMs
-  const bytes = context.result?.[direction]?.bytes ?? context.directions?.[direction]?.bytes
+  const ended = context.result?.[direction] ?? context.directions?.[direction]
+  const bytes = ended?.bytes
   const current = context.current ?? null
   const continuing = current === 'download' || current === 'upload' ? (current === direction ? null : current) : null
+  // A direction the data cap ended reached no maximum (measurement.md section 8.6).
+  const capped = ended?.events.some((event) => event.code === 'data-cap') === true
   const sentences = [
-    maxMs === undefined || maxMs === null
-      ? download ? t('notices.insufficientData.download') : t('notices.insufficientData.upload')
-      : download ? t('notices.insufficientData.downloadMax', { max: formatLimit(maxMs, locale) }) : t('notices.insufficientData.uploadMax', { max: formatLimit(maxMs, locale) }),
+    capped
+      ? download ? t('notices.insufficientData.downloadCap') : t('notices.insufficientData.uploadCap')
+      : maxMs === undefined || maxMs === null
+        ? download ? t('notices.insufficientData.download') : t('notices.insufficientData.upload')
+        : download ? t('notices.insufficientData.downloadMax', { max: formatLimit(maxMs, locale) }) : t('notices.insufficientData.uploadMax', { max: formatLimit(maxMs, locale) }),
     ...(bytes === undefined ? [] : [t('notices.insufficientData.used', { data: formatBytes(bytes, locale) })]),
   ]
   const offer = notice.offer === null ? null : notice.offer === 'extended' ? t('notices.insufficientData.offer.extended') : t('notices.insufficientData.offer.standard')

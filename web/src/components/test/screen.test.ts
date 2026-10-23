@@ -145,6 +145,10 @@ describe('phaseSteps', () => {
     expect(phaseSteps(run({ status: 'ended', phases: all, result: early }), SETTINGS, 'en')[2]).toEqual({ phase: 'upload', state: 'cancelled', progress: 1, coveredMs: 0 })
     const capped = resultFixture({ download: { ...present(base.download), events: [{ code: 'data-cap', atMs: 8000 }] } })
     expect(phaseSteps(run({ status: 'ended', phases: all, result: capped }), SETTINGS, 'en')[1]).toEqual({ phase: 'download', state: 'capped', progress: 1 })
+    // Capped before a steady window: still capped, not "done · insufficient data".
+    const { bitsPerSecond: _capRate, peakBitsPerSecond: _capPeak, uncompensatedBitsPerSecond: _capPlain, ...uncapped } = present(base.download)
+    const cappedEarly = resultFixture({ download: { ...uncapped, status: 'insufficient-data', events: [{ code: 'data-cap', atMs: 73 }] } })
+    expect(phaseSteps(run({ status: 'ended', phases: all, result: cappedEarly }), SETTINGS, 'en')[1]).toEqual({ phase: 'download', state: 'capped', progress: 1 })
     const failed = resultFixture({ status: 'error', upload: { status: 'error', streams: 4, bytes: 1, events: [{ code: 'error', atMs: 3000, notice: 'network-changed' }], confirmedRequests: 0 } })
     expect(phaseSteps(run({ status: 'ended', phases: all, result: failed }), SETTINGS, 'en')[2]).toEqual({ phase: 'upload', state: 'failed', progress: 1 })
     expect(phaseSteps(run({ status: 'ended', phases: phases({ download: 'failed', upload: 'skipped' }) }), SETTINGS, 'en').slice(1)).toEqual([

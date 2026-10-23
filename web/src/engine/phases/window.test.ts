@@ -107,10 +107,11 @@ describe('DurationRule', () => {
     expect(download.extended).toBe(false)
   })
 
-  it('ends at once when the data cap leaves less than the floor', () => {
+  it('offers no larger preset to a direction the data cap ended without a number', () => {
+    // A larger preset would meet the same cap (measurement.md section 8.6).
     const rule = new DurationRule('upload', PRESETS.standard.upload, 'standard')
-    expect(rule.evaluate(4000, false, true)).toBe('end')
-    expect(rule.extended).toBe(false)
+    expect(rule.outcome(false, true)).toEqual({ status: 'insufficient-data', notices: [{ code: 'insufficient-data', direction: 'upload', offer: null }] })
+    expect(rule.outcome(true, true)).toEqual({ status: 'measured', notices: [] })
   })
 
   it('reports insufficient data at the maximum, offering the next larger preset', () => {

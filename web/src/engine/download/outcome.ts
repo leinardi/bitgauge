@@ -92,7 +92,7 @@ function ending(record: DownloadRecord, events: DirectionEvent[], notices: Notic
     return 'partial'
   } else {
     // The duration rule, or a data cap ending the phase as if its maximum had passed.
-    const outcome = record.rule.outcome(record.window?.holds ?? false)
+    const outcome = record.rule.outcome(record.window?.holds ?? false, reason === 'data-cap')
     status = outcome.status
     notices.push(...outcome.notices)
   }

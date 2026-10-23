@@ -132,6 +132,10 @@ function insufficientReason(result: DirectionResult, input: DirectionInput, { t,
     }
     return warm ? t('test.tiles.insufficientConfirmed') : t('test.tiles.insufficientConfirmedWarmup')
   }
+  // The data cap ended it before its maximum (measurement.md section 8.6).
+  if (result.events.some((event) => event.code === 'data-cap')) {
+    return t('test.tiles.insufficientCap')
+  }
   return input.maxMs === undefined ? t('test.tiles.insufficient') : t('test.tiles.insufficientMax', { max: formatLimit(input.maxMs, locale) })
 }
 

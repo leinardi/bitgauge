@@ -90,6 +90,8 @@ describe('a direction tile', () => {
     expect(text(reason('upload', none({ ...stop, windowMs: 2000 })))[0]).toBe('Insufficient data — confirmed steady window shorter than 3 s')
     expect(text(reason('download', none(stop), 20_000))[0]).toBe('Insufficient data — stopped during warm-up')
     expect(text(reason('download', none({ ...stop, windowMs: 2000 })))[0]).toBe('Insufficient data — steady window shorter than 3 s')
+    // The data cap ended it before its maximum.
+    expect(text(reason('download', none({ status: 'insufficient-data', events: [{ code: 'data-cap', atMs: 73 }] }), 20_000))[0]).toBe('Insufficient data — data cap reached before a steady window')
     // A Continuous stop is no reason of its own (measurement.md section 15).
     expect(text(reason('download', none(stop), undefined, true))[0]).toBe('Insufficient data — no steady window')
     expect(text(reason('download', none({ status: 'insufficient-data' }), 20_000))[0]).toBe('Insufficient data — no steady window within the 20 s max')

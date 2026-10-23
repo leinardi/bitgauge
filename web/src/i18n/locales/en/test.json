@@ -180,6 +180,7 @@
       "insufficient": "Insufficient data — no steady window",
       "insufficientMax": "Insufficient data — no steady window within the {max} max",
       "insufficientWarmup": "Insufficient data — stopped during warm-up",
+      "insufficientCap": "Insufficient data — data cap reached before a steady window",
       "insufficientWindow": "Insufficient data — steady window shorter than 3 s",
       "insufficientConfirmed": "Insufficient data — confirmed steady window shorter than 3 s",
       "insufficientConfirmedWarmup": "Insufficient data — confirmed steady window shorter than 3 s (stopped in warm-up)",

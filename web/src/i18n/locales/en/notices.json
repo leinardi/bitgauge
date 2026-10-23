@@ -52,6 +52,8 @@
       "upload": "Upload had no confirmed steady window long enough for a number.",
       "downloadMax": "Download reached its {max} maximum without a confirmed steady window long enough for a number.",
       "uploadMax": "Upload reached its {max} maximum without a confirmed steady window long enough for a number.",
+      "downloadCap": "Download stopped at the data cap before a confirmed steady window long enough for a number.",
+      "uploadCap": "Upload stopped at the data cap before a confirmed steady window long enough for a number.",
       "used": "{data} used.",
       "continues": "{direction} continues",
       "offer": {

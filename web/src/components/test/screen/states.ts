@@ -120,14 +120,15 @@ function finishedStep(phase: MeasuringPhase, run: RunView, units: 'bits' | 'byte
     const stopped = result?.notices.find((notice) => notice.code === 'stopped-early' && notice.direction === phase)
     return { phase, state: 'cancelled', progress: 1, ...(stopped?.code === 'stopped-early' ? { coveredMs: stopped.coveredMs } : {}) }
   }
-  if (direction.status === 'insufficient-data') {
-    return { phase, state: 'done', insufficient: true }
-  }
   if (direction.status === 'error') {
     return { phase, state: 'failed', progress: 1 }
   }
+  // Capped with a number or without one: the data cap, not a maximum, ended it (section 8.6).
   if (direction.events.some((event) => event.code === 'data-cap')) {
     return { phase, state: 'capped', progress: 1 }
+  }
+  if (direction.status === 'insufficient-data') {
+    return { phase, state: 'done', insufficient: true }
   }
   return direction.bitsPerSecond === undefined ? { phase, state: 'done' } : { phase, state: 'done', value: formatRate(direction.bitsPerSecond, units, locale) }
 }

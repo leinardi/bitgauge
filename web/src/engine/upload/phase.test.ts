@@ -193,6 +193,14 @@ describe('an unstable window', () => {
   })
 })
 
+describe('the data cap', () => {
+  it('ends a direction it reached before a steady window as insufficient data, with no larger preset offered', async () => {
+    const { outcome } = await run(LINK, { dataCapBytes: FIRST_SIZE, streams: { mode: 'single', fixed: 1, max: 6 } })
+    expect(outcome).toMatchObject({ status: 'insufficient-data', dataCapReached: true })
+    expect(outcome.notices).toContainEqual({ code: 'insufficient-data', direction: 'upload', offer: null })
+  })
+})
+
 describe('a stop during the grace', () => {
   it('keeps the data cap that started the grace', async () => {
     const { clock, phase, outcome } = start(failing(SLOW, () => ({ kind: 'stall' })), {

@@ -56,6 +56,12 @@ describe('the insufficient-data notice', () => {
     )
   })
 
+  it('says the data cap ended a direction it stopped before a steady window, offering nothing', () => {
+    const capped: DirectionResult = { ...ENDED, events: [{ code: 'data-cap', atMs: 73 }] }
+    const shown = insufficientWording({ code: 'insufficient-data', direction: 'download', offer: null }, { ...wording, settings, directions: { download: capped }, current: null })
+    expect(shown.body.replace(/\u00a0/gu, ' ')).toBe('Download stopped at the data cap before a confirmed steady window long enough for a number. 50 kB used.')
+  })
+
   it('offers nothing after Extended, and says only that the other direction goes on', () => {
     expect(words('download', null, 'upload').body).toBe('Download reached its 20 s maximum without a confirmed steady window long enough for a number. 50 kB used. Upload continues.')
   })

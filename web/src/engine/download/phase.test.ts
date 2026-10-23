@@ -486,6 +486,15 @@ describe('the data cap', () => {
     expect(outcome).toMatchObject({ endMs: 0, bytes: 0, dataCapReached: true, status: 'insufficient-data' })
   })
 
+  it('ends a direction it reached before a steady window as insufficient data, with no larger preset offered', async () => {
+    // One 64 KiB request fills the cap: the phase ends when it completes, 73 ms in.
+    const LINK: Scenario = { rate: () => 2_730_667, rttMs: 50, protocol: 'h2' }
+    const { outcome } = await run(LINK, { dataCapBytes: FIRST_SIZE, streams: { mode: 'single', fixed: 1, max: 6 } })
+    expect(outcome).toMatchObject({ endMs: 73, status: 'insufficient-data', dataCapReached: true })
+    expect(outcome.events).toContainEqual({ code: 'data-cap', atMs: 73 })
+    expect(outcome.notices).toContainEqual({ code: 'insufficient-data', direction: 'download', offer: null })
+  })
+
   it('shrinks a request to the budget', async () => {
     const { transport } = await run(VPN, { dataCapBytes: 100_000 })
     expect(transport.requested.download[0]).toBe(FIRST_SIZE)

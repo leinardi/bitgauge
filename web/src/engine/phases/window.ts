@@ -86,13 +86,9 @@ export class DurationRule {
 
   /**
    * The verdict at `elapsedMs` into the phase, with the end condition (the window condition and a
-   * stable window) holding or not. A data cap that leaves less than the request floor ends the
-   * phase as if its maximum had passed.
+   * stable window) holding or not.
    */
-  evaluate(elapsedMs: number, conditionHolds: boolean, dataCapReached = false): DurationVerdict {
-    if (dataCapReached) {
-      return 'end'
-    }
+  evaluate(elapsedMs: number, conditionHolds: boolean): DurationVerdict {
     if (this.bounds === null) {
       return 'continue'
     }
@@ -120,14 +116,16 @@ export class DurationRule {
 
   /**
    * The direction's status and notices once the phase is over: measured when the final window
-   * meets the condition, otherwise insufficient data with the next larger preset offered.
+   * meets the condition, otherwise insufficient data with the next larger preset offered. A data
+   * cap ends the phase as if its maximum had passed, but a larger preset would meet the same cap,
+   * so a direction it ended without a number has no offer (section 8.6).
    */
-  outcome(finalConditionHolds: boolean): { status: Extract<DirectionStatus, 'measured' | 'insufficient-data'>; notices: Notice[] } {
+  outcome(finalConditionHolds: boolean, dataCapReached = false): { status: Extract<DirectionStatus, 'measured' | 'insufficient-data'>; notices: Notice[] } {
     const notices: Notice[] = this.extended ? [{ code: 'slow-link-extended', direction: this.direction }] : []
     if (finalConditionHolds) {
       return { status: 'measured', notices }
     }
-    notices.push({ code: 'insufficient-data', direction: this.direction, offer: nextPreset(this.preset) })
+    notices.push({ code: 'insufficient-data', direction: this.direction, offer: dataCapReached ? null : nextPreset(this.preset) })
     return { status: 'insufficient-data', notices }
   }
 }
