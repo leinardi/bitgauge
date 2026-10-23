@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { type ContinuousSoFar, type Direction, type EngineEvent, type Notice, RING_LENGTHS, type SteadySoFar, type TestSettings } from '@/engine/messages'
+import { type ContinuousSoFar, type Direction, type DirectionEvent, type EngineEvent, type Notice, type Result, RING_LENGTHS, type SteadySoFar, type TestSettings } from '@/engine/messages'
 import { FixedRing } from '@/lib/ring'
 
 // A direction's live samples (frontend.md sections 4 and 6): its buckets and, on upload, its
@@ -61,6 +61,8 @@ export interface DirectionLive {
   streams: number
   /** How long the phase has run on the client clock. */
   phaseMs: number
+  /** The events the samples raised so far (`extended`, `data-cap`), until the result's replace them. */
+  events?: readonly DirectionEvent[]
 }
 
 export interface TracePoint {
@@ -124,7 +126,18 @@ export function record(live: DirectionLive | null, rings: LiveRings, event: Extr
   buffer.warmupEnd = event.warmupEndBucket ?? buffer.warmupEnd
   buffer.start = event.startBucket ?? buffer.start
   buffer.sendingTrace = trace.toArray()
+  if (event.events !== undefined && event.events.length > 0) {
+    buffer.events = [...(buffer.events ?? []), ...event.events]
+  }
   return buffer
+}
+
+/** Each direction's chart marks: the events its samples raised live, until the result's replace them. */
+export function shownEvents(live: Readonly<Record<Direction, DirectionLive | null>>, result: Result | null): Record<Direction, readonly DirectionEvent[]> {
+  return {
+    download: result?.download?.events ?? live.download?.events ?? [],
+    upload: result?.upload?.events ?? live.upload?.events ?? [],
+  }
 }
 
 /**

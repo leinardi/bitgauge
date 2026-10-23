@@ -30,6 +30,7 @@ import { PENDING_STEPS, PING_SPACING_MS, type RunView, type ScreenState } from '
 import { type GaugeContext, type GaugeInput, gaugeReadout } from '@/components/test/screen/view'
 import StartButton from '@/components/test/StartButton.vue'
 import type { PhaseStep } from '@/components/test/steps'
+import { shownEvents } from '@/composables/runLive'
 import type { LatencyPoint } from '@/composables/useRunState'
 import type { Direction, TestSettings } from '@/engine/messages'
 import { runPhases } from '@/lib/continuous'
@@ -84,7 +85,7 @@ const mode = computed(() => {
 // The chart shows the current run, or the last one until the next starts; nothing between runs.
 const order = computed(() => (props.settings === null ? PENDING_STEPS.map((step) => step.phase) : runPhases(props.settings)).filter((phase): phase is Direction => phase !== 'idle'))
 const chartLive = computed(() => (props.state === 'idle' ? { download: null, upload: null } : props.view.live))
-const chartEvents = computed(() => ({ download: props.view.result?.download?.events ?? [], upload: props.view.result?.upload?.events ?? [] }))
+const chartEvents = computed(() => shownEvents(chartLive.value, props.view.result))
 const chartState = computed(() => {
   switch (props.state) {
     case 'idle':

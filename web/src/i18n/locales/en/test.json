@@ -93,6 +93,7 @@
       "marked": "; marked: {marks}",
       "latencyAxis": "; latency under load on a second scale",
       "elapsed": "{s} s / {of} s",
+      "elapsedMax": "{s} s / {of} s max",
       "latencyElapsed": "{s} s / ~{of} s",
       "total": "{s} s total",
       "stopped": "stopped at {s} s",

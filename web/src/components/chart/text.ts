@@ -140,13 +140,17 @@ export function chartMeta(input: ChartTextInput, wording: Wording): string {
       return t('test.chart.stopped', { s: seconds(model.end) })
     case 'running': {
       const current = order.filter((direction) => live[direction] !== null).at(-1)
-      const minMs = current === undefined || durations === null ? null : durations[current].minMs
-      if (minMs === null) {
+      const bounds = current === undefined || durations === null ? null : durations[current]
+      if (bounds === null || bounds.minMs === null || bounds.maxMs === null) {
         return ''
       }
+      // Once the phase is extended past its minimum, its planned end is its maximum.
+      const phaseStart = model.separators.at(-1) ?? 0
+      const extended = model.marks.some((mark) => mark.code === 'extended' && mark.at >= phaseStart)
       // The phase's planned end reads as briefly as it is: 10 s, 15.2 s (charts.md: "7.5 s / 10 s").
-      const planned = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format((model.separators.at(-1) ?? 0) + minMs / 1000)
-      return t('test.chart.elapsed', { s: seconds(model.end), of: planned })
+      const planned = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(phaseStart + (extended ? bounds.maxMs : bounds.minMs) / 1000)
+      const elapsed = { s: seconds(model.end), of: planned }
+      return extended ? t('test.chart.elapsedMax', elapsed) : t('test.chart.elapsed', elapsed)
     }
   }
 }

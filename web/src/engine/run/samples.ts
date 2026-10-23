@@ -21,7 +21,7 @@ import type { DataUsedNotices } from '@/engine/continuous/dataUsed'
 import { continuousSoFar } from '@/engine/continuous/live'
 import type { Retention } from '@/engine/continuous/retention'
 import type { DownloadPhase } from '@/engine/download/phase'
-import type { EngineEvent, LoadedPing, SteadySoFar } from '@/engine/messages'
+import type { DirectionEvent, EngineEvent, LoadedPing, Notice, SteadySoFar } from '@/engine/messages'
 import { type Cell, mean, percentile } from '@/engine/stats/buckets'
 import { BUCKET_MS, bitsFromBytes, bitsPerSecond, bucketRate } from '@/engine/stats/units'
 import type { UploadPhase } from '@/engine/upload/phase'
@@ -90,6 +90,12 @@ function uploadValues(phase: UploadPhase, next: number | null): { from: number; 
   return { from, values: [...series.range(from, Math.min(first, end)), ...retention.values(Math.max(from, first), end)] }
 }
 
+/** The Continuous fields with what the phase raised live: its notices after the data-used ones, and its events. */
+function raised(fields: Pick<Sample, 'continuous' | 'cells' | 'notices'>, live: { events: DirectionEvent[]; notices: Notice[] }): Pick<Sample, 'continuous' | 'cells' | 'notices' | 'events'> {
+  const notices = [...(fields.notices ?? []), ...live.notices]
+  return { ...fields, ...(notices.length === 0 ? {} : { notices }), ...(live.events.length === 0 ? {} : { events: live.events }) }
+}
+
 export interface LiveOptions {
   runLengthMs: number | null
   loadedMs: () => number | null
@@ -117,11 +123,15 @@ export class SampleFeed {
     return loadedLatency.length === 0 ? sample : { ...sample, loadedLatency }
   }
 
-  /** `phaseMs` is how long the phase has run on the client clock. */
+  /**
+   * `phaseMs` is how long the phase has run on the client clock. Without a newly closed bucket,
+   * a sample still carries what the phase raised live, with no values: a data cap hit before the
+   * first bucket closes is live too.
+   */
   download(phase: DownloadPhase, dataUsedBefore: number, phaseMs: number): Sample | null {
-    const end = phase.closedBuckets
     const from = this.next ?? 0
-    if (end <= from) {
+    const end = Math.max(from, phase.closedBuckets)
+    if (end === from && !phase.live.pending) {
       return null
     }
     this.next = end
@@ -135,7 +145,7 @@ export class SampleFeed {
       gauge: bucketRate(mean(known(values(phase, end - GAUGE_BUCKETS, end))) ?? 0),
       streams: phase.streamCount,
       dataUsedBytes,
-      ...this.continuous(phase.retention, phase.usedNotices, phaseMs, dataUsedBytes),
+      ...raised(this.continuous(phase.retention, phase.usedNotices, phaseMs, dataUsedBytes), phase.live.drain()),
     }
     if (warmupEnd === null) {
       return this.withPings(sample)
@@ -185,7 +195,7 @@ export class SampleFeed {
       sending,
       streams: phase.streamCount,
       dataUsedBytes: dataUsedBefore + sent,
-      ...this.continuous(phase.continuous?.retention ?? null, phase.continuous?.usedNotices ?? null, phaseMs, dataUsedBefore + sent),
+      ...raised(this.continuous(phase.continuous?.retention ?? null, phase.continuous?.usedNotices ?? null, phaseMs, dataUsedBefore + sent), phase.drainLive()),
       ...(windowEnd === null ? {} : { windowEnd }),
       ...(offset === null || phaseStart === null ? {} : { startBucket: phaseStart / BUCKET_MS, sendingBucket: (now - offset) / BUCKET_MS }),
     }

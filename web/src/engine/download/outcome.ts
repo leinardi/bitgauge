@@ -21,6 +21,7 @@ import { MEASURED_SECONDS, type Retention } from '@/engine/continuous/retention'
 import type { DownloadWindow } from '@/engine/download/window'
 import type { DirectionEvent, DirectionStatus, Notice, Plateau } from '@/engine/messages'
 import type { WarmupEnd } from '@/engine/phases/warmup'
+import type { LiveQueue } from '@/engine/phases/live'
 import type { DurationRule } from '@/engine/phases/window'
 
 // What a download phase reports once it is over (measurement.md sections 5, 15 and 16). A bounded
@@ -58,6 +59,8 @@ export interface DownloadRecord {
   rule: DurationRule
   warmup: WarmupEnd | null
   events: readonly DirectionEvent[]
+  /** What the phase raises live; the data cap's event goes there too. */
+  live: LiveQueue<DirectionEvent>
   buckets: number[]
   retention: Retention | null
   /** The data-used notices the run raised (Continuous). */
@@ -110,6 +113,7 @@ export function downloadOutcome(record: DownloadRecord): DownloadOutcome {
   if (reason === 'data-cap') {
     notices.push({ code: 'data-cap-reached', direction: 'download' })
     events.push({ code: 'data-cap', atMs: endMs })
+    record.live.push({ code: 'data-cap', atMs: endMs }, { code: 'data-cap-reached', direction: 'download' })
   }
   if (record.streamLimit !== null) {
     notices.push({ code: 'stream-limit', direction: 'download', streams: record.streamLimit })

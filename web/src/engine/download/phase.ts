@@ -26,6 +26,7 @@ import { type DownloadWindow, downloadWindow } from '@/engine/download/window'
 import type { DirectionEvent } from '@/engine/messages'
 import { graceFor, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
+import { LiveQueue } from '@/engine/phases/live'
 import { Failures } from '@/engine/phases/refusal'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule, windowStable } from '@/engine/phases/window'
@@ -71,6 +72,8 @@ export class DownloadPhase {
   private runTimer: TimerId | null = null
   private readonly inFlight = new Map<DownloadRequest, AbortController>()
   private readonly events: DirectionEvent[] = []
+  /** The events and notices the next sample carries live (architecture.md section 4). */
+  readonly live = new LiveQueue<DirectionEvent>()
   private start = 0
   private read = 0
   private readonly failures: Failures
@@ -107,9 +110,7 @@ export class DownloadPhase {
       protocol: () => this.protocol,
       read: () => this.read,
       capped: () => this.end('data-cap'),
-      encoding: (contentEncoding) => {
-        this.compressed ||= contentEncoding !== null
-      },
+      encoding: (contentEncoding) => void (this.compressed ||= contentEncoding !== null),
       count: (request, chunk) => this.count(request, chunk),
       record: (timing) => this.record(timing),
       settled: (request, complete, status, refusal) => this.settled(request, complete, status, refusal),
@@ -233,6 +234,7 @@ export class DownloadPhase {
     const verdict = this.rule.evaluate(elapsedMs, (window?.holds ?? false) && stable)
     if (!extended && this.rule.extended) {
       this.events.push({ code: 'extended', atMs: elapsedMs })
+      this.live.push({ code: 'extended', atMs: elapsedMs }, { code: 'slow-link-extended', direction: 'download' })
     }
     if (verdict === 'end') {
       this.end('duration')
@@ -382,6 +384,7 @@ export class DownloadPhase {
       rule: this.rule,
       warmup: this.warmup.end,
       events: this.events,
+      live: this.live,
       buckets,
       retention: this.retention,
       dataUsed: this.usedNotices?.raised ?? [],

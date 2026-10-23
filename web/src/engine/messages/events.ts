@@ -18,7 +18,7 @@
  */
 
 import type { EngineErrorCode, Notice } from '@/engine/messages/notices'
-import type { DirectionResult, IdleResult, LoadedPing, Result } from '@/engine/messages/result'
+import type { DirectionEvent, DirectionResult, IdleResult, LoadedPing, Result } from '@/engine/messages/result'
 import type { ConfigureOverride, Direction, PhaseName, PhaseState, SettingsOverride, TestSettings } from '@/engine/messages/settings'
 
 // The commands and events of the message contract (architecture.md section 4), both unions
@@ -99,8 +99,17 @@ export type EngineEvent =
       continuous?: ContinuousSoFar
       /** Continuous only: the coarse cells closed since the previous sample, in order. */
       cells?: ClosedCellEvent[]
-      /** The notices raised since the previous sample, such as `data-used`. */
+      /**
+       * The notices raised since the previous sample: `data-used`, and `slow-link-extended` or
+       * `data-cap-reached` with their events.
+       */
       notices?: Notice[]
+      /**
+       * The direction events raised since the previous sample (`extended`, `data-cap`), each once,
+       * `atMs` on the chart's timeline as in the result's events; a sample that only carries these
+       * or notices has no values.
+       */
+      events?: DirectionEvent[]
       /** Once warm-up has ended: its bucket, on the same axis as `fromBucket` (display only). */
       warmupEndBucket?: number
       /** Upload only, once a request has confirmed: P_start on the server grid, in cells. */

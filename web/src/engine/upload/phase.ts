@@ -17,8 +17,10 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { DirectionEvent, Notice } from '@/engine/messages'
 import { graceFor, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
+import { LiveQueue } from '@/engine/phases/live'
 import { Failures } from '@/engine/phases/refusal'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule } from '@/engine/phases/window'
@@ -29,7 +31,7 @@ import { cellOf } from '@/engine/upload/grid'
 import { type InFlight, uploadLoop, type UploadIssueHost } from '@/engine/upload/issue'
 import { type Halt, uploadOutcome, type UploadOutcome } from '@/engine/upload/outcome'
 import { UploadStreams } from '@/engine/upload/streams'
-import { type ClientEvent, validTelemetry } from '@/engine/upload/timeline'
+import { type ClientEvent, serverEvents, validTelemetry } from '@/engine/upload/timeline'
 import { PreparationTurn } from '@/engine/upload/turn'
 import { allowsUpperBound, UploadLedger } from '@/engine/upload/watermark'
 import { confirmedSeries, endConditionHolds } from '@/engine/upload/window'
@@ -68,6 +70,8 @@ export class UploadPhase {
   private readonly inFlight = new Set<InFlight>()
   /** Events seen on the client clock, placed on the server timeline at the end. */
   private readonly clientEvents: ClientEvent[] = []
+  /** The events and notices the next sample carries live, on the client clock until drained. */
+  private readonly live = new LiveQueue<ClientEvent>()
   private start = 0
   private sentBefore = 0
   private readonly failures: Failures
@@ -139,6 +143,15 @@ export class UploadPhase {
     return sent
   }
 
+  /**
+   * What the phase raised since the previous sample, its events placed on the server phase
+   * timeline as the result's are (upload/timeline.ts), by the display offset known now.
+   */
+  drainLive(): { events: DirectionEvent[]; notices: Notice[] } {
+    const { events, notices } = this.live.drain()
+    return { events: serverEvents(events, this.start, this.ledger, this.streams.displayOffset(), []), notices }
+  }
+
   /** The length of each structure the phase grows, which the footprint test reads. */
   footprint(): Record<string, number> {
     return { ...this.ledger.footprint(), uploadOffsets: this.streams.footprint(), ...this.continuous?.footprint() }
@@ -185,6 +198,7 @@ export class UploadPhase {
     const verdict = this.rule.evaluate(this.clock.now() - this.start, holds)
     if (!extended && this.rule.extended) {
       this.clientEvents.push({ code: 'extended', at: this.clock.now() })
+      this.live.push({ code: 'extended', at: this.clock.now() }, { code: 'slow-link-extended', direction: 'upload' })
     }
     if (verdict === 'end') {
       this.halt('duration')
@@ -315,6 +329,7 @@ export class UploadPhase {
     const at = this.clock.now()
     if (reason === 'data-cap') {
       this.clientEvents.push({ code: 'data-cap', at })
+      this.live.push({ code: 'data-cap', at }, { code: 'data-cap-reached', direction: 'upload' })
     } else if (reason === 'stopped') {
       this.clientEvents.push({ code: 'cancelled', at })
     } else if (reason === 'server-restarted') {

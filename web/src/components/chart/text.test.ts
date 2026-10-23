@@ -76,6 +76,16 @@ describe('the chart text', () => {
     expect(chartSummary(running, wording)).toBe('Throughput: Download 597 Mbit/s, 5.0 s / 10 s; warm-up shaded')
   })
 
+  it('reads an extended direction against its maximum, with its live mark', () => {
+    const longer = live({ values: Array.from({ length: 120 }, () => 1000), warmupEnd: 20 })
+    const extended = input('running', { download: longer }, { events: { download: [{ code: 'extended', atMs: 10_000 }] } })
+    expect(chartMeta(extended, wording)).toBe('12.0 s / 20 s max')
+    expect(extended.model.marks).toEqual([{ at: 10, code: 'extended' }])
+    const capped = input('running', { download: longer }, { events: { download: [{ code: 'data-cap', atMs: 11_000 }] } })
+    expect(capped.model.marks).toEqual([{ at: 11, code: 'data-cap' }])
+    expect(chartMeta(capped, wording)).toBe('12.0 s / 10 s')
+  })
+
   it('names received only once the server has confirmed something, and sending while the run goes on', () => {
     const sendingOnly = live({ firstBucket: 0, values: [null], sendingTrace: [{ cell: 1, bitsPerSecond: 1e4 }] })
     expect(labels(input('running', { download, upload: sendingOnly }))).toEqual(['Download', 'Upload · sending', 'Latency under load', 'Warm-up'])

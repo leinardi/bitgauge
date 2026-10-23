@@ -22,8 +22,9 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { type DirectionLive, liveCapacity, liveRings, record, withSampleNotices } from '@/composables/runLive'
+import { type DirectionLive, liveCapacity, liveRings, record, shownEvents, withSampleNotices } from '@/composables/runLive'
 import { type EngineEvent, RING_LENGTHS, type TestSettings } from '@/engine/messages'
+import { resultFixture } from '@/test/fixtures'
 
 type Sample = Extract<EngineEvent, { type: 'sample' }>
 
@@ -43,6 +44,29 @@ const LONGEST: TestSettings = {
 }
 
 const CONTINUOUS: TestSettings = { ...LONGEST, preset: 'continuous', download: { minMs: null, maxMs: null }, upload: { minMs: null, maxMs: null }, continuousDirection: 'download' }
+
+describe('the live events', () => {
+  it('gather the extension and the data cap as the samples raise them, and an event-only sample changes no value', () => {
+    const rings = liveRings(LONGEST, 'download')
+    let live = record(null, rings, sample({ values: [1000, 2000] }))
+    live = record(live, rings, sample({ fromBucket: 2, values: [], events: [{ code: 'extended', atMs: 10_000 }] }))
+    expect(live.values).toEqual([1000, 2000])
+    live = record(live, rings, sample({ fromBucket: 2, values: [3000], events: [{ code: 'data-cap', atMs: 12_340 }] }))
+    expect(live.values).toEqual([1000, 2000, 3000])
+    expect(live.events).toEqual([
+      { code: 'extended', atMs: 10_000 },
+      { code: 'data-cap', atMs: 12_340 },
+    ])
+  })
+
+  it('mark the chart live, until the events of the result replace them', () => {
+    const rings = liveRings(LONGEST, 'download')
+    const live = { download: record(null, rings, sample({ events: [{ code: 'extended', atMs: 10_000 }] })), upload: null }
+    expect(shownEvents(live, null)).toEqual({ download: [{ code: 'extended', atMs: 10_000 }], upload: [] })
+    const result = resultFixture()
+    expect(shownEvents(live, result).download).toEqual(result.download?.events)
+  })
+})
 
 describe('the live rings', () => {
   it('hold the maximum plus the 5 s grace in buckets, and a third of it in pings', () => {

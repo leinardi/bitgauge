@@ -52,7 +52,10 @@ export interface ChartModel {
   warmup: Span[]
   /** Where each direction after the first begins. */
   separators: number[]
-  /** The events of the result: extended, data cap, cancelled, error with the notice it ended on. */
+  /**
+   * The direction events: extended, data cap, cancelled, error with the notice it ended on; live,
+   * those the samples raised (extended, data cap) until the result's replace them.
+   */
   marks: { at: number; code: MarkCode; notice?: NoticeCode | FailureCode }[]
   /** The end of the last bucket: the "now" of a live chart. */
   end: number
@@ -67,7 +70,7 @@ export interface ChartInput {
   order: readonly Direction[]
   live: Readonly<Record<Direction, DirectionLive | null>>
   units: 'bits' | 'bytes'
-  /** Each direction's events, once the result has them; times are from its phase start. */
+  /** Each direction's events, live from its samples, then the result's; times are from its phase start. */
   events?: Partial<Record<Direction, readonly DirectionEvent[]>>
   /** Each direction's loaded-latency pings, on its own axis in buckets. */
   loaded?: Partial<Record<Direction, readonly LoadedPoint[]>>

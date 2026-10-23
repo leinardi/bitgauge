@@ -24,6 +24,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { type EngineEvent, type MeasuringPhase, validateResult } from '@/engine/messages'
+import { FIRST_SIZE } from '@/engine/phases/sizing'
 import { Run } from '@/engine/run'
 import type { RunReport } from '@/engine/run/report'
 import type { RunSettings } from '@/engine/settings'
@@ -485,6 +486,50 @@ describe('a rate-limit 429', () => {
     const harness = start({ streams: { mode: 'single', fixed: 1, max: 6 } }, mixed)
     const report = await finish(harness)
     expect(report).toMatchObject({ status: 'error', error: 'rate-limited' })
+  })
+})
+
+describe('the live events', () => {
+  type SampleEvent = Extract<EngineEvent, { type: 'sample' }>
+  const samples = (harness: Harness, direction: 'download' | 'upload'): SampleEvent[] =>
+    harness.events.flatMap(({ event }) => (event.type === 'sample' && event.direction === direction ? [event] : []))
+  const resultEvents = (harness: Harness, direction: 'download' | 'upload') => harness.events.flatMap(({ event }) => (event.type === 'result' ? (event.result[direction]?.events ?? []) : []))
+
+  it('carry an extension on the sample after the minimum, exactly once, with its notice', async () => {
+    // Section 19.2: 500 kbit/s and 300 ms RTT extends a Standard download at its 10 s minimum.
+    const harness = start(
+      { preset: 'standard', phases: ['download'], streams: { mode: 'auto', fixed: 3, max: 6 }, download: { minMs: 10_000, maxMs: 20_000 } },
+      { rate: () => 59_800, rttMs: 300, protocol: 'h2' },
+    )
+    await finish(harness)
+    const carrying = samples(harness, 'download').filter((sample) => sample.events !== undefined)
+    expect(carrying.map((sample) => sample.events)).toEqual([[{ code: 'extended', atMs: 10_000 }]])
+    expect(carrying[0]?.notices).toEqual([{ code: 'slow-link-extended', direction: 'download' }])
+    expect(carrying[0]?.phaseMs).toBeGreaterThanOrEqual(10_000)
+    expect(resultEvents(harness, 'download')).toContainEqual({ code: 'extended', atMs: 10_000 })
+  })
+
+  it('carry a data cap hit before the first bucket closes on a sample of its own, with no values', async () => {
+    // One 64 KiB request fills the cap: the download ends 73 ms in.
+    const harness = start(
+      { phases: ['download'], streams: { mode: 'single', fixed: 1, max: 6 }, dataCapBytes: FIRST_SIZE },
+      { rate: () => 2_730_667, rttMs: 50, protocol: 'h2' },
+    )
+    await finish(harness)
+    const carrying = samples(harness, 'download').filter((sample) => sample.events !== undefined)
+    expect(carrying).toHaveLength(1)
+    expect(carrying[0]).toMatchObject({ fromBucket: 0, values: [], events: [{ code: 'data-cap', atMs: 73 }], notices: [{ code: 'data-cap-reached', direction: 'download' }] })
+    expect(resultEvents(harness, 'download')).toEqual([{ code: 'data-cap', atMs: 73 }])
+  })
+
+  it('place an upload data cap on the server phase timeline, as the result does', async () => {
+    const harness = start({ phases: ['upload'], dataCapBytes: 3 * FIRST_SIZE })
+    await finish(harness)
+    const live = samples(harness, 'upload').flatMap((sample) => sample.events ?? [])
+    const cap = resultEvents(harness, 'upload').filter((event) => event.code === 'data-cap')
+    expect(cap).toHaveLength(1)
+    expect(live).toEqual(cap)
+    expect(samples(harness, 'upload').flatMap((sample) => sample.notices ?? [])).toEqual([{ code: 'data-cap-reached', direction: 'upload' }])
   })
 })
 
