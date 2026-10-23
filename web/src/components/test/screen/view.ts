@@ -77,6 +77,8 @@ export interface GaugeContext extends Wording {
   server: string
   /** The ended result was kept in history (Keep in history), so it no longer reads "not saved". */
   kept?: boolean
+  /** The server answers, but its default settings have not arrived yet: Start waits for them. */
+  waiting?: boolean
 }
 
 const PHASE_WORDS: Record<MeasuringPhase, (t: Wording['t']) => string> = {
@@ -178,7 +180,7 @@ export function gaugeInput(run: RunView, context: GaugeContext): GaugeInput {
     }
   }
   if (run.status === 'idle') {
-    return ready
+    return context.waiting === true ? textual({ title: t('test.gauge.waiting'), message: t('test.start.waiting') }) : ready
   }
   if (screenState(run) === 'error') {
     return { ...reading, text: errorText(run, context) }

@@ -245,6 +245,14 @@ describe('gaugeInput', () => {
       value: null,
       text: { title: 'Ready', message: 'Press Enter to start', touchMessage: 'Tap Start test to begin', detail: null, icon: null },
     })
+    // Until the server's default settings arrive, Start waits, and the gauge says so.
+    expect(gaugeInput(run({ status: 'idle' }), { ...gaugeContext, waiting: true }).text).toEqual({
+      title: 'Waiting for the server',
+      message: "Waiting for the server's default settings.",
+      touchMessage: null,
+      detail: null,
+      icon: null,
+    })
     expect(gaugeInput(run({ phase: 'info' }), gaugeContext).text).toMatchObject({ title: 'Connecting…', message: 'Basement NAS · reading server info' })
     expect(gaugeInput(run({ status: 'ended', result: resultFixture() }), gaugeContext)).toMatchObject({ direction: 'download', value: 612e6, peak: 641e6, inner: 438e6, innerLabel: `438${NB}Mbit/s upload`, text: null })
     const uploadOnly = resultFixture({ download: { status: 'skipped', streams: 0, bytes: 0, events: [] } })

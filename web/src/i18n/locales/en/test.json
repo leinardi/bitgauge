@@ -49,6 +49,7 @@
       "ms": "ms",
       "noValue": "—",
       "ready": "Ready",
+      "waiting": "Waiting for the server",
       "offline": "Server unreachable",
       "offlineMessage": "{server} didn't respond.",
       "offlineNext": "{server} didn't respond. Next check in {seconds} s.",

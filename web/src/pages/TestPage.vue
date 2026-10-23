@@ -86,7 +86,7 @@ const units = computed(() => shownSettings.value?.units ?? 'bits')
 const steps = computed(() => (shownSettings.value === null ? PENDING_STEPS : phaseSteps(view.value, shownSettings.value, locale.value)))
 // The ended result kept in history by the user (Keep in history), which then reads "saved as".
 const kept = shallowRef(false)
-const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host, kept: kept.value }))
+const gaugeContext = computed(() => ({ ...wording.value, units: units.value, server: info.value?.server.name ?? host, kept: kept.value, waiting: info.value === null && reachability.value !== 'unreachable' }))
 const offline = computed(() => state.value === 'idle' && reachability.value === 'unreachable')
 const gauge = computed(() => (offline.value ? offlineGauge(gaugeContext.value, nextCheckS.value) : gaugeInput(view.value, gaugeContext.value)))
 const elapsed = useElapsed(running, view)
