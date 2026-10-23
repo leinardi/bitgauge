@@ -117,7 +117,7 @@ watch(
     // The summary is the run's last message: nothing queued before it is read after it.
     cancelPending()
     stopRate()
-    summary.value = resultSummary(result, props.units, wording.value)
+    summary.value = resultSummary(result, props.units, wording.value, props.run.idle)
   },
 )
 

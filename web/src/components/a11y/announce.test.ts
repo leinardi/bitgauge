@@ -55,6 +55,24 @@ describe('the result summary', () => {
     )
   })
 
+  it('says what the tiles show for a run stopped in idle latency: its stop notice, and no data used', () => {
+    const result = resultFixture({
+      status: 'partial',
+      idle: { path: 'http', lossPercent: 0, samples: [] },
+      download: undefined,
+      upload: undefined,
+      dataUsedBytes: 0,
+      notices: [],
+    })
+    const summary = resultSummary(result, 'bits', wording, { pings: 4, count: 20 })
+    expect(summary).toContain('Notice: Test cancelled during latency.')
+    expect(summary).not.toContain('Data used')
+    // With data used, the line is read; without the pings, no stop notice is known.
+    const used = resultSummary({ ...result, dataUsedBytes: 512 }, 'bits', wording)
+    expect(used).toContain('Data used 512 bytes.')
+    expect(used).not.toContain('Test cancelled')
+  })
+
   it('leaves out what the run left out, and says what had no number', () => {
     const base = resultFixture()
     const result = resultFixture({

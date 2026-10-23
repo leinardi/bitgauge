@@ -18,7 +18,7 @@
  */
 
 import { EXPERIENCES, type ExperienceName, experienceText, scoreBasis } from '@/components/result/qualityList'
-import { noticeView } from '@/components/test/notices'
+import { latencyStopView, noticeView } from '@/components/test/notices'
 import type { RunView } from '@/components/test/screen/states'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
@@ -308,10 +308,13 @@ function qualitySentence(result: Result, context: Wording): string | null {
  * responsiveness and the quality scores of every ended run, data used, and the notices by
  * title. A direction the settings left out is not mentioned; a Continuous result says its one
  * direction with its run-wide minimum, maximum and "p90, last hour", and the other as not run.
+ * It says what the tiles and notices show: no data used when the tile reads a dash, and the stop
+ * notice of a run stopped in idle latency, from the pings it sent (`idle`).
  */
-export function resultSummary(result: Result, units: Units, context: Wording): string {
+export function resultSummary(result: Result, units: Units, context: Wording, idle: { pings: number; count: number } | null = null): string {
   const { t, locale } = context
-  const titles = result.notices.map((notice) => noticeView(notice, { ...context, result }).title)
+  const stop = latencyStopView(result, idle, context)
+  const titles = [...(stop === null ? [] : [stop.title]), ...result.notices.map((notice) => noticeView(notice, { ...context, result }).title)]
   const sentences = [
     statusSentence(result, context),
     ...directionSentences(result, units, context),
@@ -319,7 +322,7 @@ export function resultSummary(result: Result, units: Units, context: Wording): s
     gradeSentence(result, context),
     responsivenessSentence(result, context),
     qualitySentence(result, context),
-    t('a11y.summary.data', { data: spokenBytes(result.dataUsedBytes, locale) }),
+    result.dataUsedBytes === 0 ? null : t('a11y.summary.data', { data: spokenBytes(result.dataUsedBytes, locale) }),
     titles.length === 0 ? null : t('a11y.summary.notices', { titles: new Intl.ListFormat(locale, { type: 'conjunction' }).format(titles) }, titles.length),
   ]
   return sentences.filter((sentence) => sentence !== null).join(' ')
