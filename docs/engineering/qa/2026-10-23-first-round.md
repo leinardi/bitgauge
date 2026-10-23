@@ -105,6 +105,12 @@ their edit is listed for pasting into Claude Design.
   collapses to one line with a disclosure; the kit and the app show the full grid. Decision: the
   spec is stale; the sentence is removed from screens.md §1†. No code change.
 
+Plan 1 and plan 2 were carried out together as one plan; its spec commits are c487f44 (D-1),
+a0e5a96 (D-2), ce304b4 (D-3, and the capped wording of QA-03) and a848198 (the live extension of
+QA-04). No commit of that plan landed in plan 3 or plan 4 by accident: the result-detail files it
+touched (`result/charts.ts`, `result/PhaseChart.vue`, `result/metrics.ts`) carry its own findings
+QA-32 and QA-52.
+
 ## High
 
 ### QA-01: A WebSocket closed with 1009 is never really closed and frees its slot, so one client holds any number of sockets and leaks their descriptors
@@ -131,7 +137,7 @@ their edit is listed for pasting into Claude Design.
   again. The 1003, 1007 and idle paths go through `conn.Close` and do close it.
 - **Evidence:** verified with raw-socket and Node clients, `ss -tanp`, `/proc/<pid>/fd` and
   `/metrics`, before and after the reboot, and in the library's source.
-- **Status:** Open.
+- **Status:** Fixed in 74fd843.
 
 ## Medium
 
@@ -154,7 +160,7 @@ their edit is listed for pasting into Claude Design.
   treat every `429` as a stream limit and read neither the envelope's `code` nor `Retry-After`.
 - **Evidence:** verified against `/metrics`, the server log (three `status=429`, all from the
   round's own run) and the Download JSON.
-- **Status:** Open. Decided by D-1.
+- **Status:** Fixed in 3f63a0b. Decided by D-1 (spec c487f44).
 
 ### QA-03: A direction the data cap ended says it "reached its 5 s maximum" and offers Standard
 
@@ -172,7 +178,7 @@ their edit is listed for pasting into Claude Design.
   `web/src/components/test/tiles.ts:128` word the maximum whenever `maxMs` is set; the engine
   attaches the `standard` offer to a direction the cap ended.
 - **Evidence:** verified against the Download JSON and the code.
-- **Status:** Open.
+- **Status:** Fixed in 6702c5b (spec ce304b4).
 
 ### QA-04: A phase that runs past its minimum shows no sign of it until the direction ends
 
@@ -191,7 +197,8 @@ their edit is listed for pasting into Claude Design.
   (`web/src/components/chart/series.ts:55`); the header's planned end uses `minMs`
   (`web/src/components/chart/text.ts:141-149`).
 - **Evidence:** verified against the Download JSON and the code.
-- **Status:** Open.
+- **Status:** Fixed in 3c5ddcc (spec a848198). The demo-parity cluster
+  `feature-live-extension-marks` stays open for the next parity-triage full run.
 
 ### QA-05: A stopped direction's phase step shows its steady-window coverage instead of when it stopped
 
@@ -204,7 +211,7 @@ their edit is listed for pasting into Claude Design.
 - **Cause:** `web/src/components/test/screen/states.ts:124-126` passes the `stopped-early`
   notice's `coveredMs` to the step, and `PhaseIndicator.vue:99` prints it.
 - **Evidence:** verified in the code and against the kit.
-- **Status:** Open.
+- **Status:** Fixed in 279dfa2.
 
 ### QA-06: The Test screen's settings summary reads "nothing differs" when durations, phases, the run length or an Advanced setting differ
 
@@ -265,7 +272,7 @@ their edit is listed for pasting into Claude Design.
   they arrive in one change.
 - **Evidence:** verified by the recording in three browsers and in the code; no screen reader was
   run.
-- **Status:** Open.
+- **Status:** Fixed in 69c04d3.
 
 ### QA-10: On phones the tab bar is drawn over modal dialogs and hides their action buttons
 
@@ -376,7 +383,7 @@ their edit is listed for pasting into Claude Design.
   ([configuration.md §2.3](../../features/configuration.md#23-test-defaults)), and `/info` reports
   it as such.
 - **Evidence:** verified against the Download JSON and `/api/v1/info`.
-- **Status:** Open. Decided by D-2.
+- **Status:** Fixed in 76b94ba. Decided by D-2 (spec a0e5a96).
 
 ### QA-52: A stopped direction without a number is stored as `partial` instead of `insufficient-data`
 
@@ -387,7 +394,7 @@ their edit is listed for pasting into Claude Design.
   [flows.md §4](../../features/ui/flows.md#4-cancel-mid-test)); decided by D-3.
 - **Cause:** `web/src/engine/download/outcome.ts:89-90` and `web/src/engine/upload/outcome.ts:120-121`.
 - **Evidence:** verified against the Download JSON and the code.
-- **Status:** Open. Decided by D-3.
+- **Status:** Fixed in c61c60f. Decided by D-3 (spec ce304b4).
 
 ## Low
 
@@ -403,19 +410,19 @@ their edit is listed for pasting into Claude Design.
 | QA-24 | The copy-failure texts of Settings' Copy link and About's snippets are not in a live region, while "Copied" is announced. | `settings/ShareUrlField.vue`, About `Snippet.vue` | Open |
 | QA-25 | At 390 px most controls are below 44 px (History toolbar 28, filter chips 30, Settings segmented controls 32, Chart/Table 28, About copy buttons 28×28), and a few below WCAG 2.2's 24 px (Settings duration, data cap and countdown inputs 34×20, the Result label input 20, "Edit settings" 42×21, the latency legend toggle 18, the share panel's Include label checkbox 16×16). The kit has the same sizes. | many; the kit's `docs/design_system/ui_kits/app/*` alike. Decided by D-7 | Open |
 | QA-26 | With `streams.max: 2` the streams caption still says "Auto ramps 1 → 2 → 4 → 6", beside "Fixed runs 1–2". | `web/src/i18n/locales/en/settings.json:62` | Open |
-| QA-27 | A config problem in a list item set from the environment logs `value=null` (`BITGAUGE_SERVER__TRUSTED_PROXIES=10.0.0.0/33` → `key=server.trusted_proxies[0] value=null`); from a file it logs the value (configuration.md §4). | `internal/config/load.go:205-237` (`valueAt`/`elementAt` expect a list; the env value is still a string) | Open |
-| QA-28 | A decode error in a config section hides an unknown key in the same section (`server.lisen` with a bad `server.trusted_proxies`); it still exits 2, but configuration.md §4 logs every problem. | `internal/config/load.go:168-192` | Open |
-| QA-29 | The debug log has no line when a WebSocket opens, only `status=101` with its duration when it ends; configuration-security.md §6 lists "WebSocket open and close". | `internal/handlers/ws.go` | Open |
-| QA-30 | A malformed `Content-Length` (`abc`, `-5`) on `POST /api/v1/upload` gets Go's plain-text 400 without the envelope, `Cache-Control` or `nosniff` (wire-protocol.md §7). A browser cannot send it. | `net/http`, before routing | Open |
-| QA-31 | During Continuous warm-up the Loaded latency tile shows a number while its caption says "starts after warm-up". | `web/src/components/test/continuous/continuous.ts:142-144` | Open |
-| QA-32 | A Continuous run ended by Stop is `complete` and saved, yet its chart mark reads "Cancelled"; the kit reads "Stopped" (flows.md §7, step 5). | `web/src/components/chart/text.ts:188` | Open |
-| QA-33 | Before `/info` answers, the gauge says "Ready · Press Enter to start" while Start is disabled ("Waiting for the server's default settings."). | `web/src/components/test/screen/view.ts` | Open |
-| QA-34 | After a stop during idle latency, the screen-reader summary says "Data used 0 bytes" where the tile reads "—", and leaves out the stop notice other stopped runs' summaries carry. | `web/src/components/a11y/announce.ts` | Open |
+| QA-27 | A config problem in a list item set from the environment logs `value=null` (`BITGAUGE_SERVER__TRUSTED_PROXIES=10.0.0.0/33` → `key=server.trusted_proxies[0] value=null`); from a file it logs the value (configuration.md §4). | `internal/config/load.go:205-237` (`valueAt`/`elementAt` expect a list; the env value is still a string) | Fixed in f2123d9 |
+| QA-28 | A decode error in a config section hides an unknown key in the same section (`server.lisen` with a bad `server.trusted_proxies`); it still exits 2, but configuration.md §4 logs every problem. | `internal/config/load.go:168-192` | Fixed in 57ffd39 |
+| QA-29 | The debug log has no line when a WebSocket opens, only `status=101` with its duration when it ends; configuration-security.md §6 lists "WebSocket open and close". | `internal/handlers/ws.go` | Fixed in 0dffadb |
+| QA-30 | A malformed `Content-Length` (`abc`, `-5`) on `POST /api/v1/upload` gets Go's plain-text 400 without the envelope, `Cache-Control` or `nosniff` (wire-protocol.md §7). A browser cannot send it. | `net/http`, before routing | Documented and pinned in e1d98a4 |
+| QA-31 | During Continuous warm-up the Loaded latency tile shows a number while its caption says "starts after warm-up". | `web/src/components/test/continuous/continuous.ts:142-144` | Fixed in 91263db |
+| QA-32 | A Continuous run ended by Stop is `complete` and saved, yet its chart mark reads "Cancelled"; the kit reads "Stopped" (flows.md §7, step 5). | `web/src/components/chart/text.ts:188` | Fixed in c2d30cd |
+| QA-33 | Before `/info` answers, the gauge says "Ready · Press Enter to start" while Start is disabled ("Waiting for the server's default settings."). | `web/src/components/test/screen/view.ts` | Fixed in 4c6ca93 |
+| QA-34 | After a stop during idle latency, the screen-reader summary says "Data used 0 bytes" where the tile reads "—", and leaves out the stop notice other stopped runs' summaries carry. | `web/src/components/a11y/announce.ts` | Fixed in 78d4d2a |
 | QA-35 | History's table and cards and the compare dialog (Protocol row, the not-comparable warning, the copied text) show the raw token `http/1.1` or `h2`; the Test screen and Result detail say `HTTP/1.1` (screens.md §6). The demo's fixtures store "HTTP/2" and hide it. | `history/rows.ts:74`, `history/compare.ts:99,208` (no `protocolLabel`) | Open |
 | QA-36 | An unrecognized browser reads "unknown 0 · Linux" on the Result detail and in compare, built outside i18n; the Test screen says "—" (screens.md §6). | `result/parameters.ts:186`, `history/compare.ts:197` (cf. `test/tiles.ts:258`) | Open |
 | QA-37 | Test parameters leave out a direction's duration and bounds when it has no stored series and was not stopped by the user: a 25 s upload that ended `insufficient-data`, or a download that failed at 6.5 s, gets no row (screens.md §2). | `web/src/components/result/parameters.ts:88-92` | Open |
 | QA-38 | A Continuous result's confidence card reads "the steady window covered 792,713.5 s" for a 9-day run, which reads "9 d 4 h 12 min" elsewhere on the page. | `web/src/components/result/confidence.ts:60` | Open |
-| QA-39 | One Continuous run reads "42:18 · stopped by you" on the Test screen and "ran 42 min 19 s" on its Result detail (`series.endMs` 2 538 500). | `web/src/lib/format.ts:157` (rounds) vs `:171` (floors) | Open |
+| QA-39 | One Continuous run reads "42:18 · stopped by you" on the Test screen and "ran 42 min 19 s" on its Result detail (`series.endMs` 2 538 500). | `web/src/lib/format.ts:157` (rounds) vs `:171` (floors) | Fixed in 97002bf |
 | QA-40 | A History row shows LOW CONFIDENCE for a partial whose only low-confidence direction has no number; both rates read "—". | `web/src/components/history/rows.ts:81` | Open |
 | QA-41 | The trend charts' accessible names read "Download trend, 1 results, 0 partial or error". | `web/src/i18n/locales/en/history.json:135` | Open |
 | QA-42 | Import accepts a label of any length (300 characters were accepted); History's table then grows to 3541 px in its 1118 px card and every metric column scrolls out of view. | `web/src/engine/result/validate.ts`, `history/ResultsTable.vue`, `history/FilterBar.vue:78`. Decided by D-5 | Open |
