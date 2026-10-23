@@ -166,7 +166,7 @@ function result(row: KitRow, index: number): Result {
   // The partial run was stopped 3.1 s into upload, before its warm-up ended.
   const upload: UploadResult =
     row.status === 'partial'
-      ? { status: 'partial', streams: 2, bytes: 2_400_000, events: [{ code: 'cancelled', atMs: 3100 }], confirmedRequests: 2, loadedLatency: { status: 'unavailable', reason: 'no-steady-window', source: 'websocket', samples: 0, skippedTicks: 0, lost: 0 } }
+      ? { status: 'insufficient-data', streams: 2, bytes: 2_400_000, events: [{ code: 'cancelled', atMs: 3100 }], confirmedRequests: 2, loadedLatency: { status: 'unavailable', reason: 'no-steady-window', source: 'websocket', samples: 0, skippedTicks: 0, lost: 0 } }
       : { ...direction(row.up, row.lowConfidence, loaded(row.latencyMs, row.jitterMs, row.increaseMs, index + 3)), confirmedRequests: row.up === null ? 0 : 24 }
   const increases = [download, upload].flatMap((part) => (part.loadedLatency !== undefined && 'increaseMs' in part.loadedLatency && part.loadedLatency.increaseMs !== undefined ? [part.loadedLatency.increaseMs] : []))
   const bufferbloat: Bufferbloat | undefined = row.grade === null ? undefined : { grade: row.grade, basis: upload.bitsPerSecond === undefined ? 'download' : 'download+upload', increaseMs: Math.max(...increases) }

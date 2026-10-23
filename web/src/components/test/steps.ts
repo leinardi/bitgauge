@@ -37,7 +37,7 @@ export interface PhaseStep {
   estimate?: { minMs: number; maxMs: number } | { aboutMs: number }
   /** Done: the phase's result, already formatted. */
   value?: string
-  /** Done: the direction reached its maximum without a number. */
+  /** Done: the direction ended without a number; a stopped bounded one reads cancelled instead. */
   insufficient?: boolean
   /** Cancelled: how long the phase ran. */
   coveredMs?: number

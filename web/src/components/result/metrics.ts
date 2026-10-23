@@ -56,7 +56,7 @@ export function metricTiles(result: Result, units: 'bits' | 'bytes', wording: Wo
     if (ran !== null && name !== ran) {
       return { ...directionTile({ direction: name, units, result: null }, wording), lines: [{ text: t('result.metrics.notRun') }] }
     }
-    const tile = directionTile({ direction: name, units, result: part, overheadPercent: result.settings.overheadCompensationPercent }, wording)
+    const tile = directionTile({ direction: name, units, result: part, overheadPercent: result.settings.overheadCompensationPercent, continuous: ran !== null }, wording)
     if (ran !== null && part?.status === 'measured' && part.bitsPerSecond !== undefined) {
       const label = name === 'download' ? t('result.metrics.downloadAverage') : t('result.metrics.uploadAverage')
       // The first line of a measured direction names its peak and streams: here, with the run-wide numbers.

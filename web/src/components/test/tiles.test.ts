@@ -81,12 +81,17 @@ describe('a direction tile', () => {
       const { bitsPerSecond: _rate, peakBitsPerSecond: _peak, windowMs: _window, ...rest } = result({ bytes: 142_000_000, ...overrides })
       return overrides.windowMs === undefined ? rest : { ...rest, windowMs: overrides.windowMs }
     }
-    const reason = (direction: 'download' | 'upload', value: DirectionResult, maxMs?: number) => directionTile({ direction, units: 'bits', result: value, ...(maxMs === undefined ? {} : { maxMs }) }, context)
-    expect(reason('upload', none({ status: 'partial' }))).toMatchObject({ number: null, pill: { text: 'Insufficient data', tone: 'warn' } })
-    expect(text(reason('upload', none({ status: 'partial' })))).toEqual(['Insufficient data — confirmed steady window shorter than 3 s (stopped in warm-up)', '142 MB used'])
-    expect(text(reason('upload', none({ status: 'partial', windowMs: 2000 })))[0]).toBe('Insufficient data — confirmed steady window shorter than 3 s')
-    expect(text(reason('download', none({ status: 'partial' })))[0]).toBe('Insufficient data — stopped during warm-up')
-    expect(text(reason('download', none({ status: 'partial', windowMs: 2000 })))[0]).toBe('Insufficient data — steady window shorter than 3 s')
+    const reason = (direction: 'download' | 'upload', value: DirectionResult, maxMs?: number, continuous?: boolean) =>
+      directionTile({ direction, units: 'bits', result: value, ...(maxMs === undefined ? {} : { maxMs }), ...(continuous === undefined ? {} : { continuous }) }, context)
+    // A stopped direction below the minimum window is insufficient data, worded by its stop.
+    const stop = { status: 'insufficient-data' as const, events: [{ code: 'cancelled' as const, atMs: 3100 }] }
+    expect(reason('upload', none(stop))).toMatchObject({ number: null, pill: { text: 'Insufficient data', tone: 'warn' } })
+    expect(text(reason('upload', none(stop)))).toEqual(['Insufficient data — confirmed steady window shorter than 3 s (stopped in warm-up)', '142 MB used'])
+    expect(text(reason('upload', none({ ...stop, windowMs: 2000 })))[0]).toBe('Insufficient data — confirmed steady window shorter than 3 s')
+    expect(text(reason('download', none(stop), 20_000))[0]).toBe('Insufficient data — stopped during warm-up')
+    expect(text(reason('download', none({ ...stop, windowMs: 2000 })))[0]).toBe('Insufficient data — steady window shorter than 3 s')
+    // A Continuous stop is no reason of its own (measurement.md section 15).
+    expect(text(reason('download', none(stop), undefined, true))[0]).toBe('Insufficient data — no steady window')
     expect(text(reason('download', none({ status: 'insufficient-data' }), 20_000))[0]).toBe('Insufficient data — no steady window within the 20 s max')
     expect(text(reason('download', none({ status: 'insufficient-data' })))[0]).toBe('Insufficient data — no steady window')
   })

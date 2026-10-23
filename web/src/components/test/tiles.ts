@@ -112,6 +112,8 @@ export interface DirectionInput {
   upNext?: boolean
   /** The direction's maximum duration, which an insufficient-data reason names. */
   maxMs?: number
+  /** A Continuous direction, whose stop is no reason of its own for having no number (measurement.md section 15). */
+  continuous?: boolean
 }
 
 /** A peak in the headline's unit is shown without repeating it: "peak 641". */
@@ -122,7 +124,8 @@ function peakText(peak: number, unit: string, input: DirectionInput, locale: str
 
 /** Why a direction has no number: stopped before or during its window, or its maximum reached without one. */
 function insufficientReason(result: DirectionResult, input: DirectionInput, { t, locale }: Wording): string {
-  if (result.status === 'partial') {
+  // A bounded direction stopped below the minimum window is insufficient data (measurement.md section 7.6).
+  if (input.continuous !== true && result.events.some((event) => event.code === 'cancelled')) {
     const warm = result.windowMs !== undefined
     if (input.direction === 'download') {
       return warm ? t('test.tiles.insufficientWindow') : t('test.tiles.insufficientWarmup')

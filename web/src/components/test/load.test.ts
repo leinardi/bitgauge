@@ -176,8 +176,12 @@ describe('the load card of the Test screen', () => {
     const states = { download: 'finished', upload: 'finished' } as const
     const unavailable: LoadedLatency = { status: 'unavailable', reason: 'no-steady-window', source: 'websocket', samples: 0, skippedTicks: 0, lost: 0 }
     const result = { ...graded(measured(), unavailable, { grade: 'A', basis: 'download', increaseMs: 15.3 }), status: 'partial' as const }
-    const warm = { ...result, upload: { ...result.upload!, status: 'partial' as const, bitsPerSecond: undefined, windowMs: undefined, loadedLatency: unavailable } }
+    // Stopped in warm-up: insufficient data, with its stop's cancelled event.
+    const warm = { ...result, upload: { ...result.upload!, status: 'insufficient-data' as const, bitsPerSecond: undefined, windowMs: undefined, events: [{ code: 'cancelled' as const, atMs: 3100 }], loadedLatency: unavailable } }
     expect(rows(loadView(input({ status: 'ended', states, result: warm }), context))?.[1]).toEqual(['During upload · WebSocket', 'no steady window · stopped in warm-up', null, false])
+    // A Continuous upload stopped before 3 known seconds reads no stop of its own.
+    const continuous = { ...warm, settings: { ...warm.settings, preset: 'continuous' as const, continuousDirection: 'upload' as const } }
+    expect(rows(loadView(input({ status: 'ended', states, result: continuous }), context))?.[1]?.[1]).not.toContain('stopped in warm-up')
     const late = { ...result, upload: { ...result.upload!, status: 'partial' as const, loadedLatency: measured({ medianMs: 42, p90Ms: 55, increaseMs: 38.9 }) } }
     expect(rows(loadView(input({ status: 'ended', states, result: late }), context))?.[1]).toEqual(['During upload · WebSocket', 'p90 55 · +39 ms vs idle · partial', '42', false])
   })

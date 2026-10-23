@@ -251,6 +251,16 @@ const directionFields = {
   },
 }
 
+/** A direction, whose `partial` status always carries a number (measurement.md section 17). */
+function directionBlock(shape: Check): Check {
+  return (value, path, problems) => {
+    shape(value, path, problems)
+    if (isObject(value) && value['status'] === 'partial' && value['bitsPerSecond'] === undefined) {
+      problems.push(`${path}.bitsPerSecond: missing, as a partial direction always has a number`)
+    }
+  }
+}
+
 const result = object(
   {
     schema: literal('bitgauge.result'),
@@ -290,8 +300,8 @@ const result = object(
       { path: literal('websocket', 'http'), lossPercent: amount, samples: list(amount) },
       { minMs: amount, medianMs: amount, p90Ms: amount, jitterMs: amount },
     ),
-    download: object(directionFields.required, directionFields.optional),
-    upload: object({ ...directionFields.required, confirmedRequests: count }, directionFields.optional),
+    download: directionBlock(object(directionFields.required, directionFields.optional)),
+    upload: directionBlock(object({ ...directionFields.required, confirmedRequests: count }, directionFields.optional)),
     bufferbloat: object({ grade: literal('A+', 'A', 'B', 'C', 'D', 'F'), basis: literal('download+upload', 'download', 'upload'), increaseMs: amount }),
     scores,
   },

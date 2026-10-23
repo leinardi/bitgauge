@@ -163,7 +163,8 @@ describe('the phase order', () => {
     harness.run.stop()
     await finish(harness)
     const finished = harness.events.find(({ event }) => event.type === 'phase' && event.phase === 'download' && event.state === 'finished')?.event
-    expect(finished?.type === 'phase' ? finished.result?.status : null).toBe('partial')
+    // Stopped before a steady window long enough for a number: insufficient data (section 7.6).
+    expect(finished?.type === 'phase' ? finished.result?.status : null).toBe('insufficient-data')
     expect(finished?.type === 'phase' ? finished.result : null).not.toHaveProperty('bitsPerSecond')
   })
 
@@ -283,6 +284,24 @@ describe('a stop', () => {
     expect(report?.download?.status).toBe('partial')
     expect(report?.download?.bytes).toBeGreaterThan(0)
     expect(report?.notices).toContainEqual(expect.objectContaining({ code: 'stopped-early', direction: 'download' }))
+    // The stop came before a window long enough for a number: the result reads insufficient
+    // data, with the stop's notice and no larger-preset offer.
+    const result = harness.events.flatMap(({ event }) => (event.type === 'result' ? [event.result] : []))[0]
+    expect(result).toMatchObject({ status: 'partial', download: { status: 'insufficient-data' } })
+    expect(result?.download).not.toHaveProperty('bitsPerSecond')
+    expect(result?.notices).toContainEqual(expect.objectContaining({ code: 'stopped-early', direction: 'download' }))
+    expect(result?.notices).not.toContainEqual(expect.objectContaining({ code: 'insufficient-data' }))
+  })
+
+  it('during download after a long enough window keeps the direction partial, with its number', async () => {
+    const harness = start()
+    await reach(harness, 'download:started', 4500)
+    harness.run.stop()
+    await finish(harness)
+    const result = harness.events.flatMap(({ event }) => (event.type === 'result' ? [event.result] : []))[0]
+    expect(result).toMatchObject({ status: 'partial', download: { status: 'partial' } })
+    expect(result?.download?.bitsPerSecond).toBeGreaterThan(0)
+    expect(result?.notices).toContainEqual(expect.objectContaining({ code: 'stopped-early', direction: 'download' }))
   })
 })
 

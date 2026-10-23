@@ -93,6 +93,14 @@ function base(outcome: DownloadOutcome | UploadOutcome): DirectionResult {
   }
 }
 
+/**
+ * A stopped bounded direction is `partial` only with a number; without one it is
+ * `insufficient-data` (measurement.md section 7.6), and the result stays partial.
+ */
+function stopped<T extends DirectionResult>(block: T): T {
+  return block.status === 'partial' && block.bitsPerSecond === undefined ? { ...block, status: 'insufficient-data' } : block
+}
+
 /** A number is reported when the direction was measured, or stopped with a sufficient window. */
 function reportsNumber(outcome: DownloadOutcome | UploadOutcome, sufficient: boolean): boolean {
   return sufficient && (outcome.status === 'measured' || outcome.status === 'partial')
@@ -143,7 +151,7 @@ export function downloadResult(outcome: DownloadOutcome, startAt: number, contex
     return continuousResult(outcome, retention, { originMs: 0, busy: { fromMs: startAt + (retention.first ?? 0) * BUCKET_MS, toMs: startAt + outcome.endMs } }, context)
   }
   if (window === null || warmup === null) {
-    return base(outcome)
+    return stopped(base(outcome))
   }
   // The window holds full buckets only (section 9.2), so its bytes are the buckets' sum.
   const values = outcome.buckets.slice(window.fromMs / BUCKET_MS, window.toMs / BUCKET_MS)
@@ -151,13 +159,13 @@ export function downloadResult(outcome: DownloadOutcome, startAt: number, contex
   const fraction = context.busy(startAt + window.fromMs, startAt + window.toMs)
   const peak = percentile(values, PEAK_PERCENTILE)
   const measured = reportsNumber(outcome, windowConditionHolds('download', windowMs, window.requests)) && peak !== null
-  return {
+  return stopped({
     ...base(outcome),
     ...(measured ? number(bitsPerSecond(window.bytes, windowMs), bucketRate(peak), context.overheadCompensationPercent) : {}),
     windowMs,
     confidence: confidence(warmup, fraction, windowVariation(values)),
     series: downsample(values, { firstCellMs: window.fromMs, warmupEndMs: window.fromMs, endMs: window.toMs }),
-  }
+  })
 }
 
 export function uploadResult(outcome: UploadOutcome, context: DirectionContext): UploadResult {
@@ -171,7 +179,7 @@ export function uploadResult(outcome: UploadOutcome, context: DirectionContext):
     return { ...continuousResult(outcome, retention, { originMs: phaseStartMs ?? 0, busy }, context), confirmedRequests: outcome.confirmedRequests }
   }
   if (window === null || warmup === null || series === null || phaseStartMs === null || warmupEndMs === null || windowEndMs === null) {
-    return block
+    return stopped(block)
   }
   const firstCell = Math.ceil(warmupEndMs / BUCKET_MS)
   const values = series.range(firstCell, Math.max(firstCell, Math.floor(windowEndMs / BUCKET_MS)))
@@ -179,13 +187,13 @@ export function uploadResult(outcome: UploadOutcome, context: DirectionContext):
   const fraction = displayOffsetMs === null ? null : context.busy(firstCell * BUCKET_MS + displayOffsetMs, windowEndMs + displayOffsetMs)
   const { bitsPerSecond: bits, peakBitsPerSecond: peak } = window
   const measured = reportsNumber(outcome, window.sufficient) && bits !== undefined && peak !== undefined
-  return {
+  return stopped({
     ...block,
     ...(measured ? number(bits, peak, context.overheadCompensationPercent) : {}),
     windowMs: window.windowMs,
     confidence: confidence(warmup, fraction, windowVariation(values)),
     series: downsample(values, { firstCellMs: firstCell * BUCKET_MS - phaseStartMs, warmupEndMs: warmupEndMs - phaseStartMs, endMs: windowEndMs - phaseStartMs }),
-  }
+  })
 }
 
 /**

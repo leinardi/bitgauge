@@ -82,15 +82,22 @@ export function urlNotices(settings: Pick<RunSettings, 'ignoredParameters'>): No
   return (settings.ignoredParameters ?? []).map(({ parameter, value }) => ({ code: 'url-parameter-ignored', parameter, value }))
 }
 
+/** Whether a bounded direction was stopped: its outcome carries the stop's `cancelled` event. */
+function boundedStop(outcome: DownloadOutcome | UploadOutcome): boolean {
+  return outcome.retention === null && outcome.events.some((event) => event.code === 'cancelled')
+}
+
 /** The run-level notices of measurement.md section 16, in the order the result lists them. */
 export function runNotices(report: Pick<RunReport, 'download' | 'upload'>, conditions: RunConditions): Notice[] {
   const notices: Notice[] = [...conditions.url, ...conditions.connection, ...conditions.latency]
   const { download, upload } = report
-  if (download?.status === 'partial') {
+  // Every stopped bounded direction, with a number or without (section 7.6); a Continuous one
+  // carries its own from its outcome (section 15).
+  if (download !== null && boundedStop(download)) {
     const window = download.window
     notices.push({ code: 'stopped-early', direction: 'download', coveredMs: window === null ? 0 : window.toMs - window.fromMs })
   }
-  if (upload?.status === 'partial') {
+  if (upload !== null && boundedStop(upload)) {
     notices.push({ code: 'stopped-early', direction: 'upload', coveredMs: upload.window?.windowMs ?? 0 })
   }
   if (conditions.hidden) {

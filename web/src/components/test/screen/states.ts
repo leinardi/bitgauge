@@ -115,15 +115,16 @@ function finishedStep(phase: MeasuringPhase, run: RunView, units: 'bits' | 'byte
     const headline = run.phases[phase].result?.bitsPerSecond
     return headline === undefined ? { phase, state: 'done', insufficient: true } : { phase, state: 'done', value: formatRate(headline, units, locale) }
   }
+  // A stopped bounded direction reads cancelled, with a number or without one (section 7.6).
+  if (result?.settings.preset !== 'continuous' && direction.events.some((event) => event.code === 'cancelled')) {
+    const stopped = result?.notices.find((notice) => notice.code === 'stopped-early' && notice.direction === phase)
+    return { phase, state: 'cancelled', progress: 1, ...(stopped?.code === 'stopped-early' ? { coveredMs: stopped.coveredMs } : {}) }
+  }
   if (direction.status === 'insufficient-data') {
     return { phase, state: 'done', insufficient: true }
   }
   if (direction.status === 'error') {
     return { phase, state: 'failed', progress: 1 }
-  }
-  if (direction.status === 'partial') {
-    const stopped = result?.notices.find((notice) => notice.code === 'stopped-early' && notice.direction === phase)
-    return { phase, state: 'cancelled', progress: 1, ...(stopped?.code === 'stopped-early' ? { coveredMs: stopped.coveredMs } : {}) }
   }
   if (direction.events.some((event) => event.code === 'data-cap')) {
     return { phase, state: 'capped', progress: 1 }
@@ -242,7 +243,7 @@ export function screenTiles(run: RunView, settings: TileSettings, context: Wordi
     const upNext = running && current >= 0 && order.indexOf(name) === current + 1 && run.phases[name].state === 'pending'
     // Continuous has no maximum.
     const maxMs = settings[name]?.maxMs ?? null
-    const tile = directionTile({ direction: name, units: settings.units, live, result: part, overheadPercent: settings.overheadCompensationPercent, upNext, ...(maxMs === null ? {} : { maxMs }) }, context)
+    const tile = directionTile({ direction: name, units: settings.units, live, result: part, overheadPercent: settings.overheadCompensationPercent, upNext, continuous: settings[name]?.maxMs === null, ...(maxMs === null ? {} : { maxMs }) }, context)
     return shown && part === null && run.phases[name].state === 'skipped' ? { ...tile, lines: [{ text: context.t('test.tiles.skipped') }] } : tile
   }
   const idle = shown ? idleInput(run, result) : null

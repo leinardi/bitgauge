@@ -238,6 +238,16 @@ describe('the result validator', () => {
     ])
   })
 
+  it('rejects a partial direction without its number, which a stop below the minimum window makes insufficient data', () => {
+    const stopped = (status: 'partial' | 'insufficient-data') =>
+      changed((result) => {
+        result.upload = { status, streams: 2, bytes: 2_400_000, events: [{ code: 'cancelled', atMs: 3100 }], confirmedRequests: 2 }
+      })
+    expect(validateResult(stopped('partial'))).toEqual(['result.upload.bitsPerSecond: missing, as a partial direction always has a number'])
+    expect(validateResult(stopped('insufficient-data'))).toEqual([])
+    expect(validateResult(changed((result) => result.download !== undefined && (result.download.status = 'partial')))).toEqual([])
+  })
+
   it('rejects a series of more than 2000 points, and a negative or non-finite number', () => {
     const long = changed((result) => {
       if (result.download?.series !== undefined) {

@@ -145,8 +145,9 @@ describe('a direction’s prober', () => {
     await clock.advance(2000)
     const insufficient: DirectionResult = { status: 'insufficient-data', streams: 1, bytes: 1000, events: [] }
     expect(paths.settle('download', insufficient, 0.1)).toEqual({ state: 'unavailable_insufficient', protocol: 'h2', samples: 7 })
-    const partial: DirectionResult = { status: 'partial', streams: 1, bytes: 1000, events: [] }
-    expect(paths.settle('upload', partial, 0.1)).toEqual({ state: 'unavailable_insufficient', protocol: 'h2', samples: 0 })
+    // A direction stopped before a long enough window is insufficient data too (section 7.6).
+    const stopped: DirectionResult = { status: 'insufficient-data', streams: 1, bytes: 1000, windowMs: 1200, events: [{ code: 'cancelled', atMs: 3100 }] }
+    expect(paths.settle('upload', stopped, 0.1)).toEqual({ state: 'unavailable_insufficient', protocol: 'h2', samples: 0 })
     expect(transport.server.probed).toHaveLength(7)
   })
 

@@ -97,7 +97,10 @@ function qualified(row: LoadRow, loaded: LoadedLatency, result: Result, { t }: W
   if (outcome?.status === 'error') {
     return { ...row, sub: t('test.load.failed', { sub: row.sub, direction: row.direction === 'download' ? t('result.load.download') : t('result.load.upload') }) }
   }
-  if (row.direction === 'upload' && outcome?.status === 'partial' && outcome.windowMs === undefined) {
+  // A bounded upload stopped before its warm-up ended: insufficient data, with the stop's
+  // cancelled event; a Continuous stop is no reason of its own (measurement.md section 15).
+  const stopped = result.settings.preset !== 'continuous' && outcome?.events.some((event) => event.code === 'cancelled') === true
+  if (row.direction === 'upload' && stopped && outcome?.windowMs === undefined) {
     return { ...row, sub: t('test.load.stoppedWarmup', { sub: row.sub }) }
   }
   return row
