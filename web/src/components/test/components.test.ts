@@ -260,7 +260,7 @@ describe('the phase indicator', () => {
     const wrapper = mountWith(PhaseIndicator, {
       steps: [
         { phase: 'idle', state: 'failed', progress: 0.5 },
-        { phase: 'download', state: 'cancelled', coveredMs: 3100, progress: 0.3 },
+        { phase: 'download', state: 'cancelled', stoppedAtMs: 3100, progress: 0.3 },
         { phase: 'upload', state: 'skipped' },
       ],
     })

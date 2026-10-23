@@ -39,8 +39,8 @@ export interface PhaseStep {
   value?: string
   /** Done: the direction ended without a number; a stopped bounded one reads cancelled instead. */
   insufficient?: boolean
-  /** Cancelled: how long the phase ran. */
-  coveredMs?: number
+  /** Cancelled: when the user stopped the phase, on its phase timeline. */
+  stoppedAtMs?: number
   /** Failed: how long the phase ran before it was interrupted. */
   interruptedMs?: number
   /** A Continuous direction: its elapsed time, against the run length when one is set. */

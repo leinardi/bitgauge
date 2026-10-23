@@ -116,9 +116,10 @@ function finishedStep(phase: MeasuringPhase, run: RunView, units: 'bits' | 'byte
     return headline === undefined ? { phase, state: 'done', insufficient: true } : { phase, state: 'done', value: formatRate(headline, units, locale) }
   }
   // A stopped bounded direction reads cancelled, with a number or without one (section 7.6).
-  if (result?.settings.preset !== 'continuous' && direction.events.some((event) => event.code === 'cancelled')) {
-    const stopped = result?.notices.find((notice) => notice.code === 'stopped-early' && notice.direction === phase)
-    return { phase, state: 'cancelled', progress: 1, ...(stopped?.code === 'stopped-early' ? { coveredMs: stopped.coveredMs } : {}) }
+  // It reads when the user stopped it on its phase timeline, not how long its window was.
+  const stop = direction.events.find((event) => event.code === 'cancelled')
+  if (result?.settings.preset !== 'continuous' && stop?.code === 'cancelled') {
+    return { phase, state: 'cancelled', progress: 1, stoppedAtMs: stop.atMs }
   }
   if (direction.status === 'error') {
     return { phase, state: 'failed', progress: 1 }

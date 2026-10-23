@@ -96,7 +96,7 @@ function meta(step: PhaseStep): string {
       if (step.pings !== undefined) {
         return t('test.phases.cancelledPings', step.pings)
       }
-      return step.coveredMs === undefined ? t('test.phases.cancelled') : t('test.phases.cancelledAfter', { covered: seconds(step.coveredMs) })
+      return step.stoppedAtMs === undefined ? t('test.phases.cancelled') : t('test.phases.cancelledAfter', { covered: seconds(step.stoppedAtMs) })
     case 'skipped':
       return t('test.phases.skipped')
     case 'capped':
