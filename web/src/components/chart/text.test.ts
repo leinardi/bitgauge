@@ -25,7 +25,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { buildChart } from '@/components/chart/series'
-import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, chartTitle, continuousResultTick, continuousStep, continuousTick } from '@/components/chart/text'
+import { chartLegend, chartMeta, type ChartState, chartSummary, type ChartTextInput, chartTitle, continuousResultTick, continuousStep, continuousTick, markLabel } from '@/components/chart/text'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionLive } from '@/composables/runLive'
 import { type ContinuousSeries, useContinuousSeries } from '@/composables/useContinuousSeries'
@@ -138,6 +138,15 @@ describe('a Continuous run’s chart text', () => {
     // Its run length passed: the elapsed time alone.
     expect(meta('done', 'download', 2_538_000)).toBe('42:18')
     expect(meta('done', 'upload', undefined, { code: 'cancelled', atMs: 2_538_000 })).toBe('42:18 · stopped by you · unknown cells as gaps')
+  })
+
+  it('labels its stop Stopped, where a bounded run reads Cancelled', () => {
+    const stop = { at: 42, code: 'cancelled' as const }
+    expect(markLabel(stop, wording, { continuous: true })).toBe('Stopped')
+    expect(markLabel(stop, wording)).toBe('Cancelled')
+    expect(markLabel({ at: 42, code: 'data-cap' }, wording, { continuous: true })).toBe('Data cap')
+    const stopped = { ...input('stopped', { download }, { events: { download: [{ code: 'cancelled', atMs: 5000 }] } }), continuous: series('download', 2_538_000) }
+    expect(chartSummary(stopped, wording)).toContain('marked: Stopped')
   })
 
   it('titles the session, and past the warm-up drops its legend entry while the band stays shaded', () => {

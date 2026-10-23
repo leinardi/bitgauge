@@ -163,7 +163,7 @@ const phaseStarts = computed(() => (model.value.separators.length === 0 ? [] : [
 const phaseName = (direction: Direction | undefined) => (direction === 'upload' ? t('test.chart.legend.upload') : t('test.chart.legend.download'))
 const phaseLabels = computed<LineLabel[]>(() => phaseStarts.value.map((at, index) => ({ x: geometry.value.x(at), text: phaseName(shown.value[index]) })))
 const markLabels = computed(() =>
-  model.value.marks.map((mark) => ({ x: geometry.value.x(mark.at), text: markLabel(mark, wording.value), color: 'var(--fg-muted)' })),
+  model.value.marks.map((mark) => ({ x: geometry.value.x(mark.at), text: markLabel(mark, wording.value, { continuous: props.continuous !== undefined && props.continuous !== null }), color: 'var(--fg-muted)' })),
 )
 const plotBox = computed(() => {
   const { top, left, right, bottom } = geometry.value

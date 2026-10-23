@@ -99,7 +99,7 @@ const geometry = computed(() =>
   }),
 )
 const wording = computed(() => ({ t, locale: locale.value }))
-const markLabels = computed(() => props.model.marks.map((mark) => ({ x: geometry.value.x(mark.at), text: markLabel(mark, wording.value), color: 'var(--fg-muted)' })))
+const markLabels = computed(() => props.model.marks.map((mark) => ({ x: geometry.value.x(mark.at), text: markLabel(mark, wording.value, { continuous: props.model.continuous === true }), color: 'var(--fg-muted)' })))
 const box = (from: number, to: number) => {
   const { top, bottom } = geometry.value
   const left = geometry.value.x(from)

@@ -193,9 +193,15 @@ const MARK_LABELS: Record<MarkCode, (t: Wording['t']) => string> = {
   error: (t) => t('test.chart.marks.error'),
 }
 
-/** A mark's label: a failed request that ends an upload over HTTP/1.1 is named for what it is. */
-export function markLabel(mark: ChartModel['marks'][number], { t }: Wording): string {
-  return mark.notice === 'upload-interrupted' ? t('test.chart.marks.requestFailed') : MARK_LABELS[mark.code](t)
+/**
+ * A mark's label: a failed request that ends an upload over HTTP/1.1 is named for what it is, and
+ * a Continuous run, which only ends by a stop, is stopped there, not cancelled.
+ */
+export function markLabel(mark: ChartModel['marks'][number], { t }: Wording, { continuous = false }: { continuous?: boolean } = {}): string {
+  if (mark.notice === 'upload-interrupted') {
+    return t('test.chart.marks.requestFailed')
+  }
+  return continuous && mark.code === 'cancelled' ? t('test.chart.marks.stopped') : MARK_LABELS[mark.code](t)
 }
 
 /** The chart's accessible name: what it shows, its warm-up and its marks (charts.md). */
@@ -214,7 +220,8 @@ export function chartSummary(input: ChartTextInput, wording: Wording): string {
     summary += t('test.chart.latencyAxis')
   }
   if (input.model.marks.length > 0) {
-    summary += t('test.chart.marked', { marks: input.model.marks.map((mark) => markLabel(mark, wording)).join(', ') })
+    const continuous = input.continuous !== undefined && input.continuous !== null
+    summary += t('test.chart.marked', { marks: input.model.marks.map((mark) => markLabel(mark, wording, { continuous })).join(', ') })
   }
   return summary
 }

@@ -112,6 +112,7 @@
         "extended": "Extended",
         "dataCap": "Data cap",
         "cancelled": "Cancelled",
+        "stopped": "Stopped",
         "error": "Connection lost",
         "requestFailed": "Request failed"
       },

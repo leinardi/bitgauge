@@ -59,7 +59,7 @@ function summary(title: string, meta: string, model: PhaseModel, wording: Wordin
     text += t('result.charts.latencyAxis')
   }
   if (model.marks.length > 0) {
-    text += t('result.charts.events', { marks: model.marks.map((mark) => markLabel(mark, wording)).join(', ') })
+    text += t('result.charts.events', { marks: model.marks.map((mark) => markLabel(mark, wording, { continuous: model.continuous === true })).join(', ') })
   }
   return text
 }
