@@ -130,15 +130,12 @@ func LoadFrom(path string, explicit bool, environ []string) (Loaded, error) {
 	// rather than read as "not set".
 	loaded.Problems = nullKeys(merged.Raw(), "")
 
-	var metadata mapstructure.Metadata
-
 	err = merged.UnmarshalWithConf("", &loaded.Config, koanf.UnmarshalConf{
 		Tag: structTag,
 		DecoderConfig: &mapstructure.DecoderConfig{
+			// Unknown keys are not mapstructure's single summary error: unknownKeys collects
+			// them below, one problem each.
 			DecodeHook: decodeHook,
-			// Unknown keys are collected from the metadata, one problem each, instead of
-			// mapstructure's single summary error.
-			Metadata: &metadata,
 			// Keys match their field exactly: Server: or LISTEN in a file is a typo, not an
 			// alias.
 			MatchName: func(mapKey, fieldName string) bool { return mapKey == fieldName },
@@ -148,7 +145,9 @@ func LoadFrom(path string, explicit bool, environ []string) (Loaded, error) {
 	})
 	loaded.Problems = append(loaded.Problems, decodeProblems(err, merged.Raw())...)
 
-	for _, key := range metadata.Unused {
+	// mapstructure leaves Metadata.Unused empty for a struct that had a decode error, so an
+	// unknown key beside a bad value in the same section is found by walking the raw keys.
+	for _, key := range unknownKeys(merged.Raw(), reflect.TypeFor[Config](), "") {
 		loaded.Problems = append(loaded.Problems, Problem{
 			Key:   key,
 			Value: displayValue(valueAt(merged.Raw(), key)),
@@ -162,6 +161,85 @@ func LoadFrom(path string, explicit bool, environ []string) (Loaded, error) {
 	slices.Sort(loaded.IgnoredEnv)
 
 	return loaded, nil
+}
+
+// unknownKeys lists the keys of raw that match no koanf tag of section, recursing into the
+// nested sections and into lists of them (server.labels[i]), in the key form of valueAt.
+func unknownKeys(raw map[string]any, section reflect.Type, prefix string) []string {
+	fields := sectionFields(section)
+
+	var unknown []string
+
+	for name, value := range raw {
+		key := prefix + name
+
+		field, known := fields[name]
+		if !known {
+			unknown = append(unknown, key)
+
+			continue
+		}
+
+		unknown = append(unknown, unknownBelow(value, field, key)...)
+	}
+
+	return unknown
+}
+
+// unknownBelow lists the unknown keys under value, the raw value of a known field of type
+// field at key.
+func unknownBelow(value any, field reflect.Type, key string) []string {
+	nested, isMap := value.(map[string]any)
+	if isMap {
+		if sectionFields(field) == nil {
+			return nil
+		}
+
+		return unknownKeys(nested, field, key+keyDelimiter)
+	}
+
+	items := reflect.ValueOf(value)
+	if field.Kind() != reflect.Slice || items.Kind() != reflect.Slice ||
+		sectionFields(field.Elem()) == nil {
+		return nil
+	}
+
+	var unknown []string
+
+	for index := range items.Len() {
+		entry, isEntry := reflect.TypeAssert[map[string]any](items.Index(index))
+		if isEntry {
+			unknown = append(unknown,
+				unknownKeys(entry, field.Elem(), key+"["+strconv.Itoa(index)+"]"+keyDelimiter)...)
+		}
+	}
+
+	return unknown
+}
+
+// sectionFields maps the koanf names of a struct's fields to their types, or is nil for a type
+// that is not a section: a scalar, or a struct decoded from one (server.listen, warmup).
+func sectionFields(section reflect.Type) map[string]reflect.Type {
+	if section.Kind() != reflect.Struct {
+		return nil
+	}
+
+	var fields map[string]reflect.Type
+
+	for field := range section.Fields() {
+		name, _, _ := strings.Cut(field.Tag.Get(structTag), ",")
+		if name == "" {
+			continue
+		}
+
+		if fields == nil {
+			fields = make(map[string]reflect.Type, section.NumField())
+		}
+
+		fields[name] = field.Type
+	}
+
+	return fields
 }
 
 // decodeProblems turns mapstructure's joined errors into one problem per key.

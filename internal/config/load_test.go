@@ -465,6 +465,36 @@ func TestUnknownKeysAreErrors(t *testing.T) {
 	}
 }
 
+func TestUnknownKeyBesideADecodeError(t *testing.T) {
+	t.Parallel()
+
+	// mapstructure keeps no unused keys for a struct that failed to decode, so both are found
+	// only when unknown keys are read from the raw map.
+	for _, test := range []struct{ file, unknown, bad string }{
+		{
+			"server:\n  lisen: \":8080\"\n  trusted_proxies: [10.0.0.0/33]\n",
+			"server.lisen", "server.trusted_proxies[0]",
+		},
+		{
+			"server:\n  labels:\n    - {cidr: 10.0.0.0/33, lable: VPN}\n",
+			"server.labels[0].lable", "server.labels[0].cidr",
+		},
+	} {
+		problems := loadProblems(t, writeFile(t, test.file), true, nil)
+
+		keys := make(map[string]string, len(problems))
+		for _, problem := range problems {
+			keys[problem.Key] = problem.Rule
+		}
+
+		if len(problems) != 2 || keys[test.bad] == "" ||
+			keys[test.unknown] != "unknown key (configuration.md section 2 lists every key)" {
+			t.Fatalf("%q: problems = %+v, want %s unknown and %s invalid",
+				test.file, problems, test.unknown, test.bad)
+		}
+	}
+}
+
 func TestEnvironmentListItemReportsItsValue(t *testing.T) {
 	t.Parallel()
 
