@@ -49,6 +49,9 @@ describe('continuousView', () => {
       ['Average', null, '', 'starts after warm-up'],
       ['Peak · p90, last hour', null, '', 'starts after warm-up'],
     ])
+    // Loaded latency starts after warm-up too, even with a median of the last minute already known.
+    const loading = continuousView(input({ live: live({ warmupEnd: null, continuous: { elapsedMs: 4000, dataBytes: 1e6, loadedLastMinuteMedianMs: 21 } }) }), wording)
+    expect(numbers(loading)[3]).toEqual(['Loaded latency', null, '', 'starts after warm-up'])
     const steady = continuousView(input({ live: live({ continuous: { elapsedMs: 12_000, dataBytes: 1e6 } }) }), wording)
     expect(steady.tiles[1]?.number).toBeNull()
     expect(steady.tiles[1]?.lines[0]?.text).toBe('after 3 s of fully known data')

@@ -141,7 +141,8 @@ export function continuousView(input: ContinuousInput, context: Wording): Contin
 
   const loadedMs = ended ? (result.loadedLatency !== undefined && 'medianMs' in result.loadedLatency ? result.loadedLatency.medianMs : undefined) : live?.continuous?.loadedLastMinuteMedianMs
   const loaded = blank(t('test.continuous.loaded'), Activity, SERIES.latency, [{ text: ended ? t('test.continuous.loadedDone') : warming ? t('test.continuous.warmup') : t('test.continuous.loadedLive') }])
-  const loadedTile = loadedMs === undefined ? loaded : { ...loaded, number: latencyNumber(loadedMs, locale, input.resolutionMs), unit: 'ms' }
+  // While warming the tile says it starts after warm-up, so it shows no number yet.
+  const loadedTile = loadedMs === undefined || (warming && !ended) ? loaded : { ...loaded, number: latencyNumber(loadedMs, locale, input.resolutionMs), unit: 'ms' }
 
   const elapsedMs = elapsedOf(input)
   const bytes = input.dataUsedBytes
