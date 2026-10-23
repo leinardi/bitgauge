@@ -120,6 +120,14 @@ rules behind each step are in [../measurement.md](../measurement.md) and
      nothing.
    - **Branch: network changed:** `network changed`. The page checks `GET /info` again, as after
      `server unreachable`, so the header shows whether the server still answers.
+   - **Branch: server rate limit:** the last of the three consecutive failures was a rate-limit
+     `429` ([../measurement.md §4](../measurement.md#4-adaptive-stream-count)): `rate-limited` for
+     the per-minute limit, `server-busy` when the server was tracking too many clients. The alert
+     names only that known cause, never all three failures: "Basement NAS rate-limited a request
+     during download; the test stopped after 3 consecutive request failures." and "Basement NAS
+     was busy and refused a request during download; the test stopped after 3 consecutive request
+     failures." Its body is the same as for the other causes ("Download stopped at 2.3 s. Latency
+     finished before the error.").
    - **Branch: server unreachable:** `server unreachable` with Retry. That is the server not
      answering as the run starts, or losing every idle-latency ping; a server that stops answering
      mid-run also closes the WebSocket, which ends the run as `network changed`
@@ -136,7 +144,10 @@ rules behind each step are in [../measurement.md](../measurement.md) and
    finished, "Connection to Basement NAS lost — the network changed", "The test stopped at 1.2 s,
    during latency. No phase finished." The causes read "3 requests in a row failed", "the network
    changed", "the server restarted" and "server stopped responding"; a failure while connecting
-   says the test stopped while connecting.
+   says the test stopped while connecting. The two rate-limit causes replace the "Connection to …
+   lost" headline with their own sentence: "Basement NAS rate-limited a request during download;
+   the test stopped after 3 consecutive request failures." and "Basement NAS was busy and refused a
+   request during download; the test stopped after 3 consecutive request failures."
 4. If any phase completed, the screen offers **Keep in history**, which saves the result with
    status `error`, and Download JSON; nothing is saved unless the user keeps it. If no phase
    completed, there is nothing to keep.

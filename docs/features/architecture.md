@@ -179,7 +179,8 @@ cells, [measurement.md §15](measurement.md#15-continuous-mode)): it appends eac
 either side grows with run length. A notice in `notices` is also kept for the `result`.
 
 **Error codes.** The `error` event's `code` is one of `invalid-settings` (a `configure` or
-`start` whose settings fail validation), `requests-failed` (three consecutive failed requests,
+`start` whose settings fail validation), `requests-failed`, `rate-limited` and `server-busy`
+(three consecutive failed requests, classified by the last of them,
 [measurement.md §5](measurement.md#5-adaptive-duration)), `network-changed`, `server-restarted`
 and `server-unreachable` (the causes of [ui/flows.md §5](ui/flows.md#5-error-mid-test)). Its
 `messageKey` is `errors.<code>`, the catalog key the UI words it with. A notice carries a code of

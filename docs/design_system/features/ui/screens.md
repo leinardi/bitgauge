@@ -376,7 +376,8 @@ detail, each with a short explanation and, where useful, a link to the docs. The
   50 kB used. Upload continues; Extended allows up to 40 s per direction."
 - **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU");
   `browser upload limit` with a "Known browser limits" link to the docs.
-- **Limits:** `data cap reached`; `server stream limit — N streams`; `data used: N GB`
+- **Limits:** `data cap reached`; `server stream limit — N streams`; `server rate limit` or
+  `server busy`, its body saying whether the direction waited and continued; `data used: N GB`
   (Continuous: live, only the latest, naming the next threshold; in the result, every one);
   `overhead compensation +p %`.
 - **Settings:** `URL parameter ignored`, naming each invalid parameter.
@@ -392,8 +393,8 @@ detail, each with a short explanation and, where useful, a link to the docs. The
 
 Notices are text with an icon, never color alone, and are announced to screen readers when they
 appear during a run ([i18n-a11y.md](i18n-a11y.md)). Their tones: **info** for test extended,
-server stream limit, overhead compensation, browser upload limit, WebSocket reopened,
-WebSocket unavailable, HTTP/1.1 probe reservation and data used;
+server stream limit, server rate limit and server busy, overhead compensation, browser upload
+limit, WebSocket reopened, WebSocket unavailable, HTTP/1.1 probe reservation and data used;
 **warn** for low confidence, cpu-bound, data cap reached, insufficient data, URL parameter
 ignored, proxy buffering suspected, response compression detected and timer throttling detected;
 **danger**, with `role="alert"`, for server unreachable, upload interrupted and base path mismatch;

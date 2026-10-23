@@ -123,7 +123,7 @@ request target).
 
 **Effective cap.** The maximum stream count for a direction: the configured maximum (default 6),
 bounded by the server's `max_streams_per_client`, lowered to 5 while the HTTP/1.1 probe reservation
-is active, and lowered by one after a `429` (§4).
+is active, and lowered by one after a stream-limit `429` (`too_many_streams`, §4).
 
 ## Latency and Responsiveness
 

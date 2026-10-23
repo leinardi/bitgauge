@@ -298,10 +298,18 @@ Limits are per client IP (§1) and held in a bounded in-memory table
   is full of active clients, and `too_many_streams` for the three concurrency limits: throughput
   requests, WebSocket connections and networkQuality flows.
 - `/api/v1/ping`, `/api/v1/small`, `/api/v1/info` and `/metrics` are not counted.
-- The engine treats a `429` as a failed request. On download, and on upload over HTTP/2 or HTTP/3,
-  it lowers its stream cap and continues; on upload over HTTP/1.1 or an unreported protocol the
-  failure ends the phase ([measurement.md §4](measurement.md#4-adaptive-stream-count),
-  [§7.5](measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark)).
+- The engine treats a `429` as a failed request and reads its envelope's `code`. On upload over
+  HTTP/1.1 or an unreported protocol any failure ends the phase. Otherwise, on download and on
+  upload over HTTP/2 or HTTP/3:
+  - `too_many_streams`, or a code that is absent or unknown: it lowers its stream cap and
+    continues;
+  - `rate_limited` or `table_full`: the stream waits the `Retry-After` and continues, with the
+    stream cap unchanged. The engine reads the header on a same-origin response; when it cannot
+    read it (a cross-origin response that does not expose it, or a value that is not whole
+    seconds) it waits 1 s.
+
+  See [measurement.md §4](measurement.md#4-adaptive-stream-count) and
+  [§7.5](measurement.md#75-phase-start-measurement-end-and-the-confirmed-watermark).
 
 ## 10. `GET /metrics`
 

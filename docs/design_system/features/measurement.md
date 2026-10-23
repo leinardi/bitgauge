@@ -195,14 +195,31 @@ by the floor rule (§8).
   reported as `unknown`; for the probe reservation an unknown protocol is treated as HTTP/1.1. A
   direction reports the protocol of its latest throughput request that had an entry.
 
-**Per-client limits.** If the server answers `429` because `max_streams_per_client` is shared by
-several browsers behind one address, the request counts as failed and the engine records the
-`stream-limit` notice with the lowered cap (§16). On download, and on upload over HTTP/2 or HTTP/3
-(where the failed upload leaves a failure gap, §7.5), the engine lowers the effective cap by one for
-the rest of the phase and continues. On upload over HTTP/1.1 or an unreported protocol, the failure
-ends the phase instead (§7.5). When the lowered cap is below the current stream count, the count
-drops to the cap: the streams above it finish the request they have in flight and issue no further
-one, and a ramp trial in progress ends there with the plateau reason `cap`.
+**Per-client limits.** A `429` counts as a failed request (§5), and the engine reads the `code` of
+its error envelope ([wire-protocol.md §9](wire-protocol.md#9-rate-limits)) to tell the limits
+apart. On download, and on upload over HTTP/2 or HTTP/3 (where the failed upload leaves a failure
+gap, §7.5):
+
+- **Stream limit** (`too_many_streams`, or a code that is absent or unknown): when
+  `max_streams_per_client` is shared by several browsers behind one address, the engine records the
+  `stream-limit` notice with the lowered cap (§16), lowers the effective cap by one for the rest of
+  the phase and continues. When the lowered cap is below the current stream count, the count drops
+  to the cap: the streams above it finish the request they have in flight and issue no further
+  one, and a ramp trial in progress ends there with the plateau reason `cap`.
+- **Rate limit** (`rate_limited`, the per-minute limit, or `table_full`, the server tracking too
+  many clients): the stream that got it waits the `Retry-After` the response carries, or 1 s when
+  the header cannot be read, and then issues its next request. The stream count and the cap are
+  unchanged, and there is no `stream-limit` notice. A wait that would end after the phase's last
+  instant for a new request (bounded download: its maximum; bounded upload: the request target
+  `max − 1 s`, §5; a Continuous direction: the end of its run length when one is set, §15) leaves
+  the stream idle for the rest of the phase. The `429` still counts toward the three consecutive
+  failures of §5. A direction that got one carries the `rate-limited` notice (§16), with `reason`
+  `rate` or `table-full` and `retried`, true once a stream has issued a request after waiting.
+
+On upload over HTTP/1.1 or an unreported protocol, any failure, a `429` included, ends the phase
+with `upload interrupted by a failed request` (§7.5). A stream-limit `429` there records no
+`stream-limit` notice and lowers no cap. A rate-limit `429` also records the `rate-limited` notice
+with its `reason` and `retried` false, since no request follows it.
 
 ## 5. Adaptive Duration
 
@@ -256,7 +273,9 @@ and protocol:
   are kept; on upload the request has no telemetry and its server activity becomes a failure gap
   once a later request confirms (§7.5). **Three consecutive failed requests** in a direction end the
   phase with an error result: failures count across the direction's streams in the order they
-  occur, and any request that completes resets the count.
+  occur, and any request that completes resets the count. The run's error is classified by the
+  last of the three: `rate-limited` or `server-busy` when it was a rate-limit `429` (`rate_limited`
+  or `table_full`, §4), otherwise `requests-failed`.
 - **Upload over HTTP/1.1 or an unreported protocol.** The first failure ends the phase, with a
   number from the window up to that failure or `insufficient data`, and the notice
   `upload interrupted by a failed request` (§7.5). The three-failures rule does not apply there,
@@ -513,7 +532,8 @@ feeds a number.
   decision; in-flight requests get the grace, then are aborted. Aborted and failed requests have no
   telemetry, so they only lower `C` (while open) or leave a failure gap (once closed); their bytes
   are never counted. On HTTP/2 and HTTP/3, three consecutive failed requests end the phase with an
-  error result; on HTTP/1.1 the first failure ends it (§5).
+  error result (a rate-limit `429` makes its stream wait `Retry-After` before its next request,
+  §4); on HTTP/1.1 the first failure ends it (§5).
 
 ### 7.7 Worked Example A — Two Overlapping Streams With Non-Aligned Starts
 
@@ -673,9 +693,9 @@ its first confirmed one); until then the trial waits. An interval whose
 buckets are all unknown (inside a failure gap) measures nothing and is measured again over the next
 `I_m`. The baseline always measures its first two intervals; a further one runs only if it ends no
 later than 3 s after `I_s`. The ramp settles at the end of the interval that decided its plateau
-(fixed and single modes: `I_s` after their start; a trial ended by a `429`, §4: the end of the
-series read so far, which is also its last add when its streams were never placed), and that bucket
-is the settle instant the warm-up cap moves to (§8.3).
+(fixed and single modes: `I_s` after their start; a trial ended by a stream-limit `429`, §4: the
+end of the series read so far, which is also its last add when its streams were never placed), and
+that bucket is the settle instant the warm-up cap moves to (§8.3).
 
 ### 8.3 Warm-Up End
 
@@ -1451,6 +1471,24 @@ engine emits the code with the raw values the notice names, and the UI words it.
 - `low confidence` with its reason (`low-confidence`, per direction with its reasons);
 - `data cap reached` (`data-cap-reached`; §5);
 - `server stream limit — N streams` (`stream-limit`, per direction with the lowered cap; §4);
+- `server rate limit` or `server busy` (`rate-limited`, per direction, with `reason` `rate` or
+  `table-full` and `retried`; §4). The body depends on `retried`:
+  - `rate`, retried: "The server's request rate limit refused some {direction} requests. The
+    {direction} waited as the server asked and continued, so its number may be below what the
+    link can carry.";
+  - `table-full`, retried: "The server was tracking too many clients and refused some {direction}
+    requests. The {direction} waited as the server asked and continued, so its number may be below
+    what the link can carry.";
+  - either reason, not retried: "Some {direction} requests were refused. The {direction} did not
+    retry those requests before the phase ended." (`false` says only that no retry was sent before
+    the phase ended, not that the refusal ended the direction);
+- `server rate limit` and `server busy` are also the run's error causes when the last of three
+  consecutive failed requests was a rate-limit `429` (`rate-limited` and `server-busy`, §5). The
+  Error state's alert then names only that known cause, never all three failures: "{server}
+  rate-limited a request during {phase}; the test stopped after 3 consecutive request failures."
+  and "{server} was busy and refused a request during {phase}; the test stopped after 3
+  consecutive request failures." The alert body is unchanged ("Download stopped at 2.3 s. Latency
+  finished before the error.", [ui/flows.md §5](ui/flows.md#5-error-mid-test));
 - `insufficient data` per direction, with the next-larger-preset offer (`insufficient-data`; §8.6);
 - `data used: N GB` at 1 GB, 10 GB, 100 GB and every further tenfold step during Continuous runs
   (`data-used`, with `bytes`, the decimal threshold crossed, 10⁹ × 10ᵏ; §15), informational,
@@ -1598,7 +1636,9 @@ CSV export flattens the same fields, one row per result.
   estimated, and the last point may hold fewer buckets.
 - `events` lists what happened to a direction, for the chart marks: `{code, atMs}` with code
   `extended`, `data-cap`, `cancelled` or `error` (an `error` event also carries `notice`, the
-  notice code of §16 that ended it, or `requests-failed` for three consecutive failed requests),
+  notice code of §16 that ended it, or for three consecutive failed requests the run's error code
+  of §5 by the last of them, `requests-failed`, `rate-limited` or `server-busy`; the error code
+  `rate-limited` is not the notice of that name, which `reason` `table-full` also carries),
   and `{code: "failure-gap", startMs, endMs}` for each failure gap (§7.5). An upload event seen on
   the client (`extended`, `data-cap`, `cancelled`, `error`) is placed on the server timeline with
   the display offset of §7.4.
