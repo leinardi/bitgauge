@@ -98,8 +98,14 @@ One agent per area works well. Isolate them or they corrupt each other's results
   origin, so two agents on one origin see each other's results;
 - the stacks agent alone starts and stops servers and proxies beyond its own.
 
-Each agent writes its report to its scratch directory in the format of
-[references/finding-format.md](references/finding-format.md) and returns it.
+Each agent writes its report in the format of
+[references/finding-format.md](references/finding-format.md) and returns it in full as its final
+answer; a subagent's Write tool may refuse a report file, so it writes the copy in its scratch
+directory from the shell. An agent closes only its own sessions (`close`): `close-all` closes every
+agent's browser, and is the lead's at the end.
+
+`/tmp/qa/` does not survive a reboot. Keep the commands that started the stacks, so the lead can
+restart them on the same ports and resume each agent, which keeps its findings in its transcript.
 
 ## 5. Safety
 

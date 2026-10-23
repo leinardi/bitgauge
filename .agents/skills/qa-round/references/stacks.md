@@ -19,9 +19,9 @@ echo "default $!" >>/tmp/qa/stacks/pids
 | Port | Configuration | For |
 | --- | --- | --- |
 | `18080` | defaults | the Test screen, a full run, history, settings, sharing |
-| `18081` | every compatibility layer on, `metrics.enabled: true` | About, the layers' routes and CORS, `/metrics` |
+| `18081` | every compatibility layer on, `metrics.enabled: true`, `server.public_url: https://speed.qa.test` (the networkQuality layer refuses to start without an https `public_url` or a trusted proxy) | About, the layers' routes and CORS, `/metrics` |
 | `18082` | `server.base_path: /speed` | every route and the SPA under the base path, and a request outside it ([edge-cases.md §20](../../../../docs/features/edge-cases.md#20-base-path-mismatches)) |
-| `18083` | low limits: `max_streams_per_client: 2` with `test_defaults.streams.max: 2` (it must not exceed it), `requests_per_minute: 60`, `max_download_bytes: 64KiB` | the 429s, `Retry-After`, the caps and how the app reads them |
+| `18083` | low limits: `max_streams_per_client: 2` with `test_defaults.streams.max: 2` and `test_defaults.streams.fixed: 2` (neither may exceed the one before it), `requests_per_minute: 60`, `max_download_bytes: 64KiB` | the 429s, `Retry-After`, the caps and how the app reads them |
 | `18084` | `test_defaults` off their defaults: `preset: quick`, `units: bytes`, `data_cap: 50MiB`, `phases: download,upload`, `server.labels` mapping `127.0.0.0/8` | the server defaults reaching Settings, the summary and the run |
 | `18085` | `server.trusted_proxies: [127.0.0.2/32]`, behind the proxy below | the client IP, the label, `X-Forwarded-Proto` |
 
@@ -41,10 +41,20 @@ PARITY_DEMO_PORT=18090 PARITY_PROTO_PORT=18091 make demo-parity-servers \
 ```
 
 That builds the demo and serves it on `18090`, with the design kit's prototype on `18091` to
-compare against; it prints both URLs. Choose a scenario in the demo panel, or write the panel's
-choice before the page loads: it is JSON in `localStorage` under `bitgauge-demo`, read field by
-field (`web/src/demo/choice.ts`), so `localstorage-set` then `reload` picks a scenario, a speed
-and an error kind without clicking. A forced state holds the run there.
+compare against; it prints both URLs. When fanning out, each agent needs a demo origin of its own:
+build once (`npm --prefix web run build:demo`) and serve `web/dist-demo` once per agent, from
+`web/`:
+
+```bash
+npx vite preview --outDir dist-demo --host 127.0.0.1 --port 18092 --strictPort &
+```
+
+The preview serves only `/`: a deep link such as `/result/<id>` loads blank, so navigate from `/`.
+
+Choose a scenario in the demo panel, or write the panel's choice before the page loads: it is JSON
+in `localStorage` under `bitgauge-demo`, read field by field (`web/src/demo/choice.ts`), so
+`localstorage-set` then `reload` picks a scenario, a speed and an error kind without clicking.
+A forced state holds the run there.
 
 The demo has no server: its routes, limits and headers are simulated, so nothing about the HTTP
 edge is checked on it.
