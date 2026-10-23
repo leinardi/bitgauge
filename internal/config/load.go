@@ -223,18 +223,20 @@ func valueAt(raw map[string]any, key string) any {
 	return current
 }
 
+// elementAt indexes any slice: a file gives []any, while the environment provider splits a
+// list into []string.
 func elementAt(list any, index string) any {
-	items, isList := list.([]any)
-	if !isList {
+	items := reflect.ValueOf(list)
+	if items.Kind() != reflect.Slice {
 		return nil
 	}
 
 	position, err := strconv.Atoi(index)
-	if err != nil || position < 0 || position >= len(items) {
+	if err != nil || position < 0 || position >= items.Len() {
 		return nil
 	}
 
-	return items[position]
+	return items.Index(position).Interface()
 }
 
 // displayValue renders a raw value for a problem line. Configuration holds no secret

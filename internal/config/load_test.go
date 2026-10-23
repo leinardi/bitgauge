@@ -465,6 +465,18 @@ func TestUnknownKeysAreErrors(t *testing.T) {
 	}
 }
 
+func TestEnvironmentListItemReportsItsValue(t *testing.T) {
+	t.Parallel()
+
+	problems := loadProblems(t, missingPath(t), false,
+		[]string{"BITGAUGE_SERVER__TRUSTED_PROXIES=10.0.0.0/33"})
+	if len(problems) != 1 || problems[0].Key != "server.trusted_proxies[0]" ||
+		problems[0].Value != "10.0.0.0/33" {
+		t.Fatalf("problems = %+v, want server.trusted_proxies[0] with the value 10.0.0.0/33",
+			problems)
+	}
+}
+
 // loadProblems loads a configuration that must read fine but fail to decode, and returns its
 // problems.
 func loadProblems(t *testing.T, path string, explicit bool, environ []string) []Problem {
