@@ -56,6 +56,7 @@ const EVERY: Record<NoticeCode, Notice> = {
   'data-cap-reached': { code: 'data-cap-reached', direction: 'download' },
   'data-used': { code: 'data-used', bytes: 1e11 },
   'stream-limit': { code: 'stream-limit', direction: 'upload', streams: 3 },
+  'rate-limited': { code: 'rate-limited', direction: 'download', reason: 'rate', retried: true },
   'insufficient-data': { code: 'insufficient-data', direction: 'download', offer: 'extended' },
   'url-parameter-ignored': { code: 'url-parameter-ignored', parameter: 'streams', value: '12' },
   'stopped-early': { code: 'stopped-early', direction: 'upload', coveredMs: 3600 },
@@ -79,6 +80,7 @@ const EVERY: Record<NoticeCode, Notice> = {
 const TONES: Record<NoticeCode, string> = {
   'slow-link-extended': 'info',
   'stream-limit': 'info',
+  'rate-limited': 'info',
   'overhead-compensation': 'info',
   'browser-upload-limit': 'info',
   'websocket-reopened': 'info',
@@ -112,6 +114,24 @@ describe('the notices', () => {
     expect(view.title.length).toBeGreaterThan(0)
     expect(view.tone).toBe(TONES[notice.code])
     expect(view.actions.length).toBeLessThanOrEqual(2)
+  })
+
+  it('words a rate limit by its reason and whether the direction retried', () => {
+    const rate = (reason: 'rate' | 'table-full', retried: boolean, direction: 'download' | 'upload' = 'download') => noticeView({ code: 'rate-limited', direction, reason, retried }, context)
+    expect(rate('rate', true)).toMatchObject({
+      tone: 'info',
+      title: 'Server rate limit',
+      body: "The server's request rate limit refused some download requests. The download waited as the server asked and continued, so its number may be below what the link can carry.",
+    })
+    expect(rate('table-full', true, 'upload')).toMatchObject({
+      title: 'Server busy',
+      body: 'The server was tracking too many clients and refused some upload requests. The upload waited as the server asked and continued, so its number may be below what the link can carry.',
+    })
+    // Not retried says only that no retry was sent before the phase ended.
+    for (const reason of ['rate', 'table-full'] as const) {
+      expect(rate(reason, false).body).toBe('Some download requests were refused. The download did not retry those requests before the phase ended.')
+    }
+    expect(rate('table-full', false).title).toBe('Server busy')
   })
 
   it('uses the exact notice strings with the raw values', () => {

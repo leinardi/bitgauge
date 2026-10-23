@@ -48,6 +48,7 @@ function outcome(ledger: UploadLedger, continuous: ContinuousUpload, halts: Halt
     bytes: 0,
     protocol: 'h2',
     streamLimit: null,
+    rateLimited: null,
     bufferingSuspected: false,
     idleShare: null,
     displayOffsetMs: OFFSET,

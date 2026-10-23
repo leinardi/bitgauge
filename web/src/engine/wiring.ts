@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { BrowserIdentity, Info, ResourceTiming } from '@/engine/types'
+import type { BrowserIdentity, Info, Refusal, ResourceTiming } from '@/engine/types'
 
 // The pure parts of the browser wiring (clock.ts, transport.ts, worker.ts): what they compute
 // from what the browser hands them, without touching a browser global, so tests run them on
@@ -172,6 +172,28 @@ export function pong(data: unknown): { seq: number; t: number } | null {
   }
   const { type, seq, t } = frame as Record<string, unknown>
   return type === 'pong' && typeof seq === 'number' && Number.isSafeInteger(seq) && typeof t === 'number' && Number.isFinite(t) ? { seq, t } : null
+}
+
+/** Whole seconds only, as the server writes Retry-After (wire-protocol.md section 9). */
+const WHOLE_SECONDS = /^\d{1,9}$/
+
+/**
+ * What a 429 said, from its body and its Retry-After header (null when the browser hides it, as
+ * a cross-origin response does): the envelope's code, and the wait in ms. Either is null when it
+ * cannot be read.
+ */
+export function refusalOf(body: string, retryAfter: string | null): Refusal {
+  let code: string | null = null
+  try {
+    const envelope: unknown = JSON.parse(body)
+    const error = typeof envelope === 'object' && envelope !== null ? (envelope as Record<string, unknown>).error : undefined
+    const value = typeof error === 'object' && error !== null ? (error as Record<string, unknown>).code : undefined
+    code = typeof value === 'string' ? value : null
+  } catch {
+    // Not an envelope: the engine treats the 429 as a stream limit (measurement.md section 4).
+  }
+  const seconds = retryAfter?.trim() ?? ''
+  return { code, retryAfterMs: WHOLE_SECONDS.test(seconds) ? Number(seconds) * 1000 : null }
 }
 
 /**

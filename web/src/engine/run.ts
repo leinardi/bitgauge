@@ -21,6 +21,7 @@ import { type DownloadOutcome, DownloadPhase } from '@/engine/download/phase'
 import type { IdleLatency, IdleOutcome } from '@/engine/latency/idle'
 import type { Direction, DirectionResult, EngineEvent, IdleResult, MeasuringPhase, Notice, PhaseName, PhaseState } from '@/engine/messages'
 import { settleBuckets } from '@/engine/phases/ramp'
+import { failureCode } from '@/engine/phases/refusal'
 import type { WarmupEnd } from '@/engine/phases/warmup'
 import { buildResult } from '@/engine/result'
 import { directionNotices, downloadResult, resultNotices, uploadResult } from '@/engine/result/direction'
@@ -307,7 +308,8 @@ export class Run {
     // A network change or a restart leaves the current phase with an error and nothing measured.
     const settled = interrupt?.kind === 'error' ? discard(outcome, interrupt.code) : outcome
     if (interrupt === null && settled.status === 'error') {
-      this.fail(settled.notices.some((notice) => notice.code === 'server-restarted') ? 'server-restarted' : 'requests-failed')
+      // Three failures in a row are classified by the last of them (measurement.md section 5).
+      this.fail(settled.notices.some((notice) => notice.code === 'server-restarted') ? 'server-restarted' : failureCode(settled.events))
     }
     this.kept ||= settled.status !== 'error'
     const tiled = tile(settled)

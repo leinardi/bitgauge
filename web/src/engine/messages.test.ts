@@ -89,6 +89,7 @@ describe('message contract', () => {
       | 'data-cap-reached'
       | 'data-used'
       | 'stream-limit'
+      | 'rate-limited'
       | 'insufficient-data'
       | 'url-parameter-ignored'
       | 'stopped-early'
@@ -111,7 +112,7 @@ describe('message contract', () => {
 
   it('has the error codes of architecture.md section 4, each with its catalog key', () => {
     expectTypeOf<EngineErrorCode>().toEqualTypeOf<
-      'invalid-settings' | 'requests-failed' | 'network-changed' | 'server-restarted' | 'server-unreachable'
+      'invalid-settings' | 'requests-failed' | 'rate-limited' | 'server-busy' | 'network-changed' | 'server-restarted' | 'server-unreachable'
     >()
 
     type ErrorEvent = Extract<EngineEvent, { type: 'error' }>

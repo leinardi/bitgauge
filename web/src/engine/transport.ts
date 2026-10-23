@@ -24,6 +24,7 @@ import {
   browserIdentity,
   checkedInfo,
   pong,
+  refusalOf,
   TIMING_PROBE_WAIT_MS,
   TIMING_WAIT_MS,
   type TimingEntry,
@@ -74,6 +75,8 @@ function added(ms: number): Promise<boolean> {
     arrivals.add(arrived)
   })
 }
+
+const TOO_MANY_REQUESTS = 429
 
 /** The chunks of a failed answer, which is not read. */
 const NO_CHUNKS: AsyncIterable<DownloadChunk> = {
@@ -132,7 +135,9 @@ export class BrowserTransport implements Transport {
     const sentAt = this.clock.now()
     const response = await fetch(url, { cache: 'no-store', signal })
     const reader = response.status === 200 ? response.body?.getReader() : undefined
-    if (reader === undefined) {
+    // A 429's small envelope says which limit refused it (measurement.md section 4).
+    const refusal = response.status === TOO_MANY_REQUESTS ? refusalOf(await response.text().catch(() => ''), response.headers.get('Retry-After')) : undefined
+    if (reader === undefined && refusal === undefined) {
       // A failed answer is not read: its body is cancelled so the connection is freed.
       void response.body?.cancel()
     }
@@ -143,6 +148,7 @@ export class BrowserTransport implements Transport {
     }
     return {
       status: response.status,
+      ...(refusal === undefined ? {} : { refusal }),
       contentEncoding: response.headers.get('Content-Encoding'),
       chunks: reader === undefined ? NO_CHUNKS : chunks(reader, this.clock, ended),
       timing: () => found ?? entryOf(url, sentAt),
@@ -168,7 +174,8 @@ export class BrowserTransport implements Transport {
         clock.task(() => {
           const { status } = request
           const telemetry = status === 200 ? telemetryOf(request.responseText) : null
-          void this.timing(url, sentAt).then((entry) => clock.task(() => resolve({ status, telemetry, timing: entry })))
+          const refusal = status === TOO_MANY_REQUESTS ? { refusal: refusalOf(request.responseText, request.getResponseHeader('Retry-After')) } : {}
+          void this.timing(url, sentAt).then((entry) => clock.task(() => resolve({ status, ...refusal, telemetry, timing: entry })))
         })
       request.onerror = () => clock.task(() => reject(new TypeError('the upload failed')))
       request.onabort = () => clock.task(() => reject(new DOMException('the upload was aborted', 'AbortError')))

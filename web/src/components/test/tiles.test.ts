@@ -94,6 +94,9 @@ describe('a direction tile', () => {
   it('names what ended a direction with an error, with its pill', () => {
     const tile = directionTile({ direction: 'upload', units: 'bits', result: result({ status: 'error', events: [{ code: 'error', atMs: 6400, notice: 'requests-failed' }] }) }, context)
     expect(tile).toMatchObject({ number: null, pill: { text: 'Error', tone: 'danger' }, lines: [{ text: 'error · 3 requests in a row failed', tone: 'danger' }] })
+    const limited = (notice: 'rate-limited' | 'server-busy') => directionTile({ direction: 'download', units: 'bits', result: result({ status: 'error', events: [{ code: 'error', atMs: 2300, notice }] }) }, context).lines
+    expect(limited('rate-limited')).toEqual([{ text: 'error · rate-limited', tone: 'danger' }])
+    expect(limited('server-busy')).toEqual([{ text: 'error · server busy', tone: 'danger' }])
   })
 
   it('says how far an upload ended by a failed request over HTTP/1.1 counts', () => {

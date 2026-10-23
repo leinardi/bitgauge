@@ -354,6 +354,118 @@ describe('a 429', () => {
   })
 })
 
+describe('a rate-limit 429', () => {
+  const SINGLE: Partial<DownloadOptions> = { streams: { mode: 'single', fixed: 1, max: 6 } }
+
+  /**
+   * The phase on `scenario`, recording when each download request was issued and how many were
+   * in flight then, itself included; a request ends with its body, or with its answer when it has none.
+   */
+  async function issued(scenario: Scenario, options: Partial<DownloadOptions> = {}) {
+    const clock = new FakeClock()
+    const fake = new FakeTransport(clock, scenario)
+    const at: number[] = []
+    const inFlight: number[] = []
+    let live = 0
+    const result = await run(
+      VPN,
+      {
+        transport: {
+          download: async (size, signal) => {
+            at.push(clock.now())
+            inFlight.push(++live)
+            const response = await fake.download(size, signal).catch((error: unknown) => {
+              live--
+              throw error
+            })
+            if (response.status !== 200) {
+              live--
+              return response
+            }
+            const { chunks } = response
+            return {
+              ...response,
+              chunks: (async function* () {
+                try {
+                  yield* chunks
+                } finally {
+                  live--
+                }
+              })(),
+            }
+          },
+        },
+        ...options,
+      },
+      clock,
+    )
+    return { ...result, at, inFlight }
+  }
+
+  it('makes the stream wait the Retry-After, with the cap unchanged, and carries rate-limited instead of stream-limit', async () => {
+    const { outcome, at } = await issued(failing({ 1: { kind: 'status', status: 429, code: 'rate_limited', retryAfter: 2 } }), SINGLE)
+    // The 429 answers one RTT after request 1 is sent; request 2 goes 2 s after it.
+    expect(at[2]).toBe((at[1] ?? 0) + 300 + 2000)
+    expect(outcome.status).toBe('measured')
+    expect(outcome.streams).toBe(1)
+    expect(outcome.notices).toContainEqual({ code: 'rate-limited', direction: 'download', reason: 'rate', retried: true })
+    expect(outcome.notices).not.toContainEqual(expect.objectContaining({ code: 'stream-limit' }))
+  })
+
+  it('waits 1 s when the Retry-After cannot be read', async () => {
+    const { outcome, at } = await issued(failing({ 1: { kind: 'status', status: 429, code: 'table_full' } }), SINGLE)
+    expect(at[2]).toBe((at[1] ?? 0) + 300 + 1000)
+    expect(outcome.notices).toContainEqual({ code: 'rate-limited', direction: 'download', reason: 'table-full', retried: true })
+  })
+
+  it('still counts toward three in a row: three concurrent refusals end the phase before any retry', async () => {
+    const refused: Failure = { kind: 'status', status: 429, code: 'rate_limited', retryAfter: 2 }
+    const { outcome, at } = await issued(failing({ 0: refused, 1: refused, 2: refused }), { streams: { mode: 'fixed', fixed: 3, max: 6 } })
+    expect(outcome.status).toBe('error')
+    expect(at).toHaveLength(3)
+    expect(outcome.events).toEqual([{ code: 'error', atMs: outcome.endMs, notice: 'rate-limited' }])
+    expect(outcome.notices).toContainEqual({ code: 'rate-limited', direction: 'download', reason: 'rate', retried: false })
+  })
+
+  it('ends with server-busy when the last of the three was a full table', async () => {
+    const busy: Failure = { kind: 'status', status: 429, code: 'table_full', retryAfter: 1 }
+    const { outcome } = await issued(failing({ 0: busy, 1: busy, 2: busy }), { streams: { mode: 'fixed', fixed: 3, max: 6 } })
+    expect(outcome.events).toEqual([{ code: 'error', atMs: outcome.endMs, notice: 'server-busy' }])
+  })
+
+  it('is classified by the last of three mixed failures', async () => {
+    const { outcome } = await issued(failing({ 3: { kind: 'status', status: 500 }, 4: { kind: 'error' }, 5: { kind: 'status', status: 429, code: 'rate_limited', retryAfter: 1 } }), SINGLE)
+    expect(outcome.status).toBe('error')
+    expect(outcome.events).toEqual([{ code: 'error', atMs: outcome.endMs, notice: 'rate-limited' }])
+  })
+
+  it('leaves a stream idle whose wait ends past the maximum, while the others measure', async () => {
+    // Request 0 is stream 0's first; its wait would end at ≈ 60 s, past the 20 s maximum.
+    const { outcome, at, inFlight } = await issued(failing({ 0: { kind: 'status', status: 429, code: 'rate_limited', retryAfter: 60 } }), {
+      streams: { mode: 'fixed', fixed: 2, max: 6 },
+    })
+    expect(outcome.status).toBe('measured')
+    expect(outcome.window).not.toBeNull()
+    expect(outcome.events.filter((event) => event.code === 'error')).toEqual([])
+    expect(outcome.notices).toContainEqual({ code: 'rate-limited', direction: 'download', reason: 'rate', retried: false })
+    // Both streams' first requests went at 0 ms; after the refusal only stream 1 issued, one
+    // request at a time, so each later request was alone in flight.
+    expect(at.slice(0, 2)).toEqual([0, 0])
+    expect(at.length).toBeGreaterThan(4)
+    expect(inFlight.slice(2).every((count) => count === 1)).toBe(true)
+  })
+
+  it('keeps the stream-limit path for too_many_streams', async () => {
+    const { outcome } = await run(failing({ 5: { kind: 'status', status: 429, code: 'too_many_streams', retryAfter: 1 } }), {
+      streams: { mode: 'fixed', fixed: 3, max: 6 },
+      limits: { maxDownloadBytes: 256 * MIB, maxStreamsPerClient: 3 },
+    })
+    expect(outcome).toMatchObject({ status: 'measured', streams: 2 })
+    expect(outcome.notices).toContainEqual({ code: 'stream-limit', direction: 'download', streams: 2 })
+    expect(outcome.notices).not.toContainEqual(expect.objectContaining({ code: 'rate-limited' }))
+  })
+})
+
 describe('the data cap', () => {
   it('is never exceeded, and ends the phase when less than the floor remains', async () => {
     const cap = 400_000

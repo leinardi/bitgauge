@@ -21,7 +21,8 @@ import type { DownloadOptions } from '@/engine/download/phase'
 import type { DownloadRequest, Streams } from '@/engine/download/streams'
 import { deferred, inFlightLimit, issuesEarly } from '@/engine/phases/issue'
 import { dataBudget, serverBound } from '@/engine/phases/options'
-import type { Clock, DownloadChunk, ResourceTiming } from '@/engine/types'
+import type { RateLimitWaits } from '@/engine/phases/refusal'
+import type { Clock, DownloadChunk, Refusal, ResourceTiming } from '@/engine/types'
 
 // The download streams' requests (measurement.md sections 3 and 6): each stream issues sized
 // requests back to back, or early once the browser's issue gap has shown, within the data cap and
@@ -38,6 +39,8 @@ export interface DownloadIssueHost {
   readonly streams: Streams
   /** The requests in flight; the phase aborts them all at its end. */
   readonly inFlight: Map<DownloadRequest, AbortController>
+  /** The streams waiting out a rate-limit refusal (measurement.md section 4). */
+  readonly waits: RateLimitWaits
   /** Whether the stream still issues: the phase runs and the stream is within the count. */
   issues(stream: number): boolean
   /** The protocol of the latest request with a timing entry. */
@@ -53,20 +56,27 @@ export interface DownloadIssueHost {
   /** A request's Resource Timing entry. */
   record(timing: ResourceTiming | null): void
   /** A request ended: complete when its whole body arrived; `status` is 0 without an answer. */
-  settled(request: DownloadRequest, complete: boolean, status: number): void
+  settled(request: DownloadRequest, complete: boolean, status: number, refusal: Refusal | undefined): void
 }
 
 /**
  * One stream: requests back to back while the phase runs and the stream is within the count, each
  * issued at the previous one's end or early (measurement.md section 3), within the server's
- * in-flight bound.
+ * in-flight bound. After a rate-limit refusal the stream waits it out first (section 4).
  */
 export async function downloadLoop(host: DownloadIssueHost, stream: number): Promise<void> {
   while (host.issues(stream)) {
+    const wait = host.waits.before(stream)
+    if (wait !== null && ((await wait) === 'idle' || !host.issues(stream))) {
+      return
+    }
     const size = host.streams.nextSize(stream, host.options.limits.maxDownloadBytes, budget(host))
     if (size === null) {
       host.capped()
       return
+    }
+    if (wait !== null) {
+      host.waits.issued()
     }
     const issuedAt = host.clock.now()
     const first = deferred<number>()
@@ -94,10 +104,12 @@ async function request(host: DownloadIssueHost, stream: number, size: number, is
   host.inFlight.set(issued, controller)
   const timeout = host.clock.setTimer(TIMEOUT_MS, () => controller.abort())
   let status = 0
+  let refusal: Refusal | undefined
   let complete = false
   try {
     const response = await host.options.transport.download(size, controller.signal)
     status = response.status
+    refusal = response.refusal
     if (status === 200) {
       host.encoding(response.contentEncoding)
       for await (const chunk of response.chunks) {
@@ -120,5 +132,5 @@ async function request(host: DownloadIssueHost, stream: number, size: number, is
       controller.abort()
     }
   }
-  host.settled(issued, complete, status)
+  host.settled(issued, complete, status, refusal)
 }

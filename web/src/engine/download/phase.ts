@@ -26,11 +26,12 @@ import { type DownloadWindow, downloadWindow } from '@/engine/download/window'
 import type { DirectionEvent } from '@/engine/messages'
 import { graceFor, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
+import { Failures } from '@/engine/phases/refusal'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule, windowStable } from '@/engine/phases/window'
 import { BucketSeries } from '@/engine/stats/buckets'
 import { BUCKET_MS } from '@/engine/stats/units'
-import type { Clock, DownloadChunk, Info, ResourceTiming, TimerId, Transport } from '@/engine/types'
+import type { Clock, DownloadChunk, Info, Refusal, ResourceTiming, TimerId, Transport } from '@/engine/types'
 
 export type { DownloadOutcome } from '@/engine/download/outcome'
 
@@ -41,10 +42,6 @@ export type { DownloadOutcome } from '@/engine/download/outcome'
 // are kept. A Continuous download hands every bucket from its steady start to its retention and
 // keeps only the open ones, and the live series only while the ramp still reads it.
 
-/** Consecutive failed requests that end the phase with an error. */
-const MAX_FAILURES = 3
-
-const TOO_MANY_REQUESTS = 429
 /** A tick this late may follow a paused hidden page, which the run stops first (edge-cases.md section 5). */
 const LATE_MS = 1000
 
@@ -76,7 +73,7 @@ export class DownloadPhase {
   private readonly events: DirectionEvent[] = []
   private start = 0
   private read = 0
-  private failures = 0
+  private readonly failures: Failures
   private protocol: string | null = null
   private compressed = false
   private streamLimit: number | null = null
@@ -98,11 +95,14 @@ export class DownloadPhase {
     this.rule = new DurationRule('download', options.bounds, options.preset)
     this.retention = options.continuous === undefined ? null : new Retention()
     this.usedNotices = options.continuous === undefined ? null : new DataUsedNotices()
+    // A rate-limit wait past the maximum, or the run length, leaves its stream idle (section 4).
+    this.failures = new Failures(this.clock, () => this.start + (this.rule.lastIssueMs ?? options.continuous?.runLengthMs ?? Number.POSITIVE_INFINITY))
     this.issue = {
       clock: this.clock,
       options,
       streams: this.streams,
       inFlight: this.inFlight,
+      waits: this.failures.waits,
       issues: (stream) => this.ended === null && stream < this.ramp.streams,
       protocol: () => this.protocol,
       read: () => this.read,
@@ -112,7 +112,7 @@ export class DownloadPhase {
       },
       count: (request, chunk) => this.count(request, chunk),
       record: (timing) => this.record(timing),
-      settled: (request, complete, status) => this.settled(request, complete, status),
+      settled: (request, complete, status, refusal) => this.settled(request, complete, status, refusal),
     }
   }
 
@@ -301,16 +301,16 @@ export class DownloadPhase {
   }
 
   /** A request's end, unless the phase ended first: a completion, or a failure. */
-  private settled(request: DownloadRequest, complete: boolean, status: number): void {
+  private settled(request: DownloadRequest, complete: boolean, status: number, refusal: Refusal | undefined): void {
     if (this.ended !== null) {
       return
     }
     if (complete) {
-      this.failures = 0
+      this.failures.completed()
       this.streams.complete(request)
     } else {
       this.streams.ended(request, this.clock.now())
-      this.failed(status)
+      this.failed(request.stream, status, refusal)
     }
   }
 
@@ -333,14 +333,14 @@ export class DownloadPhase {
     }
   }
 
-  private failed(status: number): void {
-    if (status === TOO_MANY_REQUESTS) {
+  private failed(stream: number, status: number, refusal: Refusal | undefined): void {
+    const { lowerCap, ended } = this.failures.failed(stream, status, refusal)
+    if (lowerCap) {
       this.ramp.lowerCap()
       this.streamLimit = this.ramp.cap
     }
-    this.failures++
-    if (this.failures >= MAX_FAILURES) {
-      this.events.push({ code: 'error', atMs: this.clock.now() - this.start, notice: 'requests-failed' })
+    if (ended !== null) {
+      this.events.push({ code: 'error', atMs: this.clock.now() - this.start, notice: ended })
       this.end('failures')
     }
   }
@@ -358,6 +358,7 @@ export class DownloadPhase {
         this.clock.clearTimer(timer)
       }
     }
+    this.failures.waits.cancel()
     // The loaded-latency grace: d of the longest request in flight now, 2 s without a rate.
     this.options.ended?.(graceFor([...this.inFlight.keys()].map((request) => this.streams.expectedMs(request.stream, request.size))))
     for (const controller of this.inFlight.values()) {
@@ -389,6 +390,7 @@ export class DownloadPhase {
       bytes: this.read,
       protocol: this.protocol,
       streamLimit: this.streamLimit,
+      rateLimited: this.failures.waits.notice('download'),
       compressed: this.compressed,
     })
   }

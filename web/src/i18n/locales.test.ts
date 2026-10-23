@@ -57,6 +57,7 @@ const NOTICES: Record<NoticeCode, true> = {
   'data-cap-reached': true,
   'data-used': true,
   'stream-limit': true,
+  'rate-limited': true,
   'insufficient-data': true,
   'url-parameter-ignored': true,
   'stopped-early': true,
@@ -75,7 +76,15 @@ const NOTICES: Record<NoticeCode, true> = {
   'base-path-mismatch': true,
   'probe-reservation': true,
 }
-const ERRORS: Record<EngineErrorCode, true> = { 'invalid-settings': true, 'requests-failed': true, 'network-changed': true, 'server-restarted': true, 'server-unreachable': true }
+const ERRORS: Record<EngineErrorCode, true> = {
+  'invalid-settings': true,
+  'requests-failed': true,
+  'rate-limited': true,
+  'server-busy': true,
+  'network-changed': true,
+  'server-restarted': true,
+  'server-unreachable': true,
+}
 const PHASES: Record<PhaseName, true> = { info: true, idle: true, download: true, upload: true }
 
 describe('the English catalog', () => {

@@ -92,6 +92,19 @@ export function latencyStopView(result: Result | null, idle: { pings: number; co
   return { tone: 'neutral', icon: CircleMinus, ...latencyStopWording(idle.pings, idle.count, order.slice(order.indexOf('idle') + 1), wording), actions: [] }
 }
 
+/** A rate-limit refusal: the body says whether the direction waited and went on (measurement.md section 16). */
+function rateLimitedWording(notice: Extract<Notice, { code: 'rate-limited' }>, t: Wording['t']): { title: string; body: string } {
+  const download = notice.direction === 'download'
+  if (!notice.retried) {
+    const body = download ? t('notices.rateLimited.notRetried.download') : t('notices.rateLimited.notRetried.upload')
+    return { title: notice.reason === 'rate' ? t('notices.rateLimited.title') : t('notices.rateLimited.titleTableFull'), body }
+  }
+  if (notice.reason === 'rate') {
+    return { title: t('notices.rateLimited.title'), body: download ? t('notices.rateLimited.rate.download') : t('notices.rateLimited.rate.upload') }
+  }
+  return { title: t('notices.rateLimited.titleTableFull'), body: download ? t('notices.rateLimited.tableFull.download') : t('notices.rateLimited.tableFull.upload') }
+}
+
 /** One notice, worded. */
 export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
   const { t, locale } = context
@@ -116,6 +129,8 @@ export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
       const n = notice.streams
       return { tone: 'info', icon: Layers, title: t('notices.streamLimit.title', { n }, n), body: notice.direction === 'download' ? t('notices.streamLimit.download', { n }) : t('notices.streamLimit.upload', { n }), actions: [] }
     }
+    case 'rate-limited':
+      return { tone: 'info', icon: Timer, ...rateLimitedWording(notice, t), actions: [] }
     case 'insufficient-data': {
       const actions: NoticeAction[] = notice.offer === null ? [] : [{ kind: 'preset', preset: notice.offer, label: t('notices.actions.tryPreset', { preset: preset(notice.offer, t) }) }]
       return { tone: 'warn', icon: TriangleAlert, ...insufficientWording(notice, context), actions }

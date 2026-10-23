@@ -65,8 +65,18 @@ export interface DownloadChunk {
   at: number
 }
 
+/** What a 429 said (wire-protocol.md section 9): its envelope's code and its Retry-After. */
+export interface Refusal {
+  /** The envelope's `error.code`, or null when the body was not an envelope. */
+  code: string | null
+  /** Retry-After in ms, or null when it could not be read as whole seconds. */
+  retryAfterMs: number | null
+}
+
 export interface DownloadResponse {
   status: number
+  /** Set for a 429 only. */
+  refusal?: Refusal
   /** The response's Content-Encoding, or null without one (edge-cases.md section 13). */
   contentEncoding: string | null
   /** The body, read chunk by chunk; ends early with an error when the signal aborts. */
@@ -77,6 +87,8 @@ export interface DownloadResponse {
 
 export interface UploadResponse {
   status: number
+  /** Set for a 429 only. */
+  refusal?: Refusal
   /** The telemetry of a 200 answer (wire-protocol.md section 4); null for any other answer. */
   telemetry: UploadTelemetry | null
   timing: ResourceTiming | null

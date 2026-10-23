@@ -21,7 +21,7 @@ import type { LatencySample } from '@/components/chart/draw'
 import { type ContinuousSeries, TIER_BUCKETS } from '@/composables/useContinuousSeries'
 import type { LoadedPoint } from '@/composables/useLoadedSeries'
 import type { DirectionLive } from '@/composables/runLive'
-import type { Direction, DirectionEvent, NoticeCode } from '@/engine/messages'
+import type { Direction, DirectionEvent, FailureCode, NoticeCode } from '@/engine/messages'
 
 // The live chart's data (ui/screens.md section 1, design_system/components/charts.md), built
 // from the run's live state: each direction is a segment of the time axis, in run order, each
@@ -53,7 +53,7 @@ export interface ChartModel {
   /** Where each direction after the first begins. */
   separators: number[]
   /** The events of the result: extended, data cap, cancelled, error with the notice it ended on. */
-  marks: { at: number; code: MarkCode; notice?: NoticeCode | 'requests-failed' }[]
+  marks: { at: number; code: MarkCode; notice?: NoticeCode | FailureCode }[]
   /** The end of the last bucket: the "now" of a live chart. */
   end: number
   /** Where the time axis starts: 0, or a Continuous tier's oldest retained cell. */

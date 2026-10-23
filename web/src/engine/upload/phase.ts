@@ -19,6 +19,7 @@
 
 import { graceFor, type ThroughputOptions } from '@/engine/phases/options'
 import { Ramp } from '@/engine/phases/ramp'
+import { Failures } from '@/engine/phases/refusal'
 import { Warmup, type WarmupEnd } from '@/engine/phases/warmup'
 import { DurationRule } from '@/engine/phases/window'
 import { BUCKET_MS } from '@/engine/stats/units'
@@ -38,9 +39,6 @@ import { confirmedSeries, endConditionHolds } from '@/engine/upload/window'
 // the ledger, and every decision reads only the confirmed series. The phase stops issuing at its
 // end decision, gives the requests in flight a grace, and measures the window up to W_end_final.
 // A Continuous upload has no end decision: it hands its confirmed cells to its retention instead.
-
-const MAX_FAILURES = 3
-const TOO_MANY_REQUESTS = 429
 
 export interface UploadOptions extends ThroughputOptions {
   transport: Pick<Transport, 'upload'>
@@ -72,7 +70,7 @@ export class UploadPhase {
   private readonly clientEvents: ClientEvent[] = []
   private start = 0
   private sentBefore = 0
-  private failures = 0
+  private readonly failures: Failures
   private protocol: string | null = null
   private streamLimit: number | null = null
   /** The first stream the ramp's last step added, while it waits to be placed. */
@@ -95,9 +93,12 @@ export class UploadPhase {
     this.ramp = new Ramp({ mode, fixed, max, serverMax: options.limits.maxStreamsPerClient, ...(options.streamCap === undefined ? {} : { streamCap: options.streamCap }), rttMs: options.rttMs })
     this.warmup = new Warmup({ direction: 'upload', maxMs: options.bounds?.maxMs ?? null, fixedMs: options.warmup === 'auto' ? null : options.warmup })
     this.rule = new DurationRule('upload', options.bounds, options.preset)
+    // A rate-limit wait past max - 1 s, or the run length, leaves its stream idle (section 4).
+    this.failures = new Failures(this.clock, () => this.start + (this.rule.lastIssueMs ?? options.continuous?.runLengthMs ?? Number.POSITIVE_INFINITY))
     this.issue = {
       clock: this.clock,
       options,
+      waits: this.failures.waits,
       streams: this.streams,
       turn: this.turn,
       ledger: this.ledger,
@@ -224,32 +225,34 @@ export class UploadPhase {
       this.ledger.confirm(request.id, now, telemetry)
       this.streams.confirm(request, telemetry, now)
       this.turn.confirmed(request.size, request.sent)
-      this.failures = 0
+      this.failures.completed()
       this.decide()
       return
     }
     flight.controller.abort()
     this.ledger.end(request.id, now)
     this.streams.ended(request, now)
-    this.failed(response?.status ?? 0)
+    this.failed(request.stream, response)
   }
 
-  private failed(status: number): void {
+  private failed(stream: number, response: UploadResponse | null): void {
     if (this.halted !== null) {
       return
     }
     // On HTTP/1.1 or an unreported protocol a failed request stays open, freezes the window and ends the phase.
-    if (!allowsUpperBound(this.ledger.protocol)) {
+    const continues = allowsUpperBound(this.ledger.protocol)
+    const { lowerCap, ended } = this.failures.failed(stream, response?.status ?? 0, response?.refusal, continues)
+    if (!continues) {
       this.clientEvents.push({ code: 'error', at: this.clock.now(), notice: 'upload-interrupted' })
       this.halt('interrupted')
       return
     }
-    if (status === TOO_MANY_REQUESTS) {
+    if (lowerCap) {
       this.ramp.lowerCap()
       this.streamLimit = this.ramp.cap
     }
-    if (++this.failures >= MAX_FAILURES) {
-      this.clientEvents.push({ code: 'error', at: this.clock.now(), notice: 'requests-failed' })
+    if (ended !== null) {
+      this.clientEvents.push({ code: 'error', at: this.clock.now(), notice: ended })
       this.halt('failures')
       return
     }
@@ -308,6 +311,7 @@ export class UploadPhase {
         this.clock.clearTimer(timer)
       }
     }
+    this.failures.waits.cancel()
     const at = this.clock.now()
     if (reason === 'data-cap') {
       this.clientEvents.push({ code: 'data-cap', at })
@@ -358,6 +362,7 @@ export class UploadPhase {
       bytes: this.sentBefore,
       protocol: this.protocol,
       streamLimit: this.streamLimit,
+      rateLimited: this.failures.waits.notice('upload'),
       bufferingSuspected: this.streams.bufferingSuspected,
       idleShare: this.streams.idleShare,
       displayOffsetMs: this.streams.displayOffset(),

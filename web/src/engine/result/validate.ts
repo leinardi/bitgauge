@@ -146,6 +146,7 @@ const notices: Record<string, Check> = {
   'data-cap-reached': directed('data-cap-reached'),
   'data-used': object({ code: literal('data-used'), bytes: count }),
   'stream-limit': directed('stream-limit', { streams: count }),
+  'rate-limited': directed('rate-limited', { reason: literal('rate', 'table-full'), retried: boolean }),
   'insufficient-data': directed('insufficient-data', { offer: nullable(literal('quick', 'standard', 'extended')) }),
   'url-parameter-ignored': object({ code: literal('url-parameter-ignored'), parameter: string, value: string }),
   'stopped-early': directed('stopped-early', { coveredMs: amount }),
@@ -175,7 +176,7 @@ const event = byCode({
   extended: object({ code: literal('extended'), atMs: amount }),
   'data-cap': object({ code: literal('data-cap'), atMs: amount }),
   cancelled: object({ code: literal('cancelled'), atMs: amount }),
-  error: object({ code: literal('error'), atMs: amount, notice: literal('requests-failed', ...Object.keys(notices)) }),
+  error: object({ code: literal('error'), atMs: amount, notice: literal('requests-failed', 'server-busy', ...Object.keys(notices)) }),
   'failure-gap': object({ code: literal('failure-gap'), startMs: amount, endMs: amount }),
 })
 

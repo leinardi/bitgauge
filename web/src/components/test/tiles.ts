@@ -83,6 +83,10 @@ function errorCause(result: DirectionResult, t: Wording['t']): string {
   switch (event?.code === 'error' ? event.notice : null) {
     case 'requests-failed':
       return t('test.tiles.errorCause.requestsFailed')
+    case 'rate-limited':
+      return t('test.tiles.errorCause.rateLimited')
+    case 'server-busy':
+      return t('test.tiles.errorCause.serverBusy')
     case 'network-changed':
       return t('test.tiles.errorCause.networkChanged')
     case 'server-restarted':

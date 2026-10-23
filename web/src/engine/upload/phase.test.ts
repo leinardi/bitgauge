@@ -488,6 +488,74 @@ describe('a failed request', () => {
   })
 })
 
+describe('a rate-limit 429', () => {
+  const SINGLE: Partial<UploadOptions> = { streams: { mode: 'single', fixed: 1, max: 6 } }
+
+  it('on HTTP/2 makes the stream wait the Retry-After, with the cap unchanged, and carries rate-limited', async () => {
+    const { outcome, sends, answers } = await run(failing(LINK, (index) => (index === 3 ? { kind: 'status', status: 429, code: 'rate_limited', retryAfter: 2 } : null)), SINGLE)
+    // The 429 answers request 3; request 4 goes 2 s after that answer.
+    expect(sends[4]?.at).toBe((answers[3] ?? 0) + 2000)
+    expect(outcome.status).toBe('measured')
+    expect(outcome.streams).toBe(1)
+    expect(outcome.notices).toContainEqual({ code: 'rate-limited', direction: 'upload', reason: 'rate', retried: true })
+    expect(outcome.notices).not.toContainEqual(expect.objectContaining({ code: 'stream-limit' }))
+  })
+
+  it('on HTTP/2 waits 1 s without a readable Retry-After', async () => {
+    const { outcome, sends, answers } = await run(failing(LINK, (index) => (index === 3 ? { kind: 'status', status: 429, code: 'table_full' } : null)), SINGLE)
+    expect(sends[4]?.at).toBe((answers[3] ?? 0) + 1000)
+    expect(outcome.notices).toContainEqual({ code: 'rate-limited', direction: 'upload', reason: 'table-full', retried: true })
+  })
+
+  it('on HTTP/2 still counts toward three in a row, classified by the last', async () => {
+    const { outcome } = await run(
+      failing(LINK, (index) => (index === 3 ? { kind: 'status', status: 500 } : index === 4 ? { kind: 'error' } : index === 5 ? { kind: 'status', status: 429, code: 'table_full', retryAfter: 1 } : null)),
+      SINGLE,
+    )
+    expect(outcome.status).toBe('error')
+    expect(outcome.events).toContainEqual(expect.objectContaining({ code: 'error', notice: 'server-busy' }))
+    expect(outcome.notices).toContainEqual({ code: 'rate-limited', direction: 'upload', reason: 'table-full', retried: false })
+  })
+
+  it('on HTTP/2 leaves a stream idle whose wait ends past max − 1 s, while the other measures', async () => {
+    // Request 0 is stream 0's first; its wait would end at ≈ 60 s.
+    const inFlight: number[] = []
+    let live = 0
+    const counted = (upload: Upload): Upload => (size, onProgress, signal) => {
+      inFlight.push(++live)
+      return upload(size, onProgress, signal).finally(() => live--)
+    }
+    const { outcome, sends } = await run(
+      failing(LINK, (index) => (index === 0 ? { kind: 'status', status: 429, code: 'rate_limited', retryAfter: 60 } : null)),
+      { streams: { mode: 'fixed', fixed: 2, max: 6 } },
+      counted,
+    )
+    // Both streams' first requests went at once; after the refusal only stream 1 sent, one
+    // request at a time, so each later request was alone in flight.
+    expect(sends.length).toBeGreaterThan(4)
+    expect(inFlight.slice(2).every((count) => count === 1)).toBe(true)
+    expect(outcome.status).toBe('measured')
+    expect(outcome.window).not.toBeNull()
+    expect(outcome.events.filter((event) => event.code === 'error')).toEqual([])
+    expect(outcome.notices).toContainEqual({ code: 'rate-limited', direction: 'upload', reason: 'rate', retried: false })
+  })
+
+  it('on HTTP/2 keeps the stream-limit path for too_many_streams', async () => {
+    const { outcome } = await run(failing(LINK, (index) => (index === 6 ? { kind: 'status', status: 429, code: 'too_many_streams', retryAfter: 1 } : null)))
+    expect(outcome.notices).toContainEqual({ code: 'stream-limit', direction: 'upload', streams: 5 })
+    expect(outcome.notices).not.toContainEqual(expect.objectContaining({ code: 'rate-limited' }))
+  })
+
+  it('on HTTP/1.1 ends the phase as any failure does, with rate-limited not retried', async () => {
+    const { outcome, sends, answers } = await run(failing({ ...LINK, protocol: 'http/1.1' }, (index) => (index === 6 ? { kind: 'status', status: 429, code: 'rate_limited', retryAfter: 1 } : null)))
+    const failedAt = answers[6] ?? 0
+    expect(sends.filter((send) => send.at > failedAt)).toEqual([])
+    expect(outcome.notices).toContainEqual({ code: 'upload-interrupted' })
+    expect(outcome.notices).toContainEqual({ code: 'rate-limited', direction: 'upload', reason: 'rate', retried: false })
+    expect(outcome.notices).not.toContainEqual(expect.objectContaining({ code: 'stream-limit' }))
+  })
+})
+
 describe('the epoch', () => {
   it('aborts the phase with server-restarted when an answer carries another one', async () => {
     const restarted = rewriting((index) => index >= 5, (response) => ({ ...response, telemetry: response.telemetry && { ...response.telemetry, epoch: 'epoch-2' } }))

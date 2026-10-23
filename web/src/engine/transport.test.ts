@@ -128,3 +128,51 @@ describe('the production transport waits for timing entries', () => {
     expect((await probe).timing).not.toBeNull()
   })
 })
+
+describe('a 429 on download', () => {
+  it('reads the envelope code and the Retry-After instead of cancelling the body', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(new Response('{"error":{"code":"rate_limited","message":"slow down"}}', { status: 429, headers: { 'Retry-After': '2' } }))),
+    )
+    const response = await new BrowserTransport(clock, '/').download(1, new AbortController().signal)
+    expect(response.status).toBe(429)
+    expect(response.refusal).toEqual({ code: 'rate_limited', retryAfterMs: 2000 })
+  })
+
+  it('carries no refusal on any other failed status', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response('oops', { status: 500 }))))
+    const response = await new BrowserTransport(clock, '/').download(1, new AbortController().signal)
+    expect(response).not.toHaveProperty('refusal')
+  })
+})
+
+describe('a 429 on upload', () => {
+  it('reads the envelope code from the response text and the Retry-After header', async () => {
+    class RefusingRequest {
+      status = 0
+      responseText = ''
+      responseType = ''
+      upload: { onprogress: (() => void) | null } = { onprogress: null }
+      onload: (() => void) | null = null
+      onerror: (() => void) | null = null
+      onabort: (() => void) | null = null
+      open(): void {}
+      setRequestHeader(): void {}
+      abort(): void {}
+      getResponseHeader(name: string): string | null {
+        return name === 'Retry-After' ? '4' : null
+      }
+      send(): void {
+        this.status = 429
+        this.responseText = '{"error":{"code":"rate_limited","message":"slow down"}}'
+        this.onload?.()
+      }
+    }
+    vi.stubGlobal('XMLHttpRequest', RefusingRequest)
+    const answer = new BrowserTransport(clock, '/').upload(16, () => {}, new AbortController().signal)
+    await vi.advanceTimersByTimeAsync(TIMING_WAIT_MS)
+    const response = await answer
+    expect(response).toMatchObject({ status: 429, telemetry: null, refusal: { code: 'rate_limited', retryAfterMs: 4000 } })
+  })
+})

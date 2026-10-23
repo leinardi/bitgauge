@@ -2,6 +2,8 @@
   "errors": {
     "invalid-settings": "the test settings are not valid",
     "requests-failed": "3 requests in a row failed",
+    "rate-limited": "{server} rate-limited a request during {phase}; the test stopped after 3 consecutive request failures.",
+    "server-busy": "{server} was busy and refused a request during {phase}; the test stopped after 3 consecutive request failures.",
     "network-changed": "the network changed",
     "server-restarted": "the server restarted",
     "server-unreachable": "server stopped responding"

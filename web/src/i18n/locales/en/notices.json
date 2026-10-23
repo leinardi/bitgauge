@@ -26,6 +26,22 @@
       "download": "The server refused more parallel streams, so download ran with at most {n}.",
       "upload": "The server refused more parallel streams, so upload ran with at most {n}."
     },
+    "rateLimited": {
+      "title": "Server rate limit",
+      "titleTableFull": "Server busy",
+      "rate": {
+        "download": "The server's request rate limit refused some download requests. The download waited as the server asked and continued, so its number may be below what the link can carry.",
+        "upload": "The server's request rate limit refused some upload requests. The upload waited as the server asked and continued, so its number may be below what the link can carry."
+      },
+      "tableFull": {
+        "download": "The server was tracking too many clients and refused some download requests. The download waited as the server asked and continued, so its number may be below what the link can carry.",
+        "upload": "The server was tracking too many clients and refused some upload requests. The upload waited as the server asked and continued, so its number may be below what the link can carry."
+      },
+      "notRetried": {
+        "download": "Some download requests were refused. The download did not retry those requests before the phase ended.",
+        "upload": "Some upload requests were refused. The upload did not retry those requests before the phase ended."
+      }
+    },
     "insufficientData": {
       "title": "{direction}: insufficient data",
       "directions": {

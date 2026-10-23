@@ -23,7 +23,7 @@ import { abortError, Body } from '@/engine/test/body'
 import type { FakeClock } from '@/engine/test/fakeClock'
 import { FakeServer } from '@/engine/test/fakeServer'
 import { Link, type LinkModel, wholeBytes } from '@/engine/test/link'
-import type { BrowserIdentity, DownloadResponse, Info, InfoResult, ProbeTiming, ResourceTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
+import type { BrowserIdentity, DownloadResponse, Info, InfoResult, ProbeTiming, Refusal, ResourceTiming, Transport, UploadResponse, WsEcho } from '@/engine/types'
 
 // A Transport for the engine tests that replays a scenario on the FakeClock, on the shared-link
 // model of measurement.md section 19.1 (test/link.ts). A download's first byte
@@ -33,8 +33,11 @@ import type { BrowserIdentity, DownloadResponse, Info, InfoResult, ProbeTiming, 
 
 /** What one request replays instead of a normal transfer. */
 export type Failure =
-  /** Answered one RTT after it is sent with this status and no body. */
-  | { kind: 'status'; status: number }
+  /**
+   * Answered one RTT after it is sent with this status; a 429 carries the envelope `code` (absent:
+   * a body that is not an envelope) and `retryAfter`, the Retry-After seconds (absent: unreadable).
+   */
+  | { kind: 'status'; status: number; code?: string; retryAfter?: number }
   /** Rejected one RTT after it is sent, like a network error. */
   | { kind: 'error' }
   /** Nothing arrives until the request is aborted. */
@@ -84,6 +87,14 @@ export interface Scenario extends LinkModel {
    * absent or false, it reused one, connectStart equal to connectEnd.
    */
   newConnection?: (path: string, index: number) => boolean | null
+}
+
+/** The refusal a replayed 429 carries, as the browser transport reads it. */
+function refusalOf(failure: Failure | null): { refusal?: Refusal } {
+  if (failure?.kind !== 'status' || failure.status !== 429) {
+    return {}
+  }
+  return { refusal: { code: failure.code ?? null, retryAfterMs: failure.retryAfter === undefined ? null : failure.retryAfter * 1000 } }
 }
 
 export class FakeTransport implements Transport {
@@ -143,7 +154,7 @@ export class FakeTransport implements Transport {
       if (status !== 200) {
         release()
         body.end()
-        return { status, contentEncoding: null, chunks: body, timing }
+        return { status, ...refusalOf(failure), contentEncoding: null, chunks: body, timing }
       }
       const transfer = this.link.start('download', failure?.kind === 'short' ? failure.bytes : size, firstByteAt, {
         moved: (bytes, _total, at) => {
@@ -177,6 +188,7 @@ export class FakeTransport implements Transport {
     if (failure !== null && failure.kind !== 'short') {
       const answered = this.respond(this.scenario.rttMs, signal, failure, (status) => ({
         status,
+        ...refusalOf(failure),
         telemetry: null,
         timing: this.entry({ requestStart: sentAt, responseStart: sentAt + this.scenario.rttMs, responseEnd: sentAt }),
       }))

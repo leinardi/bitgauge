@@ -436,6 +436,39 @@ describe('a server restart', () => {
   })
 })
 
+describe('a rate-limit 429', () => {
+  /** Quick's three download streams each refused at once with `code`. */
+  function refused(code: string): Scenario {
+    return { ...LINK, failure: (direction, index) => (direction === 'download' && index < 3 ? { kind: 'status', status: 429, code, retryAfter: 2 } : null) }
+  }
+
+  it('ends the run with rate-limited when three in a row end the download before any retry', async () => {
+    const harness = start({}, refused('rate_limited'))
+    const report = await finish(harness)
+    expect(errors(harness)).toEqual([{ type: 'error', code: 'rate-limited', messageKey: 'errors.rate-limited', phase: 'download', partial: true }])
+    expect(report).toMatchObject({ status: 'error', error: 'rate-limited', skipped: ['upload'] })
+    expect(report?.download?.events).toEqual([expect.objectContaining({ code: 'error', notice: 'rate-limited' })])
+    expect(report?.download?.notices).toContainEqual({ code: 'rate-limited', direction: 'download', reason: 'rate', retried: false })
+  })
+
+  it('ends the run with server-busy after a full table', async () => {
+    const harness = start({}, refused('table_full'))
+    const report = await finish(harness)
+    expect(errors(harness)).toEqual([expect.objectContaining({ code: 'server-busy', messageKey: 'errors.server-busy' })])
+    expect(report).toMatchObject({ status: 'error', error: 'server-busy' })
+  })
+
+  it('ends the run by the last of three mixed failures: a 500, a network error, then a rate limit', async () => {
+    const mixed: Scenario = {
+      ...LINK,
+      failure: (direction, index) => (direction !== 'download' ? null : index === 0 ? { kind: 'status', status: 500 } : index === 1 ? { kind: 'error' } : index === 2 ? { kind: 'status', status: 429, code: 'rate_limited', retryAfter: 1 } : null),
+    }
+    const harness = start({ streams: { mode: 'single', fixed: 1, max: 6 } }, mixed)
+    const report = await finish(harness)
+    expect(report).toMatchObject({ status: 'error', error: 'rate-limited' })
+  })
+})
+
 describe('the WebSocket', () => {
   it('reopens after an unexpected close, and the run continues with the notice', async () => {
     const harness = start()

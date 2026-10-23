@@ -77,6 +77,8 @@ export interface PhaseRecord {
   bytes: number
   protocol: string | null
   streamLimit: number | null
+  /** The `rate-limited` notice, when a rate-limit 429 refused a request (measurement.md section 4). */
+  rateLimited: Notice | null
   bufferingSuspected: boolean
   idleShare: number | null
   displayOffsetMs: number | null
@@ -136,6 +138,9 @@ export function uploadOutcome(record: PhaseRecord): UploadOutcome {
   }
   if (record.streamLimit !== null) {
     notices.push({ code: 'stream-limit', direction: 'upload', streams: record.streamLimit })
+  }
+  if (record.rateLimited !== null) {
+    notices.push(record.rateLimited)
   }
   if (record.bufferingSuspected) {
     notices.push({ code: 'proxy-buffering-suspected' })

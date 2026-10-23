@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { DirectionEvent, NoticeCode } from '@/engine/messages'
+import type { DirectionEvent, FailureCode, NoticeCode } from '@/engine/messages'
 import type { UploadTelemetry } from '@/engine/types'
 import { cellOf } from '@/engine/upload/grid'
 import type { FailureGap, UploadLedger } from '@/engine/upload/watermark'
@@ -29,7 +29,7 @@ import type { FailureGap, UploadLedger } from '@/engine/upload/watermark'
 export interface ClientEvent {
   code: 'extended' | 'data-cap' | 'cancelled' | 'error'
   at: number
-  notice?: NoticeCode | 'requests-failed'
+  notice?: NoticeCode | FailureCode
 }
 
 /**

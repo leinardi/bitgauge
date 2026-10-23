@@ -221,6 +221,23 @@ describe('the result validator', () => {
     expect(validateResult(changed((result) => result.download?.events.push({ code: 'error', atMs: 1, notice: 'oops' } as never)))).toHaveLength(1)
   })
 
+  it('accepts a rate limit: its notice, and the error events three failures end on', () => {
+    const limited = changed((result) => {
+      result.notices.push({ code: 'rate-limited', direction: 'download', reason: 'table-full', retried: false })
+      result.download?.events.push({ code: 'error', atMs: 2300, notice: 'server-busy' }, { code: 'error', atMs: 2400, notice: 'rate-limited' })
+    })
+    expect(validateResult(limited)).toEqual([])
+  })
+
+  it('rejects a rate-limit notice outside its shape', () => {
+    expect(validateResult(changed((result) => result.notices.push({ code: 'rate-limited', direction: 'download', reason: 'other', retried: true } as never)))).toEqual([
+      'result.notices[2].reason: not one of rate, table-full',
+    ])
+    expect(validateResult(changed((result) => result.notices.push({ code: 'rate-limited', direction: 'upload', reason: 'rate' } as never)))).toEqual([
+      'result.notices[2].retried: missing',
+    ])
+  })
+
   it('rejects a series of more than 2000 points, and a negative or non-finite number', () => {
     const long = changed((result) => {
       if (result.download?.series !== undefined) {

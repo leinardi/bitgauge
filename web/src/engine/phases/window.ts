@@ -103,9 +103,19 @@ export class DurationRule {
       // A phase whose minimum is its maximum has nothing to be extended into.
       this.extended ||= this.bounds.maxMs > this.bounds.minMs
     }
-    // Upload stops issuing requests at max - 1 s even when that comes before its minimum.
-    const last = this.direction === 'upload' ? this.bounds.maxMs - UPLOAD_STOP_MS : this.bounds.maxMs
-    return elapsedMs >= last ? 'end' : 'continue'
+    return elapsedMs >= this.bounds.maxMs - this.stopMs ? 'end' : 'continue'
+  }
+
+  /**
+   * The last instant a new request may be issued at, in ms from the phase start: the maximum, and
+   * on upload max - 1 s even when that comes before its minimum; null without a maximum.
+   */
+  get lastIssueMs(): number | null {
+    return this.bounds === null ? null : this.bounds.maxMs - this.stopMs
+  }
+
+  private get stopMs(): number {
+    return this.direction === 'upload' ? UPLOAD_STOP_MS : 0
   }
 
   /**

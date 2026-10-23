@@ -31,6 +31,7 @@ import {
   checkedInfo,
   pong,
   RANDOM_CALL_BYTES,
+  refusalOf,
   resolutionOf,
   SEED_BYTES,
   type TimingEntry,
@@ -217,6 +218,20 @@ describe('waiting for probe timing entries under load', () => {
     const probes = new TimingWaiter(TIMING_PROBE_WAIT_MS, 'sticky')
     expect((await request(probes, 0)).found).toBe(true)
     expect(await request(probes, TIMING_PROBE_WAIT_MS + 10)).toEqual({ found: false, waits: [TIMING_PROBE_WAIT_MS] })
+  })
+})
+
+describe('a 429 refusal', () => {
+  it('reads the envelope code and whole seconds of Retry-After', () => {
+    expect(refusalOf('{"error":{"code":"table_full","message":"busy"}}', '3')).toEqual({ code: 'table_full', retryAfterMs: 3000 })
+    expect(refusalOf('{"error":{"code":"too_many_streams"}}', ' 1 ')).toEqual({ code: 'too_many_streams', retryAfterMs: 1000 })
+  })
+
+  it('gives null for what cannot be read: no envelope, a hidden header, or anything but whole seconds', () => {
+    expect(refusalOf('Too Many Requests', null)).toEqual({ code: null, retryAfterMs: null })
+    expect(refusalOf('{"error":{"code":7}}', '1.5')).toEqual({ code: null, retryAfterMs: null })
+    expect(refusalOf('null', '-1')).toEqual({ code: null, retryAfterMs: null })
+    expect(refusalOf('{}', 'Wed, 21 Oct 2026 07:28:00 GMT')).toEqual({ code: null, retryAfterMs: null })
   })
 })
 

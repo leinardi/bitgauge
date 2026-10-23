@@ -211,6 +211,8 @@
       "meta": "Test",
       "errorCause": {
         "requestsFailed": "error · 3 requests in a row failed",
+        "rateLimited": "error · rate-limited",
+        "serverBusy": "error · server busy",
         "networkChanged": "error · network changed",
         "serverRestarted": "error · server restarted",
         "serverUnreachable": "error · server unreachable",

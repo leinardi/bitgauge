@@ -40,6 +40,11 @@ export type Notice =
   | { code: 'data-used'; bytes: number }
   /** A `429` lowered the effective cap; `streams` is the lowered cap (measurement.md section 4). */
   | { code: 'stream-limit'; direction: Direction; streams: number }
+  /**
+   * A rate-limit 429 refused requests (measurement.md section 4): `rate` for the per-minute limit,
+   * `table-full` for a full rate-limit table; `retried` once a stream issued a request after waiting.
+   */
+  | { code: 'rate-limited'; direction: Direction; reason: 'rate' | 'table-full'; retried: boolean }
   | { code: 'insufficient-data'; direction: Direction; offer: Preset | null }
   | { code: 'url-parameter-ignored'; parameter: string; value: string }
   | { code: 'stopped-early'; direction: Direction; coveredMs: number }
@@ -62,10 +67,16 @@ export type Notice =
 
 export type NoticeCode = Notice['code']
 
+/**
+ * What three consecutive failed requests raise, by the last of them (measurement.md section 5):
+ * `rate-limited` or `server-busy` after a rate-limit 429, `requests-failed` otherwise.
+ */
+export type FailureCode = 'requests-failed' | 'rate-limited' | 'server-busy'
+
 /** The `error` event's codes (architecture.md section 4); the message key is `errors.<code>`. */
 export type EngineErrorCode =
   | 'invalid-settings'
-  | 'requests-failed'
+  | FailureCode
   | 'network-changed'
   | 'server-restarted'
   | 'server-unreachable'

@@ -267,6 +267,18 @@ describe('the failure notice', () => {
     )
   })
 
+  it('names only the known cause of a rate limit, never three refusals, with the same body', () => {
+    const shown = phases({ idle: { state: 'finished' }, download: { state: 'failed', ranMs: 2300 } })
+    expect(failure({ code: 'rate-limited', phase: 'download', partial: true }, shown)).toEqual([
+      'Basement NAS rate-limited a request during download; the test stopped after 3 consecutive request failures.',
+      'Download stopped at 2.3 s. Latency finished before the error.',
+    ])
+    expect(failure({ code: 'server-busy', phase: 'download', partial: true }, shown)).toEqual([
+      'Basement NAS was busy and refused a request during download; the test stopped after 3 consecutive request failures.',
+      'Download stopped at 2.3 s. Latency finished before the error.',
+    ])
+  })
+
   it('names no phase for an engine defect', () => {
     expect(failure({ code: 'internal', phase: null, partial: false }, phases({}))).toEqual(['Test failed', 'The test stopped because of an internal error.'])
   })

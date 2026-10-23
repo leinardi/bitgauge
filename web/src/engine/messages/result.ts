@@ -17,7 +17,7 @@
  * along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Confidence, Notice, NoticeCode } from '@/engine/messages/notices'
+import type { Confidence, FailureCode, Notice, NoticeCode } from '@/engine/messages/notices'
 import type { Direction, DurationBounds, MeasuringPhase, NoBounds, Preset, StreamMode } from '@/engine/messages/settings'
 
 // Result object (measurement.md section 17): a field with nothing to report is absent, never
@@ -49,7 +49,7 @@ export interface ResultSeries {
 
 export type DirectionEvent =
   | { code: 'extended' | 'data-cap' | 'cancelled'; atMs: number }
-  | { code: 'error'; atMs: number; notice: NoticeCode | 'requests-failed' }
+  | { code: 'error'; atMs: number; notice: NoticeCode | FailureCode }
   | { code: 'failure-gap'; startMs: number; endMs: number }
 
 /** Where loaded-latency samples came from (measurement.md section 11.2). */

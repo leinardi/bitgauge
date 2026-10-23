@@ -19,6 +19,7 @@
 
 import { deferred, inFlightLimit, issuesEarly } from '@/engine/phases/issue'
 import { dataBudget, serverBound } from '@/engine/phases/options'
+import type { RateLimitWaits } from '@/engine/phases/refusal'
 import type { Clock, UploadResponse } from '@/engine/types'
 import type { UploadOptions } from '@/engine/upload/phase'
 import type { UploadRequest, UploadStreams } from '@/engine/upload/streams'
@@ -49,6 +50,8 @@ export interface UploadIssueHost {
   readonly ledger: UploadLedger
   /** The requests in flight; the phase closes those left at its end. */
   readonly inFlight: Set<InFlight>
+  /** The streams waiting out a rate-limit refusal (measurement.md section 4). */
+  readonly waits: RateLimitWaits
   /** Whether the stream still issues: the phase issues and the stream is within the count. */
   issues(stream: number): boolean
   /** The bytes sent so far in the phase. */
@@ -59,10 +62,18 @@ export interface UploadIssueHost {
   settled(flight: InFlight, response: UploadResponse | null): void
 }
 
-/** One stream: requests back to back, or early (measurement.md section 3), while the phase issues and the stream is within the count and the server's in-flight bound. */
+/**
+ * One stream: requests back to back, or early (measurement.md section 3), while the phase issues
+ * and the stream is within the count and the server's in-flight bound. After a rate-limit refusal
+ * the stream waits it out first (section 4).
+ */
 export async function uploadLoop(host: UploadIssueHost, stream: number): Promise<void> {
   let early = false
   while (host.issues(stream)) {
+    const wait = host.waits.before(stream)
+    if (wait !== null && ((await wait) === 'idle' || !host.issues(stream))) {
+      return
+    }
     let size = nextSize(host, stream)
     let hold = NO_HOLD
     if (size !== null && host.turn.waits(size)) {
@@ -77,6 +88,9 @@ export async function uploadLoop(host: UploadIssueHost, stream: number): Promise
       hold.release()
       host.capped()
       return
+    }
+    if (wait !== null) {
+      host.waits.issued()
     }
     const first = deferred<number>()
     const done = request(host, stream, size, hold, early, first.resolve)

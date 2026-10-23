@@ -67,6 +67,8 @@ export interface DownloadRecord {
   bytes: number
   protocol: string | null
   streamLimit: number | null
+  /** The `rate-limited` notice, when a rate-limit 429 refused a request (measurement.md section 4). */
+  rateLimited: Notice | null
   compressed: boolean
 }
 
@@ -111,6 +113,9 @@ export function downloadOutcome(record: DownloadRecord): DownloadOutcome {
   }
   if (record.streamLimit !== null) {
     notices.push({ code: 'stream-limit', direction: 'download', streams: record.streamLimit })
+  }
+  if (record.rateLimited !== null) {
+    notices.push(record.rateLimited)
   }
   if (record.compressed) {
     notices.push({ code: 'response-compression-detected' })

@@ -35,7 +35,7 @@ const props = defineProps<{ error: RunError; phases: Readonly<Record<PhaseName, 
 
 const { t, locale } = useI18n()
 
-const CAUSES: Record<Exclude<RunError['code'], 'internal'>, () => string> = {
+const CAUSES: Record<Exclude<RunError['code'], 'internal' | 'rate-limited' | 'server-busy'>, () => string> = {
   'invalid-settings': () => t('errors.invalid-settings'),
   'requests-failed': () => t('errors.requests-failed'),
   'network-changed': () => t('errors.network-changed'),
@@ -55,6 +55,14 @@ const title = computed(() => {
   const { code, phase } = props.error
   if (code === 'internal') {
     return t('test.failure.title')
+  }
+  // A rate limit names only the known cause of the last failure, in a sentence of its own.
+  if ((code === 'rate-limited' || code === 'server-busy') && (phase === 'download' || phase === 'upload')) {
+    const values = { server: props.server, phase: phaseName(phase) }
+    return code === 'rate-limited' ? t('errors.rate-limited', values) : t('errors.server-busy', values)
+  }
+  if (code === 'rate-limited' || code === 'server-busy') {
+    return t('test.failure.lost', { server: props.server, cause: t('errors.requests-failed') })
   }
   const cause = CAUSES[code]()
   if (code === 'invalid-settings') {
