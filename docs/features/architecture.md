@@ -103,7 +103,7 @@ the page's `Worker` object; the next `start` may begin another run.
 | --- | --- | --- |
 | `settings` | scope (`configured` or `run`), the resolved settings | The settings shown before a run (`configured`, answering each valid `configure`) and during and after it (`run`, sent as a run starts, its override applied). |
 | `phase` | phase name (`info`, `idle`, `download`, `upload`), state (`started`, `finished`, `skipped`, `failed`), protocol, stream count, notices so far; a `finished` idle latency, download or upload, and a `failed` download or upload, carries its part of the result object, the `idle` or direction object the result will report, so its tile shows at once, except a direction's `loadedLatency`, which only the `result` carries: its pings' grace ([measurement.md §11.4](measurement.md#114-loaded-latency-statistics-and-availability)) runs on into the next phase; a finished or failed direction's `responsiveness` is settled at its end and travels with it ([measurement.md §12.3](measurement.md#123-path-b-procedure)); the `scores` only with the `result`; a `failed` phase carries how long it ran (display only) | Phase indicator, connection info, the headline announced as a direction finishes ([ui/i18n-a11y.md §2.1](ui/i18n-a11y.md#21-live-region-for-the-gauge)), the download's share of the data used while upload runs ([ui/screens.md §1](ui/screens.md#1-test-home--)). |
-| `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up, and in Continuous, which sends its `continuous` block instead); with Continuous, the run's live figures (`continuous`) and the coarse cells closed since the previous `sample` (`cells`); the notices raised since the previous `sample` (`notices`, such as `data-used`); the warm-up end and, for upload, P_start and the sample's instant on the server grid (display only); the stream count the ramp has reached; how long its phase has run on the client clock (display only); the loaded-latency pings answered since the previous `sample`, each `{atMs, rttMs}` on the client clock ([measurement.md §11.5](measurement.md#115-time-base-and-series)); data used | Live gauge, tiles and chart, at most every 100 ms. |
+| `sample` | direction; a **range** of newly known buckets (`fromBucket` plus `values[]`); for upload, the current window end; gauge value; upload `sending` value; the steady-window average and peak so far (absent while warming up, and in Continuous, which sends its `continuous` block instead); with Continuous, the run's live figures (`continuous`) and the coarse cells closed since the previous `sample` (`cells`); the notices raised since the previous `sample` (`notices`, such as `data-used`, and `slow-link-extended` when the rule extends the phase); the direction events raised since the previous `sample` (`events`: `extended`, `data-cap`), on the chart's timeline as the result's events are; the warm-up end and, for upload, P_start and the sample's instant on the server grid (display only); the stream count the ramp has reached; how long its phase has run on the client clock (display only); the loaded-latency pings answered since the previous `sample`, each `{atMs, rttMs}` on the client clock ([measurement.md §11.5](measurement.md#115-time-base-and-series)); data used | Live gauge, tiles and chart, at most every 100 ms. |
 | `idle` | the path (`websocket` or `http`); pings answered or lost so far, of the ping count (the warm-up ping included); the last RTT; the running median, min, p90 and jitter of the samples so far and their probe-timeout share; how long its phase has run on the client clock (display only) | The idle-latency gauge in milliseconds, ping counter, live tiles and latency samples chart, after each ping. |
 | `result` | the versioned result object ([measurement.md §17](measurement.md#17-result-object)) | Result screen, history, export. |
 | `error` | code, message key, phase, whether partial results exist | Error states and retry ([ui/flows.md](ui/flows.md)). |
@@ -144,7 +144,10 @@ type EngineEvent =
         loadedLastMinuteMedianMs?: number };  // median of the last minute's per-second medians
       cells?: { tier: 'hour' | 'day' | 'long'; bytes: number; knownMs: number }[];
                                        // coarse cells closed since the previous sample, in order
-      notices?: Notice[];              // notices raised since the previous sample (data-used)
+      notices?: Notice[];              // notices raised since the previous sample (data-used,
+                                       // slow-link-extended, data-cap-reached)
+      events?: DirectionEvent[];       // events raised since the previous sample (extended,
+                                       // data-cap), atMs as in the result's events
       warmupEndBucket?: number;        // once warm-up has ended, on the same axis as fromBucket
       startBucket?: number;            // upload only: P_start on the server grid, in cells
       sendingBucket?: number;          // upload only: this instant on the grid, by the offset
@@ -171,6 +174,16 @@ with `startBucket`, the phase start P_start on the same grid; both are absent un
 confirmed, because there is no offset before. Once warm-up has ended, every `sample` carries
 `warmupEndBucket`, the bucket (download) or cell (upload) where it ended, which bounds the live
 chart's warm-up band. All three are display-only and feed no number.
+
+**Live events.** A direction's `extended` and `data-cap` events, with their `slow-link-extended`
+and `data-cap-reached` notices, travel on the next `sample` after they are raised, each exactly
+once, so the live chart draws its marks and the header its planned end as they happen. Their
+`atMs` is on the chart's timeline, as in the result's `events`: download from the phase start on
+the client clock, upload on the server phase timeline with the display offset of
+[measurement.md §7.4](measurement.md#74-common-timeline-and-aggregation). A `sample` that only
+delivers notices or events carries an empty bucket range (`values: []`, `fromBucket` the next
+bucket), so an event raised before the first bucket closes, such as a data cap hit at once, is
+still live. The `result`'s events replace the live ones.
 
 **Continuous samples.** The UI keeps fixed rings of its own for the live chart, of the lengths
 `engine/messages.ts` exports as constants (6000 native buckets, 3600 hour, 1440 day and 1008 long
