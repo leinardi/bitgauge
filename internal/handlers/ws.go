@@ -200,6 +200,11 @@ func (s *WebSockets) join() bool {
 // echo answers each ping with its pong until the connection ends: by the peer, by a protocol
 // rule, by 120 s without a message, or by CloseAll.
 func (s *WebSockets) echo(parent context.Context, conn *websocket.Conn) {
+	// Every exit closes the hijacked connection before ServeHTTP gives the slot back: the
+	// read limit only writes its 1009 close frame and leaves the TCP connection open. After a
+	// completed close handshake this is a no-op that reports net.ErrClosed.
+	defer func() { _ = conn.CloseNow() }()
+
 	conn.SetReadLimit(WebSocketReadLimit)
 
 	ctx, cancel := context.WithCancel(parent)
@@ -222,7 +227,8 @@ func (s *WebSockets) echo(parent context.Context, conn *websocket.Conn) {
 		stopIdle()
 
 		if err != nil {
-			// The peer closed, the read limit closed with 1009, or a close above is under way.
+			// The peer closed, the read limit wrote its 1009 close frame, or a close above is
+			// under way; the deferred CloseNow ends the connection in every case.
 			return
 		}
 

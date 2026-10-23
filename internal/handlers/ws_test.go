@@ -20,9 +20,13 @@
 package handlers
 
 import (
+	"bufio"
 	"context"
+	"encoding/binary"
 	"errors"
+	"io"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -336,6 +340,123 @@ func TestWebSocketFifthConnectionIs429(t *testing.T) {
 
 	server.waitReturned(t)
 	server.mustDial(t)
+}
+
+// rawDial does the handshake by hand, so the test sees the TCP connection itself: whether
+// the server ends it, not only whether it wrote a close frame.
+func (s *wsServer) rawDial(t *testing.T) (net.Conn, *bufio.Reader) {
+	t.Helper()
+
+	var dialer net.Dialer
+
+	conn, err := dialer.DialContext(t.Context(), "tcp", s.server.Listener.Addr().String())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Cleanup(func() { _ = conn.Close() })
+
+	_, err = io.WriteString(conn, "GET / HTTP/1.1\r\nHost: "+s.server.Listener.Addr().String()+
+		"\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"+
+		"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	reader := bufio.NewReader(conn)
+
+	response, err := http.ReadResponse(reader, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_ = response.Body.Close()
+
+	if response.StatusCode != http.StatusSwitchingProtocols {
+		t.Fatalf("raw handshake: status %d, want 101", response.StatusCode)
+	}
+
+	return conn, reader
+}
+
+// maskedTextFrame is one client text frame (FIN set, masked) of length spaces; length must be
+// at least 126, so that it takes the 16-bit form.
+func maskedTextFrame(length uint16) []byte {
+	mask := [4]byte{0x1b, 0x2c, 0x3d, 0x4e}
+
+	frame := make([]byte, 0, 8+int(length))
+	frame = append(frame, 0x81, 0x80|126)
+	frame = binary.BigEndian.AppendUint16(frame, length)
+	frame = append(frame, mask[:]...)
+
+	for index := range int(length) {
+		frame = append(frame, ' '^mask[index%len(mask)])
+	}
+
+	return frame
+}
+
+func TestWebSocketReadLimitClosesTheConnection(t *testing.T) {
+	t.Parallel()
+
+	server := newWSServer(t)
+
+	for range ratelimit.WebSocketsPerClient - 1 {
+		server.mustDial(t)
+	}
+
+	raw, reader := server.rawDial(t)
+
+	err := raw.SetDeadline(time.Now().Add(30 * time.Second))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = raw.Write(maskedTextFrame(WebSocketReadLimit + 1))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// The server's frame is unmasked and short: opcode, length, then the status code.
+	header := make([]byte, 4)
+
+	_, err = io.ReadFull(reader, header)
+	if err != nil {
+		t.Fatalf("read the close frame: %v", err)
+	}
+
+	if header[0] != 0x88 || header[1] < 2 ||
+		websocket.StatusCode(binary.BigEndian.Uint16(header[2:])) != websocket.StatusMessageTooBig {
+		t.Fatalf("frame % x, want a close frame with 1009", header)
+	}
+
+	_, err = io.CopyN(io.Discard, reader, int64(header[1]-2))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// The server ends the TCP connection too, rather than holding it after freeing its slot.
+	_, err = reader.ReadByte()
+	if !errors.Is(err, io.EOF) {
+		t.Fatalf("after the close frame: %v, want io.EOF", err)
+	}
+
+	server.waitReturned(t)
+
+	// Its slot is free, so one more fits and four are open again; a fifth is refused.
+	server.mustDial(t)
+
+	_, status, refused := server.dial(t, "")
+	if status != http.StatusTooManyRequests || refused.Get("Retry-After") == "" {
+		t.Fatalf("fifth connection: status %d, headers %v; want 429 with Retry-After",
+			status, refused)
+	}
+
+	server.waitReturned(t)
+
+	if got := sample(scrape(t, server.meter), "bitgauge_websocket_connections"); got != "4" {
+		t.Fatalf("bitgauge_websocket_connections = %q, want 4", got)
+	}
 }
 
 func TestWebSocketNotAHandshakeIs400(t *testing.T) {
