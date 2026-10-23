@@ -22,7 +22,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { formatAgo, formatBytes, formatDuration, formatLatency, formatPercent, formatRate, latencyAxisLabels, latencyNumber, rateAxisLabels, rateParts, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
+import { clockTime, formatAgo, formatBytes, formatDuration, formatLatency, formatPercent, formatRate, formatSpan, latencyAxisLabels, latencyNumber, rateAxisLabels, rateParts, spokenBytes, spokenLatency, spokenRate } from '@/lib/format'
 
 describe('formatBytes', () => {
   it.each([
@@ -144,6 +144,14 @@ describe('the spoken forms', () => {
     expect(spokenLatency(51.4, 'en')).toEqual({ text: '51 milliseconds', below: false })
     expect(spokenLatency(1.94, 'en')).toEqual({ text: '1.9 milliseconds', below: false })
     expect(spokenLatency(0.5, 'en', 1)).toEqual({ text: '1 millisecond', below: true })
+  })
+})
+
+describe('a Continuous run length', () => {
+  it('floors its whole seconds in both forms, never longer than it ran', () => {
+    expect(formatSpan(2_538_500, 'en')).toBe('42\u00a0min 18\u00a0s')
+    expect(clockTime(2_538_500, 'en')).toBe('42:18')
+    expect(formatSpan(59_999, 'en')).toBe('59\u00a0s')
   })
 })
 

@@ -152,9 +152,12 @@ export function formatLimit(ms: number, locale: string): string {
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(ms / 1000)}${NBSP}s`
 }
 
-/** A long span in its units: 45 s, 1 min 30 s, 2 h, 9 d 4 h 12 min; seconds only under an hour. */
+/**
+ * A long span in its units: 45 s, 1 min 30 s, 2 h, 9 d 4 h 12 min; seconds only under an hour.
+ * Whole seconds are floored, as `clockTime` does, so a run never reads longer than it ran.
+ */
 export function formatSpan(ms: number, locale: string): string {
-  const total = Math.max(0, Math.round(ms / 1000))
+  const total = Math.max(0, Math.floor(ms / 1000))
   const number = new Intl.NumberFormat(locale)
   const parts: [number, string][] = [
     [Math.floor(total / 86_400), 'd'],
