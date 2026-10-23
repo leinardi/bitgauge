@@ -343,7 +343,7 @@ and the page itself never scrolls sideways.
 
 | Metric | Unit and precision | Qualifiers shown |
 | --- | --- | --- |
-| Download, upload (headline) | auto-scaled kbit/s, Mbit/s, Gbit/s (or kB/s, MB/s, GB/s), 3 significant digits | direction status (`insufficient-data` shown as "insufficient data", `partial`, `skipped`, `error`; `measured` shows the number), confidence and reasons, overhead compensation when non-zero |
+| Download, upload (headline) | auto-scaled kbit/s, Mbit/s, Gbit/s (or kB/s, MB/s, GB/s), 3 significant digits | direction status (`insufficient-data` shown as "insufficient data", `partial` (stopped, always with its number), `skipped`, `error`; `measured` shows the number), confidence and reasons, overhead compensation when non-zero |
 | Peak (per direction) | as above, labeled "peak" (the p90 of the steady window, never a maximum); live, the steady-window p90 so far, hidden during warm-up | Continuous: "p90, last hour" |
 | Minimum and maximum (Continuous) | as above, run-wide over fully known 1 s cells | "run-wide"; "—" while absent |
 | Idle latency | ms; min, median, p90; whole ms ≥ 10 ms, one decimal below, "< 1 ms" below the timer resolution | path (`websocket` or HTTP), loss percentage |
@@ -373,7 +373,9 @@ detail, each with a short explanation and, where useful, a link to the docs. The
   ("Download: insufficient data"), its body naming the maximum the direction reached, the data it
   used, the direction still running while the run goes on, and what the offered preset allows:
   "Download reached its 20 s maximum without a confirmed steady window long enough for a number.
-  50 kB used. Upload continues; Extended allows up to 40 s per direction."
+  50 kB used. Upload continues; Extended allows up to 40 s per direction." The action follows only
+  a direction that reached its maximum: one the data cap ended says so and offers no larger preset
+  ([../measurement.md §8.6](../measurement.md#86-shortfall)), and a stopped one reads as stopped.
 - **Confidence:** `low confidence` with reasons; `cpu-bound` ("limited by this device's CPU");
   `browser upload limit` with a "Known browser limits" link to the docs.
 - **Limits:** `data cap reached`; `server stream limit — N streams`; `server rate limit` or

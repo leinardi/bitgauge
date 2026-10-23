@@ -372,7 +372,9 @@ In Continuous mode the data cap ends the run, which then reads like any other en
 with at least 3 fully known 1 s cells since the steady start, `partial` with its direction
 `insufficient-data` otherwise ([measurement.md §15](measurement.md#15-continuous-mode)).
 
-**User sees.** `data cap reached`, the data used, and which phases were skipped.
+**User sees.** `data cap reached`, the data used, and which phases were skipped. A direction the
+cap ended without a number reads `insufficient data` with no larger-preset offer, its wording
+saying the data cap ended it ([measurement.md §8.6](measurement.md#86-shortfall)).
 
 ## 20. Base Path Mismatches
 

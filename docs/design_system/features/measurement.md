@@ -286,7 +286,8 @@ is never exceeded (§3). When the remaining budget is below the 16 KiB floor at 
 would issue its next request, the current phase ends at that instant as if its maximum had been
 reached (the window condition decides between a number and
 `insufficient data`), remaining throughput phases are skipped, and the result carries the
-`data cap reached` notice.
+`data cap reached` notice. A direction the cap ended without a number carries no larger-preset
+offer (§8.6).
 
 **Continuous.** A Continuous direction (§15) has no minimum, no maximum and no extension: the end
 condition is never tested, it never carries the `test extended` notice or an `extended` event, and
@@ -521,7 +522,9 @@ feeds a number.
 - **Peak.** p90 of `S_up[b]` over *W*, labeled "peak", never the headline.
 - **Minimum window.** If `|W| × bucketMs < 3000 ms`, or fewer than 3 confirmed requests lie inside
   *W*, the upload direction status is `insufficient-data` ("insufficient data"): no number, data
-  used shown. If the phase was stopped by the user, the result status is `partial`. A bounded phase
+  used shown. A direction the user stopped below the minimum is `insufficient-data` too, never
+  `partial`, with no larger-preset offer (§8.6), and the result status is `partial`; a stopped direction is `partial` only with a
+  number. A bounded phase
   never reports a number from one request. A confirmed request lies inside *W* when every cell of
   its telemetry, from the cell of its first byte read to the cell of its last, belongs to *W*; a
   request that straddles the warm-up end, the window end or a failure gap contributes its bytes in
@@ -803,7 +806,10 @@ it.
 
 If a phase reaches its max and the window condition is not met, the result for that direction is
 `insufficient data` (no number; data used shown), with a notice offering the next larger preset
-(Quick → Standard → Extended); the other direction's result is kept. A bounded phase never reports a
+(Quick → Standard → Extended); the other direction's result is kept. The offer applies only to a
+phase that reached its maximum: a direction the data cap ended (§5) is `insufficient data` with no
+offer, since a longer preset would hit the same cap, and the UI says the cap ended it. A direction
+the user stopped is `insufficient data` with no offer either (§7.6). A bounded phase never reports a
 number from one request (Continuous follows §15).
 
 The slow-link time budget that shows how Standard fits a 300 kbit/s link is worked out per ramp step
@@ -916,7 +922,7 @@ Path A reports, per direction:
 - the **bufferbloat grade** (§11.3).
 
 A direction has a loaded-latency number, from path A or its fallback, only when it has a steady
-window: status `measured`, or `partial` with a number (§8.4). A direction that ended
+window: status `measured` or `partial` (§8.4). A direction that ended
 `insufficient-data` or `error` reports no number, even if pings were answered while it ran, because
 its load never settled: its `loadedLatency` is `unavailable` with reason `no-steady-window`, and its
 increase is unavailable to the grade (§11.3) and the quality scores (§13). A `skipped` direction
@@ -1138,7 +1144,7 @@ the HTTP/2 connection that carries the load.
 | `measured` | h2 or h3, at least 10 samples per direction with no new connection opened, and the ramp reached the stability criterion (warm-up ended without the cap) |
 | `uncertain` | h2 or h3 but fewer than 10 samples, or any sample opened a new connection or has an unknown connection, or the protocol changed mid-phase (a sample's protocol differs from the capability check's), or the warm-up ended at its cap |
 | `unavailable_h1` | the capability check saw any protocol other than `h2` or `h3` (HTTP/1.1, an empty value, anything else), or failed, or found no timing entry |
-| `unavailable_insufficient` | the direction has no steady window (it ended `insufficient-data`, `error`, or `partial` without a window), or fewer than 4 samples in the intervals the formula uses, so no meaningful trimmed mean exists; no number is shown |
+| `unavailable_insufficient` | the direction has no steady window (it ended `insufficient-data` or `error`), or fewer than 4 samples in the intervals the formula uses, so no meaningful trimmed mean exists; no number is shown |
 
 **Precedence.** When several rows apply, the first of `unavailable_h1`, `unavailable_insufficient`,
 `uncertain`, `measured` wins. A `skipped` direction has no `responsiveness` block at all.
@@ -1489,7 +1495,8 @@ engine emits the code with the raw values the notice names, and the UI words it.
   and "{server} was busy and refused a request during {phase}; the test stopped after 3
   consecutive request failures." The alert body is unchanged ("Download stopped at 2.3 s. Latency
   finished before the error.", [ui/flows.md §5](ui/flows.md#5-error-mid-test));
-- `insufficient data` per direction, with the next-larger-preset offer (`insufficient-data`; §8.6);
+- `insufficient data` per direction, with the next-larger-preset offer when the phase reached its
+  maximum, none when the data cap or a stop ended it (`insufficient-data`; §8.6);
 - `data used: N GB` at 1 GB, 10 GB, 100 GB and every further tenfold step during Continuous runs
   (`data-used`, with `bytes`, the decimal threshold crossed, 10⁹ × 10ᵏ; §15), informational,
   emitted live as the threshold is crossed and kept in the result;
@@ -1613,11 +1620,12 @@ CSV export flattens the same fields, one row per result.
   `client.crossOriginIsolated` whether the page was isolated
   ([edge-cases.md §9](edge-cases.md#9-clock-and-timer-resolution)); the idle statistics and samples
   are rounded to the nearest multiple of that resolution, never reported finer.
-- A direction reports a number when it is `measured`, or `partial` with a steady window that meets
-  the minimum window (§8.4). On download the window is its full buckets (§9.2): an end between two
-  ticks (a stop, a paused page, the data cap) ends the window, its series and the covered time of
-  `stopped-early` at the last full bucket, and only requests that fed those buckets count toward
-  the window condition. With overhead compensation, `bitsPerSecond` and `peakBitsPerSecond` are
+- A direction reports a number when it is `measured` or `partial`: `partial` always carries a
+  number, the stopped direction's steady window having met the minimum window (§8.4); a stopped
+  direction below it is `insufficient-data` (§7.6). On download the window is its full buckets
+  (§9.2): an end between two ticks (a stop, a paused page, the data cap) ends the window, its
+  series and the covered time of `stopped-early` at the last full bucket, and only requests that
+  fed those buckets count toward the window condition. With overhead compensation, `bitsPerSecond` and `peakBitsPerSecond` are
   compensated and `uncompensatedBitsPerSecond` keeps the headline as measured; the uncompensated
   peak is `peakBitsPerSecond / (1 + p / 100)` with `p` from `settings`.
 - Direction `status`: `measured`, `insufficient-data`, `partial`, `skipped` or `error`; the UI
