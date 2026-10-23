@@ -171,6 +171,12 @@ func (s *WebSockets) ServeHTTP(writer http.ResponseWriter, request *http.Request
 		return
 	}
 
+	// Only the client address is logged, never a message (configuration-security.md section 6).
+	s.log.LogAttrs(request.Context(), slog.LevelDebug, "websocket open",
+		slog.String("client", addr.String()))
+	defer s.log.LogAttrs(context.WithoutCancel(request.Context()), slog.LevelDebug,
+		"websocket close", slog.String("client", addr.String()))
+
 	s.meter.WebSocketOpened()
 	defer s.meter.WebSocketClosed()
 

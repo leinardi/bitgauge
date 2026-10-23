@@ -30,6 +30,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -56,13 +57,18 @@ type wsServer struct {
 func newWSServer(t *testing.T, allowed ...config.Origin) *wsServer {
 	t.Helper()
 
+	return newLoggedWSServer(t, slog.New(slog.DiscardHandler), allowed...)
+}
+
+func newLoggedWSServer(t *testing.T, log *slog.Logger, allowed ...config.Origin) *wsServer {
+	t.Helper()
+
 	clock := &fakeClock{now: time.Date(2026, 10, 12, 8, 0, 0, 0, time.UTC)}
 	limiter := ratelimit.New(ratelimit.Options{
 		MaxStreams: 8, RequestsPerMinute: 1200, TrackedClients: 64, MaxFlows: 32,
 	}, clock)
 	meter := metrics.New(buildinfo.Build{}, limiter.Len, nil)
-	sockets := NewWebSockets(limiter, clock, allowed, WebSocketIdle, slog.New(slog.DiscardHandler),
-		meter)
+	sockets := NewWebSockets(limiter, clock, allowed, WebSocketIdle, log, meter)
 	returned := make(chan struct{}, 16)
 
 	handler := clientip.Middleware(clientip.NewDeriver(nil))(
@@ -456,6 +462,84 @@ func TestWebSocketReadLimitClosesTheConnection(t *testing.T) {
 
 	if got := sample(scrape(t, server.meter), "bitgauge_websocket_connections"); got != "4" {
 		t.Fatalf("bitgauge_websocket_connections = %q, want 4", got)
+	}
+}
+
+// logRecord is one captured log line: its level, message and attributes.
+type logRecord struct {
+	attrs   map[string]string
+	message string
+	level   slog.Level
+}
+
+// captureHandler keeps every record at debug and above.
+type captureHandler struct {
+	records *[]logRecord
+	mu      *sync.Mutex
+}
+
+func (captureHandler) Enabled(context.Context, slog.Level) bool { return true }
+
+//nolint:gocritic // slog.Handler fixes the signature: the record comes by value
+func (h captureHandler) Handle(_ context.Context, record slog.Record) error {
+	attrs := map[string]string{}
+
+	record.Attrs(func(attr slog.Attr) bool {
+		attrs[attr.Key] = attr.Value.String()
+
+		return true
+	})
+
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	*h.records = append(*h.records, logRecord{
+		attrs: attrs, message: record.Message,
+		level: record.Level,
+	})
+
+	return nil
+}
+
+func (h captureHandler) WithAttrs([]slog.Attr) slog.Handler { return h }
+
+func (h captureHandler) WithGroup(string) slog.Handler { return h }
+
+func TestWebSocketOpenAndCloseAreLoggedAtDebug(t *testing.T) {
+	t.Parallel()
+
+	var (
+		records []logRecord
+		mu      sync.Mutex
+	)
+
+	server := newLoggedWSServer(t, slog.New(captureHandler{records: &records, mu: &mu}))
+	conn := server.mustDial(t)
+
+	send(t, conn, websocket.MessageText, `{"type":"ping","seq":1,"t":1}`)
+	receive(t, conn)
+
+	err := conn.Close(websocket.StatusNormalClosure, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	server.waitReturned(t)
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	if len(records) != 2 || records[0].message != "websocket open" ||
+		records[1].message != "websocket close" {
+		t.Fatalf("records %+v, want websocket open then websocket close", records)
+	}
+
+	for _, record := range records {
+		// The client address alone: never a message, a header or a seq.
+		if record.level != slog.LevelDebug || len(record.attrs) != 1 ||
+			record.attrs["client"] != "127.0.0.1" {
+			t.Fatalf("record %+v, want debug with only client=127.0.0.1", record)
+		}
 	}
 }
 
