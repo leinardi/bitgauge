@@ -44,7 +44,7 @@ test_defaults:                    # exposed to the browser via GET /api/v1/info
   phases: [idle, download, upload]  # which phases run, and the order of the two directions
   streams:
     mode: auto                    # auto | fixed | single
-    fixed: 3                      # stream count used by mode: fixed
+    fixed: 3                      # stream count used by mode: fixed (Quick's 3)
     max: 6                        # 1-6; upper bound for the auto ramp
   download:
     min_duration: ""              # "" = the preset's value (Standard: 10s)
@@ -127,8 +127,8 @@ specified in [measurement.md](measurement.md).
 | --- | --- | --- | --- |
 | `test_defaults.preset` | `BITGAUGE_TEST_DEFAULTS__PRESET` | `standard` | `quick`, `standard`, `extended`, `continuous` ([measurement.md §8.5](measurement.md#85-presets)). |
 | `test_defaults.phases` | `BITGAUGE_TEST_DEFAULTS__PHASES` | `idle,download,upload` | Non-empty list of `idle`, `download`, `upload` without duplicates; `idle`, when present, comes first; the order of `download` and `upload` is the run order. Info always runs and is not listed ([decisions.md §34](technical-stack/decisions.md#34-info-phase--always-runs)). |
-| `test_defaults.streams.mode` | `BITGAUGE_TEST_DEFAULTS__STREAMS__MODE` | `auto` | `auto`, `fixed`, `single`. |
-| `test_defaults.streams.fixed` | `BITGAUGE_TEST_DEFAULTS__STREAMS__FIXED` | `3` | 1–`streams.max`; used by `fixed`. |
+| `test_defaults.streams.mode` | `BITGAUGE_TEST_DEFAULTS__STREAMS__MODE` | preset | `auto`, `fixed`, `single`; empty means the preset's mode: `fixed` for Quick, `auto` otherwise ([measurement.md §8.5](measurement.md#85-presets)). |
+| `test_defaults.streams.fixed` | `BITGAUGE_TEST_DEFAULTS__STREAMS__FIXED` | `3` | 1–`streams.max`; used by `fixed`. The default is Quick's count. |
 | `test_defaults.streams.max` | `BITGAUGE_TEST_DEFAULTS__STREAMS__MAX` | `6` | 1–6 and ≤ `limits.max_streams_per_client`. |
 | `test_defaults.download.min_duration` | `BITGAUGE_TEST_DEFAULTS__DOWNLOAD__MIN_DURATION` | preset | 5s–10m; empty means the preset's value. |
 | `test_defaults.download.max_duration` | `BITGAUGE_TEST_DEFAULTS__DOWNLOAD__MAX_DURATION` | preset | ≥ `min_duration`, ≤ 10m. |

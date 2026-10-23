@@ -223,6 +223,7 @@ export interface components {
             /** @enum {string} */
             preset: "quick" | "standard" | "extended" | "continuous";
             phases: ("idle" | "download" | "upload")[];
+            /** @description The stream defaults, resolved: an unset test_defaults.streams.mode arrives as the preset's mode (fixed for Quick, auto otherwise). */
             streams: {
                 /** @enum {string} */
                 mode: "auto" | "fixed" | "single";

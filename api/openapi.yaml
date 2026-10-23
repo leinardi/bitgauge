@@ -511,6 +511,9 @@ components:
             type: string
             enum: [idle, download, upload]
         streams:
+          description: >-
+            The stream defaults, resolved: an unset test_defaults.streams.mode arrives as the
+            preset's mode (fixed for Quick, auto otherwise).
           type: object
           additionalProperties: false
           required: [mode, fixed, max]

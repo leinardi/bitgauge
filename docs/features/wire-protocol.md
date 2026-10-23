@@ -182,7 +182,8 @@ test when `epoch` differs from the one `GET /info` reported at test start.
   suggestion and the user can change it.
 - `defaults` are the test defaults exposed to the client from configuration; the SPA applies them
   unless the user's settings or URL parameters override them. They arrive resolved: an empty
-  duration bound is sent as the preset's value and `ping_count: 0` as the preset's idle ping count
+  duration bound is sent as the preset's value, an empty `streams.mode` as the preset's stream mode
+  (`fixed` for Quick, `auto` otherwise) and `ping_count: 0` as the preset's idle ping count
   ([measurement.md §8.5](measurement.md#85-presets)). With `preset: "continuous"`, which has no
   bounds, `download` and `upload` are `{"minMs": null, "maxMs": null}` whatever the duration keys
   say, and `pingCount` is 20 unless `ping_count` sets another; the run length is chosen per run in
