@@ -11,10 +11,10 @@ contract, and nothing here constrains the product.
 | [`going-public.md`](going-public.md) | The checklist for the day the repository stops being private: revising the release model, required checks and rulesets, the scheduled scan's schedule, fork pull requests and the `dhi.io` images, and the license check |
 | [`harness-runs/`](harness-runs/README.md) | One file per release, `<version>.md`, holding that release's floor and ceiling results (the harness's `report.md` from `dist/harness/`, committed by the maintainer), the real Safari and iOS checks, and the environmental notes, as required before tagging ([testing.md §5.1](../features/technical-stack/testing.md#51-implementation), [accuracy-harness.md §5](accuracy-harness.md#5-record-the-results)); the first is `0.1.0.md` |
 | [`health-audit.md`](health-audit.md) | Optional, before a release: the dependency scan and its triage, the review prompts, the metrics that only mean something compared with the previous run, and the refresh of the harness image digests |
+| [`qa/`](qa/2026-10-23-first-round.md) | One file per exploratory QA round, `<date>-<name>.md`: its setup, the findings with their IDs and status, the decisions it needed and the suggested split into fix plans; the method is the `qa-round` skill in `.agents/skills/`; the first is [`2026-10-23-first-round.md`](qa/2026-10-23-first-round.md) |
 
 ## Planned Notes
 
 | Document | What it will be for |
 | --- | --- |
-| `qa/<date>-<name>.md` | One file per exploratory QA round: its setup, the findings with their IDs and status, the decisions it needed and the suggested split into fix plans; the method is the `qa-round` skill in `.agents/skills/` |
 | `health-audits/<version>.md` | One file per milestone, holding that milestone's audit in the shape [health-audit.md](health-audit.md#where-the-audit-is-written-down) prescribes |
