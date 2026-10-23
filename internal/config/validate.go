@@ -411,7 +411,12 @@ func (c *checker) phases(phases []string) {
 }
 
 func (c *checker) streams(streams Streams, limits Limits) {
-	c.oneOf("test_defaults.streams.mode", streams.Mode, "auto", "fixed", "single")
+	// Empty is unset: GET /api/v1/info sends the preset's mode in its place.
+	if streams.Mode != "" {
+		c.oneOf("test_defaults.streams.mode", streams.Mode,
+			streamsModeAuto, streamsModeFixed, streamsModeSingle)
+	}
+
 	c.intRange("test_defaults.streams.max", streams.Max, minStreams, maxStreams)
 
 	if streams.Max > limits.MaxStreamsPerClient {

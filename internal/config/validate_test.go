@@ -685,6 +685,30 @@ func TestDefaultsAreValid(t *testing.T) {
 	}
 }
 
+func TestStreamsModeMayBeUnset(t *testing.T) {
+	t.Parallel()
+
+	// Empty stands for the preset's mode, as an empty duration does.
+	for _, file := range []string{
+		"test_defaults:\n  preset: quick\n",
+		"test_defaults:\n  streams:\n    mode: \"\"\n",
+	} {
+		if problems := problemsFor(t, file); len(problems) != 0 {
+			t.Fatalf("%q: problems %+v, want none", file, problems)
+		}
+	}
+
+	// Anything else outside the three modes still fails closed.
+	problems := problemsFor(t, "test_defaults:\n  streams:\n    mode: bogus\n")
+	if keys := problemKeys(problems); len(keys) != 1 || keys[0] != "test_defaults.streams.mode" {
+		t.Fatalf("mode bogus: problems %+v, want test_defaults.streams.mode", problems)
+	}
+
+	if ExitStatusInvalidConfig != 2 {
+		t.Fatalf("ExitStatusInvalidConfig = %d, want 2", ExitStatusInvalidConfig)
+	}
+}
+
 func TestProblemsAreCollected(t *testing.T) {
 	t.Parallel()
 

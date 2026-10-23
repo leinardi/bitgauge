@@ -43,7 +43,7 @@ test_defaults:                    # exposed to the browser via GET /api/v1/info
   preset: standard                # quick | standard | extended | continuous
   phases: [idle, download, upload]  # which phases run, and the order of the two directions
   streams:
-    mode: auto                    # auto | fixed | single
+    mode: ""                      # auto | fixed | single; "" = the preset's (Standard: auto)
     fixed: 3                      # stream count used by mode: fixed (Quick's 3)
     max: 6                        # 1-6; upper bound for the auto ramp
   download:

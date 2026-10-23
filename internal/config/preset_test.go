@@ -30,25 +30,28 @@ func TestPreset(t *testing.T) {
 	// measurement.md section 8.5.
 	for name, want := range map[string]PresetValues{
 		"quick": {
-			Download:  [2]time.Duration{5 * time.Second, 10 * time.Second},
-			Upload:    [2]time.Duration{5 * time.Second, 10 * time.Second},
-			PingCount: 10,
-			Bounded:   true,
+			StreamsMode: "fixed",
+			Download:    [2]time.Duration{5 * time.Second, 10 * time.Second},
+			Upload:      [2]time.Duration{5 * time.Second, 10 * time.Second},
+			PingCount:   10,
+			Bounded:     true,
 		},
 		"standard": {
-			Download:  [2]time.Duration{10 * time.Second, 20 * time.Second},
-			Upload:    [2]time.Duration{15 * time.Second, 25 * time.Second},
-			PingCount: 20,
-			Bounded:   true,
+			StreamsMode: "auto",
+			Download:    [2]time.Duration{10 * time.Second, 20 * time.Second},
+			Upload:      [2]time.Duration{15 * time.Second, 25 * time.Second},
+			PingCount:   20,
+			Bounded:     true,
 		},
 		"extended": {
-			Download:  [2]time.Duration{20 * time.Second, 40 * time.Second},
-			Upload:    [2]time.Duration{20 * time.Second, 40 * time.Second},
-			PingCount: 50,
-			Bounded:   true,
+			StreamsMode: "auto",
+			Download:    [2]time.Duration{20 * time.Second, 40 * time.Second},
+			Upload:      [2]time.Duration{20 * time.Second, 40 * time.Second},
+			PingCount:   50,
+			Bounded:     true,
 		},
-		// No minimum, no maximum: zero durations, and the 20 pings of Standard.
-		"continuous": {PingCount: 20},
+		// No minimum, no maximum: zero durations, and the stream mode and 20 pings of Standard.
+		"continuous": {StreamsMode: "auto", PingCount: 20},
 	} {
 		got, known := Preset(name)
 		if !known || got != want {

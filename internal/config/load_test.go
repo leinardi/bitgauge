@@ -138,7 +138,7 @@ func TestDefaultsAreTheDocumentedValues(t *testing.T) {
 		{
 			"test_defaults.streams",
 			defaults.TestDefaults.Streams,
-			Streams{Mode: "auto", Fixed: 3, Max: 6},
+			Streams{Mode: "", Fixed: 3, Max: 6},
 		},
 		{"test_defaults.download", defaults.TestDefaults.Download, DurationRange{}},
 		{"test_defaults.upload", defaults.TestDefaults.Upload, DurationRange{}},

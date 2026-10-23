@@ -40,7 +40,7 @@ const (
 	defaultRequestsPerMinute         = 1200
 	defaultTrackedClients            = 4096
 	defaultPreset                    = "standard"
-	defaultStreamsMode               = "auto"
+	defaultStreamsMode               = ""
 	defaultStreamsFixed              = 3
 	defaultStreamsMax                = 6
 	defaultUnits                     = "bits"
@@ -118,6 +118,7 @@ type TestDefaults struct {
 
 // Streams holds the test_defaults.streams.* keys.
 type Streams struct {
+	// Mode is auto, fixed or single; empty means the preset's mode (PresetValues.StreamsMode).
 	Mode  string `koanf:"mode"`
 	Fixed int    `koanf:"fixed"`
 	Max   int    `koanf:"max"`

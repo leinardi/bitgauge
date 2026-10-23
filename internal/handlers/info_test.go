@@ -272,6 +272,36 @@ func TestInfoDefaultsFromConfiguration(t *testing.T) {
 	}
 }
 
+func TestInfoStreamsModeFollowsThePreset(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		preset, mode string
+		want         map[string]any
+	}{
+		// An unset mode is the preset's: Quick's fixed 3 streams.
+		{"quick", "", map[string]any{"mode": "fixed", "fixed": 3.0, "max": 6.0}},
+		// A mode set in the configuration stands, whatever the preset.
+		{"quick", "auto", map[string]any{"mode": "auto", "fixed": 3.0, "max": 6.0}},
+		{"standard", "", map[string]any{"mode": "auto", "fixed": 3.0, "max": 6.0}},
+		{"continuous", "", map[string]any{"mode": "auto", "fixed": 3.0, "max": 6.0}},
+	} {
+		deps := testDeps()
+		deps.Config.TestDefaults.Preset = test.preset
+		deps.Config.TestDefaults.Streams.Mode = test.mode
+
+		got, _ := fetchInfo(t, deps, "10.0.0.1")
+
+		defaults, _ := got["defaults"].(map[string]any)
+
+		streams := defaults["streams"]
+		if !reflect.DeepEqual(streams, test.want) {
+			t.Fatalf("preset %s, mode %q: streams = %v, want %v",
+				test.preset, test.mode, streams, test.want)
+		}
+	}
+}
+
 func TestInfoWithoutClientAddressIs500(t *testing.T) {
 	t.Parallel()
 

@@ -231,6 +231,10 @@ func newInfoDefaults(defaults *config.TestDefaults) infoDefaults {
 		resolved.PingCount = preset.PingCount
 	}
 
+	if resolved.Streams.Mode == "" && known {
+		resolved.Streams.Mode = preset.StreamsMode
+	}
+
 	return resolved
 }
 
