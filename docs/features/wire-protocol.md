@@ -258,6 +258,12 @@ codes), and every error status of an enabled compatibility layer's routes
 `message` is English, for logs and debugging; the SPA maps `code` to localized text. Error responses
 never echo request bodies or headers.
 
+One `400` has no envelope: a request whose framing Go's `net/http` rejects before routing, such as
+a malformed `Content-Length` (`abc`, `-5`), gets `net/http`'s own plain-text `400 Bad Request` with
+`Connection: close`. It never reaches `/api/v1` or any handler, so nothing can attach the envelope,
+and a browser's `fetch` or `XMLHttpRequest` cannot send such a request
+([technical-stack/backend.md §3](technical-stack/backend.md#3-middleware-chain-order)).
+
 ## 8. Caching, CORS and Compression
 
 - **Caching.** Every `/api/v1` response and `/metrics` MUST carry `Cache-Control: no-store`. SPA

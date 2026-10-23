@@ -106,7 +106,9 @@ but never the reverse, and nothing imports `cmd/`.
 
 ## 3. Middleware Chain Order
 
-Applied in this order to every request, before routing:
+Applied in this order to every request, before routing. A request whose framing `net/http` itself
+rejects (a malformed `Content-Length`) reaches none of them and gets `net/http`'s plain-text `400`
+([../wire-protocol.md §7](../wire-protocol.md#7-error-envelope)).
 
 1. **Panic recovery**: logs the panic with the route pattern and answers `500` (error envelope on
    API routes and on an enabled compatibility layer's routes, by the classifier's group:

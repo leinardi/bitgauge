@@ -20,9 +20,14 @@
 package server
 
 import (
+	"bufio"
+	"errors"
+	"io"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -88,5 +93,60 @@ func TestClassifier(t *testing.T) {
 	request := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/speed/metrics", nil)
 	if NewClassifier(&cfg, nil)(request) != GroupSPA {
 		t.Fatal("/metrics is in the API group while metrics are off")
+	}
+}
+
+// TestMalformedFramingIsNetHTTPsPlain400 pins the one 400 without the error envelope
+// (wire-protocol.md section 7): net/http answers a Content-Length it cannot parse before any
+// handler runs, and closes the connection.
+func TestMalformedFramingIsNetHTTPsPlain400(t *testing.T) {
+	t.Parallel()
+
+	stack := newStack(t, testConfig(), nil)
+	address := stack.server.Listener.Addr().String()
+
+	for _, length := range []string{"abc", "-5"} {
+		var dialer net.Dialer
+
+		conn, err := dialer.DialContext(t.Context(), "tcp", address)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = conn.SetDeadline(time.Now().Add(30 * time.Second))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = io.WriteString(conn, "POST /api/v1/upload HTTP/1.1\r\nHost: "+address+
+			"\r\nContent-Length: "+length+"\r\n\r\n")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		reader := bufio.NewReader(conn)
+
+		response, err := http.ReadResponse(reader, nil)
+		if err != nil {
+			t.Fatalf("Content-Length %s: %v", length, err)
+		}
+
+		_, _ = io.Copy(io.Discard, response.Body)
+		_ = response.Body.Close()
+
+		if response.StatusCode != http.StatusBadRequest ||
+			!strings.HasPrefix(response.Header.Get("Content-Type"), "text/plain") ||
+			!response.Close {
+			t.Fatalf("Content-Length %s: status %d, Content-Type %q, close %v; "+
+				"want net/http's plain 400 with Connection: close", length, response.StatusCode,
+				response.Header.Get("Content-Type"), response.Close)
+		}
+
+		_, err = reader.ReadByte()
+		if !errors.Is(err, io.EOF) {
+			t.Fatalf("Content-Length %s: after the response %v, want io.EOF", length, err)
+		}
+
+		_ = conn.Close()
 	}
 }
