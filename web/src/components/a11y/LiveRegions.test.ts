@@ -64,6 +64,18 @@ function regions() {
   return { state, wrapper, live: () => text('live-region'), summary: () => text('result-summary') }
 }
 
+/** Longer than the polite region's coalescing window. */
+const WINDOW_MS = 300
+
+/** Lets the watchers run, then the coalescing window pass. */
+async function settle(): Promise<void> {
+  await flushPromises()
+  vi.advanceTimersByTime(WINDOW_MS)
+  await flushPromises()
+}
+
+const DOWNLOAD_RESULT = { result: { status: 'measured' as const, bitsPerSecond: 9.41e7, streams: 4, bytes: 1, events: [] } }
+
 beforeEach(() => {
   vi.useFakeTimers()
 })
@@ -88,22 +100,22 @@ describe('the live regions', () => {
     const { state, live, wrapper } = regions()
     state.begin()
     state.apply(phase('info', 'started'))
-    await flushPromises()
+    await settle()
     expect(live()).toBe('Connecting to the server')
     state.apply(phase('info', 'finished'))
     state.apply(phase('idle', 'started'))
-    await flushPromises()
+    await settle()
     expect(live()).toBe('Measuring idle latency')
     state.apply(phase('idle', 'finished'))
     state.apply(phase('download', 'started'))
-    await flushPromises()
+    await settle()
     expect(live()).toBe('Measuring download')
     state.apply(phase('download', 'finished', { result: { status: 'measured', bitsPerSecond: 9.41e7, streams: 4, bytes: 1, events: [] } }))
     state.apply(phase('upload', 'started'))
-    await flushPromises()
+    await settle()
     expect(live()).toBe('Download result: 94.1 megabits per second Measuring upload')
     state.apply(phase('upload', 'finished'))
-    await flushPromises()
+    await settle()
     expect(live()).toBe('Upload finished without a number')
     wrapper.unmount()
   })
@@ -114,7 +126,7 @@ describe('the live regions', () => {
     state.apply(phase('info', 'started'))
     state.apply(phase('info', 'finished'))
     state.apply(phase('download', 'started'))
-    await flushPromises()
+    await settle()
     const heard: string[] = []
     for (let tick = 1; tick <= 120; tick++) {
       state.apply(sample(1e6 * tick))
@@ -124,7 +136,8 @@ describe('the live regions', () => {
         heard.push(live())
       }
     }
-    expect(heard).toEqual(['Measuring download', 'Download, 50.0 megabits per second', 'Download, 100 megabits per second'])
+    // The 5 s interval runs from the run's start, 300 ms before the first sample.
+    expect(heard).toEqual(['Measuring download', 'Download, 47.0 megabits per second', 'Download, 97.0 megabits per second'])
     wrapper.unmount()
   })
 
@@ -134,8 +147,9 @@ describe('the live regions', () => {
     state.apply(phase('info', 'started'))
     state.apply(phase('download', 'started'))
     state.apply(sample(2e7))
-    await flushPromises()
+    await settle()
     state.apply(phase('download', 'finished', { result: { status: 'measured', bitsPerSecond: 2e7, streams: 4, bytes: 1, events: [] } }))
+    await settle()
     state.apply({ type: 'result', result: resultFixture() })
     await flushPromises()
     vi.advanceTimersByTime(20_000)
@@ -157,6 +171,68 @@ describe('the live regions', () => {
     await flushPromises()
     expect(summary()).toBe('')
     expect(live()).toBe('')
+    wrapper.unmount()
+  })
+})
+
+describe('the coalescing window', () => {
+  /** A run in its download phase, with nothing left to read. */
+  async function downloading(): Promise<ReturnType<typeof regions>> {
+    const shown = regions()
+    shown.state.begin()
+    shown.state.apply(phase('info', 'started'))
+    shown.state.apply(phase('info', 'finished'))
+    shown.state.apply(phase('download', 'started'))
+    await settle()
+    return shown
+  }
+
+  it('reads a headline and the next phase posted 5 ms apart as one message, headline first', async () => {
+    const { state, live, wrapper } = await downloading()
+    state.apply(phase('download', 'finished', DOWNLOAD_RESULT))
+    await flushPromises()
+    vi.advanceTimersByTime(5)
+    state.apply(phase('upload', 'started'))
+    await flushPromises()
+    expect(live()).toBe('Measuring download')
+    await settle()
+    expect(live()).toBe('Download result: 94.1 megabits per second Measuring upload')
+    wrapper.unmount()
+  })
+
+  it('leaves nothing of the last run after a restart within the window', async () => {
+    const { state, live, wrapper } = await downloading()
+    state.apply(phase('download', 'finished', DOWNLOAD_RESULT))
+    await flushPromises()
+    vi.advanceTimersByTime(50)
+    state.crash()
+    await flushPromises()
+    state.begin()
+    await flushPromises()
+    expect(live()).toBe('')
+    state.apply(phase('info', 'started'))
+    await settle()
+    expect(live()).toBe('Connecting to the server')
+    wrapper.unmount()
+  })
+
+  it('writes nothing after an unmount within the window', async () => {
+    const { state, wrapper } = await downloading()
+    state.apply(phase('download', 'finished', DOWNLOAD_RESULT))
+    await flushPromises()
+    wrapper.unmount()
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('drops a queued headline when the result arrives, so the summary is the last message', async () => {
+    const { state, live, summary, wrapper } = await downloading()
+    state.apply(phase('download', 'finished', DOWNLOAD_RESULT))
+    state.apply({ type: 'result', result: resultFixture() })
+    await flushPromises()
+    expect(summary()).toContain('Test complete.')
+    expect(vi.getTimerCount()).toBe(0)
+    await settle()
+    expect(live()).toBe('Measuring download')
     wrapper.unmount()
   })
 })

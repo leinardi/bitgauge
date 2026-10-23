@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, shallowRef, watch } from 'vue'
+import { computed, onBeforeUnmount, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { phaseAnnouncements, rateAnnouncement, resultSummary } from '@/components/a11y/announce'
@@ -33,32 +33,46 @@ const props = withDefaults(defineProps<{ run: RunView; units: 'bits' | 'bytes'; 
 
 const RATE_MS = 5000
 
+/**
+ * How long the polite region waits for more of the same change: the Worker posts a direction's
+ * finished and the next phase's started as separate messages, so they join here, in order.
+ */
+const COALESCE_MS = 250
+
 const { t, locale } = useI18n()
 const wording = computed(() => ({ t, locale: locale.value }))
 
 const live = shallowRef('')
 const summary = shallowRef('')
 
-// Announcements of one change are read as one message, so a later one cannot cut off an earlier.
+// Announcements of one change are read as one message, so a later one cannot cut off an earlier:
+// each queued message restarts the window, and the region is written once it has passed.
 let pending: string[] = []
+let flush: ReturnType<typeof setTimeout> | null = null
 
 function announce(messages: string[]): void {
   if (messages.length === 0) {
     return
   }
-  if (pending.length === 0) {
-    void nextTick(() => {
-      live.value = pending.join(' ')
-      pending = []
-    })
-  }
   pending.push(...messages)
+  if (flush !== null) {
+    clearTimeout(flush)
+  }
+  flush = setTimeout(() => {
+    flush = null
+    live.value = pending.join(' ')
+    pending = []
+  }, COALESCE_MS)
 }
 
-watch(
-  () => props.run.phases,
-  (after, before) => announce(phaseAnnouncements(before, after, props.units, wording.value, props.continuous)),
-)
+/** Drops what is queued and not yet read. */
+function cancelPending(): void {
+  if (flush !== null) {
+    clearTimeout(flush)
+    flush = null
+  }
+  pending = []
+}
 
 let timer: ReturnType<typeof setInterval> | null = null
 
@@ -74,6 +88,7 @@ watch(
   (running) => {
     stopRate()
     if (running) {
+      cancelPending()
       live.value = ''
       summary.value = ''
       timer = setInterval(() => {
@@ -85,14 +100,31 @@ watch(
   { immediate: true },
 )
 
+// Registered after the run start's watcher, which runs first in the same flush: a run's first phase
+// is queued after the last run's leftovers are dropped.
+watch(
+  () => props.run.phases,
+  (after, before) => announce(phaseAnnouncements(before, after, props.units, wording.value, props.continuous)),
+)
+
 watch(
   () => props.run.result,
   (result) => {
-    summary.value = result === null ? '' : resultSummary(result, props.units, wording.value)
+    if (result === null) {
+      summary.value = ''
+      return
+    }
+    // The summary is the run's last message: nothing queued before it is read after it.
+    cancelPending()
+    stopRate()
+    summary.value = resultSummary(result, props.units, wording.value)
   },
 )
 
-onBeforeUnmount(stopRate)
+onBeforeUnmount(() => {
+  cancelPending()
+  stopRate()
+})
 </script>
 
 <template>

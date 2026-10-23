@@ -119,7 +119,8 @@ describe('a Continuous run on the Test screen', () => {
     expect(view[1]).toMatch(/^Average1\.00Mbit\/s/)
     expect(page.text()).toContain('Download · continuous')
     expect(page.text()).toContain('0:30 elapsed')
-    expect(page.get('[data-testid="live-region"]').text()).toContain('Continuous download running.')
+    // The polite region is written once its coalescing window has passed.
+    await vi.waitFor(() => expect(page.get('[data-testid="live-region"]').text()).toContain('Continuous download running.'))
     worker.emit({ type: 'sample', direction: 'download', fromBucket: 300, values: [], gauge: 1e8, streams: 4, phaseMs: 30_000, dataUsedBytes: 2e9, notices: [{ code: 'data-used', bytes: 1e9 }] })
     worker.emit({ type: 'sample', direction: 'download', fromBucket: 300, values: [], gauge: 1e8, streams: 4, phaseMs: 30_000, dataUsedBytes: 2e10, notices: [{ code: 'data-used', bytes: 1e10 }] })
     await settle()
@@ -140,7 +141,8 @@ describe('a Continuous run on the Test screen', () => {
     expect(page.text()).toContain('Upload · continuous')
     expect(page.text()).not.toContain('Download · continuous')
     expect(page.text()).toContain('0:30 elapsed · unknown cells as gaps')
-    expect(page.get('[data-testid="live-region"]').text()).toContain('Continuous upload running.')
+    // The polite region is written once its coalescing window has passed.
+    await vi.waitFor(() => expect(page.get('[data-testid="live-region"]').text()).toContain('Continuous upload running.'))
     page.unmount()
   })
 

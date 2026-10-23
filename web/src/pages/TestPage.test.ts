@@ -277,7 +277,8 @@ describe('the Test screen', () => {
     await button.trigger('click')
     worker.emit(phase('info', 'started'))
     await flushPromises()
-    expect(page.get('[data-testid="live-region"]').text()).toBe('Connecting to the server')
+    // The polite region is written once its coalescing window has passed.
+    await vi.waitFor(() => expect(page.get('[data-testid="live-region"]').text()).toBe('Connecting to the server'))
     worker.emit(phase('info', 'finished'), phase('idle', 'finished'), phase('download', 'finished'), phase('upload', 'finished'), { type: 'result', result: resultFixture() })
     await flushPromises()
     expect(button.text()).toContain('Run again')
