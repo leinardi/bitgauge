@@ -339,6 +339,19 @@ and anything about networks the project does not target.
   report rendering) is untagged and runs with `go test ./...`; the runners build with
   `-tags=harness`. Shared pieces live in `test/internal/testenv` (environment IDs, labels, scoped
   cleanup) and `test/internal/netguard`.
+- **Preflight.** A runner refuses a daemon it cannot trust before it builds BitGauge's image or
+  starts a topology; a refusal fails the invocation, never skips it. The client's CPU and memory
+  are its container's own cgroup v2 counters, and a daemon without per-container cgroups (a
+  rootless one without cgroups, driver `none`) would hand it the daemon's instead. So a tier run
+  first reads the daemon's claim, cgroup v2 and a driver other than `none`, before any build.
+  Then, once the small tools image is built, a probe container in the client's mode (private
+  cgroup namespace) must be the cgroup a second, host-view container finds under its own ID (the
+  same directory, by inode), with a readable `cpu.stat` and `memory.peak`. On a shaped run the
+  probe also runs the first shaped profile's `tc` and `ip` commands on its own `eth0`: a
+  container cannot load a kernel module, so a missing `ifb`, `sch_netem`, `sch_tbf`,
+  `sch_fq_codel`, `sch_ingress`, `cls_u32` or `act_mirred` fails here once, by name, instead of
+  in every run. The Continuous memory check reads no cgroup counter, so it runs only the shaping
+  probe. The probe's containers go before anything is built or measured.
 - **Topology per profile.** One Docker network with no egress route. The `netguard` holder owns
   BitGauge's network namespace; BitGauge (the built image, read-only) and `iperf3 -s` join it, so
   the iperf3 server is the same endpoint as BitGauge. An optional Traefik or Caddy container sits

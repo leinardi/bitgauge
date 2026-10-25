@@ -56,10 +56,19 @@ with `HARNESS_SHAPE=none` on a `ci` or `floor` profile has no shaper and no self
 report says `unshaped`: a debugging run, not a run of that profile, so it stays `recorded`, is not
 judged, and fails the tier.
 
-Prerequisites (`.mk/harness.mk`): Linux, Docker with buildx, a `dhi.io` login, the `ifb`, `netem`,
-`tbf` and `fq_codel` kernel modules, cgroup v2 with `memory.peak` (Linux 5.19 or later), and
-`npm --prefix web ci` on the host: the client mounts `web/` read-only with its `node_modules`,
-because it has no route out to install anything.
+Prerequisites (`.mk/harness.mk`): Linux, Docker with buildx, a `dhi.io` login, the `ifb`,
+`sch_netem`, `sch_tbf`, `sch_fq_codel`, `sch_ingress`, `cls_u32` and `act_mirred` kernel modules
+loadable on the host, cgroup v2 with `memory.peak` (Linux 5.19 or later) and a daemon that gives
+each container its own cgroup, and `npm --prefix web ci` on the host: the client mounts `web/`
+read-only with its `node_modules`, because it has no route out to install anything.
+
+**Preflight** (`preflight.go`, untagged, tested in `preflight_test.go`; `make harness-preflight`
+runs it alone): `Prepare` reads the daemon's cgroup claim before any build, builds the tools image,
+runs the probe (`Preflight`, its containers removed before it returns), and only then builds
+BitGauge's image. The probe's identity check is an inode match between the client-mode
+container's `/sys/fs/cgroup` and the directory a host-view container finds under its ID. Never
+replace it with a statistic (process counts, memory sizes) or let a probe error pass: a daemon
+whose identity cannot be established is refused.
 
 Where things live: `profiles.go` (`TestTiers` pins the tier sizes), `topology.go`, `shaper.go`,
 `evaluate.go` and `latency.go`, `compat.go` (clients built in `tools.Dockerfile`), `report.go`.

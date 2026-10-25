@@ -11,10 +11,17 @@ procedure. The CI tier needs no runbook: `harness.yaml` runs it.
 ## 1. Prepare the Host
 
 - **Linux with Docker**, cgroup v2 and a kernel of 5.19 or later: the report's client CPU and
-  memory come from the client container's `cpu.stat` and `memory.peak`.
+  memory come from the client container's `cpu.stat` and `memory.peak`. The daemon must give each
+  container its own cgroup: a rootful daemon, or a rootless one with systemd delegating the `cpu`
+  and `memory` controllers. A rootless daemon without cgroups (`docker:dind-rootless` without
+  `--privileged`, `Cgroup Driver: none`) is refused.
 - **The kernel modules** the shaper's `tc` commands use: `sch_tbf`, `sch_fq_codel`, `sch_netem`,
-  `sch_ingress`, `cls_u32`, `act_mirred` and `ifb`. A missing one fails the run; there is never a
-  silently unshaped run.
+  `sch_ingress`, `cls_u32`, `act_mirred` and `ifb`, loaded or loadable on the host
+  (`sudo modprobe -a ifb sch_netem sch_tbf sch_fq_codel sch_ingress cls_u32 act_mirred`). A
+  container cannot load one; there is never a silently unshaped run.
+- **Check the daemon** with `make harness-preflight` (seconds; `HARNESS_PREFLIGHT=accounting` or
+  `shaping` runs one half). Every tier runs the same checks before it builds BitGauge's image
+  ([testing.md §5.1](../features/technical-stack/testing.md#51-implementation)).
 - **A `dhi.io` login** (`docker login dhi.io`): the harness runs the built image, and the image
   builds from `dhi.io` stages.
 - **The ceiling tier** needs a machine with at least 4 cores that is otherwise idle. Close the
