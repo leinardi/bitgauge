@@ -68,9 +68,9 @@ jobs:
           username: ${{ vars.DHI_USERNAME || secrets.DHI_USERNAME }}
           password: ${{ secrets.DHI_TOKEN }}
 
-      # The shaper's ifb device and its netem, tbf and fq_codel qdiscs live in the runner's kernel.
+      # The shaper's ifb device, its qdiscs and its ingress mirror live in the runner's kernel.
       - name: Load the shaping modules
-        run: sudo modprobe -a ifb sch_netem sch_tbf sch_fq_codel
+        run: sudo modprobe -a ifb sch_netem sch_tbf sch_fq_codel sch_ingress cls_u32 act_mirred
 
       # Empty inputs (every pull request and push) run every CI profile on all three browsers.
       - name: Run the CI tier

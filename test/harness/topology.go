@@ -508,6 +508,9 @@ func (t *Topology) startClient(ctx context.Context) error {
 	t.client = t.env.Name("client")
 
 	_, err := t.env.Docker(ctx, "run", "--detach", "--name", t.client, "--network", t.network,
+		// Its own cgroup at /sys/fs/cgroup, which ClientCounters reads, whatever the daemon's
+		// default namespace mode; Preflight probes the same mode.
+		"--cgroupns", "private",
 		"--cap-drop", "ALL",
 		"--user", strconv.Itoa(os.Getuid())+":"+strconv.Itoa(os.Getgid()),
 		"--env", "HOME=/tmp",

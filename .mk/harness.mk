@@ -24,10 +24,16 @@ MK_LOCAL_HARNESS_INCLUDED := 1
 # The accuracy harness (testing.md section 5): Go runners behind the harness build tag drive the
 # topology over the docker CLI and write dist/harness/<tier>-<UTC>-<envid>/report.{json,md}.
 #
-# Prerequisites: Linux, a running Docker daemon with buildx, a dhi.io login, the ifb, netem, tbf and
-# fq_codel kernel modules loadable, cgroup v2 with memory.peak (Linux 5.19 or later), and npm --prefix web
+# Prerequisites: Linux, a running Docker daemon with buildx, a dhi.io login, the ifb, sch_netem,
+# sch_tbf, sch_fq_codel, sch_ingress, cls_u32 and act_mirred kernel modules loadable on the host (a
+# container cannot load one), cgroup v2 with memory.peak (Linux 5.19 or later), and npm --prefix web
 # ci on the host (the client mounts web/ with its node_modules; it has no route out to install
-# anything).
+# anything). The daemon must give each container its own cgroup: rootful, or rootless with systemd
+# delegating cpu and memory; a rootless daemon without cgroups (driver none, as docker:dind-rootless
+# without --privileged) would report its own CPU and memory as the client's. The runners check this
+# and refuse (testing.md section 5.1): the daemon's cgroup claim before any build, then a probe of
+# the cgroup accounting and the shaper's tc commands once the tools image is built, before
+# BitGauge's image. make harness-preflight runs only those checks.
 #
 # Inputs, all optional:
 #   HARNESS_PROFILES         comma-separated profile names of the tier (default: all)
@@ -35,6 +41,7 @@ MK_LOCAL_HARNESS_INCLUDED := 1
 #   HARNESS_KEEP_ON_FAILURE  1 keeps the containers of a run that errored or failed its tolerances
 #   HARNESS_SHAPE            none runs without the shaper (harness-ceiling sets it)
 #   HARNESS_CONTINUOUS_MINUTES  harness-continuous only: the minutes it samples (default 60, at least 6)
+#   HARNESS_PREFLIGHT        harness-preflight only: accounting or shaping (default: both)
 
 HARNESS_TIMEOUT         ?= 120m
 HARNESS_PKG             := ./test/harness/
@@ -43,6 +50,7 @@ HARNESS_BROWSERS        ?=
 HARNESS_KEEP_ON_FAILURE ?= 0
 HARNESS_SHAPE           ?=
 HARNESS_CONTINUOUS_MINUTES ?= 60
+HARNESS_PREFLIGHT       ?=
 # The image builds, the topology and the browser's setup around the sampled minutes.
 HARNESS_CONTINUOUS_SETUP_MINUTES := 30
 
@@ -77,6 +85,11 @@ harness-continuous: ## Run the manual Continuous memory check, Chromium on ci-10
 	HARNESS_KEEP_ON_FAILURE="$(HARNESS_KEEP_ON_FAILURE)" \
 	$(GO) test -tags=harness -count=1 -run '^TestHarnessContinuous$$' \
 	  -timeout $$(( $(HARNESS_CONTINUOUS_MINUTES) + $(HARNESS_CONTINUOUS_SETUP_MINUTES) ))m -v $(HARNESS_PKG)
+
+.PHONY: harness-preflight
+harness-preflight: ## Check the Docker daemon's cgroup accounting and shaping for the harness
+	HARNESS_PREFLIGHT="$(HARNESS_PREFLIGHT)" \
+	$(GO) test -tags=harness -count=1 -run '^TestPreflight$$' -v $(HARNESS_PKG)
 
 .PHONY: harness-sweep
 harness-sweep: ## Remove stale harness environments and list the kept ones

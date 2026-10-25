@@ -78,7 +78,8 @@ func run(m *testing.M) int {
 // dist/harness. Any final run that failed, failed its tolerances or stayed inconclusive fails it.
 func TestHarness(t *testing.T) {
 	spec := selectedTier(t)
-	toolsImage, image, started := buildImages(t)
+	unshaped := os.Getenv(envShape) == "none"
+	toolsImage, image, started := prepareImages(t, true, FirstShaped(&spec, unshaped))
 	reportEnv := generateEnvID(t)
 	dir := reportDir(
 		t,
@@ -99,7 +100,7 @@ func TestHarness(t *testing.T) {
 
 	cfg := Config{
 		ToolsImage: toolsImage, BitGaugeImage: image, RepoRoot: absolute(t, repoRoot), OutDir: dir,
-		Unshaped: os.Getenv(envShape) == "none",
+		Unshaped: unshaped,
 	}
 
 	for index := range spec.Profiles {
@@ -126,40 +127,81 @@ func TestHarness(t *testing.T) {
 	}
 }
 
-// buildImages builds netguard's tools image and the shipped image, which goes when the test ends,
-// and returns them with the instant the invocation started.
-func buildImages(t *testing.T) (toolsImage, image string, started time.Time) {
+// prepareImages checks the daemon and builds netguard's tools image and the shipped image, which
+// goes when the test ends (Prepare), and returns them with the instant the invocation started. A
+// daemon it refuses ends the test before BitGauge's image builds.
+func prepareImages(
+	t *testing.T,
+	cgroups bool,
+	shaped *Profile,
+) (toolsImage, image string, started time.Time) {
 	t.Helper()
 
-	ctx := t.Context()
-	runner := dockerCLI()
-
-	toolsImage, err := netguard.BuildToolsImage(ctx, runner, repoRoot)
+	provider, err := testenv.New()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	started = time.Now()
-	image = "bitgauge-harness:" + started.UTC().Format("20060102T150405")
+	builds := &dockerBuilds{t: t, runner: dockerCLI()}
 
-	_, err = runner.Run(ctx, "buildx", "build", "--load", "--tag", image,
-		"--file", filepath.Join(repoRoot, "deployments", "docker", "Dockerfile"), repoRoot)
+	prepared, err := Prepare(t.Context(), builds.runner, testenvProbe(provider), builds,
+		PrepareOptions{Cgroups: cgroups, Shaped: shaped})
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	return prepared.ToolsImage, prepared.BitGaugeImage, builds.started
+}
+
+// testenvProbe brings the probe up as a testenv environment of its own, labeled like every other,
+// and removes it when Preflight is done with it.
+func testenvProbe(provider testenv.Provider) UpProbe {
+	return func(ctx context.Context) (ProbeEnv, func(context.Context) error, error) {
+		env, err := provider.Up(ctx, testenv.Spec{})
+		if err != nil {
+			return nil, nil, fmt.Errorf("bring up the probe: %w", err)
+		}
+
+		return env, func(downCtx context.Context) error {
+			return provider.Down(downCtx, env, false)
+		}, nil
+	}
+}
+
+// dockerBuilds builds the images through the docker CLI.
+type dockerBuilds struct {
+	t       *testing.T
+	runner  testenv.DockerCLI
+	started time.Time
+}
+
+func (b *dockerBuilds) Tools(ctx context.Context) (string, error) {
+	return netguard.BuildToolsImage(ctx, b.runner, repoRoot) //nolint:wrapcheck // Prepare wraps it.
+}
+
+// Shipped builds the shipped image, tagged by the instant the invocation started.
+func (b *dockerBuilds) Shipped(ctx context.Context) (string, error) {
+	b.started = time.Now()
+	image := "bitgauge-harness:" + b.started.UTC().Format("20060102T150405")
+
+	_, err := b.runner.Run(ctx, "buildx", "build", "--load", "--tag", image,
+		"--file", filepath.Join(repoRoot, "deployments", "docker", "Dockerfile"), repoRoot)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", image, err)
 	}
 
 	// Unlabeled, so no environment cleanup or sweep would ever take it.
-	t.Cleanup(func() {
-		cleanupCtx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	b.t.Cleanup(func() {
+		cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), time.Minute)
 		defer cancel()
 
-		_, rmErr := runner.Run(cleanupCtx, "image", "rm", "--force", image)
+		_, rmErr := b.runner.Run(cleanupCtx, "image", "rm", "--force", image)
 		if rmErr != nil {
-			t.Errorf("remove %s: %v", image, rmErr)
+			b.t.Errorf("remove %s: %v", image, rmErr)
 		}
 	})
 
-	return toolsImage, image, started
+	return image, nil
 }
 
 // generateEnvID is the invocation's own identifier, naming the report directory; each run's

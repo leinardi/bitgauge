@@ -57,7 +57,7 @@ func TestHarnessContinuous(t *testing.T) {
 	}
 
 	profile := &spec.Profiles[0]
-	toolsImage, image, started := buildImages(t)
+	toolsImage, image, started := prepareImages(t, false, profile)
 	reportEnv := generateEnvID(t)
 	dir := reportDir(
 		t,
