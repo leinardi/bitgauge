@@ -138,7 +138,7 @@ find web/src \( -name '*.vue' -o -name '*.ts' \) \
   | xargs wc -l | grep -v ' total$' | sort -rn | head -20
 
 # Suppressions added since the previous milestone.
-git diff "$PREVIOUS"..HEAD | grep -E '^\+.*(nolint|eslint-disable|fallow-ignore|shellcheck disable|hadolint ignore)'
+git diff "$PREVIOUS"..HEAD | grep -E '^\+.*(nolint|eslint-disable|fallow-ignore|shellcheck disable|droast (global )?ignore)'
 
 # The fallow baselines: how many entries are left, and whether any grew.
 git diff "$PREVIOUS"..HEAD -- .fallow-baseline.json .fallow-regression-baseline.json

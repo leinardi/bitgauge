@@ -145,7 +145,7 @@ exactly what it retires and no more?
 ### (c) A new suppression has to show its work
 
 Any new `//nolint:`, `eslint-disable`, `@ts-ignore`/`@ts-expect-error`, `fallow-ignore-*`,
-`# shellcheck disable=` or `# hadolint ignore=` is a standing decision to let a linter stay
+`# shellcheck disable=` or `# droast ignore=` is a standing decision to let a linter stay
 silent. `nolintlint` enforces a reason, but not whether the finding was unfixable or merely
 inconvenient. Demand the attempt: for a complexity or length rule, was the extraction tried and
 what broke? For `wrapcheck`, why is wrapping wrong here? For `varnamelen`, why must the name be
