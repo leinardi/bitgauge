@@ -66,7 +66,7 @@ test('reviews, sorts and filters results, opens one, and Back keeps the filter',
   await lan.click()
   await expect(count).toContainText('1 of 8 shown')
   await expect(page).toHaveURL(/contexts=LAN/)
-  await expect(trend(page)).toHaveAttribute('aria-label', /, 1 results/)
+  await expect(trend(page)).toHaveAttribute('aria-label', /, 1 result,/)
   await lan.click()
   await expect(count).toContainText('8 of 8 shown')
   await page.getByTestId('date-range').click()
