@@ -58,7 +58,8 @@ const COLUMNS = { 1: '', 3: 'desktop:grid-cols-3', 4: 'desktop:grid-cols-4' } as
             :size="15"
           />
         </span>
-        <dt class="flex min-w-0 flex-1 flex-col">
+        <!-- The label keeps its words' width and a long value wraps beside it (design-system-upstream.md). -->
+        <dt class="flex flex-1 flex-col">
           <span class="text-(length:--text-sm) text-foreground">{{ row.label }}</span>
           <span
             v-if="row.sub"
@@ -66,7 +67,7 @@ const COLUMNS = { 1: '', 3: 'desktop:grid-cols-3', 4: 'desktop:grid-cols-4' } as
           >{{ row.sub }}</span>
         </dt>
         <dd
-          class="m-0 font-mono text-(length:--text-sm) whitespace-nowrap"
+          class="m-0 min-w-0 text-right font-mono text-(length:--text-sm) wrap-break-word"
           :class="row.value == null ? 'text-subtle-foreground' : 'text-foreground'"
         >
           {{ row.value ?? $t('test.tiles.empty') }}

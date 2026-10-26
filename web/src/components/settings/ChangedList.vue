@@ -63,11 +63,12 @@ const entries = computed(() =>
         class="flex items-center gap-2.5 border-b border-(--border-subtle) py-2"
         :data-testid="`changed-${entry.key}`"
       >
-        <span class="flex min-w-0 flex-1 flex-col">
+        <!-- The name keeps its words' width and the value wraps beside it, as the About facts do. -->
+        <span class="flex flex-1 flex-col">
           <span class="text-(length:--text-sm)">{{ entry.name }}</span>
           <span class="font-mono text-(length:--text-micro) text-subtle-foreground">{{ t('settings.changed.default', { value: entry.byDefault }) }}</span>
         </span>
-        <span class="text-right font-mono text-(length:--text-caption) break-all text-primary-text">{{ entry.value }}</span>
+        <span class="min-w-0 text-right font-mono text-(length:--text-caption) break-all text-primary-text">{{ entry.value }}</span>
         <AppButton
           variant="ghost"
           size="sm"

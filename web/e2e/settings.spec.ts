@@ -159,3 +159,19 @@ test("keeps a duration row's icon beside its custom mark", async ({ page }) => {
   const icon = await label.locator('svg').first().boundingBox()
   expect(icon?.width).toBe(14)
 })
+
+for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+  test(`keeps a changed setting's name beside a long value at ${viewport.width} px`, async ({ page }) => {
+    await page.setViewportSize(viewport)
+    await page.goto('/settings')
+    const label = page.locator('#settings-label')
+    await label.fill('x'.repeat(64))
+    await label.press('Enter')
+    const row = page.getByTestId('changed-label')
+    await expect(row).toContainText('x'.repeat(64))
+    const name = await row.getByText('Result label', { exact: true }).boundingBox()
+    expect(name?.width).toBeGreaterThan(40)
+    const { scroll, client } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }))
+    expect(scroll).toBeLessThanOrEqual(client)
+  })
+}
