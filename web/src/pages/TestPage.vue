@@ -266,6 +266,7 @@ watch(run.error, (error) => {
     <div class="flex flex-wrap items-end gap-x-6 gap-y-3">
       <ConnectionStrip
         :info="reachability === 'unreachable' ? null : info"
+        :configured="shownSettings?.streams ?? null"
         :protocol="shown ? run.protocol.value : null"
         :streams="streams"
         :plateau="plateau"

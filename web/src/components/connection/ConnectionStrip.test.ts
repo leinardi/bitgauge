@@ -139,6 +139,16 @@ describe('the facts before a run', () => {
     expect(server.get('[data-testid="connection-streams"]').text()).toMatch(/3\s*auto · plateau: cap$/)
   })
 
+  it("show the run's stream mode over the server's", async () => {
+    const fixed = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture(), configured: { mode: 'fixed', fixed: 4, max: 6 } } })
+    expect(fixed.get('[data-testid="connection-streams"]').text()).toMatch(/4\s*fixed$/)
+    const single = await mountApp(ConnectionStrip, '/', { props: { info: infoFixture(), configured: { mode: 'single', fixed: 4, max: 6 } } })
+    expect(single.get('[data-testid="connection-streams"]').text()).toMatch(/1\s*single$/)
+    const info = infoFixture()
+    const auto = await mountApp(ConnectionStrip, '/', { props: { info: { ...info, defaults: { ...info.defaults, streams: { mode: 'fixed', fixed: 3 } } }, configured: { mode: 'auto', fixed: 3, max: 6 } } })
+    expect(auto.get('[data-testid="connection-streams"]').text()).toMatch(/—\s*auto$/)
+  })
+
   it('show dashes without the server info', async () => {
     const wrapper = await mountApp(ConnectionStrip, '/', { props: { info: null } })
     expect(wrapper.get('[data-testid="context-label"]').text()).toBe('—')
