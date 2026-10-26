@@ -108,9 +108,9 @@ from the design export; this page fixes content and behavior only. Terms follow 
 | Auto-start countdown | When `run` is set, or the stored Auto-start is on: a cancellable countdown (3 s, or the Auto-start setting's length) before the test starts ([flows.md §2](flows.md#2-auto-run-from-url)). |
 
 **Responsive notes.** On narrow screens the gauge and Start stay above the fold, with Start full
-width; the chart collapses below the metrics; connection info collapses into a single line with a
-disclosure. Navigation becomes a compact header plus a bottom tab bar (Test, History, Settings,
-About). The page must work in portrait on a phone without horizontal scrolling.
+width; the chart collapses below the metrics; connection info keeps its grid. Navigation becomes a
+compact header plus a bottom tab bar (Test, History, Settings, About). The page must work in
+portrait on a phone without horizontal scrolling.
 
 ## 2. Result Detail — `/result/{id}`
 
