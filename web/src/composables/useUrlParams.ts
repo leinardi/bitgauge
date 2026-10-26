@@ -45,8 +45,8 @@ export interface UrlParams {
   lang?: string
   theme?: ThemeChoice
   label?: string
-  /** The values the link gave `test` and `duration`, which the resolved preset may still ignore. */
-  given?: { test?: string; duration?: string }
+  /** The values the link gave `test`, `duration` and `streams`, which a later check may still ignore. */
+  given?: { test?: string; duration?: string; streams?: string }
   /** The parameters whose values were invalid, in the order they appear, with their values. */
   ignored: IgnoredParameter[]
 }
@@ -88,6 +88,10 @@ function read(params: UrlParams, name: string, value: string): boolean {
     }
     case 'streams':
       params.streams = streamsValue(value)
+      // A count within 1-6 may still be above the server's maximum, which urlOverride checks.
+      if (params.streams?.mode === 'fixed') {
+        params.given = { ...params.given, streams: value }
+      }
       return params.streams !== undefined
     case 'cap':
       params.dataCapBytes = dataCap(value)
@@ -168,7 +172,7 @@ export function urlOverride(params: UrlParams, defaults: TestSettings): { overri
   }
   if (params.streams !== undefined) {
     if (params.streams.mode === 'fixed' && params.streams.fixed > defaults.streams.max) {
-      ignored.push(ignoredParameter('streams', String(params.streams.fixed)))
+      ignored.push(ignoredParameter('streams', params.given?.streams ?? String(params.streams.fixed)))
     } else {
       override.streams = { ...defaults.streams, ...params.streams }
     }

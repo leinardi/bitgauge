@@ -108,7 +108,7 @@ describe('parseUrlParams', () => {
     ['?duration=604800', { durationMs: 604_800_000, given: { duration: '604800' } }],
     ['?streams=AUTO', { streams: { mode: 'auto' } }],
     ['?streams=single', { streams: { mode: 'single' } }],
-    ['?streams=6', { streams: { mode: 'fixed', fixed: 6 } }],
+    ['?streams=6', { streams: { mode: 'fixed', fixed: 6 }, given: { streams: '6' } }],
     ['?cap=0', { dataCapBytes: null }],
     ['?cap=None', { dataCapBytes: null }],
     ['?cap=1048576', { dataCapBytes: 1_048_576 }],
@@ -172,5 +172,9 @@ describe('urlOverride', () => {
 
   it('ignores a fixed stream count above the server maximum', () => {
     expect(urlOverride(parseUrlParams('?streams=5&units=bytes'), DEFAULTS)).toEqual({ override: { units: 'bytes' }, ignored: [{ parameter: 'streams', value: '5' }] })
+  })
+
+  it('names the stream count as the link gave it', () => {
+    expect(urlOverride(parseUrlParams('?streams=05'), DEFAULTS).ignored).toEqual([{ parameter: 'streams', value: '05' }])
   })
 })
