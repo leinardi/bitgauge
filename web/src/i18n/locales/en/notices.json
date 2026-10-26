@@ -68,7 +68,7 @@
         "count": "1–{max}",
         "duration": "5–600 s",
         "runLength": "60–604800 s",
-        "cap": "1 MiB or more, 0 or none",
+        "cap": "1 MiB or more, 0, or none",
         "label": "at most 64 characters"
       },
       "stays": {
