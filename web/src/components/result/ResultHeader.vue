@@ -122,7 +122,7 @@ async function finish(save: boolean): Promise<void> {
       <div class="flex min-w-0 items-center gap-2">
         <h1
           v-if="!editing"
-          class="min-w-0 truncate text-(length:--text-3xl) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) desktop:text-(length:--text-4xl)"
+          class="min-w-0 text-(length:--text-3xl) leading-(--lh-tight) font-semibold tracking-(--tracking-tight) wrap-anywhere desktop:text-(length:--text-4xl)"
           data-testid="result-label"
         >
           {{ label }}

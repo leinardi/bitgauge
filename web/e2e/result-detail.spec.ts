@@ -92,3 +92,15 @@ test('says an unknown result is not found, with a way to History', async ({ page
   await page.getByTestId('result-missing').getByRole('link', { name: 'Go to History' }).click()
   await expect(page.getByRole('heading', { name: 'No results yet' })).toBeVisible()
 })
+
+for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+  test(`shows the whole of a long label as its title at ${viewport.width} px`, async ({ page }) => {
+    await page.setViewportSize(viewport)
+    const LONG = 'x'.repeat(64)
+    await importHistory(page, QUICK.map((result, index) => (index === 0 ? { ...result, label: LONG } : result)))
+    await page.goto(`/result/${encodeURIComponent(QUICK[0]?.id ?? '')}`)
+    const title = page.getByRole('heading', { level: 1 })
+    await expect(title).toHaveText(LONG)
+    expect(await title.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+  })
+}
