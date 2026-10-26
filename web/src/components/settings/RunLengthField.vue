@@ -79,6 +79,15 @@ function commit(text: string): void {
   }
 }
 
+// What Escape restores, in the unit the field shows it in: "8 h", or no run length.
+const restoreText = computed(() => {
+  if (stored.value === null) {
+    return t('settings.continuous.noRunLength')
+  }
+  const n = shown.value.value
+  return shown.value.unit === 'days' ? t('settings.values.runLength.days', { n }) : shown.value.unit === 'hours' ? t('settings.values.runLength.hours', { n }) : t('settings.values.runLength.minutes', { n })
+})
+
 const unitLabel = computed(() => units.value.find((option) => option.value === shown.value.unit)?.label ?? '')
 
 // Another unit keeps the number, within the unit's range, as the kit's select does.
@@ -115,7 +124,7 @@ function unit(next: unknown): void {
           :label="t('settings.continuous.runLength')"
           :placeholder="t('settings.continuous.none')"
           :validate="validate"
-          :restore-text="stored === null ? t('settings.continuous.noRunLength') : undefined"
+          :restore-text="restoreText"
           mono
           class="w-18"
           @commit="commit"

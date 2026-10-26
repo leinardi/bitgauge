@@ -137,6 +137,23 @@ describe('a typed value', () => {
   })
 })
 
+describe('an invalid label', () => {
+  it('restores no label when none is stored, and the stored one otherwise', async () => {
+    const page = await open()
+    const input = page.get('#settings-label')
+    await input.setValue('x'.repeat(65))
+    await input.trigger('blur')
+    expect(page.get(`#${input.attributes('aria-describedby')}`).text()).toContain('Not saved · Esc restores no label.')
+    await input.trigger('keydown', { key: 'Escape' })
+    await input.setValue('Kitchen')
+    await input.trigger('blur')
+    await input.setValue('x'.repeat(65))
+    await input.trigger('blur')
+    expect(page.get(`#${input.attributes('aria-describedby')}`).text()).toContain('Not saved · Esc restores Kitchen.')
+    page.unmount()
+  })
+})
+
 describe('the changed list', () => {
   it('resets all after confirmation, keeping fields this version does not know', async () => {
     localStorage.setItem('bitgauge.settings.v1', JSON.stringify({ future: 1 }))

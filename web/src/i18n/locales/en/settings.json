@@ -108,7 +108,8 @@
       "title": "Result label",
       "caption": "Optional, up to {max} characters. Pre-fills the label of every result in this browser, as the label link parameter does for one page load.",
       "input": "Result label",
-      "placeholder": "e.g. Kitchen Wi-Fi"
+      "placeholder": "e.g. Kitchen Wi-Fi",
+      "noLabel": "no label"
     },
     "advanced": {
       "title": "Advanced",

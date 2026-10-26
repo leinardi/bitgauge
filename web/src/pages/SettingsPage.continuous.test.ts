@@ -125,6 +125,11 @@ describe('the Continuous preset', () => {
     expect(stored()).toEqual({ preset: 'continuous', runLengthS: 7200 })
     expect(page.get('[data-testid="changed-runLengthS"]').text()).toContain('2 h')
     expect((page.get('[data-testid="share-url"]').element as HTMLInputElement).value).toBe(`${window.location.origin}/?preset=continuous&duration=7200`)
+    // A stored value is restored with the unit the field shows.
+    await input.setValue('200')
+    await input.trigger('blur')
+    expect(page.get('#settings-run-length-error').text()).toBe('Run length must be 1 minute to 7 days. Not saved · Esc restores 2 h.')
+    await input.trigger('keydown', { key: 'Escape' })
 
     // Switched off, it clears.
     await page.get('[aria-label="Stop after a set time"]').trigger('click')

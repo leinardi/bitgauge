@@ -45,6 +45,7 @@ function validate(text: string): string | null {
       id="settings-label"
       :value="form.stored.value.label ?? ''"
       :label="t('settings.label.input')"
+      :restore-text="form.stored.value.label === undefined || form.stored.value.label === '' ? t('settings.label.noLabel') : undefined"
       :placeholder="t('settings.label.placeholder')"
       :validate="validate"
       inputmode="text"
