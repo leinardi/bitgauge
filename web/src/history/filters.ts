@@ -66,7 +66,11 @@ function range(text: string | undefined): DateRange {
       return { kind: 'days', days: 90 }
     default: {
       const [from, to, ...rest] = (text ?? '').split('..')
-      return from !== undefined && to !== undefined && rest.length === 0 && localDay(from) !== null && localDay(to) !== null ? { kind: 'custom', from, to } : { kind: 'all' }
+      if (from === undefined || to === undefined || rest.length > 0 || localDay(from) === null || localDay(to) === null) {
+        return { kind: 'all' }
+      }
+      // A range whose start is after its end is read the right way round: local dates sort as text.
+      return from <= to ? { kind: 'custom', from, to } : { kind: 'custom', from: to, to: from }
     }
   }
 }
@@ -94,6 +98,22 @@ export function queryFromFilter(filter: HistoryFilter): Record<string, string | 
     query['q'] = filter.q
   }
   return query
+}
+
+/**
+ * The filter part of a query string as the screen reads it, when that differs from what the query
+ * says (an unreadable value, a reversed range, a repeated single value); null when it is the same.
+ * The screen replaces the history entry with it, without a notice (ui/screens.md section 3).
+ */
+export function correctedQuery(query: Query): Record<string, string | string[]> | null {
+  const read = queryFromFilter(filterFromQuery(query))
+  const same = (['labels', 'contexts', 'range', 'q'] as const).every((key) => {
+    // `range=all` names the default, which the screen writes by leaving it out.
+    const given = values(query[key]).filter((value) => key !== 'range' || value !== 'all')
+    const kept = read[key] === undefined ? [] : ([] as string[]).concat(read[key])
+    return given.length === kept.length && given.every((value, index) => value === kept[index])
+  })
+  return same ? null : read
 }
 
 /** The first day of the last `days` days: that many calendar days ending today, from its local midnight. */

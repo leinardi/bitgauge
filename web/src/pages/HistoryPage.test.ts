@@ -175,6 +175,18 @@ describe('the filters', () => {
     page.unmount()
   })
 
+  it('correct an unreadable filter and a reversed range in the URL, keeping the URL parameters', async () => {
+    const page = await open('/history?range=foo&units=bytes')
+    await settle()
+    expect(query(page)).toEqual({ units: 'bytes' })
+    expect(rows(page)).toHaveLength(8)
+    page.unmount()
+    const reversed = await open('/history?range=2026-10-19..2026-10-15')
+    await settle()
+    expect(query(reversed)).toEqual({ range: '2026-10-15..2026-10-19' })
+    reversed.unmount()
+  })
+
   it('read the query string on load, the search over labels and notes included', async () => {
     const page = await open('/history?q=caf&contexts=VPN')
     expect(rows(page)).toHaveLength(1)

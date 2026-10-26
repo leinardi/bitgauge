@@ -24,7 +24,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { notify } from '@/components/feedback/notify'
 import type { History } from '@/composables/useHistory'
-import { DEFAULT_SORT, filterFromQuery, filterResults, type HistoryFilter, queryFromFilter, type SortDirection, type SortKey, sortResults } from '@/history/filters'
+import { correctedQuery, DEFAULT_SORT, filterFromQuery, filterResults, type HistoryFilter, queryFromFilter, type SortDirection, type SortKey, sortResults } from '@/history/filters'
 
 // The History list's state (ui/screens.md section 3, ui/flows.md section 6): the filter, kept in
 // the query string so Back and a reload keep it; the sort, newest first by default; the selection;
@@ -55,10 +55,24 @@ export function useHistoryList(history: History) {
 
   const filter = computed(() => filterFromQuery(route.query))
   // Only the filter's own keys change: the URL parameters of ui/url-params.md stay on any route.
-  function setFilter(next: HistoryFilter): void {
+  function replaceFilter(query: Record<string, string | string[]>): void {
     const others = Object.fromEntries(Object.entries(route.query).filter(([key]) => !FILTER_KEYS.includes(key)))
-    void router.replace({ query: { ...others, ...queryFromFilter(next) } })
+    void router.replace({ query: { ...others, ...query } })
   }
+  function setFilter(next: HistoryFilter): void {
+    replaceFilter(queryFromFilter(next))
+  }
+  // A filter the screen reads otherwise than the URL says is corrected in place, silently.
+  watch(
+    () => route.query,
+    (query) => {
+      const corrected = correctedQuery(query)
+      if (corrected !== null) {
+        replaceFilter(corrected)
+      }
+    },
+    { immediate: true },
+  )
 
   const filtered = computed(() => filterResults(history.results.value, filter.value, now.value))
   const sort = shallowRef(DEFAULT_SORT)

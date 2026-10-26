@@ -22,7 +22,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { Result } from '@/engine/messages'
-import { chips, DEFAULT_SORT, filterFromQuery, filterResults, firstDay, NO_FILTER, queryFromFilter, recentLabels, sortResults } from '@/history/filters'
+import { chips, correctedQuery, DEFAULT_SORT, filterFromQuery, filterResults, firstDay, NO_FILTER, queryFromFilter, recentLabels, sortResults } from '@/history/filters'
 import { resultFixture } from '@/test/fixtures'
 
 const NOW = new Date(2026, 9, 17, 12, 0)
@@ -38,6 +38,16 @@ const OLD = at('old', [2026, 6, 1, 0], { label: 'Desk' })
 const ALL = [LAN, VPN, OLD]
 
 describe('the filter in the query string', () => {
+  it('corrects what it cannot read and swaps a reversed range, and leaves a readable query alone', () => {
+    expect(correctedQuery({ range: 'foo', q: 'hotel' })).toEqual({ q: 'hotel' })
+    expect(correctedQuery({ range: '2026-10-19..2026-10-15' })).toEqual({ range: '2026-10-15..2026-10-19' })
+    expect(filterFromQuery({ range: '2026-10-19..2026-10-15' }).range).toEqual({ kind: 'custom', from: '2026-10-15', to: '2026-10-19' })
+    expect(correctedQuery({ range: '2026-02-30..2026-03-01' })).toEqual({})
+    expect(correctedQuery({ labels: ['Desk', 'Phone'], contexts: 'VPN', range: '30d', q: 'hotel', units: 'bytes' })).toBeNull()
+    expect(correctedQuery({ range: 'all' })).toBeNull()
+    expect(correctedQuery({})).toBeNull()
+  })
+
   it('reads and writes labels, contexts, range and q, and nothing when unfiltered', () => {
     const filter = filterFromQuery({ labels: ['Desk', 'Phone'], contexts: 'VPN', range: '30d', q: 'hotel' })
     expect(filter).toEqual({ labels: ['Desk', 'Phone'], contexts: ['VPN'], range: { kind: 'days', days: 30 }, q: 'hotel' })
