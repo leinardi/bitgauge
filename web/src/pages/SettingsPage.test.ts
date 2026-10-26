@@ -201,6 +201,22 @@ describe("the shareable link's copy", () => {
   })
 })
 
+describe('the streams caption', () => {
+  it.each([
+    [6, 'Auto ramps 1 → 2 → 4 → 6 streams', 'Fixed runs 1–6.'],
+    [2, 'Auto ramps 1 → 2 streams', 'Fixed runs 1–2.'],
+    [5, 'Auto ramps 1 → 2 → 4 → 5 streams', 'Fixed runs 1–5.'],
+  ])('states the ramp the maximum of %i allows', async (max, ramp, fixed) => {
+    const info = infoFixture()
+    vi.mocked(getInfo).mockResolvedValueOnce({ ...info, defaults: { ...info.defaults, streams: { ...info.defaults.streams, max } } })
+    await useInfo().refresh()
+    const page = await open()
+    expect(page.text()).toContain(`${ramp} and stops when adding streams no longer helps. ${fixed}`)
+    page.unmount()
+    await useInfo().refresh()
+  })
+})
+
 describe('a Continuous server default', () => {
   it('loads the fields with Continuous marked as the default and no durations', async () => {
     const info = infoFixture()

@@ -27,7 +27,7 @@ import { BUCKET_MS } from '@/engine/stats/units'
 // add, tells it where on the series the added streams took effect.
 
 /** The auto ramp's stream counts, before the effective cap clamps them. */
-const SEQUENCE = [1, 2, 4, 6]
+export const SEQUENCE: readonly number[] = [1, 2, 4, 6]
 
 /** A trial is kept, and the baseline keeps measuring, only above this ratio. */
 const GAIN = 1.05

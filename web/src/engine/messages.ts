@@ -37,5 +37,8 @@ export { type PresetDefinition, PRESETS } from '@/engine/presets'
 export { browserIdentity } from '@/engine/wiring'
 export type { BrowserIdentity } from '@/engine/types'
 
+/** The auto ramp's stream counts before the cap clamps them, which the Settings screen states. */
+export { SEQUENCE as RAMP_SEQUENCE } from '@/engine/phases/ramp'
+
 /** The Continuous rings' lengths, which the live chart's own rings follow (measurement.md section 15). */
 export { RING_LENGTHS } from '@/engine/continuous/retention'

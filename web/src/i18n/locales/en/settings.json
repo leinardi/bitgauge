@@ -59,7 +59,7 @@
     },
     "streams": {
       "title": "Parallel streams",
-      "caption": "Auto ramps 1 → 2 → 4 → 6 streams and stops when adding streams no longer helps. Fixed runs 1–{max}. Single shows one connection.",
+      "caption": "Auto ramps {ramp} streams and stops when adding streams no longer helps. Fixed runs 1–{max}. Single shows one connection.",
       "auto": "Auto",
       "fixed": "Fixed",
       "single": "Single",

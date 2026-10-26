@@ -24,7 +24,7 @@ import { useSettingsForm } from '@/components/settings/form'
 import SegmentedControl from '@/components/settings/SegmentedControl.vue'
 import SettingRow from '@/components/settings/SettingRow.vue'
 import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field'
-import type { TestSettings } from '@/engine/messages'
+import { RAMP_SEQUENCE, type TestSettings } from '@/engine/messages'
 
 // The stream mode (ui/screens.md section 4, kit Settings.jsx): auto, fixed with its count from 1 to
 // the server's maximum, or single.
@@ -51,12 +51,15 @@ const modes = computed(() => [
   { value: 'fixed' as const, label: t('settings.streams.fixed') },
   { value: 'single' as const, label: t('settings.streams.single') },
 ])
+
+// The ramp as the engine runs it: each step clamped to the maximum, a repeated step once.
+const ramp = computed(() => [...new Set(RAMP_SEQUENCE.map((count) => Math.min(count, streams.value.max)))].join(' → '))
 </script>
 
 <template>
   <SettingRow
     :title="t('settings.streams.title')"
-    :caption="t('settings.streams.caption', { max: streams.max })"
+    :caption="t('settings.streams.caption', { ramp, max: streams.max })"
     :changed="form.changed.value.has('streams')"
   >
     <div class="flex flex-wrap items-center gap-2">
