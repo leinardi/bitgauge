@@ -25,19 +25,21 @@ import { useSettingsForm } from '@/components/settings/form'
 import SegmentedControl from '@/components/settings/SegmentedControl.vue'
 import SettingRow from '@/components/settings/SettingRow.vue'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useTheme } from '@/composables/useTheme'
 import { SUPPORTED_LOCALES } from '@/i18n'
 import type { ThemeChoice } from '@/lib/settingsStorage'
 
-// The theme and the language (ui/screens.md section 4, kit Settings.jsx): the theme as the header
-// switches it, and the shipped locales only, each named in its own language. A language chosen
+// The theme and the language (ui/screens.md section 4, kit Settings.jsx): the theme in effect, as
+// the header shows and switches it (a `theme` URL parameter over the stored one), and the shipped locales only, each named in its own language. A language chosen
 // here applies at once and is the second step of locale detection on the next load
 // (ui/i18n-a11y.md section 1.2).
 
 const { t, locale } = useI18n({ useScope: 'global' })
 const form = useSettingsForm()
+const { choice } = useTheme()
 
 const theme = computed({
-  get: () => form.stored.value.theme ?? 'system',
+  get: () => choice.value,
   set: (next: ThemeChoice) => form.set({ theme: next }),
 })
 const themes = computed(() => [
