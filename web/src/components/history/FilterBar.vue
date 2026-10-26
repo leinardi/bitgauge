@@ -61,7 +61,7 @@ function range(next: DateRange): void {
 }
 
 const CHIP =
-  'inline-flex h-(--chip-h) max-w-full flex-none cursor-pointer items-center gap-1.5 rounded-full border border-(--border-default) bg-(--surface-2) px-3 text-(length:--text-sm) font-semibold whitespace-nowrap text-muted-foreground hover:bg-(--surface-3) hover:text-foreground aria-pressed:border-(--primary-border) aria-pressed:bg-(--primary-bg) aria-pressed:text-primary-text'
+  'inline-flex h-(--chip-h) max-w-full flex-none cursor-pointer items-center gap-1.5 rounded-full border border-(--border-default) bg-(--surface-2) px-3 text-(length:--text-sm) font-semibold whitespace-nowrap text-muted-foreground hover:bg-(--surface-3) hover:text-foreground aria-pressed:border-(--primary-border) aria-pressed:bg-(--primary-bg) aria-pressed:text-primary-text forced-colors:aria-pressed:outline-2 forced-colors:aria-pressed:-outline-offset-2'
 </script>
 
 <template>

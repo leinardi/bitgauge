@@ -135,7 +135,8 @@ const metrics = computed(() => [
           role="listitem"
           class="flex items-center gap-1.5"
         >
-          <span class="size-2 rounded-full bg-muted-foreground" />
+          <!-- Its color kept in forced colors, where a filled dot would lose its fill and vanish. -->
+          <span class="size-2 rounded-full bg-muted-foreground forced-color-adjust-none" />
           {{ t('history.trend.complete') }}
         </span>
         <span

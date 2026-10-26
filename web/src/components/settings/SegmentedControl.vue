@@ -56,7 +56,7 @@ function choose(next: unknown): void {
       v-for="option in options"
       :key="option.value"
       :value="option.value"
-      class="inline-flex flex-none cursor-pointer items-center gap-1.5 border-r border-(--border-subtle) font-semibold whitespace-nowrap text-muted-foreground outline-none last:border-r-0 focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 data-[state=checked]:bg-(--primary-bg) data-[state=checked]:text-primary-text"
+      class="inline-flex flex-none cursor-pointer items-center gap-1.5 border-r border-(--border-subtle) font-semibold whitespace-nowrap text-muted-foreground outline-none last:border-r-0 focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 data-[state=checked]:bg-(--primary-bg) data-[state=checked]:text-primary-text forced-colors:data-[state=checked]:outline-2 forced-colors:data-[state=checked]:-outline-offset-2 forced-colors:data-[state=checked]:outline-solid"
       :class="size === 'sm' ? 'h-(--control-h-sm) px-2.5 text-(length:--text-caption)' : 'h-(--control-h-item) px-3.5 text-(length:--text-sm)'"
     >
       <component

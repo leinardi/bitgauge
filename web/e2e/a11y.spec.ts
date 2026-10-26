@@ -137,3 +137,30 @@ for (const theme of ['light', 'dark'] as const) {
     })
   })
 }
+
+// Forced colors (ui/i18n-a11y.md section 2.5), in Chromium's emulation, the one Playwright has: the
+// browser drops the tinted background a selected control relies on, so a selected one keeps an
+// outline the others lack, and the trend legend's filled marker keeps its fill.
+test.describe('forced colors', () => {
+  test.skip(({ browserName }) => browserName !== 'chromium', 'forced colors are emulated in Chromium only')
+
+  const outline = (control: import('@playwright/test').Locator) => control.evaluate((element) => getComputedStyle(element).outlineStyle)
+
+  test('mark the selected theme, segment and filter chip, and keep the legend marker', async ({ page }) => {
+    await page.emulateMedia({ forcedColors: 'active' })
+    await importHistory(page)
+    const chips = page.getByTestId('history-filters').getByRole('button', { pressed: true })
+    expect(await outline(chips.first())).toBe('solid')
+    expect(await outline(page.getByTestId('history-filters').getByRole('button', { pressed: false }).first())).toBe('none')
+    const complete = page.getByRole('list', { name: 'Legend' }).getByRole('listitem').first().locator('span').first()
+    expect(await complete.evaluate((element) => getComputedStyle(element).forcedColorAdjust)).toBe('none')
+
+    await page.goto('/settings')
+    const units = page.getByRole('radiogroup', { name: 'Units' })
+    expect(await outline(units.getByRole('radio', { checked: true }))).toBe('solid')
+    expect(await outline(units.getByRole('radio', { checked: false }))).toBe('none')
+    const header = page.getByRole('banner').getByRole('radiogroup')
+    expect(await outline(header.getByRole('radio', { checked: true }))).toBe('solid')
+    expect(await outline(header.getByRole('radio', { checked: false }).first())).toBe('none')
+  })
+})
