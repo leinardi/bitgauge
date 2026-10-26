@@ -43,4 +43,13 @@ describe('a History row', () => {
     const base = resultFixture()
     expect(rowView({ ...base, client: { ...base.client, protocol } }, 'bits', 'en').protocol).toBe(label)
   })
+
+  it('flags low confidence only on a direction with a number', () => {
+    const base = resultFixture()
+    const low = { level: 'low' as const, reasons: ['unstable' as const] }
+    const { bitsPerSecond: _rate, ...bare } = base.upload!
+    const partial = { ...base, status: 'partial' as const, download: base.download && { ...base.download, confidence: { level: 'normal' as const, reasons: [] } }, upload: { ...bare, status: 'insufficient-data' as const, confidence: low } }
+    expect(rowView(partial, 'bits', 'en').lowConfidence).toBe(false)
+    expect(rowView({ ...partial, upload: { ...base.upload!, confidence: low } }, 'bits', 'en').lowConfidence).toBe(true)
+  })
 })

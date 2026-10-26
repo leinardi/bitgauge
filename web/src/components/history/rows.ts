@@ -80,7 +80,8 @@ export function rowView(result: Result, units: 'bits' | 'bytes', locale: string)
     latency: idle?.medianMs === undefined ? null : latencyNumber(idle.medianMs, locale, resolution),
     jitter: idle?.jitterMs === undefined ? null : latencyNumber(idle.jitterMs, locale, resolution),
     grade: result.bufferbloat?.grade ?? null,
-    lowConfidence: [result.download, result.upload].some((direction) => direction?.confidence?.level === 'low'),
+    // Confidence qualifies a number, so only a direction with one carries it, as the share text does.
+    lowConfidence: [result.download, result.upload].some((direction) => direction?.bitsPerSecond !== undefined && direction.confidence?.level === 'low'),
   }
 }
 
