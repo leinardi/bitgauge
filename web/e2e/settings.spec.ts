@@ -148,3 +148,14 @@ test('runs with the stored settings, unless the URL of a page load overrides the
   await page.goto('/settings')
   await expect(label).toHaveValue('Lab bench')
 })
+
+test("keeps a duration row's icon beside its custom mark", async ({ page }) => {
+  await page.goto('/settings')
+  const min = page.locator('#settings-download-min')
+  await min.fill('6')
+  await min.press('Enter')
+  const label = page.getByTestId('duration-label-download')
+  await expect(label).toContainText('custom')
+  const icon = await label.locator('svg').first().boundingBox()
+  expect(icon?.width).toBe(14)
+})

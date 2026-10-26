@@ -86,12 +86,16 @@ const rows = computed(() => [
         class="flex flex-col gap-1.5"
       >
         <div class="flex items-center gap-2">
-          <span class="flex w-29.5 items-center gap-1.5 text-(length:--text-sm)">
+          <span
+            class="flex w-29.5 items-center gap-1.5 text-(length:--text-sm)"
+            :data-testid="`duration-label-${row.direction}`"
+          >
             <component
               :is="row.icon"
               :size="14"
               :stroke-width="2"
               :style="{ color: row.color }"
+              class="shrink-0"
               aria-hidden="true"
             />
             {{ row.label }}
