@@ -37,6 +37,10 @@ export interface TestScreenInput {
   ignored: ComputedRef<readonly IgnoredParameter[]>
 }
 
+// A dismissed ignored-parameter notice stays hidden for the page load (ui/url-params.md section 1),
+// so the set outlives the Test screen: leaving for Settings and coming back keeps it dismissed.
+const dismissed = shallowRef<ReadonlySet<string>>(new Set())
+
 export function useTestScreen({ run, info: { info, reachability }, counting, ignored }: TestScreenInput) {
   const { t } = useI18n()
 
@@ -55,8 +59,7 @@ export function useTestScreen({ run, info: { info, reachability }, counting, ign
   const state = computed(() => screenState(view.value))
   const running = computed(() => state.value === 'running')
 
-  // A dismissed ignored-parameter notice stays hidden for the page load; the result still carries it.
-  const dismissed = shallowRef<ReadonlySet<string>>(new Set())
+  // The result still carries a dismissed notice.
   function dismiss(parameter: string): void {
     dismissed.value = new Set([...dismissed.value, parameter])
   }

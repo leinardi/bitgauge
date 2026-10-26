@@ -111,6 +111,14 @@ describe('a link with run', () => {
     await notice.get('button').trigger('click')
     expect(page.find('[data-testid="notice"]').exists()).toBe(false)
     page.unmount()
+
+    // Back on the Test screen from another screen, in the same page load, it stays dismissed.
+    const { mountApp } = await import('@/test/mount')
+    const { default: TestPage } = await import('@/pages/TestPage.vue')
+    const again = await mountApp(TestPage, '/?streams=12')
+    await flushPromises()
+    expect(again.find('[data-testid="notice"]').exists()).toBe(false)
+    again.unmount()
   })
 
   it('configures the URL settings, names the ignored value, and starts after the countdown', async () => {
