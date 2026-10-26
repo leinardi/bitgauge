@@ -130,6 +130,19 @@ func (s *wsServer) mustDial(t *testing.T) *websocket.Conn {
 	return conn
 }
 
+// mustEcho opens a connection and waits for one pong. The handshake completes before the
+// handler counts the connection, and a pong comes only from the echo, which starts after it.
+func (s *wsServer) mustEcho(t *testing.T) {
+	t.Helper()
+
+	conn := s.mustDial(t)
+	send(t, conn, websocket.MessageText, `{"type":"ping","seq":1,"t":5}`)
+
+	if got := receive(t, conn); got != `{"type":"pong","seq":1,"t":5}` {
+		t.Fatalf("pong %q", got)
+	}
+}
+
 // waitReturned waits for one handler to return; the failsafe only guards against a hang.
 func (s *wsServer) waitReturned(t *testing.T) {
 	t.Helper()
@@ -408,7 +421,7 @@ func TestWebSocketReadLimitClosesTheConnection(t *testing.T) {
 	server := newWSServer(t)
 
 	for range ratelimit.WebSocketsPerClient - 1 {
-		server.mustDial(t)
+		server.mustEcho(t)
 	}
 
 	raw, reader := server.rawDial(t)
@@ -450,7 +463,7 @@ func TestWebSocketReadLimitClosesTheConnection(t *testing.T) {
 	server.waitReturned(t)
 
 	// Its slot is free, so one more fits and four are open again; a fifth is refused.
-	server.mustDial(t)
+	server.mustEcho(t)
 
 	_, status, refused := server.dial(t, "")
 	if status != http.StatusTooManyRequests || refused.Get("Retry-After") == "" {
