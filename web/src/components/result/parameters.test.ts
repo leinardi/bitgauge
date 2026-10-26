@@ -75,6 +75,20 @@ describe('parameterGroups', () => {
     expect(Object.keys(shown)).not.toContain('Data used')
   })
 
+  it('gives a direction without a series the instant an error or the cap ended it, or its maximum', () => {
+    const base = resultFixture()
+    const bare = (direction: 'download' | 'upload') => {
+      const { series: _series, windowMs: _window, confidence: _confidence, ...rest } = base[direction]!
+      return rest
+    }
+    const failed = rows({ ...base, settings: { ...base.settings, ...BOUNDS }, download: { ...bare('download'), status: 'error', events: [{ code: 'error', atMs: 6500, notice: 'requests-failed' }] } as Result['download'] })
+    expect(failed['Download']).toBe('6.5 s · min 10 · max 20')
+    const capped = rows({ ...base, settings: { ...base.settings, ...BOUNDS }, download: { ...bare('download'), status: 'insufficient-data', events: [{ code: 'data-cap', atMs: 73 }] } as Result['download'] })
+    expect(capped['Download']).toBe('0.1 s · min 10 · max 20')
+    const short = rows({ ...base, settings: { ...base.settings, ...BOUNDS }, upload: { ...bare('upload'), status: 'insufficient-data', events: [{ code: 'extended', atMs: 15_000 }] } as Result['upload'] })
+    expect(short['Upload']).toBe('25.0 s · min 15 · max 25')
+  })
+
   it('says the user stopped a direction, and when, for one stopped in warm-up', () => {
     const base = resultFixture()
     const upload = base.upload

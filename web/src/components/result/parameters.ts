@@ -90,16 +90,20 @@ function stoppedAt(result: Result, direction: Direction): number | undefined {
 
 /**
  * A direction's duration with its configured bounds in seconds, when the result records them: its
- * series' end, or, for a direction stopped in warm-up, the stop.
+ * series' end; without a series (no steady window), the stop, the instant its error or the data
+ * cap ended it, or its maximum when it ran to it insufficient (ui/screens.md section 2).
  */
 function duration(result: Result, direction: Direction, { t, locale }: Wording): string | null {
   const stopped = stoppedAt(result, direction)
-  const endMs = result[direction]?.series?.endMs ?? stopped
+  const bounds = result.settings[direction]
+  const outcome = result[direction]
+  const ended = outcome?.events.flatMap((event) => (event.code === 'error' || event.code === 'data-cap' ? [event.atMs] : [])).at(0)
+  const ranToMax = outcome?.status === 'insufficient-data' && bounds !== undefined && bounds.maxMs !== null ? bounds.maxMs : undefined
+  const endMs = outcome?.series?.endMs ?? stopped ?? ended ?? ranToMax
   if (endMs === undefined) {
     return null
   }
   const value = formatDuration(endMs, locale)
-  const bounds = result.settings[direction]
   // A Continuous result's bounds are null: it has a duration and no bounds.
   if (bounds === undefined || bounds.minMs === null) {
     return stopped === undefined ? t('result.parameters.durationOnly', { duration: value }) : t('result.parameters.durationOnlyStopped', { duration: value })
