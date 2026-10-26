@@ -101,10 +101,12 @@ onScopeDispose(() => clearTimeout(timer))
         class="sr-only"
         role="status"
       >{{ copied ? t('settings.share.copied') : '' }}</span>
+      <!-- A status too, present before it has text, so the refusal is announced as "Copied" is. -->
       <span
-        v-if="failed"
-        class="text-(length:--text-caption) text-(--danger-fg)"
-      >{{ t('settings.share.copyFailed') }}</span>
+        class="text-(length:--text-caption) text-(--danger-fg) empty:hidden"
+        role="status"
+        data-testid="copy-failed"
+      >{{ failed ? t('settings.share.copyFailed') : '' }}</span>
       <LabeledCheckbox
         v-model="includeRun"
         class="text-(length:--text-caption) text-muted-foreground"

@@ -103,9 +103,11 @@ onScopeDispose(() => clearTimeout(timer))
       class="sr-only"
       role="status"
     >{{ copied ? t('about.snippet.copied') : '' }}</span>
+    <!-- A status too, present before it has text, so the refusal is announced as "Copied" is. -->
     <span
-      v-if="failed"
-      class="text-(length:--text-caption) text-(--danger-fg)"
-    >{{ t('about.snippet.copyFailed') }}</span>
+      class="text-(length:--text-caption) text-(--danger-fg) empty:hidden"
+      role="status"
+      data-testid="copy-failed"
+    >{{ failed ? t('about.snippet.copyFailed') : '' }}</span>
   </div>
 </template>

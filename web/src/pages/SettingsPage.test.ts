@@ -187,6 +187,20 @@ describe('the shareable link', () => {
   })
 })
 
+describe("the shareable link's copy", () => {
+  it('announces that the clipboard refused it', async () => {
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText: vi.fn().mockRejectedValue(new Error('denied')) } })
+    const page = await open()
+    await page.get('[aria-label="Copy link"]').trigger('click')
+    await flushPromises()
+    const failed = page.get('[data-testid="copy-failed"]')
+    expect(failed.attributes('role')).toBe('status')
+    expect(failed.text()).not.toBe('')
+    vi.unstubAllGlobals()
+    page.unmount()
+  })
+})
+
 describe('a Continuous server default', () => {
   it('loads the fields with Continuous marked as the default and no durations', async () => {
     const info = infoFixture()
