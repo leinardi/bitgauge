@@ -79,6 +79,12 @@ describe('the import', () => {
     })
   })
 
+  it('rejects a record whose label is over 64 characters, counted in characters', async () => {
+    const longest = resultFixture({ id: 'longest', label: '🛰'.repeat(64) })
+    const parsed = await parse(file([longest, resultFixture({ id: 'long', label: 'x'.repeat(65) })]))
+    expect(parsed).toEqual({ ok: true, results: [longest], rejected: [{ index: 1, reason: 'invalid', detail: 'result.label: more than 64 characters' }] })
+  })
+
   it('accepts a record without a note', async () => {
     const bare = resultFixture()
     expect('note' in bare).toBe(false)

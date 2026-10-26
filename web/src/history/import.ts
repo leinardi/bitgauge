@@ -19,12 +19,15 @@
 
 import type { Result } from '@/engine/messages'
 import { InvalidRecord, migrate, UnsupportedSchema } from '@/history/migrate'
+import { labelValue, MAX_LABEL } from '@/lib/urlValues'
 
 // The JSON import (frontend.md section 5). The file is refused as a whole when it is larger than
 // 10 MB (10 000 000 bytes, decimal), is not JSON, or is not the `bitgauge.history` format, version
-// 1. Each record is then checked on its own: one of a later result version, or one the result
-// validator rejects, is rejected by its position in `results` with the reason; one whose `id` is
-// already stored, or came earlier in the same file, is skipped.
+// 1. Each record is then checked on its own: one of a later result version, one the result
+// validator rejects, or one whose label is over 64 characters (the Result label's limit), is
+// rejected by its position in `results` with the reason; one whose `id` is already stored, or came
+// earlier in the same file, is skipped. The label's limit is the import's alone: stored records and
+// exports are read as the validator reads them.
 
 export const MAX_IMPORT_BYTES = 10_000_000
 
@@ -65,7 +68,11 @@ export function readImport(text: string, maxBytes = MAX_IMPORT_BYTES): { ok: fal
 /** One record at its position in `results`: the result it migrates to, or why it is rejected. */
 function checkRecord(record: unknown, index: number): { result: Result } | { rejected: RejectedRecord } {
   try {
-    return { result: migrate(record) }
+    const result = migrate(record)
+    if (labelValue(result.label) === undefined) {
+      return { rejected: { index, reason: 'invalid', detail: `result.label: more than ${MAX_LABEL} characters` } }
+    }
+    return { result }
   } catch (error) {
     if (error instanceof UnsupportedSchema) {
       return { rejected: { index, reason: 'newer-schema', detail: String(error.schemaVersion) } }
