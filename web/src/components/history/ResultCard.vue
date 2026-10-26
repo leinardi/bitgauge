@@ -74,8 +74,9 @@ const name = computed(() => (props.row.label === '' ? t('history.table.noLabel')
       :to="`/result/${encodeURIComponent(row.id)}`"
       class="flex min-h-11 min-w-0 flex-1 flex-col gap-2.5 py-3 text-foreground no-underline"
     >
-      <span class="flex items-center gap-2">
-        <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+      <!-- The pills and the grade wrap below a label that would get less than two thirds of the row. -->
+      <span class="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+        <span class="flex min-w-0 flex-1 basis-2/3 flex-col gap-0.5">
           <span
             class="truncate text-(length:--text-sm) font-semibold"
             :class="{ 'text-subtle-foreground': row.label === '' }"
@@ -104,7 +105,7 @@ const name = computed(() => (props.row.label === '' ? t('history.table.noLabel')
             class="text-primary-text"
           />
           {{ row.download?.number ?? DASH }}
-          <span class="text-(length:--text-nano) text-subtle-foreground">{{ row.download?.unit }}</span>
+          <span class="text-(length:--text-nano) whitespace-nowrap text-subtle-foreground">{{ row.download?.unit }}</span>
         </span>
         <span class="flex items-center gap-1">
           <ArrowUp
@@ -114,7 +115,7 @@ const name = computed(() => (props.row.label === '' ? t('history.table.noLabel')
             class="text-(--series-upload)"
           />
           {{ row.upload?.number ?? DASH }}
-          <span class="text-(length:--text-nano) text-subtle-foreground">{{ row.upload?.unit }}</span>
+          <span class="text-(length:--text-nano) whitespace-nowrap text-subtle-foreground">{{ row.upload?.unit }}</span>
         </span>
         <span class="flex items-center gap-1">
           <Activity
@@ -126,7 +127,7 @@ const name = computed(() => (props.row.label === '' ? t('history.table.noLabel')
           {{ row.latency ?? DASH }}
           <span
             v-if="row.latency !== null"
-            class="text-(length:--text-nano) text-subtle-foreground"
+            class="text-(length:--text-nano) whitespace-nowrap text-subtle-foreground"
           >{{ t('history.table.ms') }}</span>
         </span>
       </span>

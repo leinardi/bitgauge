@@ -108,3 +108,25 @@ test('Compare keeps a long unbroken label within its card', async ({ page }) => 
   const fits = await card.evaluate((element) => element.scrollWidth <= element.clientWidth && element.getBoundingClientRect().width <= window.innerWidth)
   expect(fits).toBe(true)
 })
+
+test.describe('a History card', () => {
+  test("gives a partial or low-confidence result's label the room a complete one has", async ({ page }) => {
+    await importHistory(page)
+    const cards = page.getByTestId('history-card')
+    const widths = await cards.evaluateAll((list) => list.map((card) => ({ flagged: card.textContent?.includes('LOW CONFIDENCE') === true || card.textContent?.toLowerCase().includes('low confidence') === true, width: card.querySelector('.truncate')?.parentElement?.getBoundingClientRect().width ?? 0 })))
+    const complete = Math.max(...widths.filter((card) => !card.flagged).map((card) => card.width))
+    const flagged = widths.filter((card) => card.flagged)
+    expect(flagged.length).toBeGreaterThan(0)
+    for (const card of flagged) {
+      expect(card.width).toBeGreaterThanOrEqual(complete)
+    }
+  })
+
+  test('keeps each rate unit on one line', async ({ page }) => {
+    await importHistory(page)
+    const units = page.getByTestId('history-cards').locator('span', { hasText: /^[kMG]?bit\/s$|^[kMG]?B\/s$/ })
+    expect(await units.count()).toBeGreaterThan(0)
+    const lines = await units.evaluateAll((list) => list.map((unit) => { const range = document.createRange(); range.selectNodeContents(unit); return new Set([...range.getClientRects()].map((rect) => Math.round(rect.top))).size }))
+    expect(lines.every((count) => count === 1)).toBe(true)
+  })
+})
