@@ -137,6 +137,27 @@ const increaseOf = (result: Result, direction: Direction) => {
   return loaded === undefined || 'status' in loaded ? undefined : loaded.increaseMs
 }
 
+/** Why a result has no grade (ui/screens.md section 6), the same on the Test screen and the Result detail. */
+export type UngradedReason = 'no-idle' | 'no-loaded' | 'no-gradable' | 'incomplete'
+
+/**
+ * The one reason a result has no grade, from what it holds: no idle latency, or a measured loaded
+ * latency without its increase over it; else no direction with a loaded latency, which is an
+ * incomplete test when an error ended the run; else none of them gradable (measurement.md section
+ * 11.3).
+ */
+export function ungradedReason(result: Result): UngradedReason {
+  if (result.idle?.medianMs === undefined) {
+    return 'no-idle'
+  }
+  const loaded = (['download', 'upload'] as const).flatMap((direction) => result[direction]?.loadedLatency ?? [])
+  if (loaded.length === 0) {
+    return result.status === 'error' ? 'incomplete' : 'no-loaded'
+  }
+  // A measured loaded latency without its increase had no idle median to compare with.
+  return loaded.some((value) => !('status' in value) && value.increaseMs === undefined) ? 'no-idle' : 'no-gradable'
+}
+
 /**
  * The grade, its words and its basis; without a grade, what it needs. `brief`, as the Test screen
  * shows it, names the basis without its increases, as the kit's Test screen does.
@@ -144,7 +165,9 @@ const increaseOf = (result: Result, direction: Direction) => {
 export function gradeView(result: Result, { t, locale }: Wording, brief = false): GradeView {
   const bufferbloat = result.bufferbloat
   if (bufferbloat === undefined) {
-    return { grade: null, words: t('result.load.notGraded'), basis: t('result.load.noBasis') }
+    const reason = ungradedReason(result)
+    const basis = { 'no-idle': t('result.load.ungraded.noIdle'), 'no-loaded': t('result.load.ungraded.noLoaded'), 'no-gradable': t('result.load.ungraded.noGradable'), incomplete: t('result.load.ungraded.incomplete') }[reason]
+    return { grade: null, words: t('result.load.notGraded'), basis }
   }
   const ms = (value: number) => latencyNumber(value, locale, result.client.timerResolutionMs)
   const increase = ms(bufferbloat.increaseMs)

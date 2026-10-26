@@ -18,7 +18,7 @@
  */
 
 import type { Direction, LoadedLatency, MeasuringPhase, PhaseState, Responsiveness, Result } from '@/engine/messages'
-import { type GradeView, loadRow, type LoadRow, gradeView, plannedResponsivenessView, responsivenessView, type ResponsivenessView } from '@/components/result/load'
+import { type GradeView, loadRow, type LoadRow, gradeView, plannedResponsivenessView, responsivenessView, type ResponsivenessView, ungradedReason } from '@/components/result/load'
 import type { Wording } from '@/components/test/wording'
 import type { AnsweredPings } from '@/composables/useLoadedSeries'
 import type { RunStatus } from '@/composables/useRunState'
@@ -106,17 +106,9 @@ function qualified(row: LoadRow, loaded: LoadedLatency, result: Result, { t }: W
   return row
 }
 
-/**
- * A result without a grade, in the kit's Test screen words: an error ended the test, no direction
- * ran, or none that ran is gradable; a direction measured without a grade lacks idle latency.
- */
-function ungraded(result: Result, context: Wording): GradeView {
-  const { t } = context
-  const loaded = (['download', 'upload'] as const).map((direction) => result[direction]?.loadedLatency).filter((value) => value !== undefined)
-  if (loaded.some((value) => !('status' in value))) {
-    return gradeView(result, context, true)
-  }
-  const words = result.status === 'error' ? t('test.load.incomplete') : loaded.length === 0 ? t('test.load.noLoaded') : t('test.load.noGradable')
+/** A result without a grade, in the kit's Test screen words, for the reason the Result detail gives too. */
+function ungraded(result: Result, { t }: Wording): GradeView {
+  const words = { 'no-idle': t('test.load.noIdle'), 'no-loaded': t('test.load.noLoaded'), 'no-gradable': t('test.load.noGradable'), incomplete: t('test.load.incomplete') }[ungradedReason(result)]
   return { grade: null, words, basis: '' }
 }
 

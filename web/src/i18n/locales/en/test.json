@@ -324,6 +324,7 @@
       "afterUpload": "Graded after upload",
       "afterDownload": "Graded after download",
       "incomplete": "Not graded — test incomplete",
+      "noIdle": "Not graded — no idle latency",
       "noLoaded": "Not graded — no loaded latency",
       "noGradable": "Not graded — no gradable direction",
       "partial": "{sub} · partial",

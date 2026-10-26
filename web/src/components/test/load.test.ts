@@ -155,17 +155,20 @@ describe('the load card of the Test screen', () => {
       ['During download · WebSocket', 'p90 24 · no idle latency', '18', false],
       ['During upload · HTTP/1.1 reserved', 'HTTP/1.1 reservation not held', null, false],
     ])
-    expect(view?.grade).toEqual({ grade: null, words: 'Not graded', basis: 'Needs idle latency and the latency under load of a direction' })
+    expect(view?.grade).toEqual({ grade: null, words: 'Not graded — no idle latency', basis: '' })
   })
 
-  it('words a result without a grade as the kit does: an error, no direction run, or none gradable', () => {
+  it('words a result without a grade as the kit does: an error before any loaded latency, no direction run, or none gradable', () => {
     const states = { download: 'finished', upload: 'finished' } as const
     const unavailable: LoadedLatency = { status: 'unavailable', reason: 'no-steady-window', source: 'websocket', samples: 0, skippedTicks: 0, lost: 0 }
     const base = resultFixture()
     const failed = { ...graded(unavailable, measured(), undefined), status: 'error' as const, download: { ...base.download!, status: 'error' as const, loadedLatency: unavailable }, upload: undefined }
     const error = loadView(input({ status: 'ended', states, result: failed }), context)
-    expect(error?.grade).toEqual({ grade: null, words: 'Not graded — test incomplete', basis: '' })
+    // The download began and has a loaded latency, though not a gradable one: the error is no reason of its own.
+    expect(error?.grade).toEqual({ grade: null, words: 'Not graded — no gradable direction', basis: '' })
     expect(rows(error)?.[0]).toEqual(['During download · WebSocket', 'no steady window · download failed', null, false])
+    const early = { ...failed, download: { ...base.download!, status: 'error' as const, loadedLatency: undefined } }
+    expect(loadView(input({ status: 'ended', states, result: early }), context)?.grade?.words).toBe('Not graded — test incomplete')
     const none = loadView(input({ status: 'ended', states, result: { ...base, status: 'partial', download: undefined, upload: undefined } }), context)
     expect(none?.grade?.words).toBe('Not graded — no loaded latency')
     const stopped = { ...base, status: 'partial' as const, download: { ...base.download!, status: 'partial' as const, loadedLatency: unavailable }, upload: undefined }

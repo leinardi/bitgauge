@@ -55,7 +55,12 @@
       "basisWithout": "{basis}; {direction}: {reason}",
       "basisNotRun": "{basis}; {direction} not run · Continuous runs one direction",
       "lastHour": "{sub} · last hour",
-      "noBasis": "Needs idle latency and the latency under load of a direction",
+      "ungraded": {
+        "noIdle": "No idle latency",
+        "noLoaded": "No loaded latency",
+        "noGradable": "No gradable direction",
+        "incomplete": "Test incomplete"
+      },
       "download": "download",
       "upload": "upload",
       "during": {
