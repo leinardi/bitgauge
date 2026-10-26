@@ -365,3 +365,47 @@ The kit words the `insufficient-samples` reason "few samples" there, while
 since its space budget is sized on them. It should read "low confidence · insufficient samples",
 "Upload: insufficient samples." and "low confidence: insufficient samples". The Vue Test screen
 already does.
+
+### Touch targets: a 24 px floor, 44 px for the primary actions
+
+From D-7 of the first QA round (`docs/engineering/qa/2026-10-23-first-round.md`, QA-25). Export
+files `README.md` (Spacing: "Touch targets ≥ 44 px.") and `tokens.md` (Mobile: "Touch targets
+≥ 44 px; Start/Stop 52 px on mobile.").
+
+The kit's own controls do not meet the flat 44 px rule at 390 px: History's toolbar is 28 px, the
+filter chips 30, the segmented controls 32, Chart/Table 28, the snippet copy buttons 28 × 28, and
+the Settings inputs, the latency legend toggle and the share panel's checkbox fall below 24. The
+rule should read as [i18n-a11y.md §2.9](../features/ui/i18n-a11y.md#29-target-size) now does: on
+phones every control at least 24 × 24 px (WCAG 2.2 SC 2.5.8), and the primary actions (Start, the
+actions and close buttons of dialogs, the tab bar's items, History's result cards) at least 44 px
+high, with Start/Stop 52 px on mobile as before. The kit's phone-width controls should follow it;
+the Vue app does.
+
+### Tab bar and modal dialogs: the dialog above the bar, within the viewport
+
+From QA-10 of the first QA round. Export files `colors_and_type.css` (`--z-overlay: 50`,
+`--z-nav: 80`), `components/navigation/navigation.css` (the tab bar at `var(--z-nav)`) and
+`components/dialog/dialog.css` (`.dlg-layer.top { padding-top: var(--space-16) }`, `.modal {
+max-height: calc(100vh - var(--space-8)) }`).
+
+Below the desktop breakpoint the tab bar sits above every modal, so it covers a full-screen
+dialog's footer (Compare's Copy and Done) and the Share dialog's last actions, and a tap there
+lands on the hidden button under it. A top-aligned dialog is also 32 px taller than the viewport:
+its 64 px offset plus a height of the viewport less 32 px. The tab bar should sit under the
+overlays, popovers and toasts: the Vue app puts it at `--z-sticky`. A top-aligned dialog's
+max-height should subtract its offset and a bottom margin, against the dynamic viewport height
+(`100dvh`), so its last row can always be scrolled into view.
+
+### Forced colors: a selected state that is more than a tint
+
+From QA-50 of the first QA round. Kit files `components/navigation/navigation.css` (the header's
+theme switch), `components/forms/` (the segmented control) and `ui_kits/app/History.jsx` (the filter
+chips and the trend legend).
+
+The selected state is a background tint alone, and the trend legend's "Complete" marker a filled
+dot, so in forced colors, where the browser replaces backgrounds with its system colors, a
+selected chip or segment looks unselected and the dot disappears.
+[i18n-a11y.md §2.5](../features/ui/i18n-a11y.md#25-colour-independent-grade-display) now asks for
+a border or outline in a system color on a selected control and a legend marker that stays
+visible; the export should carry a `@media (forced-colors: active)` rule for them. The Vue app
+adds one.
