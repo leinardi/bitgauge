@@ -209,7 +209,7 @@
       "cpuBound": "limited by this device's CPU",
       "reasons": {
         "rampUnsettled": "ramp unsettled",
-        "insufficientSamples": "few samples",
+        "insufficientSamples": "insufficient samples",
         "unstable": "unstable"
       },
       "streams": "{n} stream | {n} streams",

@@ -48,7 +48,7 @@ describe('the result summary', () => {
     })
     expect(resultSummary(result, 'bytes', wording)).toBe(
       'Partial result: the test was stopped early. ' +
-        'Download 76.5 megabytes per second, low confidence: unstable and few samples. ' +
+        'Download 76.5 megabytes per second, low confidence: unstable and insufficient samples. ' +
         'Upload 54.8 megabytes per second, partial, stopped early, limited by this device\'s CPU. ' +
         'Idle latency unavailable. Data used 512 bytes. ' +
         'Notices: Partial — stopped early · upload based on a 4.0\u00a0s steady window and Server stream limit — 1 stream.',

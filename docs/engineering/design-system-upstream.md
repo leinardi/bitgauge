@@ -352,3 +352,16 @@ full-window compare's result card (`section` with the `a` that opens the result)
 The link has `min-height: 44px` and `padding-bottom: var(--space-2-5)` around 36 px of content, and
 sits in a column card of limited height, so flex shrinks it to 44 px, 2 px less than its content
 and padding. It should not shrink (`flex: none`), so it keeps its 46 px as the Vue card does.
+
+### Test screen low confidence: the share panel's reason words
+
+From QA-44 of the first QA round (`docs/engineering/qa/2026-10-23-first-round.md`). Kit file
+`ui_kits/app/TestScreen.jsx`, the low-confidence upload of the slow state (lines 463, 465 and
+468): the tile's note, the notice and the spoken summary.
+
+The kit words the `insufficient-samples` reason "few samples" there, while
+`components/share-panel.md` (Qualifier placement) and `ui_kits/app/ResultDetail.jsx` word it
+"insufficient samples". One reason should read the same everywhere; the share panel's words win,
+since its space budget is sized on them. It should read "low confidence · insufficient samples",
+"Upload: insufficient samples." and "low confidence: insufficient samples". The Vue Test screen
+already does.

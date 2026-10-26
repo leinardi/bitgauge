@@ -24,7 +24,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { browserRow, dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, type TileView } from '@/components/test/tiles'
+import { browserRow, confidenceReasons, dataTile, directionTile, durationTile, type IdleInput, idleErrorTile, idleTile, jitterTile, type TileView } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { DirectionResult, IdleResult, UploadResult } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
@@ -36,6 +36,14 @@ const text = (tile: TileView) => tile.lines.map((line) => line.text.replaceAll(N
 function result(overrides: Partial<DirectionResult>): DirectionResult {
   return { status: 'measured', bitsPerSecond: 94_100_000, peakBitsPerSecond: 98_000_000, streams: 4, plateau: 'no-gain', confidence: { level: 'normal', reasons: [] }, bytes: 1, events: [], ...overrides }
 }
+
+describe('the confidence reasons', () => {
+  it('word each reason as the share image and the copied summary do', () => {
+    expect(confidenceReasons(['ramp-unsettled'], context)).toBe(context.t('share.qualifiers.reasons.rampUnsettled'))
+    expect(confidenceReasons(['insufficient-samples'], context)).toBe(context.t('share.qualifiers.reasons.insufficientSamples'))
+    expect(confidenceReasons(['unstable'], context)).toBe(context.t('share.qualifiers.reasons.unstable'))
+  })
+})
 
 describe('a direction tile', () => {
   it('is empty before its direction runs, and says up next while the one before it runs', () => {
