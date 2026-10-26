@@ -17,18 +17,20 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { Database, Layers, SlidersHorizontal, Timer } from '@lucide/vue'
+import { ArrowDown, ArrowUp, ArrowUpDown, Database, Flame, Hourglass, Layers, ListChecks, Radio, SlidersHorizontal, Timer } from '@lucide/vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppLink from '@/components/actions/AppLink.vue'
+import { settingValue } from '@/components/settings/changes'
 import type { TestSettings } from '@/engine/messages'
 import { formatBytes } from '@/lib/format'
 import { baseParts, changedParts, type SummaryPart } from '@/lib/settingsSummary'
 
 // The settings summary of the Test screen (ui/screens.md section 1, design_system kit
-// TestScreen.jsx): one chip per setting that differs from the server defaults, or the preset with
-// its stream mode and data cap, and the Edit link to the Settings screen.
+// TestScreen.jsx): one chip per setting that differs from the server defaults, worded as Settings'
+// changed list words the value, or the preset with its stream mode and data cap, and the Edit link
+// to the Settings screen.
 
 const props = defineProps<{ settings: TestSettings; defaults: TestSettings }>()
 
@@ -47,10 +49,39 @@ function text(part: SummaryPart, line: boolean): string {
       return part.bytes === null ? t('test.summary.capNone') : t('test.summary.cap', { size: formatBytes(part.bytes, locale.value) })
     case 'units':
       return part.units === 'bytes' ? t('test.summary.unitsBytes') : t('test.summary.unitsBits')
+    case 'direction':
+      return part.direction === 'upload' ? t('test.summary.directionUpload') : t('test.summary.directionDownload')
+    case 'runLength':
+      return part.ms === null ? t('test.summary.runLengthNone') : t('test.summary.runLength', { length: settingValue('runLengthS', part.ms / 1000, t) })
+    case 'phases':
+      return t('test.summary.phases', { phases: settingValue('phases', part.phases, t) })
+    case 'download':
+      return t('test.summary.download', { range: settingValue('download', part.bounds, t) })
+    case 'upload':
+      return t('test.summary.upload', { range: settingValue('upload', part.bounds, t) })
+    case 'warmup':
+      return part.warmup === 'auto' ? t('test.summary.warmupAuto') : t('test.summary.warmup', { n: part.warmup / 1000 })
+    case 'pings':
+      return t('test.summary.pings', { n: part.count }, part.count)
+    case 'overhead':
+      return part.percent === 0 ? t('test.summary.overheadNone') : t('test.summary.overhead', { n: part.percent })
   }
 }
 
-const icons = { preset: Timer, streams: Layers, cap: Database, units: SlidersHorizontal }
+const icons = {
+  preset: Timer,
+  direction: ArrowUpDown,
+  runLength: Hourglass,
+  phases: ListChecks,
+  streams: Layers,
+  download: ArrowDown,
+  upload: ArrowUp,
+  cap: Database,
+  units: SlidersHorizontal,
+  warmup: Flame,
+  pings: Radio,
+  overhead: SlidersHorizontal,
+}
 
 const changed = computed(() => changedParts(props.settings, props.defaults).map((part) => ({ kind: part.kind, text: text(part, false), icon: icons[part.kind] })))
 const line = computed(() => baseParts(props.settings).map((part) => text(part, true)).join(' · '))

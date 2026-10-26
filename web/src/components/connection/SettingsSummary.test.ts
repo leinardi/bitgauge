@@ -27,6 +27,7 @@ import { describe, expect, it } from 'vitest'
 import SettingsSummary from '@/components/connection/SettingsSummary.vue'
 import type { TestSettings } from '@/engine/messages'
 import { settingsFromDefaults } from '@/lib/defaults'
+import { storedOver } from '@/lib/settingsStorage'
 import { infoFixture } from '@/test/fixtures'
 import { mountApp } from '@/test/mount'
 
@@ -52,11 +53,34 @@ describe('the settings summary', () => {
   })
 
   it('shows one chip per changed setting', async () => {
-    const settings: TestSettings = { ...DEFAULTS, preset: 'extended', streams: { mode: 'fixed', fixed: 4, max: 6 }, dataCapBytes: 500_000_000, units: 'bytes' }
+    const settings: TestSettings = { ...storedOver(DEFAULTS, { preset: 'extended' }), streams: { mode: 'fixed', fixed: 4, max: 6 }, dataCapBytes: 500_000_000, units: 'bytes' }
     const wrapper = await summary(settings)
     const chips = wrapper.findAll('span.rounded-full').map((chip) => chip.text())
     expect(chips).toEqual(['Extended', '4 streams', 'Cap 500 MB', 'Units · MB/s'])
     expect(wrapper.text()).toContain('4 changed:')
+  })
+
+  it("counts a preset's own durations, streams and pings as no change", async () => {
+    const wrapper = await summary(storedOver(DEFAULTS, { preset: 'quick' }))
+    expect(wrapper.findAll('span.rounded-full').map((chip) => chip.text())).toEqual(['Quick'])
+  })
+
+  it.each([
+    [{ phases: ['idle', 'upload'] }, 'Phases · Latency, Upload'],
+    [{ download: { minMs: 5000, maxMs: 60_000 } }, 'Download 5–60 s'],
+    [{ upload: { minMs: 8000, maxMs: 20_000 } }, 'Upload 8–20 s'],
+    [{ warmup: 5000 }, 'Warm-up 5 s'],
+    [{ pingCount: 30 }, '30 pings'],
+    [{ overheadCompensationPercent: 5 }, 'Overhead +5 %'],
+  ] as const)('shows a chip for %o', async (change, chip) => {
+    const wrapper = await summary({ ...DEFAULTS, ...change } as TestSettings)
+    expect(wrapper.findAll('span.rounded-full').map((part) => part.text())).toEqual([chip])
+  })
+
+  it('shows the Continuous direction and run length, and no durations or phases', async () => {
+    const continuous = storedOver(DEFAULTS, { preset: 'continuous' })
+    const wrapper = await summary({ ...continuous, continuousDirection: 'upload', runLengthMs: 3_600_000, phases: ['idle', 'download'] })
+    expect(wrapper.findAll('span.rounded-full').map((chip) => chip.text())).toEqual(['Continuous', 'Direction · Upload', 'Run length 1 h'])
   })
 
   it('links to the Settings screen, changed or not', async () => {
