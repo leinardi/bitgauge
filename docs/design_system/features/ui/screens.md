@@ -20,7 +20,11 @@ from the design export; this page fixes content and behavior only. Terms follow 
   count is automatic), with the plateau reason afterwards.
 - **Settings summary:** the settings that differ from the server defaults, one chip each (for
   example "Extended", "4 streams", "Cap 500 MB"), or the preset name when nothing differs, with
-  an Edit link to Settings. It summarizes against the server's settings, so it shows only while
+  an Edit link to Settings. The run's settings are compared with the server defaults under the
+  run's preset, so a preset's own durations, streams and ping count are not changes; the chips
+  follow the order of Settings' changed list: preset, Continuous direction, run length, phases,
+  streams, download duration, upload duration, data cap, units, warm-up, ping count and overhead
+  compensation. Theme, language, the label and Auto-start do not change a run and have no chip. It summarizes against the server's settings, so it shows only while
   they are known and the server is reachable: before `GET /info` has answered, offline, and after
   an error whose re-check of `/info` fails, the row, Edit included, is absent.
 - **Start / Stop** button (one control that changes role, each with its label: Start "Start
