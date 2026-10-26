@@ -111,6 +111,32 @@ QA-04). No commit of that plan landed in plan 3 or plan 4 by accident: the resul
 touched (`result/charts.ts`, `result/PhaseChart.vue`, `result/metrics.ts`) carry its own findings
 QA-32 and QA-52.
 
+Plans 3 and 4 were carried out in that order. Their decisions' spec commits are 892bc11 (D-4),
+d8e6cb3 (D-5), 2788b02 (D-6), 67b6149 (D-8), and e8d30b7 with d6f2d26 (D-7, which also states the
+focus rule of QA-22 and the forced-colors rule of QA-50); the upstream note D-7 asks for, with those
+of QA-10 and QA-50, is ad6eaee. Questions the decisions left open were answered while planning, on
+2026-10-23, and specified in a881f30, 2409cf4 and 33d62e7:
+
+- **QA-06:** the summary compares every setting that changes a run (preset, Continuous direction
+  and run length, phases, streams, both durations, data cap, units, warm-up, ping count, overhead
+  compensation) against the server defaults under the run's preset, in the changed list's order.
+- **QA-10:** the tab bar moves to `--z-sticky`, under the overlays; the export is noted upstream.
+- **QA-17:** Settings' fields show the URL parameters over the stored settings, as flows.md §9† now
+  says.
+- **QA-18:** the spec follows the code: the lists keep the serial comma.
+- **QA-37:** a direction without a series reads the instant its error or the data cap ended it, or
+  its maximum, from the result's events, with no format change.
+- **QA-44:** the share panel's reason words win on every surface; the kit's Test screen is noted
+  upstream in b0f4cd2.
+- **QA-45:** by design, as the kit draws it; screens.md §6† says so.
+- **QA-46:** one not-graded reason, the same on both screens, derived from the result.
+
+The fixes changed what the demo shows against the kit. The full-matrix run after them (d14b6e6d,
+complete, 348 pairs) holds 706 pending differences in 114 draft groups, most of them the geometry
+the phone target sizes push down, beside the tab bar, the low-confidence wording, the not-graded
+reason and the wrapped title, and 3 baseline entries the fixes removed. None was accepted: they
+wait for a `parity-triage` session with the user, which also extends the clusters whose scope grew.
+
 ## High
 
 ### QA-01: A WebSocket closed with 1009 is never really closed and frees its slot, so one client holds any number of sockets and leaks their descriptors
@@ -227,7 +253,7 @@ QA-32 and QA-52.
 - **Cause:** `web/src/lib/settingsSummary.ts:43-60`: `changedParts` compares only the preset,
   streams, data cap and units.
 - **Evidence:** verified in the DOM for each case and in the code.
-- **Status:** Open.
+- **Status:** Fixed in 69341fc (spec a881f30).
 
 ### QA-07: The connection strip's STREAMS cell shows the server's stream mode, not the run's
 
@@ -239,7 +265,7 @@ QA-32 and QA-52.
 - **Cause:** `web/src/components/connection/ConnectionStrip.vue:94-101` reads
   `info.defaults.streams` (the server's defaults) rather than the effective settings.
 - **Evidence:** verified in the code and in the DOM on both stacks.
-- **Status:** Open.
+- **Status:** Fixed in 04d2307.
 
 ### QA-08: Compare shows a fixed-stream run's streams as the auto maximum ("Fixed 6" for a Quick run on 3)
 
@@ -255,7 +281,7 @@ QA-32 and QA-52.
   (`web/src/components/result/parameters.ts:58-75`), which a fix can reuse without a format change.
 - **Evidence:** verified: IndexedDB holds `settings.streams: {mode: "fixed", max: 6}` and
   `download.streams: 3`.
-- **Status:** Open.
+- **Status:** Fixed in b9bac6d, with QA-47.
 
 ### QA-09: A direction's headline announcement is replaced about 10 ms later by the next phase's
 
@@ -291,7 +317,7 @@ QA-32 and QA-52.
   `max-tablet:top-(--space-16)` with `max-h-[calc(100vh-var(--space-8))]`, which overflows the
   viewport by 32 px.
 - **Evidence:** verified with screenshots, computed styles and bounding boxes.
-- **Status:** Open.
+- **Status:** Fixed in 0e43476; the export's z order and dialog height are noted upstream in ad6eaee.
 
 ### QA-11: A "URL parameter ignored" notice with a long value scrolls the page sideways at 390 px
 
@@ -305,7 +331,7 @@ QA-32 and QA-52.
 - **Cause:** `web/src/components/test/NoticeBox.vue:63-65`: the body has no `break-words` or
   `wrap-anywhere`, so an unbroken value cannot wrap.
 - **Evidence:** verified by walking the overflowing boxes and with screenshots.
-- **Status:** Open.
+- **Status:** Fixed in b648750, with QA-12.
 
 ### QA-12: The save bar's label suggestion makes the Test screen scroll sideways at 390 px
 
@@ -317,7 +343,7 @@ QA-32 and QA-52.
 - **Cause:** `web/src/components/test/SaveBar.vue:148`: the suggestion button is
   `whitespace-nowrap` with no `max-w-full`, `min-w-0` or truncation, inside a wrapping flex group.
 - **Evidence:** verified by measuring the overflowing boxes.
-- **Status:** Open.
+- **Status:** Fixed in b648750, with QA-11.
 
 ### QA-13: In Settings' Changed list, a long result label is drawn over the "Result label" name
 
@@ -329,7 +355,7 @@ QA-32 and QA-52.
   `min-w-0 flex-1` and the value has no width limit. The export's `MetaList` has the same defect,
   already noted in [design-system-upstream.md](../design-system-upstream.md).
 - **Evidence:** verified: the name's `clientWidth` is 0; screenshots.
-- **Status:** Open.
+- **Status:** Fixed in 5ac186d, which fixes the Vue MetaList too.
 
 ### QA-14: In the Compare dialog a long label overlaps the other column on desktops and pushes the values out of the card on phones
 
@@ -344,7 +370,7 @@ QA-32 and QA-52.
   and its value cells (lines 197-200) have no break rule; `CompareCards.vue`'s value spans have no
   `min-w-0` or break rule.
 - **Evidence:** verified with screenshots and the overflowing element's measurements.
-- **Status:** Open.
+- **Status:** Fixed in 80e0fcc.
 
 ### QA-15: The Result detail's title cuts the label to one line with no way to read the rest
 
@@ -356,7 +382,7 @@ QA-32 and QA-52.
   `ResultDetail.jsx:497` lets it wrap.
 - **Cause:** `web/src/components/result/ResultHeader.vue:125` (`min-w-0 truncate` on the `h1`).
 - **Evidence:** verified by measurement and against the kit's source.
-- **Status:** Open.
+- **Status:** Fixed in c1dca30.
 
 ### QA-16: A phone History card squeezes a partial or low-confidence result's label to a few characters
 
@@ -369,7 +395,7 @@ QA-32 and QA-52.
   its row with the `flex-none` pills and grade.
 - **Evidence:** verified by measurement on the demo after the reboot; the `18087` screenshot is
   from before it.
-- **Status:** Open.
+- **Status:** Fixed in 238cd99, with QA-49.
 
 ### QA-51: With a Quick server default and no stream mode set, runs use auto streams while the Quick card says "Fixed 3"
 
@@ -400,16 +426,16 @@ QA-32 and QA-52.
 
 | ID | Finding | Location | Status |
 | --- | --- | --- | --- |
-| QA-17 | Under `?theme=dark` with a stored Light, Settings' Theme field shows Light selected while the page is dark, and clicking Light does nothing (no emit for the current value). | `web/src/components/settings/ThemeLanguageField.vue:39-42` reads `form.stored`; the header reads `theme.choice` | Open |
-| QA-18 | The ignored-parameter notice's lists use a serial comma ("1, true, 0, or false", "idle latency, download, and upload"); url-params.md §2 writes them without. Align the spec or the code. | `web/src/components/test/ignored.ts:38` (`Intl.ListFormat`) | Open |
-| QA-19 | `?streams=03` reads "streams=3 ignored", the parsed value rather than the one the link gave (url-params.md §1). | `web/src/composables/useUrlParams.ts:171` | Open |
-| QA-20 | Inline errors name a wrong value to restore: an unstored label reads "Not saved · Esc restores ." and the run length "Esc restores 8." without its unit. | `settings/LabelField.vue:44-52` (no `restoreText`), `RunLengthField.vue`, `SettingInput.vue:57` | Open |
-| QA-21 | A dismissed "URL parameter ignored" notice comes back after Settings → Test within the same page load (url-params.md §1: dismissing hides it for the page load). | `web/src/composables/useTestScreen.ts:58-61` (state per component instance) | Open |
-| QA-22 | Focus falls to `<body>` when the control that had it goes away: after a row reset in Changed from defaults, after confirming Reset all (its trigger is disabled), after confirming Clear all, and after the countdown's Cancel (i18n-a11y.md §2.3). | `settings/ChangedList.vue`, `settings/ResetAllDialog.vue`, `history/ClearAllDialog.vue`, `test/AutoStartNotice.vue` | Open |
-| QA-23 | The Download duration row's arrow icon shrinks to 0 px when the "custom" mark shows. | `web/src/components/settings/DurationFields.vue:89` (fixed `w-29.5` label) | Open |
-| QA-24 | The copy-failure texts of Settings' Copy link and About's snippets are not in a live region, while "Copied" is announced. | `settings/ShareUrlField.vue`, About `Snippet.vue` | Open |
-| QA-25 | At 390 px most controls are below 44 px (History toolbar 28, filter chips 30, Settings segmented controls 32, Chart/Table 28, About copy buttons 28×28), and a few below WCAG 2.2's 24 px (Settings duration, data cap and countdown inputs 34×20, the Result label input 20, "Edit settings" 42×21, the latency legend toggle 18, the share panel's Include label checkbox 16×16). The kit has the same sizes. | many; the kit's `docs/design_system/ui_kits/app/*` alike. Decided by D-7 | Open |
-| QA-26 | With `streams.max: 2` the streams caption still says "Auto ramps 1 → 2 → 4 → 6", beside "Fixed runs 1–2". | `web/src/i18n/locales/en/settings.json:62` | Open |
+| QA-17 | Under `?theme=dark` with a stored Light, Settings' Theme field shows Light selected while the page is dark, and clicking Light does nothing (no emit for the current value). | `web/src/components/settings/ThemeLanguageField.vue:39-42` reads `form.stored`; the header reads `theme.choice` | Fixed in bf14c5c (spec 2409cf4) |
+| QA-18 | The ignored-parameter notice's lists use a serial comma ("1, true, 0, or false", "idle latency, download, and upload"); url-params.md §2 writes them without. Align the spec or the code. | `web/src/components/test/ignored.ts:38` (`Intl.ListFormat`) | Fixed in b18ea15 (spec 2409cf4) |
+| QA-19 | `?streams=03` reads "streams=3 ignored", the parsed value rather than the one the link gave (url-params.md §1). | `web/src/composables/useUrlParams.ts:171` | Fixed in 24ed951 |
+| QA-20 | Inline errors name a wrong value to restore: an unstored label reads "Not saved · Esc restores ." and the run length "Esc restores 8." without its unit. | `settings/LabelField.vue:44-52` (no `restoreText`), `RunLengthField.vue`, `SettingInput.vue:57` | Fixed in 7342629 |
+| QA-21 | A dismissed "URL parameter ignored" notice comes back after Settings → Test within the same page load (url-params.md §1: dismissing hides it for the page load). | `web/src/composables/useTestScreen.ts:58-61` (state per component instance) | Fixed in 7410d65 |
+| QA-22 | Focus falls to `<body>` when the control that had it goes away: after a row reset in Changed from defaults, after confirming Reset all (its trigger is disabled), after confirming Clear all, and after the countdown's Cancel (i18n-a11y.md §2.3). | `settings/ChangedList.vue`, `settings/ResetAllDialog.vue`, `history/ClearAllDialog.vue`, `test/AutoStartNotice.vue` | Fixed in 05ffdf3 (spec e8d30b7) |
+| QA-23 | The Download duration row's arrow icon shrinks to 0 px when the "custom" mark shows. | `web/src/components/settings/DurationFields.vue:89` (fixed `w-29.5` label) | Fixed in 8f05544 |
+| QA-24 | The copy-failure texts of Settings' Copy link and About's snippets are not in a live region, while "Copied" is announced. | `settings/ShareUrlField.vue`, About `Snippet.vue` | Fixed in 432a7f6 |
+| QA-25 | At 390 px most controls are below 44 px (History toolbar 28, filter chips 30, Settings segmented controls 32, Chart/Table 28, About copy buttons 28×28), and a few below WCAG 2.2's 24 px (Settings duration, data cap and countdown inputs 34×20, the Result label input 20, "Edit settings" 42×21, the latency legend toggle 18, the share panel's Include label checkbox 16×16). The kit has the same sizes. | many; the kit's `docs/design_system/ui_kits/app/*` alike. Decided by D-7 | Fixed in ff79a6c (spec e8d30b7 and d6f2d26; upstream note ad6eaee) |
+| QA-26 | With `streams.max: 2` the streams caption still says "Auto ramps 1 → 2 → 4 → 6", beside "Fixed runs 1–2". | `web/src/i18n/locales/en/settings.json:62` | Fixed in f39ec05 |
 | QA-27 | A config problem in a list item set from the environment logs `value=null` (`BITGAUGE_SERVER__TRUSTED_PROXIES=10.0.0.0/33` → `key=server.trusted_proxies[0] value=null`); from a file it logs the value (configuration.md §4). | `internal/config/load.go:205-237` (`valueAt`/`elementAt` expect a list; the env value is still a string) | Fixed in f2123d9 |
 | QA-28 | A decode error in a config section hides an unknown key in the same section (`server.lisen` with a bad `server.trusted_proxies`); it still exits 2, but configuration.md §4 logs every problem. | `internal/config/load.go:168-192` | Fixed in 57ffd39 |
 | QA-29 | The debug log has no line when a WebSocket opens, only `status=101` with its duration when it ends; configuration-security.md §6 lists "WebSocket open and close". | `internal/handlers/ws.go` | Fixed in 0dffadb |
@@ -418,22 +444,22 @@ QA-32 and QA-52.
 | QA-32 | A Continuous run ended by Stop is `complete` and saved, yet its chart mark reads "Cancelled"; the kit reads "Stopped" (flows.md §7, step 5). | `web/src/components/chart/text.ts:188` | Fixed in c2d30cd |
 | QA-33 | Before `/info` answers, the gauge says "Ready · Press Enter to start" while Start is disabled ("Waiting for the server's default settings."). | `web/src/components/test/screen/view.ts` | Fixed in 4c6ca93 |
 | QA-34 | After a stop during idle latency, the screen-reader summary says "Data used 0 bytes" where the tile reads "—", and leaves out the stop notice other stopped runs' summaries carry. | `web/src/components/a11y/announce.ts` | Fixed in 78d4d2a |
-| QA-35 | History's table and cards and the compare dialog (Protocol row, the not-comparable warning, the copied text) show the raw token `http/1.1` or `h2`; the Test screen and Result detail say `HTTP/1.1` (screens.md §6). The demo's fixtures store "HTTP/2" and hide it. | `history/rows.ts:74`, `history/compare.ts:99,208` (no `protocolLabel`) | Open |
-| QA-36 | An unrecognized browser reads "unknown 0 · Linux" on the Result detail and in compare, built outside i18n; the Test screen says "—" (screens.md §6). | `result/parameters.ts:186`, `history/compare.ts:197` (cf. `test/tiles.ts:258`) | Open |
-| QA-37 | Test parameters leave out a direction's duration and bounds when it has no stored series and was not stopped by the user: a 25 s upload that ended `insufficient-data`, or a download that failed at 6.5 s, gets no row (screens.md §2). | `web/src/components/result/parameters.ts:88-92` | Open |
-| QA-38 | A Continuous result's confidence card reads "the steady window covered 792,713.5 s" for a 9-day run, which reads "9 d 4 h 12 min" elsewhere on the page. | `web/src/components/result/confidence.ts:60` | Open |
+| QA-35 | History's table and cards and the compare dialog (Protocol row, the not-comparable warning, the copied text) show the raw token `http/1.1` or `h2`; the Test screen and Result detail say `HTTP/1.1` (screens.md §6). The demo's fixtures store "HTTP/2" and hide it. | `history/rows.ts:74`, `history/compare.ts:99,208` (no `protocolLabel`) | Fixed in e4a1ceb |
+| QA-36 | An unrecognized browser reads "unknown 0 · Linux" on the Result detail and in compare, built outside i18n; the Test screen says "—" (screens.md §6). | `result/parameters.ts:186`, `history/compare.ts:197` (cf. `test/tiles.ts:258`) | Fixed in 97e8ac4 |
+| QA-37 | Test parameters leave out a direction's duration and bounds when it has no stored series and was not stopped by the user: a 25 s upload that ended `insufficient-data`, or a download that failed at 6.5 s, gets no row (screens.md §2). | `web/src/components/result/parameters.ts:88-92` | Fixed in fff9a19 (spec 33d62e7) |
+| QA-38 | A Continuous result's confidence card reads "the steady window covered 792,713.5 s" for a 9-day run, which reads "9 d 4 h 12 min" elsewhere on the page. | `web/src/components/result/confidence.ts:60` | Fixed in 4a5949c |
 | QA-39 | One Continuous run reads "42:18 · stopped by you" on the Test screen and "ran 42 min 19 s" on its Result detail (`series.endMs` 2 538 500). | `web/src/lib/format.ts:157` (rounds) vs `:171` (floors) | Fixed in 97002bf |
-| QA-40 | A History row shows LOW CONFIDENCE for a partial whose only low-confidence direction has no number; both rates read "—". | `web/src/components/history/rows.ts:81` | Open |
-| QA-41 | The trend charts' accessible names read "Download trend, 1 results, 0 partial or error". | `web/src/i18n/locales/en/history.json:135` | Open |
-| QA-42 | Import accepts a label of any length (300 characters were accepted); History's table then grows to 3541 px in its 1118 px card and every metric column scrolls out of view. | `web/src/engine/result/validate.ts`, `history/ResultsTable.vue`, `history/FilterBar.vue:78`. Decided by D-5 | Open |
-| QA-43 | History's URL filters are not corrected: `?range=foo` shows All time and keeps `range=foo`; `?range=2026-10-19..2026-10-15` shows "Oct 19 – 15, 2026" and matches nothing. | `web/src/components/history/filters.ts`. Decided by D-6 | Open |
-| QA-44 | One confidence reason has two wordings: "low confidence · unstable and few samples" on the tile and notices, "low confidence: unstable, insufficient samples" in the share image and text. | `share/content.ts` vs `result/metrics.ts` | Open |
-| QA-45 | The same `unavailable_h1` HTTP loaded responsiveness reads "—" per direction on the Test screen and "unavailable" on the Result detail. | Test result section vs `result/LoadCard.vue` | Open |
-| QA-46 | For one demo `error` result the bufferbloat "not graded" reason reads "test incomplete" on the Test screen and "Needs idle latency and the latency under load of a direction" on the detail, although idle latency was measured. | `web/src/components/result/load.ts` | Open |
-| QA-47 | Test parameters' Streams row lists a skipped direction as "upload 0" ("Auto · download 6 · plateau: cap; upload 0"). | `web/src/components/result/parameters.ts:58-75` | Open |
-| QA-48 | At 1440 a label with a long unbroken word makes History's table scroll inside its card (1221 vs 1118 px), hiding the Grade column and the row actions with no cue. | `web/src/components/history/ResultsTable.vue` | Open |
-| QA-49 | Firefox only: History cards at 390 px break the unit after the slash ("5.08 Gbit/" then "s"). | `web/src/components/history/ResultCard.vue` unit spans (no `whitespace-nowrap`) | Open |
-| QA-50 | In forced colors the selected state is a background tint alone, so the header's theme switch and History's filter chips look the same selected or not, and the trend legend's filled "Complete" dot disappears. | header theme radio group, `history/FilterBar.vue` | Open |
+| QA-40 | A History row shows LOW CONFIDENCE for a partial whose only low-confidence direction has no number; both rates read "—". | `web/src/components/history/rows.ts:81` | Fixed in dc2bd86 |
+| QA-41 | The trend charts' accessible names read "Download trend, 1 results, 0 partial or error". | `web/src/i18n/locales/en/history.json:135` | Fixed in f9c8ec1; its History e2e expectation in 961e2cd |
+| QA-42 | Import accepts a label of any length (300 characters were accepted); History's table then grows to 3541 px in its 1118 px card and every metric column scrolls out of view. | `web/src/engine/result/validate.ts`, `history/ResultsTable.vue`, `history/FilterBar.vue:78`. Decided by D-5 | Fixed in df4f363 (the import, spec d8e6cb3) and 7148f7c (the layout) |
+| QA-43 | History's URL filters are not corrected: `?range=foo` shows All time and keeps `range=foo`; `?range=2026-10-19..2026-10-15` shows "Oct 19 – 15, 2026" and matches nothing. | `web/src/components/history/filters.ts`. Decided by D-6 | Fixed in 1c61814 (spec 2788b02) |
+| QA-44 | One confidence reason has two wordings: "low confidence · unstable and few samples" on the tile and notices, "low confidence: unstable, insufficient samples" in the share image and text. | `share/content.ts` vs `result/metrics.ts` | Fixed in b0f4cd2, with the kit's Test screen wording noted upstream |
+| QA-45 | The same `unavailable_h1` HTTP loaded responsiveness reads "—" per direction on the Test screen and "unavailable" on the Result detail. | Test result section vs `result/LoadCard.vue` | By design: documented in 33d62e7 |
+| QA-46 | For one demo `error` result the bufferbloat "not graded" reason reads "test incomplete" on the Test screen and "Needs idle latency and the latency under load of a direction" on the detail, although idle latency was measured. | `web/src/components/result/load.ts` | Fixed in 3301af9 (spec 33d62e7) |
+| QA-47 | Test parameters' Streams row lists a skipped direction as "upload 0" ("Auto · download 6 · plateau: cap; upload 0"). | `web/src/components/result/parameters.ts:58-75` | Fixed in b9bac6d, with QA-08 |
+| QA-48 | At 1440 a label with a long unbroken word makes History's table scroll inside its card (1221 vs 1118 px), hiding the Grade column and the row actions with no cue. | `web/src/components/history/ResultsTable.vue` | Fixed in 7148f7c |
+| QA-49 | Firefox only: History cards at 390 px break the unit after the slash ("5.08 Gbit/" then "s"). | `web/src/components/history/ResultCard.vue` unit spans (no `whitespace-nowrap`) | Fixed in 238cd99, with QA-16 |
+| QA-50 | In forced colors the selected state is a background tint alone, so the header's theme switch and History's filter chips look the same selected or not, and the trend legend's filled "Complete" dot disappears. | header theme radio group, `history/FilterBar.vue` | Fixed in 088371d (spec e8d30b7; upstream note ad6eaee) |
 
 ## To investigate
 
