@@ -23,7 +23,9 @@ import { useNavigation } from '@/components/layout/navigation'
 // Test, History, Settings and About, the active one marked by a bar along its top edge. The bar is
 // fixed, not sticky: Firefox for Android moves fixed elements with its dynamic toolbar but leaves a
 // sticky one at the toolbar's old edge, so the bar floated above a gap or hid below the screen. The
-// wrapper keeps its height in the page flow, so the last content still scrolls clear of it.
+// wrapper keeps its height in the page flow, so the last content still scrolls clear of it. It sits
+// at --z-sticky, under the overlays, popovers and toasts, so a modal dialog covers it rather than
+// the bar covering the dialog's actions (the export's --z-nav does; design-system-upstream.md).
 
 const { items, current } = useNavigation()
 </script>
@@ -32,7 +34,7 @@ const { items, current } = useNavigation()
   <div class="h-16 shrink-0 desktop:hidden">
     <nav
       :aria-label="$t('app.nav.label')"
-      class="fixed inset-x-0 bottom-0 z-(--z-nav) grid h-16 grid-cols-4 border-t border-border bg-(--surface-1) pb-1"
+      class="fixed inset-x-0 bottom-0 z-(--z-sticky) grid h-16 grid-cols-4 border-t border-border bg-(--surface-1) pb-1"
     >
       <RouterLink
         v-for="item in items"

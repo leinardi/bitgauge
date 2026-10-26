@@ -52,7 +52,7 @@ const { t } = useI18n()
     <AlertDialogPortal>
       <AlertDialogOverlay class="fixed inset-0 z-(--z-overlay) bg-(--scrim) backdrop-blur-(--scrim-blur)" />
       <AlertDialogContent
-        class="fixed top-1/2 left-1/2 z-(--z-overlay) max-h-[calc(100vh-var(--space-8))] w-(--modal-w) max-w-(--modal-max-w) -translate-x-1/2 -translate-y-1/2 overflow-x-hidden max-tablet:top-(--space-16) max-tablet:translate-y-0 overflow-y-auto rounded-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop)"
+        class="fixed top-1/2 left-1/2 z-(--z-overlay) max-h-[calc(100vh-var(--space-8))] w-(--modal-w) max-w-(--modal-max-w) -translate-x-1/2 -translate-y-1/2 overflow-x-hidden max-tablet:top-(--space-16) max-tablet:max-h-[calc(100dvh-var(--space-16)-var(--space-4))] max-tablet:translate-y-0 overflow-y-auto rounded-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop)"
       >
         <div class="flex gap-3.5 px-5 pt-4.5 pb-3.5">
           <span class="flex size-(--modal-icon) shrink-0 items-center justify-center rounded-(--radius-md) border border-(--danger-border) bg-(--danger-bg) text-(--danger-fg)">

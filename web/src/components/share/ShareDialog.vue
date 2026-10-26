@@ -57,7 +57,7 @@ const open = shallowRef(false)
     <DialogPortal>
       <DialogOverlay class="fixed inset-0 z-(--z-overlay) bg-(--scrim) backdrop-blur-(--scrim-blur)" />
       <DialogContent
-        class="fixed top-1/2 left-1/2 z-(--z-overlay) flex max-h-[calc(100vh-var(--space-8))] w-(--modal-w-wide) max-w-(--modal-max-w) -translate-x-1/2 -translate-y-1/2 flex-col overflow-x-hidden overflow-y-auto overscroll-contain rounded-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop) max-tablet:top-(--space-16) max-tablet:translate-y-0"
+        class="fixed top-1/2 left-1/2 z-(--z-overlay) flex max-h-[calc(100vh-var(--space-8))] w-(--modal-w-wide) max-w-(--modal-max-w) -translate-x-1/2 -translate-y-1/2 flex-col overflow-x-hidden overflow-y-auto overscroll-contain rounded-(--radius-xl) border border-(--border-default) bg-(--surface-2) text-foreground shadow-(--shadow-pop) max-tablet:top-(--space-16) max-tablet:max-h-[calc(100dvh-var(--space-16)-var(--space-4))] max-tablet:translate-y-0"
         data-testid="share-dialog"
       >
         <div class="flex items-start gap-3.5 px-5 pt-4.5 pb-3.5">
