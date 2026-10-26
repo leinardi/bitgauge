@@ -204,3 +204,14 @@ test('keeps two long unbroken labels apart in Compare', async ({ page }) => {
   const inner = await label.locator('td').nth(0).evaluate((cell) => cell.scrollWidth <= cell.clientWidth)
   expect(inner).toBe(true)
 })
+
+test('keeps every column of the table in its card with a long unbroken label', async ({ page }) => {
+  await importHistory(page, DEMO_RESULTS.map((result, index) => (index === 0 ? { ...result, label: 'x'.repeat(64) } : result)))
+  const table = page.getByTestId('history-table').locator('table')
+  const fits = await table.evaluate((element) => element.scrollWidth <= (element.parentElement?.clientWidth ?? 0))
+  expect(fits).toBe(true)
+  const chip = page.getByTestId('chip-labels').filter({ hasText: 'x'.repeat(64) })
+  const filters = await page.getByTestId('history-filters').boundingBox()
+  const box = await chip.boundingBox()
+  expect(box !== null && filters !== null && box.x + box.width <= filters.x + filters.width).toBe(true)
+})

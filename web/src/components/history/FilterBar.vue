@@ -61,7 +61,7 @@ function range(next: DateRange): void {
 }
 
 const CHIP =
-  'inline-flex h-(--chip-h) flex-none cursor-pointer items-center gap-1.5 rounded-full border border-(--border-default) bg-(--surface-2) px-3 text-(length:--text-sm) font-semibold whitespace-nowrap text-muted-foreground hover:bg-(--surface-3) hover:text-foreground aria-pressed:border-(--primary-border) aria-pressed:bg-(--primary-bg) aria-pressed:text-primary-text'
+  'inline-flex h-(--chip-h) max-w-full flex-none cursor-pointer items-center gap-1.5 rounded-full border border-(--border-default) bg-(--surface-2) px-3 text-(length:--text-sm) font-semibold whitespace-nowrap text-muted-foreground hover:bg-(--surface-3) hover:text-foreground aria-pressed:border-(--primary-border) aria-pressed:bg-(--primary-bg) aria-pressed:text-primary-text'
 </script>
 
 <template>
@@ -97,9 +97,11 @@ const CHIP =
           :class="CHIP"
           :aria-pressed="filter[group.key].includes(chip.value)"
           :data-testid="`chip-${group.key}`"
+          :title="chip.value"
           @click="toggle(group.key, chip.value)"
         >
-          {{ chip.value }}
+          <!-- A label of up to 64 characters is cut to the row with an ellipsis; its name stays whole. -->
+          <span class="min-w-0 truncate">{{ chip.value }}</span>
           <span class="font-mono text-(length:--text-micro) opacity-(--opacity-hint)">{{ chip.count }}</span>
         </button>
       </div>

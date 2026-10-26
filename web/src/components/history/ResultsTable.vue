@@ -156,7 +156,7 @@ const contextIcon = (context: string) => (context === 'LAN' ? House : context ==
             <span class="flex flex-wrap items-center gap-x-2 gap-y-1.5">
               <RouterLink
                 :to="`/result/${encodeURIComponent(row.id)}`"
-                class="font-medium text-foreground no-underline hover:underline"
+                class="min-w-0 font-medium wrap-anywhere text-foreground no-underline hover:underline"
                 :class="{ 'text-subtle-foreground': row.label === '' }"
                 @click.stop
               >{{ name(row.label) }}</RouterLink>
