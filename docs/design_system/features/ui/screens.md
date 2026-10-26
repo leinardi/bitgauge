@@ -146,7 +146,9 @@ portrait on a phone without horizontal scrolling.
   size.
 - **Test parameters:** preset, phases and order, stream mode, count and plateau reason, each
   direction's duration with its configured bounds (when the result records them; a direction the
-  user stopped reads its duration to the stop and "stopped by you"), data cap with the data used,
+  user stopped reads its duration to the stop and "stopped by you"; one without a steady window
+  reads the instant its error or the data cap ended it, or its maximum when it ran to it without a
+  steady window), data cap with the data used,
   units, warm-up mode with where each direction's warm-up ended (or that the user stopped it in
   warm-up), ping count, overhead compensation, protocol, server name and version, browser, client
   IP, timer resolution and whether the page was cross-origin isolated.
@@ -357,8 +359,8 @@ and the page itself never scrolls sideways.
 | Jitter | ms, same precision | described as the mean of consecutive differences |
 | Idle probe loss | %, one decimal | labeled "probe timeouts", never "packet loss" |
 | Loaded latency (per direction) | ms; median and p90; increase over idle | Continuous: "last hour"; label "Loaded latency (WebSocket)" or the fallback source `http-h1-reserved` / `http-h2` / `http-h3`; "vs idle over WebSocket" (or HTTP) when idle latency ran on the other path; "no idle latency" in place of the increase when idle latency has no median; `unavailable` with reason (no steady window, fewer than 10 samples, HTTP/1.1 reservation not held, no latency probe) |
-| Bufferbloat grade | letter plus words: A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe bufferbloat | basis (`download+upload` or one direction) |
-| HTTP loaded responsiveness | RPM, integer | always labeled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples"); the Result detail adds TM95 and the samples, and states "TM95 equals the plain mean" when `trimmed` is 0 |
+| Bufferbloat grade | letter plus words: A+ Minimal, A Low, B Mild, C Moderate, D High, F Severe bufferbloat | basis (`download+upload` or one direction); without a grade, "Not graded" and the one reason, the same on every screen: no idle latency, else no loaded latency, else no gradable direction, and test incomplete when an error ended the run before any direction measured its loaded latency |
+| HTTP loaded responsiveness | RPM, integer | always labeled "HTTP loaded responsiveness — connection sharing not verifiable" with the protocol; state `measured`, `uncertain`, `unavailable_h1` ("needs HTTP/2 or HTTP/3 at the reverse proxy", or "protocol not reported — treated as HTTP/1.1") or `unavailable_insufficient` ("not enough samples"); the Result detail adds TM95 and the samples, and states "TM95 equals the plain mean" when `trimmed` is 0; for `unavailable_h1` the Test screen's direction rows read "—" beside the note that says why, and the Result detail names the state ("unavailable") |
 | Quality scores | band per experience: streaming, gaming, video calls (bad, poor, average, good, great), each band with an icon and its name | missing input named; basis when only one direction has a loaded-latency increase ("download only"); note "upper bound: packet loss is not measured" ([../measurement.md §18](../measurement.md#18-packet-loss)) |
 | Data used | decimal kB, MB, GB, 3 significant digits | — |
 | Duration | s, one decimal | — |
