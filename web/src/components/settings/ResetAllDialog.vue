@@ -90,7 +90,7 @@ function restore(event: Event): void {
             <AppButton
               variant="ghost"
               size="sm"
-              class="-mt-1 -mr-1.5 size-(--control-h-sm) self-start justify-center px-0"
+              class="-mt-1 -mr-1.5 size-(--control-h-sm) max-tablet:size-(--control-h-touch) self-start justify-center px-0"
               :aria-label="t('settings.changed.close')"
             >
               <X
@@ -102,11 +102,14 @@ function restore(event: Event): void {
         </div>
         <div class="mt-3.5 flex flex-wrap items-center justify-end gap-2.5 px-5 py-4 max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:[&>*]:justify-center">
           <AlertDialogCancel as-child>
-            <AppButton>{{ t('settings.changed.cancel') }}</AppButton>
+            <AppButton class="max-tablet:h-(--control-h-touch)">
+              {{ t('settings.changed.cancel') }}
+            </AppButton>
           </AlertDialogCancel>
           <AlertDialogAction as-child>
             <AppButton
               variant="danger"
+              class="max-tablet:h-(--control-h-touch)"
               @click="confirm"
             >
               <RotateCcw

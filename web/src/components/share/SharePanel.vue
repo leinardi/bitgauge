@@ -207,7 +207,7 @@ watch(denied, async (denied) => {
     </div>
     <div
       v-if="inDialog"
-      class="sticky bottom-0 mt-3.5 flex flex-wrap items-center justify-end gap-2.5 bg-(--surface-2) px-5 py-4 max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:[&>*]:justify-center"
+      class="sticky bottom-0 mt-3.5 flex flex-wrap items-center justify-end gap-2.5 bg-(--surface-2) px-5 py-4 max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:[&>*]:h-(--control-h-touch) max-tablet:[&>*]:justify-center"
       data-testid="share-actions"
     >
       <AppButton

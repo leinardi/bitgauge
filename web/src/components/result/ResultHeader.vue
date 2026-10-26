@@ -101,7 +101,7 @@ async function finish(save: boolean): Promise<void> {
   >
     <RouterLink
       to="/history"
-      class="flex items-center gap-1 text-muted-foreground no-underline hover:text-foreground"
+      class="flex items-center gap-1 text-muted-foreground no-underline hover:text-foreground max-tablet:min-h-6"
     >
       <ChevronLeft
         :size="14"

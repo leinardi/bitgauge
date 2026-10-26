@@ -23,7 +23,8 @@ import { RouterLink } from 'vue-router'
 // The kit's Link (design_system/components/actions Link.jsx, actions.css `.link`): a standalone
 // text action in one weight and one color, at the size of the text around it. `external` marks a
 // link that leaves the app: it opens in a new tab and carries the external-link icon. `to` makes it
-// a link to a screen of the app, through the router.
+// a link to a screen of the app, through the router. Standalone, it is a 24 px target on phones
+// (ui/i18n-a11y.md section 2.9).
 
 defineProps<{ href?: string; to?: string; external?: boolean }>()
 </script>
@@ -34,7 +35,7 @@ defineProps<{ href?: string; to?: string; external?: boolean }>()
     v-bind="to === undefined ? { href } : { to }"
     :target="external ? '_blank' : undefined"
     :rel="external ? 'noopener noreferrer' : undefined"
-    class="inline-flex items-center gap-1 font-semibold whitespace-nowrap text-primary-text no-underline hover:text-(--primary-hover) hover:underline hover:underline-offset-2"
+    class="inline-flex items-center gap-1 font-semibold whitespace-nowrap max-tablet:min-h-6 text-primary-text no-underline hover:text-(--primary-hover) hover:underline hover:underline-offset-2"
   >
     <slot />
     <ExternalLink

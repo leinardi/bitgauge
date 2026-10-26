@@ -90,7 +90,7 @@ function restore(event: Event): void {
             <AppButton
               variant="ghost"
               size="sm"
-              class="-mt-1 -mr-1.5 size-(--control-h-sm) self-start justify-center px-0"
+              class="-mt-1 -mr-1.5 size-(--control-h-sm) max-tablet:size-(--control-h-touch) self-start justify-center px-0"
               :aria-label="t('history.clear.close')"
             >
               <X
@@ -105,12 +105,16 @@ function restore(event: Event): void {
             v-if="narrow"
             as-child
           >
-            <AppButton variant="ghost">
+            <AppButton
+              variant="ghost"
+              class="max-tablet:h-(--control-h-touch)"
+            >
               {{ t('history.clear.cancel') }}
             </AppButton>
           </AlertDialogCancel>
           <AppButton
             :variant="narrow ? 'secondary' : 'ghost'"
+            class="max-tablet:h-(--control-h-touch)"
             data-testid="clear-export-first"
             @click="emit('exportFirst')"
           >
@@ -123,12 +127,15 @@ function restore(event: Event): void {
           <template v-if="!narrow">
             <span class="flex-1" />
             <AlertDialogCancel as-child>
-              <AppButton>{{ t('history.clear.cancel') }}</AppButton>
+              <AppButton class="max-tablet:h-(--control-h-touch)">
+                {{ t('history.clear.cancel') }}
+              </AppButton>
             </AlertDialogCancel>
           </template>
           <AlertDialogAction as-child>
             <AppButton
               variant="danger-solid"
+              class="max-tablet:h-(--control-h-touch)"
               data-testid="clear-confirm"
               @click="confirm"
             >

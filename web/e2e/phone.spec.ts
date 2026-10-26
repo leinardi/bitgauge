@@ -21,9 +21,12 @@
 // dialog's actions are not under the tab bar and fit the viewport (ui/flows.md sections 6 and 8),
 // and nothing scrolls sideways.
 
+import { expectAccessible } from './fixtures/axe'
 import { DEMO_RESULTS, importHistory } from './fixtures/history'
-import { expectFitsViewport, expectNoSideScroll, expectTappable, PHONE } from './fixtures/phone'
+import { expectFitsViewport, expectLabelToggles, expectNoSideScroll, expectTappable, PHONE, smallTargets } from './fixtures/phone'
 import { type Server, startServer } from './fixtures/server'
+import type { Locator } from '@playwright/test'
+
 import { expect, test } from './fixtures/test'
 
 test.use({ viewport: PHONE })
@@ -128,5 +131,69 @@ test.describe('a History card', () => {
     expect(await units.count()).toBeGreaterThan(0)
     const lines = await units.evaluateAll((list) => list.map((unit) => { const range = document.createRange(); range.selectNodeContents(unit); return new Set([...range.getClientRects()].map((rect) => Math.round(rect.top))).size }))
     expect(lines.every((count) => count === 1)).toBe(true)
+  })
+})
+
+test.describe('the touch targets', () => {
+  test.beforeEach(async ({ page }) => {
+    await importHistory(page)
+  })
+
+  for (const [screen, path] of [['Test', '/'], ['History', '/history'], ['Settings', '/settings'], ['About', '/about']] as const) {
+    test(`are at least 24 × 24 px on the ${screen} screen`, async ({ page }) => {
+      await page.goto(path)
+      await expect(page.getByRole('heading', { level: 1 })).toBeAttached()
+      if (screen === 'Settings') {
+        await page.getByRole('button', { name: /^Advanced/ }).click()
+      }
+      expect(await smallTargets(page)).toEqual([])
+      // axe's own target-size rule (WCAG 2.2 AA), at the phone width the desktop runs do not reach.
+      await expectAccessible(page)
+    })
+  }
+
+  test('are at least 24 × 24 px on the Result detail', async ({ page }) => {
+    await page.getByTestId('history-card').first().locator('a[href*="/result/"]').click()
+    await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toBeVisible()
+    expect(await smallTargets(page)).toEqual([])
+    await expectLabelToggles(page.getByTestId('include-label'))
+  })
+
+  test('are at least 44 px high for the primary actions', async ({ page }) => {
+    const high = async (control: Locator) => expect((await control.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44)
+    for (const card of await page.getByTestId('history-card').locator('a[href*="/result/"]').all()) {
+      await high(card)
+    }
+    for (const tab of await page.getByRole('navigation', { name: 'Primary' }).getByRole('link').all()) {
+      await high(tab)
+    }
+    await page.getByTestId('clear-all').click()
+    const clear = page.getByRole('alertdialog')
+    for (const action of await clear.getByRole('button').all()) {
+      await high(action)
+    }
+    await page.keyboard.press('Escape')
+    await page.goto('/settings')
+    await page.getByTestId('preset-quick').click()
+    await page.getByRole('button', { name: 'Reset all to defaults' }).click()
+    const reset = page.getByRole('alertdialog')
+    for (const action of await reset.getByRole('button').all()) {
+      await high(action)
+    }
+    await page.keyboard.press('Escape')
+    await page.goto('/')
+    await high(page.getByTestId('start-button'))
+  })
+
+  test('are at least 44 px high for the Share dialog actions', async ({ page }) => {
+    test.setTimeout(120_000)
+    await page.goto('/?run=1&preset=quick')
+    await expect(page.getByTestId('result-bar')).toContainText('Saved to history', { timeout: 90_000 })
+    expect(await smallTargets(page)).toEqual([])
+    await page.getByTestId('share-open').click()
+    const dialog = page.getByTestId('share-dialog')
+    for (const action of [dialog.getByRole('button', { name: 'Close' }), ...(await dialog.getByTestId('share-actions').getByRole('button').all())]) {
+      expect((await action.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44)
+    }
   })
 })

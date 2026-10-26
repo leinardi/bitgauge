@@ -129,7 +129,7 @@ const body = computed(() => {
           :aria-label="t('test.bar.labelField')"
           :placeholder="t('test.bar.labelPlaceholder')"
           :maxlength="MAX_LABEL"
-          class="h-auto border-0 bg-transparent p-0 text-(length:--text-sm) text-foreground shadow-none focus-visible:ring-0 dark:bg-transparent md:text-(length:--text-sm)"
+          class="h-full border-0 bg-transparent p-0 text-(length:--text-sm) text-foreground shadow-none focus-visible:ring-0 dark:bg-transparent md:text-(length:--text-sm)"
           data-testid="result-label-field"
           @update:model-value="type"
           @blur="flush"

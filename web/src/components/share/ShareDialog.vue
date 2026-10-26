@@ -79,7 +79,7 @@ const open = shallowRef(false)
             <AppButton
               variant="ghost"
               size="sm"
-              class="-mt-1 -mr-1.5 size-(--control-h-sm) justify-center px-0"
+              class="-mt-1 -mr-1.5 size-(--control-h-sm) max-tablet:size-(--control-h-touch) justify-center px-0"
               :aria-label="t('share.close')"
             >
               <X
