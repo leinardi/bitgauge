@@ -21,8 +21,8 @@
 // dialog's actions are not under the tab bar and fit the viewport (ui/flows.md sections 6 and 8),
 // and nothing scrolls sideways.
 
-import { importHistory } from './fixtures/history'
-import { expectFitsViewport, expectTappable, PHONE } from './fixtures/phone'
+import { DEMO_RESULTS, importHistory } from './fixtures/history'
+import { expectFitsViewport, expectNoSideScroll, expectTappable, PHONE } from './fixtures/phone'
 import { type Server, startServer } from './fixtures/server'
 import { expect, test } from './fixtures/test'
 
@@ -74,5 +74,24 @@ test.describe('a modal dialog over the tab bar', () => {
       await expectTappable(dialog.getByTestId('download-image').first())
       await expectTappable(dialog.getByTestId('copy-summary').first())
     })
+  })
+})
+
+test.describe('a long unbroken value', () => {
+  const LONG = 'x'.repeat(64)
+
+  test('in the ignored-parameter notice wraps within the screen', async ({ page }) => {
+    await page.goto(`/?label=${LONG}y`)
+    await expect(page.getByTestId('notice').filter({ hasText: 'URL parameter ignored' })).toBeVisible()
+    await expectNoSideScroll(page)
+  })
+
+  test("in the save bar's label suggestion stays within the screen", async ({ page }) => {
+    test.setTimeout(120_000)
+    await importHistory(page, DEMO_RESULTS.map((result, index) => (index === 0 ? { ...result, label: LONG } : result)))
+    await page.goto('/?run=1&preset=quick')
+    await expect(page.getByTestId('result-bar')).toContainText('Saved to history', { timeout: 90_000 })
+    await expect(page.getByTestId('label-suggestion').filter({ hasText: LONG })).toHaveCount(1)
+    await expectNoSideScroll(page)
   })
 })

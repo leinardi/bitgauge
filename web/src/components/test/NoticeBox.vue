@@ -61,7 +61,7 @@ const TONES: Record<Tone, { box: string; icon: string }> = {
       <span class="text-(length:--text-sm) leading-(--lh-snug) font-semibold text-foreground"><slot name="title">{{ title }}</slot></span>
       <span
         v-if="body"
-        class="text-(length:--text-caption) leading-(--lh-compact) text-pretty text-muted-foreground"
+        class="text-(length:--text-caption) leading-(--lh-compact) text-pretty wrap-anywhere text-muted-foreground"
       >{{ body }}</span>
       <slot />
     </div>

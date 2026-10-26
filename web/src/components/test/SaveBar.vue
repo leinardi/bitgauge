@@ -139,18 +139,20 @@ const body = computed(() => {
         v-if="suggestions.length > 0"
         role="group"
         :aria-label="t('test.bar.suggestions')"
-        class="flex flex-wrap gap-1.5"
+        class="flex max-w-full min-w-0 flex-wrap gap-1.5"
       >
         <button
           v-for="suggestion in suggestions"
           :key="suggestion"
           type="button"
-          class="inline-flex h-(--chip-h-sm) cursor-pointer items-center gap-1 rounded-full border border-(--border-default) bg-(--surface-2) px-2.5 text-(length:--text-caption) font-semibold whitespace-nowrap text-muted-foreground hover:bg-(--surface-3) hover:text-foreground"
+          class="inline-flex h-(--chip-h-sm) max-w-full min-w-0 cursor-pointer items-center gap-1 rounded-full border border-(--border-default) bg-(--surface-2) px-2.5 text-(length:--text-caption) font-semibold whitespace-nowrap text-muted-foreground hover:bg-(--surface-3) hover:text-foreground"
           :aria-pressed="label === suggestion"
+          :title="suggestion"
           data-testid="label-suggestion"
           @click="pick(suggestion)"
         >
-          {{ suggestion }}
+          <!-- A label of up to 64 characters is cut to the row with an ellipsis; its name stays whole. -->
+          <span class="min-w-0 truncate">{{ suggestion }}</span>
         </button>
       </div>
     </template>
