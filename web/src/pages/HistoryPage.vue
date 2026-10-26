@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { HardDrive, History as HistoryIcon, Play, Search, Upload, X } from '@lucide/vue'
-import { computed, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
@@ -46,6 +46,7 @@ import { useInfo } from '@/composables/useInfo'
 import { useSettings } from '@/composables/useSettings'
 import { NO_FILTER } from '@/history/filters'
 import { formatBytes } from '@/lib/format'
+import { moveFocus } from '@/lib/focus'
 import { isSafari } from '@/lib/safari'
 import { fill, slot, timeList, timeRange, type TimedText } from '@/lib/timeText'
 
@@ -121,9 +122,13 @@ function invalidExport(): void {
   notify({ tone: 'danger', title: t('history.export.invalid') })
 }
 
+// Cleared, focus moves to the empty state's Import JSON, as Clear all leaves with the history.
+const emptyImport = useTemplateRef<InstanceType<typeof AppButton>>('emptyImport')
 async function clearAll(): Promise<void> {
   await history.clear()
   list.clearSelection()
+  await nextTick()
+  moveFocus(emptyImport.value?.$el as Element | undefined)
 }
 
 const selectedIds = computed(() => [...list.selected.value])
@@ -239,7 +244,11 @@ watch(comparedPair, (chosen) => {
           {{ t('history.empty.start') }}
         </RouterLink>
       </AppButton>
-      <AppButton @click="importer?.open()">
+      <AppButton
+        ref="emptyImport"
+        data-testid="empty-import"
+        @click="importer?.open()"
+      >
         <Upload
           :size="15"
           aria-hidden="true"

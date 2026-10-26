@@ -353,6 +353,8 @@ describe('Clear all', () => {
     expect(dialog.text()).toContain('Export JSON first')
     await body().get('[data-testid="clear-confirm"]').trigger('click')
     await settled(() => expect(page.get('[data-testid="history-empty"]').text()).toContain('No results yet'))
+    // The trigger left with the history: focus is on the empty state's Import JSON.
+    await settled(() => expect(document.activeElement).toBe(page.get('[data-testid="empty-import"]').element))
     page.unmount()
   })
 })

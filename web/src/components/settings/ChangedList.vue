@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { RotateCcw, SlidersHorizontal } from '@lucide/vue'
-import { computed } from 'vue'
+import { computed, nextTick, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/actions/AppButton.vue'
@@ -26,6 +26,7 @@ import { settingName, settingValue, SHOWN_ORDER } from '@/components/settings/ch
 import { useSettingsForm } from '@/components/settings/form'
 import ResetAllDialog from '@/components/settings/ResetAllDialog.vue'
 import SettingsCard from '@/components/settings/SettingsCard.vue'
+import { moveFocus } from '@/lib/focus'
 
 // The changed settings (ui/screens.md section 4, kit Settings.jsx): each setting that differs from
 // its default, with the default, the value and a reset, and Reset all to defaults after
@@ -42,6 +43,17 @@ const entries = computed(() =>
     byDefault: settingValue(key, form.defaultOf(key), t),
   })),
 )
+
+// A reset removes its row, so focus moves to the next row's reset, else the previous one's, else
+// the card's heading; Reset all, confirmed, to the screen's (ui/i18n-a11y.md section 2.3).
+const list = useTemplateRef<HTMLUListElement>('list')
+async function reset(index: number, key: (typeof entries.value)[number]['key']): Promise<void> {
+  form.reset([key])
+  await nextTick()
+  const resets = list.value?.querySelectorAll('[data-reset]') ?? []
+  moveFocus(resets[index] ?? resets[index - 1] ?? document.getElementById('settings-changed'))
+}
+const screenHeading = () => document.querySelector('#main h1')
 </script>
 
 <template>
@@ -55,10 +67,11 @@ const entries = computed(() =>
     </template>
     <ul
       v-if="entries.length > 0"
+      ref="list"
       class="px-4 py-1"
     >
       <li
-        v-for="entry in entries"
+        v-for="(entry, index) in entries"
         :key="entry.key"
         class="flex items-center gap-2.5 border-b border-(--border-subtle) py-2"
         :data-testid="`changed-${entry.key}`"
@@ -75,7 +88,8 @@ const entries = computed(() =>
           class="w-7 justify-center px-0"
           :aria-label="t('settings.changed.reset', { name: entry.name.toLocaleLowerCase(locale) })"
           :title="t('settings.changed.reset', { name: entry.name.toLocaleLowerCase(locale) })"
-          @click="form.reset([entry.key])"
+          data-reset
+          @click="reset(index, entry.key)"
         >
           <RotateCcw
             :size="14"
@@ -93,6 +107,7 @@ const entries = computed(() =>
     <div class="px-4 py-3">
       <ResetAllDialog
         :names="entries.map((entry) => entry.name)"
+        :focus-after="screenHeading"
         @confirm="form.resetAll()"
       />
     </div>

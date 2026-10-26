@@ -65,7 +65,7 @@ const DEFAULTS = settingsFromDefaults(INFO.defaults) as TestSettings
 const QUICK: TestSettings = { ...DEFAULTS, preset: 'quick', phases: ['idle', 'download'], pingCount: 10, download: { minMs: 5000, maxMs: 10_000 }, upload: { minMs: 5000, maxMs: 10_000 } }
 
 /** The page loaded afresh at `search`, with its Worker; `before` runs on the fresh modules before it mounts. */
-async function load(search: string, before?: () => Promise<void>) {
+async function load(search: string, before?: () => Promise<void>, attach = false) {
   window.history.replaceState(null, '', `/${search}`)
   vi.resetModules()
   await before?.()
@@ -75,7 +75,7 @@ async function load(search: string, before?: () => Promise<void>) {
   await useInfo().refresh()
   const { mountApp } = await import('@/test/mount')
   const { default: TestPage } = await import('@/pages/TestPage.vue')
-  const page = await mountApp(TestPage, `/${search}`)
+  const page = await mountApp(TestPage, `/${search}`, attach ? { attachTo: document.body } : {})
   const worker = StubWorker.started.at(-1)
   if (worker === undefined) {
     throw new Error('no Worker')
@@ -182,6 +182,18 @@ describe('a link with run', () => {
     expect(again.worker.posted.filter((message) => (message as { type: string }).type === 'start')).toEqual([])
     expect(again.page.get('[data-testid="start-button"]').text()).toContain('Start test')
     again.page.unmount()
+  })
+
+  it("moves focus to Start once the countdown's Cancel leaves", async () => {
+    const { page, worker } = await load('?run=1', undefined, true)
+    worker.emit({ type: 'settings', scope: 'configured', settings: DEFAULTS })
+    await flushPromises()
+    const cancel = page.get('[data-testid="auto-start-cancel"]')
+    ;(cancel.element as HTMLElement).focus()
+    await cancel.trigger('click')
+    await flushPromises()
+    expect(document.activeElement).toBe(page.get('[data-testid="start-button"]').element)
+    page.unmount()
   })
 
   it('does not count down without run, or with run=0', async () => {

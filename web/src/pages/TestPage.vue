@@ -17,7 +17,7 @@
   along with BitGauge.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <script setup lang="ts">
-import { computed, shallowRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import LiveRegions from '@/components/a11y/LiveRegions.vue'
@@ -50,6 +50,7 @@ import { useTestScreen } from '@/composables/useTestScreen'
 import { consumeAutoRun, urlOverride, useUrlParams } from '@/composables/useUrlParams'
 import { browserIdentity, type Preset } from '@/engine/messages'
 import { continuousDirection, runPhases } from '@/lib/continuous'
+import { moveFocus } from '@/lib/focus'
 import { DEFAULT_AUTO_START } from '@/lib/settingsStorage'
 import { SECOND } from '@/lib/urlValues'
 
@@ -72,6 +73,12 @@ const { t, locale } = useI18n()
 const host = window.location.host
 
 const counting = computed(() => countdown.remainingMs.value !== null)
+// Cancel leaves with the countdown's notice, so focus moves to Start (ui/i18n-a11y.md section 2.3).
+async function cancelCountdown(): Promise<void> {
+  countdown.cancel()
+  await nextTick()
+  moveFocus(document.querySelector('#main [data-testid="start-button"]'))
+}
 // The URL parameters ignored; before the first run they show as the notices a run will carry.
 const ignored = computed(() => (defaults.value === null ? url.ignored : effectiveSettings(url, defaults.value, stored.value).ignored))
 const { view, state, running, notices, dismiss, disabledReason } = useTestScreen({ run, info: { info, reachability }, counting, ignored })
@@ -290,7 +297,7 @@ watch(run.error, (error) => {
       v-if="countdown.remainingMs.value !== null"
       :remaining-ms="countdown.remainingMs.value"
       :from-link="url.run"
-      @cancel="countdown.cancel"
+      @cancel="cancelCountdown"
     />
     <NoticeList
       :notices="notices"

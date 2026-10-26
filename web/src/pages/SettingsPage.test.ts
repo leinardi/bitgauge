@@ -171,6 +171,33 @@ describe('the changed list', () => {
   })
 })
 
+describe('the focus after a reset', () => {
+  it('moves to the next reset, the previous one, then the heading, and after Reset all to the screen', async () => {
+    const page = await open()
+    await page.get('[data-testid="preset-quick"]').trigger('click')
+    await page.findAll('[role="radio"]').find((radio) => radio.text().includes('Bytes'))?.trigger('click')
+    await flushPromises()
+    const resets = () => page.findAll('li[data-testid^="changed-"] button')
+    expect(resets()).toHaveLength(2)
+    await resets()[0]?.trigger('click')
+    await flushPromises()
+    expect(document.activeElement).toBe(resets()[0]?.element)
+    await resets()[0]?.trigger('click')
+    await flushPromises()
+    expect(document.activeElement).toBe(page.get('#settings-changed').element)
+
+    await page.get('[data-testid="preset-quick"]').trigger('click')
+    await page.findAll('button').find((button) => button.text() === 'Reset all to defaults')?.trigger('click')
+    await flushPromises()
+    await new DOMWrapper(document.body).get('[role="alertdialog"]').findAll('button').find((button) => button.text() === 'Reset all')?.trigger('click')
+    await flushPromises()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    await flushPromises()
+    expect(document.activeElement).toBe(page.get('h1').element)
+    page.unmount()
+  })
+})
+
 describe('the shareable link', () => {
   it('carries what differs and names what it cannot', async () => {
     const page = await open()
