@@ -45,6 +45,13 @@ export interface ParameterGroup {
 
 const row = (key: string, label: string, value: string): ParameterRow => ({ key, label, value })
 
+const DASH = '—'
+
+/** The browser's family, major version and operating system, or a dash for an unrecognized family (ui/screens.md section 6). */
+export function browserText(browser: Result['client']['browser'], { t }: Pick<Wording, 't'>): string {
+  return browser.name === 'unknown' ? DASH : t('result.parameters.browserValue', { name: browser.name, major: browser.major, os: browser.os })
+}
+
 /** The directions the run reached: a Continuous run's one, and none the run ended before. */
 export function directions(result: Result): Direction[] {
   return runPhases(result.settings).filter((phase): phase is Direction => phase !== 'idle' && result[phase] !== undefined && result[phase].status !== 'skipped')
@@ -183,7 +190,7 @@ export function parameterGroups(result: Result, units: 'bits' | 'bytes', wording
       title: t('result.parameters.environment'),
       rows: [
         row('server', t('result.parameters.server'), t('result.parameters.serverValue', { name: server.name, version: server.version })),
-        row('browser', t('result.parameters.browser'), t('result.parameters.browserValue', { name: client.browser.name, major: client.browser.major, os: client.browser.os })),
+        row('browser', t('result.parameters.browser'), browserText(client.browser, wording)),
         row('ip', t('result.parameters.clientIp'), client.ip),
         row('timer', t('result.parameters.timer'), t('result.parameters.timerValue', { ms: new Intl.NumberFormat(locale, { maximumFractionDigits: 3 }).format(client.timerResolutionMs) })),
         row('isolated', t('result.parameters.isolated'), isolated),

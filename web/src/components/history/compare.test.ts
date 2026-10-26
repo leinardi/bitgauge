@@ -102,6 +102,14 @@ describe('the pair', () => {
     expect(comparison.parameters.find((row) => row.key === 'streams')).toMatchObject({ a: 'Fixed 3', b: 'Fixed 3' })
   })
 
+  it('reads an unrecognized browser as a dash', () => {
+    const at = (id: string, startedAt: string): Result => {
+      const base = resultFixture({ id, startedAt })
+      return { ...base, client: { ...base.client, browser: { name: 'unknown', major: 0, os: 'Linux' } } }
+    }
+    expect(compare(at('a', '2026-10-01T07:05:00.000Z'), at('b', '2026-10-02T07:05:00.000Z'), 'bits', 'en', t).parameters.find((row) => row.key === 'browser')).toMatchObject({ a: '—', b: '—' })
+  })
+
   it('labels the protocol tokens, and counts two unreported ones as no difference', () => {
     const at = (id: string, startedAt: string, protocol: string): Result => {
       const base = resultFixture({ id, startedAt })

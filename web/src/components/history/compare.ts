@@ -20,7 +20,7 @@
 import type { useI18n } from 'vue-i18n'
 
 import { gradeWord } from '@/components/history/rows'
-import { directions } from '@/components/result/parameters'
+import { browserText, directions } from '@/components/result/parameters'
 import { bandName, EXPERIENCES, experienceName } from '@/components/result/qualityList'
 import { presetName } from '@/components/settings/changes'
 import type { Bufferbloat, Direction, DirectionResult, Responsiveness, Result, ScoreBand } from '@/engine/messages'
@@ -197,7 +197,7 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
         ? t('history.compare.streamsSingle')
         : // The settings keep the auto ceiling; a fixed run's count is what its directions ran.
           t('history.compare.streamsFixed', { n: directions(result).map((direction) => result[direction]?.streams).find((n) => n !== undefined && n > 0) ?? DASH })
-  const browser = (result: Result) => `${result.client.browser.name} ${result.client.browser.major} · ${result.client.browser.os}`
+  const browser = (result: Result) => browserText(result.client.browser, { t })
   const cap = (result: Result) => (result.settings.dataCapBytes === null ? t('history.compare.noCap') : formatBytes(result.settings.dataCapBytes, locale))
   const kinds = differences(a, b)
   const parameter = (key: string, name: string, of: (result: Result) => string, apart = false): CompareRow => {

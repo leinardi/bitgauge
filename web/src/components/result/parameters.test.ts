@@ -54,6 +54,11 @@ describe('parameterGroups', () => {
     expect(rows(withStreams(6, 4, 'no-gain'))['Streams']).toBe('Auto · download 6 · plateau: no-gain; upload 4 · plateau: no-gain')
   })
 
+  it('reads an unrecognized browser as a dash', () => {
+    const base = resultFixture()
+    expect(rows({ ...base, client: { ...base.client, browser: { name: 'unknown', major: 0, os: 'Linux' } } })['Browser']).toBe('—')
+  })
+
   it('leaves a direction the run never reached off the streams row', () => {
     const base = withStreams(6, 0)
     const skipped = { ...base, upload: base.upload && { ...base.upload, status: 'skipped' as const, plateau: undefined } }
