@@ -235,8 +235,8 @@ rules behind each step are in [../measurement.md](../measurement.md) and
 
 ## 9. Changing Settings
 
-1. The user opens Settings. Fields show the effective values: stored settings over server
-   defaults ([url-params.md §1](url-params.md#1-rules)). Settings that differ from the server
+1. The user opens Settings. Fields show the effective values: URL parameters over stored settings
+   over server defaults ([url-params.md §1](url-params.md#1-rules)). Settings that differ from the server
    defaults are marked and listed with their defaults.
 2. The user changes fields. Each field validates inline, and each valid change is stored in this
    browser at once; there is no Save or Discard step.

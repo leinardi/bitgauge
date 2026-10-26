@@ -50,19 +50,20 @@ apply to the page load they appear on; they are not stored unless the user saves
 | `label` | text, at most 64 characters | suggested label | Pre-fills the result's label (for example `VPN`, `LAN`, `Kitchen Wi-Fi`). |
 
 The `URL parameter ignored` notice words each parameter so, with the run's own value in the second
-sentence:
+sentence; a list of three or more is joined in the locale's list format, in English with the serial
+comma:
 
 | Parameter | Allowed | Stays on |
 | --- | --- | --- |
-| `run` | 1, true, 0 or false | The test waits for Start |
-| `test` | all, download, upload or latency; under Continuous, all, download or upload | Phases stay on the run's phases ("idle latency, download and upload"); under Continuous, the direction is download |
-| `preset` | quick, standard, extended or continuous | The preset stays on the run's ("Standard") |
+| `run` | 1, true, 0, or false | The test waits for Start |
+| `test` | all, download, upload, or latency; under Continuous, all, download, or upload | Phases stay on the run's phases ("idle latency, download, and upload"); under Continuous, the direction is download |
+| `preset` | quick, standard, extended, or continuous | The preset stays on the run's ("Standard") |
 | `duration` | 5–600 s; under Continuous, 60–604800 s | Durations stay on the preset's; under Continuous, the run length stays on the stored one, or none |
-| `streams` | 1–`streams.max` for a number, otherwise auto, single or 1–`streams.max` | Streams stay on the run's mode ("Auto", "Single" or the count) |
-| `cap` | 1 MiB or more, 0 or none | The data cap stays on the run's ("none" or the size) |
+| `streams` | 1–`streams.max` for a number, otherwise auto, single, or 1–`streams.max` | Streams stay on the run's mode ("Auto", "Single" or the count) |
+| `cap` | 1 MiB or more, 0, or none | The data cap stays on the run's ("none" or the size) |
 | `units` | bits or bytes | Units stay on the run's ("bits") |
 | `lang` | the supported locale tags (`en`) | The language stays on the page's ("English") |
-| `theme` | system, light or dark | The theme stays on the page's ("System") |
+| `theme` | system, light, or dark | The theme stays on the page's ("System") |
 | `label` | at most 64 characters | The label stays on the suggested one |
 
 Advanced settings (warm-up, ping count, overhead compensation) are not URL parameters: they change
