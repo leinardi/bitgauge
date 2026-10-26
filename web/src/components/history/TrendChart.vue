@@ -70,7 +70,10 @@ const plots = computed(() => {
   ]
   return (narrow.value ? all.filter((plot) => plot.key === metric.value) : all).map((plot) => {
     const drawn = plot.points.filter((point) => point.value !== null)
-    return { ...plot, aria: t('history.trend.aria', { title: plot.title, n: drawn.length, hollow: drawn.filter((point) => !point.complete).length }) }
+    const hollow = drawn.filter((point) => !point.complete).length
+    // One message takes one plural count: the results' count is its own message in the sentence.
+    const results = t('history.trend.ariaResults', { n: drawn.length }, drawn.length)
+    return { ...plot, aria: t('history.trend.aria', { title: plot.title, results, hollow }) }
   })
 })
 

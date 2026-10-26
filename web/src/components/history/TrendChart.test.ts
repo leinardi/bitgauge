@@ -39,4 +39,12 @@ describe('the History trend', () => {
     expect(upload).toEqual([null, 921e6])
     page.unmount()
   })
+
+  it('names each plot with its counts in the singular or plural', async () => {
+    const results = [at('2026-10-06T08:00:00.000Z', 'download')]
+    const page = await mountApp(TrendChart, '/history', { props: { results, units: 'bits', contexts: [], range: { kind: 'all' }, now: new Date('2026-10-08T12:00:00.000Z') } })
+    const names = page.findAllComponents(TrendPlot).map((plot) => plot.props('label'))
+    expect(names).toEqual(['Download trend, 1 result, 0 partial or error', 'Upload trend, 0 results, 0 partial or error', 'Idle latency trend, 1 result, 0 partial or error'])
+    page.unmount()
+  })
 })

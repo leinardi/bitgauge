@@ -132,7 +132,8 @@
       "latencyShort": "Latency",
       "log": "log",
       "linear": "linear",
-      "aria": "{title} trend, {n} results, {hollow} partial or error"
+      "aria": "{title} trend, {results}, {hollow} partial or error",
+      "ariaResults": "{n} result | {n} results"
     },
     "table": {
       "results": "Results",
