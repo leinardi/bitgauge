@@ -24,7 +24,7 @@ import { noticeViews, type Tone } from '@/components/test/notices'
 import { confidenceReasons } from '@/components/test/tiles'
 import type { Wording } from '@/components/test/wording'
 import type { Confidence, Direction, Result } from '@/engine/messages'
-import { formatDuration } from '@/lib/format'
+import { formatDuration, formatSpan } from '@/lib/format'
 
 // The confidence and notices card (ui/screens.md section 2, kit ResultDetail.jsx): each measured
 // direction's confidence with its reasons, then every notice the result
@@ -57,7 +57,8 @@ function directionItem(direction: Direction, result: Result, wording: Wording): 
   const named = (download: string, upload: string) => (direction === 'download' ? download : upload)
   switch (confidence.level) {
     case 'normal': {
-      const window = formatDuration(part.windowMs ?? 0, locale)
+      // A Continuous window is the run's known time, read in days, hours and minutes as elsewhere on the page.
+      const window = result.settings.preset === 'continuous' ? formatSpan(part.windowMs ?? 0, locale) : formatDuration(part.windowMs ?? 0, locale)
       const body = part.series === undefined ? t('result.confidence.normal.window', { window }) : t('result.confidence.normal.body', { at: formatDuration(part.series.warmupEndMs, locale), window })
       return { tone: 'ok', icon: CircleCheck, title: named(t('result.confidence.normal.download'), t('result.confidence.normal.upload')), body, link: null }
     }
