@@ -40,6 +40,7 @@ make run               # build, then serve on 0.0.0.0:8080 until Ctrl+C
 make web-dev           # Vite dev server (make web-demo: against a simulated link)
 make api-types         # regenerate web/src/api/types.gen.ts from api/openapi.yaml
 make e2e               # Playwright on Chromium, Firefox, WebKit
+make e2e-browsers      # install those browsers (also what playwright cli drives)
 make go-test-image     # build the image, test it under netguard and strace (Docker, dhi.io)
 make harness-ci        # accuracy harness, CI tier (Docker, dhi.io, netem)
 make demo-parity       # compare the design kit's prototype with the Vue demo (on demand)

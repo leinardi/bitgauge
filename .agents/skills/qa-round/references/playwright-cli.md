@@ -5,8 +5,8 @@ Run it from the agent's scratch directory, pointing npm at the repository's `web
 
 ```bash
 cd /tmp/qa/<area>
-P="npm --prefix <repo>/web exec --no -- playwright-cli -s=<session>"
-$P open http://127.0.0.1:18090/            # --browser=firefox|webkit, --headed to watch
+P="npm --prefix <repo>/web exec --no -- playwright cli -s=<session>"
+$P open --browser=chromium http://127.0.0.1:18090/   # or firefox|webkit; --headed to watch
 $P resize 390 844
 $P --raw eval "() => document.title"       # --raw prints only the value
 $P set-color-scheme dark                   # also set-reduced-motion, set-forced-colors
@@ -15,10 +15,16 @@ $P close
 $P --help
 ```
 
-The tool's own guide is
-`web/node_modules/@playwright/cli/node_modules/playwright-core/lib/tools/skills/playwright-cli/SKILL.md`.
+`playwright cli` is the playwright-core that `@playwright/test` pins, so it drives the browsers
+`make e2e-browsers` installs for the end-to-end tests. Without `--browser` it opens branded Google
+Chrome from `/opt/google/chrome`, which a host without root (HerdQuay) or CI does not have. The
+tool's own guide is `web/node_modules/playwright-core/lib/tools/skills/playwright-cli/SKILL.md`.
 
 ## Traps
+
+- **Every `open` names its browser.** Without `--browser` the session wants branded Chrome: it
+  fails where Chrome is missing and, where Chrome is installed, runs another browser than the
+  round's Chromium.
 
 - **The AI snapshot omits some accessible names.** A dialog or menu item can look unnamed in the
   snapshot while the browser names it correctly. Before reporting a missing name, read it with

@@ -53,4 +53,11 @@ else
 	  BITGAUGE_E2E_URL="http://127.0.0.1:$(E2E_PORT)" npm --prefix "$(REPO_ROOT)/web" run e2e
 endif
 
+# The browsers the end-to-end tests and `playwright cli` (the QA rounds' driver) share: both run on
+# the playwright-core that @playwright/test pins. No --with-deps: the system libraries need root,
+# so CI installs them itself and a development host provides them.
+.PHONY: e2e-browsers
+e2e-browsers: $(WEB_INSTALLED) ## Install the Chromium, Firefox and WebKit the e2e tests and playwright cli drive
+	cd "$(WEB_DIR)" && npm exec --no -- playwright install chromium firefox webkit
+
 endif  # MK_LOCAL_E2E_INCLUDED

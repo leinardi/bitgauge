@@ -31,7 +31,8 @@ fixed.
    re-checked in its area and reported as holds, partly or regressed.
 3. Note the commit under test (`git log -1`) and that the worktree is clean, then build once
    (`make build`): every stack below runs that `./dist/bitgauge` or the demo build of the same
-   commit.
+   commit. Install the browsers once too (`make e2e-browsers`): `playwright cli` drives the ones
+   the end-to-end tests use.
 
 ## 2. The stacks
 
@@ -67,8 +68,8 @@ surface is looked at in this matrix, and layout is swept at all of it:
 - **Viewports:** 1440×900, 768×1024, 390×844 (add 1280, 1024 and 820 wide for the header and the
   result layout).
 - **Themes and preferences:** light and dark, reduced motion, forced colors on the main paths.
-- **Browsers:** Chromium throughout; Firefox and WebKit (`open --browser=firefox|webkit`) for the
-  Test screen, a full run, history and sharing.
+- **Browsers:** Chromium (`open --browser=chromium`) throughout; Firefox and WebKit
+  (`open --browser=firefox|webkit`) for the Test screen, a full run, history and sharing.
 - **Accessibility:** Tab order, visible focus, Esc, focus moving into and back out of dialogs,
   `aria-expanded` on toggles, accessible names, the gauge's live region, 44 px touch targets on
   phones ([i18n-a11y.md §2](../../../docs/features/ui/i18n-a11y.md#2-accessibility)).
