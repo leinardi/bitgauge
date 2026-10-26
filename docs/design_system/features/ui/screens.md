@@ -235,7 +235,8 @@ it); empty ("No results yet" with Start a test and Import JSON); populated; filt
 §7](../edge-cases.md#7-indexeddb-unavailable-private-mode)); import in progress ("Checking 9 of 16
 results…" with a progress bar named Import progress, and Cancel, which stops the import before
 anything is written), import result (added, skipped as duplicates, rejected with each record's
-position and reason, or the whole file refused with its reason).
+position and reason, a label over 64 characters among them, or the whole file refused with its
+reason).
 
 **Responsive notes.** On narrow screens rows become cards with label, date, download, upload,
 latency and grade, with a sort control; the trend shows one metric at a time with a selector;

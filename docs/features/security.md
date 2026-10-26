@@ -217,8 +217,9 @@ exactly what each includes before anything is downloaded, copied or shared.
 
 - JSON and CSV exports, and the Test screen's single-result Download JSON, contain everything
   above, including client IPs and notes; the export dialog and the download say so.
-- Imported files are untrusted input: validated against the schema, size-limited (10 MB), rendered
-  as text only (never as HTML), and deduplicated by result `id`.
+- Imported files are untrusted input: validated against the schema, size-limited (10 MB), each
+  record's label limited to 64 characters, rendered as text only (never as HTML), and deduplicated
+  by result `id`.
 
 ## 8. Supply Chain
 
