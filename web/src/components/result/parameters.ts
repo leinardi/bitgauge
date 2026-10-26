@@ -45,9 +45,9 @@ export interface ParameterGroup {
 
 const row = (key: string, label: string, value: string): ParameterRow => ({ key, label, value })
 
-/** The directions the run included: a Continuous run's one. */
-function directions(result: Result): Direction[] {
-  return runPhases(result.settings).filter((phase): phase is Direction => phase !== 'idle' && result[phase] !== undefined)
+/** The directions the run reached: a Continuous run's one, and none the run ended before. */
+export function directions(result: Result): Direction[] {
+  return runPhases(result.settings).filter((phase): phase is Direction => phase !== 'idle' && result[phase] !== undefined && result[phase].status !== 'skipped')
 }
 
 function directionName(direction: Direction, { t }: Wording): string {

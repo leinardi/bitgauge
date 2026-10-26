@@ -93,6 +93,15 @@ describe('the pair', () => {
     expect(row('loss')).toMatchObject({ a: '0.0 %', verdict: null })
   })
 
+  it("reads a fixed run's streams from what its directions ran, not the auto ceiling", () => {
+    const quick = (id: string, startedAt: string): Result => {
+      const base = resultFixture({ id, startedAt })
+      return { ...base, settings: { ...base.settings, preset: 'quick', streams: { mode: 'fixed', max: 6 } }, download: base.download && { ...base.download, streams: 3 }, upload: base.upload && { ...base.upload, streams: 3 } }
+    }
+    const comparison = compare(quick('a', '2026-10-01T07:05:00.000Z'), quick('b', '2026-10-02T07:05:00.000Z'), 'bits', 'en', t)
+    expect(comparison.parameters.find((row) => row.key === 'streams')).toMatchObject({ a: 'Fixed 3', b: 'Fixed 3' })
+  })
+
   it('warns when preset, protocol or label differ, naming each', () => {
     const b = resultFixture({ id: 'b', startedAt: '2026-10-02T07:05:00.000Z', label: 'VPN · office', client: { ...older.client, protocol: 'HTTP/1.1' }, settings: { ...older.settings, preset: 'quick' } })
     expect(differences(older, b)).toEqual(['preset', 'protocol', 'label'])

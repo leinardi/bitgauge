@@ -54,6 +54,12 @@ describe('parameterGroups', () => {
     expect(rows(withStreams(6, 4, 'no-gain'))['Streams']).toBe('Auto · download 6 · plateau: no-gain; upload 4 · plateau: no-gain')
   })
 
+  it('leaves a direction the run never reached off the streams row', () => {
+    const base = withStreams(6, 0)
+    const skipped = { ...base, upload: base.upload && { ...base.upload, status: 'skipped' as const, plateau: undefined } }
+    expect(rows(skipped)['Streams']).toBe('Auto · 6 · plateau: cap')
+  })
+
   it('gives each direction its duration with its configured bounds, and the data cap with the data used', () => {
     const base = resultFixture()
     const shown = rows({ ...base, settings: { ...base.settings, ...BOUNDS } })
