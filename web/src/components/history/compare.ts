@@ -97,7 +97,8 @@ export type Difference = 'preset' | 'protocol' | 'label'
 export function differences(a: Result, b: Result): Difference[] {
   const kinds: [Difference, string, string][] = [
     ['preset', a.settings.preset, b.settings.preset],
-    ['protocol', a.client.protocol, b.client.protocol],
+    // By label, so an empty token and `unknown`, both not reported, are no difference.
+    ['protocol', protocolLabel(a.client.protocol) ?? '', protocolLabel(b.client.protocol) ?? ''],
     ['label', a.label, b.label],
   ]
   return kinds.filter(([, x, y]) => x !== y).map(([kind]) => kind)
@@ -207,7 +208,7 @@ export function compare(x: Result, y: Result, units: 'bits' | 'bytes', locale: s
     parameter('label', t('history.compare.label'), label, true),
     parameter('context', t('history.compare.context'), (result) => result.client.contextLabel || DASH),
     parameter('preset', t('history.compare.preset'), (result) => presetName(result.settings.preset, t), true),
-    parameter('protocol', t('history.compare.protocol'), (result) => result.client.protocol || DASH, true),
+    parameter('protocol', t('history.compare.protocol'), (result) => protocolLabel(result.client.protocol) ?? t('result.parameters.protocolNotReported'), true),
     parameter('streams', t('history.compare.streams'), streams),
     parameter('cap', t('history.compare.cap'), cap),
     parameter('browser', t('history.compare.browser'), browser),

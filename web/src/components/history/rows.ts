@@ -21,6 +21,7 @@ import type { useI18n } from 'vue-i18n'
 
 import type { Bufferbloat, Result, ResultStatus } from '@/engine/messages'
 import { latencyNumber, rateParts } from '@/lib/format'
+import { protocolLabel } from '@/lib/protocol'
 
 // A stored result as the History list and the Test screen's last-result line show it (ui/screens.md
 // sections 1 and 3): its start in the active locale, the headline numbers in the chosen units, the
@@ -71,7 +72,8 @@ export function rowView(result: Result, units: 'bits' | 'bytes', locale: string)
     date: resultDate(result.startedAt, locale),
     label: result.label,
     contextLabel: result.client.contextLabel,
-    protocol: result.client.protocol,
+    // Labeled as the Test screen labels it (ui/screens.md section 6); empty when not reported.
+    protocol: protocolLabel(result.client.protocol) ?? '',
     status: result.status,
     download: rate(result.download, units, locale),
     upload: rate(result.upload, units, locale),

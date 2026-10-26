@@ -23,6 +23,7 @@ import { describe, expect, it } from 'vitest'
 
 import { rowView } from '@/components/history/rows'
 import { continuousResult } from '@/test/continuous'
+import { resultFixture } from '@/test/fixtures'
 
 describe('a History row', () => {
   it('shows a Continuous result by the headline of the direction it ran', () => {
@@ -32,5 +33,14 @@ describe('a History row', () => {
     expect(download.grade).toBe('A')
     const upload = rowView(continuousResult({ direction: 'upload', endMs: 7_200_000, bucketMs: 60_000 }), 'bits', 'en')
     expect([upload.download, upload.upload]).toEqual([null, { number: '921', unit: 'Mbit/s' }])
+  })
+
+  it.each([
+    ['h2', 'HTTP/2'],
+    ['http/1.1', 'HTTP/1.1'],
+    ['unknown', ''],
+  ])('labels the protocol token %s as the Test screen does', (protocol, label) => {
+    const base = resultFixture()
+    expect(rowView({ ...base, client: { ...base.client, protocol } }, 'bits', 'en').protocol).toBe(label)
   })
 })

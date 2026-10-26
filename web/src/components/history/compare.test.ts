@@ -102,6 +102,19 @@ describe('the pair', () => {
     expect(comparison.parameters.find((row) => row.key === 'streams')).toMatchObject({ a: 'Fixed 3', b: 'Fixed 3' })
   })
 
+  it('labels the protocol tokens, and counts two unreported ones as no difference', () => {
+    const at = (id: string, startedAt: string, protocol: string): Result => {
+      const base = resultFixture({ id, startedAt })
+      return { ...base, client: { ...base.client, protocol } }
+    }
+    const comparison = compare(at('a', '2026-10-01T07:05:00.000Z', 'http/1.1'), at('b', '2026-10-02T07:05:00.000Z', 'h2'), 'bits', 'en', t)
+    expect(comparison.parameters.find((row) => row.key === 'protocol')).toMatchObject({ a: 'HTTP/1.1', b: 'HTTP/2' })
+    expect(comparison.warning).toBe('different protocol (HTTP/1.1 vs HTTP/2)')
+    const unreported = compare(at('a', '2026-10-01T07:05:00.000Z', ''), at('b', '2026-10-02T07:05:00.000Z', 'unknown'), 'bits', 'en', t)
+    expect(unreported.parameters.find((row) => row.key === 'protocol')).toMatchObject({ a: 'not reported', b: 'not reported', differs: null })
+    expect(unreported.warning).toBeNull()
+  })
+
   it('warns when preset, protocol or label differ, naming each', () => {
     const b = resultFixture({ id: 'b', startedAt: '2026-10-02T07:05:00.000Z', label: 'VPN · office', client: { ...older.client, protocol: 'HTTP/1.1' }, settings: { ...older.settings, preset: 'quick' } })
     expect(differences(older, b)).toEqual(['preset', 'protocol', 'label'])
