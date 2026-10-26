@@ -149,8 +149,9 @@ const CELL = 'border-b border-(--border-subtle) px-3.5 py-(--density-cell-paddin
                     :to="`/result/${encodeURIComponent(side.id)}`"
                     class="group flex flex-col items-end gap-0.5 tracking-normal normal-case no-underline"
                   >
-                    <span class="inline-flex items-center gap-1 font-sans text-(length:--text-sm) font-semibold text-foreground group-hover:underline">
-                      {{ t('history.compare.column', { side: side.side, label: side.label }) }}
+                    <!-- A long unbroken label wraps within its column instead of drawing over the next. -->
+                    <span class="inline-flex max-w-full items-center gap-1 font-sans text-(length:--text-sm) font-semibold text-foreground group-hover:underline">
+                      <span class="min-w-0 wrap-anywhere">{{ t('history.compare.column', { side: side.side, label: side.label }) }}</span>
                       <ChevronRight
                         :size="13"
                         :stroke-width="2"
@@ -194,10 +195,10 @@ const CELL = 'border-b border-(--border-subtle) px-3.5 py-(--density-cell-paddin
                   >
                     {{ row.name }}
                   </th>
-                  <td :class="[CELL, 'text-right font-mono']">
+                  <td :class="[CELL, 'text-right font-mono wrap-anywhere']">
                     {{ row.a }}
                   </td>
-                  <td :class="[CELL, 'text-right font-mono']">
+                  <td :class="[CELL, 'text-right font-mono wrap-anywhere']">
                     {{ row.b }}
                   </td>
                   <td :class="[CELL, 'text-right']">

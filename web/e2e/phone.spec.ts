@@ -95,3 +95,16 @@ test.describe('a long unbroken value', () => {
     await expectNoSideScroll(page)
   })
 })
+
+test('Compare keeps a long unbroken label within its card', async ({ page }) => {
+  const LONG = 'x'.repeat(64)
+  await importHistory(page, DEMO_RESULTS.map((result, index) => (index === 2 || index === 3 ? { ...result, label: LONG } : result)))
+  const cards = page.getByTestId('history-cards')
+  await cards.getByRole('checkbox').nth(2).click()
+  await cards.getByRole('checkbox').nth(3).click()
+  await cards.getByTestId('selection-bar').getByTestId('compare').click()
+  const card = page.getByTestId('compare-card').first()
+  await expect(card).toContainText(LONG)
+  const fits = await card.evaluate((element) => element.scrollWidth <= element.clientWidth && element.getBoundingClientRect().width <= window.innerWidth)
+  expect(fits).toBe(true)
+})

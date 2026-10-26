@@ -115,7 +115,7 @@ const EYEBROW = 'pt-3 pb-1 font-(family-name:--font-cond) text-(length:--text-mi
         v-for="(side, index) in sides"
         :key="side.side"
         :aria-label="t('history.compare.result', { side: side.side })"
-        class="flex flex-[0_0_calc(100%-28px)] snap-start flex-col rounded-(--radius-lg) border border-(--border-subtle) bg-(--surface-2) p-3.5"
+        class="flex min-w-0 flex-[0_0_calc(100%-28px)] snap-start flex-col rounded-(--radius-lg) border border-(--border-subtle) bg-(--surface-2) p-3.5"
         data-testid="compare-card"
       >
         <RouterLink
@@ -148,8 +148,9 @@ const EYEBROW = 'pt-3 pb-1 font-(family-name:--font-cond) text-(length:--text-mi
             class="flex items-start justify-between gap-3 border-t border-(--border-subtle) py-1.75 text-(length:--text-sm)"
           >
             <span class="text-muted-foreground">{{ item.row.name }}</span>
-            <span class="flex flex-col items-end gap-0.5 text-right">
-              <span class="font-mono">{{ item.value }}</span>
+            <!-- A long unbroken value, as a 64-character label, wraps within the card. -->
+            <span class="flex min-w-0 flex-col items-end gap-0.5 text-right">
+              <span class="font-mono wrap-anywhere">{{ item.value }}</span>
               <CompareChange
                 v-if="item.change && (group === 'metrics' || item.row.differs)"
                 :row="item.row"
