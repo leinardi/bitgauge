@@ -194,7 +194,9 @@ parameters collapse into a disclosure.
   `<from>..<to>` of local dates as `YYYY-MM-DD`, both inclusive) and `q`. None of them is a name
   of the URL parameters of [url-params.md §2](url-params.md#2-parameters), which apply on any
   route; in particular the label filter is not `label`, which would pre-fill the next result's
-  label.
+  label. A value the screen cannot read (an unknown `range`, a date that is not a local date) is
+  dropped from the query string, and a custom range whose start is after its end is swapped; the
+  correction replaces the history entry and shows no notice.
 - **Trend chart** (uPlot) over the filtered results: small multiples of download and upload (log
   scale) and idle latency (linear). Results whose status is not `complete` are drawn as hollow
   markers, with a legend entry. Axes follow the date filter and the data, with minimum spans; a
