@@ -27,6 +27,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { getInfo, type Info } from '@/api/info'
 import { useInfo } from '@/composables/useInfo'
+import type { EngineEvent } from '@/engine/messages'
 import TestPage from '@/pages/TestPage.vue'
 import { infoFixture } from '@/test/fixtures'
 import { mountApp } from '@/test/mount'
@@ -37,12 +38,25 @@ vi.mock('@/api/info', async (importOriginal) => ({
 }))
 
 class StubWorker extends EventTarget {
+  static started: StubWorker[] = []
+
+  constructor() {
+    super()
+    StubWorker.started.push(this)
+  }
+
   postMessage(): void {}
   terminate(): void {}
+
+  emit(...events: EngineEvent[]): void {
+    events.forEach((event) => this.dispatchEvent(new MessageEvent('message', { data: event })))
+  }
 }
 
 afterEach(() => {
+  StubWorker.started = []
   vi.unstubAllGlobals()
+  window.history.replaceState(null, '', '/')
 })
 
 describe('the Test screen before the server answers', () => {
@@ -60,6 +74,38 @@ describe('the Test screen before the server answers', () => {
     await checked
     await flushPromises()
     expect(page.get('[data-testid="gauge-text"]').text()).toContain('Ready')
+    page.unmount()
+  })
+
+  it('shows an ignored parameter only once the defaults arrive, and keeps its box when a run starts', async () => {
+    // The URL parameters are read once per page load: a fresh module graph at the link.
+    window.history.replaceState(null, '', '/?cap=1MB')
+    vi.resetModules()
+    vi.stubGlobal('Worker', StubWorker)
+    let answer: (info: Info) => void = () => undefined
+    vi.mocked(getInfo).mockReturnValueOnce(new Promise<Info>((resolve) => (answer = resolve)))
+    const fresh = { info: await import('@/composables/useInfo'), mount: await import('@/test/mount'), page: await import('@/pages/TestPage.vue') }
+    const page = await fresh.mount.mountApp(fresh.page.default, '/?cap=1MB')
+    const checked = fresh.info.useInfo().refresh()
+    await flushPromises()
+    // Before GET /info answers no body is rendered from settings it does not have yet (QA-105).
+    expect(page.find('[data-testid="notice"]').exists()).toBe(false)
+    answer(infoFixture())
+    await checked
+    await flushPromises()
+    const box = page.get('[data-testid="notice"]')
+    expect(box.text()).toContain('The data cap stays on none')
+    const body = box.text()
+    await page.get('[data-testid="start-button"]').trigger('click')
+    await flushPromises()
+    // The run started: the same box, until the run's first phase event brings its own notice.
+    expect(page.get('[data-testid="notice"]').element).toBe(box.element)
+    const worker = StubWorker.started.at(-1) as StubWorker
+    worker.emit({ type: 'phase', phase: 'info', state: 'started', notices: [{ code: 'url-parameter-ignored', parameter: 'cap', value: '1MB' }] })
+    await flushPromises()
+    expect(page.findAll('[data-testid="notice"]')).toHaveLength(1)
+    expect(page.get('[data-testid="notice"]').element).toBe(box.element)
+    expect(page.get('[data-testid="notice"]').text()).toBe(body)
     page.unmount()
   })
 })

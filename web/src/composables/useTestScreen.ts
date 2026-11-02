@@ -20,6 +20,7 @@
 import { type ComputedRef, computed, type Ref, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { screenNotices } from '@/components/test/ignored'
 import { type RunView, screenState } from '@/components/test/screen/states'
 import type { useInfo } from '@/composables/useInfo'
 import type { useRun } from '@/composables/useRun'
@@ -64,7 +65,7 @@ export function useTestScreen({ run, info: { info, reachability }, counting, ign
     dismissed.value = new Set([...dismissed.value, parameter])
   }
   const notices = computed<Notice[]>(() =>
-    (state.value === 'idle' ? ignored.value.map(({ parameter, value }): Notice => ({ code: 'url-parameter-ignored', parameter, value })) : run.notices.value).filter(
+    screenNotices({ idle: state.value === 'idle', settled: info.value !== null, ignored: ignored.value, run: run.notices.value }).filter(
       (notice) => notice.code !== 'url-parameter-ignored' || !dismissed.value.has(notice.parameter),
     ),
   )

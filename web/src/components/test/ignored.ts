@@ -18,7 +18,7 @@
  */
 
 import type { ThemeChoice } from '@/composables/useTheme'
-import type { MeasuringPhase, Notice, Preset, TestSettings } from '@/engine/messages'
+import type { IgnoredParameter, MeasuringPhase, Notice, Preset, TestSettings } from '@/engine/messages'
 import { formatBytes } from '@/lib/format'
 import { runLengthShown } from '@/lib/runLength'
 
@@ -142,4 +142,20 @@ function stays({ parameter }: Ignored, context: Wording & IgnoredContext): strin
 /** The notice's body: "streams=12 ignored, allowed 1–6. Streams stay on Auto; the other parameters from the link were applied." */
 export function ignoredBody(notice: Ignored, context: Wording & IgnoredContext): string {
   return context.t('notices.urlParameterIgnored.body', { parameter: notice.parameter, value: notice.value, allowed: allowed(notice, context.settings ?? null, context), stays: stays(notice, context) })
+}
+
+/**
+ * The notices the Test screen lists: before a run, the URL parameters ignored, which a run will
+ * carry, and the run's own notices once it started. Before GET /info answers (`settled` false) no
+ * ignored-parameter notice shows: its body names what the setting stays on, which the server's
+ * defaults settle, so it would change after mount. From a run's start until its first phase event
+ * brings the run's own ignored-parameter notices, the same notices stay, so their boxes are neither
+ * unmounted nor announced again.
+ */
+export function screenNotices({ idle, settled, ignored, run }: { idle: boolean; settled: boolean; ignored: readonly IgnoredParameter[]; run: readonly Notice[] }): Notice[] {
+  const pending = settled ? ignored.map(({ parameter, value }): Notice => ({ code: 'url-parameter-ignored', parameter, value })) : []
+  if (idle) {
+    return pending
+  }
+  return run.some((notice) => notice.code === 'url-parameter-ignored') ? [...run] : [...pending, ...run]
 }

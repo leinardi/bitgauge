@@ -24,7 +24,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { ignoredBody } from '@/components/test/ignored'
+import { ignoredBody, screenNotices } from '@/components/test/ignored'
 import type { Wording } from '@/components/test/wording'
 import type { TestSettings } from '@/engine/messages'
 import { createAppI18n } from '@/i18n'
@@ -64,5 +64,22 @@ describe('the ignored URL parameter notice', () => {
 
   it('falls back to the default before the run has settings', () => {
     expect(body('streams', '12', null)).toBe('streams=12 ignored, allowed 1–6. The setting stays on its default' + TAIL)
+  })
+})
+
+describe('the notices the Test screen lists', () => {
+  const ignored = [{ parameter: 'cap', value: '1MB' }]
+  const notice = { code: 'url-parameter-ignored', parameter: 'cap', value: '1MB' } as const
+  const extended = { code: 'slow-link-extended', direction: 'download' } as const
+
+  it('shows no ignored parameter before GET /info answers, then the ones a run will carry', () => {
+    expect(screenNotices({ idle: true, settled: false, ignored, run: [] })).toEqual([])
+    expect(screenNotices({ idle: true, settled: true, ignored, run: [] })).toEqual([notice])
+  })
+
+  it('keeps the ignored parameters from a run start until the run brings its own', () => {
+    expect(screenNotices({ idle: false, settled: true, ignored, run: [] })).toEqual([notice])
+    expect(screenNotices({ idle: false, settled: true, ignored, run: [extended] })).toEqual([notice, extended])
+    expect(screenNotices({ idle: false, settled: true, ignored, run: [extended, notice] })).toEqual([extended, notice])
   })
 })
