@@ -20,7 +20,7 @@
 import { CircleAlert, CircleMinus, Database, EyeOff, Gauge, Hourglass, Info, Layers, Link, Percent, RefreshCw, ServerOff, Timer, TriangleAlert, Wifi } from '@lucide/vue'
 import type { Component } from 'vue'
 
-import type { Notice, Preset, Result } from '@/engine/messages'
+import type { IdleResult, Notice, Preset, Result } from '@/engine/messages'
 import { formatBytes, formatPercent } from '@/lib/format'
 import { links } from '@/lib/links'
 
@@ -56,7 +56,13 @@ export interface NoticeView {
  * The wording, the result the notices belong to, which the stop notice is worded from, and the
  * settings and theme an ignored URL parameter stays on.
  */
-export type NoticeContext = Wording & IgnoredContext & InsufficientContext & { result?: Result | null }
+export type NoticeContext = Wording &
+  IgnoredContext &
+  InsufficientContext & {
+    result?: Result | null
+    /** The idle latency's path once it finished, before the result carries it. */
+    idlePath?: IdleResult['path'] | null
+  }
 
 function preset(value: Preset, t: Wording['t']): string {
   return value === 'quick' ? t('test.summary.quick') : value === 'standard' ? t('test.summary.standard') : t('test.summary.extended')
@@ -169,7 +175,7 @@ export function noticeView(notice: Notice, context: NoticeContext): NoticeView {
         tone: 'info',
         icon: Info,
         title: t('notices.websocketUnavailable.title'),
-        body: context.result?.idle?.path === 'websocket' ? t('notices.websocketUnavailable.closed') : t('notices.websocketUnavailable.body'),
+        body: (context.result?.idle?.path ?? context.idlePath) === 'websocket' ? t('notices.websocketUnavailable.closed') : t('notices.websocketUnavailable.body'),
         actions: [],
       }
     case 'probe-reservation':

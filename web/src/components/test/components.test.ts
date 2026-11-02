@@ -212,6 +212,19 @@ describe('the notices', () => {
     expect(wrapper.get('[data-testid="notice"]').element).toBe(box)
   })
 
+  it('keeps the WebSocket-unavailable body the same while running and after the result, when the socket closed after idle latency', async () => {
+    // The socket closes mid-direction after idle latency finished over it (QA-99).
+    const notices = [EVERY['websocket-unavailable']]
+    const body = (wrapper: ReturnType<typeof mountWith>) => wrapper.get('[data-testid="notice"]').text()
+    const wrapper = mountWith(NoticeList, { notices, idlePath: 'websocket' })
+    const running = body(wrapper)
+    expect(running).toContain('The WebSocket closed after idle latency')
+    const box = wrapper.get('[data-testid="notice"]').element
+    await wrapper.setProps({ result: resultFixture({ notices }) })
+    expect(body(wrapper)).toBe(running)
+    expect(wrapper.get('[data-testid="notice"]').element).toBe(box)
+  })
+
   it('renders nothing without notices', () => {
     expect(mountWith(NoticeList, { notices: [] }).find('[data-testid="notice"]').exists()).toBe(false)
   })
