@@ -141,8 +141,8 @@
       "body": "The server stopped answering during the test."
     },
     "proxyBufferingSuspected": {
-      "title": "Proxy buffering suspected",
-      "body": "Upload requests finished much later than the server read them, which suggests a proxy buffers request bodies."
+      "title": "Upload buffering suspected",
+      "body": "Upload requests finished much later than the server read them, which suggests a proxy or the browser buffers request bodies."
     },
     "browserUploadLimit": {
       "title": "{browser} may limit the upload",
@@ -178,7 +178,7 @@
     },
     "websocketUnavailable": {
       "title": "WebSocket unavailable — HTTP latency fallback",
-      "body": "The reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests.",
+      "body": "The server or a reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests. Other tabs on this address may be using the server's 4 WebSocket connections.",
       "closed": "The WebSocket closed after idle latency, so latency under load is measured with HTTP requests; the change vs idle compares the two paths."
     },
     "probeReservation": {

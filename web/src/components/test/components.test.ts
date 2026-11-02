@@ -144,6 +144,15 @@ describe('the notices', () => {
     expect(noticeView(EVERY['data-used'], context)).toMatchObject({ title: `Data used: 100${NB}GB`, body: `This run has passed 100${NB}GB. The next notice appears at 1.00${NB}TB.` })
     // The finished result lists each threshold the run passed, naming no next one.
     expect(noticeView(EVERY['data-used'], { ...context, result: resultFixture() }).body).toBe(`This run passed 100${NB}GB.`)
+    // A browser can hold an upload body back as a proxy does, and the server's own limit refuses a
+    // WebSocket as a proxy can, so both notices name either cause.
+    expect(noticeView(EVERY['proxy-buffering-suspected'], context)).toMatchObject({
+      title: 'Upload buffering suspected',
+      body: 'Upload requests finished much later than the server read them, which suggests a proxy or the browser buffers request bodies.',
+    })
+    expect(noticeView(EVERY['websocket-unavailable'], context).body).toBe(
+      "The server or a reverse proxy did not accept a WebSocket, so latency is measured with HTTP requests. Other tabs on this address may be using the server's 4 WebSocket connections.",
+    )
   })
 
   it('shows one test-extended notice naming both directions when both extended, in place of the first', () => {
