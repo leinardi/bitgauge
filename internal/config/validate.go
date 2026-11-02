@@ -242,11 +242,12 @@ func (c *checker) labels(rules []LabelRule) {
 
 // basePath applies the base path shape rule; metrics.path shares it.
 func (c *checker) basePath(key, path string) {
-	const rule = "must start with /, have no trailing / (except / itself), no . or .. segment, " +
-		"no query or fragment, and only A-Z a-z 0-9 - . _ ~ /"
+	const rule = "must start with /, have no trailing / (except / itself), no empty segment " +
+		"(//), no . or .. segment, no query or fragment, and only A-Z a-z 0-9 - . _ ~ /"
 
 	if !strings.HasPrefix(path, baseRoot) ||
-		(path != baseRoot && strings.HasSuffix(path, baseRoot)) {
+		(path != baseRoot && strings.HasSuffix(path, baseRoot)) ||
+		strings.Contains(path, baseRoot+baseRoot) {
 		c.add(key, path, rule)
 
 		return

@@ -103,6 +103,21 @@ func TestRulesOfSection4(t *testing.T) {
 		},
 		// Base path shape.
 		{
+			name:     "base path with a leading empty segment",
+			file:     "server:\n  base_path: //speed\n",
+			wantKeys: []string{"server.base_path"},
+		},
+		{
+			name:     "base path with an inner empty segment",
+			file:     "server:\n  base_path: /a//b\n",
+			wantKeys: []string{"server.base_path"},
+		},
+		{
+			name:     "metrics path with an empty segment",
+			file:     "metrics:\n  path: //metrics\n",
+			wantKeys: []string{"metrics.path"},
+		},
+		{
 			name:     "relative base path",
 			file:     "server:\n  base_path: speed\n",
 			wantKeys: []string{"server.base_path"},
