@@ -115,7 +115,7 @@ symlinks, so each such change is listed for Claude Design.
   `compare.ts:207-215` has no overhead compensation (nor phases, durations, warm-up or ping
   count).
 - **Evidence:** verified in the code and on records with every qualifier.
-- **Status:** Open.
+- **Status:** Fixed in 9453f8a (spec 97708c2).
 
 ## Medium
 
@@ -159,7 +159,7 @@ symlinks, so each such change is listed for Claude Design.
   `:189-195`; the Test screen shares it.
 - **Evidence:** observed on a hand-made record; no real run produced a stopped low-confidence
   direction this round.
-- **Status:** Open.
+- **Status:** Fixed in 706bfa8.
 
 ### QA-57: A stopped run can no longer be kept once its Details have been viewed
 
@@ -171,7 +171,7 @@ symlinks, so each such change is listed for Claude Design.
 - **Cause:** the Test screen's run state does not survive the navigation, and the Result detail
   of an unsaved result has no Keep.
 - **Evidence:** verified in IndexedDB.
-- **Status:** Open. Decided by D-10.
+- **Status:** Fixed in fb52643. Decided by D-10 (spec 97708c2).
 
 ### QA-58: Compare's "not directly comparable" warning cuts off two long labels
 
@@ -220,7 +220,7 @@ symlinks, so each such change is listed for Claude Design.
   [measurement.md §7.3](../../features/measurement.md#73-server-telemetry-per-request) exactly; the
   rule cannot tell a browser that holds the body back from a proxy. A spec gap.
 - **Evidence:** verified on two Download JSONs and the server log; real Safari not available.
-- **Status:** Open. Decided by D-11.
+- **Status:** Fixed in 32ce9c7. Decided by D-11 (spec 97708c2).
 
 ### QA-62: A stop or an error in the download before its first bucket shows the idle-latency chart, marked "Cancelled"
 
@@ -232,7 +232,7 @@ symlinks, so each such change is listed for Claude Design.
 - **Cause:** `web/src/components/test/RunSection.vue:101`: the latency chart shows whenever no
   direction has a live series and latency samples exist, whatever phase was running.
 - **Evidence:** verified for the stop; the error path takes the same branch in the code.
-- **Status:** Open.
+- **Status:** Fixed in bcb44c1.
 
 ### QA-63: The "insufficient data" notice is announced three times as its body changes
 
@@ -245,7 +245,7 @@ symlinks, so each such change is listed for Claude Design.
 - **Cause:** `web/src/components/test/insufficient.ts:51-69` builds the body from the phase
   running now, which is null between phases and after the run.
 - **Evidence:** verified by the recording and the code; no screen reader was run.
-- **Status:** Open.
+- **Status:** Fixed in bb4175f (spec 97708c2).
 
 ### QA-64: Settings shows the stored settings, not the URL parameters in effect
 
@@ -312,21 +312,21 @@ symlinks, so each such change is listed for Claude Design.
 - **Cause:** `web/src/i18n/locales/en/notices.json:182` has one body for every failure to open the
   socket; the browser's WebSocket API does not expose the handshake status.
 - **Evidence:** verified against the screen, `/metrics` and the debug log.
-- **Status:** Open. Decided by D-12.
+- **Status:** Fixed in 32ce9c7. Decided by D-12 (spec 97708c2).
 
 ## Low
 
 | ID | Finding | Location | Status |
 | --- | --- | --- | --- |
-| QA-69 | When both directions extend, the screen-reader summary names "Test extended" twice ("Notices: Test extended, Low confidence, Test extended, and Low confidence"); the screen shows one merged notice. | `web/src/components/a11y/announce.ts:317` lists `result.notices` one by one; the merge is `noticeViews` in `components/test/notices.ts:69` | Open |
-| QA-70 | An upload-only run the cap ended without a number reads "↓ DOWNLOAD —" on the finished gauge; the cancelled branch hard-codes `direction: 'download'` too. | `web/src/components/test/screen/view.ts:205,222-227` | Open |
-| QA-71 | After a stop with nothing measured the screen is back at Ready with every step pending, but the bufferbloat card still reads "Not graded — no loaded latency" and "Not run"; nothing announces the stop. | `web/src/pages/TestPage.vue:107`, `components/test/loadView.ts:130,145,162` | Open. Decided by D-14 |
-| QA-72 | A chart that spans about 0.1 s labels its time axis "0s 0s 0s 0.1s 0.1s 0.1s" (`18101`, `?test=upload`, cap at 60 ms). | the throughput chart's time axis, `web/src/components/chart/` | Open |
-| QA-73 | The demo's `error` result reads "Not graded — no gradable direction"; screens.md §6 gives "test incomplete" when an error ended the run before a direction measured its loaded latency. An unavailable loaded-latency block counts as a loaded latency. | `web/src/components/result/load.ts:153-158` | Open |
-| QA-74 | The screen-reader summary leaves the grade out when the screen shows "Not graded — <reason>" (i18n-a11y.md §2.7). | `web/src/components/a11y/announce.ts:218-222` | Open |
-| QA-75 | `cancelled-late`: the Test screen says "Upload stopped at 14.0 s", the kept result's Test parameters "Upload 13.0 s · stopped by you" (the window end). | `web/src/components/result/parameters.ts:99` | Open |
-| QA-76 | A Continuous run stopped in warm-up shows its step as "done · insufficient data" beside a "Cancelled" gauge and "Test cancelled during download"; the step contradicts the screen. | `web/src/components/test/screen/states.ts:121,131-132,140` | Open |
-| QA-77 | A download stopped before its first byte shows "0 B used" on its tile; screens.md §1 reads "—" until the first byte. | `web/src/components/test/tiles.ts` | Open |
+| QA-69 | When both directions extend, the screen-reader summary names "Test extended" twice ("Notices: Test extended, Low confidence, Test extended, and Low confidence"); the screen shows one merged notice. | `web/src/components/a11y/announce.ts:317` lists `result.notices` one by one; the merge is `noticeViews` in `components/test/notices.ts:69` | Fixed in de4bbb6 |
+| QA-70 | An upload-only run the cap ended without a number reads "↓ DOWNLOAD —" on the finished gauge; the cancelled branch hard-codes `direction: 'download'` too. | `web/src/components/test/screen/view.ts:205,222-227` | Fixed in b2a3feb |
+| QA-71 | After a stop with nothing measured the screen is back at Ready with every step pending, but the bufferbloat card still reads "Not graded — no loaded latency" and "Not run"; nothing announces the stop. | `web/src/pages/TestPage.vue:107`, `components/test/loadView.ts:130,145,162` | Fixed in 6a1a7eb. Decided by D-14 (spec 97708c2) |
+| QA-72 | A chart that spans about 0.1 s labels its time axis "0s 0s 0s 0.1s 0.1s 0.1s" (`18101`, `?test=upload`, cap at 60 ms). | the throughput chart's time axis, `web/src/components/chart/` | Fixed in f98cdc2 |
+| QA-73 | The demo's `error` result reads "Not graded — no gradable direction"; screens.md §6 gives "test incomplete" when an error ended the run before a direction measured its loaded latency. An unavailable loaded-latency block counts as a loaded latency. | `web/src/components/result/load.ts:153-158` | Fixed in bd2b912 |
+| QA-74 | The screen-reader summary leaves the grade out when the screen shows "Not graded — <reason>" (i18n-a11y.md §2.7). | `web/src/components/a11y/announce.ts:218-222` | Fixed in de4bbb6 (spec 97708c2) |
+| QA-75 | `cancelled-late`: the Test screen says "Upload stopped at 14.0 s", the kept result's Test parameters "Upload 13.0 s · stopped by you" (the window end). | `web/src/components/result/parameters.ts:99` | Fixed in b2fede4 |
+| QA-76 | A Continuous run stopped in warm-up shows its step as "done · insufficient data" beside a "Cancelled" gauge and "Test cancelled during download"; the step contradicts the screen. | `web/src/components/test/screen/states.ts:121,131-132,140` | Fixed in 0898ffb |
+| QA-77 | A download stopped before its first byte shows "0 B used" on its tile; screens.md §1 reads "—" until the first byte. | `web/src/components/test/tiles.ts` | Fixed in e6d4e4b |
 | QA-78 | Back to History after Show more starts again at 100 rows, so a row opened from further down is no longer in the list. | `web/src/composables/useHistoryList.ts` | Open |
 | QA-79 | Import accepts an `id` that is not a UUID (`"not-a-uuid"`). | `web/src/engine/result/validate.ts` | Open |
 | QA-80 | A `startedAt` without milliseconds is rejected as "not an ISO 8601 instant", which it is; the rule may stay, the message is wrong. | `web/src/engine/result/validate.ts` | Open |
